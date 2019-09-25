@@ -42,6 +42,7 @@ import io.usethesource.vallang.type.TypeStore;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ICallableCompiledValue;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.RascalExecutionContext;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.FunctionInstance2;
 
 /*
  * This class overrides methods from Prelude that need to be handled differenty in compiled code.
@@ -196,16 +197,14 @@ public class PreludeCompiled extends Prelude {
 	 * A mini class to wrap a lessThan function
 	 */
 	private class Less {
-		private final ICallableCompiledValue less;
+		private final FunctionInstance2<IValue,IValue,IValue> less;
 
-		Less(ICallableCompiledValue less) {
+		Less(FunctionInstance2<IValue,IValue,IValue> less) {
 			this.less = less;
 		}
 
 		public boolean less(IValue x, IValue y) {
-			return ((IBool) less.call(new Type[] { x.getType(), y.getType() },
-					                  new IValue[] { x, y }, 
-					                  null)).getValue();
+			return ((IBool)less.call(x, y)).getValue();
 		}
 	}
 
@@ -271,14 +270,14 @@ public class PreludeCompiled extends Prelude {
 		}
 	}
 
-	public IList sort(IList l, IValue cmpv){
+	public IList sort(IList l, FunctionInstance2<IValue,IValue,IValue> cmpv){
 		IValue[] tmpArr = new IValue[l.length()];
 		for(int i = 0 ; i < l.length() ; i++){
 			tmpArr[i] = l.get(i);
 		}
 
 		// we randomly swap some elements to make worst case complexity unlikely
-		new Sorting(tmpArr, new Less((ICallableCompiledValue) cmpv)).shuffle().sort();
+		new Sorting(tmpArr, new Less(cmpv)).shuffle().sort();
 
 
 		IListWriter writer = values.listWriter();
@@ -286,7 +285,7 @@ public class PreludeCompiled extends Prelude {
 		return writer.done();
 	}
 
-	public IList sort(ISet l, IValue cmpv) {
+	public IList sort(ISet l, FunctionInstance2<IValue,IValue,IValue> cmpv) {
 		IValue[] tmpArr = new IValue[l.size()];
 		int i = 0;
 
@@ -296,7 +295,7 @@ public class PreludeCompiled extends Prelude {
 			tmpArr[i++] = elem;
 		}
 
-		new Sorting(tmpArr, new Less((ICallableCompiledValue) cmpv)).sort();
+		new Sorting(tmpArr, new Less(cmpv)).sort();
 
 		IListWriter writer = values.listWriter();
 		for(IValue v : tmpArr){

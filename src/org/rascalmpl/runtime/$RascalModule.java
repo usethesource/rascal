@@ -55,7 +55,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
   
 	// ---- utility methods ---------------------------------------------------
 
-	public final IMap buildMap(final IValue...values){
+	public final IMap $buildMap(final IValue...values){
 		IMapWriter w = $VF.mapWriter();
 		if(values.length % 2 != 0) throw new InternalCompilerError("$RascalModule: buildMap should have even number of arguments");
 		for(int i = 0; i < values.length; i += 2) {
@@ -70,7 +70,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- add ---------------------------------------------------------------
 
-	public final IValue add(final IValue lhs, final IValue rhs) {
+	public final IValue $add(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
@@ -151,7 +151,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		case LOC:
 			switch (rhsType) {
 			case STR:
-				return aloc_add_astr((ISourceLocation) lhs, (IString) rhs);
+				return $aloc_add_astr((ISourceLocation) lhs, (IString) rhs);
 			default:
 				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
 			}
@@ -188,7 +188,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		case TUPLE:
 			switch (rhsType) {
 			case TUPLE:
-				return atuple_add_atuple((ITuple) lhs, (ITuple) rhs);
+				return $atuple_add_atuple((ITuple) lhs, (ITuple) rhs);
 			default:
 				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
 			}
@@ -204,84 +204,84 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 	
-	public final IInteger aint_add_aint(final IInteger lhs, final IInteger rhs) {
+	public final IInteger $aint_add_aint(final IInteger lhs, final IInteger rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final IReal aint_add_areal(final IInteger lhs, final IReal rhs) {
+	public final IReal $aint_add_areal(final IInteger lhs, final IReal rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber aint_add_arat(final IInteger lhs, final IRational rhs) {
+	public final INumber $aint_add_arat(final IInteger lhs, final IRational rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber aint_add_anum(final IInteger lhs, final INumber rhs) {
+	public final INumber $aint_add_anum(final IInteger lhs, final INumber rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber areal_add_aint(final IReal lhs, final IInteger rhs) {
+	public final INumber $areal_add_aint(final IReal lhs, final IInteger rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber areal_add_areal(final IReal lhs, final IReal rhs) {
+	public final INumber $areal_add_areal(final IReal lhs, final IReal rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber areal_add_areal(final IReal lhs, final IRational rhs) {
+	public final INumber $areal_add_areal(final IReal lhs, final IRational rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber areal_add_anum(final IReal lhs, final INumber rhs) {
+	public final INumber $areal_add_anum(final IReal lhs, final INumber rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber arat_add_aint(final IRational lhs, final IInteger rhs) {
+	public final INumber $arat_add_aint(final IRational lhs, final IInteger rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber arat_add_areal(final IRational lhs, final IReal rhs) {
+	public final INumber $arat_add_areal(final IRational lhs, final IReal rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final IRational arat_add_arat(final IRational lhs, final IRational rhs) {
+	public final IRational $arat_add_arat(final IRational lhs, final IRational rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber arat_add_anum(final IRational lhs, final INumber rhs) {
+	public final INumber $arat_add_anum(final IRational lhs, final INumber rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber anum_add_aint(final INumber lhs, final IInteger rhs) {
+	public final INumber $anum_add_aint(final INumber lhs, final IInteger rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber anum_add_areal(final INumber lhs, final IReal rhs) {
+	public final INumber $anum_add_areal(final INumber lhs, final IReal rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber anum_add_arat(final INumber lhs, final IRational rhs) {
+	public final INumber $anum_add_arat(final INumber lhs, final IRational rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber anum_add_anum(final INumber lhs, final INumber rhs) {
+	public final INumber $anum_add_anum(final INumber lhs, final INumber rhs) {
 		return lhs.add(rhs);
 	}
 	
-	public IString astr_add_astr(final IString lhs, final IString rhs) {
+	public final IString $astr_add_astr(final IString lhs, final IString rhs) {
 		return lhs.concat(rhs);
 	}
 	
-	public final ISourceLocation aloc_add_astr(final ISourceLocation sloc, final IString s) {
+	public final ISourceLocation $aloc_add_astr(final ISourceLocation sloc, final IString s) {
 		String path = sloc.hasPath() ? sloc.getPath() : "";
 		if(!path.endsWith("/")){
 			path = path + "/";
 		}
 		path = path.concat(s.getValue());
-		return aloc_field_update(sloc, "path", $VF.string(path));
+		return $aloc_field_update(sloc, "path", $VF.string(path));
 	}
 	
-	public final ITuple atuple_add_atuple(final ITuple t1, final ITuple t2) {
+	public final ITuple $atuple_add_atuple(final ITuple t1, final ITuple t2) {
 		int len1 = t1.arity();
 		int len2 = t2.arity();
 		IValue elems[] = new IValue[len1 + len2];
@@ -292,37 +292,37 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return $VF.tuple(elems);
 	}
 	
-	public final IList alist_add_alist(final IList lhs, final IList rhs) {
+	public final IList $alist_add_alist(final IList lhs, final IList rhs) {
 		return lhs.concat(rhs);
 	}
 	
-	public final IList alist_add_elm(final IList lhs, final IValue rhs) {
+	public final IList $alist_add_elm(final IList lhs, final IValue rhs) {
 		return lhs.append(rhs);
 	}
 	
-	public final IList elm_add_alist(final IValue lhs, final IList rhs) {
+	public final IList $elm_add_alist(final IValue lhs, final IList rhs) {
 		return rhs.insert(lhs);
 	}
 	
-	public final ISet aset_add_aset(final ISet lhs, final ISet rhs) {
+	public final ISet $aset_add_aset(final ISet lhs, final ISet rhs) {
 		return lhs.union(rhs);
 	}
 	
-	public final ISet aset_add_elm(final ISet lhs, final IValue rhs) {
+	public final ISet $aset_add_elm(final ISet lhs, final IValue rhs) {
 		return lhs.insert(rhs);
 	}
 	
-	public final ISet elm_add_aset(final IValue lhs, final ISet rhs) {
+	public final ISet $elm_add_aset(final IValue lhs, final ISet rhs) {
 		return rhs.insert(lhs);
 	}
 	
-	public final IMap amap_add_amap(final IMap lhs, final IMap rhs) {
+	public final IMap $amap_add_amap(final IMap lhs, final IMap rhs) {
 		return lhs.compose(rhs);
 	}
 
 	// ---- annotation_get ----------------------------------------------------
 
-	public final IValue  annotation_get(final IValue val, final String label) {
+	public final IValue  $annotation_get(final IValue val, final String label) {
 		try {
 			IValue result = val.asAnnotatable().getAnnotation(label);
 
@@ -335,7 +335,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final GuardedIValue guarded_annotation_get(final IValue val, final String label) {
+	public final GuardedIValue $guarded_annotation_get(final IValue val, final String label) {
 		try {
 			IValue result = val.asAnnotatable().getAnnotation(label);
 
@@ -350,13 +350,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- assert_fails ------------------------------------------------------
 
-	public final void assert_fails(final IString message) {
+	public final void $assert_fails(final IString message) {
 		throw RascalExceptionFactory.assertionFailed(message);
 	}
 
 	// ---- create ------------------------------------------------------------
 
-	public final ISourceLocation create_aloc(final IString uri) {
+	public final ISourceLocation $create_aloc(final IString uri) {
 		try {
 			return URIUtil.createFromURI(uri.getValue());
 		} 
@@ -370,11 +370,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-
 	/**
 	 * Create a loc with given offsets and length
 	 */
-	public final ISourceLocation create_aloc_with_offset(final ISourceLocation loc, final IInteger offset, final IInteger length, final ITuple begin, final ITuple end) {
+	public final ISourceLocation $create_aloc_with_offset(final ISourceLocation loc, final IInteger offset, final IInteger length, final ITuple begin, final ITuple end) {
 		int beginLine = ((IInteger) begin.get(0)).intValue();
 		int beginCol = ((IInteger) begin.get(1)).intValue();
 
@@ -385,59 +384,59 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- divide ------------------------------------------------------------
 
-	public final IValue divide(final IValue lhs, final IValue rhs) {
+	public final IValue $divide(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
 		case INT:
 			switch (rhsType) {
 			case INT:
-				return aint_divide_aint((IInteger) lhs, (IInteger) rhs);
+				return $aint_divide_aint((IInteger) lhs, (IInteger) rhs);
 			case NUM:
-				return aint_divide_anum((IInteger) lhs, (INumber) rhs);
+				return $aint_divide_anum((IInteger) lhs, (INumber) rhs);
 			case REAL:
-				return aint_divide_areal((IInteger) lhs, (IReal) rhs);
+				return $aint_divide_areal((IInteger) lhs, (IReal) rhs);
 			case RAT:
-				return aint_divide_arat((IInteger) lhs, (IRational) rhs);
+				return $aint_divide_arat((IInteger) lhs, (IRational) rhs);
 			default:
 				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
 			}
 		case NUM:
 			switch (rhsType) {
 			case INT:
-				return anum_divide_aint((INumber) lhs, (IInteger) rhs);
+				return $anum_divide_aint((INumber) lhs, (IInteger) rhs);
 			case NUM:
-				return anum_divide_anum((INumber) lhs, (INumber) rhs);
+				return $anum_divide_anum((INumber) lhs, (INumber) rhs);
 			case REAL:
-				return anum_divide_areal((INumber) lhs, (IReal) rhs);
+				return $anum_divide_areal((INumber) lhs, (IReal) rhs);
 			case RAT:
-				return anum_divide_arat((INumber) lhs,  (IRational) rhs);
+				return $anum_divide_arat((INumber) lhs,  (IRational) rhs);
 			default:
 				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
 			}
 		case REAL:
 			switch (rhsType) {
 			case INT:
-				return areal_divide_aint((IReal) lhs, (IInteger) rhs);
+				return $areal_divide_aint((IReal) lhs, (IInteger) rhs);
 			case NUM:
-				return areal_divide_anum((IReal) lhs, (INumber) rhs);
+				return $areal_divide_anum((IReal) lhs, (INumber) rhs);
 			case REAL:
-				return areal_divide_areal((IReal) lhs, (IReal) rhs);
+				return $areal_divide_areal((IReal) lhs, (IReal) rhs);
 			case RAT:
-				return areal_divide_arat((IReal) lhs, (IRational) rhs);
+				return $areal_divide_arat((IReal) lhs, (IRational) rhs);
 			default:
 				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
 			}
 		case RAT:
 			switch (rhsType) {
 			case INT:
-				return arat_divide_aint((IRational) lhs, (IInteger) rhs);
+				return $arat_divide_aint((IRational) lhs, (IInteger) rhs);
 			case NUM:
-				return arat_divide_anum((IRational) lhs, (INumber) rhs);
+				return $arat_divide_anum((IRational) lhs, (INumber) rhs);
 			case REAL:
-				return arat_divide_areal((IRational) lhs, (IReal) rhs);
+				return $arat_divide_areal((IRational) lhs, (IReal) rhs);
 			case RAT:
-				return arat_divide_arat((IRational) lhs, (IRational) rhs);
+				return $arat_divide_arat((IRational) lhs, (IRational) rhs);
 			default:
 				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
 			}
@@ -446,7 +445,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IInteger aint_divide_aint(final IInteger a, final IInteger b) {
+	public final IInteger $aint_divide_aint(final IInteger a, final IInteger b) {
 		try {
 			return a.divide(b);
 		} catch(ArithmeticException e) {
@@ -454,7 +453,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final INumber aint_divide_areal(final IInteger a, final IReal b) {
+	public final INumber $aint_divide_areal(final IInteger a, final IReal b) {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b,  $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -462,7 +461,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IRational aint_divide_arat(final IInteger a, final IRational b) {
+	public final IRational $aint_divide_arat(final IInteger a, final IRational b) {
 		try {
 			return a.toRational().divide(b);
 		} catch(ArithmeticException e) {
@@ -470,7 +469,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final INumber aint_divide_anum(final IInteger a, final INumber b) {
+	public final INumber $aint_divide_anum(final IInteger a, final INumber b) {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -478,7 +477,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IReal areal_divide_aint(final IReal a, final IInteger b) {
+	public final IReal $areal_divide_aint(final IReal a, final IInteger b) {
 		try {
 			return (IReal) a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -486,7 +485,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IReal areal_divide_areal(final IReal a, final IReal b) {
+	public final IReal $areal_divide_areal(final IReal a, final IReal b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -494,7 +493,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IReal areal_divide_arat(IReal a, IRational b) {
+	public final IReal $areal_divide_arat(IReal a, IRational b) {
 		try {
 			return (IReal) a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -502,7 +501,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final INumber areal_divide_anum(final IReal a, final INumber b) {
+	public final INumber $areal_divide_anum(final IReal a, final INumber b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -510,7 +509,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IRational arat_divide_aint(final IRational a, final IInteger b) {
+	public final IRational $arat_divide_aint(final IRational a, final IInteger b) {
 		try {
 			return a.divide(b);
 		} catch(ArithmeticException e) {
@@ -518,7 +517,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IReal arat_divide_areal(final IRational a, final IReal b) {
+	public final IReal $arat_divide_areal(final IRational a, final IReal b) {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b,  $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -526,7 +525,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IRational arat_divide_arat(final IRational a, final IRational b) {
+	public final IRational $arat_divide_arat(final IRational a, final IRational b) {
 		try {
 			return a.toRational().divide(b);
 		} catch(ArithmeticException e) {
@@ -534,7 +533,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final INumber arat_divide_anum(final IRational a, final INumber b) {
+	public final INumber $arat_divide_anum(final IRational a, final INumber b) {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -542,7 +541,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final INumber anum_divide_aint(final INumber a, final IInteger b) {
+	public final INumber $anum_divide_aint(final INumber a, final IInteger b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -550,14 +549,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final INumber anum_divide_areal(final INumber a, final IReal b) {
+	public final INumber $anum_divide_areal(final INumber a, final IReal b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RascalExceptionFactory.arithmeticException("divide by zero");
 		}
 	}
-	public final INumber anum_divide_arat(final INumber a, final IRational b) {
+	public final INumber $anum_divide_arat(final INumber a, final IRational b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -565,7 +564,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final INumber anum_divide_anum(final INumber a, final INumber b) {
+	public final INumber $anum_divide_anum(final INumber a, final INumber b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -575,7 +574,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- equal -------------------------------------------------------------
 
-	public final IBool equal(final IValue left, final IValue right) {
+	public final IBool $equal(final IValue left, final IValue right) {
 		if(left.getType().isNumber() && right.getType().isNumber()){
 			return ((INumber) left).equal((INumber) right);
 		} else if(left.getType().isNode() && right.getType().isNode()){
@@ -587,7 +586,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- get_field ---------------------------------------------------------
 
-	public final IValue anode_get_field(final INode nd, final String fieldName) {
+	public final IValue $anode_get_field(final INode nd, final String fieldName) {
 		if (nd.mayHaveKeywordParameters()){
 			IValue res = nd.asWithKeywordParameters().getParameter(fieldName);
 			if(res != null) {
@@ -615,11 +614,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		throw RascalExceptionFactory.noSuchField(fieldName);
 	}
 	
-	public final IValue aloc_get_field(final IValue sloc, final IValue field) {
-		return aloc_get_field((ISourceLocation) sloc, ((IString) field).getValue());
-	}
+//	public final IValue $aloc_get_field(final IValue sloc, final IValue field) {
+//		return $aloc_get_field((ISourceLocation) sloc, ((IString) field).getValue());
+//	}
 
-	public final IValue aloc_get_field(final ISourceLocation sloc, final String field) {
+	public final IValue $aloc_get_field(final ISourceLocation sloc, final String field) {
 		IValue v;
 		switch (field) {
 
@@ -660,7 +659,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 						path += "/";
 					}
 				}
-				v = aloc_field_update(sloc, "path", $VF.string(path));
+				v = $aloc_field_update(sloc, "path", $VF.string(path));
 			} else {
 				throw RascalExceptionFactory.noParent(sloc);
 			}
@@ -791,16 +790,16 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return v;
 	}
 
-	public final GuardedIValue guarded_aloc_get_field(final ISourceLocation sloc, final String field) {
+	public final GuardedIValue $guarded_aloc_get_field(final ISourceLocation sloc, final String field) {
 		try {
-			IValue result = aloc_get_field(sloc, field);
+			IValue result = $aloc_get_field(sloc, field);
 			return new GuardedIValue(result);
 		} catch (RascalException e) {
 			return UNDEFINED;
 		}
 	}
 
-	public final IValue adatetime_get_field(final IDateTime dt, final String field) {
+	public final IValue $adatetime_get_field(final IDateTime dt, final String field) {
 		IValue v;
 		try {
 			switch (field) {
@@ -899,23 +898,23 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 	
-	public final GuardedIValue guarded_datetime_get_field(final IDateTime dt, final String field) {
+	public final GuardedIValue $guarded_datetime_get_field(final IDateTime dt, final String field) {
 		try {
-			IValue result = adatetime_get_field(dt, field);
+			IValue result = $adatetime_get_field(dt, field);
 			return new GuardedIValue(result);
 		} catch (RascalException e) {
 			return UNDEFINED;
 		}
 	}
 	
-	public final IValue areified_get_field(final IConstructor rt, final String field) {
+	public final IValue $areified_get_field(final IConstructor rt, final String field) {
 		return rt.get(field);
 	}
 
 	// ---- field_project -----------------------------------------------------
 
 	@SuppressWarnings("deprecation")
-	public final IValue atuple_field_project(final ITuple tup, final IValue... fields) {
+	public final IValue $atuple_field_project(final ITuple tup, final IValue... fields) {
 		int n = fields.length;
 		IValue [] newFields = new IValue[n];
 		for(int i = 0; i < n; i++){
@@ -929,13 +928,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final GuardedIValue guarded_atuple_field_project(final ITuple tup, final IValue... fields) {
 		try {
-			return new GuardedIValue(atuple_field_project(tup, fields));
+			return new GuardedIValue($atuple_field_project(tup, fields));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
 	}
 
-	public final ISet amap_field_project (final IMap map, final IValue... fields) {
+	public final ISet $amap_field_project (final IMap map, final IValue... fields) {
 		ISetWriter w = $VF.setWriter();
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
@@ -954,15 +953,15 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 	
-	public final GuardedIValue guarded_amap_field_project(final IMap map, final IValue... fields) {
+	public final GuardedIValue $guarded_amap_field_project(final IMap map, final IValue... fields) {
 		try {
-			return new GuardedIValue(amap_field_project(map, fields));
+			return new GuardedIValue($amap_field_project(map, fields));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
 	}
 
-	public final ISet arel_field_project(final ISet set, final IValue... fields) {
+	public final ISet $arel_field_project(final ISet set, final IValue... fields) {
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
 		for(int i = 0; i < indexArity; i++){
@@ -971,15 +970,15 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return set.asRelation().project(intFields);
 	}
 	
-	public final GuardedIValue guarded_arel_field_project(final ISet set, final IValue... fields) {
+	public final GuardedIValue $guarded_arel_field_project(final ISet set, final IValue... fields) {
 		try {
-			return new GuardedIValue(arel_field_project(set, fields));
+			return new GuardedIValue($arel_field_project(set, fields));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
 	}
 
-	public final IList alrel_field_project(final IList lrel, final IValue... fields) {
+	public final IList $alrel_field_project(final IList lrel, final IValue... fields) {
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
 		for(int i = 0; i < indexArity; i++){
@@ -997,9 +996,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 	
-	public final GuardedIValue guarded_alrel_field_project(final IList lrel, final IValue... fields) {
+	public final GuardedIValue $guarded_alrel_field_project(final IList lrel, final IValue... fields) {
 		try {
-			return new GuardedIValue(alrel_field_project(lrel, fields));
+			return new GuardedIValue($alrel_field_project(lrel, fields));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
@@ -1007,7 +1006,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- field_update ------------------------------------------------------
 
-	public ISourceLocation aloc_field_update(final ISourceLocation sloc, final String field, final IValue repl) {		
+	public final ISourceLocation $aloc_field_update(final ISourceLocation sloc, final String field, final IValue repl) {		
 		Type replType = repl.getType();
 
 		int iLength = sloc.hasOffsetLength() ? sloc.getLength() : -1;
@@ -1270,7 +1269,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IDateTime adatetime_field_update(final IDateTime dt, final String field, final IValue repl) {
+	public final IDateTime $adatetime_field_update(final IDateTime dt, final String field, final IValue repl) {
 		// Individual fields
 		int year = dt.getYear();
 		int month = dt.getMonthOfYear();
@@ -1375,7 +1374,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * Runtime check whether a node has a named field
 	 * 
 	 */
-	public final boolean anode_has_field(final INode nd, final String fieldName) {
+	public final boolean $anode_has_field(final INode nd, final String fieldName) {
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 			return true;
 		} else {
@@ -1391,7 +1390,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * Runtime check whether given constructor has a named field (positional or keyword).
 	*/
 
-	public final boolean aadt_has_field(final IConstructor cons, final String fieldName) {
+	public final boolean $aadt_has_field(final IConstructor cons, final String fieldName) {
 
 		Type consType = cons.getConstructorType();
 
@@ -1436,7 +1435,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- intersect ---------------------------------------------------------
 
-	public final IValue intersect(final IValue left, final IValue right) {
+	public final IValue $intersect(final IValue left, final IValue right) {
 		Type leftType = left.getType();
 		Type rightType = right.getType();
 
@@ -1467,7 +1466,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	// ---- is -----------------------------------------------------------------
 	
-	public final boolean is(final IValue val, final IString sname) {
+	public final boolean $is(final IValue val, final IString sname) {
 		Type tp = val.getType();
 		String name = sname.getValue();
 		if(tp.isAbstractData()){
@@ -1501,17 +1500,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	private final GuardedIValue UNDEFINED = new GuardedIValue();
 
-	public final boolean is_defined_value(final GuardedIValue val) {
+	public final boolean $is_defined_value(final GuardedIValue val) {
 		return val.defined;
 	}
 
-	public final IValue get_defined_value(final GuardedIValue val) {
+	public final IValue $get_defined_value(final GuardedIValue val) {
 		return val.value;
 	}
 
 	// ---- join --------------------------------------------------------------
 
-	public final IList alist_join_alrel(final IList left, final IList right){
+	public final IList $alist_join_alrel(final IList left, final IList right){
 		if(left.length() == 0){
 			return left;
 		}
@@ -1537,7 +1536,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 
-	public final IList alrel_join_alrel(final IList left, final IList right){
+	public final IList $alrel_join_alrel(final IList left, final IList right){
 		if(left.length() == 0){
 			return left;
 		}
@@ -1568,7 +1567,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 
-	public final IList alrel_join_alist(final IList left, final IList right){
+	public final IList $alrel_join_alist(final IList left, final IList right){
 		if(left.length() == 0){
 			return left;
 		}
@@ -1594,7 +1593,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 
-	public final ISet aset_join_arel(final ISet left, final ISet right){
+	public final ISet $aset_join_arel(final ISet left, final ISet right){
 		if(left.size() == 0){
 			return left;
 		}
@@ -1620,7 +1619,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 
-	public final ISet arel_join_arel(final ISet left, final ISet right){
+	public final ISet $arel_join_arel(final ISet left, final ISet right){
 		if(left.size() == 0){
 			return left;
 		}
@@ -1651,7 +1650,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 
-	public final ISet arel_join_aset(final ISet left, final ISet right){
+	public final ISet $arel_join_aset(final ISet left, final ISet right){
 
 		if(left.size() == 0){
 			return left;
@@ -1680,7 +1679,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- less --------------------------------------------------------------
 
-	public final IBool less(final IValue left, final IValue right){
+	public final IBool $less(final IValue left, final IValue right){
 
 		Type leftType = left.getType();
 		Type rightType = right.getType();
@@ -1697,115 +1696,109 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
 		// TODO: check type of right
 		case BOOL:
-			return abool_less_abool((IBool)left, (IBool)right);
+			return $abool_less_abool((IBool)left, (IBool)right);
 		case STR:
-			return astr_less_astr((IString)left, (IString)right);
+			return $astr_less_astr((IString)left, (IString)right);
 		case DATETIME:
-			return adatetime_less_adatetime((IDateTime)left, (IDateTime)right);
+			return $adatetime_less_adatetime((IDateTime)left, (IDateTime)right);
 		case LOC:
-			return aloc_less_aloc((ISourceLocation)left, (ISourceLocation)right);
+			return $aloc_less_aloc((ISourceLocation)left, (ISourceLocation)right);
 		case LIST:
 		case LREL:
-			return alist_less_alist((IList)left, (IList)right);
+			return $alist_less_alist((IList)left, (IList)right);
 		case SET:
 		case REL:
-			return aset_less_aset((ISet)left, (ISet)right);
+			return $aset_less_aset((ISet)left, (ISet)right);
 		case MAP:
-			return amap_less_amap((IMap)left, (IMap)right);
+			return $amap_less_amap((IMap)left, (IMap)right);
 		case CONSTRUCTOR:
 		case NODE:
-			return anode_less_anode((INode)left, (INode)right);
+			return $anode_less_anode((INode)left, (INode)right);
 		case ADT:
 			//return aadt_less_aadt((IAbstractDataType)left, right);
 		case TUPLE:
-			return atuple_less_atuple((ITuple)left, (ITuple)right);
+			return $atuple_less_atuple((ITuple)left, (ITuple)right);
 		default:
 			throw new InternalCompilerError("less: unexpected type " + leftType);
 		}
 	}
 	
-	
-	
-	
-	public final IBool aint_less_aint(final IInteger a, final IInteger b) {
+	public final IBool $aint_less_aint(final IInteger a, final IInteger b) {
 		return a.less(b);
 	}
 
-	public final IBool aint_less_areal(final IInteger a, final IReal b) {
+	public final IBool $aint_less_areal(final IInteger a, final IReal b) {
 		return a.less(b);
 	}
 
-	public final IBool aint_less_arat(final IInteger a, final IRational b) {
+	public final IBool $aint_less_arat(final IInteger a, final IRational b) {
 		return a.toRational().less(b);
 	}
 
-	public final IBool aint_less_anum(final IInteger a, final INumber b) {
+	public final IBool $aint_less_anum(final IInteger a, final INumber b) {
 		return a.less(b);
 	}
 
-	public final IBool areal_less_aint(final IReal a, final IInteger b) {
+	public final IBool $areal_less_aint(final IReal a, final IInteger b) {
 		return a.less(b);
 	}
 
-	public final IBool areal_less_areal(final IReal a, final IReal b) {
+	public final IBool $areal_less_areal(final IReal a, final IReal b) {
 		return a.less(b);
 	}
 
-	public final IBool areal_less_arat(IReal a, IRational b) {
+	public final IBool $areal_less_arat(IReal a, IRational b) {
 		return a.less(b);
 	}
 
-	public final IBool areal_less_anum(final IReal a, final INumber b) {
+	public final IBool $areal_less_anum(final IReal a, final INumber b) {
 		return a.less(b);
 	}
 
-	public final IBool arat_less_aint(final IRational a, final IInteger b) {
+	public final IBool $arat_less_aint(final IRational a, final IInteger b) {
 		return a.less(b);
 	}
 
-	public final IBool arat_less_areal(final IRational a, final IReal b) {
+	public final IBool $arat_less_areal(final IRational a, final IReal b) {
 		return a.less(b);
 	}
 
-	public final IBool arat_less_arat(final IRational a, final IRational b) {
+	public final IBool $arat_less_arat(final IRational a, final IRational b) {
 		return a.toRational().less(b);
 	}
 
-	public final IBool arat_less_anum(final IRational a, final INumber b) {
+	public final IBool $arat_less_anum(final IRational a, final INumber b) {
 		return a.less(b);
 	}
 
-	public final IBool anum_less_aint(final INumber a, final IInteger b) {
+	public final IBool $anum_less_aint(final INumber a, final IInteger b) {
 		return a.less(b);
 	}
 
-	public final IBool anum_less_areal(final INumber a, final IReal b) {
+	public final IBool $anum_less_areal(final INumber a, final IReal b) {
 		return a.less(b);
 	}
-	public final IBool anum_less_arat(final INumber a, final IRational b) {
+	public final IBool $anum_less_arat(final INumber a, final IRational b) {
 		return a.less(b);
 	}
 
-	public final IBool anum_less_anum(final INumber a, final INumber b) {
+	public final IBool $anum_less_anum(final INumber a, final INumber b) {
 		return a.less(b);
 	}
-	
-	
-	
 
-	public final IBool abool_less_abool(final IBool left, final IBool right) {
+	public final IBool $abool_less_abool(final IBool left, final IBool right) {
 		return  $VF.bool(!left.getValue() && right.getValue());
 	}
 
-	public final IBool astr_less_astr(final IString left, final IString right) {
+	public final IBool $astr_less_astr(final IString left, final IString right) {
 		return $VF.bool(left.compare(right) == -1);
 	}
 
-	public final IBool adatetime_less_adatetime(final IDateTime left, final IDateTime right) {
+	public final IBool $adatetime_less_adatetime(final IDateTime left, final IDateTime right) {
 		return $VF.bool(left.compareTo(right) == -1);
 	}
 
-	public final IBool aloc_less_aloc(final ISourceLocation left, final ISourceLocation right) {
+	public final IBool $aloc_less_aloc(final ISourceLocation left, final ISourceLocation right) {
 		int compare = SourceLocationURICompare.compare(left, right);
 		if (compare < 0) {
 			return Rascal_TRUE;
@@ -1842,16 +1835,16 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return Rascal_FALSE;
 	}
 
-	public final IBool atuple_less_atuple(final ITuple left, final ITuple right) {
+	public final IBool $atuple_less_atuple(final ITuple left, final ITuple right) {
 		int leftArity = left.arity();
 		int rightArity = right.arity();
 
 		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
 			Object result;
 			if(leftArity < rightArity || i < leftArity - 1)
-				result = equal(left.get(i), right.get(i));
+				result = $equal(left.get(i), right.get(i));
 			else
-				result = less(left.get(i), right.get(i));
+				result = $less(left.get(i), right.get(i));
 
 			if(!((IBool)result).getValue()){
 				return Rascal_FALSE;
@@ -1861,7 +1854,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return $VF.bool(leftArity <= rightArity);
 	}
 
-	public final IBool anode_less_anode(final INode left, final INode right) {
+	public final IBool $anode_less_anode(final INode left, final INode right) {
 		int compare = left.getName().compareTo(right.getName());
 
 		if (compare <= -1) {
@@ -1881,9 +1874,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
 
 			if(leftArity < rightArity || i < leftArity - 1)
-				result = lessequal(left.get(i), right.get(i));
+				result = $lessequal(left.get(i), right.get(i));
 			else
-				result = less(left.get(i), right.get(i));
+				result = $less(left.get(i), right.get(i));
 
 			if(!((IBool)result).getValue()){
 				return Rascal_FALSE;
@@ -1922,7 +1915,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			}
 			//assert paramsLeft.keySet().equals(paramsRight.keySet());
 			for (String k: paramsLeft.keySet()) {
-				result = less(paramsLeft.get(k), paramsRight.get(k));
+				result = $less(paramsLeft.get(k), paramsRight.get(k));
 
 				if(!((IBool)result).getValue()){
 					return Rascal_FALSE;
@@ -1933,7 +1926,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return $VF.bool((leftArity < rightArity) || ((IBool)result).getValue());
 	}
 
-	public final IBool alist_less_alist(final IList left, final IList right) {
+	public final IBool $alist_less_alist(final IList left, final IList right) {
 		if(left.length() > right.length()){
 			return Rascal_FALSE;
 		}
@@ -1949,17 +1942,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return $VF.bool(left.length() != right.length());
 	}
 
-	public final IBool aset_less_aset(final ISet left, final ISet right) {
+	public final IBool $aset_less_aset(final ISet left, final ISet right) {
 		return $VF.bool(!left.isEqual(right) && left.isSubsetOf(right));
 	}
 
-	public final IBool amap_less_amap(final IMap left, final IMap right) {
+	public final IBool $amap_less_amap(final IMap left, final IMap right) {
 		return $VF.bool(left.isSubMap(right) && !right.isSubMap(left));
 	}
 
 	// ---- lessequal ---------------------------------------------------------
 
-	public final IBool lessequal(final IValue left, final IValue right){
+	public final IBool $lessequal(final IValue left, final IValue right){
 
 		Type leftType = left.getType();
 		Type rightType = right.getType();
@@ -1976,117 +1969,113 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
 		// TODO: check type of right
 		case BOOL:
-			return abool_lessequal_abool((IBool)left, (IBool)right);
+			return $abool_lessequal_abool((IBool)left, (IBool)right);
 		case STR:
-			return astr_lessequal_astr((IString)left, (IString)right);
+			return $astr_lessequal_astr((IString)left, (IString)right);
 		case DATETIME:
-			return adatetime_lessequal_adatetime((IDateTime)left, (IDateTime)right);
+			return $adatetime_lessequal_adatetime((IDateTime)left, (IDateTime)right);
 		case LOC:
-			return aloc_lessequal_aloc((ISourceLocation)left, (ISourceLocation)right);
+			return $aloc_lessequal_aloc((ISourceLocation)left, (ISourceLocation)right);
 		case LIST:
 		case LREL:
-			return alist_lessequal_alist((IList)left, (IList)right);
+			return $alist_lessequal_alist((IList)left, (IList)right);
 		case SET:
 		case REL:
-			return aset_lessequal_aset((ISet)left, (ISet)right);
+			return $aset_lessequal_aset((ISet)left, (ISet)right);
 		case MAP:
-			return amap_lessequal_amap((IMap)left, (IMap)right);
+			return $amap_lessequal_amap((IMap)left, (IMap)right);
 		case CONSTRUCTOR:
 		case NODE:
-			return anode_lessequal_anode((INode)left, (INode)right);
+			return $anode_lessequal_anode((INode)left, (INode)right);
 		case ADT:
 			//return aadt_lessequal_aadt((IAbstractDataType)left, right);
 		case TUPLE:
-			return atuple_lessequal_atuple((ITuple)left, (ITuple)right);
+			return $atuple_lessequal_atuple((ITuple)left, (ITuple)right);
 		default:
 			throw new InternalCompilerError("less: unexpected type " + leftType);
 		}
 	}
 	
-	public final IBool aint_lessequal_aint(final IInteger a, final IInteger b) {
+	public final IBool $aint_lessequal_aint(final IInteger a, final IInteger b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool aint_lessequal_areal(final IInteger a, final IReal b) {
+	public final IBool $aint_lessequal_areal(final IInteger a, final IReal b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool aint_lessequal_arat(final IInteger a, final IRational b) {
+	public final IBool $aint_lessequal_arat(final IInteger a, final IRational b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool aint_lessequal_anum(final IInteger a, final INumber b) {
+	public final IBool $aint_lessequal_anum(final IInteger a, final INumber b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool areal_lessequal_aint(final IReal a, final IInteger b) {
+	public final IBool $areal_lessequal_aint(final IReal a, final IInteger b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool areal_lessequal_areal(final IReal a, final IReal b) {
+	public final IBool $areal_lessequal_areal(final IReal a, final IReal b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool areal_lessequal_arat(IReal a, IRational b) {
+	public final IBool $areal_lessequal_arat(IReal a, IRational b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool areal_lessequal_anum(final IReal a, final INumber b) {
+	public final IBool $areal_lessequal_anum(final IReal a, final INumber b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool arat_lessequal_aint(final IRational a, final IInteger b) {
+	public final IBool $arat_lessequal_aint(final IRational a, final IInteger b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool arat_lessequal_areal(final IRational a, final IReal b) {
+	public final IBool $arat_lessequal_areal(final IRational a, final IReal b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool arat_lessequal_arat(final IRational a, final IRational b) {
+	public final IBool $arat_lessequal_arat(final IRational a, final IRational b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool arat_lessequal_anum(final IRational a, final INumber b) {
+	public final IBool $arat_lessequal_anum(final IRational a, final INumber b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool anum_lessequal_aint(final INumber a, final IInteger b) {
+	public final IBool $anum_lessequal_aint(final INumber a, final IInteger b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool anum_lessequal_areal(final INumber a, final IReal b) {
+	public final IBool $anum_lessequal_areal(final INumber a, final IReal b) {
 		return a.lessEqual(b);
 	}
-	public final IBool anum_lessequal_arat(final INumber a, final IRational b) {
+	public final IBool $anum_lessequal_arat(final INumber a, final IRational b) {
 		return a.lessEqual(b);
 	}
 
-	public final IBool anum_lessequal_anum(final INumber a, final INumber b) {
+	public final IBool $anum_lessequal_anum(final INumber a, final INumber b) {
 		return a.lessEqual(b);
 	}
-	
-	
-	
 
-	public final IBool abool_lessequal_abool(final IBool left, final IBool right) {
+	public final IBool $abool_lessequal_abool(final IBool left, final IBool right) {
 		boolean l = left.getValue();
 		boolean r = right.getValue();
 		return $VF.bool((!l && r) || (l == r));
 	}
 
-	public final IBool astr_lessequal_astr(final IString left, final IString right) {
+	public final IBool $astr_lessequal_astr(final IString left, final IString right) {
 		int c = right.compare(left);
 		return $VF.bool(c == -1 || c == 0);
 	}
 
-	public final IBool adatetime_lessequal_adatetime(final IDateTime left, final IDateTime right) {
+	public final IBool $adatetime_lessequal_adatetime(final IDateTime left, final IDateTime right) {
 		int c = left.compareTo(right);
 		return $VF.bool(c== -1 || c == 0);
 	}
 
-
-	public final IBool aloc_lessequal_aloc(final ISourceLocation left, final ISourceLocation right) {
+	public final IBool $aloc_lessequal_aloc(final ISourceLocation left, final ISourceLocation right) {
 		int compare = SourceLocationURICompare.compare(left, right);
 		if (compare < 0) {
 			return Rascal_TRUE;
@@ -2123,7 +2112,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return Rascal_FALSE;
 	}
 
-	public final IBool anode_lessequal_anode(final INode left, final INode right) {
+	public final IBool $anode_lessequal_anode(final INode left, final INode right) {
 		int compare = left.getName().compareTo(right.getName());
 
 		if (compare <= -1) {
@@ -2140,19 +2129,19 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		int rightArity = right.arity();
 
 		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {
-			if(!lessequal(left.get(i), right.get(i)).getValue()){
+			if(!$lessequal(left.get(i), right.get(i)).getValue()){
 				return Rascal_FALSE;
 			}
 		}
 		return $VF.bool(leftArity <= rightArity);
 	}
 
-	public final IBool atuple_lessequal_atuple(final ITuple left, final ITuple right) {
+	public final IBool $atuple_lessequal_atuple(final ITuple left, final ITuple right) {
 		int leftArity = left.arity();
 		int rightArity = right.arity();
 
 		for (int i = 0; i < Math.min(leftArity, rightArity); i++) {			
-			if(!lessequal(left.get(i), right.get(i)).getValue()){
+			if(!$lessequal(left.get(i), right.get(i)).getValue()){
 				return Rascal_FALSE;
 			}
 		}
@@ -2160,7 +2149,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return $VF.bool(leftArity <= rightArity);
 	}
 
-	public final IBool alist_lessequal_alist(final IList left, final IList right) {
+	public final IBool $alist_lessequal_alist(final IList left, final IList right) {
 		if (left.length() == 0) {
 			return Rascal_TRUE;
 		}
@@ -2180,17 +2169,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return $VF.bool(left.length() <= right.length());
 	}
 
-	public final IBool aset_lessequal_aset(final ISet left, final ISet right) {
+	public final IBool $aset_lessequal_aset(final ISet left, final ISet right) {
 		return $VF.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
 	}
 
-	public final IBool amap_lessequal_amap(final IMap left, final IMap right) {
+	public final IBool $amap_lessequal_amap(final IMap left, final IMap right) {
 		return $VF.bool(left.isSubMap(right));
 	}
 
 	// ---- product -----------------------------------------------------------
 
-	public final IValue product(final IValue lhs, final IValue rhs) {
+	public final IValue $product(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
@@ -2251,70 +2240,70 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IInteger aint_product_aint(final IInteger a, final IInteger b) {
+	public final IInteger $aint_product_aint(final IInteger a, final IInteger b) {
 		return a.multiply(b);
 	}
 
-	public final INumber aint_product_areal(final IInteger a, final IReal b) {
+	public final INumber $aint_product_areal(final IInteger a, final IReal b) {
 		return a.multiply(b);
 	}
 
-	public final IRational aint_product_arat(final IInteger a, final IRational b) {
+	public final IRational $aint_product_arat(final IInteger a, final IRational b) {
 		return a.toRational().multiply(b);
 	}
 
-	public final INumber aint_product_anum(final IInteger a, final INumber b) {
+	public final INumber $aint_product_anum(final IInteger a, final INumber b) {
 		return a.multiply(b);
 	}
 
-	public final IReal areal_product_aint(final IReal a, final IInteger b) {
+	public final IReal $areal_product_aint(final IReal a, final IInteger b) {
 		return (IReal) a.multiply(b);
 	}
 
-	public final IReal areal_product_areal(final IReal a, final IReal b) {
+	public final IReal $areal_product_areal(final IReal a, final IReal b) {
 		return a.multiply(b);
 	}
 
-	public final IReal areal_product_arat(IReal a, IRational b) {
+	public final IReal $areal_product_arat(IReal a, IRational b) {
 		return (IReal) a.multiply(b);
 	}
 
-	public final INumber areal_product_anum(final IReal a, final INumber b) {
+	public final INumber $areal_product_anum(final IReal a, final INumber b) {
 		return a.multiply(b);
 	}
 
-	public final INumber arat_product_aint(final IRational a, final IInteger b) {
+	public final INumber $arat_product_aint(final IRational a, final IInteger b) {
 		return a.multiply(b);
 	}
 
-	public final IReal arat_product_areal(final IRational a, final IReal b) {
+	public final IReal $arat_product_areal(final IRational a, final IReal b) {
 		return a.multiply(b);
 	}
 
-	public final IRational arat_product_arat(final IRational a, final IRational b) {
+	public final IRational $arat_product_arat(final IRational a, final IRational b) {
 		return a.toRational().multiply(b);
 	}
 
-	public final INumber arat_product_anum(final IRational a, final INumber b) {
+	public final INumber $arat_product_anum(final IRational a, final INumber b) {
 		return a.multiply(b);
 	}
 
-	public final INumber anum_product_aint(final INumber a, final IInteger b) {
+	public final INumber $anum_product_aint(final INumber a, final IInteger b) {
 		return a.multiply(b);
 	}
 
-	public final INumber anum_product_areal(final INumber a, final IReal b) {
+	public final INumber $anum_product_areal(final INumber a, final IReal b) {
 		return a.multiply(b);
 	}
-	public final INumber anum_product_arat(final INumber a, final IRational b) {
-		return a.multiply(b);
-	}
-
-	public final INumber anum_product_anum(final INumber a, final INumber b) {
+	public final INumber $anum_product_arat(final INumber a, final IRational b) {
 		return a.multiply(b);
 	}
 
-	public final IList alist_product_alist(final IList left, final IList right) {
+	public final INumber $anum_product_anum(final INumber a, final INumber b) {
+		return a.multiply(b);
+	}
+
+	public final IList $alist_product_alist(final IList left, final IList right) {
 		IListWriter w = $VF.listWriter();
 		for(IValue l : left){
 			for(IValue r : right){
@@ -2324,7 +2313,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 
-	public final ISet aset_product_aset(final ISet left, final ISet right) {
+	public final ISet $aset_product_aset(final ISet left, final ISet right) {
 		ISetWriter w = $VF.setWriter();
 		for(IValue l : left){
 			for(IValue r : right){
@@ -2336,14 +2325,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	// ---- regexp ------------------------------------------------------------
 	
-	public final Matcher regExpCompile(String pat, String subject) {
+	public final Matcher $regExpCompile(String pat, String subject) {
 		Pattern p = Pattern.compile(pat);
 		return p.matcher(subject);
 	}
 
 	// ---- slice -------------------------------------------------------------
 
-	public final IString astr_slice(final IString str,  final Integer first,final  Integer second,final Integer end){
+	public final IString $astr_slice(final IString str,  final Integer first,final  Integer second,final Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, str.length());
 		StringBuilder buffer = new StringBuilder();
 		int increment = sd.second - sd.first;
@@ -2362,7 +2351,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return $VF.string(buffer.toString());
 	}
 
-	public final IList anode_slice(final INode node,  final Integer first, final Integer second, final Integer end){
+	public final IList $anode_slice(final INode node,  final Integer first, final Integer second, final Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, node.arity());
 		IListWriter w = $VF.listWriter();
 		int increment = sd.second - sd.first;
@@ -2382,8 +2371,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 
-
-	public IList alist_slice(IList lst, Integer first, Integer second, Integer end){
+	public final IList $alist_slice(IList lst, Integer first, Integer second, Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
 		IListWriter w = $VF.listWriter();
 		int increment = sd.second - sd.first;
@@ -2465,42 +2453,42 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
 	}
 
-	public final IString astr_slice_replace(final IString str, final Integer first, final Integer second, final Integer end, final IString repl) {
+	public final IString $astr_slice_replace(final IString str, final Integer first, final Integer second, final Integer end, final IString repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, str.length());
 		return  str.replace(sd.first, sd.second, sd.end, repl);
 	}
 
-	public final INode anode_slice_replace(final INode node, final Integer first, final Integer second, final Integer end, final IList repl) {
+	public final INode $anode_slice_replace(final INode node, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, node.arity());
 		return  node.replace(sd.first, sd.second, sd.end, repl);
 	}
 
-	public final IList alist_slice_replace(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
+	public final IList $alist_slice_replace(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
-		return  updateListSlice(lst, sd, SliceOperator.replace, repl);
+		return  $updateListSlice(lst, sd, SliceOperator.replace, repl);
 	}
 
-	public final IList alist_slice_add(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
+	public final IList $alist_slice_add(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
-		return  updateListSlice(lst, sd, SliceOperator.add, repl);
+		return  $updateListSlice(lst, sd, SliceOperator.add, repl);
 	}
 
-	public final IList alist_slice_subtract(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
+	public final IList $alist_slice_subtract(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
-		return  updateListSlice(lst, sd, SliceOperator.subtract, repl);
+		return  $updateListSlice(lst, sd, SliceOperator.subtract, repl);
 	}
 
-	public final IList alist_slice_product(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
+	public final IList $alist_slice_product(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
-		return  updateListSlice(lst, sd, SliceOperator.product, repl);
+		return  $updateListSlice(lst, sd, SliceOperator.product, repl);
 	}
 
-	public final IList alist_slice_divide(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
+	public final IList $alist_slice_divide(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
-		return  updateListSlice(lst, sd, SliceOperator.divide, repl);
+		return  $updateListSlice(lst, sd, SliceOperator.divide, repl);
 	}
 
-	public final IList updateListSlice(final IList lst, final SliceDescriptor sd, final SliceOperator op, final IList repl){
+	public final IList $updateListSlice(final IList lst, final SliceDescriptor sd, final SliceOperator op, final IList repl){
 		IListWriter w = $VF.listWriter();
 		int increment = sd.second - sd.first;
 		int replIndex = 0;
@@ -2567,15 +2555,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 
-
-
 	// ---- splice ------------------------------------------------------------
 	/**
 	 * Splice elements in a list writer
 	 * 
 	 * IListWriter w, IListOrISet val  => w with val's elements spliced in
 	 */
-	public final IListWriter listwriter_splice(final IListWriter writer, final IValue val) {
+	public final IListWriter $listwriter_splice(final IListWriter writer, final IValue val) {
 		if(val instanceof IList){
 			IList lst = (IList) val;
 			for(IValue v : lst){
@@ -2598,7 +2584,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * ISetWriter w, IListOrISet val => w with val's elements spliced in
 	 */
 
-	public final ISetWriter setwriter_splice(final ISetWriter writer, final IValue val) {
+	public final ISetWriter $setwriter_splice(final ISetWriter writer, final IValue val) {
 		if(val instanceof IList){
 			IList lst = (IList) val;
 			for(IValue v : lst){
@@ -2615,10 +2601,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return writer;
 	}
 
-
 	// ---- subscript ---------------------------------------------------------
 
-	public final IString astr_subscript_int(final IString str, final int idx) {
+	public final IString $astr_subscript_int(final IString str, final int idx) {
 		try {
 			return (idx >= 0) ? str.substring(idx, idx+1)
 					: str.substring(str.length() + idx, str.length() + idx + 1);
@@ -2627,7 +2612,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final GuardedIValue guarded_astr_subscript_int(final IString str, final int idx){
+	public final GuardedIValue $guarded_astr_subscript_int(final IString str, final int idx){
 		try {
 			IString res = (idx >= 0) ? str.substring(idx, idx+1)
 					: str.substring(str.length() + idx, str.length() + idx + 1);
@@ -2637,7 +2622,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final GuardedIValue guarded_list_subscript(final IList lst, final int idx) {
+	public final GuardedIValue $guarded_list_subscript(final IList lst, final int idx) {
 		try {
 			return new GuardedIValue(lst.get((idx >= 0) ? idx : (lst.length() + idx)));
 		} catch(IndexOutOfBoundsException e) {
@@ -2645,12 +2630,12 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final GuardedIValue guarded_map_subscript(final IMap map, final IValue idx) {
+	public final GuardedIValue $guarded_map_subscript(final IMap map, final IValue idx) {
 		IValue v = map.get(idx);
 		return v == null? UNDEFINED : new GuardedIValue();
 	}
 
-	public final IValue atuple_subscript_int(final ITuple tup, final int idx) {
+	public final IValue $atuple_subscript_int(final ITuple tup, final int idx) {
 		try {
 			return tup.get((idx >= 0) ? idx : tup.arity() + idx);
 		} catch(IndexOutOfBoundsException e) {
@@ -2658,7 +2643,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final GuardedIValue guarded_atuple_subscript_int(final ITuple tup, final int idx) {
+	public final GuardedIValue $guarded_atuple_subscript_int(final ITuple tup, final int idx) {
 		try {
 			IValue res = tup.get((idx >= 0) ? idx : tup.arity() + idx);
 			return new GuardedIValue(res);
@@ -2667,7 +2652,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IValue anode_subscript_int(final INode node, int idx) {
+	public final IValue $anode_subscript_int(final INode node, int idx) {
 		try {
 			if(idx < 0){
 				idx =  node.arity() + idx;
@@ -2678,7 +2663,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final GuardedIValue guarded_anode_subscript_int(final INode node, int idx) {
+	public final GuardedIValue $guarded_anode_subscript_int(final INode node, int idx) {
 		try {
 			if(idx < 0){
 				idx =  node.arity() + idx;
@@ -2690,7 +2675,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IValue aadt_subscript_int(final IConstructor cons, final int idx) {
+	public final IValue $aadt_subscript_int(final IConstructor cons, final int idx) {
 		try {
 			return cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 		} catch(IndexOutOfBoundsException e) {
@@ -2698,7 +2683,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final GuardedIValue guarded_aadt_subscript_int(final IConstructor cons, final int idx) {
+	public final GuardedIValue $guarded_aadt_subscript_int(final IConstructor cons, final int idx) {
 		try {
 			IValue res = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 			return new GuardedIValue(res);
@@ -2713,7 +2698,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * Subscript of a n-ary rel with a single subscript (no set and unequal to _)
 	 */
 	
-	public final ISet arel_subscript1_noset(final ISet rel, final IValue idx) {
+	public final ISet $arel_subscript1_noset(final ISet rel, final IValue idx) {
 		if(rel.isEmpty()){
 			return rel;
 		}
@@ -2722,7 +2707,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final GuardedIValue guarded_arel_subscript1_noset(final ISet rel, final IValue idx) {
 		try {
-			return  new GuardedIValue(arel_subscript1_noset(rel, idx));
+			return  new GuardedIValue($arel_subscript1_noset(rel, idx));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
@@ -2731,7 +2716,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	/**
 	 * Subscript of a binary rel with a single subscript (a set but unequal to _)
 	 */
-	public final ISet arel2_subscript1_aset(final ISet rel, final ISet idx) {
+	public final ISet $arel2_subscript1_aset(final ISet rel, final ISet idx) {
 		if(rel.isEmpty()){
 			return rel;
 		}
@@ -2747,9 +2732,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return wset.done();
 	}
 	
-	public final GuardedIValue guarded_arel2_subscript1_aset(final ISet rel, final ISet idx) {
+	public final GuardedIValue $guarded_arel2_subscript1_aset(final ISet rel, final ISet idx) {
 		try {
-			return  new GuardedIValue(arel2_subscript1_aset(rel, idx));
+			return  new GuardedIValue($arel2_subscript1_aset(rel, idx));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
@@ -2758,7 +2743,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	/**
 	 * Subscript of an n-ary (n > 2) rel with a single subscript (a set and unequal to _)
 	 */
-	public final ISet arel_subscript1_aset(final ISet rel, final ISet index) {
+	public final ISet $arel_subscript1_aset(final ISet rel, final ISet index) {
 		if(rel.isEmpty()){
 			return rel;
 		}
@@ -2780,9 +2765,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return wset.done();
 	}
 	
-	public final GuardedIValue guarded_arel_subscript1_aset(final ISet rel, final ISet index) {
+	public final GuardedIValue $guarded_arel_subscript1_aset(final ISet rel, final ISet index) {
 		try {
-			return  new GuardedIValue(arel_subscript1_aset(rel, index));
+			return  new GuardedIValue($arel_subscript1_aset(rel, index));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
@@ -2793,7 +2778,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * subsDesc is a subscript descriptor: an array with integers: 0: noset, 1: set, 2: wildcard
 	 */
 
-	public final ISet arel_subscript (final ISet rel, final IValue[] idx, final int[] subsDesc) {
+	public final ISet $arel_subscript (final ISet rel, final IValue[] idx, final int[] subsDesc) {
 		if(rel.isEmpty()){
 			return rel;
 		}
@@ -2842,9 +2827,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return wset.done();
 	}
 	
-	public final GuardedIValue guarded_arel_subscript (final ISet rel, final IValue[] idx, final int[] subsDesc) {
+	public final GuardedIValue $guarded_arel_subscript (final ISet rel, final IValue[] idx, final int[] subsDesc) {
 		try {
-			return  new GuardedIValue(arel_subscript(rel, idx, subsDesc));
+			return  new GuardedIValue($arel_subscript(rel, idx, subsDesc));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
@@ -2856,16 +2841,19 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * Subscript of a n-ary lrel with a single subscript (no set and unequal to _)
 	 */
 
-	public final IList alrel_subscript1_noset(final IList lrel, final IValue idx) {
+	public final IValue $alrel_subscript1_noset(final IList lrel, final IValue idx) {
 		if(lrel.isEmpty()){
 			return lrel;
+		}
+		if(idx instanceof IInteger) {
+			return lrel.get(((IInteger) idx).intValue());
 		}
 		return lrel.asRelation().index(idx);
 	}
 		
-	public final GuardedIValue guarded_alrel_subscript1_noset(final IList lrel, final IValue idx) {
+	public final GuardedIValue $guarded_alrel_subscript1_noset(final IList lrel, final IValue idx) {
 		try {
-			return  new GuardedIValue(alrel_subscript1_noset(lrel, idx));
+			return  new GuardedIValue($alrel_subscript1_noset(lrel, idx));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
@@ -2874,7 +2862,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	/**
 	 * Subscript of a binary lrel with a single subscript (a set but unequal to _)
 	 */
-	public final IList alrel2_subscript1_aset(final IList lrel, final ISet idx) {
+	public final IList $alrel2_subscript1_aset(final IList lrel, final ISet idx) {
 		if(lrel.isEmpty()){
 			return lrel;
 		}
@@ -2890,9 +2878,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return wlist.done();
 	}
 		
-	public final GuardedIValue guarded_alrel2_subscript1_aset(final IList lrel, final ISet idx) {
+	public final GuardedIValue $guarded_alrel2_subscript1_aset(final IList lrel, final ISet idx) {
 		try {
-			return  new GuardedIValue(alrel2_subscript1_aset(lrel, idx));
+			return  new GuardedIValue($alrel2_subscript1_aset(lrel, idx));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
@@ -2901,7 +2889,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	/**
 	 * Subscript of an n-ary (n > 2) lrel with a single subscript (a set and unequal to _)
 	 */
-	public final IList alrel_subscript1_aset(final IList lrel, final ISet index) {
+	public final IList $alrel_subscript1_aset(final IList lrel, final ISet index) {
 		if(lrel.isEmpty()){
 			return lrel;
 		}
@@ -2923,9 +2911,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return wlist.done();
 	}
 		
-	public final GuardedIValue guarded_alrel_subscript1_aset(final IList lrel, final ISet index) {
+	public final GuardedIValue $guarded_alrel_subscript1_aset(final IList lrel, final ISet index) {
 		try {
-			return  new GuardedIValue(alrel_subscript1_aset(lrel, index));
+			return  new GuardedIValue($alrel_subscript1_aset(lrel, index));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
@@ -2936,7 +2924,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * subsDesc is a subscript descriptor: an array with integers: 0: noset, 1: set, 2: wildcard
 	 */
 
-	public final IList alrel_subscript (final IList lrel, final IValue[] idx, final int[] subsDesc) {
+	public final IList $alrel_subscript (final IList lrel, final IValue[] idx, final int[] subsDesc) {
 		if(lrel.isEmpty()){
 			return lrel;
 		}
@@ -2985,27 +2973,27 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return wlist.done();
 	}
 		
-	public final GuardedIValue guarded_alrel_subscript (final IList lrel, final IValue[] idx, final int[] subsDesc) {
+	public final GuardedIValue $guarded_alrel_subscript (final IList lrel, final IValue[] idx, final int[] subsDesc) {
 		try {
-			return  new GuardedIValue(alrel_subscript(lrel, idx, subsDesc));
+			return  new GuardedIValue($alrel_subscript(lrel, idx, subsDesc));
 		} catch (Exception e) {
 			return UNDEFINED;
 		}
 	}
 
-	public final IValue subject_subscript(final IList lst, final int idx) {
+	public final IValue $subject_subscript(final IList lst, final int idx) {
 		return lst.get(idx);
 	}
 	
-	public final IValue subject_subscript(final ITuple tup, final int idx) {
+	public final IValue $subject_subscript(final ITuple tup, final int idx) {
 		return tup.get(idx);
 	}
 	
-	public final IString subject_subscript(final IString str, final int idx) {
+	public final IString $subject_subscript(final IString str, final int idx) {
 		return str.substring(idx, 1);
 	}
 	
-	public final IValue subject_subscript(final IValue subject, final int idx) {
+	public final IValue $subject_subscript(final IValue subject, final int idx) {
 		if(subject.getType().isList()) {
 			return ((IList) subject).get(idx);
 		}
@@ -3020,7 +3008,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- subtract ----------------------------------------------------------
 
-	public final IValue subtract(final IValue lhs, final IValue rhs) {
+	public final IValue $subtract(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
@@ -3083,7 +3071,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	// ---- typeOf ----------------------------------------------------------
 	
-	public IConstructor typeOf(IValue v) {
+	public IConstructor $typeOf(IValue v) {
 		return reify2atype(v.getType(), empty);
 	}
 
@@ -3094,7 +3082,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * 
 	 */
 
-	public final IList alist_update(final IList lst, int n, final IValue v) {
+	public final IList $alist_update(final IList lst, int n, final IValue v) {
 		if(n < 0){
 			n = lst.length() + n;
 		}
@@ -3110,7 +3098,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * Update map element
 	 * 
 	 */
-	public final IMap amap_update(IMap map, IValue key, IValue v) {
+	public final IMap $amap_update(IMap map, IValue key, IValue v) {
 		return map.put(key, v);
 	}
 
@@ -3119,7 +3107,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * 
 	 */
 
-	public final ITuple atuple_update(final ITuple tup, final int n, final IValue v) {
+	public final ITuple $atuple_update(final ITuple tup, final int n, final IValue v) {
 		try {
 			return tup.set(n, v);
 		} catch (IndexOutOfBoundsException e){
@@ -3133,7 +3121,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * 
 	 */
 
-	public final IConstructor aadt_update(final IConstructor cons, final IString field, final IValue v) {
+	public final IConstructor $aadt_update(final IConstructor cons, final IString field, final IValue v) {
 		return cons.set(field.getValue(), v);
 	}
 }
@@ -3148,39 +3136,42 @@ enum SliceOperator {
 	add(1) {
 		@Override
 		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
-			return rascalModule.add(left, right);
+			return rascalModule.$add(left, right);
 		}
 	},
 	subtract(2){
 		@Override
 		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
-			return rascalModule.subtract(left, right);
+			return rascalModule.$subtract(left, right);
 		}
 	}, 
 	product(3){
 		@Override
 		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
-			return rascalModule.product(left, right);
+			return rascalModule.$product(left, right);
 		}
 	}, 
 
 	divide(4){
 		@Override
 		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
-			return rascalModule.divide(left, right);
+			return rascalModule.$divide(left, right);
 		}
 	}, 
 
 	intersect(5){
 		@Override
 		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
-			return rascalModule.intersect(left, right);
+			return rascalModule.$intersect(left, right);
 		}
 	};
 
 	final int operator;
-
-	public final SliceOperator[] values = SliceOperator.values();
+	public static final SliceOperator[] values;
+	
+	static {
+		values = values();
+	}
 
 	public final SliceOperator fromInteger(int n) {
 		return values[n];

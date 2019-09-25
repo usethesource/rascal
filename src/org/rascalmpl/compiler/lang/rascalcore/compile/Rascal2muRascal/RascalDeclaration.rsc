@@ -182,9 +182,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
       <formalVars, tbody> = translateFunction(prettyPrintName(fd.signature.name), fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
-      if(resultType != avoid() && !endsWithReturn(tbody) && !ttags["javaClass"]?){
-        tbody = muBlock([ tbody, muFailReturn(ftype) ]);
+      if(resultType != avoid() && !ttags["javaClass"]?){
+        tbody = muReturn1(resultType, tbody);
       }
+      //if(resultType != avoid() && !endsWithReturn(tbody) && !ttags["javaClass"]?){
+      //  tbody = muBlock([ tbody, muFailReturn(ftype) ]);
+      //}
       
       addFunctionToModule(muFunction(fuid, 
       								 prettyPrintName(fd.signature.name), 

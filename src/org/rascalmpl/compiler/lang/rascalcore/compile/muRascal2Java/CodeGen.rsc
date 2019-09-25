@@ -45,9 +45,9 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     resolved2overloaded = ();
     jg = makeJGenie(m.name, tmodels, moduleLocs, muFunctions);
     <typestore, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors);
-    <signatures, resolvers> = genResolvers(m.overloaded_functions, jg);
+    resolvers = genResolvers(m.overloaded_functions, jg);
     
-    signatures += genSignatureUniqueFunctions(m.functions, m.overloaded_functions, jg);
+    genSignatureUniqueFunctions(m.functions, m.overloaded_functions, jg);
     
     bool hasMainFunction = false;
     str mainName = "main";
@@ -58,7 +58,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
             hasMainFunction = true;
             mainFunction = f;
             mainType = f.ftype;
-            mainName = f.qname;
+ //           mainName = f.qname;
         }
         jg.addExternalVars(f.externalVars);
     }
@@ -172,7 +172,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ValueRef;
                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
                        'public interface $<className> {
-                       '    <signatures>
+                       '    <jg.getInterfaceMethods()>
                        '}\n";
                        
       the_test_class = generateTestClass(packageName, className, m.functions, jg);
@@ -256,7 +256,7 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
                    '}\n";
         }
     }
-    types = "new Type[] {<intercalate(", ", ["$me.<atype2typestore(tp)>" | tp <- formals])>}";
+    types = "new Type[] {<intercalate(", ", ["<atype2typestore(tp)>" | tp <- formals])>}";
     argTypes = f.ftype.formals;
     actuals = intercalate(", ", ["(<atype2javatype(argTypes[i])>)args[<i>]" | i <- index(formals)]);
     if(!isEmpty(externalArgs)){
@@ -401,7 +401,7 @@ list[OF5] filterMostAlts(set[OF5] overloadedFunctions){
     return filtered;
 }
 
-str genSignatureUniqueFunctions(list[MuFunction] muFunctions, list[OF5] overloadedFunctions, JGenie jg){
+void genSignatureUniqueFunctions(list[MuFunction] muFunctions, list[OF5] overloadedFunctions, JGenie jg){
    // return "";
     signature = "";
     for(muFun <- muFunctions){
@@ -409,16 +409,14 @@ str genSignatureUniqueFunctions(list[MuFunction] muFunctions, list[OF5] overload
         if(!startsWith(fname, "$CLOSURE")){
             if(jg.isUniqueFunction(muFun)){
                 <argTypes, _, _> = getArgTypes(muFun, jg);
-                signature += "public <atype2javatype(muFun.ftype.ret)> <getJavaName(muFun.uqname)>(<argTypes>);\n";
+                jg.addInterfaceMethod("public <atype2javatype(muFun.ftype.ret)> <getJavaName(muFun.uqname)>(<argTypes>);");
             }
         }
     }
-    return signature;
 }
 
 // Generate resolvers for all overloaded functions
-
-tuple[str signatures, str methods] genResolvers(list[OF5] overloadedFunctions, JGenie jg){
+str genResolvers(list[OF5] overloadedFunctions, JGenie jg){
     //overloadedFunctions = for(ovl <- overloadedFunctions) {  ovl.funType = unsetRec(ovl.funType); append ovl; }
     //println("genResolvers:"); iprintln(overloadedFunctions);
     moduleLoc = jg.getModuleLoc();
@@ -441,7 +439,6 @@ tuple[str signatures, str methods] genResolvers(list[OF5] overloadedFunctions, J
     }
     
     mostAlts = filterMostAlts(overloadedInModule + overloadedInOtherModule);
-    all_signatures = ""; 
     all_resolvers = "";
     // For every function name + type, choose the one with the most alternatives
     fnames = toSet(mostAlts<0>);
@@ -452,9 +449,9 @@ tuple[str signatures, str methods] genResolvers(list[OF5] overloadedFunctions, J
             //println("add to resolved2overloaded: <overload.oname>, <overload.name>");
             
             resolved2overloaded[overload.oname] = overload.name;
-            <signatures, resolvers> = genSingleResolver(overload, jg);
-            all_signatures += signatures;
-            all_resolvers += resolvers;
+            resolver = genSingleResolver(overload, jg);
+            
+            all_resolvers += resolver;
         } else {
             resolved2overloaded[overload.oname] = overload.name;
             println("skipping: <overload.name>, <overload>");
@@ -462,12 +459,11 @@ tuple[str signatures, str methods] genResolvers(list[OF5] overloadedFunctions, J
     }
     // Generate multi-resolvers where necessary
     for(str fname <- fnames, requiresMultiResolver(mostAlts[fname])){
-        <signatures, resolvers> = genMultiResolver(fname, mostAlts[fname], jg);
-        all_signatures += signatures;
+        resolvers = genMultiResolver(fname, mostAlts[fname], jg);
         all_resolvers += resolvers;
     }
 
-    return <all_signatures, all_resolvers>;
+    return all_resolvers;
 }
 
 list[OF4] sortOverloads(list[OF4] overloads){
@@ -482,9 +478,9 @@ bool mapToSameJavaType(AType t1, AType t2) {
     return r;
 }
 
-bool mapToSameJavaType1(alist(AType t1), alist(AType t2)) = !comparable(t1, t2);
-bool mapToSameJavaType1(aset(AType t1), aset(AType t2)) = !comparable(t1, t2);
-bool mapToSameJavaType1(abag(AType t1), abag(AType t2)) = !comparable(t1, t2);
+bool mapToSameJavaType1(alist(AType t1), alist(AType t2)) = !equivalent(t1, t2);
+bool mapToSameJavaType1(aset(AType t1), aset(AType t2)) = !equivalent(t1, t2);
+bool mapToSameJavaType1(abag(AType t1), abag(AType t2)) = !equivalent(t1, t2);
 bool mapToSameJavaType1(arel(atypeList(list[AType] ts1)), arel(atypeList(list[AType] ts2))) = size(ts1) != size(ts2);
 bool mapToSameJavaType1(alrel(atypeList(list[AType] ts1)), alrel(atypeList(list[AType] ts2))) = size(ts1) != size(ts2);
 
@@ -495,7 +491,7 @@ bool mapToSameJavaType1(afunc(AType ret1, list[AType] formals1, list[Keyword] kw
     = size(formals1) == size(formals2) && any(int i <- index(formals1), mapToSameJavaType(formals1[i], formals2[i]));
     
 bool mapToSameJavaType1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2)) = mapToSameJavaType(bound1, bound2);
-bool mapToSameJavaType1(areified(AType atype1), areified(AType atype2)) = atype1 != atype2;
+bool mapToSameJavaType1(areified(AType atype1), areified(AType atype2)) = !equivalent(atype1, atype2);
 bool mapToSameJavaType1(areified(AType atype1), aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1)) = true;
 bool mapToSameJavaType1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), areified(AType atype1)) = true;
 bool mapToSameJavaType1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), aadt(str adtName2, list[AType] parameters2, SyntaxRole syntaxRole2)) = true;
@@ -509,21 +505,32 @@ bool overloadsToSameJavaType(list[OF4] overloads){
 }
  
 bool requiresSingleResolver(list[OF4] overloads){
-   res = !any(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2, getArity(ovl1.funType) == getArity(ovl2.funType), mapToSameJavaType(ovl1.funType, ovl2.funType));
-   res = res && !all(ovl <- overloads, size(ovl.ofunctions) + size(ovl.oconstructors) == 1);
+   if(size(overloads) == 1 && size(overloads[0].ofunctions) + size(overloads[0].oconstructors) > 1) {
+        println("requiresSingleResolver ==\> true for <overloads>");
+        return true;
+    }
+   sameJavaTypeOverloading = any(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2, getArity(ovl1.funType) == getArity(ovl2.funType), mapToSameJavaType(ovl1.funType, ovl2.funType));
+   comparableOverloading = all(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2, comparable(ovl1.funType, ovl2.funType));
+   //singleAlternatives = all(ovl <- overloads, size(ovl.ofunctions) + size(ovl.oconstructors) == 1);
+   res = (!sameJavaTypeOverloading || comparableOverloading) ; //&& !singleAlternatives;
    println("requiresSingleResolver ==\> <res> for <overloads>");
    return res;
 }
 
 bool requiresMultiResolver(list[OF4] overloads){
-    res = any(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2,  getArity(ovl1.funType) == getArity(ovl2.funType));
+    if(size(overloads) == 1){
+        println("requiresMultiResolver ==\> false for <overloads>");
+        return false;
+    }
+    res = any(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2, !equivalent(ovl1.funType, ovl2.funType));
+    //res = res || size(overloads) == 1 && size(overloads[0].ofunctions) + size(overloads[0].oconstructors) > 1;
     println("requiresMultiResolver ==\> <res> for <overloads>");
     return res;
 }
 
 // Generate a resolver for a functions that is M-overloaded
 
-tuple[str signatures, str resolvers] genMultiResolver(str fname, list[OF4] overloads, JGenie jg){
+str genMultiResolver(str fname, list[OF4] overloads, JGenie jg){
     if(fname == "type" || startsWith(fname, "$CLOSURE")) return <"","">;
     //println("genMultiResolver:"); iprintln(overloads);
     arities = { getArity(ovl.funType) | ovl <- overloads };
@@ -531,6 +538,7 @@ tuple[str signatures, str resolvers] genMultiResolver(str fname, list[OF4] overl
     all_resolvers = "";
     for(int i <- arities, i > 0){
         returns_void = true;
+        returnType = avoid();
         anyKwFormals = false;
         cases = "";
         canFail = any(ovl <- overloads, ftype := ovl.funType, getArity(ftype) == i, any(of <- ovl.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail));
@@ -538,6 +546,7 @@ tuple[str signatures, str resolvers] genMultiResolver(str fname, list[OF4] overl
         externalVars = {};
         overloads_i = [ ovl | ovl <- sortOverloads(overloads), ftype := unsetRec(ovl.funType), getArity(ftype) == i ];
         for(ovl <- overloads_i){
+            returnType = alub(returnType, getResult(ovl.funType));
             externalVars += {*jg.getExternalVars(ofun) | ofun <- ovl.ofunctions };
         }
         
@@ -582,25 +591,25 @@ tuple[str signatures, str resolvers] genMultiResolver(str fname, list[OF4] overl
         }
         sig_formals = intercalate(", ", ["IValue $<j>" | j <- [0..i] ]);
         if(anyKwFormals){
-            sig_formals += ", java.util.Map\<String,IValue\> $kwpActuals";
+            sig_formals += ", java.util.Map\<java.lang.String,IValue\> $kwpActuals";
         }
         if(!isEmpty(externalVars)){
            sig_formals += ", " + intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var, jg)>" | var <- sort(externalVars), jtype := atype2javatype(var.atype)]);
         }
-        signature_global = "public <returns_void ? "void" : "IValue"> <getJavaName(fname)>(<sig_formals>)";
-        all_signatures += "<signature_global>;\n";
+        signature_global = "public <atype2javatype(returnType)> <getJavaName(fname)>(<sig_formals>)";
+        jg.addInterfaceMethod("<signature_global>;");
         all_resolvers += "<signature_global>{ // Multi-resolver for <fname>
-                         '  <if(canFail && !returns_void){>IValue res;<}>
+                         '  <if(canFail && !returns_void){><atype2javatype(returnType)> res;<}>
                          '  <cases>
                          '  throw new RuntimeException(\"Cannot resolve call to `<fname>`\");
                          '}\n";
     }
-    return <all_signatures, all_resolvers>;
+    return all_resolvers;
 }
 
 // Generate a resolver for a function that is S-overloaded
 
-tuple[str signatures, str resolvers] genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overload, JGenie jg){
+str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overload, JGenie jg){
    if(overload.name == "type") return <"","">;
    
    funType = unsetRec(overload.funType);
@@ -610,7 +619,7 @@ tuple[str signatures, str resolvers] genSingleResolver(tuple[str name, AType fun
    
    if(jg.isResolved(overload) && !jg.usesLocalFunctions(overload) /*|| getArity(funType) == 0*/) return <"", "">;
  
-   if(getArity(funType) != 0 && all(formalType <-formalTypes, formalType == avalue())) return <"", "">;
+   //if(getArity(funType) != 0 /*&& all(formalType <-formalTypes, formalType == avalue())*/) return <"", "">;
    
    jg.addResolver(overload);
   
@@ -621,7 +630,7 @@ tuple[str signatures, str resolvers] genSingleResolver(tuple[str name, AType fun
    
    argTypes = intercalate(", ", ["<atype2javatype(f)> $<i>" | i <- index(formalTypes), f := formalTypes[i]]);
    if(anyKwParams){
-        kwpActuals = "java.util.Map\<String,IValue\> $kwpActuals";
+        kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
    }
    
@@ -632,6 +641,7 @@ tuple[str signatures, str resolvers] genSingleResolver(tuple[str name, AType fun
    
    name_resolver = "<replaceAll(overload.name, "::", "_")>_<atype2idpart(overload.funType)>";
    signature = "public <returnType> <getJavaName(overload.name)>(<argTypes>)";
+   jg.addInterfaceMethod(signature + ";");
    canFail = any(of <- overload.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail);
    map[int,str] cases = ();
    for(of <- overload.ofunctions){
@@ -669,13 +679,12 @@ tuple[str signatures, str resolvers] genSingleResolver(tuple[str name, AType fun
                '}";
    }
    
-   return <signature + ";\n",
-          "<signature>{ // Single-resolver for <overload.name>: <prettyAType(funType)>
+   return "<signature>{ // Single-resolver for <overload.name>: <prettyAType(funType)>
           '    <if(true /*canFail*/ && !returns_void){><atype2javatype(getResult(funType))> res;<}>
           '    <body><conses>
           '    <if(true /*canFail*/ && isEmpty(conses)){>throw new RuntimeException(\"Cannot resolve call to `<name_resolver>`\");<}>
           '}
-          '">;
+          '";
 }
 
 JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
@@ -784,13 +793,13 @@ bool constantDefaults(lrel[str name, AType atype, MuExp defaultExp] kwpDefaults)
 
 tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgTypes(MuFunction fun, JGenie jg){   
     shortName = getJavaName(jg.getFunctionName()); 
-    isClosure = startsWith(shortName, "$CLOSURE");           
-    argTypes = intercalate(", ", [ "<isClosure ? "IValue" : atype2javatype(fun.ftype.formals[i])> <varName(fun.formals[i], jg)>" | i <- index(fun.formals) ]);
+    
+    argTypes = intercalate(", ", [ "<atype2javatype(fun.ftype.formals[i])> <varName(fun.formals[i], jg)>" | i <- index(fun.formals) ]);          
     if(!isEmpty(fun.externalVars)){
         ext_actuals = intercalate(", ", ["ValueRef\<<atype2javatype(var.atype)>\> <varName(var, jg)>" | var <- fun.externalVars, var.pos >= 0]);
         argTypes = isEmpty(fun.formals) ? ext_actuals : (isEmpty(ext_actuals) ? argTypes : "<argTypes>, <ext_actuals>");
     }
-    kwpActuals = "java.util.Map\<String,IValue\> $kwpActuals";
+    kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
     kwpDefaults = fun.kwpDefaults;
     constantKwpDefaults = "";
     nonConstantKwpDefaults = "";
@@ -803,7 +812,7 @@ tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgT
             constantKwpDefaults = "final java.util.Map\<java.lang.String,IValue\> <kwpDefaultsName> = <mapCode>";
          } else {
             jg.setKwpDefaults("$kwpDefaults");
-            nonConstantKwpDefaults =  "java.util.Map\<String,IValue\> $kwpDefaults = <mapCode>";
+            nonConstantKwpDefaults =  "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = <mapCode>";
          }   
     }
     return <argTypes, constantKwpDefaults, nonConstantKwpDefaults>;
@@ -834,7 +843,7 @@ JCode trans(MuFunction fun, JGenie jg){
         returnType = "IConstructor";
         qname = getJavaName(ftype.label);
         argTypes = intercalate(", ", [ "<atype2javatype(f)> <varName(fields[i], jg)>" | i <- index(fields)]);
-        kwpActuals = "java.util.Map\<String,IValue\> $kwpActuals";
+        kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
         kwpDefaults = fun.kwpDefaults;
         constantKwpDefaults = "";
         nonConstantKwpDefaults = "";
@@ -848,7 +857,7 @@ JCode trans(MuFunction fun, JGenie jg){
                 constantKwpDefaults = "final java.util.Map\<java.lang.String,IValue\> <kwpDefaultsName> = <mapCode>";
              } else {
                 jg.setKwpDefaults("$kwpDefaults");
-                nonConstantKwpDefaults =  "java.util.Map\<String,IValue\> $kwpDefaults = <mapCode>";
+                nonConstantKwpDefaults =  "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = <mapCode>";
              }   
         }
         return "<constantKwpDefaults>
@@ -904,10 +913,10 @@ JCode trans(muOFun(str fuid), JGenie jg){
     nformals = fun.nformals;
     sep = nformals > 0 ? "," : "";
     
-    funInstance = "new FunctionInstance<nformals>\<<"IValue" /*atype2javatype(ftype.ret)*/><sep><intercalate(",", ["IValue" /*atype2javatype(ft)*/ | ft <- ftype.formals])>\>";
+    funInstance = "new FunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- ftype.formals])>\>";
     
-    bare_formals = intercalate(", ", ["$<i>" | i <- [0..fun.nformals]]);
-    formals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..fun.nformals]]);
+    bare_formals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
+    formals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
     ext_formals = formals;
     if(!isEmpty(fun.externalVars)){
            ext_actuals = intercalate(", ", [varName(v, jg) | v <- fun.externalVars]);
@@ -916,8 +925,18 @@ JCode trans(muOFun(str fuid), JGenie jg){
     return "<funInstance>((<bare_formals>) -\> { return <colon2ul(fuid)>(<formals>); })";
 }
 
-          //| muConstr(str fuid)                                  // Constructor
-          
+// ---- muConstr --------------------------------------------------------------
+
+str trans(muConstr(AType ctype), JGenie jg){
+    nformals = size(ctype.fields);
+    sep = nformals > 0 ? "," : "";
+    
+    funInstance = "new FunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- ctype.fields])>\>";
+    
+    bare_formals = ["$<i>" | i <- [0..nformals]];
+    return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, jg)>; })";
+}
+
 // Variables
 
 //// ---- muModuleVar -----------------------------------------------------------
@@ -969,8 +988,13 @@ str parens(str code)
 
 JCode trans(muVarInit(v: muVar(str name, str fuid, int pos, AType atype), MuExp exp), JGenie jg){
     jtype = atype2javatype(atype);
-    return jg.isExternalVar(v) ? "final ValueRef\<<jtype>\> <varName(v, jg)> = new ValueRef\<<jtype>\>(<trans(exp,jg)>);\n"
-                               : "<jtype> <varName(v, jg)> = (<jtype>)<parens(trans(exp, jg))>;\n";  
+    if(exp == muNoValue()){
+        return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <varName(v, jg)>;\n"
+                                   : "<jtype> <varName(v, jg)>;\n";  
+    } else {    
+        return jg.isExternalVar(v) ? "final ValueRef\<<jtype>\> <varName(v, jg)> = new ValueRef\<<jtype>\>(<trans(exp,jg)>);\n"
+                                   : "<jtype> <varName(v, jg)> = (<jtype>)<parens(trans(exp, jg))>;\n";  
+    }
 }
 
 JCode trans(muVarInit(v: muTmpIValue(str name, str fuid, AType atype), MuExp exp), JGenie jg){
@@ -1034,8 +1058,14 @@ JCode trans(muConInit(var:muTmpNative(str name, str fuid, NativeKind nkind), MuE
 
 str transWithCast(AType atype, con:muCon(c), JGenie jg) = trans(con, jg);
 
-default str transWithCast(AType atype, MuExp exp, JGenie jg) 
-    = atype == avoid() ? trans(exp, jg) : "((<atype2javatype(atype)>)<parens(trans(exp, jg))>)";
+default str transWithCast(AType atype, MuExp exp, JGenie jg) {
+    code = trans(exp, jg);
+    exptype = getType(exp);
+    
+    isequivalent = equivalent(exptype,atype) ? false;
+    
+    return isequivalent ? code : "((<atype2javatype(atype)>)<parens(code)>)";
+}
 
 // ---- muAssign --------------------------------------------------------------
 
@@ -1051,11 +1081,11 @@ JCode trans(muAssign(v:muTmpNative(str name, str fuid, NativeKind nkind), MuExp 
 
 // muGetAnno
 JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg)
-    = "((<atype2javatype(resultType)>)annotation_get(<trans(exp, jg)>,\"<annoName>\"))";
+    = "((<atype2javatype(resultType)>)$annotation_get(<trans(exp, jg)>,\"<annoName>\"))";
 
 // muGuardedGetAnno
 JCode trans(muGuardedGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg)
-    = "guarded_annotation_get(<trans(exp, jg)>,\"<annoName>\")";
+    = "$guarded_annotation_get(<trans(exp, jg)>,\"<annoName>\")";
     
 // muSetAnno
 JCode trans(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl), JGenie jg)
@@ -1064,7 +1094,8 @@ JCode trans(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl), JG
 // Call/Apply/return      
 
 JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs), JGenie jg){
-    actuals = [trans(arg, jg) | arg <- largs];
+
+    actuals = getActuals(getFunctionOrConstructorArgumentTypes(ftype), largs, jg);
          
     if(muConstr(AType ctype) := fun){
         return makeConstructorCall(ctype, actuals, jg);        
@@ -1113,7 +1144,7 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs), JGenie jg){
             actuals += "Collections.emptyMap()";
         }  
          call_code = "<jg.getAccessor(uid)>(<intercalate(", ", actuals)>)";
-         return ftype.ret == avoid() ? call_code : "((<atype2javatype(ftype.ret)>)<call_code>)";
+         return call_code; //ftype.ret == avoid() ? call_code : "((<atype2javatype(ftype.ret)>)<call_code>)";
        }
     }
     
@@ -1138,12 +1169,10 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
     if(muCon(str s) := fun){
         return "$VF.node(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
     }
-    cst = open = close = "";
-    if(ftype.ret != avoid()){
-            open = "("; close = ")";
-            cst = "(<atype2javatype(ftype)>)";
-    }
-    return "<open><cst><trans(fun, jg)><close>.call(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
+    
+    cst = (ftype.ret == avoid()) ? "" : "(<atype2javatype(ftype.ret)>)";
+
+    return "<cst><trans(fun, jg)>.call(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
 }
 
 // ---- muKwpGetField ------------------------------------------------------
@@ -1153,20 +1182,20 @@ JCode trans(muKwpGetField(AType resultType,  AType consType, MuExp cons, str fie
 // ---- muGetField ---------------------------------------------------------
 
 JCode trans(muGetField(AType resultType, aloc(), MuExp exp, str fieldName), JGenie jg)
-    = "((<atype2javatype(resultType)>) aloc_get_field(<transWithCast(aloc(),exp,jg)>, \"<fieldName>\"))";
+    = "((<atype2javatype(resultType)>) $aloc_get_field(<transWithCast(aloc(),exp,jg)>, \"<fieldName>\"))";
 
 JCode trans(muGetField(AType resultType, adatetime(), MuExp exp, str fieldName), JGenie jg)
-    = "((<atype2javatype(resultType)>) adatetime_get_field(<transWithCast(adatetime(),exp,jg)>, \"<fieldName>\"))";
+    = "((<atype2javatype(resultType)>) $adatetime_get_field(<transWithCast(adatetime(),exp,jg)>, \"<fieldName>\"))";
    // = "((<atype2javatype(resultType)>) adatetime_get_field(<transWithCast(adatetime(), exp,jg)>, \"<fieldName>\"))";
 
 JCode trans(muGetField(AType resultType, anode(_), MuExp exp, str fieldName), JGenie jg)
-    = "((<atype2javatype(resultType)>) anode_get_field(<transWithCast(anode([]),exp,jg)>, \"<fieldName>\"))";
+    = "((<atype2javatype(resultType)>) $anode_get_field(<transWithCast(anode([]),exp,jg)>, \"<fieldName>\"))";
         
 JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str fieldName), JGenie jg)
-    = "((<atype2javatype(resultType)>) areified_get_field(<trans(exp,jg)>, \"<fieldName>\"))";
+    = "((<atype2javatype(resultType)>) $areified_get_field(<trans(exp,jg)>, \"<fieldName>\"))";
 
 default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
-    base = trans(cons, jg);
+    base = transWithCast(consType, cons, jg);
     qFieldName = "\"<fieldName>\"";
     println("muGetField: <resultType>, <consType>, <fieldName>");
     for(field <- consType.fields){
@@ -1192,10 +1221,10 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
  // ---- muGuardedGetField -------------------------------------------------
  
  JCode trans(muGuardedGetField(AType resultType, aloc(), MuExp exp, str fieldName), JGenie jg)
-    = "guarded_aloc_get_field(<trans(exp,jg)>, \"<fieldName>\")";
+    = "$guarded_aloc_get_field(<trans(exp,jg)>, \"<fieldName>\")";
 
 JCode trans(muGuardedGetField(AType resultType, adatetime(), MuExp exp, str fieldName), JGenie jg)
-    = "guarded_adatetime_get_field(<trans(exp,jg)>, \"fieldName\")";
+    = "$guarded_adatetime_get_field(<trans(exp,jg)>, \"fieldName\")";
 
 default JCode trans(muGuardedGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
     base = trans(cons, jg);
@@ -1222,17 +1251,16 @@ default JCode trans(muGuardedGetField(AType resultType, AType consType, MuExp co
 // ---- muSetField ------------------------------------------------------------
 
 JCode trans(muSetField(AType resultType, aloc(), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
-    = "aloc_field_update(<trans(baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
+    = "$aloc_field_update(<trans(baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
 
 JCode trans(muSetField(AType resultType, adatetime(), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
-    = "adatetime_field_update(<trans(baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
+    = "$adatetime_field_update(<trans(baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
 
-    
 default JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "<trans(baseExp, jg)>.set(\"<fieldName>\", <trans(repl, jg)>)";
     
 JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, int fieldIndex, MuExp repl), JGenie jg)
-    = "atuple_update(<trans(baseExp, jg)>, <fieldIndex>,  <trans(repl, jg)>)" when isTupleType(resultType);
+    = "$atuple_update(<trans(baseExp, jg)>, <fieldIndex>,  <trans(repl, jg)>)" when isTupleType(resultType);
     
 //// ---- muCallPrim2 -----------------------------------------------------------
 //
@@ -1262,11 +1290,9 @@ JCode trans(muCallJava(str name, str class, AType funType, int reflect, list[MuE
     if(reflect == 1){
         actuals += "rex";
     }
-    cst = funType.ret == avoid() ? "" : "(<atype2javatype(funType.ret)>)";
-    semicolon = "";
-    return "<getClassName(class)>.<name>(<intercalate(", ", actuals)>)<semicolon>";
+    code = "<getClassName(class)>.<name>(<intercalate(", ", actuals)>)";
+    return funType.ret == avoid() ? code : "(<atype2javatype(funType.ret)>)<code>";
 }
-
 
 // ---- muReturn0 -------------------------------------------------------------
 
@@ -1327,17 +1353,16 @@ JCode trans2IValue(MuExp exp, JGenie jg){
 }
 
 JCode trans(muReturn1(AType t, muBlock([])), JGenie jg){
-    return ""; // "return;\n";
+    return "";
 }
 
 default JCode trans(muReturn1(AType result, MuExp exp), JGenie jg){
-    return "return <castArg(result, trans2IValue(exp, jg))>;\n";
-    //return "return (<atype2javatype(result)>)(<trans2IValue(exp, jg)>);\n";
+    return "return <transWithCast(result, exp, jg)>;\n";
 }
 
 JCode trans(muReturn1FromVisit(AType result, MuExp exp), JGenie jg)
     = "ts.setLeavingVisit(true);
-      'return (<atype2javatype(result)>)(<trans(exp, jg)>);\n";
+      'return <transWithCast(result, exp, jg)>);\n";
 
 //          | muFilterReturn()                                    // Return for filer statement
 
@@ -1384,10 +1409,10 @@ JCode trans(muGetKwp(MuExp exp, AType atype, str kwpName), JGenie jg){
 }
 
 JCode trans(muGetKwpFromConstructor(MuExp exp, AType atype, str kwpName), JGenie jg)
-    = "(<atype2javatype(atype)>)<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<kwpName>\")";
+    = "<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<kwpName>\")";
  
 
-JCode trans(muInsert(MuExp exp, AType atype), JGenie jg)
+JCode trans(muInsert(MuExp exp, AType atype), JGenie jg)    // Change ts to $ts in translation
     = "ts.setMatchedAndChanged(true, true);
       'return <trans(exp, jg)>;\n";
 
@@ -1395,9 +1420,9 @@ JCode trans(muInsert(MuExp exp, AType atype), JGenie jg)
 
 JCode trans(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
     return "if(<trans2NativeBool(cond, jg)>){
-            '   <trans2Void(thenPart, jg)>
+            '   <trans(thenPart, jg)>
             '} else {
-            '   <trans2Void(elsePart, jg)>
+            '   <trans(elsePart, jg)>
             '}\n";
 }
 
@@ -1453,7 +1478,8 @@ JCode trans(mw: muForAll(str btscope, MuExp var, AType iterType, MuExp iterable,
 //  'for(<atype2javatype(getEnumeratorElementType(iterType))> <var.name> : <iterCode>){   
     return
     "<isEmpty(btscope) ? "" : "<btscope>:">
-    'for(IValue <var.name> : <iterCode>){
+    'for(IValue <var.name>_for : <iterCode>){
+    '    <atype2javatype(var.atype)> <var.name> = (<atype2javatype(var.atype)>) <var.name>_for;
     '    <trans2Void(body, jg)>
     '}
     '<noInnerLoops ? "throw new RuntimeException(\"muForAll exhausted\");" : "">\n";
@@ -1557,8 +1583,7 @@ JCode trans(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp las
 }
          
 JCode trans(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint), JGenie jg){
-    return "<trans(exp, jg)>
-           'switch(Util.getFingerprint(<exp.var.name>, <useConcreteFingerprint>)){
+    return "switch(Util.getFingerprint(<exp.name>, <useConcreteFingerprint>)){
            '<for(muCase(int fingerprint, MuExp exp) <- cases){>
            '    case <fingerprint>:
            '        <trans(exp, jg)>
@@ -1580,7 +1605,8 @@ JCode trans(muVisit(MuExp exp, list[MuCase] cases, MuExp defaultExp, VisitDescri
       "$TRAVERSE.traverse(DIRECTION.<direction>, PROGRESS.<progress>, FIXEDPOINT.<fixedpoint>, REBUILD.<rebuild>, 
       '     new DescendantDescriptor($VF.set(), $VF.set(), null, $VF.bool(false), null),
       '     <trans(exp.exp,jg)>,
-      '     (IVisitFunction) (IValue <exp.var.name>, TraversalState ts) -\> {
+      '     (IVisitFunction) (IValue <exp.var.name>_vf, TraversalState ts) -\> {
+      '         <atype2javatype(exp.var.atype)> <exp.var.name> = (<atype2javatype(exp.var.atype)>) <exp.var.name>_vf;
       '         switch(Util.getFingerprint(<exp.var.name>, <vdescriptor.descendant.useConcreteFingerprint>)){
       '         <for(muCase(int fingerprint, MuExp exp) <- cases){>
       '             case <fingerprint>:
@@ -1608,7 +1634,7 @@ JCode trans(muSucceedVisitCase(), JGenie jg)
 // ---- muFailReturn ----------------------------------------------------------
 
 JCode trans(muFailReturn(AType funType),  JGenie jg)
-    = funType.ret == avoid() ? "throw new FailReturnFromVoidException();"
+    = funType has ret && funType.ret == avoid() ? "throw new FailReturnFromVoidException();"
                              : "return null;";
     
 // ---- muCheckMemo -----------------------------------------------------------
@@ -1632,7 +1658,6 @@ JCode trans(muMemoReturn(AType funType, list[MuExp] args, MuExp functionResult),
            'return (<atype2javatype(funType.ret)>)$memoVal;";
 }
            
- 
 // Lists of expressions
 
 JCode trans(muBlock(list[MuExp] exps), JGenie jg){
@@ -1642,11 +1667,6 @@ JCode trans(muBlock(list[MuExp] exps), JGenie jg){
 JCode trans(muValueBlock(AType t, list[MuExp] exps), JGenie jg){
     return "<for(exp <- exps[0..-1]){><trans2Void(exp, jg)><}> 
            '<trans(exps[-1], jg)>";
-
-    //return "((Block) () -\> {
-    //       '<for(exp <- exps[0..-1]){><trans2Void(exp, jg)><}> 
-    //       '<trans(muReturn1(t, exps[-1]), jg)>
-    //       '}).compute()";
 }
 
 // Exceptions
@@ -1660,11 +1680,7 @@ default JCode trans(muThrow(MuExp exp, loc src), JGenie jg){
 }
 
 JCode trans(muTry(MuExp exp, MuCatch \catch, MuExp \finally), JGenie jg){
-println(exp);
-println(\catch);
-println(\finally);
-finallyCode = trans(\finally, jg);
-println(finallyCode);
+    finallyCode = trans(\finally, jg);
     return "try {
                 <trans(exp, jg)>
            '} <trans(\catch, jg)>
@@ -1711,7 +1727,7 @@ JCode trans2NativeBool(muCon(bool b), JGenie jg)
     = "<b>";
  
 default JCode trans2NativeBool(MuExp exp, JGenie jg)
-    = producesNativeBool(exp) ? trans(exp, jg) : "((IBool)(<trans(exp, jg)>)).getValue()";
+    = producesNativeBool(exp) ? trans(exp, jg) : "<transWithCast(abool(), exp, jg)>.getValue()";
   
 JCode trans2NativeInt(muCon(int n), JGenie jg)
     = "<n>";
@@ -1724,6 +1740,8 @@ JCode trans2IInteger(MuExp exp, JGenie jg)
     
 JCode trans2IBool(MuExp exp, JGenie jg)
     = producesNativeBool(exp) ? "$VF.bool(<trans(exp, jg)>)" : trans(exp, jg);
+
+// ----
 
 JCode trans2NativeStr(muCon(str s), JGenie jg)
     = "\"<escapeForJ(s)>\"";
@@ -1775,25 +1793,27 @@ JCode trans(muHasNameAndArity(AType atype, str name, int arity, MuExp exp), JGen
 }
 
 JCode trans(muIsDefinedValue(MuExp exp), JGenie jg)
-    = "is_defined_value(<trans(exp, jg)>)";
+    = "$is_defined_value(<trans(exp, jg)>)";
 
 JCode trans(muGetDefinedValue(MuExp exp, AType atype), JGenie jg)
-    = "((<atype2javatype(atype)>)get_defined_value(<trans(exp, jg)>))";
+    = "((<atype2javatype(atype)>)$get_defined_value(<trans(exp, jg)>))";
 
-JCode trans(muSize(MuExp exp, AType atype), JGenie jg)
-    = "((<atype2javatype(atype)>)<trans(exp, jg)>).length()";
+JCode trans(muSize(MuExp exp, atype:aset(_)), JGenie jg)
+    = "<transWithCast(atype, exp, jg)>.size()";
+    
+default JCode trans(muSize(MuExp exp, AType atype), JGenie jg)
+    = "<transWithCast(atype, exp, jg)>.length()";
     
 JCode trans(muHasField(MuExp exp, AType tp, str fieldName), JGenie jg)
-    = "anode_has_field(<trans(exp, jg)>,\"<fieldName>\")"
+    = "$anode_has_field(<trans(exp, jg)>,\"<fieldName>\")"
       when isNodeType(tp);
     
 JCode trans(muHasField(MuExp exp, AType tp, str fieldName), JGenie jg)
-    = "aadt_has_field(<trans(exp, jg)>,\"<fieldName>\")"
+    = "$aadt_has_field(<trans(exp, jg)>,\"<fieldName>\")"
       when  isADTType(tp);
 
 JCode trans(muSubscript(MuExp exp, MuExp idx), JGenie jg){
-    return "subject_subscript(<trans(exp, jg)>, <trans2NativeInt(idx, jg)>)";
-    //return "((<atype2javatype(atype)>)<trans(exp, jg)>).get(<trans2NativeInt(idx, jg)>)";
+    return "$subject_subscript(<trans(exp, jg)>, <trans2NativeInt(idx, jg)>)";
 }
 
 JCode trans(muIncNativeInt(MuExp var, MuExp exp), JGenie jg)
@@ -1829,7 +1849,7 @@ JCode trans(muSubList(MuExp lst, MuExp from, MuExp len), JGenie jg)
 // Regular expressions
 
 JCode trans(muRegExpCompile(MuExp regExp, MuExp subject), JGenie jg)
-    = "regExpCompile(<trans2NativeStr(regExp, jg)>, <trans2NativeStr(subject, jg)>)";
+    = "$regExpCompile(<trans2NativeStr(regExp, jg)>, <trans2NativeStr(subject, jg)>)";
     
 JCode trans(muRegExpBegin(MuExp matcher), JGenie jg)
     = "<trans(matcher, jg)>.start()";

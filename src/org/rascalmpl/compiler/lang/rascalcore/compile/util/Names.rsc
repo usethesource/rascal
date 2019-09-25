@@ -104,7 +104,7 @@ str module2interface(str moduleName){
 }
 
 str escapeAsJavaString(str s){
-  return replaceAll(s, "\n", "\\n");    //TODO make precise
+  return replaceAll(replaceAll(s, "\n", "\\n"), "\"", "\\\"");    //TODO: make precise and more efficient 
 }
 
 // Is inner location textually contained in outer location?

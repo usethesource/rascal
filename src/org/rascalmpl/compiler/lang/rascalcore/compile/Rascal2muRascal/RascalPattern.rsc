@@ -849,20 +849,24 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
    setPatTrueCont = trueCont;
    setPatSubject = subject;
    leftMostVar = -1;
-   for(int i <- reverse(index(uniquePats))){
-      pat = uniquePats[i];
-      isLastPat = (i == lastPat);
-      currentSubject = subjects[i];
-      previousSubject = (i==0) ? subject : subjects[i-1];
-     // println("i = <i>; leftMostVar = <leftMostVar>, <pat>, current=<currentSubject.name>, previous=<previousSubject.name>");
-      if(pat is literal){
-         literalPats += pat.literal;
-      } else if(pat is splice || pat is multiVariable || pat is qualifiedName || pat is typedVariable){
-         leftMostVar = i;
-         setPatTrueCont= translatePatAsSetElem(pat, isLastPat, elmType, currentSubject, previousSubject, btscope, setPatTrueCont, falseCont);
-      } else {
-        setPatTrueCont = translatePatAsSetElem(pat, isLastPat, elmType, currentSubject, previousSubject, btscope, setPatTrueCont, falseCont);
-      }
+   if(isEmpty(uniquePats)){
+      setPatTrueCont = muIfExp(muEqualNativeInt(muSize(subject, subjectType), muCon(0)), setPatTrueCont,  falseCont);
+   } else {
+       for(int i <- reverse(index(uniquePats))){
+          pat = uniquePats[i];
+          isLastPat = (i == lastPat);
+          currentSubject = subjects[i];
+          previousSubject = (i==0) ? subject : subjects[i-1];
+         // println("i = <i>; leftMostVar = <leftMostVar>, <pat>, current=<currentSubject.name>, previous=<previousSubject.name>");
+          if(pat is literal){
+             literalPats += pat.literal;
+          } else if(pat is splice || pat is multiVariable || pat is qualifiedName || pat is typedVariable){
+             leftMostVar = i;
+             setPatTrueCont= translatePatAsSetElem(pat, isLastPat, elmType, currentSubject, previousSubject, btscope, setPatTrueCont, falseCont);
+          } else {
+            setPatTrueCont = translatePatAsSetElem(pat, isLastPat, elmType, currentSubject, previousSubject, btscope, setPatTrueCont, falseCont);
+          }
+       }
    }
    
    code = [];
@@ -924,7 +928,7 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
     block = muBlock([ muConInit(sublen, muSize(subject, subjectType)),
                       muIfelse(isEmpty(lookahead) ? muEqualNativeInt(sublen, muCon(0))
                                                   : (lookahead[0].nMultiVar == 0 && !isMultiVar(lpats[0])) ? muEqualNativeInt(sublen, muCon(lookahead[0].nElem + 1))
-                                                                                                           : muGreaterEqNativeInt(sublen, muCon(lookahead[0].nElem + 1)), 
+                                                                                                           : muGreaterEqNativeInt(sublen, muCon(lookahead[0].nElem)), 
                                body, 
                                falseCont)
                       //falseCont
@@ -942,45 +946,6 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
     //leaveBacktrackingScope(my_btscope);
     return code;
 }
-
-//MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuExp subjectExp, str btscope, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false) {
-//    lookahead = computeLookahead(p);  
-//    lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
-//    elmType = avalue();
-//    if(alist(tp) := subjectType && tp != avoid()){
-//        elmType = tp;
-//    }
-//    str fuid = topFunctionScope();
-//    my_btscope = nextTmp("LISTMATCH");
-//    enterBacktrackingScope(my_btscope);
-//    subject = muTmpIValue(nextTmp("subject"), fuid, subjectType);
-//    cursor = muTmpInt(nextTmp("cursor"), fuid);
-//    sublen = muTmpInt(nextTmp("sublen"), fuid);
-//    
-//    typecheckNeeded = asubtype(getType(p), subjectType);
-//    
-//    body =  ( trueCont | translatePatAsListElem(lpats[i], lookahead[i], elmType, subject, sublen, cursor, my_btscope, it, falseCont) | int i <- reverse(index(lpats)) );
-//    
-//    block = muBlock([ muConInit(sublen, muSize(subject, subjectType)),
-//                      muIfelse(isEmpty(lookahead) ? muEqualNativeInt(sublen, muCon(0))
-//                                                  : (lookahead[0].nMultiVar == 0 && !isMultiVar(lpats[0])) ? muEqualNativeInt(sublen, muCon(lookahead[0].nElem + 1))
-//                                                                                                           : muGreaterEqNativeInt(sublen, muCon(lookahead[0].nElem + 1)), 
-//                               body, 
-//                               falseCont),
-//                      falseCont
-//                    ]);
-//    
-//    code = muEnter(my_btscope,
-//             muBlock([ *(subjectAssigned ? [muVarInit(subject, subjectExp)] : [muConInit(subject, subjectExp)]),   
-//                       muVarInit(cursor, muCon(0)), 
-//                       *(typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
-//                                                      block,
-//                                                      falseCont)]
-//                                                     
-//                                         : [ block ])
-//                     ]));
-//    leaveBacktrackingScope();
-//}
 
 bool isMultiVar(p:(Pattern) `<QualifiedName name>*`) = true;
 bool isMultiVar(p:(Pattern) `*<Type tp> <Name name>`) = true;
@@ -1095,8 +1060,10 @@ MuExp translatePatAsListElem(p:(Pattern) `*<Name name>`, Lookahead lookahead, AT
     return translateNamedMultiVar(prettyPrintName(name), pos, lookahead, subjectType, subject, sublen, cursor, btscope, trueCont, falseCont);
 } 
 
-bool isUsed(MuExp var, MuExp exp)
-    =  /var := exp;
+bool isUsed(MuExp var, MuExp exp){
+    nm = var.name;
+    return /nm := exp; // In some cases, the type in the var can still be a type var, so only look for the var name;
+}
 
 MuExp translateNamedMultiVar(str name, int pos, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, str btscope, MuExp trueCont, MuExp falseCont) {
     str fuid = topFunctionScope();
@@ -1107,10 +1074,13 @@ MuExp translateNamedMultiVar(str name, int pos, Lookahead lookahead, AType subje
     code = muBlock([]);
     if(lookahead.nMultiVar == 0){
         code = muBlock([ muConInit(startcursor, cursor), 
-                         muConInit(len, muSubNativeInt(muSubNativeInt(sublen, startcursor), muCon(lookahead.nElem))),         
-                         *(isUsed(var, trueCont) ? [muConInit(var, muSubList(subject, startcursor, len))] : []),
-                         muAssign(cursor, muAddNativeInt(startcursor, len)),
-                         trueCont
+                         muConInit(len, muSubNativeInt(muSubNativeInt(sublen, startcursor), muCon(lookahead.nElem))),
+                         //muIfExp(muGreaterEqNativeInt(len, muCon(0)),        
+                                 muBlock([*(isUsed(var, trueCont) ? [muConInit(var, muSubList(subject, startcursor, len))] : []),
+                                          muAssign(cursor, muAddNativeInt(startcursor, len)),
+                                          trueCont])
+                        //         falseCont
+                        //)
                        ]);
     } else {
         my_btscope = nextTmp("<prettyPrintName(name)>_LISTVAR");
@@ -1119,7 +1089,7 @@ MuExp translateNamedMultiVar(str name, int pos, Lookahead lookahead, AType subje
                          muForRangeInt(my_btscope, len, 0, 1, muSubNativeInt(sublen, startcursor), 
                                        muBlock([ *(isUsed(var, trueCont) ? [muConInit(var, muSubList(subject, startcursor, len))] : [] ),
                                                  muAssign(cursor, muAddNativeInt(startcursor, len)),
-                                                 trueCont // updateBTScope(trueCont, btscope, my_btscope)
+                                                 updateBTScope(trueCont, btscope, my_btscope)
                                                ]))
                        ]);  
       code = muEnter(my_btscope, code);
