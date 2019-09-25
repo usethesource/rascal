@@ -526,7 +526,7 @@ bool returnsValue((Statement) `<Label label> do <Statement body> while ( <Expres
 bool returnsValue((Statement) `<Label label> for( <{Expression ","}+ generators> ) <Statement body>`, str fname, Collector c) = true;
 bool returnsValue(stat:(Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`, str fname,  Collector c) = returnsViaAllPath(stat, fname, c);
 
-default bool returnsValue(Statement s,  str fname, Collector c) = s is expression;
+default bool returnsValue(Statement s,  str fname, Collector c) = s is expression || s is \visit;
 
 bool leavesBlock((Statement) `fail <Target target> ;`) = true;
 bool leavesBlock((Statement) `break <Target target> ;`) = true;
