@@ -429,14 +429,7 @@ bool asubtype(AType l, tvar(s)) { /*println("asubtype(<l> tvar(<s>))");*/ throw 
 
 
 bool asubtype(overloadedAType(overloads), AType r) = any(<k, idr, tp> <- overloads, asubtype(tp, r));
-//{   for(<k, idr, tp> <- overloads){
-//        println("asubtype(tp,r):");
-//        iprintln(tp);
-//        iprintln(r);
-//        if(asubtype(tp, r)) return true;
-//    }
-//    return false;
-//}
+
 bool asubtype(AType l, overloadedAType(overloads)) = any(<k, idr, tp> <- overloads, asubtype(l, tp));
 
 bool asubtype(AType _, avalue()) = true;
@@ -445,17 +438,15 @@ bool asubtype(avoid(), AType _) = true;
 
 bool asubtype(anode(_), anode(_)) = true;
 
-bool asubtype(x:acons(AType a, /*_,*/ list[AType/*NamedField*/] _, list[Keyword] _), AType b){
-    res = asubtype(a, b);
-    //println("asubtype(acons(<a>,_,_,_), <b>) ==\> <res>");
-    return res;
-}
-bool asubtype(AType a, x:acons(AType b, /*_,*/ list[AType/*NamedField*/] _, list[Keyword] _)){
-    res = asubtype(a, b);
-    //println("asubtype(<a>, acons(<b>,_,_,_) ==\> <res>");
-    return res;
-}
-bool asubtype(acons(AType a, /*str name,*/ list[AType/*NamedField*/] ap, list[Keyword] _), acons(a,/*name,*/list[AType/*NamedField*/] bp, list[Keyword] _)) = asubtype(ap,bp);
+bool asubtype(x:acons(AType a, list[AType] _, list[Keyword] _), AType b) = asubtype(a, b);
+
+bool asubtype(AType a, x:acons(AType b, list[AType] _, list[Keyword] _)) = asubtype(a, b);
+  
+bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), acons(a,list[AType] bp, list[Keyword] _)) = asubtype(ap,bp);
+bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), afunc(a,list[AType] bp, list[Keyword] _)) = asubtype(ap,bp);
+
+bool asubtype(afunc(AType a, list[AType] ap, list[Keyword] _), acons(b,list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
+bool asubtype(acons(a,list[AType] ap, list[Keyword] _), afunc(AType b, list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
 
 bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
 bool asubtype(aadt(str n, list[AType] l, _), aadt(n, list[AType] r, _)) = asubtype(l, r);
@@ -513,8 +504,10 @@ bool asubtype(abag(AType s), abag(AType t)) = asubtype(s, t);
 
 bool asubtype(amap(AType from1, AType to1), amap(AType from2, AType to2)) 
     { return  asubtype(from1, from2) && asubtype(to1, to2);}
-
-bool asubtype(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _)) = asubtype(r1, r2) && asubtype(p2, p1); // note the contra-variance of the argument types
+    
+// note that comparability is enough for function argument sub-typing due to pattern matching semantics
+bool asubtype(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
+    = asubtype(r1, r2) && comparable(p1, p2);
 
 bool asubtype(aparameter(str _, AType bound), AType r) = asubtype(bound, r);
 bool asubtype(AType l, aparameter(str _, AType bound)) = asubtype(l, bound);
@@ -544,6 +537,9 @@ Check if two types are comparable, i.e., have a common supertype.
 }
 bool comparable(AType s, AType t)
     = s == t || asubtype(s,t) || asubtype(t,s);
+
+bool comparable(list[AType] l, list[AType] r) = all(i <- index(l), comparable(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
+default bool comparable(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
 
 @doc{
 .Synopsis
@@ -671,12 +667,13 @@ AType alub(\char-class(_), r:aadt("Tree", _, _)) = r;
 // TODO: missing lub of iter/iter-plus relation here.
 // TODO: missing lub of aadt("Tree", _, _) with all non-terminal types such as seq, opt, iter
 
+// because functions _match_ their parameters, parameter types may be comparable (co- and contra-variant) and not
+// only contra-variant. We choose the lub here over glb (both would be correct), to
+// indicate to the programmer the intuition that rather _more_ than fewer functions are substitutable.
 AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, list[AType] rp, list[Keyword] rkw)) {
-    lubReturn = alub(lr,rr);
-    lubParams = alub(atypeList(lp),atypeList(rp));    // TODO was glb, check this
-    if (atypeList(args) := lubParams)
-        return afunc(lubReturn, args, lkw == rkw ? lkw : []);
-    else
+    if(size(lp) == size(rp)){
+        return afunc(alub(lr,rr), alubList(lp, rp), lkw == rkw ? lkw : []); // TODO do we want to propagate the keyword parameters?
+    } else
         return avalue();
 }
 

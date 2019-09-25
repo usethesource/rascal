@@ -222,7 +222,7 @@ private void computeLoopType(str loopKind, str loopName1, Statement current, Col
         if(loopInfo(loopName2, list[Statement] appends) := scopeInfo){
            if(loopName1 == "" || loopName1 == loopName2){
               if(isEmpty(appends)){
-                 c.fact(current, alist(avoid()));
+                c.fact(current, alist(avoid()));
               } else {
                  c.calculate(loopKind, current, appends, AType(Solver s){ 
                     res = alist(s.lubList([s.getType(app) | app <- appends]));

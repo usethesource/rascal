@@ -491,11 +491,14 @@ bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditi
 bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`, str fname,  Collector c)
     = returnsViaAllPath(thenStatement, fname, c) && returnsViaAllPath(elseStatement, fname, c);
  
-bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = true;
-bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = true;
+bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = returnsValue(statement, fname, c);
+bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = returnsValue(statement,fname, c);
 bool returnsViaAllPath((Statement) `fail <Target target>;`, str fname,  Collector c) = isEmpty("<target>") || "<target>" == fname;
 
 bool returnsViaAllPath((Statement) `<Label label> { <Statement+ statements> }`, str fname,  Collector c)
+    = returnsViaAllPath([ statement | statement <- statements ], fname, c);
+    
+bool returnsViaAllPath((Statement) `{ <Statement+ statements> }`, str fname,  Collector c)
     = returnsViaAllPath([ statement | statement <- statements ], fname, c);
     
 bool returnsViaAllPath(list[Statement] statements, str fname,  Collector c){
@@ -517,6 +520,13 @@ bool returnsViaAllPath(list[Statement] statements, str fname,  Collector c){
 }
  
 default bool returnsViaAllPath(Statement s, str fname, Collector c) = false;
+
+bool returnsValue((Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`, str fname, Collector c) = true;
+bool returnsValue((Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`, str fname, Collector c) = true;
+bool returnsValue((Statement) `<Label label> for( <{Expression ","}+ generators> ) <Statement body>`, str fname, Collector c) = true;
+bool returnsValue(stat:(Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`, str fname,  Collector c) = returnsViaAllPath(stat, fname, c);
+
+default bool returnsValue(Statement s,  str fname, Collector c) = s is expression;
 
 bool leavesBlock((Statement) `fail <Target target> ;`) = true;
 bool leavesBlock((Statement) `break <Target target> ;`) = true;
