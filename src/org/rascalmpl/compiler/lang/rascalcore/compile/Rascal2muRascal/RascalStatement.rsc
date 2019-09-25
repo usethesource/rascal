@@ -81,6 +81,8 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     str fuid = topFunctionScope();
     enterLoop(whileName,fuid);
     
+    whileType = getType(s@\loc);
+    
     btfree = all(Expression c <- conditions, backtrackFree(c));
     enterBacktrackingScope(whileName);
     
@@ -91,10 +93,10 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
         code = muValueBlock(getType(s),
                        [ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], s@\loc)),
                          loopBody,
-                         muCallPrim3("close_list_writer", avalue(), [], [writer], s@\loc)
+                         muCallPrim3("close_list_writer", avalue(), [avalue()], [writer], s@\loc)
                        ]);
     } else {
-        code =  muValueBlock(avoid(), [ loopBody, muCon([]) ]);
+        code = loopBody;
     }
     if(!btfree){
         code = updateBTScope(code, whileName, currentBacktrackingScope());
@@ -162,10 +164,10 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
         code = muValueBlock(getType(s),
                             [ muConInit(writer,muCallPrim3("open_list_writer", avalue(), [], [], s@\loc)), 
                               loopBody,
-                              muCallPrim3("close_list_writer", avalue(), [], [writer], s@\loc)
+                              muCallPrim3("close_list_writer", avalue(), [avalue()], [writer], s@\loc)
                             ]);
     } else {
-        code = muValueBlock(avoid(), [ loopBody, muCon([]) ]);
+        code = loopBody;
     }
                           
     leaveBacktrackingScope(doName);
@@ -209,7 +211,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
         code = muValueBlock(getType(s),
                             [ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], s@\loc)),
                               loopBody,
-                              muCallPrim3("close_list_writer", avalue(), [], [writer], s@\loc)
+                              muCallPrim3("close_list_writer", avalue(), [avalue()], [writer], s@\loc)
                             ]);
     } else {
         code = muValueBlock(avoid(), [ loopBody, muCon([]) ]);
@@ -349,7 +351,7 @@ MuExp translateSwitch((Statement) `<Label label> switch ( <Expression expression
 
     useConcreteFingerprint = hasConcretePatternsOnly(the_cases);
     <case_code, default_code> = translateSwitchCases(switchval, fuid, useConcreteFingerprint, the_cases, muSucceedSwitchCase());
-    return muSwitch(muConInit(switchval, translate(expression)), case_code, default_code, useConcreteFingerprint);
+    return muBlock([muConInit(switchval, translate(expression)), muSwitch(switchval, case_code, default_code, useConcreteFingerprint)]);
 }
 
 /*
@@ -771,7 +773,7 @@ MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statem
 MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statement>`) {
    fuid = getCurrentLoopScope(dataTarget);
    target = "listwriter_<currentLoop(dataTarget)>" ;
-   return muCallPrim3("add_list_writer", getType(s), [getType(s), getType(statement)], [muTmpIValue(target, fuid, getType(statement)), translate(statement)], s@\loc);
+   return muCallPrim3("add_list_writer", getType(s), [avalue(), getType(statement)], [muTmpIValue(target, fuid, getType(statement)), translate(statement)], s@\loc);
 }
 
 // -- local function declaration statement ---------------------------------
@@ -786,8 +788,7 @@ MuExp translate(s: (Statement) `<LocalVariableDeclaration declaration> ;`) {
     tp = declaration.declarator.\type;
     {Variable ","}+ variables = declaration.declarator.variables;
     code = for(var <- variables){
-    			if(var is initialized)
-    				append mkAssign("<var.name>", var.name@\loc, translate(var.initial));
+    		  append mkAssign("<var.name>", var.name@\loc, var is initialized ? translate(var.initial) : muNoValue());
              }
     return muBlock(code);
 }

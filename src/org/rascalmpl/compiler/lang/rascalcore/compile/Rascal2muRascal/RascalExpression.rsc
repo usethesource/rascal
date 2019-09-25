@@ -414,7 +414,7 @@ MuExp translate((Literal) `<LocationLiteral src>`) =
  */
  
 private MuExp translateLocationLiteral(l: (LocationLiteral) `<ProtocolPart protocolPart> <PathPart pathPart>`) =
-     muCallPrim3("create_loc", aloc(), [aloc()], [muCallPrim3("add", astr(), [astr(), astr()], [translateProtocolPart(protocolPart), translatePathPart(pathPart)], l@\loc)], l@\loc);
+     muCallPrim3("create_loc", aloc(), [astr()], [muCallPrim3("add", astr(), [astr(), astr()], [translateProtocolPart(protocolPart), translatePathPart(pathPart)], l@\loc)], l@\loc);
  
 private MuExp translateProtocolPart((ProtocolPart) `<ProtocolChars protocolChars>`) = muCon("<protocolChars>"[1..]);
  
@@ -654,7 +654,7 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
     muValueBlock(resultType,
                  [ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], e@\loc)),
                    muForRange("", elem, translate(first), muCon(0), translate(last), muCallPrim3("add_list_writer", avoid(), [resultType, elemType], [writer, elem], e@\loc)),
-                   muCallPrim3("close_list_writer", resultType, [], [writer], e@\loc)
+                   muCallPrim3("close_list_writer", resultType, [avalue()], [writer], e@\loc)
                  ]);
 }
 
@@ -670,7 +670,7 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
     muValueBlock(getType(e),
                  [ muConInit(writer, muCallPrim3("open_list_writer", alist(elemType), [], [], e@\loc)),
                    muForRange("", elem, translate(first), translate(second), translate(last), muCallPrim3("add_list_writer", avoid(), [elemType], [writer, elem], e@\loc)),
-                   muCallPrim3("close_list_writer", avoid(), [], [writer], e@\loc)
+                   muCallPrim3("close_list_writer", avoid(), [avalue()], [writer], e@\loc)
                  ]);
 }
 
@@ -951,9 +951,9 @@ private list[MuExp] translateComprehensionContribution(str kind, AType resultTyp
   return 
 	  for( r <- results){
 	    if((Expression) `* <Expression exp>` := r){
-	       append muCallPrim3("splice_<kind>", resultType, [resultType, getType(r)], [writer, translate(exp)], exp@\loc);
+	       append muCallPrim3("splice_<kind>", resultType, [avalue(), getType(r)], [writer, translate(exp)], exp@\loc);
 	    } else {
-	      append muCallPrim3("add_<kind>_writer", resultType, [resultType, getType(r)], [writer, translate(r)], r@\loc);
+	      append muCallPrim3("add_<kind>_writer", resultType, [avalue(), getType(r)], [writer, translate(r)], r@\loc);
 	    }
 	  }
 } 
@@ -967,7 +967,7 @@ private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ re
         muValueBlock(resultType,
                      [ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], c@\loc)),
                        translateAndConds([ g | Expression g <- generators ], muBlock(translateComprehensionContribution("list", resultType, writer, [r | r <- results])), muBlock([])),
-                       muCallPrim3("close_list_writer", getType(c), [], [writer], c@\loc) 
+                       muCallPrim3("close_list_writer", getType(c), [avalue()], [writer], c@\loc) 
                      ]);
 }
 
@@ -980,7 +980,7 @@ private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ re
         muValueBlock(resultType,
                      [ muConInit(writer, muCallPrim3("open_set_writer", avalue(), [], [], c@\loc)),
                       translateAndConds([ g | Expression g <- generators ], muBlock(translateComprehensionContribution("set", resultType, writer, [r | r <- results])), muBlock([])),
-                      muCallPrim3("close_set_writer", getType(c), [], [writer], c@\loc) 
+                      muCallPrim3("close_set_writer", getType(c), [avalue()], [writer], c@\loc) 
                     ]);
 }
 
@@ -991,9 +991,9 @@ private MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <E
     resultType = getType(c);
     return
         muValueBlock(resultType,
-                     [ muConInit(writer, muCallPrim3("open_map_writer", avoid(), [], [], c@\loc)),
+                     [ muConInit(writer, muCallPrim3("open_map_writer", avalue(), [], [], c@\loc)),
                        translateAndConds([ g | Expression g <- generators ], muCallPrim3("add_map_writer", avoid(), [getType(from), getType(to)], [writer] + [ translate(from), translate(to)], c@\loc), muBlock([])),
-                       muCallPrim3("close_map_writer", resultType, [], [writer], c@\loc) 
+                       muCallPrim3("close_map_writer", resultType, [avalue()], [writer], c@\loc) 
                      ]);
 }
 
@@ -1019,18 +1019,18 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
        writer = kind == "list" ? muTmpListWriter(nextTmp("writer"), fuid) : muTmpSetWriter(nextTmp("writer"), fuid);;
       
        
-       kindwriter_open_code = muCallPrim3("open_<kind>_writer", avoid(), [], [], e@\loc);
+       kindwriter_open_code = muCallPrim3("open_<kind>_writer", avalue(), [], [], e@\loc);
        
        enterWriter(writer.name);
        code = [ muConInit(writer, kindwriter_open_code) ];
        for(elem <- es){
            if(elem is splice){
-              code += muCallPrim3("splice_<kind>", avoid(), [getType(e), getType(elem)], [writer, translate(elem.argument)], elem.argument@\loc);
+              code += muCallPrim3("splice_<kind>", avoid(), [avalue(), getType(elem)], [writer, translate(elem.argument)], elem.argument@\loc);
             } else {
-              code += muCallPrim3("add_<kind>_writer", avoid(), [elmType], [writer, translate(elem)], elem@\loc);
+              code += muCallPrim3("add_<kind>_writer", avoid(), [avalue(), elmType], [writer, translate(elem)], elem@\loc);
            }
        }
-       code += [ muCallPrim3("close_<kind>_writer", getType(e), [], [ writer ], e@\loc) ];
+       code += [ muCallPrim3("close_<kind>_writer", getType(e), [avalue()], [ writer ], e@\loc) ];
        leaveWriter();
        return muValueBlock(getType(e), code);
     } else {
@@ -1475,7 +1475,7 @@ MuExp translateBool(e:(Expression) `<Pattern pat> !:= <Expression rhs>`, str bts
 MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`){
     btscope = nextTmp("MATCH");
     enterBacktrackingScope(btscope);
-    code = muEnter(btscope, translateMatch(e, btscope, muSucceed(btscope), muFailEnd(btscope)));
+    code = muEnter(btscope, translateMatch(e, btscope, muSucceed(btscope), muFail(btscope)));
     leaveBacktrackingScope(btscope);
     return code;
 }

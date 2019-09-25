@@ -203,7 +203,7 @@ str atype2IValue(set[AType] ts, map[AType, set[AType]] defs)
     = "$VF.set(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
 
 str defs(map[AType, set[AType]] defs) {
-    res = "buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $VF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
+    res = "$buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $VF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
     return res;
 }
 
@@ -455,8 +455,8 @@ str atype2istype(str e, aloc())                  = "<e>.getType().isSourceLocati
 str atype2istype(str e, adatetime())             = "<e>.getType().isDateTime()";
 str atype2istype(str e, alist(AType t))          = "<e>.getType().isList()";
 str atype2istype(str e, aset(AType t))           = "<e>.getType().isSet()";
-str atype2istype(str e, arel(AType ts))          = "<e>.getType().isRelation() && ((IRelation\<ISet\>)<e>).arity() == <size(ts)>";
-str atype2istype(str e, alrel(AType ts))         = "<e>.getType().isListRelation() && ((IRelation\<IList\>)<e>).arity() == <size(ts)>";
+str atype2istype(str e, arel(AType ts))          = "<e>.getType().isRelation()"; //&& ((ISet)<e>).asRelation().arity() == <size(ts)>";
+str atype2istype(str e, alrel(AType ts))         = "<e>.getType().isListRelation()"; // && ((IList)<e>).asRelation().arity() == <size(ts)>";
 str atype2istype(str e, atuple(AType ts))        = "<e>.getType().isTuple() && ((ITuple)<e>).arity() == <size(ts)>";
 str atype2istype(str e, amap(AType d, AType r))  = "<e>.getType().isMap()";
 
@@ -522,7 +522,7 @@ str value2IValue(str s) = "$VF.string(\"<escapeForJ(s)>\")";
 
 str value2IValue(loc l) {
 
-    base = "create_aloc($VF.string(\"<l.uri>\"))";
+    base = "$create_aloc($VF.string(\"<l.uri>\"))";
     return l.offset? ? "$VF.sourceLocation(<base>, <l.offset>, <l.length>, <l.begin.line>, <l.end.line>, <l.begin.column>, <l.end.column>)"
                       : base;
 }
@@ -571,7 +571,7 @@ str value2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup) = "$VF.tuple(<value2IValue(
 str value2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup) = "$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>, <value2IValue(tup[6])>, <value2IValue(tup[7])>, <value2IValue(tup[8])>)";
 str value2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup) = "$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>, <value2IValue(tup[6])>, <value2IValue(tup[7])>, <value2IValue(tup[8])>, <value2IValue(tup[9])>)";
 
-str value2IValue(map[&K,&V] mp) = "buildMap(<intercalate(", ", ["<value2IValue(k)>, <value2IValue(mp[k])>" | k <- mp ])>)";
+str value2IValue(map[&K,&V] mp) = "$buildMap(<intercalate(", ", ["<value2IValue(k)>, <value2IValue(mp[k])>" | k <- mp ])>)";
 
 
 str value2IValue(node nd) = "$VF.node(<getName(nd)>, <intercalate(", ", [ value2IValue(child) | child <- getChildren(nd) ])>)";
@@ -645,8 +645,8 @@ str atype2typestore(alist(AType t)) = "$TF.listType(<atype2typestore(t)>)";
 str atype2typestore(aset(AType t)) = "$TF.setType(<atype2typestore(t)>)";
 str atype2typestore(atuple(AType ts)) = "$TF.tupleType(<atype2typestore(ts)>)";
 str atype2typestore(amap(AType d, AType r)) = "$TF.mapType(<atype2typestore(d)>,<atype2typestore(r)>)";
-str atype2typestore(arel(AType t)) = "$TF.relationType(<atype2typestore(t)>)";
-str atype2typestore(alrel(AType t)) = "$TF.listRelationType(<atype2typestore(t)>)";
+str atype2typestore(arel(AType t)) = "$TF.setType($TF.tupleType(<atype2typestore(t)>))";
+str atype2typestore(alrel(AType t)) = "$TF.listType($TF.tupleType(<atype2typestore(t)>))";
 str atype2typestore(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = getADTName(adtName);
 str atype2typestore(acons(AType adt,
                 list[AType fieldType] fields,

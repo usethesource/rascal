@@ -13,7 +13,7 @@ public class Util {
 		return ToplevelType.getFingerprint(val, concretePatterns);
 	}
 
-	public static Map<String,IValue> kwpMap(Object...objects){
+	public static Map<java.lang.String,IValue> kwpMap(Object...objects){
 		HashMap<String, IValue> m = new HashMap<String,IValue>();
 		for(int i = 0; i < objects.length; i += 2) {
 			m.put((String) objects[i], (IValue)objects[i+1]);

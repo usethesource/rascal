@@ -77,7 +77,10 @@ public class RascalExceptionFactory {
 	public static final Type IllegalIdentifier = TF.constructor(TS, Exception, "IllegalIdentifier", TF.stringType(), "name");
 	public static final Type IllegalChar = TF.constructor(TS, Exception, "IllegalCharacter", TF.integerType(), "character");
 	public static final Type SchemeNotSupported = TF.constructor(TS, Exception, "SchemeNotSupported", TF.sourceLocationType(), "location");
-	public static final Type MalFormedURI = TF.constructor(TS, Exception, "MalFormedURI", TF.stringType(), "malFormedUri");
+	
+	public static final Type MalFormedURI = TF.constructor(TS, Exception, "MalFormedURI", TF.stringType(), "malFormedUri"); // remove for compiler
+	public static final Type InvalidURI = TF.constructor(TS, Exception, "InvalidURI", TF.stringType(), "invalidUri");
+
 	public static final Type NoParent = TF.constructor(TS, Exception, "NoParent", TF.sourceLocationType(), "noParentUri");
 	public static final Type NameMismatch = TF.constructor(TS, Exception, "NameMismatch", TF.stringType(), "expectedName", TF.stringType(), "gotName");
 	public static final Type ArityMismatch = TF.constructor(TS, Exception, "ArityMismatch", TF.integerType(), "expectedArity", TF.integerType(), "gotArity");
@@ -249,6 +252,10 @@ public class RascalExceptionFactory {
 
 	public static RascalException malformedURI(String uri) {
 		return new RascalException(VF.constructor(MalFormedURI, VF.string(uri)));
+	}
+	
+	public static RascalException invalidURI(String uri) {
+		return new RascalException(VF.constructor(InvalidURI, VF.string(uri)));
 	}
 
 	public static RascalException MultipleKey(IValue v, IValue first, IValue second) {

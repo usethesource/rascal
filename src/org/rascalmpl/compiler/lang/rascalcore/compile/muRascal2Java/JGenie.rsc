@@ -49,7 +49,9 @@ data JGenie
         list[str] () getImportedLibraries,
         void (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) addResolver,
         bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) isResolved,
-        bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions
+        bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions,
+        void(str method) addInterfaceMethod,
+        str() getInterfaceMethods
       )
     ;
     
@@ -75,6 +77,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     set[tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors]] resolvers = {};
     str functionName = "$UNKNOWN";
     MuFunction function;
+    list[str] interfaceMethods = [];
     
     map[loc,list[MuExp]] fun2externals = (fun.src : fun.externalVars  | fun <- range(muFunctions));
     
@@ -86,11 +89,16 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     loc _getModuleLoc()
         = currentModuleScope;
         
+    private bool isIgnored(MuFunction muFun){
+        return !isEmpty(domain(muFun.tags) & {"ignore", "Ignore", "ignoreInterpreter", "IgnoreInterpreter"});
+    }
+        
     bool _isUniqueFunction(MuFunction muFun){
+        if(isIgnored(muFun)) return false;
         arity = getArity(muFun.ftype);
         name = muFun.uqname;
-       
-        tmp1 = [ muFun.uqname | muFun1 <- range(muFunctions), muFun1.uqname == name, getArity(muFun1.ftype) == arity ];
+        
+        tmp1 = [ muFun.uqname | muFun1 <- range(muFunctions), muFun1.uqname == name, getArity(muFun1.ftype) == arity, !isIgnored(muFun1) ];
                                
         r = resolvers[name];
         res = size(tmp1) <= 1 && (isEmpty(r) 
@@ -109,7 +117,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
             functionName = functionName[ .. idx];
         } else { 
             idx = findFirst(qname, "$");    // preserve $ as first character (as opposed to separator with module name) 
-            functionName = idx > 0 ? qname[idx+1 .. ] : _isUniqueFunction(fun) ? fun.uqname : qname;
+            functionName = idx > 0 ? qname[idx+1 .. ] : /*_isUniqueFunction(fun) ? fun.uqname : */qname;
         }
     }
     
@@ -271,6 +279,24 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                || any(oc <- overloads.oconstructors, containedIn(currentModule.definitions[oc].defined, currentModuleScope));
     }
     
+    tuple[str name, list[str] argTypes] getElements(str signature){
+        if(/<name:[a-z A-Z 0-9 _]+>(<args:.*>)/ := signature){
+           return <name, [tps[0] | str arg <- split(",", args), tps := split(" ", arg)]>;
+        }
+    }
+    
+    void _addInterfaceMethod(str method){
+        <mname1, margs1> = getElements(method);
+        for(m <- interfaceMethods){
+            <mname2, margs2> = getElements(m);
+            if(mname1 == mname2 && margs1 == margs2) return;
+        }
+       
+        interfaceMethods += method;
+    }
+   str _getInterfaceMethods(){
+        return intercalate("\n", interfaceMethods);
+   }
     return jgenie(
                 _getModuleName,
                 _getModuleLoc,
@@ -299,11 +325,13 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 _getImportedLibraries,
                 _addResolver,
                 _isResolved,
-                _usesLocalFunctions
+                _usesLocalFunctions,
+                _addInterfaceMethod,
+                _getInterfaceMethods
             );
 }
 
 // ---- casting ---------------------------------------------------------------
 
-str castArg(AType t, str x) = startsWith(x, "((<atype2javatype(t)>)(") ? x : "(<atype2javatype(t)>)(<x>)";
+str castArg(AType t, str x) = startsWith(x, "((<atype2javatype(t)>)(") ? x : "((<atype2javatype(t)>)(<x>))";
 str cast(AType t, str x) = "(<castArg(t,x)>)";

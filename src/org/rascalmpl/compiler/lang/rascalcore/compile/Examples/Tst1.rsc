@@ -1,55 +1,38 @@
 module lang::rascalcore::compile::Examples::Tst1         
-//                                                   
-//data Symbol
-//    = \void()
-//    ;
-//public bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
-//public default bool subtype(Symbol s, Symbol t) = false;
-//    
-//public bool subtype(\void(), Symbol _) = true;
-   
-         
-//data Symbol;
-//  
-// data  Production
-//    = \choice(Symbol def, set[Production] alternatives)  
-//    ;
-//           
-//public Production choice(Symbol s, set[Production] choices){
-//    fail;
-//}           
-// data Symbol
-//   = \void();
-//         
-//public Symbol glb(Symbol s, s) = s;
-//public default Symbol glb(Symbol s, Symbol t) = \void();
-//
-//public list[Symbol] glb(list[Symbol] l, list[Symbol] r) = [];
-//public default list[Symbol] glb(list[Symbol] l, list[Symbol] r) = []; 
-//  
-// void main(){
-//    glb([\void()], [\void()]);
-// }
-   
-//
-//@javaClass{org.rascalmpl.library.Prelude}
-//public java datetime incrementYears(datetime dt, int n);
-//public datetime incrementYears(datetime dt) {
-//  return incrementYears(dt,1);
-//}
 
-//                              
-// public tuple[list[&T],list[&U]] unzip(list[tuple[&T,&U]] lst) =
-//	<[t | <t,_> <- lst], [u | <_,u> <- lst]>;
-//
-//// Make a triple of lists from a list of triples.
-//public tuple[list[&T],list[&U],list[&V]] unzip(list[tuple[&T,&U,&V]] lst) =
-//	<[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
- 
-	
-@javaClass{org.rascalmpl.library.Prelude}
-public java &T head(list[&T] lst);
-
-// Get the first n elements of a list
-@javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] head(list[&T] lst, int n);
+data Tree1
+  = \node1(value val, Tree1 l, Tree1 r, loc origin)
+  |leaf()
+  ;
+bool foo(Tree1 l, Tree1 r) {
+  if (\node1(v1, l1, r1, _) := l && \node1(v2, l2, r2, _) := r) {
+    return v1 := v2;
+  }
+  return false;
+}
+bool bar(Tree1 l, Tree1 r) {
+  if (\node1(v1, l1, r1, _) := l && \node1(value v2, Tree1 l2, Tree1 r2, _) := r) {
+    return v1 := v2;
+  }
+  return false;
+}
+data Tree2
+  = \node2(value val, Tree2 l, Tree2 r, loc origin)
+  | leaf2()
+  ;
+bool foo(Tree2 l, Tree2 r) {
+  if (\node2(v1, l1, r1, _) := l && \node2(value v2, Tree2 l2, Tree2 r2, _) := r) {
+    return v1 := v2;
+  }
+  return false;
+}
+data Tree3
+  = \node3(value val, Tree3 l, Tree3 r, loc origin)
+  | leaf3(loc origin)
+  ;
+bool foo(Tree3 l, Tree3 r) {
+  if (\node3(v1, l1, r1, _) := l && \node3(value v2, Tree3 l2, Tree3 r2, _) := r) {
+    return v1 := v2;
+  }
+  return false;
+}
