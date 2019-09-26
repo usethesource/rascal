@@ -19,6 +19,14 @@ import Set;
 import String;
 //import ValueIO;
 
+void checkNonVoid(Tree e, Solver s, str msg){
+    if(isVoidType(s.getType(e))) s.report(error(e, msg + " cannot have type `void`"));
+}
+
+void checkNonVoid(Tree e, AType t, Solver s, str msg){
+    if(isVoidType(t)) s.report(error(e, msg + " cannot have type `void`"));
+}
+
 AType(Solver) makeGetSyntaxType(Tree varType)
     = AType(Solver s) { return getSyntaxType(varType, s); };
     
@@ -27,6 +35,7 @@ void(Solver) makeVarInitRequirement(Variable var)
             Bindings bindings = ();
             initialType = s.getType(var.initial);
             varType = s.getType(var.name);
+            checkNonVoid(var, varType, s, "Variable declaration");
             try   bindings = matchRascalTypeParams(initialType, varType, bindings, bindIdenticalVars=true);
             catch invalidMatch(str reason):
                   s.report(error(var.initial, reason));
@@ -37,10 +46,14 @@ void(Solver) makeVarInitRequirement(Variable var)
             } else if(!s.unify(initialType, varType)){
                 s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
             }
+            checkNonVoid(var.initial, initialType, s, "Variable initialization");
             s.fact(var, varType);
        };
+       
+void(Solver) makeNonVoidRequirement(Tree t, str msg)
+    = void(Solver s) { checkNonVoid(t, s, msg ); };
 
-AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s){
+AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s, bool maybeVoid=false){
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -53,7 +66,7 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t", op, t1));
         return overloadedAType(bin_overloads);
     }
-    
+    if(!maybeVoid && isVoidType(t1)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, s);
 }
 
@@ -83,6 +96,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
     }
+    if(isVoidType(t1) || isVoidType(t2)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, t2, s);
 }
 
@@ -125,6 +139,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
     }
+    if(isVoidType(t1) || isVoidType(t2) || isVoidType(t3)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, t2, t3, s);
 }
 

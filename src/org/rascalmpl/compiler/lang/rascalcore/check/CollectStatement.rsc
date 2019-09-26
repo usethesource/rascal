@@ -26,14 +26,14 @@ import String;
 
 void collect(current: (Statement) `assert <Expression expression>;`, Collector c){
     c.fact(current, abool());
-    c.requireSubType(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
+    c.requireEqual(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
     collect(expression, c);
 } 
 
 void collect(current: (Statement) `assert <Expression expression> : <Expression message> ;`, Collector c){
    c.fact(current, abool());
-   c.requireSubType(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
-   c.requireSubType(message, astr(), error(message, "Assertion message should be `str`, found %t", message));
+   c.requireEqual(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
+   c.requireEqual(message, astr(), error(message, "Assertion message should be `str`, found %t", message));
    collect(expression, message, c);
 } 
      
@@ -53,6 +53,7 @@ void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
         if(label is \default){
             c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
+        c.require("non-void", vst.subject, [], makeNonVoidRequirement(vst.subject, "Subject of visit"));
         c.fact(current, vst.subject);
         collect(vst, c);
     c.leaveScope(current);
@@ -93,10 +94,10 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                           void (Solver s){ for(cond <- conditions){
                                   condType = s.getType(cond);
                                   if(!s.isFullyInstantiated(condType)){
-                                     s.requireUnify(condType, abool(), error(cond, "Canot unify %t with `bool`", cond));
+                                     s.requireUnify(condType, abool(), error(cond, "Cannot unify %t with `bool`", cond));
                                      condType = s.instantiate(condType);
                                   }
-                                  s.requireSubType(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
+                                  s.requireEqual(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
                                }
                             });
                     }
@@ -110,6 +111,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                               exprType = s.instantiate(exprType);
                               patType = s.instantiate(patType); 
                            }
+                           checkNonVoid(replacement.replacementExpression, exprType, s, "Replacement in visit");
                            s.requireSubType(exprType, patType, error(current, "A pattern of type %t cannot be replaced by %t", patType, exprType));
                          });
               
@@ -413,6 +415,7 @@ void collect(current: (Statement) `<Label label> switch ( <Expression e> ) { <Ca
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(e, false));
         c.fact(current, avoid());
+        c.require("non-void", e, [], void(Solver s){ checkNonVoid(e, s, "Switch expression"); });
         collect(e, cases, c);
     c.leaveScope(current);
 }
@@ -452,7 +455,7 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
 
 void collect(Bound current, Collector c){
     if(current is \default){
-        c.requireSubType(current.expression, aint(), error(current.expression, "Bound should have type `int`, found %t", current.expression)); 
+        c.requireEqual(current.expression, aint(), error(current.expression, "Bound should have type `int`, found %t", current.expression)); 
         c.fact(current, aint());
         collect(current.expression, c);
     } else {
@@ -576,26 +579,40 @@ private void checkAssignment(Statement current, (Assignable) `( <Assignable arg>
     //collect(arg, c);
 }
 
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsType, Solver s)
-    = rhsType;
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsType, Solver s){
+    checkNonVoid(current, rhsType, s, "Righthand side of assignment");
+    return rhsType;
+}
     
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "+=", AType rhsType, Solver s)
-    = computeAdditionType(current, lhsType, rhsType, s);
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "+=", AType rhsType, Solver s){
+    checkNonVoid(current, rhsType, s, "Righthand side of += assignment");
+    return computeAdditionType(current, lhsType, rhsType, s);
+}  
 
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "-=", AType rhsType, Solver s)
-    = computeSubtractionType(current, lhsType, rhsType, s); 
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "-=", AType rhsType, Solver s){
+    checkNonVoid(current, rhsType, s, "Righthand side of-= assignment");
+    return computeSubtractionType(current, lhsType, rhsType, s); 
+}
 
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "*=", AType rhsType, Solver s)
-    = computeProductType(current, lhsType, rhsType, s);       
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "*=", AType rhsType, Solver s){
+    checkNonVoid(current, rhsType, s, "Righthand side of*= assignment");
+    return computeProductType(current, lhsType, rhsType, s); 
+}      
 
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "/=", AType rhsType, Solver s)
-    = computeDivisionType(current, lhsType, rhsType, s);    
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "/=", AType rhsType, Solver s){
+    checkNonVoid(current, rhsType, s, "Righthand side of /= assignment");
+    return computeDivisionType(current, lhsType, rhsType, s);    
+}
 
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "&=", AType rhsType, Solver s)
-    = computeIntersectionType(current, lhsType, rhsType, s);  
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "&=", AType rhsType, Solver s){
+    checkNonVoid(current, rhsType, s, "Righthand side of &= assignment");
+    return computeIntersectionType(current, lhsType, rhsType, s);  
+}
     
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType, Solver s)
-    = alub(lhsType, rhsType);
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType, Solver s){
+    checkNonVoid(current, rhsType, s, "Righthand side of ?= assignment");
+    return alub(lhsType, rhsType);
+}
 
 private default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
     throw rascalCheckerInternalError(getLoc(current), "<operator> not supported");
@@ -690,6 +707,8 @@ private AType computeSubscriptAssignableType(Statement current, AType receiverTy
 
    if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
    if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable();
+   
+   checkNonVoid(current, rhs, s, "Righthand side of subscript assignment");
    
    if(overloadedAType(rel[loc, IdRole, AType] overloads) := receiverType){
         sub_overloads = {};
@@ -789,6 +808,8 @@ private AType computeSliceAssignableType(Statement current, AType receiverType, 
     if(!s.isFullyInstantiated(step)) throw TypeUnavailable();
     if(!s.isFullyInstantiated(last)) throw TypeUnavailable();
     if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable();
+    
+    checkNonVoid(current, rhs, s, "Righthand side of slice assignment");
 
     failures = [];
     if(!isIntType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
@@ -1029,7 +1050,9 @@ void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`,
                 c.report(warning(var, "Variable should be initialized"));
             }
         } 
+        c.require("non void", varType, [], makeNonVoidRequirement(varType, "Variable declaration"));
         c.fact(current, varType);
+        
         collect(varType, c);
     c.leaveScope(current);  
 }
