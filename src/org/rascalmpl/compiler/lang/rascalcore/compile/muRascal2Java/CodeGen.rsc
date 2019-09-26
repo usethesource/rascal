@@ -34,6 +34,7 @@ bool debug = false;
 map[str, MuFunction] muFunctions = ();
 map[loc, MuFunction] muFunctionsByLoc = ();
 map[str,str] resolved2overloaded = ();
+map[str,AType] resolved2type = ();
 
 // ---- muModule --------------------------------------------------------------
 
@@ -428,6 +429,7 @@ str genResolvers(list[OF5] overloadedFunctions, JGenie jg){
         if(any(of <- overload.ofunctions, containedIn(of, moduleLoc)) || any(oc <- overload.oconstructors, containedIn(oc, moduleLoc))){
             overloadedInModule += overload;
         } else {
+            
             extpaths = {l.path | l <- overload.ofunctions} + {l.path | l <- overload.oconstructors};
             if(size(extpaths) == 1){
                 imod = jg.getImportedModuleName(isEmpty(overload.ofunctions) ? overload.oconstructors[0] : overload.ofunctions[0]);
@@ -449,11 +451,13 @@ str genResolvers(list[OF5] overloadedFunctions, JGenie jg){
             //println("add to resolved2overloaded: <overload.oname>, <overload.name>");
             
             resolved2overloaded[overload.oname] = overload.name;
+            resolved2type[overload.name] = overload.funType;
             resolver = genSingleResolver(overload, jg);
             
             all_resolvers += resolver;
         } else {
             resolved2overloaded[overload.oname] = overload.name;
+            resolved2type[overload.name] = overload.funType;
             println("skipping: <overload.name>, <overload>");
         }
     }
@@ -908,9 +912,19 @@ JCode trans(muFun1(loc uid), JGenie jg){
 // ---- muOFun ----------------------------------------------------------------
        
 JCode trans(muOFun(str fuid), JGenie jg){
-    fun = muFunctions[fuid];
-    ftype = fun.ftype;
-    nformals = fun.nformals;
+    ftype = avoid();
+    overloading = false;
+    fname = "??";
+    if(muFunctions[fuid]?){
+        fun = muFunctions[fuid];
+        fname = colon2ul(fuid);
+        ftype = fun.ftype;
+    } else {
+        overloading = true;
+        fname = resolved2overloaded[fuid];
+        ftype = resolved2type[fname];
+    }
+    nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
     
     funInstance = "new FunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- ftype.formals])>\>";
@@ -918,11 +932,14 @@ JCode trans(muOFun(str fuid), JGenie jg){
     bare_formals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
     formals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
     ext_formals = formals;
-    if(!isEmpty(fun.externalVars)){
+    if(!overloading){
+        fun = muFunctions[fuid];
+        if(!isEmpty(fun.externalVars)){
            ext_actuals = intercalate(", ", [varName(v, jg) | v <- fun.externalVars]);
            formals = isEmpty(formals) ? ext_actuals : "<actuals>, <ext_actuals>";
+        }
     }
-    return "<funInstance>((<bare_formals>) -\> { return <colon2ul(fuid)>(<formals>); })";
+    return "<funInstance>((<bare_formals>) -\> { return <fname>(<formals>); })";
 }
 
 // ---- muConstr --------------------------------------------------------------
@@ -1100,9 +1117,9 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs), JGenie jg){
     if(muConstr(AType ctype) := fun){
         return makeConstructorCall(ctype, actuals, jg);        
     }
-    if(muConstrCompanion(str fname) := fun){
-        return call(muFunctions[fname], actuals, jg);
-    }
+    //if(muConstrCompanion(str fname) := fun){
+    //    return call(muFunctions[fname], actuals, jg);
+    //}
     if(muCon(str s) := fun){
         if(map[str,value] kwmap := actuals[-1]){
             return makeNode(s, actuals[0..-1], keywordParameters = kwmap);

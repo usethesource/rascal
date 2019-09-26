@@ -107,7 +107,7 @@ public data MuExp =
           | muOFun(str fuid)                                    // *Rascal* function, i.e., overloaded function at the root
           
           | muConstr(AType ctype) 					        	// Constructor
-          | muConstrCompanion(str fuid)                         // Companion function for constructor with keyword parameters
+          //| muConstrCompanion(str fuid)                         // Companion function for constructor with keyword parameters
           
           	// Variables and temporaries
           | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)

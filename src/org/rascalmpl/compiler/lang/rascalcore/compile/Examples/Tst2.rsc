@@ -1,16 +1,25 @@
 module lang::rascalcore::compile::Examples::Tst2
+   
+ 
+//list[int] g() = [1,2,f()];
 
-data Aap(int aap=4) = aap();
-
-value main(){
-    b=aap(noot=7);
-    node c = b;
-    return c.noot;
-}      
-
-//data B = and(B l, B r) | or(B l, B r)  | t() | f();
-  
-//B build(B(B,B) cons, B l, B r) = cons(l, r);
+void f() { }
+                                 
+value main(){      
+    any(f());   
+    return true;
+}
+ 
+//value main() { return {f()}; }
+//data F = f() | g();
+//        
+//int func(f()) = 1;
+//int func(g()) = 2;
+//
+//int apply(int (F) theFun, F theArg) = theFun(theArg);
+//
+//int main() = apply(func, f());
+ 
 
 //data B  = b(int n);
 //
