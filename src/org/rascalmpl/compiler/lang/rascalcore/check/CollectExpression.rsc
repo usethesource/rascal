@@ -244,6 +244,8 @@ void collect(current: (Expression) `( <Expression expression> )`, Collector c){
 
 // ---- closure
 
+// TODO: check returns via all path
+
 str closureName(Expression closure){
     l = getLoc(closure);
     return "$CLOSURE<l.offset>";
@@ -309,10 +311,18 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
 
 void collect(current: (Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`, Collector c){
     c.calculate("step range", current, [first, second, last],
-        AType(Solver s){ t1 = s.getType(first); t2 = s.getType(second); t3 = s.getType(last);
-                 s.requireSubType(t1,anum(), error(first, "Invalid type: expected numeric type, found %t", t1));
-                 s.requireSubType(t2,anum(), error(second, "Invalid type: expected numeric type, found %t", t2));
-                 s.requireSubType(t3,anum(), error(last, "Invalid type: expected numeric type, found %t", t3));
+        AType(Solver s){ 
+                 t1 = s.getType(first);
+                 checkNonVoid(first, t1, s, "First in range");
+                 s.requireSubType(t1,anum(), error(first, "First in range: expected numeric type, found %t", t1));
+                 
+                 t2 = s.getType(second); 
+                 checkNonVoid(second, t2, s, "Second in range");
+                 s.requireSubType(t2,anum(), error(second, "Second in range: expected numeric type, found %t", t2));
+                 
+                 t3 = s.getType(last);
+                 checkNonVoid(last, t3, s, "Last in range");
+                 s.requireSubType(t3,anum(), error(last, "Last in range: expected numeric type, found %t", t3));
                  return alist(s.lubList([t1, t2, t3]));
         
         });
@@ -323,9 +333,14 @@ void collect(current: (Expression) `[ <Expression first> , <Expression second> .
 
 void collect(current: (Expression) `[ <Expression first> .. <Expression last> ]`, Collector c){
     c.calculate("step range", current, [first, last],
-        AType(Solver s){ t1 = s.getType(first); t2 = s.getType(last);
-                 s.requireSubType(t1,anum(), error(first, "Invalid type: expected numeric type, found %t", t1));
-                 s.requireSubType(t2,anum(), error(last, "Invalid type: expected numeric type, found %t", t2));
+        AType(Solver s){ 
+                 t1 = s.getType(first); 
+                 checkNonVoid(first, t1, s, "First in range");
+                 s.requireSubType(t1,anum(), error(first, "First in range: expected numeric type, found %t", t1));
+                 
+                 t2 = s.getType(last);
+                 checkNonVoid(last, t2, s, "Last in range");
+                 s.requireSubType(t2,anum(), error(last, "Last in range: expected numeric type, found %t", t2));
                  return alist(s.lub(t1, t2));
         });
     collect(first, last, c);    
@@ -340,7 +355,11 @@ void collect(current: (Expression) `<Label label> <Visit vst>`, Collector c){
         if(label is \default){
             c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
-        c.calculate("visit", current, [vst.subject], AType(Solver s){ return s.getType(vst.subject); });
+        c.calculate("visit", current, [vst.subject], 
+            AType(Solver s){ 
+                checkNonVoid(vst.subject, s, "Subject of visit");
+                return s.getType(vst.subject); 
+            });
         collect(vst, c);
     c.leaveScope(current);
 }
@@ -358,8 +377,11 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // TODO: Is there anything we can do statically to make the result type more accurate?
     c.fact(current, areified(avalue()));
     c.require("reified type", current, [es, ed],
-        void (Solver s){ 
+        void (Solver s){
+            checkNonVoid(es, s, "First element of reified type");
             s.requireSubType(es, aadt("Symbol",[], dataSyntax()), error(es, "Expected subtype of Symbol, instead found %t", es));
+            
+            checkNonVoid(ed, s, "Second element of reified type");
             s.requireSubType(ed, amap(aadt("Symbol",[],dataSyntax()),aadt("Production",[],dataSyntax())), 
                 error(ed, "Expected subtype of map[Symbol,Production], instead found %t", ed));
           });
@@ -414,7 +436,7 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
         c.require("set comprehension", current, res + gens,
             void (Solver s) { 
                 for(g <- gens) if(!isBoolType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
-                for(r <- results) if(isVoidType(s.getType(r))) s.report(error(r, "Contribution to set comprehension cannot be `void`"));
+                for(r <- results) checkNonVoidOrSplice(r, s, "Contribution to set comprehension");
             });
         c.calculate("set comprehension results", current, res,
             AType(Solver s){
@@ -437,7 +459,7 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
         c.require("list comprehension", current, gens,
             void (Solver s) { 
                 for(g <- gens) if(!isBoolType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
-                for(r <- results) if(isVoidType(s.getType(r))) s.report(error(r, "Contribution to list comprehension cannot be `void`"));
+                for(r <- results) checkNonVoidOrSplice(r, s, "Contribution to list comprehension");
             });
         c.calculate("list comprehension results", current, res,
             AType(Solver s){
@@ -462,6 +484,8 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
             });
         c.calculate("list comprehension results", current, [from, to],
             AType(Solver s){
+                checkNonVoid(from, s, "Key of map comprehension");
+                checkNonVoid(to, s, "Value of map comprehension");
                 return makeMapType(unset(s.getType(from), "label"), unset(s.getType(to), "label"));
             });
          
@@ -480,7 +504,10 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
         //tau = c.newTypeVar();
         c.define("it", variableId(), init, defLub([init, result], AType(Solver s) { return s.lub(init, result); }));
         c.require("reducer", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+            void (Solver s) { 
+                checkNonVoid(init, s, "Initialization expression of reducer");
+                checkNonVoid(result, s, "Result expession of reducer");
+                for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
         //c.calculate("reducer result", current, [result], AType(Solver s) { return s.getType(result); });
         
@@ -498,12 +525,21 @@ void collect(current: (Expression) `it`, Collector c){
 
 // ---- set
 
+void checkNonVoidOrSplice(Expression e, Solver s, str msg){
+    if(isVoidType(s.getType(e)) && !e is splice){
+        s.report(error(e, msg + " cannot have type `void`"));
+    }
+}
+
 void collect(current: (Expression) `{ <{Expression ","}* elements0> }`, Collector c){
     elms = [ e | Expression e <- elements0 ];
     if(isEmpty(elms)){
         c.fact(current, aset(avoid()));
     } else {
-        c.calculateEager("set expression", current, elms, AType(Solver s) { return aset(s.lubList([s.getType(elm) | elm <- elms])); });
+        c.calculateEager("set expression", current, elms, AType(Solver s) { 
+            for(elm <- elms) checkNonVoidOrSplice(elm, s, "Element of set");
+            return aset(s.lubList([s.getType(elm) | elm <- elms]));
+        });
         collect(elms, c);
     }
 }
@@ -515,7 +551,10 @@ void collect(current: (Expression) `[ <{Expression ","}* elements0> ]`, Collecto
     if(isEmpty(elms)){
         c.fact(current, alist(avoid()));
     } else {
-        c.calculateEager("list expression", current, elms, AType(Solver s) { return alist(s.lubList([s.getType(elm) | elm <- elms])); });
+        c.calculateEager("list expression", current, elms, AType(Solver s) { 
+            for(elm <- elms) checkNonVoidOrSplice(elm, s, "Element of list");
+            return alist(s.lubList([s.getType(elm) | elm <- elms])); 
+        });
         collect(elms, c);
     }
 }
@@ -533,6 +572,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             for(x <- expression + actuals + kwactuals){
                  tp = s.getType(x);
                  if(!s.isFullyInstantiated(tp)) throw TypeUnavailable();
+                 checkNonVoid(x, s, "Argument");
             }
             
             texp = s.getType(expression);
@@ -614,8 +654,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)], s);
             }
             if(acons(ret:aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               res = computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
-               return res;
+               return computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
             }
             s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));
         });
@@ -796,6 +835,7 @@ void collect(current: (Expression) `\< <{Expression ","}+ elements1> \>`, Collec
     elms = [ e | Expression e <- elements1 ];
     c.calculateEager("tuple expression", current, elms,
         AType(Solver s) {
+                for(elm <- elms) checkNonVoid(elm, s, "Element of tuple");
                 return atuple(atypeList([ s.getType(elm) | elm <- elms ]));
         });
     collect(elements1, c);
@@ -811,6 +851,8 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, C
     } else {
         c.calculate("map expression", current, froms + tos,
             AType(Solver s) {
+                for(f <- froms) checkNonVoid(f, s, "Key element of map");
+                for(t <- tos) checkNonVoid(t, s, "Value element of map");
                 return amap(s.lubList([ s.getType(f) | f <- froms ]), lubList([ s.getType(t) | t <- tos ]));
             });
         collect(mappings, c);
@@ -869,7 +911,11 @@ void collect(current:(Expression)`<Expression expression> [ <{Expression ","}+ i
     }
     
     c.calculate("subscription", current, expression + indexList,
-                  AType(Solver s){ return computeSubscriptionType(current, s.getType(expression), [s.getType(e) | e <- indexList], indexList, s);  });
+                  AType(Solver s){ 
+                    checkNonVoid(expression, s, "Base expression of subscription");
+                    for(e <- indexList) checkNonVoid(e, s, "Subscript");
+                    return computeSubscriptionType(current, s.getType(expression), [s.getType(e) | e <- indexList], indexList, s);  
+                  });
     collect(expression, indices, c);
 }
 
@@ -880,7 +926,12 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
     if(olast is noExpression) c.fact(olast, aint());
 
     c.calculate("slice", current, [e, ofirst, olast],
-        AType(Solver s){ return computeSliceType(current, s.getType(e), s.getType(ofirst), aint(), s.getType(olast), s); });
+        AType(Solver s){ 
+            checkNonVoid(e, s, "Base expression of slice");
+            checkNonVoid(ofirst, s, "First expression of slice");
+            checkNonVoid(olast, s, "Last expression of slice");
+            return computeSliceType(current, s.getType(e), s.getType(ofirst), aint(), s.getType(olast), s); 
+        });
     collect(e, ofirst, olast, c);
 }
 
@@ -891,7 +942,13 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
     if(olast is noExpression) c.fact(olast, aint());
 
     c.calculate("slice step", current, [e, ofirst, second, olast],
-        AType(Solver s){ return computeSliceType(current, s.getType(e), s.getType(ofirst), s.getType(second), s.getType(olast), s); });
+        AType(Solver s){ 
+            checkNonVoid(e, s, "Base expression of slice");
+            checkNonVoid(ofirst, s, "First expression of slice");
+            checkNonVoid(second, s, "Second expression of slice");
+            checkNonVoid(olast, s, "Last expression of slice");
+            return computeSliceType(current, s.getType(e), s.getType(ofirst), s.getType(second), s.getType(olast), s); 
+        });
     collect(e, ofirst, second, olast, c);
 }
 
@@ -899,6 +956,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
     c.useViaType(expression, field, {fieldId(), keywordFieldId()});
+    c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of field selection"));
     c.fact(current, field);
     collect(expression, c);
 }
@@ -912,6 +970,8 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
         AType(Solver s){ 
                  fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
                  replType = s.getType(repl);
+                 checkNonVoid(expression, s, "Base expression of field update`");
+                 checkNonVoid(repl, s, "Replacement expression of field update`");
                  s.requireSubType(replType, fieldType, error(current, "Cannot assign type %t to field %q of type %t", replType, field, fieldType));
                  return s.getType(expression);
         });
@@ -924,7 +984,10 @@ void collect(current:(Expression) `<Expression expression> \< <{Field ","}+ fiel
 
     flds = [f | f <- fields];
     c.calculate("field projection", current, [expression],
-        AType(Solver s){ return computeFieldProjectionType(current, s.getType(expression), flds, s); });
+        AType(Solver s){ 
+            checkNonVoid(expression, s, "Base expression of field projection");
+            return computeFieldProjectionType(current, s.getType(expression), flds, s); 
+        });
     //collectParts(current, c);
     collect(expression, fields, c);
 }
@@ -1028,8 +1091,11 @@ void collect(current:(Expression) `<Expression e> [ @ <Name n> = <Expression er>
     c.use(n, {annoId()});
     scope = c.getScope();
     c.calculate("set annotation", current, [e, n, er],
-        AType(Solver s){ t1 = s.getType(e); tn = s.getType(n); t2 = s.getType(er);
-                 return computeSetAnnotationType(current, t1, tn, t2, s);
+        AType(Solver s){ 
+                t1 = s.getType(e); tn = s.getType(n); t2 = s.getType(er);
+                checkNonVoid(e, s, "Base expression of set annotation");
+                checkNonVoid(er, s, "Replacement expression of set annotation");
+                return computeSetAnnotationType(current, t1, tn, t2, s);
                });
     collect(e, er, c);
 }
@@ -1059,6 +1125,7 @@ void collect(current:(Expression) `<Expression e>@<Name n>`, Collector c) {
         AType(Solver s){ 
                  t1 = s.getType(e);
                  tn = s.getType(n);
+                 checkNonVoid(e, s, "Base expression of get annotation`");
                  return computeGetAnnotationType(current, t1, tn, s);
                });
     collect(e, c);

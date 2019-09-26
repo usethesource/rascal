@@ -159,7 +159,7 @@ AType computeNegative(Tree current, AType t1, Solver s){
 
 void collect(current: (Expression) `* <Expression arg>`, Collector c){
     c.calculate("splice", current, [arg], 
-       AType(Solver s){ return unaryOp("splice", _computeSpliceType, current, s.getType(arg), s); });
+       AType(Solver s){ return unaryOp("splice", _computeSpliceType, current, s.getType(arg), s, maybeVoid=true); });
     collect(arg, c); 
 }
 
