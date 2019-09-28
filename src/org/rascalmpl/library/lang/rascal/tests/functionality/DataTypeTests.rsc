@@ -845,11 +845,11 @@ test bool testMap36() = !(2 notin (1:10, 2:20));
     		
 test bool testMap37() {map[str,list[int]] m = ("a": [1,2], "b": [], "c": [4,5,6]); return m["a"] == [1,2];}
    
-@expected{Throw}
-void NoKeyError1(){		 (1:10, 2:20)[3]; return;	 }
+@expected{NoSuchKey}
+void NoKeyError1(){		 (1:10, 2:20)[3]; return;}
     	 
-@expected{Throw}  // TODO: MultipleKey
-void MultipleKeyError1(){		 (1:10, 1:10); return;	 }
+@expected{ MultipleKey}
+void MultipleKeyError1(){ (1:10, 1:10); return;	 }
     	
 // testTuple
     		
