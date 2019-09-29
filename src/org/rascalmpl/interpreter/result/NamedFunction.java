@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.KeywordFormal;
@@ -147,6 +148,22 @@ abstract public class NamedFunction extends AbstractFunction {
             storeMemoizedResult(argValues, keyArgValues, result);
         }
         return result;
+    }
+    
+    protected void checkReturnTypeIsNotVoid(List<Expression> formals, IValue[] actuals) {
+        // this is a dynamic check of the formal type parameters
+        Map<Type, Type> bindings = new HashMap<>();
+        
+        for (int i = 0; i < actuals.length; i++) {
+            formals.get(i).typeOf(declarationEnvironment, getEval()).match(actuals[i].getType(), bindings);
+        }
+        
+        if (!getReturnType().isBottom() && getReturnType().instantiate(bindings).isBottom()) {
+            // this means the function has a type parameter &T, but would return `void`
+            // and since Rascal does not have a "null" value, this function alternative is unapplicable
+            // to the current parameters.
+            throw new MatchFailed();
+        }
     }
 
     protected static String getResourceScheme(FunctionDeclaration declaration) {

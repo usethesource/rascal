@@ -84,7 +84,7 @@ public class IteratorFactory {
 		if(subjectType.isList()){
 			//TODO: we could do this more precisely				
 			if(shallow){
-				checkMayOccur(patType, subjectType.getElementType(), ctx);
+			    checkMayOccur(patType, subjectType.getElementType(), ctx);
 				return ((IList) subjectValue).iterator();
 			}
 			return new DescendantReader(subjectValue, false);

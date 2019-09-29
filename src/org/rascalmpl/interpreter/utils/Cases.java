@@ -248,7 +248,7 @@ public class Cases  {
 			}
 			
 			if (matcher == null) {
-			    matcher = pattern.getPattern().buildMatcher(eval);
+			    matcher = pattern.getPattern().buildMatcher(eval, false);
 			}
 			
 			if (pattern.hasStatement()) {

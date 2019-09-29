@@ -779,9 +779,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
 			
-			throw new org.rascalmpl.interpreter.control_exceptions.Return(this
-					.getStatement().interpret(__eval), this.getStatement()
-					.getLocation());
+            throw new org.rascalmpl.interpreter.control_exceptions.Return(getStatement().interpret(__eval), this.getStatement().getLocation());
 
 		}
 
@@ -951,7 +949,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						break;
 					}
  
-					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern().buildMatcher(eval), c.getBody(), eval)) {
+					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern().buildMatcher(eval, false), c.getBody(), eval)) {
 						handled = true;
 						break;
 					}

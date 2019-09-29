@@ -57,6 +57,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.semantics.dynamic.Tree.Appl;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -73,11 +74,10 @@ public class RascalFunction extends NamedFunction {
 	private final IConstructor indexedProduction;
 	private final List<KeywordFormal> initializers;
 	
-	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env,
-				Stack<Accumulator> accumulators) {
+	public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env, Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env, true, eval),
+				(FunctionType) func.getSignature().typeOf(env, eval),
 				getFormals(func),
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				func.getBody().getStatements(), env, accumulators);
@@ -87,7 +87,7 @@ public class RascalFunction extends NamedFunction {
 			Stack<Accumulator> accumulators) {
 		this(func, eval,
 				Names.name(func.getSignature().getName()),
-				(FunctionType) func.getSignature().typeOf(env, true, eval), 
+				(FunctionType) func.getSignature().typeOf(env, eval), 
 				getFormals(func),
 				varargs, isDefault(func), hasTestMod(func.getSignature()),
 				Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
@@ -284,11 +284,11 @@ public class RascalFunction extends NamedFunction {
       if (!hasVarArgs && size != this.formals.size()) {
         throw new MatchFailed();
       }
-
+      
       if (size == 0) {
         try {
           bindKeywordArgs(keyArgValues);
-          
+          checkReturnTypeIsNotVoid(formals, actuals);
           result = runBody();
           storeMemoizedResult(actuals,keyArgValues, result);
           if (callTracing) {
@@ -318,6 +318,9 @@ public class RascalFunction extends NamedFunction {
           if (i == size - 1) {
             // formals are now bound by side effect of the pattern matcher
             try {
+                
+                checkReturnTypeIsNotVoid(formals, actuals);
+                
               bindKeywordArgs(keyArgValues);
               result = runBody();
               storeMemoizedResult(actuals,keyArgValues, result);
@@ -373,16 +376,15 @@ public class RascalFunction extends NamedFunction {
     }
   }
 
+    
+
 	
 
 	private Result<IValue> runBody() {
-		
-
 		for (Statement stat: body) {
 			eval.setCurrentAST(stat);
 			stat.interpret(eval);
 		}
-
 		
 		if(!isVoidFunction){
 			throw new MissingReturn(ast);
@@ -393,18 +395,23 @@ public class RascalFunction extends NamedFunction {
 
 	private Result<IValue> computeReturn(Return e) {
 		Result<IValue> result = e.getValue();
-
 		Type returnType = getReturnType();
-		Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getTypeBindings());
 
-		if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-			throw new UnexpectedType(instantiatedReturnType, result.getType(), e.getLocation());
+        // only use static checks here
+		if(!result.getType().isSubtypeOf(getReturnType())){
+			throw new UnexpectedType(returnType, result.getType(), e.getLocation());
 		}
 
 		if (!returnType.isBottom() && result.getType().isBottom()) {
 			throw new UnexpectedType(returnType, result.getType(), e.getLocation());
 		}
 
+		// here we instantiate type parameters for computing a return value type.
+		// such that at least local type parameters do not leak into the caller's scope
+		
+		Map<Type, Type> bindings = ctx.getCurrentEnvt().getTypeBindings();
+        Type instantiatedReturnType = returnType.instantiate(bindings);
+		
 		return makeResult(instantiatedReturnType, result.getValue(), eval);
 	}
 	
@@ -413,7 +420,7 @@ public class RascalFunction extends NamedFunction {
 		IMatchingResult[] matchers = new IMatchingResult[size];
 		
 		for (int i = 0; i < size; i++) {
-			matchers[i] = formals.get(i).getMatcher(ctx);
+			matchers[i] = formals.get(i).getMatcher(ctx, true);
 		}
 		
 		return matchers;

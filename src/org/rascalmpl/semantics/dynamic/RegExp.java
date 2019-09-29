@@ -31,7 +31,7 @@ public abstract class RegExp extends org.rascalmpl.ast.RegExp {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			List<InterpolationElement> elems = Arrays.<InterpolationElement>asList(new RegExpLiteral.StaticInterpolationElement(getString()));
 			return new RegExpPatternValue(eval, this, elems, java.util.Collections.<String> emptyList());
 		}

@@ -48,7 +48,7 @@ public class JavaMethod extends NamedFunction {
 	private final JavaBridge javaBridge;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		this(eval, (FunctionType) func.getSignature().typeOf(env, true, eval), func, hasTestMod(func.getSignature()), isDefault(func), varargs, env, javaBridge);
+		this(eval, (FunctionType) func.getSignature().typeOf(env, eval), func, hasTestMod(func.getSignature()), isDefault(func), varargs, env, javaBridge);
 	}
 	
 	@Override
@@ -141,6 +141,8 @@ public class JavaMethod extends NamedFunction {
 			throw new MatchFailed();
 		}
 		
+		
+		
 		oActuals = addKeywordActuals(oActuals, formals, keyArgValues);
 
 		if (hasReflectiveAccess) {
@@ -159,6 +161,12 @@ public class JavaMethod extends NamedFunction {
 			Environment env = ctx.getCurrentEnvt();
 			bindTypeParameters(actualTypesTuple, formals, env); 
 			
+			if (!getReturnType().isBottom() && getReturnType().instantiate(env.getTypeBindings()).isBottom()) {
+			    // type parameterized functions are not allowed to return void,
+			    // so they are never called if this happens (if void is bound to the return type parameter)
+			    throw new MatchFailed();
+			}
+			    
 			IValue result = invoke(oActuals);
 			
 			Type resultType = getReturnType().instantiate(env.getTypeBindings());
