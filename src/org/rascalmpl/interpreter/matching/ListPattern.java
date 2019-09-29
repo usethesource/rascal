@@ -67,18 +67,20 @@ public class ListPattern extends AbstractMatchingResult  {
   private boolean debug = false;
   private Type staticListSubjectElementType;
   private Type staticListSubjectType;
+  private final boolean bindTypeParameters;
  
 
 
-  public ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list){
-    this(ctx, x, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
+  public ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list, boolean bindTypeParameters){
+    this(ctx, x, list, 1, bindTypeParameters);  // Default delta=1; Set to 2 to run DeltaListPatternTests
   }
 
-  ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list, int delta){
+  ListPattern(IEvaluatorContext ctx, AbstractAST x, List<IMatchingResult> list, int delta, boolean bindTypeParameters){
     super(ctx, x);
 
     if(delta < 1)
       throw new ImplementationError("Wrong delta");
+    this.bindTypeParameters = bindTypeParameters;
     this.delta = delta;
     this.patternChildren = list;          
     this.patternSize = list.size();
@@ -164,7 +166,7 @@ public class ListPattern extends AbstractMatchingResult  {
           TypedMultiVariablePattern tmv = (TypedMultiVariablePattern) child;
           
           // now we know what we are, a list multi variable!
-          child = new DesignatedTypedMultiVariablePattern(ctx, (Expression) tmv.getAST(), tf.listType(tmv.getType(env,  null)), tmv.getName()); 
+          child = new DesignatedTypedMultiVariablePattern(ctx, (Expression) tmv.getAST(), tf.listType(tmv.getType(env,  null)), tmv.getName(), bindTypeParameters); 
           
           // cache this information for the next round, we'll still be a list
           patternChildren.set(i, child);

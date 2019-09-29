@@ -34,12 +34,12 @@ public abstract class Formals extends org.rascalmpl.ast.Formals {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval) {
 			List<org.rascalmpl.ast.Expression> list = this.getFormals();
 			Type[] types = new Type[list.size()];
 
 			for (int index = 0; index < list.size(); index++) {
-				types[index] = list.get(index).typeOf(env, instantiateTypeParameters, eval);
+				types[index] = list.get(index).typeOf(env, eval);
 			}
 
 			return TypeFactory.getInstance().tupleType(types);

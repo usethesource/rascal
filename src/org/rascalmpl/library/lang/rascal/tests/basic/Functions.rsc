@@ -139,3 +139,20 @@ test bool closure1() {
                            ) | int i <- inputs ]; 
     return outputs ==  [1,1,1,6,20,42,72,110,156,210];
 }
+
+
+private &T something(set[&T] x) {
+   if (e <- x) 
+     return e;
+   // this should not happen because returning &T should
+   // add the matching constraint that &T is not void  
+   assert false;  
+   throw "what?";
+}
+
+private default value something({}) = "hello";
+
+test bool parameterizedFunctionsDoNotReturnVoid() {
+  set[value] emptySet = {};
+  return "hello" == something(emptySet);
+}

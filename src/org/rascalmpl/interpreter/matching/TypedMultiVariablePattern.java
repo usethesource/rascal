@@ -26,12 +26,12 @@ import io.usethesource.vallang.IValue;
  * with the type wrapped by a set or a list appropriately
  */
 public class TypedMultiVariablePattern extends TypedVariablePattern {
-	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type elementType, org.rascalmpl.ast.Name name) {
-		super(ctx, x, elementType, name);		
+	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type elementType, org.rascalmpl.ast.Name name, boolean bindTypeParameters) {
+		super(ctx, x, elementType, name, bindTypeParameters);		
 	}
 	
-	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type elementType, String name) {
-		super(ctx, x, elementType, name);
+	public TypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type elementType, String name, boolean bindTypeParameters) {
+		super(ctx, x, elementType, name, bindTypeParameters);
 	}
 	
 	@Override

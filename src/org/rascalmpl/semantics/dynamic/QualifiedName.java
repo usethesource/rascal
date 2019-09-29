@@ -99,7 +99,7 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 		}
 		
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval) {
 			if (getNames().size() == 1
 					&& Names.name(getNames().get(0)).equals("_")) {
 				return TF.valueType();

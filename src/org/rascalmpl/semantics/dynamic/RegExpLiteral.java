@@ -58,7 +58,7 @@ public abstract class RegExpLiteral extends org.rascalmpl.ast.RegExpLiteral {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			String subjectPat = this.getString();
 			List<InterpolationElement> resultRegExp = new LinkedList<InterpolationElement>();
 
