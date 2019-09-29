@@ -49,7 +49,7 @@ public class MatchResult extends AbstractBooleanResult {
 		Result<IValue> result = expression.interpret(ctx.getEvaluator());
 		Type subjectType = result.getType();
 
-		mp = pattern.getMatcher(ctx);
+		mp = pattern.getMatcher(ctx, false);
 		
     	mp.initMatch(result);
 

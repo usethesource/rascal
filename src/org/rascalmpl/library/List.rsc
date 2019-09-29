@@ -81,6 +81,7 @@ public map[&T element, int occurs] distribution(list[&T] lst) {
      return res; 
 }
 
+
 @doc{
 .Synopsis
 Drop elements from the head of a list.
@@ -188,8 +189,8 @@ An exception is thrown when the second argument exceeds the length of the list:
 ----
 head([1, 2, 3, 5], 5);
 ----}
-@javaClass{org.rascalmpl.library.Prelude}
-public java &T head(list[&T] lst) throws EmptyList;
+public &T head([]) { throw EmptyList(); }
+public &T head([&T h, *&T _]) = h; 
 
 // Get the first n elements of a list
 @javaClass{org.rascalmpl.library.Prelude}
@@ -211,11 +212,8 @@ headTail([3, 1, 4, 5]);
 pop([3, 1, 4, 5]);
 headTail(["zebra", "elephant", "snake", "owl"]);
 ----}
-public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
-	 if(!isEmpty(lst))
-    return <head(lst), tail(lst)>;
-  throw EmptyList();
-}
+public tuple[&T, list[&T]] headTail([]) { throw EmptyList(); }
+public tuple[&T, list[&T]] headTail([&T h, *&T t]) = <h, t>; 
 
 @doc{
 .Synopsis
@@ -504,7 +502,7 @@ Compute all permutations of a list.
 import List;
 permutations([1,2,3]);
 ----}
-public set[list[&T]] permutations(list[&T] lst) =
+set[list[&T]] permutations(list[&T] lst) =
 	permutationsBag(distribution(lst));
 
 private set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
