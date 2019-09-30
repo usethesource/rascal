@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
@@ -326,9 +328,16 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 	
-	protected void bindTypeParameters(Type actualTypes, Type formals, Environment env) {
+	protected void bindTypeParameters(Type actualTypes, Type formals, Map<Type, Type> renamings, Environment env) {
 		try {
 			Map<Type, Type> bindings = new HashMap<Type, Type>();
+			
+			if (actualTypes.isOpen()) {
+			    // we have to make the environment hygenic now, because the caller scope
+			    // may have the same type variable names as the current scope
+			    actualTypes = renameType(actualTypes, renamings);
+			}
+			
 			if (!formals.match(actualTypes, bindings)) {
 				throw new MatchFailed();
 			}
@@ -337,7 +346,18 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		catch (FactTypeUseException e) {
 			throw new UnexpectedType(formals, actualTypes, ast);
 		}
-	}	
+	}
+
+    private Type renameType(Type actualTypes, Map<Type, Type> renamings) {
+        actualTypes.match(getTypeFactory().voidType(), renamings);
+        // rename all the bound type parameters
+        for (Entry<Type,Type> entry : renamings.entrySet()) {
+            Type key = entry.getKey();
+            renamings.put(key, getTypeFactory().parameterType(key.getName() + ":" + UUID.randomUUID().toString(), key.getBound()));
+        }
+        actualTypes = actualTypes.instantiate(renamings);
+        return actualTypes;
+    }	
 	
 	protected IValue[] computeVarArgsActuals(IValue[] actuals, Type formals) {
 		int arity = formals.getArity();
