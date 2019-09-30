@@ -64,9 +64,7 @@ data RuntimeException =
      | ArithmeticException(str message)
      | AssertionFailed() 
      | AssertionFailed(str label)
-     | EmptyList()
-     | EmptyMap() 
-     | EmptySet()
+     | CallFailed(loc caller, list[value] arguments)
      | IndexOutOfBounds(int index)
      | IllegalArgument()                        // deprecated
      | IllegalArgument(value v)                 // deprecated

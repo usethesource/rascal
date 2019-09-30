@@ -157,7 +157,7 @@ Get the first element(s) from a list.
 
 .Description
 
-* Returns the first element of a list or throws `EmptyList` when the list is empty. 
+* Returns the first element of a list or throws `CallFailed(_,[[]])` when the list is empty. 
   This is identical to <<top>>.
 * Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short. 
   This is similar to <<take>>.

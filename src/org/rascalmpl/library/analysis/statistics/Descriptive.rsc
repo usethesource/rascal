@@ -39,11 +39,8 @@ module analysis::statistics::Descriptive
 import IO;
 import Exception;
 import util::Math;
+import List;
 
-
-real geometricMean(list[num] l:[]) {
-	throw IllegalArgument(l,"Geometric mean cannot be calculated for empty lists");
-}
 @doc{
 .Synopsis
 Geometric mean of data values.
@@ -52,7 +49,7 @@ Geometric mean of data values.
 
 Computes the http://en.wikipedia.org/wiki/Geometric_mean[geometric mean] of the given data values.
 }
-default real geometricMean([num hd, *num tl]) {
+real geometricMean([num hd, *num tl]) {
 	if (tl == []) {
 		return toReal(hd);	
 	}
@@ -75,14 +72,13 @@ Kurtosis of data values.
 Computes the http://en.wikipedia.org/wiki/Kurtosis[kurtosis] of the given data values.
 Kurtosis is a measure of the "peakedness" of a distribution.
 }
-real kurtosis(list[num] values) {
-	if (values == []) {
-		throw IllegalArgument(values,"Kurtosis cannot be calculated for empty lists");
-	}
+real kurtosis(list[num] values:[_, *_]) {
 	varPow = pow(variance(values), 2);
+	
 	if (varPow == 0.) {
 		throw ArithmeticException("kurtosis is undefined for values with 0 variance");	
 	}
+	
 	return centralMoment(values, order= 4) / varPow;
 }
 
@@ -101,13 +97,7 @@ real kurtosisExcess(list[num] values) = kurtosis(values) - 3;
 .Synopsis
 Largest data value.
 }
-(&T <: num) max(list[&T <: num] nums) throws EmptyList
-	= (head(nums) | it < n ? n : it | n <- tail(nums));
-
-
-real mean(list[&T<:num] l:[]) {
-	throw IllegalArgument(l,"Mean cannot be calculated for empty lists");
-}
+(&T <: num) max([(&T <: num) h, *(&T <: num) t]) = (h | it < n ? n : it | n <- t);
 
 @doc{
 .Synopsis
@@ -117,15 +107,8 @@ Arithmetic mean of data values.
 
 Computes the http://en.wikipedia.org/wiki/Arithmetic_mean[arithmetic mean] of the data values.
 }
-default real mean(list[num] nums)
-	= toReal(sum(nums)) / size(nums);
+real mean(list[num] nums:[_, *_]) = toReal(sum(nums)) / size(nums);
 
-
-
-
-real median(list[num] l:[]) {
-	throw IllegalArgument(l,"Median cannot be calculated for empty lists");
-}
 
 @doc{
 .Synopsis
@@ -145,7 +128,7 @@ median([1,2,2,6,7,8]);
 ----
 
 }
-default real median(list[num] nums) 
+default real median(list[num] nums:[_, *_]) 
 	= mean(middle(nums));
 
 private list[&T] middle(list[&T] nums) {
@@ -162,8 +145,7 @@ private list[&T] middle(list[&T] nums) {
 .Synopsis
 Smallest data value.
 }
-(&T <: num) min(list[&T <: num] nums) throws EmptyList
-	= (head(nums) | it > n ? n : it | n <- tail(nums));
+(&T <: num) min([(&T <: num) h, *(&T <: num) t]) = (h | it > n ? n : it | n <- t);
 
 @doc{
 .Synopsis
@@ -179,18 +161,12 @@ Returns the `p`th http://en.wikipedia.org/wiki/Percentile[percentile] of the dat
 	if (0 > p || p > 100) {
 		throw IllegalArgument(p, "Percentile argument should be between 0 and 100");
 	}
-	if (nums == []) {
-		throw EmptyList();
-	}
+	
 	nums = sort(nums);
 	idx = max(1., toReal(size(nums)) * (toReal(p) / 100));
 	return nums[ceil(idx) - 1];
 }
 
-
-num variance(list[num] l:[]) {
-	throw IllegalArgument(l,"variance cannot be calculated for empty lists");
-}
 @doc{
 .Synopsis
 Variance of data values.
@@ -211,9 +187,6 @@ num variance([num hd, *num tl]) {
 	return (sum2 - (pow(sum3,2)/n)) / (n -1);
 }
 
-real skewness(list[num] l:[]) {
-	throw IllegalArgument(l,"Standard Deviation cannot be calculated for empty lists");
-} 
 @doc{
 .Synopsis
 Skewness of data values.
@@ -221,7 +194,7 @@ Skewness of data values.
 .Description
 Returns the http://en.wikipedia.org/wiki/Skewness[skewness] of the available values. Skewness is a measure of the asymmetry of a given distribution.
 }
-default real skewness(list[num] values) 
+real skewness(list[num] values:[_, *_]) 
 	= centralMoment(values, order=3) / pow(centralMoment(values, order=2), 3/2);
 
 @doc{
@@ -239,34 +212,22 @@ real standardDeviation(list[num] values) {
 	return sqrt(variance(values));
 }
 
-public (&T <:num) sum(list[(&T <:num)] _:[]) {
-	throw ArithmeticException(
-		"For the emtpy list it is not possible to decide the correct precision to return.\n
-		'If you want to call sum on empty lists, use sum([0.000]+lst) or sum([0r] +lst) or sum([0]+lst) 
-		'to make the list non-empty and indicate the required precision for the sum of the empty list
-		");
-}
 @doc{
 .Synopsis
 Sum of data values.
 }
-public default (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl])
-	= (hd | it + i | i <- tl);
+public (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- tl);
 
 @doc{
 .Synopsis
 Sum of the squares of data values.
 }
-(&T <:num) sumsq(list[&T <:num] values)
-	= sum([ n * n | n <- values]);
+(&T <:num) sumsq(list[&T <:num] values) = sum([ n * n | n <- values]);
 
 @doc{
 	Calculate the k-th central moment
 }
-real centralMoment(list[num] nums, int order = 1) {
-	if (nums == []) {
-		throw IllegalArgument(nums,"Central moment cannot be calculated for empty lists");
-	}
+real centralMoment(list[num] nums:[_, *_], int order = 1) {
 	if (order < 0) {
 		throw IllegalArgument(nums,"Central moment cannot be calculated for the <order>-th order.");
 	}
@@ -283,10 +244,7 @@ real centralMoment(list[num] nums, int order = 1) {
 @doc{
 	Calculate the k-th moment
 }
-real moment(list[num] nums, int order = 1) {
-	if (nums == []) {
-		throw IllegalArgument(nums,"Moment cannot be calculated for empty lists");
-	}
+real moment(list[num] nums:[_, *_], int order = 1) {
 	if (order < 0) {
 		throw IllegalArgument(order,"Central moment cannot be calculated for the <order>-th order.");
 	}
@@ -298,18 +256,3 @@ real moment(list[num] nums, int order = 1) {
 	}
 	return (0. | it + pow(n, order) | n <- nums) / size(nums);
 }
-
-
-// importing functions from List.rsc to avoid the overlapping to cause typechecker issues
-@javaClass{org.rascalmpl.library.Prelude}
-private java int size(list[&T] lst);
-@javaClass{org.rascalmpl.library.Prelude}
-private java list[&T] tail(list[&T] lst) throws EmptyList;
-@javaClass{org.rascalmpl.library.Prelude}
-private java &T head(list[&T] lst) throws EmptyList;
-
-private list[&T] sort(list[&T] lst) =
-	sort(lst, bool (&T a,&T b) { return a < b; } );
-	
-@javaClass{org.rascalmpl.library.Prelude}
-private java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
