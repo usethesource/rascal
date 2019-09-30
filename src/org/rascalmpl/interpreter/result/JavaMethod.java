@@ -110,7 +110,7 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+	public Result<IValue> call(Type[] actualStaticTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Result<IValue> resultValue = getMemoizedResult(actuals, keyArgValues);
 		
 		if (resultValue !=  null) {
@@ -130,10 +130,10 @@ public class JavaMethod extends NamedFunction {
 		}
 		
 		if (hasVarArgs) {
-			actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
+			actualTypesTuple = computeVarArgsActualTypes(actualStaticTypes, formals);
 		}
 		else {
-			actualTypesTuple = TF.tupleType(actualTypes);
+			actualTypesTuple = TF.tupleType(actualStaticTypes);
 		}
 		
 		if (!actualTypesTuple.isSubtypeOf(formals)) {
