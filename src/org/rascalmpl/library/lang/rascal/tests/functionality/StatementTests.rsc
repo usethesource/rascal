@@ -187,6 +187,7 @@ test bool fail4() {
 	            return x + y;
 	        }
 	    }
+	    return -1;
     }
     return main() == 6;
 }

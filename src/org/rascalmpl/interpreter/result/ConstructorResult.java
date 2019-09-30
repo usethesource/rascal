@@ -102,7 +102,7 @@ public class ConstructorResult extends NodeResult {
 	        if (getType().hasField(name, store)) {
 	            return positionalFieldAccess(consType, name);
 	        }
-	        else if (consType.hasKeywordField(name, store)) {
+	        else if (getValue().getUninstantiatedConstructorType().hasKeywordField(name, store)) {
 	            return keywordFieldAccess(consType, name, store);
 	        }
 	        else {
@@ -110,7 +110,7 @@ public class ConstructorResult extends NodeResult {
 	            // we see this as a dynamic error. (the programmer could not have known since
 	            // constructor types are not first class citizens in Rascal). Otherwise the programmer
 	            // used a completely unknown field name and we flag it as static error.
-	            for (Type alt : store.lookupAlternatives(consType.getAbstractDataType())) {
+	            for (Type alt : store.lookupAlternatives(getValue().getUninstantiatedConstructorType().getAbstractDataType())) {
 	                if (store.hasKeywordParameter(alt, name)) {
 	                    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null); 
 	                }
@@ -144,7 +144,7 @@ public class ConstructorResult extends NodeResult {
 	public <U extends IValue> Result<U> keywordFieldAccess(Type consType, String name, TypeStore store) {
 	    try {
 	        if (getValue().mayHaveKeywordParameters()) { 
-	            Type kwType = store.getKeywordParameterType(getValue().getConstructorType(), name);
+	            Type kwType = store.getKeywordParameterType(getValue().getUninstantiatedConstructorType(), name);
 	            IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
 
 	            if (parameter == null) { // the 'default' case, the field is not present, but it is declared 

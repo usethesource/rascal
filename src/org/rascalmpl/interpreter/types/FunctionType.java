@@ -371,8 +371,8 @@ public class FunctionType extends RascalType {
 	        for (Type arg : keywordParameters) {
 	            sb.append(", ");
 	            sb.append(arg.toString());
-	            if (argumentTypes.hasFieldNames()) {
-	                sb.append(" " + argumentTypes.getFieldName(i) + " = ...");
+	            if (keywordParameters.hasFieldNames()) {
+	                sb.append(" " + keywordParameters.getFieldName(i) + " = ...");
 	            }
 	            
 	            i++;
