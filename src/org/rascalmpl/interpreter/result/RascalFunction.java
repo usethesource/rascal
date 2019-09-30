@@ -245,7 +245,7 @@ public class RascalFunction extends NamedFunction {
 	}
 
 	@Override
-  public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+  public Result<IValue> call(Type[] actualStaticTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 	  Result<IValue> result = getMemoizedResult(actuals, keyArgValues);
 	  if (result != null) { 
 	    return result;
@@ -270,10 +270,10 @@ public class RascalFunction extends NamedFunction {
       ctx.setAccumulators(accumulators);
       ctx.pushEnv();
 
-      Type actualTypesTuple = TF.tupleType(actualTypes);
+      Type actualTypesTuple = TF.tupleType(actualStaticTypes);
       if (hasVarArgs) {
         actuals = computeVarArgsActuals(actuals, getFormals());
-        actualTypesTuple = computeVarArgsActualTypes(actualTypes, getFormals());
+        actualTypesTuple = computeVarArgsActualTypes(actualStaticTypes, getFormals());
       }
 
       int size = actuals.length;
