@@ -134,3 +134,6 @@ int f13(int n, str s = "") = -n when s != "";
 test bool when1() = f13(10) == 10;
 test bool when2() = f13(10, s="a") == -10;
 
+data E[&T] = e(&T t, int j = 0);
+
+test bool parametrizedDataTypeWithKwParam() = e(1).j == 0 && e(1,j=2).j == 2;
