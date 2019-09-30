@@ -156,7 +156,7 @@ test bool testDivide3() = safeDivide(3, 0) == 0;
 test bool emptyListException1() {
 	try { 
 		head([]); 
-  	} catch CallFailed(_, [[]]): 
+  	} catch CallFailed([[]]): 
   		return true; 
   	return false; 
 }
@@ -166,7 +166,7 @@ test bool emptyListException1() {
 test bool emptyMapException1() { 
 	try { 
 		getOneFrom(()); 
-	} catch CallFailed(_, [x]): 
+	} catch CallFailed([x]): 
   		return x == (); 
 	return false; 
 }
@@ -176,7 +176,7 @@ test bool emptyMapException1() {
 test bool emptySetException1() { 
 	try { 
 		getOneFrom({}); 
-	} catch CallFailed(_, [{}]): 
+	} catch CallFailed([{}]): 
 		return true; 
 	return false; 
 }
