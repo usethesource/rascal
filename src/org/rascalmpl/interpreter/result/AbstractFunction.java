@@ -328,28 +328,45 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 	
-	protected void bindTypeParameters(Type actualTypes, Type formals, Map<Type, Type> renamings, Environment env) {
+	protected Type bindTypeParameters(Type actualTypes, Type formals, Map<Type, Type> renamings, Environment env) {
 		try {
-			Map<Type, Type> bindings = new HashMap<Type, Type>();
-			
 			if (actualTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
 			    // may have the same type variable names as the current scope
 			    actualTypes = renameType(actualTypes, renamings);
 			}
 			
+			Map<Type, Type> bindings = new HashMap<Type, Type>();
+			
 			if (!formals.match(actualTypes, bindings)) {
 				throw new MatchFailed();
 			}
 			env.storeTypeBindings(bindings);
+			
+			return actualTypes;
 		}
 		catch (FactTypeUseException e) {
 			throw new UnexpectedType(formals, actualTypes, ast);
 		}
 	}
 
-    private Type renameType(Type actualTypes, Map<Type, Type> renamings) {
+	protected Type unrenameType(Map<Type, Type> renamings, Type resultType) {
+	    if (resultType.isOpen()) {
+	        // first reverse the renamings
+	        Map<Type, Type> unrenamings = new HashMap<>();
+
+	        for (Entry<Type, Type> entry : renamings.entrySet()) {
+	            unrenamings.put(entry.getValue(), entry.getKey());
+	        }
+	        // then undo the renamings
+	        resultType = resultType.instantiate(unrenamings);
+	    }
+	    return resultType;
+	}
+	  
+    protected Type renameType(Type actualTypes, Map<Type, Type> renamings) {
         actualTypes.match(getTypeFactory().voidType(), renamings);
+        
         // rename all the bound type parameters
         for (Entry<Type,Type> entry : renamings.entrySet()) {
             Type key = entry.getKey();
