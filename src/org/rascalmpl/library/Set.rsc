@@ -327,7 +327,7 @@ getOneFrom({"elephant", "zebra", "snake"});
 getOneFrom({"elephant", "zebra", "snake"});
 ----}
 @javaClass{org.rascalmpl.library.Prelude}
-public java &T getOneFrom(set[&T] st) throws EmptySet;
+public java &T getOneFrom(set[&T] st);
 
 @doc{
 .Synopsis
@@ -341,9 +341,7 @@ Applying `getFirstFrom` on the same set will always returns the same element.
 .Benefits
 This function helps to make set-based code more deterministic, for instance, for testing purposes.
 }
-public &T getFirstFrom(set[&T] st) throws EmptySet {
-   return toList(st)[0];
-}
+public &T getFirstFrom({&T f, *&T _}) = f;
 
 @doc{
 .Synopsis
@@ -363,7 +361,7 @@ takeOneFrom({1, 2, 3, 4});
 ----
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java tuple[&T, set[&T]] takeOneFrom(set[&T] st) throws EmptySet;
+public java tuple[&T, set[&T]] takeOneFrom(set[&T] st);
  
  @doc{
 .Synopsis
@@ -372,13 +370,7 @@ Remove "first" element from a set, returns the element and a set without that el
 .Description
 element of a set.
 }
-public tuple[&T, set[&T]] takeFirstFrom(set[&T] st) throws EmptySet {
-   if(isEmpty(st)){
-      throw EmptySet();
-   }
-   lst = toList(st);
-   return <lst[0], toSet(tail(lst))>;
-}
+public tuple[&T, set[&T]] takeFirstFrom({&T f, *&T r}) = <f, r>;    
  
 @doc{
 .Synopsis
@@ -400,8 +392,7 @@ l = [*s];
 
 .Pitfalls
 Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting list.}
-@javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] toList(set[&T] st);
+public list[&T] toList(set[&T] st) = [*st];
 
 @doc{
 .Synopsis
