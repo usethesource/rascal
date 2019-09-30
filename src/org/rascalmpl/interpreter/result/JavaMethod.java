@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -39,6 +38,7 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -192,20 +192,6 @@ public class JavaMethod extends NamedFunction {
 		}
 	}
 
-    private Type unrenameType(Map<Type, Type> renamings, Type resultType) {
-        if (resultType.isOpen()) {
-            // first reverse the renamings
-            Map<Type, Type> unrenamings = new HashMap<>();
-            
-            for (Entry<Type, Type> entry : renamings.entrySet()) {
-                unrenamings.put(entry.getValue(), entry.getKey());
-            }
-            // then undo the renamings
-            resultType = resultType.instantiate(unrenamings);
-        }
-        return resultType;
-    }
-	
 	private Object[] addCtxActual(Object[] oActuals) {
 		Object[] newActuals = new Object[oActuals.length + 1];
 		System.arraycopy(oActuals, 0, newActuals, 0, oActuals.length);
