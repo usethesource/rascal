@@ -531,7 +531,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					res = function.call(types, actuals, kwActuals);
 				}
 				catch (Failure | MatchFailed e) {
-				    throw RuntimeExceptionFactory.callFailed(eval.getCurrentAST().getLocation(), eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
+				    throw RuntimeExceptionFactory.callFailed(eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
 				}
 				return res;
 			}
