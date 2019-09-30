@@ -19,8 +19,10 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -159,7 +161,8 @@ public class JavaMethod extends NamedFunction {
 			ctx.pushEnv(getName());
 
 			Environment env = ctx.getCurrentEnvt();
-			bindTypeParameters(actualTypesTuple, formals, env); 
+			Map<Type, Type> renamings = new HashMap<>();
+			bindTypeParameters(actualTypesTuple, formals, renamings, env); 
 			
 			if (!getReturnType().isBottom() && getReturnType().instantiate(env.getTypeBindings()).isBottom()) {
 			    // type parameterized functions are not allowed to return void,
@@ -170,6 +173,7 @@ public class JavaMethod extends NamedFunction {
 			IValue result = invoke(oActuals);
 			
 			Type resultType = getReturnType().instantiate(env.getTypeBindings());
+			resultType = unrenameType(renamings, resultType);
 			
 			resultValue = ResultFactory.makeResult(resultType, result, eval);
 			storeMemoizedResult(actuals, keyArgValues, resultValue);
@@ -187,6 +191,20 @@ public class JavaMethod extends NamedFunction {
 			ctx.unwind(old);
 		}
 	}
+
+    private Type unrenameType(Map<Type, Type> renamings, Type resultType) {
+        if (resultType.isOpen()) {
+            // first reverse the renamings
+            Map<Type, Type> unrenamings = new HashMap<>();
+            
+            for (Entry<Type, Type> entry : renamings.entrySet()) {
+                unrenamings.put(entry.getValue(), entry.getKey());
+            }
+            // then undo the renamings
+            resultType = resultType.instantiate(unrenamings);
+        }
+        return resultType;
+    }
 	
 	private Object[] addCtxActual(Object[] oActuals) {
 		Object[] newActuals = new Object[oActuals.length + 1];
