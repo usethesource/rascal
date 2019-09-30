@@ -44,7 +44,6 @@ int classify(value v){
 	catch: { 
 		return 4; 
 	}
-	return 0; 
 }
   		
 value duplicate(value v){
@@ -273,7 +272,6 @@ int f_using_finally2() {
         x = 20;
         return 789;
     }
-    return -1;
 }
 
 test bool finally2(){   

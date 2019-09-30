@@ -271,7 +271,8 @@ int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set
     // note the use of the label l from the third function parameter:
     case \alt(aa) : if (a:conditional(_,{_*,except(l)}) <- aa) return a.id; 
     default: return s.id; // this should never happen, but let's make this robust
-  }  
+  } 
+  throw "getItemId: no case for <s>";
 }
 
 
