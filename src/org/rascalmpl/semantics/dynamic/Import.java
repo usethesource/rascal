@@ -602,10 +602,11 @@ public abstract class Import {
         AbstractFunction parseFunction = getConcreteSyntaxParseFunction(eval, env, functionName);
         try {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
-            Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
             String input = replaceAntiQuotesByHolesExternal(eval, env, lit, antiquotes, corrections);
+            Result<IValue> resultContainer = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType()}, new IValue[] {eval.getValueFactory().string(input), TreeAdapter.getLocation(lit)}, null);
+            IValue result = resultContainer.getValue();
             if (isIterStar) {
-                IList resultList = (IList) replaceHolesByAntiQuotesExternal(eval, result.getValue(), antiquotes, corrections);
+                IList resultList = (IList) replaceHolesByAntiQuotesExternal(eval, result, antiquotes, corrections);
                 IListWriter writer = eval.__getVf().listWriter();
                 IList ret = resultList;
                 if (!inPattern) {
@@ -621,9 +622,9 @@ public abstract class Import {
                 env.addExternalConcretePattern(TreeAdapter.getLocation(lit), ret);
                 return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
             }
-            INode ret = (INode) replaceHolesByAntiQuotesExternal(eval, result.getValue(), antiquotes, corrections);
             if (ret.mayHaveKeywordParameters() && !inPattern && env.getKeywordParameterTypes(((IConstructor) ret).getConstructorType()).keySet().contains("src")) {
                 ret = ret.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(lit));
+            INode ret = (INode) replaceHolesByAntiQuotesExternal(eval, result, antiquotes, corrections);
             }
             env.addExternalConcretePattern(TreeAdapter.getLocation(lit), ret);
             return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
@@ -876,7 +877,7 @@ public abstract class Import {
         Result<IValue> replacementResult = holeFunction.call(new Type[] {TypeFactory.getInstance().integerType()}, new IValue[] {ctx.getValueFactory().integer(antiquotes.size())}, null);
         IString holeReplacement = (IString) replacementResult.getValue();
         
-        Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {ctx.getValueFactory().string(holeReplacement.getValue())}, null);
+        Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType()}, new IValue[] {ctx.getValueFactory().string(holeReplacement.getValue()), TreeAdapter.getLocation(subTree)}, null);
         
         antiquotes.put(result.getValue(), part);
         return holeReplacement.getValue();
