@@ -987,15 +987,15 @@ public abstract class Import {
     private static final String CONCRETE_SYNTAX_TAG = "concreteSyntax";
     private static final String CONCRETE_HOLE_TAG = "concreteHole";
     
-    public static AbstractFunction getConcreteSyntaxParseFunction(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String nonterminalName) {
+    private static AbstractFunction getConcreteSyntaxParseFunction(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String nonterminalName) {
         return getTaggedFunctionFromEnvironment(eval, env, CONCRETE_SYNTAX_TAG, nonterminalName);
     }
     
-    public static AbstractFunction getConcreteSyntaxHoleFunction(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String nonterminalName) {
+    private static AbstractFunction getConcreteSyntaxHoleFunction(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String nonterminalName) {
         return getTaggedFunctionFromEnvironment(eval, env, CONCRETE_HOLE_TAG, nonterminalName);
     }
     
-    public static AbstractFunction getTaggedFunctionFromEnvironment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String tag, String nonterminalName) {
+    private static AbstractFunction getTaggedFunctionFromEnvironment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String tag, String nonterminalName) {
         List<AbstractFunction> functions = new ArrayList<>();
         env.getFunctionsByTag(tag, functions);
         functions = functions.stream().filter(it-> ((IString) it.getTag(tag)).getValue().equals(nonterminalName)).collect(Collectors.toList());
