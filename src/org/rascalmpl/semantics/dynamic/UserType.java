@@ -45,7 +45,7 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 				Type type = theEnv.lookupAlias(name);
 
 				if (type != null) {
-					return type;
+					return type.getAliased();
 				}
 
 				Type tree = theEnv.lookupAbstractDataType(name);
