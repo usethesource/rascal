@@ -228,16 +228,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			    return makeResult(resultType, result, ctx);
 			}
 			
-			ISetWriter wset = null;
-			ISetWriter wrel = null;
-			
-			if (yieldSet){
-				wset = this.getValueFactory().setWriter();
-			} else {
-				wrel = this.getValueFactory().setWriter();
-			}
-
-			
+			ISetWriter result = this.getValueFactory().setWriter();
 			for (IValue v : getValue()) {
 				ITuple tup = (ITuple)v;
 				boolean allEqual = true;
@@ -257,14 +248,14 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 					for (int i = nSubs; i < relArity; i++) {
 						args[i - nSubs] = tup.get(i);
 					}
-					if(yieldSet){
-						wset.insert(args[0]);
+					if (args.length == 1) {
+						result.insert(args);
 					} else {
-						wrel.insert(getValueFactory().tuple(args));
+						result.insert(getValueFactory().tuple(args));
 					}
 				}
 			}
-			return makeResult(resultType, yieldSet ? wset.done() : wrel.done(), ctx);
+			return makeResult(resultType, yieldSet ? result.done(), ctx);
 		}
 
 		////
