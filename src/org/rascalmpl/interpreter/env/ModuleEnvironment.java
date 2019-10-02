@@ -217,6 +217,12 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 	
+	public boolean hasConcreteSyntaxHooks() {
+	    List<AbstractFunction> functions = new ArrayList<>();
+        getFunctionsByTag("concreteSyntax", functions);
+        return functions.size() > 0;
+	}
+	
 	public boolean definesSyntax() {
 		if (!productions.isEmpty()) {
 			return true;

@@ -444,7 +444,7 @@ public abstract class Import {
 
       // parse the embedded concrete syntax fragments of the current module
       ITree result = tree;
-      if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
+      if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || ((env.definesSyntax() || env.hasConcreteSyntaxHooks()) && containsBackTick(data, 0)))) {
         eval.event("parsing concrete syntax");
         result = parseFragments(eval, tree, location, env);
       }
