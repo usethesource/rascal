@@ -13,10 +13,10 @@ package org.rascalmpl.values.uptr;
 import java.util.Map;
 
 import org.rascalmpl.parser.gtd.util.ArrayList;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
