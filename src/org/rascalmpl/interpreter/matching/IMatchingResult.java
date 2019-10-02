@@ -11,14 +11,13 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
