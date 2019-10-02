@@ -198,8 +198,8 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			    }
 			    else if (subscriptIsSet[0]) {
 			        ISet subScriptSet = ((ISet) subscripts[0].getValue());
-			        if (subScriptSet.size() * 2 < relation.asContainer().size()) {
-			            // in most cases, it's quicker to just do a few seperate indexes
+			        if (subScriptSet.size() * 2 < relation.asContainer().size() && relArity == 2) {
+			            // if it is a binary relation and the subscript set is not that big, it's quicker to just do a few seperate indexes
                         result = this.getValueFactory().set();
                         for (IValue v : subScriptSet) {
                             result = result.union(relation.index(v));
