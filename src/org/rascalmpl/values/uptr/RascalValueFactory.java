@@ -248,7 +248,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Grammar = tf.abstractDataType(uptr,  "Grammar");
 	public static final Type Grammar_Default = tf.constructor(uptr,  Grammar, "grammar", tf.setType(Symbol), "starts", tf.mapType(Symbol, "sort", Production, "def"), "rules");
     
-	/** Will be replaced by keyword parameter "origin" */
 	public static final String Location = "src";
 	
 	static {
