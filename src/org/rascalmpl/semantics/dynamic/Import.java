@@ -639,10 +639,8 @@ public abstract class Import {
                 for (IValue v : ret) {
                     if (v.mayHaveKeywordParameters()) {
                         ISourceLocation src = (ISourceLocation) v.asWithKeywordParameters().getParameter("src");
-                        env.addExternalConcretePattern(src, v);
                     } else if (v.isAnnotatable()) {
                         ISourceLocation src = (ISourceLocation) v.asAnnotatable().getAnnotation("loc");
-                        env.addExternalConcretePattern(src, v);
                     }
                 }
                 if (inPattern) {
@@ -655,14 +653,12 @@ public abstract class Import {
                     }
                     ret = writer.done();
                 }
-                env.addExternalConcretePattern(TreeAdapter.getLocation(lit), ret);
                 return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
             }
             INode ret = (INode) replaceHolesByAntiQuotesExternal(eval, result, antiquotes, corrections);
             if (inPattern) {
                 ret = unsetAllRec(ret);
             }
-            env.addExternalConcretePattern(TreeAdapter.getLocation(lit), ret);
             return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
         } catch (ParseError e) {
             eval.getMonitor().warning("Could not create hole for " + name, eval.getCurrentAST().getLocation());

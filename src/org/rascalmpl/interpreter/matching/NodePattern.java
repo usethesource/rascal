@@ -463,11 +463,6 @@ public class NodePattern extends AbstractMatchingResult {
 					"Facade cannot be viewed as with keyword parameters.", getType());
 		}		
 	}
-
-	@Override
-	public Map<String, Integer> getListVarLenghts() {
-	  return patternChildren.stream().map(IMatchingResult::getListVarLenghts).collect(HashMap::new, Map::putAll, Map::putAll);
-	}
 }
 
 
