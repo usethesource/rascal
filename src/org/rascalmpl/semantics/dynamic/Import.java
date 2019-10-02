@@ -70,6 +70,7 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -569,6 +570,31 @@ public abstract class Import {
     }
   }
   
+  private static INode unsetAllRec(INode node) {
+      node = node.asWithKeywordParameters().unsetAll();
+      for (int i = 0; i < node.arity(); i++) {
+          IValue v = node.get(i);
+          if (v instanceof INode && v.mayHaveKeywordParameters()) {
+              node = node.set(i, unsetAllRec((INode) node.get(i)));
+          } else if (v instanceof IList) {
+              node = node.set(i, unsetAllRec((IList) node.get(i)));
+          }
+      }
+      return node;
+  }
+
+  private static IList unsetAllRec(IList list) {
+      IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
+      for (IValue v : list) {
+          if (v.mayHaveKeywordParameters()) {
+              writer.append(unsetAllRec((INode) v));
+          } else {
+              writer.append(v);
+          }
+      }
+      return writer.done();
+  }
+  
   private static ITree parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree tree, ISourceLocation uri, boolean inPattern) {
     ITree symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
@@ -605,14 +631,24 @@ public abstract class Import {
             String input = replaceAntiQuotesByHolesExternal(eval, env, lit, antiquotes, corrections);
             Result<IValue> resultContainer = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType(), TypeFactory.getInstance().sourceLocationType()}, new IValue[] {eval.getValueFactory().string(input), TreeAdapter.getLocation(lit)}, null);
             IValue result = resultContainer.getValue();
+            result = result.accept(new AdjustLocations(corrections, eval.getValueFactory()));
             if (isIterStar) {
                 IList resultList = (IList) replaceHolesByAntiQuotesExternal(eval, result, antiquotes, corrections);
                 IListWriter writer = eval.__getVf().listWriter();
                 IList ret = resultList;
-                if (!inPattern) {
-                    for (IValue v : resultList) {
-                        if (v.mayHaveKeywordParameters() && env.getKeywordParameterTypes(((IConstructor) v).getConstructorType()).keySet().contains("src")) {
-                            writer.append(v.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(lit)));
+                for (IValue v : ret) {
+                    if (v.mayHaveKeywordParameters()) {
+                        ISourceLocation src = (ISourceLocation) v.asWithKeywordParameters().getParameter("src");
+                        env.addExternalConcretePattern(src, v);
+                    } else if (v.isAnnotatable()) {
+                        ISourceLocation src = (ISourceLocation) v.asAnnotatable().getAnnotation("loc");
+                        env.addExternalConcretePattern(src, v);
+                    }
+                }
+                if (inPattern) {
+                    for (IValue v: resultList) {
+                        if (v.mayHaveKeywordParameters()) {
+                            writer.append(unsetAllRec((INode) v));
                         } else {
                             writer.append(v);
                         }
@@ -622,9 +658,9 @@ public abstract class Import {
                 env.addExternalConcretePattern(TreeAdapter.getLocation(lit), ret);
                 return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
             }
-            if (ret.mayHaveKeywordParameters() && !inPattern && env.getKeywordParameterTypes(((IConstructor) ret).getConstructorType()).keySet().contains("src")) {
-                ret = ret.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(lit));
             INode ret = (INode) replaceHolesByAntiQuotesExternal(eval, result, antiquotes, corrections);
+            if (inPattern) {
+                ret = unsetAllRec(ret);
             }
             env.addExternalConcretePattern(TreeAdapter.getLocation(lit), ret);
             return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
@@ -764,6 +800,71 @@ public abstract class Import {
     	TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
     	return arg;
     }
+    
+    @Override
+    public IValue visitNode(INode node) throws ImplementationError {
+        ISourceLocation loc = (ISourceLocation) node.asWithKeywordParameters().getParameter("src");
+        int off = offsetFor(loc.getOffset());
+        loc = vf.sourceLocation(loc, loc.getOffset() + off, loc.getLength());
+        for (int i = 0; i < node.arity(); i++) {
+            node.set(i, node.get(i).accept(this));
+        }
+        return node;
+    }
+    
+    private int fixOffset(int n) {
+        int offset = n;
+        for (Integer i : corrections.keySet()) {
+            if (i > 0 && i < offset) {
+                offset += corrections.get(i);
+            }
+        }
+        return offset;
+    }
+    
+    private int getLengthDelta(int offset, int length) {
+        int delta = 0;
+        for (Integer i : corrections.keySet()) {
+            if (i >= offset && i < offset + length + delta) {
+                delta += corrections.get(i);
+            }
+        }
+        return delta;
+    }
+    
+    @Override
+    public INode visitConstructor(IConstructor constructor) throws ImplementationError {
+        if (constructor instanceof ITree) {
+            return visitTreeAppl((ITree) constructor);
+        }
+        if ("MyList".equals(constructor.getType().getName())) {
+            IList oldElts = ((IList) constructor.get("elts"));
+            IList newElts = oldElts.stream().map(it -> visitConstructor((IConstructor) it)).collect(vf.listWriter());
+            return constructor.set(0, newElts);
+        }
+        ISourceLocation loc = (ISourceLocation) constructor.asWithKeywordParameters().getParameter("src");
+        int offset = fixOffset(loc.getOffset());
+        int length = loc.getLength() + getLengthDelta(offset, loc.getLength());
+        if (length >= 0) {
+            loc = vf.sourceLocation(loc, offset, length);
+        }
+        constructor = constructor.asWithKeywordParameters().setParameter("src", loc);
+        for (int i = 0; i < constructor.arity(); i++) {
+            constructor = constructor.set(i, constructor.get(i).accept(this));
+        }
+        return constructor;
+    }
+    
+    @Override
+    public IValue visitList(IList list) throws ImplementationError {
+        IListWriter writer = vf.listWriter();
+        for (IValue value : list) {
+            writer.append(value.accept(this));
+        }
+        return writer.done();
+    }
+  }
+  
   private static String replaceAntiQuotesByHolesExternal(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit, Map<IValue, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
       IList parts = TreeAdapter.getArgs(lit);
       StringBuilder b = new StringBuilder();
