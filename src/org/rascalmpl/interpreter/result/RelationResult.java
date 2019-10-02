@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
@@ -174,14 +175,65 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 				}
 			}
 			Type resultType;
+			if (yieldSet){
+				resultType = getTypeFactory().setType(resFieldType[0]);
+			}
+			else {
+				resultType = getTypeFactory().relType(resFieldType);
+			}
+			
+			
+			if (nSubs == 1) {
+			    // special case the simple subscription to directly target vallang
+			    IRelation<ISet> relation = getValue().asRelation();
+			    
+			    ISet result;
+			    if (subscripts[0] == null) {
+			        // edge case, we want everything, so an project
+			        int[] restSubScripts = new int[relArity - 1];
+			        for (int i = 1; i < relArity; i++) {
+			            restSubScripts[i - 1] = i;
+			        }
+			        result = relation.project(restSubScripts);
+			    }
+			    else if (subscriptIsSet[0]) {
+			        ISet subScriptSet = ((ISet) subscripts[0].getValue());
+			        if (subScriptSet.size() * 2 < relation.asContainer().size()) {
+			            // in most cases, it's quicker to just do a few seperate indexes
+                        result = this.getValueFactory().set();
+                        for (IValue v : subScriptSet) {
+                            result = result.union(relation.index(v));
+                        }
+			        }
+			        else {
+			            // we have a big subscript, so it's quicker to do a single loop
+			            ISetWriter resultWriter = this.getValueFactory().setWriter();
+                        int[] restSubScripts = new int[relArity - 1];
+                        for (int i = 1; i < relArity; i++) {
+                            restSubScripts[i - 1] = i;
+                        }
+			            for (IValue v : relation) {
+			                ITuple tup = (ITuple)v;
+			                if (subScriptSet.contains(tup.get(0))) {
+			                   resultWriter.append(tup.select(restSubScripts));
+			                }
+			            }
+			            result = resultWriter.done();
+			        }
+			    }
+			    else {
+			        result = relation.index(subscripts[0].getValue());
+			        
+			    }
+			    return makeResult(resultType, result, ctx);
+			}
+			
 			ISetWriter wset = null;
 			ISetWriter wrel = null;
 			
 			if (yieldSet){
-				resultType = getTypeFactory().setType(resFieldType[0]);
 				wset = this.getValueFactory().setWriter();
 			} else {
-				resultType = getTypeFactory().relType(resFieldType);
 				wrel = this.getValueFactory().setWriter();
 			}
 
