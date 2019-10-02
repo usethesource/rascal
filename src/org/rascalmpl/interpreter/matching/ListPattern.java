@@ -19,7 +19,6 @@ package org.rascalmpl.interpreter.matching;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
