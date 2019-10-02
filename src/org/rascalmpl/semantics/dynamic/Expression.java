@@ -852,20 +852,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(__eval, this);
 		}
 
-	
-
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
 			Result<IValue> expr = this.getExpression().interpret(__eval);
-			String field = org.rascalmpl.interpreter.utils.Names.name(this
-					.getField());
+			String field = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
 			return expr.fieldAccess(field, __eval.getCurrentEnvt().getStore());
-
 		}
 		
 		@Override
