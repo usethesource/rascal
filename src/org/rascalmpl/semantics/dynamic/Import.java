@@ -602,8 +602,8 @@ public abstract class Import {
         AbstractFunction parseFunction = getConcreteSyntaxParseFunction(eval, env, functionName);
         try {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
-            String input = replaceAntiQuotesByHoles(eval, env, lit, antiquotes, corrections, true);
             Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
+            String input = replaceAntiQuotesByHolesExternal(eval, env, lit, antiquotes, corrections);
             if (isIterStar) {
                 IList resultList = (IList) replaceHolesByAntiQuotesExternal(eval, result.getValue(), antiquotes, corrections);
                 IListWriter writer = eval.__getVf().listWriter();
@@ -647,7 +647,7 @@ public abstract class Import {
       UPTRNodeFactory nodeFactory = new UPTRNodeFactory(false);
     
       SortedMap<Integer,Integer> corrections = new TreeMap<>();
-      String input = replaceAntiQuotesByHoles(eval, env, lit, antiquotes, corrections, false);
+      String input = replaceAntiQuotesByHolesInternal(eval, env, lit, antiquotes, corrections);
       
       ITree fragment = (ITree) parser.parse(parserMethodName, uri.getURI(), input.toCharArray(), converter, nodeFactory);
       
@@ -763,10 +763,44 @@ public abstract class Import {
     	TreeAdapter.getAlternatives(arg).iterator().next().accept(this);
     	return arg;
     }
+  private static String replaceAntiQuotesByHolesExternal(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit, Map<IValue, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
+      IList parts = TreeAdapter.getArgs(lit);
+      StringBuilder b = new StringBuilder();
+      
+      ISourceLocation loc = TreeAdapter.getLocation(lit);
+      corrections.put(-1,loc.getOffset());//initial offset
+      for (IValue elem: parts) {
+          ITree part = (ITree) elem;
+          String cons = TreeAdapter.getConstructorName(part);
+          if (cons.equals("hole")) {
+              //replace "<Type name>" with "replacement1234".
+              //Added 4 characters, should be deducted from trailing nodes, therefore a negative delta
+              String hole = createExternalHole(eval, env, part, antiquotes);
+              ISourceLocation partLoc = TreeAdapter.getLocation(part);
+              int offset = partLoc.getOffset();
+              int delta = partLoc.getLength() - hole.length();
+              corrections.put(offset, delta);
+              b.append(hole);
+          } else if (cons.equals("text")) {
+              b.append(TreeAdapter.yield(part));
+          } else if (cons.equals("newline")){
+              //The characters from the newline until the single quote were removed
+              //This difference should be added to trailing nodes, therefore a positive delta
+              ISourceLocation partLoc = TreeAdapter.getLocation(part);
+              int offset = partLoc.getOffset();
+              int delta = partLoc.getLength() - 1;
+              corrections.put(offset, delta);
+              b.append('\n');
+          } else {
+              eval.getStdErr().println("Unexpected cons: " + cons);
+              throw new RuntimeException(TreeAdapter.getLocation(lit).toString());
+          }
+      }
+      return b.toString();
   }
   
-  private static String replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit,
-      Map antiquotes, SortedMap<Integer, Integer> corrections, boolean isExternal) {
+  private static String replaceAntiQuotesByHolesInternal(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit,
+      Map<String, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
     IList parts = TreeAdapter.getArgs(lit);
     StringBuilder b = new StringBuilder();
     
@@ -811,10 +845,10 @@ public abstract class Import {
       	b.append('\\');
       }
       else if (cons.equals("hole")) {
-        String hole = isExternal ? createExternalHole(eval, env, part, antiquotes) : createInternalHole(eval, part, antiquotes);
+        String hole = createInternalHole(eval, part, antiquotes);
         shift += partLen - hole.length();
-				offset += hole.length();
-				corrections.put(offset, shift);
+        offset += hole.length();
+        corrections.put(offset, shift);
         b.append(hole);
       }
     }
