@@ -232,7 +232,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			for (IValue v : getValue()) {
 				ITuple tup = (ITuple)v;
 				boolean allEqual = true;
-				for(int k = 0; k < nSubs; k++){
+				for(int k = 0; k < nSubs && allEqual; k++){
 					if(subscriptIsSet[k] && ((subscripts[k] == null) ||
 							                 ((ISet) subscripts[k].getValue()).contains(tup.get(k)))){
 						/* ok */
@@ -244,18 +244,19 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 				}
 				
 				if (allEqual) {
-					IValue args[] = new IValue[relArity - nSubs];
-					for (int i = nSubs; i < relArity; i++) {
-						args[i - nSubs] = tup.get(i);
-					}
-					if (args.length == 1) {
-						result.insert(args);
-					} else {
-						result.insert(getValueFactory().tuple(args));
-					}
+				    if (yieldSet) {
+						result.insert(tup.get(nSubs));
+				    }
+				    else {
+				        IValue args[] = new IValue[relArity - nSubs];
+				        for (int i = nSubs; i < relArity; i++) {
+				            args[i - nSubs] = tup.get(i);
+				        }
+				        result.insert(getValueFactory().tuple(args));
+				    }
 				}
 			}
-			return makeResult(resultType, yieldSet ? result.done(), ctx);
+			return makeResult(resultType, result.done(), ctx);
 		}
 
 		////
