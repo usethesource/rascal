@@ -114,17 +114,6 @@ public class ListPattern extends AbstractMatchingResult  {
   }
   
   @Override
-  public Map<String, Integer> getListVarLenghts() {
-    Map<String, Integer> lengths = new HashMap<>();
-    for (int i = 0; i < isListVar.length; i++) {
-      if (isListVar[i]) {
-        lengths.put(varName[i], listVarLength[i]);
-      }
-    }
-    return lengths;
-  }
-
-  @Override
   public void initMatch(Result<IValue> subject){
     if(debug) {
       System.err.println("List: initMatch: subject=" + subject);

@@ -72,8 +72,4 @@ public interface IMatchingResult extends IBooleanResult {
    * the information down to all children of the constructor.
 	 */
 	public void updateType(Type type);
-
-    default Map<String, Integer> getListVarLenghts() {
-        return Collections.emptyMap();
-    }
 }

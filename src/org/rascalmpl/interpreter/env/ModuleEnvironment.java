@@ -79,7 +79,6 @@ public class ModuleEnvironment extends Environment {
 	private Map<IMap,String> cachedParser = new HashMap<>();
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
-	private Map<ISourceLocation, IValue> externalConcretePatterns;
     
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
@@ -97,7 +96,6 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<>();
-		this.externalConcretePatterns = new HashMap<>();
 	}
 	
 	/**
@@ -118,7 +116,6 @@ public class ModuleEnvironment extends Environment {
 		this.resourceImporters = env.resourceImporters;
 		this.cachedParser = env.cachedParser;
 		this.deprecated = env.deprecated;
-		this.externalConcretePatterns = env.externalConcretePatterns;
 	}
 
 	@Override
@@ -134,7 +131,6 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<>();
 		this.deprecated = null;
-		this.externalConcretePatterns = new HashMap<>();
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -184,13 +180,6 @@ public class ModuleEnvironment extends Environment {
 			  this.generalKeywordParameters = new HashMap<>();
 		  }
 		  this.generalKeywordParameters.putAll(other.generalKeywordParameters);
-	  }
-	  
-	  if (other.externalConcretePatterns != null) {
-	      if (this.externalConcretePatterns == null) {
-	          this.externalConcretePatterns = new HashMap<>();
-	      }
-	      this.externalConcretePatterns.putAll(other.externalConcretePatterns);
 	  }
 	  
 	  extendTypeParams(other);
@@ -1101,14 +1090,6 @@ public class ModuleEnvironment extends Environment {
 
 	public void resetProductions() {
 		this.productions = new HashSet<>(productions.size());
-	}
-	
-	public void addExternalConcretePattern(ISourceLocation loc, IValue pattern) {
-	    externalConcretePatterns.put(loc, pattern);
-	}
-	
-	public Map<ISourceLocation, IValue> getExternalConcretePatterns() {
-	    return Collections.unmodifiableMap(externalConcretePatterns);
 	}
 	
 }
