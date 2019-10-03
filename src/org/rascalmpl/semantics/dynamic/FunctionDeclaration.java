@@ -95,8 +95,7 @@ public abstract class FunctionDeclaration extends
 				throw new MissingModifier("java", this);
 			}
 
-			lambda = new RascalFunction(__eval, this, varArgs, __eval
-					.getCurrentEnvt(), __eval.__getAccumulators());
+			lambda = new RascalFunction(__eval, this, varArgs, __eval.getCurrentEnvt(), __eval.__getAccumulators());
 
 			__eval.getCurrentEnvt().storeFunction(lambda.getName(), lambda);
 			__eval.getCurrentEnvt().markNameFinal(lambda.getName());
@@ -108,8 +107,8 @@ public abstract class FunctionDeclaration extends
 		}
 
 		@Override
-		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval) {
-			return this.getSignature().typeOf(__eval, eval);
+		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getSignature().typeOf(__eval, eval, instantiateTypeParameters);
 		}
 	}
 

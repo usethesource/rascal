@@ -31,8 +31,8 @@ public abstract class Sym extends org.rascalmpl.ast.Sym {
 		}
 
 		@Override
-		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval) {
-			return getNonterminal().typeOf(env, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getNonterminal().typeOf(env, eval, instantiateTypeParameters);
 		}
 	}
 

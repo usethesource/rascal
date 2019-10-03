@@ -18,9 +18,7 @@ package org.rascalmpl.interpreter.result;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
@@ -99,12 +97,13 @@ public class ResultFactory {
 
 		@Override
 		public Result<? extends IValue> visitConstructor(Type type) {
-			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
+			if (RascalType.isNonterminal(RascalValueFactory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
 			}
-			if (type instanceof FunctionType) {
+			else if (RascalType.isFunction(type)) {
 				return (AbstractFunction)value;
 			}
+			
 			return new ConstructorResult(declaredType.getAbstractDataType(), (IConstructor)value, ctx);
 		}
 		
@@ -130,9 +129,12 @@ public class ResultFactory {
 		
 		@Override
 		public ListOrRelationResult<IList> visitList(Type type) {
-			if(declaredType.isListRelation()) {
-				if (value != null && !(value.getType().isListRelation()))
+			if (type.isListRelation()) {
+			    // TODOmmm. what if it was first a list relation (an empty one), but not anymore?
+				if (value != null && !(value.getType().isListRelation())) {
 					throw new ImplementationError("somehow a list relation value turned into a list, but its type did not change with it", ctx.getCurrentAST().getLocation());
+				}
+				
 				return new ListRelationResult(declaredType, (IList)value, ctx);
 			}
 
@@ -159,7 +161,7 @@ public class ResultFactory {
 		
 		@Override
 		public SetOrRelationResult<ISet> visitSet(Type type) {
-			if(declaredType.isRelation()) {
+			if (type.isRelation()) {
 				if (value != null && !(value.getType().isRelation()))
 					throw new ImplementationError("somehow a relation value turned into a set, but its type did not change with it", ctx.getCurrentAST().getLocation());
 				return new RelationResult(declaredType, (ISet)value, ctx);
@@ -195,7 +197,7 @@ public class ResultFactory {
 
 		@Override
 		public Result<? extends IValue> visitExternal(Type externalType) {
-			if (externalType instanceof FunctionType) {
+			if (RascalType.isFunction(externalType)) {
 			    if (value instanceof AbstractFunction) {
 			        // the weird thing is, that value is also a result in that case.
 			        return (AbstractFunction) value;
@@ -206,28 +208,19 @@ public class ResultFactory {
 			        return new ValueResult(declaredType, value, ctx);
 			    }
 			}
-			
-			if (externalType instanceof NonTerminalType) {
+			else if (RascalType.isNonterminal(externalType)) {
 				return new ConcreteSyntaxResult(externalType, (IConstructor) value, ctx);
-			}
-			
-			if (externalType instanceof ReifiedType) {
+			} 
+			else if (RascalType.isReified(externalType)) {
 				return new ConstructorResult(externalType, (IConstructor) value, ctx);
 			}
-			/* TODO: hope this is OK.... -anya
-			 * 
-			 * was:
-			 *	throw new NotYetImplemented("visitExternal in result factory: " + externalType);
-			*/
+
 			return new ValueResult(declaredType, value, ctx);
-			
 		}
 
 		@Override
 		public Result<? extends IValue> visitDateTime(Type type) {
 			return new DateTimeResult(declaredType, (IDateTime)value, ctx);		
 		}
-
-		
 	}
 }

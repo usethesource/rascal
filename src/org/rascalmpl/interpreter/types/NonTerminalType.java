@@ -212,6 +212,14 @@ public class NonTerminalType extends RascalType {
     }
     
     @Override
+    public boolean isAbstractData() {
+        // because all instances of NonTerminalType values also simulate
+        // Tree constructors like appl, amb, char and cycle and generic
+        // functionality in the run-time on those trees trigger on this test.
+        return true;
+    }
+    
+    @Override
     public Type asAbstractDataType() {
     	return RascalValueFactory.Tree;
     }

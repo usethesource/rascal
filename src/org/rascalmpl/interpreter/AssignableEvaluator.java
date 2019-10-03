@@ -118,8 +118,8 @@ public class AssignableEvaluator {
 				throw new ImplementationError("Unknown assignment operator");
 			}
 		
-			if (newValue.getType().isSubtypeOf(oldValue.getType())) {
-				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType(), newValue.getValue(),this.__getEval());
+			if (newValue.getValue().getType().isSubtypeOf(oldValue.getType())) {
+				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType(), newValue.getValue(), this.__getEval());
 				return newValue;
 			} else 	if (oldValue.hasInferredType()) {
 				// Be liberal here: if the user has not declared a variable explicitly

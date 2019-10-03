@@ -33,7 +33,6 @@ import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
@@ -43,6 +42,7 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
@@ -57,7 +57,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -338,10 +337,12 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			
 			Map<Type, Type> bindings = new HashMap<Type, Type>();
 			
-			if (!formals.match(actualTypes, bindings)) {
-				throw new MatchFailed();
+			if (formals.match(actualTypes, bindings)) {
+			    env.storeTypeBindings(bindings);
+			    // formal parameters do not have to match the static types, they only have to match the dynamic types
+			    // so continue even if the static types do not match. However, the application should fail later
+			    // when we check the dynamic types if they do not match either.
 			}
-			env.storeTypeBindings(bindings);
 			
 			return actualTypes;
 		}

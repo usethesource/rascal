@@ -96,6 +96,12 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
+	public boolean isAbstractData() {
+	    // the reified constructor is a special kind of constructor.
+	    return true;
+	}
+	
+	@Override
 	public String getName() {
 		return "type";
 	}
