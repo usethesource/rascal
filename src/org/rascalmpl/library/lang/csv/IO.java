@@ -529,7 +529,7 @@ public class IO {
         String sep = separator != null ? separator.getValue() : ",";
         Boolean head = header != null ? header.getValue() : true;
 
-        if(!paramType.isRelation() && !paramType.isListRelation() || !(rel instanceof IList || rel instanceof ISet)){
+        if(!rel.getType().isRelation() && !rel.getType().isListRelation() || !(rel instanceof IList || rel instanceof ISet)){
             throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType, currentAST.get(), stackTrace.get());
         }
 

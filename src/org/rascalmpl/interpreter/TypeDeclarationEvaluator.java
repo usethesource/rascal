@@ -104,7 +104,7 @@ public class TypeDeclarationEvaluator {
 		int i = 0;
 		for (KeywordFormal kw : kws) {
 			kwLabels[i] = Names.name(kw.getName());
-			kwTypes[i++] = kw.getType().typeOf(eval.getCurrentEnvt(), eval);
+			kwTypes[i++] = kw.getType().typeOf(eval.getCurrentEnvt(), eval, true);
 		}
 		
 		return TypeFactory.getInstance().tupleType(kwTypes, kwLabels);
@@ -146,7 +146,7 @@ public class TypeDeclarationEvaluator {
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
-					fields[i] = arg.getType().typeOf(env, eval);
+					fields[i] = arg.getType().typeOf(env, eval, true);
 
 					if (fields[i] == null) {
 						throw new UndeclaredType(arg.hasName() ? Names.name(arg.getName()) : "?", arg);
@@ -215,7 +215,7 @@ public class TypeDeclarationEvaluator {
 	
 	public void declareAlias(Alias x, Environment env) {
 		try {
-			Type base = x.getBase().typeOf(env, eval);
+			Type base = x.getBase().typeOf(env, eval, false);
 
 			assert base != null;
 			
@@ -287,7 +287,7 @@ public class TypeDeclarationEvaluator {
 									+ formal + " is not allowed", formal.getLocation());
 				}
 				TypeVar var = formal.getTypeVar();	
-				Type bound = var.hasBound() ? var.getBound().typeOf(env, eval) : tf
+				Type bound = var.hasBound() ? var.getBound().typeOf(env, eval, false) : tf
 						.valueType();
 				params[i++] = tf
 						.parameterType(Names.name(var.getName()), bound);

@@ -155,7 +155,7 @@ abstract public class NamedFunction extends AbstractFunction {
         Map<Type, Type> bindings = new HashMap<>();
         
         for (int i = 0; i < actuals.length; i++) {
-            formals.get(i).typeOf(declarationEnvironment, getEval()).match(actuals[i].getType(), bindings);
+            formals.get(i).typeOf(declarationEnvironment, getEval(), false).match(actuals[i].getType(), bindings);
         }
         
         if (!getReturnType().isBottom() && getReturnType().instantiate(bindings).isBottom()) {

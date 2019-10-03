@@ -77,7 +77,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 
 		@Override
-		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return type;
 		}
 
@@ -179,7 +179,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return type;
 		}
 
@@ -371,7 +371,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return type;
 		}
 
@@ -438,7 +438,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return RascalValueFactory.Tree;
 		}
 	}
@@ -487,7 +487,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return RascalValueFactory.Tree;
 		}
 	}
