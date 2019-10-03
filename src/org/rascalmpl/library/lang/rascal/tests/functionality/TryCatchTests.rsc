@@ -165,8 +165,8 @@ test bool emptyListException1() {
 test bool emptyMapException1() { 
 	try { 
 		getOneFrom(()); 
-	} catch CallFailed([x]): 
-  		return x == (); 
+	} catch CallFailed([map[void,void] x]): 
+  		return true; 
 	return false; 
 }
   	

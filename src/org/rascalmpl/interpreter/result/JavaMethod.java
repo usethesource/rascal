@@ -50,7 +50,7 @@ public class JavaMethod extends NamedFunction {
 	private final JavaBridge javaBridge;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		this(eval, (FunctionType) func.getSignature().typeOf(env, eval), func, hasTestMod(func.getSignature()), isDefault(func), varargs, env, javaBridge);
+		this(eval, (FunctionType) func.getSignature().typeOf(env, eval, false), func, hasTestMod(func.getSignature()), isDefault(func), varargs, env, javaBridge);
 	}
 	
 	@Override

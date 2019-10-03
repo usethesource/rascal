@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
@@ -175,7 +176,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
     }
     
     Type indexedType = argValues[index].getType();
-    if (indexedType.isAbstractData() || indexedType.isConstructor()) {
+    if (indexedType.isAbstractData() || indexedType.isConstructor() || (indexedType.isExternalType() && ((RascalType) indexedType).isNonterminal())) {
       IConstructor cons = (IConstructor) argValues[index];
       label = cons.getConstructorType().getName();
       List<AbstractFunction> funcs = alternatives.get(label);

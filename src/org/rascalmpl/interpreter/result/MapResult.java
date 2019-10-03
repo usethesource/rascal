@@ -53,15 +53,12 @@ public class MapResult extends ElementResult<IMap> {
 	@Override 
 	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
 		return result.subtractMap(this);
-		
 	}
 	
-
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result) {
 		return result.intersectMap(this);
 	}
-	
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -69,6 +66,7 @@ public class MapResult extends ElementResult<IMap> {
 		if (subscripts.length != 1) {
 			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
+		
 		Result<IValue> key = (Result<IValue>) subscripts[0];
 		if (!getType().getKeyType().comparable(key.getType())) {
 			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());

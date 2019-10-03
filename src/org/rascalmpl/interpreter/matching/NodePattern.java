@@ -91,7 +91,7 @@ public class NodePattern extends AbstractMatchingResult {
 			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 		}
 
-		if (!subject.getValue().getType().isNode()) {
+		if (!subject.getValue().getType().isSubtypeOf(tf.nodeType())) {
 			return;
 		}
 

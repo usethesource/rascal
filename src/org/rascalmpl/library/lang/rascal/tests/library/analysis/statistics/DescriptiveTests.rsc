@@ -23,7 +23,10 @@ test bool meanTimesSizeEqualsSum(list[num] nums) {
 }
 
 test bool percentileRelation(list[num] nums, int a, int b) {
-	if (nums == []) return true;
+	if (nums == []) {
+	  return true;
+	}
+	
 	a = abs(a) % 100;
 	b = abs(b) % 100;
 	if (a > b) {
