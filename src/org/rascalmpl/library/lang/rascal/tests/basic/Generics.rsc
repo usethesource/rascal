@@ -41,3 +41,8 @@ int recursiveGenericFunction(&T n) {
 
 test bool genericFunction1() = recursiveGenericFunction("aap"("noot")) == 2;
 test bool genericFunction2() = recursiveGenericFunction("aap"("noot"("mies"))) == 3;
+
+bool less(&T a, &T b) = a < b;
+
+test bool lessIsConsistentThroughTypeParameters(num x, num y) = (x < y) ==> less(x, y);
+
