@@ -64,7 +64,7 @@ bool isIn(&T x, list[&T] L) = (false | it || eq(x,e) | e <- L);
 public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && elementAt(L,i) > elementAt(L,j));
 
 // Frequency of x in L
-int freq(&T x, list[&T] L) = (0 | eq(e,x) ? it + 1 : it | e <- L);
+int freq(&T x, list[&T] L) = (0 | eq(e, x) ? it + 1 : it | e <- L);
 
 // Merge two lists, keeping their order
 public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
