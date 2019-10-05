@@ -79,7 +79,7 @@ public class IO {
      * Write a CSV file.
      */
     public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        writeCSV(rel, loc, header, separator, encoding, ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T")),  ctx::getCurrentAST, ctx::getStackTrace);
+        writeCSV(rel, loc, header, separator, encoding, ctx.getCurrentEnvt().getStaticTypeBindings().get(types.parameterType("T")),  ctx::getCurrentAST, ctx::getStackTrace);
     }
 
     
