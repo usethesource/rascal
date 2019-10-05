@@ -61,18 +61,18 @@ public class IO {
      * Read a CSV file
      */
     public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, IEvaluatorContext ctx){
-        return read(null, loc, header, separator, encoding, printInferredType, ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace);
+        return read(null, loc, header, separator, encoding, printInferredType, ctx.getStdOut());
     }
 
     public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        return read(result, loc, header, separator, encoding, values.bool(false), ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace);
+        return read(result, loc, header, separator, encoding, values.bool(false), ctx.getStdOut());
     }
 
     /*
      * Calculate the type of a CSV file, returned as the string 
      */
     public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        return computeType(loc, header, separator, encoding, ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace, (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done()));
+        return computeType(loc, header, separator, encoding, ctx.getStdOut(), (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done()));
     }
 
     /*
@@ -86,8 +86,8 @@ public class IO {
     
     //////
 
-    protected IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, PrintWriter stdOut, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace) {
-        CSVReader reader = new CSVReader(header, separator, printInferredType, stdOut, currentAST, stackTrace);
+    protected IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, PrintWriter stdOut) {
+        CSVReader reader = new CSVReader(header, separator, printInferredType, stdOut);
 
         Type resultType = types.valueType();
         TypeStore store = new TypeStore();
@@ -107,13 +107,13 @@ public class IO {
             }
         }
         catch (IOException e){
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), currentAST.get(), stackTrace.get());
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
         }
     }
 
 
-    protected IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, PrintWriter stdOut, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace, Function<IValue, IValue> valueToTypeConverter) {
-        return valueToTypeConverter.apply(this.read(null, loc, header, separator, encoding, values.bool(true), stdOut, currentAST, stackTrace)) ;// ;
+    protected IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, PrintWriter stdOut, Function<IValue, IValue> valueToTypeConverter) {
+        return valueToTypeConverter.apply(this.read(null, loc, header, separator, encoding, values.bool(true), stdOut)) ;// ;
     }
 
     protected class CSVReader {
@@ -122,12 +122,9 @@ public class IO {
         private final boolean header;     // Does the file start with a line defining field names?
         private final boolean printInferredType;
         private final PrintWriter stdOut;
-        private final Supplier<AbstractAST> currentAST;
-        private final Supplier<StackTrace> currentRascalStackTrace;
-        public CSVReader(IBool header, IString separator, IBool printInferredType, PrintWriter stdOut, Supplier<AbstractAST> currentAST, Supplier<StackTrace> currentRascalStackTrace) {
+
+        public CSVReader(IBool header, IString separator, IBool printInferredType, PrintWriter stdOut) {
             this.stdOut = stdOut;
-            this.currentAST = currentAST;
-            this.currentRascalStackTrace = currentRascalStackTrace;
             this.separator = separator == null ? ',' : separator.charAt(0);
             this.header = header == null ? true : header.getValue();
             this.printInferredType = printInferredType == null ? false : printInferredType.getValue();
@@ -157,7 +154,7 @@ public class IO {
                 }
             }
             if (recordIndex != currentRecord.length) {
-                throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ") at record: " + currentRecordCount, currentAST.get(), currentRascalStackTrace.get());
+                throw RuntimeExceptionFactory.illegalTypeArgument("Arities of actual type and requested type are different (expected: " + currentRecord.length + ", found: " + recordIndex + ") at record: " + currentRecordCount, null, null);
             }
         }
 
@@ -300,7 +297,7 @@ public class IO {
                             return values.integer(field);
                         }
                         catch (NumberFormatException nfe) {
-                            throw RuntimeExceptionFactory.illegalTypeArgument(currentType.toString(), currentAST.get(), currentRascalStackTrace.get(), "Invalid int \"" + field + "\" for requested field " + currentType);
+                            throw RuntimeExceptionFactory.illegalTypeArgument(currentType.toString(), null, null, "Invalid int \"" + field + "\" for requested field " + currentType);
                         }
                     }
                     @Override
@@ -309,7 +306,7 @@ public class IO {
                             return values.real(field);
                         }
                         catch (NumberFormatException nfe) {
-                            throw RuntimeExceptionFactory.illegalTypeArgument("Invalid real \"" + field + "\" for requested field " + currentType, currentAST.get(), currentRascalStackTrace.get());
+                            throw RuntimeExceptionFactory.illegalTypeArgument("Invalid real \"" + field + "\" for requested field " + currentType, null, null);
                         }
                     }
                     @Override
@@ -320,7 +317,7 @@ public class IO {
                         if (field.equalsIgnoreCase("false")) {
                             return values.bool(false);
                         }
-                        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid bool \"" + field + "\" for requested field " + currentType, currentAST.get(), currentRascalStackTrace.get());
+                        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid bool \"" + field + "\" for requested field " + currentType, null, null);
                     }
 
                 });
@@ -335,7 +332,7 @@ public class IO {
                         }
                     }
                     catch (UnexpectedTypeException ute) {
-                        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), currentAST.get(), currentRascalStackTrace.get());
+                        throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" (" + ute.getExpected() + ") for requested field " + ute.getGiven(), null, null);
                     }
                     catch (FactParseError | NumberFormatException ex) {
                         if (currentType.isTop()) {
@@ -359,11 +356,11 @@ public class IO {
                                 result[i] = prelude.parseDateTime(values.string(field), values.string("yyyy-MM-dd'T'HH:mm:ss'Z'"));
                             }
                             catch (Throwable th) {
-                                throw RuntimeExceptionFactory.illegalTypeArgument("Invalid datetime: \"" + field + "\" (" + th.getMessage() + ")", currentAST.get(), currentRascalStackTrace.get());
+                                throw RuntimeExceptionFactory.illegalTypeArgument("Invalid datetime: \"" + field + "\" (" + th.getMessage() + ")", null, null);
                             }
                         }
                         else {
-                            throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" is not a " + currentType, currentAST.get(), currentRascalStackTrace.get());
+                            throw RuntimeExceptionFactory.illegalTypeArgument("Invalid field \"" + field + "\" is not a " + currentType, null, null);
                         }
                     }
                     finally {
@@ -530,7 +527,7 @@ public class IO {
         Boolean head = header != null ? header.getValue() : true;
 
         if(!rel.getType().isRelation() && !rel.getType().isListRelation() || !(rel instanceof IList || rel instanceof ISet)){
-            throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType, currentAST.get(), stackTrace.get());
+            throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType, null, null);
         }
 
         try (Writer out = new BufferedWriter(new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), encoding.getValue(), false))){
@@ -580,7 +577,7 @@ public class IO {
             }
         }
         catch(IOException e){
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), currentAST.get(), stackTrace.get());
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
         }
     }
 
