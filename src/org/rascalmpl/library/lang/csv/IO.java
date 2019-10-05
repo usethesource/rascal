@@ -2,7 +2,6 @@ package org.rascalmpl.library.lang.csv;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -12,12 +11,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
@@ -60,34 +55,26 @@ public class IO {
     /*
      * Read a CSV file
      */
-    public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, IEvaluatorContext ctx){
-        return read(null, loc, header, separator, encoding, printInferredType, ctx.getStdOut());
+    public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        return read(null, loc, header, separator, encoding);
     }
 
-    public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        return read(result, loc, header, separator, encoding, values.bool(false), ctx.getStdOut());
+    public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        return read(result, loc, header, separator, encoding);
     }
 
-    /*
-     * Calculate the type of a CSV file, returned as the string 
-     */
-    public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        return computeType(loc, header, separator, encoding, ctx.getStdOut(), (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done()));
+    public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        return computeType(loc, header, separator, encoding, (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), new TypeStore(), values.mapWriter().done()));
     }
 
-    /*
-     * Write a CSV file.
-     */
-    public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        writeCSV(rel, loc, header, separator, encoding, ctx.getCurrentEnvt().getStaticTypeBindings().get(types.parameterType("T")),  ctx::getCurrentAST, ctx::getStackTrace);
+    public void writeCSV(IValue schema, IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        writeCSV(rel, loc, header, separator, encoding, tr.valueToType((IConstructor)schema, new TypeStore()));
     }
 
-    
-    
     //////
 
-    protected IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, PrintWriter stdOut) {
-        CSVReader reader = new CSVReader(header, separator, printInferredType, stdOut);
+    protected IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding) {
+        CSVReader reader = new CSVReader(header, separator);
 
         Type resultType = types.valueType();
         TypeStore store = new TypeStore();
@@ -112,22 +99,18 @@ public class IO {
     }
 
 
-    protected IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, PrintWriter stdOut, Function<IValue, IValue> valueToTypeConverter) {
-        return valueToTypeConverter.apply(this.read(null, loc, header, separator, encoding, values.bool(true), stdOut)) ;// ;
+    protected IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, Function<IValue, IValue> valueToTypeConverter) {
+        return valueToTypeConverter.apply(this.read(null, loc, header, separator, encoding));
     }
 
     protected class CSVReader {
         private final StandardTextReader pdbReader;
         private final int separator;      // The separator to be used between fields
         private final boolean header;     // Does the file start with a line defining field names?
-        private final boolean printInferredType;
-        private final PrintWriter stdOut;
 
-        public CSVReader(IBool header, IString separator, IBool printInferredType, PrintWriter stdOut) {
-            this.stdOut = stdOut;
+        public CSVReader(IBool header, IString separator) {
             this.separator = separator == null ? ',' : separator.charAt(0);
             this.header = header == null ? true : header.getValue();
-            this.printInferredType = printInferredType == null ? false : printInferredType.getValue();
             this.pdbReader = new StandardTextReader();
         }
 
@@ -214,11 +197,6 @@ public class IO {
                 }
             }
             Type tupleType = types.tupleType(currentTypes, labels);
-            Type resultType = types.setType(tupleType);
-            if (printInferredType) {
-                stdOut.println("readCSV inferred the relation type: " + resultType);
-                stdOut.flush();
-            }
 
             IWriter<ISet> result = values.setWriter();
             for (IValue[] rec : records) {
@@ -522,7 +500,7 @@ public class IO {
 
 
 
-    protected void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, Type paramType, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace) {
+    protected void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, Type paramType) {
         String sep = separator != null ? separator.getValue() : ",";
         Boolean head = header != null ? header.getValue() : true;
 
