@@ -76,6 +76,9 @@ test bool typeParametersAreCheckedStaticallyButAlsoBoundDynamically() {
      return true;
 }
 
+// the filter functies guarantees statically all elements will be sub-type of the static instance of &T at the call
+// site, by making sure to use the _dynamic_ type of the reified type value t during pattern matching! The compiler
+// does not require to maintain information about static types at run-time because of this.
 list[&T] \filter(type[&T] t, list[value] elems) = [e | &T e <- elems];
 
 test bool typeParametersAreCheckedStaticallyButAlsoBoundDynamically2() 
