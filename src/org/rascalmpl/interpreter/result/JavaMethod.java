@@ -122,30 +122,20 @@ public class JavaMethod extends NamedFunction {
 		Type formals = getFormals();
 
 		
-		Object[] oActuals;
-
 		if (hasVarArgs) {
-			oActuals = computeVarArgsActuals(actuals, formals);
+            actuals = computeVarArgsActuals(actuals, formals);
+            actualTypesTuple = computeVarArgsActualTypes(actualStaticTypes, formals);
 		}
 		else {
-			oActuals = actuals;
-		}
-		
-		if (hasVarArgs) {
-			actualTypesTuple = computeVarArgsActualTypes(actualStaticTypes, formals);
-		}
-		else {
-			actualTypesTuple = TF.tupleType(actualStaticTypes);
+		    actualTypesTuple = TF.tupleType(actualStaticTypes);
 		}
 		
 		if (!actualTypesTuple.isSubtypeOf(formals)) {
 			// resolve overloading
 			throw new MatchFailed();
 		}
-		
-		
-		
-		oActuals = addKeywordActuals(oActuals, formals, keyArgValues);
+
+		Object[] oActuals = addKeywordActuals(actuals, formals, keyArgValues);
 
 		if (hasReflectiveAccess) {
 			oActuals = addCtxActual(oActuals);

@@ -341,8 +341,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			if (formals.match(actualTypes, staticBindings)) {
 			    env.storeStaticTypeBindings(staticBindings);
 			    // formal parameters do not have to match the static types, they only have to match the dynamic types
-			    // so continue even if the static types do not match. However, the application should fail later
-			    // when we check the dynamic types if they do not match either.
+			    // so continue even if the static types do not match. 
 			}
 			
 			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
