@@ -414,10 +414,6 @@ test bool tstSize(list[&T] L) = size(L) == (0 | it + 1 | e <- L);
 
 test bool tstSort(list[int] L) = isSorted(sort(L));
 
-// if < is broken, then isSorted can't test if sort works (since sort itself depends on the same < operator)
-// and because sort uses random pivots sometimes, with this spec we can find more bugs:
-test bool tstSortStability(list[num] l) = sort(l) == sort(l);
-
 test bool tstSplit(list[&T] L) {
   <L1, L2> = split(L);
   return L1 + L2 == L;
