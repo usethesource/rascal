@@ -277,7 +277,7 @@ public class RascalFunction extends NamedFunction {
                 actuals = computeVarArgsActuals(actuals, getFormals());
                 actualTypesTuple = computeVarArgsActualTypes(actualStaticTypes, getFormals());
             }
-            actualTypesTuple = bindTypeParameters(actualTypesTuple, getFormals(), renamings, environment);
+            actualTypesTuple = bindTypeParameters(actualTypesTuple, actuals, getFormals(), renamings, environment);
 
             int size = actuals.length;
             Environment[] olds = new Environment[size];
@@ -407,7 +407,7 @@ public class RascalFunction extends NamedFunction {
         // here we instantiate type parameters for computing a return value type.
         // such that at least local type parameters do not leak into the caller's scope
 
-        Map<Type, Type> bindings = ctx.getCurrentEnvt().getTypeBindings();
+        Map<Type, Type> bindings = ctx.getCurrentEnvt().getStaticTypeBindings();
         Type instantiatedReturnType = returnType.instantiate(bindings);
 
         if (instantiatedReturnType.isOpen()) {

@@ -570,7 +570,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		 * potential rules have already been applied to it.
 		 */
 		private Result<IValue> normalizedResult(IEvaluator<Result<IValue>> __eval, Type t, IValue v) {
-			Map<Type, Type> bindings = __eval.getCurrentEnvt().getTypeBindings();
+			Map<Type, Type> bindings = __eval.getCurrentEnvt().getStaticTypeBindings();
 			Type instance;
 
 			if (bindings.size() > 0) {
