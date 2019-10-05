@@ -1789,7 +1789,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (arg.hasType() && arg.hasName()) {
 				Environment env = eval.getCurrentEnvt();
 				Type type = arg.getType().typeOf(env, eval.getEvaluator(), instantiateTypeParameters);
-				type = type.instantiate(env.getTypeBindings());
+				type = type.instantiate(env.getStaticTypeBindings());
 				
 				// TODO: Question, should we allow non terminal types in splices?
 				if (type instanceof NonTerminalType) {

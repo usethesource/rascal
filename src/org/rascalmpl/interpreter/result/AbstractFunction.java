@@ -33,6 +33,7 @@ import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
@@ -327,7 +328,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 	
-	protected Type bindTypeParameters(Type actualTypes, Type formals, Map<Type, Type> renamings, Environment env) {
+	protected Type bindTypeParameters(Type actualTypes, IValue[] actuals, Type formals, Map<Type, Type> renamings, Environment env) {
 		try {
 			if (actualTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
@@ -335,14 +336,23 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			    actualTypes = renameType(actualTypes, renamings);
 			}
 			
-			Map<Type, Type> bindings = new HashMap<Type, Type>();
+			Map<Type, Type> staticBindings = new HashMap<Type, Type>();
 			
-			if (formals.match(actualTypes, bindings)) {
-			    env.storeTypeBindings(bindings);
+			if (formals.match(actualTypes, staticBindings)) {
+			    env.storeStaticTypeBindings(staticBindings);
 			    // formal parameters do not have to match the static types, they only have to match the dynamic types
 			    // so continue even if the static types do not match. However, the application should fail later
 			    // when we check the dynamic types if they do not match either.
 			}
+			
+			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
+			for (int i = 0; i < formals.getArity(); i++) {
+			    if (!formals.getFieldType(i).match(actuals[i].getType(), dynamicBindings)) {
+			        throw new MatchFailed();
+			    }
+			}
+			env.storeDynamicTypeBindings(dynamicBindings);
+			
 			
 			return actualTypes;
 		}
