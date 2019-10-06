@@ -60,17 +60,17 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 }
 
 test bool csvBooleanInfer() {
-    writeFile(#rel[bool col1, bool col2], targetFile, "col1,col2\nTRUE,True");
+    writeFile(targetFile, "col1,col2\nTRUE,True");
     return readCSV(targetFile) == {<true, true>};
 }
 
 test bool csvBoolean() {
-    writeFile(#rel[bool col1, bool col2], targetFile, "col1,col2\nTRUE,True");
+    writeFile(targetFile, "col1,col2\nTRUE,True");
     return readCSV(#rel[bool col1, bool col2], targetFile) == {<true, true>};
 }
 
 test bool csvDateTime() {
-    writeFile(#lrel[datetime a, datetime b], targetFile, "col1,col2\n2012-06-24T00:59:56Z,<createDateTime(2012, 6, 24, 0, 59, 56, 0)>");
+    writeFile(targetFile, "col1,col2\n2012-06-24T00:59:56Z,<createDateTime(2012, 6, 24, 0, 59, 56, 0)>");
     r = readCSV(#lrel[datetime a, datetime b], targetFile)[0];
     return r.a == r.b;
 }
@@ -94,7 +94,7 @@ test bool csvMoreTuples(rel[str a, str b, int c, bool d, real e] dt) = readWrite
  test bool csvMoreRandomTypes(rel[loc a, loc b, int c, str d, loc e] dt) = readWrite(dt);
 
 bool checkType(type[value] expected, str input) {
-    writeFile(expected, targetFile, input);
+    writeFile(targetFile, input);
     return expected == getCSVType(targetFile);
 }
 
