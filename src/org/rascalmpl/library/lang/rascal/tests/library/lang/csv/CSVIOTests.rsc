@@ -14,24 +14,24 @@ loc targetFile = |test-temp:///csv-test-file--<"<uuidi()>">.csv|;
 bool readWrite(set[&T] dt) = readWrite(type(typeOf(dt), ()), dt);
 bool readWrite(type[&T] returnType, set[&T1] dt) {
 	if (dt == {}) return true;
-	writeCSV(dt, targetFile);
+	writeCSV(returnType, dt, targetFile);
 
 	if (dt != readCSV(returnType, targetFile)) {
 		throw "Default read/write params";
 	}
-	writeCSV(dt, targetFile, header = false);
+	writeCSV(returnType, dt, targetFile, header = false);
 	if (dt != readCSV(returnType, targetFile, header = false)) {
 		throw "Header = false";
 	}
 
-	writeCSV(dt, targetFile, separator = ";");
+	writeCSV(returnType, dt, targetFile, separator = ";");
 	if (dt != readCSV(returnType, targetFile, separator = ";")) {
 		throw "separator = ;";
 	}
 
 	if (/\node() !:= typeOf(dt)) {
 	   dt = fixAmbStrings(dt);
-		writeCSV(dt, targetFile);
+		writeCSV(returnType, dt, targetFile);
 		if (dt != readCSV(targetFile)) {
 		println("expected: <returnType>");
 		println(dt);
@@ -60,17 +60,17 @@ bool readWrite(type[&T] returnType, set[&T1] dt) {
 }
 
 test bool csvBooleanInfer() {
-    writeFile(targetFile, "col1,col2\nTRUE,True");
+    writeFile(#rel[bool col1, bool col2], targetFile, "col1,col2\nTRUE,True");
     return readCSV(targetFile) == {<true, true>};
 }
 
 test bool csvBoolean() {
-    writeFile(targetFile, "col1,col2\nTRUE,True");
+    writeFile(#rel[bool col1, bool col2], targetFile, "col1,col2\nTRUE,True");
     return readCSV(#rel[bool col1, bool col2], targetFile) == {<true, true>};
 }
 
 test bool csvDateTime() {
-    writeFile(targetFile, "col1,col2\n2012-06-24T00:59:56Z,<createDateTime(2012, 6, 24, 0, 59, 56, 0)>");
+    writeFile(#lrel[datetime a, datetime b], targetFile, "col1,col2\n2012-06-24T00:59:56Z,<createDateTime(2012, 6, 24, 0, 59, 56, 0)>");
     r = readCSV(#lrel[datetime a, datetime b], targetFile)[0];
     return r.a == r.b;
 }
@@ -94,7 +94,7 @@ test bool csvMoreTuples(rel[str a, str b, int c, bool d, real e] dt) = readWrite
  test bool csvMoreRandomTypes(rel[loc a, loc b, int c, str d, loc e] dt) = readWrite(dt);
 
 bool checkType(type[value] expected, str input) {
-    writeFile(targetFile, input);
+    writeFile(expected, targetFile, input);
     return expected == getCSVType(targetFile);
 }
 
