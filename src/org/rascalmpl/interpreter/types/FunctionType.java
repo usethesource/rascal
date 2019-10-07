@@ -316,7 +316,7 @@ public class FunctionType extends RascalType {
 	  FunctionType f = (FunctionType) type;
 	  
 	  Type returnType = getReturnType().lub(f.getReturnType());
-	  Type argumentTypes = getArgumentTypes().glb(f.getArgumentTypes());
+	  Type argumentTypes = getArgumentTypes().lub(f.getArgumentTypes());
 	  
 	  if (argumentTypes.isTuple() && argumentTypes.getArity() == getArity()) {
 	    return RTF.functionType(returnType, 
