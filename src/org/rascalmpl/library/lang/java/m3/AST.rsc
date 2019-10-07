@@ -5,6 +5,7 @@ defines AST node types for Java
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
+extend analysis::m3::Core; // necessary for initializing EclipseJavaCompiler class
 import util::FileSystem;
 import lang::java::m3::TypeSymbol;
 import IO;
@@ -216,14 +217,12 @@ Creates AST from a file
 .Description
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-@reflect
 public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @doc{
   Creates ASTs from an input string
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-@reflect
 public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @doc{Creates ASTs from a project}

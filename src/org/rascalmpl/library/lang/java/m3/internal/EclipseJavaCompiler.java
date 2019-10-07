@@ -32,13 +32,13 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
-import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
@@ -52,33 +52,25 @@ import io.usethesource.vallang.type.TypeStore;
 
 public class EclipseJavaCompiler {
     protected final IValueFactory VF;
+    protected final LimitedTypeStore definitions;
+    private IRascalMonitor monitor;
 
-    public EclipseJavaCompiler(IValueFactory vf) {
+    public EclipseJavaCompiler(IValueFactory vf, TypeStore definitions, IRascalMonitor monitor) {
         this.VF = vf;
+        this.definitions = new TypeStoreWrapper(definitions);
+        this.monitor = monitor;
     }
     
-    protected LimitedTypeStore getM3Store(IEvaluatorContext eval) {
-        TypeStore store = new TypeStore();
-        ModuleEnvironment coreModule = eval.getHeap().getModule("lang::java::m3::Core");
-        if (coreModule != null) {
-            store.extendStore(coreModule.getStore());    
-        }
-        else {
-            ModuleEnvironment typeSymbolModule = eval.getHeap().getModule("lang::java::m3::TypeSymbol");
-            if (typeSymbolModule != null) {
-                store.extendStore(typeSymbolModule.getStore());
-            }
-        }
-        store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-        return new TypeStoreWrapper(store);
+    protected LimitedTypeStore getM3Store() {
+        return definitions;
     }
 
-    public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
-        return createM3FromJarClass(jarLoc, getM3Store(eval));
+    public IValue createM3FromJarClass(ISourceLocation jarLoc) {
+        return createM3FromJarClass(jarLoc, getM3Store());
     }
     
-    public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className, IEvaluatorContext eval) {
-        JarConverter converter = new JarConverter(getM3Store(eval), new HashMap<>());
+    public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className) {
+        JarConverter converter = new JarConverter(getM3Store(), new HashMap<>());
         converter.convertJarFile(classLoc, ((IString) className).getValue());
         return converter.getModel(false);
     }
@@ -89,8 +81,8 @@ public class EclipseJavaCompiler {
         return converter.getModel(false);
     }
     
-    public IValue createM3FromJarFile(ISourceLocation jarLoc, IEvaluatorContext eval) {
-        return createM3FromJarFile(jarLoc, getM3Store(eval));
+    public IValue createM3FromJarFile(ISourceLocation jarLoc) {
+        return createM3FromJarFile(jarLoc, getM3Store());
     }
     
     protected IValue createM3FromJarFile(ISourceLocation jarLoc, LimitedTypeStore store) {
@@ -99,8 +91,8 @@ public class EclipseJavaCompiler {
         return converter.getModel(false);
     }
     
-    public IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
-        return createM3sFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval), () -> checkInterrupted(eval));
+    public IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+        return createM3sFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));
     }
 
     protected IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
@@ -117,13 +109,13 @@ public class EclipseJavaCompiler {
         }
     }
     
-    private void checkInterrupted(IEvaluatorContext eval) {
-        if (eval.isInterrupted()) {
-          throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
+    private void checkInterrupted(IRascalMonitor eval) {
+        if (eval.isCanceled()) {
+          throw new InterruptException("Java compiler interrupted", URIUtil.rootLocation("java"));
         }
     }
-    public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
-        return createM3sAndAstsFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval), () -> checkInterrupted(eval));
+    public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+        return createM3sAndAstsFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));
     }
     
     protected IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
@@ -143,8 +135,8 @@ public class EclipseJavaCompiler {
         
     }
 
-    public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
-        return createM3FromString(loc, contents, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval)); 
+    public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+        return createM3FromString(loc, contents, errorRecovery, sourcePath, classPath, javaVersion, getM3Store()); 
     }
     
     
@@ -157,8 +149,8 @@ public class EclipseJavaCompiler {
         }
     }
     
-    public IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
-        return createAstsFromFiles(files, collectBindings, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval), () -> checkInterrupted(eval));
+    public IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+        return createAstsFromFiles(files, collectBindings, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));
     }
 
     protected IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
@@ -176,8 +168,8 @@ public class EclipseJavaCompiler {
         }
     }
 
-    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
-        return createAstFromString(loc, contents, collectBindings, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval));
+    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+        return createAstFromString(loc, contents, collectBindings, errorRecovery, sourcePath, classPath, javaVersion, getM3Store());
     }
     
     protected IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store) {
