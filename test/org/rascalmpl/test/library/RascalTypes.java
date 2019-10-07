@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 import io.usethesource.vallang.type.Type;
@@ -27,6 +28,23 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class RascalTypes extends TestFramework {
+    
+    @Test
+    public void testFunctionLub() {
+        TypeFactory tf = TypeFactory.getInstance();
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        
+        Type t1 = rtf.functionType(tf.integerType(), tf.tupleType(tf.integerType(), tf.integerType()), tf.voidType());
+        Type t2 = rtf.functionType(tf.integerType(), tf.tupleType(tf.rationalType(), tf.rationalType()), tf.voidType());
+        
+        // if the arity is the same, the lub is still a function type (for computing the types of overloaded functions)
+        assertTrue(!t1.lub(t2).isTop());
+        assertTrue(t1.getArity() == t1.lub(t2).getArity());
+        
+        // but if its not the same, then we default to value, because we don't know how to call a function with different amounts of parameters
+        Type t3 = rtf.functionType(tf.integerType(), tf.tupleType(tf.stringType()), tf.voidType());
+        assertTrue(t1.lub(t3).isTop());
+    }
     
 	@Test
 	public void testLubAndGlb() {
@@ -131,4 +149,6 @@ public class RascalTypes extends TestFramework {
 			 }
 		}
 	}
+	
+	
 }
