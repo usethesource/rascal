@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -308,8 +309,10 @@ public class JavaBridge {
 		}
 	}
 	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func, TypeStore store){
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, TypeStore store, PrintWriter out, PrintWriter err) {
 		String className = getClassName(func);
+		PrintWriter[] outputs = new PrintWriter[] { out, err };
+		int writers = 0;
 
 		try {
 			for(ClassLoader loader : loaders){
@@ -339,6 +342,9 @@ public class JavaBridge {
 					    }
 					    else if (formals[i].isAssignableFrom(TypeFactory.class)) {
 					        args[i] = TypeFactory.getInstance();
+					    }
+					    else if (formals[i].isAssignableFrom(PrintWriter.class)) {
+					        args[i] = outputs[writers++ % 2];
 					    }
 					    else {
 					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
