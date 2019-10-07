@@ -35,6 +35,7 @@ import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -309,7 +310,7 @@ public class JavaBridge {
 		}
 	}
 	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func, TypeStore store, PrintWriter out, PrintWriter err) {
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err) {
 		String className = getClassName(func);
 		PrintWriter[] outputs = new PrintWriter[] { out, err };
 		int writers = 0;
@@ -345,6 +346,9 @@ public class JavaBridge {
 					    }
 					    else if (formals[i].isAssignableFrom(PrintWriter.class)) {
 					        args[i] = outputs[writers++ % 2];
+					    }
+					    else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
+					        args[i] = monitor;
 					    }
 					    else {
 					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
