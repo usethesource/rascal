@@ -19,6 +19,7 @@ import Relation;
 import List;
 import IO;
 import Exception;
+import Type;
 
 // delete
 test bool delete1(&K k) = isEmpty(delete((),k));
@@ -29,6 +30,7 @@ test bool delete5(map[&K, &V] M) {
   X = (M | delete(it,k) | &K k <- M);
   if (X != ()) {
     println(X);
+    println(typeOf(X));
     println(M);
     return false;
   }
