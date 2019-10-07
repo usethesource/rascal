@@ -66,6 +66,8 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 
 public class JavaBridge {
@@ -306,33 +308,7 @@ public class JavaBridge {
 		}
 	}
 	
-	public synchronized Object getJavaClassInstance(Class<?> clazz){
-		Object instance = instanceCache.get(clazz);
-		if(instance != null){
-			return instance;
-		}
-		
-		try{
-			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-			instance = constructor.newInstance(vf);
-			instanceCache.put(clazz, instance);
-			return instance;
-		} catch (IllegalArgumentException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (SecurityException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} 
-	}
-	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func){
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, TypeStore store){
 		String className = getClassName(func);
 
 		try {
@@ -345,8 +321,31 @@ public class JavaBridge {
 						return instance;
 					}
 
-					Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-					instance = constructor.newInstance(vf);
+					if (clazz.getConstructors().length > 1) {
+					    throw new IllegalArgumentException("Rascal JavaBridge can only deal with one constructor. This class has multiple: " + clazz);
+					}
+					
+					Constructor<?> constructor = clazz.getConstructors()[0];
+
+					Object[] args = new Object[constructor.getParameterCount()];
+					Class<?>[] formals = constructor.getParameterTypes();
+
+					for (int i = 0; i < constructor.getParameterCount(); i++) {
+					    if (formals[i].isAssignableFrom(IValueFactory.class)) {
+					        args[i] = vf;
+					    }
+					    else if (formals[i].isAssignableFrom(TypeStore.class)) {
+					        args[i] = store;
+					    }
+					    else if (formals[i].isAssignableFrom(TypeFactory.class)) {
+					        args[i] = TypeFactory.getInstance();
+					    }
+					    else {
+					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
+					    }
+					}
+
+					instance = constructor.newInstance(args);
 					instanceCache.put(clazz, instance);
 					return instance;
 				}
@@ -368,9 +367,7 @@ public class JavaBridge {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} catch (SecurityException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (NoSuchMethodException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		}
+		} 
 		
 		throw new JavaMethodLink(className, "class not found", func, null);
 	}

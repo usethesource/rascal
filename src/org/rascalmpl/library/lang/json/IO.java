@@ -20,7 +20,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.io.IValueAdapter;
@@ -79,9 +78,9 @@ public class IO {
 		}
 	}
 	
-	public IValue fromJSON(IValue type, IString src, IEvaluatorContext ctx) {
-        TypeStore store = ctx.getCurrentEnvt().getStore();
-        Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
+	public IValue fromJSON(IValue type, IString src) {
+        TypeStore store = new TypeStore();
+        Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
         Gson gson = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .setDateFormat(DateFormat.LONG)
