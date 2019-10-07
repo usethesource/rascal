@@ -42,11 +42,9 @@ private set[type[value]] SUPPORTED_TYPES
   ;
 
 @javaClass{org.rascalmpl.library.lang.yaml.RascalYAML}
-@reflect{Uses type reifier}
 public java Node loadYAML(str src);
 
 @javaClass{org.rascalmpl.library.lang.yaml.RascalYAML}
-@reflect{Uses type reifier (TODO)}
 public java str dumpYAML(Node yaml);
 
 public str TEST_YAML = 

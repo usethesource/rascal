@@ -19,19 +19,15 @@ in the following format:
 where each field is separated by a tabulation character (\t). One file may contain tuples for more than one relation. readRSF takes an RSF file nameRSFFile and generates a map[str,rel[str,str]] that maps each relation name to the actual relation.
 }
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
-@reflect{Uses URI Resolver Registry}
 public java map[str, rel[str,str]] readRSF(loc nameRSFFile);
 
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
-@reflect{Uses URI Resolver Registry}
 public java map[str, rel[str,str]] readRSF(loc nameRSFFile);
 
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
-@reflect{Uses URI Resolver Registry}
 public java map[str, type[value]] getRSFTypes(loc location);
 
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
-@reflect{Uses URI Resolver Registry}
 public java &T readRSFRelation(type[&T] result, str name, loc location);
 
 @resource{rsf}

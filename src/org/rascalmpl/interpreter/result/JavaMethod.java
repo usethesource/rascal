@@ -72,6 +72,7 @@ public class JavaMethod extends NamedFunction {
 		
 		return TF.tupleType(types, labels);
 	}
+	
 	/*
 	 *  This one is to be called by cloneInto only, to avoid
 	 *  looking into the environment again for obtaining the type.
@@ -83,12 +84,9 @@ public class JavaMethod extends NamedFunction {
 		super(func, eval, type , getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
-		this.instance = javaBridge.getJavaClassInstance(func);
+		this.instance = javaBridge.getJavaClassInstance(func, env.getStore());
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
-
-	
-	
 
 	@Override
 	public JavaMethod cloneInto(Environment env) {
