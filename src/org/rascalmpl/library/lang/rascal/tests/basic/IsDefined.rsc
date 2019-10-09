@@ -159,14 +159,14 @@ test bool isDefinedTuple2(){
     return (<0,1,2><1>)?;
 }
 
-test bool isDefinedTuple1(){
+test bool isDefinedTuple3(){
     tuple[int n, str s] tup = <0, "a">;
     return tup.n?;
 }
 
 @ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker: Field x does not exist on type tuple[int n, str s]}
 @expected{UndeclaredField}
-test bool isDefinedTuple3(){
+test bool isDefinedTuple4(){
     tuple[int n, str s] tup = <0, "a">;
     return !tup.x?;
 }
