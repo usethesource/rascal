@@ -129,12 +129,12 @@ test bool varArgs12(){
     return add([0]) == 0;
 }
 
-test bool varArgs11(){
+test bool varArgs13(){
     int add(int i...) { return i[0]; }
     return add(0,1,2) == 0;
 }
 
-test bool varArgs11(){
+test bool varArgs14(){
     int add(int i...) { return i[0]; }
     return add([0,1,2]) == 0;
 }
@@ -312,7 +312,7 @@ test bool indirect1(){
  
 //  keywordTest
    
-test bool keywordTest11() { 
+test bool keywordTest1() { 
     int incr(int x, int delta=1) = x + delta;
     return incr(3) == 4 && incr(3, delta=2) == 5;
 }
@@ -350,31 +350,31 @@ data Figure (real shrink = 1.0, str fillColor = "white", str lineColor = "black"
   | volume(int width, int height, int depth, int area = width * height, int volume = area * depth)
   ;
   
-test bool keywordTest7() = emptyFigure().fillColor == "white";
+test bool keywordTest8() = emptyFigure().fillColor == "white";
 
-test bool keywordTest8() = emptyFigure(shrink=0.5).fillColor == "white";
+test bool keywordTest9() = emptyFigure(shrink=0.5).fillColor == "white";
 
-test bool keywordTest9() = emptyFigure(lineColor="red").fillColor == "white";
+test bool keywordTest10() = emptyFigure(lineColor="red").fillColor == "white";
 
-test bool keywordTest10() = emptyFigure(lineColor="red", shrink=0.5).fillColor == "white";
+test bool keywordTest11() = emptyFigure(lineColor="red", shrink=0.5).fillColor == "white";
 
-test bool keywordTest11() = emptyFigure(fillColor="red").fillColor == "red";
+test bool keywordTest12() = emptyFigure(fillColor="red").fillColor == "red";
 
-test bool keywordTest12() = emptyFigure(shrink=0.5,fillColor="red").fillColor == "red";
+test bool keywordTest13() = emptyFigure(shrink=0.5,fillColor="red").fillColor == "red";
 
-test bool keywordTest13() = emptyFigure(shrink=0.5,fillColor="red", lineColor="black").fillColor == "red";
+test bool keywordTest14() = emptyFigure(shrink=0.5,fillColor="red", lineColor="black").fillColor == "red";
 
-test bool keywordTest14() = emptyFigure(lineColor="red", shrink=0.5).fillColor == "white";
+test bool keywordTest15() = emptyFigure(lineColor="red", shrink=0.5).fillColor == "white";
 
-test bool keywordTest15() = ellipse().fillColor == "white";
+test bool keywordTest16() = ellipse().fillColor == "white";
  
-test bool keywordTest16() = volume(2,3,4).area == 6 && volume(2,3,4).volume == 24;
+test bool keywordTest17() = volume(2,3,4).area == 6 && volume(2,3,4).volume == 24;
 
-test bool keywordTest17() = volume(2,3,4,area=0).volume == 0;
+test bool keywordTest18() = volume(2,3,4,area=0).volume == 0;
 
-test bool keywordTest18() = volume(2,3,4,volume=0).area == 6;
+test bool keywordTest19() = volume(2,3,4,volume=0).area == 6;
 
-test bool keywordTest19() = ellipse(inner=emptyFigure(fillColor="red")).fillColor == "white";
+test bool keywordTest20() = ellipse(inner=emptyFigure(fillColor="red")).fillColor == "white";
 
 test bool keywordTest20() = ellipse(inner=emptyFigure(fillColor="red")).inner.fillColor == "red";
 
@@ -453,7 +453,7 @@ test bool tcc1() = translateConstantCall("value", []) == 0;
 test bool tcc2() = translateConstantCall("value", [1]) == 1;
 test bool tcc3() = translateConstantCall("value", [1, 2]) == 2;
 test bool tcc4() = translateConstantCall("xxx", []) == -1;
-test bool tcc4() = translateConstantCall("xxx", [1]) == -1;
+test bool tcc5() = translateConstantCall("xxx", [1]) == -1;
 
 // backtracking tests, also uses an alternative from CallTestsAux
 
