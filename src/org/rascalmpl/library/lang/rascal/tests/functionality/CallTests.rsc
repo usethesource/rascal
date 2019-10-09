@@ -97,22 +97,22 @@ test bool varArgs02(){
 	return add([]) == 0;
 }
 
-test bool varArgs02(){
+test bool varArgs03(){
     int add(int i...) { return 0; }
     return add(0) == 0;
 }
 
-test bool varArgs03(){
+test bool varArgs04(){
     int add(int i...) { return 0; }
     return add([0]) == 0;
 }
 
-test bool varArgs04(){
+test bool varArgs05(){
     int add(int i...) { return 0; }
     return add(0,1,2) == 0;
 }
 
-test bool varArgs05(){
+test bool varArgs06(){
     int add(int i...) { return 0; }
     return add([0,1,2]) == 0;
 }
