@@ -376,8 +376,7 @@ test bool keywordTest19() = volume(2,3,4,volume=0).area == 6;
 
 test bool keywordTest20() = ellipse(inner=emptyFigure(fillColor="red")).fillColor == "white";
 
-test bool keywordTest20() = ellipse(inner=emptyFigure(fillColor="red")).inner.fillColor == "red";
-
+test bool keywordTest21() = ellipse(inner=emptyFigure(fillColor="red")).inner.fillColor == "red";
 
 data D = d(int x, int y = 3);
   
