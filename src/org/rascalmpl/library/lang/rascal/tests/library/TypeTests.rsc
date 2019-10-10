@@ -10,4 +10,4 @@ test bool tstMake2() = make(#D, "a", ["x", "y"]) ==  a("x", "y");
 
 test bool tstMake3() = make(#D, "a", [3], ("color" : "red")) ==  a(3, color="red");
 
-test bool tstMake3() = make(#D, "a", ["x"], ("sz" : 20)) ==  a("x", sz = 20);
+test bool tstMake4() = make(#D, "a", ["x"], ("sz" : 20)) ==  a("x", sz = 20);
