@@ -72,11 +72,11 @@ test bool keywordParam9() {
 
 data F10 = f10(int i, int delta = 100);
 
-test bool keywordParam10() {
+test bool keywordParam91() {
     return f10(0,delta=1).delta == 1;
 }
 
-test bool keywordParam11(){
+test bool keywordParam92(){
 	bool f11(bool c = false){
 		bool g11(){
 			return c;
