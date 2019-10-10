@@ -32,7 +32,7 @@ data AType (str label = "")
      | atuple(AType elemType)
      | amap(AType keyType, AType valType)
   
-     | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="", bool isConcreteArg=false, int abstractFingerprint=0, int concreteFingerprint=0)
+     | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="", bool isConcreteArg=false, bool isDefault=false, bool isTest=false, int abstractFingerprint=0, int concreteFingerprint=0)
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
      

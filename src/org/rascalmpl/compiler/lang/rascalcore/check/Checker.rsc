@@ -367,7 +367,8 @@ CheckerResult rascalTModelForNames(list[str] moduleNames, PathConfig pcfg, TypeP
         mlocs = [ getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
         return rascalTModelForLocs(mlocs, pcfg, config);
     } catch value e: {
-        return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]] | moduleName <- moduleNames), (), ()>;
+        throw e;
+        //return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]] | moduleName <- moduleNames), (), ()>;
     }
 }
 
@@ -395,7 +396,7 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
 map[str, list[Message]] checkModules(
       list[str] moduleNames,                     // Rascal modules to be type checked
       
-      bool logTime                  = false,    // General TypePal option
+      bool logTime                  = false,    // General TypePal options
       bool logSolverIterations      = false,
       bool logSolverSteps           = false,
       bool logAttempts              = false,

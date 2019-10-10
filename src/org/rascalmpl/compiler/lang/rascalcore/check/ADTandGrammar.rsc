@@ -18,9 +18,10 @@ import Set;
 
 set[AType] addADTs(Solver s){
     facts = s.getFacts();
-    usedDataADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr == dataSyntax()};
-    s.putStore("ADTs", usedDataADTs);
-    return usedDataADTs;
+    usedADTs = { t | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k]};
+    //usedDataADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr == dataSyntax()};
+    s.putStore("ADTs", usedADTs);
+    return usedADTs;
 }
 
 list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args]; 
@@ -30,15 +31,18 @@ bool isManualLayout(AProduction p) = (p has attributes && \tag("manual"()) in p.
 AGrammar addGrammar(loc scope, Solver s){
     try {
         facts = s.getFacts();
-        usedSyntaxADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr != dataSyntax()};
+      
+        usedProductions = {<p.def, p> | loc k <- facts, aprod(p) := facts[k] };
+        
         allStarts = {};
         allLayouts = {};
         allManualLayouts = {};
         definitions = ();
         //PM. maybe also generate prod(Symbol::empty(),[],{}) 
-        for(AType adtType <- usedSyntaxADTs){
-            //println("getGrammar: <adtType>");
-            productions = {p | <id, aprod(p)> <- s.getAllDefinedInType(adtType, scope, dataOrSyntaxRoles)};
+        for(AType adtType <- domain(usedProductions)){
+            println("getGrammar: <adtType>");
+            productions = usedProductions[adtType];
+            println("getGrammar: <productions>");
             definitions[adtType] = choice(adtType, productions);
             if(adtType.syntaxRole == layoutSyntax()){
                 if(any(p <- productions, isManualLayout(p))){

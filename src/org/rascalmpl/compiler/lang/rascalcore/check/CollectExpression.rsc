@@ -244,8 +244,6 @@ void collect(current: (Expression) `( <Expression expression> )`, Collector c){
 
 // ---- closure
 
-// TODO: check returns via all path
-
 str closureName(Expression closure){
     l = getLoc(closure);
     return "$CLOSURE<l.offset>";

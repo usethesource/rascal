@@ -396,6 +396,13 @@ AType getSetElementType(AType t) {
     throw rascalCheckerInternalError("Error: Cannot get set element type from type <prettyAType(t)>");
 }
 
+@doc{Get the element type of any AType}
+AType getElementType(alist(AType et)) = et;
+AType getElementType(aset(AType et)) = et;
+AType getElementType(amap(AType kt, AType vt)) = kt;
+AType getElementType(abag(AType et)) = et;
+default AType getElementType(AType t) = avalue();
+
 // ---- rel
 
 @doc{
@@ -816,17 +823,17 @@ default int getArity(AType t) {
 
 list[AType] getFormals(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = formals;
 list[AType] getFormals(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = fields;
+list[AType] getFormals(aprod(prod(AType def, list[AType] atypes))) = [adt | t <- atypes, isADTType(t)];
 default list[AType] getFormals(AType t){
     throw rascalCheckerInternalError("Can only get formals from function or constructor type <prettyAType(t)>");
 }
 
 AType getResult(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
 AType getResult(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
+AType getResult(aprod(prod(AType def, list[AType] atypes))) = def;
 AType getResult(AType t){
     throw rascalCheckerInternalError("Can only get result type from function or constructor type <prettyAType(t)>");
 }
-
-
 
 @doc{
 .Synopsis
