@@ -166,9 +166,9 @@ test bool concreteMatch245(){
 	return n == 60;
 }
 
-test bool concreteMatch246() =  size([ x | /x:\char-class(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 75;
+test bool concreteMatch246a() =  size([ x | /x:\char-class(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 75;
  
-test bool concreteMatch247(){
+test bool concreteMatch247a(){
 	n = 0;
 	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
 		case \char-class(_): n += 1;
@@ -176,9 +176,9 @@ test bool concreteMatch247(){
 	return n == 75;
 }
 
-test bool concreteMatch246() =  size([ x | /x:\sort(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 16;
+test bool concreteMatch246b() =  size([ x | /x:\sort(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 16;
  
-test bool concreteMatch247(){
+test bool concreteMatch247b(){
 	n = 0;
 	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
 		case \sort(_): n += 1;

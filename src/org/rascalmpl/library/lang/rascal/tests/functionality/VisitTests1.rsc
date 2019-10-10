@@ -611,7 +611,7 @@ test bool visitWithAnno1() {
 	leaf(10);
 }
 
-test bool visitWithAnno1() {
+test bool visitWithAnno2() {
 	return visit(N1){
 		default:;
 	}
