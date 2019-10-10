@@ -18,7 +18,7 @@ test bool Left_ly_leftsq3() = ly().leftsq == 100;
 test bool Left_ly_leftsq4() = !(ly(left = 20).leftsq?);
 test bool Left_ly_leftsq5() = ly(left = 20).leftsq == 400;
 
-test bool Left_ly_left4() = ly() has left;
+test bool Left_ly_left5() = ly() has left;
 test bool Left_ly_leftsq6() = ly() has leftsq;
 
 test bool Left_ly_leftcb1() = ly() has leftcb;
