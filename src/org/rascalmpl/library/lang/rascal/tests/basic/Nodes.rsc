@@ -63,7 +63,7 @@ public list[value] makeSlice(list[value] L, int f, int s, int e){
   return res;
 }
 
-test bool sliceFirst(node N) {
+test bool sliceFirst1(node N) {
    L = getChildren(N);
    if(isEmpty(L)) return true;
    f = arbInt(size(L));
@@ -71,7 +71,7 @@ test bool sliceFirst(node N) {
    return N[f .. e] == makeSlice(L, f, f + 1, e);
 }
 
-test bool sliceFirst(node N) {
+test bool sliceFirst2(node N) {
   L = getChildren(N);
   if(isEmpty(L)) return true;
   f = arbInt(size(L));

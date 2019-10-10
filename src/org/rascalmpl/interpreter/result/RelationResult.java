@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ITuple;
@@ -174,22 +175,64 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 				}
 			}
 			Type resultType;
-			ISetWriter wset = null;
-			ISetWriter wrel = null;
-			
 			if (yieldSet){
 				resultType = getTypeFactory().setType(resFieldType[0]);
-				wset = this.getValueFactory().setWriter();
-			} else {
-				resultType = getTypeFactory().relType(resFieldType);
-				wrel = this.getValueFactory().setWriter();
 			}
-
+			else {
+				resultType = getTypeFactory().relType(resFieldType);
+			}
 			
+			
+			if (nSubs == 1) {
+			    // special case the simple subscription to directly target vallang
+			    IRelation<ISet> relation = getValue().asRelation();
+			    
+			    ISet result;
+			    if (subscripts[0] == null) {
+			        // edge case, we want everything, so an project
+			        int[] restSubScripts = new int[relArity - 1];
+			        for (int i = 1; i < relArity; i++) {
+			            restSubScripts[i - 1] = i;
+			        }
+			        result = relation.project(restSubScripts);
+			    }
+			    else if (subscriptIsSet[0]) {
+			        ISet subScriptSet = ((ISet) subscripts[0].getValue());
+			        if (subScriptSet.size() * 2 < relation.asContainer().size() && relArity == 2) {
+			            // if it is a binary relation and the subscript set is not that big, it's quicker to just do a few seperate indexes
+                        result = this.getValueFactory().set();
+                        for (IValue v : subScriptSet) {
+                            result = result.union(relation.index(v));
+                        }
+			        }
+			        else {
+			            // we have a big subscript, so it's quicker to do a single loop
+			            ISetWriter resultWriter = this.getValueFactory().setWriter();
+                        int[] restSubScripts = new int[relArity - 1];
+                        for (int i = 1; i < relArity; i++) {
+                            restSubScripts[i - 1] = i;
+                        }
+			            for (IValue v : relation) {
+			                ITuple tup = (ITuple)v;
+			                if (subScriptSet.contains(tup.get(0))) {
+			                   resultWriter.append(tup.select(restSubScripts));
+			                }
+			            }
+			            result = resultWriter.done();
+			        }
+			    }
+			    else {
+			        result = relation.index(subscripts[0].getValue());
+			        
+			    }
+			    return makeResult(resultType, result, ctx);
+			}
+			
+			ISetWriter result = this.getValueFactory().setWriter();
 			for (IValue v : getValue()) {
 				ITuple tup = (ITuple)v;
 				boolean allEqual = true;
-				for(int k = 0; k < nSubs; k++){
+				for(int k = 0; k < nSubs && allEqual; k++){
 					if(subscriptIsSet[k] && ((subscripts[k] == null) ||
 							                 ((ISet) subscripts[k].getValue()).contains(tup.get(k)))){
 						/* ok */
@@ -201,18 +244,19 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 				}
 				
 				if (allEqual) {
-					IValue args[] = new IValue[relArity - nSubs];
-					for (int i = nSubs; i < relArity; i++) {
-						args[i - nSubs] = tup.get(i);
-					}
-					if(yieldSet){
-						wset.insert(args[0]);
-					} else {
-						wrel.insert(getValueFactory().tuple(args));
-					}
+				    if (yieldSet) {
+						result.insert(tup.get(nSubs));
+				    }
+				    else {
+				        IValue args[] = new IValue[relArity - nSubs];
+				        for (int i = nSubs; i < relArity; i++) {
+				            args[i - nSubs] = tup.get(i);
+				        }
+				        result.insert(getValueFactory().tuple(args));
+				    }
 				}
 			}
-			return makeResult(resultType, yieldSet ? wset.done() : wrel.done(), ctx);
+			return makeResult(resultType, result.done(), ctx);
 		}
 
 		////
