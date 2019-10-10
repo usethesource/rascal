@@ -11,15 +11,16 @@ import lang::rascal::\syntax::Rascal;
 
 bool returnsViaAllPath(FunctionBody fb, str fname, Collector c)
     = returnsViaAllPath([ statement | statement <- fb.statements ], fname, c);
-   
-bool returnsViaAllPath((Statement) `<Label label> <Visit vis>`, str fname,  Collector c)
-    = any(Case cs <- vis.cases, cs is \default) && all(Case cs <- vis.cases, returnsViaAllPath(cs, fname, c));
 
+bool returnsViaAllPath((Statement) `<Label label> <Visit vis>`, str fname,  Collector c){
+   return  all(Case cs <- vis.cases, returnsViaAllPath(cs, fname, c)) && any(Case cs <- vis.cases, cs is \default);
+}
 bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`, str fname,  Collector c)
-    = any(Case cs <- cases, cs is \default) && all(Case cs <- cases, returnsViaAllPath(cs, fname, c));
+    = all(Case cs <- cases, returnsViaAllPath(cs, fname, c)) && any(Case cs <- cases, cs is \default);
 
-bool returnsViaAllPath((Case) `case <PatternWithAction patternWithAction>`, str fname,  Collector c)
-    = patternWithAction is arbitrary && returnsViaAllPath([patternWithAction.statement], fname, c);
+bool returnsViaAllPath((Case) `case <PatternWithAction patternWithAction>`, str fname,  Collector c){
+    return patternWithAction is arbitrary && returnsViaAllPath([patternWithAction.statement], fname, c);
+}
 
 bool returnsViaAllPath((Case) `default: <Statement statement>`, str fname,  Collector c)
     = returnsViaAllPath(statement, fname, c);
@@ -56,9 +57,10 @@ bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditi
 bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`, str fname,  Collector c)
     = returnsViaAllPath(thenStatement, fname, c) && returnsViaAllPath(elseStatement, fname, c);
  
-bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = returnsValue(statement, fname, c);
+bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = returnsValue(statement, fname, c) && (returnsViaAllPath(statement, fname, c) || true);
 bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = returnsValue(statement,fname, c);
 bool returnsViaAllPath((Statement) `fail <Target target>;`, str fname,  Collector c) = isEmpty("<target>") || "<target>" == fname;
+bool returnsViaAllPath((Statement) `insert <DataTarget dataTarget> <Statement statement>`, str fname,  Collector c) = true;
 
 bool returnsViaAllPath((Statement) `<Label label> { <Statement+ statements> }`, str fname,  Collector c)
     = returnsViaAllPath([ statement | statement <- statements ], fname, c);
@@ -90,6 +92,8 @@ bool returnsValue((Statement) `<Label label> while( <{Expression ","}+ condition
 bool returnsValue((Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`, str fname, Collector c) = true;
 bool returnsValue((Statement) `<Label label> for( <{Expression ","}+ generators> ) <Statement body>`, str fname, Collector c) = true;
 bool returnsValue(stat:(Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`, str fname,  Collector c) = returnsViaAllPath(stat, fname, c);
+bool returnsValue(stat:(Statement) `<Label label> <Visit vis>`, str fname, Collector c) = returnsViaAllPath(stat, fname, c) || true;
+
 bool returnsValue((Statement) `<Label label> { <Statement+ statements> }`,  str fname, Collector c)
     = returnsValue([stat | stat <- statements][-1], fname, c);
 
@@ -98,6 +102,7 @@ default bool returnsValue(Statement s,  str fname, Collector c) = s is expressio
 bool leavesBlock((Statement) `fail <Target target> ;`) = true;
 bool leavesBlock((Statement) `break <Target target> ;`) = true;
 bool leavesBlock((Statement) `continue <Target target> ;`) = true;
+bool leavesBlock((Statement) `insert <DataTarget dataTarget> <Statement statement>`) = true;
 default bool leavesBlock(Statement s) = false;
 
 void reportDeadCode(list[Statement] statements, Collector c){
