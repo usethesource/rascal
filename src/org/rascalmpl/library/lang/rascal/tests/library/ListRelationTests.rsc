@@ -187,11 +187,11 @@ test bool rangeRl4() = rangeR([<1,10>,<2,20>], [20,10]) == [<2,20>,<1,10>];
 
 test bool rangeXs1() = rangeX([<1,10>,<2,20>], {}) == [<1,10>,<2,20>];
 test bool rangeXs2() = rangeX([<1,10>,<2,20>], {20}) == [<1,10>];
-test bool rangeXs2() = rangeX([<1,10>,<2,20>], {10,20}) == [];
-test bool rangeXl1() = rangeX([<1,10>,<2,20>], []) == [<1,10>,<2,20>];
-test bool rangeXl2() = rangeX([<1,10>,<2,20>], [20]) == [<1,10>];
-test bool rangeXl3() = rangeX([<1,10>,<2,20>], [10,20]) == [];
-test bool rangeXl4() = rangeX([<1,10>,<2,20>], [20,10]) == [];
+test bool rangeXs3() = rangeX([<1,10>,<2,20>], {10,20}) == [];
+test bool rangeXl4() = rangeX([<1,10>,<2,20>], []) == [<1,10>,<2,20>];
+test bool rangeXl5() = rangeX([<1,10>,<2,20>], [20]) == [<1,10>];
+test bool rangeXl6() = rangeX([<1,10>,<2,20>], [10,20]) == [];
+test bool rangeXl7() = rangeX([<1,10>,<2,20>], [20,10]) == [];
 
 // toMap
 
