@@ -56,7 +56,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     AType mainType = avoid();
     MuFunction mainFunction;
     for(f <- m.functions){
-        if(f.scopeIn == "" && isMainName(f.uniqueName)) {
+        if(isOuterScopeName(f.scopeIn) && isMainName(f.uniqueName)) {
             hasMainFunction = true;
             mainFunction = f;
             mainType = f.ftype;
@@ -298,8 +298,8 @@ void genSignatureUniqueFunctions(list[MuFunction] muFunctions, list[OF5] overloa
    // return "";
     signature = "";
     for(muFun <- muFunctions){
-        fname = muFun.uniqueName;
-        if(!isClosureName(fname) && !isEmpty(muFun.scopeIn)){
+        fname = getFunctionName(muFun);
+        if(!isClosureName(fname) && isOuterScopeName(muFun.scopeIn)){
             if(jg.isUniqueFunction(muFun)){
                 <argTypes, _, _> = getArgTypes(muFun, jg);
                 jg.addInterfaceMethod("public <atype2javatype(muFun.ftype.ret)> <getJavaName(fname)>(<argTypes>);");
@@ -317,7 +317,7 @@ str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleLocs, JGenie jg){
     overloadedInOtherModule = {};
     
     // Differentiate between functions that are completely defined outside current module and functions that have an overload in this module
-    for(overload <- overloadedFunctions, !startsWith(overload.oname, "$CLOSURE"), overload.name != "type"){
+    for(overload <- overloadedFunctions, !isClosureName(overload.oname), overload.name != "type"){
         if(any(of <- overload.ofunctions, containedIn(of, moduleLoc)) || any(oc <- overload.oconstructors, containedIn(oc, moduleLoc))){
             overloadedInModule += overload;
         } else {
@@ -441,7 +441,7 @@ bool requiresMultiResolver(list[OF4] overloads,  set[loc] moduleLocs){
 // Generate a resolver for a functions that is M-overloaded
 
 str genMultiResolver(str fname, list[OF4] overloads, JGenie jg){
-    if(fname == "type" || startsWith(fname, "$CLOSURE")) return <"","">;
+    if(fname == "type" || isClosureName(fname)) return <"","">;
     //println("genMultiResolver:"); iprintln(overloads);
     arities = { getArity(ovl.funType) | ovl <- overloads };
     all_signatures = "";
@@ -537,6 +537,16 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
    
    concretePatterns = any(ovl <- overload.ofunctions /*+ overload.oconstructors*/, jg.getType(ovl).isConcreteArg);
   
+   resolverName = overload.name;
+   for(ovl <- overload.ofunctions){
+        if(muFunctionsByLoc[ovl]?){
+            muFun = muFunctionsByLoc[ovl];
+            if(!isOuterScopeName(muFun.scopeIn)){
+                resolverName = "<muFun.scopeIn>_<resolverName>";
+                break;
+            }
+        }
+   }
    
    argTypes = intercalate(", ", ["<atype2javatype(f)> $<i>" | i <- index(formalTypes), f := formalTypes[i]]);
    if(anyKwParams){
@@ -550,7 +560,7 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
    }
    
    name_resolver = "<replaceAll(overload.name, "::", "_")>_<atype2idpart(overload.funType)>";
-   signature = "public <returnType> <getJavaName(overload.name)>(<argTypes>)";
+   signature = "public <returnType> <getJavaName(resolverName)>(<argTypes>)";
    jg.addInterfaceMethod(signature + ";");
    canFail = any(of <- overload.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail);
    map[int,str] cases = ();
@@ -712,7 +722,7 @@ bool constantDefaults(lrel[str name, AType atype, MuExp defaultExp] kwpDefaults)
 }
 
 tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgTypes(MuFunction fun, JGenie jg){   
-    shortName = getJavaName(jg.getFunctionName()); 
+    shortName = getJavaName(getUniqueFunctionName(fun)); 
     
     argTypes = intercalate(", ", [ "<atype2javatype(fun.ftype.formals[i])> <varName(fun.formals[i], jg)>" | i <- index(fun.formals) ]);          
     if(!isEmpty(fun.externalVars)){

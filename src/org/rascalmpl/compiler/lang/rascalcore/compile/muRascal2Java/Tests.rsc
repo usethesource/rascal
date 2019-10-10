@@ -61,7 +61,7 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
         return "@Ignore
                'void <test_name_uniq>(){ }\n";
     }
-    fun_name = getFunctionName(f); //"<test_name>_<f.src.begin.line>_<f.src.end.line>";
+    fun_name = "$me.<getFunctionName(f)>"; //"<test_name>_<f.src.begin.line>_<f.src.end.line>";
     
     externalArgs = "";                 
     if(!isEmpty(f.externalVars)){
