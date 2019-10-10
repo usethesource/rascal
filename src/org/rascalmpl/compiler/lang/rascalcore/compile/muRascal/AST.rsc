@@ -291,7 +291,9 @@ bool isOuterScopeName(str name)
     = isEmpty(name);
     
 str getFunctionName(MuFunction fun){
-    return isOuterScopeName(fun.scopeIn) ? fun.name : "<fun.scopeIn>_<fun.name>";
+    if(isOuterScopeName(fun.scopeIn)) return fun.name;
+    if(isClosureName(fun.name)) return "<fun.scopeIn>_<fun.uniqueName>";
+    return "<fun.scopeIn>_<fun.name>";
 }
 
 str getUniqueFunctionName(MuFunction fun){
