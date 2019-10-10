@@ -143,14 +143,14 @@ test bool lexicalTokenMatch1() = (MyName) `location` := (MyName) `location`;
 test bool lexicalTokenMatch2() = (MyName) `location` := [MyName] "location";
 
 
-test bool concreteMatchVisit() {
+test bool concreteMatchVisit1() {
   result = false;
   visit ([A]"a") {
     case (A)`<A _>`: result = true;
   }
   return result;
 }
-test bool concreteMatchVisit() {
+test bool concreteMatchVisit2() {
   result = 0;
   visit ([As1]"aaa") {
     case (A)`<A _>`: result += 1;

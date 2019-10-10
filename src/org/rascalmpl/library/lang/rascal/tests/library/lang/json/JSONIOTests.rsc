@@ -66,7 +66,7 @@ test bool jsonWithNum2(num dt) = writeRead(dt);
 
 test bool jsonWithLoc2(loc dt) = writeRead(dt);
 test bool jsonWithStr2(str dt) = writeRead(dt);
-test bool jsonWithDatetime1(datetime dt) = writeRead(dt);
+test bool jsonWithDatetime2(datetime dt) = writeRead(dt);
 test bool jsonWithList2(list[int] dt) = writeRead(dt);
 test bool jsonWithSet2(set[int] dt) = writeRead(dt);
 test bool jsonWithMap2(map[int, int]  dt) = writeRead(dt);
