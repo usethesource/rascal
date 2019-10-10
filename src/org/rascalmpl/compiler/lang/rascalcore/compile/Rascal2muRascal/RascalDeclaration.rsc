@@ -189,8 +189,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       //  tbody = muBlock([ tbody, muFailReturn(ftype) ]);
       //}
       
-      addFunctionToModule(muFunction(fuid, 
-      								 prettyPrintName(fd.signature.name), 
+      addFunctionToModule(muFunction(prettyPrintName(fd.signature.name), 
+                                     fuid, 
       								 ftype,
       								 formalVars,
       								 kwps,
@@ -306,11 +306,13 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];
     
-     when_body = returnFromFunction(translateAndConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
+     //when_body = returnFromFunction(translateAndConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
+     
+     when_body = translateAndConds(fname, when_conditions, returnFromFunction(body, ftype, formalVars, isMemo), muFailReturn(ftype));
      params_when_body = ( when_body
                         | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));
-     funCode = functionBody(isVoidType(ftype.ret) ? params_when_body : muBlock([params_when_body, muFailReturn(ftype)]), ftype, formalVars, isMemo);
+     funCode = functionBody(isVoidType(ftype.ret) ? params_when_body : muReturn1(ftype.ret, muBlock([params_when_body, muFailReturn(ftype)])), ftype, formalVars, isMemo);
      leaveBacktrackingScope();
      return <formalVars, funCode>;
 }

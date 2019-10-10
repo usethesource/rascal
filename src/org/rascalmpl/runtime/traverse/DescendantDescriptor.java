@@ -5,11 +5,11 @@ import java.util.HashSet;
 //import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ATypeFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 
@@ -23,33 +23,32 @@ import org.rascalmpl.values.uptr.ITree;
  */
 
 public class DescendantDescriptor {
+	private static final ATypeFactory TF = new ATypeFactory();
 	private /*final*/ HashSet<Object> mSymbolSet;
 	private /*final*/ boolean concreteMatch;
 	private /*final*/ boolean containsNodeOrValueType;
-	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, /*RascalExecutionContext*/ Object rex){
-		throw new RuntimeException("DescendantDescriptor not yet finished");
-	}
+//	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, /*RascalExecutionContext*/ Object rex){
+//		throw new RuntimeException("DescendantDescriptor not yet finished");
+//	}
 	
-//	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
-//		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
-//		this.concreteMatch = concreteMatch.getValue();
-//		boolean nodeOrValue = true;
-//		
-//		for(IValue v : symbolset){
-//			Type tp = rex.symbolToType((IConstructor) v, definitions);
-//			mSymbolSet.add(tp);								// Add as TYPE to the set
-//			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
+	public DescendantDescriptor(Type[] symbolset, IConstructor[] prodset, IBool concreteMatch){
+		mSymbolSet = new HashSet<Object>(symbolset.length + prodset.length);
+		this.concreteMatch = concreteMatch.getValue();
+		boolean nodeOrValue = true;
+		
+		for(Type tp : symbolset){
+			mSymbolSet.add(tp);								// Add as TYPE to the set
+//			if(tp == TF.AType_anode || tp == TF.AType_avalue){
 //				nodeOrValue = true;
 //			}
-//		}
-//		
-//		for(IValue v : prodset){
-//			IConstructor cons = (IConstructor) v;
-//			mSymbolSet.add(cons);							// Add the production itself to the set
-//		}
-//
-//		containsNodeOrValueType = nodeOrValue;
-//	}
+		}
+		
+		for(IConstructor cons: prodset){
+			mSymbolSet.add(cons);							// Add the production itself to the set
+		}
+
+		containsNodeOrValueType = nodeOrValue;
+	}
 	
 	public boolean isConcreteMatch(){
 		return concreteMatch;

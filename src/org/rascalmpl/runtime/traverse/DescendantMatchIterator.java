@@ -22,7 +22,7 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-public class DescendantMatchIterator implements Iterator<IValue> {
+public class DescendantMatchIterator implements Iterator<IValue>, Iterable<IValue> {
 
 	final Stack<Object> spine = new Stack<Object>();
 
@@ -211,5 +211,10 @@ public class DescendantMatchIterator implements Iterator<IValue> {
 
 	public void remove() {
 		throw new UnsupportedOperationException("remove from DescendantMatchIterator");
+	}
+
+	@Override
+	public Iterator<IValue> iterator() {
+		return this;
 	}
 }

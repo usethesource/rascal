@@ -23,6 +23,8 @@ public void resetTmpAndLabel(){
 	visits = [];
 	resetAllCounter();
 	resetOrCounter();
+	functionScopes = [];
+	functionDeclarations = [];
 }
 
 loc moduleScope = |unknown:///|;

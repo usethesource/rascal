@@ -23,7 +23,7 @@ import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
-import lang::rascalcore::compile::Rascal2muRascal::TypeReifier;
+//import lang::rascalcore::compile::Rascal2muRascal::TypeReifier;
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 import lang::rascalcore::compile::Rascal2muRascal::RascalConstantCall;
 
@@ -605,7 +605,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
  private MuExp translateClosure(Expression e, Parameters parameters, list[Statement] cbody) {
  	uid = e@\loc;
 	fuid = convert2fuid(uid);
-	//surrounding_fuid = topFunctionScope();
+	surrounding = topFunctionScope();
 	//fuid = nextLabel("  SURE");
 	
 	enterFunctionScope(fuid);
@@ -620,12 +620,12 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     // TODO: we plan to introduce keyword patterns as formal parameters
     <formalVars, funBody> = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat) | stat <- cbody]), false, []);
     
-    addFunctionToModule(muFunction(fuid, 
+    addFunctionToModule(muFunction("$CLOSURE<uid.offset>", 
                                    fuid, 
                                    ftype, 
                                    formalVars,
                                    kwps,
-                                   fuid, 
+                                   surrounding, 
   								   nformals,
   								   getScopeSize(uid), 
   								   isVarArgs, 
@@ -684,7 +684,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
     enterVisit();
     subjectType = getType(\visit.subject);
     switchname = getLabel(label);
-    switchval = muTmpIValue(asTmp(switchname), fuid, subjectType);
+    switchval = muTmpIValue(asTmp(switchname), fuid, avalue()/*subjectType*/);
     
 	
 	bool isStringSubject = false; //subjectType == \str();
@@ -693,16 +693,16 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
 	useConcreteFingerprint = hasConcretePatternsOnly(cases) 
 	                         && isConcreteType(subjectType); // || subjectType == adt("Tree",[]));
-//TODO: add descendant info	
+	
 	reachable_syms = { avalue() };
 	reachable_prods = {};
-	//if(optimizing()){
-	  // tc = getTypesAndConstructorsInVisit(cases);
-	   //<reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, useConcreteFingerprint);
-	   //println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
-	//}
+	if(optimizing()){
+	   tc = getTypesAndConstructorsInVisit(cases);
+	   <reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, useConcreteFingerprint);
+	   println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
+	}
 	
-	ddescriptor = descendantDescriptor(useConcreteFingerprint/*, reachable_syms, reachable_prods, getDefinitions()*/);
+	ddescriptor = descendantDescriptor(useConcreteFingerprint, reachable_syms, reachable_prods, getReifiedDefinitions());
 		
 	bool direction = true;
 	bool progress = true;
@@ -1044,11 +1044,6 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 // -- reified type expression ---------------------------------------
 //TODO
 MuExp translate (e: (Expression) `# <Type tp>`) {
-	println("#<tp>, translateType: <e>");
-	iprintln("<translateType(tp)>");
-	//iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp))>");
-	//return muCon(symbolToValue(translateType(tp)));
-	//return muATypeCon(translateType(tp));
 	t = translateType(tp);
 	return muATypeCon(t, collectNeededDefs(t));
 }	
@@ -1107,7 +1102,7 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
 
 private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`, bool isGuarded){
    op = isGuarded ? "guarded_subscript" : "subscript";
-   access = muCallPrim3(op, getType(e), getType(exp) + [getType(s) | s <- subscripts],
+   access = muCallPrim3(op, avalue()/*getType(e)*/, getType(exp) + [getType(s) | s <- subscripts],
                        translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | Expression s <- subscripts], e@\loc);
    
    return access;
@@ -1224,6 +1219,9 @@ MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) =
 MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
     muCallPrim3("is", abool(), [getType(expression)], [translate(expression), muCon(unescape("<name>"))], e@\loc);
 
+MuExp translateBool(e:(Expression) `<Expression expression> is <Name name>`, str btscope, MuExp trueCont, MuExp falseCont)
+    = muIfExp(translate(e),  trueCont, falseCont);
+    
 // -- has expression -----------------------------------------------
 
 MuExp translate ((Expression) `<Expression expression> has <Name name>`) {
@@ -1233,6 +1231,10 @@ MuExp translate ((Expression) `<Expression expression> has <Name name>`) {
         return muHasField(translate(expression), getType(expression), unescape("<name>"));
     }			    
 }
+
+MuExp translateBool(e: (Expression) `<Expression expression> has <Name name>`, str btscope, MuExp trueCont, MuExp falseCont)
+    =  muIfExp(translate(e),  trueCont, falseCont);
+
 // -- transitive closure expression ---------------------------------
 
 MuExp translate(e:(Expression) `<Expression argument> +`) =
@@ -1270,7 +1272,7 @@ MuExp translateGuarded(exp: (Expression) `<Expression expression>@<Name name>`)
     = muGuardedGetAnno(translate(expression), getType(exp), unescape("<name>"));
 
 MuExp translateGuarded(exp: (Expression) `<Expression expression> . <Name field>`)
-    = muGuardedGetAnno(translate(expression), getType(exp), unescape("<field>"));
+    = muGuardedGetField(getType(exp), getType(expression), translate(expression),  unescape("<field>"));
 
 // -- isDefinedOtherwise expression ---------------------------------
 
@@ -1541,7 +1543,8 @@ MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`
     btscope = nextTmp("AND");
     enterBacktrackingScope(btscope);
     code = muEnter(btscope, translateAndConds(btscope, [lhs, rhs], muSucceed(btscope), muFailEnd(btscope)));
-    leaveBacktrackingScope(btscope);
+    updateBTScope(code, btscope, currentBacktrackingScope());
+    //leaveBacktrackingScope(btscope);
     return code;    
 }
 
@@ -1585,7 +1588,7 @@ MuExp translateAndConds(str btscope, list[Expression] conds, MuExp trueCont, MuE
                 trueCont = updateBTScope(trueCont, btscope, resume_i);
             }
         }
-       leaveBacktrackingScope(ciscope);
+       //leaveBacktrackingScope(ciscope);
     }
     return trueCont;
 }
@@ -1640,6 +1643,8 @@ MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) {
     enterBacktrackingScope(btscope);
     code = muEnter(btscope, translateBool(lhs, btscope, translateBool(rhs, btscope, muSucceed(btscope), muFail(btscope)),
                                                         muSucceed(btscope))); 
+                                                        
+    //code = updateBTScope(code, btscope, currentBacktrackingScope());
     leaveBacktrackingScope();
     return code;  
 }
