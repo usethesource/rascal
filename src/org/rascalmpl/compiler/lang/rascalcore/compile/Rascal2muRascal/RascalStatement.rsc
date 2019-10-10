@@ -86,7 +86,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     btfree = all(Expression c <- conditions, backtrackFree(c));
     enterBacktrackingScope(whileName);
     
-    loopBody = muWhileDo(whileName, muCon(true), translateAndConds(whileName, [ c | c <- conditions ], translateLoopBody(body), muBreak(whileName), normalize=toStat));
+    loopBody = muWhileDo(whileName, muCon(true), translateAndConds(whileName, [ c | c <- conditions ], muBlock([translateLoopBody(body), muContinue(whileName)]), muBreak(whileName), normalize=toStat));
     code = muBlock([]);
     if(containsAppend(body)){     
         writer = muTmpListWriter("listwriter_<whileName>", fuid);                                                           
@@ -552,8 +552,7 @@ MuExp translateTry(Statement body, list[Catch] handlers, Statement finallyBody){
 
 MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catches) {
   // Translate a list of catch blocks into one catch block
- 
-  catch_code =
+  catch_code = muThrow(thrown_as_exception, |unknown:///|);
       for(Catch c <- reverse(catches)){
           trBody = c.body is emptyStatement ? muBlock([]) : translate(c.body);
           exp = muBlock([]);
@@ -562,29 +561,30 @@ MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catc
               enterBacktrackingScope(ifname);
               patType = getType(c.pattern);
               if(c.pattern is literal) {
-                  exp = muIf(muEqual(thrown, translate(c.pattern.literal)), trBody);
+                  exp = muIfelse(muEqual(thrown, translate(c.pattern.literal)), trBody, catch_code);
               } else if(c.pattern is typedVariable) {
                   varType = translateType(c.pattern.\type);
                   <fuid, pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
                   patVar = muVar("<c.pattern.name>", fuid, pos, varType);
-                  exp = muIf(muValueIsSubType(thrown, varType), 
-                                 muBlock([ muVarInit(patVar, thrown), trBody ]));
+                  exp = muIfelse(muValueIsSubType(thrown, varType), 
+                                       muBlock([ muVarInit(patVar, thrown), trBody ]),
+                                       catch_code);
                                 
               } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
                   varType = getType(c.pattern);
                   <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
                   patVar = muVar("<c.pattern.qualifiedName>", fuid, pos, varType);
-                  exp = muBlock([muAssign(patVar, thrown), trBody]);
+                  exp = muBlock([muVarInit(patVar, thrown), trBody, catch_code]);
               } else {
-                  exp = translatePat(c.pattern, patType, thrown, ifname, trBody, muBlock([]));
+                  exp = translatePat(c.pattern, patType, thrown, ifname, trBody, catch_code);
               }
-              exp = muIf(muValueIsSubType(thrown, patType), exp);
+              catch_code = muIfelse(muValueIsSubType(thrown, patType), exp, catch_code);
               leaveBacktrackingScope();
           } else {
-            exp = muBlock([exp, trBody]);
+            catch_code = muBlock([trBody, catch_code]);
           }
-          append exp;
        }
+   return catch_code;
    // In case there is no default catch provided, re-throw the value from the catch block
    return muBlock(catch_code + muThrow(thrown_as_exception, |unknown:///|));
 }
@@ -659,7 +659,7 @@ MuExp assignTo(a: (Assignable) `\<  <{Assignable ","}+ elements> \>`, str operat
     tmp = muTmpIValue(nextTmp(), fuid, rhs_type);
  
     return muBlock( muVarInit(tmp, applyOperator(operator, a, rhs_type, rhs)) + 
-                    [ assignTo(elems[i], "=", rhs_type, muCallPrim3("subscript", getType(elems[i]), [getType(a), aint()], [tmp, muCon(i)], a@\loc) )
+                    [ assignTo(elems[i], "=", rhs_type, muCallPrim3("subscript", avalue()/*getType(elems[i])*/, [getType(a), aint()], [tmp, muCon(i)], a@\loc) )
                     | i <- [0 .. nelems]
                     ]);
 }
@@ -671,7 +671,7 @@ MuExp assignTo(Assignable a: (Assignable) `<Name name> ( <{Assignable ","}+ argu
     tmp = muTmpIValue(nextTmp(), fuid, rhs_type);
    
     return muBlock( muVarInit(tmp, applyOperator(operator, a, rhs_type, rhs)) + 
-                    [ assignTo(elems[i], "=", rhs_type, muCallPrim3("subscript", ["aadt", "aint"], [tmp, muCon(i)], a@\loc) )
+                    [ assignTo(elems[i], "=", rhs_type, muCallPrim3("subscript", avalue(), [getType(a), aint()], [tmp, muCon(i)], a@\loc) )
                     | i <- [0 .. nelems]
                     ]);
 }
@@ -686,7 +686,7 @@ list[MuExp] getValues((Assignable) `<QualifiedName qualifiedName>`) =
     [ mkVar("<qualifiedName>", qualifiedName@\loc) ];
     
 list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`) {
-    return [ muCallPrim3("subscript", getType(a), [getType(receiver), getType(subscript)], [*getValues(receiver), translate(subscript)], a@\loc) ];
+    return [ muCallPrim3("subscript", avalue() /*getType(a)*/, [getType(receiver), getType(subscript)], [*getValues(receiver), translate(subscript)], a@\loc) ];
 }
     
 list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) {

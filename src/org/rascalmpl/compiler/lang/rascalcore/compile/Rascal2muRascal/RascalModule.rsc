@@ -53,26 +53,11 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
      
       if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
    	  
-   	  // Extract scoping information available from the configuration returned by the type checker  
+   	  // Extract scoping information available from the tmodel returned by the type checker  
    	  extractScopes(tmodel); 
    	  
    	  // Extract all declarations for the benefit of the type reifier
       //extractDeclarationInfo(tmodel);
-  
-   	  map[str,AType] types = ();
-   	  //	( uid2str[uid] : \type | 
-   	  //	  int uid <- config.store, 
-   	  //	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, _, loc at) := config.store[uid]
-   	  //	  || AbstractValue::production(RName name, Symbol \type, int containedIn, _, Production p, loc at) := config.store[uid] 
-   	  //	  ),
-   	  //	  //bprintln(config.store[uid]), bprintln(config.store[containedIn].at.path), bprintln(at.path),
-   	  //	  !isEmpty(getSimpleName(name)),
-   	  //	  containedIn == 0, 
-   	  //	  ( config.store[containedIn].at.path == at.path // needed due to the handling of 'extend' by the type checker
-   	  //	  || at.path  == "/ConsoleInput.rsc"             // TODO: hack to get the RascalShell working, since config.store[0].at.path
-   	  //	                                                 // "/experiments/Compiler/Compile.rc"???
-   	  //	  )
-   	  //	);
    	 
    	  translateModule(M);
    	 
@@ -140,7 +125,9 @@ private void importModule((Import) `extend <QualifiedName qname> ;`){
 	addExtendToModule(moduleName);
 }
 
-private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */ }
+private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing to do */
+
+}
 
 private default void importModule(Import imp){
     throw "Unimplemented import: <imp>";

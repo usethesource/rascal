@@ -80,6 +80,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     list[str] interfaceMethods = [];
     
     map[loc,list[MuExp]] fun2externals = (fun.src : fun.externalVars  | fun <- range(muFunctions));
+    map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
     
     iprintln(fun2externals);
    
@@ -96,29 +97,20 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     bool _isUniqueFunction(MuFunction muFun){
         if(isIgnored(muFun)) return false;
         arity = getArity(muFun.ftype);
-        name = muFun.uqname;
+        currentUniqueName = muFun.uniqueName;
         
-        tmp1 = [ muFun.uqname | muFun1 <- range(muFunctions), muFun1.uqname == name, getArity(muFun1.ftype) == arity, !isIgnored(muFun1) ];
+        tmp1 = [ muFun.uniqueName | muFun1 <- range(muFunctions), muFun1.uniqueName == currentUniqueName, getArity(muFun1.ftype) == arity, !isIgnored(muFun1) ];
                                
-        r = resolvers[name];
+        r = resolvers[currentUniqueName];
         res = size(tmp1) <= 1 && (isEmpty(r) 
                || all(tuple[AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] ovl <- r, isEmpty(ovl.oconstructors), !comparable(ovl.funType, muFun.ftype) || !mapToSameJavaType(ovl.funType, muFun.ftype)));
-        println("isUniqueFunction: <muFun.qname> ==\> <res>");
+        println("isUniqueFunction: <currentUniqueName> ==\> <res>");
         return res;
     }
         
     void _setFunction(MuFunction fun){
         function = fun;
-        qname = replaceAll(fun.qname, "::", "_");
-        idx = findFirst(qname, "$CLOSURE");
-        if(idx >= 0){
-            functionName = qname[idx ..];
-            idx = findFirst(functionName, "_");
-            functionName = functionName[ .. idx];
-        } else { 
-            idx = findFirst(qname, "$");    // preserve $ as first character (as opposed to separator with module name) 
-            functionName = idx > 0 ? qname[idx+1 .. ] : /*_isUniqueFunction(fun) ? fun.uqname : */qname;
-        }
+        functionName = isOuterScopeName(fun.scopeIn) ? fun.uniqueName : "<fun.scopeIn>_<fun.uniqueName>";
     }
     
     MuFunction _getFunction()
@@ -147,9 +139,17 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     descriptor = atype2idpart(tp);
                     baseName = getJavaName(def.id);
                     if(containedIn(def.defined, currentModuleScope)){
-                        return startsWith(baseName, "$CLOSURE") ? baseName : "$me.<baseName>"; //_<descriptor>";
+                        fun = muFunctionsByLoc[def.defined];
+                        return getFunctionName(fun);
+                        //if(isClosureName(baseName)){
+                        //    return baseName;
+                        //}
+                        //if(fun.scopeIn != ""){
+                        //    return "<fun.scopeIn>_<fun.qname>";
+                        //}
+                        return "$me.<baseName>";
                     } else {
-                        return startsWith(baseName, "$CLOSURE") ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
+                        return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
                     }
                  }
              }
@@ -164,7 +164,15 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 if(defType(AType tp) := def.defInfo){
                     baseName = "<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>_<def.defined.end.line>";
                     if(containedIn(def.defined, currentModuleScope)){
-                        return baseName;
+                        fun = muFunctionsByLoc[def.defined];
+                        return getUniqueFunctionName(fun);
+                        //if(isClosureName(baseName)){
+                        //    return baseName;
+                        //}
+                        //if(fun.scopeIn != ""){
+                        //    return "<fun.scopeIn>_<baseName>";
+                        //}
+                        //return baseName;
                     } else {
                         return "<_getImportedModuleName(src)>.<baseName>";
                     }
@@ -184,8 +192,11 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     }
     
     list[MuExp] _getExternalVars(loc src){
-        evars = containedIn(src, currentModuleScope) ? fun2externals[src] : [];
-        return [var | var <- evars, var.pos >= 0 ];
+        if(fun2externals[src]?){
+            evars = containedIn(src, currentModuleScope) ? fun2externals[src] : [];
+            return [var | var <- evars, var.pos >= 0 ];
+        }
+        return [];
     }
     
     bool _isDefinedInCurrentFunction(MuExp var){
@@ -234,7 +245,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                'private final <value2outertype(v)> <constants[v]> = <value2IValue(v)>;
                '<}>
                '<for(t <- types){>
-               'private final io.usethesource.vallang.type.Type <types[t]> = <atype2typestore(t)>;
+               'private final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t)>;
                '<}>
                '<for(t <- atype_constants){>
                'private final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;

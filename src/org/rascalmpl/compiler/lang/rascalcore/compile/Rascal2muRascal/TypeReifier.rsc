@@ -22,13 +22,13 @@ import Relation;
 
 import IO;
 
-private TModel tmodel = tmodel();
+private TModel the_tmodel = tmodel();
 private rel[str,AType] typeRel = {};
 private set[AType] types = {};
 private rel[AType,AProduction] constructors = {};
 private rel[AType,AType] productions = {};
 private map[AType,AProduction] grammar = ();
-private map[AType,AProduction] cachedGrammar = ();
+private map[AType,AProduction] cachedGrammarRules = ();
 
 private set[AType] adts = {};
 
@@ -44,13 +44,13 @@ map[tuple[AType symbol, map[AType,AProduction] definitions], map[AType,AProducti
 private map[AType symbol, type[value] resType] atypeToValueCache = ();
 
 public void resetTypeReifier() {
-    tmodel = tmodel();
+    the_tmodel = tmodel();
     typeRel = {};
     types = {};
     constructors = {};
     productions = {};
     grammar = ();
-    cachedGrammar = ();
+    cachedGrammarRules = ();
     adts = {};
     instantiatedGrammar = ();
     starts = {};
@@ -66,21 +66,21 @@ public void resetTypeReifier() {
 // - getGrammar
 // - symbolToValue
 
-public void extractDeclarationInfo(TModel config){
+public void extractDeclarationInfo(TModel tm){
     resetTypeReifier();
 
-    if(AGrammar g := config.getStore("grammar")){
-        cachedGrammar = g;
+    if(AGrammar g := tm.store["grammar"]){
+        cachedGrammarRules = g.rules;
     } else {
         throw "Cannot get grammar from tmodel";
     }
     
-    if(set[AType] adts_in_store := config.getStore("ADTs")){
+    if(set[AType] adts_in_store := tm.store["ADTs"]){
         adts = adts_in_store;
     } else {
         throw "Cannot get ADTs from TModel";
     }
-  	//computeReachableTypesAndConstructors();
+  	computeReachableTypesAndConstructors();
 }
 
 private bool hasManualTag(\choice(AType def, set[Production] alternatives)) =
@@ -90,7 +90,7 @@ private bool hasManualTag(Production p) =
     p has attributes && \tag("manual"()) in p.attributes;
 
 
-// Extract all declared symbols from a type checker configuration
+// Extract all declared symbols from a type checker tmodel
 
 public map[AType,AProduction] getDefinitions() {
     return (); // TODO
@@ -105,7 +105,7 @@ public map[AType,AProduction] getDefinitions() {
 public Production getLabeledProduction(str name, AType symbol){
 	//println("getLabeledProduction: <getGrammar()[symbol]>");
 	name = unescape(name);
-	visit(cachedGrammar[symbol]){
+	visit(cachedGrammarRules[symbol]){
 		case p:prod(\label(name, symbol), _, _): return p;
 		case p:regular(\label(name, symbol)): return p;
 	};
@@ -180,7 +180,7 @@ private bool isParameterFree(list[AType] symbols) = !(/\parameter(name, formals)
 
 private set[AType] getInstantiatedParameters(){
 	instantiated_params = {};
-	visit(cachedGrammar){
+	visit(cachedGrammarRules){
 		case sym: \parameterized-sort(name, list[AType] args):
 			if( isParameterFree(args)) instantiated_params += sym; else fail;
 		case sym: \parameterized-lex(name, list[AType] args):
@@ -211,10 +211,10 @@ private Production instantiateParameterizedProduction(Production p, list[AType] 
 private map[AType, Production] instantiateAllParameterizedProductions(){
 	instantiated_params = getInstantiatedParameters();
 	instantiated_productions = ();
-	for(AType lhs <- cachedGrammar){
-		if(\parameterized-sort(name, list[AType] parameters) := lhs){
+	for(AType lhs <- cachedGrammarRules){
+		if(\aadt(name, list[AType] parameters, SyntaxRole sr) := lhs){
 			for(AType ip <- instantiated_params, ip.name == name, size(ip.parameters) == size(parameters)){
-				iprod = instantiateParameterizedProduction(cachedGrammar[lhs], ip.parameters);
+				iprod = instantiateParameterizedProduction(cachedGrammarRules[lhs], ip.parameters);
 				instantiated_productions[iprod.def] = iprod;
 			}
 		}
@@ -223,7 +223,7 @@ private map[AType, Production] instantiateAllParameterizedProductions(){
 }
 
 private void computeReachableConcreteTypes(){
-	instantiatedGrammar = cachedGrammar + instantiateAllParameterizedProductions();
+	instantiatedGrammar = cachedGrammarRules + instantiateAllParameterizedProductions();
 	reachableConcreteTypes = {};
 	for(/Production p: prod(sym,args,attrs) := instantiatedGrammar){
 	    for(/AType s := args){
@@ -257,53 +257,53 @@ public tuple[set[AType], set[Production]] getReachableTypes(AType subjectType, s
 
 private  tuple[set[AType], set[Production]] getReachableAbstractTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
     return <{}, {}>; // TODO
- //   desiredPatternTypes = { s | /AType s := patternTypes};
-	//desiredSubjectTypes = { s | /AType s := subjectType};
-	//desiredTypes = desiredSubjectTypes + desiredPatternTypes;
-	//
-	//if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym || subtype(sym, adt("Tree",[])))){
-	//	// We just give up when abstract and concrete symbols occur together
-	//	//println("descend_into (abstract) [1]: {value()}");
-	//   return <{\value()}, {}>;
+    desiredPatternTypes = { s | /AType s := patternTypes};
+	desiredSubjectTypes = { s | /AType s := subjectType};
+	desiredTypes = desiredSubjectTypes + desiredPatternTypes;
+	
+	if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym || subtype(sym, adt("Tree",[])))){
+		// We just give up when abstract and concrete symbols occur together
+		//println("descend_into (abstract) [1]: {value()}");
+	   return <{\value()}, {}>;
+	}
+	//println("desiredSubjectTypes = <desiredSubjectTypes>");
+	//println("desiredTypes = <desiredTypes>");
+	prunedReachableTypes = reachableTypes ;
+	if(\value() notin desiredSubjectTypes){
+	    // if specific subject types are given, the reachability relation can be further pruned
+		prunedReachableTypes = carrierR(reachableTypes,reachableTypes[desiredSubjectTypes]);
+		//println("removed from reachableTypes:[<size(reachableTypes - prunedReachableTypes)>]"); //for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
+	}
+	
+	//println("prunedReachableTypes: [<size(prunedReachableTypes)>]"); //for(x <- prunedReachableTypes){println("\t<x>");}
+	descend_into = desiredTypes;
+	
+	// TODO <AType from ,AType to> <- ... makes the stack validator unhappy.
+	for(<AType from, AType to> <- prunedReachableTypes){
+		if(to in desiredTypes){		// TODO || here was the cause 
+			descend_into += {from, to};
+		} else if(any(AType t <- desiredTypes, subtype(t, to))){
+			descend_into += {from, to};
+		} else if(c:acons(AType \adtsym, list[AType] parameters) := from  && // TODO: check
+	                        (\adtsym in patternTypes || name in consNames)){
+	              descend_into += {from, to};   
+		} else if(c:acons(AType \adtsym, str name, list[AType] parameters) := to  && 
+	                        (\adtsym in patternTypes || name in consNames)){
+	              descend_into += {from, to};        
+	    }
+	    ;
+	}
+	
+	//if(\value() in descend_into){
+	//    println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
+	//	descend_into = {\value()};
 	//}
-	////println("desiredSubjectTypes = <desiredSubjectTypes>");
-	////println("desiredTypes = <desiredTypes>");
-	//prunedReachableTypes = reachableTypes ;
-	//if(\value() notin desiredSubjectTypes){
-	//    // if specific subject types are given, the reachability relation can be further pruned
-	//	prunedReachableTypes = carrierR(reachableTypes,reachableTypes[desiredSubjectTypes]);
-	//	//println("removed from reachableTypes:[<size(reachableTypes - prunedReachableTypes)>]"); //for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
-	//}
-	//
-	////println("prunedReachableTypes: [<size(prunedReachableTypes)>]"); //for(x <- prunedReachableTypes){println("\t<x>");}
-	//descend_into = desiredTypes;
-	//
-	//// TODO <AType from ,AType to> <- ... makes the stack validator unhappy.
-	//for(<AType from, AType to> <- prunedReachableTypes){
-	//	if(to in desiredTypes){		// TODO || here was the cause 
-	//		descend_into += {from, to};
-	//	} else if(any(AType t <- desiredTypes, subtype(t, to))){
-	//		descend_into += {from, to};
-	//	} else if(c:acons(AType \adtsym, list[AType] parameters) := from  && // TODO: check
-	//                        (\adtsym in patternTypes || name in consNames)){
-	//              descend_into += {from, to};   
-	//	} else if(c:acons(AType \adtsym, str name, list[AType] parameters) := to  && 
-	//                        (\adtsym in patternTypes || name in consNames)){
-	//              descend_into += {from, to};        
-	//    }
-	//    ;
-	//}
-	//
-	////if(\value() in descend_into){
-	////    println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
-	////	descend_into = {\value()};
-	////}
-	//tuples = { atuple(atypeList(symbols)) | sym <- descend_into, \rel(symbols) := sym || \lrel(symbols) := sym };
-	//descend_into += tuples;
-	//descend_into = {sym | sym <- descend_into, label(_,_) !:= sym };
-	////println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
-	//
-	//return <descend_into, {}>;
+	tuples = { atuple(atypeList(symbols)) | sym <- descend_into, \rel(symbols) := sym || \lrel(symbols) := sym };
+	descend_into += tuples;
+	descend_into = {sym | sym <- descend_into, label(_,_) !:= sym };
+	//println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
+	
+	return <descend_into, {}>;
 }
 
 // Extract the reachable concrete types

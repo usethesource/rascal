@@ -3,6 +3,7 @@ module lang::rascalcore::compile::muRascal::AST
 import Message;
 import List;
 import Set;
+import String;
 import Node;   
 import ParseTree;
 import IO;
@@ -42,8 +43,8 @@ MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str qname, 
-                           str uqname,
+                muFunction(str name, 
+                           str uniqueName,
                            AType ftype,
                            list[MuExp] formals,
                            lrel[str name, AType atype, MuExp defaultExp] kwpDefaults, 
@@ -221,8 +222,6 @@ public data MuExp =
           
           // Various tests
           | muRequire(MuExp exp, str msg, loc src)              // Abort if exp is false
-          
-          | muCheckArgTypeAndCopy(str name, int fromPos, AType atype, int toPos)
           | muEqual(MuExp exp1, MuExp exp2)
      
           
@@ -273,7 +272,7 @@ public data MuExp =
     ;
     
 data DescendantDescriptor
-    = descendantDescriptor(bool useConcreteFingerprint /*reachable_syms, reachable_prods,*/  /*,getDefinitions()*/)
+    = descendantDescriptor(bool useConcreteFingerprint, set[AType] reachable_atypes, set[AType] reachable_aprods, map[AType,AProduction] definitions)
     ;
     
 data MuCatch = muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body);    
@@ -281,6 +280,23 @@ data MuCatch = muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body);
 data MuCase = muCase(int fingerprint, MuExp exp);
 
 // ==== Utilities =============================================================
+
+bool isClosureName(str name)
+    = findFirst(name, "$CLOSURE") >= 0;
+
+bool isMainName(str name)
+    = startsWith(name, "main_");
+
+bool isOuterScopeName(str name)
+    = isEmpty(name);
+    
+str getFunctionName(MuFunction fun){
+    return isOuterScopeName(fun.scopeIn) ? fun.name : "<fun.scopeIn>_<fun.name>";
+}
+
+str getUniqueFunctionName(MuFunction fun){
+    return isOuterScopeName(fun.scopeIn) ? fun.uniqueName : "<fun.scopeIn>_<fun.uniqueName>";
+}
 
 // Normalize expression to statement
 
@@ -297,7 +313,7 @@ bool isVarOrTmp(MuExp exp)
     = getName(exp) in varExp;
     
 bool producesNativeBool(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] args, loc src)){
-    if(name in {"equal", "notequal", "is", "subset"}) return true;
+    if(name in {/*"equal",*/ "notequal", "is", "subset"}) return true;
     fail producesNativeBool;
 }
 
@@ -438,17 +454,21 @@ MuExp muReturn1(AType t, muIfEqualOrAssign(MuExp var, MuExp other, MuExp body))
     
 MuExp muReturn1(AType t, muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart))
     = muIfelse(cond, muReturn1(t, thenPart), muReturn1(t, elsePart));
+
+MuExp muReturn1(AType t, muIf(MuExp cond, MuExp thenPart)){
+    return  muIf(cond, muReturn1(t, thenPart));
+}
     
 MuExp muReturn1(AType t, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
     = muIfelse(cond,muReturn1(t, thenPart), muReturn1(t, elsePart));
     
-MuExp muReturn1(AType t, muWhileDo(str label, MuExp cond, MuExp body)){
-    return  muWhileDo(label, cond, muReturn1(t, body));
-    }
+//MuExp muReturn1(AType t, muWhileDo(str label, MuExp cond, MuExp body)){
+//    return  muWhileDo(label, cond, muReturn1(t, body));
+//    }
     
-MuExp muReturn1(AType t, muDoWhile(str label, MuExp body, MuExp cond)){
-    return  muDoWhile(label, muReturn1(t, body), cond);
-    }
+//MuExp muReturn1(AType t, muDoWhile(str label, MuExp body, MuExp cond)){
+//    return  muDoWhile(label, muReturn1(t, body), cond);
+//    }
 
 MuExp muReturn1(AType t, muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp))
     = muForRangeInt(label, var, ifirst, istep, last, muReturn1(t, exp));
@@ -479,6 +499,9 @@ MuExp muReturn1(AType t, muFail(str btscope)){
    //return  muContinue(btscope);
 }
 
+MuExp muReturn1(AType t, muFailCase())
+    = muFailCase();
+
 MuExp muReturn1(AType t, muFailEnd(str btscope)){
    return muFailReturn(t);
    //return  muContinue(btscope);
@@ -495,6 +518,12 @@ MuExp muReturn1(AType t, muThrow(MuExp exp, loc src))
     
 MuExp muReturn1(AType t, muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint))
     = muSwitch(exp, [muCase(c.fingerprint, muReturn1(t, c.exp)) | c <- cases], muReturn1(t, defaultExp), useConcreteFingerprint);
+    
+// ---- muFailReturn ----------------------------------------------------------
+
+MuExp muFailReturn(AType t) 
+    = muReturn1(abool(), muCon(false))
+    when t == abool();
     
 // ---- muThrow ---------------------------------------------------------------
 
@@ -641,6 +670,13 @@ MuExp muIfExp(MuExp cond, MuExp thenPart, muFailReturn(AType t))
 MuExp muIfExp(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, MuExp elsePart)
     = muValueBlock(t, [*exps, muIfExp(exp, thenPart, elsePart)]);
     
+//MuExp muIfExp(MuExp cond, muValueBlock([*MuExp exps, MuExp exp]), MuExp elsePart)
+//    = muValueBlock(t, cond, muValueBlock([*exps, muIfExp(cond, exp, elsePart), elsePart);
+//    
+//MuExp muIfExp(MuExp cond, MuExp thenPart, muValueBlock([*MuExp exps, MuExp exp]))
+//    = muValueBlock(t, cond, thenPart, muValueBlock([*exps, muIfExp(cond, thenPart, exp), elsePart));
+    
+    
 MuExp muIfExp(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 
 MuExp muIfExp(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
@@ -702,7 +738,13 @@ MuExp muRegExpCompile(muValueBlock(AType t, [*MuExp exps, MuExp regExp]), MuExp 
 // TODO: shoud go to separate module (does not work in interpreter)
 
 bool shouldFlatten(MuExp arg) 
-    =  muValueBlock(t, elems) := arg || muEnter(btscope, exp) := arg  || muIfelse(cond, thenPart, elsePart) := arg ||  muBlock(elems) := arg;
+    =     muValueBlock(t, elems) := arg 
+       || muEnter(btscope, exp) := arg 
+       || muIfelse(cond, thenPart, elsePart) := arg 
+       || muWhileDo(str ab, MuExp cond, MuExp body) := arg
+       || muBlock(elems) := arg 
+       //|| muIfExp(cond, thenPart, elsePart) := arg && (shouldFlatten(thenPart) || shouldFlatten(elsePart))
+       ;
  
 int nauxVars = -1;
          
@@ -715,11 +757,19 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
         for(MuExp arg <- args){
             if(muValueBlock(t, elems) := arg){
                 pre += elems[0..-1];
-                newArgs += elems[-1];
+                lst = elems[-1];
+                <flLst, auxLst, preLst, postLst> = flattenArgs([lst]);
+                auxVars += auxLst;
+                pre += preLst;
+                newArgs += postLst;
             } else if(muBlock(elems) := arg){
                 if(!isEmpty(elems)){
                     pre += elems[0..-1];
-                    newArgs += elems[-1];
+                    lst = elems[-1];
+                    <flLst, auxLst, preLst, postLst> = flattenArgs([lst]);
+                    auxVars += auxLst;
+                    pre += preLst;
+                    newArgs += postLst;
                  }
             } else if(me: muEnter(btscope, exp) := arg){
                 nauxVars += 1;
@@ -728,11 +778,26 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                 pre += muAssign(aux, me);
                 newArgs += aux;
             } else if(muIfelse(cond, thenPart, elsePart) := arg){
+                <flCond, auxCond, preCond, postCond> = flattenArgs([thenPart]);
                 <flThen, auxThen, preThen, postThen> = flattenArgs([thenPart]);
                 <flElse, auxElse, preElse, postElse> = flattenArgs([elsePart]);
-                pre += preThen + preElse;
-                newArgs += muIfExp(cond, size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
-                                         size(postElse) == 1 ? postElse[0] : muValueBlock(avalue(), postElse));
+                pre += preCond + preThen + preElse;
+                newArgs += muIfExp(size(postCond) == 1 ? postCond[0] : muValueBlock(avalue(), postCond), 
+                                   size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
+                                   size(postElse) == 1 ? postElse[0] : muValueBlock(avalue(), postElse));
+            } else if(me: muWhileDo(str ab, MuExp cond, MuExp body) := arg){
+                nauxVars += 1;
+                aux = muTmpIValue("$aux<nauxVars>", "", alist(avalue()));
+                auxVars += muVarInit(aux, muCon([]));
+                pre += muAssign(aux, me);
+                newArgs += aux;
+               
+            //} else if(muIfExp(cond, thenPart, elsePart) := arg){
+            //    <flThen, auxThen, preThen, postThen> = flattenArgs([thenPart]);
+            //    <flElse, auxElse, preElse, postElse> = flattenArgs([elsePart]);
+            //    pre += preThen + preElse;
+            //    newArgs += muIfExp(cond, size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
+            //                             size(postElse) == 1 ? postElse[0] : muValueBlock(avalue(), postElse));
             } else {
                 newArgs += arg;
             }

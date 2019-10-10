@@ -22,15 +22,22 @@ public class SubSetGenerator implements Iterable<ISet> {
 	}
 }
 
+/*
+ * For a set with n elements, enumerate the numbers 0 .. n and use their binary representation
+ * to determine which elements to include in the next subset.
+ */
 class SubSetIterator implements Iterator<ISet> {
 	private final static IValueFactory $VF = ValueFactoryFactory.getValueFactory();
 	private long n;
 	private final int len;
-	private final long max;	// TODO: this only works for subsets upto 64 elements
+	private final long max;
 	private final IValue[] setElems;
 	
 	SubSetIterator(ISet s){
 		len = s.size();
+		if(len >= 64) {
+			throw RascalExceptionFactory.illegalArgument(s, "Set patterns with more than 64 elements are not supported");
+		}
 		n = 0;
 		max = (1L << len);
 		setElems = new IValue[len];
@@ -49,11 +56,8 @@ class SubSetIterator implements Iterator<ISet> {
 	public ISet next() {
 		ISetWriter w = $VF.setWriter();
 		for (int j = 0; j < len; j++) {
-			// (1L<<j) is a number with jth bit 1 
-			// so when we 'and' them with the 
-			// subset number we get which numbers 
-			// are present in the subset and which 
-			// are not 
+			// (1L<<j) is a number with jth bit 1 so when we 'and' them with the subset number 
+			// we get which numbers are present in the subset and which are not 
 			if ((n & (1L << j)) > 0) 
 				w.insert(setElems[j]);
 		}

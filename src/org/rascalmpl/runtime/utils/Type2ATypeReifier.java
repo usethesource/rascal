@@ -13,50 +13,50 @@ import io.usethesource.vallang.type.Type;
 public class Type2ATypeReifier extends ATypeFactory {
 	
 	protected IString empty = $VF.string("");
-	
+	 
 	public IConstructor reify2atype(final Type t, IString label){
 		return t.accept(new DefaultTypeVisitor<IConstructor, RuntimeException>(null) {
 			@Override
 			public IConstructor visitVoid(Type type) throws RuntimeException {
-				return label.length() == 0 ? avoid() : avoid(label);
+				return label.length() == 0 ? $avoid() : $avoid(label);
 			}
 			@Override
 			public IConstructor visitBool(Type type) throws RuntimeException {
-				return label.length() == 0 ? abool() : abool(label);
+				return label.length() == 0 ? $abool() : $abool(label);
 			}
 			@Override
 			public IConstructor visitInteger(Type type) throws RuntimeException {
-				return label.length() == 0 ? aint() : aint(label);
+				return label.length() == 0 ? $aint() : $aint(label);
 			}
 			@Override
 			public IConstructor visitReal(Type type) throws RuntimeException {
-				return label.length() == 0 ? areal() : areal(label);
+				return label.length() == 0 ? $areal() : $areal(label);
 			}
 			
 			@Override
 			public IConstructor visitRational(Type type) throws RuntimeException {
-				return label.length() == 0 ? arat() : arat(label);
+				return label.length() == 0 ? $arat() : $arat(label);
 			}
 			@Override
 			public IConstructor visitNumber(Type type) throws RuntimeException {
-				return label.length() == 0 ? anum() : anum(label);
+				return label.length() == 0 ? $anum() : $anum(label);
 			}
 			@Override
 			public IConstructor visitString(Type type) throws RuntimeException {
-				return label.length() == 0 ? astr() : astr(label);
+				return label.length() == 0 ? $astr() : $astr(label);
 			}
 			@Override
 			public IConstructor visitSourceLocation(Type type) throws RuntimeException {
-				return label.length() == 0 ? aloc() : aloc(label);
+				return label.length() == 0 ? $aloc() : $aloc(label);
 			}
 			@Override
 			public IConstructor visitDateTime(Type type) throws RuntimeException {
-				return label.length() == 0 ? adatetime() : adatetime(label);
+				return label.length() == 0 ? $adatetime() : $adatetime(label);
 			}
 			@Override
 			public IConstructor visitList(Type type) throws RuntimeException {
 				IConstructor elmType = reify2atype(type.getElementType(), empty);
-				return label.length() == 0 ? alist(elmType) : alist(elmType, label);
+				return label.length() == 0 ? $alist(elmType) : $alist(elmType, label);
 			}
 			
 			// bag
@@ -64,7 +64,7 @@ public class Type2ATypeReifier extends ATypeFactory {
 			@Override
 			public IConstructor visitSet(Type type) throws RuntimeException {
 				IConstructor elmType = reify2atype(type.getElementType(), empty);
-				return label.length() == 0 ? aset(elmType) : aset(elmType, label);
+				return label.length() == 0 ? $aset(elmType) : $aset(elmType, label);
 			}
 			
 			@Override
@@ -76,7 +76,7 @@ public class Type2ATypeReifier extends ATypeFactory {
 				for(int i = 0; i <arity; i++) {
 					fieldATypes[i] = reify2atype(fieldTypes.getFieldType(i), fieldNames == null ? empty : $VF.string(fieldNames[i]));
 				}
-				return label.length() == 0 ? atuple(fieldATypes) : atuple(fieldATypes, label);
+				return label.length() == 0 ? $atuple(fieldATypes) : $atuple(fieldATypes, label);
 			}
 			
 			@Override
@@ -86,19 +86,19 @@ public class Type2ATypeReifier extends ATypeFactory {
 				
 				String valLabel = type.getValueLabel();
 				IConstructor valType = reify2atype(type.getValueType(), valLabel.isEmpty() ? empty : $VF.string(valLabel));
-				return label.length() == 0 ? amap(keyType, valType) : amap(keyType, valType, label);
+				return label.length() == 0 ? $amap(keyType, valType) : $amap(keyType, valType, label);
 			}
 			
 			@Override
 			public IConstructor visitParameter(Type type) throws RuntimeException {
 				String pname = type.getName();
 				IConstructor boundType = reify2atype(type.getBound(), empty);
-				return aparameter($VF.string(pname), boundType);
+				return $aparameter($VF.string(pname), boundType);
 			}
 			
 			@Override
 			public IConstructor visitNode(Type type) throws RuntimeException {
-				return label.length() == 0 ? anode() : anode(label); 
+				return label.length() == 0 ? $anode() : $anode(label); 
 			}
 			
 			@Override
@@ -110,8 +110,8 @@ public class Type2ATypeReifier extends ATypeFactory {
 				for(int i = 0; i <arity; i++) {
 					w.append(reify2atype(parameters.getFieldType(i), empty));
 				}
-				return label.length() == 0 ? aadt($VF.string(adtName), w.done(), dataSyntax)
-						                   : aadt($VF.string(adtName), w.done(), dataSyntax, label);
+				return label.length() == 0 ? $aadt($VF.string(adtName), w.done(), dataSyntax)
+						                   : $aadt($VF.string(adtName), w.done(), dataSyntax, label);
 			}
 			
 			@Override
@@ -124,12 +124,12 @@ public class Type2ATypeReifier extends ATypeFactory {
 				for(int i = 0; i <arity; i++) {
 					w.append(reify2atype(fields.getFieldType(i), empty));
 				}
-				return acons(reify2atype(adt, empty), w.done(), $VF.listWriter().done(), $VF.string(consName));
+				return $acons(reify2atype(adt, empty), w.done(), $VF.listWriter().done(), $VF.string(consName));
 			}
 			
 			@Override
 			public IConstructor visitValue(Type type) throws RuntimeException {
-				return avalue();
+				return $avalue();
 			}
 			
 			@Override

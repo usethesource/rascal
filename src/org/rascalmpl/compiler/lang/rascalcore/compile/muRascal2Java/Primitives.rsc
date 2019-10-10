@@ -82,9 +82,9 @@ JCode transPrim("close_string_writer", AType r, [_], [str w], JGenie jg)        
 
 // ---- compose ---------------------------------------------------------------
 
-JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "((ISet)<x>).asRelation().compose(((ISet)<y>).asRelation())"
+JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<x>.asRelation().compose(<y>.asRelation())"
                                                                                            when isSetOrListLikeType(a), isSetOrListLikeType(b);
-JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "((IMap)<x>).compose((IMap)<y>)"
+JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<x>.compose(<y>)"
                                                                                            when isMapType(a), isMapType(b);
 
 // ---- create_... ------------------------------------------------------------
@@ -112,8 +112,10 @@ JCode transPrim("divide", AType r, [AType a, AType b], [str x, str y], JGenie jg
 
 // ---- equal -----------------------------------------------------------------
 
-JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).isEqual(<y>)"   when !(isNodeType(a) || isNodeType(b)); // was .equal
-JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).isEqual(<y>)"   when isNodeType(a) || isNodeType(b);    //WHY?
+JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         =  "$equal(<x>, <y>)";
+
+//JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).isEqual(<y>)"   when !(isNodeType(a) || isNodeType(b)); // was .equal
+//JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).isEqual(<y>)"   when isNodeType(a) || isNodeType(b);    //WHY?
 
 // ---- field_project ---------------------------------------------------------
 
@@ -284,7 +286,7 @@ JCode transPrim("not", abool(), [abool()], [str x], JGenie jg)                  
 
 // ---- notequal --------------------------------------------------------------
 
-JCode transPrim("notequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "!(<x>.isEqual(<y>))";
+JCode transPrim("notequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$equal(<x>,<y>))";
 
 // ---- notin -----------------------------------------------------------------
 
@@ -395,13 +397,24 @@ list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp
                                                                                 = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
                                                                                   when isListOnlyType(a) || isStrType(a) || isTupleType(a) || 
                                                                                        isNodeType(a) || isADTType(a);   
+
+
 JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "$astr_subscript_int(<x>,<y>)";
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$atuple_subscript_int(<x>,<y>)" when isTupleType(a);
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$anode_subscript_int(<x>,<y>)" when isNodeType(a);
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$aadt_subscript_int(<x>,<y>)" when isADTType(a);
 
-JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "<x>.get(<y>)" when isListOnlyType(a);
-JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "<x>.get(<y>)" when isMapType(a);
+JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$alist_subscript_int(<x>,<y>)" when isListOnlyType(a);
+JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$amap_subscript(<x>,<y>)" when isMapType(a);
+
+
+//JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "$astr_subscript_int(<x>,<y>)";
+//JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = castArg(r, "$atuple_subscript_int(<x>,<y>)") when isTupleType(a);
+//JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = castArg(r, "$anode_subscript_int(<x>,<y>)") when isNodeType(a);
+//JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = castArg(r, "$aadt_subscript_int(<x>,<y>)") when isADTType(a);
+//
+//JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = castArg(r, "<x>.get(<y>)") when isListOnlyType(a);
+//JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = castArg(r, "<x>.get(<y>)") when isMapType(a);
 
 default JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
     if(arel(atypeList(list[AType] elemTypes)) := a){
@@ -421,7 +434,7 @@ default JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *
         } else if(size(args) == 1 && !jg.isWildCard(args[0]) && !isSetLikeType(types[0])){
             return "$alrel_subscript1_noset(<x>,<args[0]>)";
         }
-        return "$alrel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>))";    
+        return "$alrel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>)";    
     } else
         fail;
 }      

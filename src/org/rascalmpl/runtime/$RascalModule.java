@@ -228,7 +228,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber $areal_add_areal(final IReal lhs, final IRational rhs) {
+	public final INumber $areal_add_arat(final IReal lhs, final IRational rhs) {
 		return lhs.add(rhs);
 	}
 	
@@ -317,7 +317,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	}
 	
 	public final IMap $amap_add_amap(final IMap lhs, final IMap rhs) {
-		return lhs.compose(rhs);
+		return lhs.join(rhs);
 	}
 
 	// ---- annotation_get ----------------------------------------------------
@@ -614,9 +614,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		throw RascalExceptionFactory.noSuchField(fieldName);
 	}
 	
-//	public final IValue $aloc_get_field(final IValue sloc, final IValue field) {
-//		return $aloc_get_field((ISourceLocation) sloc, ((IString) field).getValue());
-//	}
+	public final GuardedIValue $guarded_anode_get_field(final INode nd, final String fieldName) {
+		try {
+			IValue result = $anode_get_field(nd, fieldName);
+			return new GuardedIValue(result);
+		} catch (RascalException e) {
+			return UNDEFINED;
+		}
+	}
 
 	public final IValue $aloc_get_field(final ISourceLocation sloc, final String field) {
 		IValue v;
@@ -1375,6 +1380,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * 
 	 */
 	public final boolean $anode_has_field(final INode nd, final String fieldName) {
+		if(nd.getType().isAbstractData()) {
+			return $aadt_has_field((IConstructor) nd, fieldName);
+		}
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 			return true;
 		} else {
@@ -1398,21 +1406,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(consType.hasField(fieldName)){
 			return true;
 		}
-
-		// Check for keyword parameter
-		String[] fieldNames = consType.getFieldNames();
-		if(fieldNames == null){
-			fieldNames = new String[0];
-		}
-
-		IListWriter w = $VF.listWriter();
-		w.append($VF.string(cons.getName()));
-		for(String fname : fieldNames){
-			w.append($VF.string(fname));
-		}
 		
 		if($TS.hasKeywordParameter(consType, fieldName)) {
-			return true;
+			return cons.asWithKeywordParameters().getParameter(fieldName) != null;
 		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
@@ -2244,7 +2240,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return a.multiply(b);
 	}
 
-	public final INumber $aint_product_areal(final IInteger a, final IReal b) {
+	public final IReal $aint_product_areal(final IInteger a, final IReal b) {
 		return a.multiply(b);
 	}
 
@@ -2621,6 +2617,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return UNDEFINED;
 		}
 	}
+	
+	public final IValue $alist_subscript_int(final IList lst, final int idx) {
+		try {
+			return lst.get((idx >= 0) ? idx : (lst.length() + idx));
+		} catch(IndexOutOfBoundsException e) {
+			throw RascalExceptionFactory.indexOutOfBounds($VF.integer(idx));
+		}
+	}
 
 	public final GuardedIValue $guarded_list_subscript(final IList lst, final int idx) {
 		try {
@@ -2628,6 +2632,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		} catch(IndexOutOfBoundsException e) {
 			return UNDEFINED;
 		}
+	}
+	
+	public final IValue $amap_subscript(final IMap map, final IValue idx) {
+		IValue v = map.get(idx);
+		if(v == null) {
+			throw RascalExceptionFactory.noSuchKey(idx);
+		}
+		return v;
 	}
 
 	public final GuardedIValue $guarded_map_subscript(final IMap map, final IValue idx) {
@@ -3003,7 +3015,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(subject.getType().isString()) {
 			return ((IString) subject).substring(idx, 1);
 		}
-		throw new RuntimeException("Unsupported subject subscript");
+		if(subject.getType().isAbstractData()) {
+			return ((IConstructor) subject).get(idx);
+		}
+		throw new RuntimeException("Unsupported subject of type " + subject.getType());
 	}
 
 	// ---- subtract ----------------------------------------------------------

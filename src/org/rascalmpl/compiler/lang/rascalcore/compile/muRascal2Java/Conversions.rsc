@@ -139,40 +139,43 @@ str atype2IValue(AType t,  map[AType, set[AType]] defs){
     return res; 
 }
 
-str atype2IValue1(at:avoid(), _)              = "avoid(<lab(at)>)";
-str atype2IValue1(at:abool(), _)              = "abool(<lab(at)>)";
-str atype2IValue1(at:aint(), _)               = "aint(<lab(at)>)";
-str atype2IValue1(at:areal(), _)              = "areal(<lab(at)>)";
-str atype2IValue1(at:arat(), _)               = "arat(<lab(at)>)";
-str atype2IValue1(at:anum(), _)               = "anum(<lab(at)>)";
-str atype2IValue1(at:astr(), _)               = "astr(<lab(at)>)";
-str atype2IValue1(at:aloc(), _)               = "aloc(<lab(at)>)";
-str atype2IValue1(at:adatetime(), _)          = "adatetime(<lab(at)>)";
+str lbl(AType at) = at.label? ? "_lab(<at.label>" : "(";
 
+str atype2IValue1(at:avoid(), _)              = "$avoid<lbl(at)>)";
+str atype2IValue1(at:abool(), _)              = "$abool<lbl(at)>)";
+str atype2IValue1(at:aint(), _)               = "$aint<lbl(at)>)";
+str atype2IValue1(at:areal(), _)              = "$areal<lbl(at)>)";
+str atype2IValue1(at:arat(), _)               = "$arat<lbl(at)>)";
+str atype2IValue1(at:anum(), _)               = "$anum<lbl(at)>)";
+str atype2IValue1(at:astr(), _)               = "$astr<lbl(at)>)";
+str atype2IValue1(at:aloc(), _)               = "$aloc<lbl(at)>)";
+str atype2IValue1(at:adatetime(), _)          = "$adatetime<lbl(at)>)";
+
+// TODO handle cases with label
 str atype2IValue1(at:alist(AType t), map[AType, set[AType]] defs)          
-    = "alist(<atype2IValue(t, defs)><lab2(at)>)";
+    = "$alist(<atype2IValue(t, defs)><lab2(at)>)";
 str atype2IValue1(at:abag(AType t), map[AType, set[AType]] defs)           
-    = "abag(<atype2IValue(t, defs)><lab2(at)>)";
+    = "$abag(<atype2IValue(t, defs)><lab2(at)>)";
 str atype2IValue1(at:aset(AType t), map[AType, set[AType]] defs)           
-    = "aset(<atype2IValue(t, defs)><lab2(at)>)";
+    = "$aset(<atype2IValue(t, defs)><lab2(at)>)";
 str atype2IValue1(at:arel(AType ts), map[AType, set[AType]] defs)          
-    = "arel(<atype2IValue(ts, defs)><lab2(at)>)";
+    = "$arel(<atype2IValue(ts, defs)><lab2(at)>)";
 str atype2IValue1(at:alrel(AType ts), map[AType, set[AType]] defs)         
-    = "alrel(<atype2IValue(ts, defs)><lab2(at)>)";
+    = "$alrel(<atype2IValue(ts, defs)><lab2(at)>)";
 
 str atype2IValue1(at:atuple(AType ts), map[AType, set[AType]] defs)        
-    = "atuple(<atype2IValue(ts, defs)><lab2(at)>)";
+    = "$atuple(<atype2IValue(ts, defs)><lab2(at)>)";
 str atype2IValue1(at:amap(AType d, AType r), map[AType, set[AType]] defs)  
-    = "amap(<atype2IValue(d, defs)>,<atype2IValue(r, defs)><lab2(at)>)"; // TODO: complete from here
+    = "$amap(<atype2IValue(d, defs)>,<atype2IValue(r, defs)><lab2(at)>)"; // TODO: complete from here
 
 str atype2IValue1(at:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), map[AType, set[AType]] defs)
     = "<atype2IValue(ret, defs)>_<intercalate("_", [atype2IValue(f,defs) | f <- formals])>";
 str atype2IValue1(at:anode(list[AType fieldType] fields), map[AType, set[AType]] defs) 
-    = "anode(<lab(at)>)";
+    = "$anode(<lab(at)>)";
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[AType, set[AType]] defs)
-    = "aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>, <getName(syntaxRole)>)";
+    = "$aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>, <getName(syntaxRole)>)";
 str atype2IValue1(at:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields), map[AType, set[AType]] defs)
-    = "acons(<atype2IValue(adt, defs)>, <atype2IValue(fields, defs)>, <atype2IValue(kwFields,defs)><lab2(at)>)";
+    = "$acons(<atype2IValue(adt, defs)>, <atype2IValue(fields, defs)>, <atype2IValue(kwFields,defs)><lab2(at)>)";
 str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType, set[AType]] defs){
     resType = avoid();
     formalsType = avoid();
@@ -185,13 +188,13 @@ str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType,
 }
 
 str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs)
-    = "aparameter(<atype2IValue(bound,defs)>)"; 
+    = "$aparameter(<atype2IValue(bound,defs)>)"; 
 str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) 
-    = "aprod(<tree2IValue(production, defs)>)";
+    = "$aprod(<tree2IValue(production, defs)>)";
 str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions) 
     = "reifiedAType(<atype2IValue(atype, definitions)>, <defs(definitions)>)";
 str atype2IValue1(at:avalue(), _)               
-     = "avalue(<lab(at)>)";
+     = "$avalue(<lab(at)>)";
 //default str atype2IValue1(AType t, map[AType, set[AType]] defs) { throw "atype2IValue1: cannot handle <t>"; }
 
 str atype2IValue(list[AType] ts, map[AType, set[AType]] defs) 
@@ -441,7 +444,7 @@ str getOuter(avalue())                = "avalue";
 default str getOuter(AType t)         = "avalue";
 
 /*****************************************************************************/
-/*  Convert an AType to a Java method that tests for that AType              */
+/*  Convert an AType to a test for that AType (represented as VType)         */
 /*****************************************************************************/
 
 str atype2istype(str e, avoid())                 = "<e>.getType().isBottom()";
@@ -455,8 +458,8 @@ str atype2istype(str e, aloc())                  = "<e>.getType().isSourceLocati
 str atype2istype(str e, adatetime())             = "<e>.getType().isDateTime()";
 str atype2istype(str e, alist(AType t))          = "<e>.getType().isList()";
 str atype2istype(str e, aset(AType t))           = "<e>.getType().isSet()";
-str atype2istype(str e, arel(AType ts))          = "<e>.getType().isRelation()"; //&& ((ISet)<e>).asRelation().arity() == <size(ts)>";
-str atype2istype(str e, alrel(AType ts))         = "<e>.getType().isListRelation()"; // && ((IList)<e>).asRelation().arity() == <size(ts)>";
+str atype2istype(str e, arel(AType ts))          = "<e>.getType().isRelation() && (((ISet)<e>).isEmpty() || ((ISet)<e>).asRelation().arity() == <size(ts)>)";
+str atype2istype(str e, alrel(AType ts))         = "<e>.getType().isListRelation() && (((IList)<e>).isEmpty() || ((IList)<e>).asRelation().arity() == <size(ts)>)";
 str atype2istype(str e, atuple(AType ts))        = "<e>.getType().isTuple() && ((ITuple)<e>).arity() == <size(ts)>";
 str atype2istype(str e, amap(AType d, AType r))  = "<e>.getType().isMap()";
 
@@ -495,7 +498,7 @@ str escapeForJ(str s){
         case "\\": if(i+1 < n){ 
                         c1 = s[i+1];
                         i += 1;
-                        if(c1 in {"b", "t","n","r","\'", "\"", "\\"}){
+                        if(c1 in {"b","f","t","n","r","\'", "\"", "\\"}){
                             res += "<c><c1>";
                         } else {
                             res += c1;
@@ -627,32 +630,64 @@ str value2outertype(acons(AType adt,
 str value2outertype(areified(AType atype)) = "IConstructor";
 default str value2outertype(AType t) = "IValue";
 
-/*****************************************************************************/
-/*  Convert an AType to Java code that creates that type via the type store  */
-/*****************************************************************************/
-str atype2typestore(aint()) = "$TF.integerType()";
-str atype2typestore(abool()) = "$TF.boolType()";
-str atype2typestore(areal()) = "$TF.realType()";
-str atype2typestore(arat()) = "$TF.rationalType()";
-str atype2typestore(astr()) = "$TF.stringType()";
-str atype2typestore(anum()) = "$TF.numberType()";
-str atype2typestore(anode(list[AType fieldType] fields)) = "$TF.nodeType()";
-str atype2typestore(avoid()) = "$TF.voidType()";
-str atype2typestore(avalue()) = "$TF.valueType()";
-str atype2typestore(aloc()) = "$TF.sourceLocationType()";
-str atype2typestore(adatetime()) = "$TF.dateTimeType()";
-str atype2typestore(alist(AType t)) = "$TF.listType(<atype2typestore(t)>)";
-str atype2typestore(aset(AType t)) = "$TF.setType(<atype2typestore(t)>)";
-str atype2typestore(atuple(AType ts)) = "$TF.tupleType(<atype2typestore(ts)>)";
-str atype2typestore(amap(AType d, AType r)) = "$TF.mapType(<atype2typestore(d)>,<atype2typestore(r)>)";
-str atype2typestore(arel(AType t)) = "$TF.setType($TF.tupleType(<atype2typestore(t)>))";
-str atype2typestore(alrel(AType t)) = "$TF.listType($TF.tupleType(<atype2typestore(t)>))";
-str atype2typestore(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = getADTName(adtName);
-str atype2typestore(acons(AType adt,
+/*******************************************************************************/
+/*  Convert an AType to an equivalent type ("VType") in the Vallang type store */
+/*******************************************************************************/
+str atype2vtype(aint()) = "$TF.integerType()";
+str atype2vtype(abool()) = "$TF.boolType()";
+str atype2vtype(areal()) = "$TF.realType()";
+str atype2vtype(arat()) = "$TF.rationalType()";
+str atype2vtype(astr()) = "$TF.stringType()";
+str atype2vtype(anum()) = "$TF.numberType()";
+str atype2vtype(anode(list[AType fieldType] fields)) = "$TF.nodeType()";
+str atype2vtype(avoid()) = "$TF.voidType()";
+str atype2vtype(avalue()) = "$TF.valueType()";
+str atype2vtype(aloc()) = "$TF.sourceLocationType()";
+str atype2vtype(adatetime()) = "$TF.dateTimeType()";
+str atype2vtype(alist(AType t)) = "$TF.listType(<atype2vtype(t)>)";
+str atype2vtype(aset(AType t)) = "$TF.setType(<atype2vtype(t)>)";
+str atype2vtype(atuple(AType ts)) = "$TF.tupleType(<atype2vtype(ts)>)";
+str atype2vtype(amap(AType d, AType r)) = "$TF.mapType(<atype2vtype(d)>,<atype2vtype(r)>)";
+str atype2vtype(arel(AType t)) = "$TF.setType($TF.tupleType(<atype2vtype(t)>))";
+str atype2vtype(alrel(AType t)) = "$TF.listType($TF.tupleType(<atype2vtype(t)>))";
+str atype2vtype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = getADTName(adtName);
+str atype2vtype(acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
                  = "IConstructor";
+str atype2vtype(aparameter(str pname, AType bound)) = atype2vtype(bound);
+str atype2vtype(atypeList(list[AType] atypes)) = intercalate(", ", [atype2vtype(t) | t <- atypes]);
+str atype2vtype(areified(AType atype)) = "AType";
+default str atype2vtype(AType t) = "$TF.valueType()";
 
-str atype2typestore(atypeList(list[AType] atypes)) = intercalate(", ", [atype2typestore(t) | t <- atypes]);
-str atype2typestore(areified(AType atype)) = "AType";
-default str atype2typestore(AType t) = "$TF.valueType()";
+///******************************************************************************/
+///*  Convert an AType to Java code that creates that type via the ATypeFactory */
+///*****************************************************************************/
+//
+//// TODO complete all cases
+//str atype2vtype(a: aint()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: abool()) = "AType_abool<a.label? "_lab" : "">";
+//str atype2vtype(a: areal()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: arat()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: astr()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: anum()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: anode(list[AType fieldType] fields)) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: avoid()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: avalue()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: aloc()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: adatetime()) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(a: alist(AType t)) = "AType_aint<a.label? "_lab" : "">";
+//str atype2vtype(aset(AType t)) = a.label? ? "aset_lab(<atype2vtype(t)>, <a.label>)" : "alist(<atype2vtype(t)>)";
+//str atype2vtype(atuple(AType ts)) = "$TF.tupleType(<atype2vtype(ts)>)";
+//str atype2vtype(amap(AType d, AType r)) = "$TF.mapType(<atype2vtype(d)>,<atype2vtype(r)>)";
+//str atype2vtype(arel(AType t)) = "$TF.setType($TF.tupleType(<atype2vtype(t)>))";
+//str atype2vtype(alrel(AType t)) = "$TF.listType($TF.tupleType(<atype2vtype(t)>))";
+//str atype2vtype(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = "getADTName(adtName);
+//str atype2vtype(acons(AType adt,
+//                list[AType fieldType] fields,
+//                lrel[AType fieldType, Expression defaultExp] kwFields))
+//                 = "IConstructor";
+//
+//str atype2vtype(atypeList(list[AType] atypes)) = intercalate(", ", [atype2vtype(t) | t <- atypes]);
+//str atype2vtype(areified(AType atype)) = "AType";
+//default str atype2vtype(AType t) = "$TF.valueType()";

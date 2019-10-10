@@ -1,73 +1,121 @@
 module lang::rascalcore::compile::Examples::Tst2
-   
- 
-//list[int] g() = [1,2,f()];
 
-void f() { }
-                                 
-value main(){      
-    any(f());   
-    return true;
-}
- 
-//value main() { return {f()}; }
-//data F = f() | g();
-//        
-//int func(f()) = 1;
-//int func(g()) = 2;
+test bool tst() = true;   
+bool tst() = true;   
 //
-//int apply(int (F) theFun, F theArg) = theFun(theArg);
 //
-//int main() = apply(func, f());
- 
-
-//data B  = b(int n);
+//data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
 //
-//int f(int n) = n;
+//B and(B b1, and(B b2, B b3)) = and(and(b1,b2),b3);
 //
-//B g(int a, B(int) fun) = fun(a); 
-//     
-//value main() = g(3, b);
-          
-//value main() = build(and, t(), f());
-       
-//value main () = and(t(), f());
-
-//value hello() {
-//  return build(and, t(), f());
-//}
+////value callDelAnnotations() = delAnnotations("f"(1,2,3));
+////
+////test bool testCallWithTypeParameterBound() = callDelAnnotations() == "f"(1,2,3);
 //
-//data F = f() | g();
-//
-//int func(f()) = 1;
-//int func(g()) = 2;
-//
-//int apply(int (F) theFun, F theArg) = theFun(theArg);
-//
-//int main() = apply(func, f());
-  
-//test bool tstLast(list[&T] L) = (isEmpty(L) || eq(last(L),elementAt(L,-1)));
-
-//test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,b> <- L], [b | <a,b> <- L]>;
-
-//import util::Math;
-//value main() =  toReal(3) == 3.;
-
- 
-//value main() { lrel[int,int] L = []; return unzip(L);}
-// 
-//import List; 
-//import Type;
+//test bool normalizedCall(B b1, B b2, B b3) = and(b1, and(b2, b3)) == and(and(b1, b2),b3);
 //   
-// test bool dtstIntersection(list[int] lst) {
-//             
-//    if([*int l1,*int l2] := lst) {
-//        lhs1 = l1 & l2;
-//     }
+//value main() = normalizedCall(t(), f(), and(t(), t()));
+
+  
+      
+//value main(){
+//  ten = 10;
+//  b = [*int x] := [1] ==> ([*int p] := [4] && int r := 4);
+//  return b;
+//}
+   
+
+//import Type;
+//
+//test bool nonComparabilityImpliesNonEq(value x, value y) = !comparable(typeOf(x),typeOf(y)) ==> !eq(x,y);
+//
+//value main() = typeOf("abc");
+                                     
+//value main() = 
+//    {<x, y> | [*x,*y] := [1] };  
+            
+//value main() {
+//    z = [];
+//    while( ([*x,*y] := [1]))  {
+//        z += <x,y>;
+//        fail;
+//    }
+////    return z;
+//}            
+ 
+ 
+            
+//import List;
+//            
+//import ListRelation; 
+//  test bool subscription1(lrel[&A, &B, &C] X) =
+//  isEmpty(X) ||
+//  all(&A a <- domain(X), any(<&B b, &C c> <- X[{a}], <a, b, c> in X)) &&
+//  all(<&A a, &B b, &C c> <- X, <b, c> in X[{a}]);
+             
+                  
+//void f(int n) { }
+// 
+//void f()  {}
+//
+//value main(){
+//    f(10);
+//    f();
 //    return true;
 //}
+    
+//import Exception;
+                      
+//@javaClass{org.rascalmpl.library.Prelude}
+//@reflect{For getting IO streams}
+//public java void println(value arg);
+//
+//@javaClass{org.rascalmpl.library.Prelude}
+//@reflect{For getting IO streams}
+//public java void println();
+//
+//public &T printlnExp(&T v) {
+//    //println("<v>");
+//    return v;
+//}
+// 
+//public &T printlnExp(str msg, &T v) {
+//    //println("<msg><v>");
+//    return v;
+//}
+ 
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java void appendToFile(loc file, value V...)
+//throws PathNotFound, IO;
+//
+//public void touch(loc file)
+//throws PathNotFound, IO{
+//  appendToFile(file);
+//}
 
+ // ----            
+//                                            
+//int f() = 3;
+//void f() { }
+    
 
- //test bool tstIntercalate(str sep, list[value] L) = 
- //      "abc" == (isEmpty(L) ? ""
- //                           : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
+//int container1(){
+//    int f() = 3;
+//      
+//    return f();
+//}       
+//  
+//void container2(){
+//    void f() {}
+//    
+//    f();
+//}      
+    
+//import List;
+//import util::Math;
+//import Boolean;
+// 
+//test bool tstIntercalate(str sep, list[value] L) { 
+//      return sep == (isEmpty(L) ? "" : "<sep>");
+//   //   return true;
+//  }                                   

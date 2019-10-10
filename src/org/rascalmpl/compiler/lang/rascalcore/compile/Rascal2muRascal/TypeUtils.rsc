@@ -91,12 +91,17 @@ bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 
 set[UID] constructors = {};                         // Declared constructors
 map[AType, set[AType]] adt_constructors = ();       // Map from ADT to its constructors
+rel[str consName, AType adt, AType argType] adt_uses_type = {} ;  // Constructor of ADT has argument of given type
+rel[AType, AType] reachableTypes = {};               // Transitive closure of type usage
 
-bool isConstructor(UID uid) = uid in constructors;
+//bool isConstructor(UID uid) = uid in constructors;
 
 set[AType] getConstructors()
     = { getDefType(uid) | uid <- constructors};
 
+//set[AType] getConstructors()
+//    = { *adt_constructors[adt] | adt <- adt_constructors };
+ 
 private map[str,int] module_var_init_locals = ();	// number of local variables in module variable initializations
 
 int getModuleVarInitLocals(str mname) {
@@ -165,6 +170,8 @@ public void resetScopeExtraction() {
     functions = {};
     constructors = {};
     adt_constructors = ();
+    adt_uses_type = {};
+    reachableTypes = {};
 }
 
 bool isDefinition(UID d){
@@ -265,12 +272,15 @@ void extractScopes(TModel tm){
                 functions += def.defined;
                 if(def.defInfo has modifiers && "default" in def.defInfo.modifiers) defaultFunctions += def.defined;
             }  
-            case constructorId(): {
+            case constructorId(): {;
                  constructors += def.defined;
                  consType = getDefType(def.defined);
+                 consName = consType.label;
                  adtType = consType.adt;
+                 adt_uses_type += { <consName, adtType, unsetRec(fieldType)> | /AType fieldType := consType.fields }
+                                  + { <consName, adtType, unsetRec(kwFieldType)> | /AType kwFieldType := consType.kwFields };
                  if(adt_constructors[adtType]?){
-                    adt_constructors[adtType] += consType;
+                    adt_constructors[adtType] = adt_constructors[adtType] + consType;
                  } else {
                     adt_constructors[adtType] = {consType};
                  }
@@ -291,6 +301,10 @@ void extractScopes(TModel tm){
                 vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
        }
     }
+    
+    println("adt_uses_type: <adt_uses_type>");
+    reachableTypes = (adt_uses_type<1,2>)+;
+    println("reachableTypes: <reachableTypes>");
     
     //println("vars_per_scope"); iprintln(vars_per_scope);
     
@@ -370,6 +384,7 @@ void extractScopes(TModel tm){
    for(fname <- domain(funNameAndDef)){
         defs = funNameAndDef[fname];
         types = {};
+        //defs = { def | def <- defs, def.scope in module_scopes };
         for(def <- defs){
             tp = unsetRec(getDefType(def.defined));
             types += tp;
@@ -508,26 +523,26 @@ AType getFunctionType(loc l) {
    }
 }
 
-list[MuExp] getNestedParameters(loc l){
-    fundef = definitions[l];
-    //println("getNestedParameterNames: <l>");
-    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
-    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
-   iprintln(positionals);
-    return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
-    //return [ vdef.id | vdef <- positionals ];
-    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
-}
-
-list[MuExp] getNestedParameters(Define fundef){
-    //println("getNestedParameterNames: <l>");
-    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
-    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
-   iprintln(positionals);
-    return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
-    //return [ vdef.id | vdef <- positionals ];
-    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
-}
+//list[MuExp] getNestedParameters(loc l){
+//    fundef = definitions[l];
+//    //println("getNestedParameterNames: <l>");
+//    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
+//    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
+//   iprintln(positionals);
+//    return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
+//    //return [ vdef.id | vdef <- positionals ];
+//    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
+//}
+//
+//list[MuExp] getNestedParameters(Define fundef){
+//    //println("getNestedParameterNames: <l>");
+//    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
+//    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
+//   iprintln(positionals);
+//    return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
+//    //return [ vdef.id | vdef <- positionals ];
+//    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
+//}
 
 //list[str] getNestedParameterNames(loc l){
 //    fundef = definitions[l];
@@ -547,6 +562,25 @@ AType getClosureType(UID uid) {
    }
 }
 
+//tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType){
+//    adtType = unsetRec(adtType);
+//    fieldType = unsetRec(fieldType);
+//    if(adt_constructors[adtType]?){
+//        for(AType consType <- adt_constructors[adtType]){
+//            if(fieldType in consType.fields){
+//                return <consType,false>;
+//            } else {
+//                for(<AType kwType, Expression defaultExp> <- consType.kwFields){
+//                    if(kwType == fieldType){
+//                        return <consType, true>;
+//                    }
+//                 }
+//            }
+//        }
+//    }
+//    throw "getConstructor, no constructor found for <adtType>, <fieldType>";
+//}
+
 tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType){
     adtType = unsetRec(adtType);
     for(uid <- constructors){
@@ -557,7 +591,7 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
                 return <consType,false>;
             } else {
                 for(<AType kwType, Expression defaultExp> <- consType.kwFields){
-                    if(kwType == fieldType){
+                    if(unsetRec(kwType) == fieldType){
                         return <consType, true>;
                     }
                  }
@@ -574,10 +608,10 @@ KeywordParamMap getKeywords(Parameters parameters){
     return ("<kwf.name>" : kwtp | kwf <- kwfs.keywordFormalList, kwtp := getType(kwf));
 }
 
-map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
-    tp = getType(location);
-    return constructorConstantDefaultExpressions[tp] ? ();
-}
+//map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
+//    tp = getType(location);
+//    return constructorConstantDefaultExpressions[tp] ? ();
+//}
 
 tuple[str fuid, int pos] getVariableScope(str name, loc l) {
 iprintln(definitions);
@@ -610,10 +644,10 @@ int getPositionInScope(str name, loc l){
     return position_in_container[uid] ? 0;
 }
 
-bool hasPositionInScope(str name, loc l){
-    uid = l in definitions ? l : getFirstFrom(useDef[l]); 
-    return position_in_container[uid]?;
-}
+//bool hasPositionInScope(str name, loc l){
+//    uid = l in definitions ? l : getFirstFrom(useDef[l]); 
+//    return position_in_container[uid]?;
+//}
 
 // Create unique symbolic names for functions, constructors and productions
 
@@ -627,11 +661,11 @@ str getFUID(str modName, str fname, AType tp, int case_num) =
 	"<modName>/<fname>(<for(p<-tp.formals?[]){><p>;<}>)#<case_num>";
 
 
-str getMakerForConstructor(UID uid) {
-    consType = getType(uid);
-    return "$make_<consType.adt.adtName>_<consType.label>";
-    //convert2fuid(uid) + "_companion";
-}
+//str getMakerForConstructor(UID uid) {
+//    consType = getType(uid);
+//    return "$make_<consType.adt.adtName>_<consType.label>";
+//    //convert2fuid(uid) + "_companion";
+//}
 
 str getGetterForKwpField(UID uid, str fieldName){
     consType = getType(uid);
@@ -662,9 +696,17 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) 
 // Collect all types that are reachable from a given type
 
 map[AType,set[AType]] collectNeededDefs(AType t){
-   map[AType, set[AType]] definitions = (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])} | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t);
+   map[AType, set[AType]] definitions = 
+        (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])} 
+        | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t
+        );
+   
    solve(definitions){
-    definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions, adt1 := unsetRec(adt), !definitions[adt1]?);
+    definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 
+                                | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions, 
+                                  adt1 := unsetRec(adt), 
+                                  !definitions[adt1]?
+                                );
    }
    return definitions;
 }
@@ -697,22 +739,22 @@ bool occursBefore(loc before, loc after){
     return before.path == after.path && before.offset + before.length < after.offset;
 }
 
-bool funFirst(UID n, UID m) {
+private bool funFirst(UID n, UID m) {
     if(n == m) return false;
     if(n.path != m.path) return n.path < m.path;
     if(containedIn(n, m)) return true;
     return occursBefore(n, m);
 }
 
-list[loc] sortFunctions(list[UID] items){
+private list[loc] sortFunctions(list[UID] items){
   res = sort(items, funFirst);
   //println("sortOverloadedFunctions: <items> =\> <res>");
   return res;
 }
 
-public UID declaredScope(UID uid) {
-    return declaredIn[uid];
-}
+//public UID declaredScope(UID uid) {
+//    return declaredIn[uid];
+//}
 
 // Generate a MuExp to access a variable
 
@@ -810,6 +852,76 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
     throw "mkAssign fails for <name>, <l>, <exp>";
 }
 
+// Reachability
+
+public map[AType,AProduction] getReifiedDefinitions() {
+    return (); // TODO
+  //    // Collect all symbols
+  //    set[AType] symbols = types + domain(constructors) + carrier(productions) + domain(grammar);
+  //    
+  //    map[AType,Production] definitions  = (() | collectDefs(symbol, it) | AType symbol <- symbols);
+    //
+    //return definitions;
+}
+
+
+public tuple[set[AType], set[AProduction]] getReachableTypes(AType subjectType, set[str] consNames, set[AType] patternTypes, bool concreteMatch){
+    //println("getReachableTypes: <subjectType>, <consNames>, <patternTypes>, <concreteMatch>");
+    
+    consNames = {unescape(name) | name <- consNames};
+    if(concreteMatch){
+        return getReachableConcreteTypes(subjectType, consNames, patternTypes);
+    } else {
+        return getReachableAbstractTypes(subjectType, consNames, patternTypes);
+    }
+}
+private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
+    desiredPatternTypes = { unset(s, "label") | /AType s := patternTypes};
+    desiredSubjectTypes = { unset(s, "label") | /AType s := subjectType};
+    desiredTypes = desiredSubjectTypes + desiredPatternTypes;
+    
+    if(any(t <- desiredTypes, isNonTerminalType(t) || /*isLexicalType(t) ||*/ asubtype(t, aadt("Tree",[], dataSyntax())))){
+      // We just give up when abstract and concrete symbols occur together
+      //println("descend_into (abstract) [1]: {value()}");
+       return <{avalue()}, {}>;
+    }
+    
+    prunedReachableTypes = reachableTypes ;
+    if(\value() notin desiredSubjectTypes){
+        // if specific subject types are given, the reachability relation can be further pruned
+        prunedReachableTypes = carrierR(reachableTypes,reachableTypes[desiredSubjectTypes]);
+        //println("removed from reachableTypes:[<size(reachableTypes - prunedReachableTypes)>]"); //for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
+    }
+    
+    //println("prunedReachableTypes: [<size(prunedReachableTypes)>]"); //for(x <- prunedReachableTypes){println("\t<x>");}
+    descend_into = desiredTypes;
+    
+    for(<AType from, AType to> <- prunedReachableTypes){
+        if(to in desiredTypes){     // TODO || here was the cause 
+            descend_into += {from, to};
+        } else if(any(AType t <- desiredTypes, subtype(t, to))){
+            descend_into += {from, to};
+        } else if(c:acons(AType \adtsym, list[AType] parameters, SyntaxRole sr) := from  && // TODO: check
+                            (\adtsym in patternTypes || name in consNames)){
+                  descend_into += {from, to};   
+        } else if(c:acons(AType \adtsym, str name, list[AType] parameters, SyntaxRole sr) := to  && 
+                            (\adtsym in patternTypes || name in consNames)){
+                  descend_into += {from, to};        
+        }
+        ;
+    }
+    if(\value() in descend_into){
+        println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
+      descend_into = {avalue()};
+    }
+    tuples = { atuple(atypeList(symbols)) | sym <- descend_into, arel(symbols) := sym || alrel(symbols) := sym };
+    descend_into += tuples;
+    descend_into = {sym | sym <- descend_into, label(_,_) !:= sym };
+    //println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
+    
+    return <descend_into, {}>;
+}
+
 // TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
 
 @doc{Determine the size of a concrete list}
@@ -830,10 +942,3 @@ default int size(Tree t) {
 }
 
 private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
-
-
-AType getElementType(alist(AType et)) = et;
-AType getElementType(aset(AType et)) = et;
-AType getElementType(amap(AType kt, AType vt)) = kt;
-AType getElementType(abag(AType et)) = et;
-AType getElementType(AType t) = avalue();
