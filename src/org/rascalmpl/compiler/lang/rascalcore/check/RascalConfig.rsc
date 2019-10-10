@@ -9,6 +9,8 @@ extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::NameUtils;
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::compile::muRascal::AST;
+
 extend lang::rascalcore::check::ComputeType;
 
 extend lang::rascalcore::grammar::ParserGenerator;
@@ -247,7 +249,7 @@ bool isOverloadedFunction(loc fun, map[loc,Define] definitions, map[loc, AType] 
     return false;
 }
 
-bool rascalReportUnused(loc def, TModel tm /*map[loc,Define] definitions, map[loc,loc] scopes, TypePalConfig config*/){
+bool rascalReportUnused(loc def, TModel tm){
 
     config = tm.config;
     if(!config.warnUnused) return false;
@@ -271,7 +273,7 @@ bool rascalReportUnused(loc def, TModel tm /*map[loc,Define] definitions, map[lo
         switch(define.idRole){
             case moduleId():            return false;
             case dataId():              return false;
-            case functionId():          { if(startsWith(define.id, "$CLOSURE")) return false;
+            case functionId():          { if(isClosureName(define.id)) return false;
                                           if(define.defInfo.vis == privateVis()) return true;
                                           container = definitions[findContainer(def, definitions, scopes)];
                                           return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
@@ -312,7 +314,32 @@ TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
     return m;
 }
 
+void checkOverloadedFunctions(map[str,Tree] namedTrees, Solver s){
+    definitions = s.getAllDefinitions();
+    facts = s.getFacts();
+    moduleScopes = { t@\loc | t <- range(namedTrees) };
+    
+    funDefs = {<define.id, define> | define <- definitions, define.idRole == functionId() };
+    funIds = domain(funDefs);
+    for(id <- funIds){
+        defs = funDefs[id];
+        if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1 != d2,  t1 := facts[d1.defined], t2 := facts[d2.defined],
+                                (d1.scope in moduleScopes && d2.scope in moduleScopes && size(t1.formals) == size(t2.formals) && t1.ret == avoid() && t2.ret != avoid())
+                                //|| (d1.scope notin moduleScopes && d2.scope notin moduleScopes)
+                                )){
+            msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d.defined].ret == avoid() ? "non-`void`" : "`void`"> result type", d.defined) | d <- defs ];
+            s.addMessages(msgs);
+        }
+        if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1 != d2,  t1 := facts[d1.defined], t2 := facts[d2.defined], d1.scope == d2.scope, (t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest))){
+            msgs = [ error("Test name `<id>` should not be overloaded", d.defined) | d <- defs ];
+            s.addMessages(msgs);
+        }        
+    }
+}
+
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
+    checkOverloadedFunctions(namedTrees, s);
+    
     if(!s.reportedErrors()){
         for(mname <- namedTrees){
             pt = namedTrees[mname];
