@@ -41,205 +41,202 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import io.usethesource.vallang.ISourceLocation;
 
 public class RascalJUnitTestRunner extends Runner {
-	private static Evaluator evaluator;
-	private static GlobalEnvironment heap;
-	private static ModuleEnvironment root;
-	private static PrintWriter stderr;
-	private static PrintWriter stdout;
-	private Description desc;
-	
-	private final String prefix;
-	private final String scheme;
+    private static Evaluator evaluator;
+    private static GlobalEnvironment heap;
+    private static ModuleEnvironment root;
+    private static PrintWriter stderr;
+    private static PrintWriter stdout;
+    private Description desc;
 
-	static {
-		heap = new GlobalEnvironment();
-		root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-		
-		stderr = new PrintWriter(System.err);
-		stdout = new PrintWriter(System.out);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
-		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		evaluator.getConfiguration().setErrors(true);
-	}  
-	
-	public RascalJUnitTestRunner(Class<?> clazz) {
-        this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value(), 
-             clazz.isAnnotationPresent(RascalJUnitTestScheme.class) ? clazz.getAnnotation(RascalJUnitTestScheme.class).value() : "std");
+    private final String prefix;
+    private final String className;
 
-        if (clazz.isAnnotationPresent(RascalJUnitTestScheme.class)) {
-            evaluator.addRascalSearchPath(URIUtil.rootLocation(scheme));
+    static {
+        heap = new GlobalEnvironment();
+        root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
+
+        stderr = new PrintWriter(System.err);
+        stdout = new PrintWriter(System.out);
+        evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+        evaluator.getConfiguration().setErrors(true);
+    }  
+
+    public RascalJUnitTestRunner(Class<?> clazz) {
+        this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value(), clazz);
+
+        try {
+            Object instance = clazz.newInstance();
+
+            if (instance instanceof IRascalJUnitTestSetup) {
+                ((IRascalJUnitTestSetup) instance).setup(evaluator);
+            }
+            else {
+                // this assume the Rascal source files have been copied to the same test target folder
+                // as the classfile of the given `clazz` has been copied to:
+                ISourceLocation uri = URIUtil.correctLocation("resource", clazz.getCanonicalName(), "");
+                evaluator.addRascalSearchPath(uri);
+            }
+        } 
+        catch (InstantiationException | IllegalAccessException  e) {
+            throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
+        } 
+    }
+
+    public RascalJUnitTestRunner(String prefix, Class<?> clazz) {
+        // remove all the escapes (for example in 'lang::rascal::\syntax')
+        this.prefix = prefix;
+        this.className = clazz.getCanonicalName();
+    }
+
+    public static String computeTestName(String name, ISourceLocation loc) {
+        return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
+    }
+
+    public static List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
+        List<String> result = new ArrayList<>();
+        Queue<ISourceLocation> todo = new LinkedList<>();
+        todo.add(root);
+        while (!todo.isEmpty()) {
+            ISourceLocation currentDir = todo.poll();
+            String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
+            for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
+                if (ent.getPath().endsWith(".rsc")) {
+                    if (prefix.isEmpty()) {
+                        result.add(URIUtil.getLocationName(ent).replace(".rsc", ""));
+                    }
+                    else {
+                        result.add(prefix + "::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
+                    }
+                }
+                else {
+                    if (URIResolverRegistry.getInstance().isDirectory(ent)) {
+                        todo.add(ent);
+                    }
+                }
+            }
         }
+        return result;
 
-		try {
-		    Object instance = clazz.newInstance();
+    }
+    @Override
+    public Description getDescription() {		
+        Description desc = Description.createSuiteDescription(prefix);
+        this.desc = desc;
 
-          if (instance instanceof IRascalJUnitTestSetup) {
-            ((IRascalJUnitTestSetup) instance).setup(evaluator);
-          }
-          else {
-            evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
-          }
-		} catch (InstantiationException e) {
-          throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
-        } catch (IllegalAccessException e) {
-          throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
-        }
-	}
-	
-	public RascalJUnitTestRunner(String prefix, String scheme) {
-	  // remove all the escapes (for example in 'lang::rascal::\syntax')
-		this.prefix = prefix;
-		this.scheme = scheme;
-	}
-	
-	public static String computeTestName(String name, ISourceLocation loc) {
-		return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
-	}
-	
-	public static List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
-		List<String> result = new ArrayList<>();
-		Queue<ISourceLocation> todo = new LinkedList<>();
-		todo.add(root);
-		while (!todo.isEmpty()) {
-			ISourceLocation currentDir = todo.poll();
-			String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
-			for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
-				if (ent.getPath().endsWith(".rsc")) {
-					if (prefix.isEmpty()) {
-						result.add(URIUtil.getLocationName(ent).replace(".rsc", ""));
-					}
-					else {
-						result.add(prefix + "::" + URIUtil.getLocationName(ent).replace(".rsc", ""));
-					}
-				}
-				else {
-					if (URIResolverRegistry.getInstance().isDirectory(ent)) {
-						todo.add(ent);
-					}
-				}
-			}
-		}
-		return result;
-		
-	}
-	@Override
-	public Description getDescription() {		
-		Description desc = Description.createSuiteDescription(prefix);
-		this.desc = desc;
-		
-		try {
-			List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation(scheme, "", "/" + prefix.replaceAll("::", "/")));
-			Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
-			
-			for (String module : modules) {
-				String name = prefix + "::" + module;
-				
-				try {
-					evaluator.doImport(new NullRascalMonitor(), name);
-				}
-				catch (Throwable e) {
-				    System.err.println(e);
-				    Description modDesc = Description.createSuiteDescription(name);
-				    desc.addChild(modDesc);
-				    
-				    Description testDesc = Description.createTestDescription(getClass(), name + "compilation failed", new CompilationFailed() {
+        try {
+            List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation("resource", className, "/" + prefix.replaceAll("::", "/")));
+            Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
+
+            for (String module : modules) {
+                String name = prefix + "::" + module;
+
+                try {
+                    evaluator.doImport(new NullRascalMonitor(), name);
+                }
+                catch (Throwable e) {
+                    System.err.println(e);
+                    Description modDesc = Description.createSuiteDescription(name);
+                    desc.addChild(modDesc);
+
+                    Description testDesc = Description.createTestDescription(getClass(), name + "compilation failed", new CompilationFailed() {
                         @Override
                         public Class<? extends Annotation> annotationType() {
                             return getClass();
                         }
                     });
-				    
-				    modDesc.addChild(testDesc);
-				    continue;
-				}
-				
-				
-				Description modDesc = Description.createSuiteDescription(name);
-				desc.addChild(modDesc);
-				
-				// the order of the tests aren't decided by this list so no need to randomly order them.
-				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
-				}
-			}
-			
-			return desc;
-		} catch (IOException e) {
-			throw new RuntimeException("could not create test suite", e);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("could not create test suite", e);
-		} 
-	}
 
-	@Override
-	public void run(final RunNotifier notifier) {
-		if (desc == null) {
-			desc = getDescription();
-		}
-		notifier.fireTestRunStarted(desc);
+                    modDesc.addChild(testDesc);
+                    continue;
+                }
 
-		for (Description mod : desc.getChildren()) {
-		    if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+
+                Description modDesc = Description.createSuiteDescription(name);
+                desc.addChild(modDesc);
+
+                // the order of the tests aren't decided by this list so no need to randomly order them.
+                for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
+                    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+                }
+            }
+
+            return desc;
+        } catch (IOException e) {
+            throw new RuntimeException("could not create test suite", e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("could not create test suite", e);
+        } 
+    }
+
+    @Override
+    public void run(final RunNotifier notifier) {
+        if (desc == null) {
+            desc = getDescription();
+        }
+        notifier.fireTestRunStarted(desc);
+
+        for (Description mod : desc.getChildren()) {
+            if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
                 notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had importing errors")));
                 continue;
             }
-		    
-			Listener listener = new Listener(notifier, mod);
+
+            Listener listener = new Listener(notifier, mod);
             TestEvaluator runner = new TestEvaluator(evaluator, listener);
             runner.test(mod.getDisplayName());
-		}
-		
-		notifier.fireTestRunFinished(new Result());
-	}
+        }
 
-	private final class Listener implements ITestResultListener {
-		private final RunNotifier notifier;
-		private final Description module;
-	
-		private Listener(RunNotifier notifier, Description module) {
-			this.notifier = notifier;
-			this.module = module;
-		}
-	
-		private Description getDescription(String name, ISourceLocation loc) {
-			String testName = computeTestName(name, loc);
-			
-			for (Description child : module.getChildren()) {
-				if (child.getMethodName().equals(testName)) {
-					return child;
-				}
-			}
-			
-			throw new IllegalArgumentException(name + " test was never registered");
-		}
+        notifier.fireTestRunFinished(new Result());
+    }
 
-		
-		@Override
-		public void start(String context, int count) {
-			notifier.fireTestRunStarted(module);
-		}
-	
-		@Override
-		public void ignored(String test, ISourceLocation loc) {
-		    notifier.fireTestIgnored(getDescription(test, loc));
-		}
-		
-		@Override
-		public void report(boolean successful, String test, ISourceLocation loc,	String message, Throwable t) {
-			Description desc = getDescription(test, loc);
-			notifier.fireTestStarted(desc);
-			
-			if (!successful) {
-				notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message != null ? message : "no message")));
-			}
-			else {
-				notifier.fireTestFinished(desc);
-			}
-		}
-	
-		@Override
-		public void done() {
-			notifier.fireTestRunFinished(new Result());
-		}
-	}
+    private final class Listener implements ITestResultListener {
+        private final RunNotifier notifier;
+        private final Description module;
+
+        private Listener(RunNotifier notifier, Description module) {
+            this.notifier = notifier;
+            this.module = module;
+        }
+
+        private Description getDescription(String name, ISourceLocation loc) {
+            String testName = computeTestName(name, loc);
+
+            for (Description child : module.getChildren()) {
+                if (child.getMethodName().equals(testName)) {
+                    return child;
+                }
+            }
+
+            throw new IllegalArgumentException(name + " test was never registered");
+        }
+
+
+        @Override
+        public void start(String context, int count) {
+            notifier.fireTestRunStarted(module);
+        }
+
+        @Override
+        public void ignored(String test, ISourceLocation loc) {
+            notifier.fireTestIgnored(getDescription(test, loc));
+        }
+
+        @Override
+        public void report(boolean successful, String test, ISourceLocation loc,	String message, Throwable t) {
+            Description desc = getDescription(test, loc);
+            notifier.fireTestStarted(desc);
+
+            if (!successful) {
+                notifier.fireTestFailure(new Failure(desc, t != null ? t : new Exception(message != null ? message : "no message")));
+            }
+            else {
+                notifier.fireTestFinished(desc);
+            }
+        }
+
+        @Override
+        public void done() {
+            notifier.fireTestRunFinished(new Result());
+        }
+    }
 }
