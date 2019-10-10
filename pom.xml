@@ -90,6 +90,9 @@
 			<testResource>
 				<directory>test/org/rascalmpl/test/data/</directory>
 			</testResource>
+			<testResource>
+                <directory>src/org/rascalmpl/library/</directory>
+            </testResource>
 		</testResources>
 
 		<plugins>
