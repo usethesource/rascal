@@ -46,7 +46,14 @@ public class ResourceURIResolver implements ISourceLocationInput {
     }
     
     public boolean exists(ISourceLocation uri) {
-        return getClass(uri).getResource(getPath(uri)) != null;
+        Class<?> clz = getClass(uri);
+        if (clz != null) {
+            return clz.getResource(getPath(uri)) != null;
+        }
+        else {
+            return false;
+        }
+            
     }
 
     private Class<?> getClass(ISourceLocation uri) {
@@ -65,7 +72,11 @@ public class ResourceURIResolver implements ISourceLocationInput {
     }
 
     public InputStream getInputStream(ISourceLocation uri) throws IOException {
-        InputStream resourceAsStream = getClass(uri).getResourceAsStream(getPath(uri));
+        Class<?> clz = getClass(uri);
+        if (clz == null) {
+            throw new FileNotFoundException("class not found: " + uri.getAuthority());
+        }
+        InputStream resourceAsStream = clz.getResourceAsStream(getPath(uri));
         if (resourceAsStream != null) {
             return resourceAsStream;
         }
