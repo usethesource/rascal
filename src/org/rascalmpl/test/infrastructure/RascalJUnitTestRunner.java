@@ -68,19 +68,12 @@ public class RascalJUnitTestRunner extends Runner {
     public RascalJUnitTestRunner(Class<?> clazz) {
         this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
         this.projectRoot = inferProjectRoot(clazz);
+        
+        System.err.println("Rascal JUnit Project root: " + projectRoot);
 
         try {
             if (projectRoot != null) {
-                URIResolverRegistry reg = URIResolverRegistry.getInstance();
-                String projectName = URIUtil.getLocationName(reg.logicalToPhysical(projectRoot));
-                reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-                List<String> sourceRoots = new RascalManifest().getSourceRoots(projectRoot);
-                
-                ISourceLocation root = URIUtil.correctLocation("project", projectName, "");
-                for (String src : sourceRoots) {
-                    ISourceLocation path = URIUtil.getChildLocation(root, src);
-                    evaluator.addRascalSearchPath(path);
-                }
+                configureProjectEvaluator(evaluator, projectRoot);
             }
             else {
                 throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
@@ -91,7 +84,20 @@ public class RascalJUnitTestRunner extends Runner {
         } 
     }
 
-    private static ISourceLocation inferProjectRoot(Class<?> clazz) {
+    public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) throws IOException {
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        String projectName = URIUtil.getLocationName(reg.logicalToPhysical(projectRoot));
+        reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+        List<String> sourceRoots = new RascalManifest().getSourceRoots(projectRoot);
+        
+        ISourceLocation root = URIUtil.correctLocation("project", projectName, "");
+        for (String src : sourceRoots) {
+            ISourceLocation path = URIUtil.getChildLocation(root, src);
+            evaluator.addRascalSearchPath(path);
+        }
+    }
+
+    public static ISourceLocation inferProjectRoot(Class<?> clazz) {
         try {
             String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
             if (file.endsWith(".jar")) {
