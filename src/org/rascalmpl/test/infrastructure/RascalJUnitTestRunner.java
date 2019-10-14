@@ -53,6 +53,7 @@ public class RascalJUnitTestRunner extends Runner {
 
     private final String prefix;
     private final ISourceLocation projectRoot;
+    private final Class<?> clazz;
 
     static {
         heap = new GlobalEnvironment();
@@ -68,6 +69,7 @@ public class RascalJUnitTestRunner extends Runner {
     public RascalJUnitTestRunner(Class<?> clazz) {
         this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
         this.projectRoot = inferProjectRoot(clazz);
+        this.clazz = clazz;
         
         System.err.println("Rascal JUnit Project root: " + projectRoot);
 
@@ -172,7 +174,7 @@ public class RascalJUnitTestRunner extends Runner {
                     Description modDesc = Description.createSuiteDescription(name);
                     desc.addChild(modDesc);
 
-                    Description testDesc = Description.createTestDescription(getClass(), name + "compilation failed", new CompilationFailed() {
+                    Description testDesc = Description.createTestDescription(clazz, name + "compilation failed", new CompilationFailed() {
                         @Override
                         public Class<? extends Annotation> annotationType() {
                             return getClass();
@@ -189,7 +191,7 @@ public class RascalJUnitTestRunner extends Runner {
 
                 // the order of the tests aren't decided by this list so no need to randomly order them.
                 for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-                    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
+                    modDesc.addChild(Description.createTestDescription(clazz, computeTestName(f.getName(), f.getAst().getLocation())));
                 }
             }
 
