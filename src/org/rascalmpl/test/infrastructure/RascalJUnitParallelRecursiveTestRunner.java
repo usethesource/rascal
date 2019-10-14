@@ -14,7 +14,6 @@ package org.rascalmpl.test.infrastructure;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,10 +36,11 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
 
 /**
  * Rascal modules can be tested separatly from each other. This runner includes all modules and nested modules and runs them spread over a workpool
@@ -62,12 +62,15 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     private final Queue<Description> descriptions = new ConcurrentLinkedQueue<>();
     private final Queue<Consumer<RunNotifier>> results = new ConcurrentLinkedQueue<>();
 
-    private final IValueFactory VF = ValueFactoryFactory.getValueFactory();
     private Description rootDesc;
-    private String rootName;
+    
+    private final ISourceLocation projectRoot;
 
 
     public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) {
+        this.projectRoot = RascalJUnitTestRunner.inferProjectRoot(clazz);
+        System.err.println("Rascal JUnit Project root: " + projectRoot);
+        
         int numberOfWorkers = Math.min(4, Runtime.getRuntime().availableProcessors() - 1);
         System.out.println("Number of workers based on CPU: " + numberOfWorkers);
         if (numberOfWorkers > 1) {
@@ -83,7 +86,6 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         }
         System.out.println("Running parallel test with " + this.numberOfWorkers + " runners");
         System.out.flush();
-        rootName = clazz.getName();
         this.prefixes = clazz.getAnnotation(RecursiveRascalParallelTest.class).value();
     }
 
@@ -98,7 +100,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             startModuleTesters();
 
             start = System.nanoTime();
-            rootDesc = Description.createSuiteDescription(rootName);
+            rootDesc = Description.createSuiteDescription(projectRoot.toString());
             processIncomingModuleDescriptions(rootDesc);
             stop = System.nanoTime();
             reportTime("Importing modules, looking for tests", start, stop);
@@ -147,16 +149,17 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             new ModuleTester("JUnit Rascal Evaluator " + (i + 1)).start();
         }
     }
-
-
+    
     private void fillModuleWorkList() {
         for (String prefix: prefixes) {
             try {
                 List<String> result = new ArrayList<>();
-                RascalJUnitTestRunner.getRecursiveModuleList(VF.sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")), result);
-                modules.addAll(result);
+                for (String src : new RascalManifest().getSourceRoots(projectRoot)) {
+                    RascalJUnitTestRunner.getRecursiveModuleList(URIUtil.getChildLocation(projectRoot, src + "/" + prefix.replaceAll("::", "/")), result);
+                }
+                result.stream().map(m -> prefix + "::" + m).forEach(n -> modules.add(n));
             }
-            catch (IOException | URISyntaxException e) {
+            catch (IOException e) {
             }
         }
     }
