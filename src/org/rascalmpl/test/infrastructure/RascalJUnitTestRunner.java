@@ -88,7 +88,7 @@ public class RascalJUnitTestRunner extends Runner {
 
     public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) throws IOException {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
-        String projectName = URIUtil.getLocationName(reg.logicalToPhysical(projectRoot));
+        String projectName = new RascalManifest().getProjectName(projectRoot);
         reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
         List<String> sourceRoots = new RascalManifest().getSourceRoots(projectRoot);
         
