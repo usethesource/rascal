@@ -10,6 +10,7 @@
 
 package org.rascalmpl.test.infrastructure;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
@@ -34,8 +35,10 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -49,7 +52,7 @@ public class RascalJUnitTestRunner extends Runner {
     private Description desc;
 
     private final String prefix;
-    private final String className;
+    private final ISourceLocation projectRoot;
 
     static {
         heap = new GlobalEnvironment();
@@ -63,38 +66,58 @@ public class RascalJUnitTestRunner extends Runner {
     }  
 
     public RascalJUnitTestRunner(Class<?> clazz) {
-        this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value(), clazz);
+        this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
+        this.projectRoot = inferProjectRoot(clazz);
 
         try {
-            Object instance = clazz.newInstance();
-
-            if (instance instanceof IRascalJUnitTestSetup) {
-                ((IRascalJUnitTestSetup) instance).setup(evaluator);
+            if (projectRoot != null) {
+                URIResolverRegistry reg = URIResolverRegistry.getInstance();
+                String projectName = URIUtil.getLocationName(reg.logicalToPhysical(projectRoot));
+                reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+                List<String> sourceRoots = new RascalManifest().getSourceRoots(projectRoot);
+                
+                ISourceLocation root = URIUtil.correctLocation("project", projectName, "");
+                for (String src : sourceRoots) {
+                    ISourceLocation path = URIUtil.getChildLocation(root, src);
+                    evaluator.addRascalSearchPath(path);
+                }
             }
             else {
-                // this assume the Rascal source files have been copied to the same test target folder
-                // as the classfile of the given `clazz` has been copied to:
-                ISourceLocation uri = URIUtil.correctLocation("resource", clazz.getCanonicalName(), "");
-                evaluator.addRascalSearchPath(uri);
+                throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
             }
         } 
-        catch (InstantiationException | IllegalAccessException  e) {
+        catch (IOException e) {
             throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
         } 
     }
 
-    public RascalJUnitTestRunner(String prefix, Class<?> clazz) {
-        // remove all the escapes (for example in 'lang::rascal::\syntax')
-        this.prefix = prefix;
-        this.className = clazz.getCanonicalName();
+    private static ISourceLocation inferProjectRoot(Class<?> clazz) {
+        try {
+            String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
+            if (file.endsWith(".jar")) {
+                throw new IllegalArgumentException("can not run Rascal JUnit tests from within a jar file");
+            }
+
+            File current = new File(file);
+            while (current != null && current.exists() && current.isDirectory()) {
+                if (new File(current, "META-INF/RASCAL.MF").exists()) {
+                    return URIUtil.createFileLocation(current.getAbsolutePath());
+                }
+                current = current.getParentFile();
+            }
+        }
+        catch (URISyntaxException e) {
+            return null;
+        }
+        
+        return null;
     }
 
     public static String computeTestName(String name, ISourceLocation loc) {
         return name + ": <" + loc.getOffset() +"," + loc.getLength() +">";
     }
 
-    public static List<String> getRecursiveModuleList(ISourceLocation root) throws IOException {
-        List<String> result = new ArrayList<>();
+    public static List<String> getRecursiveModuleList(ISourceLocation root, List<String> result) throws IOException {
         Queue<ISourceLocation> todo = new LinkedList<>();
         todo.add(root);
         while (!todo.isEmpty()) {
@@ -125,7 +148,11 @@ public class RascalJUnitTestRunner extends Runner {
         this.desc = desc;
 
         try {
-            List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation("resource", className, "/" + prefix.replaceAll("::", "/")));
+            List<String> modules = new ArrayList<>(10);
+            for (String src : new RascalManifest().getSourceRoots(projectRoot)) {
+                getRecursiveModuleList(URIUtil.getChildLocation(projectRoot, src + "/" + prefix.replaceAll("::", "/")), modules);
+            }
+            
             Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
 
             for (String module : modules) {
@@ -162,8 +189,6 @@ public class RascalJUnitTestRunner extends Runner {
 
             return desc;
         } catch (IOException e) {
-            throw new RuntimeException("could not create test suite", e);
-        } catch (URISyntaxException e) {
             throw new RuntimeException("could not create test suite", e);
         } 
     }
