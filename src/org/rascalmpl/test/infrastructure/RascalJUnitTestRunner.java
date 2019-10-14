@@ -30,7 +30,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.TestEvaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
@@ -73,20 +72,15 @@ public class RascalJUnitTestRunner extends Runner {
         
         System.err.println("Rascal JUnit Project root: " + projectRoot);
 
-        try {
-            if (projectRoot != null) {
-                configureProjectEvaluator(evaluator, projectRoot);
-            }
-            else {
-                throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
-            }
-        } 
-        catch (IOException e) {
-            throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
-        } 
+        if (projectRoot != null) {
+            configureProjectEvaluator(evaluator, projectRoot);
+        }
+        else {
+            throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
+        }
     }
 
-    public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) throws IOException {
+    public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         String projectName = new RascalManifest().getProjectName(projectRoot);
         reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
