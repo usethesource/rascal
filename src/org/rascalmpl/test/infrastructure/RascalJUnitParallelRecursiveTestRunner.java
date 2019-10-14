@@ -152,10 +152,9 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     private void fillModuleWorkList() {
         for (String prefix: prefixes) {
             try {
-                RascalJUnitTestRunner.getRecursiveModuleList(VF.sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")))
-                .stream()
-                .map(m -> prefix + "::" + m)
-                .forEach(m -> modules.add(m));
+                List<String> result = new ArrayList<>();
+                RascalJUnitTestRunner.getRecursiveModuleList(VF.sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")), result);
+                modules.addAll(result);
             }
             catch (IOException | URISyntaxException e) {
             }
