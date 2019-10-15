@@ -33,12 +33,12 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
            'import org.rascalmpl.interpreter.control_exceptions.Throw;  // Temporary to enable interop with Prelude
            '
-           'class <className>Test extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
+           'class <className>Tests extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
            '    <className> $me;
-           '    final TypeFactory $TF = TypeFactory.getInstance();
+           '    //final TypeFactory $TF = TypeFactory.getInstance();
            '    final GenerateActuals generator = new GenerateActuals(5, 5, 10);
        
-           '    public <className>Test(){
+           '    public <className>Tests(){
            '        ModuleStore store = new ModuleStore();
            '        $me = store.importModule(<className>.class, <className>::new);                       
            '    }
@@ -106,7 +106,7 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
     if(isEmpty(expected)){
         return "@TestFactory
                'Stream\<DynamicTest\> <test_name_uniq>(){
-               '    return generator.generateActuals(<types>, $TS).map((args) -\> dynamicTest(\"<test_name>\", () -\> assertTrue(((IBool)$me.<test_name>(<actuals>)).getValue())));
+               '    return generator.generateActuals(<types>, $me.$TS).map((args) -\> dynamicTest(\"<test_name>\", () -\> assertTrue(((IBool)$me.<test_name>(<actuals>)).getValue())));
                '}\n";
      } else {
         return "@TestFactory
