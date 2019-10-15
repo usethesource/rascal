@@ -16,9 +16,9 @@ extend  lang::rascal::grammar::Lookahead;
 
 public Grammar G0 = simple({sort("S")}, {});
 
-test bool testEmpty() = first(G0) == ();
+test bool testEmpty1() = first(G0) == ();
 
-test bool testEmpty() = firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
+test bool testEmpty2() = firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
 
 private Production pr(Symbol rhs, list[Symbol] lhs) {
   return prod(rhs,lhs,{});
