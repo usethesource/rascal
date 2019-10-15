@@ -52,12 +52,12 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
      
        	muMod = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 
-        <the_interface, the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
+        <the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
         
-        //targetDir = replaceAll(targetDir, ".", "/");
-        writeFile(targetDir + "$<className>.java", the_interface);
+     
+        //writeFile(targetDir + "$<className>.java", the_interface);
         writeFile(targetDir + "<className>.java", the_class);
-        writeFile(targetDir + "<className>Test.java", the_test_class);
+        writeFile(targetDir + "<className>Tests.java", the_test_class);
      
         return errors;
        

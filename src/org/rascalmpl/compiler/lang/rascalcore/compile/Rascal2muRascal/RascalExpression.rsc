@@ -113,7 +113,7 @@ private MuExp translateComposeFunction(Expression e){
  
   loc uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
-  addOverloadedFunctionAndResolver(ofqname, <comp_name, comp_ftype, getModuleName(), [ofqname], []>);
+  //addOverloadedFunctionAndResolver(ofqname, <comp_name, comp_ftype, getModuleName(), [ofqname], []>);
  
   return muOFun(comp_fuid);
 }
@@ -1136,7 +1136,7 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    tp = getType(expression);
    fieldType = getType(field);
- 
+   
    if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
        return translateProject(e, expression, [(Field)`<Name field>`], e@\loc, false);
    }
@@ -1185,6 +1185,16 @@ MuExp translate (e:(Expression) `<Expression expression> \< <{Field ","}+ fields
 
 MuExp translateProject(Expression e, Expression base, list[Field] fields, loc src, bool isGuarded){
     tp = getType(base); 
+ 
+    if(isNodeType(tp)){
+        fieldName = ["<f>" | f <- fields][0];
+        if(isGuarded){
+            return muGuardedGetField(avalue(), tp, translate(base), fieldName);
+         } else {
+           return muGetField(avalue(), tp, translate(base), fieldsName);
+         }
+    }
+    
     list[str] fieldNames = [];
     if(isRelType(tp)){
        tp = getSetElementType(tp);
@@ -1192,15 +1202,12 @@ MuExp translateProject(Expression e, Expression base, list[Field] fields, loc sr
        tp = getListElementType(tp);
     } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
-    }
+    } 
     if(tupleHasFieldNames(tp)){
        	fieldNames = getTupleFieldNames(tp);
     }
     fcode = [(f is index) ? muCon(toInt("<f>")) : muCon(indexOf(fieldNames, unescape("<f>"))) | f <- fields];
-    //fcode = [(f is index) ? muCon(toInt("<f>")) : muCon("<f>") | f <- fields];
-    //ot = getOuterType(base);
-    //if(ot == "list") ot = "lrel"; else if(ot == "set") ot = "rel";
-    
+      
     return muCallPrim3((isGuarded ? "guarded_" : "") + "field_project", getType(e), [getType(base)], [ translate(base), *fcode], src);
 }
 
@@ -1272,7 +1279,8 @@ MuExp translateGuarded(exp: (Expression) `<Expression expression>@<Name name>`)
     = muGuardedGetAnno(translate(expression), getType(exp), unescape("<name>"));
 
 MuExp translateGuarded(exp: (Expression) `<Expression expression> . <Name field>`)
-    = muGuardedGetField(getType(exp), getType(expression), translate(expression),  unescape("<field>"));
+    = translateProject(exp, expression, [(Field)`<Name field>`], exp@\loc, true);
+  //  = muGuardedGetField(getType(exp), getType(expression), translate(expression),  unescape("<field>"));
 
 // -- isDefinedOtherwise expression ---------------------------------
 
@@ -1468,9 +1476,13 @@ MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`) {
     leaveBacktrackingScope();
     return code;
 }
+
+bool isMatchOrNoMatch((Expression) `<Pattern pat> := <Expression rhs>`) = true;
+bool isMatchOrNoMatch((Expression) `<Pattern pat> !:= <Expression rhs>`) = true;
+default bool isMatchOrNoMatch(Expression e) = false;
     
 MuExp translateBool(e:(Expression) `<Pattern pat> !:= <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont)
-    = translateMatch(e, btscope, trueCont, falseCont);
+    = translateMatch(e, btscope, falseCont, trueCont);
 
 // -- match expression --------------------------------------------------------
 
@@ -1681,6 +1693,9 @@ MuExp translate((Expression) `<Expression condition> ? <Expression thenExp> : <E
 	// as it is not allowed to have 'fail' in conditional expressions
 	return translateBool(condition, "", translate(thenExp),  translate(elseExp));
 }
+
+bool isConditional((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = true;
+default bool isConditional(Expression e) = false;
 
 MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, str btscope, MuExp trueCont, MuExp falseCont)
     = translateBool(condition, "", muBlock([translate(thenExp), trueCont]),  muBlock([translate(elseExp), falseCont]));

@@ -24,7 +24,6 @@ data JGenie
     = jgenie(
         str () getModuleName,
         loc () getModuleLoc,
-        bool (MuFunction) isUniqueFunction,
         void (MuFunction) setFunction,
         MuFunction () getFunction,
         str () getFunctionName,
@@ -47,11 +46,10 @@ data JGenie
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
-        void (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) addResolver,
+        void (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads, list[MuExp] externalVars) addResolver,
         bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) isResolved,
-        bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions,
-        void(str method) addInterfaceMethod,
-        str() getInterfaceMethods
+        list[MuExp] (str resolverName) getExternalVarsResolver,
+        bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions
       )
     ;
     
@@ -75,9 +73,9 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     TModel currentModule = tmodels[moduleName];
     loc currentModuleScope = moduleLocs[moduleName];
     set[tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors]] resolvers = {};
+    map[str resolverName, list[MuExp] externalVars] resolver2externalVars = ();
     str functionName = "$UNKNOWN";
     MuFunction function;
-    list[str] interfaceMethods = [];
     
     map[loc,list[MuExp]] fun2externals = (fun.src : fun.externalVars  | fun <- range(muFunctions));
     map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
@@ -92,20 +90,6 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
         
     private bool isIgnored(MuFunction muFun){
         return !isEmpty(domain(muFun.tags) & {"ignore", "Ignore", "ignoreInterpreter", "IgnoreInterpreter"});
-    }
-        
-    bool _isUniqueFunction(MuFunction muFun){
-        if(isIgnored(muFun)) return false;
-        arity = getArity(muFun.ftype);
-        currentUniqueName = muFun.uniqueName;
-        
-        tmp1 = [ muFun.uniqueName | muFun1 <- range(muFunctions), muFun1.uniqueName == currentUniqueName, getArity(muFun1.ftype) == arity, !isIgnored(muFun1) ];
-                               
-        r = resolvers[currentUniqueName];
-        res = size(tmp1) <= 1 && (isEmpty(r) 
-               || all(tuple[AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] ovl <- r, isEmpty(ovl.oconstructors), !comparable(ovl.funType, muFun.ftype) || !mapToSameJavaType(ovl.funType, muFun.ftype)));
-        println("isUniqueFunction: <currentUniqueName> ==\> <res>");
-        return res;
     }
         
     void _setFunction(MuFunction fun){
@@ -140,7 +124,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     baseName = getJavaName(def.id);
                     if(containedIn(def.defined, currentModuleScope)){
                         fun = muFunctionsByLoc[def.defined];
-                        return getFunctionName(fun);
+                        return getJavaName(getFunctionName(fun));
                         //if(isClosureName(baseName)){
                         //    return baseName;
                         //}
@@ -165,7 +149,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     baseName = "<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>_<def.defined.end.line>";
                     if(containedIn(def.defined, currentModuleScope)){
                         fun = muFunctionsByLoc[def.defined];
-                        return getUniqueFunctionName(fun);
+                        return getJavaName(getUniqueFunctionName(fun));
                         //if(isClosureName(baseName)){
                         //    return baseName;
                         //}
@@ -278,11 +262,19 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
         return toList(importedLibraries);
     }
     
-    void _addResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
+    void _addResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads, list[MuExp] externalVars){
         resolvers += overloads;
+        resolver2externalVars[overloads.scope] = externalVars;
     }
     bool _isResolved(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
         return overloads in resolvers;
+    }
+    
+    list[MuExp] _getExternalVarsResolver(str resolverName){
+         if(resolver2externalVars[resolverName]?){
+            return resolver2externalVars[resolverName];
+         }
+         throw "Unknown resolver <resolverName>";
     }
     
     bool _usesLocalFunctions(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
@@ -296,22 +288,9 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
         }
     }
     
-    void _addInterfaceMethod(str method){
-        <mname1, margs1> = getElements(method);
-        for(m <- interfaceMethods){
-            <mname2, margs2> = getElements(m);
-            if(mname1 == mname2 && margs1 == margs2) return;
-        }
-       
-        interfaceMethods += method;
-    }
-   str _getInterfaceMethods(){
-        return intercalate("\n", interfaceMethods);
-   }
     return jgenie(
                 _getModuleName,
                 _getModuleLoc,
-                _isUniqueFunction,
                 _setFunction,
                 _getFunction,
                 _getFunctionName,
@@ -336,9 +315,8 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 _getImportedLibraries,
                 _addResolver,
                 _isResolved,
-                _usesLocalFunctions,
-                _addInterfaceMethod,
-                _getInterfaceMethods
+                _getExternalVarsResolver,
+                _usesLocalFunctions
             );
 }
 

@@ -268,7 +268,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
         return return rt;         
     }
 
-   s.report(error(current, "Composition not defined for %t and %t", t1, t2));
+   s.report(error(current, "Composition not defined on %t and %t", t1, t2));
    return avalue();
 }
 
@@ -328,7 +328,7 @@ private AType _computeJoinType(Tree current, AType t1, AType t2, Solver s){
     if (isSetType(t1) && isSetType(t2))
         return arel( atypeList([getSetElementType(t1), getSetElementType(t2)]) );
     
-    s.report(error(current, "Join not defined for %t and %t", t1, t2));
+    s.report(error(current, "Join not defined on %t and %t", t1, t2));
     return avalue();
 } 
 
@@ -470,7 +470,7 @@ private AType _computeInType(Tree current, AType t1, AType t2, Solver s){
         s.requireComparable(t1, et, error(current, "Cannot compare %t with element type of %t", t1, t2));
         return abool();
     } else {
-        s.report(error(current, "`in` or `notin` not defined for %t and %t", t1, t2));
+        s.report(error(current, "`in` or `notin` not defined on %t and %t", t1, t2));
     }
     return avalue();
 }

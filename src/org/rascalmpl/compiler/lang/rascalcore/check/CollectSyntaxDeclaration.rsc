@@ -28,7 +28,7 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 }
 
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, bool isStart=false, Vis vis=publicVis()){
-    println("declareSyntax: <current>");
+   //println("declareSyntax: <current>");
     Sym defined = current.defined;
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);

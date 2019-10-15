@@ -55,10 +55,10 @@ default MuExp translatePat(p:(Pattern) `<Literal lit>`, AType subjectType, MuExp
 
 MuExp translatePat(Literal lit, AType subjectType, MuExp subject, str btscope, MuExp trueCont, MuExp falseCont) = translateLitPat(lit, subjectType, subject, btscope, trueCont, falseCont);
 
-MuExp translateLitPat(Literal lit, AType subjectType, MuExp subject, str btscope, MuExp trueCont, MuExp falseCont) = muIfExp(muEqual(translate(lit), subject), trueCont, falseCont);
+MuExp translateLitPat(Literal lit, AType subjectType, MuExp subject, str btscope, MuExp trueCont, MuExp falseCont) = muIfelse(muEqual(translate(lit), subject), trueCont, falseCont);
 
 // -- regexp pattern -------------------------------------------------
-//TODO
+
 MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`, AType subjectType, MuExp subject, str btscope, MuExp trueCont, MuExp falseCont) 
     = translateRegExpLiteral(r, subjectType, subject, btscope, trueCont, falseCont);
 
@@ -555,7 +555,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    if((KeywordArguments[Pattern]) `<OptionalComma optionalComma> <{KeywordArgument[Pattern] ","}+ keywordArgumentList>` := keywordArguments){
         for(kwarg <- keywordArgumentList){
             kwname = prettyPrintName(kwarg.name);
-            contExp = muIfelse(muHasKwp(subject, kwname), muBlock([translatePat(kwarg.expression, getType(kwarg.expression), muGetKwp(subject, subjectType, kwname), btscope, trueCont, falseCont)]), falseCont);
+            contExp = translatePat(kwarg.expression, getType(kwarg.expression), muGetKwp(subject, subjectType, kwname), btscope, trueCont, falseCont);                 
         }
    }
    
@@ -577,7 +577,22 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
      return muApply(mkCallToLibFun("Library","MATCH_CALL_OR_TREE<noKwParams>"), [muCallMuPrim("make_array", fun_pat + argCode)]);
    }
 }
-
+ MuExp translatePatKWArguments((KeywordArguments[Pattern]) ``, AType subjectType, MuExp subjectExp, str btscope, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false)
+    = trueCont;
+ 
+ MuExp translatePatKWArguments((KeywordArguments[Pattern]) ``, AType subjectType, MuExp subjectExp, str btscope, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false){
+    code = trueCont;
+    for(kwarg <- keywordArgumentList){
+        kwtype = getType(kwarg.expression);
+        kwfield = "<kwarg.name>";
+        code = muIfelse(muHasKwp(subject, kwfield),
+                        muIfelse(muEqual(muGetKwp(subject, kwtype, kwfield), translate(kwarg.expression)), code, falseCont),
+                        falseCont);
+   }
+   return code;
+ }
+ 
+ 
 // TODO
 //MuExp translatePatKWArguments((KeywordArguments[Pattern]) ``) =
 //   muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"), [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
@@ -796,7 +811,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
    subjects = [ muTmpIValue(nextTmp("subject"), fuid, subjectType) |int i <- reverse(index(uniquePats)) ];
     
    lastPat = size(uniquePats) - 1;
-   setPatTrueCont = isEmpty(uniquePats) ? trueCont : muIfExp(muEqualNativeInt(muSize(subjects[-1], subjectType), muCon(0)), trueCont,  muContinue(""));
+   setPatTrueCont = (isEmpty(setVars) || isAnonymousMultiVar(uniquePats[-1])) ? trueCont : muIfExp(muEqualNativeInt(muSize(subjects[-1], subjectType), muCon(0)), trueCont,  muContinue(""));
    leftMostVar = -1;
    if(!isEmpty(uniquePats)){
        for(int i <- reverse(index(uniquePats))){
@@ -896,6 +911,11 @@ bool isMultiVar(p:(Pattern) `<QualifiedName name>*`) = true;
 bool isMultiVar(p:(Pattern) `*<Type tp> <Name name>`) = true;
 bool isMultiVar(p:(Pattern) `*<Name name>`) = true;
 default bool isMultiVar(Pattern p) = false;
+
+bool isAnonymousMultiVar(p:(Pattern) `_*`) = true;
+bool isAnonymousMultiVar(p:(Pattern) `*<Type tp> _`) = true;
+bool isAnonymousMultiVar(p:(Pattern) `*_`) = true;
+default bool isAnonymousMultiVar(Pattern p) = false;
 
 int nIter(p:(Pattern) `<QualifiedName name>*`) = 0;
 int nIter(p:(Pattern) `*<Type tp> <Name name>`) = 0;
@@ -1077,8 +1097,9 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`,  AType subjectType, MuExp 
     elmType = avalue(); // TODO: make more precise?
     code = 
         muForAll(my_btscope, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor),
-                translatePat(pattern, avalue(), elem, my_btscope, trueCont, muFail(my_btscope))
-             );
+                translatePat(pattern, avalue(), elem, my_btscope, trueCont, muFailEnd(my_btscope))
+             ); 
+    code = muEnter(my_btscope, code);
     leaveBacktrackingScope();
     return code;
 }
@@ -1172,51 +1193,20 @@ default bool isConstant(Literal l) = true;
  
 value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit) when isConstant(lit);
 
-value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
-  makeNode(prettyPrintName("<expression>"), [ translatePatternAsConstant(pat) | Pattern pat <- arguments ] + translatePatKWArguments(keywordArguments));
+value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) {
+  if(!isEmpty("<keywordArguments>")) throw "Not a constant pattern: <p>";
+  return makeNode("<expression>", [ translatePatternAsConstant(pat) | Pattern pat <- arguments ]);
+}
 
 value translatePatternAsConstant(p:(Pattern) `{<{Pattern ","}* pats>}`) = { translatePatternAsConstant(pat) | Pattern pat <- pats };
 
 value translatePatternAsConstant(p:(Pattern) `[<{Pattern ","}* pats>]`) = [ translatePatternAsConstant(pat) | Pattern pat <- pats ];
 
-//value translatePatternAsConstant(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
-//  lpats = [ pat | pat <- pats]; // TODO
-//  return ( <translatePatternAsConstant(lpats[0])> | it + <translatePatternAsConstant(lpats[i])> | i <- [1 .. size(lpats)] );
-//}
-
-value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>\>`) {
-  return < translatePatternAsConstant(pat1) >;
+value translatePatternAsConstant(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
+  lpats = [ pat | pat <- pats]; // TODO
+  return ( <translatePatternAsConstant(lpats[0])> | it + <translatePatternAsConstant(lpats[i])> | i <- [1 .. size(lpats)] );
 }
 
-value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>\>`) {
-  return < translatePatternAsConstant(pat1), 
-           translatePatternAsConstant(pat2)
-         >;
-}
-
-value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>, <Pattern  pat3>\>`) {
-  return < translatePatternAsConstant(pat1), 
-           translatePatternAsConstant(pat2), 
-           translatePatternAsConstant(pat3)
-         >;
-}
-
-value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>, <Pattern  pat3>, <Pattern  pat4>\>`) {
-  return < translatePatternAsConstant(pat1), 
-           translatePatternAsConstant(pat2), 
-           translatePatternAsConstant(pat3),
-           translatePatternAsConstant(pat4)
-         >;
-}
-value translatePatternAsConstant(p:(Pattern) `\<<Pattern  pat1>, <Pattern  pat2>, <Pattern  pat3>, <Pattern  pat4>, <Pattern  pat5>\>`) {
-  return < translatePatternAsConstant(pat1), 
-           translatePatternAsConstant(pat2), 
-           translatePatternAsConstant(pat3),
-           translatePatternAsConstant(pat4),
-           translatePatternAsConstant(pat5)
-         >;
-}
- 
 default value translatePatternAsConstant(Pattern p){
   throw "Not a constant pattern: <p>";
 }

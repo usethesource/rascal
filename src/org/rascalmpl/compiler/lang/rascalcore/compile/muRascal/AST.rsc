@@ -285,7 +285,7 @@ bool isClosureName(str name)
     = findFirst(name, "$CLOSURE") >= 0;
 
 bool isMainName(str name)
-    = startsWith(name, "main_");
+    = startsWith(name, "main");
 
 bool isOuterScopeName(str name)
     = isEmpty(name);
@@ -293,11 +293,14 @@ bool isOuterScopeName(str name)
 str getFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)) return fun.name;
     if(isClosureName(fun.name)) return "<fun.scopeIn>_<fun.uniqueName>";
-    return "<fun.scopeIn>_<fun.name>";
+    return "<fun.scopeIn>_<fun.uniqueName>";
 }
 
 str getUniqueFunctionName(MuFunction fun){
-    return isOuterScopeName(fun.scopeIn) ? fun.uniqueName : "<fun.scopeIn>_<fun.uniqueName>";
+    if(isOuterScopeName(fun.scopeIn)){
+        return isMainName(fun.name) ? fun.name :  fun.uniqueName;
+    }
+    return "<fun.scopeIn>_<fun.uniqueName>";
 }
 
 // Normalize expression to statement
@@ -367,8 +370,8 @@ bool endsWithReturn( muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, b
 //bool endsWithReturn(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)) = endsWithReturn(exp);
 bool endsWithReturn(muEnter(str label, MuExp body)) = endsWithReturn(body);
 bool endsWithReturn(muSucceed(str label)) = true;
-bool endsWithReturn(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) = true when endsWithReturn(exp), endsWithReturn(\catch);
-bool endsWithReturn(muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body)) = true when endsWithReturn(body);
+bool endsWithReturn(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) = endsWithReturn(exp) && endsWithReturn(\catch);
+bool endsWithReturn(muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body)) = endsWithReturn(body);
 default bool endsWithReturn(MuExp exp) = false;
 
 bool isLoop(muDoWhile(str label, MuExp body, muCon(false))) = true;
@@ -476,19 +479,21 @@ MuExp muReturn1(AType t, muForRangeInt(str label, MuExp var, int ifirst, int ist
     = muForRangeInt(label, var, ifirst, istep, last, muReturn1(t, exp));
     
 MuExp muReturn1(AType t, muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body))
-    = muForAll(label, var, iterType, iterable, muReturn1(t, body));
+    = muBlock([muForAll(label, var, iterType, iterable, muReturn1(t, body)), muReturn1(t, muCon(false))]);
 
 MuExp addReturnFalse(AType t, bl: muBlock([*exps, muReturn1(abool(), muCon(false))])) = bl;
 
-default MuExp addReturnFalse(AType t, MuExp exp) = muBlock([exp,  t == abool() ? muReturn1(abool(), muCon(false)) : muFailReturn(t)]);
+default MuExp addReturnFalse(AType t, MuExp exp) = muBlock([exp, (t == abool() || t == avalue()) ? muReturn1(abool(), muCon(false)) : muFailReturn(t)]);
 
 MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp)){
     ft = afunc(t, [], []);
-    return addReturnFalse(ft, muEnter(btscope, visit(exp) { 
-                                                   case muSucceed(btscope) => muReturn1(abool(), muCon(true))
-                                                   case muFail(btscope) => t == abool() ? muReturn1(abool(), muCon(false)) : muFailReturn(ft)
-                                                   case muFailEnd(btscope) =>t == abool() ? muReturn1(abool(), muCon(false)) : muFailReturn(ft)
-                                                 }));
+    boolOrValue = t == abool() || t == avalue();
+    return addReturnFalse(ft, 
+                muEnter(btscope, visit(exp) { 
+                                    case muSucceed(btscope) => muReturn1(abool(), muCon(true))
+                                    case muFail(btscope) => boolOrValue ? muReturn1(abool(), muCon(false)) : muFailReturn(ft)
+                                    case muFailEnd(btscope) => boolOrValue ? muReturn1(abool(), muCon(false)) : muFailReturn(ft)
+            }));
 }    
 MuExp muReturn1(AType t, muSucceed(str btscope))
     = muReturn1(abool(), muCon(true));
@@ -519,7 +524,9 @@ MuExp muReturn1(AType t, muThrow(MuExp exp, loc src))
     = muThrow(exp, src);
     
 MuExp muReturn1(AType t, muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint))
-    = muSwitch(exp, [muCase(c.fingerprint, muReturn1(t, c.exp)) | c <- cases], muReturn1(t, defaultExp), useConcreteFingerprint);
+    = muBlock([muSwitch(exp, [muCase(c.fingerprint, muReturn1(t, c.exp)) | c <- cases], muReturn1(t, defaultExp), useConcreteFingerprint),
+               muFailReturn(t)
+             ]);
     
 // ---- muFailReturn ----------------------------------------------------------
 

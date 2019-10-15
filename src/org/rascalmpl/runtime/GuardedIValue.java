@@ -17,6 +17,9 @@ public final class GuardedIValue {
 	}
 	
 	public final IValue getValue() {
+		if(value == null) {
+			  throw new RuntimeException("Cannot get value from uninitialized GuardedIValue");
+		}
 		return value;
 	}
 }

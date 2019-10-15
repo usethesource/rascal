@@ -622,6 +622,52 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return UNDEFINED;
 		}
 	}
+	
+	public final IValue $aadt_get_field(final IConstructor cons, final String fieldName) {
+		Type consType = cons.getConstructorType();
+
+		// Does fieldName exist as positional field?
+		if(consType.hasField(fieldName)){
+			return cons.get(fieldName);
+		}
+		
+		if($TS.hasKeywordParameter(consType, fieldName)) {
+			IValue result = cons.asWithKeywordParameters().getParameter(fieldName);
+			if(result == null) {
+				throw RascalExceptionFactory.noSuchField(fieldName);
+			}
+			return result;
+		}
+
+		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			IConstructor prod = ((ITree) cons).getProduction();
+
+			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+				IConstructor arg = (IConstructor) elem;
+				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+					return arg;			        
+				}
+			}
+		}
+		if(cons.isAnnotatable()){
+			IValue result = cons.asAnnotatable().getAnnotation(fieldName);
+			if(result == null) {
+				throw RascalExceptionFactory.noSuchField(fieldName);
+			}
+			return result;
+		} else {
+			throw RascalExceptionFactory.noSuchField(fieldName);
+		}
+	}
+	
+	public final GuardedIValue $guarded_aadt_get_field(final IConstructor cons, final String fieldName) {
+		try {
+			IValue result = $aadt_get_field(cons, fieldName);
+			return new GuardedIValue(result);
+		} catch (RascalException e) {
+			return UNDEFINED;
+		}
+	}
 
 	public final IValue $aloc_get_field(final ISourceLocation sloc, final String field) {
 		IValue v;
@@ -912,6 +958,23 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 	
+	public final IValue $atuple_get_field(final ITuple tup, final String fieldName) {
+		IValue result = tup.get(fieldName);
+		if(result == null) {
+			throw RascalExceptionFactory.noSuchField(fieldName);
+		}
+		return result;
+	}
+	
+	public final GuardedIValue $guarded_atuple_get_field(final ITuple tup, final String fieldName) {
+		try {
+			IValue result = $atuple_get_field(tup, fieldName);
+			return new GuardedIValue(result);
+		} catch (RascalException e) {
+			return UNDEFINED;
+		}
+	}
+	
 	public final IValue $areified_get_field(final IConstructor rt, final String field) {
 		return rt.get(field);
 	}
@@ -931,7 +994,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return (n - 1 > 1) ? $VF.tuple(newFields) : newFields[0];
 	}
 	
-	public final GuardedIValue guarded_atuple_field_project(final ITuple tup, final IValue... fields) {
+	public final GuardedIValue $guarded_atuple_field_project(final ITuple tup, final IValue... fields) {
 		try {
 			return new GuardedIValue($atuple_field_project(tup, fields));
 		} catch (Exception e) {
@@ -1370,6 +1433,35 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 		catch (InvalidDateTimeException e) {
 			throw RascalExceptionFactory.invalidArgument(dt, e.getMessage());
+		}
+	}
+	
+	public final IConstructor $aadt_field_update(final IConstructor cons, final String fieldName, IValue repl) {
+
+		Type consType = cons.getConstructorType();
+
+		// Does fieldName exist as positional field?
+		if(consType.hasField(fieldName)){
+			return cons.set(fieldName, repl);
+		}
+		
+		if($TS.hasKeywordParameter(consType, fieldName)) {
+			return cons.asWithKeywordParameters().setParameter(fieldName, repl);
+		}
+// TODO
+//		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+//			IConstructor prod = ((ITree) cons).getProduction();
+//
+//			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+//				IConstructor arg = (IConstructor) elem;
+//				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+//					return true;			        }
+//			}
+//		}
+		if(cons.isAnnotatable()){
+			return cons.asAnnotatable().setAnnotation(fieldName, repl);
+		} else {
+			throw RascalExceptionFactory.noSuchField(fieldName);
 		}
 	}
 	
@@ -2322,6 +2414,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	// ---- regexp ------------------------------------------------------------
 	
 	public final Matcher $regExpCompile(String pat, String subject) {
+		pat = pat.replaceAll("\\\\", "\\\\\\\\");
 		Pattern p = Pattern.compile(pat);
 		return p.matcher(subject);
 	}
@@ -2644,7 +2737,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	public final GuardedIValue $guarded_map_subscript(final IMap map, final IValue idx) {
 		IValue v = map.get(idx);
-		return v == null? UNDEFINED : new GuardedIValue();
+		return v == null? UNDEFINED : new GuardedIValue(v);
 	}
 
 	public final IValue $atuple_subscript_int(final ITuple tup, final int idx) {
@@ -2717,7 +2810,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return rel.asRelation().index(idx);
 	}
 	
-	public final GuardedIValue guarded_arel_subscript1_noset(final ISet rel, final IValue idx) {
+	public final GuardedIValue $guarded_arel_subscript1_noset(final ISet rel, final IValue idx) {
 		try {
 			return  new GuardedIValue($arel_subscript1_noset(rel, idx));
 		} catch (Exception e) {
@@ -3017,6 +3110,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 		if(subject.getType().isAbstractData()) {
 			return ((IConstructor) subject).get(idx);
+		}
+		if(subject.getType().isNode()) {
+			return ((INode) subject).get(idx);
 		}
 		throw new RuntimeException("Unsupported subject of type " + subject.getType());
 	}

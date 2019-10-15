@@ -462,7 +462,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(MuExp switchval, str fuid, bool 
 MuExp translate(s: (Statement) `fail <Target target> ;`) {
     if(inBacktrackingScope()){
         return target is empty ? muFail(currentBacktrackingScope())
-                                : haveEnteredBacktrackingScope("<target.name>") ? muFail("<target.name>") 
+                               : haveEnteredBacktrackingScope("<target.name>") ? muFail("<target.name>") 
                                                                                 : muFailReturn(getType(currentFunctionDeclaration()));
     } else {
         return muFailReturn(getType(currentFunctionDeclaration()));
@@ -751,8 +751,11 @@ MuExp translate((Statement) `return <Statement statement>`) {
 		result = muTmpIValue(nextLabel("result"), fuid, resultType);
 		return muValueBlock(resultType, [ muConInit(result, translate(statement)), muReturn1(resultType, result) ]);
 	} 
-	if((Statement) `<Expression expression>;` := statement && (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>` := expression){
-	   return translateBool(condition, "", muReturn1(resultType, translate(thenExp)), muReturn1(resultType, translate(elseExp)));
+	if((Statement) `<Expression expression>;` := statement && isConditional( expression)){
+	   return translateBool(expression.condition, "", muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp)));
+	} else
+	if((Statement) `<Expression expression>;` := statement && isMatchOrNoMatch(expression)){
+	   return translateBool(expression, "", muReturn1(resultType, muCon(true)), muReturn1(resultType, muCon(false)));
 	} else {
 	   return muReturn1(resultType, translate(statement));
 	}

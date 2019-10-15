@@ -110,7 +110,7 @@ Accept rascalIsAcceptableQualified(TModel tm, loc def, Use use){
         //    return acceptBinding();
         //} 
         
-        if(acons(ret:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := atype){
+        if(acons(ret:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := atype){
            return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
         } 
         

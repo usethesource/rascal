@@ -24,7 +24,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 			IDEServices ideServices
 			){
 
-		this.pcfg = pcfg;
+		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
 
 		currentModuleName = "UNDEFINED";
 

@@ -307,6 +307,12 @@ default bool isNodeType(AType _) = false;
 @doc{Create a new node type.}
 AType makeNodeType() = anode([]);
 
+@doc{Get the keywords of a node as a tuple.}
+AType getNodeFieldsAsTuple(AType t) {
+    if (anode(flds) := unwrapType(t)) return atuple(atypeList([ tp | tp <- flds, !isEmpty(tp.label) ]));
+    throw rascalCheckerInternalError("getNodeFieldsAsTuple called with unexpected type <prettyAType(t)>");
+}  
+
 // ---- hasKeywordParameters 
 
 bool hasKeywordParameters(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
@@ -606,6 +612,8 @@ str getTupleFieldName(AType t, int idx) {
     throw rascalCheckerInternalError("getTupleFieldName given invalid index <idx>");
 }
 
+// ---- node
+
 // ---- list
 
 @doc{
@@ -793,12 +801,20 @@ list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return ats;
     if (acons(_,list[AType] cts,_) := unwrapType(ft)) return cts;
     if (overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := unwrapType(ft)){
-        result = avoid();
-        for(tuple[loc def, IdRole role, AType atype] ovl <- overloads){
-            result = alub(result, atypeList(getFunctionOrConstructorArgumentTypes(ovl.atype)));
-        }
-        if(atypeList(list[AType] argTypes) := result) return argTypes;
-        throw rascalCheckerInternalError("Expected atypeList, found <prettyPrint(result)>");
+       arities = { size(getFormals(tp)) | tp <- overloads<2> };
+       assert size(arities) == 1;
+       ar = getFirstFrom(arities);
+       resType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>);
+       formalsTypes = [avoid() | i <- [0 .. ar]];
+       
+       formalsTypes = (formalsTypes | alubList(it, getFormals(tp)) | tp <- overloads<2>);
+       return formalsTypes;
+        //result = avoid();
+        //for(tuple[loc def, IdRole role, AType atype] ovl <- overloads){
+        //    result = alub(result, atypeList(getFunctionOrConstructorArgumentTypes(ovl.atype)));
+        //}
+        //if(atypeList(list[AType] argTypes) := result) return argTypes;
+        //throw rascalCheckerInternalError("Expected atypeList, found <prettyAType(result)>");
     }
     throw rascalCheckerInternalError("Cannot get function/constructor arguments from type <prettyAType(ft)>");
 }
@@ -823,7 +839,7 @@ default int getArity(AType t) {
 
 list[AType] getFormals(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = formals;
 list[AType] getFormals(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = fields;
-list[AType] getFormals(aprod(prod(AType def, list[AType] atypes))) = [adt | t <- atypes, isADTType(t)];
+list[AType] getFormals(aprod(prod(AType def, list[AType] atypes))) = [t | t <- atypes, isADTType(t)];
 default list[AType] getFormals(AType t){
     throw rascalCheckerInternalError("Can only get formals from function or constructor type <prettyAType(t)>");
 }

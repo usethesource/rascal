@@ -571,7 +571,7 @@ void collect(current:(Assignable) `\< <{Assignable ","}+ elements> \>`, Collecto
 }
 
 void collect(current:(Assignable) `<Assignable receiver> @ <Name annotation>`, Collector c){
-    collect(receiver, c);
+    collect(receiver, annotation, c);
 }
    
 private void checkAssignment(Statement current, (Assignable) `( <Assignable arg> )`, str operator, Statement statement, Collector c){
@@ -726,15 +726,15 @@ private AType computeSubscriptAssignableType(Statement current, AType receiverTy
     subscriptType = s.getType(subscript); // TODO: overloaded?
     
     if (isListType(receiverType)) { 
-        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, not %t", subscriptType));
+        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
         return makeListType(computeAssignmentRhsType(current, getListElementType(receiverType), operator, rhs, s));
     } else if (isNodeType(receiverType)) {
-        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, not %t", subscriptType));
+        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
         computeAssignmentRhsType(current, avalue(), operator, rhs, s);
         return anode([]);
     } else if (isTupleType(receiverType)) {
         tupleFields = getTupleFields(receiverType);
-        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, not %t", subscriptType));
+        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
         if ((Expression)`<DecimalIntegerLiteral dil>` := subscript) {
             tupleIndex = toInt("<dil>");
             if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(receiverType))) {
@@ -752,12 +752,12 @@ private AType computeSubscriptAssignableType(Statement current, AType receiverTy
         }
     } else if (isMapType(receiverType)) {
         if (!comparable(subscriptType, getMapDomainType(receiverType)))
-            s.report(error(current, "Expected subscript of type %t, not %t", getMapDomainType(receiverType), subscriptType));
+            s.report(error(current, "Expected subscript of type %t, found %t", getMapDomainType(receiverType), subscriptType));
          return amap(alub(subscriptType, getMapDomainType(receiverType)), computeAssignmentRhsType(current, getMapRangeType(receiverType), operator, rhs, s));
     } else if (isRelType(receiverType)) {
         relFields = getRelFields(receiverType);
         if (!comparable(subscriptType, relFields[0]))
-            s.report(error(current, "Expected subscript of type %t, not %t", relFields[0], subscriptType));
+            s.report(error(current, "Expected subscript of type %t, found %t", relFields[0], subscriptType));
         return arel(atypeList([relFields[0],computeAssignmentRhsType(current, relFields[1], operator, rhs, s)]));
     } else {
         s.report(error(current, "Cannot assign value of type %t to assignable of type %t", rhs, receiverType));

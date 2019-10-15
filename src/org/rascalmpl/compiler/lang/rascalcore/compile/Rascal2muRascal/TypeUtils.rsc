@@ -120,18 +120,18 @@ private list[OFUN] overloadedFunctions = [];		// list of overloaded functions
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
-void addOverloadedFunctionAndResolver(OFUN fundescr) = addOverloadedFunctionAndResolver(fundescr.fuid, fundescr);
-
-void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
-	int n = indexOf(overloadedFunctions, fundescr);
-	if(n < 0){
-		n = size (overloadedFunctions);
-		overloadedFunctions += fundescr;
-	}
-	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
-	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
-	overloadingResolver[fuid1] = n;
-}
+//void addOverloadedFunctionAndResolver(OFUN fundescr) = addOverloadedFunctionAndResolver(fundescr.fuid, fundescr);
+//
+//void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
+//	int n = indexOf(overloadedFunctions, fundescr);
+//	if(n < 0){
+//		n = size (overloadedFunctions);
+//		overloadedFunctions += fundescr;
+//	}
+//	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
+//	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
+//	overloadingResolver[fuid1] = n;
+//}
 
 list[OFUN] getOverloadedFunctions() = overloadedFunctions;
 
@@ -523,36 +523,6 @@ AType getFunctionType(loc l) {
    }
 }
 
-//list[MuExp] getNestedParameters(loc l){
-//    fundef = definitions[l];
-//    //println("getNestedParameterNames: <l>");
-//    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
-//    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
-//   iprintln(positionals);
-//    return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
-//    //return [ vdef.id | vdef <- positionals ];
-//    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
-//}
-//
-//list[MuExp] getNestedParameters(Define fundef){
-//    //println("getNestedParameterNames: <l>");
-//    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
-//    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
-//   iprintln(positionals);
-//    return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
-//    //return [ vdef.id | vdef <- positionals ];
-//    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
-//}
-
-//list[str] getNestedParameterNames(loc l){
-//    fundef = definitions[l];
-//    //println("getNestedParameterNames: <l>");
-//    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
-//    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
-//    return [ vdef.id | vdef <- positionals ];
-//    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
-//}
-
 AType getClosureType(UID uid) {
    tp = getType(uid);
    if(afunc(_,_,_) := tp){
@@ -562,36 +532,16 @@ AType getClosureType(UID uid) {
    }
 }
 
-//tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType){
-//    adtType = unsetRec(adtType);
-//    fieldType = unsetRec(fieldType);
-//    if(adt_constructors[adtType]?){
-//        for(AType consType <- adt_constructors[adtType]){
-//            if(fieldType in consType.fields){
-//                return <consType,false>;
-//            } else {
-//                for(<AType kwType, Expression defaultExp> <- consType.kwFields){
-//                    if(kwType == fieldType){
-//                        return <consType, true>;
-//                    }
-//                 }
-//            }
-//        }
-//    }
-//    throw "getConstructor, no constructor found for <adtType>, <fieldType>";
-//}
-
 tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType){
     adtType = unsetRec(adtType);
     for(uid <- constructors){
         consType = getDefType(uid);
-        //iprintln(consType);
         if(unsetRec(consType.adt) == adtType){
             if(fieldType in consType.fields){
                 return <consType,false>;
             } else {
                 for(<AType kwType, Expression defaultExp> <- consType.kwFields){
-                    if(unsetRec(kwType) == fieldType){
+                    if(kwType == fieldType){
                         return <consType, true>;
                     }
                  }
@@ -762,9 +712,6 @@ MuExp mkVar(str name, loc l) {
   println("<name>, <l>");
  
   uqname = getUnqualifiedName(name);
-  if(uqname == "sum"){
-    println("sum!");
-  }
   defs = useDef[l];
   if(size(defs) > 1){
     assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions can have multiple definitions" ;
@@ -774,16 +721,25 @@ MuExp mkVar(str name, loc l) {
     orgFtype = ftype;
     println("orgFtype = <orgFtype>");
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := ftype){
-        resType = avoid();
-        formalsType = avoid();
-        for(<def, idrole, tp> <- overloads){
-            println("<def>, <idrole>, <tp>");
-            resType = alub(resType, getResult(tp));
-            formalsType = alub(formalsType, atypeList(getFormals(tp)));
-        }
-        ftype = atypeList(atypes) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
+       arities = { size(getFormals(tp)) | tp <- overloads<2> };
+       assert size(arities) == 1;
+       ar = getFirstFrom(arities);
+       resType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>, bprintln(tp));
+       formalsTypes = [avoid() | i <- [0 .. ar]];
+       
+       formalsTypes = (formalsTypes | alubList(it, getFormals(tp)) | tp <- overloads<2>);
+       
+        //resType = avoid();
+        //formalsType = avoid();
+        //for(<def, idrole, tp> <- overloads){
+        //    println("<def>, <idrole>, <tp>");
+        //    resType = alub(resType, getResult(tp));
+        //    formalsType = alub(formalsType, atypeList(getFormals(tp)));
+        //}
+        //ftype = atypeList(atypes) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
+        ftype = afunc(resType, formalsTypes, []);
     }
-   iprintln(overloadedTypeResolver, lineLimit=10000);
+    iprintln(overloadedTypeResolver, lineLimit=10000);
     println("orgFtype = <orgFtype>");
     println("ftype = <ftype>");
     for(<nm, tp> <- overloadedTypeResolver){

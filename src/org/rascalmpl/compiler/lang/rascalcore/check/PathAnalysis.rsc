@@ -30,9 +30,10 @@ bool returnsViaAllPath((Statement) `try <Statement body> <Catch+ handlers>`, str
     && all(h <- handlers, returnsViaAllPath(h.body, fname, c));
     
 bool returnsViaAllPath((Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`, str fname,  Collector c)
-    =  returnsViaAllPath(body, fname, c) 
-    && all(h <- handlers, returnsViaAllPath(h.body, fname, c))
-    || returnsViaAllPath(finallyBody, fname, c);
+    =  returnsViaAllPath(body, fname, c) &&
+       ( all(h <- handlers, returnsViaAllPath(h.body, fname, c))
+       || returnsViaAllPath(finallyBody, fname, c)
+       );
     
 
 bool returnsViaAllPath((Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`, str fname,  Collector c){
@@ -70,6 +71,9 @@ bool returnsViaAllPath((Statement) `{ <Statement+ statements> }`, str fname,  Co
     
 bool returnsViaAllPath(list[Statement] statements, str fname,  Collector c){
     int nstats = size(statements);
+    if(nstats == 0){
+        return false;
+    }
     for(int i <- index(statements)){
         statement = statements[i];
         if(returnsViaAllPath(statement, fname, c)){
