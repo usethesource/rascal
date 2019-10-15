@@ -50,7 +50,7 @@ test bool tstUnique0() = makeUnique(GEMPTY) == grammar(
     ]},
   ());
   
- test bool tstUnique0() = makeUnique(G0) == grammar(
+ test bool tstUnique1() = makeUnique(G0) == grammar(
   {sort("S")[
       @id=2
     ]},
@@ -85,7 +85,7 @@ test bool tstUnique0() = makeUnique(GEMPTY) == grammar(
           {})})
   ));
   
-test bool tstUnique1() = makeUnique(GEXP)== grammar(
+test bool tstUnique2() = makeUnique(GEXP)== grammar(
   {sort("E")[
       @id=2
     ]},
@@ -454,7 +454,7 @@ test bool tstComputeDontNests2() = computeDontNests(generateNewItems(makeUnique(
 test bool tstComputeDontNests3() = computeDontNests(generateNewItems(makeUnique(GEXP)), makeUnique(GEXP)) == {};
 test bool tstComputeDontNests4() = computeDontNests(generateNewItems(makeUnique(GEXPPRIO)), makeUnique(GEXPPRIO)) == {};
 
-test bool tstExpandParameterizedSymbols1() = expandParameterizedSymbols(G0) == 
+test bool tstExpandParameterizedSymbols5() = expandParameterizedSymbols(G0) == 
 grammar(
   {sort("S")},
   (
