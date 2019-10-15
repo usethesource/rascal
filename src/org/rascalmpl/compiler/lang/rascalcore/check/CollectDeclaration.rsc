@@ -261,8 +261,11 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
          
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt); 
         
+        if(decl is abstract){
+            c.report(warning(decl, "Empty function body"));
+        }
         if(decl is \default){
-            if(!returnsViaAllPath(decl.body, "<fname>", c) && "<signature.\type>" != "void"){
+            if("<signature.\type>" != "void" && !returnsViaAllPath(decl.body, "<fname>", c)){
                 c.report(error(decl, "Missing return statement"));
             }
         }

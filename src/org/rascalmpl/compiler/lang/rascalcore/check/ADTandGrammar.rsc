@@ -44,13 +44,14 @@ AGrammar addGrammar(loc scope, Solver s){
             productions = usedProductions[adtType];
             println("getGrammar: <productions>");
             definitions[adtType] = choice(adtType, productions);
-            if(adtType.syntaxRole == layoutSyntax()){
+            syntaxRole = (\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole;
+            if(syntaxRole == layoutSyntax()){
                 if(any(p <- productions, isManualLayout(p))){
                    allManualLayouts += adtType;
                 } else {
                     allLayouts = {*allLayouts, adtType};
                 }
-            } else if(adtType.syntaxRole == keywordSyntax()){
+            } else if(syntaxRole == keywordSyntax()){
                 checkKeyword(adtType, productions, scope, {}, s);
             }
            

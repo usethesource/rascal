@@ -168,14 +168,16 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
          } else {
             mubody = muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid);
         }
-      } else if(addReturn){
-            if((Statement) `<Expression expression>;` := body[0] && (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>` := expression){
-                mubody = translateBool(condition, "", muReturn1(resultType, translate(thenExp)), muReturn1(resultType, translate(elseExp)));
+      } else if(addReturn && !isEmpty(body)){
+            if((Statement) `<Expression expression>;` := body[0] && isConditional(expression)){
+                mubody = translateBool(expression.condition, "", muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp)));
+            } else if((Statement) `<Expression expression>;` := body[0] && isMatchOrNoMatch(expression)){
+                mubody = translateBool(expression, "", muReturn1(resultType, muCon(true)), muReturn1(resultType, muCon(false)));
             } else {
                 mubody = translate(body[0]);
             }
       } else {
-        mubody = muBlock([ translate(stat) | stat <- body ]);
+            mubody = muBlock([ translate(stat) | stat <- body ]);
       }
       
      
@@ -312,8 +314,14 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      params_when_body = ( when_body
                         | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));
-     funCode = functionBody(isVoidType(ftype.ret) ? params_when_body : muReturn1(ftype.ret, muBlock([params_when_body, muFailReturn(ftype)])), ftype, formalVars, isMemo);
-     leaveBacktrackingScope();
+                        
+     funCode = functionBody(isVoidType(ftype.ret) ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
+      
+     //funCode = functionBody(isVoidType(ftype.ret) ? params_when_body 
+     //                                             : (isBoolType(ftype.ret) ? muReturn1(ftype.ret, muBlock([params_when_body, muReturn1( abool(), muCon(false))]))
+     //                                                                      : muReturn1(ftype.ret, params_when_body)),
+     //                       ftype, formalVars, isMemo);
+     leaveBacktrackingScope(fname);
      return <formalVars, funCode>;
 }
 

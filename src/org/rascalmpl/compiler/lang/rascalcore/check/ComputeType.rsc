@@ -147,7 +147,7 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
     //println("---- <current>, identicalFormals: <identicalFormals>");
     nactuals = size(actuals); nformals = size(formals);
     if(nactuals != nformals){
-        s.report(error(current, "Expected %v arguments(s), found %v", nformals, nactuals));
+        s.report(error(current, "Expected %v argument(s), found %v", nformals, nactuals));
     }
     formalTypes = formals; // [ expandUserTypes(formals[i], scope, s) | i <- index(formals) ];
     index_formals = index(formals);
@@ -493,9 +493,9 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         // TODO: At some point we should have separate notation for this, but this final condition treats list
         // relations indexed by one int value as lists, making this an index versus a projection
         if (size(tl) != 1)
-            s.report(error(current, "Expected only 1 subscript for a list expression, not %v", size(tl)));
+            s.report(error(current, "Expected only 1 subscript for a list expression, found %v", size(tl)));
         else if (!isIntType(tl[0]))
-            s.report(error(current, "Expected subscript of type int, not %t", tl[0]));
+            s.report(error(current, "Expected subscript of type int, found %t", tl[0]));
         else
             return getListElementType(t1);
             //return makeListType(getListElementType(t1));
@@ -537,23 +537,23 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         }
     } else if (isMapType(t1)) {
         if (size(tl) != 1)
-            s.report(error(current, "Expected only 1 subscript for a map expression, not %v", size(tl)));
+            s.report(error(current, "Expected only 1 subscript for a map expression, found %v", size(tl)));
         else if (!comparable(tl[0],getMapDomainType(t1)))
-            s.report(error(current, "Expected subscript of type %t, not %t", getMapDomainType(t1),tl[0]));
+            s.report(error(current, "Expected subscript of type %t, found %t", getMapDomainType(t1),tl[0]));
         else
             return getMapRangeType(t1);
     } else if (isNodeType(t1)) {
         if (size(tl) != 1)
-            s.report(error(current, "Expected only 1 subscript for a node expression, not %v", size(tl)));
+            s.report(error(current, "Expected only 1 subscript for a node expression, found %v", size(tl)));
         else if (!isIntType(tl[0]))
-            s.report(error(current, "Expected subscript of type `int`, not %t", tl[0]));
+            s.report(error(current, "Expected subscript of type `int`, found %t", tl[0]));
         else
             return avalue();
     } else if (isTupleType(t1)) {
         if (size(tl) != 1) {
-            s.report(error(current, "Expected only 1 subscript for a tuple expression, not %v", size(tl)));
+            s.report(error(current, "Expected only 1 subscript for a tuple expression, found %v", size(tl)));
         } else if (!isIntType(tl[0])) {
-            s.report(error(current, "Expected subscript of type `int`, not %v", tl[0]));
+            s.report(error(current, "Expected subscript of type `int`, found %v", tl[0]));
         } else if ((Expression)`<DecimalIntegerLiteral dil>` := head(indexList)) {
             tupleIndex = toInt("<dil>");
             if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1))) {
@@ -568,14 +568,14 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         if (size(tl) != 1)
             s.report(error(current, "Expected only 1 subscript for a string expression, not %v", size(tl)));
         else if (!isIntType(tl[0]))
-            s.report(error(current, "Expected subscript of type `int`, not %t", tl[0]));
+            s.report(error(current, "Expected subscript of type `int`, found %t", tl[0]));
         else
             return astr();
     } else if (isNonTerminalType(t1)) {
         if (size(tl) != 1)
             s.report(error(current, "Expected only 1 subscript for a nonterminal subscript expression, not %v", size(tl)));
         else if (!isIntType(tl[0]))
-            s.report(error(current, "Expected subscript of type `int`, not %t", tl[0]));
+            s.report(error(current, "Expected subscript of type `int`, found %t", tl[0]));
         else if (isNonTerminalIterType(t1))
             return getNonTerminalIterElement(t1);
         else

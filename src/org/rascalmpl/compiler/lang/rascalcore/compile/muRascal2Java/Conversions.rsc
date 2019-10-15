@@ -2,6 +2,7 @@ module lang::rascalcore::compile::muRascal2Java::Conversions
 
 import Node;
 import String;
+import Map;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
@@ -447,36 +448,66 @@ default str getOuter(AType t)         = "avalue";
 /*  Convert an AType to a test for that AType (represented as VType)         */
 /*****************************************************************************/
 
-str atype2istype(str e, avoid())                 = "<e>.getType().isBottom()";
-str atype2istype(str e, abool())                 = "<e>.getType().isBool()";
-str atype2istype(str e, aint())                  = "<e>.getType().isInteger()";
-str atype2istype(str e, areal())                 = "<e>.getType().isReal()";
-str atype2istype(str e, arat())                  = "<e>.getType().isRational()";
-str atype2istype(str e, anum())                  = "<e>.getType().isNumber()";
-str atype2istype(str e, astr())                  = "<e>.getType().isString()";
-str atype2istype(str e, aloc())                  = "<e>.getType().isSourceLocation()";
-str atype2istype(str e, adatetime())             = "<e>.getType().isDateTime()";
-str atype2istype(str e, alist(AType t))          = "<e>.getType().isList()";
-str atype2istype(str e, aset(AType t))           = "<e>.getType().isSet()";
-str atype2istype(str e, arel(AType ts))          = "<e>.getType().isRelation() && (((ISet)<e>).isEmpty() || ((ISet)<e>).asRelation().arity() == <size(ts)>)";
-str atype2istype(str e, alrel(AType ts))         = "<e>.getType().isListRelation() && (((IList)<e>).isEmpty() || ((IList)<e>).asRelation().arity() == <size(ts)>)";
-str atype2istype(str e, atuple(AType ts))        = "<e>.getType().isTuple() && ((ITuple)<e>).arity() == <size(ts)>";
-str atype2istype(str e, amap(AType d, AType r))  = "<e>.getType().isMap()";
+str atype2istype(str e, AType t)                           = atype2istype1(e, "getType()", t);
+str atype2isElementType(str e, AType t)                    = atype2istype1(e, "getElementType()", t);
+str atype2isKeyType(str e, AType t)                        = atype2istype1(e, "getKeyType()", t);
+str atype2isValueType(str e, AType t)                      = atype2istype1(e, "getValueType()", t);
+str atype2isFieldType(str e, int i, AType t)               = atype2istype1(e, "getType().getFieldType(<i>)", t);
+str atype2isRelFieldType(str e, int i, AType t)            = atype2istype1("((ISet)<e>).asRelation()", "getElementType().getFieldType(<i>)", t);
+str atype2isLRelFieldType(str e, int i, AType t)           = atype2istype1("((IList)<e>).asRelation()", "getElementType().getFieldType(<i>)", t);
 
-str atype2istype(str e, afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-                                          = "<e>.getType().isExternalType()";
-str atype2istype(str e, anode(list[AType fieldType] fields)) 
-                                          = "<e>.getType().isNode()";
-str atype2istype(str e, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
-                                          = "<e>.getType().isAbstractData()";
-str atype2istype(str e, t: acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
-                                          = "<e>.getType().isConstructor()";
-str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads))
-                                          = "<e>.getType().isOverloaded()";
-str atype2istype(str e, aparameter(str pname, AType bound)) = atype2istype(e, bound);
-str atype2istype(str e, areified(AType atype))   = "isReified(<e>)";    // TODO
-str atype2istype(str e, avalue())                = "<e>.getType().isTop()";
-default str atype2istype(str e, AType t)         { throw "atype2istype: cannot handle <t>"; }
+
+str atype2istype1(str e, str get, avoid())                 = "<e>.<get>.isBottom()";
+str atype2istype1(str e, str get, abool())                 = "<e>.<get>.isBool()";
+str atype2istype1(str e, str get, aint())                  = "<e>.<get>.isInteger()";
+str atype2istype1(str e, str get, areal())                 = "<e>.<get>.isReal()";
+str atype2istype1(str e, str get, arat())                  = "<e>.<get>.isRational()";
+str atype2istype1(str e, str get, anum())                  = "<e>.<get>.isNumber()";
+str atype2istype1(str e, str get, astr())                  = "<e>.<get>.isString()";
+str atype2istype1(str e, str get, aloc())                  = "<e>.<get>.isSourceLocation()";
+str atype2istype1(str e, str get, adatetime())             = "<e>.<get>.isDateTime()";
+str atype2istype1(str e, str get, alist(AType t))          = "<e>.<get>.isList()<elem_check>"
+                                                           when tp := atype2isElementType("((IList)<e>)", t),
+                                                                elem_check := (tp == "true" ? "" : " && <tp>");
+str atype2istype1(str e, str get, aset(AType t))           = "<e>.<get>.isSet()<elem_check>"
+                                                           when tp := atype2isElementType("((ISet)<e>)", t),
+                                                                elem_check := (tp == "true" ? "" : " && <tp>");
+str atype2istype1(str e, str get, arel(atypeList(list[AType] ts)))         
+                                                           = "<e>.<get>.isRelation() && (((ISet)<e>).isEmpty() || ((ISet)<e>).asRelation().arity() == <size(ts)>)<field_checks>"
+                                                           when field_checks0 := intercalate(" && ", [*(tp == "true" ? [] : tp) | i <- index(ts), tp := atype2isRelFieldType(e, i, ts[i])]),
+                                                                field_checks := (isEmpty(field_checks0) ? "" : " && <field_checks0>");
+
+str atype2istype1(str e, str get, alrel(atypeList(list[AType] ts)))
+                                                           = "<e>.<get>.isListRelation() && (((IList)<e>).isEmpty() || ((IList)<e>).asRelation().arity() == <size(ts)>)<field_checks>"
+                                                           when field_checks0 := intercalate(" && ", [*(tp == "true" ? [] : tp) | i <- index(ts), tp := atype2isLRelFieldType(e, i, ts[i])]),
+                                                                field_checks := (isEmpty(field_checks0) ? "" : " && <field_checks0>");
+
+str atype2istype1(str e, str get, atuple(atypeList(list[AType] ts)))        
+                                                            = "<e>.<get>.isTuple() && ((ITuple)<e>).arity() == <size(ts)><field_checks>"
+                                                            when field_checks0 := intercalate(" && ", [*(tp == "true" ? [] : tp)| i <- index(ts), tp := atype2isFieldType("((ITuple)<e>)", i, ts[i])]),
+                                                                 field_checks  := (isEmpty(field_checks0) ? "" : " && <field_checks0>");
+
+str atype2istype1(str e, str get, amap(AType d, AType r))   = "<e>.<get>.isMap()<key_check><val_check>"
+                                                            when tpk := atype2isKeyType("((IMap)<e>)", d),
+                                                                 key_check := (tpk == "true" ? "" : " && <tpk>"),
+                                                                 tpv := atype2isValueType("((IMap)<e>)", r),
+                                                                 val_check := (tpv == "true" ? "" : " && <tpv>")
+                                                                ;
+
+str atype2istype1(str e, str get, afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
+                                          = "<e>.<get>.isExternalType()";
+str atype2istype1(str e, str get, anode(list[AType fieldType] fields)) 
+                                          = "<e>.<get>.isNode()";
+str atype2istype1(str e, str get, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
+                                          = "<e>.<get>.isAbstractData()";
+str atype2istype1(str e, str get, t: acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
+                                          = "<e>.<get>.isConstructor()";
+str atype2istype1(str e, str get, overloadedAType(rel[loc, IdRole, AType] overloads))
+                                          = "<e>.<get>.isOverloaded()";
+str atype2istype1(str e, str get, aparameter(str pname, AType bound)) = atype2istype(e, bound);
+str atype2istype1(str e, str get, areified(AType atype))   = "isReified(<e>)";    // TODO
+str atype2istype1(str e, str get, avalue())                = "true"; // "<e>.<get>.isTop()";
+default str atype2istype1(str e, str get, AType t)         { throw "atype2istype1: cannot handle <t>"; }
 
 // ----
 
@@ -577,7 +608,16 @@ str value2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup) = "$VF.tuple(<value2I
 str value2IValue(map[&K,&V] mp) = "$buildMap(<intercalate(", ", ["<value2IValue(k)>, <value2IValue(mp[k])>" | k <- mp ])>)";
 
 
-str value2IValue(node nd) = "$VF.node(<getName(nd)>, <intercalate(", ", [ value2IValue(child) | child <- getChildren(nd) ])>)";
+str value2IValue(node nd) {
+    name = getName(nd);
+    name = isEmpty(name) ? "\"\"" : (name[0] == "\"" ? name : "\"<name>\"");
+    children = getChildren(nd);
+    childrenContrib = isEmpty(children) ? "" : ", <intercalate(", ", [ value2IValue(child) | child <- getChildren(nd) ])>";
+    kwparams = getKeywordParameters(nd);
+    kwparamsContrib = isEmpty(kwparams) ? "" : ", keywordParameters=<kwparams>";
+    return "$VF.node(<name><childrenContrib><kwparamsContrib>)";
+}
+
 str value2IValue(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = adtName;
 
 str value2IValue(acons(AType adt,
