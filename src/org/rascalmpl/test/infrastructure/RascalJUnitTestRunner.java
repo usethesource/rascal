@@ -159,13 +159,25 @@ public class RascalJUnitTestRunner extends Runner {
 
             for (String module : modules) {
                 String name = prefix + "::" + module;
+                Description modDesc = Description.createSuiteDescription(name);
 
                 try {
                     evaluator.doImport(new NullRascalMonitor(), name);
+                    List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
+                
+                    if (tests.isEmpty()) {
+                        continue;
+                    }
+                    
+                    desc.addChild(modDesc);
+
+                    // the order of the tests aren't decided by this list so no need to randomly order them.
+                    for (AbstractFunction f : tests) {
+                        modDesc.addChild(Description.createTestDescription(clazz, computeTestName(f.getName(), f.getAst().getLocation())));
+                    }
                 }
                 catch (Throwable e) {
                     System.err.println(e);
-                    Description modDesc = Description.createSuiteDescription(name);
                     desc.addChild(modDesc);
 
                     Description testDesc = Description.createTestDescription(clazz, name + "compilation failed", new CompilationFailed() {
@@ -176,16 +188,6 @@ public class RascalJUnitTestRunner extends Runner {
                     });
 
                     modDesc.addChild(testDesc);
-                    continue;
-                }
-
-
-                Description modDesc = Description.createSuiteDescription(name);
-                desc.addChild(modDesc);
-
-                // the order of the tests aren't decided by this list so no need to randomly order them.
-                for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
-                    modDesc.addChild(Description.createTestDescription(clazz, computeTestName(f.getName(), f.getAst().getLocation())));
                 }
             }
 
