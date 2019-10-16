@@ -11,12 +11,15 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::util::Names;
+import lang::rascalcore::compile::util::Location;
 
 import lang::rascalcore::check::BasicRascalConfig;
 import Type;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
+
+
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
@@ -571,11 +574,11 @@ iprintln(definitions);
   else {
     bool found = false;
     for(c <- functions){
-        if(containedIn(l, c)){ container = c; found = true; break; }
+        if(isContainedIn(l, c)){ container = c; found = true; break; }
     }
     if(!found){
         for(c <- modules){
-         if(containedIn(l, c)){ container = c; found = true; break; }
+         if(isContainedIn(l, c)){ container = c; found = true; break; }
         }
     }
     if(!found) throw "No container found for <name>, <l>";
@@ -679,11 +682,6 @@ public MuExp mkCallToLibFun(str modName, str fname)
 // - inner scope first, most recent last
 // - then default functions (also most inner scope first, then most recent last).
 
-// Is inner location textually contained in outer location?
-bool containedIn(loc inner, loc outer){
-    return inner.path == outer.path && inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
-}
-
 // Occurs location before before location after?
 bool occursBefore(loc before, loc after){
     return before.path == after.path && before.offset + before.length < after.offset;
@@ -692,7 +690,7 @@ bool occursBefore(loc before, loc after){
 private bool funFirst(UID n, UID m) {
     if(n == m) return false;
     if(n.path != m.path) return n.path < m.path;
-    if(containedIn(n, m)) return true;
+    if(isContainedIn(n, m)) return true;
     return occursBefore(n, m);
 }
 
@@ -715,7 +713,7 @@ MuExp mkVar(str name, loc l) {
   defs = useDef[l];
   if(size(defs) > 1){
     assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions can have multiple definitions" ;
-   println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
+    println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
   
     ftype = unsetRec(getType(l));
     orgFtype = ftype;

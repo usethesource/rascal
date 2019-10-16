@@ -40,9 +40,9 @@ AGrammar addGrammar(loc scope, Solver s){
         definitions = ();
         //PM. maybe also generate prod(Symbol::empty(),[],{}) 
         for(AType adtType <- domain(usedProductions)){
-            println("getGrammar: <adtType>");
+            //println("getGrammar: <adtType>");
             productions = usedProductions[adtType];
-            println("getGrammar: <productions>");
+            //println("getGrammar: <productions>");
             definitions[adtType] = choice(adtType, productions);
             syntaxRole = (\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole;
             if(syntaxRole == layoutSyntax()){

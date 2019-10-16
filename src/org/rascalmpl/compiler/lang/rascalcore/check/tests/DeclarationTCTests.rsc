@@ -3,6 +3,7 @@ module lang::rascalcore::check::tests::DeclarationTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
  
+ @ignore{TODO}
 test bool localTypeInferenceNoEscape2() = undeclaredVariable("{ x = 1; x == 1; } x;");
 
 test bool undeclaredType1() = undeclaredType("X N;");            // TODO Type X undeclared
@@ -13,6 +14,7 @@ test bool shadowingDeclaration1() = redeclaredVariable("int N = 1; {int N = 2;};
 
 test bool shadowingDeclaration2() = redeclaredVariable("N = 1; {int N = 2;}; N == 1;");
 
+@ignore{TODO}
 test bool shadowingDeclaration4() = redeclaredVariable("int N = 3; int N := 3;");
 
 
@@ -142,6 +144,7 @@ test bool ExtendADT(){
 // MAH: We currently allow redeclarations in cases where the redeclaration exactly matches
 // an existing declaration. The original test was modified to add constructor fields, which
 // will then trigger an error.
+@ignore{TODO}
 test bool RedeclareConstructorError(){ 
 	makeModule("MMM", "data DATA = d(int n);"); 
 	return declarationError("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["MMM"]);

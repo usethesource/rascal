@@ -462,7 +462,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
     aliasName = prettyPrintName(name);
-    c.define(aliasName, aliasId(), name, defType([base], AType(Solver s) { return s.getType(base); }));
+    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); }));
     collect(base, c);
 } 
 
