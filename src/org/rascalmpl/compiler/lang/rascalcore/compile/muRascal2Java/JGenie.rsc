@@ -17,6 +17,7 @@ import lang::rascalcore::compile::muRascal2Java::Conversions;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::compile::util::Location;
 
 alias JCode = str;
 
@@ -108,7 +109,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
         
     str _getImportedModuleName(loc def){
         for(mname <- moduleLocs){
-            if(containedIn(def, moduleLocs[mname])){
+            if(isContainedIn(def, moduleLocs[mname])){
                 return module2field(mname);
             }
         }
@@ -122,7 +123,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 if(defType(AType tp) := def.defInfo){
                     descriptor = atype2idpart(tp);
                     baseName = getJavaName(def.id);
-                    if(containedIn(def.defined, currentModuleScope)){
+                    if(isContainedIn(def.defined, currentModuleScope)){
                         fun = muFunctionsByLoc[def.defined];
                         return getJavaName(getFunctionName(fun));
                         //if(isClosureName(baseName)){
@@ -147,7 +148,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 def = tmodels[mname].definitions[src];
                 if(defType(AType tp) := def.defInfo){
                     baseName = "<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>_<def.defined.end.line>";
-                    if(containedIn(def.defined, currentModuleScope)){
+                    if(isContainedIn(def.defined, currentModuleScope)){
                         fun = muFunctionsByLoc[def.defined];
                         return getJavaName(getUniqueFunctionName(fun));
                         //if(isClosureName(baseName)){
@@ -177,7 +178,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     
     list[MuExp] _getExternalVars(loc src){
         if(fun2externals[src]?){
-            evars = containedIn(src, currentModuleScope) ? fun2externals[src] : [];
+            evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : [];
             return [var | var <- evars, var.pos >= 0 ];
         }
         return [];
@@ -185,7 +186,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     
     bool _isDefinedInCurrentFunction(MuExp var){
         definitions = currentModule.definitions;
-        for(d <- definitions, def := definitions[d], var.name == def.id, containedIn(def.scope, function.src), def.idRole in variableRoles){
+        for(d <- definitions, def := definitions[d], var.name == def.id, isContainedIn(def.scope, function.src), def.idRole in variableRoles){
             return true;
         }
         return false;
@@ -278,8 +279,8 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     }
     
     bool _usesLocalFunctions(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
-        return    any(of <- overloads.ofunctions, containedIn(currentModule.definitions[of].defined, currentModuleScope))
-               || any(oc <- overloads.oconstructors, containedIn(currentModule.definitions[oc].defined, currentModuleScope));
+        return    any(of <- overloads.ofunctions, isContainedIn(currentModule.definitions[of].defined, currentModuleScope))
+               || any(oc <- overloads.oconstructors, isContainedIn(currentModule.definitions[oc].defined, currentModuleScope));
     }
     
     tuple[str name, list[str] argTypes] getElements(str signature){

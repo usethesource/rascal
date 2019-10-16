@@ -111,7 +111,8 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Bound should have type _, found _",
 	    "Assertion should be `bool`, found _",
 	    "Expected subscript of type _, found _",
-	    "Tuple index must be between _ and _"
+	    "Tuple index must be between _ and _",
+	    "Cannot assign righthand side of type _ to lefthand side of type _"
 		//"_ not defined for _ and _", 
 		//"not defined on _ and _", 
 		//"not declared on",
@@ -197,6 +198,7 @@ bool cannotMatch(str stmts, list[str] importedModules = [], list[str] initialDec
 	      "Pattern of type _ cannot be used to enumerate over _",
 	      "Type _ is not enumerable",
 	      "Incompatible type in assignment to variable _, expected _, found _",
+	      "Pattern should be subtype of _, found _",
 	      "Pattern should be comparable with _, found _",
 	      "Expected tuple pattern with _ elements, found _"
 		  //"Cannot match an expression of type: _ against a pattern of type", 
@@ -208,7 +210,9 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	check(stmts, [
 	      "Initialization of _ should be subtype of _",
 	      "Invalid initialization of _",
-	      "Undefined _"
+	      "Undefined _",
+	      "Double declaration of _",
+	      "Constructor _ of data type _ clashes with other declaration with comparable fields"
 		  //"Constructor _ overlaps existing constructors in the same datatype", 
 		  //"Initializer type",
 		  //"Errors present in constructor parameters, cannot add constructor to scope"

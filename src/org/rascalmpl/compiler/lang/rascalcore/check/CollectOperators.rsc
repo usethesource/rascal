@@ -578,7 +578,7 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
                 subjectType = isubjectType;
                 //s.keepBindings(getLoc(pat)); // <===
             }
-            s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
+            s.requireSubType(patType, subjectType, error(current, "Pattern should be subtype of %t, found %t", subjectType, patType));
             return abool();
         });
     c.push(patternContainer, "match");
@@ -751,8 +751,8 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
 // ---- if expression
 
 void collect(current: (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, Collector c){
-    c.enterScope(condition);   // thenExp may refer to variables defined in conditions; elseExp may not
-        storeExcludeUse(condition, elseExp, c);            // variable occurrences in elseExp may not refer to variables defined in condition
+    c.enterScope(current);   // thenExp may refer to variables defined in conditions; elseExp may not
+        storeExcludeUse(current, elseExp, c);            // variable occurrences in elseExp may not refer to variables defined in condition
         
         c.calculate("if expression", current, [condition, thenExp, elseExp],
             AType(Solver s){
@@ -765,5 +765,5 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
         collect(condition, c);
         endPatternScope(c);
         collect(thenExp, elseExp, c);
-    c.leaveScope(condition); 
+    c.leaveScope(current); 
 }

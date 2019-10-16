@@ -13,6 +13,8 @@ import lang::rascalcore::compile::muRascal::AST;
 
 extend lang::rascalcore::check::ComputeType;
 
+import lang::rascalcore::compile::util::Location;
+
 extend lang::rascalcore::grammar::ParserGenerator;
 
 import List;
@@ -24,69 +26,83 @@ str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.ge
 
 // Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
-    bool seenVAR = false;
+    bool seenVAR_FORMAL = false;
     bool seenNT  = false;
     bool seenLEX = false;
     bool seenLAY = false;
     bool seenKEY = false;
+    bool seenALIAS = false;
     
     for(def <- defs){
         // Forbid:
-        // - overloading of variables
+        // - overloading of variables/formals
         // - overloading of incompatible syntax definitions
         switch(defines[def].idRole){
         case variableId(): 
-            { if(seenVAR) return false;  seenVAR = true;}
+            { if(seenVAR_FORMAL) return false;  seenVAR_FORMAL = true;}
+        case formalId(): 
+            { if(seenVAR_FORMAL) return false;  seenVAR_FORMAL = true;}
+        case patternVariableId(): 
+            { if(seenVAR_FORMAL) return false;  seenVAR_FORMAL = true;}
         case nonterminalId():
             { if(seenLEX || seenLAY || seenKEY){  return false; } seenNT = true; }
         case lexicalId():
-            { if(seenNT || seenLAY || seenKEY) {  return false; }  seenLEX= true; }
+            { if(seenNT || seenLAY || seenKEY) {  return false; } seenLEX= true; }
         case layoutId():
-            { if(seenNT || seenLEX || seenKEY) {  return false; }  seenLAY = true; }
+            { if(seenNT || seenLEX || seenKEY) {  return false; } seenLAY = true; }
         case keywordId():
-            { if(seenNT || seenLAY || seenLEX) {  return false; }  seenKEY = true; }
+            { if(seenNT || seenLAY || seenLEX) {  return false; } seenKEY = true; }
+         case aliasId():
+            { if(seenALIAS) return false; seenALIAS = true; }    
         }
     }
     return true;
 }
 
 // Name resolution filters
+
+set[IdRole] defBeforeUseRoles = {variableId(), formalId(), keywordFormalId(), patternVariableId()};
+bool dbg = false;
 @memo
 Accept rascalIsAcceptableSimple(TModel tm, loc def, Use use){
-    //println("rascalIsAcceptableSimple: <use.id> def=<def>, use=<use>");
+    if(dbg)println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
  
-    if(variableId() in use.idRoles || formalId() in use.idRoles || keywordFormalId() in use.idRoles){
+    if(!isEmpty(use.idRoles & defBeforeUseRoles)){
        // enforce definition before use
-       if(def.path == use.occ.path && /*def.path == use.scope.path &&*/ def < use.scope){
-          if(use.occ.offset < def.offset){
-             // allow when inside explicitly use before def parts
-             if(lrel[loc,loc] allowedParts := tm.store[key_allow_use_before_def] ? []){
-                 list[loc] parts = allowedParts[use.scope];
-                 if(!isEmpty(parts)){
-                    if(any(part <- parts, use.occ < part)){
-                       return acceptBinding();
-                    }
-                  } else {
-                   //println("rascalIsAcceptableSimple =\> <ignoreContinue()>");
-                   return ignoreContinue();
-                 }
-             } else {
+       if(dbg){println("use.occ: <use.occ>"); println("def: <def>"); println("use.scope: <use.scope>");}
+     
+       if(isBefore(use.occ, def)){        // Comes the use before the definition?
+          // only allow when inside explicitly use before def parts
+                      
+          if(lrel[loc,loc] allowedParts := tm.store[key_allow_use_before_def] ? []){
+             if(dbg)iprintln(allowedParts);
+             list[loc] parts = allowedParts[use.scope];
+             if(dbg)println("parts = <parts>, <any(part <- parts,  isContainedIn(use.occ, part))>");
+             if(!isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part))){
+                //if(isContainedIn(def, use.scope))
+                    return acceptBinding();
+           }
+             //println("rascalIsAcceptableSimple =\> <ignoreContinue()>");
+           if(isContainedIn(def, use.scope))
+                return ignoreContinue();
+           } else {
                 throw "Inconsistent value stored for <key_allow_use_before_def>: <tm.store[key_allow_use_before_def]>";
-             }
-          }
-          // restrict when in excluded parts of a scope
-          if(lrel[loc,loc] excludedParts := tm.store[key_exclude_use] ? []){
+           }
+       
+           // restrict when in excluded parts of a scope
+          
+           if(lrel[loc,loc] excludedParts := tm.store[key_exclude_use] ? []){
               list[loc] parts = excludedParts[use.scope];
-              //println("parts = <parts>, <any(part <- parts, use.occ < part)>");
-              if(!isEmpty(parts)){
-                 if(any(part <- parts, use.occ < part)){
-                    //println("rascalIsAcceptableSimple =\> <ignoreContinue()>");
+              if(dbg)println("parts = <parts>, <any(part <- parts, isContainedIn(use.occ, part))>");
+              if(!isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part))){
+                 if(dbg)println("rascalIsAcceptableSimple =\> <ignoreContinue()>");
+                 
+                 if(isContainedIn(def, use.scope)) // || (isBefore(use.scope, def) && !isAfter(def, use.scope))
                     return ignoreContinue();
-                 }
               } 
-          } else {
-             throw "Inconsistent value stored for <key_allow_use_before_def>: <tm.store[key_allow_use_before_def]>";
-          }
+           } else {
+                 throw "Inconsistent value stored for <key_allow_use_before_def>: <tm.store[key_allow_use_before_def]>";
+           }
        }
     }
     //println("rascalIsAcceptableSimple =\> < acceptBinding()>");
@@ -314,7 +330,7 @@ TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
     return m;
 }
 
-void checkOverloadedFunctions(map[str,Tree] namedTrees, Solver s){
+void checkOverloading(map[str,Tree] namedTrees, Solver s){
     definitions = s.getAllDefinitions();
     facts = s.getFacts();
     moduleScopes = { t@\loc | t <- range(namedTrees) };
@@ -335,10 +351,22 @@ void checkOverloadedFunctions(map[str,Tree] namedTrees, Solver s){
             s.addMessages(msgs);
         }        
     }
+    
+    consDefs = {<define.id, define> | define <- definitions, define.idRole == constructorId() };
+    consIds = domain(consDefs);
+    for(id <- consIds){
+        defs = consDefs[id];
+        if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1 != d2,  t1 := facts[d1.defined], t2 := facts[d2.defined],
+                                d1.scope in moduleScopes && d2.scope in moduleScopes && t1.adt == t2.adt, size(t1.fields) == size(t2.fields), comparable(t1.fields, t2.fields)
+                                )){
+            msgs = [ error("Constructor `<id>` of data type `<prettyAType(t1.adt)>` clashes with other declaration with comparable fields", d.defined) | d <- defs ];
+            s.addMessages(msgs);
+        }      
+    }
 }
 
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
-    checkOverloadedFunctions(namedTrees, s);
+    checkOverloading(namedTrees, s);
     
     if(!s.reportedErrors()){
         for(mname <- namedTrees){
@@ -381,7 +409,7 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = true,  bool logImports =
         isSubType                     = /*lang::rascalcore::check::AType::*/asubtype,
         getLub                        = /*lang::rascalcore::check::AType::*/alub,
         
-        lookup                        = lookupWide,
+ //       lookup                        = lookupWide,
         isInferrable                  = rascalIsInferrable,
         isAcceptableSimple            = rascalIsAcceptableSimple,
         isAcceptableQualified         = rascalIsAcceptableQualified,

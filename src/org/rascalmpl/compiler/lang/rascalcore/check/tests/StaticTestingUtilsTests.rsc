@@ -19,7 +19,7 @@ test bool testUtils06() = checkOK("t();", initialDecls=["data Bool = and(Bool, B
 	
 test bool testUtils07() = checkOK("and(t(),t());", initialDecls=["data Bool = and(Bool, Bool) | t();"]);
 
-test bool testUtils08() =  checkOK("and(t(),t());f();", initialDecls=["data Bool = and(Bool, Bool) | t();", "data Prop = or(Prop, Prop) | f();"]);
+test bool testUtils08() = checkOK("and(t(),t());f();", initialDecls=["data Bool = and(Bool, Bool) | t();", "data Prop = or(Prop, Prop) | f();"]);
 
 test bool testUtils09() = checkOK("NODE N = f(0, \"a\", 3.5);", initialDecls = ["data NODE = f(int a, str b, real c);"]);
 

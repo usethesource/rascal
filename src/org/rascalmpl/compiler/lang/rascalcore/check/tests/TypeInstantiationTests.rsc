@@ -1,3 +1,4 @@
+@ignore{TODO}
 module lang::rascalcore::check::tests::TypeInstantiationTests
 
 import lang::rascalcore::check::ATypeInstantiation;

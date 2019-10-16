@@ -7,6 +7,7 @@ extend lang::rascalcore::check::Checker;
 
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::compile::util::Location;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -241,10 +242,10 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.modelName = qualifiedModuleName;
         m1.moduleLocs = (qualifiedModuleName : mscope);
         
-        m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
+        m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         //if(tm.config.logImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
         //println("tm.specializedFacts:"); iprintln(tm.specializedFacts);
-        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
+        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         //println("m1.specializedFacts:"); iprintln(m1.specializedFacts);
         m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
         
@@ -261,8 +262,8 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- m1.paths, tup.from == mscope };
         //m1.paths = domainR(tm.paths, {mscope});
         
-        //m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
-        m1.useDef = { <u, d> | <u, d> <- tm.useDef, containedIn(u, mscope) };
+        //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
+        m1.useDef = { <u, d> | <u, d> <- tm.useDef, isContainedIn(u, mscope) };
         
         //roles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), annoId()} + anyVariableRoles;
         // Filter model for current module and replace functions in defType by their defined type

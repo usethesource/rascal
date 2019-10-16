@@ -316,8 +316,8 @@ set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(
   res = runTests(files_with_tests, "");
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   
-  res = runTests(typeTests, "lang::rascal::tests::types");
-  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
+  //res = runTests(typeTests, "lang::rascalcore::check::tests");
+  //all_crashes += res.crashes; all_msgs += res.msgsPerModule;
    
    for(msg <- all_msgs)
       println(msg);

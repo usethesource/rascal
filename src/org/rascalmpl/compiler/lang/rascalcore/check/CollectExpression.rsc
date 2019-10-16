@@ -429,6 +429,12 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
     gens = [gen | gen <- generators];
     res  = [r | r <- results];
     storeAllowUseBeforeDef(current, results, c); // variable occurrences in results may refer to variables defined in generators
+    for(int i <- reverse(index(gens))){          // variables occurrences in generators may only refer to variables defined in previous generators
+        gen = gens[i];
+        for(int j <- [0 .. i]){
+            storeExcludeUse(gen, gens[j], c);
+        }
+    }
     c.enterScope(current);
     beginPatternScope("set-comprehension", c);
         c.require("set comprehension", current, res + gens,
@@ -452,6 +458,13 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
     gens = [gen | gen <- generators];
     res  = [r | r <- results];
     storeAllowUseBeforeDef(current, results, c); // variable occurrences in results may refer to variables defined in generators
+    for(int i <- reverse(index(gens))){          // variables occurrences in generators may only refer to variables defined in previous generators
+        gen = gens[i];
+        for(int j <- [0 .. i]){
+            storeExcludeUse(gen, gens[j], c);
+        }
+    }
+    
     c.enterScope(current);
     beginPatternScope("list-comprehension", c);
         c.require("list comprehension", current, gens,
@@ -474,7 +487,13 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
 void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{Expression ","}+ generators> )`, Collector c){
     gens = [gen | gen <- generators];
     storeAllowUseBeforeDef(current, from, c); // variable occurrences in from may refer to variables defined in generators
-    storeAllowUseBeforeDef(current, to, c); // variable occurrences in to may refer to variables defined in generators
+    storeAllowUseBeforeDef(current, to, c);  // variable occurrences in to may refer to variables defined in generators
+    for(int i <- reverse(index(gens))){      // variables occurrences in generators may only refer to variables defined in previous generators
+        gen = gens[i];
+        for(int j <- [0 .. i]){
+            storeExcludeUse(gen, gens[j], c);
+        }
+    }
     c.enterScope(current);
     beginPatternScope("map-comprehension", c);
         c.require("map comprehension", current, gens,
@@ -497,6 +516,12 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
 void collect(current: (Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`, Collector c){
     gens = [gen | gen <- generators];
     storeAllowUseBeforeDef(current, result, c); // variable occurrences in result may refer to variables defined in generators
+    for(int i <- reverse(index(gens))){        // variables occurrences in generators may only refer to variables defined in previous generators
+        gen = gens[i];
+        for(int j <- [0 .. i]){
+            storeExcludeUse(gen, gens[j], c);
+        }
+    }
     c.enterScope(current);
     beginPatternScope("reducer", c);
         //tau = c.newTypeVar();

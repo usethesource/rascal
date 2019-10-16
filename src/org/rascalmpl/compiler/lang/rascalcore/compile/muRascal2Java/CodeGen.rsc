@@ -6,6 +6,7 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::compile::util::Location;
 import List;
 import Set;
 import Relation;
@@ -690,7 +691,7 @@ tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgT
 
 JCode trans(MuFunction fun, JGenie jg){
     iprintln(fun);
-    if(!containedIn(fun.src, jg.getModuleLoc()) )return "";
+    if(!isContainedIn(fun.src, jg.getModuleLoc()) )return "";
     ftype = fun.ftype;
     jg.setFunction(fun);
     shortName = getJavaName(getUniqueFunctionName(fun));
@@ -1043,7 +1044,7 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs), JGenie jg){
            actuals += [ varName(var, jg)| var <- externalVars, var.pos >= 0 ];
         }
         
-       if(containedIn(uid, jg.getModuleLoc())){
+       if(isContainedIn(uid, jg.getModuleLoc())){
          muFun = muFunctionsByLoc[uid];
          return "<getUniqueFunctionName(muFun)>(<intercalate(", ", actuals)>)";
        } else {  

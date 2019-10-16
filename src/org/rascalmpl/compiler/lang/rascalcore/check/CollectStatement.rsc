@@ -581,6 +581,7 @@ private void checkAssignment(Statement current, (Assignable) `( <Assignable arg>
 
 private AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsType, Solver s){
     checkNonVoid(current, rhsType, s, "Righthand side of assignment");
+    s.requireSubType(rhsType, lhsType, error(current, "Cannot assign righthand side of type %t to lefthand side of type %t", rhsType, lhsType));
     return rhsType;
 }
     

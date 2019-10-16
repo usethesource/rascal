@@ -33,7 +33,8 @@ test bool doubleFieldError3() =
   	
 test bool doubleFieldError4() = 
 	declarationError("true;", initialDecls=["alias INTEGER = int;", "data D = d(int n) | d(INTEGER v);"]); 
-	
+
+@ignore{Discuss: do we realy want this?}	
 test bool exactDoubleDataDeclarationIsAllowed() = 
 	checkOK("true;", initialDecls=["data D = d(int n) | e();", "data D = d(int n);"]);  // TODO: it seems that we allow exact redeclaration
   	
