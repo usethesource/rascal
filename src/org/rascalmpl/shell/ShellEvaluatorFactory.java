@@ -43,7 +43,7 @@ public class ShellEvaluatorFactory {
     return evaluator;
   }
 
-  private static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
+  public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
       URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
       String projectName = new RascalManifest().getProjectName(projectRoot);
