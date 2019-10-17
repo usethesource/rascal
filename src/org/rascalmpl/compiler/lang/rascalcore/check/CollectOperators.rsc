@@ -578,7 +578,7 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
                 subjectType = isubjectType;
                 //s.keepBindings(getLoc(pat)); // <===
             }
-            s.requireSubType(patType, subjectType, error(current, "Pattern should be subtype of %t, found %t", subjectType, patType));
+            s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
             return abool();
         });
     c.push(patternContainer, "match");
