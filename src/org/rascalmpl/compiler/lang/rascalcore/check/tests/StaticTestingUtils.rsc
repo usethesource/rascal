@@ -187,7 +187,8 @@ bool argumentMismatch(str stmts, list[str] importedModules = [], list[str] initi
 
 bool redeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
-	      "Undefined _ due to double declaration"
+	      "Undefined _ due to double declaration",
+	      "Double declaration of _"
 		  //"Cannot re-declare name that is already declared in the current function or closure",
 		  //"redeclaration",
 		  //"has already been declared"
