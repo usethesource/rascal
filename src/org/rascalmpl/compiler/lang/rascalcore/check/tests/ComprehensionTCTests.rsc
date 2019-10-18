@@ -33,10 +33,8 @@ test bool allError() = unexpectedType("all(x \<- [1,2,3], \"abc\");");
   
 test bool noLeaking() = undeclaredVariable("{ X | int X \<- [1,2,3] }; X == 3;");
 
- @ignore{Requires fix in rascalIsAcceptableSimple}
 test bool NoLeakFromNextGenerator1() = undeclaredVariable("[\<N,M\> | int N \<- [1 .. 3], ((N==1) ? true : M \> 0), int M \<- [10 .. 12]] == [\<1,10\>,\<1,11\>,\<2,10\>,\<2,11\>];");  	
  
- @ignore{Requires fix in rascalIsAcceptableSimple} 
 test bool NoLeakFromNextGenerator2() = undeclaredVariable(" [\<N,M\> | int N \<- [1 .. 3], ((N==1) ? true : M \> 0), int M := N] == [\<1,1\>,\<2,2\>];");  	
 
 test bool emptyTupleGeneratorError1() = checkOK("{\<X,Y\> | \<int X, int Y\> \<- {}} == {};");  	
