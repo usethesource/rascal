@@ -36,14 +36,14 @@ When they refer to the same file, their offsets are compared when present.
 This ordering regards the location value itself as opposed to the text it refers to.
 }
 bool isLexicallyLess(loc l1, loc l2)
-    = l1.path < l2.path || (l1.offset ? 0) < (l2.offset ? 0);
+    = l1.top == l2.top ? (l1.offset ? 0) < (l2.offset ? 0) : l1.top < l2.top;
 
 @doc{
 .Synopsis
 Check that two locations refer to the same file.
 }
 bool sameFile(loc l1, loc l2)
-    = l1.scheme == l2.scheme && l1.path == l2.path;
+    = l1.top == l2.top;
 
 @doc{
 .Synopsis
@@ -58,7 +58,7 @@ Is a location textually (strictly) contained in another location?
 }
 
 bool isStrictlyContainedIn(loc inner, loc outer)
-    = inner.path == outer.path && ((inner.offset? && !outer.offset?) || inner.offset > outer.offset && inner.offset + inner.length < outer.offset + outer.length);
+    = inner.top == outer.top && ((inner.offset? && !outer.offset?) || inner.offset > outer.offset && inner.offset + inner.length < outer.offset + outer.length);
 
 @doc{
 .Synopsis
