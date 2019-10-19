@@ -327,6 +327,7 @@ test bool beginsBefore2(int f){
 
 // isBefore
 
+@ignore
 test bool isBefore1(int f){
     <l1, l2> = makeLocsWithGap(10);
     return isBefore(l1, l2);
