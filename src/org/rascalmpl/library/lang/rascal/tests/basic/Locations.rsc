@@ -358,7 +358,7 @@ test bool beginsAfter1(int f){
 
 // isAfter
 
-test bool isBefore1(int f){
+test bool isAfter1(int f){
     <l1, l2> = makeLocsWithGap(10);
     return isAfter(l2, l1);
 }
