@@ -3,20 +3,18 @@ module lang::rascalcore::check::tests::DeclarationTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
  
- //@ignore{TODO}
 test bool localTypeInferenceNoEscape2() = undeclaredVariable("{ x = 1; x == 1; } x;");
 
 test bool undeclaredType1() = undeclaredType("X N;");            // TODO Type X undeclared
 
 test bool doubleDeclaration3() = redeclaredVariable("int f(int N){int N = 1; return N;}");
 
-test bool shadowingDeclaration1() = redeclaredVariable("int N = 1; {int N = 2;}; N == 1;");
+test bool shadowingDeclaration1() = checkOK("int N = 1; {int N = 2;}; N == 1;"); //DISCUSS, was: redeclaredVariable
 
-@ignore{TODO}
-test bool shadowingDeclaration2() = redeclaredVariable("N = 1; {int N = 2; N == 2;}; N == 1;");
+test bool shadowingDeclaration2() = checkOK("N = 1; {int N = 2; N == 2;}; N == 1;"); //DISCUSS, was: redeclaredVariable
 
-//@ignore{TODO}
-test bool shadowingDeclaration4() = redeclaredVariable("int N = 3; int N := 3;");
+@ignore
+test bool shadowingDeclaration4() = redeclaredVariable("int N = 3; int N := 3;");   //DISCUSS, the redeclaration is allowed, unused warning is given
 
 
 // Variable declaration in imported module

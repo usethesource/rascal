@@ -13,7 +13,7 @@ import lang::rascalcore::compile::muRascal::AST;
 
 extend lang::rascalcore::check::ComputeType;
 
-import lang::rascalcore::compile::util::Location;
+import Location;
 
 extend lang::rascalcore::grammar::ParserGenerator;
 
@@ -62,50 +62,24 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
 // Name resolution filters
 
 set[IdRole] defBeforeUseRoles = {variableId(), formalId(), keywordFormalId(), patternVariableId()};
-bool dbg = false;
+
 @memo
 Accept rascalIsAcceptableSimple(TModel tm, loc def, Use use){
-    if(dbg)println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
+    //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
  
-    if(!isEmpty(use.idRoles & defBeforeUseRoles)){
-       // enforce definition before use
-       if(dbg){println("use.occ: <use.occ>"); println("def: <def>"); println("use.scope: <use.scope>");}
-     
-       if(isBefore(use.occ, def)){        // Comes the use before the definition?
-          // only allow when inside explicitly use before def parts
-                      
-          if(lrel[loc,loc] allowedParts := tm.store[key_allow_use_before_def] ? []){
-             if(dbg)iprintln(allowedParts);
-             list[loc] parts = allowedParts[use.scope];
-             if(dbg)println("parts = <parts>, <any(part <- parts,  isContainedIn(use.occ, part))>");
-             if(!isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part))){
-                //if(isContainedIn(def, use.scope))
-                    return acceptBinding();
-           }
-             //println("rascalIsAcceptableSimple =\> <ignoreContinue()>");
-           if(isContainedIn(def, use.scope))
-                return ignoreContinue();
-           } else {
-                throw "Inconsistent value stored for <key_allow_use_before_def>: <tm.store[key_allow_use_before_def]>";
-           }
-       
-           // restrict when in excluded parts of a scope
-          
-           if(lrel[loc,loc] excludedParts := tm.store[key_exclude_use] ? []){
-              list[loc] parts = excludedParts[use.scope];
-              if(dbg)println("parts = <parts>, <any(part <- parts, isContainedIn(use.occ, part))>");
-              if(!isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part))){
-                 if(dbg)println("rascalIsAcceptableSimple =\> <ignoreContinue()>");
-                 
-                 if(isContainedIn(def, use.scope)) // || (isBefore(use.scope, def) && !isAfter(def, use.scope))
-                    return ignoreContinue();
-              } 
-           } else {
-                 throw "Inconsistent value stored for <key_allow_use_before_def>: <tm.store[key_allow_use_before_def]>";
-           }
+    if(isBefore(use.occ, def) &&                        // If we encounter a use before def
+       !isEmpty(use.idRoles & defBeforeUseRoles) &&     // in an idRole that requires def before use
+       isContainedIn(def, use.scope)){                  // and the definition is in the same scope as the use
+    
+      // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
+                  
+      if(lrel[loc,loc] allowedParts := tm.store[key_allow_use_before_def] ? []){
+         list[loc] parts = allowedParts[use.scope];
+         return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
+       } else {
+            throw "Inconsistent value stored for <key_allow_use_before_def>: <tm.store[key_allow_use_before_def]>";
        }
     }
-    //println("rascalIsAcceptableSimple =\> < acceptBinding()>");
     return  acceptBinding();
 }
 

@@ -156,7 +156,8 @@ bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialD
 
 bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
-		"Undefined _"
+		"Undefined _",
+		"Unresolved type for call of function/constructor"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -201,7 +202,8 @@ bool cannotMatch(str stmts, list[str] importedModules = [], list[str] initialDec
 	      "Incompatible type in assignment to variable _, expected _, found _",
 	      "Pattern should be subtype of _, found _",
 	      "Pattern should be comparable with _, found _",
-	      "Expected tuple pattern with _ elements, found _"
+	      "Expected tuple pattern with _ elements, found _",
+	      "Pattern variable _ has been introduced before, add explicit declaration of its type"
 		  //"Cannot match an expression of type: _ against a pattern of type", 
 		  //"Cannot assign pattern of type", 
 		  //"is not enumerable"

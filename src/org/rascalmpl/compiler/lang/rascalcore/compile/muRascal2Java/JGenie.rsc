@@ -17,7 +17,7 @@ import lang::rascalcore::compile::muRascal2Java::Conversions;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::BasicRascalConfig;
-import lang::rascalcore::compile::util::Location;
+import Location;
 
 alias JCode = str;
 
