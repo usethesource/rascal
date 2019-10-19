@@ -56,18 +56,38 @@ str getContent(loc l)
 @doc{
 .Synopsis
 Is a location textually (strictly) contained in another location?
+
+.Description
+Strict containment between two locations l1 and l2 holds when
+
+
+- the text l2 refers begins before the text l1 refers to, or
+- the text l2 refers to ends after the text l1 refers to, or
+- both.
 }
 
 bool isStrictlyContainedIn(loc inner, loc outer)
-    = inner.top == outer.top && ((inner.offset? && !outer.offset?) || inner.offset > outer.offset && inner.offset + inner.length < outer.offset + outer.length);
+    = inner.top == outer.top && ((inner.offset? && inner.offset > 0 && !outer.offset?) 
+                                 || inner.offset == outer.offset && inner.offset + inner.length < outer.offset + outer.length
+                                 || inner.offset > outer.offset && inner.offset + inner.length <= outer.offset + outer.length
+                                 );
 
 @doc{
 .Synopsis
 Is a location textually contained in another location?
+
+.Description
+Containment between two locations l1 and l2 holds when
+
+
+- l1 and l2 are equal, or
+- l1 is strictly contaned in l2.
 }
 
 bool isContainedIn(loc inner, loc outer)
-    = inner.top == outer.top && ((inner.offset? && !outer.offset?) || inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
+    = inner.top == outer.top && ((inner.offset? && inner.offset > 0 && !outer.offset?) || 
+                                 inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length
+                                 );
 
 
 @doc{
@@ -89,7 +109,7 @@ bool isBefore(loc l, loc r)
 Refers a location to text _immediately_ before the text referred to by another location?
 }
 bool isImmediatelyBefore(loc l, loc r)
-    = l.path == r.path && (l.offset <= r.offset && l.offset + l.length == r.offset);
+    = l.path == r.path && l.offset + l.length == r.offset;
  
  @doc{
 .Synopsis
