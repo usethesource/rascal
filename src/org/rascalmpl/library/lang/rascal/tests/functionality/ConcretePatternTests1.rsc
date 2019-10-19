@@ -228,7 +228,7 @@ test bool concreteSwitch7(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool concreteSwitch8(){
