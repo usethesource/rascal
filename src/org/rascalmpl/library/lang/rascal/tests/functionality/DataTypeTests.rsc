@@ -848,7 +848,7 @@ test bool testMap37() {map[str,list[int]] m = ("a": [1,2], "b": [], "c": [4,5,6]
 @expected{NoSuchKey}
 void NoKeyError1(){		 (1:10, 2:20)[3]; return;}
     	 
-@expected{ MultipleKey}
+@expected{MultipleKey}
 void MultipleKeyError1(){ (1:10, 1:10); return;	 }
     	
 // testTuple

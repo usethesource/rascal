@@ -88,7 +88,7 @@ test bool visit4b() {
 	int f4b(){
 		top-down visit([1,2,3]) {
 				case list[int] l: insert [ ( 0 | it + i | int i <- l) ];
-				case int i: { i = i + 100; return 42; i = i + 200; }
+				case int i: { i = i + 100; return 42; }
 			}
 		return 101;
 	}
@@ -662,9 +662,9 @@ anno int NODE@pos;
 public NODE A1 = leaf(3);
 public NODE A2 = leaf(3)[@pos = 1];
 
-test bool visitWithAnno5() = !delAnnotationsRec1(A2)@pos?;
+test bool visitWithAnno6() = !delAnnotationsRec1(A2)@pos?;
 
-test bool visitWithAnno6() = !delAnnotationsRec2(A2)@pos?;
+test bool visitWithAnno7() = !delAnnotationsRec2(A2)@pos?;
 
 
 // StringVisit1a
