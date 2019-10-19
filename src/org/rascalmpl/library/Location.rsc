@@ -109,7 +109,7 @@ bool isBefore(loc l, loc r)
 Refers a location to text _immediately_ before the text referred to by another location?
 }
 bool isImmediatelyBefore(loc l, loc r)
-    = l.path == r.path && l.offset + l.length == r.offset;
+    = l.top == r.top && l.offset + l.length == r.offset;
  
  @doc{
 .Synopsis
