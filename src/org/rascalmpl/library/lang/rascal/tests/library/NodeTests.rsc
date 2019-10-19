@@ -140,7 +140,7 @@ data KNODE(int x = 2) = z() | y();
 
 test bool setKW1() = setKeywordParameters(z(), ("x" : 4)) == z(x=4);
 test bool setKW2() = setKeywordParameters(z(x=3), ("x" : 4)) == z(x=4);
-test bool setKW2() = setKeywordParameters(z(x=3), ("x" : 4)).x == 4;
+test bool setKW3() = setKeywordParameters(z(x=3), ("x" : 4)).x == 4;
 
 
 
@@ -169,7 +169,7 @@ test bool readTermFromFileList2() = textWriteRead(#node, "f([1,2,3])", "f"([1,2,
 
 test bool readTermFromFileFun1() = textWriteRead(#node, "f()",  makeNode("f"));
 
-test bool readTermFromFileFun1() = textWriteRead(#node, "f()",  "f"());
+test bool readTermFromFileFun2() = textWriteRead(#node, "f()",  "f"());
 
 test bool readTermFromFileFunWithArgs1() = textWriteRead(#node, "f(1,2,3)",  makeNode("f",1,2,3));
 

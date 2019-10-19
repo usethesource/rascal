@@ -1,31 +1,8 @@
-module lang::rascal::tests::basic::IsDefined
+module lang::rascal::tests::basic::IsDefinedAbstract
 
 import Exception;
 import util::Math;
 import List;
-
-syntax As = "a"* as;
-
-syntax Bs = {"b" ","}* bs;
-
-// Concrete lists
-
-test bool isDefinedConcrete1() = (([As] "aaa")[0])?;
-
-test bool isDefinedConcrete2() = !(([As] "aaa")[5])?;
-
-test bool isDefinedConcrete3() = (([Bs] "b,b,b")[0])?;
-
-test bool isDefinedConcrete4() = !(([Bs] "b,b,b")[5])?;
-
-test bool hasConcrete1() = ([As] "aaa") has as;
-
-test bool hasConcrete2() = !(([As] "aaa") has bs);
-
-test bool hasConcrete3() = ([Bs] "b,b,b") has bs;
-
-test bool hasConcrete4() = !(([Bs] "b,b,b") has as);
-
 // Strings
 
 test bool isDefinedStr1() = ("abc"[0])?;
@@ -159,14 +136,14 @@ test bool isDefinedTuple2(){
     return (<0,1,2><1>)?;
 }
 
-test bool isDefinedTuple1(){
+test bool isDefinedTuple3(){
     tuple[int n, str s] tup = <0, "a">;
     return tup.n?;
 }
 
 @ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker: Field x does not exist on type tuple[int n, str s]}
 @expected{UndeclaredField}
-test bool isDefinedTuple3(){
+test bool isDefinedTuple4(){
     tuple[int n, str s] tup = <0, "a">;
     return !tup.x?;
 }

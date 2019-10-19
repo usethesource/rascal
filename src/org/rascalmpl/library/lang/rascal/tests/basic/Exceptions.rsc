@@ -182,7 +182,6 @@ test bool exceptionHandlingFinally1(){
 				// Inline in a 'finally' block
 				return n + " has been returned from the inner finally!";
 			}
-			n = n + " 7";
 		} catch "0": {	
 			n = n + " 8";
 		} catch str s: {
@@ -216,7 +215,6 @@ test bool exceptionHandlingFinally2(){
 				// Inline in a 'finally' block
 				return n + " has been returned from the inner finally!";
 			}
-			n = n + " 7";
 		} catch "0": {	
 			n = n + " 8";
 		} catch str s: {
@@ -226,7 +224,6 @@ test bool exceptionHandlingFinally2(){
 			// Inline in a 'finally' block
 			return n + " has been returned from the outer finally!";
 		}
-		return n;
 	}
 	
 	return main() == "0 1 2 6 10 has been returned from the outer finally!";
@@ -250,6 +247,7 @@ test bool exceptionHandlingFinally3(){
 				n = n + " 5";
 			}		
 			n = n + " 7";
+			return " should not come here";
 		} catch "0": {	
 			n = n + " 8";
 		} catch str s: {
@@ -260,7 +258,7 @@ test bool exceptionHandlingFinally3(){
 			// Inline in a 'finally' block
 			return n + " has been returned from the outer finally!";
 		}
-		return n;
+		
 	}
 	return main() == "0 1 2 10 has been returned from the outer finally!";
 }
@@ -306,6 +304,7 @@ test bool exceptionHandlingFinally5(){
 				n = n + " 2";
 				f();
 				n = n + " 3"; // dead code
+				return " should not come here";
 			} catch "0": {
 				n = n + " 4";
 				// Inline in a 'catch' block
@@ -319,7 +318,6 @@ test bool exceptionHandlingFinally5(){
 				// Inline in a 'finally' block
 				return n + " has been returned from the inner finally!";
 			}
-			n = n + " 7";
 		} catch "0": {	
 			n = n + " 8";
 		} catch str s: {
@@ -329,7 +327,6 @@ test bool exceptionHandlingFinally5(){
 			// Inline in a 'finally' block
 			return n + " has been returned from the outer finally!";
 		}
-		return n;
 	}
 	return main() == "0 1 2 5 6 10 has been returned from the outer finally!";
 }	
@@ -358,6 +355,7 @@ test bool exceptionHandlingFinally6(){
 					n = n + " 6";
 				}
 				n = n + " 7";
+				return " should not come here";
 			} catch "0": {	
 				n = n + " 8";
 			} catch str s: {
@@ -376,7 +374,6 @@ test bool exceptionHandlingFinally6(){
 			n = n + " and last finally";
 			return n;
 		}
-		return n;
 	}
 	return main() == "0 1 2 6 9 10 and last finally";
 }	
@@ -617,6 +614,4 @@ test bool untypedCatch3() {
 	catch int n: return false;
 	catch s:     return true;
 	finally;
-	
-	return false;
 }			

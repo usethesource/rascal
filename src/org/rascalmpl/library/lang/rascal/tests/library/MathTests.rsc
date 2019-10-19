@@ -83,9 +83,9 @@ test bool ETest() = E() > 2.7 && E() < 2.8;
 
 test bool ExpTest1() = abs(exp(0) - 1) < eps;
 
-test bool ExpTest1() = abs(exp(1) - E()) < eps;
+test bool ExpTest2() = abs(exp(1) - E()) < eps;
 
-test bool ExpTest1() = abs(exp(2) - E() * E()) < eps;
+test bool ExpTest3() = abs(exp(2) - E() * E()) < eps;
 
 // floor
 
@@ -243,7 +243,7 @@ test bool sin5() {real D = sin(2*PI());   return abs(D)     < 0.000001;}
 
 test bool sqrt1 () {real D = sqrt(1); return abs(D - 1) < 0.000001;}
 
-test bool sqrt1 () {real D = sqrt(2); return abs(D*D - 2) < 0.000001;}
+test bool sqrt2 () {real D = sqrt(2); return abs(D*D - 2) < 0.000001;}
 
 // tan
 

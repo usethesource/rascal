@@ -16,4 +16,4 @@ int eval((Exp)`(<Exp e>)`) = eval(e);                     // <6>
 test bool tstEval1() = eval("7") == 7;
 test bool tstEval2() = eval("7*3") == 21;
 test bool tstEval3() = eval("7+3") == 10;
-test bool tstEval3() = eval("3+4*5") == 23;
+test bool tstEval4() = eval("3+4*5") == 23;
