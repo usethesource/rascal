@@ -39,9 +39,21 @@ void collect(current: (Statement) `assert <Expression expression> : <Expression 
      
 // ---- expression ------------------------------------------------------------
 
+// TODO: Nearly duplicate of code in RascalExpression:
+bool mayIntroduceVars((Expression) `<Pattern pat> := <Expression rhs>`) = true;
+bool mayIntroduceVars((Expression) `<Pattern pat> !:= <Expression rhs>`) = true;
+bool mayIntroduceVars((Expression) `<Pattern pattern> \<- <Expression expression>`) = true; 
+default bool mayIntroduceVars(Expression e) = false;
+
 void collect(current: (Statement) `<Expression expression>;`, Collector c){
     c.fact(current, expression);
-    collect(expression, c);
+    if(mayIntroduceVars(expression)){
+        c.enterScope(current);
+            collect(expression, c);
+        c.leaveScope(current);
+    } else {
+        collect(expression, c);
+    }
 }
 
 // ---- visit and insert ------------------------------------------------------
@@ -378,13 +390,11 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
 // --- if then else -----------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart> else <Statement elsePart>`,  Collector c){
-    //c.enterScope(current);
-    c.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
+    c.enterCompositeScope([conditions, thenPart]);   // thenPart may refer to variables defined in conditions; elsePart may not
         if(label is \default){
             c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         condList = [cond | cond <- conditions];
-        storeExcludeUse(conditions, elsePart, c); // variable occurrences in elsePart may not refer to variables defined in conditions
         
         c.calculate("if then else", current, condList + [thenPart, elsePart],
             AType(Solver s){
@@ -393,16 +403,11 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
             });
         
         beginPatternScope("conditions", c);
-        collect(condList, c);
+            collect(condList, c);
         endPatternScope(c);
-        c.enterScope(thenPart);
-            collect(thenPart, c);
-        c.leaveScope(thenPart);
-        c.enterScope(elsePart);
-            collect(elsePart, c);
-        c.leaveScope(elsePart);
-    c.leaveScope(conditions); 
-    //c.leaveScope(current);
+        collect(thenPart, c);
+    c.leaveCompositeScope([conditions, thenPart]);     
+    collect(elsePart, c);
 }
 
 // ---- switch ----------------------------------------------------------------
@@ -509,12 +514,14 @@ void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, Colle
 // ---- non-empty block -------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, Collector c){
-    if(label is \default){
-       c.define("<label.name>", labelId(), label.name, defType(avoid()));
-    }
-    stats = [ s | Statement s <- statements ];
-    c.calculate("non-empty block statement", current, [stats[-1]],  AType(Solver s) { return s.getType(stats[-1]); } );
-    collect(stats, c);
+    c.enterScope(current);
+        if(label is \default){
+           c.define("<label.name>", labelId(), label.name, defType(avoid()));
+        }
+        stats = [ s | Statement s <- statements ];
+        c.calculate("non-empty block statement", current, [stats[-1]],  AType(Solver s) { return s.getType(stats[-1]); } );
+        collect(stats, c);
+    c.leaveScope(current);
 }
 
 // ---- empty block -----------------------------------------------------------

@@ -5,16 +5,15 @@ import lang::rascalcore::check::tests::StaticTestingUtils;
 
 import ParseTree;
 
-test bool matchNestedList() = cannotMatch("[[1]] := [];");
+test bool matchNestedList() = checkOK("[[1]] := [];"); //DISCUSS, was: cannotMatch
 
-test bool matchNestedSet() = cannotMatch("{{1}} := {};");
+test bool matchNestedSet() = checkOK("{{1}} := {};");   //DISCUSS, was: cannotMatch
 
 data Bool = and(Bool, Bool) | t();
 data Prop = or(Prop, Prop) | f();
 
 test bool cannotMatchListStr1() = cannotMatch("[1] := \"a\";");
 
- @ignore{TODO}
 test bool unguardedMatchNoEscape1() = undeclaredVariable("int n = 3; int m := n; m == n;");
 
 test bool recursiveDataTypeNoPossibleMatchHorizontal1() = 
@@ -27,7 +26,7 @@ test bool matchListError1() = redeclaredVariable("list[int] x = [1,2,3]; [1, *in
  @ignore{TODO}   	
 test bool matchListErrorRedeclaredSpliceVar1() = redeclaredVariable("list[int] x = [1,2,3];[1, * int L, * int L] := x;"); 
   
-test bool matchListError22() = cannotMatch("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; "); 
+test bool matchListError22() = checkOK("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; ");    //DISCUSS, was: cannotMatch
   
 test bool matchBoolIntError1() = cannotMatch("true !:= 1;"); 
 
@@ -72,31 +71,29 @@ test bool noMatchIntRealError2() = cannotMatch("1.5 !:= 2;");
  @ignore{TODO}  	
 test bool errorRedclaredVariable1() = redeclaredVariable("{1, *int L, 2, *int L} := {1,2,3};"); 
   	
-test bool matchSetWrongElemError1() = cannotMatch("{1, \"a\", 2, *set[int] L} := {1,2,3};");
+test bool matchSetWrongElemError1() = checkOK("{1, \"a\", 2, *set[int] L} := {1,2,3};"); //DISCUSS, was: cannotMatch
   		
-test bool matchSetWrongElemError2() = cannotMatch("{1, set[str] L, 2} := {1,2,3};"); 
+test bool matchSetWrongElemError2() = checkOK("{1, set[str] L, 2} := {1,2,3};"); //DISCUSS, was: cannotMatch
 
-test bool matchSetWrongElemError3() = cannotMatch("{1, str S, 2} := {1,2,3};"); 
+test bool matchSetWrongElemError3() = checkOK("{1, str S, 2} := {1,2,3};"); //DISCUSS, was: cannotMatch
  
- @ignore{TODO}
 test bool matchSetWrongElemError4() = cannotMatch("set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};"); 
  
-  @ignore{TODO} 
+@ignore{TODO} 
 test bool matchSetErrorRedeclaredSpliceVar() = redeclaredVariable("set[int] x = {1,2,3}; {1, * int L, * int L} := x;"); 
 
-@ignore{TODO}  
-test bool UndeclaredTypeError1() = undefinedType( "STRANGE X := 123;");
+test bool UndeclaredTypeError1() = undeclaredType( "STRANGE X := 123;");
 
 @ignore{TODO} 
 test bool antiPatternDoesNotDeclare1() = undeclaredVariable("![1,int X,3] := [1,2,4] && X == 2;" );
 
-test bool matchADTStringError11() =                                                              // TODO
+test bool matchADTStringError11() =                                                              
 	cannotMatch("f(1) := \"abc\";", initialDecls=["data Prop = or(Prop, Prop) | f(int n);"]);
 	  	
 test bool matchADTStringError21() = 
 	cannotMatch("\"abc\" := f(1);", initialDecls=["data Prop = or(Prop, Prop) | f(int n);"]);  	
  
-test bool noMatchADTStringError11() =                                                            // TODO
+test bool noMatchADTStringError11() =                                                            
 	cannotMatch("f(1) !:= \"abc\";", initialDecls=["data Prop = or(Prop, Prop) | f(int n);"]); 
 	 	
 test bool noMatchADTStringError21() = 
@@ -111,16 +108,15 @@ test bool noMatchTupleArityError() = cannotMatch("\<1\> !:= \<1,2\>;");
  
 test bool matchSetStringError() = cannotMatch("{1} := \"a\";");  
   
-test bool matchListError1() = cannotMatch("list[int] x = [1,2,3]; [1, *list[int] L, 2, list[int] M] !:= x;");   	
+test bool matchListError1() = checkOK("list[int] x = [1,2,3]; [1, *list[int] L, 2, list[int] M] !:= x;");   // DISCUSS, was: cannotMatch	
   	
-test bool matchListError2() = cannotMatch("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
+test bool matchListError2() = declarationError("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
   	
-test bool matchListError4() = cannotMatch("!([1, list[str] L, 2] := [1,2,3]);");  
+test bool matchListError4() = checkOK("!([1, list[str] L, 2] := [1,2,3]);");  // DISCUSS, was: cannotMatch
  
- @ignore{TODO}
 test bool matchListError5() = cannotMatch("str S = \"a\";  [1, S, 2] !:= [1,2,3];");  
    	
-test bool matchListError3() = cannotMatch("list[int] x = [1,2,3] ; [1, str S, 2] := x;");  
+test bool matchListError3() = checkOK("list[int] x = [1,2,3] ; [1, str S, 2] := x;");  // DISCUSS, was: cannotMatch
   	
 test bool matchListError5() = cannotMatch("str S = \"a\"; [1, S, 2] !:= [1,2,3];");  
   	
@@ -141,7 +137,6 @@ test bool NoDataDecl() =
 test bool descendantWrongType() = 
 	undeclaredVariable("/true := f(g(1),f(g(2),g(3)));", initialDecls=["data F = f(F left, F right) | g(int N);"]);  
 
-@ignore{TODO} 
 test bool recursiveDataTypeNoPossibleMatchVertical() = 
 	undeclaredVariable("T := and(T,T);", initialDecls=["data Bool = and(Bool, Bool) | t();"]);  
   

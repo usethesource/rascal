@@ -105,17 +105,9 @@ void collect(current: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Sta
 }
 
 void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> } else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, Collector c){
-    //c.enterScope(current);
-    c.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
+    c.enterCompositeScope([conditions, preStatsThen, thenString, postStatsThen]);   // thenPart may refer to variables defined in conditions; elsePart may not
     
         condList = [cond | Expression cond <- conditions];
-        // TODO scoping in else does not yet work
-        if(!isEmpty([s | s <- preStatsElse]))
-           storeExcludeUse(conditions, preStatsElse, c); // variable occurrences in elsePart may not refer to variables defined in conditions
-        if(!isEmpty("<elseString>"))
-           storeExcludeUse(conditions, elseString, c); 
-        if(!isEmpty([s | s <- postStatsElse]))
-           storeExcludeUse(conditions, postStatsElse, c);
         
         c.calculate("if then else template", current, condList/* + [postStatsThen + postStatsElse]*/,
             AType (Solver s){ checkConditions(condList, s); 
@@ -124,8 +116,10 @@ void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <S
         beginPatternScope("conditions", c);
         collect(condList, c);
         endPatternScope(c);
-        collect(preStatsThen, thenString, postStatsThen, preStatsElse, elseString, postStatsElse, c);    
-    c.leaveScope(conditions);
+        collect(preStatsThen, thenString, postStatsThen, c);
+    c.leaveCompositeScope([conditions, preStatsThen, thenString, postStatsThen]);
+    collect(preStatsElse, elseString, postStatsElse, c);    
+    
     //c.leaveScope(current);
 } 
 
@@ -392,14 +386,12 @@ void collect(current: (Expression)`any ( <{Expression ","}+ generators> )`, Coll
     gens = [gen | gen <- generators];
     c.fact(current, abool());
     
-    c.enterScope(generators);
     beginPatternScope("any", c);
         c.require("any", current, gens,
             void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
-        collect(generators, c);
+        collectGenerators([], gens, c);
     endPatternScope(c);
-    c.leaveScope(generators);
 }
 
 // ---- all
@@ -408,33 +400,37 @@ void collect(current: (Expression)`all ( <{Expression ","}+ generators> )`, Coll
     gens = [gen | gen <- generators];
     c.fact(current, abool());
     
-    //newScope = c.getScope() != getLoc(current);
-    //if(newScope) c.enterScope(current);
-    c.enterScope(generators);
     beginPatternScope("all", c);
         c.require("all", current, gens,
             void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
-        collect(generators, c);
+        collectGenerators([], gens, c);
     endPatternScope(c);
-    //if(newScope) c.leaveScope(current);
-    c.leaveScope(generators);
 }
 
 // ---- comprehensions and reducer
+
+void collectGenerators(list[Tree] results, list[Expression] generators, Collector c){
+    n = size(generators);
+    assert n > 0;
+    c.enterScope(generators[0]);
+        for(res <- results){
+            storeAllowUseBeforeDef(generators[0], res, c); // variable occurrences in results may refer to variables defined in generators
+        }
+        collect(generators[0], c);
+        if(n > 1){
+            collectGenerators(results, generators[1..], c);
+        } else {
+            collect(results, c);
+        }
+    c.leaveScope(generators[0]);
+}
 
 // set comprehension
 
 void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expression ","}+ generators> }`, Collector c){
     gens = [gen | gen <- generators];
     res  = [r | r <- results];
-    storeAllowUseBeforeDef(current, results, c); // variable occurrences in results may refer to variables defined in generators
-    for(int i <- reverse(index(gens))){          // variables occurrences in generators may only refer to variables defined in previous generators
-        gen = gens[i];
-        for(int j <- [0 .. i]){
-            storeExcludeUse(gen, gens[j], c);
-        }
-    }
     c.enterScope(current);
     beginPatternScope("set-comprehension", c);
         c.require("set comprehension", current, res + gens,
@@ -447,7 +443,7 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
                 return makeSetType(lubList([ s.getType(r) | r <- res]));
             });
          
-        collect(results, generators, c);
+        collectGenerators(res, gens, c);
     endPatternScope(c);
     c.leaveScope(current);
 }
@@ -457,13 +453,6 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
 void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`, Collector c){
     gens = [gen | gen <- generators];
     res  = [r | r <- results];
-    storeAllowUseBeforeDef(current, results, c); // variable occurrences in results may refer to variables defined in generators
-    for(int i <- reverse(index(gens))){          // variables occurrences in generators may only refer to variables defined in previous generators
-        gen = gens[i];
-        for(int j <- [0 .. i]){
-            storeExcludeUse(gen, gens[j], c);
-        }
-    }
     
     c.enterScope(current);
     beginPatternScope("list-comprehension", c);
@@ -476,8 +465,7 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
             AType(Solver s){
                 return makeListType(lubList([ s.getType(r) | r <- res]));
             });
-         
-        collect(results, generators, c);
+        collectGenerators(res, gens, c);
     endPatternScope(c);
     c.leaveScope(current);
 }
@@ -486,14 +474,8 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
 
 void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{Expression ","}+ generators> )`, Collector c){
     gens = [gen | gen <- generators];
-    storeAllowUseBeforeDef(current, from, c); // variable occurrences in from may refer to variables defined in generators
-    storeAllowUseBeforeDef(current, to, c);  // variable occurrences in to may refer to variables defined in generators
-    for(int i <- reverse(index(gens))){      // variables occurrences in generators may only refer to variables defined in previous generators
-        gen = gens[i];
-        for(int j <- [0 .. i]){
-            storeExcludeUse(gen, gens[j], c);
-        }
-    }
+    res = [from, to];
+  
     c.enterScope(current);
     beginPatternScope("map-comprehension", c);
         c.require("map comprehension", current, gens,
@@ -506,7 +488,7 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
                 return makeMapType(unset(s.getType(from), "label"), unset(s.getType(to), "label"));
             });
          
-        collect(from, to, generators, c);
+        collectGenerators(res, gens, c);
     endPatternScope(c);
     c.leaveScope(current);
 }
@@ -515,13 +497,7 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
 
 void collect(current: (Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`, Collector c){
     gens = [gen | gen <- generators];
-    storeAllowUseBeforeDef(current, result, c); // variable occurrences in result may refer to variables defined in generators
-    for(int i <- reverse(index(gens))){        // variables occurrences in generators may only refer to variables defined in previous generators
-        gen = gens[i];
-        for(int j <- [0 .. i]){
-            storeExcludeUse(gen, gens[j], c);
-        }
-    }
+    res = [result];
     c.enterScope(current);
     beginPatternScope("reducer", c);
         //tau = c.newTypeVar();
@@ -537,7 +513,8 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
         c.fact(current, result);
         //c.requireEager("reducer it", current, [init, result], void (Solver s){ unify(tau, lub(getType(init), getType(result)), onError(current, "Can determine it")); });
          
-        collect(init, result, generators, c);
+        collect(init, c);
+        collectGenerators(res, gens, c);
     endPatternScope(c);
     c.leaveScope(current);
 }

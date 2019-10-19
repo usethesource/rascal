@@ -123,7 +123,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
           c.fact(current, avalue(label=unescape("<name>")));  
           c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(label=unescape("<name>")); }));
        } else {
-          if(c.isAlreadyDefined("<name>", name)) c.report(warning(name, "Pattern variable has been introduced before, add explicit declaration of its type"));
+          if(c.isAlreadyDefined("<name>", name)) c.report(warning(name, "Pattern variable %q has been introduced before, add explicit declaration of its type", name));
           tau = c.newTypeVar(name);
           c.fact(name, tau); //<====
           c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau)[label=unescape("<name>")]; }));
@@ -149,7 +149,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
           c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(); }));
        } else {
-          if(c.isAlreadyDefined("<name>", name)) c.report(warning(name, "Pattern variable has been introduced before, add explicit declaration of its type"));
+          if(c.isAlreadyDefined("<name>", name)) c.report(warning(name, "Pattern variable %q has been introduced before, add explicit declaration of its type", name));
           tau = c.newTypeVar(name);
           c.fact(name, tau);     //<====
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");

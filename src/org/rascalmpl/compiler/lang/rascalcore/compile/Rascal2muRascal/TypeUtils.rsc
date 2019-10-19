@@ -11,7 +11,7 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::util::Names;
-import lang::rascalcore::compile::util::Location;
+import Location;
 
 import lang::rascalcore::check::BasicRascalConfig;
 import Type;

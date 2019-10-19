@@ -7,7 +7,7 @@ extend lang::rascalcore::check::Checker;
 
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::NameUtils;
-import lang::rascalcore::compile::util::Location;
+import Location;
 
 import lang::rascal::\syntax::Rascal;
 

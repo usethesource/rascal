@@ -1203,6 +1203,7 @@ MuExp translateProject(Expression e, Expression base, list[Field] fields, loc sr
     } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
     } 
+    println("translateProject: <e>");
     if(tupleHasFieldNames(tp)){
        	fieldNames = getTupleFieldNames(tp);
     }
@@ -1476,7 +1477,7 @@ MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`) {
     leaveBacktrackingScope();
     return code;
 }
-
+// TODO: check Pat <- Exp case
 bool isMatchOrNoMatch((Expression) `<Pattern pat> := <Expression rhs>`) = true;
 bool isMatchOrNoMatch((Expression) `<Pattern pat> !:= <Expression rhs>`) = true;
 default bool isMatchOrNoMatch(Expression e) = false;

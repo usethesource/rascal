@@ -6,7 +6,7 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::BasicRascalConfig;
-import lang::rascalcore::compile::util::Location;
+import Location;
 import List;
 import Set;
 import Relation;

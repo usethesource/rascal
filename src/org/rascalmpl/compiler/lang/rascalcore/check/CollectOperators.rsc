@@ -751,8 +751,7 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
 // ---- if expression
 
 void collect(current: (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, Collector c){
-    c.enterScope(current);   // thenExp may refer to variables defined in conditions; elseExp may not
-        storeExcludeUse(current, elseExp, c);            // variable occurrences in elseExp may not refer to variables defined in condition
+    c.enterCompositeScope([condition, thenExp]);   // thenExp may refer to variables defined in conditions; elseExp may not
         
         c.calculate("if expression", current, [condition, thenExp, elseExp],
             AType(Solver s){
@@ -762,8 +761,10 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
                 return s.lub(thenExp, elseExp);
             });
         beginPatternScope("conditions", c);
-        collect(condition, c);
+            collect(condition, c);
         endPatternScope(c);
-        collect(thenExp, elseExp, c);
-    c.leaveScope(current); 
+        collect(thenExp, c);
+     c.leaveCompositeScope([condition, thenExp]); 
+     collect(elseExp, c);
+    
 }

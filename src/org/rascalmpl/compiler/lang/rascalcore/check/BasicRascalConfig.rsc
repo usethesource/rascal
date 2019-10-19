@@ -4,6 +4,7 @@ module lang::rascalcore::check::BasicRascalConfig
 extend analysis::typepal::TypePal;
  
 import lang::rascal::\syntax::Rascal;
+import Location;
 
 data IdRole
     = moduleId()
@@ -76,18 +77,15 @@ data DefInfo(list[str] modifiers = []);
 // Common Keyword fields for ADTs
 data DefInfo(list[KeywordFormal] commonKeywordFields = []);
 
-// Maintain excluded use in parts of a scope
-private str key_exclude_use = "exclude_use";
-
-void storeExcludeUse(Tree cond, Tree excludedPart, Collector c){
-    c.push(key_exclude_use, <getLoc(cond), getLoc(excludedPart)>);
-}
-
 // Maintain allow before use: where variables may be used left (before) their definition
 private str key_allow_use_before_def = "allow_use_before_def";
 
 void storeAllowUseBeforeDef(Tree container, Tree allowedPart, Collector c){
     c.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
+}
+
+void storeAllowUseBeforeDef(Tree container, list[Tree] allowedParts, Collector c){
+    c.push(key_allow_use_before_def, <getLoc(container), union([getLoc(allowed) | allowed <- allowedParts])>);
 }
 
 public str key_bom = "bill_of_materials";
