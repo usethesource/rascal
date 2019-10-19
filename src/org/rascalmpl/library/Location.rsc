@@ -22,6 +22,7 @@ module Location
 
 import IO;
 import List;
+import Set;
 import Exception;
 
 @doc{
@@ -66,7 +67,7 @@ Is a location textually contained in another location?
 }
 
 bool isContainedIn(loc inner, loc outer)
-    = inner.path == outer.path && ((inner.offset? && !outer.offset?) || inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
+    = inner.top == outer.top && ((inner.offset? && !outer.offset?) || inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
 
 
 @doc{
@@ -74,14 +75,14 @@ bool isContainedIn(loc inner, loc outer)
 Refers a location to text that begins before (but may overlap with) the text referred to by another location?
 }
 bool beginsBefore(loc l, loc r)
-    = l.path == r.path && l.offset < r.offset;
+    = l.top == r.top && l.offset < r.offset;
     
 @doc{
 .Synopsis
 Refers a location to text completely before the text referred to by another location?
 }
 bool isBefore(loc l, loc r)
-    = l.path == r.path && (l.offset <= r.offset && (l.offset + l.length) <= r.offset);
+    = l.top == r.top && l.offset + l.length <= r.offset;
 
 @doc{
 .Synopsis
@@ -95,7 +96,7 @@ bool isImmediatelyBefore(loc l, loc r)
 Refers a location to text that begins after (but may overlap with) the text referred to by another location?
 }
 bool beginsAfter(loc l, loc r)
-    = l.path == r.path && l.offset > r.offset;
+    = l.top == r.top && l.offset > r.offset;
        
 @doc{
 .Synopsis
@@ -116,8 +117,8 @@ bool isImmediatelyAfter(loc l, loc r)
 Refer two locations to text that overlaps?
 }
 bool isOverlapping(loc l, loc r)
-    = l.path == r.path && ((l.offset <= r.offset && l.offset + l.length > r.offset) ||
-                          (r.offset <= l.offset && r.offset + r.length > l.offset));
+    = l.top == r.top && ((l.offset <= r.offset && l.offset + l.length > r.offset) ||
+                         (r.offset <= l.offset && r.offset + r.length > l.offset));
 
 @doc{
 .Synopsis
@@ -138,18 +139,19 @@ loc union(list[loc] locs){
             loc first = locs[0];
             loc last = locs[-1];
  
-            scheme = first.scheme;
-            authority = first.authority;
-            path = first.path;
-           
-            for(l <- locs){
-                if(l.scheme != scheme || l.authority != authority || l.path != path){
-                    throw IllegalArgument(locs, "Union of locations with different scheme or path");
-                }
+            tops = {l.top | l <- locs};
+            if(size(tops) > 1){
+                throw IllegalArgument(locs, "Union of locations with different scheme, authority or path");
             }
-            return |<scheme>://<authority><path>|(first.offset, last.offset + last.length - first.offset, 
-                                        <first.begin.line, first.begin.column>,
-                                        <last.end.line, last.end.column>);
+            if(first.begin? && last.end?){
+                return first.top(first.offset, last.offset + last.length - first.offset, 
+                               <first.begin.line, first.begin.column>,
+                               <last.end.line, last.end.column>);
+            } else if(first.offset? && last.offset?){
+                return first.top(first.offset, last.offset + last.length - first.offset);
+            } else {
+                return first.top;
+            }
         }
     }
 }
