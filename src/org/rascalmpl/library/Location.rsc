@@ -58,11 +58,11 @@ str getContent(loc l)
 Is a location textually (strictly) contained in another location?
 
 .Description
-Strict containment between two locations l1 and l2 holds when
+Strict containment between two locations `l1` and `l2` holds when
 
 
-- the text l2 refers begins before the text l1 refers to, or
-- the text l2 refers to ends after the text l1 refers to, or
+- the text `l2` refers begins before the text `l1` refers to, or
+- the text `l2` refers to ends after the text `l1` refers to, or
 - both.
 }
 
@@ -77,11 +77,11 @@ bool isStrictlyContainedIn(loc inner, loc outer)
 Is a location textually contained in another location?
 
 .Description
-Containment between two locations l1 and l2 holds when
+Containment between two locations `l1` and `l2 `holds when
 
 
-- l1 and l2 are equal, or
-- l1 is strictly contaned in l2.
+- `l1` and `l2` are equal, or
+- `l1` is strictly contaned in `l2`.
 }
 
 bool isContainedIn(loc inner, loc outer)
@@ -143,6 +143,7 @@ bool isOverlapping(loc l, loc r)
 @doc{
 .Synopsis
 Take the union of a list of locations
+
 .Description
 Create a new location that refers to the smallest text area that overlaps with the given locations.
 The given locations should all refer to the same file but they may be overlapping or be contained in each other.
