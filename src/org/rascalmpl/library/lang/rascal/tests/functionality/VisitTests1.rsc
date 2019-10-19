@@ -69,7 +69,7 @@ test bool visit3b() {
 	int f3b(){
 		 visit([1,2,3]) {
 				case list[int] l: insert [ ( 0 | it + i | int i <- l) ];
-				case int i: { i = i + 100; return 42; i = i + 200; }
+				case int i: { i = i + 100; return 42; }
 			}
 		return 101;
 	}
@@ -88,7 +88,7 @@ test bool visit4b() {
 	int f4b(){
 		top-down visit([1,2,3]) {
 				case list[int] l: insert [ ( 0 | it + i | int i <- l) ];
-				case int i: { i = i + 100; return 42; i = i + 200; }
+				case int i: { i = i + 100; return 42; }
 			}
 		return 101;
 	}
@@ -611,7 +611,7 @@ test bool visitWithAnno1() {
 	leaf(10);
 }
 
-test bool visitWithAnno1() {
+test bool visitWithAnno2() {
 	return visit(N1){
 		default:;
 	}
@@ -619,7 +619,7 @@ test bool visitWithAnno1() {
 	N1;
 }
 
-test bool visitWithAnno2() {
+test bool visitWithAnno3() {
 	return visit(N1){
 		case leaf(1) => leaf(10)
 		default:;
@@ -628,7 +628,7 @@ test bool visitWithAnno2() {
 	nd(leaf(0)[@pos=0], leaf(10))[@pos=2];
 }
 
-test bool visitWithAnno3() {
+test bool visitWithAnno4() {
 	return visit(N1){
 		case leaf(0) => leaf(0)
 		case leaf(1) => leaf(10)
@@ -638,7 +638,7 @@ test bool visitWithAnno3() {
 	nd(leaf(0), leaf(10))[@pos=2];
 }
 
-test bool visitWithAnno4() {
+test bool visitWithAnno5() {
 	return visit(N1){
 		case leaf(0) => leaf(0)
 		case leaf(1) => leaf(10)
@@ -662,9 +662,9 @@ anno int NODE@pos;
 public NODE A1 = leaf(3);
 public NODE A2 = leaf(3)[@pos = 1];
 
-test bool visitWithAnno5() = !delAnnotationsRec1(A2)@pos?;
+test bool visitWithAnno6() = !delAnnotationsRec1(A2)@pos?;
 
-test bool visitWithAnno6() = !delAnnotationsRec2(A2)@pos?;
+test bool visitWithAnno7() = !delAnnotationsRec2(A2)@pos?;
 
 
 // StringVisit1a

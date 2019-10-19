@@ -27,7 +27,7 @@ test bool subscriptionWrapped(str S){
   return true;
 }
 
-test bool sliceFirst(str L) {
+test bool sliceFirst1(str L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
   e = f + arbInt(size(L) - f);
@@ -35,7 +35,7 @@ test bool sliceFirst(str L) {
   return S == makeSlice(L, f, f + 1, e);
 }
 
-test bool sliceFirst(str L) {
+test bool sliceFirst2(str L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
   S = L[f..];

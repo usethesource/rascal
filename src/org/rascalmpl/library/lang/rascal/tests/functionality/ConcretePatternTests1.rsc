@@ -143,14 +143,14 @@ test bool lexicalTokenMatch1() = (MyName) `location` := (MyName) `location`;
 test bool lexicalTokenMatch2() = (MyName) `location` := [MyName] "location";
 
 
-test bool concreteMatchVisit() {
+test bool concreteMatchVisit1() {
   result = false;
   visit ([A]"a") {
     case (A)`<A _>`: result = true;
   }
   return result;
 }
-test bool concreteMatchVisit() {
+test bool concreteMatchVisit2() {
   result = 0;
   visit ([As1]"aaa") {
     case (A)`<A _>`: result += 1;
@@ -228,7 +228,7 @@ test bool concreteSwitch7(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool concreteSwitch8(){
@@ -238,7 +238,7 @@ test bool concreteSwitch8(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool concreteSwitch9(){
@@ -248,7 +248,7 @@ test bool concreteSwitch9(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool concreteSwitch10(){
@@ -258,7 +258,7 @@ test bool concreteSwitch10(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool concreteSwitch11(){
@@ -268,7 +268,7 @@ test bool concreteSwitch11(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool concreteSwitch12(){
@@ -278,7 +278,7 @@ test bool concreteSwitch12(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool concreteSwitch13(){
@@ -288,7 +288,7 @@ test bool concreteSwitch13(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool concreteSwitch14(){
@@ -298,7 +298,7 @@ test bool concreteSwitch14(){
 		default: 		 
 				return false;
 	}
-	throw "fail due to missing match";
+	//throw "fail due to missing match";
 }
 
 test bool matchInsideLexicalCyclicGrammar1() 
