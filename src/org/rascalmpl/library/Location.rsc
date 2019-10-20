@@ -19,7 +19,7 @@ The following functions are defined for source locations:
 loctoc::[1]
 
 A source location `l` refers to a text fragment in another file or resource. To easy the description we will
-talk about "`l`'s text" instead of the text `l` refers to.
+talk about "`l` 's text" instead of the text `l` refers to.
 }
 module Location
 
@@ -66,8 +66,8 @@ Is a location textually (strictly) contained in another location?
 Strict containment between two locations `inner` and `outer` holds when
 
 
-- `outer`'s text begins before `inner`'s text, or
-- `outer`'s text ends after `inner`'s text, or
+- `outer` 's text begins before `inner` 's text, or
+- `outer` 's text ends after `inner` 's text, or
 - both.
 }
 
@@ -107,7 +107,7 @@ bool beginsBefore(loc l, loc r)
 Begins and ends a location's text before another location's text?
 
 .Description
-`isBefore(l, r)` holds when `l`'s text occurs textually before `r`'s text.
+`isBefore(l, r)` holds when `l` 's text occurs textually before `r` 's text.
 }
 bool isBefore(loc l, loc r)
     = isSameFile(l, r)  && l.offset + l.length <= r.offset;
@@ -117,7 +117,7 @@ bool isBefore(loc l, loc r)
 Occurs a location's text _immediately_ before another location's text?
 
 .Description
-`isImmediatelyBefore(l, r)` holds when `l`'s text occurs textually before, and is adjacent to, `r`'s text.
+`isImmediatelyBefore(l, r)` holds when `l` 's text occurs textually before, and is adjacent to, `r` 's text.
 }
 bool isImmediatelyBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset + l.length == r.offset;
@@ -127,8 +127,8 @@ bool isImmediatelyBefore(loc l, loc r)
 Begins a location's text after (but may overlap with) another location's text?
 
 Description
-`beginsAfter(l, r)` holds when `l`'s text begins after `r`'s text. No assumption is made about the end of both texts.
-In other words, `l`'s text may end before or after the end of `r`'s text.
+`beginsAfter(l, r)` holds when `l` 's text begins after `r` 's text. No assumption is made about the end of both texts.
+In other words, `l` 's text may end before or after the end of `r` 's text.
 }
 bool beginsAfter(loc l, loc r)
     = isSameFile(l, r) && l.offset > r.offset;
