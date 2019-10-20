@@ -142,16 +142,16 @@ bool isOverlapping(loc l, loc r)
 
 @doc{
 .Synopsis
-Take the union of a list of locations
+Compute a lcoation that textually covers a list of locations
 
 .Description
 Create a new location that refers to the smallest text area that overlaps with the given locations.
 The given locations should all refer to the same file but they may be overlapping or be contained in each other.
 }
-loc union(list[loc] locs){
+loc cover(list[loc] locs){
     switch(size(locs)){
     case 0: 
-        throw IllegalArgument(locs, "Union of empty list of locations");
+        throw IllegalArgument(locs, "Cover of empty list of locations");
     case 1:
         return locs[0];
     default: {
@@ -162,7 +162,7 @@ loc union(list[loc] locs){
  
             tops = {l.top | l <- locs};
             if(size(tops) > 1){
-                throw IllegalArgument(locs, "Union of locations with different scheme, authority or path");
+                throw IllegalArgument(locs, "Cover of locations with different scheme, authority or path");
             }
             if(first.begin? && last.end?){
                 return first.top(first.offset, last.offset + last.length - first.offset, 
