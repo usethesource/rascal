@@ -17,6 +17,9 @@ For a description of source locations see link:/Rascal#Values-Location[Location]
 
 The following functions are defined for source locations:
 loctoc::[1]
+
+A source location `l` refers to a text fragment in another file or resource. To easy the description we will
+talk about "`l`'s text" instead of the text `l` refers to.
 }
 module Location
 
@@ -60,11 +63,11 @@ str getContent(loc l)
 Is a location textually (strictly) contained in another location?
 
 .Description
-Strict containment between two locations `inner` and outer` holds when
+Strict containment between two locations `inner` and `outer` holds when
 
 
-- the text `outer` refers to begins before the text `inner` refers to, or
-- the text `outer` refers to ends after the text `inner` refers to, or
+- `outer`'s text begins before `inner`'s text, or
+- `outer`'s text ends after `inner`'s text, or
 - both.
 }
 
@@ -83,7 +86,7 @@ Containment between two locations `inner` and `outer` holds when
 
 
 - `inner` and `outer` are equal, or
-- `linner is strictly contaned in `outer`.
+- `inner` is strictly contained in `outer`.
 }
 
 bool isContainedIn(loc inner, loc outer)
@@ -94,42 +97,52 @@ bool isContainedIn(loc inner, loc outer)
 
 @doc{
 .Synopsis
-Refers a location to text that begins before (but may overlap with) the text referred to by another location?
+Begins a location's text before (but may overlap with) another location's text?
 }
 bool beginsBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset < r.offset;
     
 @doc{
 .Synopsis
-Refers a location to text completely before the text referred to by another location?
+Begins and ends a location's text before another location's text?
+
+.Description
+`isBefore(l, r)` holds when `l`'s text occurs textually before `r`'s text.
 }
 bool isBefore(loc l, loc r)
     = isSameFile(l, r)  && l.offset + l.length <= r.offset;
 
 @doc{
 .Synopsis
-Refers a location to text _immediately_ before the text referred to by another location?
+Occurs a location's text _immediately_ before another location's text?
+
+.Description
+`isImmediatelyBefore(l, r)` holds when `l`'s text occurs textually before, and is adjacent to, `r`'s text.
 }
 bool isImmediatelyBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset + l.length == r.offset;
  
  @doc{
 .Synopsis
-Refers a location to text that begins after (but may overlap with) the text referred to by another location?
+Begins a location's text after (but may overlap with) another location's text?
+
+Description
+`beginsAfter(l, r)` holds when `l`'s text begins after `r`'s text. No assumption is made about the end of both texts.
+In other words, `l`'s text may end before or after the end of `r`'s text.
 }
 bool beginsAfter(loc l, loc r)
     = isSameFile(l, r) && l.offset > r.offset;
        
 @doc{
 .Synopsis
-Refers a location to text completely after the text referred to by another location?
+Is a location's text completely after another location's text?
 }
 bool isAfter(loc l, loc r)
     = isBefore(r, l);
 
 @doc{
 .Synopsis
-Refers a location to text _immediately_ after the text referred to by another location?
+Is a location's text _immediately_ after another location's text?
 }
 bool isImmediatelyAfter(loc l, loc r)
     = isImmediatelyBefore(r, l);
@@ -145,10 +158,10 @@ bool isOverlapping(loc l, loc r)
 
 @doc{
 .Synopsis
-Compute a lcoation that textually covers a list of locations
+Compute a location that textually covers the text of a list of locations.
 
 .Description
-Create a new location that refers to the smallest text area that overlaps with the given locations.
+Create a new location that refers to the smallest text area that overlaps with the text of the given locations.
 The given locations should all refer to the same file but they may be overlapping or be contained in each other.
 }
 loc cover(list[loc] locs){
