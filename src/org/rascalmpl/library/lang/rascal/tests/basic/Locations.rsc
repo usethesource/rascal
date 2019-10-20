@@ -388,23 +388,23 @@ test bool isOverlapping2(int f){
     return !isOverlapping(l1, l2);
 }
 
-// union
+// cover
 
-test bool isUnion1(int f){
+test bool isCover1(int f){
    <l1, l2> = makeLocsWithGap(10);
-   u = union([l1, l2]);
+   u = cover([l1, l2]);
    return report(l1, l2, isContainedIn(l1, u) && isContainedIn(l2, u));
 }
 
-test bool isUnion2(int f){
+test bool isCover2(int f){
    <l1, l2> = makeLocsWithGap(-10);
-   u = union([l1, l2]);
+   u = cover([l1, l2]);
    return report(l1, l2, isContainedIn(l1, u) && isContainedIn(l2, u));
 }
 
-test bool isUnion3(int f, int t){
+test bool isCover3(int f, int t){
    f = restrict(f); t = restrict(t);
    l = getLoc(f, t);
-   u = union([l, l, l, l]);
+   u = cover([l, l, l, l]);
    return report(l, l, l == u);
 }
