@@ -19,6 +19,10 @@ import lang::rascalcore::check::RascalConfig;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::Checker;
 
+extend analysis::typepal::TypePal; // for the benefit of making TModel known ...
+alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];  // The interpeter does not seem to see the one in Checker
+
+
 PathConfig testingConfig = pathConfig(srcs=[|test-modules:///|, |std:///|], bin=|home:///c1bin|, libs=[|home:///c1bin|]);
 
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }

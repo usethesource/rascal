@@ -372,8 +372,6 @@ CheckerResult rascalTModelForNames(list[str] moduleNames, PathConfig pcfg, TypeP
     }
 }
 
-//CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfig config){
-
 // ---- checker functions for IDE
 
 // name  of the production has to mirror the Kernel compile result
