@@ -26,7 +26,7 @@ str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.ge
 
 // Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
-    bool seenVAR_FORMAL = false;
+    bool seenVAR = false;
     bool seenNT  = false;
     bool seenLEX = false;
     bool seenLAY = false;
@@ -39,11 +39,11 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
         // - overloading of incompatible syntax definitions
         switch(defines[def].idRole){
         case variableId(): 
-            { if(seenVAR_FORMAL) return false;  seenVAR_FORMAL = true;}
+            { if(seenVAR) return false;  seenVAR = true;}
         case formalId(): 
-            { if(seenVAR_FORMAL) return false;  seenVAR_FORMAL = true;}
+            { if(seenVAR) return false;  seenVAR = true;}
         case patternVariableId(): 
-            { if(seenVAR_FORMAL) return false;  seenVAR_FORMAL = true;}
+            { if(seenVAR) return false;  seenVAR = true;}
         case nonterminalId():
             { if(seenLEX || seenLAY || seenKEY){  return false; } seenNT = true; }
         case lexicalId():
@@ -294,10 +294,8 @@ bool rascalReportUnused(loc def, TModel tm){
     return true;
 }
 
-
-// Enhance TModel before running Solver
+// Enhance TModel before running Solver by adding transitive edges for extend
 TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
-    // add transitive edges for extend
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
     m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};

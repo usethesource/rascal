@@ -33,7 +33,7 @@ test bool Issue432() =
 	unexpectedType("set[value] s := {} && s\<0\> == {};");
 	
 // https://github.com/cwi-swat/rascal/issues/435
-
+@ignore{TODO}
 test bool Issue435() {
 	makeModule("MMM", "bool sideEffect1() {
              			void One() { called = called + 1; return; }
@@ -282,7 +282,7 @@ test bool Issue483() =                                       // TODO: it is poss
 	
 	
 // https://github.com/cwi-swat/rascal/issues/491
-
+@ignore{TODO}
 test bool Issue491() =
 	checkOK("true;", importedModules=[" util::Math"],
 					initialDecls = ["public map[&T \<: num, int] distribution(rel[&U event, &T \<: num bucket] input, &T \<: num bucketSize) {
@@ -347,7 +347,7 @@ test bool Issue503(){
 // https://github.com/cwi-swat/rascal/issues/504
 
 test bool Issue504() =
-	checkOK("true;", initialDecls = ["alias INT = int;", "alias INT = int;"]);
+	redeclaredVariable("true;", initialDecls = ["alias INT = int;", "alias INT = int;"]); //DISCUSS, was: checkOK
 	
 	
 // https://github.com/cwi-swat/rascal/issues/547

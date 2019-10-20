@@ -85,7 +85,7 @@ void storeAllowUseBeforeDef(Tree container, Tree allowedPart, Collector c){
 }
 
 void storeAllowUseBeforeDef(Tree container, list[Tree] allowedParts, Collector c){
-    c.push(key_allow_use_before_def, <getLoc(container), union([getLoc(allowed) | allowed <- allowedParts])>);
+    c.push(key_allow_use_before_def, <getLoc(container), cover([getLoc(allowed) | allowed <- allowedParts])>);
 }
 
 public str key_bom = "bill_of_materials";
