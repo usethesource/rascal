@@ -27,6 +27,13 @@ import Exception;
 
 @doc{
 .Synopsis
+Check that two locations refer to the same file.
+}
+bool isSameFile(loc l, loc r)
+    = l.top == r.top;
+    
+@doc{
+.Synopsis
 Compare two location values lexicographically.
 
 .Description
@@ -36,15 +43,10 @@ When they refer to the same file, their offsets are compared when present.
 .Pittfalls
 This ordering regards the location value itself as opposed to the text it refers to.
 }
-bool isLexicallyLess(loc l1, loc l2)
-    = l1.top == l2.top ? (l1.offset ? 0) < (l2.offset ? 0) : l1.top < l2.top;
+bool isLexicallyLess(loc l, loc r)
+    = isSameFile(l, r) ? (l.offset ? 0) < (r.offset ? 0) : l.top < r.top;
 
-@doc{
-.Synopsis
-Check that two locations refer to the same file.
-}
-bool sameFile(loc l1, loc l2)
-    = l1.top == l2.top;
+
 
 @doc{
 .Synopsis
@@ -58,36 +60,36 @@ str getContent(loc l)
 Is a location textually (strictly) contained in another location?
 
 .Description
-Strict containment between two locations `l1` and `l2` holds when
+Strict containment between two locations `inner` and outer` holds when
 
 
-- the text `l2` refers begins before the text `l1` refers to, or
-- the text `l2` refers to ends after the text `l1` refers to, or
+- the text `outer` refers to begins before the text `inner` refers to, or
+- the text `outer` refers to ends after the text `inner` refers to, or
 - both.
 }
 
 bool isStrictlyContainedIn(loc inner, loc outer)
-    = inner.top == outer.top && ((inner.offset? && inner.offset > 0 && !outer.offset?) 
-                                 || inner.offset == outer.offset && inner.offset + inner.length < outer.offset + outer.length
-                                 || inner.offset > outer.offset && inner.offset + inner.length <= outer.offset + outer.length
-                                 );
+    = isSameFile(inner, outer) && (  (inner.offset? && inner.offset > 0 && !outer.offset?) 
+                                  || inner.offset == outer.offset && inner.offset + inner.length < outer.offset + outer.length
+                                  || inner.offset > outer.offset && inner.offset + inner.length <= outer.offset + outer.length
+                                  );
 
 @doc{
 .Synopsis
 Is a location textually contained in another location?
 
 .Description
-Containment between two locations `l1` and `l2 `holds when
+Containment between two locations `inner` and `outer` holds when
 
 
-- `l1` and `l2` are equal, or
-- `l1` is strictly contaned in `l2`.
+- `inner` and `outer` are equal, or
+- `linner is strictly contaned in `outer`.
 }
 
 bool isContainedIn(loc inner, loc outer)
-    = inner.top == outer.top && ((inner.offset? && inner.offset > 0 && !outer.offset?) || 
-                                 inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length
-                                 );
+    = isSameFile(inner, outer) && ( (inner.offset? && inner.offset > 0 && !outer.offset?) 
+                                  || inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length
+                                  );
 
 
 @doc{
@@ -95,28 +97,28 @@ bool isContainedIn(loc inner, loc outer)
 Refers a location to text that begins before (but may overlap with) the text referred to by another location?
 }
 bool beginsBefore(loc l, loc r)
-    = l.top == r.top && l.offset < r.offset;
+    = isSameFile(l, r) && l.offset < r.offset;
     
 @doc{
 .Synopsis
 Refers a location to text completely before the text referred to by another location?
 }
 bool isBefore(loc l, loc r)
-    = l.top == r.top && l.offset + l.length <= r.offset;
+    = isSameFile(l, r)  && l.offset + l.length <= r.offset;
 
 @doc{
 .Synopsis
 Refers a location to text _immediately_ before the text referred to by another location?
 }
 bool isImmediatelyBefore(loc l, loc r)
-    = l.top == r.top && l.offset + l.length == r.offset;
+    = isSameFile(l, r) && l.offset + l.length == r.offset;
  
  @doc{
 .Synopsis
 Refers a location to text that begins after (but may overlap with) the text referred to by another location?
 }
 bool beginsAfter(loc l, loc r)
-    = l.top == r.top && l.offset > r.offset;
+    = isSameFile(l, r) && l.offset > r.offset;
        
 @doc{
 .Synopsis
@@ -137,8 +139,9 @@ bool isImmediatelyAfter(loc l, loc r)
 Refer two locations to text that overlaps?
 }
 bool isOverlapping(loc l, loc r)
-    = l.top == r.top && ((l.offset <= r.offset && l.offset + l.length > r.offset) ||
-                         (r.offset <= l.offset && r.offset + r.length > l.offset));
+    = isSameFile(l, r) && (  (l.offset <= r.offset && l.offset + l.length > r.offset) 
+                          || (r.offset <= l.offset && r.offset + r.length > l.offset)
+                          );
 
 @doc{
 .Synopsis
