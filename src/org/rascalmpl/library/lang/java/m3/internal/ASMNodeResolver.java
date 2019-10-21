@@ -14,6 +14,8 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -64,6 +66,22 @@ public class ASMNodeResolver implements NodeResolver {
      */
     private LimitedTypeStore typeStore;
     
+    /**
+     * Supports URI resolution.
+     */
+    private URIResolverRegistry registry;
+    
+    /**
+     * URI of the JAR file
+     */
+    private ISourceLocation uri;
+    
+    /**
+     * List of locations pointing to the classpath of the 
+     * main JAR (only JAR files supported).
+     */
+    private List<ISourceLocation> classPath;
+    
     
     //---------------------------------------------
     // Methods
@@ -75,6 +93,9 @@ public class ASMNodeResolver implements NodeResolver {
      */
     public ASMNodeResolver(final LimitedTypeStore typeStore) {
         this.typeStore = typeStore;
+        this.uri = uri;
+        this.registry = URIResolverRegistry.getInstance();
+        this.classPath = initializeClassPath(classPath);
         initializePrimitiveTypes();
     }
     
@@ -90,6 +111,84 @@ public class ASMNodeResolver implements NodeResolver {
         primitiveTypes.put(Type.INT_TYPE.getDescriptor(), Type.INT_TYPE.getClassName());
         primitiveTypes.put(Type.LONG_TYPE.getDescriptor(), Type.LONG_TYPE.getClassName());
         primitiveTypes.put(Type.SHORT_TYPE.getDescriptor(), Type.SHORT_TYPE.getClassName());
+    }
+    
+    /**
+     * Initializes the list of JAR files in the classpath. It 
+     * includes the main JAR and all nested JARs.
+     * @param classPath - list of JAR files conforming the classpath 
+     * of the main JAR.
+     * @return list of locations pointing to JARs in the classpath
+     */
+    private List<ISourceLocation> initializeClassPath(IList classPath) {
+        List<ISourceLocation> cp = new ArrayList<ISourceLocation>();
+        
+        try {
+            ISourceLocation mainJar = toJarSrcLocation(uri);
+            cp.add(mainJar);
+            cp.addAll(getNestedJars(mainJar));
+            classPath.forEach(loc -> {
+                try {
+                    ISourceLocation jarLoc = toJarSrcLocation((ISourceLocation) loc);
+                    cp.add(jarLoc);
+                    cp.addAll(getNestedJars(jarLoc));
+                }
+                catch (IOException | URISyntaxException e) {
+                    throw new RuntimeException("Cannot gather nested JARs.", e);
+                }
+            });
+        }
+        catch (IOException | URISyntaxException e) {
+            throw new RuntimeException("Cannot gather nested JARs.", e);
+        }
+        return cp;
+    }
+    
+    /**
+     * Given a location pointing to a JAR file, the method adds
+     * "jar+" to its scheme and the "!" at the end of the path 
+     * if needed.
+     * @param uri - location pointing to a JAR file 
+     * @return location with a "jar+<scheme>" or "jar" scheme,
+     * and a path ending with "!"
+     */
+    private ISourceLocation toJarSrcLocation(ISourceLocation uri) {
+        try {
+            if (uri.getPath().endsWith(".jar")) {
+                uri = (uri.getScheme().startsWith("jar")) ? uri : URIUtil.changeScheme(uri, "jar+" + uri.getScheme());
+                return (uri.getScheme().endsWith("!")) ? uri : URIUtil.changePath(uri, uri.getPath() + "!");
+            }
+        }
+        catch (URISyntaxException e) {
+            throw new RuntimeException("The location " + uri + " does not reference a JAR file.", e);
+        }
+        throw new RuntimeException("The location " + uri + " does not reference a JAR file.");
+    }
+    
+    /**
+     * Gathers nested JARs in another JAR file passed as parameter.
+     * @param uri - location of JAR file
+     * @return list of nested JARs within the JAR file passed as 
+     * parameter.
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    private List<ISourceLocation> getNestedJars(ISourceLocation uri) throws IOException, URISyntaxException {
+        List<ISourceLocation> cp = new ArrayList<ISourceLocation>();
+        ISourceLocation[] entries = registry.list(uri);
+        for (ISourceLocation entry : entries) {
+            
+            if (registry.isDirectory(entry)) {
+                cp.addAll(getNestedJars(entry));
+            }
+            
+            if (entry.getPath().endsWith(".jar")) {
+                entry = URIUtil.changeScheme(entry, "jar+" + uri.getScheme());
+                entry = URIUtil.changePath(entry, entry.getPath() + "!");
+                cp.add(entry);
+            }
+        }
+        return cp;
     }
     
     @Override
@@ -522,5 +621,43 @@ public class ASMNodeResolver implements NodeResolver {
     
     private io.usethesource.vallang.type.Type getTypeSymbol() {
         return typeStore.lookupAbstractDataType("TypeSymbol");
+    }
+    
+    @Override
+    public ClassReader buildClassReader(String className) {
+        try {
+            return new ClassReader(className);
+        }
+        catch (IOException e) {
+            return buildClassReaderFromStream(className);
+        }
+    }
+
+    /**
+     * Returns an ASM ClassReader from a compilation unit location 
+     * or name. It creates a stream from one of the JARs in the classpath.
+     * If the class definition is not found, it returns null.
+     * @param className - class/comilation unit name/path (<pkg>/<name>)
+     * @return ASM ClassReader, null if the compilation unit is not found
+     */
+    private ClassReader buildClassReaderFromStream(String className) { 
+        try {
+            for (ISourceLocation entry : classPath) {
+                ISourceLocation loc = URIUtil.getChildLocation(entry, className + ".class");
+                if (registry.exists(loc)) {
+                    InputStream stream = registry.getInputStream(loc);
+                    return buildClassReader(stream);
+                }
+            }
+        }
+        catch (IOException e) {
+            // Nothing to do
+        }
+        return null;
+    }
+    
+    @Override
+    public ClassReader buildClassReader(InputStream classStream) throws IOException {
+        return new ClassReader(classStream);
     }
 }
