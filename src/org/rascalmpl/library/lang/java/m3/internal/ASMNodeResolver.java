@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -84,11 +86,6 @@ public class ASMNodeResolver implements NodeResolver {
     private URIResolverRegistry registry;
     
     /**
-     * Supports JAR URI resolution.
-     */
-    private JarURIResolver jarResolver;
-    
-    /**
      * URI of the JAR file
      */
     private ISourceLocation uri;
@@ -112,7 +109,6 @@ public class ASMNodeResolver implements NodeResolver {
         this.typeStore = typeStore;
         this.uri = uri;
         this.registry = URIResolverRegistry.getInstance();
-        this.jarResolver = new JarURIResolver(registry);
         this.classPath = initializeClassPath(classPath);
         initializePrimitiveTypes();
     }
@@ -193,18 +189,17 @@ public class ASMNodeResolver implements NodeResolver {
      */
     private List<ISourceLocation> getNestedJars(ISourceLocation uri) throws IOException, URISyntaxException {
         List<ISourceLocation> cp = new ArrayList<ISourceLocation>();
-        String[] entries = jarResolver.list(uri);
-        for (String entry : entries) {
-            ISourceLocation entryUri = URIUtil.getChildLocation(uri, entry);
+        ISourceLocation[] entries = registry.list(uri);
+        for (ISourceLocation entry : entries) {
             
-            if (jarResolver.isDirectory(entryUri)) {
-                cp.addAll(getNestedJars(entryUri));
+            if (registry.isDirectory(entry)) {
+                cp.addAll(getNestedJars(entry));
             }
             
-            if (entry.endsWith(".jar")) {
-                entryUri = URIUtil.changeScheme(entryUri, "jar+" + uri.getScheme());
-                entryUri = URIUtil.changePath(entryUri, entryUri.getPath() + "!");
-                cp.add(entryUri);
+            if (entry.getPath().endsWith(".jar")) {
+                entry = URIUtil.changeScheme(entry, "jar+" + uri.getScheme());
+                entry = URIUtil.changePath(entry, entry.getPath() + "!");
+                cp.add(entry);
             }
         }
         return cp;
@@ -690,8 +685,8 @@ public class ASMNodeResolver implements NodeResolver {
         try {
             for (ISourceLocation entry : classPath) {
                 ISourceLocation loc = URIUtil.getChildLocation(entry, className + ".class");
-                if (jarResolver.exists(loc)) {
-                    InputStream stream = jarResolver.getInputStream(loc);
+                if (registry.exists(loc)) {
+                    InputStream stream = registry.getInputStream(loc);
                     return buildClassReader(stream);
                 }
             }
