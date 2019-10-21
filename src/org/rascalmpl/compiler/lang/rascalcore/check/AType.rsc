@@ -438,17 +438,20 @@ bool asubtype(avoid(), AType _) = true;
 
 bool asubtype(anode(_), anode(_)) = true;
 
-bool asubtype(x:acons(AType a, list[AType] _, list[Keyword] _), AType b) = asubtype(a, b);
-
-bool asubtype(AType a, x:acons(AType b, list[AType] _, list[Keyword] _)) = asubtype(a, b);
+//bool asubtype(x:acons(AType a, list[AType] _, list[Keyword] _), AType b) = asubtype(a, b);
+//
+//bool asubtype(AType a, x:acons(AType b, list[AType] _, list[Keyword] _)) = asubtype(a, b);
   
 bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), acons(a,list[AType] bp, list[Keyword] _)) = asubtype(ap,bp);
+bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), adt: aadt(str _, list[AType] _, _)) = asubtype(a,adt);
 bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), afunc(a,list[AType] bp, list[Keyword] _)) = asubtype(ap,bp);
 
-bool asubtype(afunc(AType a, list[AType] ap, list[Keyword] _), acons(b,list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
 bool asubtype(acons(a,list[AType] ap, list[Keyword] _), afunc(AType b, list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
+bool asubtype(afunc(AType a, list[AType] ap, list[Keyword] _), acons(b,list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
+
 
 bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
+bool asubtype(adt: aadt(str _, list[AType] _, _), acons(AType a, list[AType] ap, list[Keyword] _)) = asubtype(adt, a);
 bool asubtype(aadt(str n, list[AType] l, _), aadt(n, list[AType] r, _)) = asubtype(l, r);
 bool asubtype(aadt(_, _, sr), aadt("Tree", _, _)) = true when isConcreteSyntaxRole(sr);
 //bool asubtype(aadt(str _, list[AType] _, sr), AType::\auser("Tree", _))  = true when isConcreteSyntaxRole(sr);

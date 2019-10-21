@@ -227,7 +227,7 @@ public data MuExp =
           
           //| muHasType(str typeName, MuExp exp)
           | muHasTypeAndArity(AType atype, int arity, MuExp exp)
-          | muHasNameAndArity(AType atype, str name, int arity, MuExp exp)
+          | muHasNameAndArity(AType atype, AType consType, str name, int arity, MuExp exp)
           | muValueIsSubType(MuExp exp, AType tp)
           | muValueIsSubTypeOfValue(MuExp exp2, MuExp exp1)
           | muIsDefinedValue(MuExp exp)

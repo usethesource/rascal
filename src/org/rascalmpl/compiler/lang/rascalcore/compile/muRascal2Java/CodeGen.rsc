@@ -502,7 +502,7 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
     canFail = any(of <- overload.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail);
     map[int,str] cases = ();
     defaultFunctions = "";
-   for(of <- overload.ofunctions){
+    for(of <- overload.ofunctions){
         ft = jg.getType(of);
         if(ft.isDefault){
             defaultFunctions += makeCallInResolver(funType, of, jg);
@@ -510,8 +510,8 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
     }
     for(of <- overload.ofunctions){
         ft = jg.getType(of);
-         fp = ft.abstractFingerprint;
-        if(fp == 0 || !ft.isDefault){
+        fp = ft.abstractFingerprint;
+        if(!ft.isDefault){
             if(cases[fp]?){
                 cases[fp] += makeCallInResolver(funType, of, jg);
             } else {
@@ -536,14 +536,14 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
         body = "switch(ToplevelType.getFingerprint($0, <concretePatterns>)){
                '<for(caseLab <- cases, caseLab != 0){>
                '         case <caseLab>: { 
-               '             <cases[caseLab] + defaultFunctions> 
+               '             <cases[caseLab]> 
                '             break;
                '         }
                '    <}>
-               '        default: {
-               '            <cases[0]? ? (cases[0] + defaultFunctions) : "">
-               '        }
-               '}";
+               '}
+               '<cases[0]? ? (cases[0]) : "">
+               '<defaultFunctions>
+               ";
     }
     
     jg.addResolver(overload, externalVars);
@@ -1733,15 +1733,15 @@ JCode trans(muHasTypeAndArity(AType atype, int arity, MuExp exp), JGenie jg){
     throw "muHasTypeAndArity: <atype>, <arity>";
 }
 
-JCode trans(muHasNameAndArity(AType atype, str name, int arity, MuExp exp), JGenie jg){
+JCode trans(muHasNameAndArity(AType atype, AType consType, str name, int arity, MuExp exp), JGenie jg){
     t = atype2javatype(atype);
     v = trans(exp, jg);
-    switch(atype){
+    switch(consType){
         case aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole):
             return "((IConstructor)<v>).arity() == <arity> && ((IConstructor)<v>).getType() == <getADTName(adtName)>";
         case acons(AType adt, list[AType] fields, list[Keyword] kwFields):
             //return "<v> instanceof IConstructor && ((IConstructor)<v>).arity() == <arity> && ((IConstructor)<v>).getName().equals(\"<name>\")";
-            return "<v> == <atype2idpart(atype)>";
+            return "<v>.getConstructorType() == <atype2idpart(consType)>";
         //case anode(_):
         default:
             return "<v> instanceof INode && ((INode)<v>).arity() == <arity> && ((INode)<v>).getName().equals(\"<name>\")";
@@ -1853,3 +1853,8 @@ default JCode trans(muTemplateAdd(MuExp template, MuExp exp), JGenie jg){
 
 JCode trans(muTemplateClose(MuExp template), JGenie jg)
     = "<trans(template, jg)>.close()";
+    
+// ---- Misc ------------------------------------------------------------------
+
+JCode trans(muResetLocs(list[int] positions), JGenie jg)
+    = "";
