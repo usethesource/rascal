@@ -16,6 +16,11 @@ test bool normalizedCall(B b1, B b2, B b3) = and(b1, and(b2, b3)) == and(and(b1,
 test bool normalizedVisit() =
   /and(_, and(_, _)) !:= visit (or(or(t(),t()),or(t(),t()))) { case or(a,b) => and(a,b) };
   
+B (B, B) giveOr() = or; 
+
+test bool giveOr1() = giveOr()(t(), f()) == or(t(), f());
+
+  
 private test bool callKwp() {
   kwp(x = 2); // this would previously change the static type of the x argument of kwp to int
   return true;
