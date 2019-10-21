@@ -19,7 +19,7 @@ The following functions are defined for source locations:
 loctoc::[1]
 
 A source location `l` refers to a text fragment in another file or resource. To ease the description we will
-talk about "`l` 's text" instead of the text `l` refers to.
+talk about _`l` 's text_ instead of _the text `l` refers to_.
 }
 module Location
 
