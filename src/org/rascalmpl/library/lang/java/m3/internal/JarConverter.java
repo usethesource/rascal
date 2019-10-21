@@ -310,6 +310,8 @@ public class JarConverter extends M3Converter {
                     else {
                         addToContainment(outerClassLogical, classLogical);
                     }
+                    
+                    addToModifiers(classLogical, innerClass.access, true);
                 }
             }
         }
