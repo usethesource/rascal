@@ -3,7 +3,7 @@ module lang::rascalcore::check::tests::StaticTestingUtils
 
 /*
  * Utilities for writing tests for the Rascal Type Checker:
- * - all utilities depend on checkStatementsString
+ * - all utilities depend on rascalTModelForLocs
  * - all utilities match for the occurence of certain phrases in the generated error messages.
  * - (in a next phase we may want to introduce a more specific error reporting datatype)
  */
@@ -17,10 +17,10 @@ import ParseTree;
 import util::SystemAPI;
 import lang::rascalcore::check::RascalConfig;
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::Checker;
+extend lang::rascalcore::check::Checker;
 
-extend analysis::typepal::TypePal; // for the benefit of making TModel known ...
-alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];  // The interpeter does not seem to see the one in Checker
+//data TModel;
+//alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];  // The interpeter does not seem to see the one in Checker
 
 
 PathConfig testingConfig = pathConfig(srcs=[|test-modules:///|, |std:///|], bin=|home:///c1bin|, libs=[|home:///c1bin|]);
@@ -116,7 +116,8 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Assertion should be `bool`, found _",
 	    "Expected subscript of type _, found _",
 	    "Tuple index must be between _ and _",
-	    "Cannot assign righthand side of type _ to lefthand side of type _"
+	    "Cannot assign righthand side of type _ to lefthand side of type _",
+	    "Field subscript _ out of range"
 		//"_ not defined for _ and _", 
 		//"not defined on _ and _", 
 		//"not declared on",

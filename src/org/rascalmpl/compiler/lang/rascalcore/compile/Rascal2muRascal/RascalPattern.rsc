@@ -15,6 +15,7 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::compile::util::Names;
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
@@ -562,14 +563,14 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    lpats = [pat | pat <- arguments];   //TODO: should be unnnecessary
    //TODO: bound check
    body =  ( contExp | translatePat(lpats[i], getType(lpats[i]), muSubscript(subject, muCon(i)), btscope, it, falseCont) | int i <- reverse(index(lpats)) );
-     
+   expType = getType(expression);
    if(expression is qualifiedName){
-      fun_name = prettyPrintName(getType(expression).label);
-      return muBlock([muConInit(subject, subjectExp), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
+      fun_name = getUnqualifiedName(prettyPrintName(getType(expression).label));
+      return muBlock([muConInit(subject, subjectExp), muIfelse(muHasNameAndArity(subjectType, expType, fun_name, size(lpats), subject), body, falseCont)]);
       //return muBlock([*(subjectAssigned ? [] : [muConInit(subject, subjectExp)]), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
    } else if(expression is literal){ // StringConstant
-      fun_name = prettyPrintName("<expression>"[1..-1]);
-         return muBlock([muConInit(subject, subjectExp), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
+         fun_name = prettyPrintName("<expression>"[1..-1]);
+         return muBlock([muConInit(subject, subjectExp), muIfelse(muHasNameAndArity(subjectType, expType, fun_name, size(lpats), subject), body, falseCont)]);
         //return muBlock([*(subjectAssigned ? [] : [muConInit(subject, subjectExp)]), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
     } else {
     // TODO

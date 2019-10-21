@@ -84,7 +84,7 @@ str atype2idpart(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole
                                           = getJavaName(adtName);
                                               
 str atype2idpart(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
-                                          = "<getJavaName(adt.adtName, completeId=false)><t.label? ? "_" + getJavaName(t.label, completeId=false) : "">_<intercalate("_", [atype2idpart(f) | f <- fields])>";
+                                          = "<getJavaName(adt.adtName, completeId=false)><t.label? ? "_" + getJavaName(getUnqualifiedName(t.label), completeId=false) : "">_<intercalate("_", [atype2idpart(f) | f <- fields])>";
 
 str atype2idpart(overloadedAType(rel[loc, IdRole, AType] overloads)){
     resType = avoid();

@@ -417,23 +417,23 @@ void collect(Parameters parameters, Collector c){
 
 void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
     = void(Solver s) { 
-        actualDeclaredReturnType = s.getType(declaredReturnType);
+        theDeclaredReturnType = s.getType(declaredReturnType);
           
         returnExprType = s.getType(returnExpr);
         Bindings bindings = ();
-        try   bindings = matchRascalTypeParams(returnExprType, actualDeclaredReturnType, bindings, bindIdenticalVars=true);
+        try   bindings = matchRascalTypeParams(returnExprType, theDeclaredReturnType, bindings, bindIdenticalVars=true);
         catch invalidMatch(str reason):
               s.report(error(returnExpr, reason));
           
-        ireturnExprType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+        actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
 
-        if(s.isFullyInstantiated(ireturnExprType)){
-            s.requireTrue(s.equal(ireturnExprType, avoid()) && s.equal(actualDeclaredReturnType, avoid()) ||
-                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", actualDeclaredReturnType, ireturnExprType));
+        if(s.isFullyInstantiated(actualReturnType)){
+            s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
+                         !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
         } else
-            if(!s.unify(ireturnExprType, actualDeclaredReturnType)){
-            s.requireTrue(s.equal(ireturnExprType, avoid()) && s.equal(actualDeclaredReturnType, avoid()) ||
-                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", actualDeclaredReturnType, ireturnExprType));
+            if(!s.unify(actualReturnType, theDeclaredReturnType)){
+            s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
+                         !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
         }   
      };
 
