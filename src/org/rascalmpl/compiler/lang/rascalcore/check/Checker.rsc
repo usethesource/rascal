@@ -184,7 +184,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
         
         list[str] ordered = [];
         
-        println("topModuleNames: <topModuleNames>");
+        //println("topModuleNames: <topModuleNames>");
         
         if(isEmpty(sorted)){
             ordered = toList(topModuleNames);
