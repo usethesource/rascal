@@ -1,29 +1,24 @@
 module lang::rascalcore::compile::Examples::Tst1
+     
 
-data B = or(B, B) | and(B, B) | t() | f();
+//import Type;
+
+data Symbol
+     = \int()  
+     | \num()
+     | \str() 
+     | \void()   
+     | \label(str name, Symbol s)       
+     ;      
+
+bool subtype(\int(), \num()) = true;
+bool subtype(Symbol s, s) = true; 
+default bool subtype(Symbol s, Symbol t) = false;
+public bool subtype(Symbol::\void(), Symbol _) = true; 
  
-B (B, B) giveOr() = or;        
 
-////import Type;
-//
-//data Symbol
-//     = \int()  
-//     | \num()
-//     | \str() 
-//     | \void()   
-//     | \label(str name, Symbol s)       
-//     ;      
-//
-////bool subtype(\int(), \num()) = true;
-////bool subtype(Symbol s, s) = true; 
-////default bool subtype(Symbol s, Symbol t) = false;
-////public bool subtype(Symbol::\void(), Symbol _) = true; 
-// 
-//
 //private list[Symbol] stripLabels(list[Symbol] l) = [ (Symbol::\label(_,v) := li) ? v : li | li <- l ]; 
 
-    
-
-//bool main() {  
-// return subtype(\str(), \str());     
-//}
+bool main() {  
+ return subtype(\str(), \str());     
+}
