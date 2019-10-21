@@ -17,13 +17,10 @@ import ParseTree;
 import util::SystemAPI;
 import lang::rascalcore::check::RascalConfig;
 import lang::rascal::\syntax::Rascal;
-extend lang::rascalcore::check::Checker;
 
-//data TModel;
-//alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];  // The interpeter does not seem to see the one in Checker
+import lang::rascalcore::check::Checker;
 
-
-PathConfig testingConfig = pathConfig(srcs=[|test-modules:///|, |std:///|], bin=|home:///c1bin|, libs=[|home:///c1bin|]);
+PathConfig testingConfig =  getDefaultPathConfig();
 
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
 

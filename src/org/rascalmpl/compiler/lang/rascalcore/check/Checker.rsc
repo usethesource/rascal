@@ -132,13 +132,14 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 
 public PathConfig getDefaultPathConfig() {
     return pathConfig(   
-        srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
+        srcs = [|test-modules:///|,
+                |project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
-                |project://typepal-examples/src|,
-                |project://rascal-codegen-ideas/src|,
-                |test-modules:///|
-               ]
+                |project://rascal-codegen-ideas/src|      
+               ],
+        bin = |home:///bin|, 
+        libs = [|home:///bin|]
                );
 }
 
