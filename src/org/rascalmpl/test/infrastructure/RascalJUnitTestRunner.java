@@ -87,8 +87,11 @@ public class RascalJUnitTestRunner extends Runner {
         List<String> sourceRoots = new RascalManifest().getSourceRoots(projectRoot);
         
         ISourceLocation root = URIUtil.correctLocation("project", projectName, "");
+        System.err.println("Logical project root location is: " + root);
+        
         for (String src : sourceRoots) {
             ISourceLocation path = URIUtil.getChildLocation(root, src);
+            System.err.println("Adding evaluator search path: " + path);
             evaluator.addRascalSearchPath(path);
         }
     }
@@ -109,6 +112,7 @@ public class RascalJUnitTestRunner extends Runner {
             }
         }
         catch (URISyntaxException e) {
+            System.err.println("[ERROR] can not infer project root:" + e);
             return null;
         }
         
@@ -177,7 +181,7 @@ public class RascalJUnitTestRunner extends Runner {
                     }
                 }
                 catch (Throwable e) {
-                    System.err.println(e);
+                    System.err.println("[ERROR] " + e);
                     desc.addChild(modDesc);
 
                     Description testDesc = Description.createTestDescription(clazz, name + "compilation failed", new CompilationFailed() {
@@ -193,6 +197,7 @@ public class RascalJUnitTestRunner extends Runner {
 
             return desc;
         } catch (IOException e) {
+            System.err.println("[ERROR] Could not create tests suite: " + e);
             throw new RuntimeException("could not create test suite", e);
         } 
     }
