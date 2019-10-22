@@ -266,8 +266,6 @@ test bool setOrRel6() = {SET[tuple[int,int]] ST = {<3,4>}; ST + <1,2> == {<1,2>,
 test bool setOrRel7() = {SET[tuple[int,int]] ST = {<3,4>}; rel[int,int] R = ST + <1,2>; R == {<1,2>, <3,4>};};
 test bool setOrRel8() = {SET[tuple[int,int]] ST = {<3,4>}; rel[int,int] R = <1,2> + ST; R == {<1,2>, <3,4>};};
 
-
-alias LIST[&T] = list[&T];
 test bool listOrLrel1() = {lrel[int,int] LR = [<1,2>]; LIST[tuple[int,int]] LT = [<1,2>]; LR == LT; };
 test bool listOrLrel2() = {lrel[int,int] LR = [<1,2>]; LIST[tuple[int,int]] LT = LR; LR == LT; };
 test bool listOrLrel3() = {lrel[int,int] LR = [<1,2>]; LIST[tuple[int,int]] LT = [<3,4>]; LR + LT == [<1,2>, <3,4>];};

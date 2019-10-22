@@ -30,10 +30,10 @@ test bool listTest7() {list[int] L = [0,1,2,3]; L[2] = 22; return L == [0,1,22,3
 test bool listTest8() {list[int] L = [0,1,2,3]; L[3] = 33; return L == [0,1,2,33];}
 	
 @expected{IndexOutOfBounds}
-test bool listError() = [0,1,2,3][4] == 3;
+test bool listError1() = [0,1,2,3][4] == 3;
 	
 @expected{IndexOutOfBounds}
-test bool listError(){ list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44]; return false; 	}
+test bool listError2(){ list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44]; return false; 	}
 	
 //	 map
 

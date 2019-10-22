@@ -493,7 +493,8 @@ public class PathConfig {
 	 */
 	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot) throws IOException {
         RascalManifest manifest = new RascalManifest();
-        Set<String> loaderSchemes = URIResolverRegistry.getInstance().getRegisteredClassloaderSchemes();
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        Set<String> loaderSchemes = reg.getRegisteredClassloaderSchemes();
         
         IListWriter libsWriter = vf.listWriter();
         IListWriter srcsWriter = vf.listWriter();
@@ -516,9 +517,18 @@ public class PathConfig {
         }
         
         ISourceLocation bin = URIUtil.getChildLocation(manifestRoot, "bin");
+        ISourceLocation target = URIUtil.getChildLocation(manifestRoot, "target/classes");
+        
         ISourceLocation boot = URIUtil.correctLocation("boot", "", "");
         
-        libsWriter.insert(bin);
+        if (reg.exists(bin)) {
+            libsWriter.insert(bin);
+            classloaders.append(bin);
+        }
+        else if (reg.exists(target)) {
+            libsWriter.insert(target);
+            classloaders.append(target);
+        }
       
         // for the Rascal run-time
         classloaders.append(URIUtil.correctLocation("system", "", ""));

@@ -230,4 +230,4 @@ test bool cntRange1()       {cnt = 0; visit(Rascal){ case \range(_,_): cnt += 1;
 test bool cntRange2()       = size([x | /x:\range(_,_) := Rascal]) == 404;
 
 test bool cntPriority1()    {cnt = 0; visit(Rascal){ case \priority(_,_): cnt += 1; }; return cnt == 5; }
-test bool cntPriority1()    = size([x | /x: \priority(_,_) := Rascal]) == 5;
+test bool cntPriority2()    = size([x | /x: \priority(_,_) := Rascal]) == 5;

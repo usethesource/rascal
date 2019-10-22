@@ -10,9 +10,9 @@ test bool or(bool b) { if (true || b == true, b || true == true, false || false 
   
 test bool and(bool b) { if ((false && b) == false, (b && false) == false, (true && true) == true) return true; else return false; }
 
-test bool not(bool b) = !!b == b;
+test bool not1(bool b) = !!b == b;
 
-test bool not() = (!true == false) && (!false == true);
+test bool not2() = (!true == false) && (!false == true);
 
 test bool equiv(bool b1, bool b2) = (b1 <==> b2) <==> (!b1 && !b2 || b1 && b2);
 
@@ -25,7 +25,7 @@ test bool tstArbBool() { b = arbBool() ; return b == true || b == false; }
 test bool fromString1() = fromString("true") == true && fromString("false") == false;
 
 @expected{IllegalArgument}
-test bool fromString1(str s) = fromString(s); // will fail in the rare situation that "true" or "false" are passed as argument.
+test bool fromString2(str s) = fromString(s); // will fail in the rare situation that "true" or "false" are passed as argument.
 
 test bool tstToInt() = toInt(false) == 0 && toInt(true) == 1;
 
@@ -184,12 +184,12 @@ test bool compositeAndCommaCnt() {
     return n == 3;
 }
 
-test bool compositeAndCntBTLast() {
+test bool compositeAndCntBTLast1() {
     ten = 10;
     return ten > 9 && [*int x, int  y, *int z] := [1,2,3];
 }
 
-test bool compositeAndCntBTLast() {
+test bool compositeAndCntBTLast2() {
     n = 0;
     ten = 10;
     if( ten > 9 && [*int x, int  y, *int z] := [1,2,3] )  {

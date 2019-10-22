@@ -187,6 +187,7 @@ test bool fail4() {
 	            return x + y;
 	        }
 	    }
+	    return -1;
     }
     return main() == 6;
 }
@@ -285,7 +286,7 @@ test bool testSwitch1f() {int n = 0; switch(8){ default: n = 10;} return n == 10
  test bool testSwitch3a() = sw3("abc") == 1;
  test bool testSwitch3b() = sw3("AAA") == 2;
  test bool testSwitch3c() = sw3("def") == 3;
- test bool testSwitch3a() = sw3("zzz") == 4;
+ test bool testSwitch3d() = sw3("zzz") == 4;
  	
  int sw4(value e){ 	
  	int n = 0;

@@ -166,9 +166,9 @@ test bool concreteMatch245(){
 	return n == 60;
 }
 
-test bool concreteMatch246() =  size([ x | /x:\char-class(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 75;
+test bool concreteMatch246a() =  size([ x | /x:\char-class(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 75;
  
-test bool concreteMatch247(){
+test bool concreteMatch247a(){
 	n = 0;
 	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
 		case \char-class(_): n += 1;
@@ -176,9 +176,9 @@ test bool concreteMatch247(){
 	return n == 75;
 }
 
-test bool concreteMatch246() =  size([ x | /x:\sort(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 16;
+test bool concreteMatch246b() =  size([ x | /x:\sort(_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 16;
  
-test bool concreteMatch247(){
+test bool concreteMatch247b(){
 	n = 0;
 	visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
 		case \sort(_): n += 1;
@@ -210,7 +210,7 @@ test bool concreteMatch251() {
 test bool concreteMatch252() = size([ p | /p:prod(_,_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) 
              == 37;
  
-test bool concreteMatch252(){
+test bool concreteMatch253(){
     n = 0;
     visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
         case prod(_,_,_): n += 1;
@@ -218,9 +218,9 @@ test bool concreteMatch252(){
     return n == 37;
 }  
 
-test bool concreteMatch253() = size([ r | /r:range(_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 75;  
+test bool concreteMatch254() = size([ r | /r:range(_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 75;  
  
-test bool concreteMatch254(){
+test bool concreteMatch255(){
     n = 0;
     visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
         case range(_,_): n += 1;
@@ -228,9 +228,9 @@ test bool concreteMatch254(){
     return n == 75;
 } 
 
-test bool concreteMatch255() = size([ iss | /iss:\iter-star-seps(_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 4;
+test bool concreteMatch256() = size([ iss | /iss:\iter-star-seps(_,_) := [Stat] "if x then a := 1;b:=2 else c:=3 fi" ]) == 4;
 
-test bool concreteMatch256(){
+test bool concreteMatch257(){
     n = 0;
     visit( [Stat] "if x then a := 1;b:=2 else c:=3 fi" ){
         case \iter-star-seps(_,_): n += 1;
