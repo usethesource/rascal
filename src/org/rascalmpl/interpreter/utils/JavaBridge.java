@@ -360,15 +360,20 @@ public class JavaBridge {
 		}
 		catch (IllegalArgumentException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (InstantiationException e) {
+		} 
+		catch (InstantiationException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (IllegalAccessException e) {
+		} 
+		catch (IllegalAccessException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (InvocationTargetException e) {
+		} 
+		catch (InvocationTargetException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (SecurityException e) {
+		} 
+		catch (SecurityException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (NoSuchMethodException e) {
+		} 
+		catch (NoSuchMethodException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		}
 		

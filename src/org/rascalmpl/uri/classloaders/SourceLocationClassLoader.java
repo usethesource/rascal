@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -32,6 +33,7 @@ import io.usethesource.vallang.IValue;
  */
 public class SourceLocationClassLoader extends ClassLoader {
     private final List<ClassLoader> path;
+    private final Stack<String> stack = new Stack<>();
 
     public SourceLocationClassLoader(IList classpath, ClassLoader parent) {
         super(parent);
@@ -57,6 +59,30 @@ public class SourceLocationClassLoader extends ClassLoader {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        if (stack.contains(name)) {
+            // we're already looking for this and could not find it apparently
+            return null;
+        }
+        
+        for (ClassLoader l : path) {
+            try {
+                stack.push(name);
+                return l.loadClass(name);
+            }
+            catch (ClassNotFoundException e) {
+                // this is normal, try next loader
+                continue;
+            }
+            finally {
+                stack.pop();
+            }
+        }
+        
+        return null;
     }
     
     @Override

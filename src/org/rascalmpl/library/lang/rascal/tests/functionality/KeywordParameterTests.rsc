@@ -72,11 +72,11 @@ test bool keywordParam9() {
 
 data F10 = f10(int i, int delta = 100);
 
-test bool keywordParam10() {
+test bool keywordParam91() {
     return f10(0,delta=1).delta == 1;
 }
 
-test bool keywordParam11(){
+test bool keywordParam92(){
 	bool f11(bool c = false){
 		bool g11(){
 			return c;
@@ -86,7 +86,7 @@ test bool keywordParam11(){
 	return f11() == false;
 }
 
-test bool keywordParam12(){
+test bool keywordParam93(){
 	bool f12(bool c = false){
 		void g12(){
 			c = true;
@@ -134,3 +134,6 @@ int f13(int n, str s = "") = -n when s != "";
 test bool when1() = f13(10) == 10;
 test bool when2() = f13(10, s="a") == -10;
 
+data E[&T] = e(&T t, int j = 0);
+
+test bool parametrizedDataTypeWithKwParam() = e(1).j == 0 && e(1,j=2).j == 2;
