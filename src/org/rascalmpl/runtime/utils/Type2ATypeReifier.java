@@ -70,7 +70,7 @@ public class Type2ATypeReifier extends ATypeFactory {
 			@Override
 			public IConstructor visitTuple(Type type) throws RuntimeException {
 				Type fieldTypes = type.getFieldTypes();
-				String[] fieldNames = type.getFieldNames();
+				String[] fieldNames = type.hasFieldNames() ? type.getFieldNames() : null;
 				int arity = type.getArity();
 				IConstructor fieldATypes[] = new IConstructor[arity];
 				for(int i = 0; i <arity; i++) {
@@ -81,10 +81,11 @@ public class Type2ATypeReifier extends ATypeFactory {
 			
 			@Override
 			public IConstructor visitMap(Type type) throws RuntimeException {
-				String keyLabel = type.getKeyLabel();
+				boolean hasNames = type.hasFieldNames();
+				String keyLabel = hasNames ? type.getKeyLabel() : "";
 				IConstructor keyType = reify2atype(type.getKeyType(), keyLabel.isEmpty() ? empty : $VF.string(keyLabel));
 				
-				String valLabel = type.getValueLabel();
+				String valLabel = hasNames ? type.getValueLabel() : "";
 				IConstructor valType = reify2atype(type.getValueType(), valLabel.isEmpty() ? empty : $VF.string(valLabel));
 				return label.length() == 0 ? $amap(keyType, valType) : $amap(keyType, valType, label);
 			}

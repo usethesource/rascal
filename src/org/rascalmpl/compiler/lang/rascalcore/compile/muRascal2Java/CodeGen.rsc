@@ -1456,7 +1456,7 @@ JCode trans(muSucceed(str label), JGenie jg)
     = "break <label>;";
 
 JCode trans(muFail(str label), JGenie jg){
-    if(jg.getFunctionName() == label){
+    if(startsWith(jg.getFunctionName(), label)){    // this is brittle, solve in JGenie
         return jg.getFunction().ftype.retType == avoid() ? "throw new FailReturnFromVoidException();"
                                                           : "return null;";
     }

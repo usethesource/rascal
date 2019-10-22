@@ -812,7 +812,9 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
    subjects = [ muTmpIValue(nextTmp("subject"), fuid, subjectType) |int i <- reverse(index(uniquePats)) ];
     
    lastPat = size(uniquePats) - 1;
-   setPatTrueCont = (isEmpty(setVars) || isAnonymousMultiVar(uniquePats[-1])) ? trueCont : muIfExp(muEqualNativeInt(muSize(subjects[-1], subjectType), muCon(0)), trueCont,  muContinue(""));
+   setPatTrueCont = isEmpty(subjects) ? muIfExp(muEqualNativeInt(muSize(subjectExp, subjectType), muCon(0)), trueCont,  muFail(btscope))
+                                      : ( (isEmpty(setVars) || isAnonymousMultiVar(uniquePats[-1])) ? trueCont 
+                                                                                                    : muIfExp(muEqualNativeInt(muSize(subjects[-1], subjectType), muCon(0)), trueCont,  muFail(btscope)));
    leftMostVar = -1;
    if(!isEmpty(uniquePats)){
        for(int i <- reverse(index(uniquePats))){
