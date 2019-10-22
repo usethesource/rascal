@@ -478,9 +478,9 @@ MuExp muReturn1(AType t, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
 MuExp muReturn1(AType t, muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp))
     = muForRangeInt(label, var, ifirst, istep, last, muReturn1(t, exp));
     
-MuExp muReturn1(AType t, muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body))
-    = muBlock([muForAll(label, var, iterType, iterable, muReturn1(t, body)), muReturn1(t, muCon(false))]);
-
+MuExp muReturn1(AType t, fo: muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body))
+    = addReturnFalse(t, fo);
+ 
 MuExp addReturnFalse(AType t, bl: muBlock([*exps, muReturn1(abool(), muCon(false))])) = bl;
 
 default MuExp addReturnFalse(AType t, MuExp exp) = muBlock([exp, (t == abool() || t == avalue()) ? muReturn1(abool(), muCon(false)) : muFailReturn(t)]);

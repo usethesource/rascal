@@ -170,9 +170,9 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
         }
       } else if(addReturn && !isEmpty(body)){
             if((Statement) `<Expression expression>;` := body[0] && isConditional(expression)){
-                mubody = translateBool(expression.condition, "", muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp)));
+                mubody = translateBool(expression.condition, prettyPrintName(fd.signature.name), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp)));
             } else if((Statement) `<Expression expression>;` := body[0] && isMatchOrNoMatch(expression)){
-                mubody = translateBool(expression, "", muReturn1(resultType, muCon(true)), muReturn1(resultType, muCon(false)));
+                mubody = translateBool(expression, prettyPrintName(fd.signature.name), muReturn1(resultType, muCon(true)), muReturn1(resultType, muCon(false)));
             } else {
                 mubody = translate(body[0]);
             }
