@@ -240,6 +240,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                  
                  if("test" in modifiers){
                     ft.isTest = true;
+                    s.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
                  }
           
                  if(size(ft.formals) > 0){
