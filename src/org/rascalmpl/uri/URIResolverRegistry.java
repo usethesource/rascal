@@ -191,7 +191,7 @@ public class URIResolverRegistry {
 		return result;
 	}
 	
-	private ISourceLocation physicalLocation(ISourceLocation loc) {
+	private ISourceLocation physicalLocation(ISourceLocation loc) throws IOException {
 		synchronized (logicalResolvers) {
 			while (logicalResolvers.containsKey(loc.getScheme())) {
 				Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
@@ -382,22 +382,27 @@ public class URIResolverRegistry {
     }
 
 	public boolean exists(ISourceLocation uri) {
-		if (logicalResolvers.containsKey(uri.getScheme())) {
-			uri = physicalLocation(uri);
-			
-			if (uri == null) {
-				return false;
-			}
-		}
-		
-		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+	    try {
+	        if (logicalResolvers.containsKey(uri.getScheme())) {
+	            uri = physicalLocation(uri);
 
-		if (resolver == null) {
-		    // TODO: should this not throw an exception? 
-			return false;
-		}
+	            if (uri == null) {
+	                return false;
+	            }
+	        }
 
-		return resolver.exists(uri);
+	        ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+
+	        if (resolver == null) {
+	            // TODO: should this not throw an exception? 
+	            return false;
+	        }
+
+	        return resolver.exists(uri);
+	    }
+	    catch (IOException e) {
+	        return false;
+	    }
 	}
 
 	public boolean isDirectory(ISourceLocation uri) {

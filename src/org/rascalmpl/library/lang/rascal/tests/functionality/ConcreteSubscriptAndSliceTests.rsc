@@ -75,7 +75,7 @@ test bool lexSlice8() = ([XStar] "xyz").xs[2..3] == ([XStar] "z").xs;
 @ignoreInterpreter{Incorrect/not implemented}
 test bool lexSliceNeg1() = ([XStar] "xyz").xs[2..1] == ([XStar] "z").xs;
 @ignoreInterpreter{Incorrect/not implemented}
-test bool lexSliceNeg1() = ([XStar] "xyz").xs[2..0] == ([XStar] "zy").xs;
+test bool lexSliceNeg2() = ([XStar] "xyz").xs[2..0] == ([XStar] "zy").xs;
 
 @ignoreInterpreter{Incorrect/not implemented}
 test bool lexSliceStep1() = ([XStar] "xyzXYZxyz").xs [0,2..] == ([XStar] "xzYxz").xs;
@@ -100,12 +100,12 @@ test bool lexSliceSep6() = ([XComma] "x,y,z").xcommas [1..2] == ([XComma] "y").x
 @ignoreInterpreter{Incorrect/not implemented}
 test bool lexSliceSep7() = ([XComma] "x,y,z").xcommas [1..3] == ([XComma] "y,z").xcommas;
 @ignoreInterpreter{Incorrect/not implemented}
-test bool lexSliceSep7() = ([XComma] "x,y,z").xcommas [2..3] == ([XComma] "z").xcommas;
+test bool lexSliceSep8() = ([XComma] "x,y,z").xcommas [2..3] == ([XComma] "z").xcommas;
 
 @ignoreInterpreter{Incorrect/not implemented}
 test bool lexSliceSepStep1() = ([XComma] "x,y,z,X,Y,Z,x,y,z").xcommas[0,2..] == ([XComma] "x,z,Y,x,z").xcommas;
 @ignoreInterpreter{Incorrect/not implemented}
-test bool lexSliceSepStep1() = ([XComma] "x,y,z,X,Y,Z,x,y,z").xcommas[0,3..] == ([XComma] "x,X,x").xcommas;
+test bool lexSliceSepStep2() = ([XComma] "x,y,z,X,Y,Z,x,y,z").xcommas[0,3..] == ([XComma] "x,X,x").xcommas;
 
 @ignoreInterpreter{Incorrect/not implemented}
 test bool lexSliceSepNegStep1() = ([XComma] "x,y,z,X,Y,Z,x,y,z").xcommas[8,6..] == ([XComma] "z,x,Y,z,x").xcommas;

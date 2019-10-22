@@ -6,8 +6,8 @@ import lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::C
 test bool Dx1_y1() = x1() has y;
 test bool Dx1_y2() = !x1().y?;
 test bool Dx1_y3() = x1().y == 0;
-test bool Dx1_y3() = x1(y=10).y?;
-test bool Dx1_y3() = x1(y=10).y == 10;
+test bool Dx1_y4() = x1(y=10).y?;
+test bool Dx1_y5() = x1(y=10).y == 10;
 
 test bool Dx1_z1() = x1() has z;
 test bool Dx1_z2() = !x1().z?;
