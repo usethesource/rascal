@@ -12,12 +12,13 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::functionality::CallTests
  
-import ParseTree;
+//import ParseTree;
 import IO;
+import List;
 
 import lang::rascal::tests::functionality::CallTestsAux;
 
-syntax XYZ = "x" | "y" | "z";
+//syntax XYZ = "x" | "y" | "z";
 
 data C = c(int i);
 
@@ -279,22 +280,15 @@ test bool  dispatchTest2() {
     default int f(int x) = x;
   	return [f(xx()),f(yy()),f(zz()), f(4)] == [1,2,3,4];
 }
-  
-test bool  dispatchTest3() { 
-    int f((XYZ) `x`) = 1;
-    int f((XYZ) `y`) = 2;
-    int f((XYZ) `z`) = 3;
-  		
-    return [f((XYZ)`x`),f((XYZ)`y`),f((XYZ)`z`)] == [1,2,3];
-}
 
-test bool  dispatchTest4() { 
+
+test bool  dispatchTest3() { 
 	int f(/[a-z]+/) = 1;
     int f(/[0-9]+/) = 2;
     return f("abc") == 1 && f("123") == 2;
 }
 
-test bool  dispatchTest5() { 
+test bool  dispatchTest4() { 
     str f(/X<v:[a-z]+>Y/) = v;
     str f(/X<v:[0-9]+>Y/) = v;
     return f("XabcY") == "abc" && f("X123Y") == "123";
