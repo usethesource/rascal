@@ -1,4 +1,4 @@
-module lang::rascal::tests::basic::IsDefinedAbstract
+module lang::rascal::tests::basic::IsDefined
 
 import Exception;
 import util::Math;

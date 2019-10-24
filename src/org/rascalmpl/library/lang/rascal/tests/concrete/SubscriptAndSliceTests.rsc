@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::ConcreteSubscriptAndSliceTests
+module lang::rascal::tests::concrete::SubscriptAndSliceTests
 
 import Exception;
 

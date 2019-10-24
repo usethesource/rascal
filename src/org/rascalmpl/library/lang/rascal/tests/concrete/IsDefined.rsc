@@ -1,4 +1,4 @@
-module lang::rascal::tests::basic::IsDefinedConcrete
+module lang::rascal::tests::concrete::IsDefined
 
 syntax As = "a"* as;
 

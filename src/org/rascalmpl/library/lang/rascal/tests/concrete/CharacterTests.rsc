@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::CharacterTests
+module lang::rascal::tests::concrete::CharacterTests
 
 import ParseTree;
 import String;

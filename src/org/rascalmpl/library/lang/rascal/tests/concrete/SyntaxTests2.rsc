@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::ConcreteSyntaxTests2
+module lang::rascal::tests::concrete::SyntaxTests2
 
 import ParseTree;
 //import lang::pico::\syntax::Main;

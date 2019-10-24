@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::ConcreteCallTests
+module lang::rascal::tests::concrete::CallTests
 
 import ParseTree;
 

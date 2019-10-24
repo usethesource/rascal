@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::ConcreteTerms
+module lang::rascal::tests::concrete::Terms
 
 
 import ParseTree;

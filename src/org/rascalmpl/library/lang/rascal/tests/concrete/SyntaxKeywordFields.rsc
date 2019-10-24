@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::ConcreteSyntaxKeywordFields
+module lang::rascal::tests::concrete::SyntaxKeywordFields
 
 import IO;
 import Node;

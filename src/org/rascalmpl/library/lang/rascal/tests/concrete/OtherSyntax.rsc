@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::OtherSyntax
+module lang::rascal::tests::concrete::OtherSyntax
 
 syntax Remote = "remote";
 
