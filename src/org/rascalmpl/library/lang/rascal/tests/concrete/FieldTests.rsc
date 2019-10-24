@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::ConcreteFieldTests
+module lang::rascal::tests::concrete::FieldTests
 
 syntax C = "{" !<< B* bs;
 syntax B = "b";
