@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::CommonKeywordParameterImportTests3::Tests
+module lang::rascal::tests::functionality::CommonKeywordParameterImport3::Tests
 
 import lang::rascal::tests::functionality::CommonKeywordParameterImport3::D;
 
