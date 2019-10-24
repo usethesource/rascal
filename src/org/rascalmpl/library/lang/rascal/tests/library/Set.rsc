@@ -1,4 +1,4 @@
- module lang::rascal::tests::library::SetTests
+ module lang::rascal::tests::library::Set
   /*******************************************************************************
    * Copyright (c) 2009-2015 CWI
    * All rights reserved. This program and the accompanying materials
