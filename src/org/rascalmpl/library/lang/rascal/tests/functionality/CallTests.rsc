@@ -12,13 +12,10 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::functionality::CallTests
  
-//import ParseTree;
 import IO;
 import List;
 
 import lang::rascal::tests::functionality::CallTestsAux;
-
-//syntax XYZ = "x" | "y" | "z";
 
 data C = c(int i);
 

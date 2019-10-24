@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::PostParseFilter
+module lang::rascal::tests::concrete::PostParseFilter
 
 // copied from issue report #1210
 
