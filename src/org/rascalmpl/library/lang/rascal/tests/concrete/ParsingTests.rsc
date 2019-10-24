@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::ParsingTests
+module lang::rascal::tests::concrete::ParsingTests
 
 import ParseTree;
 import Exception;
