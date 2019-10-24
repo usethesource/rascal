@@ -1,5 +1,5 @@
 @bootstrapParser
-module lang::rascal::tests::functionality::ConcreteSyntaxTests5
+module lang::rascal::tests::concrete::SyntaxTests5
 
 import ParseTree;
 import IO;
