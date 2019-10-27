@@ -787,7 +787,7 @@ private MuExp translateReducer(Expression e){
     code =  muValueBlock(getType(e), [ muVarInit(reducerTmp, translate(e.init)), translateAndConds([g | g <- e.generators], muAssign(reducerTmp, translate(e.result)), muBlock([])),  reducerTmp ]);
     popIt();
     if(!btfree){
-        code = updateBTScope(code, redName, currentBacktrackingScope());
+        code = updateBTScope(code, redName, getResumptionScope(redName));
     }
     
     leaveBacktrackingScope(redName);
@@ -1144,13 +1144,14 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    //   return muGetField("nonterminal", getConstructorType(tp, fieldType), translate(expression), unescape("<field>"));
    //}
    op = getOuterType(expression);
+   ufield = unescape("<field>");
    if(op == "aadt"){
-        <ctype, isKwp> = getConstructorInfo(tp, fieldType);
-       return isKwp ? muKwpGetField(getType(e), ctype, translate(expression), unescape("<field>"))
-                    : muGetField(getType(e), ctype, translate(expression), unescape("<field>"));
+        <consType, isKwp> = getConstructorInfo(tp, fieldType, ufield);
+          return isKwp ? muGetKwField(consType, tp, translate(expression), ufield)
+                       : muGetField(getType(e), consType, translate(expression), ufield);
     }
     
-    return muGetField(getType(e), getType(expression), translate(expression), unescape("<field>"));   
+    return muGetField(getType(e), getType(expression), translate(expression), ufield);   
 }
 
 // -- field update expression ---------------------------------------
@@ -1202,7 +1203,10 @@ MuExp translateProject(Expression e, Expression base, list[Field] fields, loc sr
        tp = getListElementType(tp);
     } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
-    } 
+    } else if(isLocType(tp)){
+        return isGuarded ? muGuardedGetField(tp, getType(base), translate(base), unescape("<fields[0]>"))
+                         : muGetField(tp, getType(base), translate(base), unescape("<fields[0]>"));
+    }
     println("translateProject: <e>");
     if(tupleHasFieldNames(tp)){
        	fieldNames = getTupleFieldNames(tp);
@@ -1474,7 +1478,7 @@ MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`) {
     btscope = nextTmp("NOMATCH");
     enterBacktrackingScope(btscope);
     code = muEnter(btscope, translateMatch(e, btscope, muSucceed(btscope), muFailEnd(btscope)));
-    leaveBacktrackingScope();
+    leaveBacktrackingScope(btscope);
     return code;
 }
 // TODO: check Pat <- Exp case
@@ -1488,10 +1492,10 @@ MuExp translateBool(e:(Expression) `<Pattern pat> !:= <Expression rhs>`, str bts
 // -- match expression --------------------------------------------------------
 
 MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`){
-    btscope = nextTmp("MATCH");
-    enterBacktrackingScope(btscope);
-    code = muEnter(btscope, translateMatch(e, btscope, muSucceed(btscope), muFail(btscope)));
-    leaveBacktrackingScope(btscope);
+    my_btscope = nextTmp("MATCH");
+    enterBacktrackingScope(my_btscope);
+    code = muEnter(my_btscope, translateMatch(e, my_btscope, muSucceed(my_btscope), muFail(my_btscope)));
+    leaveBacktrackingScope(my_btscope);
     return code;
 }
     
@@ -1523,7 +1527,7 @@ MuExp translateGenerator(Pattern pat, Expression exp, str btscope, MuExp trueCon
     // generic enumerator
         code = muForAll(my_btscope, elem, getType(exp), translate(exp), translatePat(pat, getElementType(getType(exp)),  elem, "", trueCont, muFail(my_btscope)));
     }
-    code = updateBTScope(code, my_btscope, currentBacktrackingScope());
+    code = updateBTScope(code, my_btscope, getResumptionScope(my_btscope));
     leaveBacktrackingScope(my_btscope);
     leaveLoop();
     return code;
@@ -1533,7 +1537,7 @@ MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`){
     btscope = nextTmp("ENUM");
     enterBacktrackingScope(btscope);
     code = muEnter(btscope, translateGenerator(pat, exp, btscope, muSucceed(btscope), muFailEnd(btscope)));
-    code = updateBTScope(code, btscope, currentBacktrackingScope());
+    code = updateBTScope(code, btscope, getResumptionScope());
     leaveBacktrackingScope(btscope);
     return code;
 }
@@ -1556,8 +1560,8 @@ MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`
     btscope = nextTmp("AND");
     enterBacktrackingScope(btscope);
     code = muEnter(btscope, translateAndConds(btscope, [lhs, rhs], muSucceed(btscope), muFailEnd(btscope)));
-    updateBTScope(code, btscope, currentBacktrackingScope());
-    //leaveBacktrackingScope(btscope);
+    updateBTScope(code, btscope, getResumptionScope(btscope));
+    leaveBacktrackingScope(btscope);
     return code;    
 }
 
@@ -1578,10 +1582,27 @@ default list[Expression] normalizeAnd(Expression e) = [e];
 list[Expression] normalizeAnd(list[Expression] exps)
     = [ *normalizeAnd(e) | e <- exps ];
 
+// ---- translateAndConds
+
+//              +----------------+   +-----------------+
+//              |                |   |                 |
+//              v                |   v                 |
+//        +-----R-----+      +---F---R---+       +-----F-----+
+//  ----->|    lhs    |----->|     rhs   | ----->| trueCont  |----->
+//        +-----F-----+      +-----------+       +-----------+
+//              |
+//              |                                +-----------+
+//              +------------------------------->| falseCont |----->
+//                                               +-----------+
+//
+//
 MuExp translateAndConds(str btscope, list[Expression] conds, MuExp trueCont, MuExp falseCont, MuExp(MuExp) normalize = identity){
     if(isEmpty(conds)) return normalize(trueCont);
     conds = normalizeAnd(conds);
     falseCont = normalize(falseCont);
+    if(size(conds) == 1){
+        return translateBool(conds[0], btscope, trueCont, falseCont);
+    }   
     
     right_most_bt_exp = -1;
     for(i <- reverse(index(conds))){
@@ -1590,29 +1611,58 @@ MuExp translateAndConds(str btscope, list[Expression] conds, MuExp trueCont, MuE
             break;
         }
     }
+    
+    rightmost_btscope = btscope;
     for(i <- reverse(index(conds))){
+        btfree_i = backtrackFree(conds[i]);
         ciscope = nextTmp("COND<i>");
-        enterBacktrackingScope(ciscope);
-        trueCont = normalize(translateBool(conds[i], btscope/*ciscope*/, trueCont, falseCont));
-        if(!backtrackFree(conds[i])){
-            resume_i = currentBacktrackingScope();
-            trueCont = muEnter(ciscope, updateBTScope(trueCont, btscope/*ciscope*/, resume_i));
-            if(i == right_most_bt_exp){
-                trueCont = updateBTScope(trueCont, btscope, resume_i);
-            }
+        if(!btfree_i) enterBacktrackingScope(ciscope);
+        trueCont = normalize(translateBool(conds[i], btfree_i ? rightmost_btscope : ciscope, trueCont, falseCont));
+        println(ciscope); iprintln(trueCont);
+        if(!btfree_i){
+            rightmost_btscope = ciscope;
+            resume_i = getResumptionScope(ciscope);
+            trueCont = muEnter(ciscope, updateBTScope(trueCont, ciscope, resume_i));
+            //if(i == right_most_bt_exp){
+            //    trueCont = updateBTScope(trueCont, btscope, resume_i);
+            //}
         }
-       //leaveBacktrackingScope(ciscope);
+        iprintln(trueCont);
+        if(!btfree_i) leaveBacktrackingScope(ciscope); // <====
     }
+    iprintln(trueCont);
     return trueCont;
 }
+
+// ---- translateOrConds
+
+//              +------------------+   
+//              |                  |                  
+//              v                  |                   
+//        +-----R-----+      +-----F-----+       
+//  ----->|    lhs    |----->| trueCont1 | ----->
+//        +-----F-----+      +-----------+   
+//              |    
+//              |                  +------------------+      
+//              |                  |                  |
+//              |                  v                  |
+//              |            +-----R-----+      +-----F-----+
+//              +----------> |    rhs    |----->| trueCont2 |----->
+//                           +-----F-----+      +-----------+
+//                                 |
+//                                 |            +-----------+
+//                                 +----------->| falseCont |----->
+//                                              +-----------+
+//
 
 // -- or expression -------------------------------------------------
 
 MuExp translateOrConds(str btscope, Expression lhs, Expression rhs, MuExp trueCont, MuExp falseCont){
+    
     lscope = nextTmp("OR_LHS");
     enterBacktrackingScope(lscope);
     lhsCode = translateBool(lhs, lscope, trueCont, muBlock([]));
-    resume_lhs = currentBacktrackingScope();
+    resume_lhs = getResumptionScope(lscope);
     if(!backtrackFree(lhs)){
         lhsCode = muEnter(lscope, lhsCode);
         lhsCode = updateBTScope(lhsCode, btscope, resume_lhs);
@@ -1622,7 +1672,7 @@ MuExp translateOrConds(str btscope, Expression lhs, Expression rhs, MuExp trueCo
     rscope = nextTmp("OR_RHS");
     enterBacktrackingScope(rscope);
     rhsCode = translateBool(rhs, rscope, trueCont, falseCont);
-    resume_rhs = currentBacktrackingScope();
+    resume_rhs = getResumptionScope(rscope);
     if(!backtrackFree(rhs)){
         rhsCode = muEnter(rscope, rhsCode);
         rhsCode = updateBTScope(rhsCode, btscope, resume_rhs);
@@ -1649,7 +1699,7 @@ MuExp translateBool((Expression) `<Expression lhs> || <Expression rhs>`, str bts
 // -- implies expression --------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) {
-    if(backtrackFree(e)){
+    if(backtrackFree(lhs)){
         return muIfExp(translate(lhs), translate(rhs), muCon(true));
     }
     btscope = nextTmp("IMPLIES");
@@ -1658,7 +1708,7 @@ MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) {
                                                         muSucceed(btscope))); 
                                                         
     //code = updateBTScope(code, btscope, currentBacktrackingScope());
-    leaveBacktrackingScope();
+    leaveBacktrackingScope(btscope); // <===
     return code;  
 }
     
@@ -1677,10 +1727,11 @@ MuExp translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) {
         //return muIfExp(translate(lhs), translate(rhs), muCallPrim3("not", abool(), [abool()], [translate(rhs)], e@\loc));
     
    btscope = nextTmp("EQUIV");
+   enterBacktrackingScope(btscope);
    
    code = muEnter(btscope, translateBool(lhs, btscope, translateBool(rhs, btscope, muSucceed(btscope), muFail(btscope)),
                                                        translateBool(rhs, btscope, muFail(btscope), muSucceed(btscope)))); 
-   leaveBacktrackingScope();
+   leaveBacktrackingScope(btscope);
    return code;
 }
 

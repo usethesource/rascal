@@ -16,7 +16,11 @@ public class Template {
 	}
 
 	public final void addVal(final IValue v) {
-		templates.set(0, templates.get(0).concat(VF.string(v.toString())));
+	    if(v instanceof IString) {
+	        addStr(((IString)v).getValue());	
+	    } else {
+	        templates.set(0, templates.get(0).concat(VF.string(v.toString())));
+	    }
 	}
 
 	public final void addStr(final String s) {

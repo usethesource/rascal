@@ -99,7 +99,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
         code = loopBody;
     }
     if(!btfree){
-        code = updateBTScope(code, whileName, currentBacktrackingScope());
+        code = updateBTScope(code, whileName, getResumptionScope(whileName));
     }
     
     leaveBacktrackingScope(whileName);
@@ -139,7 +139,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <E
                                        muBreak(whileName),
                                        normalize=toStat));
     if(!btfree){
-        code = updateBTScope(code, whileName, currentBacktrackingScope());
+        code = updateBTScope(code, whileName, getResumptionScope(whileName));
     }
     leaveBacktrackingScope(whileName);
     leaveLoop();
@@ -217,7 +217,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
         code = muValueBlock(avoid(), [ loopBody, muCon([]) ]);
     }
     if(!btfree){
-        code = updateBTScope(code, forName, currentBacktrackingScope());
+        code = updateBTScope(code, forName, getResumptionScope(forName));
     }
     leaveBacktrackingScope(forName);
     leaveLoop();
@@ -247,7 +247,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Ex
                                  ));
                   
     if(!btfree){
-        code = updateBTScope(code, forName, currentBacktrackingScope());
+        code = updateBTScope(code, forName, getResumptionScope(forName));
     }
     leaveBacktrackingScope(forName);
     leaveLoop();
@@ -264,7 +264,7 @@ MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> )
     
     code = translateAndConds(ifName, [c | Expression c <- conditions], translate(thenStatement), muBlock([]), normalize=toStat);
     if(!btfree){
-        code = muEnter(ifName, updateBTScope(code, ifName, currentBacktrackingScope()));  
+        code = muEnter(ifName, updateBTScope(code, ifName, getResumptionScope(ifName)));  
     }
     leaveBacktrackingScope(ifName);
     return code;
@@ -285,7 +285,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if (<{Expr
                                   muBlock([]));
                                              
     if(!btfree){
-        code = muEnter(ifName, updateBTScope(code, ifName, currentBacktrackingScope()));  
+        code = muEnter(ifName, updateBTScope(code, ifName, getResumptionScope(ifName)));  
     }               
     leaveBacktrackingScope(ifName);
     return code;
@@ -301,7 +301,7 @@ MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> )
     
     code = translateAndConds(ifName, [c | Expression c <- conditions], translate(thenStatement), translate(elseStatement), normalize=toStat);
     if(!btfree){
-        code = muEnter(ifName, updateBTScope(code, ifName, currentBacktrackingScope())); 
+        code = muEnter(ifName, updateBTScope(code, ifName, getResumptionScope(ifName))); 
     }
     leaveBacktrackingScope(ifName);
     return code;
@@ -325,7 +325,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if ( <{Exp
                                                           ]))
                                  ]);
     if(!btfree){
-        code = muEnter(ifName, updateBTScope(code, ifName, currentBacktrackingScope())); 
+        code = muEnter(ifName, updateBTScope(code, ifName, getResumptionScope(ifName))); 
     }
     leaveBacktrackingScope(ifName);
     return code;                                             
@@ -389,7 +389,7 @@ bool isSpoiler(Pattern pattern, int fp){
 map[int, MuExp] addPatternWithActionCode(MuExp switchval, str fuid, bool useConcreteFingerprint, PatternWithAction pwa, map[int, MuExp] table, int key, MuExp succeedCase){
     ifname = nextLabel();
 	if(pwa is arbitrary){
-       enterBacktrackingScope(ifname);
+      // enterBacktrackingScope(ifname);
 	   //if(pwa.pattern is literal && !pwa.pattern.literal is regExp){
 	   //      table[key] = muIfelse(muEqual(translate(pwa.pattern.literal), switchval),
 	   //                            muBlock([translate(pwa.statement), succeedCase]),
@@ -399,9 +399,9 @@ map[int, MuExp] addPatternWithActionCode(MuExp switchval, str fuid, bool useConc
     //   } else {
              table[key] = translatePat(pwa.pattern, avalue(), switchval, ifname,
                                            { enterBacktrackingScope(ifname);  muBlock([translate(pwa.statement), succeedCase]) ; }, 
-                                           { leaveBacktrackingScope();  table[key] ?  muFailCase(); });
+                                           { leaveBacktrackingScope(ifname);  table[key] ?  muFailCase(); });
        //}
-       leaveBacktrackingScope(); 
+       //leaveBacktrackingScope(ifname); 
 	 } else  {
 	    replacement = muTmpIValue(nextTmp("replacement"), fuid, getType(pwa.replacement.replacementExpression));
 	    replacementCode = translate(pwa.replacement.replacementExpression);
@@ -461,7 +461,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(MuExp switchval, str fuid, bool 
 
 MuExp translate(s: (Statement) `fail <Target target> ;`) {
     if(inBacktrackingScope()){
-        return target is empty ? muFail(currentBacktrackingScope())
+        return target is empty ? muFail(getResumptionScope())
                                : haveEnteredBacktrackingScope("<target.name>") ? muFail("<target.name>") 
                                                                                 : muFailReturn(getType(currentFunctionDeclaration()));
     } else {
@@ -544,7 +544,7 @@ MuExp translateTry(Statement body, list[Catch] handlers, Statement finallyBody){
     // Introduce temporary variables that are bound within a catch block to a thrown exception and to its contained value
     str fuid = topFunctionScope();
     tmp = nextTmp("thrown");
-    thrown = muTmpIValue(tmp, fuid, lubOfPatterns);
+    thrown = muTmpIValue(tmp, fuid, avalue()/*lubOfPatterns*/);
     thrown_as_exception = muTmpException("<tmp>_as_exception", fuid);
     bigCatch = muCatch(thrown_as_exception, thrown, translateCatches(thrown_as_exception, thrown, handlers));
     return muTry(translate(body), bigCatch, translate(finallyBody));
@@ -552,41 +552,41 @@ MuExp translateTry(Statement body, list[Catch] handlers, Statement finallyBody){
 
 MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catches) {
   // Translate a list of catch blocks into one catch block
-  catch_code = muThrow(thrown_as_exception, |unknown:///|);
-      for(Catch c <- reverse(catches)){
-          trBody = c.body is emptyStatement ? muBlock([]) : translate(c.body);
-          exp = muBlock([]);
-          if(c is binding) {
-              ifname = nextLabel();
-              enterBacktrackingScope(ifname);
-              patType = getType(c.pattern);
-              if(c.pattern is literal) {
-                  exp = muIfelse(muEqual(thrown, translate(c.pattern.literal)), trBody, catch_code);
-              } else if(c.pattern is typedVariable) {
-                  varType = translateType(c.pattern.\type);
-                  <fuid, pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
-                  patVar = muVar("<c.pattern.name>", fuid, pos, varType);
-                  exp = muIfelse(muValueIsSubType(thrown, varType), 
-                                       muBlock([ muVarInit(patVar, thrown), trBody ]),
-                                       catch_code);
-                                
-              } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
-                  varType = getType(c.pattern);
-                  <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
-                  patVar = muVar("<c.pattern.qualifiedName>", fuid, pos, varType);
-                  exp = muBlock([muVarInit(patVar, thrown), trBody, catch_code]);
-              } else {
-                  exp = translatePat(c.pattern, patType, thrown, ifname, trBody, catch_code);
-              }
-              catch_code = muIfelse(muValueIsSubType(thrown, patType), exp, catch_code);
-              leaveBacktrackingScope();
+  
+  // In case there is no default catch provided, re-throw the value from the catch block
+  catch_code = any(Catch c <- catches, c is \default) ? muBlock([]) : muThrow(thrown_as_exception, |unknown:///|);
+  for(Catch c <- reverse(catches)){
+      trBody = c.body is emptyStatement ? muBlock([]) : translate(c.body);
+      exp = muBlock([]);
+      if(c is binding) {
+          ifname = nextLabel();
+          enterBacktrackingScope(ifname);
+          patType = getType(c.pattern);
+          if(c.pattern is literal) {
+              exp = muIfelse(muEqual(thrown, translate(c.pattern.literal)), trBody, catch_code);
+          } else if(c.pattern is typedVariable) {
+              varType = translateType(c.pattern.\type);
+              <fuid, pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
+              patVar = muVar("<c.pattern.name>", fuid, pos, varType);
+              exp = muIfelse(muValueIsSubType(thrown, varType), 
+                                   muBlock([ muVarInit(patVar, thrown), trBody ]),
+                                   catch_code);
+                            
+          } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
+              varType = getType(c.pattern);
+              <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
+              patVar = muVar("<c.pattern.qualifiedName>", fuid, pos, varType);
+              exp = muBlock([muVarInit(patVar, thrown), trBody, catch_code]);
           } else {
-            catch_code = muBlock([trBody, catch_code]);
+              exp = translatePat(c.pattern, patType, thrown, ifname, trBody, catch_code);
           }
-       }
+          catch_code = muIfelse(muValueIsSubType(thrown, patType), exp, catch_code);
+          leaveBacktrackingScope(ifname);
+      } else {
+        catch_code = muBlock([trBody, catch_code]);
+      }
+   }
    return catch_code;
-   // In case there is no default catch provided, re-throw the value from the catch block
-   return muBlock(catch_code + muThrow(thrown_as_exception, |unknown:///|));
 }
 
 // -- labeled statement ----------------------------------------------
@@ -678,7 +678,6 @@ MuExp assignTo(Assignable a: (Assignable) `<Name name> ( <{Assignable ","}+ argu
 
 MuExp assignTo(Assignable a: (Assignable) `<Assignable receiver>@<Name annotation>`,  str operator,  AType rhs_type, MuExp rhs) =
     assignTo(receiver, "=", rhs_type, muSetAnno(getValues(receiver)[0], getType(a), "<annotation>", applyOperator(operator, a, rhs_type, rhs)));
-    //assignTo(receiver, "=", rhs_type, muCallPrim3("annotation_set", [*getValues(receiver), muCon("<annotation>"), applyOperator(operator, a, rhs_type, rhs)], a@\loc));
 
 // getValues: get the current value(s) of an assignable
 
@@ -692,18 +691,18 @@ list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> [ <Expre
 list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) {
     ot = getType(a);
     return [ muCallPrim3("slice", ot, [ot], [ *getValues(receiver), translateOpt(optFirst), muNoValue(), translateOpt(optLast) ], a@\loc) ];
-  //   [ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], a@\loc) ];
- }
+}
    
 list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`) {
     ot = getType(a);
     return [ muCallPrim3("slice", ot, [ot], [ *getValues(receiver), translateOpt(optFirst),translate(second), translateOpt(optLast) ], a@\loc) ];
-    //[ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst),  translate(second), translateOpt(optLast) ], a@\loc) ];
 }
 
 list[MuExp] getValues(Assignable a:(Assignable) `<Assignable receiver> . <Name field>`) { 
-    <consType, isKwp> =  getConstructorInfo(getType(receiver), getType(field));
-    return [ muGetField(getType(a), consType, getValues(receiver)[0], unescape("<field>")) ];
+    ufield = unescape("<field>");
+    <consType, isKwp> =  getConstructorInfo(getType(receiver), getType(field), ufield);
+    return isKwp ? [ muGetKwField(getType(a), consType, getValues(receiver)[0], ufield) ]
+                 : [ muGetField(getType(a), consType, getValues(receiver)[0], ufield) ];
 }    
 
 list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 

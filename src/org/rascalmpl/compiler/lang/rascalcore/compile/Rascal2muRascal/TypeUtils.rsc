@@ -7,10 +7,12 @@ import Map;
 import Node;
 import Relation;
 import String;
+import ListRelation;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
-import lang::rascalcore::compile::util::Names;
+import lang::rascalcore::compile::util::Names;  // TODO: merge name utils
+import lang::rascalcore::check::NameUtils;
 import Location;
 
 import lang::rascalcore::check::BasicRascalConfig;
@@ -18,8 +20,6 @@ import Type;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-
-
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
@@ -92,18 +92,18 @@ set[UID] defaultFunctions = {};                     // Declared default function
 
 bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 
-set[UID] constructors = {};                         // Declared constructors
-map[AType, set[AType]] adt_constructors = ();       // Map from ADT to its constructors
+set[UID] constructors = {};                            // Declared constructors
+map[AType, set[AType]] adt_constructors = ();          // Map from ADT to its constructors
 rel[str consName, AType adt, AType argType] adt_uses_type = {} ;  // Constructor of ADT has argument of given type
-rel[AType, AType] reachableTypes = {};               // Transitive closure of type usage
-
-//bool isConstructor(UID uid) = uid in constructors;
+rel[AType, AType] reachableTypes = {};                 // Transitive closure of type usage
+map[AType, list[Keyword]] adt_common_keyword_fields = (); // all common keyword fields that may have been declared in separate data declarations
+map[AType, map[str,AType]] adt_common_keyword_fields_name_and_type = ();
 
 set[AType] getConstructors()
     = { getDefType(uid) | uid <- constructors};
 
-//set[AType] getConstructors()
-//    = { *adt_constructors[adt] | adt <- adt_constructors };
+map[AType, set[AType]] getConstructorsMap()
+    = adt_constructors;
  
 private map[str,int] module_var_init_locals = ();	// number of local variables in module variable initializations
 
@@ -111,7 +111,7 @@ int getModuleVarInitLocals(str mname) {
 	//assert module_var_init_locals[mname]? : "getModuleVarInitLocals <mname>";
 	return module_var_init_locals[mname] ? 0;
 }
-public set[UID] keywordFormals = {};				// declared keyword parameters & common keyword fields declared on datatypes
+//public set[UID] keywordFormals = {};				// declared keyword parameters & common keyword fields declared on datatypes
 
 private map[tuple[UID,UID], bool] funInnerScopes = ();
 
@@ -151,7 +151,7 @@ OFUN getOverloadedFunction(FUID fuid) {
 
 public void resetScopeExtraction() {  
     functions = {}; 
-    keywordFormals = {};
+    //keywordFormals = {};
     defaultFunctions = {};
     module_var_init_locals = ();
     declares = {};
@@ -175,6 +175,8 @@ public void resetScopeExtraction() {
     adt_constructors = ();
     adt_uses_type = {};
     reachableTypes = {};
+    adt_common_keyword_fields = ();
+    adt_common_keyword_fields_name_and_type = ();
 }
 
 bool isDefinition(UID d){
@@ -193,7 +195,7 @@ AType getDefType(UID d){
     throw "getDefType: <d>";
 }
 
-AType getTypeFromDef(Define def){
+AType getTypeFromDef(Define def){ // Move to Solver
     di = def.defInfo;
     if(defType(AType atype) := di) return atype;
     if(defType(Tree tree) := di) return getDefType(getLoc(tree));
@@ -268,6 +270,11 @@ void extractScopes(TModel tm){
     if(set[AType] adts := tm.store["ADTs"]){
         ADTs = adts;
     }
+   
+    if(lrel[AType,KeywordFormal] common := tm.store["CommonKeywordFields"]){
+        adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[label="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
+        adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
+    }
     
     for(def <- defines){
         switch(def.idRole){
@@ -288,8 +295,8 @@ void extractScopes(TModel tm){
                     adt_constructors[adtType] = {consType};
                  }
                  }
-            case keywordFormalId():
-                 keywordFormals += def.defined;
+            //case keywordFormalId():
+            //     keywordFormals += def.defined;
             case moduleId():
                  modules += def.defined;
             case variableId():
@@ -535,23 +542,34 @@ AType getClosureType(UID uid) {
    }
 }
 
-tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType){
+map[AType, list[Keyword]] getCommonKeywordFieldsMap()
+    = adt_common_keyword_fields;
+
+tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType, str fieldName){
     adtType = unsetRec(adtType);
-    for(uid <- constructors){
-        consType = getDefType(uid);
-        if(unsetRec(consType.adt) == adtType){
-            if(fieldType in consType.fields){
+    fieldType = fieldType[label=fieldName];
+    for(AType consType <-  adt_constructors[adtType]){
+        println(consType);
+        for(declaredFieldType <- consType.fields){
+            if(declaredFieldType.label == fieldName && asubtype(fieldType, declaredFieldType)){
                 return <consType,false>;
-            } else {
-                for(<AType kwType, Expression defaultExp> <- consType.kwFields){
-                    if(kwType == fieldType){
-                        return <consType, true>;
-                    }
-                 }
             }
         }
+        for(<AType kwType, Expression defaultExp> <- consType.kwFields){
+            if(kwType == fieldType){
+                return <consType, true>;
+            }
+         }      
     }
-    throw "getConstructor, no constructor found for <adtType>, <fieldType>";
+    
+    if(adt_common_keyword_fields_name_and_type[adtType]?){
+        common_keywords = adt_common_keyword_fields_name_and_type[adtType];
+        if(common_keywords[fieldName]?){
+            return <common_keywords[fieldName], true>;
+        }
+    }
+    
+    throw "getConstructor, no constructor found for <adtType>, <fieldType>, <fieldName>";
 }
 	
 alias KeywordParamMap = map[str kwName, AType kwType];
@@ -597,33 +615,17 @@ int getPositionInScope(str name, loc l){
     return position_in_container[uid] ? 0;
 }
 
-//bool hasPositionInScope(str name, loc l){
-//    uid = l in definitions ? l : getFirstFrom(useDef[l]); 
-//    return position_in_container[uid]?;
-//}
-
 // Create unique symbolic names for functions, constructors and productions
 
-str getFUID(str fname, AType tp) { 
-    res = "<fname>(<for(p<-tp.formals){><p>;<}>)";
-    //println("getFUID: <fname>, <\type> =\> <res>");
-    return res;
-}
+str getFUID(str fname, AType tp)
+    = "<fname>(<for(p<-tp.formals){><p>;<}>)";
   	
 str getFUID(str modName, str fname, AType tp, int case_num) = 
 	"<modName>/<fname>(<for(p<-tp.formals?[]){><p>;<}>)#<case_num>";
 
-
-//str getMakerForConstructor(UID uid) {
-//    consType = getType(uid);
-//    return "$make_<consType.adt.adtName>_<consType.label>";
-//    //convert2fuid(uid) + "_companion";
-//}
-
-str getGetterForKwpField(UID uid, str fieldName){
-    consType = getType(uid);
-    return "$get_<consType.adt.adtName>_<consType.label>_<fieldName>";
-}
+str getGetterNameForKwpField(AType tp, str fieldName)
+    =  tp is acons ? "$get_<tp.adt.adtName>_<tp.label>_<fieldName>"
+                   : "$get_<tp.adtName>_<fieldName>";
 
 str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)
@@ -799,9 +801,10 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
         //println("mkAssign, scope: <getScope(uid)>");
         //println("mkAssign: <def>");
         //println("mkAssign: isinit: <l == def.defined>");
+         pos = def.scope in module_scopes ? -1 : getPositionInScope(name, uid);
         
-        return l == def.defined ? muVarInit(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l)), exp)
-                                : muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l)), exp);
+        return l == def.defined ? muVarInit(muVar(name, getScope(uid), pos, getType(l)), exp)
+                                : muAssign(muVar(name, getScope(uid), pos, getType(l)), exp);
     }
     throw "mkAssign fails for <name>, <l>, <exp>";
 }
@@ -853,7 +856,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     for(<AType from, AType to> <- prunedReachableTypes){
         if(to in desiredTypes){     // TODO || here was the cause 
             descend_into += {from, to};
-        } else if(any(AType t <- desiredTypes, subtype(t, to))){
+        } else if(any(AType t <- desiredTypes, asubtype(t, to))){
             descend_into += {from, to};
         } else if(c:acons(AType \adtsym, list[AType] parameters, SyntaxRole sr) := from  && // TODO: check
                             (\adtsym in patternTypes || name in consNames)){

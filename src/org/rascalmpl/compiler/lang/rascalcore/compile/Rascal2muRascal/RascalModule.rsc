@@ -60,6 +60,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
       //extractDeclarationInfo(tmodel);
    	 
    	  translateModule(M);
+   	  
+   	  generateKeywordFieldGetters(getConstructorsMap(), getCommonKeywordFieldsMap());
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
                       
@@ -74,7 +76,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
    	  				  getFunctionsInModule(), 
    	  				  getVariablesInModule(), 
    	  				  getVariableInitializationsInModule(), 
-   	  				  getModuleVarInitLocals(modName), 
+   	  				  //getModuleVarInitLocals(modName), 
    	  				  getOverloadedFunctions(), 
    	  				  getGrammar(),
    	  				  {}, //{<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},

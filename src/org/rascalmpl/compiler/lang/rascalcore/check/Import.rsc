@@ -247,7 +247,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("tm.specializedFacts:"); iprintln(tm.specializedFacts);
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         //println("m1.specializedFacts:"); iprintln(m1.specializedFacts);
-        m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
+        m1.messages = tm.messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
         
         no_errors = isEmpty(m1.messages) || !any(msg <- m1.messages, error(_,_) := msg);
         
@@ -258,6 +258,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.store = (key_bom : bom);
         m1.store["grammar"] = tm.store["grammar"] ? grammar({}, ());
         m1.store["ADTs"]    = tm.store["ADTs"] ? {};
+        m1.store["CommonKeywordFields"]    = tm.store["CommonKeywordFields"] ? [];
         
         m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- m1.paths, tup.from == mscope };
         //m1.paths = domainR(tm.paths, {mscope});

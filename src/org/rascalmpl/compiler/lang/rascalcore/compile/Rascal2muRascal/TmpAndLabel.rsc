@@ -17,6 +17,7 @@ public void resetTmpAndLabel(){
 	tmpLabel = -1;
 	loops = [];
 	backtrackingScopes = [];
+	resumptionScopes = ();
 	itVariables = [];
 	writerVariables = [];
 	tryCatchFinally = [];
@@ -103,45 +104,68 @@ void leaveLoop(){
 
 // Backtracking scopes also include if-then-else scopes that allow backtracking in case of using fail
 private list[str] backtrackingScopes = [];	// *** state
+private map[str,str] resumptionScopes = (); // *** state
 
 void enterBacktrackingScope(str name){
-  println("enterBacktrackingScope: <name>; <backtrackingScopes>");
+  //println("enterBacktrackingScope: <name>; <backtrackingScopes>");
   backtrackingScopes = name + backtrackingScopes;
 }
 
-str currentBacktrackingScope(){
-  println("currentBacktrackingScope: <backtrackingScopes>");
+str getResumptionScope(){
+  //println("getResumptionScope: <backtrackingScopes>");
   return top(backtrackingScopes);
 }
 
 bool haveEnteredBacktrackingScope(str name)
     = name in backtrackingScopes;
 
-void leaveBacktrackingScope(){
- // backtrackingScopes = tail(backtrackingScopes);
+str getResumptionScope(str name){
+    println("getResumptionScope: <name>; <backtrackingScopes>");
+    println("resumptionScopes: <resumptionScopes>");
+    while(resumptionScopes[name]?){
+        name = resumptionScopes[name];
+    }
+    println(" ==\> <name>");
+    return name;
 }
 
 void leaveBacktrackingScope(str name){
-  println("leaveBacktrackingScope: <name>; <backtrackingScopes>");
-  if(backtrackingScopes[0] == name){
+  //println("leaveBacktrackingScope: <name>; <backtrackingScopes>");
+  i = indexOf(backtrackingScopes, name);
+  if(i < 0) throw "leaveBacktrackingScope: <name> not found";
+  if(i == 0){
     backtrackingScopes = tail(backtrackingScopes);
-  } else {
-    backtrackingScopes = tail(backtrackingScopes);
-    leaveBacktrackingScope(name);
+    if(!isEmpty(backtrackingScopes)){
+        previous = backtrackingScopes[0];
+        if(!resumptionScopes[previous]?){
+            resumptionScopes[previous] = name;
+        }
+    } else {
+        resumptionScopes = ();
+    }
+    //println(resumptionScopes);
+    return;
   }
+  
+  resumptionPoint = backtrackingScopes[i - 1];
+  backtrackingScopes = backtrackingScopes[i+1 ..];
+  if(!isEmpty(backtrackingScopes)){
+    previous = backtrackingScopes[0];
+    if(!resumptionScopes[previous]?){
+        resumptionScopes[previous] = resumptionPoint;
+    }
+  }
+  //println(resumptionScopes);
 }
-
+  
 MuExp updateBTScope(MuExp exp, str fromScope, str toScope){
     if(fromScope == toScope) return exp;
     
-    println("updateBTScope: <fromScope> =\> <toScope>; <exp>");
-    if("IF0" in {fromScope, toScope}){
-        println("IF0");
-    }
+    //println("updateBTScope: <fromScope> =\> <toScope>; <exp>");
     return visit(exp){
         //case muSucceed(fromScope) => muSucceed(toScope)
-        case muContinue(fromScope) => muContinue(toScope)
-        case muFail(fromScope) => muFail(toScope)
+        case muContinue(fromScope):{ /*println("muContinue(<fromScope>) =\> muContine(<toScope>)");*/ insert muContinue(toScope); }
+        case muFail(fromScope): { /*println("muContinue(<fromScope>) =\> muContine(<toScope>)");*/ insert muFail(toScope); }
     };
 }
 
@@ -276,4 +300,3 @@ int getNextOr() {
 void resetOrCounter() {
     orCounter = 0;
 }
-

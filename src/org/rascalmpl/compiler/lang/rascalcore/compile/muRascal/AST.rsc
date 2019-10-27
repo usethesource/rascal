@@ -30,14 +30,13 @@ public data MuModule =
                        list[MuFunction] functions, 
                        list[MuModuleVar] module_variables, 
                        list[MuExp] initialization,
-                       int nlocals_in_initializations,
                        lrel[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloaded_functions,
                        AGrammar grammar,
                        rel[str,str] importGraph,
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], 0, [], grammar({}, ()), {}, src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], [], grammar({}, ()), {}, src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -139,10 +138,11 @@ public data MuExp =
           | muFilterReturn()									// Return for filter statement
           | muFailReturn(AType funType)                         // Failure from function body
           
-          | muCheckMemo(AType funType, list[MuExp] args/*, map[str,value] kwargs*/, MuExp body)
-          | muMemoReturn(AType funtype, list[MuExp] args, MuExp functionResult)
+          | muCheckMemo(AType funType, list[MuExp] args, MuExp body)
+          | muMemoReturn0(AType funtype, list[MuExp] args)
+          | muMemoReturn1(AType funtype, list[MuExp] args, MuExp functionResult)
                
-          // Keyword parameters              
+          // Keyword parameters of functions             
           | muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)
                                                                 // Build map of actual keyword parameters
           | muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] defaults)  
@@ -151,7 +151,6 @@ public data MuExp =
           | muGetKwpFromConstructor(MuExp var, AType atype, str kwpName)
           | muGetKwp(MuExp var, AType atype, str kwpName)
           | muHasKwp(MuExp var, str kwpName)
-          //| muHasKwpWithValue(MuExp, str kwpName, MuExp exp)
           
           | muInsert(MuExp exp, AType atype)				    // Insert statement
               
@@ -166,9 +165,10 @@ public data MuExp =
           | muGuardedGetAnno(MuExp exp, AType resultType, str annoName)
           | muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
           
+          // Fields of data constructors
           | muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
           | muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
-          | muKwpGetField(AType resultType, AType consType, MuExp exp, str fieldName)
+          | muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)
 
           | muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)
           
@@ -185,7 +185,6 @@ public data MuExp =
           | muDoWhile(str label, MuExp body, MuExp cond)
           | muBreak(str label)                                  // Break statement
           | muContinue(str label)                               // Continue statement
-          
         
           | muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body)
           | muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)
@@ -316,7 +315,9 @@ set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
 
 bool isVarOrTmp(MuExp exp)
     = getName(exp) in varExp;
-    
+
+// Produces NativeBool
+   
 bool producesNativeBool(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] args, loc src)){
     if(name in {/*"equal",*/ "notequal", "is", "subset"}) return true;
     fail producesNativeBool;
@@ -330,19 +331,34 @@ default bool producesNativeBool(MuExp exp)
                   "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
                   "muRegExpFind",  "muIsDefinedValue", "muHasField"};
 
+// Produces NativeInt
+
 bool producesNativeInt(muTmpNative(_,_,nativeInt()))
     = true;
                      
 default bool producesNativeInt(MuExp exp)
     = getName(exp) in {"muSize", "muAddNativeInt", "muSubNativeInt", "muRegExpBegin", "muRegExpEnd"};
 
+// Produces NativeGuardedIValue
+
+bool producesNativeGuardedIValue(muTmpNative(_,_,nativeGuardedIValue))
+    = true;   
+ 
+ bool producesNativeGuardedIValue(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src))
+    = name in { "guarded_subscript", "guarded_field_project"};
+    
+default bool producesNativeGuardedIValue(MuExp exp)
+   = getName(exp) in {"muGuardedGetAnno", "muGuardedGetField"};
+    
 // Get the result type of a MuExp
 AType getType(muVar(str name, str fuid, int pos, AType atype)) = atype;
 AType getType(muTmpIValue(str name, str fuid, AType atype)) = atype;
 AType getType(muVarKwp(str name, str fuid, AType atype)) = atype;
 AType getType(muCall(MuExp fun, AType atype, list[MuExp] args)) = getResultType(atype);   
-AType getType(muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src)) = getResultType(atype);                                                               
-AType getType(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) = result;
+AType getType(muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src))
+    = getResultType(atype);                                                               
+AType getType(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) 
+    = result;
 AType getType(muCallJava(str name, str class, AType funType, int reflect, list[MuExp] args, str enclosingFun)) =  getResultType(funType); 
 AType getType(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)) = alub(getType(thenPart), getType(elsePart));
 
@@ -357,7 +373,8 @@ bool endsWithReturn(muReturn0()) = true;
 bool endsWithReturn(muReturn1(_, _)) = true;
 bool endsWithReturn(muFailReturn(_)) = true;
 bool endsWithReturn(muCheckMemo(_,_,_)) = true;
-bool endsWithReturn(muMemoReturn(_,_,_)) = true;
+bool endsWithReturn(muMemoReturn0(_,_)) = true;
+bool endsWithReturn(muMemoReturn1(_,_,_)) = true;
 bool endsWithReturn(muThrow(_,_)) = true;
 bool endsWithReturn(muBlock([*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muValueBlock(AType t, [*exps1, exp2])) = true when endsWithReturn(exp2);
@@ -433,6 +450,12 @@ MuExp muValueBlock(AType t1, [*MuExp pre, muReturn1(AType t2, MuExp exp)])
 // ---- muReturn1 -------------------------------------------------------------
 
 MuExp muReturn1(AType t1, muReturn1(AType t2, MuExp exp)) = muReturn1(t2, exp);
+
+MuExp muReturn1(AType t1, muCheckMemo(AType funtype, list[MuExp] args, MuExp body))
+    =  muCheckMemo(funtype, args, body);
+    
+MuExp muReturn1(AType t1, muMemoReturn1(AType funtype, list[MuExp] args, MuExp functionResult))
+    =  muMemoReturn1(funtype, args, functionResult);
 
 MuExp muReturn1(AType t, muBlock([MuExp exp])){
     return muReturn1(t, exp);
@@ -608,7 +631,7 @@ MuExp muVarInit(var, muEnter(str btscope, MuExp exp))
     = muBlock([muVarInit(var, muCon(false)), muEnter(btscope, visit(exp) { case muSucceed(btscope) => muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]) })]);     
      
 MuExp muAssign(var, muEnter(str btscope, MuExp exp))
-    = muBlock([muVarInit(var, muCon(false)), muEnter(btscope, visit(exp) { case muSucceed(btscope) => muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]) })]);
+    = muBlock([muAssign(var, muCon(false)), muEnter(btscope, visit(exp) { case muSucceed(btscope) => muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]) })]);
 
 // ----
 
@@ -700,6 +723,12 @@ MuExp muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart) = thenPart when thenP
 MuExp muIfelse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
+MuExp muIfelse(MuExp cond, muIfExp(cond1, thenPart1, elsePart1), MuExp elsePart) 
+    = muIfelse(cond, muIfelse(cond1, thenPart1, elsePart1), elsePart);
+    
+MuExp muIfelse(MuExp cond, MuExp thenPart, muIfExp(cond1, thenPart1, elsePart1)) 
+    = muIfelse(cond, thenPart, muIfelse(cond1, thenPart1, elsePart1));
+    
 MuExp muIfelse(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, MuExp elsePart)
     = muBlock([*exps, muIfelse(exp, thenPart, elsePart)]); 
 
@@ -748,6 +777,11 @@ MuExp muRegExpCompile(muValueBlock(AType t, [*MuExp exps, MuExp regExp]), MuExp 
 
 bool shouldFlatten(MuExp arg) 
     =     muValueBlock(t, elems) := arg 
+       || muAssign(MuExp var, MuExp exp) := arg
+       || muVarInit(MuExp var, MuExp exp) := arg
+       || muConInit(MuExp var, MuExp exp) := arg
+       || muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg
+       || muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl) := arg
        || muEnter(btscope, exp) := arg 
        || muIfelse(cond, thenPart, elsePart) := arg 
        || muWhileDo(str ab, MuExp cond, MuExp body) := arg
@@ -780,6 +814,31 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                     pre += preLst;
                     newArgs += postLst;
                  }
+            } else if(muAssign(MuExp var, MuExp exp) := arg){
+                 <fl1, aux1, pre1, post1> = flattenArgs([exp]);
+                 auxVars += aux1;
+                 pre += pre1;
+                 newArgs += muAssign(var, size(post1) == 1? pos1[0] : muValueBlock(avalue(), post1));
+            } else if(muVarInit(MuExp var, MuExp exp) := arg){
+                 <fl1, aux1, pre1, post1> = flattenArgs([exp]);
+                 auxVars += aux1;
+                 pre += pre1;
+                 newArgs += muVarInit(var, size(post1) == 1? pos1[0] : muValueBlock(avalue(), post1));
+            } else if(muConInit(MuExp var, MuExp exp) := arg){
+                 <fl1, aux1, pre1, post1> = flattenArgs([exp]);
+                 auxVars += aux1;
+                 pre += pre1;
+                 newArgs += muConInit(var, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
+            } else if(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg){
+                 <fl1, aux1, pre1, post1> = flattenArgs([repl]);
+                 auxVars += aux1;
+                 pre += pre1;
+                 newArgs += muSetAnno(exp, resultType, annoName, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
+            } else if(muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl) := arg){
+                 <fl1, aux1, pre1, post1> = flattenArgs([repl]);
+                 auxVars += aux1;
+                 pre += pre1;
+                 newArgs += muSetField(resultType, baseType, baseExp, fieldIdentity, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
             } else if(me: muEnter(btscope, exp) := arg){
                 nauxVars += 1;
                 aux = muTmpIValue("$aux<nauxVars>", "", abool());
@@ -822,7 +881,7 @@ default MuExp ifElse2ifExp(MuExp e) = e;
     
 MuExp muCall(MuExp fun, AType t, list[MuExp] args) 
     = muValueBlock(t, auxVars + pre + muCall(fun, t, flatArgs))
-when <true, auxVars, pre, flatArgs> := flattenArgs(args);
+when <true, auxVars, pre, flatArgs> := flattenArgs(args) && !isEmpty(pre);
 
 AType getResultType(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
 AType getResultType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
@@ -831,25 +890,41 @@ default AType getResultType(AType t) = t;
      
 MuExp muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src)
     = muValueBlock(getResultType(atype), auxVars + pre + muOCall3(fun, atype, flatArgs, src))
-when <true, auxVars, pre, flatArgs> := flattenArgs(args), bprintln(atype);
+when <true, auxVars, pre, flatArgs> := flattenArgs(args), bprintln(atype) && !isEmpty(pre);
 
 MuExp muCallPrim3(str op, AType result, list[AType] details, list[MuExp] args, loc src)
     = muValueBlock(result, auxVars + pre + muCallPrim3(op, result, details, flatArgs, src))
-when <true, auxVars, pre, flatArgs> := flattenArgs(args);
+when <true, auxVars, pre, flatArgs> := flattenArgs(args) && !isEmpty(pre);
 
 MuExp muCallJava(str name, str class, AType funType, int reflect, list[MuExp] args, str enclosingFun)
     = muValueBlock(funType.ret, auxVars + pre + muCallJava(name, class, funType, reflect, flatArgs, enclosingFun))
-when <true, auxVars, pre, flatArgs> := flattenArgs(args);
+when <true, auxVars, pre, flatArgs> := flattenArgs(args) && !isEmpty(pre);
 
 MuExp muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)
     = muValueBlock(auxVars + pre + muKwpActuals([<kwpActuals[i].kwpName, flatArgs[i]> | int i <- index(kwpActuals)]))
-    when <true, auxVars, pre, flatArgs> := flattenArgs(kwpActuals<1>);
+    when <true, auxVars, pre, flatArgs> := flattenArgs(kwpActuals<1>) && !isEmpty(pre);
       
 MuExp muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] defaults)
     = muValueBlock(auxVars + pre + muKwpMap([<dflt.kwName, dflt.atype, flatArgs[i]> | int i <- index(defaults), dflt := defaults[i]]))
-    when <true, auxVars, pre, flatArgs> := flattenArgs(defaults<2>);  
+    when <true, auxVars, pre, flatArgs> := flattenArgs(defaults<2>) && !isEmpty(pre);  
     
 //muHasKwpWithValue?
+
+MuExp muAssign(MuExp var, MuExp exp)
+    = muValueBlock(getType(exp), auxVars + pre + muAssign(var, flatArgs[0]))
+    when <true, auxVars, pre, flatArgs> := flattenArgs([exp]) && !isEmpty(pre);
+
+MuExp muVarInit(MuExp var, MuExp exp)
+    = muValueBlock(getType(exp), auxVars + pre + muVarInit(var, flatArgs[0]))
+    when <true, auxVars, pre, flatArgs> := flattenArgs([exp]) && !isEmpty(pre);   
+    
+MuExp muConInit(MuExp var, MuExp exp)
+    = muValueBlock(getType(exp), auxVars + pre + muConInit(var, flatArgs[0]))
+    when <true, auxVars, pre, flatArgs> := flattenArgs([exp]) && !isEmpty(pre);
+       
+MuExp muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
+    = muValueBlock(resultType, auxVars + pre + muSetAnno(exp, resultType, annoName, flatArgs[0]))
+    when <true, auxVars, pre, flatArgs> := flattenArgs([repl]) && !isEmpty(pre);      
 
 MuExp muInsert(AType t, MuExp arg)
     = muValueBlock(t, auxVars + pre + muInsert(t, flatArgs[0]))
@@ -858,12 +933,12 @@ MuExp muInsert(AType t, MuExp arg)
 // TODO: defaultExp?
 MuExp muVisit(MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
    = muValueBlock(auxVars + pre + muVisit(flatArgs[0], cases, defaultExp, vdescriptor))
-    when <true, auxVars, pre, flatArgs> := flattenArgs([subject]);
+    when <true, auxVars, pre, flatArgs> := flattenArgs([subject]) && !isEmpty(pre);
 
 //muSwitch
 MuExp muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)        // switch over cases for specific value
     = muValueBlock(auxVars + pre + muSwitch(flatArgs[0], cases, defaultExp, useConcreteFingerprint))
-    when <true, auxVars, pre, flatArgs> := flattenArgs([exp]);
+    when <true, auxVars, pre, flatArgs> := flattenArgs([exp]) && !isEmpty(pre);
 
 //muThrow
 
@@ -877,10 +952,10 @@ MuExp muGetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp
     = muValueBlock(resultType, [*pre, muGetField(resultType, baseType, last, fieldName)]);
 
 
-MuExp muKwpGetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), str fieldName)
-   = muValueBlock(resultType, [*pre, muKwpGetField(resultType, baseType, last, fieldName)]);
+MuExp muGetKwField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), str fieldName)
+   = muValueBlock(resultType, [*pre, muGetKwField(resultType, baseType, last, fieldName)]);
 
-MuExp muSetField(AType resultType, AType baseTtype, muValueBlock(AType t, [*MuExp pre, MuExp last]), value fieldIdentity, MuExp repl)
+MuExp muSetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), value fieldIdentity, MuExp repl)
    = muValueBlock(resultType, [*pre, muSetField(resultType, baseType, last, fieldIdentity, repl)]);
 
 MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;

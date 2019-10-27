@@ -676,11 +676,13 @@ private AType computeReceiverType(Statement current, (Assignable) `<Assignable r
     return computeFieldTypeWithADT(receiverType, field, scope, s);
 }
     
-private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
     annoNameType = s.getTypeInScope(n, scope, {annoId()});
-    return computeGetAnnotationType(current, receiverType, annoNameType, s);
+    getAnnoType = computeGetAnnotationType(current, receiverType, annoNameType, s);
+    s.fact(asg, getAnnoType);
+    return getAnnoType;
 }
 
 private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s){

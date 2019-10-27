@@ -9,19 +9,90 @@ import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;
+//import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
   
 import lang::rascal::\syntax::Rascal;
 
 import IO;
 import Node;
 import Set;
+import ListRelation;
+import Message;
 
-set[AType] addADTs(Solver s){
+void addADTsAndCommonKeywordFields(Solver s){
+    addADTs(s);
+    addCommonKeywordFields(s);
+}
+
+void addADTs(Solver s){
     facts = s.getFacts();
-    usedADTs = { t | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k]};
-    //usedDataADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr == dataSyntax()};
+    usedADTs = { t | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k] };
     s.putStore("ADTs", usedADTs);
-    return usedADTs;
+}
+
+void addCommonKeywordFields(Solver s){
+    set[Define] definitions = s.getAllDefinitions();
+    commonKeywordFields = [];
+    
+    // Collect common keywords and check double declarations
+  
+    rel[AType,str,KeywordFormal] commonKeywordFieldNames = {};
+    for(Define def <- definitions, def.idRole == dataId()){
+        adtType = s.getType(def);
+        commonKeywordNames = commonKeywordFieldNames[adtType]<0>;
+        for(kwf <- def.defInfo.commonKeywordFields){
+            fieldName = "<kwf.name>";
+            commonKeywordFields += <adtType, kwf>;
+            commonKeywordFieldNames += <adtType, fieldName, kwf>;
+            if(fieldName in commonKeywordNames){
+                msgs = [ Message::error("Double declaration of common keyword Field `<fieldName>` for data type `<adtType.adtName>`", getLoc(kwf2))
+                       | kwf2 <- commonKeywordFieldNames[adtType]<1>, "<kwf2.name>" == fieldName
+                       ];
+                s.addMessages(msgs);
+            }
+        }
+    }
+    s.putStore("CommonKeywordFields", commonKeywordFields);
+    
+    // Check double declaration between common keyword fields and ordinary fields
+      
+    adt_common_keyword_fields_name_and_kwf = ( adtType : ( "<kwf.name>" : kwf | kwf <- commonKeywordFields[adtType] ? []) | adtType <- domain(commonKeywordFields) );
+    
+    for(Define def <- definitions, def.idRole == constructorId()){
+        consType = s.getType(def);
+        commonFieldNames = domain(adt_common_keyword_fields_name_and_kwf[consType.adt] ? []);
+        for(fld <- consType.fields){
+           if(fld.label in commonFieldNames){
+                kwf = adt_common_keyword_fields_name_and_kwf[consType.adt][fld.label];
+                msgs = [ Message::error("Common keyword field `<fld.label>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.label>`", getLoc(kwf)),
+                         Message::error("Field `<fld.label>` of constructor `<consType.label>` overlaps with common keyword field of data type `<consType.adt.adtName>`", def.defined)
+                       ];
+                s.addMessages(msgs);
+            }
+        } 
+    }
+    
+    lrel[AType,AType] adt_constructors = [];
+    for(Define def <- definitions, def.idRole == constructorId()){
+        consType = s.getType(def);
+        if(consType.label == "type") continue; // TODO: where is the duplicate?
+        conses_so_far = adt_constructors[consType.adt];
+        for(c <- conses_so_far, c.label == consType.label, comparable(c.fields, consType.fields)){
+            msgs = [ Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", def.defined) ];
+            for(Define cdef <- definitions, def.defined != cdef.defined, cdef.idRole == constructorId(), cdef.id == c.label){  // search for c's definition to give better errror messages
+                cdefType = s.getType(cdef);
+                if(cdefType.fields == c.fields){
+                    msgs += Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", cdef.defined);
+                    break;
+                }
+            }
+            iprintln(msgs);
+            s.addMessages(msgs);
+            iprintln(s.reportedErrors());
+        }
+        adt_constructors += <consType.adt, consType>;
+            
+    }
 }
 
 list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args]; 

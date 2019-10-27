@@ -248,7 +248,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
         externalVars += toSet(vars);
     }
     
-    bool _isExternalVar(MuExp var) = var in externalVars;
+    bool _isExternalVar(MuExp var) = var in externalVars && var.pos != -1;
     
     str _newTmp(str prefix){
         ntmps += 1;

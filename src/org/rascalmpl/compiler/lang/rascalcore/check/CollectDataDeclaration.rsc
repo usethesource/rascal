@@ -53,6 +53,12 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
         collect(typeParameters, c);
         if(!isEmpty(commonKeywordParameterList)){
             collect(commonKeywordParameterList, c);
+             //for(kwa <- commonKeywordParameterList) { 
+             //   //c.enterScope(kwa); 
+             //   collect(kwa.\type, kwa.expression, c); 
+             //   c.fact(kwa, kwa.\type); 
+             //   // c.leaveScope(kwa); 
+             // }
         }
    
         // visit all the variants in the parent scope of the data declaration
@@ -119,7 +125,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
                 AType(Solver s){
                     adtType = s.getType(adt);
-                    kwFormalTypes = [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals + commonKwFormals];
+                    kwFormalTypes = [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals /*+ commonKwFormals*/];
                     formalTypes = [f is named ? s.getType(f)[label=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
                     return acons(adtType, formalTypes, kwFormalTypes)[label=prettyPrintName(name)];
                 }));
