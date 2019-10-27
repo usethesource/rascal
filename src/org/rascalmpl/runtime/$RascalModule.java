@@ -1500,7 +1500,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 		
 		if($TS.hasKeywordParameter(consType, fieldName)) {
-			return cons.asWithKeywordParameters().getParameter(fieldName) != null;
+			return true;// cons.asWithKeywordParameters().getParameter(fieldName) != null;
 		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {

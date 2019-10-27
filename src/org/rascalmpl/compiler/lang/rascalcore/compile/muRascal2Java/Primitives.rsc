@@ -483,9 +483,9 @@ list[str] transPrimArgs("update", AType r, [AType a], [MuExp x, MuExp y, MuExp z
                                                                                          = [ trans(x,jg), trans2NativeStr(y,jg), trans(z, jg) ]
                                                                                            when isADTType(a);
                                                                                 
-JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$alist_update(<x>,<y>,<z>)"   
+JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$alist_update(<castArg(a,x)>,<y>,<z>)"   
                                                                                           when isListLikeType(a);
-JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$amap_update(<x>,<y>,<z>)"    
+JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$amap_update(<castArg(a,x)>,<y>,<z>)"    
                                                                                           when isMapType(a);
-JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$atuple_update(<x>,<y>,<z>)" 
+JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$atuple_update(<castArg(a,x)>,<y>,<z>)" 
                                                                                           when isTupleType(a);

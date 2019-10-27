@@ -52,8 +52,8 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
             { if(seenNT || seenLEX || seenKEY) {  return false; } seenLAY = true; }
         case keywordId():
             { if(seenNT || seenLAY || seenLEX) {  return false; } seenKEY = true; }
-         case aliasId():
-            { if(seenALIAS) return false; seenALIAS = true; }    
+        case aliasId():
+            { if(seenALIAS) return false; seenALIAS = true; }  
         }
     }
     return true;
@@ -303,7 +303,7 @@ TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
 }
 
 void checkOverloading(map[str,Tree] namedTrees, Solver s){
-    definitions = s.getAllDefinitions();
+    set[Define] definitions = s.getAllDefinitions();
     facts = s.getFacts();
     moduleScopes = { t@\loc | t <- range(namedTrees) };
     
@@ -356,7 +356,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
                 //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
             //s.addMessages(msgs);
             }
-            addADTs(s);
+            addADTsAndCommonKeywordFields(s);
         }
    }
 }

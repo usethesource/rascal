@@ -522,7 +522,7 @@ str escapeForJ(str s){
     switch(c){
         case "\b": res += "\\b";
         case "\t": res += "\\t";
-        case "\n": res += "\\f";
+        case "\n": res += "\\n";
         case "\r": res += "\\r";
         case "\'": res += "\\\'";
         case "\"": res += "\\\"";

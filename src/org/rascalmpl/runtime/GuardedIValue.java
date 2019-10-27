@@ -11,7 +11,7 @@ public final class GuardedIValue {
 		value = null;
 	}
 	
-	GuardedIValue(final IValue value){
+	public GuardedIValue(final IValue value){
 		this.defined = true;
 		this.value = value;
 	}

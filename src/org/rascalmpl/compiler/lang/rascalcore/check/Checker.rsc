@@ -123,7 +123,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 //                //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
 //            //s.addMessages(msgs);
 //            }
-//            addADTs(s);
+//            addADTsAndCommonKeywordFields(s);
 //        }
 //   }
 //}
@@ -395,7 +395,7 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
 // ---- Convenience check function during development -------------------------
 
 map[str, list[Message]] checkModules(
-      list[str] moduleNames,                     // Rascal modules to be type checked
+      list[str] moduleNames,                    // Rascal modules to be type checked
       
       bool logTime                  = false,    // General TypePal options
       bool logSolverIterations      = false,
