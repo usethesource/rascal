@@ -17,8 +17,6 @@ import List;
 
 import lang::rascal::tests::functionality::CallAux;
 
-data C = c(int i);
-
 // voidFun
   
 test bool voidFun() {void f(){ } f(); return true;}
