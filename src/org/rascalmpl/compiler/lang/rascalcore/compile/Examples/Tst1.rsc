@@ -1,10 +1,22 @@
 module lang::rascalcore::compile::Examples::Tst1
    
+   
+data D = d1(str s) | d2(int n);
+
+D transform(D subject){
+    return visit(subject){
+                case d1(str s): { if(/abc/ !:= s) fail; ... }
+                
+    }
+}
+
+value main() = transform(d1("pqr"));
+
 //import IO;
 //import List;
                  
-import lang::rascalcore::compile::Examples::Tst2;
-                
+//import lang::rascalcore::compile::Examples::Tst2;
+//                
 data C = c(int i);
 
 //// voidFun

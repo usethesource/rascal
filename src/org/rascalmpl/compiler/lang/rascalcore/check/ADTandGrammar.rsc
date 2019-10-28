@@ -54,7 +54,7 @@ void addCommonKeywordFields(Solver s){
     }
     s.putStore("CommonKeywordFields", commonKeywordFields);
     
-    // Check double declaration between common keyword fields and ordinary fields
+    // Warn for overlapping declarations of common keyword fields and ordinary fields
       
     adt_common_keyword_fields_name_and_kwf = ( adtType : ( "<kwf.name>" : kwf | kwf <- commonKeywordFields[adtType] ? []) | adtType <- domain(commonKeywordFields) );
     
@@ -64,34 +64,27 @@ void addCommonKeywordFields(Solver s){
         for(fld <- consType.fields){
            if(fld.label in commonFieldNames){
                 kwf = adt_common_keyword_fields_name_and_kwf[consType.adt][fld.label];
-                msgs = [ Message::error("Common keyword field `<fld.label>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.label>`", getLoc(kwf)),
-                         Message::error("Field `<fld.label>` of constructor `<consType.label>` overlaps with common keyword field of data type `<consType.adt.adtName>`", def.defined)
+                msgs = [ Message::warning("Common keyword field `<fld.label>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.label>`", getLoc(kwf)),
+                         Message::warning ("Field `<fld.label>` of constructor `<consType.label>` overlaps with common keyword field of data type `<consType.adt.adtName>`", def.defined)
                        ];
                 s.addMessages(msgs);
             }
         } 
     }
     
-    lrel[AType,AType] adt_constructors = [];
+    lrel[AType,AType,Define] adt_constructors = [];
     for(Define def <- definitions, def.idRole == constructorId()){
         consType = s.getType(def);
         if(consType.label == "type") continue; // TODO: where is the duplicate?
         conses_so_far = adt_constructors[consType.adt];
-        for(c <- conses_so_far, c.label == consType.label, comparable(c.fields, consType.fields)){
-            msgs = [ Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", def.defined) ];
-            for(Define cdef <- definitions, def.defined != cdef.defined, cdef.idRole == constructorId(), cdef.id == c.label){  // search for c's definition to give better errror messages
-                cdefType = s.getType(cdef);
-                if(cdefType.fields == c.fields){
-                    msgs += Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", cdef.defined);
-                    break;
-                }
-            }
-            iprintln(msgs);
+        for(<AType c, Define cdef> <- conses_so_far, c.label == consType.label, cdef.defined != def.defined, comparable(c.fields, consType.fields)){
+            iprintln(definitions, lineLimit=10000);
+            msgs = [ Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", def.defined),
+                     Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", cdef.defined)
+                   ];
             s.addMessages(msgs);
-            iprintln(s.reportedErrors());
         }
-        adt_constructors += <consType.adt, consType>;
-            
+        adt_constructors += <consType.adt, consType, def>;   
     }
 }
 
