@@ -1,6 +1,7 @@
 module lang::rascal::tests::functionality::CallAux
  
-data C = c(int i);     
+data C = c(int i); 
+    
 bool() x = bool() { return false; } ;
 
 public void changeX(bool() newX) { x = newX; }
