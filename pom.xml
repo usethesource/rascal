@@ -296,7 +296,7 @@
                                             <exclude>META-INF/*.RSA</exclude>
                                         </excludes>
                                     </filter>
-                                </filters>							
+                                </filters>
                             </configuration>
                         </execution>
                     </executions>
@@ -304,7 +304,7 @@
             </plugins>
             <pluginManagement>
                 <plugins>
-                    <!--This plugin's configuration is used to store Eclipse m2e settings 
+                    <!--This plugin's configuration is used to store Eclipse m2e settings
                     only. It has no influence on the Maven build itself. -->
                     <plugin>
                         <groupId>org.eclipse.m2e</groupId>
