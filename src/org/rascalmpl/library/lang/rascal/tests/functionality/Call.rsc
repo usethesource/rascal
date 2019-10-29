@@ -57,13 +57,19 @@ test bool higherOrder() {
   	
 // closures
   
-test bool closures() {
+test bool closures1() {
 	int x = 1;
 	int f(int (int i) g, int j) { return g(j);}
 	if (f(int (int i) { return i + 1; }, 0) != 1) return false;
-	if (f(int (int i) { x = x * 2; return i + x; }, 1) != 3 || (x != 2))
-		return false;
 	return true;
+}
+
+test bool closures2() {
+    int x = 1;
+    int f(int (int i) g, int j) { return g(j);}
+    if (f(int (int i) { x = x * 2; return i + x; }, 1) != 3 || (x != 2))
+        return false;
+    return true;
 }
   	    
 // closuresVariables
