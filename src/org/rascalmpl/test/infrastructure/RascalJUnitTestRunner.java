@@ -94,6 +94,53 @@ public class RascalJUnitTestRunner extends Runner {
             System.err.println("Adding evaluator search path: " + path);
             evaluator.addRascalSearchPath(path);
         }
+        
+        configureDependencies(projectRoot, evaluator);
+    }
+
+    private static void configureDependencies(ISourceLocation projectRoot, Evaluator evaluator) {
+        configureDependenciesViaRascalTestSourcePath(evaluator);
+        configureDependenciesViaGuessingOtherSourceProjects(projectRoot, evaluator);
+    }
+
+    private static void configureDependenciesViaGuessingOtherSourceProjects(ISourceLocation root, Evaluator evaluator) {
+        RascalManifest manifest = new RascalManifest();
+        
+        for (String dep : manifest.getManifestRequiredLibraries(root)) {
+            ISourceLocation child = URIUtil.getChildLocation(root, "../" + dep);
+            
+            if (manifest.hasManifest(child)) {
+                for (String src : manifest.getSourceRoots(child)) {
+                    ISourceLocation path = URIUtil.getChildLocation(child, src);
+                    stderr.println("adding search path: " + path);
+                    evaluator.addRascalSearchPath(path);
+                }
+            }
+        }
+    }
+
+    private static void configureDependenciesViaRascalTestSourcePath(Evaluator evaluator) {
+        String classpath = System.getProperty("rascal.test.source.path");
+        if (classpath != null) {
+            for (String element : classpath.split(";")) {
+                try {
+                    ISourceLocation jar = URIUtil.createFileLocation(element.trim());
+                    
+                    if (new RascalManifest().hasManifest(jar)) {
+                        if (URIUtil.getLocationName(jar).endsWith(".jar")) {
+                            jar = RascalManifest.jarify(jar);
+                        }
+                        
+                        stderr.println("Adding source path: " + jar);
+                        evaluator.addRascalSearchPath(jar);
+                    }
+                }
+                catch (URISyntaxException e) {
+                    stderr.println("Ignored possible dependency: " + element + "because: " + e);
+                    continue;
+                }
+            }
+        }
     }
 
     public static ISourceLocation inferProjectRoot(Class<?> clazz) {
