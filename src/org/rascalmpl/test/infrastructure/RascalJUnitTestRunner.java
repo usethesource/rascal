@@ -112,10 +112,20 @@ public class RascalJUnitTestRunner extends Runner {
             if (manifest.hasManifest(child)) {
                 for (String src : manifest.getSourceRoots(child)) {
                     ISourceLocation path = URIUtil.getChildLocation(child, src);
-                    stderr.println("adding search path: " + path);
+                    System.err.println("adding search path: " + path);
                     evaluator.addRascalSearchPath(path);
                 }
             }
+        }
+        
+        // the Rascal project has a special status, to find the standard library
+        ISourceLocation rascalProject = URIUtil.getChildLocation(root, "../rascal");
+        if (manifest.hasManifest(rascalProject)) {
+            for (String src : manifest.getSourceRoots(rascalProject)) {
+                ISourceLocation path = URIUtil.getChildLocation(rascalProject, src);
+                System.err.println("adding search path: " + path);
+                evaluator.addRascalSearchPath(path);
+            } 
         }
     }
 
@@ -213,7 +223,7 @@ public class RascalJUnitTestRunner extends Runner {
                 Description modDesc = Description.createSuiteDescription(name);
 
                 try {
-                    stderr.println("Loading module:" + name);
+                    System.err.println("Loading module:" + name);
                     evaluator.doImport(new NullRascalMonitor(), name);
                     List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                 
