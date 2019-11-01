@@ -41,8 +41,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <lucence-version>7.5.0</lucence-version>
@@ -96,23 +94,6 @@
             </testResources>
 
             <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.9</version>
-                    <executions>
-                        <execution>
-                            <id>build-classpath</id>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>build-classpath</goal>
-                            </goals>
-                            <configuration>
-                                <!-- configure the plugin here -->
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
