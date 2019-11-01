@@ -166,13 +166,16 @@ public class RascalJUnitTestRunner extends Runner {
                 Description modDesc = Description.createSuiteDescription(name);
 
                 try {
+                    stderr.println("Loading module:" + name);
                     evaluator.doImport(new NullRascalMonitor(), name);
                     List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                 
                     if (tests.isEmpty()) {
+                        stderr.println("\tskipping. Module has not tests.");
                         continue;
                     }
                     
+                    stderr.println("\t adding " + tests.size() + " tests for " + name);
                     desc.addChild(modDesc);
 
                     // the order of the tests aren't decided by this list so no need to randomly order them.
