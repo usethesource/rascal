@@ -52,6 +52,8 @@ str atype2javatype(avoid())                 = "void";
 
 str atype2javatype(tvar(_))                 = "IValue";
 
+str atype2javatype(\start(AType t))         = atype2javatype(t);
+
 default str atype2javatype(AType t) { throw "atype2javatype: cannot handle <t>"; }
 
 /*****************************************************************************/
@@ -104,6 +106,19 @@ str atype2idpart(aparameter(str pname, AType bound))
                                           = "P<avalue() := bound ? "" : atype2idpart(bound)>"; 
 str atype2idpart(areified(AType atype))   = "reified_<atype2idpart(atype)>";
 str atype2idpart(avalue())                = "value";
+
+str atype2idpart(\empty())                = "empty";
+str atype2idpart(\opt(AType atype))       = "opt_<atype2idpart(atype)>";
+str atype2idpart(\iter(AType atype))      = "iter_<atype2idpart(atype)>"; 
+str atype2idpart(\iter-star(AType atype)) = "iter_star_<atype2idpart(atype)>"; 
+str atype2idpart(\iter-seps(AType atype, list[AType] separators))
+                                          = "iter_seps_<atype2idpart(atype)>"; 
+str atype2idpart(\iter-star-seps(AType atype, list[AType] separators))
+                                          = "iter_start_seps_<atype2idpart(atype)>"; 
+str atype2idpart(\alt(set[AType] alternatives))
+                                          = "alt_"; //TODO
+str atype2idpart(\seq(list[AType] atypes))= "seq_";  //TODO
+str atype2idpart(\start(AType atype))        = "start_<atype2idpart(atype)>";
 
 default str atype2idpart(AType t) { throw "atype2idpart: cannot handle <t>"; }
 

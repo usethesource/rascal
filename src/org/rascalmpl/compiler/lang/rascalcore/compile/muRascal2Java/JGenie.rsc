@@ -37,6 +37,7 @@ data JGenie
         list[MuExp] (loc src) getExternalVars,
         void(str name) setKwpDefaults,
         str() getKwpDefaults,
+        bool(AType) hasCommonKeywordFields,
         str(AType atype) shareType,
         str(value con) shareConstant,
         str(AType, map[AType,set[AType]]) shareATypeConstant,
@@ -54,7 +55,13 @@ data JGenie
       )
     ;
     
-JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str, MuFunction] muFunctions){
+JGenie makeJGenie(MuModule m, 
+                  map[str,TModel] tmodels, 
+                  map[str,loc] moduleLocs, 
+                  map[str, MuFunction] muFunctions){
+                  
+    str moduleName = m.name;
+    map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
     str kwpDefaults = "$kwpDefaults";
     map[value,str] constants = ();
     map[str,value] constant2value = ();
@@ -198,6 +205,17 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     
     str _getKwpDefaults() = kwpDefaults;
     
+    bool _hasCommonKeywordFields(AType ctype){
+        switch(ctype){
+            case adt(_,_,_):
+                return commonKeywordFieldsNameAndType[ctype]?;
+            case acons(AType adt, _, _): 
+                return commonKeywordFieldsNameAndType[adt]?;
+            default: 
+                return false;
+        }
+    }
+    
     str _shareType(AType atype){
         if(types[atype]?) return types[atype];
         ntypes += 1;
@@ -304,6 +322,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 _getExternalVars,
                 _setKwpDefaults,
                 _getKwpDefaults,
+                _hasCommonKeywordFields,
                 _shareType,
                 _shareConstant,
                 _shareATypeConstant,

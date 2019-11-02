@@ -64,7 +64,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
 set[IdRole] defBeforeUseRoles = {variableId(), formalId(), keywordFormalId(), patternVariableId()};
 
 @memo
-Accept rascalIsAcceptableSimple(TModel tm, loc def, Use use){
+Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
  
     if(isBefore(use.occ, def) &&                        // If we encounter a use before def
@@ -73,58 +73,54 @@ Accept rascalIsAcceptableSimple(TModel tm, loc def, Use use){
     
       // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
                   
-      if(lrel[loc,loc] allowedParts := tm.store[key_allow_use_before_def] ? []){
+      if(lrel[loc,loc] allowedParts := s.getStore(key_allow_use_before_def)){
          list[loc] parts = allowedParts[use.scope];
          return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
        } else {
-            throw "Inconsistent value stored for <key_allow_use_before_def>: <tm.store[key_allow_use_before_def]>";
+            throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStore(key_allow_use_before_def)>";
        }
     }
     return  acceptBinding();
 }
 
-Accept rascalIsAcceptableQualified(TModel tm, loc def, Use use){
-   // println("rascalIsAcceptableQualified: <def>, <use>");
-    if(defType(AType atype) := tm.definitions[def].defInfo){
+Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
+    // println("rascalIsAcceptableQualified: <def>, <use>");
+    atype = s.getType(def);
        
-        defPath = def.path;
-        qualAsPath = replaceAll(use.ids[0], "::", "/") + ".rsc";
+    defPath = def.path;
+    qualAsPath = replaceAll(use.ids[0], "::", "/") + ".rsc";
         
-        // qualifier and proposed definition are the same?
-        if(endsWith(defPath, qualAsPath)){
-           return acceptBinding();
-        }
-        
-         // Qualifier is a ADT name?
-        //if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[AType/*NamedField*/] fields, list[Keyword] kwFields) := atype, use.ids[0] == adtName){
-        //    return acceptBinding();
-        //} 
-        
-        if(acons(ret:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := atype){
-           return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
-        } 
-        
-        // Is there another acceptable qualifier via an extend?
-        
-        extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- tm.paths}*;
- 
-        if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[defPath]?{}, endsWith(p, defPath))){
-           return acceptBinding();
-        }
-       
-        return ignoreContinue();
+    // qualifier and proposed definition are the same?
+    if(endsWith(defPath, qualAsPath)){
+       return acceptBinding();
     }
-    return acceptBinding();
+        
+    // Qualifier is a ADT name?
+        
+    if(acons(ret:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := atype){
+       return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+    } 
+        
+    // Is there another acceptable qualifier via an extend?
+        
+    extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- s.getPaths()}*;
+ 
+    if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[defPath]?{}, endsWith(p, defPath))){
+       return acceptBinding();
+    }
+       
+    return ignoreContinue();
 }
 
-Accept rascalIsAcceptablePath(TModel tm, loc defScope, loc def, Use use, PathRole pathRole) {
+Accept rascalIsAcceptablePath(loc defScope, loc def, Use use, PathRole pathRole, Solver s) {
     //println("rascalIsAcceptablePath <use.id>, candidate <def>, <pathRole>, <use>");
     //iprintln(tm.definitions[def]);
     res = acceptBinding();
-    vis = tm.definitions[def].defInfo.vis;
+    the_define = s.getDefine(def);
+    vis = the_define.defInfo.vis;
     //println("vis: <vis>");
     if(pathRole == importPath()){
-        defIdRole = tm.definitions[def].idRole;
+        defIdRole = the_define.idRole;
         //println("defIfRole: <defIdRole>");
         //iprintln(tm.paths);
         //println("TEST: <<use.scope, importPath(), defScope> in tm.paths>");
@@ -303,11 +299,11 @@ TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
 }
 
 void checkOverloading(map[str,Tree] namedTrees, Solver s){
-    set[Define] definitions = s.getAllDefinitions();
+    set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
     moduleScopes = { t@\loc | t <- range(namedTrees) };
     
-    funDefs = {<define.id, define> | define <- definitions, define.idRole == functionId() };
+    funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
     funIds = domain(funDefs);
     for(id <- funIds){
         defs = funDefs[id];
@@ -324,7 +320,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         }        
     }
     
-    consDefs = {<define.id, define> | define <- definitions, define.idRole == constructorId() };
+    consDefs = {<define.id, define> | define <- defines, define.idRole == constructorId() };
     consIds = domain(consDefs);
     for(id <- consIds){
         defs = consDefs[id];

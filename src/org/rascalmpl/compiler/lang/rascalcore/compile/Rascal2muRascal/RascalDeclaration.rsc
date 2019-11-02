@@ -17,6 +17,7 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::compile::util::Names;
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
@@ -38,9 +39,9 @@ void translate((Toplevel) `<Declaration decl>`) = translate(decl);
 // -- variable declaration ------------------------------------------
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
-	str module_name = getModuleName();
+	str module_name = getUnqualifiedName(getModuleName());
     ftype = afunc(avalue(),[avalue()], []);
-    enterFunctionScope(getFUID(module_name,"#<module_name>_init",ftype,0));
+    enterFunctionScope("<module_name>_init");
    	for(var <- variables){
    		addVariableToModule(muModuleVar(getType(tp), "<var.name>"));
    		//variables_in_module += [];
@@ -66,8 +67,8 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
  
  MuExp fixFieldReferences(MuExp exp, AType consType, MuExp consVar)
     = visit(exp){
-        case muVar(str fieldName, _, -1, AType tp)     => muGetField(tp, consType, consVar, fieldName)
-        case muVarKwp(str uqname, str scope, AType tp) => muGetKwField(tp, consType, consVar, uqname)
+        case muVar(str fieldName, _, -1, AType tp)        => muGetField(tp, consType, consVar, fieldName)
+        case muVarKwp(str fieldName, str scope, AType tp) => muGetKwField(tp, consType, consVar, fieldName)
      };
     
 void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
@@ -85,7 +86,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
     /*
      * Create getters for common keyword fields of this data type
      */
-     seen = {};
+    seen = {};
     for(<kwType, defaultExpr> <- common_keyword_fields, kwType notin seen){
         seen += kwType;
         str kwFieldName = kwType.label;
@@ -96,7 +97,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
         adtVar = muVar(getterName, fuid, 0, adtType);
         
         defExprCode = fixFieldReferences(translate(defaultExpr), adtType, adtVar);
-        body = muReturn1(kwType, muIfelse(muIsKwpDefined(adtVar, kwFieldName), muGetKwpFromConstructor(adtVar, kwType, kwFieldName), defExprCode));
+        body = muReturn1(kwType, muIfelse(muIsKwpDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
         addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
     }
     
@@ -122,27 +123,59 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
             consVar = muVar(consName, fuid, 0, consType);
             
             defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar);
-            body = muReturn1(kwType, muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwType, kwFieldName), defExprCode));
+            body = muReturn1(kwType, muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExprCode));
             addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
        }
     }
     
      /*
-        * Create generic getters for all keyword fields
-        */
+      * Create generic getters for all keyword fields
+      */
     
     for(str kwFieldName <- domain(kwfield2cons)){
         conses = kwfield2cons[kwFieldName];
         str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = "$get_<adtName>_<kwFieldName>";
             
-        getterType = afunc(avalue(), [adtType], []);
+        returnType = lubList(conses<0>);
+        getterType = afunc(returnType, [adtType], []);
         adtVar = muVar(adtName, fuid, 0, adtType);
         body = muBlock([ muIf(muHasNameAndArity(adtType, consType, consType.label, size(consType.fields), adtVar),
-                         muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName)))
+                              muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName)))
                        | <kwType, consType> <- conses
                        ]
-                       + muFailReturn(avalue())
+                       + muFailReturn(returnType)
+                      );
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
+    }
+    
+    /* 
+     * Create generic getters for all ordinary fields
+     */
+    
+    field2cons = [];
+       
+    for(consType <- constructors){
+        consName = consType.label;
+        for(fieldType <- consType.fields){
+            str fieldName = fieldType.label;
+            field2cons += <fieldType, consType>;
+        }
+    }
+    
+    for(fieldType <- domain(field2cons)){
+        fieldName = fieldType.label;
+        conses = field2cons[fieldType];
+        str fuid = getGetterNameForKwpField(adtType, fieldName);
+        str getterName = "$get_<adtName>_<fieldName>";
+        
+        getterType = afunc(fieldType, [adtType], []);
+        adtVar = muVar(adtName, fuid, 0, adtType);
+        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, consType.label, size(consType.fields), adtVar),
+                              muReturn1(fieldType, muGetFieldFromConstructor(fieldType, consType, adtVar, fieldName)))
+                       | consType <- conses
+                       ]
+                       + muFailReturn(fieldType)
                       );
         addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
     }
@@ -232,7 +265,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
             if((Statement) `<Expression expression>;` := body[0] && isConditional(expression)){
                 mubody = translateBool(expression.condition, prettyPrintName(fd.signature.name), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp)));
             } else if((Statement) `<Expression expression>;` := body[0] && isMatchOrNoMatch(expression)){
-                mubody = translateBool(expression, prettyPrintName(fd.signature.name), muReturn1(resultType, muCon(true)), muReturn1(resultType, muCon(false)));
+                returnValue = (Expression) `<Pattern pat> := <Expression rhs>` := expression;
+                mubody = translateBool(expression, prettyPrintName(fd.signature.name), muReturn1(resultType, muCon(returnValue)), muReturn1(resultType, muCon(!returnValue)));
             } else {
                 mubody = translate(body[0]);
             }

@@ -17,10 +17,6 @@ import IO;
 import Type;
 import util::Reflective;
 
-//extend analysis::typepal::TypePal;
-
-//extend lang::rascalcore::check::RascalConfig;
-
 import lang::rascalcore::compile::muRascal2Java::Primitives;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
@@ -48,11 +44,9 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
     muFunctionsByLoc = (f.src : f | f <- m.functions);
     resolved2overloaded = ();
     iprintln(m.overloaded_functions);
-    jg = makeJGenie(m.name, tmodels, moduleLocs, muFunctions);
+    jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
     <typestore, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors);
     resolvers = genResolvers(m.overloaded_functions, range(moduleLocs), jg);
-    
-    //genSignatureUniqueFunctions(m.functions, m.overloaded_functions, jg);
     
     bool hasMainFunction = false;
     str mainName = "main";
@@ -191,7 +185,8 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
     
     for(c: acons(AType adt, list[AType] fields, list[Keyword] kwpFields) <- constructors){
         adt_cons = atype2idpart(c);
-        fieldDecls = [ "<atype2vtype(fld)>, \"<fld.label>\"" | fld <- fields ];
+        hasFieldNames = all(fld <- fields, !isEmpty(fld.label));
+        fieldDecls = hasFieldNames ? [ "<atype2vtype(fld)>, \"<fld.label>\"" | fld <- fields ] : [ "<atype2vtype(fld)>" | fld <- fields ];
         consTypeDecls += "final io.usethesource.vallang.type.Type <adt_cons> = $TF.constructor($TS, <getADTName(adt.adtName)>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
         for(kwpField <- kwpFields){
             kwpTypeDecls += "$TS.declareKeywordParameter(<adt_cons>,\"<kwpField.fieldType.label>\", <atype2vtype(kwpField.fieldType)>);\n";
@@ -411,7 +406,8 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
  
     //if(getArity(funType) != 0 /*&& all(formalType <-formalTypes, formalType == avalue())*/) return <"", "">;
   
-    anyKwParams = any(ovl <- overload.ofunctions + overload.oconstructors, hasKeywordParameters(jg.getType(ovl)));
+    anyKwParams =    !isEmpty(overload.ofunctions) && any(ovl <- overload.ofunctions, hasKeywordParameters(jg.getType(ovl)))
+                  || !isEmpty(overload.oconstructors) && any(ovl <- overload.oconstructors, hasKeywordParameters(jg.getType(ovl)) || jg.hasCommonKeywordFields(jg.getType(ovl)));
    
     concretePatterns = any(ovl <- overload.ofunctions /*+ overload.oconstructors*/, jg.getType(ovl).isConcreteArg);
   
@@ -528,12 +524,10 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
         actuals = [];
         for(int i <- index(resolverFormalTypes)){
             if(unsetRec(formalTypes[i]) != resolverFormalTypes[i]){
-                //conds +=  "$<i>.getType().<atype2istype(formalTypes[i])>()"; 
                 conds +=  atype2istype("$<i>", formalTypes[i]);
                 actuals += "(<atype2javatype(formalTypes[i])>) $<i>";
             } else {
                 actuals += "$<i>";
-                 //actuals += "<resolverFunType.formals[i].label>$<i>";
             }
         } 
         if(hasKeywordParameters(funType)){
@@ -571,11 +565,11 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
         }
     } else {
         actuals = ["$<i>" | i <- index(formalTypes), f := formalTypes[i]];
-        if(hasKeywordParameters(funType)){
-            actuals += kwpActuals;
-        }
+        //if(hasKeywordParameters(funType)){
+        //    actuals += kwpActuals;
+        //}
         if(isConstructorType(funType)){
-            return "return <makeConstructorCall(funType, actuals, jg)>;";
+            return "return <makeConstructorCall(funType, actuals, hasKeywordParameters(funType) || jg.hasCommonKeywordFields(funType) ? [kwpActuals] : [], jg)>;";
             //if(isEmpty(funType.kwFields)){
             //    return "$VF.constructor(<funType.adt.adtName>_<funType.label>, new IValue[]{<intercalate(", ", actuals)>})";
             //} else {
@@ -583,6 +577,9 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
             //}
         
         } else {
+            if(hasKeywordParameters(funType)){
+                actuals += kwpActuals;
+            }
             externalVars = jg.getExternalVars(of);
             if(!isEmpty(externalVars)){
                 actuals +=  [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
@@ -601,11 +598,11 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
     }
 }
 
-JCode makeConstructorCall(AType funType, list[str] actuals, JGenie jg){
-    if(isEmpty(funType.kwFields)){
-        return "$VF.constructor(<atype2idpart(funType)>, new IValue[]{<intercalate(", ", actuals)>})";
+JCode makeConstructorCall(AType consType, list[str] actuals, list[str] kwargs, JGenie jg){
+    if(!isEmpty(kwargs)){
+        return "$VF.constructor(<atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>}, <kwargs[0]>)";
     } else {
-        return "$VF.constructor(<atype2idpart(funType)>, new IValue[]{<intercalate(", ", actuals[0..-1])>}, <actuals[-1]>)";
+     return "$VF.constructor(<atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>})";
     }
 }
 
@@ -632,16 +629,20 @@ tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgT
     kwpDefaults = fun.kwpDefaults;
     constantKwpDefaults = "";
     nonConstantKwpDefaults = "";
-    mapCode = "Util.kwpMap(<intercalate(", ", [ *["\"<key>\"", trans(defaultExp,jg)] | <str key, AType tp, MuExp defaultExp> <- kwpDefaults ])>);\n";
-    if(!isEmpty(fun.ftype.kwFormals)){
+     if(!isEmpty(fun.ftype.kwFormals)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
+          
         if(constantDefaults(kwpDefaults)){
             kwpDefaultsName = "$kwpDefaults_<shortName>";
             jg.setKwpDefaults(kwpDefaultsName);
+            mapCode = "Util.kwpMap(<intercalate(", ", [ *["\"<key>\"", trans(defaultExp,jg)] | <str key, AType tp, MuExp defaultExp> <- kwpDefaults ])>);\n";
             constantKwpDefaults = "final java.util.Map\<java.lang.String,IValue\> <kwpDefaultsName> = <mapCode>";
          } else {
             jg.setKwpDefaults("$kwpDefaults");
-            nonConstantKwpDefaults =  "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = <mapCode>";
+            nonConstantKwpDefaults =  "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = Util.kwpMap(\"<kwpDefaults[0].name>\", <trans(kwpDefaults[0].defaultExp,jg)>);\n";
+            for(<str name, AType tp, MuExp defaultExp> <- kwpDefaults[1..]){
+                nonConstantKwpDefaults += "$kwpDefaults.put(\"<name>\", <trans(defaultExp,jg)>);\n";
+            }
          }   
     }
     return <argTypes, constantKwpDefaults, nonConstantKwpDefaults>;
@@ -980,13 +981,16 @@ JCode trans(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl), JG
 
 // Call/Apply/return      
 
-JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs), JGenie jg){
+JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs), JGenie jg){
 
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     //actuals = getActuals(getFunctionOrConstructorArgumentTypes(ftype), largs, jg);
-         
+    
+    <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
+    
     if(muConstr(AType ctype) := fun){
-        return makeConstructorCall(ctype, getActuals(argTypes, largs, jg), jg);        
+        <actuals, kwactuals> = getPositionalAndKeywordActuals(ctype, largs, kwargs, jg);
+        return makeConstructorCall(ctype, actuals, kwactuals, jg);        
     }
     //if(muConstrCompanion(str fname) := fun){
     //    return call(muFunctions[fname], actuals, jg);
@@ -998,49 +1002,58 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs), JGenie jg){
         }
         throw "muCall: kwmap, <actuals>";
     }
-    if(muVar(str name, str fuid, int pos, AType atype):= fun){
-        actuals = getActuals(argTypes, largs, jg);
-        return "<trans(fun, jg)>(<intercalate(", ", actuals)>)";
+    if(muVar(str name, str fuid, int pos, AType atype) := fun){
+        <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
+        return "<trans(fun, jg)>(<intercalate(", ", actuals + kwactuals)>)";
     }
-    kwActuals = "";
     
-    if(!isEmpty(ftype.kwFormals)){
-        if(muKwpActuals(_) := largs[-1]){
-            kwActuals = trans(largs[-1], jg);
-            largs = largs[..-1];
-        }
-    }
-    varActuals = "";
-    if(ftype.varArgs){
-        n = size(ftype.formals);
-        varElemType = getElementType(ftype.formals[-1]);
-        vargs = [ trans(e, jg) | e <- largs[n -1 .. ]];
-        argTypes = argTypes[ .. n - 1];
-        largs = largs[ .. n - 1];
-        varActuals = intercalate(",", vargs);
-    }
-    actuals = getActuals(argTypes, largs, jg);
-    if(ftype.varArgs){
-        actuals += "$VF.list(<varActuals>)";
-    }
-    if(!isEmpty(kwActuals)){
-        actuals += kwActuals;
-    }
+    <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
+    //kwActuals = "";
+    //
+    //if(!isEmpty(ftype.kwFormals)){
+    //    if(muKwpActuals(_) := largs[-1]){
+    //        kwActuals = trans(largs[-1], jg);
+    //        largs = largs[..-1];
+    //    }
+    //}
+    //varActuals = "";
+    //if(ftype.varArgs){
+    //    n = size(ftype.formals);
+    //    varElemType = getElementType(ftype.formals[-1]);
+    //    vargs = [ trans(e, jg) | e <- largs[n -1 .. ] ];
+    //    argTypes = argTypes[ .. n - 1];
+    //    if(isEmpty(vargs)){
+    //        varActuals = "$VF.list()";
+    //    } else {
+    //        lastArgIsList = size(largs) == n && isListType(getType(largs[-1]));
+    //        largs = largs[ .. n - 1];
+    //        varActuals = lastArgIsList ? intercalate(",", vargs) : "$VF.list(<intercalate(",", vargs)>)";
+    //    }
+    //}
+    //actuals = getActuals(argTypes, largs, jg);
+    //if(ftype.varArgs){
+    //    actuals += varActuals;
+    //}
+    //if(!isEmpty(kwActuals)){
+    //    actuals += kwActuals;
+    //}
+    
+    all_actuals = actuals + kwactuals;
     if(muFun1(loc uid) := fun){
         externalVars = jg.getExternalVars(uid);
         if(!isEmpty(externalVars)){
-           actuals += [ varName(var, jg)| var <- externalVars, var.pos >= 0 ];
+           all_actuals += [ varName(var, jg)| var <- externalVars, var.pos >= 0 ];
         }
         
        if(isContainedIn(uid, jg.getModuleLoc())){
          muFun = muFunctionsByLoc[uid];
-         return "<getUniqueFunctionName(muFun)>(<intercalate(", ", actuals)>)";
+         return "<getUniqueFunctionName(muFun)>(<intercalate(", ", all_actuals)>)";
        } else {  
-        if(!isEmpty(ftype.kwFormals) && isEmpty(kwActuals)){
-            actuals += "Collections.emptyMap()";
-        }  
-         call_code = "<jg.getAccessor(uid)>(<intercalate(", ", actuals)>)";
-         return call_code; //ftype.ret == avoid() ? call_code : "((<atype2javatype(ftype.ret)>)<call_code>)";
+        //if(!isEmpty(ftype.kwFormals) && isEmpty(kwActuals)){
+        //    actuals += "Collections.emptyMap()";
+        //}  
+         call_code = "<jg.getAccessor(uid)>(<intercalate(", ", all_actuals)>)";
+         return call_code;
        }
     }
     
@@ -1049,10 +1062,49 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs), JGenie jg){
 
 // ---- muOCall3 --------------------------------------------------------------
 
-list[str] getActuals(list[AType] argTypes, list[MuExp] largs, JGenie jg)
+list[JCode] getActuals(list[AType] argTypes, list[MuExp] largs, JGenie jg)
     = [ i < size(argTypes) ? transWithCast(argTypes[i], largs[i], jg) : trans(largs[i], jg) | i <- index(largs) ];
+    
+JCode getKwpActuals(lrel[str name, MuExp exp] kwpActuals, JGenie jg){
+    if(isEmpty(kwpActuals)) return "Collections.emptyMap()";
+    return "Util.kwpMap(<intercalate(", ",  [ *["\"<key>\"", trans(exp, jg)] | <str key,  MuExp exp> <- kwpActuals])>)";
+}
 
-JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, loc src), JGenie jg){
+tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(funType:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals, varArgs=varArgs), list[MuExp] actuals, lrel[str name, MuExp exp] kwpActuals, JGenie jg){
+    resulting_actuals = [];
+    if(varArgs){
+        n = size(formals) - 1;
+        resulting_actuals = getActuals(formals[0..n], actuals[0..n], jg);
+        varElemType = getElementType(funType.formals[-1]);
+        vargs = [ trans(e, jg) | e <- actuals[n .. ] ];
+        if(isEmpty(vargs)){
+            resulting_actuals += "$VF.list()";
+        } else {
+            lastArgIsList = size(actuals) == size(formals) && isListType(getType(actuals[-1]));
+            resulting_actuals += lastArgIsList ? vargs : "$VF.list(<intercalate(",", vargs)>)";
+        }
+    } else {
+        resulting_actuals = getActuals(formals, actuals, jg);
+    }
+    
+    if(isEmpty(kwFormals)){
+        return <resulting_actuals, []>;
+    } else {
+        return <resulting_actuals, [getKwpActuals(kwpActuals, jg)]>;
+    }
+}
+
+tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), list[MuExp] actuals, lrel[str name, MuExp exp] kwpActuals, JGenie jg){
+    resulting_actuals = getActuals(fields, actuals, jg);
+    
+     if(isEmpty(consType.kwFields) && !jg.hasCommonKeywordFields(consType)){
+        return <resulting_actuals, []>;
+     } else {
+            return <resulting_actuals, [getKwpActuals(kwpActuals, jg)]>;
+    }
+}
+
+JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
 println("muOCall3((<fun>, <ftype>, ..., <src>");
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     if(muOFun(str fname) := fun){
@@ -1320,10 +1372,17 @@ JCode trans(muGetKwp(MuExp exp, AType atype, str kwpName), JGenie jg){
    }
    throw "muGetKwp: <atype>, <kwpName>";
 }
+// ---- muGetKwFieldFromConstructor
 
-JCode trans(muGetKwpFromConstructor(MuExp exp, AType atype, str kwpName), JGenie jg)
+JCode trans(muGetKwFieldFromConstructor(AType resultType, MuExp exp, str kwpName), JGenie jg)
     = "<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<kwpName>\")";
  
+// ---- muGetFieldFromConstructor
+
+JCode trans(muGetFieldFromConstructor(AType resultType, AType consType, MuExp exp, str fieldName), JGenie jg){
+     i = indexOf([fld.label | fld <- consType.fields], fieldName);
+     return "<trans(exp, jg)>.get(<i>)";
+ }
 
 JCode trans(muInsert(MuExp exp, AType atype), JGenie jg)    // Change ts to $ts in translation
     = "ts.setMatchedAndChanged(true, true);
@@ -1462,6 +1521,10 @@ JCode trans(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp la
     delta = jg.newTmp("delta"); deltaContrib = "";
     deltaVal = delta;
     
+    if(muCon(int n) := first && (getType(second) == areal() || getType(last) == areal())){
+        first = muCon(1.0 * n);
+    }
+    
     if(muCon(_) := first) fst = trans(first, jg); else fstContrib = "final <atype2javatype(var.atype)> <fst> = <trans(first, jg)>;\n";
     if(muCon(_) := last) lst = trans(last, jg); else lstContrib = "final <atype2javatype(var.atype)> <lst> = <trans(last, jg)>;\n";
     
@@ -1491,7 +1554,10 @@ JCode trans(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp la
         }
     
     } else {
-        deltaCode = muCon(0) := second ? "<dir> ? <trans(muCon(1), jg)> : <trans(muCon(-1), jg)>" : "<trans(second, jg)>.subtract(<fst>)";
+        oneUp = muCon(var.atype == areal() ? 1.0 : 1);
+        oneDown = muCon(var.atype == areal() ? -1.0 : -1);
+       
+        deltaCode = muCon(0) := second ? "<dir> ? <trans(oneUp, jg)> : <trans(oneDown, jg)>" : "<trans(second, jg)>.subtract(<fst>)";
         deltaContrib = "final <atype2javatype(var.atype)> <delta> = <deltaCode>;\n";
     }
     

@@ -31,12 +31,13 @@ public data MuModule =
                        list[MuModuleVar] module_variables, 
                        list[MuExp] initialization,
                        lrel[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloaded_functions,
+                       map[AType, map[str,AType]] commonKeywordFields,
                        AGrammar grammar,
                        rel[str,str] importGraph,
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], [], grammar({}, ()), {}, src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], [], (), grammar({}, ()), {}, src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -118,10 +119,10 @@ public data MuExp =
           | muVarKwp(str name, str fuid, AType atype)           // Keyword parameter
           
           // Call and return    		
-          | muCall(MuExp fun, AType atype, list[MuExp] args)     // Call a *muRascal function
+          | muCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs)     // Call a function
           
-          | muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src)       
-                                                                // Call a declared *Rascal function 
+          | muOCall3(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)       
+                                                                // Call an overloaded declared *Rascal function 
                                                                 // Compose fun1 o fun2, i.e., compute fun1(fun2(args))
           | muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive
            
@@ -148,7 +149,10 @@ public data MuExp =
           | muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] defaults)  
           
           | muIsKwpDefined(MuExp var, str kwpName)
-          | muGetKwpFromConstructor(MuExp var, AType atype, str kwpName)
+          
+          | muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)
+          | muGetFieldFromConstructor(AType resultType, AType consType, MuExp var, str fieldName)
+         
           | muGetKwp(MuExp var, AType atype, str kwpName)
           | muHasKwp(MuExp var, str kwpName)
           
@@ -354,8 +358,8 @@ default bool producesNativeGuardedIValue(MuExp exp)
 AType getType(muVar(str name, str fuid, int pos, AType atype)) = atype;
 AType getType(muTmpIValue(str name, str fuid, AType atype)) = atype;
 AType getType(muVarKwp(str name, str fuid, AType atype)) = atype;
-AType getType(muCall(MuExp fun, AType atype, list[MuExp] args)) = getResultType(atype);   
-AType getType(muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src))
+AType getType(muCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs)) = getResultType(atype);   
+AType getType(muOCall3(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
     = getResultType(atype);                                                               
 AType getType(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) 
     = result;
@@ -878,9 +882,9 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
 
 MuExp ifElse2ifExp(muIfelse(cond, thenPart, elsePart)) = muIfExp(cond, thenPart, elsePart);
 default MuExp ifElse2ifExp(MuExp e) = e;
-    
-MuExp muCall(MuExp fun, AType t, list[MuExp] args) 
-    = muValueBlock(t, auxVars + pre + muCall(fun, t, flatArgs))
+ 
+MuExp muCall(MuExp fun, AType t, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs) 
+    = muValueBlock(t, auxVars + pre + muCall(fun, t, flatArgs, kwargs))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args) && !isEmpty(pre);
 
 AType getResultType(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
@@ -888,8 +892,8 @@ AType getResultType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)
 AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = lubList(toList(overloads<2>));
 default AType getResultType(AType t) = t;
      
-MuExp muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src)
-    = muValueBlock(getResultType(atype), auxVars + pre + muOCall3(fun, atype, flatArgs, src))
+MuExp muOCall3(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
+    = muValueBlock(getResultType(atype), auxVars + pre + muOCall3(fun, atype, flatArgs, kwargs, src))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args), bprintln(atype) && !isEmpty(pre);
 
 MuExp muCallPrim3(str op, AType result, list[AType] details, list[MuExp] args, loc src)

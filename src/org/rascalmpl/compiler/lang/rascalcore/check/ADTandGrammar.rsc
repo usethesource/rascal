@@ -31,7 +31,7 @@ void addADTs(Solver s){
 }
 
 void addCommonKeywordFields(Solver s){
-    set[Define] definitions = s.getAllDefinitions();
+    set[Define] definitions = s.getAllDefines();
     commonKeywordFields = [];
     
     // Collect common keywords and check double declarations

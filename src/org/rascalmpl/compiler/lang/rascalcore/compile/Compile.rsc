@@ -70,7 +70,6 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
 list[Message] compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose=false, bool optimize=true, bool enableAsserts=false) =
     compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose = verbose, optimize=optimize, enableAsserts=enableAsserts);
 
-
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
 list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
     start_check = cpuTime();   

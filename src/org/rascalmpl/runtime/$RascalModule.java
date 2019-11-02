@@ -224,7 +224,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return lhs.add(rhs);
 	}
 	
-	public final INumber $areal_add_areal(final IReal lhs, final IReal rhs) {
+	public final IReal $areal_add_areal(final IReal lhs, final IReal rhs) {
 		return lhs.add(rhs);
 	}
 	

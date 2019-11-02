@@ -104,6 +104,10 @@ set[AType] getConstructors()
 
 map[AType, set[AType]] getConstructorsMap()
     = adt_constructors;
+    
+map[AType, map[str,AType]] getCommonKeywordFieldsNameAndType(){
+    return adt_common_keyword_fields_name_and_type;
+}
  
 private map[str,int] module_var_init_locals = ();	// number of local variables in module variable initializations
 
@@ -617,12 +621,6 @@ int getPositionInScope(str name, loc l){
 
 // Create unique symbolic names for functions, constructors and productions
 
-str getFUID(str fname, AType tp)
-    = "<fname>(<for(p<-tp.formals){><p>;<}>)";
-  	
-str getFUID(str modName, str fname, AType tp, int case_num) = 
-	"<modName>/<fname>(<for(p<-tp.formals?[]){><p>;<}>)#<case_num>";
-
 str getGetterNameForKwpField(AType tp, str fieldName)
     =  tp is acons ? "$get_<tp.adt.adtName>_<tp.label>_<fieldName>"
                    : "$get_<tp.adtName>_<fieldName>";
@@ -714,7 +712,7 @@ MuExp mkVar(str name, loc l) {
   uqname = getUnqualifiedName(name);
   defs = useDef[l];
   if(size(defs) > 1){
-    assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions can have multiple definitions" ;
+    assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions or constructors can have multiple definitions" ;
     println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
   
     ftype = unsetRec(getType(l));

@@ -267,7 +267,7 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 }
 
 // For convenience in transition period
-//AType \start(AType symbol)  = symbol[syntaxRole=startSyntax()];
+
 AType \sort(str sname)      = aadt(sname, [], contextFreeSyntax());
 AType \lex(str sname)       = aadt(sname, [], lexicalSyntax());
 AType \layouts(str sname)   = aadt(sname, [], layoutSyntax());
