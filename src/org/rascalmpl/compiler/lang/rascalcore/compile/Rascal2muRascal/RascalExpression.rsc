@@ -621,7 +621,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     <formalVars, funBody> = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat) | stat <- cbody]), false, []);
     
     addFunctionToModule(muFunction("$CLOSURE<uid.offset>", 
-                                   fuid, 
+                                   "$CLOSURE<uid.offset>", 
                                    ftype, 
                                    formalVars,
                                    kwps,
@@ -806,7 +806,7 @@ MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression defini
 // -- call expression -----------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`){  
-   MuExp kwargs = translateKeywordArguments(keywordArguments);
+   lrel[str,MuExp] kwargs = translateKeywordArguments(keywordArguments);
    ftype = getType(expression); // Get the type of a receiver
    MuExp receiver = translate(expression);
    //println("receiver: <receiver>");
@@ -817,14 +817,14 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    
    if(getOuterType(expression) == "astr"){
-   		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- arguments], [receiver, *args, *kwargs], e@\loc);
+   		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- arguments], [receiver, *args, muKwpActuals(kwargs)], e@\loc);
    }
   
    if(getOuterType(expression) == "aloc"){
        return muCallPrim3("create_loc_with_offset", aloc(), [aloc()], [receiver, *args], e@\loc);
    }
-   if(muFun1(_) := receiver || muConstr(AType _) := receiver /*|| muConstrCompanion(str _) := receiver*/) {
-        return muCall(receiver,  ftype, hasKeywordParameters(ftype) ? args + [ kwargs ] : args);
+   if(muFun1(_) := receiver || muConstr(AType _) := receiver) {
+        return muCall(receiver, ftype, args, kwargs);
    }
    
    // Now overloading resolution...
@@ -839,17 +839,17 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    		} 
    		catch "NotConstant":  /* pass */;
    }
-   return muOCall3(receiver, ftype, hasKeywordParameters(ftype) ? args + [ kwargs ] : args, e@\loc);
+   return muOCall3(receiver, ftype, args, kwargs, e@\loc);
 }
 
-private MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
+private lrel[str,MuExp] translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
    // Version that does not propagates values of set keyword parameters downwards and is compatible with the interpreter
     
    kwargs = [];
    if(keywordArguments is \default){
       kwargs = [ <unescape("<kwarg.name>"), translate(kwarg.expression)>  | kwarg <- keywordArguments.keywordArgumentList ];
    }
-   return muKwpActuals(kwargs);
+   return kwargs;
 }
 
 MuExp translateBool(e:(Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`, str btscope, MuExp trueCont, MuExp falseCont)

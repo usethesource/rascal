@@ -78,6 +78,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
    	  				  getVariableInitializationsInModule(), 
    	  				  //getModuleVarInitLocals(modName), 
    	  				  getOverloadedFunctions(), 
+   	  				  getCommonKeywordFieldsNameAndType(),
    	  				  getGrammar(),
    	  				  {}, //{<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
    	  				  M@\loc) /*,   

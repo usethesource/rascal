@@ -754,7 +754,8 @@ MuExp translate((Statement) `return <Statement statement>`) {
 	   return translateBool(expression.condition, "", muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp)));
 	} else
 	if((Statement) `<Expression expression>;` := statement && isMatchOrNoMatch(expression)){
-	   return translateBool(expression, "", muReturn1(resultType, muCon(true)), muReturn1(resultType, muCon(false)));
+	   returnValue = (Expression) `<Pattern pat> := <Expression rhs>` := expression;
+	   return translateBool(expression, "", muReturn1(resultType, muCon(returnValue)), muReturn1(resultType, muCon(!returnValue)));
 	} else {
 	   return muReturn1(resultType, translate(statement));
 	}

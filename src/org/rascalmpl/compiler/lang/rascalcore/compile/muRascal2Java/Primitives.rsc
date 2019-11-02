@@ -145,7 +145,7 @@ JCode transPrim("greater", abool(), [abool(), abool()], [str x, str y], JGenie j
 JCode transPrim("greater", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "$<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>).not()"     when isArithType(a), isArithType(b);
 JCode transPrim("greater", abool(), [astr(), astr()], [str x, str y], JGenie jg)        = "$astr_lessequal_astr(<x>,<y>).not()"; 
 JCode transPrim("greater", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
-                                                                                        = "$datetime_lessequal_adatetime(<x>,<y>.not()"; 
+                                                                                        = "$datetime_lessequal_adatetime(<x>,<y>).not()"; 
 JCode transPrim("greater", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)        = "$aloc_lessequal_aloc(<x>,<y>).not()"; 
 JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$atuple_lessequal_atuple(<x>,<y>).not()"      when isTupleType(a), isTupleType(b);
 JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$anode_lessequal_anode(<x>,<y>).not()"        when isNodeType(a), isNodeType(b);
@@ -282,16 +282,16 @@ JCode transPrim("negative", AType r, [AType a], [str x], JGenie jg)             
 
 list[str] transPrimArgs("not", abool(), [abool()], [MuExp x], JGenie jg)                 = [producesNativeBool(x) ? "$VF.bool(<trans(x, jg)>)" : trans(x, jg) ];
            
-JCode transPrim("not", abool(), [abool()], [str x], JGenie jg)                           = "<x>.not()";
+JCode transPrim("not", abool(), [abool()], [str x], JGenie jg)                           = "(<x>).not()";
 
 // ---- notequal --------------------------------------------------------------
 
-JCode transPrim("notequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$equal(<x>,<y>))";
+JCode transPrim("notequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$equal(<x>,<y>)).not()";
 
 // ---- notin -----------------------------------------------------------------
 
-JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!<y>.contains(<x>))"       when isSetOrListLikeType(b);
-JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!<y>.containsKey(<x>))"    when isMapType(b);
+JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!(<y>).contains(<x>))"       when isSetOrListLikeType(b);
+JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!(<y>).containsKey(<x>))"    when isMapType(b);
                                                                                                             
 // ---- open_..._writer -------------------------------------------------------
 
