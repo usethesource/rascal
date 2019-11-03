@@ -117,16 +117,6 @@ public class RascalJUnitTestRunner extends Runner {
                 }
             }
         }
-        
-        // the Rascal project has a special status, to find the standard library
-        ISourceLocation rascalProject = URIUtil.getChildLocation(root, "../rascal");
-        if (manifest.hasManifest(rascalProject)) {
-            for (String src : manifest.getSourceRoots(rascalProject)) {
-                ISourceLocation path = URIUtil.getChildLocation(rascalProject, src);
-                System.err.println("adding search path: " + path);
-                evaluator.addRascalSearchPath(path);
-            } 
-        }
     }
 
     private static void configureDependenciesViaRascalTestSourcePath(Evaluator evaluator) {
