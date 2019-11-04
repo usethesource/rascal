@@ -239,7 +239,7 @@ str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleLocs, JGenie jg){
         nformals = size(formals);
         otypes = overloadsWithNameArity[fname, nformals];
         mr = requiresMultiResolver(otypes, moduleLocs);
-        all_resolvers += genSingleResolver(overload, jg, mr);
+        all_resolvers += genSingleResolver(overload, moduleLocs, jg, mr);
         if(mr){
             clusters = clusterOverloads(otypes);
             for(cluster <- clusters){
@@ -256,6 +256,9 @@ str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleLocs, JGenie jg){
 bool requiresMultiResolver(list[OF5] overloads,  set[loc] moduleLocs){
     if(size(overloads) == 1){
         println("requiresMultiResolver ==\> false for <overloads>");
+        return false;
+    }
+    if(any(ovl <- overloads, ovl.oname != "")){
         return false;
     }
     
@@ -394,8 +397,12 @@ str genMultiResolver(str fname, int nformals, list[OF5] overloads, JGenie jg){
 
 // Generate a resolver for a function that is S-overloaded
 
-str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overload, JGenie jg, bool multi){
+str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors] overload,  set[loc] moduleLocs, JGenie jg, bool multi){
     if(overload.name == "type") return <"","">;
+    
+    if(overload.name == "tcc"){
+        println("tcc");
+    }
    
     funType = unsetRec(overload.funType);
     returns_void = funType has ret && funType.ret == avoid();
@@ -405,7 +412,9 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
     if(jg.isResolved(overload) && !jg.usesLocalFunctions(overload) /*|| getArity(funType) == 0*/) return <"", "">;
  
     //if(getArity(funType) != 0 /*&& all(formalType <-formalTypes, formalType == avalue())*/) return <"", "">;
-  
+    
+    isInnerFunction = any(ovl <- overload.ofunctions + overload.oconstructors, jg.getDefine(ovl).scope notin moduleLocs);
+      
     anyKwParams =    !isEmpty(overload.ofunctions) && any(ovl <- overload.ofunctions, hasKeywordParameters(jg.getType(ovl)))
                   || !isEmpty(overload.oconstructors) && any(ovl <- overload.oconstructors, hasKeywordParameters(jg.getType(ovl)) || jg.hasCommonKeywordFields(jg.getType(ovl)));
    
@@ -421,7 +430,7 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
             }
         }
     }
-    resolverName = getJavaName(overload.scope);
+    resolverName = getJavaName(overload.oname);
     //resolverName = getJavaName(resolverName);
    
     argTypes = intercalate(", ", ["<atype2javatype(f)> $<i>" | i <- index(formalTypes), f := formalTypes[i]]);
@@ -440,7 +449,7 @@ str genSingleResolver(tuple[str name, AType funType, str scope, list[loc] ofunct
     isignature = "public <returnType> <getJavaName(overload.name)>(<argTypes>)";
    
     imethod = "";
-    if(!multi){
+    if(!multi && !isInnerFunction){
         actuals = intercalate(", ", ["$<i>" |  i <- index(formalTypes)]);
         if(anyKwParams){
             kwpActuals = "$kwpActuals";

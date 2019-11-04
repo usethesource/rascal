@@ -1,84 +1,13 @@
 module lang::rascalcore::compile::Examples::Tst1
-  
-data T1 = \int();// | \void() | string(str s);
-data T2 = \int();// | \void() | string(str s);
-                                                         
-value main() = T1::\int();     
- 
-//    //T2 t2 = T2::\int(); 
-//    return true; //T1::\int() := t1;//&& T2::\int() := t2;
-//}
 
-//test bool tstQNameInPatternVoid(){
-//    T1 t1 = T1::\void();
-//    T2 t2 = T2::\void();
-//    return T1::\void() := t1 && T2::\void() := t2;
-//}
-//
-//test bool tstQNameInSwitchInt(){
-//    T1 t1 = T1::\int();
-//    T2 t2 = T2::\int();
-//    bool tstSwitch = true;
-//    switch(t1) { case T1::\int(): ; default: tstSwitch = false; }
-//    switch(t2) { case T2::\int(): ; default: tstSwitch = false; }
-//    return tstSwitch;
-//}
-//
-//test bool tstQNameInSwitchVoid(){
-//    T1 t1 = T1::\void();
-//    T2 t2 = T2::\void();
-//    bool tstSwitch = true;
-//    switch(t1) { case T1::\void(): ; default: tstSwitch = false; }
-//    switch(t2) { case T2::\void(): ; default: tstSwitch = false; }
-//    return tstSwitch;
-//}
-//
-//test bool tstQNameInSwitchString(){
-//    T1 t1 = T1::string("t1");
-//    T2 t2 = T2::string("t2");
-//    bool tstSwitch = true;
-//   
-//    switch(t1) { case T1::string(str _): ; default: tstSwitch = false; }
-//    switch(t2) { case T2::string(str _): ; default: tstSwitch = false; }
-//    return tstSwitch;
-//}
-//
-//bool fT1(T1::\int()) = true;
-//bool fT1(T1::\void()) = true;
-//bool fT1(T1::string(str _)) = true;
-//default bool fT1(value _) = false;
-//
-//bool fT2(T2::\int()) = true;
-//bool fT2(T2::\void()) = true;
-//bool fT2(T2::string(str _)) = true;
-//default bool fT2(value _) = false;
-//
-//test bool tstQNameinFun1Int(){
-//    T1 t1 = T1::\int();
-//    return fT1(t1);
-//}
-//
-//test bool tstQNameinFun2Int(){
-//    T2 t2 = T2::\int();
-//    return fT2(t2);
-//}
-//
-//test bool tstQNameinFun1Void(){
-//    T1 t1 = T1::\void();
-//    return fT1(t1);
-//}
-//
-//test bool tstQNameinFun2Void(){
-//    T2 t2 = T2::\void();
-//    return fT2(t2);
-//}
-//
-//test bool tstQNameinFun1String(){
-//    T1 t1 = T1::string("t1");
-//    return fT1(t1);
-//}
-//
-//test bool tstQNameinFun2String(){
-//    T2 t2 = T2::string("t2");
-//    return fT2(t2);
-//}
+int size(list[int] L) = 0;
+int translateConstantCall(str name, list[value] args) =
+    tcc(name, args);
+
+private int tcc("value", []) = 0;
+private int tcc("value", list[int] L) = 1 when size(L) == 1;
+private int tcc("value", list[int] L) = 2 when size(L) == 2;
+
+private default int tcc(str name, list[value] args) { return -1;}
+
+test bool tcc1() = translateConstantCall("value", []) == 0;
