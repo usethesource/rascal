@@ -62,6 +62,11 @@ public class ASMNodeResolver implements NodeResolver {
     private Map<String, String> primitiveTypes;
     
     /**
+     * Store type schemes to improve performance
+     */
+    private Map<String, String> typeSchemes;
+    
+    /**
      * Looks up for ADTs or constructors.
      */
     private LimitedTypeStore typeStore;
@@ -96,6 +101,7 @@ public class ASMNodeResolver implements NodeResolver {
         this.uri = uri;
         this.registry = URIResolverRegistry.getInstance();
         this.classPath = initializeClassPath(classPath);
+        this.typeSchemes = new HashMap<String, String>();
         initializePrimitiveTypes();
     }
     
@@ -254,7 +260,7 @@ public class ASMNodeResolver implements NodeResolver {
      * @return logical location
      */
     private ISourceLocation resolveBinding(ClassNode node) {
-        return M3LocationUtil.makeLocation(getClassScheme(node.access), "", node.name);
+        return M3LocationUtil.makeLocation(resolveClassScheme(node), "", node.name);
     }
     
     /**
@@ -436,6 +442,19 @@ public class ASMNodeResolver implements NodeResolver {
         else {
             return M3LocationUtil.makeLocation(CLASS_SCHEME, "", path);
         }
+        
+        typeSchemes.computeIfAbsent(className, k -> resolveClassScheme(k));
+        return typeSchemes.get(className);
+    }
+    
+    /**
+     * Returns a class scheme based on the class name.
+     * @param className - name of the class
+     * @return scheme of the type
+     */
+    private String resolveClassScheme(String className) {
+        ClassReader cr = buildClassReader(className);
+        return (cr != null) ? resolveClassScheme(cr.getAccess()) : CLASS_SCHEME;
     }
 
     /**
@@ -445,6 +464,12 @@ public class ASMNodeResolver implements NodeResolver {
         return ((access & Opcodes.ACC_INTERFACE) != 0) ? INTERFACE_SCHEME 
             : ((access & Opcodes.ACC_ENUM) != 0) ? ENUM_SCHEME 
             : CLASS_SCHEME;
+    }
+    
+    @Override
+    public String resolveClassScheme(ClassNode node) {
+        typeSchemes.computeIfAbsent(node.name, k -> resolveClassScheme(node.access));
+        return resolveClassScheme(node.access);
     }
     
     @Override
