@@ -35,12 +35,16 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
     private static Evaluator evaluator;
@@ -84,15 +88,27 @@ public class RascalJUnitTestRunner extends Runner {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         String projectName = new RascalManifest().getProjectName(projectRoot);
         reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-        List<String> sourceRoots = new RascalManifest().getSourceRoots(projectRoot);
         
-        ISourceLocation root = URIUtil.correctLocation("project", projectName, "");
-        System.err.println("Logical project root location is: " + root);
-        
-        for (String src : sourceRoots) {
-            ISourceLocation path = URIUtil.getChildLocation(root, src);
-            System.err.println("Adding evaluator search path: " + path);
-            evaluator.addRascalSearchPath(path);
+        try {
+            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot);
+            
+            for (IValue path : pcfg.getSrcs()) {
+                System.err.println("Adding evaluator search path: " + path);
+                evaluator.addRascalSearchPath((ISourceLocation) path); 
+            }
+            
+            // TODO the interpreter still needs to find the source files in the lib jars
+            // TODO remove after bootstrap
+            for (IValue path : pcfg.getLibs()) {
+                System.err.println("Adding evaluator search path: " + path);
+                evaluator.addRascalSearchPath((ISourceLocation) path);
+            }
+            
+            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
+            evaluator.addClassLoader(cl);
+        }
+        catch (IOException e) {
+            System.err.println(e);
         }
     }
 
@@ -166,13 +182,16 @@ public class RascalJUnitTestRunner extends Runner {
                 Description modDesc = Description.createSuiteDescription(name);
 
                 try {
+                    System.err.println("Loading module:" + name);
                     evaluator.doImport(new NullRascalMonitor(), name);
                     List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                 
                     if (tests.isEmpty()) {
+                        stderr.println("\tskipping. Module has not tests.");
                         continue;
                     }
                     
+                    stderr.println("\t adding " + tests.size() + " tests for " + name);
                     desc.addChild(modDesc);
 
                     // the order of the tests aren't decided by this list so no need to randomly order them.
