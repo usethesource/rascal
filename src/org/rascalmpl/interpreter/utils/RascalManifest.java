@@ -56,6 +56,10 @@ public class RascalManifest {
         mainAttributes.put(new Attributes.Name(COURSES), DEFAULT_COURSES);
         return manifest;
     }
+    
+    public boolean hasManifest(ISourceLocation root) {
+        return hasManifest(manifest(root));
+    }
 
     public boolean hasManifest(Class<?> clazz) {
         return hasManifest(manifest(clazz));
@@ -164,6 +168,10 @@ public class RascalManifest {
     public String getProjectName(JarInputStream jarStream) {
         return getManifestProjectName(manifest(jarStream));
     }
+    
+    public String getProjectName(InputStream in) {
+        return getManifestProjectName(in);
+    }
 
     /**
      * @return the name of the main module of a deployment unit, or 'null' if none is configured.
@@ -242,6 +250,10 @@ public class RascalManifest {
      */
     public List<String> getManifestRequiredLibraries(InputStream project) {
         return getManifestAttributeList(project, REQUIRE_LIBRARIES, null);
+    }
+    
+    public List<String> getManifestRequiredLibraries(ISourceLocation root) {
+        return getManifestAttributeList(manifest(root), REQUIRE_LIBRARIES, null);
     }
 
     public InputStream manifest(Class<?> clazz) {
