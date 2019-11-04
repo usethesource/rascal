@@ -396,64 +396,85 @@ void extractScopes(TModel tm){
    default bool compatible(AType t1, AType t2) = false;
    
    for(fname <- domain(funNameAndDef)){
-        defs = funNameAndDef[fname];
-        types = {};
-        //defs = { def | def <- defs, def.scope in module_scopes };
-        for(def <- defs){
-            tp = unsetRec(getDefType(def.defined));
-            types += tp;
-        }
-        for(ftype <- types){
-            ovl_non_defaults = [];
-            ovl_defaults = [];
-            ovl_constructors = [];
-            reduced_overloads = {};
-       
-            resType = avoid();
-            formalsType = avoid();
-            
-            for(def <- defs){
+        // Separate functions defined at a module level (may be overloaded) and functions defined in inner scopes
+        defs0 = funNameAndDef[fname];
+        globalDefs = { def | Define def <- defs0, def.scope in module_scopes };
+        innerDefs0 = defs0 - globalDefs;
+        innerScopes = {def.scope | def <- innerDefs0};
+        innerDefs = { { def | def <- innerDefs0, def.scope == inner} | inner <- innerScopes};
+        for(defs <- {globalDefs, *innerDefs}){
+            types = {};
+            //defs = { def | def <- defs, def.scope in module_scopes };
+            for(Define def <- defs){
                 tp = unsetRec(getDefType(def.defined));
-                if(compatible(tp, ftype)){
-                     reduced_overloads += <def.defined, def.idRole, tp>;
-                     resType = alub(resType, getResult(tp));
-                     formalsType = alub(formalsType, atypeList(getFormals(tp)));
-                    if(def.idRole == constructorId()){
-                        ovl_constructors += def.defined;
-                    } else if(def.idRole == functionId()){
-                        if(def.defined in defaultFunctions) 
-                            ovl_defaults += def.defined;
-                        else 
-                            ovl_non_defaults += def.defined;
-                    }
-               }
+                types += tp;
             }
-            sorted_non_defaults = sortFunctions(ovl_non_defaults);
-            sorted_defaults = sortFunctions(ovl_defaults);
-            sorted_constructors = sortFunctions(ovl_constructors);
+            if(size(types) > 1){
+                types = {tp1 | tp1 <- types,
+                               isConstructorType(tp1) 
+                               || ( tp1Args := getFunctionOrConstructorArgumentTypes(tp1) &&
+                                    !any(tp2 <- types, 
+                                        tp1 != tp2, !isConstructorType(tp2),
+                                        tp2Args := getFunctionOrConstructorArgumentTypes(tp2),   
+                                        asubtype(tp1Args, tp2Args))) 
+                              
+                        };
+            }
             
-            funs = sorted_non_defaults+sorted_defaults;
-            seenCannotFail = false;
-            cannotFailFun = |unknown:///|;
-            for(f <- funs){
-                if(seenCannotFail){ 
-                    println ("****WARNING**** function <f> will never be called, overruled by <cannotFailFun>");
-                } else {
-                    cf = definitions[f].defInfo.canFail;
-                    if(!cf){
-                        seenCannotFail = true;
-                        cannotFailFun = f;
+            for(ftype <- types){
+                ovl_non_defaults = [];
+                ovl_defaults = [];
+                ovl_constructors = [];
+                reduced_overloads = {};
+           
+                resType = avoid();
+                formalsType = avoid();
+                
+                for(def <- defs){
+                    tp = unsetRec(getDefType(def.defined));
+                    if(compatible(tp, ftype)){
+                         reduced_overloads += <def.defined, def.idRole, tp>;
+                         resType = alub(resType, getResult(tp));
+                         formalsType = alub(formalsType, atypeList(getFormals(tp)));
+                        if(def.idRole == constructorId()){
+                            ovl_constructors += def.defined;
+                        } else if(def.idRole == functionId()){
+                            if(def.defined in defaultFunctions) 
+                                ovl_defaults += def.defined;
+                            else 
+                                ovl_non_defaults += def.defined;
+                        }
+                   } else {
+                    println("Skipping def: <def>");
+                   }
+                }
+                sorted_non_defaults = sortFunctions(ovl_non_defaults);
+                sorted_defaults = sortFunctions(ovl_defaults);
+                sorted_constructors = sortFunctions(ovl_constructors);
+                
+                funs = sorted_non_defaults+sorted_defaults;
+                seenCannotFail = false;
+                cannotFailFun = |unknown:///|;
+                for(f <- funs){
+                    if(seenCannotFail){ 
+                        println ("****WARNING**** function <f> will never be called, overruled by <cannotFailFun>");
+                    } else {
+                        cf = definitions[f].defInfo.canFail;
+                        if(!cf){
+                            seenCannotFail = true;
+                            cannotFailFun = f;
+                        }
                     }
                 }
-            }
-            
-            oname = "<fname>_AT_<intercalate("_OR_",  abbreviate(sorted_non_defaults + sorted_defaults + sorted_constructors))>";
-            ofun = <fname,  ftype, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
-            if(!overloadingResolver[oname]?){
-                overloadedFunctions += ofun;
-                overloadingResolver[oname] = noverloaded;
-                noverloaded += 1;
-                overloadedTypeResolver[<fname, afunc(resType, formalsType.atypes, [])>] = oname;
+                
+                oname = "<fname>_AT_<intercalate("_OR_",  abbreviate(sorted_non_defaults + sorted_defaults + sorted_constructors))>";
+                ofun = <fname,  ftype, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
+                if(!overloadingResolver[oname]?){
+                    overloadedFunctions += ofun;
+                    overloadingResolver[oname] = noverloaded;
+                    noverloaded += 1;
+                    overloadedTypeResolver[<fname, afunc(resType, formalsType.atypes, [])>] = oname;
+                }
             }
         }
    }
