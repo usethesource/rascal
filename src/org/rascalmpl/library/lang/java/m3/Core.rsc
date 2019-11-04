@@ -109,7 +109,7 @@ public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromJarClass(loc jarClass);
+public java M3 createM3FromJarClass(loc jarClass, list[loc] classPath = []);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
@@ -117,7 +117,7 @@ public java M3 createM3FromSingleClass(loc jarClass, str className);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromJarFile(loc jarLoc);
+public java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
 
 @doc{
 .Synopsis
@@ -147,8 +147,8 @@ private str classPathToStr(loc jarClass) {
     return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
 }
 
-public M3 createM3FromJar(loc jarFile) {
-    M3 model = createM3FromJarFile(jarFile);
+public M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
+    M3 model = createM3FromJarFile(jarFile, classPath = classPath);
     
     rel[loc,loc] dependsOn = model.extends + model.implements;
     model.typeDependency = model.typeDependency + dependsOn;
