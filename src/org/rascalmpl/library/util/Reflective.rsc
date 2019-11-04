@@ -142,7 +142,7 @@ PathConfig applyManifests(PathConfig cfg) {
    cfg.libs = [*expandlibs(p) | p <- cfg.libs];
    cfg.bin  = expandBin(cfg.bin);
    
-   // TODO: here we add features for Required-Libraries by searching in a repository of installed
+   // TODO: here we add features for Require-Libs by searching in a repository of installed
    // jars. This has to be resolved recursively.
    
    return cfg;
