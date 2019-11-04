@@ -35,12 +35,16 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
     private static Evaluator evaluator;
@@ -84,62 +88,27 @@ public class RascalJUnitTestRunner extends Runner {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         String projectName = new RascalManifest().getProjectName(projectRoot);
         reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-        List<String> sourceRoots = new RascalManifest().getSourceRoots(projectRoot);
         
-        ISourceLocation root = URIUtil.correctLocation("project", projectName, "");
-        System.err.println("Logical project root location is: " + root);
-        
-        for (String src : sourceRoots) {
-            ISourceLocation path = URIUtil.getChildLocation(root, src);
-            System.err.println("Adding evaluator search path: " + path);
-            evaluator.addRascalSearchPath(path);
-        }
-        
-        configureDependencies(projectRoot, evaluator);
-    }
-
-    private static void configureDependencies(ISourceLocation projectRoot, Evaluator evaluator) {
-        configureDependenciesViaRascalTestSourcePath(evaluator);
-        configureDependenciesViaGuessingOtherSourceProjects(projectRoot, evaluator);
-    }
-
-    private static void configureDependenciesViaGuessingOtherSourceProjects(ISourceLocation root, Evaluator evaluator) {
-        RascalManifest manifest = new RascalManifest();
-        
-        for (String dep : manifest.getManifestRequiredLibraries(root)) {
-            ISourceLocation child = URIUtil.getChildLocation(root, "../" + dep);
+        try {
+            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot);
             
-            if (manifest.hasManifest(child)) {
-                for (String src : manifest.getSourceRoots(child)) {
-                    ISourceLocation path = URIUtil.getChildLocation(child, src);
-                    System.err.println("adding search path: " + path);
-                    evaluator.addRascalSearchPath(path);
-                }
+            for (IValue path : pcfg.getSrcs()) {
+                System.err.println("Adding evaluator search path: " + path);
+                evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
+            
+            // TODO the interpreter still needs to find the source files in the lib jars
+            // TODO remove after bootstrap
+            for (IValue path : pcfg.getLibs()) {
+                System.err.println("Adding evaluator search path: " + path);
+                evaluator.addRascalSearchPath((ISourceLocation) path);
+            }
+            
+            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
+            evaluator.addClassLoader(cl);
         }
-    }
-
-    private static void configureDependenciesViaRascalTestSourcePath(Evaluator evaluator) {
-        String classpath = System.getProperty("rascal.test.source.path");
-        if (classpath != null) {
-            for (String element : classpath.split(";")) {
-                try {
-                    ISourceLocation jar = URIUtil.createFileLocation(element.trim());
-                    
-                    if (new RascalManifest().hasManifest(jar)) {
-                        if (URIUtil.getLocationName(jar).endsWith(".jar")) {
-                            jar = RascalManifest.jarify(jar);
-                        }
-                        
-                        stderr.println("Adding source path: " + jar);
-                        evaluator.addRascalSearchPath(jar);
-                    }
-                }
-                catch (URISyntaxException e) {
-                    stderr.println("Ignored possible dependency: " + element + "because: " + e);
-                    continue;
-                }
-            }
+        catch (IOException e) {
+            System.err.println(e);
         }
     }
 
