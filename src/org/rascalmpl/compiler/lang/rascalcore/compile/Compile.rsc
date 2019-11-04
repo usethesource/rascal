@@ -19,10 +19,9 @@ import lang::rascalcore::compile::util::Names;
 public PathConfig getDefaultPathConfig() {
     return pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
-                |project://typepal/src|,
-                |project://rascal/src/org/rascalmpl/library|,
-                |project://typepal-examples/src|,
-                |project://rascal-codegen-ideas/src|,
+                |lib://typepal/|,
+                /* |lib://rascal|, */
+                |std:///|,
                 |test-modules:///|
                ]
                );
