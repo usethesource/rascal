@@ -20,7 +20,7 @@ import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::check::Checker;
 
-PathConfig testingConfig =  getDefaultPathConfig();
+PathConfig testingConfig() =  getDefaultPathConfig();
 
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
 
@@ -61,7 +61,7 @@ set[Message] getAllMessages(CheckerResult r)
 
 CheckerResult checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
     mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
-   return rascalTModelForLocs([mloc], testingConfig, rascalTypePalConfig());
+   return rascalTModelForLocs([mloc], testingConfig(), rascalTypePalConfig());
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
@@ -82,8 +82,8 @@ bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls =
 }
 
 bool checkModuleOK(loc moduleToCheck){
-	rascalTModelForLocs([moduleToCheck], testingConfig, rascalTypePalConfig());
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], testingConfig, rascalTypePalConfig()));
+	rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig());
+     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig()));
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
