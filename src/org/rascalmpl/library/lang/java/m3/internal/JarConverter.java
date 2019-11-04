@@ -18,26 +18,15 @@
  *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CLASS_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMP_UNIT_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ENUM_CLASS_PATH;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.FILE_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.INTERFACE_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.JAR_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.OBJECT_CLASS_PATH;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PACKAGE_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PARAMETER_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.*;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
 import org.objectweb.asm.ClassReader;
@@ -54,9 +43,10 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 
@@ -68,11 +58,6 @@ public class JarConverter extends M3Converter {
     //---------------------------------------------
     // Fields
     //---------------------------------------------
-    
-    /**
-     * Source location of the M3 Jar.
-     */
-    private ISourceLocation uri;
     
     /**
      * Physical source location of the current compilation unit. 
@@ -109,7 +94,6 @@ public class JarConverter extends M3Converter {
     public JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
         super(typeStore, cache);
         this.registry = URIResolverRegistry.getInstance();
-        this.resolver = new ASMNodeResolver(typeStore);
         initializeModifiers();
     }
 
@@ -137,9 +121,10 @@ public class JarConverter extends M3Converter {
      * Creates a M3 model from a Jar file.
      * @param jar - Jar file location
      */
-    public void convertJar(ISourceLocation jar) {
-        loc = cleanJarLocation(jar);
-        createM3(loc);
+    public void convertJar(ISourceLocation jar, IList classPath) {
+        loc = jar;
+        resolver = new ASMNodeResolver(loc, classPath, typeStore);
+        createM3();
     }
     
     /**
@@ -151,69 +136,30 @@ public class JarConverter extends M3Converter {
         loc = classFile;
         createSingleClassM3(className);
     }
-
-    /**
-     * Removes the Jar scheme of the location and retrieves a new one 
-     * that can be understood by the input stream created by the 
-     * URIResolverRegistry. 
-     * @param jar
-     * @return modified Jar location
-     */
-    private ISourceLocation cleanJarLocation(ISourceLocation jar) {
-      //TODO: manage nested locations
-        try {
-            String scheme = jar.getScheme();
-            String path = jar.getPath();
-            
-            // E.g. |jar:///absolute/path/to/jar.jar!|
-            if (scheme.equals(JAR_SCHEME) && path.endsWith("!")) {
-                String nestedPath = path.substring(0, path.lastIndexOf("!"));
-                return values.sourceLocation(FILE_SCHEME, "", nestedPath);
-            }
-            // E.g. |jar+file:///absolute/path/to/jar.jar!|
-            else if (scheme.startsWith(JAR_SCHEME + "+")) {
-                String nestedScheme = scheme.substring(scheme.lastIndexOf("+") + 1);
-                String nestedPath = path.substring(0, path.lastIndexOf("!"));
-                return (path.endsWith("!")) ? values.sourceLocation(nestedScheme, "", nestedPath) 
-                    : URIUtil.changeScheme(jar, nestedScheme);
-            }
-            else {
-                return jar;
-            }
-        }
-        catch (URISyntaxException e) {
-            throw new RuntimeException("Error while reading Jar file location.", e);
-        }
-    }
     
     /**
      * Creates a M3 model from a location that points to a Jar file. 
      * Jar scheme is not supported.
-     * @param uri - Jar file location
      */
-    private void createM3(ISourceLocation uri) {
+    private void createM3() {
         try {
-            this.uri = uri;
-            InputStream inputStream = registry.getInputStream(uri);
-            JarInputStream jarStream = new JarInputStream(inputStream);
-            JarEntry entry = jarStream.getNextJarEntry();
-
-            while (entry != null) {
-                compUnitPhysical = M3LocationUtil.extendPath(uri, entry.getName());
-                
-                if(entry.getName().endsWith(".class")) {
-                    String compUnit = getCompilationUnitRelativePath();
-                    ClassReader classReader = getClassReader(jarStream);
+                       
+            try (JarInputStream jarStream = new JarInputStream(registry.getInputStream(loc))) {
+                JarEntry entry = jarStream.getNextJarEntry();
+                while (entry != null) {
+                    compUnitPhysical = M3LocationUtil.extendPath(loc, entry.getName());
                     
-                    setCompilationUnitRelations(compUnit);
-                    setPackagesRelations(compUnit);
-                    setClassRelations(classReader, compUnit);
+                    if (entry.getName().endsWith(".class")) {
+                        String compUnit = getCompilationUnitRelativePath();
+                        ClassReader classReader = resolver.buildClassReader(jarStream);
+                        
+                        setCompilationUnitRelations(compUnit);
+                        setPackagesRelations(compUnit);
+                        setClassRelations(classReader, compUnit);
+                    }
+                    entry = jarStream.getNextJarEntry();
                 }
-                entry = jarStream.getNextJarEntry();
             }
-            
-            jarStream.close();
-            inputStream.close();
         }
         catch (IOException e) {
             throw new RuntimeException("Error while managing Jar stream.", e);
@@ -228,61 +174,12 @@ public class JarConverter extends M3Converter {
      */
     private void createSingleClassM3(String className) {
         String compUnit = className;
-        ClassReader classReader = getClassReader(className);
+        ClassReader classReader = resolver.buildClassReader(className);
 
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
         setClassRelations(classReader, compUnit);
     } 
-
-    /**
-     * Returns an ASM ClassReader from a compilation unit location 
-     * or name. 
-     * @param className - class/comilation unit name/path (<pkg>/<name>)
-     * @return ASM ClassReader, null if the compilation unit is not found
-     */
-    private ClassReader getClassReader(String className) {
-        try {
-            return new ClassReader(className);
-        }
-        catch (Exception e) {
-            return getClassReaderByJarStream(className);
-        }
-    }
-
-    /**
-     * Returns an ASM ClassReader from a compilation unit location 
-     * or name. It creates a JarStream if the entry is localized inside
-     * the M3 Jar.
-     * @param className - class/comilation unit name/path (<pkg>/<name>)
-     * @return ASM ClassReader, null if the compilation unit is not found
-     */
-    @SuppressWarnings("resource")
-    public ClassReader getClassReaderByJarStream(String className) {
-        try {
-            JarFile jar = new JarFile(uri.getPath());
-            JarEntry entry = new JarEntry(className + ".class");
-            InputStream inputStream = jar.getInputStream(entry);
-            return getClassReader(inputStream);
-        }
-        catch (IOException e) {
-            return null;
-        }
-      }
-    
-    /**
-     * Returns an ASM ClassReader from an input stream.
-     * @param classStream - class/compilation unit input stream 
-     * @return ASM ClassReader, null if the compilation unit is not found
-     */
-    private ClassReader getClassReader(InputStream classStream) {
-        try {
-            return new ClassReader(classStream);
-        }
-        catch (Exception e) {
-            return null;
-        }
-    }
     
     /**
      * Returns a compilation unit relative path with regards to the Jar
@@ -413,6 +310,8 @@ public class JarConverter extends M3Converter {
                     else {
                         addToContainment(outerClassLogical, classLogical);
                     }
+                    
+                    addToModifiers(classLogical, innerClass.access, true);
                 }
             }
         }
@@ -482,7 +381,7 @@ public class JarConverter extends M3Converter {
                 addToTypes(methodLogical, cons);
 
                 //TODO: we do not have access to parameters names - Check
-                setExcpetionRelations(methodNode, methodLogical);
+                setExceptionRelations(methodNode, methodLogical);
                 setParameterRelations(methodNode, methodLogical);
                 setInstructionRelations(methodNode, methodLogical);
             }
@@ -496,7 +395,7 @@ public class JarConverter extends M3Converter {
      * @param methodLogical - logical location of the method
      */
     private void setMethodOverridesRelation(String superClass, MethodNode methodNode, ISourceLocation methodLogical) {
-        ClassReader classReader = getClassReader(superClass);
+        ClassReader classReader = resolver.buildClassReader(superClass);
 
         if (classReader != null) {
             ClassNode classNode = new ClassNode();
@@ -525,7 +424,7 @@ public class JarConverter extends M3Converter {
      * @param methodNode - method node
      * @param methodLogical - logical location of the method
      */
-    private void setExcpetionRelations(MethodNode methodNode, ISourceLocation methodLogical) {
+    private void setExceptionRelations(MethodNode methodNode, ISourceLocation methodLogical) {
         @SuppressWarnings("unchecked")
         List<String> exceptions = methodNode.exceptions;
         
@@ -699,9 +598,10 @@ public class JarConverter extends M3Converter {
         List<String> interfaces = classNode.interfaces;
         
         if (interfaces != null) {
+            ISetWriter writer = (resolver.resolveClassScheme(classNode) == INTERFACE_SCHEME) ? extendsRelations :  implementsRelations;
             for (String path : interfaces) {
                 ISourceLocation implementsLogical = M3LocationUtil.makeLocation(INTERFACE_SCHEME, "", path);
-                insert(implementsRelations, classLogical, implementsLogical);
+                insert(writer, classLogical, implementsLogical);
             }
         }
     }
@@ -838,3 +738,4 @@ public class JarConverter extends M3Converter {
         return name;
     }  
 }
+
