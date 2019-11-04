@@ -14,7 +14,6 @@ package org.rascalmpl.uri.libraries;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -28,7 +27,6 @@ import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
@@ -48,19 +46,22 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
             Collections.list(mfs).forEach(url -> {
                 try {
                     String libName = mf.getProjectName(url.openStream());
-                    ISourceLocation loc;
                     
-                    if (url.getProtocol().equals("jar") && url.getPath().startsWith("file:/")) {
-                        loc = vf.sourceLocation("jar+file", null, url.getPath().substring("file:".length()));
+                    if (libName != null && !libName.isEmpty()) {
+                        ISourceLocation loc;
+
+                        if (url.getProtocol().equals("jar") && url.getPath().startsWith("file:/")) {
+                            loc = vf.sourceLocation("jar+file", null, url.getPath().substring("file:".length()));
+                        }
+                        else {
+                            loc = vf.sourceLocation(URIUtil.fromURL(url));
+                        }
+
+                        loc = URIUtil.changePath(loc, loc.getPath().replace(RascalManifest.META_INF_RASCAL_MF, ""));
+
+                        System.err.println("INFO: registered |lib://" + libName + "| at " + loc);
+                        libraries.put(libName, loc);
                     }
-                    else {
-                        loc = vf.sourceLocation(URIUtil.fromURL(url));
-                    }
-                    
-                    loc = URIUtil.changePath(loc, loc.getPath().replace(RascalManifest.META_INF_RASCAL_MF, ""));
-                    
-                    System.err.println("INFO: registered |lib://" + libName + "| at " + loc);
-                    libraries.put(libName, loc);
                 }
                 catch (IOException | URISyntaxException e) {
                     System.err.println("WARNING: could not load Rascal manifest for library resolution of: " + url);
