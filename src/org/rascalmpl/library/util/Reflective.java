@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -96,9 +97,18 @@ public class Reflective {
 	    return values.string(ctx.getConfiguration().getRascalJavaClassPathProperty());
 	}
 	
-	
-	public IConstructor getCurrentPathConfig(IEvaluatorContext ctx) {
-        throw new UnsupportedOperationException("pathConfig not available in interpreter context");
+	public IConstructor getProjectPathConfig(ISourceLocation projectRoot) {
+	    try {
+	        if (URIResolverRegistry.getInstance().exists(projectRoot)) {
+	            return PathConfig.fromSourceProjectRascalManifest(projectRoot).asConstructor();
+	        }
+	        else {
+	            throw new FileNotFoundException(projectRoot.toString());
+	        }
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
     }
 	
 	IEvaluator<?> getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {

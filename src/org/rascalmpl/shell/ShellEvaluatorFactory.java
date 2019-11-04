@@ -30,6 +30,7 @@ public class ShellEvaluatorFactory {
     IValueFactory vf = ValueFactoryFactory.getValueFactory();
     Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
     evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+    
     evaluator.setMonitor(new ConsoleRascalMonitor());
     URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
@@ -39,6 +40,8 @@ public class ShellEvaluatorFactory {
             configureProjectEvaluator(evaluator, rootFolder);
         }
     }
+    
+    
     
     return evaluator;
   }
@@ -54,6 +57,12 @@ public class ShellEvaluatorFactory {
           
           for (IValue path : pcfg.getSrcs()) {
               evaluator.addRascalSearchPath((ISourceLocation) path); 
+          }
+          
+          // TODO the interpreter still needs to find the source files in the lib jars
+          // TODO remove after bootstrap
+          for (IValue path : pcfg.getLibs()) {
+              evaluator.addRascalSearchPath((ISourceLocation) path);
           }
           
           ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());

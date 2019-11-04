@@ -257,7 +257,7 @@ public class PathConfig {
         for (String recLib : new RascalManifest().getRequiredLibraries(lib)) {
             ISourceLocation libLoc = recLib.startsWith("|") ? parseSourceLocation(recLib) : findLibrary(recLib, repo);
             
-            if (libLoc != null) {
+            if (libLoc != null && URIResolverRegistry.getInstance().exists(libLoc)) {
                 result.add(libLoc);
             }
             else {
@@ -500,12 +500,18 @@ public class PathConfig {
         IListWriter srcsWriter = vf.listWriter();
         IListWriter classloaders = vf.listWriter();
         
-        libsWriter.append(URIUtil.correctLocation("stdlib", "", ""));
+        libsWriter.append(URIUtil.correctLocation("lib", "rascal", ""));
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(manifestRoot)) {
             ISourceLocation jar = lib.startsWith("|") ? parseSourceLocation(lib) : URIUtil.getChildLocation(manifestRoot, lib);
-            libsWriter.append(jar);
+            
+            if (jar != null && reg.exists(jar)) {
+                libsWriter.append(jar);
+            }
+            else {
+                System.err.println("WARNING: could not resolve required library: " + lib);
+            }
             
             if (loaderSchemes.contains(jar.getScheme())) {
                 classloaders.append(jar);
