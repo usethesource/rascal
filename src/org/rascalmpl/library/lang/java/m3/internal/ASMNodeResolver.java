@@ -703,10 +703,7 @@ public class ASMNodeResolver implements NodeResolver {
             for (ISourceLocation entry : classPath) {
                 ISourceLocation loc = URIUtil.getChildLocation(entry, className + ".class");
                 if (registry.exists(loc)) {
-                    //InputStream stream = registry.getInputStream(loc); // Too slow
-                    JarFile jar = new JarFile(loc.getPath());
-                    JarEntry jarEntry = new JarEntry(className + ".class");
-                    InputStream stream = jar.getInputStream(jarEntry);
+                    InputStream stream = registry.getInputStream(loc);
                     return buildClassReader(stream);
                 }
             }
