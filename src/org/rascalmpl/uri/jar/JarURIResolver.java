@@ -15,9 +15,12 @@ public class JarURIResolver implements ISourceLocationInput {
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final JarFileResolver file = new JarFileResolver();
 	private final JarFileResolver inputStream;
+    private final URIResolverRegistry registry;
 
 	public JarURIResolver(URIResolverRegistry registry) {
-	    inputStream = new JarInputStreamResolver(registry);
+	    this.registry = registry;
+        inputStream = new JarInputStreamResolver(registry);
+	    
     }
 	
     @Override
@@ -30,6 +33,15 @@ public class JarURIResolver implements ISourceLocationInput {
            return inputStream;
        }
        return file;
+    }
+    
+    private ISourceLocation safeResolve(ISourceLocation loc) {
+        try {
+            return registry.logicalToPhysical(loc);
+        }
+        catch (Throwable e) {
+            return loc;
+        }
     }
     
     private static String getInsideJarPath(ISourceLocation uri) {
@@ -47,17 +59,17 @@ public class JarURIResolver implements ISourceLocationInput {
         return "";
     }
 
-    private static ISourceLocation getJarPath(ISourceLocation uri) throws IOException {
+    private ISourceLocation getResolvedJarPath(ISourceLocation uri) throws IOException {
         boolean isWrapped = uri.getScheme().startsWith("jar+");
         try {
             String path = uri.getPath();
             if (path != null && !path.isEmpty()) {
                 int bang = path.lastIndexOf('!');
                 if (bang != -1) {
-                    return VF.sourceLocation(
+                    return safeResolve(VF.sourceLocation(
                         isWrapped ? uri.getScheme().substring("jar+".length()) : "file",
                         isWrapped ? uri.getAuthority() : "",
-                        path.substring(path.indexOf("/"), bang));
+                        path.substring(path.indexOf("/"), bang)));
                 }
             }
             throw new IOException("The jar and the internal path should be separated with a ! (" + uri.getPath() + ")");
@@ -69,7 +81,8 @@ public class JarURIResolver implements ISourceLocationInput {
     
     @Override
     public InputStream getInputStream(ISourceLocation uri) throws IOException {
-        return getTargetResolver(uri).getInputStream(getJarPath(uri), getInsideJarPath(uri));
+        ISourceLocation jarUri = getResolvedJarPath(uri);
+        return getTargetResolver(jarUri).getInputStream(jarUri, getInsideJarPath(uri));
     }
 
 
@@ -81,7 +94,8 @@ public class JarURIResolver implements ISourceLocationInput {
             return true;
         }
         try {
-            return getTargetResolver(uri).isDirectory(getJarPath(uri), getInsideJarPath(uri));
+            ISourceLocation jarUri = getResolvedJarPath(uri);
+            return getTargetResolver(jarUri).isDirectory(jarUri, getInsideJarPath(uri));
         }
         catch (IOException e) {
             return false;
@@ -92,7 +106,8 @@ public class JarURIResolver implements ISourceLocationInput {
     @Override
     public boolean exists(ISourceLocation uri) {
         try {
-            return getTargetResolver(uri).exists(getJarPath(uri), getInsideJarPath(uri));
+            ISourceLocation jarUri = getResolvedJarPath(uri);
+            return getTargetResolver(jarUri).exists(jarUri, getInsideJarPath(uri));
         }
         catch (IOException e) {
             return false;
@@ -102,7 +117,8 @@ public class JarURIResolver implements ISourceLocationInput {
     @Override
     public boolean isFile(ISourceLocation uri) {
         try {
-            return getTargetResolver(uri).isFile(getJarPath(uri), getInsideJarPath(uri));
+            ISourceLocation jarUri = getResolvedJarPath(uri);
+            return getTargetResolver(jarUri).isFile(jarUri, getInsideJarPath(uri));
         }
         catch (IOException e) {
             return false;
@@ -116,12 +132,14 @@ public class JarURIResolver implements ISourceLocationInput {
     
     @Override
     public long lastModified(ISourceLocation uri) throws IOException {
-        return getTargetResolver(uri).lastModified(getJarPath(uri), getInsideJarPath(uri));
+        ISourceLocation jarUri = getResolvedJarPath(uri);
+        return getTargetResolver(jarUri).lastModified(jarUri, getInsideJarPath(uri));
     }
     
     @Override
     public String[] list(ISourceLocation uri) throws IOException {
-        return getTargetResolver(uri).list(getJarPath(uri), getInsideJarPath(uri));
+        ISourceLocation jarUri = getResolvedJarPath(uri);
+        return getTargetResolver(jarUri).list(jarUri, getInsideJarPath(uri));
     }
 
     
