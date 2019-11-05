@@ -92,10 +92,7 @@ public class ReadEvalPrintDialogMessages {
 			}
 		}
 		else {
-		    ISourceLocation loc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), 
-		        pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn()) ;
-		    
-		    printSourceLocation(content, loc, writer);
+		    printSourceLocation(content, pe.getLocation(), writer);
 			content.println(": Parse error");
 		}
 	}
