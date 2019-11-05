@@ -171,7 +171,7 @@ public class Eval {
 		}
 		catch (ParseError e) {
 			if (forRascal) 
-				throw RuntimeExceptionFactory.parseError(values.sourceLocation(e.getLocation(), e.getOffset(), e.getLength(), e.getBeginLine(), e.getEndLine(), e.getBeginColumn(), e.getEndColumn()), null, null);
+				throw RuntimeExceptionFactory.parseError(e.getLocation(), null, null);
 			throw e;
 		}
 		catch (StaticError e) {
