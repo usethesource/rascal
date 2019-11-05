@@ -131,15 +131,17 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 // ----  Various check functions  ---------------------------------------------
 
 public PathConfig getDefaultPathConfig() {
+    println("checker path config");
     return pathConfig(   
-        srcs = [|test-modules:///|,
-                |project://rascal-core/src/org/rascalmpl/core/library/|,
-                |project://typepal/src|,
-                |project://rascal/src/org/rascalmpl/library|,
-                |project://rascal-codegen-ideas/src|      
+        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */ 
+                //Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
+                //   |project://rascal-core/src/org/rascalmpl/core/library/|, 
+                //   |lib://typepal/|, 
+                //Commented out: because this is also suspect, why would we not use the binary .tpl files from the library?
+                // |std:///|    
                ],
-        bin = |home:///bin|, 
-        libs = [|home:///bin|]
+        bin = |project://rascal-core/bin|, 
+        libs = [|std:///|, |lib://rascal/|]
                );
 }
 

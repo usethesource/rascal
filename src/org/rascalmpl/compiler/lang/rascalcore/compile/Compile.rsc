@@ -17,13 +17,17 @@ import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
 
 public PathConfig getDefaultPathConfig() {
-    return pathConfig(   
-        srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
-                |lib://typepal/|,
-                /* |lib://rascal|, */
-                |std:///|,
-                |test-modules:///|
-               ]
+     println("compiler default config");
+     return pathConfig(   
+        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */ 
+                //Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
+                //   |project://rascal-core/src/org/rascalmpl/core/library/|, 
+                //   |lib://typepal/|, 
+                //Commented out: because this is also suspect, why would we not use the binary .tpl files from the library?
+                // |std:///|    
+               ],
+        bin = |project://rascal-core/bin|, 
+        libs = [|std:///|, |lib://rascal/|]
                );
 }
 

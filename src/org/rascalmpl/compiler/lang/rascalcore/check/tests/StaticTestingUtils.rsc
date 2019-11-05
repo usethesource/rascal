@@ -20,7 +20,10 @@ import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::check::Checker;
 
-PathConfig testingConfig() =  getDefaultPathConfig();
+PathConfig testingConfig() { 
+  println("testing path config"); 
+  return getDefaultPathConfig(); 
+}
 
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
 
@@ -75,10 +78,11 @@ bool check(str stmts, list[str] expected, list[str] importedModules = [], list[s
 }
 
 bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
+     println("Imported: <importedModules>");
      errors = getErrorMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls));
      if(size(errors) == 0)
         return true;
-     throw abbrev("<errors>");
+     throw errors;
 }
 
 bool checkModuleOK(loc moduleToCheck){
