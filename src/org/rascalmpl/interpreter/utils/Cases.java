@@ -35,6 +35,7 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
@@ -51,11 +52,16 @@ public class Cases  {
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	
-	public static List<CaseBlock> precompute(List<Case> cases) {
+	public static List<CaseBlock> precompute(List<Case> cases, boolean allowReplacement) {
 		ArrayList<CaseBlock> blocks = new ArrayList<CaseBlock>(cases.size());
 		
 		for (int i = 0; i < cases.size(); i++) {
 			Case c = cases.get(i);
+			
+			if (!allowReplacement && c.hasPatternWithAction() && c.getPatternWithAction().isReplacing()) {
+			    throw new SyntaxError("=> not allowed in switch", c.getLocation());
+			}
+			
 			if (isConcreteSyntaxPattern(c)) {
 				ConcreteBlock b = new ConcreteBlock();
 				b.add(c);
