@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//src/org/rascalmpl/library=UTF-8
 encoding//src/org/rascalmpl/library/experiments/vis2/lib/MarkdownConverter.js=UTF-8
 encoding//src/org/rascalmpl/library/experiments/vis2/lib/nv.d3.css=UTF-8
 encoding//src/org/rascalmpl/library/experiments/vis2/lib/nv.d3.js=UTF-8
