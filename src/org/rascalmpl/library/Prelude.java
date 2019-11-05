@@ -2204,7 +2204,7 @@ public class Prelude {
 			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = pe.getLocation();
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch (Ambiguous e) {
@@ -2225,7 +2225,7 @@ public class Prelude {
             return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input.getValue(), false, false);
         }
         catch (ParseError pe) {
-            ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+            ISourceLocation errorLoc = pe.getLocation();
             throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
         }
         catch (Ambiguous e) {
@@ -2244,7 +2244,7 @@ public class Prelude {
             return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input, false, false);
         }
         catch (ParseError pe) {
-            ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+            ISourceLocation errorLoc = pe.getLocation();
             throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
         }
         catch (Ambiguous e) {
@@ -2267,7 +2267,7 @@ public class Prelude {
 			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = pe.getLocation();
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (Ambiguous e) {
@@ -2290,7 +2290,7 @@ public class Prelude {
 			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc, allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = pe.getLocation();
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (Ambiguous e) {
