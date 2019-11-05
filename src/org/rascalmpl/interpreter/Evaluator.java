@@ -118,7 +118,8 @@ import io.usethesource.vallang.type.TypeFactory;
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
 	
 	
-	private final IValueFactory vf; // sharable
+
+    private final IValueFactory vf; // sharable
 	private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
 	protected volatile Environment currentEnvt; // not sharable
  
@@ -1138,10 +1139,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
-		IRascalMonitor old = setMonitor(monitor);
+	    SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor);
+		IRascalMonitor old = setMonitor(wrapped);
 		try {
 			Set<String> onHeap = new HashSet<>();
 			Set<String> extendingModules = new HashSet<>();
+			PrintWriter errStream = getStdErr();
 
 			try {
 				monitor.startJob("Cleaning modules", names.size());
@@ -1163,9 +1166,19 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			try {
 				monitor.startJob("Reloading modules", onHeap.size());
 				for (String mod : onHeap) {
+					wrapped.clear();
 					if (!heap.existsModule(mod)) {
-						defStderr.println("Reloading module " + mod);
+						errStream.println("Reloading module " + mod);
 						reloadModule(mod, errorLocation, affectedModules);
+						if (!heap.existsModule(mod)) {
+							// something went wrong with reloading, let's print that:
+							errStream.println("** Something went wrong while reloading module " + mod + ":");
+							for (String s : wrapped.getWarnings()) {
+							    errStream.println(s);
+							}
+							errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
+							errStream.println("*** if the error persists, start a new console session.");
+						}
 					}
 					monitor.event("loaded " + mod, 1);
 				}
@@ -1192,6 +1205,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 								affectedModules.add(mod);
 							}
 							else {
+								errStream.println("Could not reimport" + imp + " at " + errorLocation);
 								warning("could not reimport " + imp, errorLocation);
 							}
 						}
@@ -1217,6 +1231,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 								env.addExtend(ext);
 							}
 							else {
+								errStream.println("Could not re-extend" + ext + " at " + errorLocation);
 								warning("could not re-extend " + ext, errorLocation);
 							}
 						}
@@ -1701,4 +1716,75 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return heap.getModule(name);
     }
  
+
+	private static final class SaveWarningsMonitor implements IRascalMonitor {
+
+        private final List<String> warnings;
+        private final IRascalMonitor monitor;
+
+        public SaveWarningsMonitor(IRascalMonitor monitor) {
+        	this.monitor = monitor;
+        	this.warnings = new ArrayList<>();
+        }
+
+        @Override
+        public void startJob(String name) {
+        	monitor.startJob(name);
+        }
+
+        @Override
+        public void startJob(String name, int totalWork) {
+        	monitor.startJob(name, totalWork);
+        }
+
+        @Override
+        public void startJob(String name, int workShare, int totalWork) {
+        	monitor.startJob(name, workShare, totalWork);
+        }
+
+        @Override
+        public void event(String name) {
+        	monitor.event(name);
+        }
+
+        @Override
+        public void event(String name, int inc) {
+        	monitor.event(name, inc);
+        }
+
+        @Override
+        public void event(int inc) {
+        	monitor.event(inc);
+        }
+
+        @Override
+        public int endJob(boolean succeeded) {
+        	return monitor.endJob(succeeded);
+        }
+
+        @Override
+        public boolean isCanceled() {
+            return monitor.isCanceled();
+        }
+
+        @Override
+        public void todo(int work) {
+        	monitor.todo(work);
+        }
+
+        @Override
+        public void warning(String message, ISourceLocation src) {
+        	warnings.add(src + ":" + message);
+        	monitor.warning(message, src);
+        }
+
+        public void clear() {
+        	warnings.clear();
+        }
+
+        public List<String> getWarnings() {
+            return warnings;
+        }
+
+    }
 }
