@@ -229,7 +229,7 @@ bool isOverloadedFunction(loc fun, map[loc,Define] definitions, map[loc, AType] 
     fundef = definitions[fun];
     funid = fundef.id;
     funtype = facts[fun];
-    for(loc l <- definitions, l != fun, def := definitions[l], def.id == funid, def.idRole == functionId()){
+    for(loc l <- definitions, l != fun, Define def := definitions[l], def.id == funid, def.idRole == functionId()){
         if(comparable(facts[l], funtype)) return true;
     }
     return false;
