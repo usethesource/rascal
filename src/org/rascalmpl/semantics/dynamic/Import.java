@@ -655,13 +655,6 @@ private static boolean isDeprecated(Module preModule){
                 IList resultList = (IList) replaceHolesByAntiQuotesExternal(eval, result, antiquotes, corrections);
                 IListWriter writer = eval.__getVf().listWriter();
                 IList ret = resultList;
-                for (IValue v : ret) {
-                    if (v.mayHaveKeywordParameters()) {
-                        ISourceLocation src = (ISourceLocation) v.asWithKeywordParameters().getParameter("src");
-                    } else if (v.isAnnotatable()) {
-                        ISourceLocation src = (ISourceLocation) v.asAnnotatable().getAnnotation("loc");
-                    }
-                }
                 if (inPattern) {
                     for (IValue v: resultList) {
                         if (v.mayHaveKeywordParameters()) {
