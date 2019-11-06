@@ -15,6 +15,8 @@ import lang::java::m3::AST;
 @javaClass{org.rascalmpl.library.lang.rascal.tests.library.lang.java.m3.SnakesAndLadders}
 public java loc getSnakesAndLaddersPath(); 
 
+public test bool thisShouldFail() = |jar+testdata:///m3/hamcrest-library-1.3.jar!/|.ls != [];
+
 public loc unpackExampleProject(str name, loc projectZip) {
     targetRoot = |tmp:///<name>|;
     sourceRoot = projectZip[scheme = "jar+<projectZip.scheme>"][path = projectZip.path + "!/"];
