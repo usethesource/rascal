@@ -18,6 +18,10 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
 
 public class ParseError extends RuntimeException{
 	private static final long serialVersionUID = 3755880608516802997L;
@@ -69,8 +73,10 @@ public class ParseError extends RuntimeException{
 		this.filteredNodes = null;
 	}
 	
-	public URI getLocation(){
-		return location;
+	public ISourceLocation getLocation(){
+	    IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	    ISourceLocation loc = vf.sourceLocation(location);
+	    return vf.sourceLocation(loc, offset, length, beginLine, endLine, beginColumn, endColumn);
 	}
 	
 	public int getOffset(){
@@ -112,6 +118,7 @@ public class ParseError extends RuntimeException{
 	public DoubleStack<AbstractStackNode<?>, AbstractNode> getFilteredNodes(){
 		return filteredNodes;
 	}
+	
 	
 	public String toString(){
 		StringBuilder sb = new StringBuilder();

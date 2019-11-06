@@ -90,9 +90,9 @@ data PathConfig
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
                loc boot = |boot:///| ,          // Directory with Rascal boot files
                loc repo = |home:///.r2d2|,      // Directory for installed Rascal jar packages                                                 
-               list[loc] libs = [|home:///bin/|],          // List of directories to search source for derived files
+               list[loc] libs = [|lib://rascal/|],          // List of directories to search source for derived files
                list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
-               list[loc] classloaders = []      // TODO: must generate the same defaults as in PathConfig
+               list[loc] classloaders = [|system:///|]      // TODO: must generate the same defaults as in PathConfig
               );
 
 data RascalManifest
@@ -142,7 +142,7 @@ PathConfig applyManifests(PathConfig cfg) {
    cfg.libs = [*expandlibs(p) | p <- cfg.libs];
    cfg.bin  = expandBin(cfg.bin);
    
-   // TODO: here we add features for Required-Libraries by searching in a repository of installed
+   // TODO: here we add features for Require-Libs by searching in a repository of installed
    // jars. This has to be resolved recursively.
    
    return cfg;
@@ -312,8 +312,7 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
 }
 
 @javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{looks in execution context}
-public java PathConfig getCurrentPathConfig();
+public java PathConfig getProjectPathConfig(loc projectRoot);
 
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
 @javaClass{org.rascalmpl.library.util.Reflective}

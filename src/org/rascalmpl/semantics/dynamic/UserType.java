@@ -20,6 +20,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.MissingTypeParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -45,12 +46,21 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 				Type type = theEnv.lookupAlias(name);
 
 				if (type != null) {
+				    if (type.isParameterized()) {
+                        throw new MissingTypeParameters(type, this);
+                    }
+				    
 					return type;
 				}
 
 				Type tree = theEnv.lookupAbstractDataType(name);
 
 				if (tree != null) {
+				    
+				    if (tree.isParameterized()) {
+				        throw new MissingTypeParameters(tree, this);
+				    }
+				    
 					return tree;
 				}
 

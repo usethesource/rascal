@@ -271,27 +271,35 @@ test bool locInLRel(){
 tuple[loc, loc] makeLocsWithGap(int gap){
     sign = gap > 0 ? 1 : -1;
     absgap =  min(abs(gap), maxIndex/2);
-    m1 = 1 + arbInt(maxIndex - absgap);
-    m2 = m1 + sign * absgap;
+    m1 = 1 + arbInt(maxIndex - absgap - 2); // 1 <= m1 <= maxIndex - 2
+    m2 = m1 + sign * absgap;            
     
     llen = arbInt(m1);
     l = getLoc(m1 - llen, m1);
     
-    rlen = arbInt(maxIndex - m2);
+    rlen = m2 == maxIndex ? 0 : arbInt(maxIndex - m2);
     r = getLoc(m2, m2 + rlen);
     return l.offset < r.offset ? <l, r> : <r, l>;
+}
+
+bool report(loc l1, loc l2, bool expected){
+    if(!expected){
+        println("Not expected: <l1>, <l2>");
+        return false;
+    }
+    return true;
 }
 
 // isLexicallyLess
 
 bool isLexicallyLess1(int f, int t){
     l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
-    return isLexicallyLess(l1, l2);
+    return report(l1, l2, isLexicallyLess(l1, l2));
 }
 
 bool isLexicallyLess1(int f){
     <l1, l2> = makeLocsWithGap(10);
-    return isLexicallyLess(l1, l2);
+    return report(l1, l2, isLexicallyLess(l1, l2));
 }
 
 // isContainedIn
@@ -301,7 +309,7 @@ test bool isContainedIn1(int f, int len){
     len1 = t1 - f1;
     delta = (t1-f1)/2;
     l1 = getLoc(f1, t1); l2 = getLoc(f1 + delta, t1 - delta);
-    return delta > 0 ==> isContainedIn(l2, l1);
+    return report(l1, l2, delta > 0 ==> isContainedIn(l2, l1));
 }
 
 test bool isContainedIn2(int f, int len){
@@ -309,71 +317,70 @@ test bool isContainedIn2(int f, int len){
     len1 = t1 - f1;
     delta = (t1-f1)/2;
     l1 = getLoc(f1, t1, base="base1.src"); l2 = getLoc(f1 + delta, t1 - delta,  base="base2.src");
-    return !isContainedIn(l2, l1);
+    return report(l1, l2, !isContainedIn(l2, l1));
 }
-
 
 // beginsBefore
 
 test bool beginsBefore1(int f){
     <l1, l2> = makeLocsWithGap(-10);
-    return beginsBefore(l1, l2);
+    return report(l1, l2, beginsBefore(l1, l2));
 }
 
 test bool beginsBefore2(int f){
     <l1, l2> = makeLocsWithGap(10);
-    return !beginsBefore(l2, l1);
+    return report(l1, l2, !beginsBefore(l2, l1));
 }
 
 // isBefore
 
 test bool isBefore1(int f){
     <l1, l2> = makeLocsWithGap(10);
-    return isBefore(l1, l2);
+    return report(l1, l2, isBefore(l1, l2));
 }
 
 test bool isBefore2(int f){
     <l1, l2> = makeLocsWithGap(10);
-    return !isBefore(l2, l1);
+    return report(l1, l2, !isBefore(l2, l1));
 }
 
 // isImmediatelyBefore
 
 test bool isImmediatelyBefore1(int f){
     <l1, l2> = makeLocsWithGap(0);
-    return isImmediatelyBefore(l1, l2);
+    return report(l1, l2, isImmediatelyBefore(l1, l2));
 }
 
 test bool isImmediatelyBefore2(int f){
     <l1, l2> = makeLocsWithGap(0);
-    return !isImmediatelyBefore(l2, l1);
+    return report(l1, l2, !isImmediatelyBefore(l2, l1));
 }
 
 // beginsAfter
 
 test bool beginsAfter1(int f){
     <l1, l2> = makeLocsWithGap(-10);
-    return beginsAfter(l2, l1);
+    return report(l1, l2, beginsAfter(l2, l1));
 }
 
 // isAfter
 
 test bool isAfter1(int f){
     <l1, l2> = makeLocsWithGap(10);
-    return isAfter(l2, l1);
+    return report(l1, l2, isAfter(l2, l1));
 }
 
 // isImmediatelyAfter
 test bool isImmediatelyAfter1(int f){
     <l1, l2> = makeLocsWithGap(0);
-    return isImmediatelyAfter(l2, l1);
+    return report(l1, l2, isImmediatelyAfter(l2, l1));
 }
 
 // isOverlapping
 
 test bool isOverlapping1(int f){
    <l1, l2> = makeLocsWithGap(-1);
-    return isOverlapping(l1, l2);
+    return report(l1, l2, isOverlapping(l1, l2));
 }
 
 test bool isOverlapping2(int f){
@@ -381,23 +388,23 @@ test bool isOverlapping2(int f){
     return !isOverlapping(l1, l2);
 }
 
-// union
+// cover
 
-test bool isUnion1(int f){
+test bool isCover1(int f){
    <l1, l2> = makeLocsWithGap(10);
-   u = union([l1, l2]);
-   return isContainedIn(l1, u) && isContainedIn(l2, u);
+   u = cover([l1, l2]);
+   return report(l1, l2, isContainedIn(l1, u) && isContainedIn(l2, u));
 }
 
-test bool isUnion2(int f){
+test bool isCover2(int f){
    <l1, l2> = makeLocsWithGap(-10);
-   u = union([l1, l2]);
-   return isContainedIn(l1, u) && isContainedIn(l2, u);
+   u = cover([l1, l2]);
+   return report(l1, l2, isContainedIn(l1, u) && isContainedIn(l2, u));
 }
 
-test bool isUnion3(int f, int t){
+test bool isCover3(int f, int t){
    f = restrict(f); t = restrict(t);
    l = getLoc(f, t);
-   u = union([l, l, l, l]);
-   return l == u;
+   u = cover([l, l, l, l]);
+   return report(l, l, l == u);
 }
