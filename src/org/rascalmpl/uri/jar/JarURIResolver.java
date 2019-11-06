@@ -29,10 +29,10 @@ public class JarURIResolver implements ISourceLocationInput {
     }
     
     private JarFileResolver getTargetResolver(ISourceLocation uri) {
-       if (uri.getScheme().startsWith("jar+")) {
-           return inputStream;
+       if (uri.getScheme().equals("file")) {
+           return file;
        }
-       return file;
+       return inputStream;
     }
     
     private ISourceLocation safeResolve(ISourceLocation loc) {
