@@ -73,8 +73,8 @@ public class EclipseJavaCompiler {
         return new TypeStoreWrapper(store);
     }
 
-    public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
-        return createM3FromJarClass(jarLoc, getM3Store(eval));
+    public IValue createM3FromJarClass(ISourceLocation jarLoc, IList classPath, IEvaluatorContext eval) {
+        return createM3FromJarClass(jarLoc, classPath, getM3Store(eval));
     }
     
     public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className, IEvaluatorContext eval) {
@@ -83,19 +83,19 @@ public class EclipseJavaCompiler {
         return converter.getModel(false);
     }
     
-    protected IValue createM3FromJarClass(ISourceLocation jarLoc, LimitedTypeStore store) {
+    protected IValue createM3FromJarClass(ISourceLocation jarLoc, IList classPath, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convertJar(jarLoc);
+        converter.convertJar(jarLoc, classPath);
         return converter.getModel(false);
     }
     
-    public IValue createM3FromJarFile(ISourceLocation jarLoc, IEvaluatorContext eval) {
-        return createM3FromJarFile(jarLoc, getM3Store(eval));
+    public IValue createM3FromJarFile(ISourceLocation jarLoc, IList classPath, IEvaluatorContext eval) {
+        return createM3FromJarFile(jarLoc, classPath, getM3Store(eval));
     }
     
-    protected IValue createM3FromJarFile(ISourceLocation jarLoc, LimitedTypeStore store) {
+    protected IValue createM3FromJarFile(ISourceLocation jarLoc, IList classPath, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convertJar(jarLoc);
+        converter.convertJar(jarLoc, classPath);
         return converter.getModel(false);
     }
     
