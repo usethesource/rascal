@@ -3,6 +3,7 @@ module lang::rascalcore::compile::muRascal2Java::Conversions
 import Node;
 import String;
 import Map;
+import Set;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
@@ -53,6 +54,10 @@ str atype2javatype(avoid())                 = "void";
 str atype2javatype(tvar(_))                 = "IValue";
 
 str atype2javatype(\start(AType t))         = atype2javatype(t);
+
+str atype2javatype(overloadedAType(rel[loc, IdRole, AType] overloads))
+    = atype2javatype(lubList(toList(overloads<2>)));
+
 
 default str atype2javatype(AType t) { throw "atype2javatype: cannot handle <t>"; }
 
@@ -544,13 +549,48 @@ str escapeForJ(str s){
         case "\\": if(i+1 < n){ 
                         c1 = s[i+1];
                         i += 1;
-                        if(c1 in {"b","f","t","n","r","\'", "\"", "\\"}){
-                            res += "<c><c1>";
+                        if(c1 == "\\"){
+                            res += "<c><c1><c><c1>";
+                        } else if(c1 in {"b","f","t","n","r","\'", "\""}){
+                            res += "<c><c><c><c1>";
                         } else {
-                            res += c1;
+                            res += "<c><c><c1>";
                         }
                     } else {
-                        res += c;
+                        res += "<c><c>";
+                    }
+        default: res +=  c;
+     }
+     i += 1;
+   }
+   return res;
+}
+
+str escapeForJRegExp(str s){
+   n = size(s);
+   i = 0;
+   res = "";
+   while(i < n){
+    c = s[i];
+    switch(c){
+        case "\b": res += "\\b";
+        case "\t": res += "\\t";
+        case "\n": res += "\\n";
+        case "\r": res += "\\r";
+        case "\'": res += "\\\'";
+        case "\"": res += "\\\"";
+        case "\\": if(i+1 < n){ 
+                        c1 = s[i+1];
+                        i += 1;
+                        if(c1 == "\\"){
+                            res += "<c><c1><c><c1>";
+                        } else  if(c1 in {"b","f","t","n","r","\'", "\""}){
+                            res += "<c><c1>";
+                        } else {
+                            res += "<c><c><c1>";
+                        }
+                    } else {
+                        res += "<c><c>";
                     }
         default: res +=  c;
      }

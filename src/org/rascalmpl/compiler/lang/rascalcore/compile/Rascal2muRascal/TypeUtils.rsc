@@ -376,39 +376,51 @@ void extractScopes(TModel tm){
    noverloaded = 0;
    
    // ... all overloaded functions
-   
-   bool compatible(afunc(AType ret1, list[AType] formals1, list[Keyword] kwFormals1),
-                   afunc(AType ret2, list[AType] formals2, list[Keyword] kwFormals2))
-    = ret1 == ret2 && formals1 == formals2;
+  
+    bool compatible(Define l, Define r){
+        return outerComparable(getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(l.defined))), 
+                               getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(r.defined))));
+    }
     
-   bool compatible(acons(AType adt1, list[AType] fields1, list[Keyword] kwFields1),
-                   acons(AType adt2, list[AType] fields2, list[Keyword] kwFields2))
-    = adt1 == adt2 && fields1 == fields2;
+    public set[set[&T]] mygroup(set[&T] input, bool (&T a, &T b) similar) {
+      sinput = sort(input, bool (&T a, &T b) { return similar(a,b) ? false : a < b ; } );
+      int i = 0;
+      int n = size(sinput);
+      
+      lres = while (i < n) {
+        h = sinput[0];
+        j = i + 1;
+        while(j < n && similar(h, sinput[j])){
+            j += 1;
+        }
+        append toSet(sinput[i..j]);
+        i = j;
+      }
+      return toSet(lres); 
+    }
     
-  bool compatible(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals),
-                  acons(AType adt, list[AType] fields, list[Keyword] kwFields))
-    = ret == adt && formals == fields;
-    
-  bool compatible(acons(AType adt, list[AType] fields, list[Keyword] kwFields),
-                  afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-    = ret == adt && formals == fields;
-    
-   default bool compatible(AType t1, AType t2) = false;
+    //bool compatible(Define l, Define r){
+    //    return outerComparable(getDefType(l.defined), 
+    //                           getDefType(r.defined));
+    //}
    
    for(fname <- domain(funNameAndDef)){
         // Separate functions defined at a module level (may be overloaded) and functions defined in inner scopes
         defs0 = funNameAndDef[fname];
-        globalDefs = { def | Define def <- defs0, def.scope in module_scopes };
-        innerDefs0 = defs0 - globalDefs;
-        innerScopes = {def.scope | def <- innerDefs0};
-        innerDefs = { { def | def <- innerDefs0, def.scope == inner} | inner <- innerScopes};
-        for(defs <- {globalDefs, *innerDefs}){
-            types = {};
-            //defs = { def | def <- defs, def.scope in module_scopes };
-            for(Define def <- defs){
-                tp = unsetRec(getDefType(def.defined));
-                types += tp;
-            }
+        
+        // Outer scopes, group by similar outer type
+        globalDefs0 = {  def | Define def <- defs0, def.scope in module_scopes };
+        globalDefs = mygroup(globalDefs0, compatible);
+println("globalDefs (<size(globalDefs)>)"); iprintln(globalDefs);
+
+        // Inner scopes, group by similar outer type
+        innerDefs0 = defs0 - globalDefs0;
+        innerDefs = mygroup(innerDefs0,  compatible);
+  
+        for(defs <- {*globalDefs, *innerDefs}){
+            types = { unsetRec(getDefType(def.defined)) | Define def <- defs };
+            
+            // filter out the largest types in the given set that subsume others
             if(size(types) > 1){
                 types = {tp1 | tp1 <- types,
                                isConstructorType(tp1) 
@@ -416,10 +428,11 @@ void extractScopes(TModel tm){
                                     !any(tp2 <- types, 
                                         tp1 != tp2, !isConstructorType(tp2),
                                         tp2Args := getFunctionOrConstructorArgumentTypes(tp2),   
-                                        asubtype(tp1Args, tp2Args))) 
-                              
+                                        asubtype(tp1Args, tp2Args)))
                         };
             }
+            
+            // Create resolvers for the remaining types
             
             for(ftype <- types){
                 ovl_non_defaults = [];
@@ -432,7 +445,7 @@ void extractScopes(TModel tm){
                 
                 for(def <- defs){
                     tp = unsetRec(getDefType(def.defined));
-                    if(compatible(tp, ftype)){
+                    if(asubtype(tp, ftype)){
                          reduced_overloads += <def.defined, def.idRole, tp>;
                          resType = alub(resType, getResult(tp));
                          formalsType = alub(formalsType, atypeList(getFormals(tp)));
@@ -444,9 +457,9 @@ void extractScopes(TModel tm){
                             else 
                                 ovl_non_defaults += def.defined;
                         }
-                   } else {
-                    println("Skipping def: <def>");
-                   }
+                   } //else {
+                   //     println("**** Skipping incompatible def: <def> ****");
+                   //}
                 }
                 sorted_non_defaults = sortFunctions(ovl_non_defaults);
                 sorted_defaults = sortFunctions(ovl_defaults);
@@ -468,12 +481,13 @@ void extractScopes(TModel tm){
                 }
                 
                 oname = "<fname>_AT_<intercalate("_OR_",  abbreviate(sorted_non_defaults + sorted_defaults + sorted_constructors))>";
-                ofun = <fname,  ftype, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
+                ftype2 =  afunc(resType, formalsType.atypes, []);
+                ofun = <fname,  ftype2, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
                 if(!overloadingResolver[oname]?){
                     overloadedFunctions += ofun;
                     overloadingResolver[oname] = noverloaded;
                     noverloaded += 1;
-                    overloadedTypeResolver[<fname, afunc(resType, formalsType.atypes, [])>] = oname;
+                    overloadedTypeResolver[<fname, ftype2>] = oname;
                 }
             }
         }
@@ -604,14 +618,9 @@ KeywordParamMap getKeywords(Parameters parameters){
     return ("<kwf.name>" : kwtp | kwf <- kwfs.keywordFormalList, kwtp := getType(kwf));
 }
 
-//map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
-//    tp = getType(location);
-//    return constructorConstantDefaultExpressions[tp] ? ();
-//}
-
 tuple[str fuid, int pos] getVariableScope(str name, loc l) {
 iprintln(definitions);
-  println("getVariableScope: <name>, <l>, <definitions[l] ? "QQQ">, <declaredIn[l] ? "XXX">, <useDef[l] ? "YYY">)");
+  println("getVariableScope: <name>, <l>, <definitions[l] ? "???">, <declaredIn[l] ? "???">, <useDef[l] ? "???">)");
   container = |global-scope:///|;
   if(definitions[l]?) container = findContainer(definitions[l]);
   else {
