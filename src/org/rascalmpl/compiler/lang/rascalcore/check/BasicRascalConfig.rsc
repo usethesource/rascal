@@ -78,7 +78,7 @@ data DefInfo(list[str] modifiers = []);
 data DefInfo(list[KeywordFormal] commonKeywordFields = []);
 
 // Maintain allow before use: where variables may be used left (before) their definition
-private str key_allow_use_before_def = "allow_use_before_def";
+public str key_allow_use_before_def = "allow_use_before_def";
 
 void storeAllowUseBeforeDef(Tree container, Tree allowedPart, Collector c){
     c.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);

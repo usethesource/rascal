@@ -38,19 +38,23 @@ void addCommonKeywordFields(Solver s){
   
     rel[AType,str,KeywordFormal] commonKeywordFieldNames = {};
     for(Define def <- definitions, def.idRole == dataId()){
-        adtType = s.getType(def);
-        commonKeywordNames = commonKeywordFieldNames[adtType]<0>;
-        for(kwf <- def.defInfo.commonKeywordFields){
-            fieldName = "<kwf.name>";
-            commonKeywordFields += <adtType, kwf>;
-            commonKeywordFieldNames += <adtType, fieldName, kwf>;
-            if(fieldName in commonKeywordNames){
-                msgs = [ Message::error("Double declaration of common keyword Field `<fieldName>` for data type `<adtType.adtName>`", getLoc(kwf2))
-                       | kwf2 <- commonKeywordFieldNames[adtType]<1>, "<kwf2.name>" == fieldName
-                       ];
-                s.addMessages(msgs);
+        try {
+            adtType = s.getType(def);
+            commonKeywordNames = commonKeywordFieldNames[adtType]<0>;
+            for(kwf <- def.defInfo.commonKeywordFields){
+                fieldName = "<kwf.name>";
+                commonKeywordFields += <adtType, kwf>;
+                commonKeywordFieldNames += <adtType, fieldName, kwf>;
+                if(fieldName in commonKeywordNames){
+                    msgs = [ Message::error("Double declaration of common keyword Field `<fieldName>` for data type `<adtType.adtName>`", getLoc(kwf2))
+                           | kwf2 <- commonKeywordFieldNames[adtType]<1>, "<kwf2.name>" == fieldName
+                           ];
+                    s.addMessages(msgs);
+                }
             }
-        }
+        } catch TypeUnavailable():
+            ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
+      
     }
     s.putStore("CommonKeywordFields", commonKeywordFields);
     
@@ -59,32 +63,40 @@ void addCommonKeywordFields(Solver s){
     adt_common_keyword_fields_name_and_kwf = ( adtType : ( "<kwf.name>" : kwf | kwf <- commonKeywordFields[adtType] ? []) | adtType <- domain(commonKeywordFields) );
     
     for(Define def <- definitions, def.idRole == constructorId()){
-        consType = s.getType(def);
-        commonFieldNames = domain(adt_common_keyword_fields_name_and_kwf[consType.adt] ? []);
-        for(fld <- consType.fields){
-           if(fld.label in commonFieldNames){
-                kwf = adt_common_keyword_fields_name_and_kwf[consType.adt][fld.label];
-                msgs = [ Message::warning("Common keyword field `<fld.label>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.label>`", getLoc(kwf)),
-                         Message::warning ("Field `<fld.label>` of constructor `<consType.label>` overlaps with common keyword field of data type `<consType.adt.adtName>`", def.defined)
-                       ];
-                s.addMessages(msgs);
+        try {
+            consType = s.getType(def);
+            commonFieldNames = domain(adt_common_keyword_fields_name_and_kwf[consType.adt] ? []);
+            for(fld <- consType.fields){
+               if(fld.label in commonFieldNames){
+                    kwf = adt_common_keyword_fields_name_and_kwf[consType.adt][fld.label];
+                    msgs = [ Message::warning("Common keyword field `<fld.label>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.label>`", getLoc(kwf)),
+                             Message::warning ("Field `<fld.label>` of constructor `<consType.label>` overlaps with common keyword field of data type `<consType.adt.adtName>`", def.defined)
+                           ];
+                    s.addMessages(msgs);
+                }
             }
-        } 
+        } catch TypeUnavailable():
+            ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
+         
     }
     
     lrel[AType,AType,Define] adt_constructors = [];
     for(Define def <- definitions, def.idRole == constructorId()){
-        consType = s.getType(def);
-        if(consType.label == "type") continue; // TODO: where is the duplicate?
-        conses_so_far = adt_constructors[consType.adt];
-        for(<AType c, Define cdef> <- conses_so_far, c.label == consType.label, cdef.defined != def.defined, comparable(c.fields, consType.fields)){
-            iprintln(definitions, lineLimit=10000);
-            msgs = [ Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", def.defined),
-                     Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", cdef.defined)
-                   ];
-            s.addMessages(msgs);
-        }
-        adt_constructors += <consType.adt, consType, def>;   
+        try {
+            consType = s.getType(def);
+            if(consType.label == "type") continue; // TODO: where is the duplicate?
+            conses_so_far = adt_constructors[consType.adt];
+            for(<AType c, Define cdef> <- conses_so_far, c.label == consType.label, cdef.defined != def.defined, comparable(c.fields, consType.fields)){
+                iprintln(definitions, lineLimit=10000);
+                msgs = [ Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", def.defined),
+                         Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", cdef.defined)
+                       ];
+                s.addMessages(msgs);
+            }
+            adt_constructors += <consType.adt, consType, def>;   
+        } catch TypeUnavailable():
+            ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
+        
     }
 }
 

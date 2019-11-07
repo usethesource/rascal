@@ -377,7 +377,6 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = true,  bool logImports =
         isSubType                     = /*lang::rascalcore::check::AType::*/asubtype,
         getLub                        = /*lang::rascalcore::check::AType::*/alub,
         
- //       lookup                        = lookupWide,
         isInferrable                  = rascalIsInferrable,
         isAcceptableSimple            = rascalIsAcceptableSimple,
         isAcceptableQualified         = rascalIsAcceptableQualified,
