@@ -99,7 +99,7 @@ MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifi
    matcher = muTmpMatcher(nextTmp("matcher"), fuid);
    code = [ muConInit(matcher, muRegExpCompile(buildRegExp, subject)),
             muWhileDo("", muRegExpFind(matcher),
-                        muBlock([ *[ muVarInit(vars[i], muRegExpGroup(matcher, i)) | i <- index(vars) ],
+                        muBlock([ *[ muVarInit(vars[i], muRegExpGroup(matcher, i+1)) | i <- index(vars) ],
                                   trueCont
                                ])),
             falseCont
@@ -952,7 +952,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
        return muBlock([muIncNativeInt(cursor, muCon(1)), trueCont]);
     }
     <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
-    var =  muVar(prettyPrintName(name), fuid, pos, subjectType);
+    var =  muVar(prettyPrintName(name), fuid, pos, getListElementType(subjectType));
     if(isDefinition(name@\loc)){
         return muIfelse(muLessNativeInt(cursor, sublen),
                         muBlock([ muVarInit(var, muSubscript(subject, cursor)),

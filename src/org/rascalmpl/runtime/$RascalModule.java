@@ -2414,7 +2414,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	// ---- regexp ------------------------------------------------------------
 	
 	public final Matcher $regExpCompile(String pat, String subject) {
-		pat = pat.replaceAll("\\\\", "\\\\\\\\");
+		//pat = pat.replaceAll("\\\\", "\\\\\\\\");
 		Pattern p = Pattern.compile(pat);
 		return p.matcher(subject);
 	}
