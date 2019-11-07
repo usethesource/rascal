@@ -281,7 +281,7 @@ TestResults runTests(list[str] names, str base){
       try {
           prog = base == "" ? tst : (base + "::" + tst);
           println("TYPECHECKING <prog>");
-          mname2msgs = filterErrors(checkModules([prog]));
+          mname2msgs = filterErrors(checkModules([prog], rascalTypePalConfig()));
           iprintln(mname2msgs);
           all_test_msgs += mname2msgs;
       } catch value e:
