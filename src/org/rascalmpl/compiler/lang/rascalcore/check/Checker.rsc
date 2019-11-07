@@ -63,6 +63,10 @@ import analysis::graphs::Graph;
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
+
+    c.push(patternContainer, "toplevel");
+    c.push(key_allow_use_before_def, <|none:///|(0,0,<0,0>,<0,0>), |none:///|(0,0,<0,0>,<0,0>)>);
+    
     for(tree <- range(namedTrees)){
         c.enterScope(tree);      
             // Tree type, field "top"
@@ -160,7 +164,7 @@ alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, ma
 // rascalTModelForLoc is the basic work horse
  
 CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfig config){     
-    bool forceCompilationTopModule = false; /***** set to true during development of type checker *****/
+    bool forceCompilationTopModule = true; /***** set to true during development of type checker *****/
     try {
         beginTime = cpuTime();   
         topModuleNames = { getModuleName(mloc, pcfg) | mloc <- mlocs };
@@ -328,7 +332,6 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
     
     if(config.verbose) println("\<\<\< checking <modelName>");
     c = newCollector(modelName, namedTrees, config=config);
-    c.push(patternContainer, "toplevel");
     
     rascalPreCollectInitialization(namedTrees, c);
     startTime = cpuTime();
@@ -395,50 +398,11 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
 }
 
 // ---- Convenience check function during development -------------------------
-
-map[str, list[Message]] checkModules(
-      list[str] moduleNames,                    // Rascal modules to be type checked
       
-      bool logTime                  = false,    // General TypePal options
-      bool logSolverIterations      = false,
-      bool logSolverSteps           = false,
-      bool logAttempts              = false,
-      bool logTModel                = false,
-      bool logImports               = false,
-      bool validateConstraints      = true,
-      
-      bool verbose                  = false, 
-      bool debug                    = false,
-      
-      bool warnUnused               = true,     // Rascal specific options
-      bool warnUnusedFormals        = true,
-      bool warnUnusedVariables      = true,
-      bool warnUnusedPatternFormals = true,
-      bool warnDeprecated           = false
-) {
-                              
-    if(verbose) {
-        logSolverIterations = logImports = true;
-    }
-    if(debug){
-        logSolverIterations = logSolverSteps = logTModel = logImports = true;
-    }
-    config = rascalTypePalConfig(classicReifier=true);
-    config.verbose = verbose;
-    config.logTime = logTime;
-    config.logSolverIterations = logSolverIterations;
-    config.logSolverSteps = logSolverSteps;
-    config.logAttempts = logAttempts;
-    config.logTModel = logTModel;
-    config.logImports = logImports;
-    config.validateConstraints = validateConstraints;
-    
-    config.warnUnused = warnUnused;
-    config.warnUnusedFormals = warnUnused && warnUnusedFormals;
-    config.warnUnusedVariables = warnUnused && warnUnusedVariables;
-    config.warnUnusedPatternFormals = warnUnused &&  warnUnusedPatternFormals;
-    config.warnDeprecated = warnUnused && warnDeprecated;
-    
+map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config) {
     <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, getDefaultPathConfig(), config);
     return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
 }
+
+// ---- Convenience check function during development -------------------------
+

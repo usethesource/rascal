@@ -539,6 +539,43 @@ bool comparable(AType s, AType t)
 bool comparable(list[AType] l, list[AType] r) = all(i <- index(l), comparable(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
 default bool comparable(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
 
+bool outerComparable(AType l, AType r){
+    res = outerComparable1(l, r);
+    println("outerComparable: <l>, <r> =\> <res>");
+     return res;
+}
+bool outerComparable1(alist(_), alist(_)) = true;
+bool outerComparable1(aset(_), aset(_)) = true;
+bool outerComparable1(abag(_), abag(_)) = true;
+bool outerComparable1(arel(_), arel(_)) = true;
+bool outerComparable1(arel(_), aset(_)) = true;
+bool outerComparable1(aset(_), arel(_)) = true;
+bool outerComparable1(alrel(_), alrel(_)) = true;
+bool outerComparable1(alrel(_), alist(_)) = true;
+bool outerComparable1(alist(_), alrel(_)) = true;
+bool outerComparable1(atuple(_), atuple(_)) = true;
+bool outerComparable1(amap(_,_), amap(_,_)) = true;
+
+bool outerComparable1(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
+    = outerComparable(r1, r2) && outerComparable(p1, p2);
+bool outerComparable1(afunc(AType r1, list[AType] p1, list[Keyword] _), acons(AType r2, list[AType] p2, list[Keyword] _))
+    = outerComparable(r1, r2) && outerComparable(p1, p2);
+bool outerComparable1(acons(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
+    = outerComparable(r1, r2) && outerComparable(p1, p2);
+
+bool outerComparable1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2)) 
+    = outerComparable(bound1, bound2);
+
+bool outerComparable1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), aadt(str adtName2, list[AType] parameters2, SyntaxRole syntaxRole2)) = true;
+
+default bool outerComparable1(AType l, AType r) {
+    return comparable(l, r);
+}
+
+bool outerComparable(list[AType] l, list[AType] r) = all(i <- index(l), outerComparable(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
+default bool outerComparable(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
+
+
 @doc{
 .Synopsis
 Check if two types are equivalent.
@@ -586,6 +623,7 @@ default AType alub(AType s, AType t)
                                                      : alub(unset(s, "label"), unset(t, "label"))
                              : avalue();
 
+AType alub(atypeList(ts1), atypeList(ts2)) = atypeList(alubList(ts1, ts2));
 AType alub(avalue(), AType t) = avalue();
 AType alub(AType s, avalue()) = avalue();
 AType alub(avoid(), AType t) = t;

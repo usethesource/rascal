@@ -16,14 +16,11 @@ import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::check::ComputeType;
 import lang::rascalcore::check::ScopeInfo;
 
-//import IO;
-//import Set;
 import String;
 
 void collect(current: (Literal)`<RegExpLiteral regExpLiteral>`, Collector c){
     c.fact(current, regExpLiteral);
     collect(regExpLiteral, c);
-    
 }
 
 void collect(current: (RegExpLiteral)`/<RegExp* regexps>/<RegExpModifier modifier>`,Collector c) {
@@ -138,7 +135,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
     if(base != "_"){
        if(inPatternNames(base, c)){
           //println("qualifiedName: <name>, useLub, <getLoc(current)>");
-          c.useLub(name, {formalId()});
+          c.useLub(name, {formalId(), nestedFormalId(), patternVariableId()});
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);
@@ -197,18 +194,11 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
        uname = unescape("<argName>");
        
        if(uname != "_"){
-          if(inPatternNames(uname, c)){
-             c.use(argName, {formalOrPatternFormal(c)});
-             c.require("typed variable in splice pattern", current, [tp, argName], 
-                void (Solver s){ 
-                    nameType = inSet ? aset(s.getType(tp)) : alist(s.getType(tp));
-                    s.requireEqual(argName, nameType, error(argName, "Expected %t for %q, found %q", nameType, uname, argName));
-               });
-          } else {
-            c.push(patternNames, <uname, getLoc(argName)>);
-            c.define(uname, formalOrPatternFormal(c), argName, defType([tp], 
-               AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));
-          }          
+          if(!inPatternNames(uname, c)){
+             c.push(patternNames, <uname, getLoc(argName)>);
+          }
+          c.define(uname, formalOrPatternFormal(c), argName, defType([tp], 
+               AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));     
        }
        c.calculate("typed variable in splice pattern", current, [tp], AType(Solver s){ return s.getType(tp); });
        collect(tp, c);
