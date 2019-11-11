@@ -177,32 +177,34 @@ public bool isVariable(loc entity) = entity.scheme == "java+variable";
 public bool isField(loc entity) = entity.scheme == "java+field";
 public bool isInterface(loc entity) = entity.scheme == "java+interface";
 public bool isEnum(loc entity) = entity.scheme == "java+enum";
+public bool isType(loc entity) = entity.scheme == "java+class" || entity.scheme == "java+interface" || entity.scheme == "java+enum";
 
 public set[loc] files(rel[loc, loc] containment) 
   = {e.lhs | tuple[loc lhs, loc rhs] e <- containment, isCompilationUnit(e.lhs)};
 
 public rel[loc, loc] declaredMethods(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m);
-    methodModifiersMap = toMap(m.modifiers);
+    declaredTypes = types(m);
+    modifiersMap = toMap(m.modifiers);
     
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isMethod(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
+    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredTypes), isMethod(e.rhs), checkModifiers <= (modifiersMap[e.rhs]? ? modifiersMap[e.rhs] : {}) };
 }
 
 public rel[loc, loc] declaredFields(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m);
-    methodModifiersMap = toMap(m.modifiers);
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isField(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
+    declaredTypes = types(m);
+    modifiersMap = toMap(m.modifiers);
+    
+	return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredTypes), isField(e.rhs), checkModifiers <= (modifiersMap[e.rhs]? ? modifiersMap[e.rhs] : {}) };
 }
 
 public rel[loc, loc] declaredFieldsX(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m);
-    methodModifiersMap = toMap(m.modifiers);
+    declaredTypes = types(m);
+    modifiersMap = toMap(m.modifiers);
     
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isField(e.rhs), isEmpty(checkModifiers & (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {})) };
+    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredTypes), isField(e.rhs), isEmpty(checkModifiers & (modifiersMap[e.rhs]? ? modifiersMap[e.rhs] : {})) };
 } 
  
 public rel[loc, loc] declaredTopTypes(M3 m)  
-  = {e | tuple[loc lhs, loc rhs] e <- m.containment, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
+  = {e | tuple[loc lhs, loc rhs] e <- m.containment, isCompilationUnit(e.lhs), isType(e.rhs)}; 
 
 public rel[loc, loc] declaredSubTypes(M3 m) 
   = {e | tuple[loc lhs, loc rhs] e <- m.containment, isClass(e.rhs)} - declaredTopTypes(m);
@@ -217,6 +219,7 @@ public rel[loc, loc] declaredSubTypes(M3 m)
 @memo public set[loc] methods(M3 m) = {e | <e,_> <- m.declarations, isMethod(e)};
 @memo public set[loc] constructors(M3 m) = {e | <e,_> <- m.declarations, isConstructor(e)};
 @memo public set[loc] enums(M3 m) = {e | <e,_> <- m.declarations, isEnum(e)};
+@memo public set[loc] types(M3 m) = {e | <e,_> <- m.declarations, isType(e)};
 
 public set[loc] elements(M3 m, loc parent) = m.containment[parent];
 
