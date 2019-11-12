@@ -23,8 +23,6 @@ alias ObjectiveFun = LinearExpression;
 public ObjectiveFun linearExp(Coefficients coefficients) =
 	linearExp(coefficients,0);
 
-data ConstraintType = leq() | eq() | geq();
-
 data Constraint = constraint(	Coefficients coefficients,
 			   					ConstraintType ctype, num const);
 
