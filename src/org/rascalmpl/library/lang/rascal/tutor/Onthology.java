@@ -33,8 +33,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 import org.joda.time.DateTime;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -65,7 +63,7 @@ public class Onthology {
     Map<Path,Concept> conceptMap;
     private IValueFactory vf;
     private ModuleDocExtractor rascalExtraction = new ModuleDocExtractor();
-    private IQuestionCompiler questionCompiler;
+    private QuestionCompiler questionCompiler;
     private String courseName;
 
     private Path courseSrcPath;
@@ -89,7 +87,7 @@ public class Onthology {
         return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
     }
 
-    public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
+    public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, URISyntaxException{
         this.vf = ValueFactoryFactory.getValueFactory();
         this.pcfg = pcfg;
         this.srcPath = srcPath;
@@ -278,11 +276,7 @@ public class Onthology {
                 //			      Files.createDirectories(questionsDestPath);
                 //			    }
                 //			  }
-                if(questionCompiler == null){
-                    // Lazily load the QuestionCompiler tool
-                    questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
-                }
-                String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor() /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
+                String qtext = makeQuestionCompiler().compileQuestions(vf.string(questionsName.toString()), pcfg).getValue();
                 long fakeTimeStamp = DateTime.now().toInstant().getMillis();
                 Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath, fakeTimeStamp /*TODO*/);
                 questionsConcept.setQuestions();
@@ -290,6 +284,15 @@ public class Onthology {
                 conceptMap.put(questionsName, questionsConcept);
             }
             return FileVisitResult.CONTINUE;
+        }
+
+        private QuestionCompiler makeQuestionCompiler() {
+            if (questionCompiler == null){
+                // Lazily load the QuestionCompiler tool
+                questionCompiler = new QuestionCompiler(pcfg);
+            }
+            
+            return questionCompiler;
         }
     }
     

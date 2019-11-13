@@ -11,12 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -25,9 +21,8 @@ import org.asciidoctor.Attributes;
 import org.asciidoctor.Options;
 import org.asciidoctor.Placement;
 import org.asciidoctor.SafeMode;
-import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.CommandOptions;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -138,11 +133,11 @@ public class CourseCompiler {
         return courseDestDir.resolve(courseName + ".adoc");
     }
 	
-	public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, URISyntaxException {
 	    compileCourse(create(), srcPath, courseName, destPath, libSrcPath, pcfg, executor);
 	}
 	
-    public static void compileCourse(Asciidoctor dr, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+    public static void compileCourse(Asciidoctor dr, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, URISyntaxException {
         ISourceLocation absLoc = URIUtil.correctLocation("file", "", destPath.toFile().getAbsolutePath());
         copyStandardFilesPerCourse(courseName, absLoc);
 
@@ -154,7 +149,7 @@ public class CourseCompiler {
         runAsciiDoctor(dr, srcPath, courseName, destPath, new PrintWriter(System.err));
 	}
     
-    public static void compileCourseCommand(String classpath, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+    public static void compileCourseCommand(String classpath, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, URISyntaxException {
         assert executor != null;
         ISourceLocation absLoc = URIUtil.correctLocation("file", "", destPath.toFile().getAbsolutePath());
         copyStandardFilesPerCourse(courseName, absLoc);
@@ -244,18 +239,6 @@ public class CourseCompiler {
 		return false;
 	}
 	
-	private static class RemoveAdocs extends SimpleFileVisitor<Path> {
-
-		@Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException{
-			String fileName = file.getFileName().toString();
-
-			if(fileName.endsWith(".adoc")){
-				Files.delete(file);
-			}
-			return FileVisitResult.CONTINUE;
-		}
-	}
-	
 	/**
 	 * CourseCompiler: compile and deploy courses.
 	 * 
@@ -264,7 +247,7 @@ public class CourseCompiler {
 	 * @throws NoSuchRascalFunction
 	 * @throws URISyntaxException
 	 */
-	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	public static void main(String[] args) throws IOException, URISyntaxException {
 		 IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		 long startTime = System.nanoTime();
 		 CommandOptions cmdOpts = new CommandOptions("course-compiler");

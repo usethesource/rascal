@@ -16,6 +16,10 @@ test bool normalizedCall(B b1, B b2, B b3) = and(b1, and(b2, b3)) == and(and(b1,
 test bool normalizedVisit() =
   /and(_, and(_, _)) !:= visit (or(or(t(),t()),or(t(),t()))) { case or(a,b) => and(a,b) };
   
+B (B, B) giveOr() = or; 
+
+test bool giveOr1() = giveOr()(t(), f()) == or(t(), f());
+
 private test bool callKwp() {
   kwp(x = 2); // this would previously change the static type of the x argument of kwp to int
   return true;
@@ -28,16 +32,16 @@ private void kwp(value x = 1) {
 
 private str g(str s) = inter when str inter := s;
 
-test bool finctionWithWhen() {
+test bool functionWithWhen() {
     return g("Called!") == "Called!";
 }
 
-
 private str fn(str s, int ints..., str kw = "keyword") = s + "-" + intercalate("-", ints) + "-" + kw;
-
-test bool functionWithVarargsAndKeyword() = 
-	fn("a") + ";" + fn("b",kw="xxx") + ";" + fn("c",1,2,3) + ";" + fn("d",1,2,3,kw="xxx")
-	== "a--keyword;b--xxx;c-1-2-3-keyword;d-1-2-3-xxx";
+	
+test bool functionWithVarargsAndKeyword1() = fn("a") == "a--keyword";
+test bool functionWithVarargsAndKeyword2() = fn("b",kw="xxx") == "b--xxx";
+test bool functionWithVarargsAndKeyword3() = fn("c",1,2,3)== "c-1-2-3-keyword";
+test bool functionWithVarargsAndKeyword4() = fn("d",1,2,3,kw="xxx") == "d-1-2-3-xxx";
 
 int f1() {
     int g1() = 101;
@@ -53,17 +57,16 @@ value nestedFunctions1() {
 }
 
 str f2(0) { res = g2("0"); return "f2(0); " + res; }
-str f2(1) { res = g2("1"); fail; return "f2(1); " + res; }
+str f2(1) { res = g2("1"); fail;}
 default str f2(int n) { res = g2("<n>"); return "default f2(1);" + res; }
 
 str g2("0") = "g2(\"0\")";
 str g2("1") = "g2(\"1\")";
 default str g2(str s) = "default g2(<s>);";
 
-test bool nestedFunctions2() {
-    return f2(0) + ";; " + f2(1) + ";; " + f2(5) 
-    == "f2(0); g2(\"0\");; default f2(1);g2(\"1\");; default f2(1);default g2(5);";
-}
+test bool nestedFunctionCall1() = f2(0)  =="f2(0); g2(\"0\")";
+test bool nestedFunctionCall2() = f2(1) == "default f2(1);g2(\"1\")";
+test bool nestedFunctionCall3() = f2(5)  == "default f2(1);default g2(5);";
 
 str f3(0) { res = g3("0"); return "f3(0); " + res; }
 str f3(1) { 
@@ -74,7 +77,6 @@ str f3(1) {
         res = "catched(<s>); g3(\"1\")"; 
     }; 
     fail; 
-    return "f3(1); " + res; 
 }
 default str f3(int n) { 
     str res; 
@@ -87,7 +89,7 @@ default str f3(int n) {
 }
 
 str g3("0") = "g3(\"0\")";
-str g3("1") { throw "Try to catch me!!!"; return "g3(\"1\")"; }
+str g3("1") { throw "Try to catch me!!!"; }
 default str g3(str s) = "default g3(<s>)";
 
 test bool nestedFunctions3() {
@@ -126,6 +128,7 @@ test bool closure1() {
                                   case 0: return 1; 
                                   case 1: return 1; 
                                   case int m: return m*(m-1); 
+                                  default: return -1;
                               } 
                           } /* renamed n to m*/
                           ( int (int n) { 
@@ -133,6 +136,7 @@ test bool closure1() {
                                     case 0: return 0; 
                                     case 1: return 1; 
                                     case int m: return (m-1) + (m-2); 
+                                    default: return -1;
                                 } 
                             } /* renamed n to m*/ (i)
                            ) | int i <- inputs ]; 

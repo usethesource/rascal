@@ -3,10 +3,12 @@ package org.rascalmpl.interpreter.cursors;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 
 public class ListCursor extends Cursor implements IList {
@@ -85,14 +87,12 @@ public class ListCursor extends Cursor implements IList {
 	}
 
 	@Override
-	public IList put(int i, IValue e) throws FactTypeUseException,
-			IndexOutOfBoundsException {
+	public IList put(int i, IValue e) {
 		return new ListCursor(getList().put(i, e), getCtx());
 	}
 
 	@Override
-	public IList replace(int first, int second, int end, IList repl)
-			throws FactTypeUseException, IndexOutOfBoundsException {
+	public IList replace(int first, int second, int end, IList repl) {
 		return new ListCursor(getList().replace(first, second, end, repl), getCtx());
 	}
 
@@ -154,9 +154,14 @@ public class ListCursor extends Cursor implements IList {
 	}
 
 	@Override
-	public IListRelation<IList> asRelation() {
+	public IRelation<IList> asRelation() {
 		// wrap in cursor?
 		return getList().asRelation();
 	}
+
+    @Override
+    public IListWriter writer() {
+       return IRascalValueFactory.getInstance().listWriter();
+    }
 
 }

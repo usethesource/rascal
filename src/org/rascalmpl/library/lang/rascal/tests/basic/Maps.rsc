@@ -131,7 +131,7 @@ test bool strictsupermap2(map[&K,&V] M) = isEmpty(M) || M > delete(M,getOneFrom(
 test bool submap1(map[&K,&V] M) = () <= M;
 test bool submap2(map[&K,&V] M) = M <= M;
 test bool submap3(map[&K,&V] M) = isEmpty(M) || delete(M,getOneFrom(M)) <= M;
-test bool submap1(map[&K,&V] M1, map[&K,&V] M2) = M1 < M2 ==> M1 <= M2;
+test bool submap4(map[&K,&V] M1, map[&K,&V] M2) = M1 < M2 ==> M1 <= M2;
 
 // subscription
 @expected{NoSuchKey} test bool subscription1(&K k) {map[&K,bool] M = (); return M[k];}

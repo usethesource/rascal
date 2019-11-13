@@ -181,7 +181,7 @@ public class JDBC {
 				Connection conn = connectionMap.get(connectionId);
 				DatabaseMetaData dmd = conn.getMetaData();
 				ResultSet rs = dmd.getTableTypes();
-				IListWriter resultWriter = this.vf.listWriter(TF.stringType());
+				IListWriter resultWriter = this.vf.listWriter();
 				while (rs.next()) resultWriter.append(this.vf.string(rs.getString(1)));
 				rs.close();
 				return resultWriter.done();
@@ -204,7 +204,7 @@ public class JDBC {
 				while (rs.next()) tables.add(rs.getString("TABLE_NAME"));
 				rs.close();
 				
-				ISetWriter setRes = vf.setWriter(TF.stringType());
+				ISetWriter setRes = vf.setWriter();
 				
 				for (String tableName : tables) {
 					setRes.insert(vf.string(tableName));
@@ -229,7 +229,7 @@ public class JDBC {
 				while (rs.next()) tables.add(rs.getString("TABLE_NAME"));
 				rs.close();
 				
-				ISetWriter setRes = vf.setWriter(TF.stringType());
+				ISetWriter setRes = vf.setWriter();
 				
 				for (String tableName : tables) {
 					setRes.insert(vf.string(tableName));
@@ -263,11 +263,11 @@ public class JDBC {
 				while (rs.next()) tables.add(rs.getString("TABLE_NAME"));
 				rs.close();
 				
-				ISetWriter setRes = vf.setWriter(Table);
+				ISetWriter setRes = vf.setWriter();
 				
 				for (String tableName : tables) {
 					rs = dmd.getColumns(null, null, tableName, null);
-					IListWriter listRes = vf.listWriter(Column); 
+					IListWriter listRes = vf.listWriter(); 
 					while (rs.next()) {
 						String cn = rs.getString("COLUMN_NAME");
 						int dt = rs.getInt("DATA_TYPE");
@@ -294,7 +294,7 @@ public class JDBC {
 				Connection conn = connectionMap.get(connectionId);
 				DatabaseMetaData dmd = conn.getMetaData();
 				ResultSet rs = dmd.getColumns(null, null, tableName.getValue(), null);
-				IListWriter listRes = vf.listWriter(Column); 
+				IListWriter listRes = vf.listWriter(); 
 				while (rs.next()) {
 					String cn = rs.getString("COLUMN_NAME");
 					int dt = rs.getInt("DATA_TYPE");
@@ -528,7 +528,7 @@ public class JDBC {
 					break;
 				case Types.BINARY:
 					isr = rs.getBinaryStream(idx);
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					if (isr != null) {
 						isrRes = isr.read();
 						while (isrRes != -1) {
@@ -542,7 +542,7 @@ public class JDBC {
 					res = vf.bool(rs.getBoolean(idx));
 					break;
 				case Types.BLOB:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					if (rs.getBlob(idx) != null) {
 						isr = rs.getBlob(idx).getBinaryStream();
 						if (isr != null) {
@@ -565,7 +565,7 @@ public class JDBC {
 						res = vf.string("");
 					break;
 				case Types.CLOB:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					if (rs.getClob(idx) != null) {
 						isr = rs.getClob(idx).getAsciiStream();
 						if (isr != null) {
@@ -614,7 +614,7 @@ public class JDBC {
 						res = vf.string("");
 					break;
 				case Types.LONGVARBINARY:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					isr = rs.getBinaryStream(idx);
 					if (isr != null) {
 						isrRes = isr.read();
@@ -638,7 +638,7 @@ public class JDBC {
 						res = vf.string("");
 					break;
 				case Types.NCLOB:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					if (rs.getNClob(idx) != null) {
 						isr = rs.getNClob(idx).getAsciiStream();
 						if (isr != null) {
@@ -700,7 +700,7 @@ public class JDBC {
 					res = vf.integer(rs.getInt(idx));
 					break;
 				case Types.VARBINARY:
-					lw = vf.listWriter(TypeFactory.getInstance().integerType());
+					lw = vf.listWriter();
 					isr = rs.getBinaryStream(idx);
 					if (isr != null) {
 						isrRes = isr.read();
@@ -755,7 +755,7 @@ public class JDBC {
 				Type elementType = resultType.getType().getTypeParameters().getFieldType(0);
 				int columns = elementType.getArity();
 
-				ISetWriter sw = vf.setWriter(elementType);
+				ISetWriter sw = vf.setWriter();
 				while (rs.next()) {
 					IValue tupleValues[] = new IValue[columns];
 					for (int idx = 0; idx < columns; ++idx) {
@@ -785,9 +785,7 @@ public class JDBC {
 				PreparedStatement stmt = conn.prepareStatement("SELECT * FROM " + tableName.getValue());
 				ResultSet rs = stmt.executeQuery();
 				
-				Type elementType = JDBC.TF.valueType();
-
-				ISetWriter sw = vf.setWriter(elementType);
+				ISetWriter sw = vf.setWriter();
 				int columns = rs.getMetaData().getColumnCount();
 				
 				while (rs.next()) {
@@ -821,7 +819,7 @@ public class JDBC {
 				Type elementType = resultType.getType().getTypeParameters().getFieldType(0);
 				int columns = elementType.getArity();
 
-				IListWriter lw = vf.listWriter(elementType);
+				IListWriter lw = vf.listWriter();
 				while (rs.next()) {
 					IValue tupleValues[] = new IValue[columns];
 					for (int idx = 0; idx < columns; ++idx) {
@@ -850,10 +848,9 @@ public class JDBC {
 				PreparedStatement stmt = conn.prepareStatement("SELECT * FROM " + tableName.getValue());
 				ResultSet rs = stmt.executeQuery();
 				
-				Type elementType = JDBC.TF.valueType();
 				int columns = rs.getMetaData().getColumnCount();
 
-				IListWriter lw = vf.listWriter(elementType);
+				IListWriter lw = vf.listWriter();
 				while (rs.next()) {
 					IValue tupleValues[] = new IValue[columns];
 					for (int idx = 0; idx < columns; ++idx) {

@@ -2,6 +2,9 @@ package org.rascalmpl.interpreter.utils;
 
 import java.util.Iterator;
 
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
@@ -11,8 +14,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TreeAsNode implements INode {
   private final String name;
@@ -54,7 +55,12 @@ public class TreeAsNode implements INode {
 
   @Override
   public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
-    throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public INode setChildren(IValue[] childArray) {
+      throw new UnsupportedOperationException();
   }
 
   @Override
@@ -83,11 +89,13 @@ public class TreeAsNode implements INode {
     throw new UnsupportedOperationException();
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public boolean isAnnotatable() {
     return tree.isAnnotatable();
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public IAnnotatable<? extends INode> asAnnotatable() {
     return tree.asAnnotatable();

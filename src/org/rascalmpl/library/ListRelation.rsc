@@ -265,7 +265,7 @@ groupRangeByDomain(skins);
 ----
 }
 public list[list[&T]] groupRangeByDomain(lrel[&U dom, &T ran] input)
-	= squeeze([[r | <d,&T r> <- input] | d <- input.dom]);
+	= squeeze([[r | <d,&T r> <- input] | &U d <- input.dom]);
 	// the "input[i]" trick used for set-based relations does not work here
 	// because [<"a",1>]["a"] does give [1], but [<1,1>][1] does not!
 
@@ -353,10 +353,6 @@ public lrel[&T0,&T1] rangeX (lrel[&T0,&T1] R, set[&T1] S)
 // Why not?
 public lrel[&T0,&T1] rangeX (lrel[&T0,&T1] R, list[&T1] S)
 	= [ <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 notin S ];
-
-// Make a map out of lrel
-public map[&T0,list[&T1]] toMap(lrel[&T0,&T1] R) = isEmpty(R) ? ()
-	: (k:[v | <k,&T1 v> <- R] | &T0 k <- domain(R));
 
 @doc{
 .Synopsis

@@ -23,8 +23,6 @@ alias ObjectiveFun = LinearExpression;
 public ObjectiveFun linearExp(Coefficients coefficients) =
 	linearExp(coefficients,0);
 
-data ConstraintType = leq() | eq() | geq();
-
 data Constraint = constraint(	Coefficients coefficients,
 			   					ConstraintType ctype, num const);
 
@@ -87,6 +85,8 @@ optimize(bool minimize, bool nonZero,
 		case nothing()   : return nothing();
 		case just(llsol) : return just(fromLLSolution(llsol,indexVar));
 	}
+	
+	return nothing();
 }
 
 num zero = 0;

@@ -20,8 +20,8 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
-import io.usethesource.vallang.impl.NodeWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.fields.NodeWithKeywordParametersFacade;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 import com.google.gson.stream.JsonWriter;
@@ -77,20 +77,21 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 
 	@Override
 	public Void visitRational(IRational value) throws IOException {
-		// {rat: [n, d] }
-		if (compact) {
-		    throw RuntimeExceptionFactory.illegalTypeArgument(value.toString(),
-					null, null, "cannot serialize rational types");
-		}
-		else
-		out.beginArray()
-			.value("rat")
-			.beginArray()
-			.value(((IRational) value).numerator().longValue())
-			.value(((IRational) value).denominator().longValue())
-			.endArray()
-			.endArray();
-		return null;
+	    // {rat: [n, d] }
+	    if (!compact) {
+	        out.beginArray()
+	        .value("rat");
+	    }
+	    
+	    out.beginArray()
+	    .value(((IRational) value).numerator().longValue())
+	    .value(((IRational) value).denominator().longValue())
+	    .endArray();
+
+	    if (!compact) {
+	        out.endArray();
+	    }
+	    return null;
 	}
 
 	@Override
@@ -149,11 +150,14 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 
 	@Override
 	public Void visitSet(ISet value) throws IOException {
-		// {set: [.... ]}
 		if (compact) {
-			    throw RuntimeExceptionFactory.illegalTypeArgument(value.toString(),
-						null, null, "cannot serialize set types");
+		    out.beginArray();
+            for (IValue v : (ISet) value) {
+                write(out, v, compact);
+            }
+            out.endArray();
 		} else {
+		 // {set: [.... ]}
 		out.beginArray();
 		out.value("set");
 		out.beginArray();
@@ -168,13 +172,12 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 
 	@Override
 	public Void visitSourceLocation(ISourceLocation value) throws IOException {
-		if (compact) {
-			throw RuntimeExceptionFactory.illegalTypeArgument(value.toString(),
-					null, null, "cannot serialize location types");
-		} else {
 		// {loc: {...} }
-		out.beginArray();
-		out.value("loc");
+	    if (!compact) {
+	        out.beginArray();
+	        out.value("loc");
+	    }
+	    
 		out.beginObject();
 		ISourceLocation loc = (ISourceLocation) value;
 
@@ -217,8 +220,11 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 
 		out.endObject();
-		out.endArray();
+		
+		if (!compact) {
+		    out.endArray();
 		}
+		
 		return null;
 	}
 

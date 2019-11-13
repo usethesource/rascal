@@ -42,6 +42,7 @@ public class RascalManifest {
     public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
     protected static final String MAIN_MODULE = "Main-Module";
     protected static final String MAIN_FUNCTION = "Main-Function";
+    protected static final String PROJECT_NAME = "Project-Name";
     protected static final String REQUIRE_BUNDLES = "Require-Bundles";
     protected static final String REQUIRE_LIBRARIES = "Require-Libraries";
 
@@ -54,6 +55,10 @@ public class RascalManifest {
         mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);
         mainAttributes.put(new Attributes.Name(COURSES), DEFAULT_COURSES);
         return manifest;
+    }
+    
+    public boolean hasManifest(ISourceLocation root) {
+        return hasManifest(manifest(root));
     }
 
     public boolean hasManifest(Class<?> clazz) {
@@ -120,6 +125,13 @@ public class RascalManifest {
         return getManifestCourses(manifest(clazz));
     }
 
+    public String getProjectName(Class<?> clazz) {
+        return getManifestProjectName(manifest(clazz));
+    }
+
+    public String getManifestProjectName(InputStream manifest) {
+        return getManifestAttribute(manifest, PROJECT_NAME, "");
+    }
 
     /**
      * @return the name of the main function of a deployment unit, or 'null' if none is configured.
@@ -134,6 +146,11 @@ public class RascalManifest {
     public String getMainFunction(File jarFile) {
         return getManifestMainFunction(manifest(jarFile));
     }
+    
+    public String getProjectName(File jarFile) {
+        return getManifestProjectName(manifest(jarFile));
+    }
+    
     /**
      * @return a list of bundle names this jar depends on, or 'null' if none is configured.
      */
@@ -146,6 +163,14 @@ public class RascalManifest {
      */
     public String getMainModule(JarInputStream jarStream) {
         return getManifestMainModule(manifest(jarStream));
+    }
+    
+    public String getProjectName(JarInputStream jarStream) {
+        return getManifestProjectName(manifest(jarStream));
+    }
+    
+    public String getProjectName(InputStream in) {
+        return getManifestProjectName(in);
     }
 
     /**
@@ -226,6 +251,10 @@ public class RascalManifest {
     public List<String> getManifestRequiredLibraries(InputStream project) {
         return getManifestAttributeList(project, REQUIRE_LIBRARIES, null);
     }
+    
+    public List<String> getManifestRequiredLibraries(ISourceLocation root) {
+        return getManifestAttributeList(manifest(root), REQUIRE_LIBRARIES, null);
+    }
 
     public InputStream manifest(Class<?> clazz) {
         return clazz.getResourceAsStream("/" + META_INF_RASCAL_MF);
@@ -239,6 +268,10 @@ public class RascalManifest {
         }
     }
 
+    public String getProjectName(ISourceLocation root) {
+        return getManifestProjectName(manifest(root));
+    }
+    
     public List<String> getSourceRoots(ISourceLocation root) {
         return getManifestSourceRoots(manifest(root));
     }

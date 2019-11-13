@@ -135,10 +135,6 @@ public Bindings match(Symbol r, Symbol s, Bindings b, bool bindIdenticalVars) {
 	throw invalidMatch(r, s);
 }
 
-private void invalidInstantiation() {
-	throw "Binding violates parameter bounds!";
-}
-
 @doc{Instantiate type parameters found inside the types.}
 public Symbol instantiate(Symbol t:\void(), Bindings bindings) = t;
 public Symbol instantiate(Symbol::\label(str x, Symbol t), Bindings bindings) = Symbol::\label(x, instantiate(t,bindings));
@@ -150,13 +146,18 @@ public Symbol instantiate(Symbol::\lrel(list[Symbol] ets), Bindings bindings) = 
 public Symbol instantiate(Symbol::\map(Symbol md, Symbol mr), Bindings bindings) = Symbol::\map(instantiate(md,bindings), instantiate(mr,bindings));
 public Symbol instantiate(Symbol::\bag(Symbol et), Bindings bindings) = Symbol::\bag(instantiate(et,bindings));
 public Symbol instantiate(Symbol::\parameter(str s, Symbol t), Bindings bindings) = bindings[s] when s in bindings && subtype(bindings[s],t);
-public Symbol instantiate(Symbol::\parameter(str s, Symbol t), Bindings bindings) = invalidInstantiation() when s in bindings && !subtype(bindings[s],t);
-public Symbol instantiate(Symbol pt:\parameter(str s, Symbol t), Bindings bindings) = pt when s notin bindings;
+public Symbol instantiate(Symbol pt: Symbol::\parameter(str s, Symbol t), Bindings bindings) {
+    if(s in bindings && !subtype(bindings[s],t)){
+        throw "Binding violates parameter bounds!";
+    }
+    return pt;
+}
+//public Symbol instantiate(Symbol pt:\parameter(str s, Symbol t), Bindings bindings) = pt when s notin bindings;
+
 public Symbol instantiate(Symbol::\adt(str s, list[Symbol] ps), Bindings bindings) = Symbol::\adt(s,[instantiate(p,bindings) | p <- ps]);
 public Symbol instantiate(Symbol::\cons(Symbol a, str name, list[Symbol] ps), Bindings bindings) = Symbol::\cons(instantiate(a,bindings), name, [instantiate(p,bindings) | p <- ps]);
 public Symbol instantiate(Symbol::\alias(str s, list[Symbol] ps, Symbol at), Bindings bindings) = Symbol::\alias(s, [instantiate(p,bindings) | p <- ps], instantiate(at,bindings));
 public Symbol instantiate(Symbol::\func(Symbol rt, list[Symbol] ps, list[Symbol] kws), Bindings bindings) = Symbol::\func(instantiate(rt,bindings),[instantiate(p,bindings) | p <- ps], [instantiate(p,bindings) | p <- kws]);
-//public Symbol instantiate(\var-func(Symbol rt, list[Symbol] ps, Symbol va), Bindings bindings) = \var-func(instantiate(rt,bindings),[instantiate(p,bindings) | p <- ps],instantiate(va,bindings));
 public Symbol instantiate(Symbol::\reified(Symbol t), Bindings bindings) = Symbol::\reified(instantiate(t,bindings));
 public Symbol instantiate(Symbol::\parameterized-sort(str n, list[Symbol] ts), Bindings bindings) = Symbol::\parameterized-sort(n, [instantiate(p,bindings) | p <- ts]);
 public Symbol instantiate(Symbol::\parameterized-lex(str n, list[Symbol] ts), Bindings bindings) = Symbol::\parameterized-lex(n, [instantiate(p,bindings) | p <- ts]);

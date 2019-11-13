@@ -36,15 +36,14 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * This class streams a JSON stream directly to an IValue representation and validates the content
- * to a given type as declared in a given type store. See the Rascal file lang::json::IO::readJson for documentation.
- 
+ * This class streams am IValue stream directly to an JSon stream. Useful to communicate IValues to browsers.
  */
 public class JsonValueWriter {
   private ThreadLocal<SimpleDateFormat> format;
   private boolean constructorsAsObjects = true;
   private boolean nodesAsObjects = true;
   private boolean datesAsInts = true;
+  private boolean unpackedLocations = false;
   
   public JsonValueWriter() {
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -78,6 +77,11 @@ public class JsonValueWriter {
     this.datesAsInts = setting;
     return this;
   }
+  
+  public JsonValueWriter setUnpackedLocations(boolean setting) {
+      this.unpackedLocations = setting;
+      return this;
+    }
 
   public void write(JsonWriter out, IValue value) throws IOException {
     value.accept(new IValueVisitor<Void, IOException>() {
@@ -133,17 +137,64 @@ public class JsonValueWriter {
 
       @Override
       public Void visitSourceLocation(ISourceLocation o) throws IOException {
-        if (!o.hasOffsetLength()) {
-          if ("file".equals(o.getScheme())) {
-            out.value(o.getPath());
+          if (unpackedLocations) {
+              out.beginObject();
+              
+              out.name("scheme");
+              out.value(o.getScheme());
+              
+              out.name("authority");
+              out.value(o.getAuthority());
+              
+              out.name("path");
+              out.value(o.getPath());
+              
+              if (!o.getFragment().isEmpty()) {
+                  out.name("fragment");
+                  out.value(o.getFragment());
+              }
+              
+              if (!o.getQuery().isEmpty()) {
+                  out.name("query");
+                  out.value(o.getQuery());
+              }
+              
+              if (o.hasOffsetLength()) {
+                  out.name("offset");
+                  out.value(o.getOffset());
+                  out.name("length");
+                  out.value(o.getLength());
+              }
+              
+              if (o.hasLineColumn()) {
+                  out.name("begin");
+                  out.beginArray();
+                  out.value(o.getBeginLine());
+                  out.value(o.getBeginColumn());
+                  out.endArray();
+                  
+                  out.name("end");
+                  out.beginArray();
+                  out.value(o.getEndLine());
+                  out.value(o.getEndColumn());
+                  out.endArray();
+              }
+              
+              out.endObject();
           }
           else {
-            out.value(o.getURI().toASCIIString());
+              if (!o.hasOffsetLength()) {
+                  if ("file".equals(o.getScheme())) {
+                      out.value(o.getPath());
+                  }
+                  else {
+                      out.value(o.getURI().toASCIIString());
+                  }
+              }
+              else {
+                  out.value(o.toString());
+              }
           }
-        }
-        else {
-          out.value(o.toString());
-        }
         
         return null;
       }
