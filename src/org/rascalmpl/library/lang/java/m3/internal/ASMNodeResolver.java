@@ -12,10 +12,28 @@
  */ 
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CLASS_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMPILED_CONSTRUCTOR_NAME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMPILED_STATIC_CONSTRUCTOR_NAME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CONSTRUCTOR_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ENUM_CONSTANT_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ENUM_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.FIELD_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.INITIALIZER_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.INTERFACE_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.M3_STATIC_CONSTRUCTOR_NAME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.METHOD_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PARAMETER_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PRIMITIVE_TYPE_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.UNRESOLVED_SCHEME;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -26,6 +44,8 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ParameterNode;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
