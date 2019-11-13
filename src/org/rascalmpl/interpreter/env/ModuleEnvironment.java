@@ -29,7 +29,6 @@ import java.util.Set;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.Name.Lexical;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -41,6 +40,9 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -52,8 +54,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * A module environment represents a module object (i.e. a running module).

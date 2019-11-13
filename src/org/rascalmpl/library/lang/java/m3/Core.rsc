@@ -38,22 +38,44 @@ data M3(
 	rel[loc declaration, loc annotation] annotations = {}
 );
 
-
 data Language(str version="") = java();
 
+@memo
 public M3 composeJavaM3(loc id, set[M3] models) {
-  m = composeM3(id, models);
-  m.extends = {*model.extends | model <- models};
-  m.implements = {*model.implements | model <- models};
-  m.methodInvocation = {*model.methodInvocation | model <- models};
-  m.fieldAccess = {*model.fieldAccess | model <- models};
-  m.typeDependency = {*model.typeDependency | model <- models};
-  m.methodOverrides = {*model.methodOverrides | model <- models};
-  m.annotations = {*model.annotations | model <- models};
-  return m;
+  // Compose the generic M3 relations first
+  M3 comp = composeM3(id, models);
+
+  // Then the Java-specific ones
+  comp.extends = {*model.extends | model <- models};
+  comp.implements = {*model.implements | model <- models};
+  comp.methodInvocation = {*model.methodInvocation | model <- models};
+  comp.fieldAccess = {*model.fieldAccess | model <- models};
+  comp.typeDependency = {*model.typeDependency | model <- models};
+  comp.methodOverrides = {*model.methodOverrides | model <- models};
+  comp.annotations = {*model.annotations | model <- models};
+
+  return comp;
 }
 
-public M3 diffJavaM3(loc id, list[M3] models) = diffM3(id, models);
+@memo
+public M3 diffJavaM3(loc id, list[M3] models) {
+	// Diff the generic M3 relations first
+	M3 diff = diffM3(id, models);
+
+	M3 first = models[0];
+	M3 others = composeJavaM3(id, toSet(models[1..]));
+
+	// Then the Java-specific ones
+	diff.extends = first.extends - others.extends;
+	diff.implements = first.implements - others.implements;
+	diff.methodInvocation = first.methodInvocation - others.methodInvocation;
+	diff.fieldAccess = first.fieldAccess - others.fieldAccess;
+	diff.typeDependency = first.typeDependency - others.typeDependency;
+	diff.methodOverrides = first.methodOverrides - others.methodOverrides;
+	diff.annotations = first.annotations - others.annotations;
+
+	return diff;
+}
 
 public M3 link(M3 projectModel, set[M3] libraryModels) {
   projectModel.declarations = { <name[authority=projectModel.id.authority], src> | <name, src> <- projectModel.declarations };
@@ -87,7 +109,7 @@ public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromJarClass(loc jarClass);
+public java M3 createM3FromJarClass(loc jarClass, list[loc] classPath = []);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
@@ -95,7 +117,7 @@ public java M3 createM3FromSingleClass(loc jarClass, str className);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
-public java M3 createM3FromJarFile(loc jarLoc);
+public java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
 
 @doc{
 .Synopsis
@@ -125,8 +147,8 @@ private str classPathToStr(loc jarClass) {
     return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
 }
 
-public M3 createM3FromJar(loc jarFile) {
-    M3 model = createM3FromJarFile(jarFile);
+public M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
+    M3 model = createM3FromJarFile(jarFile, classPath = classPath);
     
     rel[loc,loc] dependsOn = model.extends + model.implements;
     model.typeDependency = model.typeDependency + dependsOn;
@@ -155,32 +177,34 @@ public bool isVariable(loc entity) = entity.scheme == "java+variable";
 public bool isField(loc entity) = entity.scheme == "java+field";
 public bool isInterface(loc entity) = entity.scheme == "java+interface";
 public bool isEnum(loc entity) = entity.scheme == "java+enum";
+public bool isType(loc entity) = entity.scheme == "java+class" || entity.scheme == "java+interface" || entity.scheme == "java+enum";
 
 public set[loc] files(rel[loc, loc] containment) 
   = {e.lhs | tuple[loc lhs, loc rhs] e <- containment, isCompilationUnit(e.lhs)};
 
 public rel[loc, loc] declaredMethods(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m);
-    methodModifiersMap = toMap(m.modifiers);
+    declaredTypes = types(m);
+    modifiersMap = toMap(m.modifiers);
     
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isMethod(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
+    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredTypes), isMethod(e.rhs), checkModifiers <= (modifiersMap[e.rhs]? ? modifiersMap[e.rhs] : {}) };
 }
 
 public rel[loc, loc] declaredFields(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m);
-    methodModifiersMap = toMap(m.modifiers);
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isField(e.rhs), checkModifiers <= (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {}) };
+    declaredTypes = types(m);
+    modifiersMap = toMap(m.modifiers);
+    
+	return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredTypes), isField(e.rhs), checkModifiers <= (modifiersMap[e.rhs]? ? modifiersMap[e.rhs] : {}) };
 }
 
 public rel[loc, loc] declaredFieldsX(M3 m, set[Modifier] checkModifiers = {}) {
-    declaredClasses = classes(m);
-    methodModifiersMap = toMap(m.modifiers);
+    declaredTypes = types(m);
+    modifiersMap = toMap(m.modifiers);
     
-    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredClasses), isField(e.rhs), isEmpty(checkModifiers & (methodModifiersMap[e.rhs]? ? methodModifiersMap[e.rhs] : {})) };
+    return {e | tuple[loc lhs, loc rhs] e <- domainR(m.containment, declaredTypes), isField(e.rhs), isEmpty(checkModifiers & (modifiersMap[e.rhs]? ? modifiersMap[e.rhs] : {})) };
 } 
  
 public rel[loc, loc] declaredTopTypes(M3 m)  
-  = {e | tuple[loc lhs, loc rhs] e <- m.containment, isCompilationUnit(e.lhs), isClass(e.rhs) || isInterface(e.rhs)}; 
+  = {e | tuple[loc lhs, loc rhs] e <- m.containment, isCompilationUnit(e.lhs), isType(e.rhs)}; 
 
 public rel[loc, loc] declaredSubTypes(M3 m) 
   = {e | tuple[loc lhs, loc rhs] e <- m.containment, isClass(e.rhs)} - declaredTopTypes(m);
@@ -195,6 +219,7 @@ public rel[loc, loc] declaredSubTypes(M3 m)
 @memo public set[loc] methods(M3 m) = {e | <e,_> <- m.declarations, isMethod(e)};
 @memo public set[loc] constructors(M3 m) = {e | <e,_> <- m.declarations, isConstructor(e)};
 @memo public set[loc] enums(M3 m) = {e | <e,_> <- m.declarations, isEnum(e)};
+@memo public set[loc] types(M3 m) = {e | <e,_> <- m.declarations, isType(e)};
 
 public set[loc] elements(M3 m, loc parent) = m.containment[parent];
 

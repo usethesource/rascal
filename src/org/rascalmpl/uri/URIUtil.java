@@ -18,8 +18,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
-import javax.xml.stream.events.Characters;
-
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -56,7 +54,7 @@ public class URIUtil {
 	 */
 	public static URI createFile(String path) throws URISyntaxException {
 		path = fixWindowsPath(path);
-		return fixUnicode(new URI("file","", path, null));
+		return fixUnicode(new File(path).toURI());
 	}
 	
 	/**

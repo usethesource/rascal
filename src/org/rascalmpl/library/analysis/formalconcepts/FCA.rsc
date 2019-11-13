@@ -24,7 +24,6 @@ import Set;
 import Map;
 import Relation;
 import lang::dot::Dot;
-import IO;
 
 // import analysis::formalconcepts::Types;
 public alias FormalContext[&Object, &Attribute] = rel[&Object, &Attribute];

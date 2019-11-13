@@ -134,7 +134,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
             synchronized(eval) {
                 Timing tm = new Timing();
                 tm.start();
-                value = eval.eval(null, statement, URIUtil.rootLocation("prompt"));
+                value = eval.eval(eval.getMonitor(), statement, URIUtil.rootLocation("prompt"));
                 duration = tm.duration();
             }
             if (measureCommandTime) {
@@ -176,7 +176,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     @Override
     public boolean isStatementComplete(String command) {
         try {
-            eval.parseCommand(null, command, URIUtil.rootLocation("prompt"));
+            eval.parseCommand(eval.getMonitor(), command, URIUtil.rootLocation("prompt"));
         }
         catch (ParseError pe) {
             String[] commandLines = command.split("\n");

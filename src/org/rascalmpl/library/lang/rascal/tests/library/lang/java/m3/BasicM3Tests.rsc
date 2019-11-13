@@ -130,17 +130,17 @@ private bool compareM3s(M3 a, M3 b) {
 		if (aKeys[ak] != bKeys[ak]) {
 			if (set[value] aks := aKeys[ak] && set[value] bks := bKeys[ak]) {
 				println("Missing in relation to reference: ");
-				iprintln(bks - aks);
-				println("More than reference:");
 				iprintln(aks - bks);
+				println("More than reference:");
+				iprintln(bks - aks);
 			}
 			else if (list[Message] akl := aKeys[ak] && list[Message] bkl := bKeys[ak]) {
 				// In case of different size tell the difference.
 				if (size(akl) != size(bkl)) {
 					println("Missing messages with regards to original relation: ");
-					iprintln(akl - bkl);
-					println("Additional messages with regards to original relation: ");
 					iprintln(bkl - akl);
+					println("Additional messages with regards to original relation: ");
+					iprintln(akl - bkl);
 				}
 				//Otherwise, check if all values remain the same.
 				else {

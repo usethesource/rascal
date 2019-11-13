@@ -36,10 +36,10 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
@@ -73,29 +73,29 @@ public class EclipseJavaCompiler {
         return new TypeStoreWrapper(store);
     }
 
-    public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
-        return createM3FromJarClass(jarLoc, getM3Store(eval));
+    public IValue createM3FromJarClass(ISourceLocation jarLoc, IList classPath, IEvaluatorContext eval) {
+        return createM3FromJarClass(jarLoc, classPath, getM3Store(eval));
     }
     
     public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className, IEvaluatorContext eval) {
         JarConverter converter = new JarConverter(getM3Store(eval), new HashMap<>());
-        converter.convertSingleClassFile(classLoc, ((IString) className).getValue());
+        converter.convertJarFile(classLoc, ((IString) className).getValue());
         return converter.getModel(false);
     }
     
-    protected IValue createM3FromJarClass(ISourceLocation jarLoc, LimitedTypeStore store) {
+    protected IValue createM3FromJarClass(ISourceLocation jarLoc, IList classPath, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convertJar(jarLoc);
+        converter.convertJar(jarLoc, classPath);
         return converter.getModel(false);
     }
     
-    public IValue createM3FromJarFile(ISourceLocation jarLoc, IEvaluatorContext eval) {
-        return createM3FromJarFile(jarLoc, getM3Store(eval));
+    public IValue createM3FromJarFile(ISourceLocation jarLoc, IList classPath, IEvaluatorContext eval) {
+        return createM3FromJarFile(jarLoc, classPath, getM3Store(eval));
     }
     
-    protected IValue createM3FromJarFile(ISourceLocation jarLoc, LimitedTypeStore store) {
+    protected IValue createM3FromJarFile(ISourceLocation jarLoc, IList classPath, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convertJar(jarLoc);
+        converter.convertJar(jarLoc, classPath);
         return converter.getModel(false);
     }
     
@@ -250,7 +250,7 @@ public class EclipseJavaCompiler {
         for (IValue p : paths) {
             ISourceLocation loc = safeResolve((ISourceLocation)p);
             if (!loc.getScheme().equals("file")) {
-                throw RascalRuntimeException.io(VF.string("all path entries must have (or resolve to) the file:/// scheme: " + loc), null);
+                throw RuntimeExceptionFactory.io(VF.string("all path entries must have (or resolve to) the file:/// scheme: " + loc), null, null);
             }
             result[i++] = new File(loc.getPath()).getAbsolutePath();
         }

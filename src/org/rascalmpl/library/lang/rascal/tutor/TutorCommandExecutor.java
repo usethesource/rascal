@@ -20,7 +20,6 @@ import java.util.UUID;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
@@ -35,7 +34,7 @@ public class TutorCommandExecutor {
     private final ByteArrayOutputStream shellErrorOutput;
     private final ByteArrayOutputStream shellHTMLOutput;
 
-    public TutorCommandExecutor(PathConfig pcfg) throws IOException, NoSuchRascalFunction, URISyntaxException{
+    public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         shellStandardOutput = new ByteArrayOutputStream();
         shellErrorOutput = new ByteArrayOutputStream();
         shellHTMLOutput = new ByteArrayOutputStream();
@@ -106,6 +105,7 @@ public class TutorCommandExecutor {
         return repl.getPrompt();
     }
 
+    
     String eval(String line, String conceptFolder) {
         Map<String, InputStream> output = new HashMap<>();
         String result = "";

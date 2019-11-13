@@ -16,6 +16,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -44,7 +45,9 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredField;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredType;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
 import io.usethesource.vallang.exceptions.FactTypeRedeclaredException;
@@ -94,6 +97,8 @@ public class TypeDeclarationEvaluator {
 		return TypeFactory.getInstance().tupleType(kwTypes, kwLabels);
 	}
 	
+	private static List<String> TreeDeclaringModules = Arrays.asList("lang::rascalcore::check::AType", "ParseTree");
+	
 	public void declareConstructor(Data x, Environment env) {
 		TypeFactory tf = TypeFactory.getInstance();
 
@@ -101,6 +106,12 @@ public class TypeDeclarationEvaluator {
 		// from a shell instead of from a module
 		Type adt = declareAbstractDataType(x.getUser(), env);
 
+		if (adt.getName().equals("Tree")) {
+		    if (!TreeDeclaringModules.contains(env.getRoot().getName())) {
+                throw new UnsupportedOperation("The Tree data-type from the ParseTree library module is \"final\"; it can not be extended. Please choose another name.", x.getUser());
+            }
+        }
+        
 		List<KeywordFormal> common = x.getCommonKeywordParameters().isPresent() 
 				? x.getCommonKeywordParameters().getKeywordFormalList()
 		        : Collections.<KeywordFormal>emptyList();
@@ -243,6 +254,7 @@ public class TypeDeclarationEvaluator {
 		if (Names.isQualified(name)) {
 			throw new IllegalQualifiedDeclaration(name);
 		}
+		
 		return env.abstractDataType(Names.typeName(name), computeTypeParameters(decl, env));
 	}
 

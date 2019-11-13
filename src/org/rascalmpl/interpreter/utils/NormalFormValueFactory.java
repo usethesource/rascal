@@ -9,7 +9,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.AbstractValueFactoryAdapter;
+import io.usethesource.vallang.impl.fields.AbstractValueFactoryAdapter;
 import io.usethesource.vallang.type.Type;
 
 /**

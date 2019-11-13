@@ -52,13 +52,13 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	@Override
 	protected <U extends IValue> Result<U> subtractSet(SetResult s) {
 		// note the reverse subtract
-		return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ctx);
+		return makeResult(s.getType(), s.getValue().subtract(getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult s) {
 		// note the reverse subtract
-		return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ctx);
+		return makeResult(s.getType(), s.getValue().subtract(getValue()), ctx);
 	}
 
 	@Override

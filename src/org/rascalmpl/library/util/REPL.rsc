@@ -1,7 +1,6 @@
 module util::REPL
 
 import Message;
-import ParseTree;
 
 alias Completion
  = tuple[int offset, list[str] suggestions];

@@ -33,6 +33,7 @@ import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString.Lexical;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
@@ -77,6 +78,8 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -311,26 +314,38 @@ public abstract class Import {
       }
     }
     catch (SyntaxError e) {
-    	heap.removeModule(env);
-        eval.getEvaluator().warning("Could not load " + name, x);
+        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
         throw e;
     }
-    catch (StaticError | Throw  e) {
-      heap.removeModule(env);
-      eval.getEvaluator().warning("Could not load " + name, x);
-      throw e;
+    catch (ParseError e) {
+        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+        throw e;
+    }
+    catch (StaticError e) {
+        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+        throw e;
+    }
+    catch (Throw  e) {
+        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+        throw e;
     } catch (Throwable e) {
-      heap.removeModule(env);
-      eval.getEvaluator().warning("Could not load " + name, x);
-      e.printStackTrace();
-      throw new ModuleImport(name, e.getMessage(), x);
+        handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
+        e.printStackTrace();
+        throw new ModuleImport(name, e.getMessage(), x);
     } 
 
     heap.removeModule(env);
     throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);
   }
   
-  private static boolean isDeprecated(Module preModule){
+  private static void handleLoadError(GlobalEnvironment heap, ModuleEnvironment env, IEvaluator<Result<IValue>> eval,
+      String name, String message, ISourceLocation location, ISourceLocation origin) {
+      heap.removeModule(env);
+      eval.getEvaluator().warning("Could not load " + name + " due to: " + message + " at " + location, origin);
+  }
+
+
+private static boolean isDeprecated(Module preModule){
     for (Tag tag : preModule.getHeader().getTags().getTags()) {
       if (((Name.Lexical) tag.getName()).getString().equals("deprecated")) {
         return true;
@@ -450,6 +465,13 @@ public abstract class Import {
 	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
 	  try {
 		  imp.interpret(eval);
+	  }
+	  catch (Throw rascalException) {
+		  eval.getEvaluator().warning(rascalException.getMessage(), rascalException.getLocation());
+		  // parsing the current module should be robust wrt errors in modules it depends on.
+		  if (eval.isInterrupted()) {
+			  throw rascalException;
+		  }
 	  }
 	  catch (Throwable e) {
 		  eval.getEvaluator().warning(e.getMessage(), imp.getLocation());

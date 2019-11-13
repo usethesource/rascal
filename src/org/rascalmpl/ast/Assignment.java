@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Assignment extends AbstractAST {
   public Assignment(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -58,7 +59,6 @@ public abstract class Assignment extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
-      ISourceLocation $l;
       
     }
   

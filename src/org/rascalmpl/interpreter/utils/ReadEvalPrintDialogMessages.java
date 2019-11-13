@@ -14,8 +14,6 @@ package org.rascalmpl.interpreter.utils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.regex.Matcher;
 
 import org.rascalmpl.interpreter.StackTrace;
@@ -25,9 +23,10 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -35,10 +34,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
-
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ReadEvalPrintDialogMessages {
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -97,10 +92,7 @@ public class ReadEvalPrintDialogMessages {
 			}
 		}
 		else {
-		    ISourceLocation loc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), 
-		        pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn()) ;
-		    
-		    printSourceLocation(content, loc, writer);
+		    printSourceLocation(content, pe.getLocation(), writer);
 			content.println(": Parse error");
 		}
 	}
@@ -167,8 +159,9 @@ public class ReadEvalPrintDialogMessages {
 	public static void throwMessage(PrintWriter out, Throw e, StandardTextWriter prettyPrinter) {
 		LimitedResultWriter lros = new LimitedResultWriter(1000);
 		try {
-		    prettyPrinter.write(e.getException(), lros);
-
+		    if (e.getException() != null) {
+                prettyPrinter.write(e.getException(), lros);
+            }
 		}
 		catch(IOLimitReachedException iolrex){
 			// This is fine, ignore.
@@ -206,33 +199,6 @@ public class ReadEvalPrintDialogMessages {
 		}
     }
 	
-	public static void thrownMessage(PrintWriter out, Thrown e, StandardTextWriter prettyPrinter) {
-
-		LimitedResultWriter lros = new LimitedResultWriter(1000);
-		try {
-		    prettyPrinter.write(e.getValue(), lros);
-		}
-		catch(IOLimitReachedException iolrex){
-			// This is fine, ignore.
-		}
-		catch(IOException ioex){
-			// This can/should never happen.
-		}
-		
-		if (e.getLocation() != null) {
-		    printSourceLocation(out, e.getLocation(), prettyPrinter);
-		}
-		else {
-		    out.print("|unknown://|");
-		    
-		}
-		out.print(": ");
-		out.println(lros.getBuffer().toString());
-		
-        e.printStackTrace(new PrintWriter(out));
-		out.println();
-    }
-
 	public static void staticErrorMessage(PrintWriter out, StaticError e, StandardTextWriter writer)  {
 		printSourceLocation(out, e.getLocation(), writer);
 	    out.print(": ");

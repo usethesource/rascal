@@ -796,7 +796,6 @@ lexical LEX_StringLiteral =
    string: "\"" StringPart* "\"" 
   ;
 
-
 lexical HexaSignificand =
   [0] [X x] [0-9 A-F a-f]* "." [0-9 A-F a-f]* 
   | [0] [X x] [0-9 A-F a-f]+ 
@@ -838,6 +837,9 @@ keyword HexaSignificandKeywords =
   [0] [X x] "." 
   ;
 
+lexical BinaryNumeral =
+  "0" [b B] [0-1] [0-1 _]* !>> [0-1]*
+  ;
 
 lexical StringChars =
   FooStringChars 
@@ -878,6 +880,7 @@ syntax IntegerLiteral =
    hexa: HexaLiteral !>> [L l.] 
   |  octa: OctaLiteral !>> [L l] 
   |  deci: DeciLiteral !>> [L l] 
+  |  binary: BinaryIntegerLiteral !>> [L l]
   ;
 
 lexical HexaLiteral =
@@ -887,6 +890,10 @@ lexical HexaLiteral =
 lexical DeciFloatLiteral =
   DeciFloatNumeral [D F d f]? 
   ;
+  
+lexical BinaryIntegerLiteral =
+  BinaryNumeral [L l]?
+  ; 
   
 lexical ID =
 	// Yes, this would be more correct, but REALLY slow at the moment
