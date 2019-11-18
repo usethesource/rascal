@@ -541,19 +541,21 @@ default bool comparable(list[AType] l, list[AType] r) = size(l) == 0 && size(r) 
 
 bool outerComparable(AType l, AType r){
     res = outerComparable1(l, r);
-    println("outerComparable: <l>, <r> =\> <res>");
-     return res;
+    if(!res)
+        println("outerComparable: <l>, <r> =\> <res>");
+    return res;
 }
+
+bool outerComparable1(AType l, l) = true;
 bool outerComparable1(alist(_), alist(_)) = true;
 bool outerComparable1(aset(_), aset(_)) = true;
 bool outerComparable1(abag(_), abag(_)) = true;
-bool outerComparable1(arel(_), arel(_)) = true;
+bool outerComparable1(arel(atypeList(list[AType] ts1)), arel(atypeList(list[AType] ts2))) = size(ts1) == size(ts2);
 bool outerComparable1(arel(_), aset(_)) = true;
 bool outerComparable1(aset(_), arel(_)) = true;
-bool outerComparable1(alrel(_), alrel(_)) = true;
+bool outerComparable1(alrel(atypeList(list[AType] ts1)), alrel(atypeList(list[AType] ts2))) = size(ts1) == size(ts2);
 bool outerComparable1(alrel(_), alist(_)) = true;
-bool outerComparable1(alist(_), alrel(_)) = true;
-bool outerComparable1(atuple(_), atuple(_)) = true;
+bool outerComparable1(atuple(atypeList(ts1)), atuple(atypeList(ts2))) = size(ts1) == size(ts2);
 bool outerComparable1(amap(_,_), amap(_,_)) = true;
 
 bool outerComparable1(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
@@ -566,7 +568,8 @@ bool outerComparable1(acons(AType r1, list[AType] p1, list[Keyword] _), afunc(AT
 bool outerComparable1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2)) 
     = outerComparable(bound1, bound2);
 
-bool outerComparable1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), aadt(str adtName2, list[AType] parameters2, SyntaxRole syntaxRole2)) = true;
+bool outerComparable1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1),  areified(_)) = true;
+
 
 default bool outerComparable1(AType l, AType r) {
     return comparable(l, r);
@@ -664,13 +667,13 @@ AType alub(aadt(str n, list[AType] _, SyntaxRole_), anode(_))  = anode([]);
 AType alub(anode(_), aadt(str n, list[AType] _, SyntaxRole _)) = anode([]);
 
 AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr)) 
-                                                = addADTLabel(a1, a2, aadt(n, addParamLabels(alubList(lp,rp),getParamLabels(lp)), sr))
-                                                  when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0 &&
+                                                = addADTLabel(a1, a2, aadt(n, alubList(lp,rp), sr))
+                                                  when size(lp) == size(rp) && getTypeParamNames(lp) == getTypeParamNames(rp) && size(getTypeParamNames(lp)) > 0 &&
                                                        sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
                                                                          
 AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr)) 
                                                 = addADTLabel(a1, a2, aadt(n, alubList(lp,rp), sr))
-                                                  when size(lp) == size(rp) && size(getParamLabels(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
+                                                  when size(lp) == size(rp) && size(getTypeParamNames(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
                                                                          
 AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
 AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
@@ -716,9 +719,7 @@ AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, l
 public list[AType] alubList(list[AType] l, list[AType] r) = [alub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
 default list[AType] alubList(list[AType] l, list[AType] r) = [avalue()]; 
 
-private list[str] getParamLabels(list[AType] l) = [ s | li <- l, aparameter(s,_) := li ];
-private list[AType] addParamLabels(list[AType] l, list[str] s) = [ aparameter(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);
-private default list[AType] addParamLabels(list[AType] l, list[str] s) { throw "Length of AType list and label list much match"; } 
+private list[str] getTypeParamNames(list[AType] l) = [ s | li <- l, aparameter(s,_) := li ];
 
 @doc{Calculate the lub of a list of types.}
 public AType lubList(list[AType] ts) {

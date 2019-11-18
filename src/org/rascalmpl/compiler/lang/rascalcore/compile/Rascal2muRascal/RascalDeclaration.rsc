@@ -45,9 +45,11 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
    	for(var <- variables){
    		addVariableToModule(muModuleVar(getType(tp), "<var.name>"));
    		//variables_in_module += [];
-   		if(var is initialized) 
-   		addVariableInitializationToModule(mkAssign("<var.name>", var.name@\loc, translate(var.initial)));
-   		//variable_initializations +=  mkAssign("<var.name>", var@\loc, translate(var.initial));
+   		if(var is initialized) {
+   		   init_code =  translate(var.initial);
+   		   asg = muAssign( muVar("<var.name>", getModuleName(), -1, getType(tp)), init_code);
+   		   addVariableInitializationToModule(asg);
+   		}
    	}
    	leaveFunctionScope();
 }   	
@@ -281,9 +283,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       if(resultType != avoid() && !ttags["javaClass"]?){
         tbody = muReturn1(resultType, tbody);
       }
-      //if(resultType != avoid() && !endsWithReturn(tbody) && !ttags["javaClass"]?){
-      //  tbody = muBlock([ tbody, muFailReturn(ftype) ]);
-      //}
+      
+      iprintln(tbody);
       
       addFunctionToModule(muFunction(prettyPrintName(fd.signature.name), 
                                      fuid, 

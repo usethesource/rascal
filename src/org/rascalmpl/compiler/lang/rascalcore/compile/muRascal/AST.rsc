@@ -853,7 +853,9 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                 <flCond, auxCond, preCond, postCond> = flattenArgs([thenPart]);
                 <flThen, auxThen, preThen, postThen> = flattenArgs([thenPart]);
                 <flElse, auxElse, preElse, postElse> = flattenArgs([elsePart]);
-                pre += preCond + preThen + preElse;
+                if(preCond != preThen && preCond != preElse) pre += preCond;
+                pre += preThen + preElse;
+                //pre += preCond + preThen + preElse;
                 newArgs += muIfExp(size(postCond) == 1 ? postCond[0] : muValueBlock(avalue(), postCond), 
                                    size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
                                    size(postElse) == 1 ? postElse[0] : muValueBlock(avalue(), postElse));

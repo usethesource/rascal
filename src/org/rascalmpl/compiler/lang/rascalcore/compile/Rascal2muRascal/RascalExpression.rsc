@@ -821,7 +821,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
   
    if(getOuterType(expression) == "aloc"){
-       return muCallPrim3("create_loc_with_offset", aloc(), [aloc()], [receiver, *args], e@\loc);
+       return muCallPrim3(size(args) == 2 ? "create_loc_with_offset" : "create_loc_with_offset_and_begin_end", aloc(), [aloc()], [receiver, *args], e@\loc);
    }
    if(muFun1(_) := receiver || muConstr(AType _) := receiver) {
         return muCall(receiver, ftype, args, kwargs);

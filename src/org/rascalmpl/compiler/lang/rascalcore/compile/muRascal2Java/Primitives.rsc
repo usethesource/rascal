@@ -95,8 +95,11 @@ JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)   
 JCode transPrim("create_set", AType r, [AType a], list[str] args, JGenie jg)             = "$VF.set(<intercalate(", ", args)>)";
 JCode transPrim("create_map", AType r, [AType a, AType b], list[str] args, JGenie jg)     = "$buildMap(<intercalate(", ", args)>)";
 JCode transPrim("create_loc", aloc(), [AType a], [str uri], JGenie jg)                    = "$create_aloc(<uri>)";
-JCode transPrim("create_loc_with_offset", aloc(), [aloc()], [str l, str off, str len, str bgn, str end], JGenie jg)
-                                                                                          = "$create_aloc_with_offset(<intercalate(", ", [l, castArg(aint(), off), castArg(aint(), len), bgn, end])>)";
+JCode transPrim("create_loc_with_offset", aloc(), [aloc()], [str l, str off, str len], JGenie jg)
+                                                                                          = "$create_aloc_with_offset(<intercalate(", ", [l, castArg(aint(), off), castArg(aint(), len)])>)";
+JCode transPrim("create_loc_with_offset_and_begin_end", aloc(), [aloc()], [str l, str off, str len, str bgn, str end], JGenie jg)
+                                                                                          = "$create_aloc_with_offset_and_begin_end(<intercalate(", ", [l, castArg(aint(), off), castArg(aint(), len), bgn, end])>)";
+
 JCode transPrim("create_tuple", AType r, list[AType] argTypes, list[str] args, JGenie jg) = "$VF.tuple(<intercalate(", ", args)>)";
 JCode transPrim("create_node", AType r, list[AType] argTypes, [str name, *str args, str kwpMap], JGenie jg)
                                                                                          = "$VF.node(<name>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";

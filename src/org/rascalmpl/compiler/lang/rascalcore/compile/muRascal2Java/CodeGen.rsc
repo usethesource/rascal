@@ -44,9 +44,13 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
     muFunctionsByLoc = (f.src : f | f <- m.functions);
     resolved2overloaded = ();
     iprintln(m.overloaded_functions);
+    moduleScopes = range(moduleLocs); //{ s |tm <- range(tmodels), s <- tm.scopes, tm.scopes[s] == |global-scope:///| };
+    
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
     <typestore, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors);
-    resolvers = genResolvers(m.overloaded_functions, range(moduleLocs), jg);
+    <mergedFuns, ovlFuns> = mergeOverloadedFunctions(m.overloaded_functions);
+    jg.addMergedOverloads(mergedFuns);
+    resolvers = genResolvers(ovlFuns, moduleScopes, jg);
     
     bool hasMainFunction = false;
     str mainName = "main";
@@ -116,7 +120,7 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
                         '   <module2field(ext)> = new <getBaseClass(ext)>(store);
                         '   <}>
                         '   <kwpDecls>
-                        '   <for(muVarInit(var, exp) <- m.initialization){><var.name> = <trans(exp, jg)>;
+                        '   <for(exp <- m.initialization){><trans(exp, jg)>
                         '   <}>
                         '}";
     externalArgs = "";                 
@@ -223,181 +227,99 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
 // For each M-overloaded function:
 //   ==> generate an M-resolver method F
 
-alias OF6 = tuple[int arity, str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
-alias OF5 = tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
-alias OF4 = tuple[AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
 
-str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleLocs, JGenie jg){
-    //overloadsWithNameArity = [ <ovl.name, size(getFunctionOrConstructorArgumentTypes(ovl.funType))> + ovl | ovl <- overloadedFunctions ];
+alias OF5 = tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
+
+tuple[rel[str,AType,str], list[OF5]] mergeOverloadedFunctions(list[OF5] overloadedFunctions){
+    overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
+    mergedNames = {};
+    allFuns = [];
+    for(fname <- toSet(overloadsWithName<0>)){
+        <merged, funs> = mergeSimilar(overloadsWithName[fname]);
+        mergedNames += merged;
+        allFuns += funs;
+    }
+    return <mergedNames, allFuns>;
+}
+
+tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions){
+    resultingOverloadedFuns = [];
+    mergedFuns = {};
+    while(!isEmpty(overloadedFunctions)){
+        ovl1 = overloadedFunctions[0];
+        overloadedFunctions = overloadedFunctions[1..];
+        similar = [ovl2 | ovl2 <- overloadedFunctions, leadToSameJavaType(ovl1.funType, ovl2.funType)];
+        if(!isEmpty(similar)){
+            similar = ovl1 + similar;
+            mergedName = intercalate("_MERGED_", [ovl.oname | ovl <- similar]);
+            merged = <ovl1.name, 
+                      lubList([ovl.funType | ovl <- similar]), 
+                      mergedName,
+                      [*ovl.ofunctions | ovl <- similar],
+                      [*ovl.oconstructors | ovl <- similar]
+                     >;
+            resultingOverloadedFuns += merged;
+            mergedFuns = { <ovl.oname, ovl.funType, mergedName> | ovl <- similar };
+            overloadedFunctions -= similar;            
+        } else {
+            resultingOverloadedFuns += ovl1;
+        }
+    }
     
+    return <mergedFuns, resultingOverloadedFuns>;
+}
+
+str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleScopes, JGenie jg){
+    overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
+    iprintln(overloadedFunctions, printLimit=10000);
     all_resolvers = "";
-    seen_otypes = {};
-    for(overload <- overloadedFunctions, !isClosureName(overload.oname), overload.name != "type", !isMainName(overload.name)){
-        fname = overload.name;
-        formals = getFunctionOrConstructorArgumentTypes(overload.funType);
-        
-        nformals = size(formals);
-        //otypes = overloadsWithNameArity[fname, nformals];
-        mr = false; //requiresMultiResolver(overload, moduleLocs);
-        all_resolvers += genSingleResolver(overload, moduleLocs, jg, mr);
-        //if(mr){
-        //    clusters = clusterOverloads(otypes);
-        //    for(cluster <- clusters){
-        //        if(cluster notin seen_otypes){
-        //            seen_otypes += cluster;
-        //            all_resolvers += genMultiResolver(fname, nformals, cluster, jg);
-        //        }
-        //    }
-        //}
+    for(fname <- toSet(overloadsWithName<0>), !isClosureName(fname), fname != "type", !isMainName(fname)){
+        for(OF5 overload <- overloadsWithName[fname]){ 
+            all_resolvers += genSingleResolver(overload, moduleScopes, jg);
+        }  
     }
     return all_resolvers;
 }
 
-//bool requiresMultiResolver(list[OF5] overloads,  set[loc] moduleLocs){
-//    if(size(overloads) == 1){
-//        println("requiresMultiResolver ==\> false for <overloads>");
-//        return false;
-//    }
-//    if(any(ovl <- overloads, ovl.oname != "")){
-//        return false;
-//    }
-//    
-//    reduced = { ovl | ovl <- overloads, formals := getFunctionOrConstructorArgumentTypes(ovl.funType), !isEmpty(formals), any(AType formal <- formals, !isValueType(formal)) };
-//    if(isEmpty(reduced)) return false;
-//    
-//    res = any(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2, !equivalent(ovl1.funType, ovl2.funType));
-//    println("requiresMultiResolver ==\> <res> for <overloads>");
-//    return res;
-//}
-//
-//// Determine whether two atypes map to the same Java type
-//
-//bool mapToSameJavaType(AType t1, AType t2) {
-//    r = mapToSameJavaType1(t1, t2);
-//    println("mapToSameJavaType(<t1>, <t2>) ==\> <r>");
-//    return r;
-//}
-//
-//bool mapToSameJavaType1(alist(AType t1), alist(AType t2)) = !equivalent(t1, t2);
-//bool mapToSameJavaType1(aset(AType t1), aset(AType t2)) = !equivalent(t1, t2);
-//bool mapToSameJavaType1(abag(AType t1), abag(AType t2)) = !equivalent(t1, t2);
-//bool mapToSameJavaType1(arel(atypeList(list[AType] ts1)), arel(atypeList(list[AType] ts2))) = size(ts1) != size(ts2);
-//
-//
-//bool mapToSameJavaType1(alrel(atypeList(list[AType] ts1)), alrel(atypeList(list[AType] ts2))) = size(ts1) != size(ts2);
-//bool mapToSameJavaType1(alrel(atypeList(list[AType] ts1)), alist(AType t1)) = true;
-//bool mapToSameJavaType1(alist(AType t1), alrel(atypeList(list[AType] ts1)), alist(ATyp2 t1)) = true;
-//
-//bool mapToSameJavaType1(atuple(atypeList(ts1)), atuple(atypeList(ts2))) = size(ts1) != size(ts2);
-//
-//bool mapToSameJavaType1(amap(AType k1, AType v1), amap(AType k2, AType v2)) = k1 != k2 || v1 != v2;
-//bool mapToSameJavaType1(afunc(AType ret1, list[AType] formals1, list[Keyword] kwFormals1), afunc(AType ret2, list[AType] formals2, list[Keyword] kwFormals2))
-//    = size(formals1) == size(formals2) && (any(int i <- index(formals1), mapToSameJavaType(formals1[i], formals2[i])) || mapToSameJavaType(ret1, ret2));
-//    
-//bool mapToSameJavaType1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2)) = mapToSameJavaType(bound1, bound2);
-//bool mapToSameJavaType1(areified(AType atype1), areified(AType atype2)) = !equivalent(atype1, atype2);
-//bool mapToSameJavaType1(areified(AType atype1), aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1)) = true;
-//bool mapToSameJavaType1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), areified(AType atype1)) = true;
-//bool mapToSameJavaType1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), aadt(str adtName2, list[AType] parameters2, SyntaxRole syntaxRole2)) = true;
-//    
-//default bool mapToSameJavaType1(AType t1, AType t2) = false;
-//
-//bool mapToSameJavaType(atypeList(list[AType] elms1), atypeList(list[AType] elms2)) = size(elms1) != size(elms2) || any(i <- index(elms1), mapToSameJavaType(elms1[i], elms2[i]));
+// Determine whether two atypes lead to the same Java type in the generated code
 
-//bool overloadsToSameJavaType(list[OF5] overloads){
-//    return any(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2, mapToSameJavaType(ovl1.funType, ovl2.funType));
-//}
+bool leadToSameJavaType(AType t1, AType t2) {
+    r = leadToSameJavaType1(t1, t2);
+    println("leadToSameJavaType(<t1>, <t2>) ==\> <r>");
+    return r;
+}
 
-//set[list[OF5]] clusterOverloads(list[OF5] overloads){
-//    clusters = {};
-//    while(!isEmpty(overloads)){
-//        ovl1 = overloads[0];
-//        cluster = [ovl1];
-//        for(ovl2 <- overloads, ovl1 != ovl2){
-//            if(mapToSameJavaType(ovl1.funType, ovl2.funType)){
-//                cluster += ovl2;
-//            }
-//        }
-//        clusters += {cluster};
-//        overloads -= cluster;
-//    }
-//    return clusters;
-//}
+bool leadToSameJavaType1(alist(AType t1), alist(AType t2)) = !equivalent(t1, t2);
+bool leadToSameJavaType1(aset(AType t1), aset(AType t2)) = !equivalent(t1, t2);
+bool leadToSameJavaType1(abag(AType t1), abag(AType t2)) = !equivalent(t1, t2);
+bool leadToSameJavaType1(arel(atypeList(list[AType] ts1)), arel(atypeList(list[AType] ts2))) = size(ts1) != size(ts2);
+bool leadToSameJavaType1(arel(atypeList(list[AType] ts1)), aset(AType t2)) = true;
+bool leadToSameJavaType1(aset(AType t1), arel(atypeList(list[AType] ts2))) = true;
 
-//// Generate a resolver for a functions that is M-overloaded
-//
-//str genMultiResolver(str fname, int nformals, list[OF5] overloads, JGenie jg){
-//    
-//    if(fname == "type" || isClosureName(fname)) return <"","">;
-//  
-//    resolverReturnType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<1>);
-//    resolverFormals = [avoid() | i <- [0 .. nformals]];
-//    resolverFormals = (resolverFormals | alubList(it, getFormals(tp)) | tp <- overloads<1>);
-//    resolverReturnsVoid = isVoidType(resolverReturnType);
-//    
-//    canFail = any(ovl <- overloads, ftype := ovl.funType, any(of <- ovl.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail));
-//    anyKwFormals = any(ovl <- overloads, hasKeywordParameters (ovl.funType));
-//   
-//    externalVars = sort(toList({*{*jg.getExternalVars(ofun) | ofun <- ovl.ofunctions } | ovl <- overloads }));
-//        
-//    //compatible = !overloadsToSameJavaType(overloads) || size(overloads) == 1;
-//    
-//    cases = "";
-//    for(ovl <- overloads){
-//       ftype = ovl.funType;
-//       overloadFormals = getFormals(ftype);
-//       if(nformals > 0){
-//           argTypes = "<intercalate(", ", [ "(<atype2javatype(tf)>)$<j>"  | j <- index(overloadFormals), tf := overloadFormals[j]])>";
-//           if(hasKeywordParameters (ftype)) argTypes += ", $kwpActuals";
-//           if(!isEmpty(externalVars)){
-//              argTypes += (isEmpty(argTypes) ? "" : ", ") + intercalate(", ", [ varName(var, jg) | var <- externalVars, jtype := atype2javatype(var.atype)]);
-//           }
-//           suffix = "";
-//           //if(!compatible){
-//           //     //if(size(ovl.ofunctions)+ size(ovl.oconstructors)> 1) {
-//           //     //    ic = overloadsToSameJavaType(overloads_i);
-//           //     //    throw "Cannot handle overloading case of incompatible Java overloading: <ovl>";
-//           //     //}
-//           //     def = size(ovl.ofunctions) == 0 ? ovl.oconstructors[0] : ovl.ofunctions[0];
-//           //     suffix = "_<def.begin.line>_<def.end.line>";
-//           //}
-//           base_call = "<getJavaName(ovl.oname)><suffix>(<argTypes>)";
-//           
-//           call_code = canFail ? ( resolverReturnsVoid ? "try { <base_call>; return; }
-//                                                  'catch (FailReturnFromVoidException e):{};\n"
-//                                                   
-//                                                : "res = <base_call>;
-//                                                  'if(res != null) return <resolverReturnsVoid ? "" : "res">;\n"
-//                                 )
-//                               : ( resolverReturnsVoid ? "<base_call>; return;\n"
-//                                              
-//                                                : "return <base_call>;\n"
-//                                 );
-//           check_args =  [ atype2istype("$<j>", tf) | j <- index(overloadFormals), tf := overloadFormals[j] ];
-//           
-//           cases += isEmpty(check_args) ? call_code
-//                                       : "if(<intercalate(" && ", check_args)>){
-//                                         '   <call_code>}\n";
-//           }
-//    }
-//    sig_formals = intercalate(", ", ["<atype2javatype(resolverFormals[j])> $<j>" | j <- [0..nformals] ]);
-//    if(anyKwFormals){
-//        sig_formals += ", java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-//    }
-//    if(!isEmpty(externalVars)){
-//       sig_formals += ", " + intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var, jg)>" | var <- externalVars, jtype := atype2javatype(var.atype)]);
-//    }
-//    signature_global = "public <atype2javatype(resolverReturnType)> <getJavaName(fname)>(<sig_formals>)";
-//    return "<signature_global>{ // Multi-resolver for <fname>
-//           '  <if(canFail && !resolverReturnsVoid){><atype2javatype(resolverReturnType)> res;<}>
-//           '  <cases>
-//           '  throw new RuntimeException(\"Cannot resolve call to `<fname>`\");
-//           '}\n";
-//}
+bool leadToSameJavaType1(alrel(atypeList(list[AType] ts1)), alrel(atypeList(list[AType] ts2))) = size(ts1) != size(ts2);
+bool leadToSameJavaType1(alrel(atypeList(list[AType] ts1)), alist(AType t1)) = true;
+bool leadToSameJavaType1(alist(AType t1), alrel(atypeList(list[AType] ts1))) = true;
+
+bool leadToSameJavaType1(atuple(atypeList(ts1)), atuple(atypeList(ts2))) = size(ts1) != size(ts2);
+
+bool leadToSameJavaType1(amap(AType k1, AType v1), amap(AType k2, AType v2)) = !equivalent(k1,k2) || !equivalent(v1, v2);
+bool leadToSameJavaType1(afunc(AType ret1, list[AType] formals1, list[Keyword] kwFormals1), afunc(AType ret2, list[AType] formals2, list[Keyword] kwFormals2))
+    = size(formals1) == size(formals2) && (any(int i <- index(formals1), leadToSameJavaType(formals1[i], formals2[i]))/* || leadToSameJavaType(ret1, ret2) */);
+    
+bool leadToSameJavaType1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2)) = leadToSameJavaType(bound1, bound2);
+
+bool leadToSameJavaType1(areified(AType atype1), areified(AType atype2)) = !equivalent(atype1, atype2);
+bool leadToSameJavaType1(areified(AType atype1), aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1)) = true;
+bool leadToSameJavaType1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), areified(AType atype1)) = true;
+bool leadToSameJavaType1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), aadt(str adtName2, list[AType] parameters2, SyntaxRole syntaxRole2)) = true;
+    
+default bool leadToSameJavaType1(AType t1, AType t2) = false;
+
+bool leadToSameJavaType(atypeList(list[AType] elms1), atypeList(list[AType] elms2)) = size(elms1) != size(elms2) || any(i <- index(elms1), leadToSameJavaType(elms1[i], elms2[i]));
 
 // Generate a resolver for a function that is S-overloaded
 
-str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors] overload,  set[loc] moduleLocs, JGenie jg, bool multi){
+str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors] overload, set[loc] moduleScopes, JGenie jg){
     if(overload.name == "type") return <"","">;
    
     funType = unsetRec(overload.funType);
@@ -405,11 +327,13 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
     formalTypes = getFormals(funType);
     returnType = atype2javatype(getResult(funType));
    
-    if(jg.isResolved(overload) && !jg.usesLocalFunctions(overload) /*|| getArity(funType) == 0*/) return <"", "">;
- 
-    //if(getArity(funType) != 0 /*&& all(formalType <-formalTypes, formalType == avalue())*/) return <"", "">;
+    if(jg.isResolved(overload) && !jg.usesLocalFunctions(overload) /*|| getArity(funType) == 0*/) return "";
+    currentModuleLoc = jg.getModuleLoc();
+    if(all(def <- overload.ofunctions + overload.oconstructors, !isContainedIn(def, currentModuleLoc))){
+        return "";
+    }
     
-    isInnerFunction = any(ovl <- overload.ofunctions + overload.oconstructors, jg.getDefine(ovl).scope notin moduleLocs);
+    isInnerFunction = any(ovl <- overload.ofunctions + overload.oconstructors, jg.getDefine(ovl).scope notin moduleScopes);
       
     anyKwParams =    !isEmpty(overload.ofunctions) && any(ovl <- overload.ofunctions, hasKeywordParameters(jg.getType(ovl)))
                   || !isEmpty(overload.oconstructors) && any(ovl <- overload.oconstructors, hasKeywordParameters(jg.getType(ovl)) || jg.hasCommonKeywordFields(jg.getType(ovl)));
@@ -427,7 +351,6 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
         }
     }
     resolverName = getJavaName(overload.oname);
-    //resolverName = getJavaName(resolverName);
    
     argTypes = intercalate(", ", ["<atype2javatype(f)> $<i>" | i <- index(formalTypes), f := formalTypes[i]]);
     if(anyKwParams){
@@ -445,7 +368,7 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
     isignature = "public <returnType> <getJavaName(overload.name)>(<argTypes>)";
    
     imethod = "";
-    if(!multi && !isInnerFunction){
+    if(!isInnerFunction){
         actuals = intercalate(", ", ["$<i>" |  i <- index(formalTypes)]);
         if(anyKwParams){
             kwpActuals = "$kwpActuals";
@@ -480,10 +403,9 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
         }
     }
    
-    conses = "";
-    for(of <- overload.oconstructors){
-        conses += makeCallInResolver(funType, of, jg);
-    }
+    conses = "<for(of <- overload.oconstructors){>
+             '  <makeCallInResolver(funType, of, jg)>
+             '<}>";
      
     body = "";
     if(size(cases) == 1){
@@ -492,7 +414,6 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
             break;
         }
     } else if(size(cases) > 1){
-   //   '             <if(!startsWith(split("\n", cases[caseLab])[-1], "return") && !contains(cases[caseLab], "break;")){> break;<}>
         body = "switch(ToplevelType.getFingerprint($0, <concretePatterns>)){
                '<for(caseLab <- cases, caseLab != 0){>
                '         case <caseLab>: { 
@@ -507,13 +428,15 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
     }
     
     jg.addResolver(overload, externalVars);
-   
+   if(overload.oname == "duration_AT_DateTime_462"){
+    println("!!!");
+   }
     return "<imethod>
            '
            '<signature>{ // Single-resolver for <overload.name>: <prettyAType(funType)>
            '    <if(true /*canFail*/ && !returns_void){><atype2javatype(getResult(funType))> res;<}>
            '    <body><conses>
-           '    <if(true /*canFail*/ && isEmpty(conses)){>throw new RuntimeException(\"Cannot resolve call to `<name_resolver>`\");<}>
+           '    <if(/*canFail &&*/ isEmpty(conses) || contains(conses, "if(")){>throw new RuntimeException(\"Cannot resolve call to `<overload.name>`\");<}>
            '}
            '";
 }
@@ -524,7 +447,9 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
     formalTypes = getFormals(funType);
     returns_void = funType has ret && funType.ret == avoid();
     resolverFormalTypes = getFormals(resolverFunType);
+    
     if(!isEmpty(formalTypes) && any(int i <- index(formalTypes), unsetRec(formalTypes[i]) != unsetRec(resolverFormalTypes[i]))){
+        // The formal types of this overload are not equal to those of the resolver, so generate conditions to check the parameters
         conds = [];
         actuals = [];
         for(int i <- index(resolverFormalTypes)){
@@ -534,14 +459,12 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
             } else {
                 actuals += "$<i>";
             }
-        } 
-       
+        }
      
         base_call = "";
         if(isConstructorType(funType)){
-            return "return <makeConstructorCall(funType, actuals, [kwpActuals], jg)>;";
+            base_call = "return <makeConstructorCall(funType, actuals, hasKeywordParameters(funType) || jg.hasCommonKeywordFields(funType) ? [kwpActuals] : [], jg)>;";
         } else {
-        
             if(hasKeywordParameters(funType)){
                 actuals = isEmpty(actuals) ? [kwpActuals] : actuals + kwpActuals;
             }
@@ -558,8 +481,8 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
                                                                        'if(res != null) return <returns_void ? "" : "res">;"
                                                        )
                                                        
-                                                     : ( returns_void ? "<call_code>; return;\n"
-                                                                      : "return <call_code>;\n"
+                                                     : ( returns_void ? "<call_code>; return;"
+                                                                      : "return <call_code>;"
                                                        );
         }
         if(isEmpty(conds)){
@@ -567,21 +490,12 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
         } else {
             return "if(<intercalate(" && ", conds)>){
                    '    <base_call>
-                   '}
-                   '";
+                   '}\n";
         }
     } else {
         actuals = ["$<i>" | i <- index(formalTypes), f := formalTypes[i]];
-        //if(hasKeywordParameters(funType)){
-        //    actuals += kwpActuals;
-        //}
         if(isConstructorType(funType)){
             return "return <makeConstructorCall(funType, actuals, hasKeywordParameters(funType) || jg.hasCommonKeywordFields(funType) ? [kwpActuals] : [], jg)>;";
-            //if(isEmpty(funType.kwFields)){
-            //    return "$VF.constructor(<funType.adt.adtName>_<funType.label>, new IValue[]{<intercalate(", ", actuals)>})";
-            //} else {
-            //    return "$VF.constructor(<funType.adt.adtName>_<funType.label>, new IValue[]{<intercalate(", ", actuals[0..-1])>}, <actuals[-1]>)";
-            //}
         
         } else {
             if(hasKeywordParameters(funType)){
@@ -663,6 +577,7 @@ JCode trans(MuFunction fun, JGenie jg){
     //if(startsWith(fun.name, "$get_")){
     //   return transGetter(fun, jg);
     //}
+    println("trans: <fun.src>, <jg.getModuleLoc()>");
     if(!isContainedIn(fun.src, jg.getModuleLoc()) )return "";
     ftype = fun.ftype;
     jg.setFunction(fun);
@@ -781,11 +696,11 @@ JCode trans(muOFun(str fuid), JGenie jg){
     fname = "??";
     if(muFunctions[fuid]?){
         fun = muFunctions[fuid];
-        fname = colon2ul(fuid);
+        fname = jg.finalResolverName(colon2ul(fuid));
         ftype = fun.ftype;
     } else {
         overloading = true;
-        fname = resolved2overloaded[fuid];
+        fname = jg.finalResolverName(resolved2overloaded[fuid]);
         ftype = resolved2type[fname];
     }
     nformals = size(ftype.formals);
@@ -815,7 +730,7 @@ str trans(muConstr(AType ctype), JGenie jg){
     funInstance = "new FunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- ctype.fields])>\>";
     
     bare_formals = ["$<i>" | i <- [0..nformals]];
-    return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, jg)>; })";
+    return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, hasKeywordParameters(ctype) || jg.hasCommonKeywordFields(ctype) ? [kwpActuals] : [], jg)>; })";
 }
 
 // Variables
@@ -1126,8 +1041,7 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
     if(muOFun(str fname) := fun){
         externalVars = jg.getExternalVarsResolver(fname);
         actuals = getActuals(argTypes, largs, jg) + [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
-        return "<fname>(<intercalate(", ", actuals)>)";
-        //return "<resolved2overloaded[fname]>(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
+        return "<jg.getAccessorOverloaded(fname, ftype)>(<intercalate(", ", actuals)>)";
     }
     
     if(muFun1(loc uid) := fun){

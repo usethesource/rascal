@@ -732,13 +732,14 @@ default MuExp translatePatAsSetElem(Pattern p, bool last, AType elmType, MuExp s
                         falseCont);                            
   } catch: {
         str fuid = topFunctionScope();
-        elem = muTmpIValue(nextTmp("elem"), fuid, aset(elmType));
+        elem = muTmpIValue(nextTmp("elem"), fuid, elmType);
         my_btscope = nextTmp("PAT_IN_SET");
         enterBacktrackingScope(my_btscope);
-        code = muForAll(my_btscope, elem,aset(elmType), muCallPrim3("subsets", aset(elmType), [aset(elmType)], [prevSubject], p@\loc),
-                        muBlock([ muConInit(subject, muCallPrim3("subtract", aset(elmType), [aset(elmType), aset(elmType)], [prevSubject, elem], p@\loc)),
-                                  translatePat(p, elmType, elem, my_btscope, trueCont, falseCont)
-                                ]));
+        code = muForAll(my_btscope, elem, aset(elmType), prevSubject,
+                        translatePat(p, elmType, elem, my_btscope, 
+                            muBlock([ *(last ? [] : [muConInit(subject, muCallPrim3("subtract", aset(elmType), [aset(elmType), elmType], [prevSubject, elem], p@\loc))]),
+                                    trueCont ]),
+                            falseCont));
         leaveBacktrackingScope(my_btscope); // <====
         return code;
   }
@@ -898,7 +899,6 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
                                                   : (lookahead[0].nMultiVar == 0 && !isMultiVar(lpats[0])) ? muEqualNativeInt(sublen, muCon(lookahead[0].nElem + 1))
                                                                                                            : muGreaterEqNativeInt(sublen, muCon(lookahead[0].nElem)), 
                                updateBTScope(body, btscope, getResumptionScope(my_btscope)),
-                               //body,
                                falseCont)
                     ]);
     block = muEnter(my_btscope, block);
@@ -983,7 +983,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
                                  trueCont ]),
                        falseCont);
    }
-   return asubtype(subjectType, trType) ? code : muIfelse(muValueIsSubType(subject, trType), code, falseCont);
+   return asubtype(subjectType, alist(trType)) ? code : muIfelse(muValueIsSubType(subject, alist(trType)), code, falseCont);
  } 
 
 MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, str btscope, MuExp trueCont, MuExp falseCont) {
@@ -1078,7 +1078,7 @@ MuExp translateMultiVarAsListElem(Tree name, str fuid, int pos, AType varType, L
 default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, str btscope, MuExp trueCont, MuExp falseCont) {
    println("translatePatAsListElem, default: <p>");
    //TODO: bound check
-   return translatePat(p, subjectType, muSubscript(subject, cursor), btscope, muValueBlock(avalue(), [ muIncNativeInt(cursor, muCon(1)), trueCont]), falseCont);
+   return translatePat(p, getListElementType(subjectType), muSubscript(subject, cursor), btscope, muValueBlock(avalue(), [ muIncNativeInt(cursor, muCon(1)), trueCont]), falseCont);
 }
 
 // -- variable becomes pattern ---------------------------------------
@@ -1118,7 +1118,7 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`,  AType subjectType, MuExp 
     elmType = avalue(); // TODO: make more precise?
     code = 
         muForAll(my_btscope, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor),
-                translatePat(pattern, avalue(), elem, my_btscope, trueCont, muFailEnd(my_btscope))
+                translatePat(pattern, avalue(), elem, my_btscope, trueCont, falseCont  /*muFailEnd(my_btscope)*/)
              ); 
     code = muEnter(my_btscope, code);
     leaveBacktrackingScope(my_btscope); // <===
@@ -1216,6 +1216,7 @@ value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(
 
 value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) {
   if(!isEmpty("<keywordArguments>")) throw "Not a constant pattern: <p>";
+  if(isADTType(getType(p))) throw "ADT pattern not considered constant: <p>";
   return makeNode("<expression>", [ translatePatternAsConstant(pat) | Pattern pat <- arguments ]);
 }
 

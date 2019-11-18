@@ -9,6 +9,7 @@ import IO;
 import lang::rascal::\syntax::Rascal;
  
 import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
+//import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 extend lang::rascalcore::check::Checker;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
 import lang::rascalcore::check::RascalConfig;

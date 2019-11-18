@@ -137,12 +137,11 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 public PathConfig getDefaultPathConfig() {
     println("checker path config");
     return pathConfig(   
-        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */ 
-                //Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
-                //   |project://rascal-core/src/org/rascalmpl/core/library/|, 
-                //   |lib://typepal/|, 
-                //Commented out: because this is also suspect, why would we not use the binary .tpl files from the library?
-                // |std:///|    
+        srcs = [|test-modules:///|, /* test-modules is an in-memory file-system */ 
+                //Jurgen: Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
+                //Paul: we need this to run in Eclipse console
+                |project://rascal-core/src/org/rascalmpl/core/library/|,
+                |project://rascal/src/org/rascalmpl/library/|
                ],
         bin = |project://rascal-core/bin|, 
         libs = [|std:///|, |lib://rascal/|]
@@ -225,13 +224,14 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                 if(recheck){
                     if(!ms.modules[m]?){
                         mloc = getModuleLocation(m, pcfg);  
-                        ms.moduleLocs[m] = mloc;  
+                        //ms.moduleLocs[m] = mloc;  
                         path2module[mloc.path] = m;        
                         if(config.verbose) println("*** parsing <m> from <mloc>");
                         ms.moduleLastModified[m] = lastModified(mloc);
                         try {
                             Module pt = parseModuleWithSpaces(mloc).top;
                             ms.modules[m] = pt;
+                            ms.moduleLocs[m] = pt@\loc; 
                         } catch Java("ParseError","Parse error"): {
                             ms.tmodels[m] = tmodel()[messages = [ error("Parse error in module `<m>`", getModuleLocation(m, pcfg)) ]];
                             ms.valid += {m};

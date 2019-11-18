@@ -127,18 +127,6 @@ private list[OFUN] overloadedFunctions = [];		// list of overloaded functions
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
-//void addOverloadedFunctionAndResolver(OFUN fundescr) = addOverloadedFunctionAndResolver(fundescr.fuid, fundescr);
-//
-//void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
-//	int n = indexOf(overloadedFunctions, fundescr);
-//	if(n < 0){
-//		n = size (overloadedFunctions);
-//		overloadedFunctions += fundescr;
-//	}
-//	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
-//	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
-//	overloadingResolver[fuid1] = n;
-//}
 
 list[OFUN] getOverloadedFunctions() = overloadedFunctions;
 
@@ -147,7 +135,6 @@ bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 OFUN getOverloadedFunction(FUID fuid) {
 	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
 	resolver = overloadingResolver[fuid];
-	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
 	return overloadedFunctions[resolver];
 }
 
@@ -382,21 +369,33 @@ void extractScopes(TModel tm){
                                getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(r.defined))));
     }
     
-    public set[set[&T]] mygroup(set[&T] input, bool (&T a, &T b) similar) {
-      sinput = sort(input, bool (&T a, &T b) { return similar(a,b) ? false : a < b ; } );
-      int i = 0;
-      int n = size(sinput);
-      
-      lres = while (i < n) {
-        h = sinput[0];
-        j = i + 1;
-        while(j < n && similar(h, sinput[j])){
-            j += 1;
-        }
-        append toSet(sinput[i..j]);
-        i = j;
+    //public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
+    //  sinput = sort(input, bool (Define a, Define b) { return similar(a,b) ? false : getDefType(a.defined) < getDefType(b.defined) ; } );
+    //  int i = 0;
+    //  int n = size(sinput);
+    //  
+    //  lres = while (i < n) {
+    //    h = sinput[0];
+    //    j = i + 1;
+    //    while(j < n && similar(h, sinput[j])){
+    //        j += 1;
+    //    }
+    //    append toSet(sinput[i..j]);
+    //    i = j;
+    //  }
+    //  return toSet(lres); 
+    //}
+    
+     public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
+      remaining = input;
+      result = {};
+      while(!isEmpty(remaining)){
+        d = getFirstFrom(remaining);
+        g = d + { e | e <- remaining, similar(e, d) };
+        remaining -= g;
+        result += {g};
       }
-      return toSet(lres); 
+      return result;  
     }
     
     //bool compatible(Define l, Define r){
@@ -407,11 +406,20 @@ void extractScopes(TModel tm){
    for(fname <- domain(funNameAndDef)){
         // Separate functions defined at a module level (may be overloaded) and functions defined in inner scopes
         defs0 = funNameAndDef[fname];
+        if(fname == "treeAt"){
+            println("treeAt");
+        }
+       
         
         // Outer scopes, group by similar outer type
         globalDefs0 = {  def | Define def <- defs0, def.scope in module_scopes };
         globalDefs = mygroup(globalDefs0, compatible);
-println("globalDefs (<size(globalDefs)>)"); iprintln(globalDefs);
+
+println("globalDefs:");
+for(defs <- globalDefs){
+    println("<size(defs)>: <for(Define def <- defs){><def.defined.begin.line> <}>");
+ }
+iprintln(globalDefs, lineLimit=10000);
 
         // Inner scopes, group by similar outer type
         innerDefs0 = defs0 - globalDefs0;
@@ -445,7 +453,7 @@ println("globalDefs (<size(globalDefs)>)"); iprintln(globalDefs);
                 
                 for(def <- defs){
                     tp = unsetRec(getDefType(def.defined));
-                    if(asubtype(tp, ftype)){
+                    //if(asubtype(tp, ftype)){
                          reduced_overloads += <def.defined, def.idRole, tp>;
                          resType = alub(resType, getResult(tp));
                          formalsType = alub(formalsType, atypeList(getFormals(tp)));
@@ -457,7 +465,7 @@ println("globalDefs (<size(globalDefs)>)"); iprintln(globalDefs);
                             else 
                                 ovl_non_defaults += def.defined;
                         }
-                   } //else {
+                   //} //else {
                    //     println("**** Skipping incompatible def: <def> ****");
                    //}
                 }
@@ -484,6 +492,7 @@ println("globalDefs (<size(globalDefs)>)"); iprintln(globalDefs);
                 ftype2 =  afunc(resType, formalsType.atypes, []);
                 ofun = <fname,  ftype2, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
                 if(!overloadingResolver[oname]?){
+                    
                     overloadedFunctions += ofun;
                     overloadingResolver[oname] = noverloaded;
                     noverloaded += 1;
