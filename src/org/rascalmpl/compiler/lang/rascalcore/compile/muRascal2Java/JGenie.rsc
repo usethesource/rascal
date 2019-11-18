@@ -7,6 +7,7 @@ import Set;
 import IO;
 import String;
 import Map;
+import Node;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
 import lang::rascalcore::compile::util::Names;
@@ -32,6 +33,7 @@ data JGenie
         AType (loc src) getType,
         str(loc def) getImportedModuleName,
         str (loc src) getAccessor,
+        str (str oname, AType otype) getAccessorOverloaded,
         str (loc src) getAccessorInResolver,
         Define (loc src) getDefine,
         list[MuExp] (loc src) getExternalVars,
@@ -48,6 +50,8 @@ data JGenie
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
+        void (rel[str,AType,str]) addMergedOverloads,
+        str(str,AType) finalResolverName,
         void (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads, list[MuExp] externalVars) addResolver,
         bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) isResolved,
         list[MuExp] (str resolverName) getExternalVarsResolver,
@@ -87,8 +91,7 @@ JGenie makeJGenie(MuModule m,
     
     map[loc,list[MuExp]] fun2externals = (fun.src : fun.externalVars  | fun <- range(muFunctions));
     map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
-    
-    iprintln(fun2externals);
+    rel[str,AType,str] mergedOverloads = {};
    
     str _getModuleName()
         = currentModule.modelName;
@@ -130,15 +133,10 @@ JGenie makeJGenie(MuModule m,
                 if(defType(AType tp) := def.defInfo){
                     descriptor = atype2idpart(tp);
                     baseName = getJavaName(def.id);
+                    
                     if(isContainedIn(def.defined, currentModuleScope)){
                         fun = muFunctionsByLoc[def.defined];
-                        return getJavaName(getFunctionName(fun));
-                        //if(isClosureName(baseName)){
-                        //    return baseName;
-                        //}
-                        //if(fun.scopeIn != ""){
-                        //    return "<fun.scopeIn>_<fun.qname>";
-                        //}
+                        return getJavaName(_finalResolverName(getFunctionName(fun), fun.ftype));
                         return "$me.<baseName>";
                     } else {
                         return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
@@ -149,22 +147,28 @@ JGenie makeJGenie(MuModule m,
         throw "No accessor found for <src>";
     }
     
+    str _getAccessorOverloaded(str oname, AType otype){
+      if(overloadedAType(rel[loc, IdRole, AType] overloads) := otype){
+       finalName = _finalResolverName(oname, otype);
+        definingModules = {_getImportedModuleName(d) | d <- overloads<0>};
+        if({mname} := definingModules && mname != module2field(_getModuleName())){
+            return "<mname>.<finalName>";
+        } else {
+            return finalName;
+        }
+      }
+      throw "Non-overloaded type: <otype>";
+    }
+    
     str _getAccessorInResolver(loc src){
         for(mname <- tmodels){
             if(tmodels[mname].definitions[src]?){
                 def = tmodels[mname].definitions[src];
                 if(defType(AType tp) := def.defInfo){
-                    baseName = "<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>_<def.defined.end.line>";
+                    baseName = _finalResolverName("<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>_<def.defined.end.line>", tp);
                     if(isContainedIn(def.defined, currentModuleScope)){
                         fun = muFunctionsByLoc[def.defined];
                         return getJavaName(getUniqueFunctionName(fun));
-                        //if(isClosureName(baseName)){
-                        //    return baseName;
-                        //}
-                        //if(fun.scopeIn != ""){
-                        //    return "<fun.scopeIn>_<baseName>";
-                        //}
-                        //return baseName;
                     } else {
                         return "<_getImportedModuleName(src)>.<baseName>";
                     }
@@ -177,7 +181,8 @@ JGenie makeJGenie(MuModule m,
     Define _getDefine(loc src){
         for(mname <- tmodels){
                 if(tmodels[mname].definitions[src]?){
-                    return tmodels[mname].definitions[src];
+                    res = tmodels[mname].definitions[src];
+                    return res;
                 }
         }
         throw "getDefine <src>";
@@ -281,6 +286,19 @@ JGenie makeJGenie(MuModule m,
         return toList(importedLibraries);
     }
     
+    void _addMergedOverloads(rel[str,AType,str] merged){
+        mergedOverloads += merged;
+    }
+    str _finalResolverName(str fname, AType funType){
+        funType = unsetRec(funType);
+        if( overloadedAType(rel[loc, IdRole, AType] overloads)  := funType){
+            funType = lubList(toList(overloads<2>));
+        }
+        if({finalName} := mergedOverloads[fname, unsetRec(funType)]) 
+            return finalName;
+        return fname;
+    }
+    
     void _addResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads, list[MuExp] externalVars){
         resolvers += overloads;
         resolver2externalVars[overloads.scope] = externalVars;
@@ -293,7 +311,8 @@ JGenie makeJGenie(MuModule m,
          if(resolver2externalVars[resolverName]?){
             return resolver2externalVars[resolverName];
          }
-         throw "Unknown resolver <resolverName>";
+         return [];
+         //throw "Unknown resolver <resolverName>";
     }
     
     bool _usesLocalFunctions(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
@@ -317,6 +336,7 @@ JGenie makeJGenie(MuModule m,
                 _getType,
                 _getImportedModuleName,
                 _getAccessor,
+                _getAccessorOverloaded,
                 _getAccessorInResolver,
                 _getDefine,
                 _getExternalVars,
@@ -333,6 +353,8 @@ JGenie makeJGenie(MuModule m,
                 _newTmp,
                 _addImportedLibrary,
                 _getImportedLibraries,
+                _addMergedOverloads,
+                _finalResolverName,
                 _addResolver,
                 _isResolved,
                 _getExternalVarsResolver,

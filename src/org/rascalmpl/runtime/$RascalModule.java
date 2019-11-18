@@ -373,7 +373,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	/**
 	 * Create a loc with given offsets and length
 	 */
-	public final ISourceLocation $create_aloc_with_offset(final ISourceLocation loc, final IInteger offset, final IInteger length, final ITuple begin, final ITuple end) {
+	public final ISourceLocation $create_aloc_with_offset(final ISourceLocation loc, final IInteger offset, final IInteger length) {
+		return $VF.sourceLocation(loc, offset.intValue(), length.intValue());
+	}
+	
+	public final ISourceLocation $create_aloc_with_offset_and_begin_end(final ISourceLocation loc, final IInteger offset, final IInteger length, final ITuple begin, final ITuple end) {
 		int beginLine = ((IInteger) begin.get(0)).intValue();
 		int beginCol = ((IInteger) begin.get(1)).intValue();
 
@@ -1445,9 +1449,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return cons.set(fieldName, repl);
 		}
 		
-		if($TS.hasKeywordParameter(consType, fieldName)) {
+		//if($TS.hasKeywordParameter(consType, fieldName)) {
 			return cons.asWithKeywordParameters().setParameter(fieldName, repl);
-		}
+		//}
 // TODO
 //		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
 //			IConstructor prod = ((ITree) cons).getProduction();
@@ -1458,11 +1462,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 //					return true;			        }
 //			}
 //		}
-		if(cons.isAnnotatable()){
-			return cons.asAnnotatable().setAnnotation(fieldName, repl);
-		} else {
-			throw RascalExceptionFactory.noSuchField(fieldName);
-		}
+//		if(cons.isAnnotatable()){
+//			return cons.asAnnotatable().setAnnotation(fieldName, repl);
+//		} else {
+//			throw RascalExceptionFactory.noSuchField(fieldName);
+//		}
 	}
 	
 	// ---- has ---------------------------------------------------------------
