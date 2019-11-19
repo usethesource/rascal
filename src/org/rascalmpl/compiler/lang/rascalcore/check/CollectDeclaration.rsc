@@ -262,7 +262,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
          
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt); 
         
-        if(decl is abstract){
+        if(decl is abstract && "javaClass" notin tagsMap){
             c.report(warning(decl, "Empty function body"));
         }
         if(decl is \default){
