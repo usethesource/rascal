@@ -17,20 +17,20 @@ import lang::rascalcore::check::RascalConfig;
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
 
-public PathConfig getDefaultPathConfig() {
-     println("compiler default config");
-     return pathConfig(   
-        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */ 
-                //Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
-                //   |project://rascal-core/src/org/rascalmpl/core/library/|, 
-                //   |lib://typepal/|, 
-                //Commented out: because this is also suspect, why would we not use the binary .tpl files from the library?
-                // |std:///|    
-               ],
-        bin = |project://rascal-core/bin|, 
-        libs = [|std:///|, |lib://rascal/|]
-               );
-}
+//public PathConfig getDefaultPathConfig() {
+//     println("compiler default config");
+//     return pathConfig(   
+//        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */ 
+//                //Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
+//                //   |project://rascal-core/src/org/rascalmpl/core/library/|, 
+//                //   |lib://typepal/|, 
+//                //Commented out: because this is also suspect, why would we not use the binary .tpl files from the library?
+//                // |std:///|    
+//               ],
+//        bin = |project://rascal-core/bin|, 
+//        libs = [|std:///|, |lib://rascal/|]
+//               );
+//}
 
 loc generatedDir = |project://rascal-codegen-ideas/generated|;
 
