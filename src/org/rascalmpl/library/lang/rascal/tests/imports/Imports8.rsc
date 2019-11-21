@@ -1,4 +1,4 @@
-module lang::rascal::tests::imports::ImportTests8
+module lang::rascal::tests::imports::Imports8
 
 import lang::rascal::tests::imports::IMP1;
 import lang::rascal::tests::imports::IMP2;
