@@ -1,4 +1,4 @@
-module lang::rascal::tests::imports::ImportTests6
+module lang::rascal::tests::imports::Imports6
 
 import lang::rascal::tests::imports::M6;
 
