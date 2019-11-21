@@ -560,9 +560,10 @@ tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgT
             constantKwpDefaults = "final java.util.Map\<java.lang.String,IValue\> <kwpDefaultsName> = <mapCode>";
          } else {
             jg.setKwpDefaults("$kwpDefaults");
-            nonConstantKwpDefaults =  "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = Util.kwpMap(\"<kwpDefaults[0].name>\", <trans(kwpDefaults[0].defaultExp,jg)>);\n";
-            for(<str name, AType tp, MuExp defaultExp> <- kwpDefaults[1..]){
-                nonConstantKwpDefaults += "$kwpDefaults.put(\"<name>\", <trans(defaultExp,jg)>);\n";
+            
+            nonConstantKwpDefaults =  "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = Util.kwpMap();\n";
+            for(<str name, AType tp, MuExp defaultExp> <- kwpDefaults){
+                nonConstantKwpDefaults += "<trans(muConInit(muVar("$kwpDefault_<name>","", 10, tp), defaultExp),jg)>$kwpDefaults.put(\"<name>\", $kwpDefault_<name>);";
             }
          }   
     }
@@ -571,12 +572,7 @@ tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgT
 
 JCode trans(MuFunction fun, JGenie jg){
     iprintln(fun);
-    if(fun.name =="$get_Expr_a_q"){
-        println("$get_Expr_a_z");
-    }
-    //if(startsWith(fun.name, "$get_")){
-    //   return transGetter(fun, jg);
-    //}
+   
     println("trans: <fun.src>, <jg.getModuleLoc()>");
     if(!isContainedIn(fun.src, jg.getModuleLoc()) )return "";
     ftype = fun.ftype;
@@ -1275,13 +1271,13 @@ JCode trans(muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] kwpDefaults
     kwpActuals = "$kwpActuals"; 
     return "
            '    <kwpActuals>.isEmpty() ? <kwpDefaultsVar>
-           '                           : Util.kwpMap(<for(<str key,  AType atype, MuExp exp> <- kwpDefaults, muCon(_) !:= exp){>\"<key>\", <kwpActuals>.containsKey(\"<key>\") ? <kwpActuals>.get(\"<key>\") : <trans(exp,jg)>)<}>)";
+           '                           : Util.kwpMap(<for(<str key, AType atype, MuExp exp> <- kwpDefaults, muCon(_) !:= exp){>\"<key>\", <kwpActuals>.containsKey(\"<key>\") ? ((<atype2javatype(atype)>) <kwpActuals>.get(\"<key>\")) : <transCast(atype,exp,jg)>)<}>)";
 }
 
 // ---- muVarKwp --------------------------------------------------------------
 
 JCode trans(var:muVarKwp(str name, str fuid, AType atype),  JGenie jg)
-    = "(<atype2javatype(atype)>) ($kwpActuals.containsKey(\"<name>\") ? $kwpActuals.get(\"<name>\") : <jg.getKwpDefaults()>.get(\"<name>\"))";
+    = "((<atype2javatype(atype)>) ($kwpActuals.containsKey(\"<name>\") ? $kwpActuals.get(\"<name>\") : <jg.getKwpDefaults()>.get(\"<name>\")))";
 
 JCode trans(muAssign(muVarKwp(str name, str fuid, AType atype), MuExp exp), JGenie jg)
     = "$kwpActuals.put(\"<name>\", <trans(exp, jg)>);\n";

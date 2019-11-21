@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalException;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalExceptionFactory;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.Type2ATypeReifier;
+import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -1783,36 +1785,121 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(!leftType.comparable(rightType)){
 			return Rascal_FALSE;
 		}
+		
+		return leftType.accept(new DefaultRascalTypeVisitor<IBool,RuntimeException>(Rascal_FALSE) {
+			@Override
+			public IBool visitList(Type type) throws RuntimeException {
+				if(rightType.isList()) {
+					return $alist_less_alist((IList)left, (IList)right);
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
 
-		switch (ToplevelType.getToplevelType(leftType)) {
-		// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
-		// TODO: check type of right
-		case BOOL:
-			return $abool_less_abool((IBool)left, (IBool)right);
-		case STR:
-			return $astr_less_astr((IString)left, (IString)right);
-		case DATETIME:
-			return $adatetime_less_adatetime((IDateTime)left, (IDateTime)right);
-		case LOC:
-			return $aloc_less_aloc((ISourceLocation)left, (ISourceLocation)right);
-		case LIST:
-		case LREL:
-			return $alist_less_alist((IList)left, (IList)right);
-		case SET:
-		case REL:
-			return $aset_less_aset((ISet)left, (ISet)right);
-		case MAP:
-			return $amap_less_amap((IMap)left, (IMap)right);
-		case CONSTRUCTOR:
-		case NODE:
-			return $anode_less_anode((INode)left, (INode)right);
-		case ADT:
-			//return aadt_less_aadt((IAbstractDataType)left, right);
-		case TUPLE:
-			return $atuple_less_atuple((ITuple)left, (ITuple)right);
-		default:
-			throw new InternalCompilerError("less: unexpected type " + leftType);
-		}
+			@Override
+			public IBool visitMap(Type type) throws RuntimeException {
+				if(rightType.isMap()) {
+					return $amap_less_amap((IMap)left, (IMap)right);
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitSet(Type type) throws RuntimeException {
+				if(rightType.isSet()) {
+					return $aset_less_aset((ISet)left, (ISet)right);
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitSourceLocation(Type type) throws RuntimeException {
+				if(rightType.isSourceLocation()) {
+					return $aloc_less_aloc((ISourceLocation)left, (ISourceLocation)right);		
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitString(Type type) throws RuntimeException {
+				if(rightType.isString()) {
+					return $astr_less_astr((IString)left, (IString)right);
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitNode(Type type) throws RuntimeException {
+				if(rightType.isNode()){
+					return $anode_less_anode((INode)left, (INode)right);	
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitConstructor(Type type) throws RuntimeException {
+				return visitNode(type);
+			}
+
+			@Override
+			public IBool visitAbstractData(Type type)
+					throws RuntimeException {
+				return visitNode(type);
+			}
+
+			@Override
+			public IBool visitTuple(Type type) throws RuntimeException {
+				if(rightType.isTuple()) {
+					return $atuple_less_atuple((ITuple)left, (ITuple)right);
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitBool(Type type) throws RuntimeException {
+				if(rightType.isBool()) {
+					return $abool_less_abool((IBool)left, (IBool)right);
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+		
+			@Override
+			public IBool visitDateTime(Type type) throws RuntimeException {
+				if(rightType.isDateTime()) {
+					return $adatetime_less_adatetime((IDateTime)left, (IDateTime)right);
+				}
+				throw new InternalCompilerError("less: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+			});
+
+//		switch (ToplevelType.getToplevelType(leftType)) {
+//		// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
+//		// TODO: check type of right
+//		case BOOL:
+//			return $abool_less_abool((IBool)left, (IBool)right);
+//		case STR:
+//			return $astr_less_astr((IString)left, (IString)right);
+//		case DATETIME:
+//			return $adatetime_less_adatetime((IDateTime)left, (IDateTime)right);
+//		case LOC:
+//			return $aloc_less_aloc((ISourceLocation)left, (ISourceLocation)right);
+//		case LIST:
+//		case LREL:
+//			return $alist_less_alist((IList)left, (IList)right);
+//		case SET:
+//		case REL:
+//			return $aset_less_aset((ISet)left, (ISet)right);
+//		case MAP:
+//			return $amap_less_amap((IMap)left, (IMap)right);
+//		case CONSTRUCTOR:
+//		case NODE:
+//			return $anode_less_anode((INode)left, (INode)right);
+//		case ADT:
+//			//return aadt_less_aadt((IAbstractDataType)left, right);
+//		case TUPLE:
+//			return $atuple_less_atuple((ITuple)left, (ITuple)right);
+//		default:
+//			throw new InternalCompilerError("less: unexpected type " + leftType);
+//		}
 	}
 	
 	public final IBool $aint_less_aint(final IInteger a, final IInteger b) {
@@ -2056,36 +2143,122 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(!leftType.comparable(rightType)){
 			return Rascal_FALSE;
 		}
+		
+		return leftType.accept(new DefaultRascalTypeVisitor<IBool,RuntimeException>(Rascal_FALSE) {
+			@Override
+			public IBool visitList(Type type) throws RuntimeException {
+				if(rightType.isList()) {
+					return $alist_lessequal_alist((IList)left, (IList)right);
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
 
-		switch (ToplevelType.getToplevelType(leftType)) {
-		// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
-		// TODO: check type of right
-		case BOOL:
-			return $abool_lessequal_abool((IBool)left, (IBool)right);
-		case STR:
-			return $astr_lessequal_astr((IString)left, (IString)right);
-		case DATETIME:
-			return $adatetime_lessequal_adatetime((IDateTime)left, (IDateTime)right);
-		case LOC:
-			return $aloc_lessequal_aloc((ISourceLocation)left, (ISourceLocation)right);
-		case LIST:
-		case LREL:
-			return $alist_lessequal_alist((IList)left, (IList)right);
-		case SET:
-		case REL:
-			return $aset_lessequal_aset((ISet)left, (ISet)right);
-		case MAP:
-			return $amap_lessequal_amap((IMap)left, (IMap)right);
-		case CONSTRUCTOR:
-		case NODE:
-			return $anode_lessequal_anode((INode)left, (INode)right);
-		case ADT:
-			//return aadt_lessequal_aadt((IAbstractDataType)left, right);
-		case TUPLE:
-			return $atuple_lessequal_atuple((ITuple)left, (ITuple)right);
-		default:
-			throw new InternalCompilerError("less: unexpected type " + leftType);
-		}
+			@Override
+			public IBool visitMap(Type type) throws RuntimeException {
+				if(rightType.isMap()) {
+					return $amap_lessequal_amap((IMap)left, (IMap)right);
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitSet(Type type) throws RuntimeException {
+				if(rightType.isSet()) {
+					return $aset_lessequal_aset((ISet)left, (ISet)right);
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitSourceLocation(Type type) throws RuntimeException {
+				if(rightType.isSourceLocation()) {
+					return $aloc_lessequal_aloc((ISourceLocation)left, (ISourceLocation)right);		
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitString(Type type) throws RuntimeException {
+				if(rightType.isString()) {
+					return $astr_lessequal_astr((IString)left, (IString)right);
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitNode(Type type) throws RuntimeException {
+				if(rightType.isNode()){
+					return $anode_lessequal_anode((INode)left, (INode)right);	
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitConstructor(Type type) throws RuntimeException {
+				return visitNode(type);
+			}
+
+			@Override
+			public IBool visitAbstractData(Type type)
+					throws RuntimeException {
+				return visitNode(type);
+			}
+
+			@Override
+			public IBool visitTuple(Type type) throws RuntimeException {
+				if(rightType.isTuple()) {
+					return $atuple_lessequal_atuple((ITuple)left, (ITuple)right);
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+
+			@Override
+			public IBool visitBool(Type type) throws RuntimeException {
+				if(rightType.isBool()) {
+					return $abool_lessequal_abool((IBool)left, (IBool)right);
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+		
+			@Override
+			public IBool visitDateTime(Type type) throws RuntimeException {
+				if(rightType.isDateTime()) {
+					return $adatetime_lessequal_adatetime((IDateTime)left, (IDateTime)right);
+				}
+				throw new InternalCompilerError("lessequal: unexpected arguments `" + leftType + "` and `" + rightType + "`");
+			}
+			});
+
+
+//		switch (ToplevelType.getToplevelType(leftType)) {
+//		// TODO: is this really faster than a TypeVisitor?? No because getTopLevelType includes a TypeVisitor itself.
+//		// TODO: check type of right
+//		case BOOL:
+//			return $abool_lessequal_abool((IBool)left, (IBool)right);
+//		case STR:
+//			return $astr_lessequal_astr((IString)left, (IString)right);
+//		case DATETIME:
+//			return $adatetime_lessequal_adatetime((IDateTime)left, (IDateTime)right);
+//		case LOC:
+//			return $aloc_lessequal_aloc((ISourceLocation)left, (ISourceLocation)right);
+//		case LIST:
+//		case LREL:
+//			return $alist_lessequal_alist((IList)left, (IList)right);
+//		case SET:
+//		case REL:
+//			return $aset_lessequal_aset((ISet)left, (ISet)right);
+//		case MAP:
+//			return $amap_lessequal_amap((IMap)left, (IMap)right);
+//		case CONSTRUCTOR:
+//		case NODE:
+//			return $anode_lessequal_anode((INode)left, (INode)right);
+//		case ADT:
+//			return aadt_lessequal_aadt((IAbstractDataType)left, right);
+//		case TUPLE:
+//			return $atuple_lessequal_atuple((ITuple)left, (ITuple)right);
+//		default:
+//			throw new InternalCompilerError("less: unexpected type " + leftType);
+//		}
 	}
 	
 	public final IBool $aint_lessequal_aint(final IInteger a, final IInteger b) {
@@ -2158,7 +2331,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	}
 
 	public final IBool $astr_lessequal_astr(final IString left, final IString right) {
-		int c = right.compare(left);
+		int c = left.compare(right);
 		return $VF.bool(c == -1 || c == 0);
 	}
 

@@ -564,7 +564,7 @@ void collect(current:(Assignable) `<Assignable receiver> [ <OptionalExpression o
 }
 
 void collect(current:(Assignable) `<Assignable receiver> . <Name field>`, Collector c){
-    collect(receiver, c);
+    collect(receiver, field, c);
 }
 
 void collect(current:(Assignable) `<Assignable receiver> ? <Expression defaultExpression >`, Collector c){
@@ -670,10 +670,12 @@ private AType computeReceiverType(Statement current, (Assignable) `<Assignable r
     return computeSliceType(current, receiverType, s.getType(optFirst),s.getType(second), s.getType(optLast), s);
 }
 
-private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, asg:(Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
-    return computeFieldTypeWithADT(receiverType, field, scope, s);
+    fieldType = computeFieldTypeWithADT(receiverType, field, scope, s);
+    s.fact(asg, fieldType);
+    return fieldType;
 }
     
 private AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){

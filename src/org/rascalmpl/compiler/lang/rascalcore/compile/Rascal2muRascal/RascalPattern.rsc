@@ -1110,7 +1110,6 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`,  AType subjectType, MuExp 
     if(optimizing()){
 	   tc = getTypesAndConstructors(pattern);
        <reachable_syms, reachable_prods>  = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-       //println("translatePat: <reachable_syms>, <reachable_prods>");
     }
     descriptor = descendantDescriptor(concreteMatch, reachable_syms, reachable_prods, getReifiedDefinitions());
     fuid = topFunctionScope();
@@ -1118,7 +1117,7 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`,  AType subjectType, MuExp 
     elmType = avalue(); // TODO: make more precise?
     code = 
         muForAll(my_btscope, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor),
-                translatePat(pattern, avalue(), elem, my_btscope, trueCont, falseCont  /*muFailEnd(my_btscope)*/)
+                translatePat(pattern, avalue(), elem, my_btscope, trueCont, muFailEnd(my_btscope) /*falseCont*/)
              ); 
     code = muEnter(my_btscope, code);
     leaveBacktrackingScope(my_btscope); // <===

@@ -177,7 +177,11 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
                               muReturn1(fieldType, muGetFieldFromConstructor(fieldType, consType, adtVar, fieldName)))
                        | consType <- conses
                        ]
-                       + muFailReturn(fieldType)
+                       + muThrow(muCall(muConstr(acons(aadt("RuntimeException", [], dataSyntax()), [astr(label="message")], [], label="NoSuchField")),
+                                        acons(aadt("RuntimeException", [], dataSyntax()), [astr(label="message")], [], label="NoSuchField"),
+                                        [muCon(fieldName)], 
+                                        []),
+                                        |unknown:///|)
                       );
         addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
     }

@@ -8,16 +8,14 @@ extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::BasicRascalConfig;
 
-//import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::check::BuiltinFields;
 
 import IO;
 import Map;
-//import Node;
 import Set;
 import String;
-//import ValueIO;
 
 void checkNonVoid(Tree e, Solver s, str msg){
     if(isVoidType(s.getType(e))) s.report(error(e, msg + " cannot have type `void`"));
@@ -328,37 +326,6 @@ list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), lo
      
 list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <def, idr, adt> <- overloads ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
-
-@doc{Field names and types for built-ins}
-private map[AType,map[str,AType]] fieldMap =
-    ( aloc() :
-        ( "scheme" : astr(), 
-          "authority" : astr(), 
-          "host" : astr(), 
-          "user" : astr(), 
-          "port" : aint(), 
-          "path" : astr(), 
-          "query" : astr(), 
-          "fragment" : astr(), 
-          "length" : aint(), 
-          "offset" : aint(), 
-          "begin" : atuple(atypeList([aint()[label="line"],aint()[label="column"]])), 
-          "end" :   atuple(atypeList([aint()[label="line"],aint()[label="column"]])), 
-          "uri" : astr(), 
-          "top" : aloc(),
-          "parent" : aloc(),
-          "file" : astr(), 
-          "ls" : makeListType(aloc()), 
-          "extension" : astr(),
-          "params" : amap(astr(),astr())
-        ),
-      adatetime() :
-        ( "year" : aint(), "month" : aint(), "day" : aint(), "hour" : aint(), "minute" : aint(), 
-          "second" : aint(), "millisecond" : aint(), "timezoneOffsetHours" : aint(), 
-          "timezoneOffsetMinutes" : aint(), "century" : aint(), "isDate" : abool(), 
-          "isTime" : abool(), "isDateTime" : abool(), "justDate" : adatetime(), "justTime" : adatetime()
-        )
-    );
     
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
     //println("computeFieldTypeWithADT: <containerType>, <field>");
@@ -432,13 +399,13 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
             s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
         }
     } else if (isLocType(containerType)) {
-        if (fieldName in fieldMap[aloc()])
-            return fieldMap[aloc()][fieldName];
+        if (fieldName in getBuiltinFieldMap()[aloc()])
+            return getBuiltinFieldMap()[aloc()][fieldName];
         else
             s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
     } else if (isDateTimeType(containerType)) {
-        if (fieldName in fieldMap[adatetime()])
-            return fieldMap[adatetime()][fieldName];
+        if (fieldName in getBuiltinFieldMap()[adatetime()])
+            return getBuiltinFieldMap()[adatetime()][fieldName];
         else
            s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
     } else if (isRelType(containerType)) {

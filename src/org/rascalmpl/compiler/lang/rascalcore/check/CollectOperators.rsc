@@ -359,16 +359,6 @@ void collect(current: (Expression) `<Expression lhs> / <Expression rhs>`, Collec
     collect(lhs, rhs, c); 
 }
 
-//AType computeDivisionType(Tree current, AType t1, AType t2, Solver s)
-//    = binaryOp("division", _computeDivisionType, current, t1, t2, s);
-//
-//private AType _computeDivisionType(Tree current, AType t1, AType t2, Solver s){
-//    if(!(isNumericType(t1) && isNumericType(t2))){
-//        s.report(error(current, "Division not defined on %t and %t", t1, t2));
-//    }
-//     return numericArithTypes(t1, t2);
-//}
-
 // ---- intersection
 
 void collect(current: (Expression) `<Expression lhs> & <Expression rhs>`, Collector c){

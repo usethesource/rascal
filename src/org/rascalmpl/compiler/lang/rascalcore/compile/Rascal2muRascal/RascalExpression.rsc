@@ -865,7 +865,7 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) {
     enterLoop(whileName,fuid);
     exit = muBlock([]);
     code = muBlock([muAssign(any_found, muCon(true)), muBreak(whileName)]);
-    for(gen <- reverse([ g | g <- generators])){
+    for(gen <- reverse(normalizeAnd([ g | g <- generators]))){
         if((Expression) `<Pattern pat> \<- <Expression exp>` := gen){
             btscope = nextTmp("ANY");
             if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){     
@@ -879,8 +879,12 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) {
                 code = muForRange(btscope, elem, translate(first), translate(second), translate(last), translatePat(pat, elemType, elem, "", code, muFailEnd(btscope)));
             } else {
                 elemType = getElementType(getType(exp));
-                elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForAll(btscope, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, "", code, muFailEnd(btscope)));
+                if(isVoidType(elemType)){
+                    code = muCon(false);
+                } else {
+                    elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
+                    code = muForAll(btscope, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, "", code, muFailEnd(btscope)));
+                }
             }
         } else {
             code = translateBool(gen, "", code, exit);
@@ -903,30 +907,34 @@ MuExp translateBool (e:(Expression) `any ( <{Expression ","}+ generators> )`, st
 
 MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
     str fuid = topFunctionScope();
-    str whileName = nextLabel();
+    str forName = nextLabel();
       
     all_true = muTmpIValue(nextTmp("all_true"), fuid, abool());
-    enterLoop(whileName,fuid);
-    exit = muBlock([muAssign(all_true, muCon(false)), muBreak(whileName)]);
-    code = muContinue(whileName);
-    for(gen <- reverse([ g | g <- generators])){
+    enterLoop(forName,fuid);
+    exit = muBlock([muAssign(all_true, muCon(false)), muBreak(forName)]);
+    my_btscope = nextTmp("ALL");
+    code = muContinue(my_btscope);
+    for(gen <- reverse(normalizeAnd([ g | g <- generators]))){
         if((Expression) `<Pattern pat> \<- <Expression exp>` := gen){
-            btscope = nextTmp("ALL");
+           
             if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){
                 elemType = alub(getType(first), getType(last));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForRange(btscope, elem, translate(first), muCon(0), translate(last), translatePat(pat, elemType, elem, "", code, exit));
+                code = muForRange(my_btscope, elem, translate(first), muCon(0), translate(last), translatePat(pat, elemType, elem, "", code, exit));
             } else 
             if((Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]` := exp){
                 elemType = alub(alub(getType(first), getType(second)), getType(last));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForRange(btscope, elem, translate(first), translate(second), translate(last), translatePat(pat, elemType, elem, "", code, exit));
+                code = muForRange(my_btscope, elem, translate(first), translate(second), translate(last), translatePat(pat, elemType, elem, "", code, exit));
             } else {
                 elemType = getElementType(getType(exp));
-                elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForAll(btscope, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, "", code, exit));
+                if(isVoidType(elemType)){
+                    code = muCon(true);
+                } else {
+                    elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
+                    code = muForAll(my_btscope, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, "", code, exit));
+                }
             }
-            //code = muBlock([code, muBreak(whileName)]);
         } else {
             code = translateBool(gen, "", code, exit);
         }
@@ -934,7 +942,7 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
       
     code = muValueBlock(abool(),
                         [ muVarInit(all_true, muCon(true)),
-                          muDoWhile(whileName, code, muCon(false)),
+                          muDoWhile(forName, code, muCon(false)),
                           all_true ]);
     leaveLoop();
     return code;
@@ -1505,8 +1513,11 @@ MuExp translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`, str btsc
 // -- generator expression ----------------------------------------------------
     
 MuExp translateGenerator(Pattern pat, Expression exp, str btscope, MuExp trueCont, MuExp falseCont){
+    elemType = getElementType(getType(exp));
+    if(isVoidType(elemType)) return falseCont;
+    
     str fuid = topFunctionScope();
-    elem = muTmpIValue(nextTmp("elem"), fuid, getElementType(getType(exp)));
+    elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
     //old_btscope = btscope;
     my_btscope = nextTmp("ENUM");
     //trueCont = updateBTScope(trueCont,btscope, new_btscope);
@@ -1525,7 +1536,8 @@ MuExp translateGenerator(Pattern pat, Expression exp, str btscope, MuExp trueCon
     } else {
     //btscope = nextTmp("ENUM");
     // generic enumerator
-        code = muForAll(my_btscope, elem, getType(exp), translate(exp), translatePat(pat, getElementType(getType(exp)),  elem, "", trueCont, muFail(my_btscope)));
+        exp_code = translate(exp);
+        code = muForAll(my_btscope, elem, getType(exp), exp_code, translatePat(pat, elemType,  elem, "", trueCont, muFailEnd(my_btscope)));
     }
     code = updateBTScope(code, my_btscope, getResumptionScope(my_btscope));
     leaveBacktrackingScope(my_btscope);
