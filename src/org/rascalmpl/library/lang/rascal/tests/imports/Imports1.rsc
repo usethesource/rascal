@@ -1,4 +1,4 @@
-module lang::rascal::tests::imports::ImportTests1
+module lang::rascal::tests::imports::Imports1
 
 import lang::rascal::tests::imports::M1;
 

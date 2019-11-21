@@ -1,4 +1,4 @@
-module lang::rascal::tests::imports::CyclicImportTests1
+module lang::rascal::tests::imports::CyclicImports1
 
 import lang::rascal::tests::imports::C1;
 import lang::rascal::tests::imports::C2;
