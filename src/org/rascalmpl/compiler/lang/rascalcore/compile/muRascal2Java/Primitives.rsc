@@ -144,7 +144,7 @@ JCode transPrim("guarded_field_project", AType r, [AType a], [str x, *str args],
 
 // ---- greater ---------------------------------------------------------------
 
-JCode transPrim("greater", abool(), [abool(), abool()], [str x, str y], JGenie jg)      = "$bool_lessequal_abool(<x>,<y>).not()"; 
+JCode transPrim("greater", abool(), [abool(), abool()], [str x, str y], JGenie jg)      = "$abool_lessequal_abool(<x>,<y>).not()"; 
 JCode transPrim("greater", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "$<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>).not()"     when isArithType(a), isArithType(b);
 JCode transPrim("greater", abool(), [astr(), astr()], [str x, str y], JGenie jg)        = "$astr_lessequal_astr(<x>,<y>).not()"; 
 JCode transPrim("greater", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         

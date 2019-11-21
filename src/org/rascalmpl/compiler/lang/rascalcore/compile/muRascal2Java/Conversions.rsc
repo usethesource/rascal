@@ -59,7 +59,7 @@ str atype2javatype(overloadedAType(rel[loc, IdRole, AType] overloads))
     = atype2javatype(lubList(toList(overloads<2>)));
 
 
-default str atype2javatype(AType t) { throw "atype2javatype: cannot handle <t>"; }
+default str atype2javatype(AType t) = "IConstructor"; // This covers all parse tree related constructors
 
 /*****************************************************************************/
 /*  Convert AType to a descriptor that can be used in a Java identifier      */

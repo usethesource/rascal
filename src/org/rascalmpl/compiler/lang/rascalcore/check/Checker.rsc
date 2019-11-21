@@ -140,8 +140,8 @@ public PathConfig getDefaultPathConfig() {
         srcs = [|test-modules:///|, /* test-modules is an in-memory file-system */ 
                 //Jurgen: Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
                 //Paul: we need this to run in Eclipse console
-                |project://rascal-core/src/org/rascalmpl/core/library/|
-                //|project://rascal/src/org/rascalmpl/library/|
+                |project://rascal-core/src/org/rascalmpl/core/library/|,
+                |project://rascal/src/org/rascalmpl/library/|
                ],
         bin = |project://rascal-core/bin|, 
         libs = [|std:///|, |lib://rascal/|]

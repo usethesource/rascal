@@ -727,6 +727,8 @@ MuExp muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart) = thenPart when thenP
 MuExp muIfelse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
+MuExp muIfelse(MuExp cond, muCon(_), muCon(_)) = muBlock([]);
+
 MuExp muIfelse(MuExp cond, muIfExp(cond1, thenPart1, elsePart1), MuExp elsePart) 
     = muIfelse(cond, muIfelse(cond1, thenPart1, elsePart1), elsePart);
     

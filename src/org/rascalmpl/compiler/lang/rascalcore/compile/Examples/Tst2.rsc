@@ -1,35 +1,29 @@
 module lang::rascalcore::compile::Examples::Tst2
 
-import String;
-import List;
-import Set;
-import Relation;
-import ListRelation;
-import IO;
-import util::Math;
-import Location;
+import Exception;
 
-int singleChar(str s) = charAt(s,0);
-
-list[int] makeValidSchemeChars() = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
-    + [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
-    ;
-    
-list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
-    + [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
-    ;
-
-str createValidScheme(str s) {
-    if (s == "")
-        return "a";
-    return ("a" | it + stringChar(validSchemeChars[c % size(validSchemeChars)]) | c <- chars(s));
+@expected{IndexOutOfBounds}
+value main(){ 
+    list[int] L = [0,1,2,3]; 
+    L[4] = 44; 
+    L == [0,1,2,3,44]; 
+    return false;    
 }
 
-list[int] validHostChars = (validSchemeChars - [singleChar("+"), singleChar(".")]);
-str createValidHost(str s) {
-    if (s == "")
-        return "a";
-    return ("a.a" | it + stringChar(validHostChars[c % size(validHostChars)]) | c <- chars(s)) + "a.com";
-}
+//        
+//test bool descendant11() = /int N := ("a" : 1) && N == 1;
+//test bool descendant12() = /int N := <"a", 1> && N == 1;
+        
+//test bool descendant13() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 1;
+//test bool descendant14() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;
 
-test bool canChangeHost1(loc l, str s) = (l[scheme="http"][authority="a"][host = createValidHost(s)]).host ==  createValidHost(s);
+
+//test bool keywordParam92(){
+//    bool f11(bool c = false){
+//        bool g11(){
+//            return c;
+//        }
+//        return g11();
+//    }
+//    return f11() == false;
+//}

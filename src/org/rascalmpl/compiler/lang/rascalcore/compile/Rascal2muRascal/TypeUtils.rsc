@@ -16,6 +16,7 @@ import lang::rascalcore::check::NameUtils;
 import Location;
 
 import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::BuiltinFields;
 import Type;
 
 import lang::rascalcore::check::AType;
@@ -596,7 +597,31 @@ map[AType, list[Keyword]] getCommonKeywordFieldsMap()
 tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType, str fieldName){
     adtType = unsetRec(adtType);
     fieldType = fieldType[label=fieldName];
-    for(AType consType <-  adt_constructors[adtType]){
+    if(adtType in domain(getBuiltinFieldMap())){
+        return <aloc(), false>;
+    }
+    set[AType] constructors = {};
+    adt_arity = size(adtType.parameters);
+    if(adt_arity == 0){
+        constructors = adt_constructors[adtType];
+    } else { // a parameterized ADT, find it and substitute actual parameters (also in fieldType)
+        for(adt <- adt_constructors){
+            if(adt.adtName == adtType.adtName && size(adt.parameters) == adt_arity){
+                pnames = (adt.parameters[i].pname : i | i <- [0..adt_arity]);
+                constructors = adt_constructors[adt];
+                <constructors, fieldType> = 
+                    visit(<constructors, fieldType>) { 
+                        case p:aparameter(pname, pbound): { repl = adtType.parameters[pnames[pname]];
+                                                            if(p.label?) repl = repl[label=p.label];
+                                                            insert repl;
+                                                          }
+                    };
+                break;
+            }
+        }
+    }
+    
+    for(AType consType <-  constructors){
         println(consType);
         for(declaredFieldType <- consType.fields){
             if(declaredFieldType.label == fieldName && asubtype(fieldType, declaredFieldType)){
@@ -908,7 +933,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
         println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
       descend_into = {avalue()};
     }
-    tuples = { atuple(atypeList(symbols)) | sym <- descend_into, arel(symbols) := sym || alrel(symbols) := sym };
+    tuples = { atuple(symbols) | sym <- descend_into, arel(symbols) := sym || alrel(symbols) := sym };
     descend_into += tuples;
     descend_into = {sym | sym <- descend_into, label(_,_) !:= sym };
     //println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
