@@ -105,13 +105,13 @@ public java tuple[set[M3], set[Declaration]] createM3sAndAstsFromFiles(set[loc] 
 public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-public java M3 createM3FromJarClass(loc jarClass);
+public java M3 createM3FromJarClass(loc jarClass, list[loc] classPath = []);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 public java M3 createM3FromSingleClass(loc jarClass, str className);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-public java M3 createM3FromJarFile(loc jarLoc);
+public java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
 
 @doc{
 .Synopsis

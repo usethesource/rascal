@@ -65,8 +65,8 @@ public class EclipseJavaCompiler {
         return definitions;
     }
 
-    public IValue createM3FromJarClass(ISourceLocation jarLoc) {
-        return createM3FromJarClass(jarLoc, getM3Store());
+    public IValue createM3FromJarClass(ISourceLocation jarLoc, IList classPath) {
+        return createM3FromJarClass(jarLoc, classPath, getM3Store());
     }
     
     public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className) {
@@ -81,8 +81,8 @@ public class EclipseJavaCompiler {
         return converter.getModel(false);
     }
     
-    public IValue createM3FromJarFile(ISourceLocation jarLoc) {
-        return createM3FromJarFile(jarLoc, getM3Store());
+    public IValue createM3FromJarFile(ISourceLocation jarLoc, IList classPath) {
+        return createM3FromJarFile(jarLoc, classPath, getM3Store());
     }
     
     protected IValue createM3FromJarFile(ISourceLocation jarLoc, IList classPath, LimitedTypeStore store) {
