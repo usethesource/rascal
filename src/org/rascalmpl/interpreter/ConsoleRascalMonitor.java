@@ -17,6 +17,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import org.rascalmpl.debug.IRascalMonitor;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class ConsoleRascalMonitor implements IRascalMonitor {
