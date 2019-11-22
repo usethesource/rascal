@@ -883,7 +883,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Switch(ISourceLocation __param1, IConstructor tree, Label __param2,
 				org.rascalmpl.ast.Expression __param3, List<Case> cases) {
 			super(__param1, tree, __param2, __param3, cases);
-			blocks = Cases.precompute(cases);
+			blocks = Cases.precompute(cases, false);
 		}
 
 		@Override

@@ -8,9 +8,9 @@ module lang::rascal::tests::basic::SolvedIssues
 import List;
 import Exception;
 
-test bool emptySetEquals(set[value] x, set[value] y) = x - x == y - y;
+test bool emptySetEquals1(set[value] x, set[value] y) = x - x == y - y;
 
-test bool emptySetEquals(map[value,value] x, map[value,value] y) = x - x == y - y;
+test bool emptySetEquals2(map[value,value] x, map[value,value] y) = x - x == y - y;
 
 data X = n(set[node] nn);
 

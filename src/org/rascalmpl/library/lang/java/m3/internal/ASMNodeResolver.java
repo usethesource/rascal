@@ -12,9 +12,30 @@
  */ 
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CLASS_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMPILED_CONSTRUCTOR_NAME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMPILED_STATIC_CONSTRUCTOR_NAME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CONSTRUCTOR_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ENUM_CONSTANT_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ENUM_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.FIELD_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.INITIALIZER_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.INTERFACE_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.M3_STATIC_CONSTRUCTOR_NAME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.METHOD_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PARAMETER_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PRIMITIVE_TYPE_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.UNRESOLVED_SCHEME;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -24,6 +45,8 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ParameterNode;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -33,8 +56,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
-
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.*;
 
 
 public class ASMNodeResolver implements NodeResolver {
@@ -60,9 +81,30 @@ public class ASMNodeResolver implements NodeResolver {
     private Map<String, String> primitiveTypes;
     
     /**
+     * Store type schemes to improve performance
+     */
+    private Map<String, String> typeSchemes;
+    
+    /**
      * Looks up for ADTs or constructors.
      */
     private LimitedTypeStore typeStore;
+    
+    /**
+     * Supports URI resolution.
+     */
+    private URIResolverRegistry registry;
+    
+    /**
+     * URI of the JAR file
+     */
+    private ISourceLocation uri;
+    
+    /**
+     * List of locations pointing to the classpath of the 
+     * main JAR (only JAR files supported).
+     */
+    private List<ISourceLocation> classPath;
     
     
     //---------------------------------------------
@@ -73,8 +115,12 @@ public class ASMNodeResolver implements NodeResolver {
      * ASMNodeResolver constructor
      * @param typeStore
      */
-    public ASMNodeResolver(final LimitedTypeStore typeStore) {
+    public ASMNodeResolver(ISourceLocation uri, IList classPath, final LimitedTypeStore typeStore) {
         this.typeStore = typeStore;
+        this.uri = uri;
+        this.registry = URIResolverRegistry.getInstance();
+        this.classPath = initializeClassPath(classPath);
+        this.typeSchemes = new HashMap<String, String>();
         initializePrimitiveTypes();
     }
     
@@ -90,6 +136,84 @@ public class ASMNodeResolver implements NodeResolver {
         primitiveTypes.put(Type.INT_TYPE.getDescriptor(), Type.INT_TYPE.getClassName());
         primitiveTypes.put(Type.LONG_TYPE.getDescriptor(), Type.LONG_TYPE.getClassName());
         primitiveTypes.put(Type.SHORT_TYPE.getDescriptor(), Type.SHORT_TYPE.getClassName());
+    }
+    
+    /**
+     * Initializes the list of JAR files in the classpath. It 
+     * includes the main JAR and all nested JARs.
+     * @param classPath - list of JAR files conforming the classpath 
+     * of the main JAR.
+     * @return list of locations pointing to JARs in the classpath
+     */
+    private List<ISourceLocation> initializeClassPath(IList classPath) {
+        List<ISourceLocation> cp = new ArrayList<ISourceLocation>();
+        
+        try {
+            ISourceLocation mainJar = toJarSrcLocation(uri);
+            cp.add(mainJar);
+            cp.addAll(getNestedJars(mainJar));
+            classPath.forEach(loc -> {
+                try {
+                    ISourceLocation jarLoc = toJarSrcLocation((ISourceLocation) loc);
+                    cp.add(jarLoc);
+                    cp.addAll(getNestedJars(jarLoc));
+                }
+                catch (IOException | URISyntaxException e) {
+                    throw new RuntimeException("Cannot gather nested JARs.", e);
+                }
+            });
+        }
+        catch (IOException | URISyntaxException e) {
+            throw new RuntimeException("Cannot gather nested JARs.", e);
+        }
+        return cp;
+    }
+    
+    /**
+     * Given a location pointing to a JAR file, the method adds
+     * "jar+" to its scheme and the "!" at the end of the path 
+     * if needed.
+     * @param uri - location pointing to a JAR file 
+     * @return location with a "jar+<scheme>" or "jar" scheme,
+     * and a path ending with "!"
+     */
+    private ISourceLocation toJarSrcLocation(ISourceLocation uri) {
+        try {
+            if (uri.getPath().endsWith(".jar")) {
+                uri = (uri.getScheme().startsWith("jar")) ? uri : URIUtil.changeScheme(uri, "jar+" + uri.getScheme());
+                return (uri.getScheme().endsWith("!")) ? uri : URIUtil.changePath(uri, uri.getPath() + "!");
+            }
+        }
+        catch (URISyntaxException e) {
+            throw new RuntimeException("The location " + uri + " does not reference a JAR file.", e);
+        }
+        throw new RuntimeException("The location " + uri + " does not reference a JAR file.");
+    }
+    
+    /**
+     * Gathers nested JARs in another JAR file passed as parameter.
+     * @param uri - location of JAR file
+     * @return list of nested JARs within the JAR file passed as 
+     * parameter.
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    private List<ISourceLocation> getNestedJars(ISourceLocation uri) throws IOException, URISyntaxException {
+        List<ISourceLocation> cp = new ArrayList<ISourceLocation>();
+        ISourceLocation[] entries = registry.list(uri);
+        for (ISourceLocation entry : entries) {
+            
+            if (registry.isDirectory(entry)) {
+                cp.addAll(getNestedJars(entry));
+            }
+            
+            if (entry.getPath().endsWith(".jar")) {
+                entry = URIUtil.changeScheme(entry, "jar+" + uri.getScheme());
+                entry = URIUtil.changePath(entry, entry.getPath() + "!");
+                cp.add(entry);
+            }
+        }
+        return cp;
     }
     
     @Override
@@ -155,7 +279,7 @@ public class ASMNodeResolver implements NodeResolver {
      * @return logical location
      */
     private ISourceLocation resolveBinding(ClassNode node) {
-        return M3LocationUtil.makeLocation(getClassScheme(node.access), "", node.name);
+        return M3LocationUtil.makeLocation(resolveClassScheme(node), "", node.name);
     }
     
     /**
@@ -320,8 +444,10 @@ public class ASMNodeResolver implements NodeResolver {
         String descriptor = type.getDescriptor()
             .replace("[", "")
             .replace("%5B", "");
+        String scheme = getTypeScheme(descriptor);
+        
         if (type.getClassName() == null) {
-            return M3LocationUtil.makeLocation(CLASS_SCHEME, "", descriptor);
+            return M3LocationUtil.makeLocation(scheme, "", descriptor);
         }
         
         /* According to the JVM specification we deal with base/primitive (B, C, D, F, I, J, S, Z),
@@ -331,21 +457,57 @@ public class ASMNodeResolver implements NodeResolver {
             .replace("[", "")
             .replace("]", "");
         
-        if (primitiveTypes.containsKey(descriptor)) {
-            return M3LocationUtil.makeLocation(PRIMITIVE_TYPE_SCHEME, "", path);
-        }
-        else {
-            return M3LocationUtil.makeLocation(CLASS_SCHEME, "", path);
-        }
+        return M3LocationUtil.makeLocation(scheme, "", path);        
     }
 
     /**
+     * Returns the scheme of a type given its descriptor. It could be
+     * a primitive, enum, interface, or class scheme. If the descriptor
+     * points to a type that cannot be resolved, the method returns the
+     * class scheme by default.
+     * @param descriptor - descriptor of the type as described by the 
+     * JVM specification
+     * @return scheme of the type
+     */
+    private String getTypeScheme(String descriptor) {
+        if (primitiveTypes.containsKey(descriptor)) {
+            return PRIMITIVE_TYPE_SCHEME;
+        }
+        
+        String className = descriptor
+            .replace("[", "")
+            .replace("%5B", "");
+        if (className.startsWith("L") && className.endsWith(";")) {
+            className = className.substring(1, descriptor.length() - 1);
+        }
+        
+        typeSchemes.computeIfAbsent(className, k -> resolveClassScheme(k));
+        return typeSchemes.get(className);
+    }
+    
+    /**
+     * Returns a class scheme based on the class name.
+     * @param className - name of the class
+     * @return scheme of the type
+     */
+    private String resolveClassScheme(String className) {
+        ClassReader cr = buildClassReader(className);
+        return (cr != null) ? resolveClassScheme(cr.getAccess()) : CLASS_SCHEME;
+    }
+    
+    /**
      * Returns a class scheme based on the class' access flags.
      */
-    private String getClassScheme(int access) {
+    private String resolveClassScheme(int access) {
         return ((access & Opcodes.ACC_INTERFACE) != 0) ? INTERFACE_SCHEME 
             : ((access & Opcodes.ACC_ENUM) != 0) ? ENUM_SCHEME 
             : CLASS_SCHEME;
+    }
+    
+    @Override
+    public String resolveClassScheme(ClassNode node) {
+        typeSchemes.computeIfAbsent(node.name, k -> resolveClassScheme(node.access));
+        return resolveClassScheme(node.access);
     }
     
     @Override
@@ -523,4 +685,43 @@ public class ASMNodeResolver implements NodeResolver {
     private io.usethesource.vallang.type.Type getTypeSymbol() {
         return typeStore.lookupAbstractDataType("TypeSymbol");
     }
+    
+    @Override
+    public ClassReader buildClassReader(String className) {
+        try {
+            return new ClassReader(className);
+        }
+        catch (IOException e) {
+            return buildClassReaderFromStream(className);
+        }
+    }
+
+    /**
+     * Returns an ASM ClassReader from a compilation unit location 
+     * or name. It creates a stream from one of the JARs in the classpath.
+     * If the class definition is not found, it returns null.
+     * @param className - class/comilation unit name/path (<pkg>/<name>)
+     * @return ASM ClassReader, null if the compilation unit is not found
+     */
+    private ClassReader buildClassReaderFromStream(String className) { 
+        try {
+            for (ISourceLocation entry : classPath) {
+                ISourceLocation loc = URIUtil.getChildLocation(entry, className + ".class");
+                if (registry.exists(loc)) {
+                    InputStream stream = registry.getInputStream(loc);
+                    return buildClassReader(stream);
+                }
+            }
+        }
+        catch (IOException e) {
+            // Nothing to do
+        }
+        return null;
+    }
+    
+    @Override
+    public ClassReader buildClassReader(InputStream classStream) throws IOException {
+        return new ClassReader(classStream);
+    }
+    
 }
