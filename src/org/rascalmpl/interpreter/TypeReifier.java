@@ -18,6 +18,9 @@ import java.util.Set;
 
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -28,8 +31,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * TypeReifier maps types to values that represent these types and their definitions. These values have

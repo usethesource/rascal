@@ -34,11 +34,11 @@ public bool isEqual(set[&T] A, set[&T] B) =
      size(A) == size(B) ? (size(A) == 0 || all(x <- A, x in B) && all(x <- B, x in A))
                         : false;
 
-test bool equal(set[&T] A) = A == A;
-test bool equal(set[int] A, set[int] B) = (A == B) ? isEqual(A,B) : !isEqual(A, B);
+test bool equal1(set[&T] A) = A == A;
+test bool equal2(set[int] A, set[int] B) = (A == B) ? isEqual(A,B) : !isEqual(A, B);
 
-test bool notEqual(set[&T] A) = !(A != A);
-test bool notEqual(set[int] A, set[int] B) = (A != B) ? !isEqual(A,B) : isEqual(A, B);
+test bool notEqual1(set[&T] A) = !(A != A);
+test bool notEqual2(set[int] A, set[int] B) = (A != B) ? !isEqual(A,B) : isEqual(A, B);
  
 test bool intersection(set[&T] A, set[&T] B) = isEmpty(A & B) || all(x <- A & B, x in A, x in B);
 

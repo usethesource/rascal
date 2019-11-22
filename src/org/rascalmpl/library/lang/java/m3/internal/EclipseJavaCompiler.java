@@ -75,9 +75,9 @@ public class EclipseJavaCompiler {
         return converter.getModel(false);
     }
     
-    protected IValue createM3FromJarClass(ISourceLocation jarLoc, LimitedTypeStore store) {
+    protected IValue createM3FromJarClass(ISourceLocation jarLoc, IList classPath, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convertJar(jarLoc);
+        converter.convertJar(jarLoc, classPath);
         return converter.getModel(false);
     }
     
@@ -85,9 +85,9 @@ public class EclipseJavaCompiler {
         return createM3FromJarFile(jarLoc, getM3Store());
     }
     
-    protected IValue createM3FromJarFile(ISourceLocation jarLoc, LimitedTypeStore store) {
+    protected IValue createM3FromJarFile(ISourceLocation jarLoc, IList classPath, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convertJar(jarLoc);
+        converter.convertJar(jarLoc, classPath);
         return converter.getModel(false);
     }
     
