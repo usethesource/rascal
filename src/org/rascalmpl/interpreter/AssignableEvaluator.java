@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeFactory;
 

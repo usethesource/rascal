@@ -34,13 +34,14 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.values.uptr.ITree;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.uptr.ITree;
 
 /**
  * TODO: This interface was used by the
