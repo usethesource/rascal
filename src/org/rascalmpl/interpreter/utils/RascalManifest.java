@@ -46,7 +46,7 @@ public class RascalManifest {
     protected static final String REQUIRE_BUNDLES = "Require-Bundles";
     protected static final String REQUIRE_LIBRARIES = "Require-Libraries";
 
-    public Manifest getDefaultManifest() {
+    public Manifest getDefaultManifest(String projectName) {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
         mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "0.0.1");
@@ -54,6 +54,8 @@ public class RascalManifest {
         mainAttributes.put(new Attributes.Name(MAIN_MODULE), DEFAULT_MAIN_MODULE);
         mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);
         mainAttributes.put(new Attributes.Name(COURSES), DEFAULT_COURSES);
+        mainAttributes.put(new Attributes.Name(PROJECT_NAME), projectName);
+        mainAttributes.put(new Attributes.Name(REQUIRE_LIBRARIES), "");
         return manifest;
     }
     
