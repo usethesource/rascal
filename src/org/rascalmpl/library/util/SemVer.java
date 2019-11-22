@@ -36,6 +36,26 @@ public class SemVer {
 		this.build = build;
 	}
 	
+	public int getMajor() {
+        return major;
+    }
+	
+	public int getMinor() {
+        return minor;
+    }
+	
+	public int getPatch() {
+        return patch;
+    }
+	
+	public String getPrerelease() {
+        return prerelease;
+    }
+	
+	public String getBuild() {
+        return build;
+    }
+	
 	/**
 	 * @param version Semantic Version string
 	 * @throws RuntimeException when version is invalid
