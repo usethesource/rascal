@@ -14,6 +14,7 @@
 package org.rascalmpl.interpreter;
 
 import org.rascalmpl.debug.IRascalMonitor;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class NullRascalMonitor implements IRascalMonitor {

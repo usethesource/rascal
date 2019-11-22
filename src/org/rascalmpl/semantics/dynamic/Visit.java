@@ -42,7 +42,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		public DefaultStrategy(ISourceLocation __param1, IConstructor tree, Expression __param2,
 				List<Case> __param3) {
 			super(__param1, tree, __param2, __param3);
-			blocks = new CaseBlockList(Cases.precompute(getCases()));
+			blocks = new CaseBlockList(Cases.precompute(getCases(), true));
 		}
 
 		@Override
@@ -84,7 +84,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 		public GivenStrategy(ISourceLocation __param1, IConstructor tree, Strategy __param2,
 				Expression __param3, List<Case> __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
-			blocks = new CaseBlockList(Cases.precompute(getCases()));
+			blocks = new CaseBlockList(Cases.precompute(getCases(), true));
 		}
 
 		@Override

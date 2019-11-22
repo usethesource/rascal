@@ -12,6 +12,7 @@
 package org.rascalmpl.interpreter;
 
 import org.rascalmpl.interpreter.env.Environment;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;

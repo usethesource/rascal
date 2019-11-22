@@ -17,9 +17,9 @@ bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
      isEmpty(B) ==> C == A ||
      (slice(C, 0, size(A) - 1) == A && slice(C, size(A), size(C) - size(A)) == B);
 
-test bool concat(list[&T] A, list[&T] B) = isConcat(A, B, A + B);
-test bool concat(     &T  A, list[&T] B) = isConcat([A], B, [A] + B);
-test bool concat(list[&T] A,      &T  B) = isConcat(A, [B], A + [B]);
+test bool concat1(list[&T] A, list[&T] B) = isConcat(A, B, A + B);
+test bool concat2(     &T  A, list[&T] B) = isConcat([A], B, [A] + B);
+test bool concat3(list[&T] A,      &T  B) = isConcat(A, [B], A + [B]);
 
 // is A - B == C?
 bool isDiff(list[&T] A, list[&T] B, list[&T] C) =
@@ -144,7 +144,7 @@ test bool sliceFirst(list[int] L) {
   return S == makeSlice(L, f, f + 1, e);
 }
 
-test bool sliceFirst(list[&T] L) {
+test bool sliceFirst2(list[&T] L) {
   if(isEmpty(L)) return true;
   f = arbInt(size(L));
   S = L[f..];
