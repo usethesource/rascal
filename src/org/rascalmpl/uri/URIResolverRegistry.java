@@ -382,27 +382,15 @@ public class URIResolverRegistry {
     }
 
 	public boolean exists(ISourceLocation uri) {
-	    try {
-	        if (logicalResolvers.containsKey(uri.getScheme())) {
-	            uri = physicalLocation(uri);
+	    uri = safeResolve(uri);
 
-	            if (uri == null) {
-	                return false;
-	            }
-	        }
+	    ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
-	        ISourceLocationInput resolver = getInputResolver(uri.getScheme());
-
-	        if (resolver == null) {
-	            // TODO: should this not throw an exception? 
-	            return false;
-	        }
-
-	        return resolver.exists(uri);
-	    }
-	    catch (IOException e) {
+	    if (resolver == null) {
 	        return false;
 	    }
+
+	    return resolver.exists(uri);
 	}
 
 	public boolean isDirectory(ISourceLocation uri) {
