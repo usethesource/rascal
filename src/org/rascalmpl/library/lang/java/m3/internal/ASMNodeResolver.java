@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -55,8 +56,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
-
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.*;
 
 
 public class ASMNodeResolver implements NodeResolver {
@@ -116,7 +115,7 @@ public class ASMNodeResolver implements NodeResolver {
      * ASMNodeResolver constructor
      * @param typeStore
      */
-    public ASMNodeResolver(final LimitedTypeStore typeStore) {
+    public ASMNodeResolver(ISourceLocation uri, IList classPath, final LimitedTypeStore typeStore) {
         this.typeStore = typeStore;
         this.uri = uri;
         this.registry = URIResolverRegistry.getInstance();
@@ -445,8 +444,10 @@ public class ASMNodeResolver implements NodeResolver {
         String descriptor = type.getDescriptor()
             .replace("[", "")
             .replace("%5B", "");
+        String scheme = getTypeScheme(descriptor);
+        
         if (type.getClassName() == null) {
-            return M3LocationUtil.makeLocation(CLASS_SCHEME, "", descriptor);
+            return M3LocationUtil.makeLocation(scheme, "", descriptor);
         }
         
         /* According to the JVM specification we deal with base/primitive (B, C, D, F, I, J, S, Z),
@@ -456,11 +457,28 @@ public class ASMNodeResolver implements NodeResolver {
             .replace("[", "")
             .replace("]", "");
         
+        return M3LocationUtil.makeLocation(scheme, "", path);        
+    }
+
+    /**
+     * Returns the scheme of a type given its descriptor. It could be
+     * a primitive, enum, interface, or class scheme. If the descriptor
+     * points to a type that cannot be resolved, the method returns the
+     * class scheme by default.
+     * @param descriptor - descriptor of the type as described by the 
+     * JVM specification
+     * @return scheme of the type
+     */
+    private String getTypeScheme(String descriptor) {
         if (primitiveTypes.containsKey(descriptor)) {
-            return M3LocationUtil.makeLocation(PRIMITIVE_TYPE_SCHEME, "", path);
+            return PRIMITIVE_TYPE_SCHEME;
         }
-        else {
-            return M3LocationUtil.makeLocation(CLASS_SCHEME, "", path);
+        
+        String className = descriptor
+            .replace("[", "")
+            .replace("%5B", "");
+        if (className.startsWith("L") && className.endsWith(";")) {
+            className = className.substring(1, descriptor.length() - 1);
         }
         
         typeSchemes.computeIfAbsent(className, k -> resolveClassScheme(k));
@@ -476,11 +494,11 @@ public class ASMNodeResolver implements NodeResolver {
         ClassReader cr = buildClassReader(className);
         return (cr != null) ? resolveClassScheme(cr.getAccess()) : CLASS_SCHEME;
     }
-
+    
     /**
      * Returns a class scheme based on the class' access flags.
      */
-    private String getClassScheme(int access) {
+    private String resolveClassScheme(int access) {
         return ((access & Opcodes.ACC_INTERFACE) != 0) ? INTERFACE_SCHEME 
             : ((access & Opcodes.ACC_ENUM) != 0) ? ENUM_SCHEME 
             : CLASS_SCHEME;
@@ -705,4 +723,5 @@ public class ASMNodeResolver implements NodeResolver {
     public ClassReader buildClassReader(InputStream classStream) throws IOException {
         return new ClassReader(classStream);
     }
+    
 }
