@@ -20,9 +20,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ISourceLocationInput;
@@ -47,11 +45,11 @@ import io.usethesource.vallang.IValueFactory;
  * <p>CAVEAT: this resolver drops the query and offset/length components of the incoming source locations</p>
  */
 public class RascalLibraryURIResolver implements ISourceLocationInput {
-    private final Map<String, ISourceLocation> libraries = new HashMap<>();
-    private final Set<String> nonExistentPluginsCache = new HashSet<>();
+    private final HashMap<String, ISourceLocation> libraries = new HashMap<>(); // only written to in the constructor, so thread-safe
+    private final ConcurrentHashMap<String, String> nonExistentPluginsCache = new ConcurrentHashMap<>(); // written to by deferToPluginScheme
     private final URIResolverRegistry reg;
     private boolean pluginsExist;
-    private boolean pluginExistChecked; 
+    private boolean pluginExistChecked; // threat friendly boolean, a race might lead to a double check but not a failure. 
     
     public RascalLibraryURIResolver(URIResolverRegistry reg) {
         this.reg = reg;
@@ -119,7 +117,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
     private ISourceLocation deferToPluginScheme(ISourceLocation uri) {
         String libName = uri.getAuthority();
         
-        if (pluginsExist() && !nonExistentPluginsCache.contains(libName)) {
+        if (pluginsExist() && !nonExistentPluginsCache.containsKey(libName) /* might miss a concurrent first update, but that's ok */) {
             ISourceLocation deferred = URIUtil.correctLocation("plugin", libName, "");
             
             // store the resolved location for later quick-access, but only if a RASCAL.MF file can be found
@@ -132,8 +130,8 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
                 return URIUtil.getChildLocation(deferred, uri.getPath());
             }
             else {
-                // don't want to check again and again that a plugin does not exist!
-                nonExistentPluginsCache.add(libName);
+                // don't want to check again and again that a plugin does not exist! cache is done atomically for thread-safety
+                nonExistentPluginsCache.merge(libName, libName, (existingValue, newValue) -> newValue /* this happens with an accidental concurrent first "containsKey" call */);
                 return null;
             }
         }
