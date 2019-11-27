@@ -325,7 +325,7 @@ public class RascalManifest {
                 String source = manifest.getMainAttributes().getValue(label);
 
                 if (source != null) {
-                    return Arrays.<String>asList(trim(source.split(",")));
+                    return Arrays.<String>asList(trim(source.trim().split(",")));
                 }
             }
             catch (IOException e) {
