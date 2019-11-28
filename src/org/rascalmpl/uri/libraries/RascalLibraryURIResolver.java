@@ -19,7 +19,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
@@ -32,24 +31,26 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 
 /**
- * For every META-INF/RASCAL.MF which includes a Project-Name: &ltname&gt field that this class can find via ClassLoader.getResources (via its own Classloader) the 
- * resolver will offer a |lib://&ltname&gt| root location. The idea is that the root of the jar in which any Rascal library is deployed is accessible via the lib schema.
- * 
- * <p>Next to this, if a "plugin" scheme is registered with URIResolverRegistry, then and only if a library
- * was not registered before with the previous method, this resolver will rewrite |lib://...| to |plugin://...|. The latter method is to allow
- * for app containers like MVN:EXEC, OSGI and SPRING to provide their own implementation of the plugin scheme and make resources findable for the lib:// scheme. </p> 
- * So, if a Rascal library is deployed into such a generic app container context, which offers dependency injection, the lib schema will again resolve to the 
- * root of the jar in which the library is deployed. Of course the proper working of the lib scheme depends wholly on the proper implementation of the plugin scheme
- * for every different app container.
- * 
- * <p>CAVEAT: this resolver drops the query and offset/length components of the incoming source locations</p>
+ * The goal of this resolver is to provide |lib://&ltlibName&gt/| for every Rascal library available in the current run-time environment.
+ * To do this, it searches for META-INF/RASCAL.MF files in 3 places, and checks if the Project-Name inside of that file is equal to &ltlibName&gt:
+ * <ul>
+ *   <li>|target://&ltlibName&gt| is probed first, in order to give precedence to the target folder of projects in a current IDE workspace;</li>
+ *   <li>|plugin://&ltlibName&gt| is probed next, in order to give precedence to plugins loaded by application containers such as OSGI;</li>
+ *   <li>Finally ClassLoader.getResources is probed to resolve to |jar+file://path-to-jar-on-classpath!/| if a RASCAL.MF can be found there with the proper Project-Name in it. So this only searches in the JVM start-up classpath via its URLClassLoaders, ignoring plugin mechanisms like OSGI and the like.</li>
+ * </ul>  
+ * <p>CAVEAT 1: this resolver caches the first resolution (target, plugin or jarfile) and does not rescind it afterwards even if the locations
+ * cease to exist. This might happen due to plugin unloading, or by closure or removal of a workspace project. To re-initialize an
+ * already resolved |lib://&ltlibName&gt| path, either the JVM must be reloaded (restart the IDE) or the current class must be reloaded 
+ * (restart the plugin which loaded the Rascal run-time). TODO FIXME by allowing re-initialization of this entire resolver by the URIResolverRegistry.</p>
+ * <p>CAVEAT 2: this resolver drops the query and offset/length components of the incoming source locations. TODO FIXME</p>
+ * <p>CAVEAT 3: it is up to the respective run-time environments (Eclipse, OSGI, MVN, Spring, etc.) to provide the respective implementations
+ * of ISourceLocation input for the target:// and plugin:// schemes. If these are not provided, this resolver only resolves to resources
+ * which can be found via the System classloader.</p>
  */
 public class RascalLibraryURIResolver implements ISourceLocationInput {
-    private final HashMap<String, ISourceLocation> libraries = new HashMap<>(); // only written to in the constructor, so thread-safe
-    private final ConcurrentHashMap<String, String> nonExistentPluginsCache = new ConcurrentHashMap<>(); // written to by deferToPluginScheme
+    private final ConcurrentHashMap<String, ISourceLocation> classpathLibraries = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ISourceLocation> resolvedLibraries = new ConcurrentHashMap<>();
     private final URIResolverRegistry reg;
-    private boolean pluginsExist;
-    private boolean pluginExistChecked; // threat friendly boolean, a race might lead to a double check but not a failure. 
     
     public RascalLibraryURIResolver(URIResolverRegistry reg) {
         this.reg = reg;
@@ -75,7 +76,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
 
                         loc = URIUtil.changePath(loc, loc.getPath().replace(RascalManifest.META_INF_RASCAL_MF, ""));
 
-                        registerLibrary(libName, loc);
+                        registerLibrary(classpathLibraries, libName, loc);
                     }
                 }
                 catch (IOException | URISyntaxException e) {
@@ -90,74 +91,92 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
         }
     }
 
-    private void registerLibrary(String libName, ISourceLocation loc) {
+    private void registerLibrary(ConcurrentHashMap<String, ISourceLocation> libs, String libName, ISourceLocation loc) {
         System.err.println("INFO: registered |lib://" + libName + "| at " + loc);
-        libraries.put(libName, loc);
+        libs.merge(libName, loc, (o, n) -> n);
     }
     
+    /**
+     * Resolve a lib location to either a target, a plugin or a local classpath location, in that order of precedence.
+     */
     private ISourceLocation resolve(ISourceLocation uri) {
-        assert uri.getScheme().equals(scheme());
-        
         String libName = uri.getAuthority();
         
         if (libName == null || libName.isEmpty()) {
             return null;
         }
-        
-        ISourceLocation root = libraries.get(libName);
-        
-        if (root != null) {
-            return URIUtil.getChildLocation(root, uri.getPath());    
+
+        // if we resolved this library before, we stick with that initial resolution for efficiency's sake
+        ISourceLocation resolved = resolvedLibraries.get(libName);
+        if (resolved != null) {
+            return URIUtil.getChildLocation(resolved, uri.getPath());
         }
-        else {
-            return deferToPluginScheme(uri);
+        
+        // project target folders are then tried, taking precedence over plugin libraries and classpath libraries
+        ISourceLocation target = deferToScheme(uri, "target");
+        if (target != null) {
+            return target;
         }
+        
+        // then we try plugin libraries, taking precedence over classpath libraries
+        ISourceLocation plugin = deferToScheme(uri, "plugin");
+        if (plugin != null) {
+            return plugin;
+        }
+
+        // finally we try the classpath libraries
+        ISourceLocation classpath = classpathLibraries.get(libName);
+        if (classpath != null) {
+            return resolvedLocation(uri, libName, classpath);
+        }
+        
+        return null;
     }
     
-    private ISourceLocation deferToPluginScheme(ISourceLocation uri) {
+    /**
+     * Tries to find a RASCAL.MF file in the deferred scheme's root and if it's present, the
+     * prefix is cached and the child location is returned.
+     */
+    private ISourceLocation deferToScheme(ISourceLocation uri, String scheme) {
         String libName = uri.getAuthority();
-        
-        if (pluginsExist() && !nonExistentPluginsCache.containsKey(libName) /* might miss a concurrent first update, but that's ok */) {
-            ISourceLocation deferred = URIUtil.correctLocation("plugin", libName, "");
-            
-            // store the resolved location for later quick-access, but only if a RASCAL.MF file can be found
-            if (reg.exists(URIUtil.getChildLocation(deferred, RascalManifest.META_INF_RASCAL_MF))) {
-                assert new RascalManifest().getProjectName(deferred).equals(libName) 
-                     : "Project-Name in RASCAL.MF does not align with plugin name in the respective app container (OSGI?)";
-                
-                registerLibrary(libName, deferred);
-                
-                return URIUtil.getChildLocation(deferred, uri.getPath());
-            }
-            else {
-                // don't want to check again and again that a plugin does not exist! cache is done atomically for thread-safety
-                nonExistentPluginsCache.merge(libName, libName, (existingValue, newValue) -> newValue /* this happens with an accidental concurrent first "containsKey" call */);
-                return null;
-            }
+        ISourceLocation libRoot = URIUtil.correctLocation(scheme, libName, "");
+
+        if (isValidLibraryRoot(libRoot)) {
+            return resolvedLocation(uri, libName, libRoot);
         }
         else {
-            // if either the plugin scheme does not exist, or this authority did not exist before with a RASCAL.MF file in it,
-            // then we bail out quickly.
             return null;
         }
     }
 
-    private boolean pluginsExist() {
-        if (pluginExistChecked) {
-            return pluginsExist;
+    /**
+     * Check if this root contains a valid RASCAL.MF file
+     */
+    private boolean isValidLibraryRoot(ISourceLocation libRoot) {
+        try {
+            return reg.exists(URIUtil.getChildLocation(libRoot, RascalManifest.META_INF_RASCAL_MF));
         }
-        else {
-            // this locks the registry so we don't want to do this every time we try to address a lib:// location
-            pluginsExist = reg.supportsInputScheme("plugin");
-            pluginExistChecked = true;
-            return pluginsExist;
+        finally {
+            assert new RascalManifest().getProjectName(libRoot).equals(libRoot.getAuthority())
+            : "Project-Name in RASCAL.MF does not align with authority of the " + libRoot.getScheme() + " scheme";
         }
     }
 
+    /**
+     * compute the resolved child location and cache the prefix as a side-effect for a future fast path
+     */
+    private ISourceLocation resolvedLocation(ISourceLocation uri, String libName, ISourceLocation deferredLoc) {
+        registerLibrary(resolvedLibraries, libName, deferredLoc);
+        return URIUtil.getChildLocation(deferredLoc, uri.getPath());
+    }
+
+    /**
+     * Resolve a location and if not possible throw an exception
+     */
     private ISourceLocation safeResolve(ISourceLocation uri) throws IOException {
         ISourceLocation resolved = resolve(uri);
         if (resolved == null) {
-            throw new IOException("could not resolve " + uri);
+            throw new IOException("lib:// resolver could not resolve " + uri);
         }
         return resolved;
     }
@@ -166,8 +185,6 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
     public InputStream getInputStream(ISourceLocation uri) throws IOException {
         return reg.getInputStream(safeResolve(uri));
     }
-
-    
 
     @Override
     public Charset getCharset(ISourceLocation uri) throws IOException {
