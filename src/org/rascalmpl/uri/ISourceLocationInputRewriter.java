@@ -22,7 +22,7 @@ import io.usethesource.vallang.ISourceLocation;
 public interface ISourceLocationInputRewriter extends ISourceLocationInput {
     public static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
-    ISourceLocation rewrite(ISourceLocation uri);
+    ISourceLocation rewrite(ISourceLocation uri) throws IOException;
     
     @Override
     default InputStream getInputStream(ISourceLocation uri) throws IOException {
@@ -41,7 +41,12 @@ public interface ISourceLocationInputRewriter extends ISourceLocationInput {
     
     @Override
     default boolean exists(ISourceLocation uri) {
-        return reg.exists(rewrite(uri));
+        try {
+            return reg.exists(rewrite(uri));
+        } 
+        catch (IOException e) {
+            return false;
+        }
     }
     
     @Override
@@ -51,12 +56,22 @@ public interface ISourceLocationInputRewriter extends ISourceLocationInput {
     
     @Override
     default boolean isDirectory(ISourceLocation uri) {
-        return reg.isDirectory(rewrite(uri));
+        try {
+            return reg.isDirectory(rewrite(uri));
+        }
+        catch (IOException e) {
+            return false;
+        }
     }
     
     @Override
     default boolean isFile(ISourceLocation uri)  {
-        return reg.isFile(rewrite(uri));
+        try {
+            return reg.isFile(rewrite(uri));
+        }
+        catch (IOException e) {
+            return false;
+        }
     }
     
     @Override
