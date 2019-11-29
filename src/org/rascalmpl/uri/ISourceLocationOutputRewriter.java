@@ -20,8 +20,8 @@ import java.nio.charset.Charset;
 import io.usethesource.vallang.ISourceLocation;
 
 public interface ISourceLocationOutputRewriter extends ISourceLocationOutput {
-    public static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
-    
+
+    URIResolverRegistry reg();
     ISourceLocation rewrite(ISourceLocation uri) throws IOException;
     
     @Override
@@ -38,17 +38,17 @@ public interface ISourceLocationOutputRewriter extends ISourceLocationOutput {
     
     @Override
     default FileChannel getWritableOutputStream(ISourceLocation uri, boolean append) throws IOException {
-        return reg.getWriteableFileChannel(rewrite(uri), append);
+        return reg().getWriteableFileChannel(rewrite(uri), append);
     }
 
     @Override
     default void remove(ISourceLocation uri) throws IOException {
-        reg.remove(rewrite(uri));
+        reg().remove(rewrite(uri));
     }
     
     @Override
     default Charset getCharset(ISourceLocation uri) throws IOException {
-        return reg.getCharset(rewrite(uri));
+        return reg().getCharset(rewrite(uri));
     }
     
     @Override

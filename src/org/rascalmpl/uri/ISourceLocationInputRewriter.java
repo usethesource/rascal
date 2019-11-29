@@ -20,29 +20,29 @@ import java.nio.charset.Charset;
 import io.usethesource.vallang.ISourceLocation;
 
 public interface ISourceLocationInputRewriter extends ISourceLocationInput {
-    public static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
+    URIResolverRegistry reg();
     ISourceLocation rewrite(ISourceLocation uri) throws IOException;
     
     @Override
     default InputStream getInputStream(ISourceLocation uri) throws IOException {
-        return reg.getInputStream(rewrite(uri));
+        return reg().getInputStream(rewrite(uri));
     }
     
     @Override
     default FileChannel getReadableFileChannel(ISourceLocation uri) throws IOException {
-        return reg.getReadableFileChannel(rewrite(uri));
+        return reg().getReadableFileChannel(rewrite(uri));
     }
     
     @Override
     default Charset getCharset(ISourceLocation uri) throws IOException {
-        return reg.getCharset(rewrite(uri));
+        return reg().getCharset(rewrite(uri));
     }
     
     @Override
     default boolean exists(ISourceLocation uri) {
         try {
-            return reg.exists(rewrite(uri));
+            return reg().exists(rewrite(uri));
         } 
         catch (IOException e) {
             return false;
@@ -51,13 +51,13 @@ public interface ISourceLocationInputRewriter extends ISourceLocationInput {
     
     @Override
     default long lastModified(ISourceLocation uri)  throws IOException {
-        return reg.lastModified(rewrite(uri));
+        return reg().lastModified(rewrite(uri));
     }
     
     @Override
     default boolean isDirectory(ISourceLocation uri) {
         try {
-            return reg.isDirectory(rewrite(uri));
+            return reg().isDirectory(rewrite(uri));
         }
         catch (IOException e) {
             return false;
@@ -67,7 +67,7 @@ public interface ISourceLocationInputRewriter extends ISourceLocationInput {
     @Override
     default boolean isFile(ISourceLocation uri)  {
         try {
-            return reg.isFile(rewrite(uri));
+            return reg().isFile(rewrite(uri));
         }
         catch (IOException e) {
             return false;
@@ -76,7 +76,7 @@ public interface ISourceLocationInputRewriter extends ISourceLocationInput {
     
     @Override
     default String[] list(ISourceLocation uri)  throws IOException {
-        return reg.listEntries(rewrite(uri));
+        return reg().listEntries(rewrite(uri));
     }
 
     @Override
