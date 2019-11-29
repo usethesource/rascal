@@ -529,11 +529,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       }
       else {
         throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
-        return null;
       }
     }
     catch (MatchFailed e) {
         getStdOut().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+        return null;
     }
     finally {
       setMonitor(old);
