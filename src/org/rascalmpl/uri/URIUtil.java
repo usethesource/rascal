@@ -305,7 +305,7 @@ public class URIUtil {
 	
 	public static ISourceLocation getChildLocation(ISourceLocation loc, String child) {
 		String childPath = loc.getPath();
-		if (childPath == null || childPath.isEmpty()) {
+		if (childPath == null || childPath.isEmpty() || child.equals("/")) {
 			childPath = "/";
 		}
 		else if (!childPath.endsWith("/")) {
