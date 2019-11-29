@@ -305,13 +305,16 @@ public class URIUtil {
 	
 	public static ISourceLocation getChildLocation(ISourceLocation loc, String child) {
 		String childPath = loc.getPath();
-		if (childPath == null || childPath.isEmpty() || child.equals("/")) {
+		if (childPath == null || childPath.isEmpty()) {
 			childPath = "/";
 		}
 		else if (!childPath.endsWith("/")) {
 			childPath += "/";
 		}
-		childPath += child;
+		
+		if (!child.equals("/")) {
+		    childPath += child;
+		}
 
 		try {
 			return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), childPath, loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
