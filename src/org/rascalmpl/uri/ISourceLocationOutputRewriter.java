@@ -22,11 +22,18 @@ import io.usethesource.vallang.ISourceLocation;
 public interface ISourceLocationOutputRewriter extends ISourceLocationOutput {
     public static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     
-    ISourceLocation rewrite(ISourceLocation uri);
+    ISourceLocation rewrite(ISourceLocation uri) throws IOException;
     
     @Override
     default OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
-        return reg.getOutputStream(rewrite(uri), append);
+        ISourceLocation parent = rewrite(URIUtil.getParentLocation(uri));
+        return URIResolverRegistry.getInstance().getOutputStream(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)), append);
+    }
+
+    @Override
+    default void mkDirectory(ISourceLocation uri) throws IOException {
+        ISourceLocation parent = rewrite(URIUtil.getParentLocation(uri));
+        URIResolverRegistry.getInstance().mkDirectory(URIUtil.getChildLocation(parent, URIUtil.getLocationName(uri)));
     }
     
     @Override
@@ -34,11 +41,6 @@ public interface ISourceLocationOutputRewriter extends ISourceLocationOutput {
         return reg.getWriteableFileChannel(rewrite(uri), append);
     }
 
-    @Override
-    default void mkDirectory(ISourceLocation uri) throws IOException {
-        reg.mkDirectory(rewrite(uri));
-    }
-    
     @Override
     default void remove(ISourceLocation uri) throws IOException {
         reg.remove(rewrite(uri));
