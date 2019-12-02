@@ -61,6 +61,26 @@ public class URIResolverRegistry {
 	    loadServices();
 	}
 
+	/**
+	 * Use with care! This (expensive) reinitialization method clears all caches of all resolvers by reloading them from scratch.
+	 * 
+	 * <p>This can be beneficial if the state of a system changes outside of the scope of the resolvers themselves, for
+	 * example when projects open or close inside a workspace or when plugins are loaded or unloaded dynamically. In other words,
+	 * when the URIs are possibly not uniquely identifying the same resource anymore, it's high time to 
+	 * re-initialize this registry and all of its resolvers from scratch. If such a URI re-defining event is detected, host environments 
+	 * (IDEs, app containers, language servers) should call this method.</p>
+	 * 
+	 * <p>CAVEAT: after this reinitialization all location caches have been removed and so the first locations to be used may require
+	 * expensive indexing and probing operations, for example extracting and indexing jar files and testing whether plugins
+	 * are loaded or projects have target folders, etc.</p>
+	 * <p>CAVEAT: it is not possible and will not be possible to re-init specific URI schemes leaving others untouched. 
+	 * This in the interest of the black-box and immutable design of the URI resolution mechanism. The only reason to call reinitialize() 
+	 * is when this entire abstraction has failed, so when URIs are accidentally not URIs anymore.  
+	 */
+	public void reinitialize() {
+	    loadServices();
+	}
+	
 	private void loadServices() {
 	    try {
             Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
