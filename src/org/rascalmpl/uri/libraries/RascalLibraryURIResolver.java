@@ -32,19 +32,18 @@ import io.usethesource.vallang.IValueFactory;
 
 /**
  * The goal of this resolver is to provide |lib://&ltlibName&gt/| for every Rascal library available in the current run-time environment.
- * To do this, it searches for META-INF/RASCAL.MF files in 3 places, and checks if the Project-Name inside of that file is equal to &ltlibName&gt:
+ * To do this, it searches for META-INF/RASCAL.MF files in 2 places, and checks if the Project-Name inside of that file is equal to &ltlibName&gt:
  * <ul>
- *   <li>|target://&ltlibName&gt| is probed first, in order to give precedence to the target folder of projects in a current IDE workspace;</li>
- *   <li>|plugin://&ltlibName&gt| is probed next, in order to give precedence to plugins loaded by application containers such as OSGI;</li>
+ *   <li>|plugin://&ltlibName&gt| is probed first, in order to give precedence to plugins loaded by application containers such as OSGI;</li>
  *   <li>Finally ClassLoader.getResources is probed to resolve to |jar+file://path-to-jar-on-classpath!/| if a RASCAL.MF can be found there with the proper Project-Name in it. So this only searches in the JVM start-up classpath via its URLClassLoaders, ignoring plugin mechanisms like OSGI and the like.</li>
  * </ul>  
- * <p>CAVEAT 1: this resolver caches the first resolution (target, plugin or jarfile) and does not rescind it afterwards even if the locations
- * cease to exist. This might happen due to plugin unloading, or by closure or removal of a workspace project. To re-initialize an
+ * <p>CAVEAT 1: this resolver caches the first resolution (plugin or jarfile) and does not rescind it afterwards even if the locations
+ * cease to exist. This might happen due to plugin unloading. To re-initialize an
  * already resolved |lib://&ltlibName&gt| path, either the JVM must be reloaded (restart the IDE) or the current class must be reloaded 
  * (restart the plugin which loaded the Rascal run-time). TODO FIXME by allowing re-initialization of this entire resolver by the URIResolverRegistry.</p>
  * <p>CAVEAT 2: this resolver drops the query and offset/length components of the incoming source locations. TODO FIXME</p>
  * <p>CAVEAT 3: it is up to the respective run-time environments (Eclipse, OSGI, MVN, Spring, etc.) to provide the respective implementations
- * of ISourceLocation input for the target:// and plugin:// schemes. If these are not provided, this resolver only resolves to resources
+ * of ISourceLocation input for the plugin:// scheme. If it is not provided, this resolver only resolves to resources
  * which can be found via the System classloader.</p>
  */
 public class RascalLibraryURIResolver implements ISourceLocationInput {
@@ -97,7 +96,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
     }
     
     /**
-     * Resolve a lib location to either a target, a plugin or a local classpath location, in that order of precedence.
+     * Resolve a lib location to either a plugin or a local classpath location, in that order of precedence.
      */
     private ISourceLocation resolve(ISourceLocation uri) {
         String libName = uri.getAuthority();
@@ -110,12 +109,6 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
         ISourceLocation resolved = resolvedLibraries.get(libName);
         if (resolved != null) {
             return URIUtil.getChildLocation(resolved, uri.getPath());
-        }
-        
-        // project target folders are then tried, taking precedence over plugin libraries and classpath libraries
-        ISourceLocation target = deferToScheme(uri, "target");
-        if (target != null) {
-            return target;
         }
         
         // then we try plugin libraries, taking precedence over classpath libraries
