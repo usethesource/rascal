@@ -520,7 +520,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       
       AbstractFunction main = (AbstractFunction) func;
       
-      if (main.getArity() == 1) {
+      if (main.getArity() == 1 && main.getFormals().getFieldType(0).isSubtypeOf(tf.listType(tf.stringType()))) {
         return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
       else if (main.hasKeywordArguments() && main.getArity() == 0) {
