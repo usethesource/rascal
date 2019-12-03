@@ -38,10 +38,10 @@ import org.rascalmpl.core.values.uptr.RascalValueFactory;
 data type[&T] = type(Symbol symbol, map[Symbol, Production] definitions);
 </pre>
  */
-public class TypeReifier {
+public class CoreTypeReifier {
     private final IValueFactory vf;
 
-    public TypeReifier(IValueFactory valueFactory) {
+    public CoreTypeReifier(IValueFactory valueFactory) {
         this.vf = valueFactory;
     }
 
