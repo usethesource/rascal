@@ -142,7 +142,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
         returnType = lubList(conses<0>);
         getterType = afunc(returnType, [adtType], []);
         adtVar = muVar(adtName, fuid, 0, adtType);
-        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, consType.label, size(consType.fields), adtVar),
+        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(consType.label), size(consType.fields), adtVar),
                               muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName)))
                        | <kwType, consType> <- conses
                        ]
@@ -173,7 +173,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
         
         getterType = afunc(fieldType, [adtType], []);
         adtVar = muVar(adtName, fuid, 0, adtType);
-        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, consType.label, size(consType.fields), adtVar),
+        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(consType.label), size(consType.fields), adtVar),
                               muReturn1(fieldType, muGetFieldFromConstructor(fieldType, consType, adtVar, fieldName)))
                        | consType <- conses
                        ]
@@ -191,25 +191,25 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
 // -- function declaration ------------------------------------------
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   {
-  translateFunctionDeclaration(fd, [], [], addReturn=true);
+  translateFunctionDeclaration(fd, [], []);
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
   Statement stat = (Statement) `<Expression expression>;`;
-  translateFunctionDeclaration(fd, [stat], [], addReturn=true);
+  translateFunctionDeclaration(fd, [stat], []);
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
   Statement stat = (Statement) `<Expression expression>;`;
-  translateFunctionDeclaration(fd, [stat], [exp | exp <- conditions], addReturn=true); 
+  translateFunctionDeclaration(fd, [stat], [exp | exp <- conditions]); 
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
   translateFunctionDeclaration(fd, [stat | stat <- body.statements], []);
 }
 
-private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, list[Expression] when_conditions, bool addReturn=false){
-  //println("r2mu: Compiling \uE007[<fd.signature.name>](<fd@\loc>)");
+private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, list[Expression] when_conditions){
+  println("r2mu: Compiling \uE007[<fd.signature.name>](<fd@\loc>)");
   
   inScope = topFunctionScope();
   funsrc = fd@\loc;
@@ -267,26 +267,27 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
          } else {
             mubody = muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid);
         }
-      } else if(addReturn && !isEmpty(body)){
-            if((Statement) `<Expression expression>;` := body[0] && isConditional(expression)){
-                mubody = translateBool(expression.condition, prettyPrintName(fd.signature.name), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp)));
-            } else if((Statement) `<Expression expression>;` := body[0] && isMatchOrNoMatch(expression)){
-                returnValue = (Expression) `<Pattern pat> := <Expression rhs>` := expression;
-                mubody = translateBool(expression, prettyPrintName(fd.signature.name), muReturn1(resultType, muCon(returnValue)), muReturn1(resultType, muCon(!returnValue)));
+      } else if(!isEmpty(body)){
+            if((Statement) `<Expression expression>;` := body[0]){
+                if(isBoolType(resultType)){
+                    mubody = muReturn1(abool(), translate(expression));
+                    //mubody = translateBool(expression, getResumptionScope(), muReturn1(abool(), muCon(true)), muReturn1(abool(), muCon(false)));
+                } else if(isConditional(expression)){
+                    mubody = muEnter(getResumptionScope(), translateBool(expression.condition, prettyPrintName(fd.signature.name), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp))));
+                } else {
+                    mubody = muReturn1(resultType, translate(expression));
+                }
             } else {
-                mubody = translate(body[0]);
+                mubody = muBlock([ translate(stat) | stat <- body ]);
             }
-      } else {
-            mubody = muBlock([ translate(stat) | stat <- body ]);
       }
-      
      
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
       <formalVars, tbody> = translateFunction(prettyPrintName(fd.signature.name), fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
-      if(resultType != avoid() && !ttags["javaClass"]?){
-        tbody = muReturn1(resultType, tbody);
-      }
+      //if(resultType != avoid() && !ttags["javaClass"]?){
+      //  tbody = muReturn1(resultType, tbody);
+      //}
       
       iprintln(tbody);
       
@@ -371,7 +372,7 @@ lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Paramet
 /*                  Translate function body                         */
 /********************************************************************/
 
-MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo) {
+MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo, bool addReturn=false) {
   if(ftype.ret == avoid()){ 
     res = body;
     if(isMemo){
@@ -382,7 +383,7 @@ MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool i
       }
      return res;
   } else {
-      res = muReturn1(ftype.ret, body);
+      res = addReturn ? muReturn1(ftype.ret, body) : body;
       if(isMemo){
          res = visit(res){
             case muReturn1(t, e) => muMemoReturn1(ftype, formalVars, e)
@@ -402,7 +403,7 @@ MuExp functionBody(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo)
     }
 }
 
-tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp body, bool isMemo, list[Expression] when_conditions){
+tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp body, bool isMemo, list[Expression] when_conditions, bool addReturn=false){
      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
      
      enterBacktrackingScope(fname);
@@ -416,17 +417,18 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
     
      //when_body = returnFromFunction(translateAndConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
      
-     when_body = translateAndConds(fname, when_conditions, returnFromFunction(body, ftype, formalVars, isMemo), muFailReturn(ftype));
+     iprintln(body);
+     when_body = returnFromFunction(body, ftype, formalVars, isMemo, addReturn=addReturn);
+     iprintln(when_body);
+     if(!isEmpty(when_conditions)){
+        when_body = translateAndConds(fname, when_conditions, when_body, muFailReturn(ftype));
+     }
      params_when_body = ( when_body
                         | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));
                         
-     funCode = functionBody(isVoidType(ftype.ret) ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
+     funCode = functionBody(isVoidType(ftype.ret) || !addReturn ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
       
-     //funCode = functionBody(isVoidType(ftype.ret) ? params_when_body 
-     //                                             : (isBoolType(ftype.ret) ? muReturn1(ftype.ret, muBlock([params_when_body, muReturn1( abool(), muCon(false))]))
-     //                                                                      : muReturn1(ftype.ret, params_when_body)),
-     //                       ftype, formalVars, isMemo);
      leaveBacktrackingScope(fname);
      return <formalVars, funCode>;
 }

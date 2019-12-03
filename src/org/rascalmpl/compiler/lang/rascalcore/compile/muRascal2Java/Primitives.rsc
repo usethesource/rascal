@@ -88,7 +88,6 @@ JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie j
                                                                                            when isMapType(a), isMapType(b);
 
 // ---- create_... ------------------------------------------------------------
-
                                                                                     
 // TODO reconsider arg [AType a]
 JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)            = "$VF.list(<intercalate(", ", args)>)";
@@ -101,6 +100,8 @@ JCode transPrim("create_loc_with_offset_and_begin_end", aloc(), [aloc()], [str l
                                                                                           = "$create_aloc_with_offset_and_begin_end(<intercalate(", ", [l, castArg(aint(), off), castArg(aint(), len), bgn, end])>)";
 
 JCode transPrim("create_tuple", AType r, list[AType] argTypes, list[str] args, JGenie jg) = "$VF.tuple(<intercalate(", ", args)>)";
+
+list[str] transPrimArgs("create_node", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) = [ trans(exp, jg) | exp <- exps ];
 JCode transPrim("create_node", AType r, list[AType] argTypes, [str name, *str args, str kwpMap], JGenie jg)
                                                                                          = "$VF.node(<name>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
 // ---- divide ----------------------------------------------------------------
@@ -130,6 +131,9 @@ JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie 
                                                                                            when isRelOnlyType(a);
 JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$alrel_field_project((IList)<x>, <intercalate(", ", args)>)"
                                                                                            when isListRelOnlyType(a);
+
+// ---- get_node_name ---------------------------------------------------------
+JCode transPrim("get_anode_name", astr(), [anode(_)], [str x], JGenie jg)                = "$anode_get_name((INode)<x>)";
 
 // ---- guarded_field_project -------------------------------------------------
 

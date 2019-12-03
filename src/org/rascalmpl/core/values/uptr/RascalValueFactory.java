@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 import org.rascalmpl.core.parser.gtd.util.ArrayList;
 import org.rascalmpl.core.types.RascalTypeFactory;
-import org.rascalmpl.core.types.TypeReifier;
+import org.rascalmpl.core.types.CoreTypeReifier;
 import org.rascalmpl.core.values.uptr.visitors.TreeVisitor;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
@@ -82,7 +82,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
  *    * At least all definitions necessary for constructing any value of type &T are
  *      listed in the `definitions` map.
  * Note that a reified type is in fact also a reified type environment.
- * Use {@link TypeReifier} for mapping back and forth between Types and reified types.
+ * Use {@link CoreTypeReifier} for mapping back and forth between Types and reified types.
  * 
  * For (de)serialization using (for example) {@link StandardTextReader} and {@link StandardTextWriter}
  * the RascalValueFactory is needed as a parameter as well as its {@method getStore()} method to
@@ -102,7 +102,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 	// This is where we bind the persistent implementation of IValueFactory:
 	private static final IValueFactory bootFactory = ValueFactory.getInstance();
-	private final TypeReifier tr = new TypeReifier(bootFactory);
+	private final CoreTypeReifier tr = new CoreTypeReifier(bootFactory);
 	
 	private static final Type str = tf.stringType();
 	

@@ -120,10 +120,14 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
           c.fact(current, avalue(label=unescape("<name>")));  
           c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(label=unescape("<name>")); }));
        } else {
-          if(c.isAlreadyDefined("<name>", name)) c.report(warning(name, "Pattern variable %q has been introduced before, add explicit declaration of its type", name));
-          tau = c.newTypeVar(name);
-          c.fact(name, tau); //<====
-          c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau)[label=unescape("<name>")]; }));
+          if(c.isAlreadyDefined("<name>", name)){
+            c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+            c.report(warning(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
+          } else {
+            tau = c.newTypeVar(name);
+            c.fact(name, tau); //<====
+            c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau)[label=unescape("<name>")]; }));
+          }
        }
     } else {
        c.fact(name, avalue(label=unescape("<name>")));
@@ -146,11 +150,15 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
           c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(); }));
        } else {
-          if(c.isAlreadyDefined("<name>", name)) c.report(warning(name, "Pattern variable %q has been introduced before, add explicit declaration of its type", name));
-          tau = c.newTypeVar(name);
-          c.fact(name, tau);     //<====
-          //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
-          c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau)[label=unescape("<name>")]; }));
+          if(c.isAlreadyDefined("<name>", name)) {
+            c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+            c.report(warning(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
+          } else {
+            tau = c.newTypeVar(name);
+            c.fact(name, tau);     //<====
+            //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
+            c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau)[label=unescape("<name>")]; }));
+          }
        }
     } else {
        c.fact(name, alist(avalue(),label=unescape("<name>")));
@@ -219,16 +227,18 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
               //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
               c.define(base, formalId(), argName, defLub([], AType(Solver s) { return avalue(); }));
            } else {
-              tau = c.newTypeVar(current); // <== argName;
-              c.fact(current, tau);    // <===
-              if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
-              c.define(base, formalOrPatternFormal(c), argName, 
-                        defLub([], AType(Solver s) { 
-                        return inSet ? makeSetType(tau) : makeListType(tau);}));
-              //c.define(qname.name, variableId(), argName, 
-              //          defLub([], AType(Solver s) { 
-              //          tp = getType(tau); return inSet ? makeSetType(expandUserTypes(tp, scope, s) : makeListType(expandUserTypes(tp, scope, s));}));
-           }
+              if(c.isAlreadyDefined("<argName>", argName)) {
+                  c.use(argName, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+                  c.report(warning(argName, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", argName));
+              } else {
+                  tau = c.newTypeVar(current); // <== argName;
+                  c.fact(current, tau);    // <===
+                  if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
+                  c.define(base, formalOrPatternFormal(c), argName, 
+                            defLub([], AType(Solver s) { 
+                            return inSet ? makeSetType(tau) : makeListType(tau);}));
+              }
+             }
         } else {
            c.fact(current, avoid());
         }
