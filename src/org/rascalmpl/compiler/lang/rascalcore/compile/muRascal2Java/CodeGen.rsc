@@ -784,8 +784,8 @@ str parens(str code)
 JCode trans(muVarInit(v: muVar(str name, str fuid, int pos, AType atype), MuExp exp), JGenie jg){
     jtype = atype2javatype(atype);
     if(exp == muNoValue()){
-        return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <varName(v, jg)>;\n"
-                                   : "<jtype> <varName(v, jg)>;\n";  
+        return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <varName(v, jg)> = null;\n"
+                                   : "<jtype> <varName(v, jg)> = null;\n";  
     } else {    
         return jg.isExternalVar(v) ? "final ValueRef\<<jtype>\> <varName(v, jg)> = new ValueRef\<<jtype>\>(<trans(exp,jg)>);\n"
                                    : "<jtype> <varName(v, jg)> = (<jtype>)<parens(trans(exp, jg))>;\n";  
@@ -878,21 +878,18 @@ default str transWithCast(AType atype, MuExp exp, JGenie jg) {
 
 // ---- muAssign --------------------------------------------------------------
 
-JCode trans(muAssign(v:muVar(str name, str fuid, int pos, AType atype), MuExp exp), JGenie jg)
-    = jg.isExternalVar(v) ? "<varName(v, jg)>.setValue(<transWithCast(atype, exp, jg)>);\n"
+JCode trans(muAssign(v:muVar(str name, str fuid, int pos, AType atype), MuExp exp), JGenie jg){
+    return jg.isExternalVar(v) ? "<varName(v, jg)>.setValue(<transWithCast(atype, exp, jg)>);\n"
                           : "<varName(v, jg)> = <transWithCast(atype, exp, jg)>;\n";
-//    = "<varName(v, jg)><jg.isExternalVar(v) ? ".value" : ""> = <transWithCast(atype, exp, jg)>;\n";
+}
     
 JCode trans(muAssign(v:muTmpIValue(str name, str fuid, AType atype), MuExp exp), JGenie jg)
     = jg.isExternalVar(v) ? "<name>.setValue(<trans(exp, jg)>);\n"
                           : "<name> = <trans(exp, jg)>;\n";
-//    = "<name><jg.isExternalVar(v) ? ".value" : ""> = <trans(exp, jg)>;\n";
 
 JCode trans(muAssign(v:muTmpNative(str name, str fuid, NativeKind nkind), MuExp exp), JGenie jg)
     = jg.isExternalVar(v) ? "<name>.setValue(<trans2Native(exp, nkind, jg)>);\n"
                           : "<name> = <trans2Native(exp, nkind, jg)>;\n";
-    //= "<name><jg.isExternalVar(v) ? ".value" : ""> = <trans2Native(exp, nkind, jg)>;\n";
-
 
 // muGetAnno
 JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg)
@@ -1715,7 +1712,7 @@ JCode trans(muHasTypeAndArity(AType atype, int arity, MuExp exp), JGenie jg){
     throw "muHasTypeAndArity: <atype>, <arity>";
 }
 
-JCode trans(muHasNameAndArity(AType atype, AType consType, str name, int arity, MuExp exp), JGenie jg){
+JCode trans(muHasNameAndArity(AType atype, AType consType, MuExp name, int arity, MuExp exp), JGenie jg){
     t = atype2javatype(atype);
     v = trans(exp, jg);
     switch(consType){
@@ -1726,10 +1723,14 @@ JCode trans(muHasNameAndArity(AType atype, AType consType, str name, int arity, 
             return "((IConstructor)<v>).getConstructorType() == <atype2idpart(consType)>";
         //case anode(_):
         default:
-            return "<v> instanceof INode && ((INode)<v>).arity() == <arity> && ((INode)<v>).getName().equals(\"<name>\")";
+            return "<v> instanceof INode && ((INode)<v>).arity() == <arity> && ((INode)<v>).getName().equals(<trans2NativeStr(name,jg)>)";
         //default:
         //    throw "muHasNameAndArity: <atype>, <name>, <arity>, <exp>";
     }
+}
+
+JCode trans(muIsInitialized(MuExp exp), JGenie jg){
+    return "<trans(exp, jg)> != null";
 }
 
 JCode trans(muIsDefinedValue(MuExp exp), JGenie jg)
@@ -1741,8 +1742,9 @@ JCode trans(muGetDefinedValue(MuExp exp, AType atype), JGenie jg)
 JCode trans(muSize(MuExp exp, atype:aset(_)), JGenie jg)
     = "<transWithCast(atype, exp, jg)>.size()";
     
-default JCode trans(muSize(MuExp exp, AType atype), JGenie jg)
-    = "<transWithCast(atype, exp, jg)>.length()";
+default JCode trans(muSize(MuExp exp, AType atype), JGenie jg){
+    return "<transWithCast(atype, exp, jg)>.length()";
+}
  
 // muHasField
     

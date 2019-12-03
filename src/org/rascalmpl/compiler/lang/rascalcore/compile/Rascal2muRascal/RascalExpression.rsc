@@ -817,7 +817,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
    
    if(getOuterType(expression) == "astr"){
-   		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- arguments], [receiver, *args, muKwpActuals(kwargs)], e@\loc);
+   		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- arguments ], [receiver, *args, muKwpActuals(kwargs)], e@\loc);
    }
   
    if(getOuterType(expression) == "aloc"){
@@ -1333,7 +1333,11 @@ MuExp translate(e:(Expression) `!<Expression argument>`) {
     if(backtrackFree(argument)){
         return muCallPrim3("not", abool(), [abool()], [translate(argument)], e@\loc);
     }
-    return translateAndConds("", [argument], muFailEnd(""), muSucceed(""));
+    my_btscope = nextTmp("NOT");
+    enterBacktrackingScope(my_btscope);
+    code = muEnter(my_btscope, translateAndConds(my_btscope, [argument], muFail(my_btscope), muSucceed(my_btscope)));
+    leaveBacktrackingScope(my_btscope);
+    return code;
 }
     
 MuExp translateBool((Expression) `!<Expression argument>`, str btscope, MuExp trueCont, MuExp falseCont) {
@@ -1467,7 +1471,6 @@ MuExp translateBool(e:(Expression) `<Expression lhs> \> <Expression rhs>`, str b
 
 MuExp translate(e:(Expression) `<Expression lhs> == <Expression rhs>`)
     = muIfExp(comparison("equal", e), muCon(true), muCon(false));
-    //comparison("equal", e);
 
 MuExp translateBool(e:(Expression) `<Expression lhs> == <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont)
     = muIfExp(comparison("equal", e), trueCont, falseCont);
@@ -1483,26 +1486,27 @@ MuExp translateBool(e:(Expression) `<Expression lhs> != <Expression rhs>`, str b
 // -- no match expression -------------------------------------------
 
 MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression rhs>`) { 
-    btscope = nextTmp("NOMATCH");
-    enterBacktrackingScope(btscope);
-    code = muEnter(btscope, translateMatch(e, btscope, muSucceed(btscope), muFailEnd(btscope)));
-    leaveBacktrackingScope(btscope);
+    my_btscope = nextTmp("NOMATCH");
+    enterBacktrackingScope(my_btscope);
+    code = muEnter(my_btscope, translateMatch(e, my_btscope, muSucceed(my_btscope), muFailEnd(my_btscope)));
+    //leaveBacktrackingScope(my_btscope);
     return code;
 }
-// TODO: check Pat <- Exp case
-bool isMatchOrNoMatch((Expression) `<Pattern pat> := <Expression rhs>`) = true;
-bool isMatchOrNoMatch((Expression) `<Pattern pat> !:= <Expression rhs>`) = true;
-default bool isMatchOrNoMatch(Expression e) = false;
+//// TODO: check Pat <- Exp case
+//bool isMatchOrNoMatch((Expression) `<Pattern pat> := <Expression rhs>`) = true;
+//bool isMatchOrNoMatch((Expression) `<Pattern pat> !:= <Expression rhs>`) = true;
+//bool isMatchOrNoMatch((Expression) `( <Expression exp> )`) = isMatchOrNoMatch(exp);
+//default bool isMatchOrNoMatch(Expression e) = false;
     
 MuExp translateBool(e:(Expression) `<Pattern pat> !:= <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont)
-    = translateMatch(e, btscope, falseCont, trueCont);
+    = translateMatch(e, btscope, trueCont, falseCont);
 
 // -- match expression --------------------------------------------------------
 
 MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`){
     my_btscope = nextTmp("MATCH");
     enterBacktrackingScope(my_btscope);
-    code = muEnter(my_btscope, translateMatch(e, my_btscope, muSucceed(my_btscope), muFail(my_btscope)));
+    code = muEnter(my_btscope, translateMatch(e, my_btscope, muSucceed(my_btscope), muFailEnd(my_btscope)));
     leaveBacktrackingScope(my_btscope);
     return code;
 }
@@ -1759,10 +1763,11 @@ MuExp translate((Expression) `<Expression condition> ? <Expression thenExp> : <E
 }
 
 bool isConditional((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = true;
+bool isConditional((Expression) `( <Expression exp> )`) = isConditional(exp);
 default bool isConditional(Expression e) = false;
 
 MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, str btscope, MuExp trueCont, MuExp falseCont)
-    = translateBool(condition, "", muBlock([translate(thenExp), trueCont]),  muBlock([translate(elseExp), falseCont]));
+    = translateBool(condition, btscope, muBlock([translate(thenExp), trueCont]),  muBlock([translate(elseExp), falseCont]));
 
 // -- any other expression (should not happen) ------------------------
 
@@ -1814,6 +1819,8 @@ bool backtrackFree(Expression e){
         return backtrackFree(e1) && backtrackFree(e2);  
     case (Expression) `<Expression e1> ==\> <Expression e2>`:
         return backtrackFree(e1) && backtrackFree(e2);  
+    case (Expression) `<Expression cond> ? <Expression thenExp> : <Expression elseExp>`:
+        return backtrackFree(cond) && backtrackFree(thenExp) && backtrackFree(elseExp);
     }
     return true;
 }

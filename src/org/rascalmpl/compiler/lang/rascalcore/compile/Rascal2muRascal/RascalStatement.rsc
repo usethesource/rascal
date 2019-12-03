@@ -260,13 +260,14 @@ MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> )
     ifName = getLabel(label, "IF");
     
     btfree = all(Expression c <- conditions, backtrackFree(c));
-    enterBacktrackingScope(ifName);
+    if(!btfree) enterBacktrackingScope(ifName);
     
     code = translateAndConds(ifName, [c | Expression c <- conditions], translate(thenStatement), muBlock([]), normalize=toStat);
     if(!btfree){
         code = muEnter(ifName, updateBTScope(code, ifName, getResumptionScope(ifName)));  
+        leaveBacktrackingScope(ifName);
     }
-    leaveBacktrackingScope(ifName);
+    
     return code;
 }
 
@@ -274,7 +275,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if (<{Expr
     ifName = nextLabel();
     
     btfree = all(Expression c <- conditions, backtrackFree(c));
-    enterBacktrackingScope(ifName);
+    if(!btfree) enterBacktrackingScope(ifName);
     
     code = translateAndConds(ifName, 
                           [ c | Expression c <- conditions ], 
@@ -286,8 +287,9 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if (<{Expr
                                              
     if(!btfree){
         code = muEnter(ifName, updateBTScope(code, ifName, getResumptionScope(ifName)));  
+        leaveBacktrackingScope(ifName);   
     }               
-    leaveBacktrackingScope(ifName);
+    
     return code;
 }    
 
@@ -297,13 +299,13 @@ MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> )
     ifName = getLabel(label, "IF");
     
     btfree = all(Expression c <- conditions, backtrackFree(c));
-    enterBacktrackingScope(ifName);
+    if(!btfree) enterBacktrackingScope(ifName);
     
     code = translateAndConds(ifName, [c | Expression c <- conditions], translate(thenStatement), translate(elseStatement), normalize=toStat);
     if(!btfree){
         code = muEnter(ifName, updateBTScope(code, ifName, getResumptionScope(ifName))); 
+        leaveBacktrackingScope(ifName);
     }
-    leaveBacktrackingScope(ifName);
     return code;
 }
 
@@ -311,7 +313,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if ( <{Exp
     ifName = nextLabel();
     
     btfree = all(Expression c <- conditions, backtrackFree(c));
-    enterBacktrackingScope(ifName);
+    if(!btfree) enterBacktrackingScope(ifName);
     
     code = muValueBlock(astr(), [ translateAndConds(ifName, 
                                                  [ c | Expression c <- conditions ], 
@@ -326,8 +328,9 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if ( <{Exp
                                  ]);
     if(!btfree){
         code = muEnter(ifName, updateBTScope(code, ifName, getResumptionScope(ifName))); 
+        leaveBacktrackingScope(ifName);
     }
-    leaveBacktrackingScope(ifName);
+ 
     return code;                                             
 } 
 
@@ -387,29 +390,30 @@ bool isSpoiler(Pattern pattern, int fp){
 }
 
 map[int, MuExp] addPatternWithActionCode(MuExp switchval, str fuid, bool useConcreteFingerprint, PatternWithAction pwa, map[int, MuExp] table, int key, MuExp succeedCase){
-    ifname = nextLabel();
+    casename = nextLabel("CASE");
 	if(pwa is arbitrary){
-      // enterBacktrackingScope(ifname);
+      // enterBacktrackingScope(casename);
 	   //if(pwa.pattern is literal && !pwa.pattern.literal is regExp){
 	   //      table[key] = muIfelse(muEqual(translate(pwa.pattern.literal), switchval),
 	   //                            muBlock([translate(pwa.statement), succeedCase]),
 	   //                            table[key] ?  muFailCase());
-	   //                                    //{ enterBacktrackingScope(ifname);  translate(pwa.statement) ; }, 
+	   //                                    //{ enterBacktrackingScope(casename);  translate(pwa.statement) ; }, 
     //                                    //   { leaveBacktrackingScope();  table[key] ?  muFailCase(); }); 
     //   } else {
-             table[key] = translatePat(pwa.pattern, avalue(), switchval, ifname,
-                                           { enterBacktrackingScope(ifname);  muBlock([translate(pwa.statement), succeedCase]) ; }, 
-                                           { leaveBacktrackingScope(ifname);  table[key] ?  muFailCase(); });
+             table[key] = muEnter(casename, 
+                                  translatePat(pwa.pattern, getType(switchval), switchval, casename,
+                                           { enterBacktrackingScope(casename);  muBlock([translate(pwa.statement), succeedCase]) ; }, 
+                                           { leaveBacktrackingScope(casename);  table[key] ?  muFailCase(); }));
        //}
-       //leaveBacktrackingScope(ifname); 
+       //leaveBacktrackingScope(casename); 
 	 } else  {
 	    replacement = muTmpIValue(nextTmp("replacement"), fuid, getType(pwa.replacement.replacementExpression));
 	    replacementCode = translate(pwa.replacement.replacementExpression);
         list[Expression] conditions = (pwa.replacement is conditional) ? [ e | Expression e <- pwa.replacement.conditions ] : [];
         replcond = muValueIsSubTypeOfValue(replacement, switchval);
         
-        table[key] =  translatePat(pwa.pattern, avalue(), switchval, ifname,
-                                            translateAndConds(ifname,
+        table[key] =  translatePat(pwa.pattern, getType(switchval), switchval, casename,
+                                            translateAndConds(casename,
                                                     conditions, 
                                                     muBlock([ muVarInit(replacement, replacementCode),
                                                               muIfelse( replcond, muInsert(replacement, replacement.atype), muFailCase())
@@ -418,7 +422,7 @@ map[int, MuExp] addPatternWithActionCode(MuExp switchval, str fuid, bool useConc
                                                     normalize=toStat), 
                                                     table[key] ? muBlock([]));
                                                       
-        //table[key] = muBlock([ translateAndCondAsStat(ifname2,
+        //table[key] = muBlock([ translateAndCondAsStat(casename2,
         //                                            conditions, 
         //                                            muBlock([ muVarInit(replacement, replacementCode),
         //                                                      //   muInsert(replacement),
@@ -750,14 +754,18 @@ MuExp translate((Statement) `return <Statement statement>`) {
 		result = muTmpIValue(nextLabel("result"), fuid, resultType);
 		return muValueBlock(resultType, [ muConInit(result, translate(statement)), muReturn1(resultType, result) ]);
 	} 
-	if((Statement) `<Expression expression>;` := statement && isConditional( expression)){
-	   return translateBool(expression.condition, "", muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp)));
-	} else
-	if((Statement) `<Expression expression>;` := statement && isMatchOrNoMatch(expression)){
-	   returnValue = (Expression) `<Pattern pat> := <Expression rhs>` := expression;
-	   return translateBool(expression, "", muReturn1(resultType, muCon(returnValue)), muReturn1(resultType, muCon(!returnValue)));
-	} else {
-	   return muReturn1(resultType, translate(statement));
+	if((Statement) `<Expression expression>;` := statement){
+	    //my_btscope = nextTmp("RETURN");
+     //   enterBacktrackingScope(my_btscope);
+	   	if(isBoolType(resultType)){
+	   	   return muReturn1(abool(), translate(expression));
+            //return translateBool(expression, getResumptionScope(), muReturn1(abool(), muCon(true)), muReturn1(abool(), muCon(false)));                       
+   	    } else if(isConditional(expression)){
+           return muEnter(getResumptionScope(), translateBool(expression.condition,  getResumptionScope(), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp))));
+	    } else {
+	       return muReturn1(resultType, translate(expression));
+	    }
+	    //leaveBacktrackingScope(my_btscope);
 	}
 }
 

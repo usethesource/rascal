@@ -106,14 +106,19 @@ void leaveLoop(){
 private list[str] backtrackingScopes = [];	// *** state
 private map[str,str] resumptionScopes = (); // *** state
 
+void initBacktrackingScopes(){
+    backtrackingScopes = [];
+    resumptionScopes = ();
+}
+
 void enterBacktrackingScope(str name){
-  //println("enterBacktrackingScope: <name>; <backtrackingScopes>");
+  println("enterBacktrackingScope: <name>; <backtrackingScopes>");
   backtrackingScopes = name + backtrackingScopes;
 }
 
 str getResumptionScope(){
-  //println("getResumptionScope: <backtrackingScopes>");
-  return top(backtrackingScopes);
+  println("getResumptionScope: <backtrackingScopes>");
+  return top(backtrackingScopes) ? "";
 }
 
 bool haveEnteredBacktrackingScope(str name)
@@ -223,6 +228,7 @@ private list[loc] functionDeclarations = []; // *** state
 
 void enterFunctionDeclaration(loc src){
     functionDeclarations = src + functionDeclarations;
+    initBacktrackingScopes();
 }
 
 void leaveFunctionDeclaration(){

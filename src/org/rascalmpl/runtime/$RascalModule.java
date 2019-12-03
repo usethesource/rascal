@@ -589,6 +589,12 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return $VF.bool(left.isEqual(right));
 		}
 	}
+	
+	// ---- get name ----------------------------------------------------------
+	
+	public final IString $anode_get_name(final INode nd) {
+		return $VF.string(nd.getName());
+	}
 
 	// ---- get_field ---------------------------------------------------------
 

@@ -73,7 +73,7 @@ set[UID] module_scopes = {};                        // Scopes of all modules
 map[UID,UID] declaredIn = ();                       // Map from declared enity to its declaring function or module
 rel[UID,UID] declares = {};                         // Relation from declaring functionn or module to the entities declared in it.
 
-map[UID,AType] facts = ();                          // All facts derived by the type chcekr
+map[UID,AType] facts = ();                          // All facts derived by the type checker
 map[UID,AType] specializedFacts = ();               // Facts resulting from overloading resolutiom
     
 rel[UID, UID] useDef = {};                          // Relation from uses to definitions
@@ -128,7 +128,6 @@ private list[OFUN] overloadedFunctions = [];		// list of overloaded functions
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
-
 list[OFUN] getOverloadedFunctions() = overloadedFunctions;
 
 bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
@@ -173,6 +172,10 @@ public void resetScopeExtraction() {
 
 bool isDefinition(UID d){
     return definitions[d]?;
+}
+
+loc getDefinition(UID d){
+    return definitions[d].defined;
 }
 
 bool isUse(UID u){
@@ -540,7 +543,8 @@ private AType getType0(loc l) {
 }	
 AType getType(loc l) {
     tp = getType0(l);
-    if(tvar(u) := tp, u != l) return getType(u);
+    tp = visit(tp) { case tvar(u): { insert u != l ? getType(u) : avalue();} };
+    //if(tvar(u) := tp, u != l) return getType(u);
     return tp;
 }
 
@@ -809,8 +813,22 @@ MuExp mkVar(str name, loc l) {
     }
     return muOFun(overloadedTypeResolver[<uqname,ftype>]);
   }
-  uid = getFirstFrom(defs);
-  def = definitions[uid];
+  
+  Define def;
+  UID uid = l;
+  if(isEmpty(defs)){
+    if(definitions[l]?){
+        uid = l;
+        def = definitions[l];
+    } else if(name == "_"){
+        return muVar("_", "", -1, getType(l));
+    } else {
+        throw "mkVar: <uqname> at <l>";
+    }   
+  } else {
+    uid = getFirstFrom(defs);
+    def = definitions[uid];
+  }
   
   // Keyword parameters
   if(def.idRole == keywordFormalId()) {
@@ -830,7 +848,7 @@ MuExp mkVar(str name, loc l) {
   if(def.idRole in variableRoles){
     scp = getScope(uid);
     pos = is_module_variable(def) ? - 1 : getPositionInScope(uqname, uid);
-    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, pos, getType(l));
+    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, pos, getType(def.defined));
   }
   
   if(def.idRole == constructorId()){
