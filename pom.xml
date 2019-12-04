@@ -264,9 +264,6 @@
                                     <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                         <resource>org/rascalmpl/uri/resolvers.config</resource>
                                         <resource>io/usethesource/vallang/type/types.config </resource>
-                                        <resource>LICENSE</resource>
-                                        <resource>LICENSE.txt</resource>
-                                        <resource>LICENSE.md</resource>
                                     </transformer>
                                 </transformers>
                                 <!--
