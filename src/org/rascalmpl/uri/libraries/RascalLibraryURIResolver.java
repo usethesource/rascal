@@ -146,13 +146,13 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
      * Check if this root contains a valid RASCAL.MF file
      */
     private boolean isValidLibraryRoot(ISourceLocation libRoot) {
-        try {
-            return reg.exists(URIUtil.getChildLocation(libRoot, RascalManifest.META_INF_RASCAL_MF));
+        if (reg.exists(URIUtil.getChildLocation(libRoot, RascalManifest.META_INF_RASCAL_MF))) {
+            assert new RascalManifest().getProjectName(libRoot).equals(libRoot.getAuthority()) 
+                 : "Project-Name in RASCAL.MF does not align with authority of the " + libRoot.getScheme() + " scheme";
+            return true;
         }
-        finally {
-            assert new RascalManifest().getProjectName(libRoot).equals(libRoot.getAuthority())
-            : "Project-Name in RASCAL.MF does not align with authority of the " + libRoot.getScheme() + " scheme";
-        }
+        
+        return false;
     }
 
     /**
