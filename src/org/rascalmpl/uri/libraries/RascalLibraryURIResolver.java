@@ -75,7 +75,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
 
                         loc = URIUtil.changePath(loc, loc.getPath().replace(RascalManifest.META_INF_RASCAL_MF, ""));
 
-                        registerLibrary(classpathLibraries, libName, loc);
+                        registerLibrary("detected", classpathLibraries, libName, loc);
                     }
                 }
                 catch (IOException | URISyntaxException e) {
@@ -90,8 +90,8 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
         }
     }
 
-    private void registerLibrary(ConcurrentHashMap<String, ISourceLocation> libs, String libName, ISourceLocation loc) {
-        System.err.println("INFO: registered |lib://" + libName + "| at " + loc);
+    private void registerLibrary(String event, ConcurrentHashMap<String, ISourceLocation> libs, String libName, ISourceLocation loc) {
+        System.err.println("INFO: " + event + " |lib://" + libName + "| at " + loc);
         libs.merge(libName, loc, (o, n) -> n);
     }
     
@@ -159,7 +159,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
      * compute the resolved child location and cache the prefix as a side-effect for a future fast path
      */
     private ISourceLocation resolvedLocation(ISourceLocation uri, String libName, ISourceLocation deferredLoc) {
-        registerLibrary(resolvedLibraries, libName, deferredLoc);
+        registerLibrary("resolved", resolvedLibraries, libName, deferredLoc);
         return URIUtil.getChildLocation(deferredLoc, uri.getPath());
     }
 
