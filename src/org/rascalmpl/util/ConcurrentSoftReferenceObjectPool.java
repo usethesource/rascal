@@ -19,7 +19,11 @@ import java.lang.ref.WeakReference;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -96,6 +100,37 @@ public class ConcurrentSoftReferenceObjectPool<T> {
 	    finally {
 	        returnObject(obj);
 	    }
+	}
+	
+	public void prepare(int howMany) {
+	    // schedular for the initialization tasks, will close after not being used anymore
+	    ThreadPoolExecutor pool = new ThreadPoolExecutor(Math.min(4, howMany), Math.min(4, howMany),
+	            1, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+	    pool.allowCoreThreadTimeOut(true); // so we don't have to schedule a shutdown
+	    for (int i = 0; i < Math.min(maxAlive, howMany); i++) {
+	        pool.execute(() -> {
+	            TimestampedSoftReference<T> newEntry = new TimestampedSoftReference<>(initializeObject.get(), cleanedReferences);
+                live.incrementAndGet();
+                returnObject(newEntry);
+	        });
+	    }
+	}
+	
+	/**
+	 * Creates an executor service with a fixed pool size, that will time 
+	 * out after a certain period of inactivity.
+	 * 
+	 * @param poolSize The core- and maximum pool size
+	 * @param keepAliveTime The keep alive time
+	 * @param timeUnit The time unit
+	 * @return The executor service
+	 */
+	public static ExecutorService createFixedTimeoutExecutorService(
+	    int poolSize, long keepAliveTime, TimeUnit timeUnit) {
+	    ThreadPoolExecutor e = new ThreadPoolExecutor(poolSize, poolSize,
+	            keepAliveTime, timeUnit, new LinkedBlockingQueue<Runnable>());
+	    e.allowCoreThreadTimeOut(true);
+	    return e;
 	}
 	
 	public boolean healthCheck() {
