@@ -19,7 +19,6 @@ import java.lang.ref.WeakReference;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -114,6 +113,23 @@ public class ConcurrentSoftReferenceObjectPool<T> {
                 returnObject(newEntry);
 	        });
 	    }
+	}
+	
+	/**
+	 * Creates an executor service with a fixed pool size, that will time 
+	 * out after a certain period of inactivity.
+	 * 
+	 * @param poolSize The core- and maximum pool size
+	 * @param keepAliveTime The keep alive time
+	 * @param timeUnit The time unit
+	 * @return The executor service
+	 */
+	public static ExecutorService createFixedTimeoutExecutorService(
+	    int poolSize, long keepAliveTime, TimeUnit timeUnit) {
+	    ThreadPoolExecutor e = new ThreadPoolExecutor(poolSize, poolSize,
+	            keepAliveTime, timeUnit, new LinkedBlockingQueue<Runnable>());
+	    e.allowCoreThreadTimeOut(true);
+	    return e;
 	}
 	
 	public boolean healthCheck() {
