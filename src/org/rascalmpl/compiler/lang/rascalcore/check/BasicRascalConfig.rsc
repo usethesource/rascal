@@ -90,6 +90,7 @@ void storeAllowUseBeforeDef(Tree container, list[Tree] allowedParts, Collector c
 
 public str key_bom = "bill_of_materials";
 public str key_current_module = "current_module";
+public str key_pathconfig = "pathconfig";
 
 data TypePalConfig(
     bool logImports                 = false,

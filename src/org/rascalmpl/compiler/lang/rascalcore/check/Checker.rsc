@@ -254,7 +254,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
             }
             if(!all(m <- component, ms.tmodels[m]?, m in ms.valid)){
                 ms.tmodels = domainX(ms.tmodels, component);
-                <prof, tm> = rascalTModelComponent((m: ms.modules[m] |  m <- component), ms, config=config);
+                <prof, tm> = rascalTModelComponent((m: ms.modules[m] |  m <- component), ms, pcfg, config=config);
                 profs[intercalate("/", toList(component))] = prof;
                 moduleScopes += getModuleScopes(tm);
                 for(m <- component){
@@ -326,12 +326,13 @@ set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, 
     return added;
 }
 
-tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, 
+tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, PathConfig pcfg,
                                                  TypePalConfig config=rascalTypePalConfig(classicReifier=true), bool inline=false){
     modelName = intercalate(" + ", toList(domain(namedTrees)));
     
     if(config.verbose) println("\<\<\< checking <modelName>");
     c = newCollector(modelName, namedTrees, config=config);
+    c.push(key_pathconfig, pcfg);
     
     rascalPreCollectInitialization(namedTrees, c);
     startTime = cpuTime();

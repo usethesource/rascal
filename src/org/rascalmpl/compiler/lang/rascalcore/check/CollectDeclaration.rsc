@@ -91,7 +91,7 @@ void collect(Module current: (Module) `<Header header> <Body body>`, Collector c
 }
 
 void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
-    pcfgVal = c.getStack("pathconfig");
+    pcfgVal = c.getStack(key_pathconfig);
     if([PathConfig pcfg] := pcfgVal){ 
         mname = prettyPrintName(qualifiedModuleName);
         try {   
@@ -105,7 +105,7 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
     } else if(isEmpty(pcfgVal)){
         return;
     } else {
-        throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <c.getStack("pathconfig")>");
+        throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <c.getStack(key_pathconfig)>");
     }
 }
 
