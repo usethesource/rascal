@@ -1,1 +1,5 @@
-module lang::rascalcore::compile::Examples::Tst4
+module lang::rascalcore::compile::Examples::TstX
+
+void v() {
+    str s = 2;
+}

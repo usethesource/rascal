@@ -68,7 +68,7 @@ str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
 }
 
-// Complete an ModuleStructure by adding a contains relation that adds transitive edges for extend
+// Complete a ModuleStructure by adding a contains relation that adds transitive edges for extend
 ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
     moduleStrs = invertUnique(ms.moduleLocs);
     paths = ms.paths + { <ms.moduleLocs[a], r, ms.moduleLocs[b]> | <str a, PathRole r, str b> <- ms.strPaths, ms.moduleLocs[a]?, ms.moduleLocs[b]? };
@@ -209,18 +209,23 @@ set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
 map[str, loc] getModuleScopes(TModel tm)
     = (id: defined | <loc scope, str id, moduleId(), loc defined, DefInfo defInfo> <- tm.defines);
 
-loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
-    try {
+loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConfig pcfg){
+    if(moduleScopes[qualifiedModuleName]?){
         return moduleScopes[qualifiedModuleName];
-    } catch NoSuchKey(_): {
-        throw "No module scope found for <qualifiedModuleName>";
     }
+    for(l <- range(moduleScopes)){
+        println(getModuleName(l, pcfg) );
+        if(getModuleName(l, pcfg) == qualifiedModuleName){
+            return l;
+        }
+    }
+    throw "No module scope found for <qualifiedModuleName>";
 }
 
 TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     try {
-        mscope = getModuleScope(qualifiedModuleName, moduleScopes);
+        mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
         tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
         
         bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
@@ -234,8 +239,8 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //for(m <- bom) println("<bom[m]>: <m>");
         //println("=== BOM END"); 
         
-        extendedModuleScopes = {getModuleScope(m, moduleScopes) | str m <- extends};
-        filteredModuleScopes = {getModuleScope(m, moduleScopes) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
+        extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends};
+        filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
        
         TModel m1 = tmodel();
         
@@ -296,6 +301,6 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         if(tm.config.logImports) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
         return m1;
     } catch value e: {
-        return tmodel()[messages=[error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]];
+        return tmodel()[messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]];
     }
 }
