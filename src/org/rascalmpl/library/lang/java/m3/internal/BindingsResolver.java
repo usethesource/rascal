@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -46,6 +47,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -126,6 +128,10 @@ public class BindingsResolver {
 	            return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
 	        } else if (node instanceof Initializer) {
 	            return resolveInitializer((Initializer) node);
+	        } else if (node instanceof FieldDeclaration) {
+	            // we have at least one name to tag a comment to
+	            // comments are the only reason we might end up here, afaik.
+	            return resolveBinding((VariableDeclaration) ((FieldDeclaration) node).fragments().get(0), tryHard);
 	        }
 	    }
 	    return makeBinding("unknown", null, null);
