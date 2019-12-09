@@ -1,6 +1,7 @@
 @ignoreCompiler{Test fail; Waiting for Eclipse integration}
 module lang::rascal::tests::library::lang::java::m3::BasicM3Tests
 
+import util::Reflective;
 import List;
 import Message;
 import IO;
@@ -119,7 +120,7 @@ public test bool hamcrestJarM3RemainedTheSame()
 	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |testdata:///m3/hamcrest-library-1.3.jar|, getHamcrestM3);
 	
 // TODO: think if this can be replaced by the generic diff function.
-private bool compareM3s(M3 a, M3 b) {
+public bool compareM3s(M3 a, M3 b) {
 	aKeys = getKeywordParameters(a);
 	bKeys = getKeywordParameters(b);
 	for (ak <- aKeys) {
@@ -129,9 +130,9 @@ private bool compareM3s(M3 a, M3 b) {
 		}
 		if (aKeys[ak] != bKeys[ak]) {
 			if (set[value] aks := aKeys[ak] && set[value] bks := bKeys[ak]) {
-				println("Missing in relation to reference: ");
+				println("<ak>: Missing in relation to reference: ");
 				iprintln(aks - bks);
-				println("More than reference:");
+				println("<ak> More than reference:");
 				iprintln(bks - aks);
 			}
 			else if (list[Message] akl := aKeys[ak] && list[Message] bkl := bKeys[ak]) {
