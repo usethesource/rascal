@@ -123,12 +123,12 @@ public java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
 .Synopsis
 globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
-public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7") {
+public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7", list[loc] classPath = []) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
-    
-    list[loc] classPaths = [];
+
+    list[loc] classPaths = classPath;
     set[str] seen = {};
     for (j <- find(project, "jar"), isFile(j)) {
         hash = md5HashFile(j);
