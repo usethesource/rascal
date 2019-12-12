@@ -382,11 +382,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return result;
 		}
 
-    private Type computeConstructorType(IEvaluatorContext eval,
-				org.rascalmpl.ast.Expression nameExpr) {
+    private Type computeConstructorType(IEvaluatorContext eval, org.rascalmpl.ast.Expression nameExpr) {
 			java.util.List<AbstractFunction> functions = new LinkedList<AbstractFunction>();
+			
 			String cons = Names.consName(nameExpr.getQualifiedName());
 			Type adt = eval.getCurrentEnvt().lookupAbstractDataType(Names.moduleName(nameExpr.getQualifiedName()));
+			
 			if (adt != null) {
 				eval.getCurrentEnvt().getAllFunctions(adt, cons, functions);
 			}
@@ -400,16 +401,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 			
 			Type signature = getArgumentTypes(eval);
-			Type constructorType = TF.nodeType();
+			Type constructorType = adt != null ? adt : TF.nodeType();
 			
 			for (AbstractFunction candidate : functions) {
-				if (candidate.getReturnType().isAbstractData() && !candidate.getReturnType().isBottom() && candidate.match(signature)) {
+				if (candidate.getReturnType().isAbstractData() && !candidate.getReturnType().isBottom() && candidate.mayMatch(signature)) {
 					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature);
 					if (decl != null) {
 						constructorType = decl;
 					}
 				}
 			}
+			
 			return constructorType;
 		}
 
