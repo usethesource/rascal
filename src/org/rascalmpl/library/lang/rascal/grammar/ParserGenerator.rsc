@@ -379,7 +379,7 @@ str generateClassConditional(set[Symbol] classes) {
            | \char-class(list[CharRange] ranges) <- classes, r <- ranges);
   }
   else {
-    ranges = [r | \char-class(ranges) <- classes, r <- ranges];
+    ranges = [r | \char-class(list[CharRange] ranges) <- classes, r <- ranges];
     
     return ("<generateRangeConditional(head(ranges))>"| it + " || <generateRangeConditional(r)> "
            | r <- tail(ranges));
