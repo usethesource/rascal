@@ -32,7 +32,6 @@ You {c,sh,w}ould cite this if:
 	  Title = {RASCAL: A Domain Specific Language for Source Code Analysis and Manipulation},
 	  Booktitle = {Ninth IEEE International Working Conference on Source Code Analysis and Manipulation (SCAM)},
 	  Doi = {http://doi.ieeecomputersociety.org/10.1109/SCAM.2009.28},
-	  Isbn = {978-0-7695-3793-1},
 	  Pages = {168-177},
 	  Publisher = {IEEE Computer Society},
 	  Year = {2009},

@@ -126,7 +126,7 @@ public class BindingsResolver {
 	            return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
 	        } else if (node instanceof Initializer) {
 	            return resolveInitializer((Initializer) node);
-	        }
+	        } 
 	    }
 	    return makeBinding("unknown", null, null);
 	}

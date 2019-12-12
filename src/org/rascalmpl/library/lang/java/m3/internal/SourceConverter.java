@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -241,7 +242,20 @@ public class SourceConverter extends M3Converter {
 		if (parent == null) {
 			parent = node.getAlternateRoot();
 		}
-		insert(documentation, resolveBinding(parent), getSourceLocation(node));
+		
+		if (parent instanceof FieldDeclaration) {
+		    // possibly there are several comma-separated variable declarations
+		    // all associated with the same javadoc. 
+		    FieldDeclaration decl = (FieldDeclaration) parent;
+		    
+		    for (Object var : decl.fragments()) {
+		        insert(documentation, resolveBinding((VariableDeclaration) var), getSourceLocation(node));
+		    }
+		}
+		else {
+		    insert(documentation, resolveBinding(parent), getSourceLocation(node));
+		}
+		
 		return false;
 	}
 	

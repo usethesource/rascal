@@ -254,14 +254,16 @@ public class PathConfig {
     private List<ISourceLocation> getMoreLibraries(ISourceLocation repo, ISourceLocation lib) throws IOException {
         List<ISourceLocation> result = new LinkedList<>();
         
-        for (String recLib : new RascalManifest().getRequiredLibraries(lib)) {
-            ISourceLocation libLoc = recLib.startsWith("|") ? parseSourceLocation(recLib) : findLibrary(recLib, repo);
-            
-            if (libLoc != null && URIResolverRegistry.getInstance().exists(libLoc)) {
-                result.add(libLoc);
-            }
-            else {
-                throw new IOException("Required Rascal library not found: " + recLib + ", needed by " + lib);
+        if (URIResolverRegistry.getInstance().exists(URIUtil.getChildLocation(lib, RascalManifest.META_INF_RASCAL_MF))) {
+            for (String recLib : new RascalManifest().getRequiredLibraries(lib)) {
+                ISourceLocation libLoc = recLib.startsWith("|") ? parseSourceLocation(recLib) : findLibrary(recLib, repo);
+
+                if (libLoc != null && URIResolverRegistry.getInstance().exists(libLoc)) {
+                    result.add(libLoc);
+                }
+                else {
+                    throw new IOException("Required Rascal library not found: " + recLib + ", needed by " + lib);
+                }
             }
         }
         
