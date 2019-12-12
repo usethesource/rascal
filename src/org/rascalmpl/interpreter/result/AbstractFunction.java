@@ -173,13 +173,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return declarationEnvironment;
 	}
 	
-	public boolean match(Type actuals) {
+	public boolean mayMatch(Type actuals) {
 		if (actuals.isSubtypeOf(getFormals())) {
 			return true;
 		}
 		
 		if (hasVarArgs) {
-			return matchVarArgsFunction(actuals);
+			return mayMatchVarArgsFunction(actuals);
 		}
 		
 		return false;
@@ -210,7 +210,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 
-	private boolean matchVarArgsFunction(Type actuals) {
+	private boolean mayMatchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;
 		
