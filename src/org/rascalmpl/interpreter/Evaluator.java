@@ -59,6 +59,7 @@ import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -519,7 +520,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       
       AbstractFunction main = (AbstractFunction) func;
       
-      if (main.getArity() == 1) {
+      if (main.getArity() == 1 && main.getFormals().getFieldType(0).isSubtypeOf(tf.listType(tf.stringType()))) {
         return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
       else if (main.hasKeywordArguments() && main.getArity() == 0) {
@@ -529,6 +530,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       else {
         throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
       }
+    }
+    catch (MatchFailed e) {
+        getStdOut().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+        return null;
     }
     finally {
       setMonitor(old);

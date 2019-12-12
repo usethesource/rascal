@@ -41,6 +41,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.uri.project.ProjectURIResolver;
+import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -88,6 +89,7 @@ public class RascalJUnitTestRunner extends Runner {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         String projectName = new RascalManifest().getProjectName(projectRoot);
         reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
         
         try {
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot);
