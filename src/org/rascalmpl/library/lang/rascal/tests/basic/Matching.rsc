@@ -12,6 +12,13 @@ test bool tstQNameInPatternInt(){
     return T1::\int() := t1 && T2::\int() := t2;
 }
 
+@expect{UnexpectedType}
+test bool prefixShouldHaveEffect() {
+  value term = T2::string("x");
+  
+  return T1::string(_) !:= term;
+}
+
 test bool tstQNameInPatternVoid(){
     T1 t1 = T1::\void();
     T2 t2 = T2::\void();
