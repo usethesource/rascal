@@ -170,6 +170,11 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	}
 	
 	@Override
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+	    registry.setLastModified(getActualURI(uri), timestamp);
+	}
+	
+	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
 		return registry.listEntries(getActualURI(uri));
 	}

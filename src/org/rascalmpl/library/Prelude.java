@@ -1008,6 +1008,19 @@ public class Prelude {
 		}
 	}
 	
+	public void setLastModified(ISourceLocation sloc, IDateTime timestamp) {
+	    setLastModified(sloc, timestamp.getInstant());
+	}
+	
+	private void setLastModified(ISourceLocation sloc, long timestamp) {
+        try {
+            URIResolverRegistry.getInstance().setLastModified(sloc, timestamp);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
+    }
+	
 	public IValue isDirectory(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
 	}
@@ -1159,7 +1172,15 @@ public class Prelude {
 		}
 	}
 	
-
+	public void touch(ISourceLocation sloc) {
+	    if (URIResolverRegistry.getInstance().exists(sloc)) {
+	        setLastModified(sloc, System.currentTimeMillis());
+	    }
+	    else {
+	        writeFile(sloc, values.list(values.string("")));
+	    }
+	}
+	
 	public void writeFile(ISourceLocation sloc, IList V) {
 		writeFile(sloc, V, false);
 	}
