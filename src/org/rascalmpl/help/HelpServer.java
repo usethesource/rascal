@@ -72,13 +72,17 @@ public class HelpServer extends NanoHTTPD {
 
 
     private Response searchResult(Map<String, String> parms) {
-        try {
-            String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), StandardCharsets.UTF_8.name())).split(" ");
-            
-            return newChunkedResponse(Status.OK, "application/json", helpManager.jsonHelp(words));
-        } catch (UnsupportedEncodingException e) {
-            return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", Arrays.toString(e.getStackTrace()));
+        String searchString = parms.get("searchFor");
+        String[] words;
+
+        if (searchString.equals(" ")) {
+            words = new String[] { "+" };
         }
+        else {
+            words = searchString.split(" ");
+        }
+
+        return newChunkedResponse(Status.OK, "application/json", helpManager.jsonHelp(words));
     }
 
 
