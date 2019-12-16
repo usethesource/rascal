@@ -70,16 +70,8 @@ public class HelpServer extends NanoHTTPD {
 
     private Response searchResult(Map<String, String> parms) {
         String searchString = parms.get("searchFor");
-        String[] words;
 
-        if (searchString.equals(" ")) {
-            words = new String[] { "+" };
-        }
-        else {
-            words = searchString.split(" ");
-        }
-
-        return newChunkedResponse(Status.OK, "application/json", helpManager.jsonHelp(words));
+        return newChunkedResponse(Status.OK, "application/json", helpManager.jsonHelp(searchString.split(" ")));
     }
 
 
