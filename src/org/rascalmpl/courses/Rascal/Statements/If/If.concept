@@ -48,7 +48,6 @@ An if-then statement yields `void`  when its test is false
 ----
 if( 2 > 3 ) 30;
 ----
-WARNING: Get rid of the 666.
 
 .Benefits
 
