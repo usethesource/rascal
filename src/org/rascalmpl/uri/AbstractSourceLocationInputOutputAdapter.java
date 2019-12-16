@@ -74,8 +74,19 @@ public abstract class AbstractSourceLocationInputOutputAdapter implements ISourc
         if (output != null) {
             output.mkDirectory(uri);
         }
-        throw new UnsupportedOperationException();
-
+        else {
+            throw new UnsupportedOperationException();
+        }
+    }
+    
+    @Override
+    public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+        if (output != null) {
+            output.setLastModified(uri, timestamp);
+        }
+        else {
+            throw new UnsupportedOperationException();
+        }
     }
 
     @Override
@@ -83,6 +94,8 @@ public abstract class AbstractSourceLocationInputOutputAdapter implements ISourc
         if (output != null) {
             output.remove(uri);
         }
-        throw new UnsupportedOperationException();
+        else {
+            throw new UnsupportedOperationException();
+        }
     }
 }

@@ -342,6 +342,20 @@ public java datetime lastModified(loc file);
 
 @doc{
 .Synopsis
+Set the modification date of a file to `now` or create the file if it did not exist yet
+ }
+@javaClass{org.rascalmpl.library.Prelude}
+java void touch(loc file);
+
+@doc{ 
+.Synopsis
+Set the modification date of a file to the timestamp
+ }
+@javaClass{org.rascalmpl.library.Prelude}
+java void setLastModified(loc file, datetime timestamp);
+
+@doc{
+.Synopsis
 List the entries in a directory.
 
 .Description
@@ -666,15 +680,6 @@ Files are encoded using the charset provided.
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeFileEnc(loc file, str charset, value V...)
 throws PathNotFound, IO;
-
-@doc{
-.Synopsis
-Changes the last modification date of a file.
-}
-public void touch(loc file)
-throws PathNotFound, IO{
-  appendToFile(file);
-}
 
 @doc{
 .Synopsis
