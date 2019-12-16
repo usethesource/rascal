@@ -399,6 +399,23 @@ public class URIResolverRegistry {
 
 		return resolver.exists(uri);
 	}
+	
+	/**
+	 * set the last modification date of a file
+	 * @param timestamp in millis since the epoch
+	 * @throws IOException 
+	 */
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+	    uri = safeResolve(uri);
+
+        ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
+
+        if (resolver == null) {
+            throw new FileNotFoundException(uri.toString());
+        }
+
+        resolver.setLastModified(uri, timestamp);
+	}
 
 	public boolean isDirectory(ISourceLocation uri) {
 		uri = safeResolve(uri);
@@ -457,7 +474,16 @@ public class URIResolverRegistry {
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
-		return resolver.lastModified(uri);
+		
+		long result = resolver.lastModified(uri);
+		
+		// implementations are allowed to return 0L or throw FileNotFound, but
+		// here we iron it out:
+		if (result == 0L) {
+		    throw new FileNotFoundException(uri.toString());
+		}
+		
+		return result;
 	}
 
 	public String[] listEntries(ISourceLocation uri) throws IOException {
