@@ -20,7 +20,7 @@
             const termsTarget = document.getElementById("searchTerms");
             function doSearch(terms) {
                 target.innerHTML = "<li> Searching for: " + terms + " <div class=\"fa fa-spinner fa-spin\"></div>";
-                termsTarget.innerText = terms;
+                termsTarget.innerText = decodeURI(terms);
 
                 var request = new XMLHttpRequest();
                 request.open('GET', encodeURI('search?searchFor=' + terms), true);
