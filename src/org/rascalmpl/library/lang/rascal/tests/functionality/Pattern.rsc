@@ -16,8 +16,11 @@
 
 import List;
 
-data Bool = and(Bool, Bool) | t();
-data Prop = or(Prop, Prop) | f();
+//data Bool = and(Bool, Bool) | t();
+//data Prop = or(Prop, Prop) | f();
+
+data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
+data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
   
 // matchLiteral
   
@@ -96,26 +99,6 @@ test bool matchNodeWithKeywords14() ="f1"(1, M=_, B=false)  := "f1"(1, B=false, 
 test bool matchNodeWithKeywords15() ="f1"(_, M=20, B=false) := "f1"(1, B=false, M=20);
   		
 test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
-  	
-// matchListSetVariableScopes
-  		
-test bool matchListSetVariableScopes1() = {PAIR D, pair(D, b1())} := {pair(a1(),b1()), a1()} && D == a1();
-test bool matchListSetVariableScopes2() = {PAIR D, pair(D, b1())} !:= {pair(a1(),b1()), c1()};
-  		
-test bool matchListSetVariableScopes3() = {pair(PAIR D, b1()), D} := {pair(a1(),b1()), a1()} && D == a1();
-test bool matchListSetVariableScopes4() = {pair(PAIR D, b1()), D} !:= {pair(a1(),b1()), c1()};
-  		
-test bool matchListSetVariableScopes5() = {pair(s1(set[PAIR] S1), c1()), *S1} :=  {pair(s1({a1(), b1()}), c1()), a1(), b1()} && S1 == {a1(), b1()};
-test bool matchListSetVariableScopes6() = {pair(s1(set[PAIR] S1), c1()), *S1} !:= {pair(s1({a1(), b1()}), c1()), a1(), d1()};
-  		
-test bool matchListSetVariableScopes7() {list[PAIR] L1 = [a1(), b1()]; return [*L1, c1()] := [a1(), b1(), c1()];}
-test bool matchListSetVariableScopes8() {list[PAIR] L1 = [a1(), b1()]; return [*L1, c1()] !:= [a1(), d1(), c1()];}
-  		
-test bool matchListSetVariableScopes9() = [pair(l1(list[PAIR] L1), c1()), *L1] := [pair(l1([a1(), b1()]), c1()), a1(), b1()];
-test bool matchListSetVariableScopes10() = [pair(l1(list[PAIR] L1), c1()), *L1] !:= [pair(l1([a1(), b1()]), c1()), a1(), d1()];
-  		
-test bool matchListSetVariableScopes11() = [pair(PAIR L1, b1()), L1] := [pair(a1(), b1()), a1()];
-test bool matchListSetVariableScopes12() = [pair(PAIR L1, b1()), L1] !:= [pair(a1(), b1()), d1()];
     
 //	matchTuple
   
@@ -149,18 +132,10 @@ test bool matchVariable6() = f(_) := f(1);
 //	matchTypedVariableBecomes
 
 test bool matchTypedVariableBecomes1() = int N : 3 := 3 && N == 3;
-test bool matchTypedVariableBecomes2() = list[int] L1 : [int N, *int L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;
-test bool matchTypedVariableBecomes3() = [1, list[int] L: [int N], 2] := [1,[2],2] && L == [2];
-test bool matchTypedVariableBecomes4() = [1, list[int] L1: [*int L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2==[2,3] && N ==4;
-test bool matchTypedVariableBecomes5() = [1, list[int] L1: [*int L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;
   	
 //	matchVariableBecomes
 
 test bool matchVariableBecomes1() = N : 3 := 3 && N == 3;
-test bool matchVariableBecomes2() = L1 : [int N, *int L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;
-test bool matchVariableBecomes3() = [1, L: [int N], 2] := [1,[2],2] && L == [2];
-test bool matchVariableBecomes4() = [1, L1: [*int L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2==[2,3] && N ==4;
-test bool matchVariableBecomes5() = [1, L1: [*int L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;
   
 // variableBecomesEquality
 
@@ -226,8 +201,5 @@ test bool switchSetOnValue1() {
 	value yy = {}; switch(yy) { case {} : return true; default: return false; }
 }
  
-data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
-data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
-data PAIR = a1() | b1() | c1() | d1() | pair(PAIR q1, PAIR q2) | s1(set[PAIR] S) | l1(list[PAIR] L);
-data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);
+
   
