@@ -1,5 +1,9 @@
-module lang::rascalcore::compile::Examples::TstX
+module lang::rascalcore::compile::Examples::Tst4
 
-void v() {
-    str s = 2;
+data D = d1(list[int] ranges);
+
+value main(){
+   list[D] ds = [];
+   ranges = [r | d1(list[int] ranges) <- ds, r <- ranges];
+   return ranges;
 }

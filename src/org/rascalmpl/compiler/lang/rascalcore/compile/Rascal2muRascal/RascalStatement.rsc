@@ -743,31 +743,47 @@ MuExp translate((Statement) `;`) =
 //MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
 
 // -- return statement -----------------------------------------------
+MuExp translate((Statement) `return <Statement statement>`) 
+    = translateReturn(statement);
 
-MuExp translate((Statement) `return <Statement statement>`) {
+MuExp  translateReturn((Statement) `;`)
+    = muReturn0();
+
+MuExp translateReturn((Statement) `return <Statement statement>`)
+    = translateReturn(statement);
+   
+MuExp translateReturn(exp:(Statement) `<Expression expression>;`) {
 	// If the 'return' is used in the scope of a try-catch-finally block,
 	// the respective 'finally' block must be executed before the function returns
-	resultType = getType(statement);
+	if((Expression) `{ <Statement+ statements> }` := expression){
+	   return translateReturn(statements);
+	}
+	resultType = getType(expression);
 	if(hasFinally()) { // TODO adapt
 	    str fuid = topFunctionScope();
 		str varname = asTmp(nextLabel());
 		result = muTmpIValue(nextLabel("result"), fuid, resultType);
 		return muValueBlock(resultType, [ muConInit(result, translate(statement)), muReturn1(resultType, result) ]);
 	} 
-	if((Statement) `<Expression expression>;` := statement){
-	    //my_btscope = nextTmp("RETURN");
-     //   enterBacktrackingScope(my_btscope);
-	   	if(isBoolType(resultType)){
-	   	   return muReturn1(abool(), translate(expression));
-            //return translateBool(expression, getResumptionScope(), muReturn1(abool(), muCon(true)), muReturn1(abool(), muCon(false)));                       
-   	    } else if(isConditional(expression)){
-           return muEnter(getResumptionScope(), translateBool(expression.condition,  getResumptionScope(), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp))));
-	    } else {
-	       return muReturn1(resultType, translate(expression));
-	    }
-	    //leaveBacktrackingScope(my_btscope);
-	}
+	
+   	if(isBoolType(resultType)){
+   	   return muReturn1(abool(), translate(expression));
+        //return translateBool(expression, getResumptionScope(), muReturn1(abool(), muCon(true)), muReturn1(abool(), muCon(false)));                       
+    } else if(isConditional(expression) && !backtrackFree(expression)){
+       return muEnter(getResumptionScope(), translateBool(expression.condition,  getResumptionScope(), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp))));
+    } else {
+       return muReturn1(resultType, translate(expression));
+    }
 }
+
+MuExp translateReturn(Statement+ statements){
+    stats = [ stat | stat <- statements];
+    return muBlock([translate(stat) | Statement stat <- stats[0..-1]] + translateReturn(stats[-1]));
+}
+
+default MuExp translateReturn(Statement statement){
+    return muReturn1(getType(statement), translate(statement));
+    }
 
 // -- throw statement ------------------------------------------------
 

@@ -400,10 +400,13 @@ bool leaveWithReturn(muEnter(str label, MuExp body), bool(MuExp) leave)
 //bool leaveWithReturn(muFail(str label), bool(MuExp) leave) = true; // <==
 bool leaveWithReturn(muSucceed(str label), bool(MuExp) leave) 
     = true;
-bool leaveWithReturn(muTry(MuExp exp, MuCatch \catch, MuExp \finally), bool(MuExp) leave) 
-    = leave(exp, leave) && leave(\catch, leave);
+    
+bool leaveWithReturn(muTry(MuExp exp, MuCatch \catch, MuExp \finally), bool(MuExp) leave)
+    = leave(exp, leave) && leave(\catch.body, leave);
+
 bool leaveWithReturn(muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body), bool(MuExp) leave) 
     = leave(body, leave);
+    
 default bool leaveWithReturn(MuExp exp, bool(MuExp) leave) 
     = false;
 
@@ -538,8 +541,8 @@ MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp)){
     println("getType: <getType(exp)>");
     exp2 = muEnter(btscope, visit(exp) { 
                                     case muSucceed(btscope) => muReturn1(abool(), muCon(true))
-                                    case muFail(btscope) => boolOrValue ? muReturn1(abool(), muCon(false)) : muFailReturn(ft)
-                                    case muFailEnd(btscope) => boolOrValue ? muReturn1(abool(), muCon(false)) : muFailReturn(ft)
+                                    case muFail(btscope) => boolOrValue ? muReturn1(abool(), muCon(false)) : muFailReturn(t)
+                                    case muFailEnd(btscope) => boolOrValue ? muReturn1(abool(), muCon(false)) : muFailReturn(t)
             });
     iprintln(exp2);
     return leaveWithReturn(exp2) ? exp2 : addReturnFalse(t, exp2);
@@ -847,12 +850,12 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                  <fl1, aux1, pre1, post1> = flattenArgs([exp]);
                  auxVars += aux1;
                  pre += pre1;
-                 newArgs += muAssign(var, size(post1) == 1? pos1[0] : muValueBlock(avalue(), post1));
+                 newArgs += muAssign(var, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
             } else if(muVarInit(MuExp var, MuExp exp) := arg){
                  <fl1, aux1, pre1, post1> = flattenArgs([exp]);
                  auxVars += aux1;
                  pre += pre1;
-                 newArgs += muVarInit(var, size(post1) == 1? pos1[0] : muValueBlock(avalue(), post1));
+                 newArgs += muVarInit(var, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
             } else if(muConInit(MuExp var, MuExp exp) := arg){
                  <fl1, aux1, pre1, post1> = flattenArgs([exp]);
                  auxVars += aux1;

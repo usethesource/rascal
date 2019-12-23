@@ -130,12 +130,12 @@ str getResumptionScope(str name){
     while(resumptionScopes[name]?){
         name = resumptionScopes[name];
     }
-    println(" ==\> <name>");
+    println("getResumptionScope ==\> <name>");
     return name;
 }
 
 void leaveBacktrackingScope(str name){
-  //println("leaveBacktrackingScope: <name>; <backtrackingScopes>");
+  println("leaveBacktrackingScope: <name>; <backtrackingScopes>");
   i = indexOf(backtrackingScopes, name);
   if(i < 0) throw "leaveBacktrackingScope: <name> not found";
   if(i == 0){
@@ -164,13 +164,14 @@ void leaveBacktrackingScope(str name){
 }
   
 MuExp updateBTScope(MuExp exp, str fromScope, str toScope){
+    return exp; // <<<
     if(fromScope == toScope) return exp;
     
-    //println("updateBTScope: <fromScope> =\> <toScope>; <exp>");
+    println("updateBTScope: <fromScope> =\> <toScope>; <exp>");
     return visit(exp){
         //case muSucceed(fromScope) => muSucceed(toScope)
-        case muContinue(fromScope):{ /*println("muContinue(<fromScope>) =\> muContine(<toScope>)");*/ insert muContinue(toScope); }
-        case muFail(fromScope): { /*println("muContinue(<fromScope>) =\> muContine(<toScope>)");*/ insert muFail(toScope); }
+        case muContinue(fromScope):{ println("muContinue(<fromScope>) =\> muContine(<toScope>)"); insert muContinue(toScope); }
+        case muFail(fromScope): { println("muContinue(<fromScope>) =\> muContine(<toScope>)"); insert muFail(toScope); }
     };
 }
 

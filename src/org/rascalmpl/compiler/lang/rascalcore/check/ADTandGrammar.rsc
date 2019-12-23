@@ -86,13 +86,12 @@ void addCommonKeywordFields(Solver s){
             consType = s.getType(def);
             if(consType.label == "type") continue; // TODO: where is the duplicate?
             conses_so_far = adt_constructors[consType.adt];
-            for(<AType c, Define cdef> <- conses_so_far, c.label == consType.label, cdef.defined != def.defined, comparable(c.fields, consType.fields)){
-                //iprintln(definitions, lineLimit=10000);
-                msgs = [ Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", def.defined),
-                         Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", cdef.defined)
-                       ];
-                s.addMessages(msgs);
-            }
+            //for(<AType c, Define cdef> <- conses_so_far, c.label == consType.label, cdef.defined != def.defined, comparable(c.fields, consType.fields)){
+            //    msgs = [ Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", def.defined),
+            //             Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", cdef.defined)
+            //           ];
+            //    s.addMessages(msgs);
+            //}
             adt_constructors += <consType.adt, consType, def>;   
         } catch TypeUnavailable():
             ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);

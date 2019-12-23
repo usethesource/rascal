@@ -41,74 +41,88 @@ private list[str] basicTests = [
     "Tuples"                    
 ];
 
+private list[str] concreteTests = [
+"Call",
+"Character",
+"Field",
+"isDefined",
+"Layout",
+"Matching",
+"OtherSyntax",
+"Parsing",
+"Patterns1",
+"Patterns2",
+"Patterns3",
+"PostParseFilter",
+"SubscriptAndSlice",
+"Syntax1",
+"Syntax2",
+"Syntax3", 
+"Syntax4",
+"Syntax5",
+"Syntax6",
+"SyntaxKeywordFields",
+"Terms"
+];
 
 private list[str] functionalityTests = [
 
-"AccumulatingTests",
-"AliasTests",
-"AnnotationTests",
-"AssignmentTests",
-"BacktrackingTests",
-"CallTests",
-"CallTestsAux",
-"CommonKeywordParameterImportTests1::DiamondTop",
-"CommonKeywordParameterImportTests1::DiamondLeft",
-"CommonKeywordParameterImportTests1::DiamondRight",
-"CommonKeywordParameterImportTests1::DiamondBottom",
+"Accumulating",
+"Alias",
+"Annotation",
+"Assignment",
+"Backtracking",
+"Call",
+"CallAux",
+"CommonKeywordParameterImport1::DiamondTop",
+"CommonKeywordParameterImport1::DiamondLeft",
+"CommonKeywordParameterImport1::DiamondRight",
+"CommonKeywordParameterImport1::DiamondBottom",
 
-"CommonKeywordParameterImportTests2::DiamondTop",
-"CommonKeywordParameterImportTests2::DiamondLeft",
-"CommonKeywordParameterImportTests2::DiamondRight",
-"CommonKeywordParameterImportTests2::DiamondBottom",
+"CommonKeywordParameterImport2::DiamondTop",
+"CommonKeywordParameterImport2::DiamondLeft",
+"CommonKeywordParameterImport2::DiamondRight",
+"CommonKeywordParameterImport2::DiamondBottom",
 
-"CommonKeywordParameterImportTests3::A",
-"CommonKeywordParameterImportTests3::B",
-"CommonKeywordParameterImportTests3::C",
-"CommonKeywordParameterImportTests3::D",
-"CommonKeywordParameterImportTests3::Tests",
+"CommonKeywordParameterImport3::A",
+"CommonKeywordParameterImport3::B",
+"CommonKeywordParameterImport3::C",
+"CommonKeywordParameterImport3::D",
+"CommonKeywordParameterImport3::Tests",
 
-"ComprehensionTests",
-"ConcretePatternTests1",
-"ConcretePatternTests2",
-"ConcretePatternTests3",
-"ConcreteSubscriptAndSliceTests",
-"ConcreteSyntaxKeywordFields",
-"ConcreteSyntaxTests1",
-"ConcreteSyntaxTests2",
-"ConcreteSyntaxTests3", 
-"ConcreteSyntaxTests4",
-"ConcreteSyntaxTests5",
-"ConcreteSyntaxTests6",
-"ConcreteTerms",
-"DataDeclarationTests",
-"DataTypeTests",
-"DeclarationTests",
-"FunctionCompositionTests",
-"InterpolationTests",
-"KeywordParameterImportTests1::DiamondTop",
-"KeywordParameterImportTests1::DiamondLeft",
-"KeywordParameterImportTests1::DiamondRight",
-"KeywordParameterImportTests1::DiamondBottom",
-"KeywordParameterImportTests2::Tests",
-"KeywordParameterTests",
-"LayoutTests",
-"ParsingTests",
-"PatternTests",
-"PatternDescendantTests",
-"PatternList3Tests",
-"ProjectionTests",
-"RangeTests",
-"ReducerTests",
-"RegExpTests",
-"ScopeTests",       
-"SetMatchTests1", 
-"SetMatchTests2",
-"SimpleVisitTest",
-"StatementTests",
-"SubscriptTests",
-"TryCatchTests",                
-"VisitTests1",
-"VisitTests2"
+"Comprehension",
+
+"DataDeclaration",
+"DataType",
+"Declaration",
+"FunctionComposition",
+"Interpolation",
+"KeywordParameterImport1::DiamondTop",
+"KeywordParameterImport1::DiamondLeft",
+"KeywordParameterImport1::DiamondRight",
+"KeywordParameterImport1::DiamondBottom",
+"KeywordParameterImport2::Tests",
+"KeywordParameter",
+
+"Pattern",
+"PatternDescendant",
+"PatternList1",
+"PatternList2",
+"PatternSet1",
+"PatternSet2",
+"PatternSet3",
+"Projection",
+"Range",
+"Reducer",
+"RegExp",
+"Reification",
+"Scoping",       
+"SimpleVisit",
+"Statement",
+"Subscription",
+"TryCatch",                
+"Visit1",
+"Visit2"
 ];
 
 private list[str] importTests = [
@@ -148,8 +162,6 @@ private list[str] libraryTests = [
 "lang::json::JSONIOTests",
 "util::SemVerTests"
 ];
-
-
 
 private list[str] extendTests  = [
 "ABSTRACTTYPE",
@@ -399,8 +411,8 @@ map[str, list[Message]] filterErrors(map[str, list[Message]] modsAndMsgs){
 void allFiles(PathConfig pcfg = pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://TypePal/src|,
-                |project://rascal/src/org/rascalmpl/library|,
-                |std:///|
+                |project://rascal/src/org/rascalmpl/library|
+                //|std:///|
                ])){
     modulePaths = find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); });
     println("<size(modulePaths)> files");
