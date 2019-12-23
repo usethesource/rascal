@@ -1,35 +1,53 @@
 module lang::rascalcore::compile::Examples::Tst2
 
-bool main() =  {*int _, int Y} := {1}; 
-
-
-//bool main() = [1, *list[int] L, 6] := [1, 6];// && (L == [[2,3],[4,5]]));
-
-
-//bool main() {int N = 1; return ([N, 2, int M] := [1,2,3]) && (N == 1) && (M==3);}
-
-//{ "f"(D), D } := {"f"(1), 1};
-
-//{ int ONE = 1; set[int] S = {3}; return {*S, 2, ONE} := {1,2,3};}
-
-//bool main1 = [*int _] := [1,2];
-// 
-//bool main() = [[1,2]] := [[1,2]];
-
-//value main() =   [1] := [1];
-//value main() {  if(([1, *int L] := [1, 2]) && (L == [2])) return 10; else return 20;}
-
-
-//value main() = int i <- [1,4] && int k := i && k >= 10;
-
-//value main() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;
-
-//test bool keywordParam92(){
-//    bool f11(bool c = false){
-//        bool g11(){
-//            return c;
+value main() = [*int L] := [1] && L == [1];
+ 
+//public bool isDuo1(list[int] L)
+//{
+//    switch(L){
+//    case [int L1, int L2]:
+//        if(L1 == L2){
+//            return true;
+//        } else {
+//            fail;
 //        }
-//        return g11();
-//    }
-//    return f11() == false;
+//    default:
+//        return false;
+//      }
 //}
+//
+//value main() = isDuo1([1,2]) == false;
+
+//public int sum([int hd, *int tl])
+//    = hd;
+
+ 
+
+//import Map;
+//test bool delete1(&K k) = isEmpty(delete((),k));
+
+//value main() {int n3 = 1; return (n3 !:= 2) && (n3 == 1);}
+//value main() = /int N := [1,2,3,2] && N > 2;
+
+//value main() =  {*int X, *real Y} := { 1, 5.5, 2, 6.5};// && (X == {1,2} && Y == {5.5, 6.5});
+
+//value main(){
+//    res = {};
+//    for({6, *int a, int x, *int b, int y, 2, *int c} := {1,2,3,4,5,6,7}) { res = res + {{a,b,c}}; }
+//    return res;
+//}
+
+//public int ModVar44 = 44;
+//public set[int] ModVarSet_41_42_43 = {41, 42, 43};
+//
+//@ignoreInterpreter{Seems to be a bug in the interpreter}
+//value main() = {ModVar44, ModVarSet_41_42_43} := {ModVar44, ModVarSet_41_42_43};
+
+// test bool matchSet23() {int N = 3; return {N, 2, 1} := {1,2,3};}
+//value main() = {*int X, 3, *int Y, *int Z} := {} && X == {} && Y == {} && Z == {};
+
+//value main() = ({int N, 2, N} := {1,2,"a"});
+
+
+                                                
+//value main() = {*int X, *int Y, *int Z} := {} && X == {} && Y == {} && Z == {};

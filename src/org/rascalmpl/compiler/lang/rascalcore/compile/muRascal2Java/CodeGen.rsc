@@ -869,12 +869,19 @@ default str transWithCast(AType atype, MuExp exp, JGenie jg) {
     //if(producesNativeString(exp)){
     //    return "$VF.string(<code>)";
     //}
+    
+    if(producesFunctionInstance(code)){
+        return code;
+    }
     exptype = getType(exp);
     
     isequivalent = equivalent(exptype,atype) ? false;
     
     return isequivalent ? code : "((<atype2javatype(atype)>)<parens(code)>)";
 }
+
+bool producesFunctionInstance(str code)
+    = startsWith(code, "new FunctionInstance");
 
 // ---- muAssign --------------------------------------------------------------
 
@@ -1414,7 +1421,7 @@ default JCode trans(muEnter(btscope, MuExp exp), JGenie jg)
       '    } while(false);\n";
 
 JCode trans(muSucceed(str label), JGenie jg)
-    = "break <label>;";
+    = "break;"; //"break <label>;";
 
 JCode trans(muFail(str label), JGenie jg){
     if(startsWith(jg.getFunctionName(), label)){    // TODO:this is brittle, solve in JGenie
@@ -1422,11 +1429,11 @@ JCode trans(muFail(str label), JGenie jg){
         return jg.getFunction().ftype.ret == avoid() ? "throw new FailReturnFromVoidException();"
                                                      : "return null;";
     }
-    return "continue <label>;";   
+    return "continue;"; //continue <label>;";   
 }
     
 JCode trans(muFailEnd(str label), JGenie jg)
-    = "continue <label>;";
+    = "continue;"; //"continue <label>;";
     
 JCode trans(muBreak(str label), JGenie jg)
     = "break <label>;\n";

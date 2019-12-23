@@ -265,21 +265,27 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
         	mubody = muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], params, fd@\loc);
         	//mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
          } else {
-            mubody = muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid);
+            mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid));
         }
       } else if(!isEmpty(body)){
-            if((Statement) `<Expression expression>;` := body[0]){
-                if(isBoolType(resultType)){
-                    mubody = muReturn1(abool(), translate(expression));
-                    //mubody = translateBool(expression, getResumptionScope(), muReturn1(abool(), muCon(true)), muReturn1(abool(), muCon(false)));
-                } else if(isConditional(expression)){
-                    mubody = muEnter(getResumptionScope(), translateBool(expression.condition, prettyPrintName(fd.signature.name), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp))));
-                } else {
-                    mubody = muReturn1(resultType, translate(expression));
-                }
-            } else {
+            if(size(body) == 1){
+                mubody = translateReturn(body[0]);
+             } else {
                 mubody = muBlock([ translate(stat) | stat <- body ]);
-            }
+             }
+           
+            //if((Statement) `<Expression expression>;` := body[0]){
+            //    if(isBoolType(resultType)){
+            //        mubody = muReturn1(abool(), translate(expression));
+            //        //mubody = translateBool(expression, getResumptionScope(), muReturn1(abool(), muCon(true)), muReturn1(abool(), muCon(false)));
+            //    } else if(isConditional(expression)){
+            //        mubody = muEnter(getResumptionScope(), translateBool(expression.condition, prettyPrintName(fd.signature.name), muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp))));
+            //    } else {
+            //        mubody = muReturn1(resultType, translate(expression));
+            //    }
+            //} else {
+            //    mubody = muBlock([ translate(stat) | stat <- body ]);
+            //}
       }
      
       isPub = !fd.visibility is \private;
@@ -409,26 +415,31 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      enterBacktrackingScope(fname);
      list[Pattern] formalsList = [f | f <- formals];
      str fuid = topFunctionScope();
+     my_btscope = nextTmp("FUNCTION_<fname>");
      
      formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), getType(formalsList[i]))
                                                                                     : muVar(pname, fuid, -i, getType(formalsList[i]))   
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];
-    
-     //when_body = returnFromFunction(translateAndConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
      
      iprintln(body);
      when_body = returnFromFunction(body, ftype, formalVars, isMemo, addReturn=addReturn);
      iprintln(when_body);
      if(!isEmpty(when_conditions)){
-        when_body = translateAndConds(fname, when_conditions, when_body, muFailReturn(ftype));
+        when_body = translateAndConds(my_btscope, when_conditions, when_body, muFailReturn(ftype));
      }
      params_when_body = ( when_body
-                        | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
+                        | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], my_btscope, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));
                         
      funCode = functionBody(isVoidType(ftype.ret) || !addReturn ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
       
+     
+     //alwaysReturns = leaveWithReturn(funCode);
+     //formalsBTFree = all(f <- formals, backtrackFree(f));
+     //if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){
+     //   funCode = muBlock([muEnter(my_btscope, funCode), muFailReturn(ftype)]);
+     //}
      leaveBacktrackingScope(fname);
      return <formalVars, funCode>;
 }

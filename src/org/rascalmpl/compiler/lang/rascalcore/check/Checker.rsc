@@ -144,7 +144,7 @@ public PathConfig getDefaultPathConfig() {
                 |project://rascal/src/org/rascalmpl/library/|
                ],
         bin = |project://rascal-core/bin|, 
-        libs = [|std:///|, |lib://rascal/|]
+        libs = [] //[|std:///|, |lib://rascal/|]
                );
 }
 
