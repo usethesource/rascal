@@ -294,7 +294,7 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
                 return afunc(avoid(), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); 
              });
         c.defineInScope(parentScope,  closureName(current), functionId(), current, dt); 
-        c.use(current, {functionId()});
+        //c.use(current, {functionId()}); commented by Jurgen to fix usethesource/rascal#409
         collect(formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
