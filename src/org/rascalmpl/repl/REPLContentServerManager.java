@@ -23,10 +23,11 @@ import com.github.benmanes.caffeine.cache.RemovalCause;
 import io.usethesource.vallang.IValue;
 
 public class REPLContentServerManager {
+    private static final int MAX_SERVER_COUNT = 125;
     private static final long HALFHOUR = 30 * 60 * 1000;
     private final Cache<String, REPLContentServer> servers 
     = Caffeine.newBuilder()
-      .maximumSize(128)
+      .maximumSize(MAX_SERVER_COUNT)
       .removalListener(REPLContentServerManager::cleanupServer)
       .build();
     
@@ -65,7 +66,7 @@ public class REPLContentServerManager {
     private REPLContentServer startContentServer(Function<IValue, IValue> target) throws IOException {
         REPLContentServer server = null;
 
-        for(int port = 9050; port < 9050+125; port++){
+        for(int port = 9050; port < 9050+MAX_SERVER_COUNT; port++){
             try {
                 server = new REPLContentServer(port, target);
                 server.start();
