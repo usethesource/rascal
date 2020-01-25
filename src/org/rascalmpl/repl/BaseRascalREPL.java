@@ -69,7 +69,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final boolean htmlOutput;
     private final boolean allowColors;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-    protected final REPLContentServer contentServer = REPLContentServer.startContentServer();
+    protected final REPLContentServerManager contentManager = new REPLContentServerManager();
     
     public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
         this.htmlOutput = htmlOutput;
@@ -249,11 +249,11 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         Function<IValue, IValue> target = liftProviderFunction(provider.get("callback"));
         
         // this installs the provider such that subsequent requests are handled.
-        contentServer.registerContentProvider(id, target);
+        REPLContentServer server = contentManager.addServer(id, target);
         
         // now we need some HTML to show
-        Response response = contentServer.serve("/" + id, Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-        metadata.put("url", "http://localhost:" + contentServer.getListeningPort() + "/" + id);
+        Response response = server.serve("/", Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        metadata.put("url", "http://localhost:" + server.getListeningPort() + "/");
         output.put(response.getMimeType(), response.getData());
     }            
         
