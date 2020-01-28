@@ -98,6 +98,6 @@ data TypePalConfig(
     bool warnUnused                 = true,
     bool warnUnusedFormals          = true,
     bool warnUnusedVariables        = true,
-    bool warnUnusedPatternFormals   = false,
+    bool warnUnusedPatternFormals   = true,
     bool warnDeprecated             = false
 );
