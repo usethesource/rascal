@@ -1252,7 +1252,7 @@ default JCode trans(muReturn1(AType result, MuExp exp), JGenie jg){
         return "<trans(exp, jg)>; 
                'return;\n";
     }
-    return "return <transWithCast(result, exp, jg)>;\n";
+    return "return <transWithCast(result, exp, jg)>;";
 }
 
 JCode trans(muReturn1FromVisit(AType result, MuExp exp), JGenie jg)
@@ -1325,13 +1325,13 @@ JCode trans(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
             '   <trans(thenPart, jg)>
             '} else {
             '   <trans(elsePart, jg)>
-            '}\n";
+            '}";
 }
 
 JCode trans(muIfExp(MuExp cond, muBlock([]), MuExp elsePart), JGenie jg)
    = "if(!<trans2NativeBool(cond, jg)>){
      '  <trans2Void(elsePart, jg)>
-     '}\n";
+     '}";
    
 JCode trans(muIfExp(MuExp cond, MuExp thenPart, muBlock([])), JGenie jg)
    = "if(<trans2NativeBool(cond, jg)>){
@@ -1364,10 +1364,11 @@ JCode trans(muWhileDo(str label, MuExp cond, MuExp body), JGenie jg){
     if(muEnter(btscope, MuExp exp) := body){
        return
             "<isEmpty(label) ? "" : "<label>:">
+            '//<btscope>:
             '    while(<cond_code>){
             '    <btscope>: 
             '       do {
-            '         <trans(exp, jg)>
+            '         <trans2Void(exp, jg)>
             '          break <label>;
             '       } while(false);\n
             '    }\n";
@@ -1399,8 +1400,8 @@ JCode trans(mw: muForAll(str btscope, MuExp var, AType iterType, MuExp iterable,
     '<noInnerLoops ? "throw new RuntimeException(\"muForAll exhausted\");" : "">\n";
 }
 
-JCode trans(muEnter(btscope, muBlock([*exps, muSucceed(btscope)])), JGenie jg)
-    = "<trans(muBlock(exps), jg)>";
+//JCode trans(muEnter(btscope, muBlock([*exps, muSucceed(btscope)])), JGenie jg)
+//    = "<trans(muBlock(exps), jg)>";
     
 JCode trans(e:muEnter(btscope, muFail(btscope)), JGenie jg)
     = "/*<e>*/";
@@ -1414,14 +1415,15 @@ JCode trans(muEnter(btscope, asg:muAssign(_,_)), JGenie jg)
 JCode trans(muEnter(btscope,ret: muReturn1(_,_)), JGenie jg)
     = trans(ret, jg);
 
-default JCode trans(muEnter(btscope, MuExp exp), JGenie jg)
-    = "<btscope>: 
+default JCode trans(muEnter(btscope, MuExp exp), JGenie jg){
+    return
+      "<isEmpty(btscope) ? "" : "<btscope>:"> 
       '    do {
-      '        <trans(exp, jg)>
+      '        <trans2Void(exp, jg)>
       '    } while(false);\n";
-
+}
 JCode trans(muSucceed(str label), JGenie jg)
-    = "break;"; //"break <label>;";
+    = "break <label>;";
 
 JCode trans(muFail(str label), JGenie jg){
     if(startsWith(jg.getFunctionName(), label)){    // TODO:this is brittle, solve in JGenie
@@ -1429,11 +1431,11 @@ JCode trans(muFail(str label), JGenie jg){
         return jg.getFunction().ftype.ret == avoid() ? "throw new FailReturnFromVoidException();"
                                                      : "return null;";
     }
-    return "continue;"; //continue <label>;";   
+    //if(/^CASE[0-9]+$/ := label){
+    //    return "break <label>;";
+    //}
+    return "continue <label>;";   
 }
-    
-JCode trans(muFailEnd(str label), JGenie jg)
-    = "continue;"; //"continue <label>;";
     
 JCode trans(muBreak(str label), JGenie jg)
     = "break <label>;\n";

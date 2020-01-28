@@ -116,6 +116,10 @@ void enterBacktrackingScope(str name){
   backtrackingScopes = name + backtrackingScopes;
 }
 
+str getBacktrackingScope(){
+    return backtrackingScopes[0];
+}
+
 str getResumptionScope(){
   println("getResumptionScope: <backtrackingScopes>");
   return top(backtrackingScopes) ? "";
@@ -164,14 +168,14 @@ void leaveBacktrackingScope(str name){
 }
   
 MuExp updateBTScope(MuExp exp, str fromScope, str toScope){
-    return exp; // <<<
+    //return exp; //<<<
     if(fromScope == toScope) return exp;
     
     println("updateBTScope: <fromScope> =\> <toScope>; <exp>");
     return visit(exp){
         //case muSucceed(fromScope) => muSucceed(toScope)
         case muContinue(fromScope):{ println("muContinue(<fromScope>) =\> muContine(<toScope>)"); insert muContinue(toScope); }
-        case muFail(fromScope): { println("muContinue(<fromScope>) =\> muContine(<toScope>)"); insert muFail(toScope); }
+        case muFail(fromScope): { println("muFail(<fromScope>) =\> muFail(<toScope>)"); insert muFail(toScope); }
     };
 }
 
