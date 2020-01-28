@@ -369,7 +369,7 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = true,  bool logImports =
         warnUnused                    = true,
         warnUnusedFormals             = true,
         warnUnusedVariables           = true,
-        warnUnusedPatternFormals      = false,
+        warnUnusedPatternFormals      = true,
         warnDeprecated                = false,
         
         getMinAType                   = AType(){ return avoid(); },
