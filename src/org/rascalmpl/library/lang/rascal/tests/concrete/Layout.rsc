@@ -1,4 +1,4 @@
-module lang::rascal::tests::functionality::Layout
+module lang::rascal::tests::concrete::Layout
 
 // DO NOT ADD CODE THAT TRIGGERS A PARSER TO THIS MODULE
 // WE NEED A MODULE WHICH CAN RUN THE GRAMMAR NORMALIZER LIKE THIS WITHOUT TRIGGERING THE GENERATOR
