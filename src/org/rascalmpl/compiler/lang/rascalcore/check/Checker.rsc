@@ -142,9 +142,10 @@ public PathConfig getDefaultPathConfig() {
                 //Paul: we need this to run in Eclipse console
                 |project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://rascal/src/org/rascalmpl/library/|
+                //, |project://typepal/src/|
                ],
         bin = |project://rascal-core/bin|, 
-        libs = /*[]*/ [|std:///|, |lib://rascal/|]
+        libs = [|std:///|, |lib://rascal/|, |lib://typepal/|]
                );
 }
 
