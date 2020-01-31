@@ -48,10 +48,10 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         writeFile(targetDir + "<className>.java", the_class);
         writeFile(targetDir + "<className>Tests.java", the_test_class);
      
-        return tm.messages;
+        return errors; //tm.messages;
        
     } catch e: CompileTimeError(Message m): {
-        return tm.messages + [m];   
+        return errors + [m];   
     }
 }
 
