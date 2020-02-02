@@ -133,7 +133,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 //}
 
 // ----  Various check functions  ---------------------------------------------
-
+ 
 public PathConfig getDefaultPathConfig() {
     println("checker path config");
     return pathConfig(   
@@ -371,6 +371,7 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
 
 CheckerResult rascalTModelForNames(list[str] moduleNames, PathConfig pcfg, TypePalConfig config){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
+    iprintln(pcfg);
     try {
         mlocs = [ getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
         return rascalTModelForLocs(mlocs, pcfg, config);
