@@ -254,8 +254,6 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("m1.specializedFacts:"); iprintln(m1.specializedFacts);
         m1.messages = tm.messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
         
-        no_errors = isEmpty(m1.messages) || !any(msg <- m1.messages, error(_,_) := msg);
-        
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         
         m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
@@ -298,7 +296,13 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
         
         writeBinaryValueFile(tplLoc, m1);
-        if(tm.config.logImports) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
+        if(tm.config.logImports) {
+             errors = { msg | msg <- m1.messages, error(_,_) := msg };
+             println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)<n_errors > 0 ? " WITH <n> ERRORS" : "">");
+             for(e <- errors){
+                iprintln(e);
+             }
+        }
         return m1;
     } catch value e: {
         return tmodel()[messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]];
