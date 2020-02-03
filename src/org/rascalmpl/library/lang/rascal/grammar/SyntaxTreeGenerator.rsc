@@ -46,7 +46,7 @@ data Sig
   ;
   
 data Arg 
-  = arg(str typ, str name);
+  = arg(str typ, str name, bool isOptional = false);
 
 bool isBreakable(prod(_,_,{\tag("breakable"()), *_})) = true;
 default bool isBreakable(Production p) = false;
@@ -88,7 +88,7 @@ public void grammarToJavaAPI(loc outdir, str pkg, Grammar g) {
   grammarToASTClasses(outdir, pkg, model);
 }
 
-public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
+public void grammarToVisitor(loc outdir, str pkg, set[AST] asts, str licenseHeader = header) {
   ivisit = "package <pkg>;
            '
            'public interface IASTVisitor\<T\> {
@@ -100,7 +100,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
            '<}>
            '}";
 
-  loggedWriteFile(outdir + "/IASTVisitor.java", ivisit);
+  loggedWriteFile(outdir + "/IASTVisitor.java", ivisit, licenseHeader);
 
   nullVisit = "package <pkg>;
               '
@@ -117,13 +117,13 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts) {
               '<}>
               '}";
 
-   loggedWriteFile(outdir + "/NullASTVisitor.java", nullVisit);
+   loggedWriteFile(outdir + "/NullASTVisitor.java", nullVisit, licenseHeader);
 }
 
-public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts) {
+public void grammarToASTClasses(loc outdir, str pkg, set[AST] asts, str licenseHeader = header) {
   for (a <- sort(asts)) {
      class = classForSort(pkg, ["io.usethesource.vallang.IConstructor", "io.usethesource.vallang.ISourceLocation"], a);
-     loggedWriteFile(outdir + "/<a.name>.java", class); 
+     loggedWriteFile(outdir + "/<a.name>.java", class, licenseHeader); 
   }
 }
 
@@ -140,12 +140,12 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '    super(src /* we forget node on purpose */);
          '  }
          '
-         '  <for (arg(typ, lab) <- sort(allArgs)) { clabel = capitalize(lab); >
+         '  <for (a:arg(typ, lab) <- sort(allArgs)) { clabel = capitalize(lab); >
          '  public boolean has<clabel>() {
          '    return false;
          '  }
          '
-         '  public <typ> get<clabel>() {
+         '  public <optionalType(a)> get<clabel>() {
          '    throw new UnsupportedOperationException();
          '  }<}>
          '
@@ -185,7 +185,7 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '      $result.add(this);
          '    }
          '    ISourceLocation $l;
-         '    <for (arg(typ, name) <- sig.args) {><if (/java.util.List/ := typ) {>
+         '    <for (arg(typ, name, isOptional = isOpt) <- sig.args) {><if (/java.util.List/ := typ) {>
          '    for (AbstractAST $elem : <name>) {
          '      $l = $elem.getLocation();
          '      if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
@@ -196,11 +196,11 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '      }
          '
          '    }<} else {>
-         '    $l = <name>.getLocation();
-         '    if ($l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
+         '    $l = <if (isOpt) {> (<name> == null) ? null : <}><name>.getLocation();
+         '    if (<if (isOpt) {>$l != null && <}>$l.hasLineColumn() && $l.getBeginLine() \<= $line && $l.getEndLine() \>= $line) {
          '      <name>.addForLineNumber($line, $result);
          '    }
-         '    if ($l.getBeginLine() \> $line) {
+         '    if (<if (isOpt) {>$l != null && <}>$l.getBeginLine() \> $line) {
          '      return;
          '    }
          '    <}><}>
@@ -212,18 +212,18 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '      return false;
          '    }        
          '    <sig.name> tmp = (<sig.name>) o;
-         '    return true <for (arg(_, name) <- sig.args) {>&& tmp.<name>.equals(this.<name>) <}>; 
+         '    return true <for (a <- sig.args) {>&& <nullableEquals(a)> <}>; 
          '  }
          ' 
          '  @Override
          '  public int hashCode() {
-         '    return <arbPrime(1000)> <for (arg(_, name) <- sig.args) { >+ <arbPrime(1000)> * <name>.hashCode() <}>; 
+         '    return <arbPrime(1000)> <for (a <- sig.args) { >+ <arbPrime(1000)> * <nullableHashCode(a)> <}>; 
          '  } 
          '
-         '  <for (arg(typ, name) <- sig.args) { cname = capitalize(name); >
+         '  <for (a:arg(typ, name) <- sig.args) { cname = capitalize(name); >
          '  @Override
-         '  public <typ> get<cname>() {
-         '    return this.<name>;
+         '  public <optionalType(a)> get<cname>() {
+         '    return <optionalFieldAccess(a)>;
          '  }
          '
          '  @Override
@@ -241,6 +241,19 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '  }<}>        
          '}";
 }
+
+private str optionalType(arg(str typ, _, isOptional = true)) = "java.util.Optional\<<typ>\>";
+private str optionalType(arg(str typ, _, isOptional = false)) = typ;
+
+private str nullableHashCode(arg(_, str name, isOptional = true)) = "java.util.Objects.hashCode(<name>)";
+private str nullableHashCode(arg(_, str name, isOptional = false)) = "<name>.hashCode()";
+
+private str nullableEquals(arg(_, str name, isOptional = true)) = "java.util.Objects.equals(tmp.<name>, this.<name>)";
+private str nullableEquals(arg(_, str name, isOptional = false)) = "tmp.<name>.equals(this.<name>)";
+
+private str optionalFieldAccess(arg(_, str name, isOptional = true)) = "java.util.Optional.ofNullable(this.<name>)";
+private str optionalFieldAccess(arg(_, str name, isOptional = false)) = "this.<name>";
+
 
 public str lexicalClass(str name) {
   return "static public class Lexical extends <name> {
@@ -290,6 +303,10 @@ list[Arg] productionArgs(str pkg, Production p) {
    str l = "java.util.List";
    return for (label(str name, Symbol sym) <- p.symbols) {
      a = arg("", name);
+     if (\opt(Symbol ss) := sym) {
+        a.isOptional = true;
+        sym := ss;
+     }
      switch (sym) {
        case \sort(str s): a.typ = "<pkg>.<s>"; 
        case \lex(str s): a.typ = "<pkg>.<s>"; 
@@ -349,8 +366,8 @@ public str construct(Sig sig) {
          '}";
 }
 
-private void loggedWriteFile(loc file, str src) {
+private void loggedWriteFile(loc file, str src, str licenseHeader) {
   println("Writing <file>");
-  writeFile(file, "<header>
+  writeFile(file, "<licenseHeader>
                   '<src>");
 }
