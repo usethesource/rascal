@@ -299,6 +299,7 @@ TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
 }
 
 void checkOverloading(map[str,Tree] namedTrees, Solver s){
+return; // TODO temp fix
     set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
     moduleScopes = { t@\loc | t <- range(namedTrees) };
