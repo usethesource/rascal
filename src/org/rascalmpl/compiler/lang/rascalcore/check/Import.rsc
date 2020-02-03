@@ -214,7 +214,6 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
         return moduleScopes[qualifiedModuleName];
     }
     for(l <- range(moduleScopes)){
-        println(getModuleName(l, pcfg) );
         if(getModuleName(l, pcfg) == qualifiedModuleName){
             return l;
         }
@@ -298,7 +297,8 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         writeBinaryValueFile(tplLoc, m1);
         if(tm.config.logImports) {
              errors = { msg | msg <- m1.messages, error(_,_) := msg };
-             println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)<size(errors) > 0 ? " WITH <n> ERRORS" : "">");
+             n_errors = size(errors);
+             println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)<n_errors> 0 ? " WITH <n_errors> ERRORS" : "">");
              for(e <- errors){
                 iprintln(e);
              }
