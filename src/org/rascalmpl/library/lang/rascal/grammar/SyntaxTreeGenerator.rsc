@@ -145,7 +145,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '    return false;
          '  }
          '
-         '  public <optionalType(a)> get<clabel>() {
+         '  public <makeMonotonic(a)> get<clabel>() {
          '    throw new UnsupportedOperationException();
          '  }<}>
          '
@@ -220,15 +220,15 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '    return <arbPrime(1000)> <for (a <- sig.args) { >+ <arbPrime(1000)> * <nullableHashCode(a)> <}>; 
          '  } 
          '
-         '  <for (a:arg(typ, name) <- sig.args) { cname = capitalize(name); >
+         '  <for (a:arg(typ, name, isOptional = isopt) <- sig.args) { cname = capitalize(name); >
          '  @Override
-         '  public <optionalType(a)> get<cname>() {
-         '    return <optionalFieldAccess(a)>;
+         '  public <makeMonotonic(a)> get<cname>() {
+         '    return this.<name>;
          '  }
          '
-         '  @Override
+         '  @Override<if (isopt) {> @org.checkerframework.checker.nullness.qual.EnsuresNonNullIf(expression=\"get<cname>()\", result=true) <}>
          '  public boolean has<cname>() {
-         '    return true;
+         '    return <if (isopt) {>this.<name> != null<} else {>true<}>;
          '  }<}>	
          '
          '  @Override
@@ -242,18 +242,14 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '}";
 }
 
-private str optionalType(arg(str typ, _, isOptional = true)) = "java.util.Optional\<<typ>\>";
-private str optionalType(arg(str typ, _, isOptional = false)) = typ;
+private str makeMonotonic(arg(str typ, _, isOptional = true)) = replaceAll(typ, "Nullable", "MonotonicNonNull");
+private str makeMonotonic(arg(str typ, _, isOptional = false)) = typ;
 
 private str nullableHashCode(arg(_, str name, isOptional = true)) = "java.util.Objects.hashCode(<name>)";
 private str nullableHashCode(arg(_, str name, isOptional = false)) = "<name>.hashCode()";
 
 private str nullableEquals(arg(_, str name, isOptional = true)) = "java.util.Objects.equals(tmp.<name>, this.<name>)";
 private str nullableEquals(arg(_, str name, isOptional = false)) = "tmp.<name>.equals(this.<name>)";
-
-private str optionalFieldAccess(arg(_, str name, isOptional = true)) = "java.util.Optional.ofNullable(this.<name>)";
-private str optionalFieldAccess(arg(_, str name, isOptional = false)) = "this.<name>";
-
 
 public str lexicalClass(str name) {
   return "static public class Lexical extends <name> {
@@ -329,6 +325,9 @@ list[Arg] productionArgs(str pkg, Production p) {
        case \iter-seps(\parameterized-lex(str s, [Symbol _:str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
        case \iter-star-seps(\parameterized-lex(str s, [Symbol _:str _(str z)]), _): a.typ = "<l>\<<pkg>.<s>_<z>\>";
        
+     }
+     if (a.isOptional) {
+        a.typ = "@org.checkerframework.checker.nullness.qual.Nullable <a.typ>";
      }
      append a;   
    }
