@@ -448,11 +448,39 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			setMonitor(old);
 		}
 	}
-	
-	
-	
-	public IValue call(String returnType, String name, IValue... args) {
-	  return call(Names.toQualifiedName(returnType, name, getCurrentEnvt().getLocation()), Collections.emptyMap(), args);
+
+	@Override
+	public IValue call(String adt, String name, IValue... args) {
+	    List<AbstractFunction> candidates = new LinkedList<>();
+	    
+	    Type[] types = new Type[args.length];
+
+        int i = 0;
+        for (IValue v : args) {
+            types[i++] = v.getType();
+        }
+        
+        getCurrentEnvt().getAllFunctions(name, candidates);
+        
+        if (candidates.isEmpty()) {
+            throw new UndeclaredFunction(name, types, this, getCurrentAST());
+        }
+        
+        List<AbstractFunction> filtered = new LinkedList<>();
+        
+        for (AbstractFunction candidate : candidates) {
+            if (candidate.getReturnType().isAbstractData() && candidate.getReturnType().getName().equals(adt)) {
+                filtered.add(candidate);
+            }
+        }
+
+        if (filtered.isEmpty()) {
+            throw new UndeclaredFunction(adt + "::" + name, types, this, getCurrentAST());  
+        }
+        
+        ICallableValue func = new OverloadedFunction(name, filtered);
+        
+        return func.call(getMonitor(), types, args, Collections.emptyMap()).getValue();
 	};
 	
 	@Override
@@ -665,8 +693,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		return func.call(getMonitor(), types, args, kwArgs).getValue();
 	}
-	
-	
 	
 	@Override	
 	public ITree parseObject(IConstructor grammar, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
