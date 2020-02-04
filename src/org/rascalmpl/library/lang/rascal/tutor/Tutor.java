@@ -21,7 +21,7 @@ public class Tutor {
         .noModuleArgument()
         .handleArgs(args);
 
-        PathConfig pcfg = new PathConfig(cmdOpts.getCommandLocsOption("src"), cmdOpts.getCommandLocsOption("lib"), cmdOpts.getCommandLocOption("bin"), cmdOpts.getCommandLocOption("boot"));
+        PathConfig pcfg = new PathConfig(cmdOpts.getCommandLocsOption("src"), cmdOpts.getCommandLocsOption("lib"), cmdOpts.getCommandLocOption("bin"));
         PrintWriter stderr = new PrintWriter(System.err);
         IDEServices ideServices = new BasicIDEServices(stderr);
         HelpManager hm = new HelpManager(pcfg, new PrintWriter(System.out), stderr, ideServices, false);
