@@ -92,17 +92,17 @@ public class PathConfig {
     }
 	
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders) throws IOException{
-		this.srcs = srcs;
-		this.courses = courses;
+		this.srcs = dedup(srcs);
+		this.courses = dedup(courses);
 		this.libs = libs;
 		this.bin = bin;
-		this.javaCompilerPath = javaCompilerPath;
-		this.classloaders = classloaders;
+		this.javaCompilerPath = dedup(javaCompilerPath);
+		this.classloaders = dedup(classloaders);
 	}
 	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin) throws IOException{
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
+    public PathConfig(IList srcs, IList libs, ISourceLocation bin) throws IOException{
+        this.srcs = initializeLocList(srcs);
+        this.libs = initializeLocList(libs);
         this.bin = bin;
         this.courses = defaultCourses;
         this.javaCompilerPath = defaultJavaCompilerPath;
@@ -110,31 +110,73 @@ public class PathConfig {
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses) throws IOException{
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
+        this.srcs = initializeLocList(srcs);
+        this.libs = initializeLocList(libs);
         this.bin = bin;
-        this.courses = convertLocs(courses);
+        this.courses = initializeLocList(courses);
         this.javaCompilerPath = defaultJavaCompilerPath;
         this.classloaders = defaultClassloaders;
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, IList javaCompilerPath) throws IOException{
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
+        this.srcs = initializeLocList(srcs);
+        this.libs = initializeLocList(libs);
         this.bin = bin;
-        this.courses = convertLocs(courses);
-        this.javaCompilerPath = convertLocs(javaCompilerPath);
+        this.courses = initializeLocList(courses);
+        this.javaCompilerPath = initializeLocList(javaCompilerPath);
         this.classloaders = defaultClassloaders;
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, IList javaCompilerPath, IList classloaders) throws IOException {
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
+        this.srcs = initializeLocList(srcs);
+        this.libs = initializeLocList(libs);
         this.bin = bin;
-        this.courses = convertLocs(courses);
-        this.javaCompilerPath = convertLocs(javaCompilerPath);
-        this.classloaders = convertLocs(classloaders);
+        this.courses = initializeLocList(courses);
+        this.javaCompilerPath = initializeLocList(javaCompilerPath);
+        this.classloaders = initializeLocList(classloaders);
     }
+	
+    private static ISourceLocation parseSourceLocation(String recLib) throws IOException {
+        return (ISourceLocation) new StandardTextReader().read(vf, new StringReader(recLib));
+    }
+	
+    public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, IList javaCompilerPath, IList classloaders, ISourceLocation repo) throws IOException{
+        this.srcs = initializeLocList(srcs);
+        this.libs = initializeLocList(libs);
+        this.bin = bin;
+        this.courses = initializeLocList(courses);
+        this.javaCompilerPath = initializeLocList(javaCompilerPath);
+        this.classloaders = initializeLocList(classloaders);
+    }
+
+    private static List<ISourceLocation> initializeLocList(IList srcs) {
+        return dedup(convertLocs(srcs));
+    }
+    
+    private static List<ISourceLocation> dedup(List<ISourceLocation> list) {
+        List<ISourceLocation> filtered = new ArrayList<>(list.size());
+        
+        for (ISourceLocation elem : list) {
+            if (!filtered.contains(elem)) {
+                filtered.add(elem);
+            }
+        }
+        
+        return filtered;
+    }
+	
+	private static List<ISourceLocation> convertLocs(IList locs){
+		List<ISourceLocation> result = new ArrayList<>();
+		for(IValue p : locs){
+			if(p instanceof ISourceLocation){
+				result.add((ISourceLocation) p);
+			} else {
+				throw new RuntimeException("Path should contain source locations and not " + p.getClass().getName());
+			}
+		}
+		
+		return result;
+	}
 	
 	private static List<ISourceLocation> computeDefaultClassLoaders() {
         List<ISourceLocation> result = new ArrayList<>();
@@ -162,32 +204,6 @@ public class PathConfig {
         
         return result;
     }
-    
-    private static ISourceLocation parseSourceLocation(String recLib) throws IOException {
-        return (ISourceLocation) new StandardTextReader().read(vf, new StringReader(recLib));
-    }
-	
-    public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, IList javaCompilerPath, IList classloaders, ISourceLocation repo) throws IOException{
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
-        this.bin = bin;
-        this.courses = convertLocs(courses);
-        this.javaCompilerPath = convertLocs(javaCompilerPath);
-        this.classloaders = convertLocs(classloaders);
-    }
-	
-	List<ISourceLocation> convertLocs(IList locs){
-		List<ISourceLocation> result = new ArrayList<>();
-		for(IValue p : locs){
-			if(p instanceof ISourceLocation){
-				result.add((ISourceLocation) p);
-			} else {
-				throw new RuntimeException("Path should contain source locations and not " + p.getClass().getName());
-			}
-		}
-		
-		return result;
-	}
 	
 	String makeFileName(String qualifiedModuleName) {
 		return makeFileName(qualifiedModuleName, "rsc");
