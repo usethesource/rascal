@@ -324,8 +324,6 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         }        
     }
     
-    acons(AType adt, list[AType] fields, list[Keyword] kwFields)
-    
     consDefs = {<define.id, define> | define <- defines, define.idRole == constructorId() };
     consIds = domain(consDefs);
     for(id <- consIds){
