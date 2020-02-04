@@ -311,7 +311,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         defs = funDefs[id];
         if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1.defined != d2.defined, 
                                  t1 := facts[d1.defined]?afunc(avoid(),[],[])
-                                 t2 := facts[d2.defined]?afunc(avoid(),[,[]),
+                                 t2 := facts[d2.defined]?afunc(avoid(),[],[]),
                                 (d1.scope in moduleScopes && d2.scope in moduleScopes && size(t1.formals) == size(t2.formals) && t1.ret == avoid() && t2.ret != avoid())
                                 //|| (d1.scope notin moduleScopes && d2.scope notin moduleScopes)
                                 )){
