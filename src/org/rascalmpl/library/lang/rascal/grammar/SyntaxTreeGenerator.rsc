@@ -301,7 +301,7 @@ list[Arg] productionArgs(str pkg, Production p) {
      a = arg("", name);
      if (\opt(Symbol ss) := sym) {
         a.isOptional = true;
-        sym := ss;
+        sym = ss;
      }
      switch (sym) {
        case \sort(str s): a.typ = "<pkg>.<s>"; 
