@@ -310,15 +310,15 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     for(id <- funIds){
         defs = funDefs[id];
         if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1.defined != d2.defined, 
-                                 t1 := facts[d1.defined],
-                                 t2 := facts[d2.defined],
+                                 t1 := facts[d1.defined]?afunc(avoid(),[])
+                                 t2 := facts[d2.defined]?afunc(avoid(),[]),
                                 (d1.scope in moduleScopes && d2.scope in moduleScopes && size(t1.formals) == size(t2.formals) && t1.ret == avoid() && t2.ret != avoid())
                                 //|| (d1.scope notin moduleScopes && d2.scope notin moduleScopes)
                                 )){
             msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d.defined].ret == avoid() ? "non-`void`" : "`void`"> result type", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }
-        if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1 != d2,  t1 := facts[d1.defined], t2 := facts[d2.defined], d1.scope == d2.scope, (t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest))){
+        if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1 != d2,  t1 := facts[d1.defined]?afunc(avoid(),[]), t2 := facts[d2.defined]?afunc(avoid(),[]), d1.scope == d2.scope, (t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest))){
             msgs = [ error("Test name `<id>` should not be overloaded", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }        
@@ -329,8 +329,8 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     for(id <- consIds){
         defs = consDefs[id];
         if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1.defined != d2.defined, 
-                                t1 := facts[d1.defined],
-                                t2 := facts[d2.defined],
+                                t1 := facts[d1.defined]?acons(aadt("DUMMY", [], dataSyntax()),[],[]),
+                                t2 := facts[d2.defined]?acons(aadt("DUMMY", [], dataSyntax()),[],[]),
                                 d1.scope in moduleScopes && d2.scope in moduleScopes && t1.adt == t2.adt, size(t1.fields) == size(t2.fields), comparable(t1.fields, t2.fields)
                                 )){
             msgs = [ error("Constructor `<id>` of data type `<prettyAType(t1.adt)>` clashes with other declaration with comparable fields", d.defined) | d <- defs ];
