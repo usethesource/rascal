@@ -11,7 +11,7 @@ syntax B = "b" | [b]; // ambiguous on purpose
 data Tree(str y = "y");
 
 // to be able to access the kw param feature, you have to remove the loc annotation first (until we remove annotations):
-&T<:Tree get(&T<:Tree e) = e;
+
 @ignoreCompiler{FIX: type checker does not accept this}
 test bool assignKw() {
    a = get((A) `a`);
@@ -19,34 +19,36 @@ test bool assignKw() {
    return a.y == "2";
 }
 
-@ignoreCompiler{FIX: type checker does not accept this}
 
 // due to src locations no two concrete syntax patterns are `==` equal
+@ignoreCompiler{FIX: type checker does not accept this}
 test bool eqTest0() = get((A)`a`) != get((A)`a`); 
 test bool eqTest() = (A)`a` := (A)`a`;
+
 @ignoreCompiler{FIX: type checker does not accept this}
+test bool eqTest() = get((A)`a`) == get((A)`a`);
+
 test bool eqTest2() = get((A)`a`).y == get((A)`a`)[y="y"].y;
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool eqTest3() = get((A)`a`) != get((A)`a`)[y="y"] && eqTest2() /* superfluous for doc purposes */;
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool updateKw() = get((A)`a`)[y="z"].y == "z";
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool neqKwTest1() = get((A)`a`)[y="z"] != (A)`a`;
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool defKw() = get((A)`a`).y == "y";
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool normalProd() = prod(sort("A"),[lit("a")],{}) := get((A)`a`)[y="z"].prod; 
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool normalArgs() = [_] := get((A) `a`)[y="y"].args;
 
 
-@ignoreCompiler{FIX: type checker does not accept this}
 test bool ambTest() = get([B] "b").y == "y";
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool ambTest2() = {_,_} := get([B] "b")[y="z"].alternatives; 
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool ambTest3() = get([B] "b")[y="z"].y == "z";
-@ignoreCompiler{FIX: type checker does not accept this}
+
 test bool ambTest4() {
    t = get([B] "b");
    t.y = "z";

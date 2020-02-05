@@ -20,7 +20,7 @@ loctoc::[1]
 }
 module Relation
 
-import Exception;
+//import Exception;
 import Set;
 
 @doc{

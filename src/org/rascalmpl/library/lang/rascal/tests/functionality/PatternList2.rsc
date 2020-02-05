@@ -73,9 +73,16 @@ test bool matchSet70() = ({a(), s({a(), b(), DATA X8}), *DATA Y8} := {a(), b(), 
 test bool matchSet71() = ({DATA A1, s({A1, b(), DATA X9})} := {a(), s({a(),b(),c()})}) && (A1 == a());
 test bool matchSet72() = ({DATA A2, s({A2, b(), DATA X10})} := {s({a(),b(),c()}), a()}) && (A2 == a());
   
-test bool matchSet73() = ({DATA A3, s({A3, b(), *DATA SX1}), *SX1} := {a(), s({a(),b(),c()}), c()}) && (A3== a()) && (SX1 =={c()});
-test bool matchSet74() = ({DATA A4, s({A4, b(), *DATA SX2}), *SX2} := {s({a(),b(),c()}), a(), c()}) && (A4== a()) && (SX2 =={c()});
-test bool matchSet75() = ({DATA A5, s({A5, b(), *DATA SX3}), *SX3} := {c(), s({a(),b(),c()}), a()}) && (A5 == a()) && (SX3 =={c()});
+test bool matchSet73() = ({DATA A3, s({A3, b(), *DATA SX1}), *SX1} := {a(), s({a(),b(),c()}), c()}) && (  (A3 == a()) && (SX1 =={c()})
+                                                                                                       || (A3 == c()) && (SX1 == {a()})
+                                                                                                       );
+
+test bool matchSet74() = ({DATA A4, s({A4, b(), *DATA SX2}), *SX2} := {s({a(),b(),c()}), a(), c()}) && (  (A4 == a()) && (SX2 == {c()})
+                                                                                                       || (A4 == c()) && (SX2 == {a()})
+                                                                                                       );
+test bool matchSet75() = ({DATA A5, s({A5, b(), *DATA SX3}), *SX3} := {c(), s({a(),b(),c()}), a()}) && (  (A5 == a()) && (SX3 =={ c()})
+                                                                                                       || (A5 == c()) && (SX3 == {a()})
+                                                                                                       );
   
 test bool matchSet76() = ({DATA A6, s({A6, b(), *DATA SX4}), *SX4} !:= {d(), s({a(),b(),c()}), a()});
 test bool matchSet77() = ({DATA A7, s({A7, b(), *DATA SX5}), *SX5} !:= {c(), s({a(),b(),c()}), d()});
@@ -83,4 +90,6 @@ test bool matchSet77() = ({DATA A7, s({A7, b(), *DATA SX5}), *SX5} !:= {c(), s({
 test bool matchSet78() = ({DATA A8, s({A8, b()})} := {s({a(),b()}), a()}) && (A8 == a());
 test bool matchSet79() = ({s({DATA A9, b()}), A9} := {s({a(),b()}), a()});
 test bool matchSet80() = ({s({DATA A9, b()}), A9} := {s({a(),b()}), a()}) && (A9 == a());
-test bool matchSet81() = ({s({DATA A10, b(), *DATA SX6}), A10, *SX6} := {c(), s({a(),b(),c()}), a()}) && (A10 == a()) && (SX6 =={c()});
+test bool matchSet81() = ({s({DATA A10, b(), *DATA SX6}), A10, *SX6} := {c(), s({a(),b(),c()}), a()}) && (  (A10 == a()) && (SX6 =={c()})
+                                                                                                         || (A10 == c()) && (SX6 == {a()})
+                                                                                                         );

@@ -11,15 +11,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.gson.stream.JsonWriter;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -40,58 +37,29 @@ import io.usethesource.vallang.type.TypeStore;
 
 public class REPLContentServer extends NanoHTTPD {
     private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-    private final Cache<String, Function<IValue, IValue>> contentProviders 
-      = Caffeine.newBuilder()
-        .maximumSize(128)
-        .expireAfterAccess(30, TimeUnit.MINUTES).build();
+    private final Function<IValue, IValue> callback;
+    private long lastServedAt = 0L;
     
-    private REPLContentServer(int port) {
+    public REPLContentServer(int port, Function<IValue, IValue> callback) {
         super(port);
+        this.callback = callback;
+        this.lastServedAt = System.currentTimeMillis();
     }
 
-    public static REPLContentServer startContentServer() throws IOException {
-        REPLContentServer server = null;
-
-        for(int port = 9050; port < 9050+125; port++){
-            try {
-                server = new REPLContentServer(port);
-                server.start();
-                // success
-                break;
-            } catch (IOException e) {
-                // failure is expected if the port is taken
-                continue;
-            }
-        }
-
-        if (server == null) {
-            throw new IOException("Could not find port to run single page server on");
-        }
-
-        return server;
+    /**
+     * @return the system time at which the last page was served by this server,
+     * for GC purposes.
+     */
+    public long getLastServedAt() {
+        return lastServedAt;
     }
-
+    
     public Response serve(String uri, Method method, java.util.Map<String,String> headers, java.util.Map<String,String> parms, java.util.Map<String,String> files) {
         try {
-            String providerSource = uri;
-            if (providerSource.startsWith("/")) {
-                providerSource = providerSource.substring(1);
-            }
-
-            String[] providerParts = providerSource.split("/");
-
-            if (providerParts.length >= 1) {
-                String providerId = providerParts[0];
-                Function<IValue, IValue> executor = contentProviders.getIfPresent(providerId);
-
-                if (executor != null) {
-                    IConstructor request = makeRequest(uri, method, headers, parms, files);
-                    IValue rascalResponse = executor.apply(request);
-                    return translateResponse(method, rascalResponse);
-                }
-            }
-
-            return newFixedLengthResponse(Status.NOT_FOUND, MIME_HTML, "no content provider found for " + uri);
+            this.lastServedAt = System.currentTimeMillis();
+            IConstructor request = makeRequest(uri, method, headers, parms, files);
+            IValue rascalResponse = callback.apply(request);
+            return translateResponse(method, rascalResponse);
         }
         catch (CancellationException e) {
             stop();
@@ -255,10 +223,6 @@ public class REPLContentServer extends NanoHTTPD {
         return writer.done();
     }
     
-    public void registerContentProvider(String id, Function<IValue, IValue> target) {
-        contentProviders.put(id, target);
-    }
-
     // these are statics for quick access of and creation of typed Rascal values:
     private final static Map<IConstructor,Status> statusValues = new HashMap<>();
     public  final static Type requestType;
