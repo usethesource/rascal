@@ -327,7 +327,7 @@ list[Arg] productionArgs(str pkg, Production p) {
        
      }
      if (a.isOptional) {
-        a.typ = "@org.checkerframework.checker.nullness.qual.Nullable <a.typ>";
+        a.typ = replaceAll(a.typ, "<pkg>.", "<pkg>.@org.checkerframework.checker.nullness.qual.Nullable ");
      }
      append a;   
    }
