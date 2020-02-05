@@ -667,7 +667,7 @@ MuExp muConInit(MuExp var, muBlock([*MuExp exps, MuExp exp]))
 MuExp muVarInit(MuExp var, muBlock([*MuExp exps, MuExp exp]))
     = muBlock([*exps, muVarInit(var, exp)]);
     
-MuExp muAssign(MuExp var, muBlock(AType t, [*MuExp exps, MuExp exp]))
+MuExp muAssign(MuExp var, muBlock([*MuExp exps, MuExp exp]))
     = muBlock([*exps, muAssign(var, exp)]);
     
 // ---- 
@@ -787,17 +787,12 @@ MuExp muAssign(MuExp var, muSucceed(str btscope))
 
 MuExp muConInt(MuExp var, muFail(btscope))
     = muBlock([muConInit(var, muCon(false))]);
-MuExp muConInt(MuExp var, muFailEnd(btscope))
-    = muBlock([muConInit(var, muCon(false))]);
+
     
 MuExp muVarInt(MuExp var, muFail(btscope))
     = muBlock([muVarInit(var, muCon(false))]);   
-MuExp muVarInt(MuExp var, muFailEnd(btscope))
-    = muBlock([muVarInit(var, muCon(false))]); 
      
 MuExp muAssign(MuExp var, muFail(btscope))
-    = muBlock([muAssign(var, muCon(false))]);
-MuExp muAssign(MuExp var, muFailEnd(btscope))
     = muBlock([muAssign(var, muCon(false))]);
     
 // ---- muIfthen ---------------------------------------------------------------
@@ -874,7 +869,7 @@ MuExp muIfelse(muForAll(str label, MuExp var2, AType iterType, MuExp iterable, M
     = muBlock([muForAll(label, var2, iterType, iterable, insertThenPart(body, thenPart, {label})), elsePart]);  
     
 MuExp muIfelse(muForRange(str label, MuExp var2, MuExp first, MuExp second, MuExp last, MuExp exp2), MuExp thenPart, MuExp elsePart)
-        = muBlock([muForRangeInt(label, var2, first, second, last, insertThenPart(exp2, thenPart, {label})), elsePart]);
+        = muBlock([muForRange(label, var2, first, second, last, insertThenPart(exp2, thenPart, {label})), elsePart]);
     
 MuExp muIfelse(muForRangeInt(str label, MuExp var2, int ifirst, int istep, MuExp last, MuExp exp2), MuExp thenPart, MuExp elsePart)
         = muBlock([muForRangeInt(label, var2, ifirst, istep, last, insertThenPart(exp2, thenPart, {label})), elsePart]);

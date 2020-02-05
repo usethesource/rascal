@@ -417,26 +417,57 @@ void collect(Parameters parameters, Collector c){
 }
 
 void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
-    = void(Solver s) { 
+    = void(Solver s){
         theDeclaredReturnType = s.getType(declaredReturnType);
-          
-        returnExprType = s.getType(returnExpr);
-        Bindings bindings = ();
-        try   bindings = matchRascalTypeParams(returnExprType, theDeclaredReturnType, bindings, bindIdenticalVars=true);
-        catch invalidMatch(str reason):
-              s.report(error(returnExpr, reason));
-          
-        actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+        returnRequirement(returnExpr, theDeclaredReturnType, s);
+    };
+    
+void(Solver) makeReturnRequirement(Tree returnExpr, AType declaredReturnAType)
+    = void(Solver s){
+        returnRequirement(returnExpr, declaredReturnAType, s);
+    };
 
-        if(s.isFullyInstantiated(actualReturnType)){
-            s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
-                         !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
-        } else
-            if(!s.unify(actualReturnType, theDeclaredReturnType)){
-            s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
-                         !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
-        }   
-     };
+void returnRequirement(Tree returnExpr, AType theDeclaredReturnType, Solver s){
+      
+    returnExprType = s.getType(returnExpr);
+    Bindings bindings = ();
+    try   bindings = matchRascalTypeParams(returnExprType, theDeclaredReturnType, bindings, bindIdenticalVars=true);
+    catch invalidMatch(str reason):
+          s.report(error(returnExpr, reason));
+      
+    actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+
+    if(s.isFullyInstantiated(actualReturnType)){
+        s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
+                     !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
+    } else
+        if(!s.unify(actualReturnType, theDeclaredReturnType)){
+        s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
+                     !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
+    }   
+ }
+ 
+ //void(Solver s) makeReturnRequirement(Tree returnExpr, Type theDeclaredReturnType)
+ //   = void(Solver s){
+ //       theDeclaredReturnType = s.getType(theDeclaredReturnType);
+ //         
+ //       returnExprType = s.getType(returnExpr);
+ //       Bindings bindings = ();
+ //       try   bindings = matchRascalTypeParams(returnExprType, theDeclaredReturnType, bindings, bindIdenticalVars=true);
+ //       catch invalidMatch(str reason):
+ //             s.report(error(returnExpr, reason));
+ //         
+ //       actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+ //   
+ //       if(s.isFullyInstantiated(actualReturnType)){
+ //           s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
+ //                        !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
+ //       } else
+ //           if(!s.unify(actualReturnType, theDeclaredReturnType)){
+ //           s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
+ //                        !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
+ //       }   
+ //    };
 
 // ---- return statement (closely interacts with function declaration) --------
 
@@ -449,6 +480,10 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
            c.fact(current, statement);
            collect(statement, c);
            return;
+        } else if(returnInfo(AType returnAType) := scopeInfo){
+           c.requireEager("check return type", current, [], makeReturnRequirement(statement, returnAType));
+           c.fact(current, avoid());
+           collect(statement, c);
         } else {
             throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
         }

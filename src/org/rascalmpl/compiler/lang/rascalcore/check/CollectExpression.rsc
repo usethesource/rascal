@@ -282,8 +282,8 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
     parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
+        c.setScopeInfo(scope, functionScope(), returnInfo(avoid()));
         
-        //TODO: setScope Info, where comes void from?
         formals = getFormals(parameters);
         kwFormals = getKwFormals(parameters);
         stats = [stat | stat <- statements0];
@@ -294,7 +294,6 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
                 return afunc(avoid(), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); 
              });
         c.defineInScope(parentScope,  closureName(current), functionId(), current, dt); 
-        //c.use(current, {functionId()}); commented by Jurgen to fix usethesource/rascal#409
         collect(formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
@@ -657,6 +656,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                return computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
             }
             s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));
+            return avalue();
         });
       collect(expression, arguments, keywordArguments, c);
 }
