@@ -69,6 +69,9 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 * Used in generated clone methods to avoid case distinctions in the code generator
 	 */
 	protected <T extends AbstractAST> T clone(T in) {
+	    if (in == null) {
+	        return null;
+	    }
 		return (T) in.clone();
 	}
 	
