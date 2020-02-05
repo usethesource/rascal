@@ -172,11 +172,10 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 		
 		if (cons != null) {
 			Environment env = (Environment) environment;
-			Result<IValue> var = env.getFrameVariable(cons);
+			Result<IValue> var = env.getFunctionForReturnType(tree.getType(), cons);
 			
 			if (var != null && var instanceof ICallableValue) {
 				ICallableValue function = (ICallableValue) var;
-				
 				
 				try{
 					Result<IValue> result = null;

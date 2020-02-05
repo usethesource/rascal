@@ -40,6 +40,7 @@ import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -223,6 +224,30 @@ public class Environment implements IRascalFrame {
 
 		String varName = Names.name(Names.lastName(name));
 		return getFrameVariable(varName);
+	}
+	
+	public Result<IValue> getFunctionForReturnType(Type returnType, String name) {
+	    List<AbstractFunction> candidates = new LinkedList<>();
+        
+        getAllFunctions(name, candidates);
+        
+        if (candidates.isEmpty()) {
+            return null;
+        }
+        
+        List<AbstractFunction> filtered = new LinkedList<>();
+        
+        for (AbstractFunction candidate : candidates) {
+            if (candidate.getReturnType().isAbstractData() && candidate.getReturnType() == returnType) {
+                filtered.add(candidate);
+            }
+        }
+
+        if (filtered.isEmpty()) {
+            return null;  
+        }
+        
+        return new OverloadedFunction(name, filtered);
 	}
 
 	public Result<IValue> getVariable(Name name) {
