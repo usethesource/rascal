@@ -184,3 +184,5 @@ we can define canonicalization functions. The same holds for <<Syntax Definition
 
 .Pitfalls
 
+In case of overlapping function definitions, the order in which the functions are tried is left undefined. The only exceptions are functions marked `default`, those will be tried after non-`default` functions.
+
