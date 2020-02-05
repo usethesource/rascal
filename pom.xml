@@ -115,7 +115,9 @@
                             <ignore>${project.basedir}/src/org/rascalmpl/library/util/integration</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/util/tasks</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/flow</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/patterns</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
                         </srcIgnores>

@@ -189,7 +189,7 @@ public class RascalJUnitTestRunner extends Runner {
                     List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                 
                     if (tests.isEmpty()) {
-                        stderr.println("\tskipping. Module has not tests.");
+                        stderr.println("\tskipping. Module has no tests.");
                         continue;
                     }
                     

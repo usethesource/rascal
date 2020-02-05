@@ -37,4 +37,5 @@ public interface ISourceLocationOutput {
 		return StandardCharsets.UTF_8;
 	}
 	
+	void setLastModified(ISourceLocation uri, long timestamp) throws IOException;
 }
