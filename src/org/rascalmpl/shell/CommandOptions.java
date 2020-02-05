@@ -74,7 +74,6 @@ public class CommandOptions {
     private static final String CLASSLOADERS_PATH_CONFIG_OPTION = "classloaders";
     private static final String JAVA_COMPILER_PATH_PATH_CONFIG_OPTION = "javaCompilerPath";
     private static final String COURSES_PATH_CONFIG_OPTION = "courses";
-    private static final String BOOT_PATH_CONFIG_OPTION = "boot";
     private static final String BIN_PATH_CONFIG_OPTION = "bin";
     private static final String LIB_PATH_CONFIG_OPTION = "lib";
     private static final String PROJECT_PATH_CONFIG_OPTION = "project";
@@ -569,7 +568,6 @@ public class CommandOptions {
             return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
                 getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
                 getCommandLocOption(BIN_PATH_CONFIG_OPTION),
-                getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
                 getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
                 getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
                 getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
@@ -590,10 +588,6 @@ public class CommandOptions {
         .locsOption(SRC_PATH_CONFIG_OPTION)      
         .locsDefault(getDefaultStdlocs().isEmpty() ? vf.list(getDefaultStdlocs()) : getDefaultStdlocs())
         .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-
-        .locOption(BOOT_PATH_CONFIG_OPTION)      
-        .locDefault(PathConfig.getDefaultBoot())
-        .help("Rascal boot directory")
 
         .locOption(BIN_PATH_CONFIG_OPTION)
         .locDefault(v -> {

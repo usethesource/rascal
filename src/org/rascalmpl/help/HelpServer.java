@@ -7,9 +7,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -71,14 +69,20 @@ public class HelpServer extends NanoHTTPD {
     }
 
 
-    private Response searchResult(Map<String, String> parms) {
+    private String getParameter(Map<String, String> parms, String param) {
         try {
-            String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), StandardCharsets.UTF_8.name())).split(" ");
-            
-            return newChunkedResponse(Status.OK, "application/json", helpManager.jsonHelp(words));
-        } catch (UnsupportedEncodingException e) {
-            return newFixedLengthResponse(Status.INTERNAL_ERROR, "text/plain", Arrays.toString(e.getStackTrace()));
+            return URLDecoder.decode(parms.get(param), "UTF-8");
         }
+        catch (UnsupportedEncodingException e) {
+            // that would be very strange for UTF-8
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private Response searchResult(Map<String, String> parms) {
+        String searchString = getParameter(parms, "searchFor");
+        return newChunkedResponse(Status.OK, "application/json", helpManager.jsonHelp(searchString.split(" ")));
     }
 
 
@@ -100,12 +104,12 @@ public class HelpServer extends NanoHTTPD {
             if(parms.get("listing") == null || parms.get("question") == null || parms.get("hole1") == null){
                 newFixedLengthResponse(Status.NOT_FOUND, "text/plain", "missing listing, question or hole1 parameter");
             }
-            String listing = URLDecoder.decode(parms.get("listing"), "UTF-8");
-            String question = URLDecoder.decode(parms.get("question"), "UTF-8");
+            String listing = getParameter(parms, "listing");
+            String question = getParameter(parms, "question");
 
             ArrayList<String> holes = new ArrayList<>();
             for(int i = 1; parms.containsKey("hole" + i); i++){
-                holes.add(URLDecoder.decode(parms.get("hole" + i), "UTF-8"));
+                holes.add(getParameter(parms, "hole" + i));
             }
             int k = 0;
             while(listing.indexOf("_") >= 0 && k < holes.size()){
