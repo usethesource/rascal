@@ -45,12 +45,13 @@ void addCommonKeywordFields(Solver s){
                 fieldName = "<kwf.name>";
                 commonKeywordFields += <adtType, kwf>;
                 commonKeywordFieldNames += <adtType, fieldName, kwf>;
-                if(fieldName in commonKeywordNames){
-                    msgs = [ Message::error("Double declaration of common keyword Field `<fieldName>` for data type `<adtType.adtName>`", getLoc(kwf2))
-                           | kwf2 <- commonKeywordFieldNames[adtType]<1>, "<kwf2.name>" == fieldName
-                           ];
-                    s.addMessages(msgs);
-                }
+                // TODO: reconsider this
+                //if(fieldName in commonKeywordNames){
+                //    msgs = [ Message::error("Double declaration of common keyword Field `<fieldName>` for data type `<adtType.adtName>`", getLoc(kwf2))
+                //           | kwf2 <- commonKeywordFieldNames[adtType]<1>, "<kwf2.name>" == fieldName
+                //           ];
+                //    s.addMessages(msgs);
+                //}
             }
         } catch TypeUnavailable():
             ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
