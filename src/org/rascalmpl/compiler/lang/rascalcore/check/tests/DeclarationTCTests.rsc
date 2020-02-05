@@ -156,6 +156,21 @@ test bool UseImportedAlias(){
 	return checkOK("int x = 3;", importedModules=["MMM"]);
 }
 
+test bool closureInTuple() {
+    makeModule("MMM", "tuple[int(int)] f() = \<int(int i) { return 2 * i; }\>;");
+    return checkOK("f();",  importedModules=["MMM"]);
+}
+test bool voidClosureInTuple1() {
+    makeModule("MMM", "tuple[void(int)] f() = \<void(int i) { return; }\>;");
+    return checkOK("f();",  importedModules=["MMM"]);
+}
+
+test bool voidClosureInTuple2() {
+    makeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
+    return checkOK("f();",  importedModules=["MMM"]);
+}
+
+
 
 	
 	
