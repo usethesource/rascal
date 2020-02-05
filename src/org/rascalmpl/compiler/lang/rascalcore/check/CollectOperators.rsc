@@ -395,7 +395,7 @@ private AType _computeAppendAfterType(Tree current, AType t1, AType t2, Solver s
     if (isListType(t1)) {
        return makeListType(s.lub(getListElementType(t1),t2));
     }
-    s.report(error(current, "Expected a list type, not type %t", t1));
+    s.report(error(current, "Append after not defined on %t and %t", t1, t2));
     return avalue();
 }
 
@@ -411,7 +411,7 @@ private AType _computeInsertBeforeType(Tree current, AType t1, AType t2, Solver 
     if (isListType(t2)) {
         return makeListType(s.lub(getListElementType(t2),t1));
     }
-    s.report(error(current, "Expected a list type, not type %t", t2));
+    s.report(error(current, "Insert before not defined on %t and %t", t1, t2));
     return avalue();
 }
 
