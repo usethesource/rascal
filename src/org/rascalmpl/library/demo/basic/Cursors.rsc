@@ -13,6 +13,7 @@ bool markAsDone(int k, set[Todo] todos) {
   if (t <- todos, t.key == k) {
     return update(t.done, true);
   }
+  return false;
 }
 
 void todoExample() {
