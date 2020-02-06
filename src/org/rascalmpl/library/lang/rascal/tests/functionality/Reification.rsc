@@ -6,14 +6,14 @@ import ParseTree;
 test bool c() = #str.symbol == \str();
 test bool i() = #int.symbol == \int();
 test bool r() = #real.symbol == \real();
-test bool n() = #num.symbol == \num();
-test bool n() = #node.symbol == \node();
+test bool n1() = #num.symbol == \num();
+test bool n2() = #node.symbol == \node();
 test bool v() = #void.symbol == \void();
 test bool vl() = #value.symbol == \value();
 test bool l() = #list[int].symbol == \list(\int());
 test bool s() = #set[int].symbol == \set(\int());
-test bool m() = #map[int,str].symbol == \map(\int(),\str());
-test bool m() = #map[int k,str v].symbol == \map(label("k",\int()),label("v",\str()));
+test bool m1() = #map[int,str].symbol == \map(\int(),\str());
+test bool m2() = #map[int k,str v].symbol == \map(label("k",\int()),label("v",\str()));
 test bool f() = #int (int).symbol == \func(\int(),[\int()],[]);
 test bool p() = #&T <: list[&U].symbol == \parameter("T", \list(\parameter("U",\value())));
 
