@@ -493,7 +493,7 @@ MuExp translateSolve(current:(Statement) `solve ( <{QualifiedName ","}+ variable
                             muAndNativeBool(change, muGreaterEqNativeInt(iterations, muCon(0))), 
                             muBlock([ muAssign(change, muCon(false)),
                                       *[ muVarInit(muTmpIValue(varTmps[i], fuid, getType(vars[i])), varCode[i]) | int i <- index(varCode) ],
-                                      muVarInit(result, translateLoopBody(body)),
+                                      muVarInit(result, translateLoopBody(body, btscopes)),
                                      *[ muIf(muCallPrim3("notequal", abool(), [getType(vars[i]), getType(vars[i])], [muTmpIValue(varTmps[i],fuid, getType(vars[i])), varCode[i]], bound@\loc), muAssign(change, muCon(true))) 
                  			          | int i <- index(varCode)    //TODO: prefer index(variables) here
                  			          ],

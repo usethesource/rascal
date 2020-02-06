@@ -306,7 +306,7 @@ value main() = allRascalTests();
   
 set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
-                |project://TypePal/src|,
+                |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|
                ])){ //loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool jvm=true){
 
@@ -340,7 +340,7 @@ set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(
 
 tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, PathConfig pcfg= pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
-                |project://TypePal/src|,
+                |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|
                ])){
     
@@ -381,24 +381,24 @@ tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, 
 }
 
 bool blacklisted(str qualifiedModuleName){
-    for(s <- {//"lang::rascal::types", "experiments::Compiler", "lang::rascal::boot", "lang::rascal::tests::types" , "experiments::tutor3", "lang::java::patterns", "lang::sdf2", "lang::box", "Sudoku
-              "lang::java::flow::JavaToObjectFlow", "lang::java::patterns::JavaToMicroPatterns", "lang::sdf2::util::SDF2Grammar", "lang::sdf2::util::Importer",
-              "lang::rascal::tests::library::analysis::formalconcepts::FCATest", "experiments::tutor3::LegacyExamManager", "lang::rascalcore::compile::Benchmarks::JavaMetrics",
-              "lang::rascalcore::compile::Benchmarks::SudokuEq", "experiments::Compiler::Benchmarks::SudokuEq", "lang::rascal::checker::TTL::TTLGen"
-              // "experiments", "tests", "types", "boot", "Compiler"
-             }
-    ){
-        if(contains(qualifiedModuleName, s)) return true;
-    }
+    //for(s <- {//"lang::rascal::types", "experiments::Compiler", "lang::rascal::boot", "lang::rascal::tests::types" , "experiments::tutor3", "lang::java::patterns", "lang::sdf2", "lang::box", "Sudoku
+    //          "lang::java::flow::JavaToObjectFlow", "lang::java::patterns::JavaToMicroPatterns", "lang::sdf2::util::SDF2Grammar", "lang::sdf2::util::Importer",
+    //          "lang::rascal::tests::library::analysis::formalconcepts::FCATest", "experiments::tutor3::LegacyExamManager", "lang::rascalcore::compile::Benchmarks::JavaMetrics",
+    //          "lang::rascalcore::compile::Benchmarks::SudokuEq", "experiments::Compiler::Benchmarks::SudokuEq", "lang::rascal::checker::TTL::TTLGen"
+    //          // "experiments", "tests", "types", "boot", "Compiler"
+    //         }
+    //){
+    //    if(contains(qualifiedModuleName, s)) return true;
+    //}
     return false;
 }
 
 bool whitelisted(str qualifiedModuleName){
-    return true;
-    //for(s <- {"demo"}){
-    //   if(contains(qualifiedModuleName, s)) return true;
-    //}
-    //return false;
+    
+    for(s <- {"lang::rascal"}){
+       if(contains(qualifiedModuleName, s)) return true;
+    }
+    return false;
 }
 
 list[Message] filterErrors(list[Message] msgs){
@@ -410,10 +410,11 @@ map[str, list[Message]] filterErrors(map[str, list[Message]] modsAndMsgs){
 
 void allFiles(PathConfig pcfg = pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
-                |project://TypePal/src|,
-                |project://rascal/src/org/rascalmpl/library|
-                //|std:///|
-               ])){
+                |project://typepal/src|,
+                |project://rascal/src/org/rascalmpl/library|,
+                |std:///|
+               ],
+         libs = [])){
     modulePaths = find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); });
     println("<size(modulePaths)> files");
     problems = ();
@@ -434,7 +435,7 @@ void allFiles(PathConfig pcfg = pathConfig(
         }
         println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(problems)>/C:<size(crashed)>/S:<nskipped>)");
         try {
-            modulesAndmsgs = filterErrors(checkModule(qualifiedModuleName));
+            modulesAndmsgs = filterErrors(checkModules([qualifiedModuleName], rascalTypePalConfig()));
             if(modulesAndmsgs[qualifiedModuleName]?) iprintln(modulesAndmsgs);
             problems += modulesAndmsgs;
             //if(modulesAndmsgs[qualifiedModuleName]?) {
