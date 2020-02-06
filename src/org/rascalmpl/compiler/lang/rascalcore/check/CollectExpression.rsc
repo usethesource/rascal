@@ -247,7 +247,10 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
     //if(!isEmpty(c.getScopeInfo(loopScope())) || inPatternScope(c)){
     //    c.report(warning(current, "Function closure inside loop or backtracking scope, be aware of interactions with current function context"));
     //}
-    
+    collectClosure(current, returnType, parameters, [stat | stat <- statements], c);
+}
+
+void collectClosure(Expression current, Type returnType, Parameters parameters, list[Statement] stats, Collector c){
     parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
@@ -255,7 +258,6 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
         
         formals = getFormals(parameters);
         kwFormals = getKwFormals(parameters);
-        stats = [stat | stat <- statements];
         
         c.calculate("type of closure", current, returnType + formals,
             AType(Solver s){ return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); });
@@ -265,7 +267,7 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
              });
         clos_name = closureName(current);
         c.defineInScope(parentScope, clos_name, functionId(), current, dt); 
-        if(!returnsViaAllPath([statement | statement <- statements], clos_name, c) && "<returnType>" != "void"){
+        if(!returnsViaAllPath([statement | statement <- stats], clos_name, c) && "<returnType>" != "void"){
                 c.report(error(statements, "Missing return statement"));
             }
         collect(returnType + formals + kwFormals + stats, c);
@@ -278,24 +280,10 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
     //if(!isEmpty(c.getScopeInfo(loopScope())) || inPatternScope(c)){
     //    c.report(warning(current, "Function closure inside loop or backtracking scope, be aware of interactions with current function context"));
     //}
+    returnType = (Type) `void`;
+    c.fact(returnType, avoid());
     
-    parentScope = c.getScope();
-    c.enterLubScope(current);
-        scope = c.getScope();
-        c.setScopeInfo(scope, functionScope(), returnInfo(avoid()));
-        
-        formals = getFormals(parameters);
-        kwFormals = getKwFormals(parameters);
-        stats = [stat | stat <- statements0];
-        
-        c.calculate("type of void closure", current, formals,
-            AType(Solver s){ return afunc(avoid(), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); });
-        dt = defType(formals, AType(Solver s){
-                return afunc(avoid(), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); 
-             });
-        c.defineInScope(parentScope,  closureName(current), functionId(), current, dt); 
-        collect(formals + kwFormals + stats, c);
-    c.leaveScope(current);
+    collectClosure(current, returnType, parameters, [stat | stat <- statements0], c);
 }
 
 // ---- step range

@@ -48,5 +48,4 @@ data VisitOrSwitchInfo = visitOrSwitchInfo(Expression expression, bool isVisit);
 
 data ReturnInfo
     = returnInfo(Type returnType)
-    | returnInfo(AType returnAType)
     ;

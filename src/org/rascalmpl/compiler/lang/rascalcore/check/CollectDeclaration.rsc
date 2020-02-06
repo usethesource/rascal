@@ -480,10 +480,6 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
            c.fact(current, statement);
            collect(statement, c);
            return;
-        } else if(returnInfo(AType returnAType) := scopeInfo){
-           c.requireEager("check return type", current, [], makeReturnRequirement(statement, returnAType));
-           c.fact(current, avoid());
-           collect(statement, c);
         } else {
             throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
         }
