@@ -1,12 +1,3 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-//data ControlNode
-//  = 
-//   \entry(loc id) // start node of an executable unit
-//  ;
-//       
-//
-//data CFG = cfg(loc id, ControlNode entry = entry(id));
-
-
-str(int) f() { return str(int i) { return "a"; }; }
+test bool interpolateIfThenElse() = "abc <if (1 > 0) {> GT <} else {> LT <}> cde" == "abc  GT  cde"; 

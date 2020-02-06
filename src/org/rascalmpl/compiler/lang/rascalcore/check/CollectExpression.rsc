@@ -105,7 +105,11 @@ void collect(current: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Sta
 }
 
 void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> } else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, Collector c){
-    c.enterCompositeScope([conditions, preStatsThen, thenString, postStatsThen]);   // thenPart may refer to variables defined in conditions; elsePart may not
+    compScope = [conditions] 
+                + (size(preStatsThen) > 0 ? [preStatsThen] : [])
+                + thenString
+                + (size(postStatsThen) > 0 ? [postStatsThen] : []);
+    c.enterCompositeScope(compScope);   // thenPart may refer to variables defined in conditions; elsePart may not
     
         condList = [cond | Expression cond <- conditions];
         
@@ -117,7 +121,7 @@ void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <S
         collect(condList, c);
         endPatternScope(c);
         collect(preStatsThen, thenString, postStatsThen, c);
-    c.leaveCompositeScope([conditions, preStatsThen, thenString, postStatsThen]);
+    c.leaveCompositeScope(compScope);
     collect(preStatsElse, elseString, postStatsElse, c);    
     
     //c.leaveScope(current);
