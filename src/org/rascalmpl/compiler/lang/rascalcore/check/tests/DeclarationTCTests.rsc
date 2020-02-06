@@ -165,9 +165,18 @@ test bool voidClosureInTuple1() {
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
-@ignore{This triggers a bug in typechecker}
 test bool voidClosureInTuple2() {
     makeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
+    return checkOK("f();",  importedModules=["MMM"]);
+}
+
+test bool voidClosureInTuple3() {
+    makeModule("MMM", "tuple[(int)] f() = \<void(int i) { return; }\>;");
+    return checkOK("f();",  importedModules=["MMM"]);
+}
+
+test bool voidClosureInTuple4() {
+    makeModule("MMM", "tuple[(int)] f() = \<(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
