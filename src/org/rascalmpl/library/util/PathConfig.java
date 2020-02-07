@@ -94,7 +94,7 @@ public class PathConfig {
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders) throws IOException{
 		this.srcs = dedup(srcs);
 		this.courses = dedup(courses);
-		this.libs = libs;
+		this.libs = dedup(libs);
 		this.bin = bin;
 		this.javaCompilerPath = dedup(javaCompilerPath);
 		this.classloaders = dedup(classloaders);
