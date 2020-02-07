@@ -102,13 +102,14 @@
                 <plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
-                    <version>0.1.0</version>
+                    <version>0.2.0</version>
                     <configuration>
                         <errorsAsWarnings>true</errorsAsWarnings>
                         <bin>${project.build.outputDirectory}</bin>
                         <srcs>
                             <src>${project.basedir}/src/org/rascalmpl/library</src>
                         </srcs>
+                        <sourceLookup>|std:///|</sourceLookup>
                         <srcIgnores>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/demo</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
@@ -128,7 +129,14 @@
                             <id>it-compile</id>
                             <phase>compile</phase>
                             <goals>
-                                <goal>compile-rascal</goal>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>it-package</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>package</goal>
                             </goals>
                         </execution>
                     </executions>
