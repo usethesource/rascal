@@ -4,6 +4,7 @@ module lang::rascalcore::check::PathAnalysis
 extend lang::rascalcore::check::AType;
 extend analysis::typepal::TypePal;
 import lang::rascal::\syntax::Rascal;
+import String;
 
 /********************************************************************/
 /*       Return path analysis                                       */

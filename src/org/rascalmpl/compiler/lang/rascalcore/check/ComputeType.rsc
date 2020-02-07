@@ -938,6 +938,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
            return subjectType;
     } else {
         s.report(error(current, "Unsupported construct in splice pattern"));
+        return subjectType;
     }
 }
 

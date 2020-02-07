@@ -145,7 +145,7 @@ public PathConfig getDefaultPathConfig() {
                 , |project://typepal/src/|
                ],
         bin = |project://rascal-core/bin|, 
-        libs = [|lib://rascal/|, |lib://typepal/|]
+        libs = []//[|lib://rascal/|, |lib://typepal/|]
                );
 }
 
