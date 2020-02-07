@@ -2,6 +2,7 @@
 module lang::rascalcore::check::AType
 
 extend analysis::typepal::AType;
+import analysis::typepal::Exception;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Characters;
@@ -518,6 +519,8 @@ bool asubtype(anode(list[AType/*NamedField*/] l), anode(list[AType/*NamedField*/
 // Character classes
 bool asubtype(l:\char-class(_), r:\char-class(_)) = (difference(r, l) == \char-class([]));
 bool asubtype(l:\char-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
+bool asubtype(list[Tree] chars, \char-class(list[ACharRange] ranges)) = 
+    all(char(i) <- chars, any(r <- ranges, i > r.begin, i < r.end));
 
 // Utilities
 
@@ -540,10 +543,7 @@ bool comparable(list[AType] l, list[AType] r) = all(i <- index(l), comparable(l[
 default bool comparable(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
 
 bool outerComparable(AType l, AType r){
-    res = outerComparable1(l, r);
-    if(!res)
-        println("outerComparable: <l>, <r> =\> <res>");
-    return res;
+    return outerComparable1(l, r);
 }
 
 bool outerComparable1(AType l, l) = true;
