@@ -251,7 +251,8 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("tm.specializedFacts:"); iprintln(tm.specializedFacts);
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         //println("m1.specializedFacts:"); iprintln(m1.specializedFacts);
-        m1.messages = tm.messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
+        
+        m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
         
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         
