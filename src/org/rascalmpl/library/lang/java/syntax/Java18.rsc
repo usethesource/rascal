@@ -999,7 +999,7 @@ lexical StringPart =
   ;
 
 keyword FieldAccessKeywords =
-  ExprName "." Id 
+  ExpressionName "." ID 
   ;
 
 lexical EOLCommentChars =
@@ -1012,7 +1012,7 @@ lexical SingleChar =
 
 
 keyword ElemValKeywords =
-  LHS "=" Expr 
+  LeftHandSide "=" Expression 
   ;
 
 lexical CommentPart =
@@ -1028,7 +1028,7 @@ syntax Identifier =
   ;
   
 keyword ArrayAccessKeywords =
-  ArrayCreationExpr ArraySubscript 
+  ArrayCreationExpression ArrayAccess 
   ;
 
 syntax BooleanLiteral
