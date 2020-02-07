@@ -61,6 +61,7 @@ bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditi
 bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = returnsValue(statement, fname, c) && (returnsViaAllPath(statement, fname, c) || true);
 bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = returnsValue(statement,fname, c);
 bool returnsViaAllPath((Statement) `fail <Target target>;`, str fname,  Collector c) = isEmpty("<target>") || "<target>" == fname;
+bool returnsViaAllPath((Statement) `filter;`, str fname,  Collector c) = true;
 bool returnsViaAllPath((Statement) `insert <DataTarget dataTarget> <Statement statement>`, str fname,  Collector c) = true;
 
 bool returnsViaAllPath((Statement) `<Label label> { <Statement+ statements> }`, str fname,  Collector c)
@@ -104,6 +105,7 @@ bool returnsValue((Statement) `<Label label> { <Statement+ statements> }`,  str 
 default bool returnsValue(Statement s,  str fname, Collector c) = s is expression || s is \visit || s is \assert || s is assertWithMessage || s is \return;
 
 bool leavesBlock((Statement) `fail <Target target> ;`) = true;
+bool leavesBlock((Statement) `filter ;`) = true;
 bool leavesBlock((Statement) `break <Target target> ;`) = true;
 bool leavesBlock((Statement) `continue <Target target> ;`) = true;
 bool leavesBlock((Statement) `insert <DataTarget dataTarget> <Statement statement>`) = true;
