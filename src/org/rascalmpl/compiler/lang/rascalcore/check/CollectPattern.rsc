@@ -243,10 +243,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
            c.fact(current, avoid());
         }
     } else {
-        throw rascalCheckerInternalError(getLoc(current), "collectSplicePattern: not implemented");
-        //println("current: <current>");
-        //println("argument: <argument>");
-        //tp = collectSplicePattern(argument, argument, c);
+        c.report(error(current, "Unsupported variant of splice pattern"));
     }
 }
 
