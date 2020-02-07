@@ -623,7 +623,7 @@ private AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", A
 }
 
 private default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
-    throw rascalCheckerInternalError(getLoc(current), "<operator> not supported");
+    s.report(error(current, "Unsupported operator %s in assignment", operator));
 }
 
 private void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, Collector c){

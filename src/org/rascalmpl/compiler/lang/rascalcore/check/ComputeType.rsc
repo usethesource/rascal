@@ -937,7 +937,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
         } else
            return subjectType;
     } else {
-        throw rascalCheckerInternalError(getLoc(current), "Not implemented");
+        s.report(error(current, "Unsupported construct in splice pattern"));
     }
 }
 
