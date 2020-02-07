@@ -17,6 +17,7 @@ import IO;
 import Node;
 import Set;
 import ListRelation;
+import Relation;
 import Message;
 
 void addADTsAndCommonKeywordFields(Solver s){

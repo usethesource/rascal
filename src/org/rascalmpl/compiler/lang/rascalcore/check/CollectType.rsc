@@ -171,6 +171,7 @@ void collect(current:(Type)`rel [ < {TypeArg ","}+ tas > ]`, Collector c){
                 s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
                 return makeRelType([unset(tp, "label") | tp <- l]);
             }
+            return avoid();
         });
     collect(tas, c);
 }
@@ -194,6 +195,7 @@ void collect(current:(Type)`lrel [ < {TypeArg ","}+ tas > ]`, Collector c){
                 s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
                 return makeListRelType([unset(tp, "label") | tp <- l]);
             }
+            return avoid();
         });
     collect(tas, c);
 }
@@ -216,7 +218,8 @@ void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
             } else if (size(distinctLabels) > 0) {
                 s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
                 return makeTupleType([unset(tp, "label") | tp <- l]);
-            }  
+            } 
+            return avoid(); 
         });
     collect(tas, c);   
 } 
