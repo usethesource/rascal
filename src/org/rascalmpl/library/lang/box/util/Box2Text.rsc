@@ -313,7 +313,6 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options opts, int m) {
                  return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
                  }
           }
-     return [];
 }
 
 text HVHV(text T, int s, list[Box] b, options opts,  int m, Box c) {
