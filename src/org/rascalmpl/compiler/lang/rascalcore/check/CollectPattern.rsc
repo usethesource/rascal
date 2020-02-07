@@ -166,7 +166,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
 }
 
 default void collectAsVarArg(Pattern current,  Collector c){
-    throw rascalCheckerInternalError(getLoc(current), "<current> not supported in varargs");
+    c.report(error(current, "Unsupported construct in varargs"));
 }
 
 // ---- multiVariable pattern: QualifiedName*

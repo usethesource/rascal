@@ -245,6 +245,8 @@ bool nonVoidType(str stmts, list[str] importedModules = [], list[str] initialDec
           "Contribution to _ comprehension cannot have type `void`"
           //"Non-void type required"
     ], importedModules=importedModules, initialDecls=initialDecls);
-
-	
-
+    
+bool unsupported(str stmts, list[str] importedModules = [], list[str] initialDecls = []) =
+    check(stmts, [
+          "Unsupported _"
+    ], importedModules=importedModules, initialDecls=initialDecls);

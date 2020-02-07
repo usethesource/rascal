@@ -174,5 +174,19 @@ test bool PicoQuoted2() =
 			importedModules = ["ParseTree",  "lang::pico::\\syntax::Main"]);
 		
   	
-  	
+ test bool unsupportedSplicePatternList1(){
+    return unsupported("[*[1,2]] := [1,2];");
+ }
+ 
+ test bool unsupportedSplicePatternList2(){
+    return unsupported("[*[_]] := [1];");
+ }
+ 
+  test bool unsupportedSplicePatternSet1(){
+    return unsupported("{*{1,2}} := {1,2};");
+ }
+ 
+ test bool unsupportedSplicePatternSet2(){
+    return unsupported("{*{_}} := {1};");
+ }
   		
