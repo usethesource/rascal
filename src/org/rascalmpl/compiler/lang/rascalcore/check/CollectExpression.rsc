@@ -424,7 +424,7 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
     res  = [r | r <- results];
     c.enterScope(current);
     beginPatternScope("set-comprehension", c);
-        c.require("set comprehension", current, res + gens,
+        c.require("set comprehension", current, gens,
             void (Solver s) { 
                 for(g <- gens) if(!isBoolType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
                 for(r <- results) checkNonVoidOrSplice(r, s, "Contribution to set comprehension");
