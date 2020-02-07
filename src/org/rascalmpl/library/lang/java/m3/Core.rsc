@@ -77,13 +77,6 @@ public M3 diffJavaM3(loc id, list[M3] models) {
 	return diff;
 }
 
-public M3 link(M3 projectModel, set[M3] libraryModels) {
-  projectModel.declarations = { <name[authority=projectModel.id.authority], src> | <name, src> <- projectModel.declarations };
-  for (libraryModel <- libraryModels) {
-    libraryModel.declarations = { <name[authority=libraryModel.id.authority], src> | <name, src> <- libraryModel.declarations }; 
-  }
-}
-
 public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
     result = createM3sFromFiles({file}, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
     if ({oneResult} := result) {
