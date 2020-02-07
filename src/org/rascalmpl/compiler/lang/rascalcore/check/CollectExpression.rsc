@@ -271,8 +271,8 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
              });
         clos_name = closureName(current);
         c.defineInScope(parentScope, clos_name, functionId(), current, dt); 
-        if(!returnsViaAllPath([statement | statement <- stats], clos_name, c) && "<returnType>" != "void"){
-                c.report(error(statements, "Missing return statement"));
+        if(!returnsViaAllPath(stats, clos_name, c) && "<returnType>" != "void"){
+                c.report(error(current, "Missing return statement"));
             }
         collect(returnType + formals + kwFormals + stats, c);
     c.leaveScope(current);
