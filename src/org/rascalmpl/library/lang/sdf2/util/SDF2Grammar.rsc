@@ -544,6 +544,7 @@ public Production getPriority(Priority p, bool isLex) {
      case (Priority) `<{Group "\>"}+ groups>` : 
        return priority(definedSymbol(groups,isLex), [getPriority(group ,isLex) | Group group <- groups]);
    }
+   throw "could not get priority of <p>";
 }
 
 
