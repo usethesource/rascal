@@ -1012,7 +1012,7 @@ lexical SingleChar =
 
 
 keyword ElemValKeywords =
-  LeftHandSide "=" Expression 
+  LHS "=" Expression 
   ;
 
 lexical CommentPart =
