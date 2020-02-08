@@ -141,7 +141,7 @@ default Symbol strip(Symbol s) = s;
 
 private Grammar::Grammar split(Grammar::Grammar g) {
   for (nt <- g.rules, cur :=  g.rules[nt], sorts := {strip(s) | /prod(s,_,_) := cur}, size(sorts) > 1) {
-    for (s <- sorts) {
+    for (Symbol s <- sorts) {
       newp = keep(cur, s);
       if (g.rules[s]? && s != strip(cur.def))
         g.rules[s].alternatives += newp.alternatives;
