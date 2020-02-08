@@ -1011,8 +1011,8 @@ lexical SingleChar =
   ;
 
 
-keyword ElemValKeywords =
-  LHS "=" Expression 
+keyword ElemValKeywords 
+  LeftHandSide "=" Expression 
   ;
 
 lexical CommentPart =
