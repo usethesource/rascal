@@ -171,7 +171,7 @@ bool equalNodes(Node x, Node y) {
    anchors1 = anchors(x);
    anchors2 = anchors(y);
 
-   matching = ();
+   map[int, int] matching = ();
    
    bool equalNodesRec(Node x, Node y) {
      switch (<x, y>) {
