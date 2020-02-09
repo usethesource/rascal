@@ -120,7 +120,6 @@
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/flow</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/patterns</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/syntax/Java18.rsc</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
                         </srcIgnores>
                         <enableStandardLibrary>false</enableStandardLibrary><!-- this project contains the standard library source itself -->
                     </configuration>
