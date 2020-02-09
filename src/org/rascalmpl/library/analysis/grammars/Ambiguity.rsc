@@ -9,18 +9,13 @@
 @contributor{Bas Basten - Bas.Basten@cwi.nl - CWI}
 module analysis::grammars::Ambiguity
  
-import Exception;
 import ParseTree;
-import IO;
 import ValueIO;
 import Message; 
 import List;
 import Set;
-import Relation;
-import  analysis::graphs::Graph;
 import Grammar;
 import lang::rascal::format::Grammar;
-import lang::rascal::format::Escape;
 
 public list[Message] diagnose(Tree t) {
   return [*findCauses(x) | x <- {a | /Tree a:amb(_) := t}];
@@ -72,10 +67,10 @@ public list[Message] verticalCauses(Tree x, Tree y, set[Production] pX, set[Prod
        + exceptAdvise(y, x, pY, pX);
 }
 
-public list[Message] exceptAdvise(Tree x, Tree y, set[Production] pX, set[Production] pY) {
+public list[Message] exceptAdvise(Tree x, Tree y, set[Production] _, set[Production] pY) {
   result = [];
-  if (appl(p, argsX) := x, appl(q, argsY) := y) {
-    if (i <- index(argsX), appl(apX,_) := argsX[i], apX notin pY) {
+  if (appl(p, argsX) := x, appl(q, _) := y) {
+    if (i <- index(argsX), appl(apX, _) := argsX[i], apX notin pY) {
       labelApX = "labelX";
       
       if (prod(label(l,_),_,_) := apX) {
@@ -104,8 +99,8 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
   rY = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := y} + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := y};
  
   // collect literals
-  lX = {<yield(t),t> | /t:appl(prod(l:lit(_),_,_),_) := x};
-  lY = {<yield(t),t> | /t:appl(prod(l:lit(_),_,_),_) := y};
+  lX = {<yield(t),t> | /t:appl(prod(lit(_),_,_),_) := x};
+  lY = {<yield(t),t> | /t:appl(prod(lit(_),_,_),_) := y};
   // collect layout
   laX = {<t,yield(t)> | /t:appl(prod(layouts(_),_,_),_) := x} + {<t,yield(t)> | /t:appl(prod(label(_,layouts(_)),_,_),_) := x};
   laY = {<t,yield(t)> | /t:appl(prod(layouts(_),_,_),_) := y} + {<t,yield(t)> | /t:appl(prod(label(_,layouts(_)),_,_),_) := y};
@@ -126,7 +121,7 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
     result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc?|dunno:///|) | <r,l> <- rY o lX];
     
     // lexicals that overlap position, but are shorter (longest match issue)
-    for (<tX,yX> <- rX, <tY,yY> <- rY, tX != tY) {
+    for (<tX,_> <- rX, <tY,_> <- rY, tX != tY) {
       tXl = tX@\loc; 
       tYl = tY@\loc;
       
@@ -240,12 +235,12 @@ list[Message] danglingCauses(Tree x, Tree y) {
 }
 
 list[Message] danglingFollowSolutions(Tree x, Tree y) {
-  if (prod(_, lhs, _) := x.prod, prod(_, [pref*, _, l:lit(_), more*], _) := y.prod, lhs == pref) {
+  if (prod(_, lhs, _) := x.prod, prod(_, [*pref, _, l:lit(_), *_], _) := y.prod, lhs == pref) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
                     ' <alt2rascal(x.prod)>", x@\loc?|dunno:///|)]; 
   }
   
-  if (prod(_, lhs, _) := y.prod, prod(_, [pref*, _, l:lit(_), more*], _) := x.prod, lhs == pref) {
+  if (prod(_, lhs, _) := y.prod, prod(_, [*pref, _, l:lit(_), *_], _) := x.prod, lhs == pref) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
                   '  <alt2rascal(y.prod)>", x@\loc?|dunno:///|)]; 
   }
