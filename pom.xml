@@ -117,7 +117,6 @@
                             <ignore>${project.basedir}/src/org/rascalmpl/library/util/tasks</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/flow</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/patterns</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/syntax/Java18.rsc</ignore>
                         </srcIgnores>
