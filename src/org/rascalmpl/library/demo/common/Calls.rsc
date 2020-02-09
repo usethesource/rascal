@@ -26,10 +26,10 @@ test bool t2() = carrier(Calls) == {"a", "b", "c", "d", "e", "f", "g"};
 
 test bool t3() = size(Relation::carrier(Calls)) == 7;
 
-set[str] dCalls = domain(Calls);
-set[str] rCalls = range(Calls);
+public set[str] dCalls = domain(Calls);
+public set[str] rCalls = range(Calls);
 
-set[Proc] entryPoints = top(Calls);
+public set[Proc] entryPoints = top(Calls);
 
 test bool t4() = top(Calls) == {"a", "f"};
 test bool t5() = bottom(Calls) == {"c", "e"};
@@ -46,3 +46,9 @@ test bool t7() = (Calls+)["a"] == {"b", "c", "d", "e"};
 test bool t8() = (Calls+)["f"] == {"e", "g"};
 
 test bool t9() = (Calls+)["a"] & (Calls+)["f"] ==  {"e"};
+
+test bool t10() = dCalls == {"a", "b", "d", "f", "g"};
+
+test bool t11() = rCalls == {"b", "c", "d", "c", "e", "g"};
+
+test bool t12() = entryPoints == {"a", "f"};

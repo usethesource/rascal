@@ -19,3 +19,4 @@ public list[int] sorted = [1,2,3,4,5,6,7,8,9,10];
 public test bool t1() = sort1(unsorted) == sorted;
 public test bool t2() = sort2(unsorted) == sorted;
 public test bool t3() = sort3(unsorted) == sorted;
+ 

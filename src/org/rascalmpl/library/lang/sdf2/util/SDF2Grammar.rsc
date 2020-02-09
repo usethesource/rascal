@@ -16,7 +16,7 @@ module lang::sdf2::util::SDF2Grammar
 //   . The test (Class) `[]` == \char-class([]);  // gives unsupported operation
                     
 import IO;
-import String;
+import String; 
 import Set;
 import List;
 import Map;
