@@ -20,12 +20,9 @@ import String;
 import Set;
 import List;
 import Map;
-import util::Math;
 import ParseTree;
 import Grammar;
-import lang::rascal::grammar::definition::Names;
 import lang::rascal::grammar::definition::Characters; 
-import lang::sdf2::util::Load;
 import lang::sdf2::\syntax::Sdf2;   
 
 public Symbol label(str s, conditional(Symbol t, set[Condition] cs)) = conditional(label(s, t), cs);
@@ -225,14 +222,14 @@ public Grammar::Grammar illegalPriorities(Grammar::Grammar g) {
   extracted = {};
   g = innermost visit (g) {
     case \priority(Symbol def, list[Production] ps) : 
-      if ([pre*,p:prod(Symbol other, _, _),post*] := ps, !sameType(def, other)) {
+      if ([*pre,p:prod(Symbol other, _, _),post*] := ps, !sameType(def, other)) {
         println("WARNING: extracting production from non-recursive priority chain");
         extracted += p[attributes = p.attributes + \tag("NotSupported"("priority with <pre> <post>"))];
         insert priority(def, pre + post);
       }
       else fail;
     case \associativity(Symbol def, Associativity a, set[Production] q) :
-      if ({rest*, p:prod(Symbol other, _, _)} := q, !sameType(def, other)) {
+      if ({*_, p:prod(Symbol other, _, _)} := q, !sameType(def, other)) {
         println("WARNING: extracting production from non-recursive associativity group");
         extracted += p[attributes = p.attributes + \tag("NotSupported"("<a> associativity with <other>"))];
         insert associativity(def, a, q);
@@ -254,7 +251,7 @@ public &T dup(&T g) {
     if ({prod(label(n,l),r,a1), prod(l,r,a2), rest*} := prods) {
       prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a1), prod(label(m,l),r,a2), rest*} := prods) {
+    if ({prod(label(n,l),r,a1), prod(label(_,l),r,a2), rest*} := prods) {
       prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
   } 
@@ -264,11 +261,11 @@ public &T dup(&T g) {
     case prod(l,r,_) : 
       if ({p:prod(l,r,_), _*} := prods) 
         insert p;
-      else if ({p:prod(label(n,l),r,_),_*} := prods)
+      else if ({p:prod(label(_,l),r,_),_*} := prods)
         insert p;
       else fail;
     case prod(label(n,l),r,_) :
-      if ({p:prod(label(m,l),r,_),_*} := prods)
+      if ({p:prod(label(_,l),r,_),_*} := prods)
         insert p;
       else fail;
   }
