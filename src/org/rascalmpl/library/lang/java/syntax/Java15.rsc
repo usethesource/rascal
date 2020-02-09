@@ -835,7 +835,7 @@ syntax RefType =
   ArrayType 
   | ClassOrInterfaceType 
   ;
-
+ 
 syntax ArrayCreationExpr =
    newArray: "new"  ArrayBaseType DimExpr+ Dim* !>> "["
   |  newArray: "new" ArrayBaseType Dim+ !>> "[" ArrayInit 
