@@ -1010,8 +1010,7 @@ lexical SingleChar =
   ![\n \a0D \' \\] 
   ;
 
-
-keyword ElemValKeywords 
+keyword ElemValKeywords =
   LeftHandSide "=" Expression 
   ;
 
