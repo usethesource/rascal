@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::logic::\syntax::Truth
+module demo::lang::logic::\syntax::Truth
 
 extend lang::std::Whitespace;
 extend lang::std::Layout;
