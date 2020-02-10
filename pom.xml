@@ -113,7 +113,6 @@
                         <srcIgnores>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/syntax/Java18.rsc</ignore>
                         </srcIgnores>
                         <enableStandardLibrary>false</enableStandardLibrary><!-- this project contains the standard library source itself -->
