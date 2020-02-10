@@ -415,7 +415,8 @@ void allFiles(PathConfig pcfg = pathConfig(
                 |std:///|
                ],
          libs = [])){
-    modulePaths = find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); });
+    modulePaths = //find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); })
+                    find(|project://rascal-core/src/org/rascalmpl/core/library/|, bool(loc l) { return endsWith(l.path, ".rsc"); });
     println("<size(modulePaths)> files");
     problems = ();
     crashed = ();
