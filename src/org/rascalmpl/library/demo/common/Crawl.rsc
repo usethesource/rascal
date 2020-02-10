@@ -25,17 +25,17 @@ public list[loc] crawl(loc dir, str suffix){
   return res;
 }
 
-public list[loc] crawl2(loc dir, str suffix) {
-  return for (loc entry <- dir.ls) {
-	      for (isDirectory(entry), sub <- crawl(entry, suffix)) {
-	          append result: sub;  /*2*/
-	      }
-		      
-		  if(!isDirectory(sub), endsWith(entry, suffix)) { 
-		      append result: entry; /*3*/
-		  }
-	  }
-}
+//public list[loc] crawl2(loc dir, str suffix) {
+//  return for (loc entry <- dir.ls) {
+//	      for (isDirectory(entry), sub <- crawl(entry, suffix)) {
+//	          append result: sub;  /*2*/
+//	      }
+//		      
+//		  if(!isDirectory(sub), endsWith(entry, suffix)) { 
+//		      append result: entry; /*3*/
+//		  }
+//	  }
+//}
 
 public list[loc] crawl3(loc dir, str suffix) =
   isDirectory(dir) ? [*crawl(e,suffix) | e <- dir.ls] : (dir.extension == suffix ? [dir] : []);
