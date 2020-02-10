@@ -425,13 +425,7 @@ void collect(Parameters parameters, Collector c){
         }
     }
    
-    for(KeywordFormal kwf <- kwFormals){
-        fieldName = prettyPrintName(kwf.name);
-        kwfType = kwf.\type;
-        dt = defType([kwfType], makeFieldType(fieldName, kwfType));
-        //dt.isKeywordFormal = true;
-        c.define(fieldName, keywordFormalId(), kwf.name, dt);
-    }
+    
     
     beginPatternScope("parameter", c);
         if(parameters is varArgs){
@@ -465,6 +459,19 @@ void collect(Parameters parameters, Collector c){
        }
        collect(kwFormals, c);
     endPatternScope(c);
+    
+    for(KeywordFormal kwf <- kwFormals){
+        fieldName = prettyPrintName(kwf.name);
+        kwfType = kwf.\type;
+        DefInfo dt;
+        try {
+            dt = defType(makeFieldType(fieldName, kwfType));
+        } catch TypeUnavailable(): 
+            dt = defType([kwfType], makeFieldType(fieldName, kwfType));
+            
+        //dt.isKeywordFormal = true;
+        c.define(fieldName, keywordFormalId(), kwf.name, dt);
+    }
 }
 
 void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
