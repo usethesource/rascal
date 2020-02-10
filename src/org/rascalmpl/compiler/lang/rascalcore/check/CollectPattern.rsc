@@ -184,6 +184,7 @@ default void collectAsVarArg(Pattern current,  Collector c){
 
 void collect(current: (Pattern) `<QualifiedName name>*`,  Collector c){
     Pattern pat = (Pattern) `<QualifiedName name>`;
+    c.report(warning(current, "Name* is deprecated, use *Name instead"));
     collectSplicePattern(current, pat, c);
 }
 
