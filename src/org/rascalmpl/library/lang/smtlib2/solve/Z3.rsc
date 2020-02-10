@@ -21,8 +21,6 @@ import lang::smtlib2::Compiler;
 import lang::smtlib2::command::Ast;
 import lang::smtlib2::command::response::Implode;
 import lang::smtlib2::command::response::Ast;
-import lang::smtlib2::theory::core::Ast;
-import lang::smtlib2::theory::ints::Ast;
 
 @doc{
 	Starts the Z3 solver.
@@ -60,8 +58,9 @@ Response \run(PID z3, Script script, bool debug = false) {
 
 private str read(PID z3) {
 	str output = "";
+
 	// while the message is empty, keep reading till success or another output 
-	while(output == "") {
+	while (output == "") {
 		output = trim(readFrom(z3));
 	}
 	
