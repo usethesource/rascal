@@ -6,13 +6,10 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::logic::ast::Propositions
+module demo::lang::logic::\syntax::Propositions
 
-import lang::logic::ast::Booleans;
-import lang::std::Whitespace;
-import lang::std::Layout;
-import lang::std::Comment;
+extend lang::logic::\syntax::Booleans;
+extend lang::std::Id;
 
-data Formula 
-  = id(str x)
-  ;
+syntax Formula 
+  = id: Id name \ "true" \ "false";
