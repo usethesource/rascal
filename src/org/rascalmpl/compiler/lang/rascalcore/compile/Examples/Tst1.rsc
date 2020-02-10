@@ -1,35 +1,17 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-/*
-    Import this module to Disambiguate the ambiguity cause by the prefix operators +/- and infix operators +/-.
-    An example of this ambiguity is (A) + (B) . This could be (A)(+ (B)) or ((A)) + ((B)).
-    We need to have a symbol table to decide if A is a type and thus a TypeCast, or it is a field/variable access.
-    
-    Java lacks operator overloading, therefore, prefix operators only work on numeric types.
-    Moreover, there is no support for custom covariance and contravariance.
-    Therefore, only if (A) is a primary/boxed numeric type can it be a prefix expression.
-    
-    We therefore have added this complete but not sound disambiguation as a separate module.
-    
-    These following cases will result in a incorrect parse tree:
-    
-    - Shadowing of Integer/Double/Float
-    - An invalid type cast: (String)+(A) where A has a numeric type
-      (This expression would be an uncompilable, and we would disambiguate it as a infix expression) 
-*/
-import ParseTree;
-import List;
-import lang::java::\syntax::Java15;
+//real centralMoment(list[num] nums, int order = 1) {
+//    return 0.0;
+//}
+//
+//default real skewness(list[num] values) 
+//    = centralMoment(values, order=3);
 
-default bool isNumeric(RefType r) = false;
-default bool isPrefix(Expr x) = false;
 
-Tree amb(set[Tree] alts) {
-    
-        counts = [<size(casts), a> | Tree a <- alts, casts := [ isNumeric(t) | /(Expr)`(<RefType t>) <Expr e>` := a, isPrefix(e)]];
-    
-    fail amb;
+value  amb(list[int] alts) {
+  return { a | a <- alts, a := a};
 }
+
 
 //data Tree 
 //     = char(int character) // <4>

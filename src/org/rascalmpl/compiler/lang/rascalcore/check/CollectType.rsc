@@ -24,7 +24,7 @@ import lang::rascalcore::grammar::definition::Literals;
 
 import lang::rascalcore::check::NameUtils;
 
-//import IO;
+import IO;
 import List;
 //import Map;
 import Node;
@@ -40,28 +40,45 @@ void collect(current: (Type) `( <Type tp> )`, Collector c){
 
 @doc{Convert from the concrete to the abstract representations of Rascal basic types.}
 
+AType collectConstantType(Type t, Collector c){
+    if(t is basic){
+        iprintln(t.basic);
+        return collectConstantType(t.basic, c);
+    }
+    throw nonConstantType(t);
+}
 
+// ---- bool
 void collect(current: (BasicType)`bool`, Collector c){ c.fact(current, abool()); }
 
+// ---- int
 void collect(current: (BasicType)`int`, Collector c){ c.fact(current, aint()); }
 
+// ---- rat
 void collect(current: (BasicType)`rat`, Collector c){ c.fact(current, arat()); }
 
+// ---- real
 void collect(current: (BasicType)`real`, Collector c){ c.fact(current, areal()); }
 
-void collect(current: (BasicType)`num`, Collector c){ 
-    c.fact(current, anum()); }
+// ---- num
+void collect(current: (BasicType)`num`, Collector c){ c.fact(current, anum()); }
 
+// ---- str
 void collect(current: (BasicType)`str`, Collector c){ c.fact(current, astr()); }
 
+// ---- value
 void collect(current: (BasicType)`value`, Collector c){ c.fact(current, avalue()); }
 
+// ---- node
 void collect(current: (BasicType)`node`, Collector c){ c.fact(current, anode([])); }
 
+// ---- void
 void collect(current: (BasicType)`void`, Collector c){ c.fact(current, avoid()); }
 
+// ---- loc
 void collect(current: (BasicType)`loc`, Collector c){ c.fact(current, aloc()); }
 
+// ---- datetime
 void collect(current: (BasicType)`datetime`, Collector c){ c.fact(current, adatetime()); }
 
 default void collect(BasicType bt, Collector c) { c.report(error(bt, "Illegal use of type `<bt>`")); }
@@ -95,17 +112,24 @@ public list[&T] dup(list[&T] lst) {
   }
 }
 
+// ---- list
 void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
+    collect(tas, c);
     if(size(targs) == 1){
-        c.calculate("list type", current, targs, AType(Solver s){ 
-            return makeListType(s.getType(targs[0])); });
+            try {
+                c.fact(current, makeListType(c.getType(targs[0])));
+                return;
+            } catch TypeUnavailable():{
+                c.calculate("list type", current, targs, AType(Solver s){ 
+                    return makeListType(s.getType(targs[0])); });
+            }
     } else {
         c.report(error(current, "Type `list` should have one type argument"));
     }
-    collect(tas, c);
 }
 
+// ---- set
 void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     if(size(targs) == 1){
@@ -115,6 +139,18 @@ void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
     }
     collect(tas, c);
 }
+
+AType collectConstantType(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    if(size(targs) == 1){
+        setType = makeSetType(collectConstantType(targs[0]));
+        c.fact(current, setType);
+        return setType;
+    }
+    throw nonConstantType(current);
+}
+
+// ---- bag TODO
 
 void collect(current:(Type)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];

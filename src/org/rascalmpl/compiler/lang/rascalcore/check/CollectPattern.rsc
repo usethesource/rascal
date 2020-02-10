@@ -69,14 +69,25 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
             
 void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
-    c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[label=uname]; });
+    c.enterScope(current);
+        collect(tp, c);
+    c.leaveScope(current);
+    
+    try {
+        tpResolved = c.getType(tp)[label=uname];
+        c.fact(current, tpResolved);
+        if(uname != "_"){
+            c.push(patternNames, <uname, getLoc(name)>);
+            c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
+            return;
+        }
+    } catch TypeUnavailable(): {
+        c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[label=uname]; });
+    }
     if(uname != "_"){
        c.push(patternNames, <uname, getLoc(name)>);
        c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp)[label=uname]; }));
     }
-    c.enterScope(current);
-        collect(tp, c);
-    c.leaveScope(current);
 }
 
 void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){

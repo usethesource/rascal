@@ -805,7 +805,6 @@ private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver 
     return avalue();
 }
 
-
 // ---- getPatternType --------------------------------------------------------
 
 AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
@@ -855,7 +854,10 @@ private AType getPatternType0(current:( Pattern) `<Type tp> <Name name>`, AType 
 private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType subjectType, loc scope, Solver s){
     base = prettyPrintBaseName(name);
     if(base != "_"){
-       nameType = s.getType(name);
+       nameType = subjectType;
+       try {
+            nameType = s.getType(name);
+       } catch TypeUnAvailable(): ;
        if(!s.isFullyInstantiated(nameType) || !s.isFullyInstantiated(subjectType)){
           s.requireUnify(nameType, subjectType, error(current, "Type of pattern could not be computed"));
           s.fact(name, nameType); // <====

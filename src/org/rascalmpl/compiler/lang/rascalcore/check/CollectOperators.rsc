@@ -581,6 +581,35 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
 
 void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, Collector c){
     scope = c.getScope();
+    collect(expression, c); // first collect expression, its type may help find pat's type early on
+    if((Pattern) `<QualifiedName name>` := pat){    // Optimize a very common case
+        try {
+            exprType = c.getType(expression);
+            patType = avalue();
+            if (isSetType(exprType)) {
+             patType = getSetElementType(exprType);
+            } else if (isListType(exprType)) {
+                patType = getListElementType(exprType);
+            } else if (isMapType(exprType)) {
+                patType = getMapDomainType(exprType);
+            } else if (isADTType(exprType) || isTupleType(exprType) || isNodeType(exprType)) {
+                patType = avalue();
+            } else if (isNonTerminalIterType(exprType)) {
+                  patType = getNonTerminalIterElement(exprType);
+            } else if (isNonTerminalOptType(exprType)) {
+                  patType = getNonTerminalOptType(exprType);
+            } else  
+                throw TypeUnavailable();
+          
+            c.define("<name>", formalOrPatternFormal(c), name, defType(patType));
+            c.fact(pat, patType);
+            c.fact(current, abool());
+            return;  
+        } catch TypeUnavailable(): ;
+    }
+    
+    collect(pat, c); // collect pat in standard fashion
+    
     c.calculateEager("enumeration", current, [expression],
        AType(Solver s) { 
              exprType = s.getType(expression);
@@ -609,7 +638,7 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
             s.requireComparable(patType, elmType, error(pat, "Pattern of type %t cannot be used to enumerate over %t", patType, exprType));
             return abool();
            });
-    collect(pat, expression, c);
+    
 }
 
 @doc{Check the types of Rascal expressions: Enumerator}
