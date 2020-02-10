@@ -223,7 +223,39 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
         collect(decl.signature, c);
         
-        dt = defType([signature], AType(Solver s) {
+        DefInfo dt;
+        try {
+            ft = c.getType(decl.signature);
+            if(signature.parameters is varArgs) {
+                    ft.varArgs = true;
+             }
+                 
+             if(deprecated) {
+                ft.deprecationMessage = deprecationMessage;
+             }
+             
+             if("default" in modifiers){
+                ft.isDefault = true;
+             }
+             
+             if("test" in modifiers){
+                ft.isTest = true;
+                c.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
+             }
+      
+             if(size(ft.formals) > 0){
+                the_formals = getFormals(signature.parameters);
+                ft.abstractFingerprint = fingerprint(the_formals[0], ft.formals[0], false);
+                if(isConcretePattern(the_formals[0], ft.formals[0])){
+                    ft.isConcreteArg = true;
+                    ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
+                }
+             }
+             dt = defType(ft);
+      
+        } catch TypeUnavailable():{
+        
+            dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
                 
                  if(signature.parameters is varArgs) {
@@ -253,6 +285,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                  }
                  return ft;
              });
+        }
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target target>;` := decl.body);
@@ -330,17 +363,26 @@ void collect(Signature signature, Collector c){
             }
         }
     }
-   
-    c.calculate("signature", signature, [returnType, parameters, *exceptions],// + kwFormals<0>,
-        AType(Solver s){
-            tformals = s.getType(parameters);
-            formalsList = atypeList(elems) := tformals ? elems : [tformals];
-            res = afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s));
-            //println("signature <signature> ==\> <res>");
-            return res;
-        });
-        
-     collect(returnType, parameters, c);
+    
+    collect(returnType, parameters, c);
+     
+    try {
+        creturnType = c.getType(returnType);
+        cparameters = c.getType(parameters);
+        formalsList = atypeList(elems) := cparameters ? elems : [tformals];
+        kwformalsList = [<c.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
+        c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
+        return;
+    } catch TypeUnavailable: {
+        c.calculate("signature", signature, [returnType, parameters, *exceptions],// + kwFormals<0>,
+            AType(Solver s){
+                tformals = s.getType(parameters);
+                formalsList = atypeList(elems) := tformals ? elems : [tformals];
+                res = afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s));
+                //println("signature <signature> ==\> <res>");
+                return res;
+            });
+     }
 }
 
 set[TypeVar] getTypeVars(Tree t){
@@ -402,15 +444,24 @@ void collect(Parameters parameters, Collector c){
             c.fact(parameters, atypeList([]));
        } else {
             scope = c.getScope();
-            c.calculate("formals", parameters, [],
-                AType(Solver s) { 
-                    formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
-                    int last = size(formalTypes) -1;
-                    if(parameters is varArgs){
-                        formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
-                    }
-                    return atypeList(formalTypes);
-                }); 
+            try {
+                formalTypes = [ c.getType(f) | f <- formals ];
+                int last = size(formalTypes) -1;
+                if(parameters is varArgs){
+                    formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
+                }
+                c.fact(parameters, atypeList(formalTypes));
+            } catch TypeUnavailable():{
+                c.calculate("formals", parameters, [],
+                    AType(Solver s) { 
+                        formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
+                        int last = size(formalTypes) -1;
+                        if(parameters is varArgs){
+                            formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
+                        }
+                        return atypeList(formalTypes);
+                    }); 
+           }
        }
        collect(kwFormals, c);
     endPatternScope(c);

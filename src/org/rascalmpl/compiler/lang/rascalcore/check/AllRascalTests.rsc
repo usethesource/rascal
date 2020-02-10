@@ -390,11 +390,11 @@ bool blacklisted(str qualifiedModuleName){
     //){
     //    if(contains(qualifiedModuleName, s)) return true;
     //}
-    return false;
+    return contains(qualifiedModuleName, "Java18");
 }
 
 bool whitelisted(str qualifiedModuleName){
-    
+    return true;
     for(s <- {"lang::rascal"}){
        if(contains(qualifiedModuleName, s)) return true;
     }
