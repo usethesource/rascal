@@ -111,7 +111,6 @@
                         </srcs>
                         <sourceLookup>|std:///|</sourceLookup>
                         <srcIgnores>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/demo</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/util/integration</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/util/tasks</ignore>
