@@ -12,7 +12,6 @@ alias Task[&T,&N] = bool (Transaction tr, type[&T] key, &N name);
 @reflect{Needs access to context in order to reify types when calling producer.}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java void registerProducer(Task[&T,&N] producer, set[value] keys);
-
 //public void registerProducer(&T (Transaction tr, type[&T] key, &N name) producer, set[value] keys) {
 //	registerProducer(bool(Transaction t,type[&T] k, value n){v = producer(t,k,n); setFact(t,k,n,v);});
 //}
