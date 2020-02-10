@@ -17,9 +17,9 @@ bool isUnion(set[&T] A, set[&T] B, set[&T] C) =
      isEmpty(B) ==> C == A ||
      all(x <- C, x in A || x in B);
 
-test bool union(set[&T] A, set[&T] B) = isUnion(A,   B,  A + B);
-test bool union(     &T A, set[&T] B) = isUnion({A}, B,  {A} + B);
-test bool union(set[&T] A,      &T B) = isUnion(A,   {B}, A +{B});
+test bool union1(set[&T] A, set[&T] B) = isUnion(A,   B,  A + B);
+test bool union2(     &T A, set[&T] B) = isUnion({A}, B,  {A} + B);
+test bool union3(set[&T] A,      &T B) = isUnion(A,   {B}, A +{B});
 
 // is A - B == C?
 bool isDiff(set[&T] A, set[&T] B, set[&T] C) =
