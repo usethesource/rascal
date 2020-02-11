@@ -49,6 +49,7 @@ loc makeModule(str name, str body){
     writeFile(mloc, "@bootstrapParser
                      'module <name>
                      '<body>");
+    println("module: <name>\n<body>");
     return mloc;
 }
 

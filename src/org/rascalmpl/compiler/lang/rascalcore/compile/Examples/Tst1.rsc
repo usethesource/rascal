@@ -1,5 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+int incr(int x, int delta=1) = x + delta;
+value main(){
+    incr(delta=3);
+
+    return true;
+}
+
 //real centralMoment(list[num] nums, int order = 1) {
 //    return 0.0;
 //}
@@ -8,9 +15,9 @@ module lang::rascalcore::compile::Examples::Tst1
 //    = centralMoment(values, order=3);
 
 
-value  amb(list[int] alts) {
-  return { a | a <- alts, a := a};
-}
+//value  amb(list[int] alts) {
+//  return { a | a <- alts, a := a};
+//}
 
 
 //data Tree 
