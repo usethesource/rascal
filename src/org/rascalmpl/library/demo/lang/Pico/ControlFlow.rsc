@@ -1,7 +1,6 @@
 // tag::module[]
 module demo::lang::Pico::ControlFlow
 
-import Prelude;
 import analysis::graphs::Graph;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
@@ -45,7 +44,7 @@ CFGraph cflowStats(list[STATEMENT] Stats){ // <6>
   return < CF1.entry, CF1.graph + CF2.graph + (CF1.exit * CF2.entry), CF2.exit >;
 }
 
-CFGraph cflowProgram(PROGRAM P:program(list[DECL] Decls, list[STATEMENT] Series)){ // <7>
+CFGraph cflowProgram(PROGRAM P:program(list[DECL] _, list[STATEMENT] Series)){ // <7>
    CF = cflowStats(Series);
    Entry = entry(P@location);
    Exit  = exit();
