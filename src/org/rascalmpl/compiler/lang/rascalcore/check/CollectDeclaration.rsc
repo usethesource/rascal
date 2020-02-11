@@ -465,7 +465,7 @@ void collect(Parameters parameters, Collector c){
         kwfType = kwf.\type;
         DefInfo dt;
         try {
-            dt = defType(makeFieldType(fieldName, kwfType));
+            dt = defType(c.getType(kwfType)[label=fieldName]);
         } catch TypeUnavailable(): 
             dt = defType([kwfType], makeFieldType(fieldName, kwfType));
             
