@@ -134,8 +134,11 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 
 // ----  Various check functions  ---------------------------------------------
  
+int npc = 0;
 public PathConfig getDefaultPathConfig() {
-    println("checker path config");
+    npc += 1;
+    snpc = "<npc>";
+    println("checker path config <npc>");
     return pathConfig(   
         srcs = [|test-modules:///|, /* test-modules is an in-memory file-system */ 
                 //Jurgen: Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
@@ -145,7 +148,7 @@ public PathConfig getDefaultPathConfig() {
                 //, |project://rascal-eclipse-ide/rascal-eclipse/src/org/rascalmpl/eclipse/library/|
                 , |project://typepal/src/|
                ],
-        bin = |project://rascal-core/bin|, 
+        bin = |project://rascal-core/bin<snpc>|, 
         libs = [|lib://rascal/|, |lib://typepal/|]
                );
 }
