@@ -56,7 +56,6 @@ module util::PriorityQueue
 
 import util::Math;
 import List;
-import Map;
 
 // Binomial Trees
 

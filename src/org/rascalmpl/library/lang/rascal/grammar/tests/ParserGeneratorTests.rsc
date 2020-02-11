@@ -5,10 +5,7 @@ import Grammar;
 import lang::rascal::grammar::definition::Parameters;
 import lang::rascal::grammar::definition::Literals;
 import IO;
-import String;
 import ParseTree;
-import util::Reflective;
-
 import lang::rascal::grammar::tests::TestGrammars;
 
 // -------- Examples and tests -------------------
