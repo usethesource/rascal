@@ -63,7 +63,7 @@ public class RascalJUnitTestRunner extends Runner {
         heap = new GlobalEnvironment();
         root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
 
-        stderr = new PrintWriter(System.err);
+        stderr = new PrintWriter(System.err, true);
         stdout = new PrintWriter(System.out);
         evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
