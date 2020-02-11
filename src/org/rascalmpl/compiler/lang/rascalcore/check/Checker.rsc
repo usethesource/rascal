@@ -148,7 +148,7 @@ public PathConfig getDefaultPathConfig() {
                 //, |project://rascal-eclipse-ide/rascal-eclipse/src/org/rascalmpl/eclipse/library/|
                 , |project://typepal/src/|
                ],
-        bin = |project://rascal-core/bin<snpc>|, 
+        bin = |tmp://rascal-core/bin<snpc>|, 
         libs = [|lib://rascal/|, |lib://typepal/|]
                );
 }
