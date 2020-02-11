@@ -12,8 +12,6 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::functionality::Comprehension
 
-import IO; 
-import Exception;
 import List;
   	
 // set comprehension
@@ -37,14 +35,14 @@ test bool setComprehension8()  = { X | X <- [1, 2]} == {1,2};
 test bool setComprehension9()  = { X | int X <- {1, 1, 1}} == {1};
 test bool setComprehension10()  = { X | int X <- [1, 1, 1]} == {1};
   		
-test bool setComprehension11()  = { 1 | int X <- {1,2,3}} == {1};
-test bool setComprehension12()  = { 1 | int X <- [1,2,3]} == {1};
+test bool setComprehension11()  = { 1 | int _ <- {1,2,3}} == {1};
+test bool setComprehension12()  = { 1 | int _ <- [1,2,3]} == {1};
   		
-test bool setComprehension13()  = { 1 | int X <- {1,2,3}, true } == {1};
-test bool setComprehension14()  = { 1 | int X <- [1,2,3], true } == {1};
+test bool setComprehension13()  = { 1 | int _ <- {1,2,3}, true } == {1};
+test bool setComprehension14()  = { 1 | int _ <- [1,2,3], true } == {1};
   		
-test bool setComprehension15()  = { 1 | int X <- {1,2,3}, false} 	== {};
-test bool setComprehension16()  = { 1 | int X <- [1,2,3], false} 	== {};
+test bool setComprehension15()  = { 1 | int _ <- {1,2,3}, false} 	== {};
+test bool setComprehension16()  = { 1 | int _ <- [1,2,3], false} 	== {};
   		
 test bool setComprehension17()  = { X | int X <- {1,2,3}} == {1,2,3};
 test bool setComprehension18()  = { X | int X <- [1,2,3]} == {1,2,3};
@@ -61,26 +59,26 @@ test bool setComprehension24()  = {  X | int X <- [1,2,3], X >= 2, X < 3} == {2}
 test bool setComprehension25()  = {  X, 10*X | int X <- [1,2,3]} == {1,2,3,10,20,30};
 test bool setComprehension26()  = {  X, 10*X, 100*X | int X <- [1,2,3]} == {1,2,3,10,20,30, 100,200,300};	
   		
-test bool setComprehension27()  = {  {} | int X <- {1,2,3}} == {{}};
-test bool setComprehension28()  = {  {} | int X <- [1,2,3]} == {{}};
+test bool setComprehension27()  = {  {} | int _ <- {1,2,3}} == {{}};
+test bool setComprehension28()  = {  {} | int _ <- [1,2,3]} == {{}};
   		
-test bool setComprehension29()  = {  {} | int X <- {1,2,3}, true} == {{}};
-test bool setComprehension30()  = {  {} | int X <- [1,2,3], true} == {{}};
+test bool setComprehension29()  = {  {} | int _ <- {1,2,3}, true} == {{}};
+test bool setComprehension30()  = {  {} | int _ <- [1,2,3], true} == {{}};
   		
-test bool setComprehension31()  = {  {} | int X <- {1,2,3}, false} == {};
-test bool setComprehension32()  = {  {} | int X <- [1,2,3], false} == {};
+test bool setComprehension31()  = {  {} | int _ <- {1,2,3}, false} == {};
+test bool setComprehension32()  = {  {} | int _ <- [1,2,3], false} == {};
   		
-test bool setComprehension33()  = { <1,2,3> | int X <- {1,2,3}} 	== {<1,2,3>};
-test bool setComprehension34()  = { <1,2,3> | int X <- [1,2,3]} 	== {<1,2,3>};
+test bool setComprehension33()  = { <1,2,3> | int _ <- {1,2,3}} 	== {<1,2,3>};
+test bool setComprehension34()  = { <1,2,3> | int _ <- [1,2,3]} 	== {<1,2,3>};
   		
-test bool setComprehension35()  = { <1,2,3> | int X <- {1,2,3}, true} 	== {<1,2,3>};
-test bool setComprehension36()  = { <1,2,3> | int X <- [1,2,3], true} 	== {<1,2,3>};
+test bool setComprehension35()  = { <1,2,3> | int _ <- {1,2,3}, true} 	== {<1,2,3>};
+test bool setComprehension36()  = { <1,2,3> | int _ <- [1,2,3], true} 	== {<1,2,3>};
   		
-test bool setComprehension37()  = { <1,2,3> | int X <- {1,2,3}, true, true} == {<1,2,3>};
-test bool setComprehension38()  = { <1,2,3> | int X <- [1,2,3], true, true} == {<1,2,3>};
+test bool setComprehension37()  = { <1,2,3> | int _ <- {1,2,3}, true, true} == {<1,2,3>};
+test bool setComprehension38()  = { <1,2,3> | int _ <- [1,2,3], true, true} == {<1,2,3>};
   		
-test bool setComprehension39()  = { <1,2,3> | int X <- {1,2,3}, false}	== {} ;
-test bool setComprehension40()  = { <1,2,3> | int X <- [1,2,3], false}	== {} ;
+test bool setComprehension39()  = { <1,2,3> | int _ <- {1,2,3}, false}	== {} ;
+test bool setComprehension40()  = { <1,2,3> | int _ <- [1,2,3], false}	== {} ;
   		
 test bool setComprehension41()  = { Y | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] } == { [1,2,3],[10,20,30],[100,200,300]};
 test bool setComprehension42()  = {1 | 3 > 2} == {1} ;
@@ -228,7 +226,7 @@ test bool setComprehensionNested4()  = { *{X + y | int y <- [1..X+1], X < 2} | i
 test bool setComprehensionNested5()  = { {X + y | int y <- [1..X+1], X > 2} | int X <- [1,2,3]} == {{}, {4,5,6}};
 test bool setComprehensionNested6()  = { *{X + y | int y <- [1..X+1], X > 2} | int X <- [1,2,3]} == {4, 5, 6};
   	
-test bool setComprehensionNestedGenerator() = { y | <x, y> <- {<a, 10*a> | a <- [1,2,3]}, y > 10 } == {20, 30};
+test bool setComprehensionNestedGenerator() = { y | <_, y> <- {<a, 10*a> | a <- [1,2,3]}, y > 10 } == {20, 30};
 
 test bool setComprehensionNestedRange1() = { i | int i <- [10..12] } == {10, 11};
 
@@ -258,14 +256,14 @@ test bool listComprehension6()  = [ X |     X <- [1, 2]] == [1,2];
 test bool listComprehension7()  = [ X | int X <- {1, 1, 1}] == [1];
 test bool listComprehension8()  = [ X | int X <- [1, 1, 1]] == [1, 1, 1];
   		
-test bool listComprehension9()  = [ 1 | int X <- {1,2,3}] == [1, 1, 1];
-test bool listComprehension10()  = [ 1 | int X <- [1,2,3]] == [1, 1, 1];
+test bool listComprehension9()  = [ 1 | int _ <- {1,2,3}] == [1, 1, 1];
+test bool listComprehension10()  = [ 1 | int _ <- [1,2,3]] == [1, 1, 1];
   		
-test bool listComprehension11()  = [ 1 | int X <- {1,2,3}, true ] == [1, 1, 1];
-test bool listComprehension12()  = [ 1 | int X <- [1,2,3], true ] == [1, 1, 1];
+test bool listComprehension11()  = [ 1 | int _ <- {1,2,3}, true ] == [1, 1, 1];
+test bool listComprehension12()  = [ 1 | int _ <- [1,2,3], true ] == [1, 1, 1];
   		
-test bool listComprehension13()  = [ 1 | int X <- {1,2,3}, false] 	== [];
-test bool listComprehension14()  = [ 1 | int X <- [1,2,3], false] 	== [];
+test bool listComprehension13()  = [ 1 | int _ <- {1,2,3}, false] 	== [];
+test bool listComprehension14()  = [ 1 | int _ <- [1,2,3], false] 	== [];
   		
 test bool listComprehension15()  = {L = [ X | int X <- {1,2}]; (L == [1,2]) || (L == [2, 1]);};
 test bool listComprehension16()  = [ X | int X <- [1,2,3]] == [1,2,3];
@@ -284,26 +282,26 @@ test bool listComprehension24()  = [  X, 10*X, 100*X | int X <- [1,2,3]] == [1,1
   	
 // listComprehension
   		
-test bool listComprehension25()  = [  [] | int X <- {1,2,3}] == [[], [], []];
-test bool listComprehension26()  = [  [] | int X <- [1,2,3]] == [[], [], []];
+test bool listComprehension25()  = [  [] | int _ <- {1,2,3}] == [[], [], []];
+test bool listComprehension26()  = [  [] | int _ <- [1,2,3]] == [[], [], []];
   		
-test bool listComprehension27()  = [  [] | int X <- {1,2,3}, true] == [[], [], []];
-test bool listComprehension28()  = [  [] | int X <- [1,2,3], true] == [[], [], []];
+test bool listComprehension27()  = [  [] | int _ <- {1,2,3}, true] == [[], [], []];
+test bool listComprehension28()  = [  [] | int _ <- [1,2,3], true] == [[], [], []];
   		
-test bool listComprehension29()  = [  [] | int X <- {1,2,3}, false] == [];
-test bool listComprehension30()  = [  [] | int X <- [1,2,3], false] == [];
+test bool listComprehension29()  = [  [] | int _ <- {1,2,3}, false] == [];
+test bool listComprehension30()  = [  [] | int _ <- [1,2,3], false] == [];
   		
-test bool listComprehension31()  = [ <1,2,3> | int X <- {1,2,3}] == [<1,2,3>, <1,2,3>, <1,2,3>];
-test bool listComprehension32()  = [ <1,2,3> | int X <- [1,2,3]] == [<1,2,3>, <1,2,3>, <1,2,3>];
+test bool listComprehension31()  = [ <1,2,3> | int _ <- {1,2,3}] == [<1,2,3>, <1,2,3>, <1,2,3>];
+test bool listComprehension32()  = [ <1,2,3> | int _ <- [1,2,3]] == [<1,2,3>, <1,2,3>, <1,2,3>];
   		
-test bool listComprehension33()  = [ <1,2,3> | int X <- {1,2,3}, true] == [<1,2,3>, <1,2,3>, <1,2,3>];
-test bool listComprehension34()  = [ <1,2,3> | int X <- [1,2,3], true] == [<1,2,3>, <1,2,3>, <1,2,3>];
+test bool listComprehension33()  = [ <1,2,3> | int _ <- {1,2,3}, true] == [<1,2,3>, <1,2,3>, <1,2,3>];
+test bool listComprehension34()  = [ <1,2,3> | int _ <- [1,2,3], true] == [<1,2,3>, <1,2,3>, <1,2,3>];
   		
-test bool listComprehension35()  = [ <1,2,3> | int X <- {1,2,3}, true, true] == [<1,2,3>, <1,2,3>, <1,2,3>];
-test bool listComprehension36()  = [ <1,2,3> | int X <- [1,2,3], true, true] == [<1,2,3>, <1,2,3>, <1,2,3>];
+test bool listComprehension35()  = [ <1,2,3> | int _ <- {1,2,3}, true, true] == [<1,2,3>, <1,2,3>, <1,2,3>];
+test bool listComprehension36()  = [ <1,2,3> | int _ <- [1,2,3], true, true] == [<1,2,3>, <1,2,3>, <1,2,3>];
   		
-test bool listComprehension37()  = [ <1,2,3> | int X <- {1,2,3}, false]	== [] ;
-test bool listComprehension38()  = [ <1,2,3> | int X <- [1,2,3], false]	== [] ;
+test bool listComprehension37()  = [ <1,2,3> | int _ <- {1,2,3}, false]	== [] ;
+test bool listComprehension38()  = [ <1,2,3> | int _ <- [1,2,3], false]	== [] ;
   	
 // listComprehension
   		
@@ -360,7 +358,7 @@ test bool listComprehensionNested4()  = [ *[y | int y <- [0..X+1], X < 2] | int 
 test bool listComprehensionNested5()  = [ [y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [[], [], [0,1,2,3]];
 test bool listComprehensionNested6()  = [ *[y | int y <- [0..X+1], X > 2] | int X <- [1,2,3]] == [0,1,2,3];
   	
-test bool listComprehensionNestedGenerator() = [ y | <x, y> <- [<a, 10*a> | a <- [1,2,3]], y > 10 ] == [20, 30];
+test bool listComprehensionNestedGenerator() = [ y | <_, y> <- [<a, 10*a> | a <- [1,2,3]], y > 10 ] == [20, 30];
 
 test bool setComprehensionNestedRange2() = [ i | int i <- [10..12] ] == [10..12];
 
@@ -374,8 +372,8 @@ test bool emptyTupleGeneratorError4() = {<X,Y> | int X <- [], int Y <- []} == {}
 test bool relationComprehension1()  = {<X,Y> | int X <- {1}, int Y <- {2}} == {<1,2>};
 test bool relationComprehension2()  = {<X,Y> | int X <- [1,1,1], int Y <- [2,2,2]} == {<1,2>};
   		
-test bool relationComprehension3()  = {<1,2> | int X <- {1,2,3}} == {<1,2>};
-test bool relationComprehension4()  = {<1,2> | int X <- [1,2,3]} == {<1,2>};
+test bool relationComprehension3()  = {<1,2> | int _ <- {1,2,3}} == {<1,2>};
+test bool relationComprehension4()  = {<1,2> | int _ <- [1,2,3]} == {<1,2>};
   		
 test bool relationComprehension5()  = {<X,Y> | int X <- {1,2,3}, int Y <- {2,3,4}} ==  {<1, 2>, <1, 3>, <1, 4>, <2, 2>, <2, 3>, <2, 4>, <3, 2>, <3, 3>, <3, 4>};
 test bool relationComprehension6()  = {<X,Y> | int X <- [1,2,3], int Y <- [2,3,4]} ==  {<1, 2>, <1, 3>, <1, 4>, <2, 2>, <2, 3>, <2, 4>, <3, 2>, <3, 3>, <3, 4>};
