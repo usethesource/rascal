@@ -66,7 +66,7 @@ delAnnotations(F);
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{To print warning}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
+@deprecated{Use keyword fields instead of annotations and [unset] for delAnnotations.}
 public java &T <: node  delAnnotations(&T <: node x);
 
 @doc{
@@ -82,9 +82,9 @@ F = setAnnotations("f"(10, G), ("color" : "red", "size" : "large"));
 delAnnotationsRec(F);
 ----
 }
-@deprecated{Annotations are deprecated. Please use keyword fields.}
+@deprecated{Use keyword fields instead of annoations and [unsetRec] for delAnnotationsRec.}
 public &T delAnnotationsRec(&T v) = visit(v) { 
-     case m: node n => delAnnotations(m) 
+     case node n => delAnnotations(n) 
   };
 
 @doc{

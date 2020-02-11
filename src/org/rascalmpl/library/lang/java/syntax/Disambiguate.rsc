@@ -6,27 +6,26 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
+@doc{
+    Import this module to Disambiguate the ambiguity cause by the prefix operators +/- and infix operators +/-.
+    An example of this ambiguity is (A) + (B) . This could be (A)(+ (B)) or ((A)) + ((B)).
+    We need to have a symbol table to decide if A is a type and thus a TypeCast, or it is a field/variable access.
+    
+    Java lacks operator overloading, therefore, prefix operators only work on numeric types.
+    Moreover, there is no support for custom covariance and contravariance.
+    Therefore, only if (A) is a primary/boxed numeric type can it be a prefix expression.
+    
+    We therefore have added this complete but not sound disambiguation as a separate module.
+    
+    These following cases will result in a incorrect parse tree:
+    
+    - Shadowing of Integer/Double/Float
+    - An invalid type cast: (String)+(A) where A has a numeric type
+      (This expression would be an uncompilable, and we would disambiguate it as a infix expression) 
+}
 module lang::java::\syntax::Disambiguate
-/*
-	Import this module to Disambiguate the ambiguity cause by the prefix operators +/- and infix operators +/-.
-	An example of this ambiguity is (A) + (B) . This could be (A)(+ (B)) or ((A)) + ((B)).
-	We need to have a symbol table to decide if A is a type and thus a TypeCast, or it is a field/variable access.
-	
-	Java lacks operator overloading, therefore, prefix operators only work on numeric types.
-	Moreover, there is no support for custom covariance and contravariance.
-	Therefore, only if (A) is a primary/boxed numeric type can it be a prefix expression.
-	
-	We therefore have added this complete but not sound disambiguation as a separate module.
-	
-	These following cases will result in a incorrect parse tree:
-	
-	- Shadowing of Integer/Double/Float
-	- An invalid type cast: (String)+(A) where A has a numeric type
-	  (This expression would be an uncompilable, and we would disambiguate it as a infix expression) 
-*/
+
 import ParseTree;
-import String;
-import IO;
 import Relation;
 import List;
 import Set;
@@ -81,7 +80,7 @@ bool containsPrefixExpression(Tree t) {
 		if ((Expr)`(<RefType _>) <Expr e>` <- todo && isPrefix(e)) {
 			return true;	
 		}
-		todo = { *args | Tree a:appl(_, args) <- todo};
+		todo = { *args | appl(_, args) <- todo};
 	}
 	return false;
 }
