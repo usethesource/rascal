@@ -278,6 +278,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                       (scope.path == mscope.path && idRole in saveModuleRoles)){
                           
                       if(scope in extendedModuleScopes){
+                         if(defType(_) !:= tup.defInfo){
+                            throw "Suspicious define in TModel: <tup>";
+                         }
                          tup.scope = mscope;
                       }                  
                     append tup;
@@ -294,8 +297,11 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
         //
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
-        
-        writeBinaryValueFile(tplLoc, m1);
+        try {
+            writeBinaryValueFile(tplLoc, m1);
+        } catch exep: {
+            throw "Corrupt TPL file <tplLoc>";
+        }
         if(tm.config.logImports) {
              errors = { msg | msg <- m1.messages, error(_,_) := msg };
              n_errors = size(errors);
