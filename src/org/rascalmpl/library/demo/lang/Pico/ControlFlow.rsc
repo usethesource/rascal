@@ -4,6 +4,7 @@ module demo::lang::Pico::ControlFlow
 import analysis::graphs::Graph;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
+import List;
 
 public data CFNode // <1>
 	= entry(loc location)
