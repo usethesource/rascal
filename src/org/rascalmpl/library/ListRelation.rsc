@@ -23,7 +23,6 @@ loctoc::[1]
 }
 module ListRelation
 
-import Exception;
 import List;
 
 @doc{
