@@ -15,7 +15,7 @@ test bool fieldsFromLexicals2() = ["amel", "ase", "ase", "eest"] == [ "<w.tail>"
 test bool staticFieldProjectType() = list[[A-Z]] _ := [ w.head |  w <- t.words ]
   when Example t := [Example] "CamelCaseBaseFeest";
 
-private bool check(type[&T] t, value x) = &T _ := x;
+private bool check(type[&T] _, value x) = &T _ := x;
 
 test bool singleA() = check(#[A], char(65));
 test bool singleB() = check(#[B], char(66));
