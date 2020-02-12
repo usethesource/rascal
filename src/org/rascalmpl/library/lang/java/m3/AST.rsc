@@ -6,9 +6,7 @@ module lang::java::m3::AST
 
 extend analysis::m3::AST;
 import util::FileSystem;
-import lang::java::m3::TypeSymbol;
 import IO;
-import Set;
 import String;
 import List;
  
