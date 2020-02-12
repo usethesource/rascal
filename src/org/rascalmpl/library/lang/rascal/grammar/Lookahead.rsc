@@ -16,10 +16,7 @@ import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Productions;
 import ParseTree;
 import List;
-import Set; 
 import IO;
-import Map;
-import Exception;
 
 // This production wrapper encodes what the lookahead set is for the productions it wraps
 public data Production = lookahead(Symbol def, set[Symbol] classes, Production production);
@@ -61,9 +58,9 @@ public Grammar computeLookaheads(Grammar G, rel[Symbol,Symbol] extra) {
 public Grammar compileLookaheads(Grammar G) {
   // first we remove first and assoc groups for simplicity's sake
   G = visit (G) {
-    case lookahead(rhs, {}, a) => choice(rhs, {})
+    case lookahead(rhs, {}, _) => choice(rhs, {})
     case priority(rhs, ordr)     => choice(rhs, {p | p <- ordr})
-    case associativity(rhs, a, alts)  => choice(rhs, alts)
+    case associativity(rhs, _, alts)  => choice(rhs, alts)
   }
 
   // now we optimize the lookaheads  
@@ -84,12 +81,12 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
   list[CharRange] l = [];
   
   // first we identify which unique ranges there are for all the different productions
-  for (lookahead(_,set[Symbol] classes, Production p) <- alts) { 
+  for (lookahead(_,set[Symbol] classes, Production _) <- alts) { 
     for (\char-class(rs) <- classes, r <- rs) {
       // find the first range that is not smaller than the pivot
-      if ([pre*, post*] := l, all(z <- post, !lessThan(z,r)) || post == []) {
+      if ([*pre, *post] := l, all(z <- post, !lessThan(z,r)) || post == []) {
         // find all ranges that overlap with the pivot
-        if ([overlapping*, post2*] := post, all(\o <- overlapping, intersect(r,\o) != \empty-range())) {
+        if ([*overlapping, *post2] := post, all(\o <- overlapping, intersect(r,\o) != \empty-range())) {
           // overlapping with existing ranges (contained in 'overlap')
           common = intersection(overlapping,[r]);
           onlyR = difference([r],overlapping);
@@ -160,14 +157,14 @@ public Production optimizeLookaheadsOld(Symbol rhs, set[Production] alts) {
 }
 
 public set[Symbol] intersect(set[Symbol] u1, set[Symbol] u2) {
-  if ({\char-class(r1), _*} := u1, {\char-class(r2), _*} := u2) {
+  if ({\char-class(r1), *_} := u1, {\char-class(r2), *_} := u2) {
     return {\char-class(intersection(r1,r2))} + (u1 & u2);
   }
   return u1 & u2;
 }
 
 public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
-  if ({\char-class(r1), s1*} := u1, {\char-class(r2), s2*} := u2) {
+  if ({\char-class(r1), *s1} := u1, {\char-class(r2), *s2} := u2) {
     return {\char-class(difference(r1,r2))} + (s1 - s2);
   }
   return u1 - u2;
@@ -198,16 +195,8 @@ private set[Symbol] definedSymbols(Grammar G) {
    return { p.def |  Production p <- G.productions};
 }
 
-private set[Symbol] allSymbols(Grammar G){
-   return definedSymbols(G) + usedSymbols(G);
-}
-
 private set[Symbol] terminalSymbols(Grammar G){
    return { S | S:\char-class(_) <- usedSymbols(G)};
-}
-
-private bool isTerminalSymbol(Symbol s){
-  return \char-class(_) := s;
 }
 
 // ---------------- Compute first set -------------------------------
@@ -253,7 +242,7 @@ public SymbolUse follow(Grammar G,  SymbolUse FIRST){
    
    rel[Symbol, Symbol] F = {<S, eoi()> | Symbol S <- G.starts};
    
-   for (Production p <- G.productions, [_*, current, symbols*] := p.symbols) {
+   for (Production p <- G.productions, [*_, current, *symbols] := p.symbols) {
        if (current in defSymbols) {
           flw =  first(symbols, FIRST);
           if (empty() in flw || isEmpty(symbols)) {
