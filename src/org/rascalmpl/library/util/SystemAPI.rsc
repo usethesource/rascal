@@ -11,9 +11,6 @@
 @doc{API to the System for example System Variables or System Commands.} 
 module util::SystemAPI
 
-import Exception;
-import String;
-
 @javaClass{org.rascalmpl.library.util.SystemAPI}
 java str getSystemProperty(str property);
 

@@ -1,7 +1,5 @@
 module lang::rascal::tests::functionality::PatternSet1
 
-import Set;
-
 public int ModVar42 = 42;
 public int ModVar44 = 44;
 public set[int] ModVarSet_41_42_43 = {41, 42, 43};
@@ -59,7 +57,7 @@ test bool matchSet28() = {1, *_, 2} := {1,2};
 //  test bool matchSet() = !({ {1, X+, 2} := {1,2});
 //  test bool matchSet() = !({ {1, _+, 2} := {1,2};}) _+ does not exist yet
 test bool matchSet29() = {1, *X, 2} := {1,2} && X == {};
-test bool matchSet30() = !({1, *X, 2} := {1,3});
+test bool matchSet30() = !({1, *_, 2} := {1,3});
 test bool matchSet31() = !({1, *_, 2} := {1,3});
         
 test bool matchSet32() = {1, *int X, 2} := {1,2,3} && X == {3};
@@ -75,8 +73,8 @@ test bool matchSet37() = {1, *int X, *int Y} := {1} && X == {} && Y == {};
 test bool matchSet38() = {*int X, 1, *int Y} := {1} && X == {} && Y == {};
 test bool matchSet39() = {*int X, *int Y, 1} := {1} && X == {} && Y == {};
   
-test bool matchSet40() = !({*int X, *int Y, 1} := {2});
-test bool matchSet41() = !({*X, *Y, 1} := {2});
+test bool matchSet40() = !({*int _, *int _, 1} := {2});
+test bool matchSet41() = !({*_, *_, 1} := {2});
         
 test bool matchSet42() = {*int X, *int Y} := {1} && ((X == {} && Y == {1}) || (X == {1} && Y == {}));   /* added parentheses */
 test bool matchSet43() = {*X, *Y} := {1} && ((X == {} && Y == {1}) || (X == {1} && Y == {}));           /* added parentheses */
@@ -319,7 +317,7 @@ test bool matchSet60(){
 
 test bool matchSet61(){
     res = {};
-    for({6, *int a, int x, *int b, int y, 2, *int c} := {1,2,3,4,5,6,7}) { res = res + {{a,b,c}}; }
+    for({6, *int a, int _, *int b, int _, 2, *int c} := {1,2,3,4,5,6,7}) { res = res + {{a,b,c}}; }
     return res ==
         {
           {
@@ -583,10 +581,10 @@ test bool matchNestedSet5() = {{1,2}} := {{1,2}};
 test bool matchNestedSet6() = !({{1}} := {{2}});
 test bool matchNestedSet7() = !({{1,2}} := {{1,2,3}});
           
-test bool matchNestedSet8() = {*set[int] L} := {};
+test bool matchNestedSet8() = {*set[int] _} := {};
           
-test bool matchNestedSet9() = {*set[int] L} := {{1}};
-test bool matchNestedSet10() = {*set[int] L} := {{1,2}};
+test bool matchNestedSet9() = {*set[int] _} := {{1}};
+test bool matchNestedSet10() = {*set[int] _} := {{1,2}};
           
 test bool matchNestedSet11() = ({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5},{6,7,8}}) && (L == {{2,3},{4,5}});
 test bool matchNestedSet12() = !(({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5},{8}}) && (L == {{2,3},{4,5}}));
@@ -598,8 +596,8 @@ test bool matchNestedSet13() = ({{1}, *set[int] L, {6,7,8}, *L} := {{1},{2,3},{4
 
 //    matchSetMultiVars
 
-test bool matchSetMultiVars1() = {1, S*, 4, 5}:= {1, 2, 3, 4, 5} && S == {2, 3};
-test bool matchSetMultiVars2() = {1, _*, 4, 5} := {1, 2, 3, 4, 5};
+test bool matchSetMultiVars1() = {1, *S, 4, 5}:= {1, 2, 3, 4, 5} && S == {2, 3};
+test bool matchSetMultiVars2() = {1, *_, 4, 5} := {1, 2, 3, 4, 5};
       
 //    matchSetSpliceVars
 
