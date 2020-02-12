@@ -7,7 +7,6 @@ module lang::manifest::IO
 
 import Type;
 import String;
-import IO;
 
 @doc{reads a manifest file and returns its main attributes as a map}
 @javaClass{org.rascalmpl.library.lang.manifest.IO}
