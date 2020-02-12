@@ -5,16 +5,16 @@ data F = f(F left, F right) | g(int N);
 // descendant1
  
 test bool descendant1() = /int N := 1 && N == 1;
-test bool descendant2() =  !/int N := true;
+test bool descendant2() =  !/int _ := true;
         
-test bool descendant3() = !(/int N := []);
+test bool descendant3() = !(/int _ := []);
 test bool descendant4() = /int N := [1] && N == 1;
   
 test bool descendant5() = /int N := [1,2,3,2] && N > 2;
 test bool descendant6() = !/4 := [1,2,3,2];
 test bool descendant7() = /int N := (1 : 10) && (N == 1 || N == 10);
     
-test bool descendant8() = !(/int N := {});
+test bool descendant8() = !(/int _ := {});
 test bool descendant9() = /int N := {1} && N == 1;
 test bool descendant10() = /int N := {<false,1>} && N == 1;
         
@@ -117,7 +117,7 @@ test bool descendant63() {
 
 test bool descendant64() {
     n = 0;
-    for(/v:[*value x] := [ 1, [2], [3,[4,6,[7]]], [[8,[9]],[[[10]]]] ]) {
+    for(/_:[*value _] := [ 1, [2], [3,[4,6,[7]]], [[8,[9]],[[[10]]]] ]) {
         n += 1;
     }
     return n == 11;

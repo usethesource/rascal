@@ -23,7 +23,7 @@ test bool keywordParam3(){
   	       && sum(y = 7, x = 5) == 5 + 7;
 }
 
-int f4(int i, int delta = 0) = g4();
+int f4(int _, int delta = 0) = g4();
 
 int g4() = h4();
 
