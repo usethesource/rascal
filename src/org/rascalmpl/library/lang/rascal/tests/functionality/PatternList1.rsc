@@ -1,20 +1,15 @@
-  module lang::rascal::tests::functionality::PatternList1
- 
-  /*******************************************************************************
-   * Copyright (c) 2009-2015 CWI
-   * All rights reserved. This program and the accompanying materials
-   * are made available under the terms of the Eclipse Public License v1.0
-   * which accompanies this distribution, and is available at
-   * http://www.eclipse.org/legal/epl-v10.html
-   *
-   * Contributors:
-  
-   *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
-   *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-   *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-  *******************************************************************************/
-  
-  
+@license{
+   Copyright (c) 2009-2015 CWI
+   All rights reserved. This program and the accompanying materials
+   are made available under the terms of the Eclipse Public License v1.0
+   which accompanies this distribution, and is available at
+   http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+module lang::rascal::tests::functionality::PatternList1
+
 import List;
   	
 public int ModVar42 = 42;
@@ -48,7 +43,7 @@ test bool matchList13() = !(([int N, 2, N] := [1,2,3]));
 test bool matchList14() = !([int N, 2, N] := [1,2,"a"]);
   		
 test bool matchList15() {int N = 1; return ([N, 2, int M] := [1,2,3]) && (N == 1) && (M==3);}
-test bool matchList16() {int N = 1; return !([N, 2, int M] := [4,2,3]);}
+test bool matchList16() {int N = 1; return !([_, 2, int _] := [4,2,3]);}
   		
 test bool matchList17() {list[int] L = [3]; return [1,2,*L] := [1,2,3];}
 test bool matchList18() {list[int] L = [2, 3]; return [1, *L] := [1,2,3];}
@@ -603,7 +598,7 @@ test bool matchList48() {
   		
 @ignore{investigate} test bool matchList() {([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);}
   		
-test bool matchListFalse1() {list[value] l = [1,2,3]; return [1, str S, 2] !:= l; }
+test bool matchListFalse1() {list[value] l = [1,2,3]; return [1, str _, 2] !:= l; }
 
 test bool matchListModuleVar1() = [ModVar42] := [42];
 test bool matchListModuleVar2() = [*ModVarList_41_42_43] := ModVarList_41_42_43;
@@ -622,10 +617,10 @@ test bool matchNestedList5() = [[1,2]] := [[1,2]];
 test bool matchNestedList6() = !([[1]] := [[2]]);
 test bool matchNestedList7() = !([[1,2]] := [[1,2,3]]);
   		
-test bool matchNestedList8() = [*list[int] L] := [];
+test bool matchNestedList8() = [*list[int] _] := [];
   		
-test bool matchNestedList9() = [*list[int] L] := [[1]];
-test bool matchNestedList10() = [*list[int] L] := [[1,2]];
+test bool matchNestedList9() = [*list[int] _] := [[1]];
+test bool matchNestedList10() = [*list[int] _] := [[1,2]];
   		
 test bool matchNestedList11() = ([[1], *list[int] L, [6,7,8]] := [[1],[2,3],[4,5],[6,7,8]]) && (L == [[2,3],[4,5]]);
 test bool matchNestedList12() = !(([[1], *list[int] L, [6,7,8]] := [[1],[2,3],[4,5],[8]]) && (L == [[2,3],[4,5]]));
@@ -642,9 +637,9 @@ test bool matchExternalListVars2() {list[int] L; return ([1, *L, 4, 5] := [1, 2,
 
 //	matchListMultiVars
 
-test bool matchListMultiVars1() = [1, L*, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3];
-test bool matchListMultiVars2() = [1, _*, 4, 5] := [1, 2, 3, 4, 5];
-test bool matchListMultiVars3() = [1, L*, 4, *L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];
+test bool matchListMultiVars1() = [1, *L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3];
+test bool matchListMultiVars2() = [1, *_, 4, 5] := [1, 2, 3, 4, 5];
+test bool matchListMultiVars3() = [1, *L, 4, *L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];
   	
 //	matchListSpliceVars
 
@@ -745,7 +740,7 @@ test bool matchListIsTrio24() = isTrio3([1,2, 1,2, 1,2]) == true;
 test bool listCount1(list[int] L){
    int cnt(list[int] L){
     int count = 0;
-    while ([int N, *int Ns] := L) { 
+    while ([int _, *int _] := L) { 
            count = count + 1;
            L = tail(L);
     }
@@ -759,7 +754,7 @@ test bool listCount1(list[int] L){
 test bool listCount2(list[int] L){
   int cnt(list[int] L){
     int count = 0;
-    while ([int N, *int _] := L) {
+    while ([int _, *int _] := L) {
            count = count + 1;
            L = tail(L);
     }
@@ -787,7 +782,7 @@ public bool hasOrderedElement(list[int] L)
 {
      switch(L){
      
-     case [*int L1, int I, *int L2, int J, *int L3]: {
+     case [*int _, int I, *int _, int J, *int _]: {
           if(I > J){
           	return true;
           } else {
@@ -803,7 +798,7 @@ public bool hasDuplicateElement(list[int] L)
 {
   	switch(L){
   	
-  	case [*int L1, int I, *int L2, int J, *int L3]:
+  	case [*int _, int I, *int _, int J, *int _]:
   		if(I == J){
   			return true;
   		} else {
@@ -873,6 +868,6 @@ public bool isTrio3(list[int] L)
 }
 
 test bool matchTypedListVarBecomes1() = list[int] L1 : [int N, *int L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;
-test bool matchTypedListVarBecomes2() = [1, list[int] L: [int N], 2] := [1,[2],2] && L == [2];
+test bool matchTypedListVarBecomes2() = [1, list[int] L: [int _], 2] := [1,[2],2] && L == [2];
 test bool matchTypedListVarBecomes3() = [1, list[int] L1: [*int L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2 == [2,3] && N == 4;
 test bool matchTypedListVarBecomes4() = [1, list[int] L1: [*int L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2 == [2,3] && N == 4;
