@@ -19,15 +19,13 @@ module lang::rascal::mutation::ModuleMutator
 
 import lang::rascal::\syntax::Rascal;
 import List;
-import util::Math;
 import ParseTree;
 import IO;
-import String;
 
 list[str] mutate(loc input, int mutations = 5, real chance = 0.1, str folder="mutants", str prefix="") {
   m = parse(#start[Module], input).top;
   list[str] modList = [];
-  str muModName;
+  str muModName = "???";
   for (new <- mutate(m, mutations=mutations, chance=chance, prefix=prefix, parentMod=folder)) {
     muModName = "<getModuleName(new)>.rsc";
     writeFile(input.parent + folder + muModName, "<new>");
@@ -86,9 +84,9 @@ list[Module] mutationOp(int opId, Module input) {
   
   list[Module] lMMod = [];
   
-  Module m;
+  Module m = input;
   bool runOp = false;
-  int curMuOperPoint;
+  int curMuOperPoint = 0;
   int curMuOper = 1;
   
   while (!runOp) {
@@ -135,7 +133,7 @@ list[Module] mutationOp(int opId, Module input) {
   return lMMod;
 }
   
-list[Module] make(Module input, int opId, real chance = 0.1, str prefix="", str parentMod="") {
+list[Module] make(Module input, int opId, str prefix="", str parentMod="") {
   list[Module] lMMod = [];
   
   if (opId > muOpers[-1]) throw "make: Invalid mutation operator!";
