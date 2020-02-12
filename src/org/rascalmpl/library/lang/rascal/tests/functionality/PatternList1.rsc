@@ -43,7 +43,7 @@ test bool matchList13() = !(([int N, 2, N] := [1,2,3]));
 test bool matchList14() = !([int N, 2, N] := [1,2,"a"]);
   		
 test bool matchList15() {int N = 1; return ([N, 2, int M] := [1,2,3]) && (N == 1) && (M==3);}
-test bool matchList16() {int N = 1; return !([_, 2, int _] := [4,2,3]);}
+test bool matchList16() {int N = 1; return !([N, 2, int _] := [4,2,3]);}
   		
 test bool matchList17() {list[int] L = [3]; return [1,2,*L] := [1,2,3];}
 test bool matchList18() {list[int] L = [2, 3]; return [1, *L] := [1,2,3];}

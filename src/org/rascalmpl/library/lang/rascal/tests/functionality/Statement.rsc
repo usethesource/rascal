@@ -317,8 +317,8 @@ test bool testSwitch1f() {int n = 0; switch(8){ default: n = 10;} return n == 10
  	int n = 0;
  	switch(v){
 		case "abc": 							n = 1;
-		case e(/<_:^[A-Za-z0-9\-\_]+$>/, 2): 	n = 2;
-		case e(/<_:^[A-Za-z0-9\-\_]+$>/, 3): 	n = 3;
+		case e(/<s:^[A-Za-z0-9\-\_]+$>/, 2): 	n = 2;
+		case e(/<s:^[A-Za-z0-9\-\_]+$>/, 3): 	n = 3;
 		case 4: 								n = 4;
 		case e(): 								n = 5;
 		case e(int _): 							n = 6;
