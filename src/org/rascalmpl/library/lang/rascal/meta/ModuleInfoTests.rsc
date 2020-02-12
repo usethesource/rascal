@@ -1,7 +1,6 @@
 @bootstrapParser
 module lang::rascal::meta::ModuleInfoTests
 
-import ParseTree;
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascal::meta::ModuleInfo;
