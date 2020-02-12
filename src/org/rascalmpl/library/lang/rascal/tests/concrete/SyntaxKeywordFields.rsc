@@ -1,6 +1,5 @@
 module lang::rascal::tests::concrete::SyntaxKeywordFields
 
-import IO;
 import Node;
 import ParseTree;
 
