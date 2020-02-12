@@ -1,20 +1,16 @@
+@license{
+     Copyright (c) 2009-2015 CWI
+     All rights reserved. This program and the accompanying materials
+     are made available under the terms of the Eclipse Public License v1.0
+     which accompanies this distribution, and is available at
+     http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::functionality::DataType
-   /*******************************************************************************
-     * Copyright (c) 2009-2015 CWI
-     * All rights reserved. This program and the accompanying materials
-     * are made available under the terms of the Eclipse Public License v1.0
-     * which accompanies this distribution, and is available at
-     * http://www.eclipse.org/legal/epl-v10.html
-     *
-     * Contributors:
-    
-     *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
-     *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
-     *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-     *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-     *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-    *******************************************************************************/
-    
 import Exception;
 
 // bool
@@ -541,11 +537,11 @@ test bool testListSplicing3() = [1,*2,3] == [1,2,3];
 test bool testListSplicing4() = [1,2,*3] == [1,2,3];
 test bool testListSplicing5() = [*1,*2,3] == [1,2,3];
     		
-test bool testListSplicing6() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [L1] == [[1,2]];}
-test bool testListSplicing7() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [*L1] == [1,2];}
+test bool testListSplicing6() {list[int] L1 = [1,2]; return [L1] == [[1,2]];}
+test bool testListSplicing7() {list[int] L1 = [1,2]; return [*L1] == [1,2];}
     		
-test bool testListSplicing8() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [L1,3] == [[1,2],3];}
-test bool testListSplicing9() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [*L1,3] == [1,2,3];}
+test bool testListSplicing8() {list[int] L1 = [1,2]; return [L1,3] == [[1,2],3];}
+test bool testListSplicing9() {list[int] L1 = [1,2]; return [*L1,3] == [1,2,3];}
     		
 test bool testListSplicing10() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [L1,L2] == [[1,2],[3,4]];}
 test bool testListSplicing11() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [*L1,L2] == [1,2,[3,4]];}
@@ -557,11 +553,11 @@ test bool testListSplicing15() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; retu
 test bool testListSplicing16() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [L1,*L2,5] == [[1,2],3,4,5];}
 test bool testListSplicing17() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [*L1,*L2,5] == [1,2,3,4,5];}
     		
-test bool testListSplicing18() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [[L1]] == [[[1,2]]];}
-test bool testListSplicing19() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [[*L1]] == [[1,2]];}
+test bool testListSplicing18() {list[int] L1 = [1,2]; return [[L1]] == [[[1,2]]];}
+test bool testListSplicing19() {list[int] L1 = [1,2]; return [[*L1]] == [[1,2]];}
     		
-test bool testListSplicing20() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [[L1],3] == [[[1,2]],3];}
-test bool testListSplicing21() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [[*L1],3] == [[1,2],3];}	
+test bool testListSplicing20() {list[int] L1 = [1,2]; return [[L1],3] == [[[1,2]],3];}
+test bool testListSplicing21() {list[int] L1 = [1,2]; return [[*L1],3] == [[1,2],3];}	
     		
 test bool testListSplicing22() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [[L1],[L2]] == [[[1,2]],[[3,4]]];}
 test bool testListSplicing23() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [[*L1],[L2]] == [[1,2],[[3,4]]];}
@@ -583,8 +579,8 @@ test bool testListSplicing34() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; retu
 test bool testListSplicing35() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [*L1,[L2],5] == [1,2,[[3,4]],5];}
 test bool testListSplicing36() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; return [L1,[*L2],5] == [[1,2],[3,4],5];}
     		
-test bool testListSplicing37() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[list[list[int]]] L3 = [[L1]]; return L3 == [[[1,2]]];}
-test bool testListSplicing38() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [[L1],3]; return L3 == [[[1,2]],3];}
+test bool testListSplicing37() {list[int] L1 = [1,2]; list[list[list[int]]] L3 = [[L1]]; return L3 == [[[1,2]]];}
+test bool testListSplicing38() {list[int] L1 = [1,2]; list[value] L3 = [[L1],3]; return L3 == [[[1,2]],3];}
 test bool testListSplicing39() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[list[list[int]]] L3 = [[L1],[L2]]; return L3 == [[[1,2]],[[3,4]]];}
 test bool testListSplicing40() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [L1,[L2]]; return L3 == [[1,2],[[3,4]]];}
 test bool testListSplicing41() {list[int] L1 = [1,2]; list[int] L2 = [3,4]; list[value] L3 = [L1,[L2],5]; return L3 == [[1,2],[[3,4]],5];}
