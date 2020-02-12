@@ -11,9 +11,7 @@
 module analysis::graphs::LabeledGraph
 
 import analysis::graphs::Graph;
-import Set;
 import Relation;
-import IO;
 
 alias LGraph[&T,&L] = rel[&T from, &L label, &T to];
 
