@@ -122,7 +122,6 @@ private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
         builder(jar) 
    );
 
-@ignoreCompiler{M3 not yet supported}
 public test bool hamcrestJarM3RemainedTheSame()
 	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |testdata:///m3/hamcrest-library-1.3.jar|, getHamcrestM3);
 	
