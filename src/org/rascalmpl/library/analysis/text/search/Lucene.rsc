@@ -12,8 +12,6 @@ as well as the locations of input documents are expressed using any existing ras
 }
 module analysis::text::search::Lucene
 
-import IO;
-
 @synopsis{A Lucene document has a src and an open set of keyword fields which are also indexed}
 @description{
 A lucene document has a `src` origin and an open set of keyword fields. 
