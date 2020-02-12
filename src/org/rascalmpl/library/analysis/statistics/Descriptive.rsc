@@ -36,7 +36,6 @@ percentile(D,75);
 }
 module analysis::statistics::Descriptive
 
-import IO;
 import Exception;
 import util::Math;
 

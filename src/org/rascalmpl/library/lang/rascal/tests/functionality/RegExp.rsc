@@ -26,7 +26,7 @@ test bool match13() = (/<x:[a-z]+>-<x>-<x>/ := "abc-abc-abc") && (x == "abc");
 test bool match14() = /<x:[a-z]+>-<x>/ !:= "abc-def";
 
 test bool match15() = /\// := "/";
-test bool match16() = /<x:\/>/ := "/";
+test bool match16() = /<_:\/>/ := "/";
 test bool match17() = /<x:\/>/ := "/" && x == "/";
 
 /* NOTE: we no longer allow local shadowing of variables
@@ -104,17 +104,17 @@ test bool interpolateIndPatternDecl9(){ int n = 3; return (/<x:a{<n>}>/ := "aaa"
 test bool interpolateIndPatternDecl10(){ str a = "a"; int n = 3; return (/<x:<a>{<n>}>/ := "aaa" && x == "aaa");}
 test bool interpolateIndPatternDecl11(){ str a = "abc"; int n = 3; return (/<x:(<a>){<n>}>/ := "abcabcabc" && x == "abcabcabc");}
 	
-test bool interpolateIndPatternDecl12(){ int n = 3;  return (/<x:\\>/ := "\\" && x == "\\");}
-test bool interpolateIndPatternDecl13(){ int n = 3;  return (/<x:\>>/ := "\>" && x == "\>");}
+test bool interpolateIndPatternDecl12(){ return (/<x:\\>/ := "\\" && x == "\\");}
+test bool interpolateIndPatternDecl13(){ return (/<x:\>>/ := "\>" && x == "\>");}
 
-test bool interpolateIndPatternDecl14(){ int n = 3;  return (/<x:\<>/ := "\<" && x == "\<");}
-test bool interpolateIndPatternDecl15(){ int n = 3;  return (/<x:\< <n>>/ := "\< 3" && x == "\< 3");}
-test bool interpolateIndPatternDecl16(){ int n = 3;  return (/<x:\< <n>\>>/ := "\< 3\>" && x == "\< 3\>");}
+test bool interpolateIndPatternDecl14(){ return (/<x:\<>/ := "\<" && x == "\<");}
+test bool interpolateIndPatternDecl15(){ return (/<x:\< <n>>/ := "\< 3" && x == "\< 3");}
+test bool interpolateIndPatternDecl16(){ return (/<x:\< <n>\>>/ := "\< 3\>" && x == "\< 3\>");}
 	
 //	multipleMatches
 
 test bool multipleMatches1() = [<x, y> | /<x:[a-z]+?><y:[a-z]+?>/ := "abcd"] == [<"a", "b">, <"c", "d">];
-test bool multipleMatches2() { int n = 3;  return [y | /<x:abc><y:.{<n>}>/ := "abc111abc222abc333"] == ["111", "222", "333"];}
+test bool multipleMatches2() { return [y | /<x:abc><y:.{<n>}>/ := "abc111abc222abc333"] == ["111", "222", "333"];}
 test bool multipleMatches3() = [s | /<s:.>/ := "abcdef"] ==  ["a","b","c","d","e","f"];
 	
 /*TODO: add interpreter tests here*/	
@@ -162,7 +162,7 @@ test bool modifiers4() = /ab.*c/si := "AB\\nc";
 test bool wordCount1(){
 	int cnt(str S){
 		int count = 0;
-		while (/^\W*<word:\w+><rest:.*$>/ := S) {
+		while (/^\W*<_:\w+><rest:.*$>/ := S) {
 			count = count + 1;
 			S = rest;
 		}
@@ -174,7 +174,7 @@ test bool wordCount1(){
 test bool wordCount2(){
 	int cnt(str S){
 		int count = 0;
-		while (/^\W*<word:\w+><rest:.*$>/ := S) {
+		while (/^\W*<_:\w+><rest:.*$>/ := S) {
 			count = count + 1;
 			S = rest;
 		}
