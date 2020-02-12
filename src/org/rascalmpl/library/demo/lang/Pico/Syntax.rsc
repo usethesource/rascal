@@ -1,6 +1,8 @@
 // tag::module[]
 module demo::lang::Pico::Syntax
 
+import ParseTree;
+
 lexical Id  = [a-z][a-z0-9]* !>> [a-z0-9];
 lexical Natural = [0-9]+ ;
 lexical String = "\"" ![\"]*  "\"";

@@ -9,7 +9,6 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module demo::Slicing
 
-import Set;
 import Relation;
 import demo::ReachingDefs;
 import demo::Dominators;
