@@ -17,7 +17,6 @@ import analysis::graphs::Graph;
 import List;
 import Set;
 import Relation;
-import IO;
 
 /*
               1 -----> 3
