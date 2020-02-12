@@ -85,12 +85,10 @@ void collect(current: (TypeArg) `<Type tp>`, Collector c){
 void collect(current: (TypeArg) `<Type tp> <Name name>`, Collector c){
     collect(tp, c);
     try {
-        resolvedType = c.getType(tp);
-        c.fact(name, resolvedType);
+        c.fact(name, c.getType(tp)[label=unescape("<name>")]);
     } catch TypeUnavailable(): {
         c.calculate("TypeArg <name>", name, [tp], AType(Solver s){
-           res = (s.getType(tp)[label=unescape("<name>")]);
-           return res;
+           return (s.getType(tp)[label=unescape("<name>")]);
          });
     }
     c.fact(current, name);
@@ -322,42 +320,69 @@ void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
 
 AType(Solver _) makeGetTypeArg(TypeArg targ)
     = AType(Solver s) { return s.getType(targ.\type)[label="<targ.name>"]; };
+    
+tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}+ tas, AType returnType, list[AType] argTypes){  
+    return <[], afunc(returnType, argTypes, [])>;
+    //if (size(argTypes) == 0) {
+    //    return <[], afunc(returnType, [], [])>;
+    //} else {
+    //    labelsList = [tp.label | tp <- argTypes];
+    //    nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
+    //    distinctLabels = toSet(nonEmptyLabels);
+    //    if(size(distinctLabels) == 0)
+    //        return <[], afunc(returnType, argTypes, [])>;
+    //    if (size(argTypes) == size(distinctLabels)) {
+    //        return <[], afunc(returnType, argTypes, [])>;
+    //    } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
+    //        return <[error(current, "Non-well-formed type, labels must be distinct")], avoid()>;
+    //    } else if (size(argTypes) > 0) {
+    //        return <[warning(current, "Field name ignored, field names must be provided for all fields or for none")], avoid()>;
+    //    }
+    //}
+    //return returnType;
+}
 
 @doc{Convert Rascal function types into their abstract representation.}
 void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collector c) {
     targs = [ta | ta <- tas];
     
+    resolvedArgTypes = [];
     for(targ <- targs){
-        if(targ has name){
-            c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
-            c.fact(targ, targ.name);
-        }
         collect(targ.\type, c);
+        try {
+            argType = c.getType(targ.\type);
+            if(targ has name) {
+                labelledArgType = argType[label="<targ.name>"];
+                resolvedArgTypes += labelledArgType;
+                c.define("<targ.name>", formalId(), targ.name, defType(labelledArgType));
+                c.fact(targ, argType);
+            } else {
+                resolvedArgTypes += argType;
+            }
+        } catch TypeUnAvailable(): {
+            if(targ has name) {
+                c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
+                c.fact(targ, targ.name);
+             }
+        }
+    }
+    collect(t, c);
+    if(size(targs) == size(resolvedArgTypes)){
+        try {
+            <msgs, result> = handleFunctionType(tas, c.getType(t), resolvedArgTypes);
+            for(m <- msgs) c.report(m);
+            c.fact(current, result);
+            return;
+        } catch TypeUnAvailable(): /* fall through when a type is not available */;
     }
     
     c.calculate("function type", current, t + targs,
         AType(Solver s){
-            l =  l = [s.getType(ta) | ta <- targs];
-            funType = s.getType(t);
-            if (size(l) == 0) {
-                return afunc(funType, [], []);
-            } else {
-                labelsList = [tp.label | tp <- l];;
-                nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
-                distinctLabels = toSet(nonEmptyLabels);
-                if(size(distinctLabels) == 0)
-                    return afunc(funType, l, []);
-                if (size(l) == size(distinctLabels)) {
-                    return afunc(funType, l, []);
-                } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
-                    s.report(error(current, "Non-well-formed type, labels must be distinct"));
-                } else if (size(l) > 0) {
-                    s.report(warning(current, "Field name ignored, field names must be provided for all fields or for none"));
-                }
-            }
-            return funType;
-        }); 
-    collect(t, c);
+            <msgs, result> = handleFunctionType(tas, s.getType(t), [s.getType(ta) | ta <- targs]);
+            for(m <- msgs) c.report(m);
+            c.fact(current, result);
+            return;
+        });
 }
 
 // ---- user defined type -----------------------------------------------------
