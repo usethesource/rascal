@@ -335,7 +335,7 @@ test bool test7() = getProductions((SDF) `definition module A exports context-fr
 test bool test9() = getProductions((SDF) `definition module A exports priorities A -\> B \> C -\> D`) ==
      {prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{})};
 
-test bool test9() = getProductions((SDF) `definition module A exports priorities B "*" B -\> B \> B "+" B -\> B`) ==
+test bool test9_2() = getProductions((SDF) `definition module A exports priorities B "*" B -\> B \> B "+" B -\> B`) ==
      {priority(sort("B"),[prod(sort("B"),[sort("B"),lit("*"),sort("B")],{}),prod(sort("B"),[sort("B"),lit("+"),sort("B")],{})])};
 
 

@@ -3,7 +3,6 @@ module lang::sdf2::filters::DirectThenCountPreferAvoid
 import ParseTree;
 import Set;
 import List;
-import IO;
 
 @doc{
 Import his module if you want prefer/avoid filtering with counting enabled for your grammar. Use @prefer and @avoid to
