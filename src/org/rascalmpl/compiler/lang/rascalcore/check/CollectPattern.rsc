@@ -69,9 +69,9 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
             
 void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
-    c.enterScope(current);
+    //c.enterScope(current);
         collect(tp, c);
-    c.leaveScope(current);
+    //c.leaveScope(current);
     
     try {
         tpResolved = c.getType(tp)[label=uname];
@@ -349,8 +349,8 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
 // ---- descendant pattern
 
 void collect(current: (Pattern) `/ <Pattern pattern>`, Collector c){
-    c.fact(current, avoid());
     collect(pattern, c);
+    c.fact(current, avalue());
 }
 
 // ---- negative 
