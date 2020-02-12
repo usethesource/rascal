@@ -5,7 +5,6 @@ import demo::lang::MissGrant::MissGrant;
 import demo::lang::MissGrant::AST;
 
 import ParseTree;
-import Node;
 
 public demo::lang::MissGrant::AST::Controller implode(demo::lang::MissGrant::MissGrant::Controller pt) =
   implode(#demo::lang::MissGrant::AST::Controller, pt);
