@@ -1,9 +1,8 @@
 @bootstrapParser
 module lang::rascal::tests::concrete::Syntax4
 
-import ParseTree;
-import IO;
 import lang::rascal::\syntax::Rascal;
+import List;
 
 test bool lexicalMatch1() = (Name) `a` := [Name] "a";
 test bool lexicalMatch2() = (Name) `ab` := [Name] "ab";
