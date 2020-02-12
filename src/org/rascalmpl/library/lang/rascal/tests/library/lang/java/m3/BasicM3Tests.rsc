@@ -1,6 +1,7 @@
 @ignoreCompiler{Test fail; Waiting for Eclipse integration}
 module lang::rascal::tests::library::lang::java::m3::BasicM3Tests
 
+import util::Reflective;
 import List;
 import Message;
 import IO;
@@ -8,6 +9,7 @@ import util::FileSystem;
 import Exception;
 import ValueIO;
 import Node;
+import String;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 
@@ -22,6 +24,13 @@ public loc unpackExampleProject(str name, loc projectZip) {
     }
     throw IO("Could not copy contents of <projectZip> to <targetRoot>");
 }
+
+private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
+    = compareM3s(
+        readBinaryValueFile(#M3, reference),
+        builder(jar)
+   );
+
 
 private list[loc] junitClassPath(loc root)
     = [
@@ -107,6 +116,12 @@ private M3 buildM3FromJar(loc jar)
 public M3 getHamcrestM3(loc root) 
     = buildM3FromJar(root);
     
+private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
+    = compareM3s(
+        readBinaryValueFile(#M3, reference),
+        builder(jar) 
+   );
+
 @ignoreCompiler{M3 not yet supported}
 public test bool hamcrestJarM3RemainedTheSame()
 	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |testdata:///m3/hamcrest-library-1.3.jar|, getHamcrestM3);
