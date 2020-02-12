@@ -163,7 +163,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
        } else {
           if(c.isAlreadyDefined("<name>", name)) {
             c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
-            c.report(warning(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
+            c.report(info(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
           } else {
             tau = c.newTypeVar(name);
             c.fact(name, tau);     //<====
@@ -241,7 +241,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
            } else {
               if(c.isAlreadyDefined("<argName>", argName)) {
                   c.use(argName, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
-                  c.report(warning(argName, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", argName));
+                  c.report(info(argName, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", argName));
               } else {
                   tau = c.newTypeVar(current); // <== argName;
                   c.fact(current, tau);    // <===
