@@ -30,8 +30,8 @@ test bool allConstructorsAreDefined()
 test bool allConstructorsForAnAlternativeDefineTheSameSort() 
   = !(/choice(def, /cons(label(_,def),_,_,_)) !:= #P.definitions);
   
-test bool typeParameterReificationIsStatic1(&F f) = #&F.symbol == \parameter("F",\value());
-test bool typeParameterReificationIsStatic2(list[&F] f) = #list[&F].symbol == \list(\parameter("F",\value()));
+test bool typeParameterReificationIsStatic1(&F _) = #&F.symbol == \parameter("F",\value());
+test bool typeParameterReificationIsStatic2(list[&F] _) = #list[&F].symbol == \list(\parameter("F",\value()));
 
 @ignore{issue #1007}
 test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \parameter("T", \list(\parameter("F",\value())));
