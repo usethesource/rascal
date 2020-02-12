@@ -10,12 +10,10 @@ import lang::rascal::grammar::definition::Modules;
 import lang::rascal::grammar::definition::Parameters;
 
 import IO;
-import ValueIO;  
 import Grammar;
 import util::Monitor;
 
 private str package = "org.rascalmpl.library.lang.rascal.syntax";
-private str grammarName = "Rascal";
 private str rootName = "RascalParser";
 
 public Grammar getRascalGrammar(loc grammarFile) {
