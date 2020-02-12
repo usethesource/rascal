@@ -359,7 +359,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
             } else {
                 resolvedArgTypes += argType;
             }
-        } catch TypeUnAvailable(): {
+        } catch TypeUnavailable(): {
             if(targ has name) {
                 c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
                 c.fact(targ, targ.name);
@@ -373,15 +373,15 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
             for(m <- msgs) c.report(m);
             c.fact(current, result);
             return;
-        } catch TypeUnAvailable(): /* fall through when a type is not available */;
+        } catch TypeUnavailable(): /* fall through when a type is not available */;
     }
     
     c.calculate("function type", current, t + targs,
         AType(Solver s){
             <msgs, result> = handleFunctionType(tas, s.getType(t), [s.getType(ta) | ta <- targs]);
-            for(m <- msgs) c.report(m);
-            c.fact(current, result);
-            return;
+            for(m <- msgs) s.report(m);
+            s.fact(current, result);
+            return result;
         });
 }
 
@@ -416,7 +416,7 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
     
     try {
         <msgs, result> = handleUserType(n,  c.getType(n));
-        for(m <- msgs) s.report(m);
+        for(m <- msgs) c.report(m);
         c.fact(curent, result);
     } catch TypeUnavailable(): 
     
