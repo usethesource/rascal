@@ -12,8 +12,6 @@ AST model for YAML (loosely based on the serialization model of http://www.yaml.
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl (CWI)}
 module lang::yaml::Model
 
-import Type;
-import IO;
 import List;
 import Map;
 import Set;
@@ -97,7 +95,7 @@ public set[Node] wronglyTypedScalars(Node n)
   = { s | /s:scalar(value v) <- n, s@\tag?, type[&T] t := s@\tag, !okValue(t, v) };
 
 // Doesn't work: always succeeds.
-public bool okValue(type[&T <: value] t, value v) = (&T _ := v);
+public bool okValue(type[&T <: value] _, value v) = (&T _ := v);
 
 public set[type[value]] unsupportedTypes(Node n) 
   = { t | /s:scalar(_) <- n, s@\tag?, type[value] t := s@\tag, t notin SUPPORTED_TYPES };
@@ -175,7 +173,7 @@ bool equalNodes(Node x, Node y) {
    
    bool equalNodesRec(Node x, Node y) {
      switch (<x, y>) {
-       case <s1:sequence(ls1), s2:sequence(ls2)>: {
+       case <sequence(ls1), sequence(ls2)>: {
          if (size(ls1) != size(ls2)) {
            return false;
          }
@@ -196,7 +194,7 @@ bool equalNodes(Node x, Node y) {
 	         
 	       }
 	     
-	       case <mp1:mapping(m1), mp2:mapping(m2)>: {
+	       case <mapping(m1), mapping(m2)>: {
 	         ls1 = sort(domain(m1));
 	         ls2 = sort(domain(m2));
 	         domEq = ( true | it && equalNodesRec(e1, e2) | <e1, e2> <- zip(ls1, ls2) );
