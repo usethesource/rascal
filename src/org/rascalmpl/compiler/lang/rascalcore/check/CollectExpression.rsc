@@ -447,16 +447,22 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
     
     c.enterScope(current);
     beginPatternScope("list-comprehension", c);
+        collectGenerators(res, gens, c);
+        try {
+            c.fact(current, makeListType(lubList([ c.getType(r) | r <- res])));
+        } catch TypeUnavailable(): {
+            c.calculate("list comprehension results", current, res,
+                AType(Solver s){
+                    return makeListType(lubList([ s.getType(r) | r <- res]));
+                });
+          }
         c.require("list comprehension", current, gens,
             void (Solver s) { 
                 for(g <- gens) if(!isBoolType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
                 for(r <- results) checkNonVoidOrSplice(r, s, "Contribution to list comprehension");
             });
-        c.calculate("list comprehension results", current, res,
-            AType(Solver s){
-                return makeListType(lubList([ s.getType(r) | r <- res]));
-            });
-        collectGenerators(res, gens, c);
+        
+        
     endPatternScope(c);
     c.leaveScope(current);
 }

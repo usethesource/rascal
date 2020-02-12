@@ -40,14 +40,6 @@ void collect(current: (Type) `( <Type tp> )`, Collector c){
 
 @doc{Convert from the concrete to the abstract representations of Rascal basic types.}
 
-AType collectConstantType(Type t, Collector c){
-    if(t is basic){
-        iprintln(t.basic);
-        return collectConstantType(t.basic, c);
-    }
-    throw nonConstantType(t);
-}
-
 // ---- bool
 void collect(current: (BasicType)`bool`, Collector c){ c.fact(current, abool()); }
 
@@ -91,12 +83,17 @@ void collect(current: (TypeArg) `<Type tp>`, Collector c){
 }
 
 void collect(current: (TypeArg) `<Type tp> <Name name>`, Collector c){
-    c.calculate("TypeArg <name>", name, [tp], AType(Solver s){
-       res = (s.getType(tp)[label=unescape("<name>")]);
-       return res;
-     });
-    c.fact(current, name);
     collect(tp, c);
+    try {
+        resolvedType = c.getType(tp);
+        c.fact(name, resolvedType);
+    } catch TypeUnavailable(): {
+        c.calculate("TypeArg <name>", name, [tp], AType(Solver s){
+           res = (s.getType(tp)[label=unescape("<name>")]);
+           return res;
+         });
+    }
+    c.fact(current, name);
 }
 // ---- structured types ------------------------------------------------------
 
@@ -117,13 +114,11 @@ void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     collect(tas, c);
     if(size(targs) == 1){
-            try {
-                c.fact(current, makeListType(c.getType(targs[0])));
-                return;
-            } catch TypeUnavailable():{
-                c.calculate("list type", current, targs, AType(Solver s){ 
-                    return makeListType(s.getType(targs[0])); });
-            }
+        try {
+            c.fact(current, makeListType(c.getType(targs[0])));
+        } catch TypeUnavailable():{
+            c.calculate("list type", current, targs, AType(Solver s){ return makeListType(s.getType(targs[0])); });
+        }
     } else {
         c.report(error(current, "Type `list` should have one type argument"));
     }
@@ -132,157 +127,200 @@ void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- set
 void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
+    collect(tas, c);
     if(size(targs) == 1){
-        c.calculate("set type", current, targs, AType(Solver s){ return makeSetType(s.getType(targs[0])); });
+        try {
+            c.fact(current, makeSetType(c.getType(targs[0])));
+        } catch TypeUnavailable():{
+            c.calculate("set type", current, targs, AType(Solver s){ return makeSetType(s.getType(targs[0])); });
+        }
     } else {
         c.report(error(current, "Type `set` should have one type argument"));
     }
-    collect(tas, c);
-}
-
-AType collectConstantType(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
-    targs = [ta | ta <- tas];
-    if(size(targs) == 1){
-        setType = makeSetType(collectConstantType(targs[0]));
-        c.fact(current, setType);
-        return setType;
-    }
-    throw nonConstantType(current);
 }
 
 // ---- bag TODO
 
 void collect(current:(Type)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
+    collect(tas, c); 
     if(size(targs) == 1){
-        c.calculate("bag type", current, targs, AType(Solver s){ return makeBagType(s.getType(targs[0])); });
+        try {
+            c.fact(current, makeBagType(c.getType(targs[0])));
+       } catch TypeUnavailable(): {
+            c.calculate("bag type", current, targs, AType(Solver s){ return makeBagType(s.getType(targs[0])); });
+        }
     } else {
         c.report(error(current, "Type `bag` should have one type argument"));
     }
 }
 
+tuple[list[FailMessage] msgs, AType atype] handleMapFields({TypeArg ","}+ tas, AType dt, AType rt){
+    if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label != rt.label) { 
+        return <[], makeMapType(dt, rt)>;
+    } else if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label == rt.label) {
+        return <[error(tas,"Non-well-formed map type, labels must be distinct")], makeMapType(unset(dt, "label"),unset(rt,"label"))>;
+    } else if (!isEmpty(dt.label) && isEmpty(rt.label)) {
+        return <[warning(tas, "Field name `<dt.label>` ignored, field names must be provided for both fields or for none")], makeMapType(unset(dt, "label"),rt)>;
+    } else if (isEmpty(dt.label) && !isEmpty(rt.label)) {
+        return <[warning(tas, "Field name `<rt.label>` ignored, field names must be provided for both fields or for none")], makeMapType(dt, unset(rt, "label"))>;
+    } else {
+        return <[], makeMapType(dt,rt)>;
+    }
+}
+
 void collect(current:(Type)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
+    collect(tas, c);
     if(size(targs) == 2){
-        c.calculate("map type", current, targs, 
-            AType(Solver s){
-                dt = s.getType(targs[0]); rt = s.getType(targs[1]);
-                if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label != rt.label) { 
-                    return makeMapType(dt, rt);
-                } else if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label == rt.label) {
-                    s.report(error(tas,"Non-well-formed map type, labels must be distinct"));
-                    return makeMapType(unset(dt, "label"),unset(rt,"label"));
-                } else if (!isEmpty(dt.label) && isEmpty(rt.label)) {
-                    s.report(warning(tas, "Field name `<dt.label>` ignored, field names must be provided for both fields or for none"));
-                    return makeMapType(unset(dt, "label"),rt);
-                } else if (isEmpty(dt.label) && !isEmpty(rt.label)) {
-                    s.report(warning(tas, "Field name `<rt.label>` ignored, field names must be provided for both fields or for none"));
-                    return makeMapType(dt, unset(rt, "label"));
-                } else {
-                    return makeMapType(dt,rt);
-                }
-        });
+        try {
+            <msgs, result> = handleMapFields(tas, c.getType(targs[0]), c.getType(targs[1]));
+            for(m <- msgs) c.report(m);
+            c.fact(current, result);
+        } catch TypeUnavailable(): {
+            c.calculate("map type", current, targs, 
+                AType(Solver s){
+                    <msgs, result> = handleMapFields(tas, s.getType(targs[0]), s.getType(targs[1]));
+                    for(m <- msgs) s.report(m);
+                    return result;                    
+            });
+        }
     } else {
         c.report(error(current, "Type `map` should have two type arguments"));
     }
-    collect(tas, c);
+}
+
+tuple[list[FailMessage] msgs, AType atype] handleRelFields({TypeArg ","}+ tas, list[AType] fieldTypes){
+    labelsList = [tp.label | tp <- fieldTypes];
+    nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
+    distinctLabels = toSet(nonEmptyLabels);
+    if (size(fieldTypes) == size(distinctLabels)){
+        return <[], makeRelType(fieldTypes)>;
+    } else if(size(distinctLabels) == 0) {
+        return <[], makeRelType(fieldTypes)>;
+    } else if (size(distinctLabels) != size(nonEmptyLabels)) {
+        return <[error(tas, "Non-well-formed relation type, labels must be distinct")], makeRelType([unset(tp, "label") | tp <- fieldTypes])>;
+    } else if (size(distinctLabels) > 0) {
+        return <[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeRelType([unset(tp, "label") | tp <- fieldTypes])>;
+    }
+    return <[], avoid()>;
 }
 
 void collect(current:(Type)`rel [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    c.calculate("rel type", current, targs, 
-        AType(Solver s){
-            l = [s.getType(ta) | ta <- targs];
-            labelsList = [tp.label | tp <- l];
-            nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
-            distinctLabels = toSet(nonEmptyLabels);
-            if (size(l) == size(distinctLabels)){
-                return makeRelType(l);
-            } else if(size(distinctLabels) == 0) {
-                return makeRelType(l);
-            } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-                s.report(error(tas, "Non-well-formed relation type, labels must be distinct"));
-                return makeRelType([unset(tp, "label") | tp <- l]);
-            } else if (size(distinctLabels) > 0) {
-                s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
-                return makeRelType([unset(tp, "label") | tp <- l]);
-            }
-            return avoid();
-        });
     collect(tas, c);
+    try {
+        <msgs, result> = handleRelFields(tas,  [c.getType(ta) | ta <- targs]);
+        for(m <- msgs) c.report(m);
+        c.fact(current, result);
+    } catch TypeUnavailable(): {
+        c.calculate("rel type", current, targs, 
+            AType(Solver s){
+                 <msgs, result> = handleRelFields(tas,  [s.getType(ta) | ta <- targs]);
+                 for(m <- msgs) s.report(m);
+                 return result;
+            });
+    }
+}
+
+tuple[list[FailMessage] msgs, AType atype] handleListRelFields({TypeArg ","}+ tas, list[AType] fieldTypes){
+    labelsList = [tp.label | tp <- fieldTypes];
+    nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
+    distinctLabels = toSet(nonEmptyLabels);
+    if (size(fieldTypes) == size(distinctLabels)){
+        return <[], makeListRelType(fieldTypes)>;
+    } else if(size(distinctLabels) == 0) {
+        return <[], makeListRelType(fieldTypes)>;
+    } else if (size(distinctLabels) != size(nonEmptyLabels)) {
+        return <[error(tas, "Non-well-formed list relation type, labels must be distinct")], makeListRelType([unset(tp, "label") | tp <- fieldTypes])>;
+    } else if (size(distinctLabels) > 0) {
+        return <[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeListRelType([unset(tp, "label") | tp <- fieldTypes])>;
+    }
+    return <[], avoid()>;
 }
 
 void collect(current:(Type)`lrel [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    c.calculate("lrel type", current, targs, 
-        AType(Solver s){
-            l = [s.getType(ta) | ta <- targs];
-            labelsList = [tp.label | tp <- l];
-            nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
-            distinctLabels = toSet(nonEmptyLabels);
-            if (size(l) == size(distinctLabels)){
-                return makeListRelType(l);
-            } else if(size(distinctLabels) == 0) {
-                return makeListRelType(l);
-            } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-                s.report(error(tas, "Non-well-formed list relation type, labels must be distinct"));
-                return makeListRelType([unset(tp, "label") | tp <- l]);
-            } else if (size(distinctLabels) > 0) {
-                s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
-                return makeListRelType([unset(tp, "label") | tp <- l]);
-            }
-            return avoid();
-        });
     collect(tas, c);
+    try {
+        <msgs, result> = handleListRelFields(tas,  [c.getType(ta) | ta <- targs]);
+        for(m <- msgs) c.report(m);
+        c.fact(current, result);
+    } catch TypeUnavailable(): {
+        c.calculate("lrel type", current, targs, 
+            AType(Solver s){
+                 <msgs, result> = handleListRelFields(tas,  [s.getType(ta) | ta <- targs]);
+                 for(m <- msgs) s.report(m);
+                 return result;
+            });
+    }
+}
+
+tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas, list[AType] fieldTypes){
+    labelsList = [tp.label | tp <- fieldTypes];
+    nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
+    distinctLabels = toSet(nonEmptyLabels);
+    if (size(fieldTypes) == size(distinctLabels)){
+        return <[], makeTupleType(fieldTypes)>;
+    } else if(size(distinctLabels) == 0) {
+        return <[], makeTupleType(fieldTypes)>;
+    } else if (size(distinctLabels) != size(nonEmptyLabels)) {
+        return <[error(tas, "Non-well-formed tuple type, labels must be distinct")], makeTupleType([unset(tp, "label") | tp <- fieldTypes])>;
+    } else if (size(distinctLabels) > 0) {
+        return <[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeTupleType([unset(tp, "label") | tp <- fieldTypes])>;
+    } 
+    return <[], avoid()>; 
 }
 
 void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    c.calculate("tuple type", current, targs, 
-        AType(Solver s){
-            l = [s.getType(ta) | ta <- targs];
-            labelsList = [tp.label | tp <- l];
-            nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
-            distinctLabels = toSet(nonEmptyLabels);
-            if (size(l) == size(distinctLabels)){
-                return makeTupleType(l);
-            } else if(size(distinctLabels) == 0) {
-                return makeTupleType(l);
-            } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-                s.report(error(tas, "Non-well-formed tuple type, labels must be distinct"));
-                return makeTupleType([unset(tp, "label") | tp <- l]);
-            } else if (size(distinctLabels) > 0) {
-                s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
-                return makeTupleType([unset(tp, "label") | tp <- l]);
-            } 
-            return avoid(); 
-        });
-    collect(tas, c);   
+    collect(tas, c);  
+    try {
+        <msgs, result> = handleTupleFields(tas, [c.getType(ta) | ta <- targs]);
+        for(m <- msgs) c.report(m);
+        c.fact(current, result);
+    } catch TypeUnavailable():{
+        c.calculate("tuple type", current, targs, 
+            AType(Solver s){
+                <msgs, result> = handleTupleFields(tas, [s.getType(ta) | ta <- targs]);
+                for(m <- msgs) s.report(m);
+                return result;
+            });
+    }
 } 
+
+tuple[list[FailMessage] msgs, AType atype] handleTypeField({TypeArg ","}+ tas, AType fieldType){  
+    if (!isEmpty(fieldType.label)) {
+        return <[warning(tas, "Field name `<fieldType.label>` ignored")], areified(fieldType)>;
+    } else {
+        return <[], areified(fieldType)>;
+    } 
+}
 
 void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
+    collect(tas, c);
     if(size(targs) == 1){
-        c.calculate("type type", current, targs, 
-            AType(Solver s){
-                l = [s.getType(ta) | ta <- targs];   
-                if (!isEmpty(l[0].label)) {
-                    s.report(warning(tas, "Field name `<l[0].label>` ignored"));
-                    return areified(l[0]);
-                } else {
-                    return areified(l[0]);
-                } 
-             });    
+        try {
+            <msgs, result> = handleTypeField(tas, c.getType(tas[0]));
+            for(m <- msgs) c.report(m);
+            c.fact(current, result);
+        } catch TypeUnavailable(): {
+            c.calculate("type type", current, targs, 
+                AType(Solver s){
+                    <msgs, result> = handleTypeField(tas,  s.getType(tas[0]));
+                    for(m <- msgs) s.report(m);
+                    return result;
+                 });
+        }  
     } else {
         c.report(error(current, "Non-well-formed type, type should have one type argument"));
     }
-    
-    collect(tas, c);
 }      
 
 // ---- function type ---------------------------------------------------------
 
-AType(Solver s) makeGetTypeArg(TypeArg targ)
+AType(Solver _) makeGetTypeArg(TypeArg targ)
     = AType(Solver s) { return s.getType(targ.\type)[label="<targ.name>"]; };
 
 @doc{Convert Rascal function types into their abstract representation.}
@@ -291,7 +329,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
     
     for(targ <- targs){
         if(targ has name){
-            c.define("<targ.name>", formalId()/*variableId()*/, targ.name, defType([targ.\type], makeGetTypeArg(targ)));
+            c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
             c.fact(targ, targ.name);
         }
         collect(targ.\type, c);
@@ -324,6 +362,24 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
 
 // ---- user defined type -----------------------------------------------------
 
+tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType baseType){  
+    if(aadt(adtName, _, sr) := baseType){
+        nformals = size(baseType.parameters);
+        if(nformals > 0) return <[error(n, "Expected %v type parameter(s) for %q, found 0", nformals, adtName)], baseType>;
+        return <[], baseType>;
+    } else if(aalias(aname, _, aliased) := baseType){
+        nformals = size(baseType.parameters);
+        msgs = [];
+        if(nformals > 0) msgs += error(n, "Expected %v type parameter(s) for %q, found 0", nformals, aname);
+        neededTypeParams = collectRascalTypeParams(aliased);
+        if(!isEmpty(neededTypeParams))
+           msgs += error(n, "Type variables in aliased type %t are unbound", aliased);
+        return<msgs, aliased>;
+    } else {
+        return <[], baseType>;
+    }
+}
+
 @doc{Convert Rascal user types into their abstract representation.}
 void collect(current:(UserType) `<QualifiedName n>`, Collector c){
     <qualifier, base> = splitQualifiedName(n);
@@ -333,23 +389,17 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
         c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
     
+    try {
+        <msgs, result> = handleUserType(n,  c.getType(n));
+        for(m <- msgs) s.report(m);
+        c.fact(curent, result);
+    } catch TypeUnavailable(): 
+    
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
-            baseType = s.getType(n);
-            if(aadt(adtName, params, sr) := baseType){
-                nformals = size(baseType.parameters);
-                if(nformals > 0) s.report(error(n, "Expected %v type parameter(s) for %q, found 0", nformals, adtName));
-                return baseType;
-            } else if(aalias(aname, params, aliased) := baseType){
-                nformals = size(baseType.parameters);
-                if(nformals > 0) s.report(error(n, "Expected %v type parameter(s) for %q, found 0", nformals, aname));
-                neededTypeParams = collectRascalTypeParams(aliased);
-                if(!isEmpty(neededTypeParams))
-                    s.report(error(n, "Type variables in aliased type %t are unbound", aliased));
-                return aliased;
-            } else {
-                return baseType;
-            }
+            <msgs, result> = handleUserType(n, s.getType(n));
+            for(m <- msgs) s.report(m);
+            return result;
         });
 }
 
@@ -366,7 +416,7 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
         AType(Solver s){
             nactuals = size(actuals);
             baseType = s.getType(n);
-            if(aadt(adtName, params, sr) := baseType){
+            if(aadt(adtName, params, _) := baseType){
                 nformals = size(baseType.parameters);
                 if(nactuals != nformals) s.report(error(ts, "Expected %v type parameter(s) for %v, found %v", nformals, adtName, nactuals));
                 bindings = (params[i].pname : s.getType(actuals[i]) | i <- index(params));
@@ -379,6 +429,7 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
                 return xxInstantiateRascalTypeParameters(ts, aliased, bindings, s);
             }
             s.report(error(n, "Type %t cannot be parameterized, found %v parameter(s)", n, nactuals));
+            return avoid();
         });
     collect(ts, c);
 }
@@ -600,8 +651,12 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
 }
 
 void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
-    c.calculate("type parameter with bound", current, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp)); }); 
     collect(tp, c);
+    try {
+        c.fact(current,  aparameter(prettyPrintName(n), c.getType(tp)));
+    } catch TypeUnavailable(): {
+        c.calculate("type parameter with bound", current, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp)); });  
+    }
 }
 
 @doc{A parsing function, useful for generating test cases.}
