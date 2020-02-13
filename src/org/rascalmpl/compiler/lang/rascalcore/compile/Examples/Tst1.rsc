@@ -1,11 +1,22 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-layout Whitespace = [\ \t\n]*;
+import Prelude;
 
-start syntax D = "d";
-start syntax DS = D+;
+data Lval // <1>
+     = Integer(int n)   
+     | Atom(str name)
+     | List(list[Lval] elms)
+  //   | Closure(Result(list[Lval] args, Env env))
+     ;
+         
+alias Scope  = map[Lval,Lval]; // <2>
+alias Env    = list[Scope];
 
-test bool DvarsTypedInsert4() = (DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs>` == (DS)`d d`;
+public Env emptyEnv = [()];
+
+Env makeEnv(list[Lval] vars, list[Lval] values, Env outer) = // <3>
+   [(vars[i] : values[i] | i <- index(vars))] + outer;
+
 
 //int f(int n, int(int) g) = g(n);
 
