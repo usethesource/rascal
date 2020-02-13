@@ -40,7 +40,9 @@ void collect(RegExp regExp, Collector c){
 }
 
 void collect(NamedRegExp namedRegExp, Collector c){
-   // don't collect further down
+   if((NamedRegExp)`\<<Name name>\>` := namedRegExp){
+        c.use(name, variableRoles);
+   }
 }
 
 // ---- set pattern
