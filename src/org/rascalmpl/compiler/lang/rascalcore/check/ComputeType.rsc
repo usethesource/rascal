@@ -857,7 +857,7 @@ private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType s
        nameType = subjectType;
        try {
             nameType = s.getType(name);
-       } catch TypeUnAvailable(): ;
+       } catch TypeUnavailable(): ;
        if(!s.isFullyInstantiated(nameType) || !s.isFullyInstantiated(subjectType)){
           s.requireUnify(nameType, subjectType, error(current, "Type of pattern could not be computed"));
           s.fact(name, nameType); // <====
