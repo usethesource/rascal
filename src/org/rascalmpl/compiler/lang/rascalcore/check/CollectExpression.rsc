@@ -199,12 +199,9 @@ void collect(Concrete concrete, Collector c){
 void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector c){
     varType = symbol;
     uname = prettyPrintName(name);
-    //println("patternContainer: <c.getStack(patternContainer)>");
-    if(size(c.getStack(patternContainer)) == 1){    // An expression
-        //println("ConcreteHole exp: <current>");
-        //c.use(name, {variableId()});
-        c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
-        //c.calculate("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
+    if(size(c.getStack(patternContainer)) == 1){    // An expression        
+       c.useLub(name, {formalOrPatternFormal(c)});
+       //c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
     } else {                                        //A pattern
         //println("ConcreteHole pat: <current>");
       
