@@ -358,7 +358,6 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
 
 void collect(current: (Pattern) `/ <Pattern pattern>`, Collector c){
     collect(pattern, c);
-    c.fact(current, avalue());
 }
 
 // ---- negative 
