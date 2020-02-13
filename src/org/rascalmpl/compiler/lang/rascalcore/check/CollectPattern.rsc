@@ -71,16 +71,22 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
             
 void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
-    //c.enterScope(current);
+    c.enterScope(current);
         collect(tp, c);
-    //c.leaveScope(current);
+    c.leaveScope(current);
     
     try {
         tpResolved = c.getType(tp)[label=uname];
         c.fact(current, tpResolved);
         if(uname != "_"){
             c.push(patternNames, <uname, getLoc(name)>);
-            c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
+            if(aadt(adtName,_,SyntaxRole sr) := tpResolved 
+               && (isConcreteSyntaxRole(sr) || adtName == "Tree")
+               && c.isAlreadyDefined("<name>", name)){
+              c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+            } else {
+                c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
+            }
             return;
         }
     } catch TypeUnavailable(): {
@@ -186,7 +192,7 @@ default void collectAsVarArg(Pattern current,  Collector c){
 
 void collect(current: (Pattern) `<QualifiedName name>*`,  Collector c){
     Pattern pat = (Pattern) `<QualifiedName name>`;
-    c.report(warning(current, "Name* is deprecated, use *Name instead"));
+    c.report(warning(current, "<name>* is deprecated, use *<name> instead"));
     collectSplicePattern(current, pat, c);
 }
 
