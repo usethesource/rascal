@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bas Basten - Bas.Basten@cwi.nl - CWI}
 module analysis::grammars::Ambiguity
- 
+
 import ParseTree;
 import ValueIO;
 import Message; 
@@ -27,7 +27,7 @@ public list[Message] diagnose(str amb) {
 
 public list[Message] findCauses(Tree a) {
   return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a@\loc?|dunno:///|)]
-       + [*findCauses(x, y) | [_*,Tree x,_*,Tree y, _*] := toList(a.alternatives), true /* workaround alert*/];
+       + [*findCauses(x, y) | [*_,Tree x,*_,Tree y, *_] := toList(a.alternatives), true /* workaround alert*/];
 }
     
 public list[Message] findCauses(Tree x, Tree y) {
@@ -67,9 +67,9 @@ public list[Message] verticalCauses(Tree x, Tree y, set[Production] pX, set[Prod
        + exceptAdvise(y, x, pY, pX);
 }
 
-public list[Message] exceptAdvise(Tree x, Tree y, set[Production] _, set[Production] pY) {
+public list[Message] exceptAdvise(Tree x, set[Production] _, set[Production] pY) {
   result = [];
-  if (appl(p, argsX) := x, appl(q, _) := y) {
+  if (appl(p, argsX) := x) {
     if (i <- index(argsX), appl(apX, _) := argsX[i], apX notin pY) {
       labelApX = "labelX";
       
@@ -153,8 +153,8 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
  
  
   // find parents of literals, and transfer location
-  polX = {<p,l[@\loc=t@\loc?|dunno:///|]> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
-  polY = {<l[@\loc=t@\loc?|dunno:///|],p> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := y, true};
+  polX = {<p,l[@\loc=t@\loc?|dunno:///|]> | /t:appl(p,[*_,l:appl(prod(lit(_),_,_),_),*_]) := x, true}; 
+  polY = {<l[@\loc=t@\loc?|dunno:///|],p> | /t:appl(p,[*_,l:appl(prod(lit(_),_,_),_),*_]) := y, true};
   overloadedLits = [info("Literal \"<l>\" is used in both
                      '  <alt2rascal(p)> and
                      '  <alt2rascal(q)>", l@\loc) | <p,l> <- polX, <l,q> <- polY, p != q, !(p in pY || q in pX)];
@@ -163,8 +163,8 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
     result += info("Re-use of these literals is causing different interpretations of the same source.", x@\loc?|dunno:///|);
     result += overloadedLits;
     
-    fatherChildX = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := x, q.def is sort || q.def is lex, true};
-    fatherChildY = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := y, q.def is sort || q.def is lex, true};
+    fatherChildX = {<p, size(a), q> | appl(p, [*a,appl(q,_),*_]) := x, q.def is sort || q.def is lex, true};
+    fatherChildY = {<p, size(a), q> | appl(p, [*a,appl(q,_),*_]) := y, q.def is sort || q.def is lex, true};
     for (<p,i,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
       labelApX = "labelX";
       
@@ -191,8 +191,8 @@ public list[int] yield(Tree x) {
 }
 
 public list[Message] reorderingCauses(Tree x, Tree y) {
-  fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true};
-  fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true};
+  fatherChildX = {<p, q> | appl(p, [*_,appl(q,_),*_]) := x, true};
+  fatherChildY = {<p, q> | appl(p, [*_,appl(q,_),*_]) := y, true};
   result = [];
   
   if (fatherChildX == fatherChildY) {
@@ -208,14 +208,14 @@ public list[Message] reorderingCauses(Tree x, Tree y) {
 }
 
 list[Message] priorityCauses(Tree x, Tree y) {
-  if (/appl(p,[appl(q,_),_*]) := x, /Tree t:appl(q,[_*,appl(p,_)]) := y, p != q) {
+  if (/appl(p,[appl(q,_),*_]) := x, /Tree t:appl(q,[*_,appl(p,_)]) := y, p != q) {
       return [error("You might add this priority rule (or vice versa):
                     '  <alt2rascal(priority(p.def,[p,q]))>", t@\loc)
              ,error("You might add this associativity rule (or right/assoc/non-assoc):
                     '  <alt2rascal(associativity(p.def, \left(), {p,q}))>", t@\loc?|dunno:///|)];
   }
   
-  if (/appl(p,[appl(q,_),_*]) := y, /Tree t:appl(q,[_*,appl(p,_)]) := x, p != q) {
+  if (/appl(p,[appl(q,_),*_]) := y, /Tree t:appl(q,[*_,appl(p,_)]) := x, p != q) {
       return [error("You might add this priority rule (or vice versa):
                     '  <alt2rascal(priority(p.def,[p,q]))>", t@\loc)
              ,error("You might add this associativity rule (or right/assoc/non-assoc):
@@ -265,11 +265,11 @@ list[Message] danglingOffsideSolutions(Tree x, Tree y) {
 }
 
 list[Message] associativityCauses(Tree x, Tree y) {
-  if (/appl(p,[appl(p,_),_*]) := x, /Tree t:appl(p,[_*,appl(p,_)]) := y) {
+  if (/appl(p,[appl(p,_),*_]) := x, /Tree t:appl(p,[*_,appl(p,_)]) := y) {
     return [error("This rule [<alt2rascal(p)>] may be missing an associativity declaration  (left, right, non-assoc)", t@\loc)];
   }
   
-  if (/appl(p,[appl(p,_),_*]) := y, /Tree t:appl(p,[_*,appl(p,_)]) := x) {
+  if (/appl(p,[appl(p,_),*_]) := y, /Tree t:appl(p,[*_,appl(p,_)]) := x) {
     return [error("This rule [<alt2rascal(p)>] may be missing an associativity declaration (left, right, non-assoc)", t@\loc)];
   }
   
