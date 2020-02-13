@@ -403,11 +403,11 @@ public class PathConfig {
         ISourceLocation target = URIUtil.getChildLocation(manifestRoot, "target/classes");
         
         if (reg.exists(bin)) {
-            libsWriter.insert(bin);
+//            libsWriter.insert(bin); this is not necessary for the type-checker, and also not for the interpreter (where it leads to duplicates)
             classloaders.append(bin);
         }
         else if (reg.exists(target)) {
-            libsWriter.insert(target);
+//            libsWriter.insert(target); this is not supposed to be necessary for the type-checker, and also not for the interpreter (where it leads to duplicates)
             classloaders.append(target);
         }
       
