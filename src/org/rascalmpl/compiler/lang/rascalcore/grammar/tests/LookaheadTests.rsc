@@ -14,9 +14,9 @@ extend  lang::rascalcore::grammar::Lookahead;
 
 public AGrammar G0 = simple({sort("S")}, {});
 
-test bool testEmpty() = first(G0) == ();
+test bool testEmpty1() = first(G0) == ();
 
-test bool testEmpty() = firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
+test bool testEmpty2() = firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
 
 private AProduction pr(AType rhs, list[AType] lhs) {
   return prod(rhs,lhs);
