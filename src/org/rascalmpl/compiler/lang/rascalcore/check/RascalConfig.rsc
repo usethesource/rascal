@@ -260,6 +260,7 @@ bool rascalReportUnused(loc def, TModel tm){
             case moduleId():            return false;
             case dataId():              return false;
             case functionId():          { if(isClosureName(define.id)) return false;
+                                          if("test" in define.defInfo.modifiers) return false;
                                           if(define.defInfo.vis == privateVis()) return true;
                                           container = definitions[findContainer(def, definitions, scopes)];
                                           return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
