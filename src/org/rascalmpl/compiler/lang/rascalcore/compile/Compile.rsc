@@ -26,6 +26,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     className = getBaseClass(qualifiedModuleName);
    
     list[Message] errors = [ e | e:error(_,_) <- tm.messages];
+    return tm.messages; // TMP
     if(!isEmpty(errors)){
         return errors;
     }
