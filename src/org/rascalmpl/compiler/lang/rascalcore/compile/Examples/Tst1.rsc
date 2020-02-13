@@ -1,22 +1,10 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import Prelude;
+data D = d1(int n) | d2(D l, D r);
 
-data Lval // <1>
-     = Integer(int n)   
-     | Atom(str name)
-     | List(list[Lval] elms)
-  //   | Closure(Result(list[Lval] args, Env env))
-     ;
-         
-alias Scope  = map[Lval,Lval]; // <2>
-alias Env    = list[Scope];
-
-public Env emptyEnv = [()];
-
-Env makeEnv(list[Lval] vars, list[Lval] values, Env outer) = // <3>
-   [(vars[i] : values[i] | i <- index(vars))] + outer;
-
+set[D] amb(set[D] alts) {
+  return  { a | a <- alts, /d2(_,_) !:= a};
+}
 
 //int f(int n, int(int) g) = g(n);
 
