@@ -265,9 +265,11 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                 for(m <- component){
                     imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
                     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
+                    invertedExtends = ms.strPaths<2,0>;
                     if(config.warnUnused){
                         // Look for unused imports or exports
                         usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
+                        usedModules += {*invertedExtends[um] | um <- usedModules}; // use of an extended module via import
                         msgs = [];
                         for(imod <- ms.modules[m].header.imports, imod has \module){
                             iname = unescape("<imod.\module.name>");
