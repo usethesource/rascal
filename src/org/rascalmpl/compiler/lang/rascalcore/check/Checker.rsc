@@ -274,6 +274,9 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         for(imod <- ms.modules[m].header.imports, imod has \module){
                             iname = unescape("<imod.\module.name>");
                             if(iname notin usedModules){ 
+                               if(imod == "ParseTree" && implicitUseOfParseTree(tm)){      
+                                 continue;
+                               }
                                if(imod is \default){
                                  msgs += warning("Unused import of `<iname>`", imod@\loc);
                                } else {
@@ -318,6 +321,10 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
     //catch value e: {
     //    return <("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]), (), ()>;
     //}    
+}
+
+bool implicitUseOfParseTree(TModel tm){
+    return areified(_) <- range(tm.facts);
 }
 
 set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] added){

@@ -1,10 +1,8 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-data D = d1(int n) | d2(D l, D r);
+import Type;
 
-set[D] amb(set[D] alts) {
-  return  { a | a <- alts, /d2(_,_) !:= a};
-}
+test bool c() = #str.symbol == \str();
 
 //int f(int n, int(int) g) = g(n);
 
