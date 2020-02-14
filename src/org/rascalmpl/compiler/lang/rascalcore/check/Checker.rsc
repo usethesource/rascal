@@ -327,6 +327,10 @@ bool implicitUseOfParseTree(TModel tm){
     return areified(_) <- range(tm.facts);
 }
 
+bool implicitlyUsesLayout(TModel tm){
+    return aadt(_,_,layoutSyntax()) <- range(tm.facts);
+}
+
 set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] added){
     rel[str,str] contains = ms.strPaths<0,2>;
     for(imp <- contains[moduleName]){

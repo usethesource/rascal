@@ -97,10 +97,16 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
         
     // Qualifier is a ADT name?
         
-    if(acons(ret:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := atype){
+    if(acons(ret:aadt(adtName, _, _), list[AType] fields, list[Keyword] kwFields) := atype){
        return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
-    } 
-        
+    }
+    
+    // Qualifier is a Production?
+   
+    if(aprod(prod(aadt(adtName, _, _), list[AType] atypes)) := atype){
+       return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
+    }
+     
     // Is there another acceptable qualifier via an extend?
         
     extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- s.getPaths()}*;
