@@ -63,8 +63,8 @@ public list[Message] findCauses(Tree x, Tree y) {
 }
 
 public list[Message] verticalCauses(Tree x, Tree y, set[Production] pX, set[Production] pY) {
-  return exceptAdvise(x, y, pX, pY)
-       + exceptAdvise(y, x, pY, pX);
+  return exceptAdvise(x, pX, pY)
+       + exceptAdvise(y, pY, pX);
 }
 
 public list[Message] exceptAdvise(Tree x, set[Production] _, set[Production] pY) {
