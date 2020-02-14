@@ -277,7 +277,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                                if(imod == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){      
                                  continue;
                                }
-                               if(implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
+                               if(ms.moduleLocs[iname]? && implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
                                 continue;
                                }
                                if(imod is \default){
