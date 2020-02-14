@@ -274,8 +274,11 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         for(imod <- ms.modules[m].header.imports, imod has \module){
                             iname = unescape("<imod.\module.name>");
                             if(iname notin usedModules){ 
-                               if(imod == "ParseTree" && implicitUseOfParseTree(tm)){      
+                               if(imod == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){      
                                  continue;
+                               }
+                               if(implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
+                                continue;
                                }
                                if(imod is \default){
                                  msgs += warning("Unused import of `<iname>`", imod@\loc);
@@ -323,12 +326,13 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
     //}    
 }
 
-bool implicitUseOfParseTree(TModel tm){
-    return areified(_) <- range(tm.facts);
+bool implicitlyUsesParseTree(str moduleName, TModel tm){
+    return any(loc l <- tm.facts, l.path == modulePath, areified(_) <- tm.facts[l]);
 }
 
-bool implicitlyUsesLayout(TModel tm){
-    return aadt(_,_,layoutSyntax()) <- range(tm.facts);
+bool implicitlyUsesLayoutOrLexical(str modulePath, str importPath, TModel tm){
+    return    any(loc l <- tm.facts, l.path == importPath, aadt(_,_,sr) := tm.facts[l], sr in {layoutSyntax(), lexicalSyntax()})
+           && any(loc l <- tm.facts, l.path == modulePath, aadt(_,_,contextFreeSyntax()) := tm.facts[l]);
 }
 
 set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] added){
