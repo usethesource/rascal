@@ -36,9 +36,9 @@ list[str] mutate(loc input, int mutations = 5, real chance = 0.1, str folder="mu
 
 list[Module] mutate(Module input, int mutations = 5, real chance = 0.1, str prefix="", str parentMod="") {
   list[Module] ret = [];
-  
+   
   for(opId <- muOpers) {
-    ret = ret + make(input, opId, chance=chance, prefix=prefix,parentMod=parentMod);
+    ret = ret + make(input, opId, prefix=prefix,parentMod=parentMod);
     if (size(ret) >= mutations) break;
   }
   return ret;
