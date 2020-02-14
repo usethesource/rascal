@@ -1104,7 +1104,8 @@ private AType getPatternType0(current: (Pattern) `<Type tp> <Name name> : <Patte
 // ---- descendant pattern
 
 private AType getPatternType0(current: (Pattern) `/ <Pattern pattern>`, AType subjectType, loc scope, Solver s){
-    return getPatternType(pattern, avalue(), scope, s);
+    getPatternType(pattern, avalue(), scope, s);
+    return subjectType;
 }
 
 // ---- negative 
