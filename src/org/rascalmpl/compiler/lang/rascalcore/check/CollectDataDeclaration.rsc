@@ -2,21 +2,18 @@
 module lang::rascalcore::check::CollectDataDeclaration
 
 extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::CollectType;
 
+import lang::rascalcore::check::SyntaxGetters;
+import lang::rascalcore::grammar::definition::Attributes;
+import lang::rascalcore::check::ScopeInfo; 
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::NameUtils;
+import IO;
+import lang::rascalcore::check::BasicRascalConfig;
 
-list[TypeVar] getTypeParameters(UserType userType)
-    = userType is parametric ? [p.typeVar | p <- userType.parameters] : [];
-
-list[Sym] getTypeParameters(Sym sym)
-    =  [p |/Sym p := sym, p is parameter];
-
-list[KeywordFormal] getCommonKwFormals(Declaration decl)
-   = decl.commonKeywordParameters is present ?  [kwf | kwf <- decl.commonKeywordParameters.keywordFormalList] : [];
 
 // ---- data declaration ------------------------------------------------------
 

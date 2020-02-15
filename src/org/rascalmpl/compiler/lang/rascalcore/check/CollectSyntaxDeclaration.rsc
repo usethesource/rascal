@@ -2,10 +2,18 @@
 module lang::rascalcore::check::CollectSyntaxDeclaration
 
 extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::CollectType;
+extend lang::rascalcore::check::BasicRascalConfig;
+
+import Set;
+import Node;
+import util::Maybe;
+import lang::rascalcore::check::SyntaxGetters;
+import lang::rascalcore::grammar::definition::Symbols;
+import lang::rascalcore::grammar::definition::Attributes;
+import lang::rascalcore::check::ScopeInfo;
 
 import lang::rascal::\syntax::Rascal;
 

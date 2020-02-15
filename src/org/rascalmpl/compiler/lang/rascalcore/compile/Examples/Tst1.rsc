@@ -1,9 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst1
  
-set[int] f(){
+set[str] f(){
     res = {};
-    for(i <- [1..10]){
-        res += 1;
-    }
+    res += 1;
     return res;
 }

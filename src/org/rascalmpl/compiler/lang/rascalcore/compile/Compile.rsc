@@ -21,7 +21,7 @@ loc generatedDir = |project://rascal-codegen-ideas/generated|;
 
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
     tm = tmodels[qualifiedModuleName];
-    //iprintln(tm);
+    iprintln(tm);
     targetDir = generatedDir + module2path(qualifiedModuleName);
     className = getBaseClass(qualifiedModuleName);
    
