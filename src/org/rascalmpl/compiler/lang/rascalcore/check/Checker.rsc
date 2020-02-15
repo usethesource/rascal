@@ -274,7 +274,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         for(imod <- ms.modules[m].header.imports, imod has \module){
                             iname = unescape("<imod.\module.name>");
                             if(iname notin usedModules){ 
-                               if(imod == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){      
+                               if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){      
                                  continue;
                                }
                                if(ms.moduleLocs[iname]? && implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
@@ -326,7 +326,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
     //}    
 }
 
-bool implicitlyUsesParseTree(str moduleName, TModel tm){
+bool implicitlyUsesParseTree(str modulePath, TModel tm){
     return any(loc l <- tm.facts, l.path == modulePath, areified(_) <- tm.facts[l]);
 }
 
