@@ -279,7 +279,7 @@ tuple[loc, loc] makeLocsWithGap(int gap){
     
     rlen = m2 == maxIndex ? 0 : arbInt(maxIndex - m2);
     r = getLoc(m2, m2 + rlen);
-    return l.offset < r.offset ? <l, r> : <r, l>;
+    return l.offset < r.offset || (l.offset == r.offset && r.length == 0) ? <l, r> : <r, l>;
 }
 
 bool report(loc l1, loc l2, bool expected){
