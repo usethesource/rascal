@@ -20,9 +20,6 @@ loctoc::[1]
 }
 module Relation
 
-import Exception;
-import Set;
-
 @doc{
 .Synopsis
 Return the set of all elements in any tuple in a relation.

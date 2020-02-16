@@ -4,7 +4,7 @@ data A = a() | b();
 
 str default_message = "default use";
   
-default str EXTENDED_FUNCTION(value t) = default_message;
+default str EXTENDED_FUNCTION(value _) = default_message;
   
 str apply_EXTENDED_FUNCTION_a() = EXTENDED_FUNCTION(a());
 

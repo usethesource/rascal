@@ -38,6 +38,11 @@ public class StandardOutputURIResolver implements ISourceLocationOutput {
 	public void remove(ISourceLocation uri) throws IOException {
 	  throw new UnsupportedOperationException("not supported by stdout");
 	}
+	
+	@Override
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+	    // do nothing
+	}
 
 	@Override
 	public boolean supportsHost() {

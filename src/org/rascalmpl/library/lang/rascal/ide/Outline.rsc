@@ -3,7 +3,6 @@ module lang::rascal::ide::Outline
 
 import ParseTree;
 import lang::rascal::\syntax::Rascal;
-import Node;
 import Map;
 import List;
  
@@ -32,16 +31,16 @@ node outline(Module m) {
    list[node] e = [];
    
    top-down-break visit (m) {
-     case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
+     case (Declaration) `<Tags _> <Visibility _> <Type t> <{Variable ","}+ vars>;`:
        variables   += [clean("<v.name> <t>")()[@\loc=v@\loc] | v <- vars]; 
-     case (Declaration) `<Tags ta> <Visibility vs> anno <Type t> <Type ot>@<Name name>;`:  
+     case (Declaration) `<Tags _> <Visibility _> anno <Type t> <Type ot>@<Name name>;`:  
        annotations += [clean("<name> <t> <ot>@<name>")()[@\loc=name@\loc]];
-     case (Declaration) `<Tags ta> <Visibility vs> alias <UserType u> = <Type base>;`:
+     case (Declaration) `<Tags _> <Visibility _> alias <UserType u> = <Type _>;`:
        aliases += [clean("<u.name>")()[@\loc=u.name@\loc]];  
-     case (Declaration) `<Tags ta> <Visibility vs> tag <Kind k> <Name name> on <{Type ","}+ types>;`:
+     case (Declaration) `<Tags _> <Visibility _> tag <Kind _> <Name name> on <{Type ","}+ _>;`:
        tags += [clean("<name>")()[@\loc=name@\loc]];
        
-     case (Declaration) `<Tags ta> <Visibility vs> data <UserType u> <CommonKeywordParameters kws>;`: {
+     case (Declaration) `<Tags _> <Visibility _> data <UserType u> <CommonKeywordParameters kws>;`: {
        f = "<u.name>";
        c = adts["<u.name>"]?e;
        
@@ -52,7 +51,7 @@ node outline(Module m) {
        adts[f] = c;
      }
      
-     case (Declaration) `<Tags ta> <Visibility vs> data <UserType u> <CommonKeywordParameters kws> = <{Variant "|"}+ variants>;` : {
+     case (Declaration) `<Tags _> <Visibility _> data <UserType u> <CommonKeywordParameters kws> = <{Variant "|"}+ variants>;` : {
        f = "<u.name>";
        c = adts[f]?e;
        
@@ -82,7 +81,7 @@ node outline(Module m) {
      case (Import) `import <ImportedModule mm>;` :
        imports += ["<mm.name>"()[@\loc=mm@\loc]];
        
-     case (Import) `import <QualifiedName m2> = <LocationLiteral at>;` :
+     case (Import) `import <QualifiedName m2> = <LocationLiteral _>;` :
        imports += ["<m2>"()[@\loc=m2@\loc]];
        
      case SyntaxDefinition def : {

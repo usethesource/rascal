@@ -10,10 +10,10 @@
 // tag::module[]
 module demo::basic::FizzBuzz
 
-import IO;
+import IO; 
 
 void fizzbuzz() {
-   for(int n <- [1 .. 101]){
+   for (int n <- [1 .. 101]){
       fb = ((n % 3 == 0) ? "Fizz" : "") + ((n % 5 == 0) ? "Buzz" : "");
       println((fb == "") ?"<n>" : fb);
    }
@@ -28,7 +28,7 @@ void fizzbuzz2() {
       default: println(n);
     }
 }
-
+ 
 void fizzbuzz3() {
   for (n <- [1..101]) {
     if (n % 3 == 0) print("Fizz");

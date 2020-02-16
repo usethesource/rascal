@@ -13,7 +13,6 @@ import List;
 import util::Maybe;
 import Set;
 import Map;
-import util::Math;
 
 alias Coefficients = map[str var,num coef];
 

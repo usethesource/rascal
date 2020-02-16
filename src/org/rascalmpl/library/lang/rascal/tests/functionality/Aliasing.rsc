@@ -1,19 +1,17 @@
-module lang::rascal::tests::functionality::Aliasing
-/*******************************************************************************
- * Copyright (c) 2009-2016 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
+ @license{
+   Copyright (c) 2009-2015 CWI
+   All rights reserved. This program and the accompanying materials
+   are made available under the terms of the Eclipse Public License v1.0
+   which accompanies this distribution, and is available at
+   http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-*******************************************************************************/
+module lang::rascal::tests::functionality::Aliasing
+
 import Type;
-import IO;
 
 alias INTEGER0 = int;
 		
@@ -57,7 +55,6 @@ alias StatedId = int;
 alias Sym = int;
              	
 test bool aliasAndADT2() {
-    map[list[Permutation], StateId] allStates = ();
     rel[StateId from,StateId to,Sym symbol] Transitions = {};  
     Transitions = {<1,2,3>}; 
     return true;
@@ -74,6 +71,7 @@ test bool  transitiveAliasAcrossTuples() {
     return aBlock == {<"a", "b", "c">};
 }	
 
+@ignoreCompiler{Representation differs}
 test bool reifiedAlias1() = 
   #partition == 
   type(
@@ -84,6 +82,7 @@ test bool reifiedAlias1() =
         ]))),
   ());
 
+@ignoreCompiler{Representation differs}
 test bool reifiedAlias2() =
   #P[partition] ==
    type(
@@ -122,14 +121,17 @@ test bool reifiedAlias2() =
           
 alias LIST[&T] = list[&T];
 
+@ignoreCompiler{Representation differs}
 test bool reifiedAlias3() =
    #LIST[LIST[int]].symbol == \list(\list(\int()));
-   
+
+@ignoreCompiler{Representation differs}   
 test bool reifiedAlias4() =
    #LIST[LIST[LIST[int]]].symbol == \list(\list(\list(\int())));
 
 alias TUPLELIST[&T] = tuple[LIST[&T], LIST[&T]];
 
+@ignoreCompiler{Representation differs}
 test bool reifiedAlias5() =
     #TUPLELIST[int].symbol == \tuple([\list(\int()), \list(\int())]);
 
@@ -137,6 +139,7 @@ alias STRING = str;
 
 data DATA1 = d1(STRING s);
 
+@ignoreCompiler{Representation differs}
 test bool reifiedAlias6() = #DATA1 ==
 type(
   adt(
@@ -163,6 +166,7 @@ type(
 
 data DATA2 = d2(DATA1(STRING) fun);
 
+@ignoreCompiler{Representation differs}
 test bool reifiedAlias7() = #DATA2 ==
 type(
   adt(
@@ -209,6 +213,7 @@ type(
           {})})
   ));
 
+@ignoreCompiler{Representation differs}
 test bool reifiedAlias8() = #DATA2 ==
 type(
   adt(

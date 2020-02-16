@@ -128,7 +128,7 @@ public class Prelude {
 	protected final IValueFactory values;
 	private final Random random;
 	
-	private final boolean trackIO = false;
+	private final boolean trackIO = System.getenv("TRACKIO") != null;
 	
 	public Prelude(IValueFactory values){
 		super();
@@ -999,7 +999,9 @@ public class Prelude {
 	
 	public IValue lastModified(ISourceLocation sloc) {
 		try {
-			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		    IValue result = values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
+			return result;
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}
@@ -1007,6 +1009,19 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
+	
+	public void setLastModified(ISourceLocation sloc, IDateTime timestamp) {
+	    setLastModified(sloc, timestamp.getInstant());
+	}
+	
+	private void setLastModified(ISourceLocation sloc, long timestamp) {
+        try {
+            URIResolverRegistry.getInstance().setLastModified(sloc, timestamp);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
+    }
 	
 	public IValue isDirectory(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
@@ -1159,7 +1174,15 @@ public class Prelude {
 		}
 	}
 	
-
+	public void touch(ISourceLocation sloc) {
+	    if (URIResolverRegistry.getInstance().exists(sloc)) {
+	        setLastModified(sloc, System.currentTimeMillis());
+	    }
+	    else {
+	        writeFile(sloc, values.list(values.string("")));
+	    }
+	}
+	
 	public void writeFile(ISourceLocation sloc, IList V) {
 		writeFile(sloc, V, false);
 	}

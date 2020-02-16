@@ -17,8 +17,6 @@ import util::Math;
 import Type;
 import lang::rascal::checker::TTL::Library;
 
-private list[Symbol] baseTypes = [Symbol::\bool(), Symbol::\int(), Symbol::\real(), Symbol::\num(), Symbol::\str(), Symbol::\loc(), Symbol::\datetime()];
- 
 // ---- Generating patterns
 alias Binding = tuple[Symbol symbol, value val];
 
@@ -78,7 +76,7 @@ public PV generatePattern(type[&T] t, int nvars, VarEnv env, bool allowVars){
 	     }
 	     if(arbInt(3) == 0){  // Introduce new variable;
 	        str var = "X<nvars>";
-	        value val;
+	        //value val;
 	        <pat, val, nvars, env> = generateValue(t, nvars + 1, env, false);
 	        env[var] = <t.symbol, val>;
 	        return <arbBool() || !isAssignable(t) ? "<var>" : "<t> <var>", val, nvars, env>;
@@ -86,7 +84,7 @@ public PV generatePattern(type[&T] t, int nvars, VarEnv env, bool allowVars){
 	     
 	     if(arbInt(3) == 0){  // Introduce named pattern;
 	        str var = "N<nvars>";
-	        value val;
+	        //value val;
 	        <pat, val, nvars, env> = generateValue(t, nvars + 1, env, true);
 	        env[var] = <t.symbol, val>;
 	        return <arbBool() || !isAssignable(t) ? "<var> : <pat>" : "<t> <var> : <pat>", val, nvars, env>;
@@ -100,8 +98,8 @@ bool isAssignable(type[&T] t){
   switch(t.symbol){
        case \list(\void()): 		return false;
        case \set(\void()):			return false;
-       case \map(\void(), vt):		return false;
-       case \map(kt, \void()):		return false;
+       case \map(\void(), _):		return false;
+       case \map(_, \void()):		return false;
        case \tuple([\void()]):		return false;
        case \rel([\void()]):		return false;
        case \lrel([\void()]):		return false;
@@ -158,7 +156,7 @@ public PV arbList(type[&T] et, int nvars, VarEnv env, bool allowVars){
    while(size(pelms) < n){
     	if(allowVars && arbInt(3) == 0){  // Introduce new variable;
 	        str var = "L<nvars>";
-	        value val;
+	        //value val;
 	        <pat, val, nvars, env> = generateValue(listType, nvars + 1, env, false);
 	        env[var] = <listType.symbol, val>;
 	        pelms += "*<var>";
@@ -188,7 +186,7 @@ public PV arbSet(type[&T] et, int nvars, VarEnv env, bool allowVars){
    	 attempt += 1;
     	if(allowVars && arbInt(3) == 0){  // Introduce new variable;
 	        str var = "S<nvars>";
-	        value val;
+	        //value val;
 	        <pat, val, nvars, env> = generateValue(setType, nvars + 1, env, false);
 	        env[var] = <setType.symbol, val>;
 	        pelms += "*<var>";
@@ -214,7 +212,7 @@ public PV arbMap(type[&K] kt, type[&V] vt, int nvars, VarEnv env, bool allowVars
    if(isVoidType(kt.symbol) || isVoidType(vt.symbol))
       return <"()", (), nvars, env>;
    map[str,value] keys = ();
-   for(int i <- [0 .. arbInt(5)]){ // ensures unique keys
+   for(int _ <- [0 .. arbInt(5)]){ // ensures unique keys
        
        <pelm, velm, nvars1, env1> = generatePattern(kt, nvars, env, allowVars);
        if(!keys[pelm]?){

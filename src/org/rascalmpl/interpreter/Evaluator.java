@@ -59,6 +59,7 @@ import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.Insert;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -448,11 +449,39 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 			setMonitor(old);
 		}
 	}
-	
-	
-	
-	public IValue call(String returnType, String name, IValue... args) {
-	  return call(Names.toQualifiedName(returnType, name, getCurrentEnvt().getLocation()), Collections.emptyMap(), args);
+
+	@Override
+	public IValue call(String adt, String name, IValue... args) {
+	    List<AbstractFunction> candidates = new LinkedList<>();
+	    
+	    Type[] types = new Type[args.length];
+
+        int i = 0;
+        for (IValue v : args) {
+            types[i++] = v.getType();
+        }
+        
+        getCurrentEnvt().getAllFunctions(name, candidates);
+        
+        if (candidates.isEmpty()) {
+            throw new UndeclaredFunction(name, types, this, getCurrentAST());
+        }
+        
+        List<AbstractFunction> filtered = new LinkedList<>();
+        
+        for (AbstractFunction candidate : candidates) {
+            if (candidate.getReturnType().isAbstractData() && candidate.getReturnType().getName().equals(adt)) {
+                filtered.add(candidate);
+            }
+        }
+
+        if (filtered.isEmpty()) {
+            throw new UndeclaredFunction(adt + "::" + name, types, this, getCurrentAST());  
+        }
+        
+        ICallableValue func = new OverloadedFunction(name, filtered);
+        
+        return func.call(getMonitor(), types, args, Collections.emptyMap()).getValue();
 	};
 	
 	@Override
@@ -519,7 +548,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       
       AbstractFunction main = (AbstractFunction) func;
       
-      if (main.getArity() == 1) {
+      if (main.getArity() == 1 && main.getFormals().getFieldType(0).isSubtypeOf(tf.listType(tf.stringType()))) {
         return main.call(getMonitor(), new Type[] { tf.listType(tf.stringType()) },new IValue[] { parsePlainCommandLineArgs(commandline)}, null).getValue();
       }
       else if (main.hasKeywordArguments() && main.getArity() == 0) {
@@ -529,6 +558,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
       else {
         throw new CommandlineError("main function should either have one argument of type list[str], or keyword parameters", main);
       }
+    }
+    catch (MatchFailed e) {
+        getStdOut().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+        return null;
     }
     finally {
       setMonitor(old);
@@ -665,8 +698,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 		return func.call(getMonitor(), types, args, kwArgs).getValue();
 	}
-	
-	
 	
 	@Override	
 	public ITree parseObject(IConstructor grammar, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {

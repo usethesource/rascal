@@ -19,11 +19,7 @@ Functions for time measurement and benchmarking.
 The `Benchmark` library provides the following functions:
 loctoc::[1]
 }
-
 module util::Benchmark
-
-import Exception;
-import IO;
 
 @doc{
 .Synopsis

@@ -300,7 +300,6 @@ public class CourseCompiler {
 				new PathConfig(cmdOpts.getCommandLocsOption("src"),
 							   cmdOpts.getCommandLocsOption("lib"),
 					           cmdOpts.getCommandLocOption("bin"),
-					           cmdOpts.getCommandLocOption("boot"),
 					           cmdOpts.getCommandLocsOption("course"));   
 		
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourses().get(0)).getURI());

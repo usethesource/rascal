@@ -13,14 +13,14 @@ list[Message] report(loc root)
 void update(loc root) {
   modules = [ f | /file(f) := crawl(root), f.extension == "rsc"];
   for (m <- modules) {
-    writeFile(m, "<update(parse(#start[Module], m))>");
+    writeFile(m, "<updateTree(parse(#start[Module], m))>");
   }
 }
 
 list[Message] report(Tree m) 
   = [info("found postfix multivar", name@\loc) | /(Pattern) `<QualifiedName name>*` := m];
 
-Tree update(Tree m) =
+Tree updateTree(Tree m) =
   visit(m) {
     case (Pattern) `<QualifiedName name>*` => (Pattern) `*<QualifiedName name>`
   };

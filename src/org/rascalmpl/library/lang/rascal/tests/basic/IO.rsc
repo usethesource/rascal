@@ -3,7 +3,6 @@ module lang::rascal::tests::basic::IO
 import String;
 
 import IO;
-import ValueIO;
 import util::UUID;
 
 private loc aFile = |test-temp:///basic-io-<"<uuidi()>">.txt|;
