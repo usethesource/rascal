@@ -1,6 +1,5 @@
 module demo::lang::Func::Test
 
-import demo::lang::Func::AST;
 import demo::lang::Func::Load;
 import demo::lang::Func::Eval0;
 import demo::lang::Func::Eval1;

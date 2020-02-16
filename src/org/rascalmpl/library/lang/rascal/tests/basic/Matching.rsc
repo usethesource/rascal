@@ -1,8 +1,5 @@
 module lang::rascal::tests::basic::Matching
 
-import List;
-import IO;
-
 data T1 = \int() | \void() | string(str s);
 data T2 = \int() | \void() | string(str s);
 
@@ -10,6 +7,13 @@ test bool tstQNameInPatternInt(){
     T1 t1 = T1::\int();
     T2 t2 = T2::\int();
     return T1::\int() := t1 && T2::\int() := t2;
+}
+
+@expect{UnexpectedType}
+test bool prefixShouldHaveEffect() {
+  value term = T2::string("x");
+  
+  return T1::string(_) !:= term;
 }
 
 test bool tstQNameInPatternVoid(){
@@ -86,7 +90,7 @@ test bool tstQNameinFun2String(){
     return fT2(t2);
 }
 
-test bool deepMatchKeywordParameter() = /int i := "f"("f"(x=[1]));
+test bool deepMatchKeywordParameter() = /int _ := "f"("f"(x=[1]));
 
 data IG = ig(int x = 1);
 

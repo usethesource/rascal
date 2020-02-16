@@ -1,6 +1,7 @@
 module lang::std::tests::ASCII
 
 import lang::std::ASCII;
+import Exception;
 
 
 lexical Ascii = [\a00-\a7f];
@@ -40,18 +41,18 @@ test bool hexnumber5() = HexNumber h := [HexNumber] "0";
 test bool hexnumber6() = HexNumber h := [HexNumber] "9";
 
 @expected{ParseError}
-test bool hexnumber1() = HexNumber h := [HexNumber] "G";
+test bool hexnumber7() = HexNumber h := [HexNumber] "G";
 
 @expected{ParseError}
-test bool hexnumber1() = HexNumber h := [HexNumber] "g";
+test bool hexnumber8() = HexNumber h := [HexNumber] "g";
 
 //lexical Print = [\ ~-!];
 //
 //lexical Punt = [!-/ :-@ \[-~];
 
 test bool space1() = Space s := [Space] "\t";
-test bool space1() = Space s := [Space] "\n";
-test bool space1() = Space s := [Space] "\a0B";
-test bool space1() = Space s := [Space] "\a0C";
-test bool space1() = Space s := [Space] "\r";
-test bool space1() = Space s := [Space] " ";
+test bool space2() = Space s := [Space] "\n";
+test bool space3() = Space s := [Space] "\a0B";
+test bool space4() = Space s := [Space] "\a0C";
+test bool space5() = Space s := [Space] "\r";
+test bool space6() = Space s := [Space] " ";

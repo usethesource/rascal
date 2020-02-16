@@ -6,7 +6,7 @@ node {
       checkout scm
     }
     
-    withMaven(maven: 'M3', jdk: 'jdk-oracle-8', options: [artifactsPublisher(disabled: true), junitPublisher(disabled: false)] ) {
+    withMaven(maven: 'M3', jdk: 'jdk-oracle-8', mavenOpts: '-Xmx4G', options: [artifactsPublisher(disabled: true), junitPublisher(disabled: false)] ) {
         stage('Compile & Bootstrap') {
           sh "mvn clean compile"
         }

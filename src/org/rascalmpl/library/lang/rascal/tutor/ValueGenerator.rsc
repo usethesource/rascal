@@ -51,6 +51,7 @@ Type generateArbType(int n, list[Type] prefs){
      case 4: return generateArbRelType(n-1, prefs);
      case 5: return generateArbLRelType(n-1, prefs);
    }
+   return getOneFrom(prefs);
 } 
 
 int size({Type ","}+ ets) = size([et | et <- ets]);
@@ -334,4 +335,6 @@ public str generateArb(int n, list[Type] prefs){
      case 3: return generateTuple(prefs);
      case 4: return generateRel(prefs);
    }
+   
+   return generateValue(getOneFrom(prefs));
 } 

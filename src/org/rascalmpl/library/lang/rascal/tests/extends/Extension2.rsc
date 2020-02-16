@@ -4,7 +4,6 @@ module lang::rascal::tests::extends::Extension2
 
 extend lang::rascal::tests::extends::Base2;
 
-import ParseTree;
 syntax A = [ab];      
  
 str non_default_message = "*** NON-default use ***";

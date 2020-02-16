@@ -15,8 +15,6 @@ import demo::common::Lift;
 
 rel[proc,proc] Calls = {<"main", "a">, <"main", "b">, <"a", "b">, <"a", "c">, <"a", "d">, <"b", "d">};        
 
-set[comp] Components = {"Appl", "DB", "Lib"};
-
 rel[proc, comp] PartOf = {<"main", "Appl">, <"a", "Appl">, <"b", "DB">, 
 			  			  <"c", "Lib">, <"d", "Lib">};
 

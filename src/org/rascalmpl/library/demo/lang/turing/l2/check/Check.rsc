@@ -20,7 +20,7 @@ public set[Message] check(Program p) {
 
  set[str] names(set[Statement] ss) = { s.name | s <- ss };
  jls = { j | /Statement j <- p, /^jump/ := getName(j), j has name };
- dls = { l | /l:label(n) <- p };
+ dls = { l | /l:label(_) <- p };
  
  errs += { error("Undefined label", j@location) | j <- jls, j.name notin names(dls) };
  errs += { warning("Unused label", l@location) | l <- dls, l.name notin names(jls) };

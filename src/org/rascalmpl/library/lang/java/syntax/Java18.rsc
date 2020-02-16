@@ -15,7 +15,7 @@
 
 module lang::java::\syntax::Java18
 
-start syntax CompilationUnit = PackageDeclaration? Imports TypeDeclaration* LAYOUT?;
+start syntax CompilationUnit = PackageDeclaration? Imports TypeDeclaration*;
 
 syntax Literal = IntegerLiteral
   			   | FloatingPointLiteral
@@ -999,7 +999,7 @@ lexical StringPart =
   ;
 
 keyword FieldAccessKeywords =
-  ExprName "." Id 
+  ExpressionName "." ID 
   ;
 
 lexical EOLCommentChars =
@@ -1010,9 +1010,8 @@ lexical SingleChar =
   ![\n \a0D \' \\] 
   ;
 
-
 keyword ElemValKeywords =
-  LHS "=" Expr 
+  LeftHandSide "=" Expression 
   ;
 
 lexical CommentPart =
@@ -1028,7 +1027,7 @@ syntax Identifier =
   ;
   
 keyword ArrayAccessKeywords =
-  ArrayCreationExpr ArraySubscript 
+  ArrayCreationExpression ArrayAccess 
   ;
 
 syntax BooleanLiteral

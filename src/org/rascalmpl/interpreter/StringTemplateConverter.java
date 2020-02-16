@@ -38,8 +38,6 @@ import org.rascalmpl.ast.StringTemplate.For;
 import org.rascalmpl.ast.StringTemplate.IfThen;
 import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
-import org.rascalmpl.interpreter.Accumulator;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;

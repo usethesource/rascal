@@ -23,7 +23,6 @@ loctoc::[1]
 }
 module ListRelation
 
-import Exception;
 import List;
 
 @doc{
@@ -155,7 +154,13 @@ public lrel[&T0, &T1, &T2, &T3, &T4] complement(lrel[&T0, &T1, &T2, &T3, &T4] R)
 
 @doc{
 .Synopsis
-Domain of a list relation: a list consisting of the first element of each tuple.
+Domain of a list relation: a list consisting of the first element of each tuple, uniquely.
+
+.Description
+
+The domain can be seen as all possible inputs of the relation image operation. The
+result contains elements (or tuples) in the order of appearance of the original relation,
+but all occurences after the first occurrence of an element have been removed.
 
 .Examples
 [source,rascal-shell]
@@ -301,7 +306,13 @@ public lrel[&T4,&T3,&T2,&T1,&T0] invert (lrel[&T0,&T1,&T2,&T3,&T4] R) = R<4,3,2,
 
 @doc{
 .Synopsis
-The range composed of all but the first element of each tuple of a list relation.
+The range is composed of all but the first element of each tuple of a list relation, uniquely.
+
+.Description
+
+The range can be seen as all the elements of in all possible images of the relation. The
+result contains elements (or tuples) in the order of appearance of the original relation,
+but all occurences after the first occurrence of an element have been removed.
 
 .Examples
 [source,rascal-shell]

@@ -15,7 +15,7 @@ test bool fieldsFromLexicals2() = ["amel", "ase", "ase", "eest"] == [ "<w.tail>"
 test bool staticFieldProjectType() = list[[A-Z]] _ := [ w.head |  w <- t.words ]
   when Example t := [Example] "CamelCaseBaseFeest";
 
-private bool check(type[&T] t, value x) = &T _ := x;
+private bool check(type[&T] _, value x) = &T _ := x;
 
 test bool singleA() = check(#[A], char(65));
 test bool singleB() = check(#[B], char(66));
@@ -26,6 +26,7 @@ test bool singleAB2() = check(#[A-B], char(66));
 test bool charclassLUB() = set[[A-D]] _ := {char(65), char(66), char(67), char(68)};
 test bool charclassLUB2() = set[[a-z]] _ := {char(i) | i <- [97..122]};
 
+@ignoreCompiler
 private list[![]] characters(str x) = [char(i) | i <- chars(x)];
 
 test bool shortestRangesArePrinted() = "<#![]>" == "![]";

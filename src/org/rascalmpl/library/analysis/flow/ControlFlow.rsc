@@ -13,8 +13,6 @@ then downstream analyses and visualizations are accurate.
 }
 module analysis::flow::ControlFlow
 
-extend analysis::graphs::LabeledGraph;
-
 @doc{
 .Synopsis
 control points in source code
@@ -61,4 +59,4 @@ data ControlEdge
        
 alias ControlFlow = rel[ControlNode from, ControlEdge edge, ControlNode to];
 
-data CFG = cfg(loc id, ControlFlow graph = {}, ControlNode entry = entry(id), ControlNode exit = exit(id));
+data CFG = cfg(loc id, ControlFlow graph = {}, ControlNode \start = entry(id), ControlNode end = exit(id));

@@ -65,7 +65,11 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	    
 	    return new URLClassLoader(new URL[] { new File(path).toURI().toURL() }, parent);
 	}
-
+	
+	@Override
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+	    new File(getPath(uri)).setLastModified(timestamp);
+	}
 	 
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
 		String path = getPath(uri);

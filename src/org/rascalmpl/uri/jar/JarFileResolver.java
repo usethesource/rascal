@@ -13,6 +13,7 @@
 package org.rascalmpl.uri.jar;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -51,6 +52,9 @@ public class JarFileResolver  {
         // jarFile's are closed the moment when there are no more references to it.
         JarFile jarFile = new JarFile(jar.getPath());
         JarEntry jarEntry = jarFile.getJarEntry(path);
+        if (jarEntry == null) {
+            throw new FileNotFoundException(path + " inside " + jar);
+        }
         return jarFile.getInputStream(jarEntry);
     }
 

@@ -104,8 +104,8 @@ test bool interpolateIndPatternDecl9(){ int n = 3; return (/<x:a{<n>}>/ := "aaa"
 test bool interpolateIndPatternDecl10(){ str a = "a"; int n = 3; return (/<x:<a>{<n>}>/ := "aaa" && x == "aaa");}
 test bool interpolateIndPatternDecl11(){ str a = "abc"; int n = 3; return (/<x:(<a>){<n>}>/ := "abcabcabc" && x == "abcabcabc");}
 	
-test bool interpolateIndPatternDecl12(){ int n = 3;  return (/<x:\\>/ := "\\" && x == "\\");}
-test bool interpolateIndPatternDecl13(){ int n = 3;  return (/<x:\>>/ := "\>" && x == "\>");}
+test bool interpolateIndPatternDecl12(){ return (/<x:\\>/ := "\\" && x == "\\");}
+test bool interpolateIndPatternDecl13(){ return (/<x:\>>/ := "\>" && x == "\>");}
 
 test bool interpolateIndPatternDecl14(){ int n = 3;  return (/<x:\<>/ := "\<" && x == "\<");}
 test bool interpolateIndPatternDecl15(){ int n = 3;  return (/<x:\< <n>>/ := "\< 3" && x == "\< 3");}

@@ -9,7 +9,6 @@ For a quick start, go find <<createM3FromEclipseProject>>.
 module lang::java::m3::Core
 
 extend lang::java::m3::TypeSymbol;
-import lang::java::m3::Registry;
 import lang::java::m3::AST;
 
 extend analysis::m3::Core;
@@ -18,11 +17,9 @@ import analysis::graphs::Graph;
 import analysis::m3::Registry;
 
 import IO;
-import ValueIO;
 import String;
 import Relation;
 import Set;
-import Map;
 import Node;
 import List;
 
@@ -75,13 +72,6 @@ public M3 diffJavaM3(loc id, list[M3] models) {
 	diff.annotations = first.annotations - others.annotations;
 
 	return diff;
-}
-
-public M3 link(M3 projectModel, set[M3] libraryModels) {
-  projectModel.declarations = { <name[authority=projectModel.id.authority], src> | <name, src> <- projectModel.declarations };
-  for (libraryModel <- libraryModels) {
-    libraryModel.declarations = { <name[authority=libraryModel.id.authority], src> | <name, src> <- libraryModel.declarations }; 
-  }
 }
 
 public M3 createM3FromFile(loc file, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
@@ -141,10 +131,6 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
     M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, javaVersion = javaVersion));
     registerProject(project, result);
     return result;
-}
-
-private str classPathToStr(loc jarClass) {
-    return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
 }
 
 public M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {

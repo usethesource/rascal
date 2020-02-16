@@ -1,17 +1,14 @@
- module lang::rascal::tests::functionality::Statement
- /*******************************************************************************
- * Copyright (c) 2009-2015 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the EclipseLicense v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-*******************************************************************************/
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the EclipseLicense v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+module lang::rascal::tests::functionality::Statement
   
 import Exception;
 
@@ -80,7 +77,7 @@ test bool testWhile2() {return {int n = 0; int m = 2; while(n < 3){ m = m * m; n
 
 test bool testWhileWithBacktracking1() {
     list[list[int]] res = [];
-    l:while([*int x, *int y] := [1,2,3]) {
+    l:while([*int x, *int _] := [1,2,3]) {
         res = res + [ x ];
         fail l;
     }
@@ -166,7 +163,7 @@ test bool fail2() = d(3) == d();
 
 test bool fail3() {
     int n = 0; 
-    loop:for(int i <- [1,2,3,4], n <= 3) { 
+    loop:for(int _ <- [1,2,3,4], n <= 3) { 
         if(n == 3) {
             fail loop;
         } 
@@ -211,9 +208,9 @@ test bool fail5() {
   
 test bool testFor1() {int n = 0; for(int i <- [1,2,3,4]){ n = n + i;} return n == 10;}
 test bool testFor2() {int n = 0; for(int i <- [1,2,3,4], n <= 3){ n = n + i;} return n == 6;}
-test bool testFor3() {int n = 0; for(int i <- [1,2,3,4]){ n = n + 1; if (n == 3) break; } return n == 3;}
-test bool testFor4() {int n = 0; for(int i <- [1,2,3,4], n <= 3){ if (n == 3) continue; n = n + 1; } return n == 3;}
-test bool testFor5() {int n = 0; loop:for(int i <- [1,2,3,4], n <= 3){ if (n == 3) fail loop; n = n + 1; } return n == 3;}
+test bool testFor3() {int n = 0; for(int _ <- [1,2,3,4]){ n = n + 1; if (n == 3) break; } return n == 3;}
+test bool testFor4() {int n = 0; for(int _ <- [1,2,3,4], n <= 3){ if (n == 3) continue; n = n + 1; } return n == 3;}
+test bool testFor5() {int n = 0; loop:for(int _ <- [1,2,3,4], n <= 3){ if (n == 3) fail loop; n = n + 1; } return n == 3;}
   
 // testAppend
 
@@ -260,8 +257,8 @@ test bool testSwitch1f() {int n = 0; switch(8){ default: n = 10;} return n == 10
  	int n = 0;
  	switch(e){
  		case 1 : 		n = 1;
- 		case x: 2: 		n = 2;
- 		case int x:	3: 	n = 3;
+ 		case _: 2: 		n = 2;
+ 		case int _:	3: 	n = 3;
  		default: 		n = 4;
  	}
  	return n;
@@ -277,7 +274,7 @@ test bool testSwitch1f() {int n = 0; switch(8){ default: n = 10;} return n == 10
  	switch(e){
  		case "abc": n = 1;
  		case /A/: n = 2;
- 		case str s: "def": n = 3;
+ 		case str _: "def": n = 3;
  		default: n = 4;
  	}
  	return n;
@@ -292,11 +289,11 @@ test bool testSwitch1f() {int n = 0; switch(8){ default: n = 10;} return n == 10
  	int n = 0;
  	switch(e){
  		case "abc": 		n = 1;
-		case str s: /def/: 	n = 2;
+		case str _: /def/: 	n = 2;
 		case 3: 			n = 3;
 		case d(): 			n = 4;
-		case d(z): 			n = 5;
-		case str s(3): 		n = 6;
+		case d(_): 			n = 5;
+		case str _(3): 		n = 6;
 		case [1,2,3]: 		n = 7;
 		case [1,2,3,4]: 	n = 8;
 		default: 			n = 9;
@@ -324,13 +321,13 @@ test bool testSwitch1f() {int n = 0; switch(8){ default: n = 10;} return n == 10
 		case e(/<s:^[A-Za-z0-9\-\_]+$>/, 3): 	n = 3;
 		case 4: 								n = 4;
 		case e(): 								n = 5;
-		case e(int x): 							n = 6;
-		case str s(7): 							n = 7;
+		case e(int _): 							n = 6;
+		case str _(7): 							n = 7;
 		case [1,2,3]: 							n = 8;
 		case [1,2,3,4]:							n = 9;
 		case e("abc", 10): 						n = 10;
-		case e("abc", int x): 					n = 11;
-		case node nd: 							n = 12;
+		case e("abc", int _): 					n = 11;
+		case node _: 							n = 12;
 		default: 								n = 13;
 	}
 	return n;
@@ -429,7 +426,7 @@ test bool solveIndexOutOfBounds1() {
 rel[int,int] removeIdPairs(rel[int,int] inp){
    res = inp;
    solve(res) {
-         if ( { < a, b >, < b, b >, c* } := res ) 
+         if ( { < a, b >, < b, b >, *c } := res ) 
               res = { *c, < a, b > };
    }
    return res;
