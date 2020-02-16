@@ -3,13 +3,13 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.15.3</version>
+    <version>0.15.4-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-      <tag>v0.15.3</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <!-- deployment configuration (usethesource) -->
