@@ -100,6 +100,14 @@
                     <version>3.1.0</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
                     <version>0.2.6</version>
@@ -342,7 +350,7 @@
             <dependency>
                 <groupId>io.usethesource</groupId>
                 <artifactId>vallang</artifactId>
-                <version>0.11.0</version>
+                <version>0.11.1</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
