@@ -200,7 +200,7 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
     varType = symbol;
     uname = prettyPrintName(name);
     if(size(c.getStack(patternContainer)) == 1){    // An expression        
-       c.useLub(name, {formalOrPatternFormal(c)});
+       c.useLub(name, {formalOrPatternFormal(c), variableId()});
        //c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
     } else {                                        //A pattern
         //println("ConcreteHole pat: <current>");

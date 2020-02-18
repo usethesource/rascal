@@ -140,6 +140,16 @@ test bool ExtendADT(){
 	return checkOK("DATA x = d2(3);", initialDecls=["data DATA = d2(int n);"], importedModules=["MMM"]);
 }
 
+test bool UseVariableInConcreteSyntax() {
+    makeModule("MMM", "syntax A = a:\"a\"; 
+                      'A hello() {
+                      '  A given_a = (A) `a`;
+                      '  return (A) `\<A given_a\> \<A given_a\>`;
+                      '}");
+                      
+    return checkOK("hello();", importedModules=["MMM"]);
+}
+
 // MAH: We currently allow redeclarations in cases where the redeclaration exactly matches
 // an existing declaration. The original test was modified to add constructor fields, which
 // will then trigger an error.
