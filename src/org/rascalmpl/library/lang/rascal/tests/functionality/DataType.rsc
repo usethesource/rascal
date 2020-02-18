@@ -687,9 +687,9 @@ data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] t
     
 // 	testSet
     		
-test bool testSet62() = {INTERSECT({TYPESET t1, *TYPESET rest}), TYPESET t2} :=  {INTERSECT({SET("a"), SET("b")}), SET("c")};
-test bool testSet63() = {INTERSECT({TYPESET t1, *TYPESET rest}),  t1} :=  {INTERSECT({SET("a"), SET("b")}), SET("a")};
-test bool testSet64() = {INTERSECT({TYPESET t1, *TYPESET rest}),  t1} :=  {INTERSECT({SET("b"), SET("a")}), SET("a")};
+test bool testSet62() = {INTERSECT({TYPESET _, *TYPESET _}), TYPESET _} :=  {INTERSECT({SET("a"), SET("b")}), SET("c")};
+test bool testSet63() = {INTERSECT({TYPESET t1, *TYPESET _}),  t1} :=  {INTERSECT({SET("a"), SET("b")}), SET("a")};
+test bool testSet64() = {INTERSECT({TYPESET t1, *TYPESET _}),  t1} :=  {INTERSECT({SET("b"), SET("a")}), SET("a")};
     
 test bool testSet65() =  { <t1, t2> | INTERSECT({TYPESET t1, *TYPESET t2}) :=  INTERSECT({SET("b"), SET("a")})} == 
     						   		        { <SET("b"),{SET("a")}>, <SET("a"),{SET("b")}>};
@@ -727,19 +727,19 @@ test bool testSetMultiVariable10()  {R = for({*int S1, *str S2} := {100, "a"}) a
 test bool testSetMultiVariable11()  {R = for({*str S1, *S2} := {100, "a"})  append <S1, S2>; return R == [<{"a"},{100}>, <{},{100,"a"}>];}
 test bool testSetMultiVariable12()  {R = for({*str S1, *int S2} := {100, "a"})  append <S1, S2>; return R == [<{"a"},{100}>];}
     		
-test bool testSetMultiVariable13() = !({*str S1, *str S2} := {100, "a"});
-test bool testSetMultiVariable14() = !({*int S1, *int S2} := {100, "a"});
+test bool testSetMultiVariable13() = !({*str _, *str _} := {100, "a"});
+test bool testSetMultiVariable14() = !({*int _, *int _} := {100, "a"});
     
       
 test bool addSetError1() { 		return {1,2,3} + true=={1,2,3,true}; }
     	
 	// setSplicing
         
-test bool testSetSplicing1() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {S1} == {{1,2}};}
-test bool testSetSplicing2() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*S1} == {1,2};}
+test bool testSetSplicing1() {set[int] S1 = {1,2}; return {S1} == {{1,2}};}
+test bool testSetSplicing2() {set[int] S1 = {1,2}; return {*S1} == {1,2};}
     		
-test bool testSetSplicing3() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {S1,3} == {{1,2},3};}
-test bool testSetSplicing4() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*S1,3} == {1,2,3};}
+test bool testSetSplicing3() {set[int] S1 = {1,2}; return {S1,3} == {{1,2},3};}
+test bool testSetSplicing4() {set[int] S1 = {1,2}; return {*S1,3} == {1,2,3};}
     		
 test bool tetestSetSplicing5() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {S1,S2} == {{1,2},{3,4}};}
 test bool testSetSplicing6() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*S1,S2} == {1,2,{3,4}};}
@@ -751,16 +751,16 @@ test bool testSetSplicing10() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return 
 test bool testSetSplicing11() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {S1,*S2,5} == {{1,2},3,4,5};}
 test bool testSetSplicing12() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*S1,*S2,5} == {1,2,3,4,5};}
     		
-test bool testSetSplicing13() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {{S1}} == {{{1,2}}};}
+test bool testSetSplicing13() {set[int] S1 = {1,2}; return {{S1}} == {{{1,2}}};}
     		
-test bool testSetSplicing14() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {{*S1}}   == {{1,2}};}
-test bool testSetSplicing15() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*{*S1}} == {1,2};}
+test bool testSetSplicing14() {set[int] S1 = {1,2}; return {{*S1}}   == {{1,2}};}
+test bool testSetSplicing15() {set[int] S1 = {1,2};  return {*{*S1}} == {1,2};}
     		
-test bool testSetSplicing16() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {{S1},3} == {{{1,2}},3};}
-test bool testSetSplicing17() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*{S1},3} == {{1,2},3};}
-test bool testSetSplicing18() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*{*S1},3} == {1,2,3};}
+test bool testSetSplicing16() {set[int] S1 = {1,2}; return {{S1},3} == {{{1,2}},3};}
+test bool testSetSplicing17() {set[int] S1 = {1,2}; return {*{S1},3} == {{1,2},3};}
+test bool testSetSplicing18() {set[int] S1 = {1,2}; return {*{*S1},3} == {1,2,3};}
     		
-test bool testSetSplicing19() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*{*S1},2} == {1,2};}
+test bool testSetSplicing19() {set[int] S1 = {1,2}; return {*{*S1},2} == {1,2};}
     	
 test bool testSetSplicing20() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {{S1},{S2}} == {{{1,2}},{{3,4}}};}
 test bool testSetSplicing21() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*{S1},{S2}} == {{1,2},{{3,4}}};}
@@ -777,9 +777,9 @@ test bool testSetSplicing29() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return 
 test bool testSetSplicing30() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {S1,*{*S2},5} == {{1,2},3,4,5};}
 test bool testSetSplicing31() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; return {*S1,*{*S2},5} == {1,2,3,4,5};}
     		
-test bool testSetSplicing32() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[set[set[int]]] S3 = {{S1}}; return S3 == {{{1,2}}};}
+test bool testSetSplicing32() {set[int] S1 = {1,2}; set[set[set[int]]] S3 = {{S1}}; return S3 == {{{1,2}}};}
     		
-test bool testSetSplicing33() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {{S1},3}; return S3 == {{{1,2}},3};}
+test bool testSetSplicing33() {set[int] S1 = {1,2}; set[value] S3 = {{S1},3}; return S3 == {{{1,2}},3};}
 test bool testSetSplicing34() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[set[set[int]]] S3 = {{S1},{S2}};return  S3 == {{{1,2}},{{3,4}}};}
 test bool testSetSplicing35() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {S1,{S2}}; return S3 == {{1,2},{{3,4}}};}
 test bool testSetSplicing36() {set[int] S1 = {1,2}; set[int] S2 = {3,4}; set[value] S3 = {S1,{S2},5}; return S3 == {{1,2},{{3,4}},5};}
@@ -841,11 +841,11 @@ test bool testMap36() = !(2 notin (1:10, 2:20));
     		
 test bool testMap37() {map[str,list[int]] m = ("a": [1,2], "b": [], "c": [4,5,6]); return m["a"] == [1,2];}
    
-@expected{NoSuchKey}
-void NoKeyError1(){		 (1:10, 2:20)[3]; return;}
+//@expected{NoSuchKey}
+//test bool NoKeyError1(){		 (1:10, 2:20)[3]; return true;}
     	 
-@expected{MultipleKey}
-void MultipleKeyError1(){ (1:10, 1:10); return;	 }
+//@expected{MultipleKey}
+//test bool MultipleKeyError1(){ (1:10, 1:10); return true;	 }
     	
 // testTuple
     		
