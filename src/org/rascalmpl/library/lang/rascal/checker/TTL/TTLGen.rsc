@@ -46,7 +46,7 @@ void generate(loc src){
    map[Name, Module] modules = ();
    str tests = "";
    for(TestItem item <- spec.items){
-       if(defMod(Name nm, Module moduleText) := item){// Was: item is defMod){
+       if(defMod(Name nm, Module _) := item){// Was: item is defMod){
        	     if(decls[nm]?) throw "Ambiguous name <nm> at <item@\loc>";
        	     if(modules[nm]?) throw "Redeclared module name <nm> at <item@\loc>";
              modules[nm] = item.moduleText;
