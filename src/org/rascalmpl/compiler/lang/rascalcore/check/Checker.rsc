@@ -135,16 +135,37 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 // ----  Various check functions  ---------------------------------------------
  
 int npc = 0;
+@doc{
+  PathConfig for testing generated modules in |test-modules:///| in memory file system.
+  
+  * gets source files exclusively from |test-modules:///|
+  * generates bin files in the in-memory file system 
+  * depends only on the pre-compiled standard library from the rascal project 
+}
 public PathConfig getDefaultPathConfig() {
     npc += 1;
     snpc = "<npc>";
-    println("checker path config <npc>");
     return pathConfig(   
         srcs = [|test-modules:///| /* test-modules is an in-memory file-system */], 
-        bin = |test-modules:///rascal-core/bin<snpc>|, 
-        libs = [|lib://rascal/|, |lib://typepal/|]
-               );
+        bin = |test-modules:///rascal-core-tests-bin-<snpc>|, 
+        libs = [|lib://rascal/|]
+    );
 }
+
+@doc{ 
+  for type-checking test modules in the rascal-core project; such as "lang::rascalcore::check::Test1" 
+  
+  * sources have to be in |project://rascal-core/src/org/rascalmpl/core/library|
+  * binaries will be stored in-memory only
+  * has the standard library and typepal on the library path, in case you accidentally want to test
+    a module in rascal-core which depends on typepal.
+}
+public PathConfig getRascalCorePathConfig() 
+    = pathConfig(   
+        srcs = [|project://rascal-core/src/org/rascalmpl/core/library|], 
+        bin = |test-modules:///rascal-core-bin|, 
+        libs = [|lib://rascal/|, |lib://typepal/|]
+    );
 
 // Profiling
 
