@@ -127,8 +127,9 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                            s.requireSubType(exprType, patType, error(current, "A pattern of type %t cannot be replaced by %t", patType, exprType));
                          });
               
-                    collect(pattern, replacement, c);
-                endPatternScope(c);
+                        collect(pattern, c);
+                    endPatternScope(c);
+                    collect(replacement, c);
                 c.leaveScope(current);
                 return;
              } else {
@@ -162,7 +163,6 @@ void collect(current: (PatternWithAction) `<Pattern pattern>: <Statement stateme
                     // force type calculation of pattern
                     //c.calculateEager("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, s.getType(expression), scope, s); });
                     c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, s.getType(expression), scope, s); });
-                    beginPatternScope("pattern-with-action", c);
                     beginPatternScope("pattern-with-action", c);
                         collect(pattern, c);
                     endPatternScope(c);
