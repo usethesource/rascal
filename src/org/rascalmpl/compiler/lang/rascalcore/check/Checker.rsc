@@ -140,14 +140,7 @@ public PathConfig getDefaultPathConfig() {
     snpc = "<npc>";
     println("checker path config <npc>");
     return pathConfig(   
-        srcs = [|test-modules:///|, /* test-modules is an in-memory file-system */ 
-                //Jurgen: Commented out, because wouldn't it be weird if modules under test depend secretly on the implementation of the checker?
-                //Paul: we need this to run in Eclipse console
-                |project://rascal-core/src/org/rascalmpl/core/library/|
-                , |project://rascal/src/org/rascalmpl/library/|
-                //, |project://rascal-eclipse-ide/rascal-eclipse/src/org/rascalmpl/eclipse/library/|
-                , |project://typepal/src/|
-               ],
+        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */], 
         bin = |test-modules:///rascal-core/bin<snpc>|, 
         libs = [|lib://rascal/|, |lib://typepal/|]
                );
