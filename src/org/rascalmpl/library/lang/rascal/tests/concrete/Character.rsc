@@ -1,7 +1,6 @@
 module lang::rascal::tests::concrete::Character
 
-import ParseTree;
-import String;
+import ParseTree; 
 
 lexical Example = ([A-Z] head [a-z]* tail)+ words;
 
