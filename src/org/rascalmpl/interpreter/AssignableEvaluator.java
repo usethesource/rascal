@@ -28,7 +28,6 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.UnexpectedTypeException;
 import io.usethesource.vallang.type.TypeFactory;
 
 
