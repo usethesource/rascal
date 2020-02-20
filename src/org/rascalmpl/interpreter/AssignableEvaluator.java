@@ -28,6 +28,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.UnexpectedTypeException;
 import io.usethesource.vallang.type.TypeFactory;
 
 
@@ -98,6 +99,10 @@ public class AssignableEvaluator {
 	 * Given an old result and a right-hand side Result, compute a new result.
 	 */
 	public Result<IValue> newResult(Result<IValue> oldValue, Result<IValue> rhsValue) {
+	    if (rhsValue.getType().isBottom()) {
+	        throw new UnexpectedType(oldValue.getType(), tf.voidType(), getCurrentAST());
+	    }
+	    
 		Result<IValue> newValue;
 		if(oldValue != null) {
 			switch(this.__getOperator()){
