@@ -162,7 +162,7 @@ public PathConfig getDefaultPathConfig() {
 }
 public PathConfig getRascalCorePathConfig() 
     = pathConfig(   
-        srcs = [|project://rascal-core/src/org/rascalmpl/core/library|], 
+        srcs = [|project://rascal/src/org/rascalmpl/library|, |project://rascal-core/src/org/rascalmpl/core/library|], 
         bin = |test-modules:///rascal-core-bin|, 
         libs = [|lib://rascal/|, |lib://typepal/|]
     );

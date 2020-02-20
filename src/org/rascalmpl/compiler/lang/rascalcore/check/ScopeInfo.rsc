@@ -7,10 +7,11 @@ import lang::rascal::\syntax::Rascal;
 public str patternContainer = "patternContainer";
 public str patternNames     = "patternNames";
 
+
 public str currentAdt = "currentAdt";       // used to mark data declarations
 public str inAlternative = "inAlternative"; // used to mark top-level alternative in syntax declaration
 public str typeContainer = "typeContainer";
-
+public str inConcreteLiteral = "concreteLiteral"; // used to mark that we are inside a concrete literal
 
 // Some utilities on patterns
 
