@@ -390,3 +390,16 @@ test bool Issue563() = uninitialized("int x; x + 5;");
 // to use * in a tuple pattern
 //test bool Issue886() = unexpectedType("[\<[\<19,0,_*\>],false,_\>] := [\<[\<19,0,1\>], true, 1\>]");
 
+
+// https://github.com/usethesource/rascal/issues/1353
+test bool Issue1353() {
+   makeModule("MC", "syntax A 
+                    '  = \"a\"
+                    '  | left two: A lhs A rhs; 
+                    '
+                    '  A hello() {
+                    '    A given_a = (A) `a`;
+                    '     return (A) `\<A given_a\> \<A given_a\>`;
+                    '  }");
+   return checkOK("hello();", importedModules=["MC"]);                 
+}
