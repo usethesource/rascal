@@ -166,6 +166,16 @@ public PathConfig getRascalCorePathConfig()
         bin = |test-modules:///rascal-core-bin|, 
         libs = [|lib://rascal/|, |lib://typepal/|]
     );
+    
+@doc{
+  a path config for testing type-checking of the standard library in the rascal project
+}    
+public PathConfig getRascalProjectPathConfig() 
+    = pathConfig(   
+        srcs = [|project://rascal/src/org/rascalmpl/library|], 
+        bin = |test-modules:///rascal-lib-bin|, 
+        libs = []
+    );    
 
 // Profiling
 
