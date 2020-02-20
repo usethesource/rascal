@@ -42,6 +42,8 @@ import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.BreakException;
+import org.rascalmpl.interpreter.control_exceptions.ContinueException;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -49,6 +51,8 @@ import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.staticErrors.MissingReturn;
+import org.rascalmpl.interpreter.staticErrors.OffsideBreak;
+import org.rascalmpl.interpreter.staticErrors.OffsideContinue;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
@@ -57,6 +61,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.semantics.dynamic.Tree.Appl;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -301,6 +306,12 @@ public class RascalFunction extends NamedFunction {
           storeMemoizedResult(actuals,keyArgValues, result);
           return result;
         }
+        catch (BreakException x) {
+            throw new OffsideBreak(ctx.getCurrentAST());
+        }
+        catch (ContinueException y) {
+            throw new OffsideContinue(ctx.getCurrentAST());
+        }
       }
       
       matchers[0].initMatch(makeResult(actualTypesTuple.getFieldType(0), actuals[0], ctx));
@@ -356,9 +367,15 @@ public class RascalFunction extends NamedFunction {
     	  printEndTrace(result.getValue());
       }
       return result;
-    } 
+    }
+    catch (BreakException x) {
+        throw new OffsideBreak(ctx.getCurrentAST());
+    }
+    catch (ContinueException y) {
+        throw new OffsideContinue(ctx.getCurrentAST());
+    }
     catch (Throwable e) {
-    	if (callTracing) {
+        if (callTracing) {
             printExcept(e);
     	}
     	throw e;
