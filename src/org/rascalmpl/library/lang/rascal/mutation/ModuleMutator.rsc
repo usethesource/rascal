@@ -24,14 +24,11 @@ import IO;
 
 list[str] mutate(loc input, int mutations = 5, real chance = 0.1, str folder="mutants", str prefix="") {
   m = parse(#start[Module], input).top;
-  list[str] modList = [];
-  str muModName = "???";
-  for (new <- mutate(m, mutations=mutations, chance=chance, prefix=prefix, parentMod=folder)) {
+  return for (new <- mutate(m, mutations=mutations, chance=chance, prefix=prefix, parentMod=folder)) {
     muModName = "<getModuleName(new)>.rsc";
     writeFile(input.parent + folder + muModName, "<new>");
-    modList += muModName;
+    append muModName;
   }
-  return modList;
 }
 
 list[Module] mutate(Module input, int mutations = 5, real chance = 0.1, str prefix="", str parentMod="") {
