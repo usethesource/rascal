@@ -594,7 +594,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	            env.declareVariable(TF.boolType(), isSetName);
 	            
-	            if (keyArgValues.containsKey(kwparam)){
+	            if (keyArgValues != null && keyArgValues.containsKey(kwparam)){
 	                IValue r = keyArgValues.get(kwparam);
 	
 	                if(!r.getType().isSubtypeOf(kwType)) {
