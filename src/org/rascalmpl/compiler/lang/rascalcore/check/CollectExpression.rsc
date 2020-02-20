@@ -190,7 +190,15 @@ void collect(current: (PathTail) `<MidPathChars mid> <Expression expression> <Pa
 
 // ---- Concrete literals
 
-void collect(Concrete concrete, Collector c){
+void collect((Expression) `<Concrete concrete>`, Collector c){
+    c.fact(concrete, concrete.symbol);
+    c.push(inConcreteLiteral, true);
+    collect(concrete.symbol, c);
+    collect(concrete.parts, c);
+    c.pop(inConcreteLiteral);
+}
+
+void collect((Pattern) `<Concrete concrete>`, Collector c){
     c.fact(concrete, concrete.symbol);
     collect(concrete.symbol, c);
     collect(concrete.parts, c);
@@ -199,12 +207,11 @@ void collect(Concrete concrete, Collector c){
 void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector c){
     varType = symbol;
     uname = prettyPrintName(name);
-    if(size(c.getStack(patternContainer)) == 1){    // An expression        
-       c.useLub(name, {formalOrPatternFormal(c), variableId()});
-       //c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
-    } else {                                        //A pattern
-        //println("ConcreteHole pat: <current>");
-      
+    if(!isEmpty(c.getStack(inConcreteLiteral))){    // We are inside a concrete literal expression 
+                                                    // This hole must be a use       
+       c.useLub(name, {formalId(), patternVariableId(), variableId()});
+    } else {                                        // We are inside a concrele Literal pattern   
+                                                    // This hole can be a use or define   
         if(uname != "_"){
            if(uname in c.getStack(patternNames)){
               c.useLub(name, {formalOrPatternFormal(c)});
@@ -214,10 +221,32 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
            }
         }
     }
-   // c.calculateEager("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
     c.fact(current, symbol);
     collect(symbol, c);
 }
+
+//void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector c){
+//    varType = symbol;
+//    uname = prettyPrintName(name);
+//    if(size(c.getStack(patternContainer)) == 1){    // An expression        
+//       c.useLub(name, {formalOrPatternFormal(c), variableId()});
+//       //c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
+//    } else {                                        //A pattern
+//        //println("ConcreteHole pat: <current>");
+//      
+//        if(uname != "_"){
+//           if(uname in c.getStack(patternNames)){
+//              c.useLub(name, {formalOrPatternFormal(c)});
+//           } else {
+//               c.push(patternNames, uname);
+//               c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
+//           }
+//        }
+//    }
+//   // c.calculateEager("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
+//    c.fact(current, symbol);
+//    collect(symbol, c);
+//}
 
 // Rascal expressions
 
