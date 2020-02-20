@@ -278,7 +278,9 @@ bool rascalReportUnused(loc def, TModel tm){
             case nestedFormalId():      return reportFormal(define); 
             case keywordFormalId():     return reportFormal(define); 
                                         
-            case patternVariableId():   return config.warnUnusedPatternFormals && define.id != "_";
+            case patternVariableId():   { if(!config.warnUnusedVariables) return false;
+                                          return define.id notin {"_"};
+                                        }
             case typeVarId():           return false;
             case variableId():          { if(!config.warnUnusedVariables) return false;
                                           container = definitions[findContainer(def, definitions, scopes)];
