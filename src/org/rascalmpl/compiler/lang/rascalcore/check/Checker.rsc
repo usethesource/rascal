@@ -134,7 +134,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 
 // ----  Various check functions  ---------------------------------------------
  
-int npc = 0;
+private int npc = 0;
 @doc{
   PathConfig for testing generated modules in |test-modules:///| in memory file system.
   
@@ -160,22 +160,28 @@ public PathConfig getDefaultPathConfig() {
   * has the standard library and typepal on the library path, in case you accidentally want to test
     a module in rascal-core which depends on typepal.
 }
-public PathConfig getRascalCorePathConfig() 
-    = pathConfig(   
+public PathConfig getRascalCorePathConfig() {
+   npc += 1;
+   snpc = "<npc>";
+   return pathConfig(   
         srcs = [|project://rascal/src/org/rascalmpl/library|, |project://rascal-core/src/org/rascalmpl/core/library|], 
-        bin = |test-modules:///rascal-core-bin|, 
+        bin = |test-modules:///rascal-core-bin-<snpc>|, 
         libs = [|lib://rascal/|, |lib://typepal/|]
     );
+}
     
 @doc{
   a path config for testing type-checking of the standard library in the rascal project
 }    
-public PathConfig getRascalProjectPathConfig() 
-    = pathConfig(   
+public PathConfig getRascalProjectPathConfig() {
+    npc += 1;
+    snpc = "<npc>";
+    return pathConfig(   
         srcs = [|project://rascal/src/org/rascalmpl/library|], 
-        bin = |test-modules:///rascal-lib-bin|, 
+        bin = |test-modules:///rascal-lib-bin-<snpc>|, 
         libs = []
-    );    
+    );  
+}  
 
 // Profiling
 
@@ -192,7 +198,7 @@ alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, ma
 // rascalTModelForLoc is the basic work horse
  
 CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfig config){     
-    bool forceCompilationTopModule = false; /***** for convenience, set to true during development of type checker *****/
+    bool forceCompilationTopModule = true; /***** for convenience, set to true during development of type checker *****/
     try {
         beginTime = cpuTime();   
         topModuleNames = { getModuleName(mloc, pcfg) | mloc <- mlocs };
@@ -448,7 +454,7 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
 // ---- Convenience check function during development -------------------------
       
 map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config) {
-    <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, getDefaultPathConfig(), config);
+    <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, getRascalCorePathConfig(), config);
     return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
 }
 
