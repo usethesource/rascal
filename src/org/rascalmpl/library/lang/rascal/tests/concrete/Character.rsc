@@ -28,7 +28,7 @@ test bool charclassLUB2() = set[[a-z]] _ := {char(i) | i <- [97..122]};
 
 list[Tree] characters(str x) = [char(i) | i <- chars(x)];
 
-list[![]] produceCharSet() = [ w.head |  w <- t.words ]
+list[![]] produceCharClass() = [ w.head |  w <- t.words ]
    when Example t := [Example] "CamelCaseBaseFeest";
 
 test bool characterClassSubType() {
