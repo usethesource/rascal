@@ -17,14 +17,12 @@ module lang::rascalcore::grammar::definition::Characters
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::AType;
 import String;
-//import lang::rascalcore::grammar::definition::Grammar;
 import List;
-import IO;
 
 data AType;
 data ACharRange = \empty-range();
 
-ACharRange \new-range(int from, int to) = from <= to ? ACharRange::range(from, to) : \empty-range();
+ACharRange \new-range(int from, int to) = from <= to ? arange(from, to) : \empty-range();
  
 public AType \new-char-class(list[ACharRange] ranges) 
   = \char-class(([] | union(it, [r]) | r <- ranges));
@@ -41,8 +39,10 @@ public default AType  complement(AType s) {
   throw "unsupported symbol for character class complement: <s>";
 }
   
-public AType difference(\char-class(list[ACharRange] r1), \char-class(list[ACharRange] r2)) 	
-  = \char-class([r | r <- difference(r1,r2), !(r is \empty-range)]);
+public AType difference(\char-class(list[ACharRange] r1), \char-class(list[ACharRange] r2)){
+    res = \char-class([r | r <- difference(r1,r2), !(r is \empty-range)]);
+    return res;
+}
 
 public default AType  difference(AType s, AType t) {
   throw "unsupported symbols for  character class difference: <s> and <t>";
@@ -63,7 +63,7 @@ public default AType  intersection(AType s, AType t) {
 }
 
 public bool lessThan(ACharRange r1, ACharRange r2) {
-  if (range(s1,e1) := r1, range(s2,e2) := r2) {
+  if (ACharRange::arange(s1,e1) := r1, ACharRange::arange(s2,e2) := r2) {
     return e1 < s2;
   }
   throw "unexpected ranges <r1> and <r2>";
@@ -72,7 +72,7 @@ public bool lessThan(ACharRange r1, ACharRange r2) {
 public ACharRange difference(ACharRange l, ACharRange r) {
   if (l == \empty-range() || r == \empty-range()) return l;
   
-  if (\range(ls,le) := l, \range(rs,re) := r) {
+  if (arange(ls,le) := l, arange(rs,re) := r) {
     // left beyond right
     // <-right-> --------
     // --------- <-left->
@@ -116,7 +116,7 @@ public ACharRange difference(ACharRange l, ACharRange r) {
 public ACharRange intersect(ACharRange r1, ACharRange r2) {
   if (r1 == \empty-range() || r2 == \empty-range()) return \empty-range();
   
-  if (range(s1,e1) := r1, range(s2,e2) := r2) {
+  if (arange(s1,e1) := r1, arange(s2,e2) := r2) {
     // left beyond right
     // <-right-> --------
     // --------- <-left->
@@ -145,20 +145,20 @@ public ACharRange intersect(ACharRange r1, ACharRange r2) {
     // <--left-------->----------
     // ---------<-----right----->
     if (e1 < e2) 
-      return range(s2,e1); 
+      return arange(s2,e1); 
     
     // overlap on right side of right
     // -------------<---left---->
     // <----right------->--------
     if (s1 > s2)
-      return range(s1,e2); 
+      return arange(s1,e2); 
   }
   
   throw "unexpected ranges <r1> and <r2>";
 }
 
 public list[ACharRange] complement(list[ACharRange] s) {
-  return difference([range(1,0x10FFFF)],s); // the 0 character is excluded
+  return difference([arange(1,0x10FFFF)],s); // the 0 character is excluded
 }
 
 public list[ACharRange] intersection(list[ACharRange] l, list[ACharRange] r) {
@@ -202,13 +202,13 @@ public list[ACharRange] intersection(list[ACharRange] l, list[ACharRange] r) {
   // <--left-------->----------
   // ---------<-----right----->
   if (lhead.end < rhead.end) 
-    return range(rhead.begin,lhead.end) + intersection(ltail,r); 
+    return arange(rhead.begin,lhead.end) + intersection(ltail,r); 
     
   // overlap on right side of right
   // -------------<---left---->
   // <----right------->--------
   if (lhead.begin > rhead.begin)
-    return range(lhead.begin,rhead.end) + intersection(l,rtail); 
+    return arange(lhead.begin,rhead.end) + intersection(l,rtail); 
     
   throw "did not expect to end up here! <l> - <r>";
   
@@ -256,13 +256,13 @@ public list[ACharRange] union(list[ACharRange] l, list[ACharRange] r) {
   // <--left-------->----------
   // ---------<-----right----->
   if (lhead.end < rhead.end) 
-    return union(range(lhead.begin,rhead.end) + ltail, rtail); 
+    return union(arange(lhead.begin,rhead.end) + ltail, rtail); 
     
   // overlap on right side of right
   // -------------<---left---->
   // <----right------->--------
   if (lhead.begin > rhead.begin)
-    return union(ltail,range(rhead.begin,lhead.end) + rtail); 
+    return union(ltail,arange(rhead.begin,lhead.end) + rtail); 
     
   throw "did not expect to end up here! <l> - <r>";
   
@@ -320,7 +320,7 @@ public list[ACharRange] difference(list[ACharRange] l, list[ACharRange] r) {
   // -------------<---left---->
   // <----right------->--------
   if (lhead.begin > rhead.begin)
-    return difference(range(rhead.end+1,lhead.end)+ltail, rtail);
+    return difference(arange(rhead.end+1,lhead.end)+ltail, rtail);
 
   throw "did not expect to end up here! <l> - <r>";
 }
@@ -354,11 +354,11 @@ public AType cc2ranges(Class cc) {
       
 private ACharRange range(Range r) {
   switch (r) {
-    case character(Char c) : return range(charToInt(c),charToInt(c));
+    case character(Char c) : return arange(charToInt(c),charToInt(c));
     case fromTo(Char l1, Char r1) : {
       <cL,cR> = <charToInt(l1),charToInt(r1)>;
       // users may flip te ranges, but after this reversed ranges will results in empty ranges
-      return cL <= cR ? range(cL, cR) : range(cR, cL);
+      return cL <= cR ? arange(cL, cR) : arange(cR, cL);
     } 
     default: throw "range, missed a case <r>";
   }
