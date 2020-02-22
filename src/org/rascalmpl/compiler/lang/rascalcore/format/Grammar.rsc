@@ -222,8 +222,8 @@ public str cc2rascal(list[ACharRange] ranges) {
 
 public str range2rascal(ACharRange r) {
   switch (r) {
-    case range(c,c) : return makeCharClassChar(c);
-    case range(c,d) : return "<makeCharClassChar(c)>-<makeCharClassChar(d)>";
+    case arange(c,c) : return makeCharClassChar(c);
+    case arange(c,d) : return "<makeCharClassChar(c)>-<makeCharClassChar(d)>";
     //TODO:
     //case \empty-range():
     //                  return "";

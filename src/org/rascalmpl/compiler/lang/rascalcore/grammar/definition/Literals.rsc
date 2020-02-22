@@ -25,17 +25,17 @@ public AProduction ciliteral(str s) = prod(cilit(s), cistr2syms(s));
 
 public list[AType] str2syms(str x) {
   if (x == "") return [];
-  return [\char-class([range(c,c)]) | i <- [0..size(x)], int c:= charAt(x,i)]; 
+  return [\char-class([arange(c,c)]) | i <- [0..size(x)], int c:= charAt(x,i)]; 
 }
 
 list[AType] cistr2syms(str x) {
   return for (i <- [0..size(x)], int c:= charAt(x,i)) {
      if (c >= 101 && c <= 132) // A-Z
-        append \char-class([range(c,c),range(c+40,c+40)]);
+        append \char-class([arange(c,c),arange(c+40,c+40)]);
      else if (c >= 141 && c <= 172) // a-z
-        append \char-class([range(c,c),range(c-40,c-40)]);
+        append \char-class([arange(c,c),arange(c-40,c-40)]);
      else 
-        append \char-class([range(c,c)]);
+        append \char-class([arange(c,c)]);
   } 
 }
 

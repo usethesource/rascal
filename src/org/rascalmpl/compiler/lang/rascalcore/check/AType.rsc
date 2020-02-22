@@ -231,7 +231,7 @@ Character ranges and character class
 *  `CharRange` defines a range of characters.
 *  A `CharClass` consists of a list of characters ranges.
 }
-data ACharRange = range(int begin, int end);
+data ACharRange = arange(int begin, int end);
 
 alias ACharClass = list[ACharRange];
 
@@ -514,13 +514,11 @@ bool asubtype(AType l, aparameter(str _, AType bound)) = asubtype(l, bound);
 bool asubtype(areified(AType s), areified(AType t)) = asubtype(s,t);
 bool asubtype(areified(AType s), anode(_)) = true;
 
-bool asubtype(anode(list[AType/*NamedField*/] l), anode(list[AType/*NamedField*/] r)) = l <= r;
+bool asubtype(anode(list[AType] l), anode(list[AType] r)) = l <= r;
 
 // Character classes
-bool asubtype(l:\char-class(_), r:\char-class(_)) = (difference(r, l) == \char-class([]));
+bool asubtype(l:\char-class(_), r:\char-class(_)) = l.ranges == r.ranges || (difference(r, l) != \char-class([]));
 bool asubtype(l:\char-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
-bool asubtype(list[Tree] chars, \char-class(list[ACharRange] ranges)) = 
-    all(char(i) <- chars, any(r <- ranges, i > r.begin, i < r.end));
 
 // Utilities
 
@@ -529,8 +527,8 @@ bool asubtype(atypeList(list[AType] l), atypeList(list[AType] r)) = asubtype(l, 
 bool asubtype(list[AType] l, list[AType] r) = all(i <- index(l), asubtype(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
 default bool asubtype(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
 
-bool asubtype(list[AType/*NamedField*/] l, list[AType/*NamedField*/] r) = all(i <- index(l), asubtype(l[i]/*.fieldType*/, r[i]/*.fieldType*/)) when size(l) == size(r) && size(l) > 0;
-default bool asubtype(list[AType/*NamedField*/] l, list[AType/*NamedField*/] r) = size(l) == 0 && size(r) == 0;
+bool asubtype(list[AType] l, list[AType] r) = all(i <- index(l), asubtype(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
+default bool asubtype(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
 
 @doc{
 .Synopsis

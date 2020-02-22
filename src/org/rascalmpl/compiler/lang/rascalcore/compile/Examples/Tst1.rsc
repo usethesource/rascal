@@ -1,29 +1,27 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-syntax Pattern = "p";
-syntax Replacement = "r";
-syntax PatternWithAction = Pattern "=\>" Replacement;
-          
-PatternWithAction muOperPatt((PatternWithAction) `<Pattern p> =\> <Replacement _>`) 
-    { return  (PatternWithAction) `<Pattern p> : throw "mutant! OP0: Remove pattern rewrite.";`; }
+//import String;
+//import ParseTree;
 
 
-//syntax A = "a";
-//syntax B = "b";
-//syntax C = "c";
-//syntax AB = AB;
-//syntax ABC = ABC;
-//   
-//AB f(ABC abc){
-//    switch(abc){
-//        case (ABC) `<A a>,<B b><C c>`: 
-//            return (AB) `<A a><B b>`;
-//    }
-//    return [AB] "ab";
+
+lexical Example = ([A-Z] head [a-z]* tail)+ words;
+
+test bool staticFieldProjectType() = list[[A-Z]] _ := [ w.head |  w <- t.words ]
+  when Example t := [Example] "CamelCaseBaseFeest";
+  
+list[![]] f() = [ w.head |  w <- t.words ]
+   when Example t := [Example] "CamelCaseBaseFeest";
+
+//
+//test bool characterClassSubType() {
+//  [A-Za-z] tmp = (Example) `A`.head; // assignment into bigger class: always allowed
+//  
+//  if ([A-Z] _ := tmp) { // binding to smaller class should match if it fits
+//    return true;
+//  }
+//  
+//  return false;
 //}
 
-//set[str] f(){
-//    res = {};
-//    res += 1;
-//    return res;
-//}
+//list[![]] characters(str x) = [char(i) | i <- chars(x)]; 

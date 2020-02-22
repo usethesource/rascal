@@ -7,6 +7,7 @@ import Set;
 import Map;
 import DateTime;
 extend lang::rascalcore::check::Checker;
+import lang::rascalcore::check::RascalConfig;
 import String;
 import ParseTree;
 
@@ -344,7 +345,7 @@ tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, 
                 |project://rascal/src/org/rascalmpl/library|
                ])){
     
-    msgs = checkModule(qualifiedModuleName);
+    <_, msgs> = checkModules([qualifiedModuleName], rascalTypePalConfig());
     iprintln(msgs);       
     mTplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
     mOrgModel = readBinaryValueFile(#TModel, mTplLoc);
@@ -362,7 +363,7 @@ tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, 
       try {
           prog = base == "" ? tst : (base + "::" + tst);
           println("TYPECHECKING <prog>");
-          msgs = checkModule(prog);
+          <_, msgs> = checkModules([prog], rascalTypePalConfig());
           iprintln(msgs);
           if(exists(mTplLoc)){
               mNewModel = readBinaryValueFile(#TModel, mTplLoc);
@@ -395,10 +396,10 @@ bool blacklisted(str qualifiedModuleName){
 
 bool whitelisted(str qualifiedModuleName){
     return true;
-    for(s <- {"lang::rascal"}){
-       if(contains(qualifiedModuleName, s)) return true;
-    }
-    return false;
+    //for(s <- {"lang::rascal"}){
+    //   if(contains(qualifiedModuleName, s)) return true;
+    //}
+    //return false;
 }
 
 list[Message] filterErrors(list[Message] msgs){
@@ -414,9 +415,10 @@ void allFiles(PathConfig pcfg = pathConfig(
                 |project://rascal/src/org/rascalmpl/library|,
                 |std:///|
                ],
+         bin = |test-modules:///rascal-core-bin|,
          libs = [])){
-    modulePaths = //find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); })
-                    find(|project://rascal-core/src/org/rascalmpl/core/library/|, bool(loc l) { return endsWith(l.path, ".rsc"); });
+    modulePaths = find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); });
+                   // find(|project://rascal-core/src/org/rascalmpl/core/library/|, bool(loc l) { return endsWith(l.path, ".rsc"); });
     println("<size(modulePaths)> files");
     problems = ();
     crashed = ();

@@ -392,9 +392,9 @@ str generateClassConditional(set[AType] classes) {
 
 str generateRangeConditional(ACharRange r) {
   switch (r) {
-    case range(0,0xFFFFF) : return "(true /*every char*/)";
-    case range(i, i) : return "(lookAheadChar == <i>)";
-    case range(i, j) : return "((lookAheadChar \>= <i>) && (lookAheadChar \<= <j>))";
+    case arange(0,0xFFFFF) : return "(true /*every char*/)";
+    case arange(i, i) : return "(lookAheadChar == <i>)";
+    case arange(i, j) : return "((lookAheadChar \>= <i>) && (lookAheadChar \<= <j>))";
     default: throw "unexpected range type: <r>";
   }
 }
