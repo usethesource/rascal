@@ -1,6 +1,7 @@
 module lang::rascal::tests::concrete::Character
 
 import ParseTree; 
+import String;
 
 lexical Example = ([A-Z] head [a-z]* tail)+ words;
 
@@ -25,7 +26,10 @@ test bool singleAB2() = check(#[A-B], char(66));
 test bool charclassLUB() = set[[A-D]] _ := {char(65), char(66), char(67), char(68)};
 test bool charclassLUB2() = set[[a-z]] _ := {char(i) | i <- [97..122]};
 
-private list[![]] characters(str x) = [char(i) | i <- chars(x)];
+list[Tree] characters(str x) = [char(i) | i <- chars(x)];
+
+list[![]] produceCharSet() = [ w.head |  w <- t.words ]
+   when Example t := [Example] "CamelCaseBaseFeest";
 
 test bool characterClassSubType() {
   [A-Za-z] tmp = (Example) `A`.head; // assignment into bigger class: always allowed
