@@ -322,6 +322,7 @@ test bool isContainedIn2(int f, int len){
 
 // beginsBefore
 
+@ignore{unknown}
 test bool beginsBefore1(int _){
     <l1, l2> = makeLocsWithGap(-10);
     return report(l1, l2, beginsBefore(l1, l2));
