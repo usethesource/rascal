@@ -310,6 +310,9 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                                if(ms.moduleLocs[iname]? && implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
                                 continue;
                                }
+                               if(ms.moduleLocs[iname]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
+                                continue;
+                               }
                                if(imod is \default){
                                  msgs += warning("Unused import of `<iname>`", imod@\loc);
                                } else {
@@ -363,6 +366,13 @@ bool implicitlyUsesParseTree(str modulePath, TModel tm){
 bool implicitlyUsesLayoutOrLexical(str modulePath, str importPath, TModel tm){
     return    any(loc l <- tm.facts, l.path == importPath, aadt(_,_,sr) := tm.facts[l], sr in {layoutSyntax(), lexicalSyntax()})
            && any(loc l <- tm.facts, l.path == modulePath, aadt(_,_,contextFreeSyntax()) := tm.facts[l]);
+}
+
+bool usesOrExtendsADT(str modulePath, str importPath, TModel tm){
+    usedADTs = { tm.facts[l] | loc l <- tm.facts, l.path == modulePath, aadt(_,_,sr) := tm.facts[l] };
+    definedADTs = { the_adt | Define d <- tm.defines, d.defined.path == modulePath, defType(the_adt:aadt(_,_,_)) := d.defInfo };
+    usedOrDefinedADTs = usedADTs + definedADTs;
+    return any(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,sr) := tm.facts[l], the_adt in usedOrDefinedADTs);
 }
 
 set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] added){

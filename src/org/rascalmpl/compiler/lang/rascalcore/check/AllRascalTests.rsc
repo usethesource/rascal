@@ -303,7 +303,7 @@ TestResults runTests(list[str] names, str base){
   return <crashes, all_test_msgs>;
 }
   
-value main() = allRascalTests();
+//value main() = allRascalTests();
   
 set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
@@ -408,6 +408,8 @@ list[Message] filterErrors(list[Message] msgs){
 map[str, list[Message]] filterErrors(map[str, list[Message]] modsAndMsgs){
     return (mname : msgs | mname <- modsAndMsgs, msgs := filterErrors(modsAndMsgs[mname]), !isEmpty(msgs));
 }
+
+void main() = allFiles();
 
 void allFiles(PathConfig pcfg = pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
