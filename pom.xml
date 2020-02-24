@@ -112,7 +112,7 @@
                     <artifactId>rascal-maven-plugin</artifactId>
                     <version>0.2.9</version>
                     <configuration>
-                        <errorsAsWarnings>true</errorsAsWarnings>
+                        <errorsAsWarnings>false</errorsAsWarnings>
                         <bin>${project.build.outputDirectory}</bin>
                         <srcs>
                             <src>${project.basedir}/src/org/rascalmpl/library</src>
