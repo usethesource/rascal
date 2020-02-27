@@ -36,6 +36,7 @@ node {
       slackSend (color: '#5cb85c', message: "BUILD BACK TO NORMAL: <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
     }
 
+    build job: '../rascal-eclipse/master', wait: false // trigger rascal-eclipse build
     build job: '../../cwi-swat/docs-site-generator/master', wait: false // trigger automatic deploy of docs site
   } catch (e) {
     slackSend (color: '#d9534f', message: "FAILED: <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
