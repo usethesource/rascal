@@ -274,10 +274,10 @@ private Expression newObject(Type t, list[Expression] args, Expression original)
 set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Expression _, Type t, list[Expression] a))
   = translate(base, target, newObject(t, a, ob));
   
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t, a, _))
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t, list[Expression] a, Declaration _))
   = translate(base, target, newObject(t, a, ob));
   
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, a,_))
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, list[Expression] a, Declaration _))
   = translate(base, target, newObject(t, a, ob));
   
 set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, a)) {
