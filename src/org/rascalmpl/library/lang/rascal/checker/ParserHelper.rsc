@@ -80,9 +80,9 @@ public tuple[list[Tree],list[Tree]] rexpVisit(str toParse) {
 }
 
 public bool isThisATuple(str toParse) {
-	return (Expression)`\< <{Expression ","}+ es> \>` := parse(#Expression, toParse);
+	return (Expression)`\< <{Expression ","}+ _> \>` := parse(#Expression, toParse);
 }
 
 public bool isThisAList(str toParse) {
-	return (Expression)`[ <{Expression ","}* es> ]` := parse(#Expression, toParse);
+	return (Expression)`[ <{Expression ","}* _> ]` := parse(#Expression, toParse);
 }

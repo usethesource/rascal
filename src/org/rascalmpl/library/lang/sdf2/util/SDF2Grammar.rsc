@@ -222,7 +222,7 @@ public Grammar::Grammar illegalPriorities(Grammar::Grammar g) {
   extracted = {};
   g = innermost visit (g) {
     case \priority(Symbol def, list[Production] ps) : 
-      if ([*pre,p:prod(Symbol other, _, _),post*] := ps, !sameType(def, other)) {
+      if ([*pre,p:prod(Symbol other, _, _),*post] := ps, !sameType(def, other)) {
         println("WARNING: extracting production from non-recursive priority chain");
         extracted += p[attributes = p.attributes + \tag("NotSupported"("priority with <pre> <post>"))];
         insert priority(def, pre + post);
@@ -245,13 +245,13 @@ public &T dup(&T g) {
   
   // first we fuse the attributes (SDF2 semantics) and the cons names
   solve (prods) {
-    if ({prod(l,r,a1), prod(l,r,a2), rest*} := prods) {
+    if ({prod(l,r,a1), prod(l,r,a2), *rest} := prods) {
       prods = {prod(l,r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a1), prod(l,r,a2), rest*} := prods) {
+    if ({prod(label(n,l),r,a1), prod(l,r,a2), *rest} := prods) {
       prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a1), prod(label(_,l),r,a2), rest*} := prods) {
+    if ({prod(label(n,l),r,a1), prod(label(_,l),r,a2), *rest} := prods) {
       prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
   } 
@@ -259,13 +259,13 @@ public &T dup(&T g) {
   // now we replace all uses of prods by their fused counterparts
   g = visit(g) {
     case prod(l,r,_) : 
-      if ({p:prod(l,r,_), _*} := prods) 
+      if ({p:prod(l,r,_), *_} := prods) 
         insert p;
-      else if ({p:prod(label(_,l),r,_),_*} := prods)
+      else if ({p:prod(label(_,l),r,_),*_} := prods)
         insert p;
       else fail;
-    case prod(label(n,l),r,_) :
-      if ({p:prod(label(_,l),r,_),_*} := prods)
+    case prod(label(_,l),r,_) :
+      if ({p:prod(label(_,l),r,_),*_} := prods)
         insert p;
       else fail;
   }
@@ -345,7 +345,7 @@ public set[Production] getProductions(Prod* prods, bool isLex){
 
 set[Production] fixParameters(set[Production] input) {
   return innermost visit(input) {
-    case prod(\parameterized-sort(str name, [pre*, sort(str x), post*]),lhs,  as) =>
+    case prod(\parameterized-sort(str name, [*pre, sort(str x), *post]),lhs,  as) =>
          prod(\parameterized-sort(name,[*pre,\parameter(x,adt("Tree",[])),*post]),visit (lhs) { case sort(x) => \parameter(x,adt("Tree",[])) }, as)
   }
 }
@@ -358,7 +358,7 @@ public set[Production] getProduction(Prod P, bool isLex) {
     case (Prod) `<Syms syms> -\> LAYOUT <Attrs ats>` :
         return {prod(layouts("LAYOUTLIST"),[\iter-star(\lex("LAYOUT"))],{}),
                 prod(\lex("LAYOUT"), getSymbols(syms, isLex),getAttributes(ats))};
-    case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
+    case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* _>, reject, <{Attribute ","}* _> }` :
         return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
         return {prod(label(labelName(unescape(n)),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
@@ -396,12 +396,12 @@ public set[Symbol] getConditions(SDF m) {
       res += getRestrictions(rests, true);
     case (Grammar) `context-free restrictions <Restriction* rests>` :
       res += getRestrictions(rests, false);
-    case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
+    case (Prod) `<Syms _> -\> <Sym sym> {<{Attribute ","}* _>, reject, <{Attribute ","}* _> }` :
       res += {conditional(getSymbol(sym, false), {\delete(keywords(getSymbol(sym, false).name + "Keywords"))})
                ,conditional(getSymbol(sym, true), {\delete(keywords(getSymbol(sym, true).name + "Keywords"))})};
    }
    
-   while ({conditional(s, cs1), conditional(s, cs2), rest*} := res)
+   while ({conditional(s, cs1), conditional(s, cs2), *rest} := res)
        res = rest + {conditional(s, cs1 + cs2)};
    
    //iprintln(res);
@@ -419,7 +419,7 @@ public set[Symbol] getRestrictions(Restriction* restrictions, bool isLex) {
 public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
   println("getting rest: <restriction>");
   switch (restriction) {
-    case (Restriction) `-/- <Lookaheads ls>` :
+    case (Restriction) `-/- <Lookaheads _>` :
     	return {};
     
     case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
@@ -499,7 +499,7 @@ public Production getPriority(Group group, bool isLex) {
     case (Group) `<Group g> .` :
      	return getPriority(g, isLex); // we ignore non-transitivity here!
      	
-    case (Group) `<Group g> <ArgumentIndicator i>` : 
+    case (Group) `<Group g> <ArgumentIndicator _>` : 
      	return getPriority(g, isLex); // we ignore argument indicators here!
      	
     case (Group) `{<Prod* ps>}` : 
@@ -917,7 +917,7 @@ public set[Attr] getAttribute(Attribute m) {
     case (Attribute) `bracket`:
     	return {\bracket()};
     
-    case (Attribute) `cons(<StrCon c>)` : 
+    case (Attribute) `cons(<StrCon _>)` : 
         return {};
         
     case (Attribute) `memo`:
