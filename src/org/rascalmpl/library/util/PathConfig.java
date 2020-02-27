@@ -58,8 +58,8 @@ public class PathConfig {
 	static {
 		try {
 		    // Defaults should be in sync with util::Reflective
-			defaultStd =  vf.sourceLocation("std", "", "");
-			defaultBin = vf.sourceLocation("home", "", "bin");
+			defaultStd =  vf.sourceLocation("lib", "rascal", "");
+			defaultBin = vf.sourceLocation("tmp", "", "default-rascal-bin");
 			defaultCourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
 			defaultJavaCompilerPath = computeDefaultJavaCompilerPath();
 			defaultClassloaders = computeDefaultClassLoaders();
@@ -69,12 +69,10 @@ public class PathConfig {
 	}
 	
 	public PathConfig() {
-		srcs = Arrays.asList(defaultStd);
+		srcs = Collections.emptyList();
 		courses = defaultCourses;
 		bin = defaultBin;
-		// TODO: this should be |std:///| and |bin:///| by default, after
-		// the boot folder will not contain the library anymore. 
-		libs = Arrays.asList(bin);
+		libs = Arrays.asList(defaultStd);
 		javaCompilerPath = defaultJavaCompilerPath;
 		classloaders = defaultClassloaders;
 	}
@@ -403,11 +401,9 @@ public class PathConfig {
         ISourceLocation target = URIUtil.getChildLocation(manifestRoot, "target/classes");
         
         if (reg.exists(bin)) {
-//            libsWriter.insert(bin); this is not necessary for the type-checker, and also not for the interpreter (where it leads to duplicates)
             classloaders.append(bin);
         }
         else if (reg.exists(target)) {
-//            libsWriter.insert(target); this is not supposed to be necessary for the type-checker, and also not for the interpreter (where it leads to duplicates)
             classloaders.append(target);
         }
       
@@ -462,29 +458,34 @@ public class PathConfig {
 	    if(!modulePath.endsWith(".rsc")){
 	        throw new IOException("Not a Rascal source file: " + moduleLoc);
 	    }
+	    
+	    if (moduleLoc.getScheme().equals("std") || moduleLoc.getScheme().equals("lib")) {
+            return pathToModulename(modulePath, "/");
+	    }
+	    
 	    for(ISourceLocation dir : srcs){
 	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
-	            String moduleName = modulePath.replaceFirst(dir.getPath(), "").replace(".rsc", "");
-	            if(moduleName.startsWith("/")){
-	                moduleName = moduleName.substring(1, moduleName.length());
-	            }
-	            return moduleName.replace("/", "::");
+	            return pathToModulename(modulePath, dir.getPath());
 	        }
 	    }
 	    
 	    for (ISourceLocation dir : libs) {
 	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
-                String moduleName = modulePath.replaceFirst(dir.getPath(), "").replace(".tc", "");
-                if(moduleName.startsWith("/")){
-                    moduleName = moduleName.substring(1, moduleName.length());
-                }
-                return moduleName.replace("/", "::");
+                return pathToModulename(modulePath, dir.getPath());
             }
 	    }
 	    
 	    throw new IOException("No module name found for " + moduleLoc + "\n" + this);
 	        
 	}
+
+    private String pathToModulename(String modulePath, String folder) {
+        String moduleName = modulePath.replaceFirst(folder, "").replace(".rsc", "");
+        if(moduleName.startsWith("/")){
+            moduleName = moduleName.substring(1, moduleName.length());
+        }
+        return moduleName.replace("/", "::");
+    }
 	
 	private String moduleToDir(String module) {
         return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
