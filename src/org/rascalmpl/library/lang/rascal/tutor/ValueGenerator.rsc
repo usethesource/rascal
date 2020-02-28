@@ -13,13 +13,6 @@ import Type;
 lexical IntCon = [0-9]+ !>> [0-9];
 syntax Type = "arb" "[" IntCon depth "," {Type ","}+ elemTypes "]";
 
-private int minSize = 1;
-private int maxSize = 5;
-private int maxInt = 20;
-private int minInt = -20;
-private int maxReal = maxInt;
-private int minReal = -maxReal;
-
 private list[Type] baseTypes = [(Type)`bool`, (Type)`int`, (Type)`real`, (Type)`num`, (Type)`str`, (Type)`loc`, (Type)`datetime`];
 
 // Type generation
@@ -60,15 +53,15 @@ Type makeTupleType({Type ","}+ ets) =  [Type] "tuple[<intercalate(",", [et | et 
 
 Type generateArbTupleType(int n, list[Type] prefs){
    arity = 1 + arbInt(5);
-   return [Type] "tuple[<intercalate(",", [generateArbType(n-1, prefs) | int i <- [0 .. 1+arbInt(5)] ])>]";
+   return [Type] "tuple[<intercalate(",", [generateArbType(n-1, prefs) | int _ <- [0 .. 1+arbInt(5)] ])>]";
 }
 
 Type generateArbRelType(int n, list[Type] prefs){
-   return [Type] "rel[<intercalate(",", [generateArbType(n - 1, prefs) | int i <- [0 .. 1+arbInt(5)] ])>]";
+   return [Type] "rel[<intercalate(",", [generateArbType(n - 1, prefs) | int _ <- [0 .. 1+arbInt(5)] ])>]";
 }
 
 Type generateArbLRelType(int n, list[Type] prefs){
-   return [Type] "lrel[<intercalate(",", [generateArbType(n - 1, prefs) | int i <- [0 .. 1+arbInt(5)] ])>]";
+   return [Type] "lrel[<intercalate(",", [generateArbType(n - 1, prefs) | int _ <- [0 .. 1+arbInt(5)] ])>]";
 }
 
 // Value generation
@@ -300,7 +293,7 @@ public str generateSet(Type et, int from=0, int to=5){
 }
 
 public str generateMap(Type kt, Type vt,  int from=0, int to=5){
-   keys = { generateValue(kt) | int i <- [from .. arbInt(to)] }; // ensures unique keys
+   keys = { generateValue(kt) | int _ <- [from .. arbInt(to)] }; // ensures unique keys
    keyList = toList(keys);
    return "(<for(i <- index(keyList)){><(i==0)?"":", "><keyList[i]>: <generateValue(vt)><}>)";
 }

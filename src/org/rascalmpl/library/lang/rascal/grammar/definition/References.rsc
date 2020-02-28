@@ -8,9 +8,7 @@ module lang::rascal::grammar::definition::References
 
 extend Grammar;
 extend ParseTree;
-import Node;
 import lang::rascal::grammar::definition::Symbols;
-import IO;
 
 Grammar references(Grammar g) 
   = visit (g) {
