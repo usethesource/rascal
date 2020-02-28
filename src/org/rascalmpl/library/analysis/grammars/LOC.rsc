@@ -2,7 +2,6 @@ module analysis::grammars::LOC
 
 import ParseTree;
 import List;
-import IO;
 import util::FileSystem;
 import util::Reflective;
 
