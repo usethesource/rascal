@@ -361,6 +361,63 @@ public class PathConfig {
 	}
 	
 	/**
+	 * Construct a path config necessary to resolve links between depending libraries. This
+	 * can be used for browsing library files in IDEs or to construct a valid classpath for running
+	 * compiled library modules.
+	 *  
+	 * @param library   the name of a library
+	 * @return          a pathConfig with a proper library path and run-time classpath
+	 *  
+	 * @throws IOException if the RASCAL.MF files found contain errors
+	 */
+	public static PathConfig fromLibraryRascalManifest(String library) throws IOException {
+	    ISourceLocation libraryLoc = URIUtil.correctLocation("lib", library, "");
+	    
+	    RascalManifest manifest = new RascalManifest();
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        Set<String> loaderSchemes = reg.getRegisteredClassloaderSchemes();
+        
+        IListWriter libsWriter = vf.listWriter();
+        IListWriter classloaders = vf.listWriter();
+        
+        // always add the standard library on the lib path
+        if (!library.equals("rascal")) {
+            libsWriter.append(URIUtil.correctLocation("lib", "rascal", ""));
+        }
+        
+        // add the current library as well, for resolving references within the library
+        libsWriter.append(libraryLoc);
+        
+        for (String lib : manifest.getRequiredLibraries(libraryLoc)) {
+            ISourceLocation jar = lib.startsWith("|") ? parseSourceLocation(lib) : URIUtil.getChildLocation(libraryLoc, lib);
+            
+            if (jar != null && reg.exists(jar)) {
+                libsWriter.append(jar);
+            }
+            else {
+                System.err.println("WARNING: could not resolve required library: " + lib);
+            }
+            
+            if (loaderSchemes.contains(jar.getScheme())) {
+                classloaders.append(jar);
+            }
+        }
+        
+        ISourceLocation bin = URIUtil.correctLocation("unknown", "", "");
+        
+        // for the Rascal run-time
+        classloaders.append(URIUtil.correctLocation("system", "", ""));
+        
+        return new PathConfig(
+                vf.list(), // a library has no sources to compile 
+                libsWriter.done(), 
+                bin, 
+                vf.list(), 
+                getDefaultJavaCompilerPathList(), 
+                classloaders.done());
+	}
+	
+	/**
 	 * This will _add_ the configuration parameters found (srcs, libs, etc.) as found in the given manifest file.
 	 * 
 	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
