@@ -942,7 +942,7 @@ toRel([3, 1, 4, 5]);
 toRel(["zebra", "elephant", "snake", "owl"]);
 ----}
 public rel[&T,&T] toRel(list[&T] lst) {
-  return { <from,to> | [_*, from, to, _*] := lst };
+  return { <from,to> | [*_, from, to, *_] := lst };
 }
 
 @doc{

@@ -37,7 +37,7 @@ distribution({<"alice",2>,<"bob",3>,<"claire",5>},5);
 }
 public map[&T, int] distribution(rel[&U event, &T bucket] input) {
   map[&T,int] result = ();
-  for (<&U event, &T bucket> <- input) {
+  for (<&U _, &T bucket> <- input) {
     result[bucket]?0 += 1;
   }
   
@@ -46,7 +46,7 @@ public map[&T, int] distribution(rel[&U event, &T bucket] input) {
 
 public map[&T <: num, int] distribution(rel[&U event, &T <: num bucket] input, &T <: num bucketSize) {
   map[&T <: num,int] result = ();
-  for (<&U event, &T <: num bucket> <- input) {
+  for (<&U _, &T <: num bucket> <- input) {
     result[round(bucket, bucketSize)]?0 += 1;
   }
   return result;

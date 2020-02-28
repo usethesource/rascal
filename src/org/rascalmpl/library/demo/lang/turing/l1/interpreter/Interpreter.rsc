@@ -3,8 +3,6 @@ module demo::lang::turing::l1::interpreter::Interpreter
 import List;
 import demo::lang::turing::l1::ast::Turing;
 
-private int tapeSize = 32;
-
 alias Tape = list[bool];
 
 alias TuringState = tuple[list[Statement] prog, int line, Tape tape, int pos];

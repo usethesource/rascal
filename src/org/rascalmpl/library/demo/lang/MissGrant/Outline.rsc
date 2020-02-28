@@ -23,7 +23,7 @@ node outline(e:event(n, t)) = "event"()[@label="<n> <t>"][@\loc=e@location];
 
 node outline(c:command(n, t)) = "command"()[@label="<n> <t>"][@\loc=c@location];
 
-node outline(s:state(n, as, ts)) = "state"([ outline(t) | t <- ts ])[@label=n][@\loc=s@location];
+node outline(s:state(n, _, ts)) = "state"([ outline(t) | t <- ts ])[@label=n][@\loc=s@location];
 
 // todo: pass env around to lookup state locs.
 node outline(t:transition(e, s)) = "transition"()[@label="<e> -\> <s>"][@\loc=t@location];
