@@ -7,9 +7,7 @@
 }
 module util::FileSystem
 
-import Exception;
 import IO;
-import String;
 
 data FileSystem 
   = directory(loc l, set[FileSystem] children)
