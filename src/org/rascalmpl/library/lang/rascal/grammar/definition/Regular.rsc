@@ -12,8 +12,6 @@ import lang::rascal::grammar::definition::Modules;
 import lang::rascal::grammar::definition::Productions;
 import Grammar;
 import ParseTree;
-import Set;
-import IO;
 
 public Grammar expandRegularSymbols(Grammar G) {
   for (Symbol def <- G.rules) {

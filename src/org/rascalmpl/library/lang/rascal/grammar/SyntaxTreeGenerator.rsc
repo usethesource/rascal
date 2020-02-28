@@ -69,13 +69,13 @@ public set[AST] grammarToASTModel(str pkg, Grammar g) {
   for (sn <- m) 
     asts += ast(sn, m[sn]);
     
-  for (/p:prod(\lex(s),_,_) := g) 
+  for (/prod(\lex(s),_,_) := g) 
      asts += leaf(s);
      
-  for (/p:prod(label(_,\lex(s)),_,_) := g) 
+  for (/prod(label(_,\lex(s)),_,_) := g) 
      asts += leaf(s);
  
-  for (/p:prod(label(_,\parameterized-lex(s,[Symbol _:str _(str a)])),_,_) := g) 
+  for (/prod(label(_,\parameterized-lex(s,[Symbol _:str _(str a)])),_,_) := g) 
      asts += leaf(s + "_" + a);
   
   return asts;
@@ -92,7 +92,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts, str licenseHead
   ivisit = "package <pkg>;
            '
            'public interface IASTVisitor\<T\> {
-           '<for (ast(sn, sigs) <- sort(asts), sig(cn, args) <- sort(sigs)) {>
+           '<for (ast(sn, sigs) <- sort(asts), sig(cn, _) <- sort(sigs)) {>
            '  public T visit<sn><cn>(<sn>.<cn> x);
            '<}>
            '<for (leaf(sn) <- sort(asts)) {>
@@ -105,7 +105,7 @@ public void grammarToVisitor(loc outdir, str pkg, set[AST] asts, str licenseHead
   nullVisit = "package <pkg>;
               '
               'public class NullASTVisitor\<T\> implements IASTVisitor\<T\> {
-              '<for (ast(sn, sigs) <- sort(asts), sig(cn, args) <- sort(sigs)) {>
+              '<for (ast(sn, sigs) <- sort(asts), sig(cn, _) <- sort(sigs)) {>
               '  public T visit<sn><cn>(<sn>.<cn> x) { 
               '    return null; 
               '  }
@@ -140,7 +140,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '    super(src /* we forget node on purpose */);
          '  }
          '
-         '  <for (a:arg(typ, lab) <- sort(allArgs)) { clabel = capitalize(lab); >
+         '  <for (a:arg(_, lab) <- sort(allArgs)) { clabel = capitalize(lab); >
          '  public boolean has<clabel>() {
          '    return false;
          '  }
@@ -160,7 +160,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '}"; 
 }
 
-public str classForProduction(str pkg, str super, Sig sig) {
+public str classForProduction(str _, str super, Sig sig) {
   return "static public class <sig.name> extends <super> {
          '  // Production: <sig>
          '
@@ -220,7 +220,7 @@ public str classForProduction(str pkg, str super, Sig sig) {
          '    return <arbPrime(1000)> <for (a <- sig.args) { >+ <arbPrime(1000)> * <nullableHashCode(a)> <}>; 
          '  } 
          '
-         '  <for (a:arg(typ, name, isOptional = isopt) <- sig.args) { cname = capitalize(name); >
+         '  <for (a:arg(_, name, isOptional = isopt) <- sig.args) { cname = capitalize(name); >
          '  @Override
          '  public <makeMonotonic(a)> get<cname>() {
          '    return this.<name>;
