@@ -20,7 +20,6 @@ import IO;
 import String;
 import Relation;
 import Set;
-import Node;
 import List;
 
 import util::FileSystem;

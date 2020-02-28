@@ -1,6 +1,6 @@
 module analysis::m3::FlowGraph
 
-import analysis::m3::Core;
+extend analysis::m3::Core;
 
 data M3(
     rel[loc decl, BasicBlocks blocks] basicBlocks = {},
