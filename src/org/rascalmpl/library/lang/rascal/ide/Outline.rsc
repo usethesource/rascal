@@ -5,6 +5,7 @@ import ParseTree;
 import lang::rascal::\syntax::Rascal;
 import Map;
 import List;
+import String;
  
 anno str node@label;
 anno loc node@\loc;
@@ -111,5 +112,14 @@ node outline(Module m) {
    );    
 }
 
-str clean(/\\<rest:.*>/) = rest;
+// remove leading backslash
+str clean(/\\<rest:.*>/) = clean(rest);
+
+// multi-line becomes single line
+str clean(str x:/\n/) = clean(visit(x) { case /\n/ => " " });
+
+// cut-off too long
+str clean(str x) = clean(x[..72]) when size(x) > 75;
+
+// done
 default str clean(str x) = x;
