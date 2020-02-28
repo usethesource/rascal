@@ -108,7 +108,7 @@ str generateExpression(Symbol t, real valueProbability, bool correct){
 }
 
 tuple[Symbol, map[str, Symbol]] instantiate(Symbol t, map[str, Symbol] env){
-  t = visit(t) { case Symbol::\parameter(str name, Symbol s): {
+  t = visit(t) { case Symbol::\parameter(str name, Symbol _): {
                 if(env[name]?)
                    insert env[name];
                 else {
