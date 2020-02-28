@@ -8,7 +8,6 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl}
 
 module lang::dot::Dot
-import IO;
 import String;
 import Set;
 import Map;
@@ -77,9 +76,9 @@ public DotGraph export(DotGraph g) {return g;}
 
 public Dotline export(Dotline g) {return g;}
 
-public bool hasOutline(Dotline g) {return true;}
+public bool hasOutline(Dotline _) {return true;}
 
-public bool hasOutline(DotGraph g) {return false;}
+public bool hasOutline(DotGraph _) {return false;}
 
 public Outline currentOutline;
 
