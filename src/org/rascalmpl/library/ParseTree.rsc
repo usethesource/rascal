@@ -353,7 +353,7 @@ data Condition
 .Synopsis
 Nested priority is flattened.
 }
-public Production priority(Symbol s, [*Production a, priority(Symbol t, list[Production] b), *Production c])
+public Production priority(Symbol s, [*Production a, priority(Symbol _, list[Production] b), *Production c])
   = priority(s,a+b+c);
    
 @doc{
