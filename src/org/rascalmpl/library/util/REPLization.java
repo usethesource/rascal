@@ -20,6 +20,7 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.library.util.REPL.ExecutionGraph;
+import org.rascalmpl.library.util.REPL.GraphNode;
 import org.rascalmpl.library.util.REPL.ExecutionGraph.CustomEdge;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
@@ -74,12 +76,11 @@ public class REPLization {
         
         
         // TODO: This must be changed to represent nodes with a custom data type: Config (e.g., environment)
-        private MutableValueGraph<String, String> graph;
+        private MutableValueGraph<GraphNode, String> graph;
         
-        public String current;
-        public String root;
-        public String previous;
-        
+        private GraphNode root;
+        private GraphNode current;
+        private GraphNode previous;
         
         public GenericREPL(IValueFactory vf, IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
             this.ctx = ctx;
@@ -92,10 +93,10 @@ public class REPLization {
             this.stdout = ctx.getStdOut();
             assert stdout != null;
             
-            // Initial state of the graph
-            this.graph.addNode("Root");
-            this.root = "Root";
-            this.current = "Root";
+            this.root =  new GraphNode("", "Root");
+            this.current = this.root;
+            
+            this.graph.addNode(this.current);
         }
 
         @Override
@@ -120,16 +121,45 @@ public class REPLization {
             String currentNode = metadata.get("current_cell"); // Represents the context to use for the execution.
             
             // If they are different means that the user wants to create a new path from a previous execution.
-            if (!currentNode.equals(current)) {
-                this.current = currentNode;
+            if (!currentNode.equals(current.getResult())) {
+                this.current = getNode(currentNode);
+                // Get predecessors and execute them before continuing. this must return an updated context to run the 'current cell'
+                runPredecessors(this.current);
             }
             
-            // Execute the code received as param.
+            // Execute the current cell (code) received as param.
             // TODO: send the context too.
-            IConstructor result = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(code) });
+            IConstructor result = interpretCode(code);
             
-            processResult(result, output, metadata, cellId);
+            processResult(code, result, output, metadata, cellId);
         }
+        
+        public GraphNode getNode(String result) {
+            for (GraphNode node : graph.nodes()) {
+                if (node.getResult().equals(result))
+                    return node;
+            }
+            return null;
+        }
+        
+        // TODO: Complete passing new context after each execution.
+        public void runPredecessors(GraphNode currentNode) {
+            // context
+            Collection<GraphNode> predecesors = graph.predecessors(currentNode); // At most 1.
+            if (!predecesors.isEmpty()) {
+                GraphNode predecessir = predecesors.iterator().next();
+                runPredecessors(predecessir);
+                // context = result
+            }
+            IConstructor result = interpretCode(currentNode.getSourceCode());
+            // do something with the result and return.
+        }
+        
+        // TODO: Receive the context
+        public IConstructor interpretCode(String code) {
+            return (IConstructor) call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(code) });
+        }
+        
         
         /**
          * Process the result from the interpreter and produces the result for Bacatá
@@ -138,17 +168,19 @@ public class REPLization {
          * @param metadata
          * @param cellId this is the cell number in the front-end.
          */
-        public void processResult(IConstructor commandResult, Map<String, InputStream> output, Map<String, String> metadata, String cellId) {
+        public void processResult(String input, IConstructor commandResult, Map<String, InputStream> output, Map<String, String> metadata, String cellId) {
            
             if (commandResult.has("result") && commandResult.get("result") != null) {
                 String result = ((IString) commandResult.get("result")).getValue(); // commandResult(str result)
                 result = result + System.currentTimeMillis(); // There cannot be duplicate nodes.
                 
-                graph.putEdgeValue(current, result, cellId); // Create the edge. If the nodes have not being defined yet, it creates them too.
+                GraphNode tmp = new GraphNode(input, result);
+                
+                graph.putEdgeValue(this.current, tmp, cellId); // Create the edge. If the nodes have not being defined yet, it creates them too.
                 
                 // Update previous and current nodes
                 this.previous = this.current;
-                this.current = result;
+                this.current = tmp;
                 
                 // We need always some answer from the interpreter. Otherwise the node cannot be created.
                 if (!result.equals("")) {
@@ -174,15 +206,15 @@ public class REPLization {
         
         /**
          * Transform Guava Edge objects (EndpointPair) into CustomEdges (Simplified version)
-         * @param edges
+         * @param set
          * @return
          */
-        public Set<CustomEdge> extractEdges(Set<EndpointPair<String>> edges) {
+        public Set<CustomEdge> extractEdges(Set<EndpointPair<GraphNode>> set) {
             Set<CustomEdge> newEdges =  new HashSet<CustomEdge>();
             
-            for (EndpointPair<String> endpointPair : edges) {
-                String nodeU = endpointPair.nodeU();
-                String nodeV = endpointPair.nodeV();
+            for (EndpointPair<GraphNode> endpointPair : set) {
+                String nodeU = endpointPair.nodeU().getResult();
+                String nodeV = endpointPair.nodeV().getResult();
                 Optional<String> value  = graph.edgeValue(endpointPair);
                 
                 newEdges.add(new ExecutionGraph.CustomEdge(nodeU, nodeV, value.get()));
