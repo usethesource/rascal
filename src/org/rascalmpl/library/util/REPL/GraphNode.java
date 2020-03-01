@@ -12,32 +12,47 @@
  */ 
 package org.rascalmpl.library.util.REPL;
 
-import java.util.Set;
+import java.util.Objects;
 
+public final class GraphNode {
 
-public class ExecutionGraph {
+    private final String sourceCode;
     
-    private GraphNode currentNode;
-    private Set<GraphNode> nodes;
-    private Set<CustomEdge> edges;
-    
-    public ExecutionGraph(GraphNode current, Set<GraphNode> set, Set<CustomEdge> edges) {
-        super();
-        this.currentNode = current;
-        this.nodes = set;
-        this.edges = edges;
+    private final String result;
+
+    public GraphNode(String sourceCode, String result) {
+        this.sourceCode = sourceCode;
+        this.result = result;
     }
     
-    public static class CustomEdge {
-        
-        private String value;
-        private String nodeU;
-        private String nodeV;
-        
-        public CustomEdge(String nodeU, String nodeV, String value) {
-            this.value = value;
-            this.nodeU = nodeU;
-            this.nodeV = nodeV;
-        }
+    
+    public String getSourceCode() {
+        return sourceCode;
     }
+
+    public String getResult() {
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      if (other instanceof GraphNode) {
+        GraphNode that = (GraphNode) other;
+        return this.sourceCode.equals(that.sourceCode)
+            && this.result == that.result;
+      }
+      return false;
+    }
+    
+    
+    @Override
+    public int hashCode() {
+      return Objects.hash(sourceCode, result);
+    }
+    
+    @Override
+    public String toString() {
+      return "(" + sourceCode + ", " + result + ")";
+    }
+    
 }
