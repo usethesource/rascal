@@ -156,7 +156,14 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
 // ---- keyword Formal --------------------------------------------------------
 
 void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression expression>`, Collector c){
-    c.define("<name>", keywordFormalId(), name, defType(kwType));
+    kwformalName = prettyPrintName(name);
+    DefInfo dt;
+    try {
+         dt = defType(c.getType(kwType)[label=kwformalName]);
+    } catch TypeUnavailable(): {
+         dt = defType([kwType], makeFieldType(kwformalName, kwType));
+    }
+    c.define(kwformalName, keywordFormalId(), current, dt);
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
             s.requireSubType(expression, kwType, error(expression, "Initializing expression of type %t expected, found %t", kwType, expression));
@@ -377,8 +384,6 @@ void collect(Parameters parameters, Collector c){
             c.define(tvname, typeVarId(), tv.name, defType(tv));
         }
     }
-   
-    
     
     beginPatternScope("parameter", c);
         if(parameters is varArgs){
@@ -412,19 +417,6 @@ void collect(Parameters parameters, Collector c){
        }
        collect(kwFormals, c);
     endPatternScope(c);
-    
-    for(KeywordFormal kwf <- kwFormals){
-        fieldName = prettyPrintName(kwf.name);
-        kwfType = kwf.\type;
-        DefInfo dt;
-        try {
-            dt = defType(c.getType(kwfType)[label=fieldName]);
-        } catch TypeUnavailable(): 
-            dt = defType([kwfType], makeFieldType(fieldName, kwfType));
-            
-        //dt.isKeywordFormal = true;
-        c.define(fieldName, keywordFormalId(), kwf.name, dt);
-    }
 }
 
 void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
