@@ -80,6 +80,11 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
             throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStore(key_allow_use_before_def)>";
        }
     }
+    Define d = s.getDefine(def);
+    // Uses of a keyword formal inside its initializing expression are rejected
+    if(d.idRole == keywordFormalId() && isContainedIn(use.scope, d.scope)){
+        return ignoreContinue();
+    }
     return  acceptBinding();
 }
 
