@@ -34,7 +34,7 @@ data TREE
 Bool equal(Nat t1, t1) = TRUE() ;
 default Bool equal(Nat _, Nat _) = FALSE();
 
-SNat int2SNat(int n) = (EXZERO() | EXS(it) | i <- [0..n]);
+SNat int2SNat(int n) = (EXZERO() | EXS(it) | _ <- [0..n]);
 
 void run_evalsym17(int max) {
   SNat n = EXEXP(int2SNat(2),int2SNat(max));
@@ -85,7 +85,7 @@ Nat PLUS(Nat x, S(Nat y)) = S(PLUS(x,y));
 Nat MULT(Nat x, ZERO()) = ZERO();
 Nat MULT(Nat x, S(Nat y)) = PLUS(MULT(x,y),x);
 
-Nat EXP(Nat x, ZERO()) = S(ZERO());
+Nat EXP(Nat _, ZERO()) = S(ZERO());
 Nat Exp(Nat x, S(Nat y)) = MULT(x, EXP(x,y));
   
 Nat SUCC17(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(S(ZERO()))))))))))))))))) = ZERO();
