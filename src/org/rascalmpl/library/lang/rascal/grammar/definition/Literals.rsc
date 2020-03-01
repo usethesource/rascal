@@ -12,7 +12,6 @@ import lang::rascal::\syntax::Rascal;
 import Grammar;
 import ParseTree;
 import String;
-import IO;
 
 public Grammar literals(Grammar g) {
   return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}));

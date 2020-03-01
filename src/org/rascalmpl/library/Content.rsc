@@ -4,10 +4,6 @@ Content provides access to the content server of the Rascal terminal for viewing
 }
 module Content
 
-import util::UUID;
-import Exception;
-import IO;
-
 @doc{
 .Synopsis
 Content wraps the HTTP Request/Response API to support interactive visualization types

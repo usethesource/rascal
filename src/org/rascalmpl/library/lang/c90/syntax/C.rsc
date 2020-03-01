@@ -8,8 +8,6 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::c90::\syntax::C
 
-import ParseTree;
-
 syntax Statement 
 	= "{" Declaration* Statement* "}" 
 	| Identifier ":" Statement 
