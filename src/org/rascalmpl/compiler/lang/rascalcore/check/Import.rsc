@@ -308,7 +308,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
              n_other = size(m1.messages) - n_errors;
              notes = n_errors > 0 ? " ERRORS <n_errors>" : "";
              notes += n_errors > 0 ? " WARNINGS/INFO: <n_other>" : "";
-             println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)<notes>");
+             if (n_errors > 0) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)<notes>");
              for(e <- errors){
                 iprintln(e);
              }
