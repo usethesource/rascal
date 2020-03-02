@@ -9,7 +9,6 @@ The functions in this file are used to register m3 models in a global in-memory 
 module analysis::m3::Registry
 
 import analysis::m3::Core;
-import String;
 import IO;
 
 @doc{
