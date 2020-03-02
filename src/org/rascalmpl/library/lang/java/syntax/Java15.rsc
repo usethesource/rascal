@@ -229,10 +229,7 @@ syntax StaticInit =
    staticInit: "static"  Block 
   ;
 
-lexical DeciNumeral =
-  [1-9] [0-9]* 
-  | "0" 
-  ;
+
 
 syntax EnumConstArgs =
   bracket "(" {Expr ","}* ")" 
@@ -242,10 +239,7 @@ syntax LocalVarDecStm =
   @prefer localVarDecStm: LocalVarDec ";" 
   ;
 
-keyword HexaSignificandKeywords =
-  [0] [X x] "." 
-  ;
-
+keyword HexaSignificandKeywords = "0x." | "0X.";
 
 lexical StringChars =
   FooStringChars 
@@ -307,10 +301,6 @@ syntax ArraySubscript =
   bracket "[" Expr "]" 
   ;
 
-syntax FloatLiteral =
-   float: HexaFloatLiteral !>> [D F d f] 
-  |  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
-  ;
 
 
 syntax ConstrBody =
@@ -390,9 +380,7 @@ syntax Modifier =
   | "public" 
   ;
 
-lexical DeciFloatLiteral =
-  DeciFloatNumeral [D F d f]? 
-  ;
+
 
 syntax ElemVal =
   Anno 
@@ -450,8 +438,33 @@ syntax TypeName =
   |  typeName: Id 
   ;
 
+syntax FloatLiteral =
+   float: HexaFloatLiteral !>> [D F d f] 
+  |  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
+  ;
+
+keyword DeciFloatLiteralKeywords =
+  [0-9]+ 
+  ;
+
+lexical DeciFloatLiteral =
+  DeciFloatNumeral [D F d f]? 
+  ;
+  
 lexical DeciLiteral =
   DeciNumeral !>> [. 0-9 D F d f] [L l]? 
+  ;
+
+lexical DeciNumeral 
+  = [1-9] [0-9]* 
+  | "0" 
+  ;
+  
+lexical DeciFloatNumeral
+    = [0-9] !<< [0-9]+ DeciFloatExponentPart
+    | [0-9] !<< [0-9]+ >> [D F d f]
+    | [0-9] !<< [0-9]+ "." [0-9]* !>> [0-9] DeciFloatExponentPart?
+    | [0-9] !<< "." [0-9]+ !>> [0-9] DeciFloatExponentPart?
   ;
 
 syntax SwitchLabel =
@@ -891,13 +904,6 @@ lexical EndOfFile =
   
   ;
 
-keyword DeciFloatLiteralKeywords =
-  [0-9]+ 
-  ;
-
-keyword DeciFloatDigitsKeywords =
-  "." 
-  ;
 
 syntax InstanceInit =
    instanceInit: Block 
@@ -916,12 +922,6 @@ syntax EnumBody =
   ;
 
 
-lexical DeciFloatNumeral
-	= [0-9] !<< [0-9]+ DeciFloatExponentPart
-	| [0-9] !<< [0-9]+ >> [D F d f]
-	| [0-9] !<< [0-9]+ "." [0-9]* !>> [0-9] DeciFloatExponentPart?
-	| [0-9] !<< "." [0-9]+ !>> [0-9] DeciFloatExponentPart?
-  ;
 
 lexical CarriageReturn =
   [\a0D] 
