@@ -54,7 +54,7 @@ syntax N[&T,&U] = "\<\<" &T "," &U "\>\>";
 
 syntax NAB = N[A,B];
 
-test bool concreteMatch01() = (A) `<A a>` := [A] "a";
+test bool concreteMatch01() = (A) `<A _>` := [A] "a";
 test bool concreteMatch01a() = (A) `a` := [A] "a";
 
 test bool concreteMatch02() = (As1) `<A+ as>` := [As1] "a" && "<as>" == "a";
@@ -70,7 +70,7 @@ test bool concreteMatch08() = (As1) `<A+ as>aa` := [As1] "aaa" && "<as>" == "a";
 test bool concreteMatch09() = (As1) `a<A+ as>a` := [As1] "aaa" && "<as>" == "a";
 test bool concreteMatch10() = (As1) `a<A+ as>a` := [As1] "aaaa" && "<as>" == "aa";
 
-test bool concreteMatch11() = (As1) `<A+ as1>a<A+ as2>a` := [As1] "aaaa" && "<as1>" == "a" && "<as1>" == "a" ;
+test bool concreteMatch11() = (As1) `<A+ as1>a<A+ _>a` := [As1] "aaaa" && "<as1>" == "a" && "<as1>" == "a" ;
 test bool concreteMatch12() = (As1) `<A+ as1>a<A+ as2>a` := [As1] "aaaaa" && "<as1>" == "a" && "<as2>" == "aa" ;
 
 test bool concreteMatch13() = (Bs) `<B* bs>` := [Bs] "" && "<bs>" == "";  		
@@ -85,7 +85,7 @@ test bool concreteMatch19() = (Bs) `<B* bs>bb` := [Bs] "bbbb" && "<bs>" == "bb";
 test bool concreteMatch20() = (Bs) `<B* bs>bbb` := [Bs] "bbbb" && "<bs>" == "b";
 test bool concreteMatch21() = (Bs) `<B* bs>bbbb` := [Bs] "bbbb" && "<bs>" == "";	
 
-test bool concreteMatch22() = (Bs) `<B* bs1><B* bs2>` := [Bs] "" && "<bs1>" == "" && "<bs1>" == "";
+test bool concreteMatch22() = (Bs) `<B* bs1><B* _>` := [Bs] "" && "<bs1>" == "" && "<bs1>" == "";
 test bool concreteMatch23() = (Bs) `b<B* bs1>b<B* bs2>b` := [Bs] "bbbb" && "<bs1>" == "" && "<bs2>" == "b";
 test bool concreteMatch24() = (Bs) `b<B* bs1>b<B* bs2>b` := [Bs] "bbbbb" && "<bs1>" == "" && "<bs2>" == "bb";
 test bool concreteMatch25() = (Bs) `b<B* bs1>b<B* bs2>b` := [Bs] "bbb" && "<bs1>" == "" && "<bs2>" == "";
@@ -98,7 +98,7 @@ test bool concreteMatch28() = (Cs1) `c,c,<{C ","}+ cs>` := [Cs1] "c,c,c,c" && "<
 test bool concreteMatch29() = (Cs1) `<{C ","}+ cs>,c` := [Cs1] "c,c,c,c" && "<cs>" == "c,c,c";
 test bool concreteMatch30() = (Cs1) `<{C ","}+ cs>,c,c` := [Cs1] "c,c,c,c" && "<cs>" == "c,c";
 test bool concreteMatch31() = (Cs1) `<{C ","}+ cs>,c,c,c` := [Cs1] "c,c,c,c" && "<cs>" == "c";
-test bool concreteMatch32() = (Cs1) `<{C ","}+ cs>,c,c,c,c` !:= [Cs1] "c,c,c,c";
+test bool concreteMatch32() = (Cs1) `<{C ","}+ _>,c,c,c,c` !:= [Cs1] "c,c,c,c";
 
 test bool concreteMatch33() = (Cs1) `c,<{C ","}+ cs>,c` := [Cs1] "c,c,c" && "<cs>" == "c";
 test bool concreteMatch34() = (Cs1) `c,<{C ","}+ cs>,c` := [Cs1] "c,c,c,c" && "<cs>" == "c,c";
@@ -360,7 +360,7 @@ test bool around4() = cntAroundCs1([AroundCs1] "OPENCs1.c.CLOSE") == 1;
 test bool around5() = cntAroundCs1([AroundCs1] "OPENCs1.c.,.c.CLOSE") == 2;
 
 // test for issue #834
-int cntTrees(list[A] trees) = ( 0 | it + 1 | A a <- trees);
+int cntTrees(list[A] trees) = ( 0 | it + 1 | A _ <- trees);
 test bool callNoTree() = cntTrees([]) == 0;
 test bool callOneTree() = cntTrees([[A]"a"]) == 1;
 test bool callTwoTrees() = cntTrees([[A]"a",[A]"a"]) == 2;
@@ -368,11 +368,11 @@ test bool callTreeTrees() = cntTrees([[A]"a",[A]"a",[A]"a"]) == 3;
 
 // Descendant in parameterized concrete sort
 
-test bool descentInParameterizedSort1() = /A a := (M[A]) `[[a]]`;
-test bool descentInParameterizedSort2() = /A a !:= (M[B]) `[[b]]`;
+test bool descentInParameterizedSort1() = /A _ := (M[A]) `[[a]]`;
+test bool descentInParameterizedSort2() = /A _ !:= (M[B]) `[[b]]`;
 
-test bool descentInParameterizedSort3() = /B b := (M[B]) `[[b]]`;
-test bool descentInParameterizedSort4() = /B b !:= (M[A]) `[[a]]`;
+test bool descentInParameterizedSort3() = /B _ := (M[B]) `[[b]]`;
+test bool descentInParameterizedSort4() = /B _ !:= (M[A]) `[[a]]`;
 
-test bool descentInParameterizedSort5() = /A a := (N[A,B]) `\<\<a,b\>\>`;
-test bool descentInParameterizedSort6() = /B b := (N[A,B]) `\<\<a,b\>\>`;
+test bool descentInParameterizedSort5() = /A _ := (N[A,B]) `\<\<a,b\>\>`;
+test bool descentInParameterizedSort6() = /B _ := (N[A,B]) `\<\<a,b\>\>`;

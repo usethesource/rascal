@@ -9,7 +9,6 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
-
 module lang::rascal::tests::library::ValueIO
 
 import ValueIO;
@@ -69,12 +68,6 @@ loc value_io2_test = |test-temp:///value-io2-<"<uuidi()>">.test|;
 private bool textWriteRead(type[&T] _, value exp) {
    writeTextValueFile(value_io2_test,exp);
    if (&T N := readTextValueFile(value_io2_test) && N == exp) return true;
-   return false;
-   }
-   
-private bool textWriteRead1(type[&T] typ, value exp) {
-   writeTextValueFile(value_io2_test,exp);
-   if (&T N := readTextValueFile(typ, value_io2_test) && N == exp) return true;
    return false;
    }
    

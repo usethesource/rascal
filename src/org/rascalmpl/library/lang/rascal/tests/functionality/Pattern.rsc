@@ -12,9 +12,6 @@ module lang::rascal::tests::functionality::Pattern
  
 import List;
 
-//data Bool = and(Bool, Bool) | t();
-//data Prop = or(Prop, Prop) | f();
-
 data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
 data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
   
@@ -110,8 +107,8 @@ test bool matchTuple7() = <_, "abc">  := <1, "abc">;
 test bool matchTuple8() = <1, _>        := <1, "abc">;
 test bool matchTuple9() = <_, _>        := <1, "abc">;
   	
-//	matchTupleExternalVar
- 
+
+// T is not initialized on purpose here 
 test bool matchTupleExternalVar1() {tuple[int,int] T; return T := <1,2> && T[0] == 1 && T[1] == 2;}
   
 //	matchVariable
