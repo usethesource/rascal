@@ -11,6 +11,8 @@
 
 module lang::rascal::tests::functionality::Aliasing
 
+import Type;
+
 alias INTEGER0 = int;
 		
 test bool  usingAliases1() { INTEGER0 I = 3; return I == 3; }
