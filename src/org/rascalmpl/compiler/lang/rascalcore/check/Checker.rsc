@@ -261,7 +261,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         mloc = getModuleLocation(m, pcfg);  
                         //ms.moduleLocs[m] = mloc;  
                         path2module[mloc.path] = m;        
-                        if(config.verbose) println("*** parsing <m> from <mloc>");
+                        //if(config.verbose) println("*** parsing <m> from <mloc>");
                         ms.moduleLastModified[m] = lastModified(mloc);
                         try {
                             Module pt = parseModuleWithSpaces(mloc).top;
@@ -277,7 +277,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                     <found, tplLoc> = getDerivedReadLoc(m, "tpl", pcfg);
                     if(found){   
                         try {
-                            if(config.verbose) println("*** reading <m> from <tplLoc>");  
+                            //if(config.verbose) println("*** reading <m> from <tplLoc>");  
                             ms.moduleLastModified[m] = lastModified(tplLoc);     
                             ms.tmodels[m] = readBinaryValueFile(#TModel, tplLoc);
                         } catch IO(str msg): {
