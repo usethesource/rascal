@@ -1,7 +1,12 @@
+@license{
+  Copyright (c) 2009-2020 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module lang::rascal::tests::concrete::Terms
 
-
-import ParseTree;
 layout Whitespace = [\ ]*;
 lexical IntegerLiteral = [0-9]+; 
 lexical Identifier = [a-z]+;

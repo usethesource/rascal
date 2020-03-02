@@ -1,19 +1,17 @@
- module lang::rascal::tests::functionality::TryCatch
-  /*******************************************************************************
-   * Copyright (c) 2009-2015 CWI
-   * All rights reserved. This program and the accompanying materials
-   * are made available under the terms of the Eclipse Public License v1.0
-   * which accompanies this distribution, and is available at
-   * http://www.eclipse.org/legal/epl-v10.html
-   *
-   * Contributors:
-  
-   *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
-   *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
-   *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-   *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-   *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-  *******************************************************************************/
+@license{
+   Copyright (c) 2009-2015 CWI
+   All rights reserved. This program and the accompanying materials
+   are made available under the terms of the Eclipse Public License v1.0
+   which accompanies this distribution, and is available at
+   http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+module lang::rascal::tests::functionality::TryCatch
+
 import Exception;
 import List;
 import Set;
@@ -32,13 +30,13 @@ data Exception = divide_by_zero();
 int classify(value v){
 	try { 
 		throw v; 
-	} catch int x:{ 
+	} catch int _:{ 
 		return 1; 
 	} 
-	catch node x: { 
+	catch node _: { 
 		return 2; 
  	}
-	catch str s: { 
+	catch str _: { 
 		return 3; 
 	} 
 	catch: { 
@@ -185,7 +183,7 @@ test bool emptySetException1() {
 test bool indexOutOfBoundsException1() {
 	try { 
 		[0,1,2][3]; 
-	} catch IndexOutOfBounds(int i): 
+	} catch IndexOutOfBounds(int _): 
 		return true; 
 	return false; 
 }
@@ -195,7 +193,7 @@ test bool indexOutOfBoundsException1() {
 test bool pathNotFoundException1() {
 	try {
 		S = readFile(|file:///DoesNotExist|);
-	} catch PathNotFound(loc location):
+	} catch PathNotFound(loc _):
 		return true;
 	return false;
 }

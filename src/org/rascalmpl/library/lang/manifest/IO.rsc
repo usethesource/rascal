@@ -1,8 +1,15 @@
+@license{
+  Copyright (c) 2009-2020 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 @doc{
   Jar Manifest files are a kind of property files typically stored inside Jar files.
   They contain meta information about the other files stored in the jar file.
 } 
-@author{Jurgen Vinju}
+@contributor{Jurgen Vinju}
 module lang::manifest::IO
 
 import Type;
@@ -20,7 +27,7 @@ java map[str key, str val] readManifest(loc input);
    
    m = readManifest(input);
    
-   if (/c:\cons(label(name, symbol), args, kws, _) := t.definitions) {
+   if (/\cons(label(name, _), args, kws, _) := t.definitions) {
       return make(t, name,  
         [convert(f, m[l]) | label(l, f) <- args,  m[l]?], 
         (l:convert(f, m[l]) | label(l, f) <- kws, m[l]?));

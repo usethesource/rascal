@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2020 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module lang::rascal::tests::functionality::KeywordParameter
 
 str f(int i, str k = "empty", int j = 0) {
@@ -23,6 +30,7 @@ test bool keywordParam3(){
   	       && sum(y = 7, x = 5) == 5 + 7;
 }
 
+// delta is unused on purpose for testing purposes
 int f4(int _, int delta = 0) = g4();
 
 int g4() = h4();
@@ -37,6 +45,7 @@ test bool keywordParam4(){
 
 data Point = point(int i, str color = "red");
 
+// color and print are unused on purpose for testing
 public tuple[Point,Point] f5(int i, str color = "green", bool print = false) = <point(i),point(i + 1,color = "blue")>;
 
 test bool keywordParam5() {
@@ -54,6 +63,7 @@ test bool keywordParam71() = f7(1,2) == "1, 2";
 test bool keywordParam72() = f7(3,4) == "3, 4";
 test bool keywordParam73() = f7(1,3, k = "1 + 3") == "1 + 3";
 
+// delta is unused on purpose
 int f8(int i, int delta = 100 + i) = g8();
 
 int g8() = h8(665);
