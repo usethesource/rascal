@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2020 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module lang::rascal::tests::functionality::PatternSet1
 
 public int ModVar42 = 42;
@@ -630,4 +637,5 @@ test bool matchListSetVariableScopes12() = [pair(PAIR L1, b1()), L1] !:= [pair(a
   
 // matchSetExternalVar
   
+// S is uninitialized on purpose  
 test bool matchSetExternalVar1() {set[int] S; return ({1, *S, 2} := {1,2,3} && S == {3});}
