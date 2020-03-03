@@ -234,6 +234,7 @@ public abstract class Import {
 		
 		if (!heap.existsModule(name)) {
 			// deal with a fresh module that needs initialization
+		    eval.getStdErr().println("DEBUG: loading fresh module " + name + " from disk.");
 			heap.addModule(new ModuleEnvironment(name, heap));
 			loadModule(src, name, eval);
 		} 
