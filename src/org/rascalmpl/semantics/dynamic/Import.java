@@ -239,6 +239,7 @@ public abstract class Import {
 		} 
 		else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
 			// in the root scope we treat an import as a "reload"
+		    eval.getStdErr().println("DEBUG: Reloading module " + name + " from disk.");
 			heap.resetModule(name);
 			loadModule(src, name, eval);
 		} 
@@ -279,62 +280,62 @@ public abstract class Import {
 		}
 	}
 	
-  public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
-    GlobalEnvironment heap = eval.getHeap();
-    
-    ModuleEnvironment env = heap.getModule(name);
-    if (env == null) {
-      env = new ModuleEnvironment(name, heap);
-      heap.addModule(env);
-    }
-    
-    try {
-    	ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
-    	if (uri == null) {
-    		throw new ModuleImport(name, "can not find in search path", x);
-    	}
-      Module module = buildModule(uri, env, eval);
+	public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
+	    GlobalEnvironment heap = eval.getHeap();
 
-      if (isDeprecated(module)) {
-        eval.getStdErr().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
-      }
-      
-      if (module != null) {
-        String internalName = org.rascalmpl.semantics.dynamic.Module.getModuleName(module);
-        if (!internalName.equals(name)) {
-          throw new ModuleNameMismatch(internalName, name, x);
-        }
-        heap.setModuleURI(name, module.getLocation().getURI());
-        
-        module.interpret(eval);
-        
-        return env;
-      }
-    }
-    catch (SyntaxError e) {
-        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-        throw e;
-    }
-    catch (ParseError e) {
-        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-        throw e;
-    }
-    catch (StaticError e) {
-        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-        throw e;
-    }
-    catch (Throw  e) {
-        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-        throw e;
-    } catch (Throwable e) {
-        handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
-        e.printStackTrace();
-        throw new ModuleImport(name, e.getMessage(), x);
-    } 
+	    ModuleEnvironment env = heap.getModule(name);
+	    if (env == null) {
+	        env = new ModuleEnvironment(name, heap);
+	        heap.addModule(env);
+	    }
 
-    heap.removeModule(env);
-    throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);
-  }
+	    try {
+	        ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
+	        if (uri == null) {
+	            throw new ModuleImport(name, "can not find in search path", x);
+	        }
+	        Module module = buildModule(uri, env, eval);
+
+	        if (isDeprecated(module)) {
+	            eval.getStdErr().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
+	        }
+
+	        if (module != null) {
+	            String internalName = org.rascalmpl.semantics.dynamic.Module.getModuleName(module);
+	            if (!internalName.equals(name)) {
+	                throw new ModuleNameMismatch(internalName, name, x);
+	            }
+	            heap.setModuleURI(name, module.getLocation().getURI());
+
+	            module.interpret(eval);
+
+	            return env;
+	        }
+	    }
+	    catch (SyntaxError e) {
+	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+	        throw e;
+	    }
+	    catch (ParseError e) {
+	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+	        throw e;
+	    }
+	    catch (StaticError e) {
+	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+	        throw e;
+	    }
+	    catch (Throw  e) {
+	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+	        throw e;
+	    } catch (Throwable e) {
+	        handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
+	        e.printStackTrace();
+	        throw new ModuleImport(name, e.getMessage(), x);
+	    } 
+
+	    heap.removeModule(env);
+	    throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);
+	}
   
   private static void handleLoadError(GlobalEnvironment heap, ModuleEnvironment env, IEvaluator<Result<IValue>> eval,
       String name, String message, ISourceLocation location, ISourceLocation origin) {
