@@ -81,7 +81,6 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
        }
     }
     Define d = s.getDefine(def);
-    //println("d = <d>");
     // Uses of a keyword formal inside its initializing expression are rejected
     if(d.idRole == keywordFormalId() && isContainedIn(use.occ, d.defined)){
         return ignoreContinue();

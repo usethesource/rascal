@@ -115,6 +115,8 @@ AGrammar addGrammar(loc scope, Solver s){
         allLayouts = {};
         allManualLayouts = {};
         definitions = ();
+        
+        seenNTsForKeywordCheck = {};
         //PM. maybe also generate prod(Symbol::empty(),[],{}) 
         for(AType adtType <- domain(usedProductions)){
             //println("getGrammar: <adtType>");
@@ -129,7 +131,7 @@ AGrammar addGrammar(loc scope, Solver s){
                     allLayouts = {*allLayouts, adtType};
                 }
             } else if(syntaxRole == keywordSyntax()){
-                checkKeyword(adtType, productions, scope, {}, s);
+                seenNTsForKeywordCheck = checkKeyword(adtType, productions, scope, {} /*seenNTsForKeywordCheck*/, s);
             }
            
             //if(s.isStart){
@@ -166,8 +168,7 @@ AGrammar addGrammar(loc scope, Solver s){
 // - literals
 // - other nonterminals that satisfy this rule.
 
- void checkKeyword(AType adtType, set[AProduction] productions, loc scope, set[AType] seenNTs, Solver s){
-   // println("ckeckKeyword: <adtType>, <productions>, <seenNTs>");
+ set[AType] checkKeyword(AType adtType, set[AProduction] productions, loc scope, set[AType] seenNTs, Solver s){
     seenNTs += adtType;
     for(/p: prod(AType def, list[AType] asymbols) <- productions){
         for(AType sym <- asymbols){
@@ -176,16 +177,20 @@ AGrammar addGrammar(loc scope, Solver s){
             } else if(isADTType(sym)){
                 // also good, provided we have not already seen this same nonterminal (recursion guard)
                 if(sym notin seenNTs){
-                    checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxRoles)}, scope, seenNTs + sym, s);
+                    seenNTs = checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxRoles)}, scope, seenNTs + sym, s);
                 }
             } else if(aprod(prod(aadt(_,[],_),[sym2])) := sym && isADTType(sym2)){
                 // also good, provided we have not already seen this same nonterminal (recursion guard)
                 if(sym2 notin seenNTs){
-                    checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxRoles)}, scope, seenNTs + sym2, s);
+                    seenNTs = checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxRoles)}, scope, seenNTs + sym2, s);
                 }
             } else {
-                s.report(warning(p.src, "Only literals allowed in keyword declaration, found %t via %q", sym, seenNTs));
+                syntaxRole = (\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole;
+                if(syntaxRole == keywordSyntax()){
+                    s.report(warning(p.src, "Only literals allowed in keyword declaration, found %t", sym));
+                }
             }
         }
     }
+    return seenNTs;
  }
