@@ -170,7 +170,13 @@ AGrammar addGrammar(loc scope, Solver s){
 
  set[AType] checkKeyword(AType adtType, set[AProduction] productions, loc scope, set[AType] seenNTs, Solver s){
     seenNTs += adtType;
+    syntaxRole = (\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole;
     for(/p: prod(AType def, list[AType] asymbols) <- productions){
+        if(syntaxRole == keywordSyntax() && size(asymbols) != 1){
+            s.report(warning(p.src, size(asymbols) == 0 ? "One symbol needed in keyword declaration"
+                                                        : "Keyword declaration should consist of one symbol"));
+            continue;
+        }
         for(AType sym <- asymbols){
             if(lit(_) := sym || aprod(prod(aadt(_,[],_),[lit(_)])) := sym){
                 ; // good!
