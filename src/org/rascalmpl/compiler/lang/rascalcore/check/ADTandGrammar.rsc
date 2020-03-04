@@ -152,9 +152,13 @@ AGrammar addGrammar(loc scope, Solver s){
        
         } else if(size(allLayouts) == 1){
             g = layouts(g, getOneFrom(allLayouts), allManualLayouts);
-        } else { //TODO: resolve multiple layout
-            println("$$$$$$ WARNING: Cannot yet handle multiple layout: <allLayouts>");
-            //throw "Cannot yet handle multiple layout: <allLayouts>";
+        } else { // Warn for  multiple layout definitions
+            allLayoutNames = {ladt.adtName | ladt <- allLayouts};
+            for(AType ladt <- allLayouts){
+                for(p <- definitions[ladt].alternatives){
+                    s.report(warning(p.src, "Multiple layout definitions: %v can interfere with %v", ladt.adtName, allLayoutNames - ladt.adtName));
+                }
+            }
         }
         g = expandKeywords(g);
         s.putStore("grammar", g);
