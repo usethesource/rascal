@@ -1,12 +1,17 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-str f(str n, bool c = true) = n;
+layout X = "a";
 
-int f(int n, bool c = true) = n;
+layout Y = "b";
 
-void main(){
-    f(3, c=3);
-}
+
+//str f(str n, bool c = true) = n;
+//
+//int f(int n, bool c = true) = n;
+//
+//void main(){
+//    f(3, c=3);
+//}
 
 
 //import analysis::m3::Core;
