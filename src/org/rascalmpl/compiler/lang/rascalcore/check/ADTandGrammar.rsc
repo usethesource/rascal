@@ -155,8 +155,12 @@ AGrammar addGrammar(loc scope, Solver s){
         } else { // Warn for  multiple layout definitions
             allLayoutNames = {ladt.adtName | ladt <- allLayouts};
             for(AType ladt <- allLayouts){
+                otherLayoutNames = {"`<lname>`" | str lname <- (allLayoutNames - ladt.adtName)};
                 for(p <- definitions[ladt].alternatives){
-                    s.report(warning(p.src, "Multiple layout definitions: %v can interfere with %v", ladt.adtName, allLayoutNames - ladt.adtName));
+                    s.report(warning(p.src, 
+                                    size(otherLayoutNames) == 1 ? "Multiple layout definitions: layout %q can interfere with layout %v"
+                                                                : "Multiple layout definitions: layout %q can interfere with layouts %v"
+                                    , ladt.adtName, otherLayoutNames));
                 }
             }
         }
