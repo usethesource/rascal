@@ -17,8 +17,11 @@ import analysis::graphs::Graph;
   for regular expressions.
 }
 @experimental
-public Graph[Symbol] symbolDependencies(Grammar g) =
-  { <from,to> | /prod(Symbol s,[*_,Symbol elem,*_],_) := g, /Symbol to := elem, (label(_,Symbol from) := s || Symbol from := s), to is sort || to is lex || to is \parameterized-sort, from is sort || from is lex || from is \parameterized-sort};
+Graph[Symbol] symbolDependencies(Grammar g) =
+  { <from,to> | /prod(Symbol s,[*_,Symbol elem,*_],_) := g, Symbol from := delabel(s), /Symbol to := elem, to is sort || to is lex || to is \parameterized-sort, from is sort || from is lex || from is \parameterized-sort};
 
-public Graph[Symbol] symbolDependencies(GrammarDefinition d) =
+Graph[Symbol] symbolDependencies(GrammarDefinition d) =
   { *symbolDependencies(d.modules[m].grammar) | m <- d.modules };
+
+private Symbol delabel(label(_, Symbol t)) = t;
+private default Symbol delabel(Symbol x) = x;  

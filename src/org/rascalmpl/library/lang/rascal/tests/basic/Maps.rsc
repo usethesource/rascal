@@ -13,7 +13,6 @@ module lang::rascal::tests::basic::Maps
 import Map;
 import Set;
 import List;
-import ListRelation;
 import util::Math;
 import Type;
 import Node;
@@ -21,7 +20,6 @@ import Exception;
 
 private map[&K,&V] emptyMap(type[map[&K,&V]] _) = ();
 private list[&T] emptyList(type[&T] _) = [];
-private set[&T] emptySet(type[&T] _) = {};
 private map[value,value] up(map[&K,&V] m) = m;
 
 // composition
@@ -114,10 +112,10 @@ test bool notin1(&K k) = k notin ();
 test bool notin2(&K k, map[&K,&V] M) = k notin (M - (k:k));
 
 // pattern matching
-test bool pm1() { value n = 1; value s = "string"; return map[int, int] _ := ( n : n ); }
+test bool pm1() { value n = 1; return map[int, int] _ := ( n : n ); }
 test bool pm2() { value n = 1; value s = "string"; return map[str, int] _ := ( s : n ); }
 test bool pm3() { value n = 1; value s = "string"; return map[int, str] _ := ( n : s ); }
-test bool pm4() { value n = 1; value s = "string"; return map[str, str] _ := ( s : s ); }
+test bool pm4() { value s = "string"; return map[str, str] _ := ( s : s ); }
 
 // strictsubmap
 test bool strictsubmap1(map[&K,&V] M) = isEmpty(M) || () < M;

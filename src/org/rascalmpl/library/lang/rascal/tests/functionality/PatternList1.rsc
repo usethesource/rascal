@@ -629,6 +629,7 @@ test bool matchNestedList13() = ([[1], *list[int] L, [6,7,8], *L] := [[1],[2,3],
 
 // matchExternalListVars
 
+// int n is uninitialized on purpose here
 test bool matchExternalListVars1() {int n;  return n := 3 && n == 3; }
 
 /*TODO:fails*/
