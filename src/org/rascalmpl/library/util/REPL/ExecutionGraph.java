@@ -17,14 +17,14 @@ import java.util.Set;
 
 public class ExecutionGraph {
     
-    private GraphNode currentNode;
-    private Set<GraphNode> nodes;
+    private String currentNode;
+    private Set<CustomNode> nodes;
     private Set<CustomEdge> edges;
     
-    public ExecutionGraph(GraphNode current, Set<GraphNode> set, Set<CustomEdge> edges) {
+    public ExecutionGraph(String current, Set<CustomNode> nodes, Set<CustomEdge> edges) {
         super();
         this.currentNode = current;
-        this.nodes = set;
+        this.nodes = nodes;
         this.edges = edges;
     }
     
@@ -40,4 +40,31 @@ public class ExecutionGraph {
             this.nodeV = nodeV;
         }
     }
+    
+    public static class CustomNode {
+
+        private String input;
+        private String result;
+        private String hash;
+        
+        public String getInput() {
+            return input;
+        }
+
+        public String getResult() {
+            return result;
+        }
+        
+        public String getHash() {
+            return hash;
+        }
+
+        public CustomNode(String input, String result, String hash) {
+            super();
+            this.input = input;
+            this.result = result;
+            this.hash = hash;
+        }
+    }
+
 }
