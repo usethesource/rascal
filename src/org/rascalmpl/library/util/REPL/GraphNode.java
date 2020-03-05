@@ -14,15 +14,21 @@ package org.rascalmpl.library.util.REPL;
 
 import java.util.Objects;
 
+import io.usethesource.vallang.IValue;
+
+
 public final class GraphNode {
 
     private final String sourceCode;
     
     private final String result;
+    
+    private final IValue config;
 
-    public GraphNode(String sourceCode, String result) {
+    public GraphNode(String sourceCode, String result, IValue conf) {
         this.sourceCode = sourceCode;
         this.result = result;
+        this.config = conf;
     }
     
     
@@ -38,8 +44,9 @@ public final class GraphNode {
     public boolean equals(Object other) {
       if (other instanceof GraphNode) {
         GraphNode that = (GraphNode) other;
-        return this.sourceCode.equals(that.sourceCode)
-            && this.result == that.result;
+        return this.config.equals(that.config);
+//        return this.sourceCode.equals(that.sourceCode)
+//            && this.result == that.result;
       }
       return false;
     }
@@ -47,12 +54,16 @@ public final class GraphNode {
     
     @Override
     public int hashCode() {
-      return Objects.hash(sourceCode, result);
+      return Objects.hash(this.sourceCode, this.result);
     }
     
     @Override
     public String toString() {
-      return "(" + sourceCode + ", " + result + ")";
+      return "(" + sourceCode + ", " + this.result + "," + this.config + ")";
+    }
+
+    public IValue getConfig() {
+        return config;
     }
     
 }
