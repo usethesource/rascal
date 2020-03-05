@@ -1,5 +1,6 @@
 module lang::rascal::tests::imports::Imports9
 
+// unused import on purpose for testing purposes
 import lang::rascal::tests::imports::M9;
 
 test bool Test91() { 
