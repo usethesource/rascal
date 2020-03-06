@@ -102,7 +102,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Undefined anno _",
 	    "Undefined _",
 	    "Cannot assign value of type _ to _",
-	    "_ is defined as _ and cannot be applied to argument(s) _",
+	    "_ is defined as _ and cannot be applied to argument",
 	    "Missing return statement",
 	    "Return type _ expected, found _",
 	    "Type of generator should be _, found _",
