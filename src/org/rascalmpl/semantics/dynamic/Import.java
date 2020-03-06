@@ -234,13 +234,11 @@ public abstract class Import {
 		
 		if (!heap.existsModule(name)) {
 			// deal with a fresh module that needs initialization
-		    eval.getStdErr().println("DEBUG: loading fresh module " + name + " from disk.");
 			heap.addModule(new ModuleEnvironment(name, heap));
 			loadModule(src, name, eval);
 		} 
 		else if (eval.getCurrentEnvt() == eval.__getRootScope()) {
 			// in the root scope we treat an import as a "reload"
-		    eval.getStdErr().println("DEBUG: Reloading module " + name + " from disk.");
 			heap.resetModule(name);
 			loadModule(src, name, eval);
 		} 
@@ -365,8 +363,15 @@ private static boolean isDeprecated(Module preModule){
   }
   
   private static Module buildModule(ISourceLocation uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-	ITree tree = eval.parseModuleAndFragments(eval, uri);
-    return getBuilder().buildModule(tree);
+      try {
+          eval.startJob("Loading module " + uri, 10);
+          ITree tree = eval.parseModuleAndFragments(eval, uri);
+
+          return getBuilder().buildModule(tree);
+      }
+      finally {
+          eval.endJob(true);
+      }
   }
   
   private static ASTBuilder getBuilder() {
@@ -384,18 +389,14 @@ private static boolean isDeprecated(Module preModule){
   }
   
   public static ITree parseModuleAndFragments(char[] data, ISourceLocation location, IEvaluator<Result<IValue>> eval){
-    eval.__setInterrupt(false);
-    IActionExecutor<ITree> actions = new NoActionExecutor();
-
-    try {
-      eval.startJob("Parsing " + location, 10);
-      eval.event("initial parse");
+      eval.__setInterrupt(false);
+      IActionExecutor<ITree> actions = new NoActionExecutor();
 
       ITree tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
-  
+
       if (TreeAdapter.isAmb(tree)) {
-        // Ambiguity is dealt with elsewhere
-        return tree;
+          // Ambiguity is dealt with elsewhere
+          return tree;
       }
 
       ITree top = TreeAdapter.getStartTop(tree);
@@ -406,8 +407,8 @@ private static boolean isDeprecated(Module preModule){
       GlobalEnvironment heap = eval.getHeap();
       ModuleEnvironment env = heap.getModule(name);
       if(env == null){
-        env = new ModuleEnvironment(name, heap);
-        // do not add the module to the heap here. 
+          env = new ModuleEnvironment(name, heap);
+          // do not add the module to the heap here. 
       }
       env.setBootstrap(needBootstrapParser(data));
 
@@ -415,51 +416,42 @@ private static boolean isDeprecated(Module preModule){
       // since they may provide additional syntax definitions\
       Environment old = eval.getCurrentEnvt();
       try {
-        eval.setCurrentEnvt(env);
-        env.setInitialized(true);
+          eval.setCurrentEnvt(env);
+          env.setInitialized(true);
 
-        eval.event("defining syntax");
-        eval.getCurrentModuleEnvironment().clearProductions();
-        ISet rules = Modules.getSyntax(top);
-        for (IValue rule : rules) {
-          evalImport(eval, (IConstructor) rule);
-        }
+          eval.getCurrentModuleEnvironment().clearProductions();
+          ISet rules = Modules.getSyntax(top);
+          for (IValue rule : rules) {
+              evalImport(eval, (IConstructor) rule);
+          }
 
-        eval.event("importing modules");
-        ISet imports = Modules.getImports(top);
-        for (IValue mod : imports) {
-          evalImport(eval, (IConstructor) mod);
-        }
+          ISet imports = Modules.getImports(top);
+          for (IValue mod : imports) {
+              evalImport(eval, (IConstructor) mod);
+          }
 
-        eval.event("extending modules");
-        ISet extend = Modules.getExtends(top);
-        for (IValue mod : extend) {
-          evalImport(eval, (IConstructor) mod);
-        }
+          ISet extend = Modules.getExtends(top);
+          for (IValue mod : extend) {
+              evalImport(eval, (IConstructor) mod);
+          }
 
-        eval.event("generating modules");
-        ISet externals = Modules.getExternals(top);
-        for (IValue mod : externals) {
-          evalImport(eval, (IConstructor) mod);
-        }
+          ISet externals = Modules.getExternals(top);
+          for (IValue mod : externals) {
+              evalImport(eval, (IConstructor) mod);
+          }
       }
       finally {
-        eval.setCurrentEnvt(old);
+          eval.setCurrentEnvt(old);
       }
 
       // parse the embedded concrete syntax fragments of the current module
       ITree result = tree;
       if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
-        eval.event("parsing concrete syntax");
-        result = parseFragments(eval, tree, location, env);
+          result = parseFragments(eval, tree, location, env);
       }
 
       return result;
-    } 
-    finally {
-      eval.endJob(true);
-    }
-  }
+  } 
   
   public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
 	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
