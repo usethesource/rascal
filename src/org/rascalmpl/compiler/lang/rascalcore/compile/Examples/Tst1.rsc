@@ -1,22 +1,15 @@
 module lang::rascalcore::compile::Examples::Tst1
-
-layout X = "a";
-
-layout Y = "b";
-
-
+ 
+//set[str] f(){
+//    res = {};
+//    res += 1;
+//    return res;
+//}
+ 
 //str f(str n, bool c = true) = n;
-//
-//int f(int n, bool c = true) = n;
-//
-//void main(){
-//    f(3, c=3);
-//}
 
+int f(int n, bool c = true) = n;
 
-//import analysis::m3::Core;
-////import lang::rascalcore::compile::Examples::Tst2;
-//
-//value foo(M3 model)
-//{ return model.modifiers;  
-//}
+void main(){
+    f(3, c=3,s =4);
+}
