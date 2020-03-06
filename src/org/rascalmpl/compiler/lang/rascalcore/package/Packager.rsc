@@ -4,6 +4,7 @@ import util::FileSystem;
 import util::Monitor;
 import IO;
 import ValueIO;
+import ParseTree;
 
 public void package(list[loc] srcs, loc bin, loc sourceLookup) {
   packageSourceFiles(srcs, bin);  
