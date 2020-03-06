@@ -17,6 +17,7 @@ import lang::rascalcore::check::ComputeType;
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::check::ScopeInfo;
 import lang::rascalcore::check::SyntaxGetters;
+import lang::rascalcore::check::PathAnalysis;
 
 import Map;
 import Node;
@@ -638,7 +639,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] fms):
-                             continue next_fun;
+                            continue next_fun;
                          catch NoBinding():
                             continue next_fun;
                     }
@@ -660,9 +661,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     s.specializedFact(expression, tp);
                     // TODO check identicalFields to see whether this can make sense
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
-                 } else if(isEmpty(validReturnTypeOverloads)) { 
-                        s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));}
-                 else {
+                 } else if(isEmpty(validReturnTypeOverloads)) {
+                        reportCallError(current, expression, actuals, keywordArguments, s);
+                        return avalue();
+                 } else {
                     stexp = overloadedAType(validOverloads);
                     if(texp != stexp) s.specializedFact(expression, stexp);
                     return overloadedAType(validReturnTypeOverloads);
@@ -679,10 +681,26 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             if(acons(ret:aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := texp){
                return computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
             }
-            s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));
+            reportCallError(current, expression, actuals, keywordArguments, s);
             return avalue();
         });
       collect(expression, arguments, keywordArguments, c);
+}
+
+void reportCallError(Expression current, Expression callee, list[Expression] actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`, Solver s){
+    kwactuals = keywordArguments is \default ? [ kwa.expression | kwa <- keywordArguments.keywordArgumentList] : [];
+    
+    arguments = size(actuals) > 1 ? "arguments" : "argument";
+    kwarguments = size(kwactuals) > 1 ? "keyword arguments" : "keyword argument";
+    if(isEmpty(kwactuals)){
+        s.report(error(current, "%q is defined as %t and cannot be applied to %v of type %v",  "<callee>", callee, arguments, actuals));
+    } else {
+        kwargs = keywordArguments is \default ? [ kwa | kwa <- keywordArguments.keywordArgumentList] : [];
+        kws = [ "`<kwa.name>` of type `<prettyAType(s.getType(kwa.expression))>`" | kwa <- kwargs ];
+        s.report(error(current, "%q is defined as %t and cannot be applied to %v of type `%v` and %v %v", 
+                                "<callee>", callee, arguments, actuals, kwarguments, 
+                                kws));
+    }
 }
 
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
