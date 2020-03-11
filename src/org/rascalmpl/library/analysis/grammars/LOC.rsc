@@ -1,11 +1,7 @@
 module analysis::grammars::LOC
 
-import Exception;
-import Message;
 import ParseTree;
-import util::Math;
 import List;
-import IO;
 import util::FileSystem;
 import util::Reflective;
 
@@ -114,10 +110,10 @@ int countSLOC(Tree t) {
 }
 
 bool isLayout(appl(prod(\layouts(_), _, _), _)) = true;
-bool isLayout(amb({_*, appl(prod(\layouts(_), _, _), _)})) = true;
+bool isLayout(amb({*_, appl(prod(\layouts(_), _, _), _)})) = true;
 default bool isLayout(Tree t) = false;
 
-bool isComment(appl(p:prod(_, _, {_*, \tag("category"("Comment"))}), _)) = true;
+bool isComment(appl(p:prod(_, _, {*_, \tag("category"("Comment"))}), _)) = true;
 default bool isComment(Tree _) = false;
 
 

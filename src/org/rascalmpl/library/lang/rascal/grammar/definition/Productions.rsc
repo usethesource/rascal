@@ -8,18 +8,14 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::rascal::grammar::definition::Productions
-     
+
 import lang::rascal::\syntax::Rascal;
-import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
 import lang::rascal::grammar::definition::Names;
 extend Grammar;
-import List; 
-import String;    
 extend ParseTree;   
 import IO;  
-import util::Math;
 import util::Maybe;
 
 

@@ -17,7 +17,6 @@ import analysis::graphs::Graph;
 import List;
 import Set;
 import Relation;
-import IO;
 
 /*
               1 -----> 3
@@ -236,10 +235,10 @@ test bool reachR5() = reachR({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {1,2,4}) =={2, 4
 // reachX
   
 test bool reachX1() = reachX({}, {}, {}) == {};
-test bool reachX() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {}) =={2, 3, 4};
-test bool reachX2() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2}) =={3, 4};
-test bool reachX() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2,3}) =={};
-test bool reachX3() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {4}) =={2, 3};
+test bool reachX2() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {}) =={2, 3, 4};
+test bool reachX3() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2}) =={3, 4};
+test bool reachX4() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2,3}) =={};
+test bool reachX5() = reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {4}) =={2, 3};
   	
 // reach
   

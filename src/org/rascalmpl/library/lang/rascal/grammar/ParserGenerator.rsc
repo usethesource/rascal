@@ -29,9 +29,6 @@ import String;
 import List;
 import Node;
 import Set;
-import Map;
-import IO;
-import Exception;
   
 // TODO: replace this complex data structure with several simple ones
 alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
@@ -175,7 +172,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    IntegerMap result = new IntegerMap();
            '    int resultStoreId = result.size();
            '    
-           '    <for (<childrenIds, parentIds> <- (dontNestGroups)) {>
+           '    <for (<_, parentIds> <- (dontNestGroups)) {>
            '    ++resultStoreId;
            '    <for (pid <- (parentIds)) {>
            '    result.putUnsafe(<pid>, resultStoreId);<}><}>
@@ -263,13 +260,13 @@ int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set
     case \opt(t) : return t.id; 
     case \iter(t) : return t.id;
     case \iter-star(t) : return t.id; 
-    case \iter-seps(t,ss) : if (pos == 0) return t.id; else fail;
-    case \iter-seps(t,ss) : if (pos > 0)  return ss[pos-1].id; else fail;
-    case \iter-star-seps(t,ss) : if (pos == 0) return t.id; else fail;
-    case \iter-star-seps(t,ss) : if (pos > 0) return ss[pos-1].id; else fail;
+    case \iter-seps(t,_) : if (pos == 0) return t.id; else fail;
+    case \iter-seps(_,ss) : if (pos > 0)  return ss[pos-1].id; else fail;
+    case \iter-star-seps(t,_) : if (pos == 0) return t.id; else fail;
+    case \iter-star-seps(_,ss) : if (pos > 0) return ss[pos-1].id; else fail;
     case \seq(ss) : return ss[pos].id;
     // note the use of the label l from the third function parameter:
-    case \alt(aa) : if (a:conditional(_,{_*,except(l)}) <- aa) return a.id; 
+    case \alt(aa) : if (a:conditional(_,{*_,except(l)}) <- aa) return a.id; 
     default: return s.id; // this should never happen, but let's make this robust
   } 
   throw "getItemId: no case for <s>";
@@ -366,7 +363,7 @@ bool isNonterminal(Symbol s) {
   }
 }
 
-public str generateParseMethod(Items items, Production p) {
+public str generateParseMethod(Items _, Production p) {
   return "public AbstractStackNode\<IConstructor\>[] <sym2name(p.def)>() {
          '  return <sym2name(p.def)>.EXPECTS;
          '}";
@@ -434,7 +431,7 @@ public str literals2ints(list[Symbol] chars){
 }
 
 // TODO
-public str ciliterals2ints(list[Symbol] chars){
+public str ciliterals2ints(list[Symbol] _){
     throw "case insensitive literals not yet implemented by parser generator";
 }
 
@@ -449,7 +446,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     list[str] exits = [];
     filters = "";
     
-    if (conditional(def, conds) := sym) {
+    if (conditional(_, conds) := sym) {
       conds = expandKeywords(grammar, conds);
       exits += ["new CharFollowRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRequirement(new int[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
@@ -484,23 +481,23 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     }
     
     switch (sym) {
-        case \sort(n) : 
+        case \sort(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \empty() : 
             return <"new EmptyStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <filters>)", itemId>;
-        case \lex(n) : 
+        case \lex(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \keywords(n) : 
+        case \keywords(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \layouts(_) :
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameterized-sort(n,args): 
+        case \parameterized-sort(_,_): 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameterized-lex(n,args): 
+        case \parameterized-lex(_,_): 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameter(n, b) :
+        case \parameter(_, _) :
             throw "All parameters should have been instantiated by now: <sym>";
-        case \start(s) : 
+        case \start(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \lit(l) : 
             if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])

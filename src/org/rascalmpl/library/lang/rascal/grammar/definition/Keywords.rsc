@@ -10,9 +10,6 @@ module lang::rascal::grammar::definition::Keywords
 import Grammar;
 import ParseTree;
 import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::grammar::definition::Productions;
-import IO;
-import Node;
 
 public Grammar expandKeywords(Grammar g) {
   return visit(g) {

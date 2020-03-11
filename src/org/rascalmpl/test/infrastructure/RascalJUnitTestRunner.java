@@ -63,7 +63,7 @@ public class RascalJUnitTestRunner extends Runner {
         heap = new GlobalEnvironment();
         root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
 
-        stderr = new PrintWriter(System.err);
+        stderr = new PrintWriter(System.err, true);
         stdout = new PrintWriter(System.out);
         evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
@@ -122,8 +122,22 @@ public class RascalJUnitTestRunner extends Runner {
             }
 
             File current = new File(file);
+            
             while (current != null && current.exists() && current.isDirectory()) {
                 if (new File(current, "META-INF/RASCAL.MF").exists()) {
+                    // this is perhaps the copy of RASCAL.MF in a bin/target folder;
+                    // it would be better to find the source RASCAL.MF such that tests
+                    // are run against the sources of test files rather than the ones accidentally
+                    // copied to the bin folder.
+                    
+                    // TODO: if someone knows how to parametrize this nicely instead of hard-coding the
+                    // mvn project setup, I'm all ears. It has to work from both the Eclipse JUnit runner 
+                    // and MVN surefire calling contexts. 
+                    if (current.getName().equals("classes") && current.getParentFile().getName().equals("target")) {
+                        current = current.getParentFile().getParentFile();
+                        continue; // try again in the source folder
+                    }
+                    
                     return URIUtil.createFileLocation(current.getAbsolutePath());
                 }
                 current = current.getParentFile();

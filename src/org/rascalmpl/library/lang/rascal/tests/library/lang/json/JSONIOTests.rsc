@@ -1,10 +1,8 @@
 module lang::rascal::tests::library::lang::json::JSONIOTests
 
-import IO;
 import String;
 import Node;
 import Type;
-import util::Math;
 import lang::json::IO;
 import util::UUID;
 

@@ -1,7 +1,6 @@
 module lang::json::io::\test::IO
 
 import lang::json::IO;
-import IO;
 
 data Nat = suc(Nat next) | zero() | time(datetime d) | both(Nat n, int x) | twice(Nat n, Nat m);
 

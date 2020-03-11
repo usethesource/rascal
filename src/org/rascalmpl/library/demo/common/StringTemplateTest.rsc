@@ -12,9 +12,6 @@
 //START
 module demo::common::StringTemplateTest
 
-
-import String;
-import IO;
 import demo::common::StringTemplate;
 
 public  map[str, str] fields = (

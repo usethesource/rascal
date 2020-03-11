@@ -6,7 +6,6 @@ import lang::pico::\syntax::Main;
 import util::FileSystem;
 import IO;
 import List;
-import util::Math;
 
 // a small grammar used to split an input text into words and non-words without loss of characters
 lexical WordSplitter = Word* words;

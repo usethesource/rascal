@@ -6,9 +6,9 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::logic::\syntax::Propositions
+module demo::lang::logic::\syntax::Propositions
 
-extend lang::logic::\syntax::Booleans;
+extend demo::lang::logic::\syntax::Booleans;
 extend lang::std::Id;
 
 syntax Formula 

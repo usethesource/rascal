@@ -9,7 +9,6 @@ For a quick start, go find <<createM3FromEclipseProject>>.
 module lang::java::m3::Core
 
 extend lang::java::m3::TypeSymbol;
-import lang::java::m3::Registry;
 import lang::java::m3::AST;
 
 extend analysis::m3::Core;
@@ -18,12 +17,9 @@ import analysis::graphs::Graph;
 import analysis::m3::Registry;
 
 import IO;
-import ValueIO;
 import String;
 import Relation;
 import Set;
-import Map;
-import Node;
 import List;
 
 import util::FileSystem;
@@ -110,12 +106,12 @@ public java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
 .Synopsis
 globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
-public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7") {
+public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7", list[loc] classPath = []) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
-    
-    list[loc] classPaths = [];
+
+    list[loc] classPaths = classPath;
     set[str] seen = {};
     for (j <- find(project, "jar"), isFile(j)) {
         hash = md5HashFile(j);
@@ -128,10 +124,6 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
     M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, javaVersion = javaVersion));
     registerProject(project, result);
     return result;
-}
-
-private str classPathToStr(loc jarClass) {
-    return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
 }
 
 public M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {

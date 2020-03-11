@@ -126,7 +126,7 @@ public class Prelude {
 	protected final IValueFactory values;
 	private final Random random;
 	
-	private final boolean trackIO = false;
+	private final boolean trackIO = System.getenv("TRACKIO") != null;
 	
 	public Prelude(IValueFactory values){
 		super();
@@ -997,7 +997,9 @@ public class Prelude {
 	
 	public IValue lastModified(ISourceLocation sloc) {
 		try {
-			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		    IValue result = values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
+			return result;
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}

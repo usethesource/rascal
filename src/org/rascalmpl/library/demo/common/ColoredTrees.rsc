@@ -21,7 +21,7 @@ public ColoredTree  rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3)
           
 // Count the number of red nodes
           
-int cntRed(ColoredTree t){
+int cntRed(ColoredTree t) {
    int c = 0;
    visit(t) {
      case red(_,_): c = c + 1; // <2>
@@ -33,7 +33,7 @@ test bool tstCntRed() = cntRed(rb) == 2;
 
 // Compute the sum of all integer leaves
 
-int addLeaves(ColoredTree t){
+int addLeaves(ColoredTree t) {
    int c = 0;
    visit(t) {
      case leaf(int N): c = c + N; // <3>
@@ -49,7 +49,7 @@ data ColoredTree = green(ColoredTree left, ColoredTree right); // <4>
 
 // Transform red nodes into green nodes
 
-ColoredTree makeGreen(ColoredTree t){
+ColoredTree makeGreen(ColoredTree t) {
    return visit(t) {
      case red(l, r) => green(l, r) // <5>
    };

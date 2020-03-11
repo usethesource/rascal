@@ -6,13 +6,14 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::logic::ast::Propositions
+module demo::lang::logic::ast::Propositions
 
-import lang::logic::ast::Booleans;
-import lang::std::Whitespace;
-import lang::std::Layout;
-import lang::std::Comment;
+extend demo::lang::logic::ast::Booleans;
+extend lang::std::Whitespace;
+extend lang::std::Layout;
+extend lang::std::Comment;
 
 data Formula 
   = id(str x)
   ;
+ 

@@ -89,7 +89,7 @@ test bool \exceptInOpt() {
     parse(#Opt,"a,a?");
     return false;
   }
-  catch value x: {
+  catch value _: {
     return true;
   }
 }
@@ -99,7 +99,7 @@ test bool \exceptInSeq1() {
     parse(#Seq,"a,a a");
     return false;
   }
-  catch value x: {
+  catch value _: {
     return true;
   }
 }
@@ -109,7 +109,7 @@ test bool \exceptInSeq2() {
     parse(#Seq,"a+a 1");
     return false;
   }
-  catch value x: {
+  catch value _: {
     return true;
   }
 }

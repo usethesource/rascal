@@ -35,7 +35,6 @@ arity("f"(10, "abc", false));
 @javaClass{org.rascalmpl.library.Prelude}
 public java int arity(node T);
 
-
 @doc{
 .Synopsis
 Get the children of a node.

@@ -25,6 +25,13 @@ public loc unpackExampleProject(str name, loc projectZip) {
     throw IO("Could not copy contents of <projectZip> to <targetRoot>");
 }
 
+private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
+    = compareM3s(
+        readBinaryValueFile(#M3, reference),
+        builder(jar)
+   );
+
+
 private list[loc] junitClassPath(loc root)
     = [
         root + "/lib/hamcrest-hamcrest-core-1.3.jar", 
@@ -115,7 +122,6 @@ private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
         builder(jar) 
    );
 
-@ignoreCompiler{M3 not yet supported}
 public test bool hamcrestJarM3RemainedTheSame()
 	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |testdata:///m3/hamcrest-library-1.3.jar|, getHamcrestM3);
 	

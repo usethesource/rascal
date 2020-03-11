@@ -1,15 +1,11 @@
 module lang::rascal::tests::basic::Lists
 
-import IO;
 import List;
 import ListRelation;
 import Set;
-import Map;
-import String;
 import Boolean;
 import util::Math;
 import Type;
-import ValueIO;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
@@ -408,7 +404,7 @@ test bool tstPush(value elem, list[value] L) = push(elem, L) == [elem, *L];
 
 test bool tstReverse(list[&T] L) = reverse(reverse(L)) == L;
 
-test bool tstSize(list[&T] L) = size(L) == (0 | it + 1 | e <- L);
+test bool tstSize(list[&T] L) = size(L) == (0 | it + 1 | _ <- L);
 
 // TODO: slice
 
@@ -468,10 +464,10 @@ test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 test bool tstToString(list[value] L) = (readTextValueString(#list[value], toString(L)) == L);
 
 
-test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,b> <- L], [b | <a,b> <- L]>;
+test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,_> <- L], [b | <_,b> <- L]>;
 
 test bool tstUnzip3(list[tuple[&A, &B, &C]] L) = 
-     isEmpty(L) || unzip(L) == <[a | <a,b,c> <- L], [b | <a,b,c> <- L], [c | <a,b,c> <- L]>;
+     isEmpty(L) || unzip(L) == <[a | <a,_,_> <- L], [b | <_,b,_> <- L], [c | <_,_,c> <- L]>;
      
 test bool tstUpTill(int n) = n < 0 || n > 10000 || upTill(n) == [0 .. n];
 

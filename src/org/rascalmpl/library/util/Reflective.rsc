@@ -12,12 +12,9 @@
 @bootstrapParser
 module util::Reflective
 
-import Exception;
-import Message;
 import ParseTree;
 import IO;
 import String;
-import util::SystemAPI;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 

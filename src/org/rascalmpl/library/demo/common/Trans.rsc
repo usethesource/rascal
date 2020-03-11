@@ -12,16 +12,17 @@ module demo::common::Trans
 // Compute transitive closure: R+ = R + (R o R) + (R o R o R) + ...
 
 rel[int,int] trans(rel[int,int] R){
-
   rel[int,int] T = R;
 	
   solve (T) {
     T = T + (T o R);
   }
 
+  assert T == R+;
   return T;
 }
 
 // Tests
 
 test bool t1() = trans({<1,2>, <2,3>, <3,4>}) == {<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};
+test bool t2() = trans(x) == x+ when x := {<1,2>,<2,3>,<3,4>};

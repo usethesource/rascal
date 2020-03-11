@@ -1,23 +1,16 @@
-  module lang::rascal::tests::functionality::Pattern
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+module lang::rascal::tests::functionality::Pattern
  
-  /*******************************************************************************
-   * Copyright (c) 2009-2015 CWI
-   * All rights reserved. This program and the accompanying materials
-   * are made available under the terms of the Eclipse Public License v1.0
-   * which accompanies this distribution, and is available at
-   * http://www.eclipse.org/legal/epl-v10.html
-   *
-   * Contributors:
-  
-   *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
-   *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-   *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-  *******************************************************************************/
-
 import List;
-
-//data Bool = and(Bool, Bool) | t();
-//data Prop = or(Prop, Prop) | f();
 
 data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
 data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
@@ -114,8 +107,8 @@ test bool matchTuple7() = <_, "abc">  := <1, "abc">;
 test bool matchTuple8() = <1, _>        := <1, "abc">;
 test bool matchTuple9() = <_, _>        := <1, "abc">;
   	
-//	matchTupleExternalVar
- 
+
+// T is not initialized on purpose here 
 test bool matchTupleExternalVar1() {tuple[int,int] T; return T := <1,2> && T[0] == 1 && T[1] == 2;}
   
 //	matchVariable
@@ -184,12 +177,12 @@ test bool matchInLoop2(){
 }
   	
 test bool nodeMatchBacktracking() {
-    y = for("f"({int a, int b, *int c}) := "f"({1,2,3,4})) append <a,b>; 
+    y = for("f"({int a, int b, *int _}) := "f"({1,2,3,4})) append <a,b>; 
     return size(y) == 12;
 }
 
 test bool tupleMatchBacktracking() {
-    y = for(<{int a, int b, *int c}> := <{1,2,3,4}>) append <a,b>; 
+    y = for(<{int a, int b, *int _}> := <{1,2,3,4}>) append <a,b>; 
     return size(y) == 12;
 }
 

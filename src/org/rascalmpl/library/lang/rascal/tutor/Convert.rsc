@@ -46,9 +46,9 @@ str convert(loc src){
     return convert(getAnchor(src), readFileLines(src));
 }
 
-str hashes(int n) = "<for(int i <-[0..n]){>#<}>";
+str hashes(int n) = "<for(int _ <-[0..n]){>#<}>";
 
-str convert(str anchor, list[str] lines){
+str convert(str _, list[str] lines){
   result = ""; //"[[<anchor>]]\n";
   int i = 0;
   
@@ -133,7 +133,7 @@ str convert(str anchor, list[str] lines){
     }
     
     // screen
-    case /^\<screen\s*<error:.*>\>\s*<codeLines:.*>$/: {
+    case /^\<screen\s*<error:.*>\>\s*.*$/: {
       result += "[source,rascal-shell<error == "" ? "" : ",error">]\n----\n";
       i += 1;
       incode = true;
@@ -173,7 +173,7 @@ str convert(str anchor, list[str] lines){
     }
     
     // inline listing  
-    case /^\<listing\>\s*<rest:.*>$/: {
+    case /^\<listing\>\s*.*$/: {
       result += "[source,rascal]
                 '----
                 '";
@@ -247,9 +247,9 @@ private str convertRestLine(str line){
     
     case /^\[<text:[^\]]*>\]\(<url:[:\/0-9-a-zA-Z"$\-_.\+!?*'(),~#%=]+>\)/ => link(url, text)
     
-    case /^\[<short:\$?><concept:[A-Za-z0-9\/]+>\]/ => "\<\<<slash2dash(concept)>\>\>"
+    case /^\[\$?<concept:[A-Za-z0-9\/]+>\]/ => "\<\<<slash2dash(concept)>\>\>"
     
-    case /^\[<short:\$?><course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/ =>
+    case /^\[\$?<course:[A-Za-z0-9\/]+>\s*:\s*<concept:[A-Za-z0-9\/]+>\]/ =>
          "link::{<course>}#<slash2dash(concept)>[]"
     
     case /^\/\*<dig:[0-9][0-9]?>\*\//  => "\<<dig>\>"
@@ -309,7 +309,7 @@ public str link(str url, str text){
   return "<url>[<text>]";
 }
 
-private str getImgOpts(str txt, str alt){
+private str getImgOpts(str txt, str _){
   opts = "";
   visit(txt){
     case /^\s*\|\s*left/: {opts += "style=\"float: left;\" "; insert "";}

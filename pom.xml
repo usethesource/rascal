@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.rascalmpl</groupId>
-	<artifactId>rascal</artifactId>
-	<version>0.15.0-simulated-annotations-SNAPSHOT</version>
+    <groupId>org.rascalmpl</groupId>
+    <artifactId>rascal</artifactId>
+    <version>0.17.0-simulated-annotations-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -16,11 +16,11 @@
     <distributionManagement>
         <repository>
             <id>usethesource-releases</id>
-            <url>http://nexus.usethesource.io/content/repositories/releases/</url>
+            <url>https://nexus.usethesource.io/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>usethesource-snapshots</id>
-            <url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
+            <url>https://nexus.usethesource.io/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -28,13 +28,13 @@
     <repositories>
         <repository>
             <id>usethesource</id>
-            <url>http://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://nexus.usethesource.io/content/repositories/public/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>usethesource</id>
-            <url>http://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://nexus.usethesource.io/content/repositories/public/</url>
         </pluginRepository>
     </pluginRepositories>
 
@@ -100,26 +100,29 @@
                     <version>3.1.0</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
-                    <version>0.1.0</version>
+                    <version>0.2.12</version>
                     <configuration>
-                        <errorsAsWarnings>true</errorsAsWarnings>
+                        <errorsAsWarnings>false</errorsAsWarnings>
                         <bin>${project.build.outputDirectory}</bin>
                         <srcs>
                             <src>${project.basedir}/src/org/rascalmpl/library</src>
                         </srcs>
+                        <sourceLookup>|std:///|</sourceLookup>
                         <srcIgnores>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/demo</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/util/integration</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/util/tasks</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/flow</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/patterns</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/syntax/Java18.rsc</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
                         </srcIgnores>
                         <enableStandardLibrary>false</enableStandardLibrary><!-- this project contains the standard library source itself -->
                     </configuration>
@@ -128,7 +131,14 @@
                             <id>it-compile</id>
                             <phase>compile</phase>
                             <goals>
-                                <goal>compile-rascal</goal>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>it-package</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>package</goal>
                             </goals>
                         </execution>
                     </executions>

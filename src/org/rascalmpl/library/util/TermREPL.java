@@ -238,9 +238,5 @@ public class TermREPL {
             // TODO Auto-generated method stub
             return true;
         }
-
     }
-
-
-
 }

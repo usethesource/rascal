@@ -12,7 +12,6 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::functionality::Call
  
-import IO;
 import List;
 
 import lang::rascal::tests::functionality::CallAux;
@@ -58,7 +57,6 @@ test bool higherOrder() {
 // closures
   
 test bool closures1() {
-	int x = 1;
 	int f(int (int i) g, int j) { return g(j);}
 	if (f(int (int i) { return i + 1; }, 0) != 1) return false;
 	return true;

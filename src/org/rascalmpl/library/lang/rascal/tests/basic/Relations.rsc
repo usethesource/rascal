@@ -73,18 +73,18 @@ test bool tst_complement(rel[int, int] X) =
    
 test bool tst_domain(rel[int, int] X) = 
    isEmpty(X) || 
-   all(<num a, num b> <- X, a in domain(X)) && all(num c <- domain(X), any(<num x, num y> <- X, x == c));
+   all(<num a, num _> <- X, a in domain(X)) && all(num c <- domain(X), any(<num x, num _> <- X, x == c));
    
 test bool tst_domainR(rel[int, int] X) {
    s = sample(X);
    XR = domainR(X, s);
-   return isEmpty(XR) || all(<a, b> <- XR, a in s);
+   return isEmpty(XR) || all(<a, _> <- XR, a in s);
 }
 
 test bool tst_domainX(rel[int, int] X) {
    s = sample(X);
    XR = domainX(X, s);
-   return isEmpty(XR) || all(<a, b> <- XR, a notin s);
+   return isEmpty(XR) || all(<a, _> <- XR, a notin s);
 }
 
 test bool tst_ident(set[int] X) = isEmpty(X) || all(<a, b> <- ident(X), a == b, a in X);
@@ -93,16 +93,16 @@ test bool tst_invert(rel[int, int] X) = invert(invert(X)) == X;
 
 test bool tst_range(rel[int, int] X) = 
    isEmpty(X) || 
-   all(<num a, num b> <- X, b in range(X)) && all(num c <- range(X), any(<num x, num y> <- X, y == c));
+   all(<num _, num b> <- X, b in range(X)) && all(num c <- range(X), any(<num _, num y> <- X, y == c));
    
 test bool tst_rangeR(rel[int, int] X) {
    s = sample(X);
    XR = rangeR(X, s);
-   return isEmpty(XR) || all(<a, b> <- XR, b in s);
+   return isEmpty(XR) || all(<_, b> <- XR, b in s);
 }
 
 test bool tst_rangeX(rel[int, int] X) {
    s = sample(X);
    XR = rangeX(X, s);
-   return isEmpty(XR) || all(<a, b> <- XR, b notin s);
+   return isEmpty(XR) || all(<_, b> <- XR, b notin s);
 }

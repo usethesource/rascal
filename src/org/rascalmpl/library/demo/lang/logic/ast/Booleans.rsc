@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::logic::ast::Booleans
+module demo::lang::logic::ast::Booleans
 
 data Formula 
   = \true()
