@@ -6,10 +6,15 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
+@doc{
+The grammar was based on the SDF2 definition in the  Java-frontend project for Stratego/XT 
+See https://github.com/metaborg/java-front
 
-// The grammar was based on the SDF2 definition in the 
-// Java-frontend project for Stratego/XT
-// https://github.com/metaborg/java-front
+.Pitfalls
+
+* The grammar has been changed to use Rascal's disambiguation constructs rather than SDF2's constructs,
+but this has not been well tested. 
+} 
 
 module lang::java::\syntax::Java15
 
@@ -229,10 +234,7 @@ syntax StaticInit =
    staticInit: "static"  Block 
   ;
 
-lexical DeciNumeral =
-  [1-9] [0-9]* 
-  | "0" 
-  ;
+
 
 syntax EnumConstArgs =
   bracket "(" {Expr ","}* ")" 
@@ -242,10 +244,7 @@ syntax LocalVarDecStm =
   @prefer localVarDecStm: LocalVarDec ";" 
   ;
 
-keyword HexaSignificandKeywords =
-  [0] [X x] "." 
-  ;
-
+keyword HexaSignificandKeywords = "0x." | "0X.";
 
 lexical StringChars =
   FooStringChars 
@@ -273,7 +272,7 @@ syntax MethodDecHead =
 syntax Anno =
    \anno: "@" TypeName "(" {ElemValPair ","}* ")" 
   |  markerAnno: "@" TypeName 
-  |  singleElemAnno: "@" TypeName "(" ElemVal \ ElemValKeywords ")" 
+  |  singleElemAnno: "@" TypeName "(" ElemVal ")" 
   ;
 
 lexical CharContent =
@@ -307,10 +306,6 @@ syntax ArraySubscript =
   bracket "[" Expr "]" 
   ;
 
-syntax FloatLiteral =
-   float: HexaFloatLiteral !>> [D F d f] 
-  |  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
-  ;
 
 
 syntax ConstrBody =
@@ -359,7 +354,7 @@ syntax InterfaceMemberDec =
   ;
 
 syntax ElemValPair =
-   elemValPair: Id "=" ElemVal \ ElemValKeywords 
+   elemValPair: Id "=" ElemVal 
   ;
 
 syntax CatchClause =
@@ -390,9 +385,7 @@ syntax Modifier =
   | "public" 
   ;
 
-lexical DeciFloatLiteral =
-  DeciFloatNumeral [D F d f]? 
-  ;
+
 
 syntax ElemVal =
   Anno 
@@ -450,10 +443,27 @@ syntax TypeName =
   |  typeName: Id 
   ;
 
+syntax FloatLiteral =
+   float: HexaFloatLiteral !>> [D F d f] 
+  |  float: DeciFloatLiteral !>> [D F d f] 
+  ;
+
+lexical DeciFloatLiteral 
+    = [0-9] !<< [0-9]+ DeciFloatExponentPart [D F d f]?
+    | [0-9] !<< [0-9]+ [D F d f]
+    | [0-9] !<< [0-9]+ "." [0-9]* !>> [0-9] DeciFloatExponentPart? [D F d f]?
+    | [0-9] !<< "." [0-9]+ !>> [0-9] DeciFloatExponentPart? [D F d f]?
+  ;
+  
 lexical DeciLiteral =
   DeciNumeral !>> [. 0-9 D F d f] [L l]? 
   ;
 
+lexical DeciNumeral 
+  = [1-9] [0-9]* 
+  | "0" 
+  ;
+  
 syntax SwitchLabel =
    \default: "default"  ":" 
   |  \case: "case"  Expr ":" 
@@ -511,7 +521,7 @@ syntax ResultType =
   ;
 
 syntax Expr =
-  FieldAccess \ FieldAccessKeywords 
+  FieldAccess  
   |  newInstance: "new"  TypeArgs? ClassOrInterfaceType "(" {Expr ","}* ")" ClassBody? 
   |  invoke: MethodSpec "(" {Expr ","}* ")" 
   | bracket "(" Expr ")" 
@@ -519,7 +529,7 @@ syntax Expr =
   |  qThis: TypeName "." "this"  
   | ArrayCreationExpr 
   |  this: "this"  
-  | ArrayAccess \ ArrayAccessKeywords 
+  | ArrayAccess  
   ;
 
 syntax Expr =
@@ -725,10 +735,6 @@ syntax MethodName =
   |  methodName: Id 
   ;
 
-keyword FieldAccessKeywords =
-  ExprName "." Id 
-  ;
-
 lexical EOLCommentChars =
   ![\n \a0D]* 
   ;
@@ -759,15 +765,11 @@ syntax StringLiteral =
 syntax AbstractMethodDec =
    abstractMethodDec: (Anno | AbstractMethodMod)* TypeParams? ResultType Id "(" {FormalParam ","}* ")" Throws? ";" 
   |  deprAbstractMethodDec: (Anno | AbstractMethodMod)* TypeParams? ResultType Id "(" {FormalParam ","}* ")" Dim+ Throws? ";" 
-  ;
+  ; 
 
 syntax AbstractMethodMod =
   "abstract" 
   | "public" 
-  ;
-
-keyword ElemValKeywords =
-  LHS "=" Expr 
   ;
 
 lexical CommentPart =
@@ -780,10 +782,6 @@ lexical CommentPart =
 
 syntax Id =
    id: [$ A-Z _ a-z] !<< ID \ IDKeywords !>> [$ 0-9 A-Z _ a-z] 
-  ;
-
-keyword ArrayAccessKeywords =
-  ArrayCreationExpr ArraySubscript 
   ;
 
 syntax TypeBound =
@@ -807,7 +805,7 @@ syntax ExprName =
   ;
 
 syntax DefaultVal =
-   defaultVal: "default"  ElemVal \ ElemValKeywords 
+   defaultVal: "default"  ElemVal  
   ;
 
 syntax MethodDec =
@@ -835,19 +833,17 @@ syntax RefType =
   ArrayType 
   | ClassOrInterfaceType 
   ;
-
+ 
 syntax ArrayCreationExpr =
    newArray: "new"  ArrayBaseType DimExpr+ Dim* !>> "["
   |  newArray: "new" ArrayBaseType Dim+ !>> "[" ArrayInit 
   ;
 
-
-
 syntax LHS =
   ExprName 
   | bracket "(" LHS ")"
-  | ArrayAccess \ ArrayAccessKeywords 
-  | FieldAccess \ FieldAccessKeywords 
+  | ArrayAccess  
+  | FieldAccess  
   ;
 
 syntax TypeArgs =
@@ -891,13 +887,6 @@ lexical EndOfFile =
   
   ;
 
-keyword DeciFloatLiteralKeywords =
-  [0-9]+ 
-  ;
-
-keyword DeciFloatDigitsKeywords =
-  "." 
-  ;
 
 syntax InstanceInit =
    instanceInit: Block 
@@ -916,12 +905,6 @@ syntax EnumBody =
   ;
 
 
-lexical DeciFloatNumeral
-	= [0-9] !<< [0-9]+ DeciFloatExponentPart
-	| [0-9] !<< [0-9]+ >> [D F d f]
-	| [0-9] !<< [0-9]+ "." [0-9]* !>> [0-9] DeciFloatExponentPart?
-	| [0-9] !<< "." [0-9]+ !>> [0-9] DeciFloatExponentPart?
-  ;
 
 lexical CarriageReturn =
   [\a0D] 
@@ -996,7 +979,7 @@ syntax ClassOrInterfaceType =
 
 extend lang::sdf2::filters::DirectThenCountPreferAvoid;
 
-bool expectedAmb({(Expr)`(<RefType t>) <Expr e>`, appl(_,[(Expr)`(<ExprName n>)`,_*])}) = true; // (A) + 1
-bool expectedAmb({appl(_,[_*,(Expr)`(<RefType t>) <Expr e>`]), appl(_,[appl(_,[_*,(Expr)`(<ExprName n>)`]),_*])}) = true; // 1 + (A) + 1
+bool expectedAmb({(Expr)`(<RefType t>) <Expr e>`, appl(_,[(Expr)`(<ExprName n>)`,*_])}) = true; // (A) + 1
+bool expectedAmb({appl(_,[*_,(Expr)`(<RefType t>) <Expr e>`]), appl(_,[appl(_,[*_,(Expr)`(<ExprName n>)`]),*_])}) = true; // 1 + (A) + 1
 default bool expectedAmb(set[Tree] t) = false;
           

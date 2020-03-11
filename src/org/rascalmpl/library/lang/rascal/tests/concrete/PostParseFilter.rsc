@@ -1,6 +1,8 @@
 module lang::rascal::tests::concrete::PostParseFilter
 
 // copied from issue report #1210
+import Exception;
+import ParseTree;
 
 syntax X = a: A | b: B ;
 syntax A = "X" ;

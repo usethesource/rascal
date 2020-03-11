@@ -1,7 +1,6 @@
 module lang::rascal::tests::extends::COMPILER
 
 import lang::rascal::tests::extends::ABSTRACTTYPE;
-import lang::rascal::tests::extends::CHECKTYPES;
 
 // A <: B
 // A <: C

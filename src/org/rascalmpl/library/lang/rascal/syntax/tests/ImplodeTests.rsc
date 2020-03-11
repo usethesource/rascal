@@ -12,9 +12,6 @@ import lang::rascal::\syntax::tests::ImplodeTestGrammar;
 import ParseTree;
 import Exception;
 
-import IO;
-
-
 public data Num = \int(str n);
 public data Exp = id(str name) | eq(Exp e1, Exp e2) | number(Num n);
 public Exp number(Num::\int("0")) = Exp::number(Num::\int("01"));

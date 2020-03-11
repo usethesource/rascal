@@ -6,14 +6,10 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jouke Stoel - Jouke.Stoel@cwi.nl - CWI}
- 
 module lang::rascal::tests::library::DateTime
   
 import DateTime;
 
-import Boolean;
-import util::Math;
-import IO;
 import String;
 
 test bool createDate_sampled(datetime gen)  =

@@ -7,23 +7,17 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
+@doc{
+This is an implementation of "From Box to Tex:An algebraic approach to the construction of documentation tools" by Mark van den Brand and Eelco Visser (June 30, 1994)
+
+The main function `format` maps a box tree (which describes 2-dimensional layout constraints for a linear text) to a string
+which satisfies these constraints.
+}
 module lang::box::util::Box2Text
 
-/* Conform definitions in "From Box to Tex:An algebraic approach to the construction of documentation
-tools".
-
-     Mark van den Brand
-     Eelco Visser
-
-     June 30, 1994
-
-*/
-
- 
 import List;
 import String;
 import IO;
-import Node;
 import lang::box::util::Box;
 
 int maxWidth = 80;
@@ -152,7 +146,7 @@ text hskip(int n) {
 text vskip(int n) {
     text r = [];
     // println("OK<n>");
-   for (int i<-[0, 1..n])  r=vv(r,[""]);
+   for (int _ <-[0, 1..n])  r=vv(r,[""]);
    // println(size(r));
    return r;
 }
@@ -209,7 +203,7 @@ text HH(list[Box] b, Box c, options opts, int m) {
    }
 */
    
-text HH(list[Box] b, Box c, options opts, int m) {
+text HH(list[Box] b, Box _, options opts, int m) {
     if (isEmpty(b)) return [];
     int h = opts["h"];
     text r = [];
@@ -250,10 +244,10 @@ text II(list[Box] b, Box c, options opts, int m) {
  if (isEmpty(b)) return [];
     int i = opts["i"];
     switch(c) {
-        case  H(list[Box] bl):{
+        case  H(list[Box] _):{
             return HH(b, c, opts, m);
         }
-       case  V(list[Box] bl):{
+       case  V(list[Box] _):{
           int m1 = m-i;
            text t = O(b[0], c, opts, m1);
            int s = hwidth(t);
@@ -313,7 +307,6 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options opts, int m) {
                  return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
                  }
           }
-     return [];
 }
 
 text HVHV(text T, int s, list[Box] b, options opts,  int m, Box c) {
@@ -322,8 +315,7 @@ text HVHV(text T, int s, list[Box] b, options opts,  int m, Box c) {
       return HVHV(T, s, T1 , b[0],  tail(b), opts, m);
       }
 
- text HVHV(list[Box] b, Box c, options opts, int m) {
-       int h = opts["h"];
+ text HVHV(list[Box] b, Box _, options opts, int m) {
        // println("HVHV:<h>");
        if (isEmpty(b))  return [];
        text T =  O(b[0], V([]), opts, m);  // Was H([])
@@ -540,7 +532,7 @@ str text2latex(str t) {
     return visit(t) {
        // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<text2latex(key)>}"
        case /^\r\{<tg:..><key:[^\r]*>/ => "\\<tg>{<key>"
-       case /^\r\}<tg:..>/ => "}"
+       case /^\r\}../ => "}"
        }
     }
 
@@ -636,9 +628,9 @@ void tst() {
 public str baseName(str input) {
      str s = input;
      str find = "/";
-     if (/^<pre1:.*>\.<post1:.*?>$/:=input) {
+     if (/^<pre1:.*>\..*?$/:=input) {
           s = "<pre1>";
-           if(/^<pre2:.*><find><post2:.*?>$/ := s) {	
+           if(/^.*<find><post2:.*?>$/ := s) {	
                s = post2;
                }
           }

@@ -2,9 +2,7 @@ module demo::lang::MissGrant::ParallelMerge
 
 import demo::lang::MissGrant::AST;
 
-import IO;
 import List;
-
 
 // we assume the eventnames in ctl1 and ctl2 are equal if their tokens are equal
 // this way, the eventnames can be used as the alphabet. Same for actions.

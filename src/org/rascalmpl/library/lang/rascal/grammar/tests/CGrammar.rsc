@@ -3,7 +3,6 @@ module lang::rascal::grammar::tests::CGrammar
 import IO;
 import Grammar;
 import ParseTree;
-import String;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;

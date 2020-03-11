@@ -12,9 +12,6 @@ module lang::rascal::checker::ParserHelper
 
 import IO;
 import ParseTree;
-import List; 
-import String;    
-import util::Math;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -38,15 +35,6 @@ public Tree parsePattern(str toParse) {
     return parse(#Pattern,toParse);
 }
 
-//public bool doIMatch(Tree t) {
-//    return (Expression)`<Name n>` := t;
-//}
-
-//public Tree whatMatched(Tree t) {
-//    if((Expression)`<Name n>` := t) return n;
-//    return t;
-//}
-
 public Tree parseDeclaration(str toParse) {
 	return parse(#Declaration,toParse);
 }
@@ -66,14 +54,6 @@ public Tree parseAssignable(str toParse) {
 public Tree parseModule(str toParse) {
 	return parse(#Module,toParse);
 }
-
-//public Tree parseModuleWithSpaces(str toParse) {
-//	return parse(#start[Module],toParse);
-//}
-//
-//public Tree parseModuleWithSpaces(loc toParse) {
-//    return parse(#start[Module],toParse);
-//}
 
 public void howManyMatches(str toParse) {
 	Tree pt = parse(#Expression,toParse);
@@ -100,9 +80,9 @@ public tuple[list[Tree],list[Tree]] rexpVisit(str toParse) {
 }
 
 public bool isThisATuple(str toParse) {
-	return (Expression)`\< <{Expression ","}+ es> \>` := parse(#Expression, toParse);
+	return (Expression)`\< <{Expression ","}+ _> \>` := parse(#Expression, toParse);
 }
 
 public bool isThisAList(str toParse) {
-	return (Expression)`[ <{Expression ","}* es> ]` := parse(#Expression, toParse);
+	return (Expression)`[ <{Expression ","}* _> ]` := parse(#Expression, toParse);
 }

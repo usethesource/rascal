@@ -19,7 +19,6 @@ import ParseTree;
 import String;
 import Grammar;
 import List;
-import IO;
 
 data CharRange = \empty-range();
 
@@ -62,7 +61,7 @@ public default Symbol  intersection(Symbol s, Symbol t) {
 }
 
 public bool lessThan(CharRange r1, CharRange r2) {
-  if (range(s1,e1) := r1, range(s2,e2) := r2) {
+  if (range(_,e1) := r1, range(s2,_) := r2) {
     return e1 < s2;
   }
   throw "unexpected ranges <r1> and <r2>";

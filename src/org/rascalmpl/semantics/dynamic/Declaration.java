@@ -135,6 +135,10 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 				if (var.isInitialized()) {
 					Result<IValue> v = var.getInitial().interpret(eval);
 
+					if (v.getType().isBottom()) {
+					    throw new UnexpectedType(declaredType, TF.voidType(), this);
+					}
+					
 					if (!eval.getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 						throw new RedeclaredVariable(Names.name(var.getName()), var);
 					}

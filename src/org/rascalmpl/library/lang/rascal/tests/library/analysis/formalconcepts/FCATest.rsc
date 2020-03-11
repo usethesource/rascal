@@ -62,7 +62,7 @@ test bool testNoUnRelatedConcepts(set[&TObject] objects, set[&TAttribute] attrib
 
 bool checkNoUnRelatedConcepts(rel[&TObject, &TAttribute] input) {
 	ConceptLattice[&Object, &Attribute] result = fca(input);
-	for (/Concept[&TObject, &TAttribute] x : <{e, *rest}, _> := result, size(rest) > 0, size(rest) != (size(input<0>) - 1)) {
+	for (/Concept[&TObject, &TAttribute] _ : <{e, *rest}, _> := result, size(rest) > 0, size(rest) != (size(input<0>) - 1)) {
 		if ((input[e] | it & input[r] | r <- rest) == {}) {
 			throw "<rest + e> have nothing in common, but they are a concept? ";
 		}

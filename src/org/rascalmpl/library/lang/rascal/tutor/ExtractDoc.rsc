@@ -2,7 +2,6 @@ module lang::rascal::tutor::ExtractDoc
 
 import List;
 import String;
-import IO;
 
 import lang::rascal::tutor::DeclarationInfo;
 import lang::rascal::tutor::ExtractInfo;

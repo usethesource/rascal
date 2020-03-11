@@ -29,7 +29,7 @@ BIND bind(\rel(list[Symbol] l), \set(Symbol r)) = (r == \void()) ? <true, ()> : 
 
 BIND bind(\tuple(t1), \tuple(t2)) = bindList(t1, t2);
 
-BIND bind(\tuple(t1), \void()) = bindList(t1, [\void() | i <- [0..size(t1)]]);
+BIND bind(\tuple(t1), \void()) = bindList(t1, [\void() | _ <- [0..size(t1)]]);
 
 BIND bind(\map(from1, to1), \map(from2, to2)) {
   <m1, bindings1> = bind(from1, from2);
@@ -72,7 +72,7 @@ map[str, Symbol] merge(map[str, Symbol] lbindings, map[str,Symbol] rbindings){
 }
 
 Symbol normalize(Symbol s1, map[str, Symbol] bindings){
-  s2 = visit(s1){ case parameter(p1,t1) => bindings[p1] ? \void() };
+  s2 = visit(s1){ case parameter(p1,_) => bindings[p1] ? \void() };
   s3 = visit(s2){ case LUB(t1, t2) => lub(t1, t2) };
   s4 = visit(s3){
    	case \list(\tuple(t)) => \lrel(t)

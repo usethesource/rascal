@@ -35,8 +35,8 @@ Analyzer swedish() = analyzerClass("org.apache.lucene.analysis.sv.SwedishAnalyze
 Analyzer thai() = analyzerClass("org.apache.lucene.analysis.th.ThaiAnalyzer");
 Analyzer turkish() = analyzerClass("org.apache.lucene.analysis.tr.TurkishAnalyzer");
 
-Analyzer cjkAnalyzer = analyzerClass("org.apache.lucene.analysis.cjk.CJKAnalyzer");
-Analyzer stopAnalyzer = analyzerClass("org.apache.lucene.analysis.core.StopAnalyzer");
-Analyzer keywordAnalyzer = analyzerClass("org.apache.lucene.analysis.core.KeywordAnalyzer");
-Analyzer unicodeWhitespaceAnalyzer = analyzerClass("org.apache.lucene.analysis.core.UnicodeWhitespaceAnalyzer");
-Analyzer emailAnalyzer = analyzerClass("org.apache.lucene.analysis.standard.UAX29URLEmailAnalyzer");
+Analyzer cjkAnalyzer() = analyzerClass("org.apache.lucene.analysis.cjk.CJKAnalyzer");
+Analyzer stopAnalyzer() = analyzerClass("org.apache.lucene.analysis.core.StopAnalyzer");
+Analyzer keywordAnalyzer() = analyzerClass("org.apache.lucene.analysis.core.KeywordAnalyzer");
+Analyzer unicodeWhitespaceAnalyzer() = analyzerClass("org.apache.lucene.analysis.core.UnicodeWhitespaceAnalyzer");
+Analyzer emailAnalyzer() = analyzerClass("org.apache.lucene.analysis.standard.UAX29URLEmailAnalyzer");

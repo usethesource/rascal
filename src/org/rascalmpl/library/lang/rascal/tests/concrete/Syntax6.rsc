@@ -1,7 +1,6 @@
 module lang::rascal::tests::concrete::Syntax6
 
 import ParseTree;
-import IO;
 
 syntax Exp = left Exp "+" Exp | LitA | LitB | AZ;
 syntax LitA = "a";

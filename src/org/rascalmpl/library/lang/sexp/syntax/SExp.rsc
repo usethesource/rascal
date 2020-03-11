@@ -119,10 +119,10 @@ public Raw raw(Decimal d, Bytes bs) {
   }
 }
 
-str unparse(Bytes bs){
+str unparse(Bytes _){
     throw "unparse Bytes not implemented";
 }
 
-str unparse(Decimal d){
+str unparse(Decimal _){
     throw "unparse Decimal not implemented";
 }

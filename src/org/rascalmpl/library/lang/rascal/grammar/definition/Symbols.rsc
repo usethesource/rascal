@@ -12,7 +12,6 @@ import lang::rascal::grammar::definition::Characters;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
-import IO;
 
 
 default Symbol striprec(Symbol s_ori) = visit(s_ori) { 

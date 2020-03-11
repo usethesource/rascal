@@ -58,8 +58,8 @@ public class PathConfig {
 	static {
 		try {
 		    // Defaults should be in sync with util::Reflective
-			defaultStd =  vf.sourceLocation("std", "", "");
-			defaultBin = vf.sourceLocation("home", "", "bin");
+			defaultStd =  vf.sourceLocation("lib", "rascal", "");
+			defaultBin = vf.sourceLocation("tmp", "", "default-rascal-bin");
 			defaultCourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
 			defaultJavaCompilerPath = computeDefaultJavaCompilerPath();
 			defaultClassloaders = computeDefaultClassLoaders();
@@ -69,12 +69,10 @@ public class PathConfig {
 	}
 	
 	public PathConfig() {
-		srcs = Arrays.asList(defaultStd);
+		srcs = Collections.emptyList();
 		courses = defaultCourses;
 		bin = defaultBin;
-		// TODO: this should be |std:///| and |bin:///| by default, after
-		// the boot folder will not contain the library anymore. 
-		libs = Arrays.asList(bin);
+		libs = Arrays.asList(defaultStd);
 		javaCompilerPath = defaultJavaCompilerPath;
 		classloaders = defaultClassloaders;
 	}
@@ -94,7 +92,7 @@ public class PathConfig {
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders) throws IOException{
 		this.srcs = dedup(srcs);
 		this.courses = dedup(courses);
-		this.libs = libs;
+		this.libs = dedup(libs);
 		this.bin = bin;
 		this.javaCompilerPath = dedup(javaCompilerPath);
 		this.classloaders = dedup(classloaders);
@@ -363,6 +361,63 @@ public class PathConfig {
 	}
 	
 	/**
+	 * Construct a path config necessary to resolve links between depending libraries. This
+	 * can be used for browsing library files in IDEs or to construct a valid classpath for running
+	 * compiled library modules.
+	 *  
+	 * @param library   the name of a library
+	 * @return          a pathConfig with a proper library path and run-time classpath
+	 *  
+	 * @throws IOException if the RASCAL.MF files found contain errors
+	 */
+	public static PathConfig fromLibraryRascalManifest(String library) throws IOException {
+	    ISourceLocation libraryLoc = URIUtil.correctLocation("lib", library, "");
+	    
+	    RascalManifest manifest = new RascalManifest();
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        Set<String> loaderSchemes = reg.getRegisteredClassloaderSchemes();
+        
+        IListWriter libsWriter = vf.listWriter();
+        IListWriter classloaders = vf.listWriter();
+        
+        // always add the standard library on the lib path
+        if (!library.equals("rascal")) {
+            libsWriter.append(URIUtil.correctLocation("lib", "rascal", ""));
+        }
+        
+        // add the current library as well, for resolving references within the library
+        libsWriter.append(libraryLoc);
+        
+        for (String lib : manifest.getRequiredLibraries(libraryLoc)) {
+            ISourceLocation jar = lib.startsWith("|") ? parseSourceLocation(lib) : URIUtil.getChildLocation(libraryLoc, lib);
+            
+            if (jar != null && reg.exists(jar)) {
+                libsWriter.append(jar);
+            }
+            else {
+                System.err.println("WARNING: could not resolve required library: " + lib);
+            }
+            
+            if (loaderSchemes.contains(jar.getScheme())) {
+                classloaders.append(jar);
+            }
+        }
+        
+        ISourceLocation bin = URIUtil.correctLocation("unknown", "", "");
+        
+        // for the Rascal run-time
+        classloaders.append(URIUtil.correctLocation("system", "", ""));
+        
+        return new PathConfig(
+                vf.list(), // a library has no sources to compile 
+                libsWriter.done(), 
+                bin, 
+                vf.list(), 
+                getDefaultJavaCompilerPathList(), 
+                classloaders.done());
+	}
+	
+	/**
 	 * This will _add_ the configuration parameters found (srcs, libs, etc.) as found in the given manifest file.
 	 * 
 	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
@@ -403,11 +458,9 @@ public class PathConfig {
         ISourceLocation target = URIUtil.getChildLocation(manifestRoot, "target/classes");
         
         if (reg.exists(bin)) {
-            libsWriter.insert(bin);
             classloaders.append(bin);
         }
         else if (reg.exists(target)) {
-            libsWriter.insert(target);
             classloaders.append(target);
         }
       
@@ -462,29 +515,34 @@ public class PathConfig {
 	    if(!modulePath.endsWith(".rsc")){
 	        throw new IOException("Not a Rascal source file: " + moduleLoc);
 	    }
+	    
+	    if (moduleLoc.getScheme().equals("std") || moduleLoc.getScheme().equals("lib")) {
+            return pathToModulename(modulePath, "/");
+	    }
+	    
 	    for(ISourceLocation dir : srcs){
 	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
-	            String moduleName = modulePath.replaceFirst(dir.getPath(), "").replace(".rsc", "");
-	            if(moduleName.startsWith("/")){
-	                moduleName = moduleName.substring(1, moduleName.length());
-	            }
-	            return moduleName.replace("/", "::");
+	            return pathToModulename(modulePath, dir.getPath());
 	        }
 	    }
 	    
 	    for (ISourceLocation dir : libs) {
 	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
-                String moduleName = modulePath.replaceFirst(dir.getPath(), "").replace(".tc", "");
-                if(moduleName.startsWith("/")){
-                    moduleName = moduleName.substring(1, moduleName.length());
-                }
-                return moduleName.replace("/", "::");
+                return pathToModulename(modulePath, dir.getPath());
             }
 	    }
 	    
 	    throw new IOException("No module name found for " + moduleLoc + "\n" + this);
 	        
 	}
+
+    private String pathToModulename(String modulePath, String folder) {
+        String moduleName = modulePath.replaceFirst(folder, "").replace(".rsc", "");
+        if(moduleName.startsWith("/")){
+            moduleName = moduleName.substring(1, moduleName.length());
+        }
+        return moduleName.replace("/", "::");
+    }
 	
 	private String moduleToDir(String module) {
         return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);

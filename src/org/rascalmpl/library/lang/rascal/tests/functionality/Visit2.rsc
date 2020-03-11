@@ -1,11 +1,6 @@
 module lang::rascal::tests::functionality::Visit2
 
-
 import Grammar;
-//import lang::rascal::grammar::definition::Parameters;
-//import lang::rascal::grammar::definition::Literals;
-//import IO;
-//import String;
 import ParseTree;
 
 anno int Symbol@id;
@@ -49,10 +44,10 @@ test bool cntLit()    {cnt = 0; visit(G0){ case lit(_): cnt += 1;}; return cnt =
  
 test bool cntLitCC()  {cnt = 0; visit(G0){ case lit(_): cnt += 1; case \char-class(_): cnt += 1;} return cnt == 5; }
 
-test bool cntInt()    {cnt = 0; visit(G0){ case int n: cnt += 1; } return cnt == 11; } // visit goes into kw params
+test bool cntInt()    {cnt = 0; visit(G0){ case int _: cnt += 1; } return cnt == 11; } // visit does go into kw params
 
-test bool cntStr()    {cnt = 0; visit(G0){ case str s: cnt += 1; } return cnt == 8; }
+test bool cntStr()    {cnt = 0; visit(G0){ case str _: cnt += 1; } return cnt == 8; }
 
-test bool cntIntStr() {cnt = 0; visit(G0){ case int n: cnt += 1; case str s: cnt += 1; } return cnt == 19; }
+test bool cntIntStr() {cnt = 0; visit(G0){ case int _: cnt += 1; case str _: cnt += 1; } return cnt == 19; }
    
 test bool cntProd()   {cnt = 0; visit(G0){case prod(_,_,_): cnt += 1;} return cnt == 2; }

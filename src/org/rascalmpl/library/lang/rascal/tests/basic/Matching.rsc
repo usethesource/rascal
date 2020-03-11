@@ -1,8 +1,5 @@
 module lang::rascal::tests::basic::Matching
 
-import List;
-import IO;
-
 data T1 = \int() | \void() | string(str s);
 data T2 = \int() | \void() | string(str s);
 
@@ -93,7 +90,7 @@ test bool tstQNameinFun2String(){
     return fT2(t2);
 }
 
-test bool deepMatchKeywordParameter() = /int i := "f"("f"(x=[1]));
+test bool deepMatchKeywordParameter() = /int _ := "f"("f"(x=[1]));
 
 data IG = ig(int x = 1);
 

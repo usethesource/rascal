@@ -49,10 +49,10 @@ alias OFG = rel[loc from, loc to];
 
 @doc{Figure 2.2 <<tonella>>}
 OFG buildFlowGraph(FlowProgram p)
-  = { <as[i], fps[i]> | newAssign(x, cl, c, as) <- p.statements, constructor(c, fps) <- p.decls, i <- index(as) }
+  = { <as[i], fps[i]> | newAssign(_, _, c, as) <- p.statements, constructor(c, fps) <- p.decls, i <- index(as) }
   + { <cl + "this", x> | newAssign(x, cl, _, _) <- p.statements }
   + { <y, x> | assign(x, _, y) <- p.statements}
-  + { <as[i], fps[i]> | call(x, _, y, m, as) <- p.statements, method(m, fps) <- p.decls, i <- index(as) }
+  + { <as[i], fps[i]> | call(_, _, _, m, as) <- p.statements, method(m, fps) <- p.decls, i <- index(as) }
   + { <y, m + "this"> | call(_, _, y, m, _) <- p.statements }
   + { <m + "return", x> | call(x, _, _, m, _) <- p.statements, x != emptyId}
   ;

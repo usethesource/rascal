@@ -1,17 +1,15 @@
+@license{
+  Copyright (c) 2009-2015 CWI
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse License v1.0
+ which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::library::Math
-/*******************************************************************************
- * Copyright (c) 2009-2015 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-*******************************************************************************/
 import util::Math;
 
 real eps = 0.000001;
@@ -31,7 +29,7 @@ test bool abs9() = abs(-3r2) == 3r2;
 // arbInt
   
 test bool absInt1() {int N = arbInt(10); return (N >= 0) && (N < 10);}
-test bool absInt2() {int N = arbInt(); return true;}
+test bool absInt2() {int _ = arbInt(); return true;}
         
 // arbReal
   

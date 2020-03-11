@@ -1,4 +1,3 @@
-@ignoreCompiler{Not yet implemented in type checker}
 module lang::rascal::tests::functionality::CommonKeywordParameter4::A
 
 import lang::rascal::tests::functionality::CommonKeywordParameter4::B;

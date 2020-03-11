@@ -4,9 +4,6 @@ import IO;
 import List;
 import String;
 import util::FileSystem;
-import ParseTree;
-import util::Reflective;
-import lang::rascal::\syntax::Rascal;
 /*
 
 Name:               =>  # the_name
@@ -46,9 +43,9 @@ str convert(loc src){
     return convert(getAnchor(src), readFileLines(src));
 }
 
-str hashes(int n) = "<for(int i <-[0..n]){>#<}>";
+str hashes(int n) = "<for(int _ <-[0..n]){>#<}>";
 
-str convert(str anchor, list[str] lines){
+str convert(str _/*anchor; why is this not used?*/, list[str] lines){
   result = ""; //"[[<anchor>]]\n";
   int i = 0;
   

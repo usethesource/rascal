@@ -36,11 +36,8 @@ module lang::csv::IO
 import lang::csv::\syntax::Parse;
 import lang::csv::ast::CSV;
 import lang::csv::ast::Implode;
-import Type;
 import Map;
-import ParseTree;
 import List;
-import String;
 
 @doc{
 .Synopsis

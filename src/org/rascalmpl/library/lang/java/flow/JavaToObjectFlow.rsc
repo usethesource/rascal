@@ -9,9 +9,8 @@ More information can be found in <<ObjectFlow>>.
 module lang::java::flow::JavaToObjectFlow
 
 import IO;
-import Set;
 import List;
-import analysis::flow::ObjectFlow;
+import analysis::flow::ObjectFlow; 
 import lang::java::m3::TypeSymbol;
 import lang::java::m3::AST;
 
@@ -44,7 +43,7 @@ map[str, int] insertArgs = (
   , "addAll": 0
 );
 
-Expression correctInsertArg(Expression recv, str name, list[Expression] args) {
+Expression correctInsertArg(Expression _/*receiver*/, str name, list[Expression] args) {
   return args[insertArgs[name]];
 }
 
@@ -108,7 +107,7 @@ bool ignoreType(unionType(tt)) = (false | it || ignoreType(t) | t <- tt);
 default bool ignoreType(Type t) = true;
 
 bool ignoreType(Expression::simpleName(n)) = n in primitiveTypes;
-bool ignoreType(Expression::qualifiedName(q,n)) {
+bool ignoreType(Expression::qualifiedName(Expression q, n)) {
   if (simpleName(nn) := n && nn in primitiveTypes) {
     // could be a primitive type
     // lets build the fullTypeName
@@ -272,13 +271,16 @@ private Expression newObject(Type t, list[Expression] args, Expression original)
     [decl = original.decl];
 }
 
-set[FlowStm] translate(loc base, loc target, ob:newObject(_, Type t, a))
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Expression _, Type t, list[Expression] a))
   = translate(base, target, newObject(t, a, ob));
-set[FlowStm] translate(loc base, loc target, ob:newObject(_, Type t, a, _))
+  
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t, list[Expression] a, Declaration _))
   = translate(base, target, newObject(t, a, ob));
-set[FlowStm] translate(loc base, loc target, ob:newObject(Type t, a,_))
+  
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, list[Expression] a, Declaration _))
   = translate(base, target, newObject(t, a, ob));
-set[FlowStm] translate(loc base, loc target, ob:newObject(Type t, a)) {
+  
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, a)) {
   assert target != emptyId;
   if (ignoreType(ob.typ))
     return {};

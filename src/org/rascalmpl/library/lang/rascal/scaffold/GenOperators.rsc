@@ -9,7 +9,6 @@ module lang::rascal::scaffold::GenOperators
 
 import Relation;
 import Set;
-import String;
 import List; 
 
 public int numOfCases() = 

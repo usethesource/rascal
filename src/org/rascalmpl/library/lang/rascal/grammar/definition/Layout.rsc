@@ -11,8 +11,6 @@ module lang::rascal::grammar::definition::Layout
 import lang::rascal::\syntax::Rascal;
 import Grammar;
 import ParseTree;
-import List;
-import IO;
 
 @doc{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
 GrammarDefinition \layouts(GrammarDefinition def) {
