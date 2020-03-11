@@ -13,19 +13,20 @@ test bool testForWithAppendAndLabel() {
 }
 
 test bool testForWithAppendAndLabelOuter() {
-	return { y: for (x <- [1,2,3]) { for (i <- [1,2,3]) append y: i; }} == [1,2,3,1,2,3,1,2,3];
+	return { y: for (_ <- [1,2,3]) { for (i <- [1,2,3]) append y: i; }} == [1,2,3,1,2,3,1,2,3];
 }
 
 test bool testForWithAppendAndLabelOuterAndInner() {
-	return { y: for (x <- [1,2,3]) { z: for (i <- [1,2,3]) append y: i; }} == [1,2,3,1,2,3,1,2,3];
+    // unused label for testing purposes
+	return { y: for (_ <- [1,2,3]) { z: for (i <- [1,2,3]) append y: i; }} == [1,2,3,1,2,3,1,2,3];
 }
 	
 test bool testNestedAppend() {
-	return { for (x <- [1,2,3]) append for (i <- [1,2,3]) append i; } == [[1,2,3],[1,2,3],[1,2,3]];
+	return { for (_ <- [1,2,3]) append for (i <- [1,2,3]) append i; } == [[1,2,3],[1,2,3],[1,2,3]];
 }
 
 test bool testSimpleNestedFor() {
-	return {for (x <- [1,2,3]) append for (y <- [1,2,3]) append y; } == [[1,2,3],[1,2,3],[1,2,3]];
+	return {for (_ <- [1,2,3]) append for (y <- [1,2,3]) append y; } == [[1,2,3],[1,2,3],[1,2,3]];
 }
 
 // We no longer allow dynamically scoped appends

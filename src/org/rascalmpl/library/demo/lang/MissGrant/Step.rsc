@@ -1,6 +1,5 @@
 module demo::lang::MissGrant::Step
 
-import demo::lang::MissGrant::AST;
 import demo::lang::MissGrant::ToRelation;
 
 import Set;

@@ -14,8 +14,6 @@
 module demo::common::StringTemplate
 
 import String;
-import IO;
-import Set;
 import List;
 
 // Capitalize the first character of a string

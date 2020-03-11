@@ -25,11 +25,9 @@ loctoc::[1]
 }
 module analysis::graphs::Graph
 
-import Exception;
 import Set;
 import List;
 import Relation;
-import IO; 
 import util::Math;    
    
 alias Graph[&T] = rel[&T from, &T to];

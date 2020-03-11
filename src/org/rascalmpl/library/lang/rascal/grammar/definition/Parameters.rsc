@@ -22,7 +22,7 @@ public Grammar expandParameterizedSymbols(Grammar g) {
 } 
 
 private Symbol delabel(Symbol l) {
-  return (label(x,m) := l) ? m : l;
+  return (label(_,m) := l) ? m : l;
 }
 
 set[Production] expand(set[Production] prods) {

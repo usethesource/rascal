@@ -1,8 +1,5 @@
 module lang::rascal::\syntax::tests::ConcreteSyntax
 
-import IO;
-import ParseTree;
-
 syntax A 
   = a:"a" 
   | b:"b"
@@ -77,7 +74,7 @@ public test bool matchseq2() = (S) `seq2 s <S _>.` := seq2;
 public test bool matchstar() = (S) `star .` := star_none;
 public test bool matchstar2() = (S) `star s.` := star_one;
 public test bool matchstar3() = (S) `star <S s1>.` := star_one && s1 == s; 
-public test bool matchstar4() = (S) `star <S* ss>.` := star_two;
-public test bool matchstar5() = (S) `star <S s1> <S* ss>.` := star_two;
+public test bool matchstar4() = (S) `star <S* _>.` := star_two;
+public test bool matchstar5() = (S) `star <S _> <S* _>.` := star_two;
 
 public test bool splicestar1() = (S*) x := star_two.\list && (S) `star s s s s.` := (S) `star <S x> <S* x>.` ;

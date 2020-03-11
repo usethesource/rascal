@@ -1,7 +1,5 @@
 module demo::lang::turing::l2::desugar::Desugar
 
-import List;
-import IO;
 import demo::lang::turing::l2::ast::Turing;
 
 	
@@ -9,7 +7,7 @@ public Program expandLoops(Program p) {
   return innermost visit (p) {
     case [*Statement stats1, loop(n, sts), *Statement stats2] => [*stats1, *renameLabels(n,sts), loop(n-1, sts), *stats2]
       when n > 0
-    case [*Statement stats1, loop(0, sts), *Statement stats2] => [*stats1, *stats2]
+    case [*Statement stats1, loop(0, _), *Statement stats2] => [*stats1, *stats2]
   }
 }
 

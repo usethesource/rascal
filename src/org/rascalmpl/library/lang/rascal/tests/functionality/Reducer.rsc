@@ -1,18 +1,15 @@
+@license{
+ Copyright (c) 2009-2015 CWI
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse License v1.0
+ which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 module lang::rascal::tests::functionality::Reducer
-/*******************************************************************************
- * Copyright (c) 2009-2015 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
-*******************************************************************************/
-
-test bool testCount() = ( 0 | it + 1 | x <- [1,2,3] ) == 3;
+test bool testCount() = ( 0 | it + 1 | _ <- [1,2,3] ) == 3;
 	
 test bool testMax() = ( 0 | x > it ? x : it | x <- [1,2,3] ) == 3;
 	

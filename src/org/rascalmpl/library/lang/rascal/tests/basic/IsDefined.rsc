@@ -38,7 +38,7 @@ test bool isDefinedList5() {
     try {
       lst[3];
       return false;
-    } catch IndexOutOfBounds(k): {
+    } catch IndexOutOfBounds(_): {
       return true;
     }
 }
@@ -49,20 +49,20 @@ test bool isDefinedList6() {
 }
 
 test bool isDefinedList7() {
-   int x;
+   int x = -1;
    try {
      x = [0,1,2,3][2] ? 100;
-   } catch IndexOutOfBounds(idx) : {
+   } catch IndexOutOfBounds(_) : {
      x = 200;
    }
    return x == 2;
 }
 
 test bool isDefinedList8() {
-   int x;
+   int x = -1;
    try {
      x = [0,1,2,3][5] ? 100;
-   } catch IndexOutOfBounds(idx) : {
+   } catch IndexOutOfBounds(_) : {
      x = 200;
    }
    return x == 100;
@@ -85,7 +85,7 @@ test bool isDefinedMap3() {
     try {
       m[3];
       return false;
-    } catch NoSuchKey(k): {
+    } catch NoSuchKey(_): {
       return true;
     }
 }

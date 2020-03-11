@@ -16,16 +16,13 @@ module lang::sdf2::util::SDF2Grammar
 //   . The test (Class) `[]` == \char-class([]);  // gives unsupported operation
                     
 import IO;
-import String;
+import String; 
 import Set;
 import List;
 import Map;
-import util::Math;
 import ParseTree;
 import Grammar;
-import lang::rascal::grammar::definition::Names;
 import lang::rascal::grammar::definition::Characters; 
-import lang::sdf2::util::Load;
 import lang::sdf2::\syntax::Sdf2;   
 
 public Symbol label(str s, conditional(Symbol t, set[Condition] cs)) = conditional(label(s, t), cs);
@@ -141,7 +138,7 @@ default Symbol strip(Symbol s) = s;
 
 private Grammar::Grammar split(Grammar::Grammar g) {
   for (nt <- g.rules, cur :=  g.rules[nt], sorts := {strip(s) | /prod(s,_,_) := cur}, size(sorts) > 1) {
-    for (s <- sorts) {
+    for (Symbol s <- sorts) {
       newp = keep(cur, s);
       if (g.rules[s]? && s != strip(cur.def))
         g.rules[s].alternatives += newp.alternatives;
@@ -225,14 +222,14 @@ public Grammar::Grammar illegalPriorities(Grammar::Grammar g) {
   extracted = {};
   g = innermost visit (g) {
     case \priority(Symbol def, list[Production] ps) : 
-      if ([pre*,p:prod(Symbol other, _, _),post*] := ps, !sameType(def, other)) {
+      if ([*pre,p:prod(Symbol other, _, _),*post] := ps, !sameType(def, other)) {
         println("WARNING: extracting production from non-recursive priority chain");
         extracted += p[attributes = p.attributes + \tag("NotSupported"("priority with <pre> <post>"))];
         insert priority(def, pre + post);
       }
       else fail;
     case \associativity(Symbol def, Associativity a, set[Production] q) :
-      if ({rest*, p:prod(Symbol other, _, _)} := q, !sameType(def, other)) {
+      if ({*_, p:prod(Symbol other, _, _)} := q, !sameType(def, other)) {
         println("WARNING: extracting production from non-recursive associativity group");
         extracted += p[attributes = p.attributes + \tag("NotSupported"("<a> associativity with <other>"))];
         insert associativity(def, a, q);
@@ -248,13 +245,13 @@ public &T dup(&T g) {
   
   // first we fuse the attributes (SDF2 semantics) and the cons names
   solve (prods) {
-    if ({prod(l,r,a1), prod(l,r,a2), rest*} := prods) {
+    if ({prod(l,r,a1), prod(l,r,a2), *rest} := prods) {
       prods = {prod(l,r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a1), prod(l,r,a2), rest*} := prods) {
+    if ({prod(label(n,l),r,a1), prod(l,r,a2), *rest} := prods) {
       prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
-    if ({prod(label(n,l),r,a1), prod(label(m,l),r,a2), rest*} := prods) {
+    if ({prod(label(n,l),r,a1), prod(label(_,l),r,a2), *rest} := prods) {
       prods = {prod(label(n,l),r,a1 + a2), *rest};
     }
   } 
@@ -262,13 +259,13 @@ public &T dup(&T g) {
   // now we replace all uses of prods by their fused counterparts
   g = visit(g) {
     case prod(l,r,_) : 
-      if ({p:prod(l,r,_), _*} := prods) 
+      if ({p:prod(l,r,_), *_} := prods) 
         insert p;
-      else if ({p:prod(label(n,l),r,_),_*} := prods)
+      else if ({p:prod(label(_,l),r,_),*_} := prods)
         insert p;
       else fail;
-    case prod(label(n,l),r,_) :
-      if ({p:prod(label(m,l),r,_),_*} := prods)
+    case prod(label(_,l),r,_) :
+      if ({p:prod(label(_,l),r,_),*_} := prods)
         insert p;
       else fail;
   }
@@ -338,7 +335,7 @@ test bool test7() = getProductions((SDF) `definition module A exports context-fr
 test bool test9() = getProductions((SDF) `definition module A exports priorities A -\> B \> C -\> D`) ==
      {prod(sort("B"),[sort("A")],{}),prod(sort("D"),[sort("C")],{})};
 
-test bool test9() = getProductions((SDF) `definition module A exports priorities B "*" B -\> B \> B "+" B -\> B`) ==
+test bool test9_2() = getProductions((SDF) `definition module A exports priorities B "*" B -\> B \> B "+" B -\> B`) ==
      {priority(sort("B"),[prod(sort("B"),[sort("B"),lit("*"),sort("B")],{}),prod(sort("B"),[sort("B"),lit("+"),sort("B")],{})])};
 
 
@@ -348,7 +345,7 @@ public set[Production] getProductions(Prod* prods, bool isLex){
 
 set[Production] fixParameters(set[Production] input) {
   return innermost visit(input) {
-    case prod(\parameterized-sort(str name, [pre*, sort(str x), post*]),lhs,  as) =>
+    case prod(\parameterized-sort(str name, [*pre, sort(str x), *post]),lhs,  as) =>
          prod(\parameterized-sort(name,[*pre,\parameter(x,adt("Tree",[])),*post]),visit (lhs) { case sort(x) => \parameter(x,adt("Tree",[])) }, as)
   }
 }
@@ -361,7 +358,7 @@ public set[Production] getProduction(Prod P, bool isLex) {
     case (Prod) `<Syms syms> -\> LAYOUT <Attrs ats>` :
         return {prod(layouts("LAYOUTLIST"),[\iter-star(\lex("LAYOUT"))],{}),
                 prod(\lex("LAYOUT"), getSymbols(syms, isLex),getAttributes(ats))};
-    case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
+    case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* _>, reject, <{Attribute ","}* _> }` :
         return {prod(keywords(getSymbol(sym, isLex).name + "Keywords"), getSymbols(syms, isLex), {})};
     case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, cons(<StrCon n>), <{Attribute ","}* y> }` :
         return {prod(label(labelName(unescape(n)),getSymbol(sym, isLex)), getSymbols(syms, isLex), getAttributes((Attrs) `{<{Attribute ","}* x>, <{Attribute ","}* y> }`))};
@@ -399,12 +396,12 @@ public set[Symbol] getConditions(SDF m) {
       res += getRestrictions(rests, true);
     case (Grammar) `context-free restrictions <Restriction* rests>` :
       res += getRestrictions(rests, false);
-    case (Prod) `<Syms syms> -\> <Sym sym> {<{Attribute ","}* x>, reject, <{Attribute ","}* y> }` :
+    case (Prod) `<Syms _> -\> <Sym sym> {<{Attribute ","}* _>, reject, <{Attribute ","}* _> }` :
       res += {conditional(getSymbol(sym, false), {\delete(keywords(getSymbol(sym, false).name + "Keywords"))})
                ,conditional(getSymbol(sym, true), {\delete(keywords(getSymbol(sym, true).name + "Keywords"))})};
    }
    
-   while ({conditional(s, cs1), conditional(s, cs2), rest*} := res)
+   while ({conditional(s, cs1), conditional(s, cs2), *rest} := res)
        res = rest + {conditional(s, cs1 + cs2)};
    
    //iprintln(res);
@@ -422,7 +419,7 @@ public set[Symbol] getRestrictions(Restriction* restrictions, bool isLex) {
 public set[Symbol] getRestriction(Restriction restriction, bool isLex) {
   println("getting rest: <restriction>");
   switch (restriction) {
-    case (Restriction) `-/- <Lookaheads ls>` :
+    case (Restriction) `-/- <Lookaheads _>` :
     	return {};
     
     case (Restriction) `LAYOUT? -/- <Lookaheads ls>` :
@@ -502,7 +499,7 @@ public Production getPriority(Group group, bool isLex) {
     case (Group) `<Group g> .` :
      	return getPriority(g, isLex); // we ignore non-transitivity here!
      	
-    case (Group) `<Group g> <ArgumentIndicator i>` : 
+    case (Group) `<Group g> <ArgumentIndicator _>` : 
      	return getPriority(g, isLex); // we ignore argument indicators here!
      	
     case (Group) `{<Prod* ps>}` : 
@@ -544,6 +541,7 @@ public Production getPriority(Priority p, bool isLex) {
      case (Priority) `<{Group "\>"}+ groups>` : 
        return priority(definedSymbol(groups,isLex), [getPriority(group ,isLex) | Group group <- groups]);
    }
+   throw "could not get priority of <p>";
 }
 
 
@@ -919,7 +917,7 @@ public set[Attr] getAttribute(Attribute m) {
     case (Attribute) `bracket`:
     	return {\bracket()};
     
-    case (Attribute) `cons(<StrCon c>)` : 
+    case (Attribute) `cons(<StrCon _>)` : 
         return {};
         
     case (Attribute) `memo`:

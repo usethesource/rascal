@@ -1,7 +1,5 @@
 module lang::rascal::tests::concrete::Call
 
-import ParseTree;
-
 syntax XYZ = "x" | "y" | "z";
 
 test bool  dispatchTest3() { 

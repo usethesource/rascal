@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2020 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module lang::rascal::tests::basic::Sets
 
 import Set;
@@ -17,9 +24,9 @@ bool isUnion(set[&T] A, set[&T] B, set[&T] C) =
      isEmpty(B) ==> C == A ||
      all(x <- C, x in A || x in B);
 
-test bool union(set[&T] A, set[&T] B) = isUnion(A,   B,  A + B);
-test bool union(     &T A, set[&T] B) = isUnion({A}, B,  {A} + B);
-test bool union(set[&T] A,      &T B) = isUnion(A,   {B}, A +{B});
+test bool union1(set[&T] A, set[&T] B) = isUnion(A,   B,  A + B);
+test bool union2(     &T A, set[&T] B) = isUnion({A}, B,  {A} + B);
+test bool union3(set[&T] A,      &T B) = isUnion(A,   {B}, A +{B});
 
 // is A - B == C?
 bool isDiff(set[&T] A, set[&T] B, set[&T] C) =
@@ -95,7 +102,7 @@ test bool tst_min(set[int] S) = isEmpty(S) || all(x <- S, x >= min(S));
 
 // power, power1, reducer
 
-test bool tst_size(set[int] S) = size(S) == (0 | it + 1 | x <- S);
+test bool tst_size(set[int] S) = size(S) == (0 | it + 1 | _ <- S);
 
 // Is L sorted?
 public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && L[i] > L[j]);
@@ -132,7 +139,7 @@ test bool tst_toMapUnique(set[int] D, set[int] R) {
 test bool dtstDifference(set[&T] s) {
 	if(isEmpty(s)) return true;
 	bool check = true;
-	for(int i <- [0..size(s)]) {
+	for(int _ <- [0..size(s)]) {
 		&T elem = getOneFrom(s);
 		lhs = s - {elem};
 		rhs = { el | &T el <- s, !eq(el, elem) };

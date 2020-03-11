@@ -70,7 +70,7 @@ test bool nestedFunctionCall3() = f2(5)  == "default f2(1);default g2(5);";
 
 str f3(0) { res = g3("0"); return "f3(0); " + res; }
 str f3(1) { 
-    str res; 
+    str res = "***init***"; 
     try { 
         res = g3("1"); 
     } catch str s: { 
@@ -79,7 +79,7 @@ str f3(1) {
     fail; 
 }
 default str f3(int n) { 
-    str res; 
+    str res = "***init***"; 
     try {
         res = g3("<n>");
     } catch str s: {

@@ -267,8 +267,8 @@ test bool sort2j() = sort([3,2,1], greater) == [3,2,1];
 @expected{IllegalArgument} test bool sort2l() {sort([1,2,3], greatereq); return false;}
 
 
-test bool shuffleFirstIndex(list[value] v) = v == [] || ({ shuffle(v)[0] | i <- [0..50 * size(v)]} == {*v});
-test bool shuffleLastIndex(list[value] v) = v == [] || ({ shuffle(v)[size(v) - 1] | i <- [0..50 * size(v)]} == {*v});
+test bool shuffleFirstIndex(list[value] v) = v == [] || ({ shuffle(v)[0] | _ <- [0..50 * size(v)]} == {*v});
+test bool shuffleLastIndex(list[value] v) = v == [] || ({ shuffle(v)[size(v) - 1] | _ <- [0..50 * size(v)]} == {*v});
 test bool shuffleStable(list[value] v, int x) = v == [] || shuffle(v, x) == shuffle(v, x);
 
 // split

@@ -1,9 +1,7 @@
- // tag::module[]
+// tag::module[]
 module demo::lang::Pico::UseDef
 
-import Prelude;
 import demo::lang::Pico::Abstract;
-import demo::lang::Pico::ControlFlow;
  
 set[Occurrence] usesExp(EXP e, STATEMENT s) =  // <1>
   u:id(PicoId Id1) := e ? {< u@location, Id1, s>}
@@ -26,5 +24,5 @@ set[Occurrence] usesStats(list[STATEMENT] stats) =
 public set[Occurrence] uses(PROGRAM p) = usesStats(p.stats);  //<3>
 
 public set[Occurrence] defs(PROGRAM p) =  // <4>
-   { < stat@location, v, stat > | /stat:asgStat(PicoId v, EXP e) <- p.stats};
-// end::module[]
+   { < stat@location, v, stat > | /stat:asgStat(PicoId v, EXP _) <- p.stats};
+// end::module[] 

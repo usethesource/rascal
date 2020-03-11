@@ -9,7 +9,6 @@
 module lang::rascal::\syntax::tests::ImplodeTestGrammar
 
 import ParseTree;
-import Type;
 
 lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
 layout W = [\ \t\n\r]*;

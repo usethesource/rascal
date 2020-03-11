@@ -43,6 +43,8 @@ import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.interpreter.control_exceptions.BreakException;
+import org.rascalmpl.interpreter.control_exceptions.ContinueException;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -50,6 +52,8 @@ import org.rascalmpl.interpreter.control_exceptions.Return;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.staticErrors.MissingReturn;
+import org.rascalmpl.interpreter.staticErrors.OffsideBreak;
+import org.rascalmpl.interpreter.staticErrors.OffsideContinue;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
@@ -239,8 +243,6 @@ public class RascalFunction extends NamedFunction {
         return isStatic;
     }
 
-
-
     public boolean isAnonymous() {
         return getName() == null;
     }
@@ -428,8 +430,7 @@ public class RascalFunction extends NamedFunction {
         return matchers;
     }
 
-    private List<Expression> replaceLast(List<Expression> formals,
-        Expression last) {
+    private List<Expression> replaceLast(List<Expression> formals, Expression last) {
         List<Expression> tmp = new ArrayList<Expression>(formals.size());
         tmp.addAll(formals);
         tmp.set(formals.size() - 1, last);

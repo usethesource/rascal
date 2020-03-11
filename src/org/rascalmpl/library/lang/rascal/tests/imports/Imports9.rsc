@@ -1,5 +1,6 @@
 module lang::rascal::tests::imports::Imports9
 
+// unused import on purpose for testing purposes
 import lang::rascal::tests::imports::M9;
 
 test bool Test91() { 
@@ -23,7 +24,6 @@ test bool Test94() {
 	return f(5) == 100;
 }
 
-@ignoreCompiler{FIX: Wrong sort overloaded functions}
 test bool Test95() { 
 	int f(3) = 3;
 	default int f(int n) = 20 * n;

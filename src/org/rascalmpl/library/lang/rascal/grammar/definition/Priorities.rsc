@@ -13,7 +13,6 @@ import Set;
 import List;
 import IO;
 import util::Maybe;
-import Node;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
@@ -102,7 +101,7 @@ public DoNotNest doNotNest(Grammar g) {
                  , same(ss, lr), same(t, rr), same(ss, t)} 
                    
         // right with left recursive            
-        + {<f,size(pre),c> | <f:prod(Symbol ss, [pre*, Symbol rr], _), 
+        + {<f,size(pre),c> | <f:prod(Symbol ss, [*pre, Symbol rr], _), 
                               c:prod(Symbol t, [Symbol lr,   *_], _)> <- (prios + lefts + nons)
                            , same(ss, rr), same(t, lr), same(ss, t)}
         ; 
@@ -112,7 +111,7 @@ public DoNotNest doNotNest(Grammar g) {
     ambiguous = {<p, q>  | p:prod(Symbol ss, [Symbol lr, *_], _) <- allProds, same(s, lr),
                            q:prod(Symbol t, [*_, Symbol rr], _) <- allProds,
                             same(t, rr), same(ss, t)};
-    ambiguous += {<p, q> | p:prod(Symbol ss, [pre*, Symbol rr], _) <- allProds, same(s, rr), 
+    ambiguous += {<p, q> | p:prod(Symbol ss, [*_, Symbol rr], _) <- allProds, same(s, rr), 
                            q:prod(Symbol t, [Symbol lr,   *_], _) <- allProds,
                            same(t, lr), same(ss, t), <q, p> notin ambiguous}
               ;
@@ -142,7 +141,7 @@ Extracted extract(associativity(Symbol s, Associativity a, set[Production] alts)
   = {<x, a, y> | <x, y> <- alts * alts};
 
 Extracted extract(priority(Symbol s, list[Production] levels)) 
-  = {*extract(high, low) | [pre*, Production high, Production low, post*] := levels};
+  = {*extract(high, low) | [*_, Production high, Production low, *_] := levels};
 
 // the follow binary extract rules generate all priority _combinations_ in case of nested groups, 
 // and also make sure these nested groups can generate the necessary associativity relations 

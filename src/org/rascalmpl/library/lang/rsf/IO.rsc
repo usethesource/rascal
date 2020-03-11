@@ -9,8 +9,6 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rsf::IO
 
-import Type;
-
 @doc{Read an RSF file.
 
 Read relations from an RSF file. An RSF file contains tuples of binary relations

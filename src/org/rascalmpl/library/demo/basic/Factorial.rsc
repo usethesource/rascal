@@ -21,7 +21,7 @@ int fac3(int N)  { //<4>
      return 1;
   return N * fac3(N - 1);
 }
-// end::module[]
+// end::module[] 
 
 test bool tfac0()  = fac(0)  == 1;
 test bool tfac1()  = fac(1)  == 1;
