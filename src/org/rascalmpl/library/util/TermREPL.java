@@ -49,13 +49,7 @@ public class TermREPL {
             lang = new TheREPL(vf, repl, ctx);
             // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later.
             ISourceLocation history = repl.has("history") ? (ISourceLocation) repl.get("history") : null;
-            
-//            Terminal term = TerminalFactory.get();
             Terminal term = TerminalFactory.get();
-//            String sneakyRepl = System.getProperty("__ECLIPSE_CONNECTION");
-            
-//            term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
-            
             new BaseREPL(lang, null, System.in, System.out, true, true, history , term, null).run();
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace(ctx.getStdErr());
