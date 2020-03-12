@@ -436,10 +436,5 @@
                 <version>1.72</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-			    <groupId>com.google.guava</groupId>
-			    <artifactId>guava</artifactId>
-			    <version>28.2-jre</version>
-			</dependency>
         </dependencies>
     </project>
