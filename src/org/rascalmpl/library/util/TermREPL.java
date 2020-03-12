@@ -18,6 +18,8 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
+import org.rascalmpl.shell.EclipseTerminalConnection;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -30,6 +32,7 @@ import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import jline.Terminal;
 import jline.TerminalFactory;
 
 public class TermREPL {
@@ -46,7 +49,14 @@ public class TermREPL {
             lang = new TheREPL(vf, repl, ctx);
             // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later.
             ISourceLocation history = repl.has("history") ? (ISourceLocation) repl.get("history") : null;
-            new BaseREPL(lang, null, System.in, System.out, true, true, history , TerminalFactory.get(), null).run();
+            
+//            Terminal term = TerminalFactory.get();
+            Terminal term = TerminalFactory.get();
+//            String sneakyRepl = System.getProperty("__ECLIPSE_CONNECTION");
+            
+//            term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
+            
+            new BaseREPL(lang, null, System.in, System.out, true, true, history , term, null).run();
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace(ctx.getStdErr());
         }
@@ -153,16 +163,7 @@ public class TermREPL {
                         }
                     }
                 }
-                else {
-                    // Handle a Salix result
-                    ICallableValue salixApp = (ICallableValue) result.get("salixApp");
-                    String scope = "salixApp" + scopeId;
-                    call(this.consumerFunction, new Type[]{tf.valueType(), tf.stringType()}, new IValue[]{salixApp, vf.string(scope)});
-                    String out = "<script> \n var "+ scope +" = new Salix('"+ scope +"', '" + http.getURI().toString() +"'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+scope+");\n registerDagre("+scope+");\n registerTreeView("+ scope +"); \n"+ scope + ".start();});\n </script> \n <div id=\""+scope+"\"> \n </div>";
-                    output.put("text/html", stringStream(out));
-                    this.scopeId++;
-                    
-                }
+                
                 IWithKeywordParameters<? extends IConstructor> commandResult = result.asWithKeywordParameters();
                 if(commandResult.hasParameter("messages")) {
                     IList messages = (IList) commandResult.getParameter("messages");
