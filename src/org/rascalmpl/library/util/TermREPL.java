@@ -18,7 +18,6 @@ import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
-import org.rascalmpl.shell.EclipseTerminalConnection;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -65,11 +64,11 @@ public class TermREPL {
         private final IEvaluatorContext ctx;
         private final ICallableValue completor;
         private final IValueFactory vf;
-        
+
         private ITuple visualization;
         private ICallableValue consumerFunction;
         private ISourceLocation http;
-        
+
         private int scopeId;
 
         public TheREPL(IValueFactory vf, IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
@@ -77,7 +76,7 @@ public class TermREPL {
             this.vf = vf;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
-            
+
             if(repl.has("prompt"))
                 this.currentPrompt = ((IString)repl.get("prompt")).getValue();
             if(repl.asWithKeywordParameters().hasParameter("visualization")){
@@ -86,26 +85,26 @@ public class TermREPL {
                 http = (ISourceLocation) this.visualization.get(2);
                 this.scopeId = 0;
             }
-            
+
             stdout = ctx.getStdOut();
             assert stdout != null;
         }
-        
+
         @Override
         public void cancelRunningCommandRequested() {
             ctx.interrupt();
         }
-        
+
         @Override
         public void terminateRequested() {
             ctx.interrupt();
         }
-        
+
         @Override
         public void stop() {
             ctx.interrupt();
         }
-        
+
         @Override
         public void stackTraceRequested() {
             StackTrace trace = ctx.getStackTrace();
@@ -133,7 +132,7 @@ public class TermREPL {
 
         @Override
         public void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
-            
+
             if (line.trim().length() == 0) {
                 // cancel command
                 // TODO: after doing calling this, the repl gets an unusual behavior, needs to be fixed
@@ -144,20 +143,15 @@ public class TermREPL {
             else {
                 // TODO: this could also be handled via the Content data-type, which should work 
                 // also for Salix apps...
-                IConstructor result = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+                IConstructor result = (IConstructor) call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
                 if(result.has("result") && result.get("result") != null) {
-                    String str = ((IString)result.get("result")).getValue();
-                    // TODO: change the signature of the handler
+                    String str = ((IString) result.get("result")).getValue();
                     if(!str.equals("")) {
-                        if(str.startsWith("Error:")) {
-                            metadata.put("ERROR-LOG", "<div class = \"output_stderr\">" + str.substring("Error:".length(), str.length()) + "</div>");
-                        }
-                        else {
-                            output.put("text/html", stringStream("<div>" + str + "</div>"));
-                        }
+                        output.put("text/plain", stringStream(str + "\n"));
+                        return;
                     }
                 }
-                
+
                 IWithKeywordParameters<? extends IConstructor> commandResult = result.asWithKeywordParameters();
                 if(commandResult.hasParameter("messages")) {
                     IList messages = (IList) commandResult.getParameter("messages");
@@ -174,7 +168,7 @@ public class TermREPL {
         private InputStream stringStream(String x) {
             return new ByteArrayInputStream(x.getBytes(StandardCharsets.UTF_8));
         }
-        
+
         @Override
         public boolean supportsCompletion() {
             return true;
@@ -205,7 +199,7 @@ public class TermREPL {
         @Override
         public CompletionResult completeFragment(String line, int cursor) {
             ITuple result = (ITuple)call(completor, new Type[] { tf.stringType(), tf.integerType() },
-                            new IValue[] { vf.string(line), vf.integer(cursor) }); 
+                new IValue[] { vf.string(line), vf.integer(cursor) }); 
 
             List<String> suggestions = new ArrayList<>();
 
@@ -221,7 +215,7 @@ public class TermREPL {
 
             return new CompletionResult(offset, suggestions);
         }
-        
+
         @Override
         public void handleReset(Map<String, InputStream> output, Map<String, String> metadata) throws InterruptedException {
             // TODO: add a rascal callback for this?
