@@ -28,6 +28,4 @@ Then the following features need manual testing in Eclipse:
 - [ ] Rascal navigator displays interpreter's search path
 - [ ] Clicking links in REPL opens editors and websites
 - [ ] `rascal>1 + 1` on the REPL
-- [ ] ```
-import IO;
-println("Hello Rascal!");
+- [ ] `import IO; println("Hello Rascal!");`
