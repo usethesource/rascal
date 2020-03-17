@@ -624,6 +624,7 @@ private AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", A
 
 private default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
     s.report(error(current, "Unsupported operator %s in assignment", operator));
+    return avalue();
 }
 
 private void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, Collector c){
@@ -634,7 +635,8 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
         if(operator == "="){
            c.define(base, variableId(), name, defLub([statement], AType(Solver s){ return s.getType(statement); }));
         } else {
-           c.useLub(name, variableRoles);
+           //c.useLub(name, variableRoles);
+           c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){ return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s); }));
         }
     }
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
@@ -947,7 +949,7 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
    taus = [c.newTypeVar(nm) | nm <- names];
    for(int i <- index(names), flatNames[i] notin namesInRhs){c.define("<names[i]>", variableId(), names[i], defLub([rhs], makeDef(i)));}
    
-   for(name <- names) c.use(name, variableRoles);
+   for(name <- names) c.useLub(name, variableRoles);
   
    scope = c.getScope();
    

@@ -929,11 +929,15 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
        c.useQualified([qualifier, base], name, {variableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
        if(base != "_"){
-          if(inPatternScope(c)){
-            c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
-          } else {
-            c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
-          }
+          //if(inPatternScope(c)){
+            if(c.top(currentAdt)?){
+                c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+            } else {
+                c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+            }
+          //} else {
+          //  c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+          //}
        } else {
           c.fact(current, avalue());
        }
