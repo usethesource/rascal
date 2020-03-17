@@ -415,6 +415,7 @@ void allFiles(PathConfig pcfg = pathConfig(
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
+                |project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
                 |std:///|
                ],
          bin = |test-modules:///rascal-core-bin|,
@@ -440,7 +441,7 @@ void allFiles(PathConfig pcfg = pathConfig(
         }
         println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(problems)>/C:<size(crashed)>/S:<nskipped>)");
         try {
-            modulesAndmsgs = filterErrors(checkModules([qualifiedModuleName], rascalTypePalConfig()));
+            modulesAndmsgs = filterErrors(checkModules([qualifiedModuleName], rascalTypePalConfig(), pcfg));
             if(modulesAndmsgs[qualifiedModuleName]?) iprintln(modulesAndmsgs);
             problems += modulesAndmsgs;
             //if(modulesAndmsgs[qualifiedModuleName]?) {

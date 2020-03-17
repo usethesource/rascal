@@ -17,6 +17,12 @@ import Map;
 import Set;
 import String;
 
+void requireFullyInstantiated(Solver s, AType ts...){
+  for(t <- ts){
+    if(!s.isFullyInstantiated(t)) throw TypeUnavailable();
+  }
+}
+
 void checkNonVoid(Tree e, Solver s, str msg){
     if(isVoidType(s.getType(e))) s.report(error(e, msg + " cannot have type `void`"));
 }
@@ -52,6 +58,9 @@ void(Solver) makeNonVoidRequirement(Tree t, str msg)
     = void(Solver s) { checkNonVoid(t, s, msg ); };
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s, bool maybeVoid=false){
+
+    requireFullyInstantiated(s, t1);
+    
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -69,6 +78,9 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
 }
 
 AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, Solver s){
+
+    requireFullyInstantiated(s, t1, t2);
+    
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -99,6 +111,9 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
 }
 
 AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, AType t3, Solver s){
+
+    requireFullyInstantiated(s, t1, t2, t3);
+    
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         tern_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -143,6 +158,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
 
 AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){                     
     //println("---- <current>, identicalFormals: <identicalFormals>");
+    requireFullyInstantiated(s, retType);
     nactuals = size(actuals); nformals = size(formals);
     if(nactuals != nformals){
         s.report(error(current, "Expected %v argument(s), found %v", nformals, nactuals));
@@ -329,6 +345,7 @@ default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
     
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
     //println("computeFieldTypeWithADT: <containerType>, <field>");
+    requireFullyInstantiated(s, containerType);
     fieldName = unescape("<field>");
     if(isNonTerminalType(containerType) && fieldName == "top"){
         return containerType;
@@ -339,7 +356,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
 @doc{Compute the type of field fn on type containerType. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(AType containerType, Tree field, loc scope, Solver s) {
     //println("computeFieldType: <containerType>, <field>");
-   
+    requireFullyInstantiated(s, containerType);
     if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable();
     fieldName = unescape("<field>");
     
@@ -554,11 +571,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
 }
 
 AType computeSliceType(Tree current, AType base, AType first, AType step, AType last, Solver s){
-
-    if(!s.isFullyInstantiated(base)) throw TypeUnavailable();
-    if(!s.isFullyInstantiated(first)) throw TypeUnavailable(); 
-    if(!s.isFullyInstantiated(step)) throw TypeUnavailable();
-    if(!s.isFullyInstantiated(last)) throw TypeUnavailable();
+    requireFullyInstantiated(s, base, first, step, last);
     
      if(overloadedAType(rel[loc, IdRole, AType] overloads) := base){
         slice_overloads = {};
@@ -808,6 +821,7 @@ private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver 
 // ---- getPatternType --------------------------------------------------------
 
 AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
+    requireFullyInstantiated(s, subjectType);
     tp = getPatternType0(p, subjectType, scope, s);
     s.fact(p, tp);
     return tp;

@@ -164,7 +164,7 @@ public PathConfig getRascalCorePathConfig() {
    npc += 1;
    snpc = "<npc>";
    return pathConfig(   
-        srcs = [//|project://rascal/src/org/rascalmpl/library|, 
+        srcs = [|project://rascal/src/org/rascalmpl/library|, 
                 |project://rascal-core/src/org/rascalmpl/core/library|,
                 |project://rascal_eclipse/src/org/rascalmpl/eclipse/library|
                ], 
@@ -466,8 +466,8 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
 
 // ---- Convenience check function during development -------------------------
       
-map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config) {
-    <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, getRascalCorePathConfig(), config);
+map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config, PathConfig pcfg) {
+    <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, pcfg, config);
     return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
 }
 

@@ -47,6 +47,9 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
         for(tp <- typeParameters){
             c.define("<tp.name>", typeVarId(), tp.name, defType(tp));
         }
+        
+        c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
+          
         collect(typeParameters, c);
         if(!isEmpty(commonKeywordParameterList)){
             collect(commonKeywordParameterList, c);
@@ -58,8 +61,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
              // }
         }
    
-        // visit all the variants in the parent scope of the data declaration
-        c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
+            // visit all the variants in the parent scope of the data declaration
             collect(variants, c);
         c.pop(currentAdt);
     c.leaveScope(current);
