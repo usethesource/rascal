@@ -652,11 +652,10 @@ private static boolean isDeprecated(Module preModule){
             IValue result = resultContainer.getValue();
             result = result.accept(new AdjustLocations(corrections, eval.getValueFactory()));
             if (isIterStar) {
-                IList resultList = (IList) replaceHolesByAntiQuotesExternal(eval, result, antiquotes, corrections);
-                IListWriter writer = eval.__getVf().listWriter();
-                IList ret = resultList;
+                IList ret = (IList) replaceHolesByAntiQuotesExternal(eval, result, antiquotes, corrections);
                 if (inPattern) {
-                    for (IValue v: resultList) {
+                    IListWriter writer = eval.__getVf().listWriter();
+                    for (IValue v: ret) {
                         if (v.mayHaveKeywordParameters()) {
                             writer.append(unsetAllRec((INode) v));
                         } else {
