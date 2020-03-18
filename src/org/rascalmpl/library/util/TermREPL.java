@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
@@ -120,13 +121,13 @@ public class TermREPL {
                 // cancel command
                 // TODO: after doing calling this, the repl gets an unusual behavior, needs to be fixed
                 this.stderr.println(ReadEvalPrintDialogMessages.CANCELLED);
-                currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
                 return;
             } 
             else {
-                IConstructor response = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
-
                 try {
+                    handler.getEval().__setInterrupt(false);
+                    IConstructor response = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+               
                     switch (response.getName()) {
                         case "response":
                             handlePlainTextResponse(output, response);
@@ -136,6 +137,14 @@ public class TermREPL {
                             break;
                         case "jsonResponse":
                             handleJSONResponse(output, response);
+                    }
+                }
+                catch (Throw e) {
+                    if (e.getException().toString().equals("interrupt()")) {
+                        throw new InterruptedException();
+                    }
+                    else {
+                        throw e;
                     }
                 }
                 catch (IOException e) {
