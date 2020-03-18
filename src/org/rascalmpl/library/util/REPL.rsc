@@ -16,7 +16,11 @@ data REPL
      str () stacktrace = str () { return ""; }
    );
 
-private Response echo(str line) = plain(line);
+data RuntimeException = interrupt();
+
+private Response echo("quit") { throw interrupt(); }
+private default Response echo(str line) = plain(line);
+   
 private Completion noSuggestions(str _, int _) = <0, []>;
 
 @javaClass{org.rascalmpl.library.util.TermREPL}
