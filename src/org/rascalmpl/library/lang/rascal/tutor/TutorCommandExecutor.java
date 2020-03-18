@@ -1,5 +1,6 @@
 package org.rascalmpl.library.lang.rascal.tutor;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,22 +34,24 @@ public class TutorCommandExecutor {
     private final ByteArrayOutputStream shellStandardOutput;
     private final ByteArrayOutputStream shellErrorOutput;
     private final ByteArrayOutputStream shellHTMLOutput;
+    private final ByteArrayInputStream shellInputNotUsed;
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         shellStandardOutput = new ByteArrayOutputStream();
         shellErrorOutput = new ByteArrayOutputStream();
         shellHTMLOutput = new ByteArrayOutputStream();
+        shellInputNotUsed = new ByteArrayInputStream("***this inputstream should not be used***".getBytes());
 
         repl = new RascalInterpreterREPL(null, shellStandardOutput, false, false, false, null) {
             @Override
-            protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-                Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
+            protected Evaluator constructEvaluator(InputStream input, Writer stdout, Writer stderr) {
+                Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, new PrintWriter(stdout), new PrintWriter(stderr));
                 eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
                 return eval;
             }
         };
 
-        repl.initialize(new OutputStreamWriter(shellStandardOutput, "utf8"), new OutputStreamWriter(shellErrorOutput, StandardCharsets.UTF_8.name()));
+        repl.initialize(shellInputNotUsed, new OutputStreamWriter(shellStandardOutput, "utf8"), new OutputStreamWriter(shellErrorOutput, StandardCharsets.UTF_8.name()));
         repl.setMeasureCommandTime(false); 
     }
 

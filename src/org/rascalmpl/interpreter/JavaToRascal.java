@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -60,8 +61,8 @@ public class JavaToRascal {
 		return evaluator;
 	}
 
-	public JavaToRascal(PrintWriter stdout, PrintWriter stderr) {
-		this.evaluator = new Evaluator(vf, stderr, stdout,
+	public JavaToRascal(InputStream input, PrintWriter stdout, PrintWriter stderr) {
+		this.evaluator = new Evaluator(vf, input, stderr, stdout,
 				new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap);
 	}
 
@@ -280,17 +281,5 @@ public class JavaToRascal {
 		if (v instanceof Float)
 			return vf.real(((Float) v).floatValue());
 		return null;
-	}
-
-	public static void main(String[] args) {
-		final JavaToRascal jr = new JavaToRascal(new PrintWriter(System.out),
-				new PrintWriter(System.err));
-		jr.voidValue("import List;");
-		System.out.println(jr.stringValue("\"<2+3>\";"));
-		System.out.println(jr.stringValue("\"aap:<size([2,3])>\";"));
-		final IInteger d1 = vf.integer(1), d2 = vf.integer(2);
-		final IList l = vf.list(d1, d2);
-		System.out.println(jr.call("size", l));
-		// System.out.println(jr.call("+", d1, d2));
 	}
 }

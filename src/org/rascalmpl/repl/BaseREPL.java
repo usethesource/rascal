@@ -96,7 +96,7 @@ public class BaseREPL {
         else {
             this.stdErr = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
         }
-        initialize(reader.getOutput(), stdErr);
+        initialize(stdin, reader.getOutput(), stdErr);
         if (supportsCompletion()) {
             reader.addCompleter(new Completer(){
                 @Override
@@ -140,8 +140,8 @@ public class BaseREPL {
      * @throws IOException 
      * @throws URISyntaxException 
      */
-    protected void initialize(Writer stdout, Writer stderr) throws IOException, URISyntaxException {
-        language.initialize(stdout, stderr);
+    protected void initialize(InputStream input, Writer stdout, Writer stderr) throws IOException, URISyntaxException {
+        language.initialize(input, stdout, stderr);
     }
 
     /**
@@ -227,6 +227,7 @@ public class BaseREPL {
      * This method gets called from another thread, and indicates the user pressed CTLR-C during a call to handleInput.
      * 
      * Interrupt the handleInput code as soon as possible, but leave stuff in a valid state.
+     * @throws InterruptedException 
      */
     protected void cancelRunningCommandRequested() {
         language.cancelRunningCommandRequested();
@@ -236,6 +237,7 @@ public class BaseREPL {
      * This method gets called from another thread, and indicates the user pressed CTLR-D during a call to handleInput.
      * 
      * Quit the code from handleInput as soon as possible, assume the REPL will close after this.
+     * @throws InterruptedException 
      */
     protected void terminateRequested() {
         language.terminateRequested();
