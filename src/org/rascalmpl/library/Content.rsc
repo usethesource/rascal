@@ -106,6 +106,12 @@ Response response(Status status, str explanation) = response(status, "text/plain
 
 @doc{
 .Synopsis
+Utility to quickly make a plaintext response.
+}
+Response plain(str text) = response(ok(), "text/plain", (), text);
+
+@doc{
+.Synopsis
 Utility to serve a file from any source location.
 }
 Response response(loc f)                          = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
