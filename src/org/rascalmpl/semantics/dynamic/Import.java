@@ -845,7 +845,7 @@ private static boolean isDeprecated(Module preModule){
         if (constructor instanceof ITree) {
             return visitTreeAppl((ITree) constructor);
         }
-        if ("MyList".equals(constructor.getType().getName())) {
+        if ("SepList".equals(constructor.getType().getName())) {
             IList oldElts = ((IList) constructor.get("elts"));
             IList newElts = oldElts.stream().map(it -> visitConstructor((IConstructor) it)).collect(vf.listWriter());
             return constructor.set(0, newElts);
