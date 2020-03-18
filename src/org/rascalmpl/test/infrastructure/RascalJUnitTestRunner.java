@@ -65,7 +65,7 @@ public class RascalJUnitTestRunner extends Runner {
 
         stderr = new PrintWriter(System.err, true);
         stdout = new PrintWriter(System.out);
-        evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+        evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, stderr, stdout,  root, heap);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
         evaluator.getConfiguration().setErrors(true);
     }  

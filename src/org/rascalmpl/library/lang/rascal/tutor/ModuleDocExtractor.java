@@ -29,7 +29,7 @@ public class ModuleDocExtractor {
     private final IValueFactory vf = IRascalValueFactory.getInstance();
     private final GlobalEnvironment heap = new GlobalEnvironment();
     private final ModuleEnvironment top = new ModuleEnvironment("***module extractor***", heap);
-    private final Evaluator eval = new Evaluator(vf, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
+    private final Evaluator eval = new Evaluator(vf, System.in, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
 
     public ModuleDocExtractor() {
         eval.addRascalSearchPath(URIUtil.rootLocation("std"));

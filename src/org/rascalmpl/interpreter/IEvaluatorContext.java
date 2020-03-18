@@ -17,6 +17,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Stack;
@@ -42,6 +43,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	/** for standard IO */
 	public PrintWriter getStdOut();
 	public PrintWriter getStdErr();
+	public InputStream getInput();
 	
 	/** for "internal use" */
 	public IEvaluator<Result<IValue>> getEvaluator();

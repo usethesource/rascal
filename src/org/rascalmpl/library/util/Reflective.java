@@ -115,7 +115,7 @@ public class Reflective {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
+		Evaluator evaluator = new Evaluator(vf, System.in, stderr, stdout, root, heap);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		evaluator.setMonitor(new ConsoleRascalMonitor());
 		return evaluator;
@@ -249,7 +249,7 @@ public class Reflective {
 			
 			GlobalEnvironment heap = new GlobalEnvironment();
 			ModuleEnvironment root = heap.addModule(new ModuleEnvironment("$parser$", heap));
-			cachedEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
+			cachedEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getInput(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
 			
 			// Update the classpath so it is the same as in the context interpreter.
 			cachedEvaluator.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
