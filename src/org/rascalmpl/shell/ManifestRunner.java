@@ -1,11 +1,9 @@
 package org.rascalmpl.shell;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.io.StandardTextWriter;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -13,15 +11,19 @@ import org.rascalmpl.interpreter.staticErrors.CommandlineError;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIUtil;
 
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.StandardTextWriter;
+
 public class ManifestRunner implements ShellRunner {
     private final RascalManifest mf;
     private final Evaluator eval;
 
 
-    public ManifestRunner(RascalManifest mf, PrintWriter stdout, PrintWriter stderr) {
+    public ManifestRunner(RascalManifest mf, InputStream input, PrintWriter stdout, PrintWriter stderr) {
         assert mf.hasManifest(ManifestRunner.class);
         this.mf = mf;
-        this.eval = ShellEvaluatorFactory.getDefaultEvaluator(stdout, stderr);
+        this.eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
         addExtraSourceFolders();
     } 
 

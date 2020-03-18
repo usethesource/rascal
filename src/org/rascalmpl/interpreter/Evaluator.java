@@ -22,6 +22,7 @@ package org.rascalmpl.interpreter;
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
@@ -163,8 +164,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     private final PrintWriter defStderr;
     private final PrintWriter defStdout;
+    private final InputStream defInput;
+    
     private PrintWriter curStderr = null;
     private PrintWriter curStdout = null;
+    private InputStream curInput = null;
 
     /**
      * Probably not sharable
@@ -187,13 +191,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private final URIResolverRegistry resolverRegistry; // sharable
 
     private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // TODO: can this be shared?
+    
     private static final Object dummy = new Object();	
 
-    public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-        this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    public Evaluator(IValueFactory f, InputStream input, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
     }
 
-    public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
+    public Evaluator(IValueFactory vf, InputStream input, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
         super();
 
         this.vf = vf;
@@ -206,6 +211,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.javaBridge = new JavaBridge(classLoaders, vf, config);
         this.rascalPathResolver = rascalPathResolver;
         this.resolverRegistry = rascalPathResolver.getRegistry();
+        this.defInput = input;
         this.defStderr = stderr;
         this.defStdout = stdout;
         this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>();
@@ -244,6 +250,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.resolverRegistry = source.resolverRegistry;
         this.defStderr = source.defStderr;
         this.defStdout = source.defStdout;
+        this.defInput = source.defInput;
         this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>(source.constructorDeclaredListeners);
         this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>(source.suspendTriggerListeners);
 
@@ -356,6 +363,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return curStdout == null ? defStdout : curStdout;
     }
 
+    @Override
+    public InputStream getInput() {
+        return curInput == null ? defInput : curInput;
+        
+    }
     @Override	
     public TypeDeclarationEvaluator __getTypeDeclarator() {
         return typeDeclarator;
@@ -1541,14 +1553,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return new NullRascalMonitor();
     }
 
-    public void overrideDefaultWriters(PrintWriter newStdOut, PrintWriter newStdErr) {
+    public void overrideDefaultWriters(InputStream newInput, PrintWriter newStdOut, PrintWriter newStdErr) {
         this.curStdout = newStdOut;
         this.curStderr = newStdErr;
+        this.curInput = newInput;
     }
 
     public void revertToDefaultWriters() {
         this.curStderr = null;
         this.curStdout = null;
+        this.curInput = null;
     }
 
     public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {

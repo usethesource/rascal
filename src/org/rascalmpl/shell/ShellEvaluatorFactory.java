@@ -2,6 +2,7 @@ package org.rascalmpl.shell;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 
@@ -25,11 +26,11 @@ import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
 
-    public static Evaluator getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {
+    public static Evaluator getDefaultEvaluator(InputStream input, PrintWriter stdout, PrintWriter stderr) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, stderr, stdout, root, heap);
+        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
         evaluator.setMonitor(new ConsoleRascalMonitor());

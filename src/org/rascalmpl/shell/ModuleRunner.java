@@ -1,19 +1,21 @@
 package org.rascalmpl.shell;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.io.StandardTextWriter;
 import org.rascalmpl.interpreter.Evaluator;
+
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class ModuleRunner implements ShellRunner {
 
   private final Evaluator eval;
 
-  public ModuleRunner(PrintWriter stdout, PrintWriter stderr) {
-    eval = ShellEvaluatorFactory.getDefaultEvaluator(stdout, stderr);
+  public ModuleRunner(InputStream input, PrintWriter stdout, PrintWriter stderr) {
+    eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
   }
 
   @Override

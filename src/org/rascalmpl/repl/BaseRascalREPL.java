@@ -286,6 +286,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
 
     public abstract PrintWriter getErrorWriter();
     public abstract PrintWriter getOutputWriter();
+    public abstract InputStream getInput();
 
     public abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
 

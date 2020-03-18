@@ -81,17 +81,22 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    public void initialize(Writer stdout, Writer stderr) {
-        eval = constructEvaluator(stdout, stderr);
+    public void initialize(InputStream input, Writer stdout, Writer stderr) {
+        eval = constructEvaluator(input, stdout, stderr);
     }
 
-    protected abstract Evaluator constructEvaluator(Writer stdout, Writer stderr);
+    protected abstract Evaluator constructEvaluator(InputStream input, Writer stdout, Writer stderr);
 
     @Override
     public PrintWriter getErrorWriter() {
         return eval.getStdErr();
     }
 
+    @Override
+    public InputStream getInput() {
+        return eval.getInput();
+    }
+    
     @Override
     public PrintWriter getOutputWriter() {
         return eval.getStdOut();

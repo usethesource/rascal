@@ -63,7 +63,7 @@ public class RascalShell  {
         try {
             ShellRunner runner; 
             if (mf.hasManifest(RascalShell.class) && mf.hasMainModule(RascalShell.class)) {
-                runner = new ManifestRunner(mf, new PrintWriter(System.out), new PrintWriter(System.err, true));
+                runner = new ManifestRunner(mf, System.in, new PrintWriter(System.out), new PrintWriter(System.err, true));
             } 
             else if (args.length > 0) {            	
             	if (args[0].equals("--help")) {
@@ -73,7 +73,7 @@ public class RascalShell  {
                     return;
                 }
                 else {
-                    runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err, true));
+                    runner = new ModuleRunner(System.in, new PrintWriter(System.out), new PrintWriter(System.err, true));
                 }
             } 
             else {

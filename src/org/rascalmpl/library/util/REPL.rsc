@@ -21,3 +21,13 @@ data REPL
 @javaClass{org.rascalmpl.library.util.TermREPL}
 @reflect
 java void startREPL(REPL repl);
+
+REPL testRepl() = repl("Test REPL", "Hello Rascal!", "twice\>", |home:///.test-repl-history|,
+  CommandResult (str line) {
+    return commandResult(line + line);
+  },
+  
+  Completion(str _, int _) {
+    return <0, ["suggestion"]>;
+  }
+);
