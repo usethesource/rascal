@@ -311,6 +311,18 @@ bool isLexicallyLess1(int _){
     return report(l1, l2, isLexicallyLess(l1, l2));
 }
 
+test bool isSameFile1(){
+    l = |C:///a|;
+    r = |C:///a#1|;
+    return isSameFile(l, r);
+}
+
+test bool isSameFile2(){
+    l = |C:///a|;
+    r = |C:///b#1|;
+    return !isSameFile(l, r);
+}
+
 // isContainedIn
 
 test bool isContainedIn1(int f, int len){
