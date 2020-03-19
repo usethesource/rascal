@@ -31,26 +31,13 @@ import Exception;
 
 @doc{
 .Synopsis
-Get the path of a location with eventual fragment removed.
-
-.Description
-Return the path of a location. When the path contains a fragment (starting with `#`), it is first removed.
-
-.Pittfalls
-If a query part (starting with `?`) is present, it is return as part of the path.
-}
-str pathWithoutFragment(loc l){
-    p = l.top.path;
-    n = findFirst(p, "#");
-    return n > 0 ? p[n..] : p;
-}
-
-@doc{
-.Synopsis
 Check that two locations refer to the same file.
 }
 bool isSameFile(loc l, loc r)
-    = pathWithoutFragment(l.top) == pathWithoutFragment(r.top);
+    =    l.scheme == r.scheme 
+      && l.authority == r.authority
+      && l.top[fragment=""] == r.top[fragment=""]
+    ;
     
 @doc{
 .Synopsis
