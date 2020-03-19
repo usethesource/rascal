@@ -132,7 +132,7 @@ public class IO {
             if (atts.getLength() > 0 || seenNamespaces != null) {
                 newAttrs = new HashMap<>(atts.getLength());
                 for (int a = 0; a < atts.getLength(); a++) {
-                    newAttrs.put(fullyQualify ? atts.getQName(a) : atts.getLocalName(a), vf.string(atts.getValue(a)));
+                    newAttrs.put(fullyQualify ? fixColonSyntax(atts.getQName(a)) : atts.getLocalName(a), vf.string(atts.getValue(a)));
                 }
                 if (seenNamespaces != null) {
                     newAttrs.put("xmlns", seenNamespaces.done());
@@ -146,7 +146,7 @@ public class IO {
         public void endElement(String uri, String localName, String qName) throws SAXException {
             IListWriter children = vf.listWriter();
             children.appendAll(stack.pop());
-            stack.peek().add(vf.node( fullyQualify ? qName : localName, new IValue[]{ children.done() }, attributes.pop()));
+            stack.peek().add(vf.node( fullyQualify ? fixColonSyntax(qName) : localName, new IValue[]{ children.done() }, attributes.pop()));
         }
 
         @Override
@@ -190,6 +190,10 @@ public class IO {
 
         @Override
         public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+        }
+        
+        private String fixColonSyntax(String qName) {
+            return qName.replaceAll(":", "-");
         }
     }
 }
