@@ -32,11 +32,11 @@ import Exception;
 @doc{
 .Synopsis
 Check that two locations refer to the same file.
-}
+}    
 bool isSameFile(loc l, loc r)
-    =    l.scheme == r.scheme 
-      && l.authority == r.authority
-      && l.top[fragment=""] == r.top[fragment=""]
+    = (isEmpty(l.fragment) ? l.top : l.top[fragment=""])
+      == 
+      (isEmpty(r.fragment) ? r.top : r.top[fragment=""])
     ;
     
 @doc{
