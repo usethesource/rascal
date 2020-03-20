@@ -2,7 +2,7 @@ package org.rascalmpl.shell;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
@@ -20,7 +20,7 @@ public class ManifestRunner implements ShellRunner {
     private final Evaluator eval;
 
 
-    public ManifestRunner(RascalManifest mf, InputStream input, PrintWriter stdout, PrintWriter stderr) {
+    public ManifestRunner(RascalManifest mf, InputStream input, OutputStream stdout, OutputStream stderr) {
         assert mf.hasManifest(ManifestRunner.class);
         this.mf = mf;
         this.eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
@@ -49,8 +49,8 @@ public class ManifestRunner implements ShellRunner {
             if (v.getType().isInteger()) {
                 System.exit(((IInteger) v).intValue());
             } else {
-                new StandardTextWriter(true).write(v, eval.getStdOut());
-                eval.getStdOut().flush();
+                new StandardTextWriter(true).write(v, eval.getOutPrinter());
+                eval.getOutPrinter().flush();
                 System.exit(0);
             }
         } catch (CommandlineError e) {

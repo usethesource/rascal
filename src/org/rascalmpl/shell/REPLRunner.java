@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Map;
 
@@ -32,19 +30,19 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
         return historyFile;
     }
 
-  public REPLRunner(InputStream stdin, OutputStream stdout, Terminal term)  throws IOException, URISyntaxException{
-    super(makeInterpreter(stdin, stdout, true, term.isAnsiSupported(), false, getHistoryFile(), term), null, stdin, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, null);
+  public REPLRunner(InputStream stdin, OutputStream stderr, OutputStream stdout, Terminal term)  throws IOException, URISyntaxException{
+    super(makeInterpreter(stdin, stderr, stdout, true, term.isAnsiSupported(), false, getHistoryFile(), term), null, stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, null);
   }
   
   public REPLRunner(ILanguageProtocol language)  throws IOException, URISyntaxException{
-      super(language, null, null, null, true, true, new File(""), null, null);
+      super(language, null, null, null, null, true, true, new File(""), null, null);
   }
 
-  private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory, Terminal terminal) throws IOException, URISyntaxException {
-    RascalInterpreterREPL repl = new RascalInterpreterREPL(stdin, stdout, prettyPrompt, allowColors, htmlOutput, getHistoryFile()) {
+  private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stderr, OutputStream stdout, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory, Terminal terminal) throws IOException, URISyntaxException {
+    RascalInterpreterREPL repl = new RascalInterpreterREPL(prettyPrompt, allowColors, htmlOutput, getHistoryFile()) {
         @Override
-        protected Evaluator constructEvaluator(InputStream input, Writer stdout, Writer stderr) {
-            return ShellEvaluatorFactory.getDefaultEvaluator(input, new PrintWriter(stdout), new PrintWriter(stderr));
+        protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
+            return ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
         }
 
         @Override

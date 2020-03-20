@@ -11,7 +11,7 @@
 package org.rascalmpl.interpreter;
 
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -61,7 +61,7 @@ public class JavaToRascal {
 		return evaluator;
 	}
 
-	public JavaToRascal(InputStream input, PrintWriter stdout, PrintWriter stderr) {
+	public JavaToRascal(InputStream input, OutputStream stdout, OutputStream stderr) {
 		this.evaluator = new Evaluator(vf, input, stderr, stdout,
 				new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap);
 	}

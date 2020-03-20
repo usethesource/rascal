@@ -16,7 +16,7 @@ package org.rascalmpl.parser;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -49,7 +49,7 @@ public class ParserGenerator {
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
 
-	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
+	public ParserGenerator(IRascalMonitor monitor, OutputStream out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("$parsergenerator$", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, out, out, scope,heap);
@@ -210,7 +210,7 @@ public class ParserGenerator {
 			monitor.endJob(true);
 			if (profiler != null) {
 				profiler.pleaseStop();
-				evaluator.getStdOut().println("PROFILE:");
+				evaluator.getOutPrinter().println("PROFILE:");
 				profiler.report();
 				profiler = null;
 			}
