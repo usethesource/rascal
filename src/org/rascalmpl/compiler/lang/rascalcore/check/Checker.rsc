@@ -164,7 +164,7 @@ public PathConfig getRascalCorePathConfig() {
    npc += 1;
    snpc = "<npc>";
    return pathConfig(   
-        srcs = [//|project://rascal/src/org/rascalmpl/library|, 
+        srcs = [|project://rascal/src/org/rascalmpl/library|, 
                 |project://rascal-core/src/org/rascalmpl/core/library|,
                 |project://rascal_eclipse/src/org/rascalmpl/eclipse/library|
                ], 

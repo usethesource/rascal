@@ -1,12 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst3
-
 data Tree1
-  = node1(Tree1 l) | leaf();
-       
-                        
-value foo(Tree1 l) {
-  if (node1(l1) := l){
-    return l1 := l1;
+  = nd(value v)
+  | lf()
+  ;
+bool foo(Tree1 l, Tree1 r) {
+  if (nd(v1) := l && nd(v2) := r) {
+    return v1 := v2;
   }
   return false;
 }
