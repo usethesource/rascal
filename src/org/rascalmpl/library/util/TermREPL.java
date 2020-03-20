@@ -15,7 +15,6 @@ import java.util.Map;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
@@ -48,10 +47,10 @@ public class TermREPL {
         this.vf = vf;
     }
 
-    public void startREPL(IConstructor repl, IString title, IString welcome, IString prompt,
+    public void startREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
         ISourceLocation history, IValue handler, IValue completor, IValue stacktrace, IEvaluatorContext ctx) {
         try {
-            lang = new TheREPL(vf, title, welcome, prompt, history, handler, completor, stacktrace, ctx.getInput(), ctx.getStdErr(), ctx.getStdOut());
+            lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, ctx.getInput(), ctx.getStdErr(), ctx.getStdOut());
             new BaseREPL(lang, null, ctx.getInput(), System.out, true, true, history , TerminalFactory.get(), null).run();
         } catch (Throwable e) {
             e.printStackTrace(ctx.getStdErr());
@@ -64,12 +63,13 @@ public class TermREPL {
         private PrintWriter stderr;
         private InputStream input;
         private String currentPrompt;
+        private String quit;
         private final ICallableValue handler;
         private final ICallableValue completor;
         private final IValueFactory vf;
         private final ICallableValue stacktrace;
         
-        public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, ISourceLocation history,
+        public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
             IValue handler, IValue completor, IValue stacktrace, InputStream input, PrintWriter stderr, PrintWriter stdout) {
             this.vf = vf;
             this.input = input;
@@ -79,6 +79,7 @@ public class TermREPL {
             this.completor = (ICallableValue) completor;
             this.stacktrace = (ICallableValue) stacktrace;
             this.currentPrompt = prompt.getValue();
+            this.quit = quit.getValue();
         }
 
         @Override
@@ -123,6 +124,9 @@ public class TermREPL {
                 this.stderr.println(ReadEvalPrintDialogMessages.CANCELLED);
                 return;
             } 
+            else if (line.trim().equals(quit)) {
+                throw new InterruptedException(quit);
+            }
             else {
                 try {
                     handler.getEval().__setInterrupt(false);
@@ -137,14 +141,6 @@ public class TermREPL {
                             break;
                         case "jsonResponse":
                             handleJSONResponse(output, response);
-                    }
-                }
-                catch (Throw e) {
-                    if (e.getException().toString().equals("interrupt()")) {
-                        throw new InterruptedException();
-                    }
-                    else {
-                        throw e;
                     }
                 }
                 catch (IOException e) {
