@@ -15,7 +15,6 @@
 package org.rascalmpl.shell;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
@@ -63,7 +62,7 @@ public class RascalShell  {
         try {
             ShellRunner runner; 
             if (mf.hasManifest(RascalShell.class) && mf.hasMainModule(RascalShell.class)) {
-                runner = new ManifestRunner(mf, System.in, new PrintWriter(System.out), new PrintWriter(System.err, true));
+                runner = new ManifestRunner(mf, System.in, System.out, System.err);
             } 
             else if (args.length > 0) {            	
             	if (args[0].equals("--help")) {
@@ -73,7 +72,7 @@ public class RascalShell  {
                     return;
                 }
                 else {
-                    runner = new ModuleRunner(System.in, new PrintWriter(System.out), new PrintWriter(System.err, true));
+                    runner = new ModuleRunner(System.in, System.out, System.err);
                 }
             } 
             else {
@@ -89,7 +88,7 @@ public class RascalShell  {
                     }
                     term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
                 }
-                runner = new REPLRunner(System.in, System.out, term);
+                runner = new REPLRunner(System.in, System.err, System.out, term);
             }
             runner.run(args);
 

@@ -859,7 +859,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void print(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
+		PrintWriter currentOutStream = eval.getOutPrinter();
 		
 		try{
 			if(arg.getType().isString()){
@@ -886,7 +886,7 @@ public class Prelude {
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprint(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
-		Writer output = eval.getStdOut();
+		Writer output = eval.getOutPrinter();
 		if (lineLimit.signum() > 0) {
 		    output = new LimitedLineWriter(output, lineLimit.longValue());
 		}
@@ -901,7 +901,7 @@ public class Prelude {
 			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
 		}
 		finally {
-		    if (output != eval.getStdOut()) {
+		    if (output != eval.getOutPrinter()) {
 		        try {
 		            output.flush();
                     output.close();
@@ -909,7 +909,7 @@ public class Prelude {
                 catch (IOException e) {
                 }
 		    }
-			eval.getStdOut().flush();
+			eval.getOutPrinter().flush();
 		}
 	}
 	
@@ -929,19 +929,19 @@ public class Prelude {
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintln(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
 	    iprint(arg, lineLimit, eval);
-	    eval.getStdOut().println();
-	    eval.getStdOut().flush();
+	    eval.getOutPrinter().println();
+	    eval.getOutPrinter().flush();
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IEvaluatorContext eval) {
-		eval.getStdOut().println();
-		eval.getStdOut().flush();
+		eval.getOutPrinter().println();
+		eval.getOutPrinter().flush();
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
+		PrintWriter currentOutStream = eval.getOutPrinter();
 		
 		try{
 			if(arg.getType().isString()){
@@ -968,7 +968,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprintln(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
+		PrintWriter currentOutStream = eval.getOutPrinter();
 		
 		try {
 			currentOutStream.print(arg.toString());
@@ -981,7 +981,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprint(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
+		PrintWriter currentOutStream = eval.getOutPrinter();
 		
 		try {
 			currentOutStream.print(arg.toString());

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -37,10 +36,14 @@ import jline.internal.ShutdownHooks.Task;
 
 public class BaseREPL {
     protected final ConsoleReader reader;
-    private final OutputStream originalStdOut;
+    protected final OutputStream originalStdOut;
+    protected final OutputStream stderr;
+    
+    protected final Writer errorWriter;
+    
     protected final boolean prettyPrompt;
     protected final boolean allowColors;
-    protected final Writer stdErr;
+   
     protected volatile boolean keepRunning = true;
     private volatile Task historyFlusher = null;
     private volatile PersistentHistory history = null;
@@ -53,17 +56,17 @@ public class BaseREPL {
     private static byte STACK_TRACE = (byte)ctrl('\\'); 
 
 
-    public BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
-        this(language, pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal, ideServices);
+    public BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stderr, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
+        this(language, pcfg, stdin, stderr, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal, ideServices);
     }
 
-    public BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
-        this(language, pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal, ideServices);
+    public BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stderr, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
+        this(language, pcfg, stdin, stderr, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal, ideServices);
     }
-
    
-    private BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
+    private BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stderr, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
         this.originalStdOut = stdout;
+        this.stderr = stderr;
         this.language = language;
         
         if (!(stdin instanceof NotifieableInputStream) && !(stdin.getClass().getCanonicalName().contains("jline"))) {
@@ -88,15 +91,15 @@ public class BaseREPL {
         this.prettyPrompt = prettyPrompt;
         this.allowColors = allowColors;
         if (prettyPrompt && allowColors) {
-            this.stdErr = new RedErrorWriter(reader.getOutput());
+            this.errorWriter = new RedErrorWriter(reader.getOutput());
         }
         else if (prettyPrompt) {
-            this.stdErr = new ItalicErrorWriter(reader.getOutput());
+            this.errorWriter = new ItalicErrorWriter(reader.getOutput());
         }
         else {
-            this.stdErr = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
+            this.errorWriter = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
         }
-        initialize(stdin, reader.getOutput(), stdErr);
+        initialize(stdin, stdout /*JURGEN LET OP reader.getOutput()*/, stderr);
         if (supportsCompletion()) {
             reader.addCompleter(new Completer(){
                 @Override
@@ -140,7 +143,7 @@ public class BaseREPL {
      * @throws IOException 
      * @throws URISyntaxException 
      */
-    protected void initialize(InputStream input, Writer stdout, Writer stderr) throws IOException, URISyntaxException {
+    protected void initialize(InputStream input, OutputStream stdout, OutputStream stderr) throws IOException, URISyntaxException {
         language.initialize(input, stdout, stderr);
     }
 
@@ -341,7 +344,7 @@ public class BaseREPL {
             // we are closing down, so do nothing, the finally clause will take care of it
         }
         catch (Throwable e) {
-            try (PrintWriter err = new PrintWriter(stdErr, true)) {
+            try (PrintWriter err = new PrintWriter(errorWriter, true)) {
                 err.println("Unexpected (uncaught) exception, closing the REPL: ");
                 if (!err.checkError()) {
                     err.print(e.toString());
@@ -353,7 +356,7 @@ public class BaseREPL {
                 }
                 err.flush();
             }
-            stdErr.flush();
+            errorWriter.flush();
             throw e;
         }
         finally {
@@ -405,9 +408,5 @@ public class BaseREPL {
 
     public InputStream getInput() {
         return reader.getInput();
-    }
-
-    public PrintStream getOutput() {
-        return new PrintStream(originalStdOut);
     }
 }

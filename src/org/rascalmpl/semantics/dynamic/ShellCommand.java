@@ -61,7 +61,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.printHelpMessage(__eval.getStdOut());
+			__eval.printHelpMessage(__eval.getOutPrinter());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}

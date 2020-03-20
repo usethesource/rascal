@@ -107,7 +107,7 @@
                         <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
                     </configuration>
                 </plugin>
-                <plugin>
+                <!--<plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
                     <version>0.2.12</version>
@@ -124,7 +124,7 @@
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/syntax/Java18.rsc</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
                         </srcIgnores>
-                        <enableStandardLibrary>false</enableStandardLibrary><!-- this project contains the standard library source itself -->
+                        <enableStandardLibrary>false</enableStandardLibrary>
                     </configuration>
                     <executions>
                         <execution>
@@ -142,7 +142,7 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
+                </plugin> -->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>

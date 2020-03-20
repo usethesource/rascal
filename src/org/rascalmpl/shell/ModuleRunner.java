@@ -2,7 +2,7 @@ package org.rascalmpl.shell;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 
 import org.rascalmpl.interpreter.Evaluator;
 
@@ -14,7 +14,7 @@ public class ModuleRunner implements ShellRunner {
 
   private final Evaluator eval;
 
-  public ModuleRunner(InputStream input, PrintWriter stdout, PrintWriter stderr) {
+  public ModuleRunner(InputStream input, OutputStream stdout, OutputStream stderr) {
     eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
   }
 
@@ -33,8 +33,8 @@ public class ModuleRunner implements ShellRunner {
     IValue v = eval.main(null, module, "main", realArgs);
 
     if (v != null && !(v instanceof IInteger)) {
-      new StandardTextWriter(true).write(v, eval.getStdOut());
-      eval.getStdOut().flush();
+      new StandardTextWriter(true).write(v, eval.getOutPrinter());
+      eval.getOutPrinter().flush();
     }
 
     System.exit(v instanceof IInteger ? ((IInteger) v).intValue() : 0);

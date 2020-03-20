@@ -4,10 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.Map;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
@@ -51,16 +49,16 @@ public class TermREPL {
         ISourceLocation history, IValue handler, IValue completor, IValue stacktrace, IEvaluatorContext ctx) {
         try {
             lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, ctx.getInput(), ctx.getStdErr(), ctx.getStdOut());
-            new BaseREPL(lang, null, ctx.getInput(), System.out, true, true, history , TerminalFactory.get(), null).run();
+            new BaseREPL(lang, null, ctx.getInput(), ctx.getStdErr(), ctx.getStdOut(), true, true, history, TerminalFactory.get(), null).run();
         } catch (Throwable e) {
-            e.printStackTrace(ctx.getStdErr());
+            e.printStackTrace(ctx.getErrorPrinter());
         }
     }
 
     public static class TheREPL implements ILanguageProtocol {
         private final TypeFactory tf = TypeFactory.getInstance();
-        private PrintWriter stdout;
-        private PrintWriter stderr;
+        private OutputStream stdout;
+        private OutputStream stderr;
         private InputStream input;
         private String currentPrompt;
         private String quit;
@@ -70,11 +68,11 @@ public class TermREPL {
         private final ICallableValue stacktrace;
         
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
-            IValue handler, IValue completor, IValue stacktrace, InputStream input, PrintWriter stderr, PrintWriter stdout) {
+            IValue handler, IValue completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
             this.vf = vf;
             this.input = input;
-            this.stderr = new PrintWriter(stderr);
-            this.stdout = new PrintWriter(stdout);
+            this.stderr = stderr;
+            this.stdout = stdout;
             this.handler = (ICallableValue) handler;
             this.completor = (ICallableValue) completor;
             this.stacktrace = (ICallableValue) stacktrace;
@@ -104,9 +102,9 @@ public class TermREPL {
         }
 
         @Override
-        public void initialize(InputStream input, Writer stdout, Writer stderr) {
-            this.stdout = new PrintWriter(stdout);
-            this.stderr = new PrintWriter(stderr);
+        public void initialize(InputStream input, OutputStream stdout, OutputStream stderr) {
+            this.stdout = stdout;
+            this.stderr = stderr;
             this.input = input;
         }
 
@@ -118,13 +116,7 @@ public class TermREPL {
         @Override
         public void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
             
-            if (line.trim().length() == 0) {
-                // cancel command
-                // TODO: after doing calling this, the repl gets an unusual behavior, needs to be fixed
-                this.stderr.println(ReadEvalPrintDialogMessages.CANCELLED);
-                return;
-            } 
-            else if (line.trim().equals(quit)) {
+            if (line.trim().equals(quit)) {
                 throw new InterruptedException(quit);
             }
             else {
@@ -208,16 +200,21 @@ public class TermREPL {
         private IValue call(ICallableValue f, Type[] types, IValue[] args) {
             synchronized (f.getEval()) {
                 Evaluator eval = (Evaluator) f.getEval();
-                PrintWriter prevErr = eval.getStdErr();
-                PrintWriter prevOut = eval.getStdOut();
+                OutputStream prevErr = eval.getStdErr();
+                OutputStream prevOut = eval.getStdOut();
                 try {
                     eval.overrideDefaultWriters(input, stdout, stderr);
                     return f.call(types, args, null).getValue();
                 }
                 finally {
-                    stdout.flush();
-                    stderr.flush();
-                    eval.overrideDefaultWriters(eval.getInput(), prevOut, prevErr);
+                    try {
+                        stdout.flush();
+                        stderr.flush();
+                        eval.overrideDefaultWriters(eval.getInput(), prevOut, prevErr);
+                    }
+                    catch (IOException e) {
+                        // ignore
+                    }
                 }
             }
         }

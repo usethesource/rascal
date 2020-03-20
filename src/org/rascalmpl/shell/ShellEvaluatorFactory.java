@@ -3,7 +3,7 @@ package org.rascalmpl.shell;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
@@ -26,7 +26,7 @@ import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
 
-    public static Evaluator getDefaultEvaluator(InputStream input, PrintWriter stdout, PrintWriter stderr) {
+    public static Evaluator getDefaultEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
