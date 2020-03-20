@@ -1,12 +1,17 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+data B = b();
+bool foo(node n) = b() := n;
 
-data D = d1() | d2();
+//import Set;
+//map[&A,list[&B]] foo(rel[&A,&B] r) = (a:sort(r[a]) | a <- r);
 
-value main(){
-    D x = d1();
-    return x is d1;
-}
+//data D = d1() | d2();
+//
+//value main(){
+//    D x = d1();
+//    return x is d1;
+//}
 
 //set[str] f(){
 //    res = {};
