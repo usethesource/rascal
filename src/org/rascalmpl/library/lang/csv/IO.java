@@ -61,18 +61,18 @@ public class IO {
      * Read a CSV file
      */
     public IValue readCSV(ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, IEvaluatorContext ctx){
-        return read(null, loc, header, separator, encoding, printInferredType, ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace);
+        return read(null, loc, header, separator, encoding, printInferredType, ctx.getOutPrinter(), ctx::getCurrentAST, ctx::getStackTrace);
     }
 
     public IValue readCSV(IValue result, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        return read(result, loc, header, separator, encoding, values.bool(false), ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace);
+        return read(result, loc, header, separator, encoding, values.bool(false), ctx.getOutPrinter(), ctx::getCurrentAST, ctx::getStackTrace);
     }
 
     /*
      * Calculate the type of a CSV file, returned as the string 
      */
     public IValue getCSVType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
-        return computeType(loc, header, separator, encoding, ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace, (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done()));
+        return computeType(loc, header, separator, encoding, ctx.getOutPrinter(), ctx::getCurrentAST, ctx::getStackTrace, (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done()));
     }
 
     /*

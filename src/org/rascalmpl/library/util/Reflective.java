@@ -13,8 +13,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -111,7 +113,7 @@ public class Reflective {
         }
     }
 	
-	IEvaluator<?> getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {
+	IEvaluator<?> getDefaultEvaluator(OutputStream stdout, OutputStream stderr) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -123,10 +125,10 @@ public class Reflective {
     
     
 	public IList evalCommands(IList commands, ISourceLocation loc, IEvaluatorContext ctx) {
-		StringWriter out = new StringWriter();
-		StringWriter err = new StringWriter();
+	    OutputStream out = new ByteArrayOutputStream();
+	    OutputStream err = new ByteArrayOutputStream();
 		IListWriter result = values.listWriter();
-		IEvaluator<?> evaluator = getDefaultEvaluator(new PrintWriter(out), new PrintWriter(err));
+		IEvaluator<?> evaluator = getDefaultEvaluator(out, err);
 		int outOffset = 0;
 		int errOffset = 0;
 		
@@ -138,15 +140,15 @@ public class Reflective {
 				x = evaluator.eval(evaluator.getMonitor(), ((IString)v).getValue(), loc);
 			}
 			catch (Throwable e) {
-				errOut = err.getBuffer().substring(errOffset);
+				errOut = err.toString().substring(errOffset);
 				errOffset += errOut.length();
 				errOut += e.getMessage();
 				exc = true;
 			}
-			String output = out.getBuffer().substring(outOffset);
+			String output = out.toString().substring(outOffset);
 			outOffset += output.length();
 			if (!exc) {
-				errOut += err.getBuffer().substring(errOffset);
+				errOut += err.toString().substring(errOffset);
 				errOffset += errOut.length();
 			}
 			String s;

@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -42,16 +39,16 @@ public class TutorCommandExecutor {
         shellHTMLOutput = new ByteArrayOutputStream();
         shellInputNotUsed = new ByteArrayInputStream("***this inputstream should not be used***".getBytes());
 
-        repl = new RascalInterpreterREPL(null, shellStandardOutput, false, false, false, null) {
+        repl = new RascalInterpreterREPL(false, false, false, null) {
             @Override
-            protected Evaluator constructEvaluator(InputStream input, Writer stdout, Writer stderr) {
-                Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, new PrintWriter(stdout), new PrintWriter(stderr));
+            protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
+                Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
                 eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
                 return eval;
             }
         };
 
-        repl.initialize(shellInputNotUsed, new OutputStreamWriter(shellStandardOutput, "utf8"), new OutputStreamWriter(shellErrorOutput, StandardCharsets.UTF_8.name()));
+        repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput);
         repl.setMeasureCommandTime(false); 
     }
 

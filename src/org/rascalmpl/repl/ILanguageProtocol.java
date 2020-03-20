@@ -13,7 +13,7 @@
 package org.rascalmpl.repl;
 
 import java.io.InputStream;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.util.Map;
 
 
@@ -24,7 +24,7 @@ public interface ILanguageProtocol {
      * @param stdout the output stream to write normal output to.
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
      */
-    void initialize(InputStream input, Writer stdout, Writer stderr);
+    void initialize(InputStream input, OutputStream stdout, OutputStream stderr);
 
     /**
      * Will be called everytime a new prompt is printed.

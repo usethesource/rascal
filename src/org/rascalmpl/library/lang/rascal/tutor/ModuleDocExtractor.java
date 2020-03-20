@@ -12,8 +12,6 @@
  */ 
 package org.rascalmpl.library.lang.rascal.tutor;
 
-import java.io.PrintWriter;
-
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -29,7 +27,7 @@ public class ModuleDocExtractor {
     private final IValueFactory vf = IRascalValueFactory.getInstance();
     private final GlobalEnvironment heap = new GlobalEnvironment();
     private final ModuleEnvironment top = new ModuleEnvironment("***module extractor***", heap);
-    private final Evaluator eval = new Evaluator(vf, System.in, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
+    private final Evaluator eval = new Evaluator(vf, System.in, System.err, System.out, top, heap);
 
     public ModuleDocExtractor() {
         eval.addRascalSearchPath(URIUtil.rootLocation("std"));

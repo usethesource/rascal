@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.checker;
 
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,13 +25,14 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
 
 public class StaticChecker {
 	private final Evaluator eval;
@@ -41,7 +42,7 @@ public class StaticChecker {
 	private boolean loaded;
     private Type pathConfigConstructor = null;
 	
-	public StaticChecker(PrintWriter stderr, PrintWriter stdout) {
+	public StaticChecker(OutputStream stderr, OutputStream stdout) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("$staticchecker$", heap));
 		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, stderr, stdout, root, heap);
