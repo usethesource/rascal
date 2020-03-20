@@ -36,18 +36,22 @@ public class REPLContentServerManager {
     }
     
     public REPLContentServer addServer(String id, Function<IValue, IValue> target) throws IOException {
-        REPLContentServer oldServer = servers.get(id, (i) -> null);
-        
-        if (oldServer != null) {
-            servers.invalidate(oldServer);
+        try {
+            REPLContentServer oldServer = servers.get(id, (i) -> null);
+            
+            if (oldServer != null) {
+                oldServer.updateCallback(target);
+                return oldServer;
+            }
+            else {
+                REPLContentServer newServer = startContentServer(target);
+                servers.put(id, newServer);
+                return newServer;
+            }
         }
-        
-        collectDeadServers();
-        
-        REPLContentServer newServer = startContentServer(target);
-        servers.put(id, newServer);
-        
-        return newServer;
+        finally {
+            collectDeadServers();
+        }
     }
     
     private void collectDeadServers() {
