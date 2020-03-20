@@ -161,7 +161,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         // or we have output wrapped in a content wrapper:
         if (result.getType().isSubtypeOf(RascalValueFactory.Content)) {
             serveContent(result, output, metadata);
-            output.put("text/plain", stringStream("content displayed\n"));
+            output.put(mimeType, stringStream("ok\n"));
             return;
         }
        
@@ -202,7 +202,9 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         
         // now we need some HTML to show
         Response response = server.serve("/", Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-        metadata.put("url", "http://localhost:" + server.getListeningPort() + "/");
+        String URL = "http://localhost:" + server.getListeningPort() + "/";
+        metadata.put("url", URL);
+        getOutputWriter().println("Serving visual content at |" + URL + "|");
         output.put(response.getMimeType(), response.getData());
     }            
         
