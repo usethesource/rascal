@@ -107,7 +107,7 @@
                         <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
                     </configuration>
                 </plugin>
-                <!--<plugin>
+                <plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
                     <version>0.2.12</version>
@@ -142,7 +142,7 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin> -->
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
