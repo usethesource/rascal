@@ -438,7 +438,12 @@ void returnRequirement(Tree returnExpr, AType theDeclaredReturnType, Solver s){
     catch invalidMatch(str reason):
           s.report(error(returnExpr, reason));
       
-    actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+    actualReturnType = returnExprType;
+    try {
+        actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+    } catch invalidInstantiation(str reason):{
+        s.report(error(returnExpr, "Returned type %t does not match declared type %t: %v", returnExprType, theDeclaredReturnType, reason));
+    }
 
     if(s.isFullyInstantiated(actualReturnType)){
         s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||

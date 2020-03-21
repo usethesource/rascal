@@ -1,33 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-//value f(&T x){
-//    return [&T _, *&T _] := [x];
-//}
+map[&A,set[&B]] foo(rel[&A,&B] r) = (a:r[a] | a <- r);
 
-&T head({&T h, *&T _}) = h;
- 
-data X = x(int i);
+//rel[&A,&B] foo(lrel[&A,&B] r) { a = r[0]; return {<a,r[a][0]>}; }
 
-int main() {
-  set[X] l = {x(2)};
-  
-  int n = head(l).i;     // computeFieldType: Cannot access fields on type `&T`
-  return n;
-  //println(head2(l).i);  // no error
-}  
-
-//tuple[&A] foo(lrel[&A,&B] r) = r[0];
-
-//rel[&A,list[&B]] foo(lrel[&A,&B] r) = {<a,r[a]> | a <- r};
-
-
-
-//data D = d1() | d2();
-//
-//value main(){
-//    D x = d1();
-//    return x is d1;
-//}
 
 //set[str] f(){
 //    res = {};
