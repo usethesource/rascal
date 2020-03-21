@@ -886,7 +886,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
     if(argument is typedVariable){
        uname = unescape("<argument.name>");
        if(uname == "_"){
-          return subjectType;
+          return s.getType(argument.\type);
        } else {
           inameType = s.getType(argument.name);
           s.fact(argument, inameType);
@@ -902,39 +902,34 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
           }
           s.report(error(current, "Cannot get element type for %t", inameType)); 
        }
-    } if(argument is qualifiedName){
+    }
+    if(argument is qualifiedName){
          argName = argument.qualifiedName;
          base = prettyPrintBaseName(argName);
-         if(base != "_"){
+         if(base == "_"){
+            return subjectType;
+         } else {
            elmType = subjectType;
-           //try {
-               inameType = s.getType(argument.qualifiedName);
-               elmType = avoid();
-               if(isListType(inameType)){
-                    elmType = getListElementType(inameType);
-               } else if(isSetType(inameType)){
-                    elmType = getSetElementType(inameType);
-               } else {
-                s.report(error(argument, "List or set type expected, found %t", inameType));
-               }
-                 
-               if(!s.isFullyInstantiated(elmType) || !s.isFullyInstantiated(subjectType)){
-                  s.requireUnify(elmType, subjectType, error(current, "Type of pattern could not be computed"));
-                  elmType = s.instantiate(elmType);
-                  //s.fact(argName, nameElementType);//<<
-                  s.fact(current, elmType); // <<
-                  subjectType = s.instantiate(elmType);
-               }
-           //} catch TypeUnavailable(): {
-           //     nameElementType = subjectType;
-           //    //s.fact(argName, nameElementType); //<<
-           //    s.fact(current, nameElementType); //<<
-           //}
-           //nameElementType = isListType(nameType) ? getListElementType(nameType) : getSetElementType(nameType);
+           inameType = s.getType(argName);
+           elmType = avoid();
+           if(isListType(inameType)){
+                elmType = getListElementType(inameType);
+           } else if(isSetType(inameType)){
+                elmType = getSetElementType(inameType);
+           } else {
+            s.report(error(argument, "List or set type expected, found %t", inameType));
+           }
+             
+           if(!s.isFullyInstantiated(elmType) || !s.isFullyInstantiated(subjectType)){
+              s.requireUnify(elmType, subjectType, error(current, "Type of pattern could not be computed"));
+              elmType = s.instantiate(elmType);
+              //s.fact(argName, nameElementType);//<<
+              s.fact(current, elmType); // <<
+              subjectType = s.instantiate(elmType);
+           }
            s.requireComparable(elmType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, elmType));
            return elmType;
-        } else
-           return subjectType;
+        }
     } else {
         s.report(error(current, "Unsupported construct in splice pattern"));
         return subjectType;
