@@ -808,6 +808,9 @@ private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver 
 // ---- getPatternType --------------------------------------------------------
 
 AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
+    if(isConstructorType(subjectType)){
+        subjectType = getConstructorResultType(subjectType);
+    }
     tp = getPatternType0(p, subjectType, scope, s);
     s.fact(p, tp);
     return tp;

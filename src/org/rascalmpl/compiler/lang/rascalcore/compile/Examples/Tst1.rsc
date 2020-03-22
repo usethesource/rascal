@@ -1,8 +1,31 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-map[&A,set[&B]] foo(rel[&A,&B] r) = (a:r[a] | a <- r);
+data Use;
+data PathRole;
 
-//rel[&A,&B] foo(lrel[&A,&B] r) { a = r[0]; return {<a,r[a][0]>}; }
+data ReferPath
+    = referToDef(Use use, PathRole pathRole)
+    | referToType(loc occ, loc scope, PathRole pathRole)
+    ;
+    
+void f(){
+  set[ReferPath] referPaths = {};
+  set[str] messages = {};
+  for(rp <- referPaths){
+    switch(rp){
+    case referToDef(_, _):
+        messages += "a";
+    case referToType(_, _, _):
+        messages += "b";
+    }
+  }
+}
+        
+//&L strange(&L <: num arg1, &R <: &L arg2){
+//  return arg2;
+//}
+//
+//value main() = strange(3, "abc");
 
 
 //set[str] f(){
