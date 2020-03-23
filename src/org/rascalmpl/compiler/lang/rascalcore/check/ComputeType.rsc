@@ -1122,7 +1122,7 @@ private AType getPatternType0(current: (Pattern) `( <{Mapping[Pattern] ","}* mps
 
 private AType getPatternType0(current: (Pattern) `type ( <Pattern symbol>, <Pattern definitions> )`, AType subjectType, loc scope, Solver s){
     pats = [symbol, definitions];
-    
+    //TODO: duplicates info from lang::rascalcore::check::Checker
     typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
     SymbolType = aadt("Symbol", [], dataSyntax());
     ProductionType = aadt("Production", [], dataSyntax());
@@ -1130,13 +1130,12 @@ private AType getPatternType0(current: (Pattern) `type ( <Pattern symbol>, <Patt
     definitionsField = amap(SymbolType, ProductionType)[label="definitions"];
     fields = [symbolField, definitionsField];
     return computeADTType(current, "Type", scope, typeType, fields, [], pats, [], [true | int i <- index(fields)], s);
-    //return areified(avalue());
 }
 
 // ---- asType
 
 private AType getPatternType0(current: (Pattern) `[ <Type tp> ] <Pattern p>`, AType subjectType, loc scope, Solver s){
-    retun s.getType(tp);
+    return s.getType(tp);
 }
 
 // ---- anti
