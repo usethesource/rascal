@@ -376,22 +376,23 @@ void collect(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, Collector c
     c.pop(patternContainer);
 }
 
-//TODO: reifiedType
+// ---- reifiedType
 
-void collect(current: (Pattern) `type ( <Pattern s>, <Pattern d> )`, Collector c){
-    collect(s, d, c);
+void collect(current: (Pattern) `type ( <Pattern symbol>, <Pattern definitions> )`, Collector c){
+    c.fact(current, areified(avalue()));
+    c.push(patternContainer, "reified type constructor");
+    collect(symbol, definitions, c);
+    c.pop(patternContainer);
 }
 
 // ---- asType
 void collect(current: (Pattern) `[ <Type tp> ] <Pattern p>`, Collector c){
-    c.calculate("pattern as type", current, [tp], AType(Solver s){ return s.getType(tp); });
-    // TODO:
-    //c.require("pattern as type", current, [p],
-    //    void (Solver s){ expandedType =  expandUserTypes(declaredType, scope, s); ;
-    //        subtype(getType(p), expandedType, onError(p, "Pattern should be subtype of <fmt(expandedType)>, found <fmt(getType(p))>"));
-    //    });
-    
-    collect(tp, p, c);
+    c.fact(current, tp);
+    c.requireComparable(tp, p, error(p, "Pattern should be subtype of %t, found %t", tp, p));
+    collect(tp, c);
+    c.push(patternContainer, "asType");
+    collect(p, c);
+    c.pop(patternContainer);
 }
 
 // ---- anti

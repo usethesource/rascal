@@ -1118,9 +1118,26 @@ private AType getPatternType0(current: (Pattern) `( <{Mapping[Pattern] ","}* mps
     return amap(avoid(),avoid()); // TODO
 }
 
-//TODO: reifiedType
+// ---- reifiedType
+
+private AType getPatternType0(current: (Pattern) `type ( <Pattern symbol>, <Pattern definitions> )`, AType subjectType, loc scope, Solver s){
+    pats = [symbol, definitions];
+    
+    typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+    SymbolType = aadt("Symbol", [], dataSyntax());
+    ProductionType = aadt("Production", [], dataSyntax());
+    symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+    definitionsField = amap(SymbolType, ProductionType)[label="definitions"];
+    fields = [symbolField, definitionsField];
+    return computeADTType(current, "Type", scope, typeType, fields, [], pats, [], [true | int i <- index(fields)], s);
+    //return areified(avalue());
+}
 
 // ---- asType
+
+private AType getPatternType0(current: (Pattern) `[ <Type tp> ] <Pattern p>`, AType subjectType, loc scope, Solver s){
+    retun s.getType(tp);
+}
 
 // ---- anti
 
