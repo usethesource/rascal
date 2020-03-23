@@ -12,7 +12,6 @@
 module lang::rascalcore::check::CollectType
 
 extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeInstantiation;
 import lang::rascalcore::check::BasicRascalConfig;
@@ -26,7 +25,6 @@ import lang::rascalcore::check::NameUtils;
 
 import IO;
 import List;
-//import Map;
 import Node;
 import Set;
 import String;
@@ -108,6 +106,7 @@ public list[&T] dup(list[&T] lst) {
 }
 
 // ---- list
+
 void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     collect(tas, c);
@@ -123,6 +122,7 @@ void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
 }
 
 // ---- set
+
 void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     collect(tas, c);
@@ -152,6 +152,8 @@ void collect(current:(Type)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
         c.report(error(current, "Type `bag` should have one type argument"));
     }
 }
+
+// ---- map
 
 tuple[list[FailMessage] msgs, AType atype] handleMapFields({TypeArg ","}+ tas, AType dt, AType rt){
     if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label != rt.label) { 
@@ -188,6 +190,8 @@ void collect(current:(Type)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
     }
 }
 
+// ---- rel
+
 tuple[list[FailMessage] msgs, AType atype] handleRelFields({TypeArg ","}+ tas, list[AType] fieldTypes){
     labelsList = [tp.label | tp <- fieldTypes];
     nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
@@ -220,6 +224,8 @@ void collect(current:(Type)`rel [ < {TypeArg ","}+ tas > ]`, Collector c){
             });
     }
 }
+
+// ---- lrel
 
 tuple[list[FailMessage] msgs, AType atype] handleListRelFields({TypeArg ","}+ tas, list[AType] fieldTypes){
     labelsList = [tp.label | tp <- fieldTypes];
@@ -254,6 +260,8 @@ void collect(current:(Type)`lrel [ < {TypeArg ","}+ tas > ]`, Collector c){
     }
 }
 
+// ---- tuple
+
 tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas, list[AType] fieldTypes){
     labelsList = [tp.label | tp <- fieldTypes];
     nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
@@ -286,6 +294,8 @@ void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
             });
     }
 } 
+
+// ---- type
 
 tuple[list[FailMessage] msgs, AType atype] handleTypeField({TypeArg ","}+ tas, AType fieldType){  
     if (!isEmpty(fieldType.label)) {
@@ -323,23 +333,6 @@ AType(Solver _) makeGetTypeArg(TypeArg targ)
     
 tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* tas, AType returnType, list[AType] argTypes){  
     return <[], afunc(returnType, argTypes, [])>;
-    //if (size(argTypes) == 0) {
-    //    return <[], afunc(returnType, [], [])>;
-    //} else {
-    //    labelsList = [tp.label | tp <- argTypes];
-    //    nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
-    //    distinctLabels = toSet(nonEmptyLabels);
-    //    if(size(distinctLabels) == 0)
-    //        return <[], afunc(returnType, argTypes, [])>;
-    //    if (size(argTypes) == size(distinctLabels)) {
-    //        return <[], afunc(returnType, argTypes, [])>;
-    //    } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
-    //        return <[error(current, "Non-well-formed type, labels must be distinct")], avoid()>;
-    //    } else if (size(argTypes) > 0) {
-    //        return <[warning(current, "Field name ignored, field names must be provided for all fields or for none")], avoid()>;
-    //    }
-    //}
-    //return returnType;
 }
 
 @doc{Convert Rascal function types into their abstract representation.}
@@ -461,7 +454,8 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
 
 // ---- Sym types -------------------------------------------------------------
 
-// named non-terminals
+// ---- named non-terminals
+
 void collect(current:(Sym) `<Nonterminal n>`, Collector c){
     c.use(n, syntaxRoles);
     c.require("non-parameterized <n>", current, [n],
@@ -514,7 +508,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     collect(symbol, c);
 }
 
-// literals
+// ---- literals
 
 void collect(current:(Sym) `<Class cc>`, Collector c){
     c.fact(current, cc2ranges(cc));
@@ -528,7 +522,7 @@ void collect(current:(Sym) `<CaseInsensitiveStringConstant l>`, Collector c){
     c.fact(current, AType::cilit(unescapeLiteral(l)));
 }
 
-// regular expressions
+// ---- regular expressions
 
 bool isIterSym((Sym) `<Sym symbol>+`) = true;
 bool isIterSym((Sym) `<Sym symbol>*`) = true;
@@ -610,7 +604,7 @@ void collect(current:(Sym) `()`, Collector c){
     c.fact(current, AType::empty());
 }
 
-// conditionals
+// ---- conditionals
 
 void collect(current:(Sym) `<Sym symbol> @ <IntegerLiteral column>`, Collector c){
     c.calculate("column", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\at-column(toInt("<column>")) }); });
