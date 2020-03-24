@@ -17,7 +17,7 @@ int countInLine2(str S){
   // \w matches any word character
   // \W matches any non-word character
   // <...> are groups and should appear at the top level.
-  while (/^\W*<word:\w+><rest:.*$>/ := S) { 
+  while (/^\W*\w+<rest:.*$>/ := S) { 
     count += 1; 
     S = rest; 
   }

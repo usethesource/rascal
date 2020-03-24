@@ -46,7 +46,7 @@ public Graph[str] stateGraph(Controller ctl) =
 
 public StateEnv stateEnv(Controller ctl) = ( n: s | s:state(n, _, _) <- ctl.states);
 
-public map[str,str] eventEnv(Controller ctl) = ( n: t | e:event(n, t) <- ctl.events);
+public map[str,str] eventEnv(Controller ctl) = ( n: t | event(n, t) <- ctl.events);
 
 public map[str,str] commandEnv(Controller ctl) = ( n: t | command(n, t) <- ctl.commands);
 

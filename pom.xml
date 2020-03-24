@@ -3,23 +3,24 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.14.0-SNAPSHOT</version>
+    <version>0.18.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
 
     <!-- deployment configuration (usethesource) -->
     <distributionManagement>
         <repository>
             <id>usethesource-releases</id>
-            <url>http://nexus.usethesource.io/content/repositories/releases/</url>
+            <url>https://nexus.usethesource.io/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>usethesource-snapshots</id>
-            <url>http://nexus.usethesource.io/content/repositories/snapshots/</url>
+            <url>https://nexus.usethesource.io/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -27,13 +28,13 @@
     <repositories>
         <repository>
             <id>usethesource</id>
-            <url>http://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://nexus.usethesource.io/content/repositories/public/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>usethesource</id>
-            <url>http://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://nexus.usethesource.io/content/repositories/public/</url>
         </pluginRepository>
     </pluginRepositories>
 
@@ -99,32 +100,45 @@
                     <version>3.1.0</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
-                    <version>0.0.1-20191016.144107-139</version>
+                    <version>0.2.12</version>
                     <configuration>
+                        <errorsAsWarnings>false</errorsAsWarnings>
                         <bin>${project.build.outputDirectory}</bin>
                         <srcs>
                             <src>${project.basedir}/src/org/rascalmpl/library</src>
                         </srcs>
+                        <sourceLookup>|std:///|</sourceLookup>
                         <srcIgnores>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/demo</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/util/integration</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/util/tasks</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc</ignore>
-                            <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/syntax/Java18.rsc</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
                         </srcIgnores>
-                        <enableStandardLibrary>false</enableStandardLibrary><!-- this project contains the standard library source itself -->
+                        <enableStandardLibrary>false</enableStandardLibrary>
                     </configuration>
                     <executions>
                         <execution>
                             <id>it-compile</id>
                             <phase>compile</phase>
                             <goals>
-                                <goal>compile-rascal</goal>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>it-package</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>package</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -214,7 +228,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.9</version>
+                    <version>0.8.5</version>
                     <executions>
                         <execution>
                             <goals>
@@ -337,7 +351,7 @@
             <dependency>
                 <groupId>io.usethesource</groupId>
                 <artifactId>vallang</artifactId>
-                <version>0.11.0</version>
+                <version>0.11.2</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>

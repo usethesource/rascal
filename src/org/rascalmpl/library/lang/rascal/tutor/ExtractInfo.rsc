@@ -1,9 +1,6 @@
 @bootstrapParser
 module  lang::rascal::tutor::ExtractInfo
 
-import IO;
-import Map;
-import Set;
 import String;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
@@ -29,7 +26,7 @@ list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
 /*                  Process declarations in a module                */
 /********************************************************************/
     
-list[DeclarationInfo] extractTopLevel(str moduleName, t: (Toplevel) `<Declaration decl>`) = extractDecl(moduleName, decl);
+list[DeclarationInfo] extractTopLevel(str moduleName, (Toplevel) `<Declaration decl>`) = extractDecl(moduleName, decl);
 
 // -- variable declaration ------------------------------------------
 
@@ -78,7 +75,7 @@ list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags>
                                        d@\loc, getSynopis(content), content) + infoVariants;
 }
 
-DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg ","}* arguments> <KeywordFormals keywordArguments>)`){
+DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg ","}* _> <KeywordFormals _>)`){
     signature = "<v>";
     return constructorInfo(moduleName, "<name>", "<v>", v@\loc);
 }

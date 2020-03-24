@@ -12,16 +12,15 @@
 module demo::basic::Bubble
 
 import List;
-import IO;
 
 // Variations on Bubble sort
 
 // sort1: uses list indexing and a for-loop
 
-list[int] sort1(list[int] numbers){
-  if(size(numbers) > 0){
-     for(int i <- [0 .. size(numbers)-1]){
-       if(numbers[i] > numbers[i+1]){
+list[int] sort1(list[int] numbers) { 
+  if (size(numbers) > 0) {
+     for (int i <- [0 .. size(numbers)-1]) {
+       if (numbers[i] > numbers[i+1]) {
          <numbers[i], numbers[i+1]> = <numbers[i+1], numbers[i]>;
          return sort1(numbers);
        }
@@ -32,10 +31,10 @@ list[int] sort1(list[int] numbers){
 
 // sort2: uses list matching and switch
 
-list[int] sort2(list[int] numbers){
+list[int] sort2(list[int] numbers) {
   switch(numbers){
     case [*int nums1, int p, int q, *int nums2]:
-       if(p > q){
+       if (p > q) {
           return sort2(nums1 + [q, p] + nums2);
        } else {
        	  fail;
@@ -46,8 +45,8 @@ list[int] sort2(list[int] numbers){
 
 // sort3: uses list matching and while
 
-list[int] sort3(list[int] numbers){
-  while([*int nums1, int p, *int nums2, int q, *int nums3] := numbers && p > q)
+list[int] sort3(list[int] numbers) {
+  while ([*int nums1, int p, *int nums2, int q, *int nums3] := numbers && p > q)
         numbers = nums1 + [q] + nums2 + [p] + nums3;
   return numbers;
 }

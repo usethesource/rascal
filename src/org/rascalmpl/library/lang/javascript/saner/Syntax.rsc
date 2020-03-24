@@ -367,7 +367,7 @@ keyword Reserved =
     "var" |
     "void" |
     "while" |
-    "with"
+    "with" |
     "abstract" |
     "boolean" |
     "byte" |

@@ -24,7 +24,7 @@ test bool concreteMatch202() = (Exp) `1*2` := [Exp] "1*2";
 test bool concreteMatch203() = (Exp) `1 *2` := [Exp] "1* 2";
 test bool concreteMatch204() = (Exp) `1==2` := [Exp] "1==2";
 
-test bool concreteMatch205() =   (Exp) `<Exp e>` := [Exp] "1";
+test bool concreteMatch205() =   (Exp) `<Exp _>` := [Exp] "1";
 
 test bool concreteMatch206() = (Stat) `a:=1` := [Stat] "a:=1";
 test bool concreteMatch207() = (Stat) `<Identifier x> := <Exp e>` := [Stat] "a:=      1" && "<x>" == "a" && "<e>" == "1";
@@ -37,8 +37,8 @@ test bool concreteMatch211() = (Stat) `if <Exp c> then <{Stat ";"}* th> else <Id
 test bool concreteMatch212() = (Stat) `if <Exp c> then a:=1;<{Stat ";"}* th> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi" && "<c>" == "x" && "<th>" == "b:=2" && "<el>" == "c:=3";
 test bool concreteMatch213() = (Stat) `if <Exp c> then a:=1;<{Stat ";"}* th>;b:=2 else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi" && "<c>" == "x" && "<th>" == "" && "<el>" == "c:=3";
 test bool concreteMatch214() = (Stat) `if <Exp c> then a:=1;b:=2;<{Stat ";"}* th> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi" && "<c>" == "x" && "<th>" == "" && "<el>" == "c:=3";
-test bool concreteMatch215() = (Stat) `if <Exp c> then <{Stat ";"}* th1>;a := 1;<{Stat ";"}* th2> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi" && "<th1>" == "" && "<th2>" == "b:=2" && "<el>" == "c:=3";
-test bool concreteMatch216() = (Stat) `if <Exp c> then <{Stat ";"}* th1>;a := 1;<{Stat ";"}* th2>; d := 5 else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2;d:=5 else c:=3 fi" && "<th1>" == "" && "<th2>" == "b:=2" && "<el>" == "c:=3";
+test bool concreteMatch215() = (Stat) `if <Exp _> then <{Stat ";"}* th1>;a := 1;<{Stat ";"}* th2> else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2 else c:=3 fi" && "<th1>" == "" && "<th2>" == "b:=2" && "<el>" == "c:=3";
+test bool concreteMatch216() = (Stat) `if <Exp _> then <{Stat ";"}* th1>;a := 1;<{Stat ";"}* th2>; d := 5 else <{Stat ";"}* el> fi` := [Stat] "if x then a := 1;b:=2;d:=5 else c:=3 fi" && "<th1>" == "" && "<th2>" == "b:=2" && "<el>" == "c:=3";
 
 int sw(value e) {
 	n = 0;

@@ -199,6 +199,15 @@ public class ASTBuilder {
 			}
 			return buildLexicalNode((org.rascalmpl.values.uptr.ITree) ((IList) ((org.rascalmpl.values.uptr.ITree) arg).get("args")).get(0));
 		}
+		
+		if (TreeAdapter.isOpt(tree)) {
+			IList args = TreeAdapter.getArgs(tree);
+			if (args.isEmpty()) {
+			    return null;
+			}
+			return buildValue(args.get(0));
+		    
+		}
 
 		if (isExternalEmbedding(tree)) {
 		    return liftExternal(tree);

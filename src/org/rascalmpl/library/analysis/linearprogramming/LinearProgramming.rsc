@@ -13,7 +13,6 @@ import List;
 import util::Maybe;
 import Set;
 import Map;
-import util::Math;
 
 alias Coefficients = map[str var,num coef];
 
@@ -22,8 +21,6 @@ alias ObjectiveFun = LinearExpression;
 
 public ObjectiveFun linearExp(Coefficients coefficients) =
 	linearExp(coefficients,0);
-
-data ConstraintType = leq() | eq() | geq();
 
 data Constraint = constraint(	Coefficients coefficients,
 			   					ConstraintType ctype, num const);

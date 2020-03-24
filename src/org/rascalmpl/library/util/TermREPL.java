@@ -1,23 +1,29 @@
 package org.rascalmpl.library.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
+import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
+import org.rascalmpl.uri.URIResolverRegistry;
+
+import com.google.gson.stream.JsonWriter;
+
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -27,99 +33,79 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import jline.TerminalFactory;
 
 public class TermREPL {
-
     private final IValueFactory vf;
-
     private ILanguageProtocol lang;
+    
     public TermREPL(IValueFactory vf) {
         this.vf = vf;
     }
 
-    public void startREPL(IConstructor repl, IEvaluatorContext ctx) {
+    public void startREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
+        ISourceLocation history, IValue handler, IValue completor, IValue stacktrace, IEvaluatorContext ctx) {
         try {
-            lang = new TheREPL(vf, repl, ctx);
-            // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later.
-            ISourceLocation history = repl.has("history") ? (ISourceLocation) repl.get("history") : null;
-            new BaseREPL(lang, null, System.in, System.out, true, true, history , TerminalFactory.get(), null).run();
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace(ctx.getStdErr());
+            lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, ctx.getInput(), ctx.getStdErr(), ctx.getStdOut());
+            new BaseREPL(lang, null, ctx.getInput(), ctx.getStdErr(), ctx.getStdOut(), true, true, history, TerminalFactory.get(), null).run();
+        } catch (Throwable e) {
+            e.printStackTrace(ctx.getErrorPrinter());
         }
     }
 
     public static class TheREPL implements ILanguageProtocol {
         private final TypeFactory tf = TypeFactory.getInstance();
-        private PrintWriter stdout;
-        private PrintWriter stderr;
+        private OutputStream stdout;
+        private OutputStream stderr;
+        private InputStream input;
         private String currentPrompt;
+        private String quit;
         private final ICallableValue handler;
-        private final IEvaluatorContext ctx;
         private final ICallableValue completor;
         private final IValueFactory vf;
+        private final ICallableValue stacktrace;
         
-        private ITuple visualization;
-        private ICallableValue consumerFunction;
-        private ISourceLocation http;
-        
-        private int scopeId;
-
-        public TheREPL(IValueFactory vf, IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
-            this.ctx = ctx;
+        public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
+            IValue handler, IValue completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
             this.vf = vf;
-            this.handler = (ICallableValue)repl.get("handler");
-            this.completor = (ICallableValue)repl.get("completor");
-            
-            if(repl.has("prompt"))
-                this.currentPrompt = ((IString)repl.get("prompt")).getValue();
-            if(repl.asWithKeywordParameters().hasParameter("visualization")){
-                this.visualization = (ITuple) repl.asWithKeywordParameters().getParameter("visualization");
-                consumerFunction = (ICallableValue) this.visualization.get(0);
-                http = (ISourceLocation) this.visualization.get(2);
-                this.scopeId = 0;
-            }
-            
-            stdout = ctx.getStdOut();
-            assert stdout != null;
+            this.input = input;
+            this.stderr = stderr;
+            this.stdout = stdout;
+            this.handler = (ICallableValue) handler;
+            this.completor = (ICallableValue) completor;
+            this.stacktrace = (ICallableValue) stacktrace;
+            this.currentPrompt = prompt.getValue();
+            this.quit = quit.getValue();
         }
-        
+
         @Override
         public void cancelRunningCommandRequested() {
-            ctx.interrupt();
+            handler.getEval().interrupt();
+            handler.getEval().__setInterrupt(false);
         }
         
         @Override
         public void terminateRequested() {
-            ctx.interrupt();
+            handler.getEval().interrupt();
         }
         
         @Override
         public void stop() {
-            ctx.interrupt();
+            handler.getEval().interrupt();
         }
         
         @Override
         public void stackTraceRequested() {
-            StackTrace trace = ctx.getStackTrace();
-            Writer err = ctx.getStdErr();
-            try {
-                err.write("Current stack trace:\n");
-                trace.prettyPrintedString(err, new StandardTextWriter(true));
-                err.flush();
-            }
-            catch (IOException e) {
-            } 
+            stacktrace.call(new Type[0], new IValue[0], null);
         }
 
-
         @Override
-        public void initialize(Writer stdout, Writer stderr) {
-            this.stdout = new PrintWriter(stdout);
-            this.stderr = new PrintWriter(stderr);
+        public void initialize(InputStream input, OutputStream stdout, OutputStream stderr) {
+            this.stdout = stdout;
+            this.stderr = stderr;
+            this.input = input;
         }
 
         @Override
@@ -130,56 +116,77 @@ public class TermREPL {
         @Override
         public void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
             
-            if (line.trim().length() == 0) {
-                // cancel command
-                // TODO: after doing calling this, the repl gets an unusual behavior, needs to be fixed
-                this.stderr.println(ReadEvalPrintDialogMessages.CANCELLED);
-                currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
-                return;
-            } 
+            if (line.trim().equals(quit)) {
+                throw new InterruptedException(quit);
+            }
             else {
-                // TODO: this could also be handled via the Content data-type, which should work 
-                // also for Salix apps...
-                IConstructor result = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
-                if(result.has("result") && result.get("result") != null) {
-                    String str = ((IString)result.get("result")).getValue();
-                    // TODO: change the signature of the handler
-                    if(!str.equals("")) {
-                        if(str.startsWith("Error:")) {
-                            metadata.put("ERROR-LOG", "<div class = \"output_stderr\">" + str.substring("Error:".length(), str.length()) + "</div>");
-                        }
-                        else {
-                            output.put("text/html", stringStream("<div>" + str + "</div>"));
-                        }
+                try {
+                    handler.getEval().__setInterrupt(false);
+                    IConstructor response = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+               
+                    switch (response.getName()) {
+                        case "response":
+                            handlePlainTextResponse(output, response);
+                            break;
+                        case "fileResponse":
+                            handleFileResponse(output, response);
+                            break;
+                        case "jsonResponse":
+                            handleJSONResponse(output, response);
                     }
                 }
-                else {
-                    // Handle a Salix result
-                    ICallableValue salixApp = (ICallableValue) result.get("salixApp");
-                    String scope = "salixApp" + scopeId;
-                    call(this.consumerFunction, new Type[]{tf.valueType(), tf.stringType()}, new IValue[]{salixApp, vf.string(scope)});
-                    String out = "<script> \n var "+ scope +" = new Salix('"+ scope +"', '" + http.getURI().toString() +"'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+scope+");\n registerDagre("+scope+");\n registerTreeView("+ scope +"); \n"+ scope + ".start();});\n </script> \n <div id=\""+scope+"\"> \n </div>";
-                    output.put("text/html", stringStream(out));
-                    this.scopeId++;
-                    
-                }
-                IWithKeywordParameters<? extends IConstructor> commandResult = result.asWithKeywordParameters();
-                if(commandResult.hasParameter("messages")) {
-                    IList messages = (IList) commandResult.getParameter("messages");
-                    for (IValue v: messages) {
-                        IConstructor msg = (IConstructor) v;
-                        if(msg.getName().equals("error")) {
-                            stderr.write( ((IString) msg.get("msg")).getValue());
-                        }
-                    }
+                catch (IOException e) {
+                    output.put("text/plain", new ByteArrayInputStream(e.getMessage().getBytes()));
                 }
             }
         }
 
-        private InputStream stringStream(String x) {
-            return new ByteArrayInputStream(x.getBytes(StandardCharsets.UTF_8));
+        private void handleJSONResponse(Map<String, InputStream> output, IConstructor response) throws IOException {
+            IValue data = response.get("val");
+            IWithKeywordParameters<? extends IConstructor> kws = response.asWithKeywordParameters();
+            
+            IValue dtf = kws.getParameter("dateTimeFormat");
+            IValue ics = kws.getParameter("implicitConstructors");
+            IValue ipn = kws.getParameter("implicitNodes");
+            IValue dai = kws.getParameter("dateTimeAsInt");
+            
+            JsonValueWriter writer = new JsonValueWriter()
+                .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
+                .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
+                .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
+
+              final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+              
+              JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
+              
+              writer.write(out, data);
+              out.flush();
+              out.close();
+              
+              output.put("application/json",  new ByteArrayInputStream(baos.toByteArray()));
         }
-        
+
+        private void handleFileResponse(Map<String, InputStream> output, IConstructor response)
+            throws UnsupportedEncodingException {
+            IString fileMimetype = (IString) response.get("mimeType");
+            ISourceLocation file = (ISourceLocation) response.get("file");
+            try {
+                output.put(fileMimetype.getValue(), URIResolverRegistry.getInstance().getInputStream(file));
+            }
+            catch (IOException e) {
+                output.put("text/plain", new ByteArrayInputStream(e.getMessage().getBytes("UTF8")));
+            }
+        }
+
+        private void handlePlainTextResponse(Map<String, InputStream> output, IConstructor response)
+            throws UnsupportedEncodingException {
+            IString content = (IString) response.get("content");
+            IString contentMimetype = (IString) response.get("mimeType");
+                  
+            output.put(contentMimetype.getValue(), new ByteArrayInputStream(content.getValue().getBytes("UTF8")));
+        }
+
         @Override
         public boolean supportsCompletion() {
             return true;
@@ -191,18 +198,23 @@ public class TermREPL {
         }
 
         private IValue call(ICallableValue f, Type[] types, IValue[] args) {
-            synchronized (ctx) {
-                Evaluator eval = (Evaluator)ctx;
-                PrintWriter prevErr = eval.getStdErr();
-                PrintWriter prevOut = eval.getStdOut();
+            synchronized (f.getEval()) {
+                Evaluator eval = (Evaluator) f.getEval();
+                OutputStream prevErr = eval.getStdErr();
+                OutputStream prevOut = eval.getStdOut();
                 try {
-                    eval.overrideDefaultWriters(stdout, stderr);
+                    eval.overrideDefaultWriters(input, stdout, stderr);
                     return f.call(types, args, null).getValue();
                 }
                 finally {
-                    stdout.flush();
-                    stderr.flush();
-                    eval.overrideDefaultWriters(prevOut, prevErr);
+                    try {
+                        stdout.flush();
+                        stderr.flush();
+                        eval.overrideDefaultWriters(eval.getInput(), prevOut, prevErr);
+                    }
+                    catch (IOException e) {
+                        // ignore
+                    }
                 }
             }
         }
@@ -229,18 +241,12 @@ public class TermREPL {
         
         @Override
         public void handleReset(Map<String, InputStream> output, Map<String, String> metadata) throws InterruptedException {
-            // TODO: add a rascal callback for this?
             handleInput("", output, metadata);
         }
 
         @Override
         public boolean isStatementComplete(String command) {
-            // TODO Auto-generated method stub
             return true;
         }
-
     }
-
-
-
 }

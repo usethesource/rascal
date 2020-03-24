@@ -173,13 +173,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return declarationEnvironment;
 	}
 	
-	public boolean match(Type actuals) {
+	public boolean mayMatch(Type actuals) {
 		if (actuals.isSubtypeOf(getFormals())) {
 			return true;
 		}
 		
 		if (hasVarArgs) {
-			return matchVarArgsFunction(actuals);
+			return mayMatchVarArgsFunction(actuals);
 		}
 		
 		return false;
@@ -210,7 +210,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 
-	private boolean matchVarArgsFunction(Type actuals) {
+	private boolean mayMatchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;
 		
@@ -280,8 +280,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		b.append("call  >");
 		printNesting(b);
 		printHeader(b, actuals);
-		eval.getStdOut().println(b.toString());
-		eval.getStdOut().flush();
+		eval.getOutPrinter().println(b.toString());
+		eval.getOutPrinter().flush();
 		callNesting++;
 	}
 
@@ -305,8 +305,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			b.append(": ");
 			String msg = e.getMessage();
 			b.append(msg == null ? e.getClass().getSimpleName() : msg);
-			eval.getStdOut().println(b.toString());
-			eval.getStdOut().flush();
+			eval.getOutPrinter().println(b.toString());
+			eval.getOutPrinter().flush();
 		}
 	}
 	
@@ -322,8 +322,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 				b.append(":");
 				b.append(strval(result));
 			}
-			eval.getStdOut().println(b);
-			eval.getStdOut().flush();
+			eval.getOutPrinter().println(b);
+			eval.getOutPrinter().flush();
 		}
 	}
 	
@@ -594,7 +594,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	            env.declareVariable(TF.boolType(), isSetName);
 	            
-	            if (keyArgValues.containsKey(kwparam)){
+	            if (keyArgValues != null && keyArgValues.containsKey(kwparam)){
 	                IValue r = keyArgValues.get(kwparam);
 	
 	                if(!r.getType().isSubtypeOf(kwType)) {

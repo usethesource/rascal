@@ -74,16 +74,6 @@ public data Language(str version = "")
 //TODO: Deprecated method, replace any calls to this method with default constructor
 public M3 emptyM3(loc id) = m3(id);
 
-private value compose(set[&T] s1, set[&T] s2) = s1 + s2; // works on rel as well
-private value compose(list[&T] l1, list[&T] l2) = l1 + l2;
-private value compose(map[&T, &U] m1, map[&T, &U] m2) = m1 + m2;
-private value compose(value v1, value v2) { throw "can\'t compose non-collections or values of different types"; }
-
-private value diff(set[&T] s1, set[&T] s2) = s1 - s2; // works on rel as well
-private value diff(list[&T] l1, list[&T] l2) = l1 - l2;
-private value diff(map[&T, &U] m1, map[&T, &U] m2) = m1 - m2;
-private value diff(value v1, value v2) { throw "can\'t differentiate non-collections or values of different types"; }
-
 @doc{
 	Generic function to compose the annotations of a set of M3s.
 }
@@ -139,7 +129,7 @@ M3 modifyM3(loc id, list[M3] models, value (&T,&T) fun) {
                 try {
                     allAnnos[name] = fun(allAnnos[name], annos[name]);
                 }
-                catch e:
+                catch _:
                 ; // ignore
             }
             else {

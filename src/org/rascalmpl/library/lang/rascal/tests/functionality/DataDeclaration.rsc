@@ -93,14 +93,14 @@ test bool parameterizedErrorTest1() {Exp1[int] h = ival(3); return h == ival(3);
 test bool unboundTypeVar1() { Maybe[void] x = None(); return x == None();}
 test bool unboundTypeVar2() { x = None(); x = Some(0); return x == Some(0);}
   	
-test bool unequalParameterType1(){ Exp1[value] x = tval2(3, "abc"); return true; }
+test bool unequalParameterType1(){ Exp1[value] x = tval2(3, "abc"); return _ := x; }
   
 //  let
   
 test bool let4(){ Exp2 e = \int2(1); return e == \int2(1);}
 test bool let5(){ Exp2 e = var2("a"); return e == var2("a");}
 test bool let6(){ Exp2 e = let("a",\int2(1),var2("a")); return e ==  let("a",\int2(1),var2("a"));}
-test bool let7() = Var2 var2 := "a";
+test bool let7() = Var2 _ := "a";
 
 // escaped constructor and field names
 

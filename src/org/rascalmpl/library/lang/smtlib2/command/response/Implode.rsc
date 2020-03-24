@@ -16,8 +16,5 @@ import ParseTree;
 
 import lang::smtlib2::command::response::Parse;
 import lang::smtlib2::command::response::Ast;
-import lang::smtlib2::command::Ast;
-import lang::smtlib2::theory::core::Ast;
-import lang::smtlib2::theory::ints::Ast;
 
 public Response toAst(str answer) = implode(#Response, parseResponse(answer));

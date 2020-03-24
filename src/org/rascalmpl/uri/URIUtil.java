@@ -321,7 +321,10 @@ public class URIUtil {
 		else if (!childPath.endsWith("/")) {
 			childPath += "/";
 		}
-		childPath += child;
+		
+		if (!child.equals("/")) {
+		    childPath += child;
+		}
 
 		try {
 			return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), childPath, loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);

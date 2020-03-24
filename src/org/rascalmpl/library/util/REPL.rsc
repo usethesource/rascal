@@ -1,23 +1,36 @@
 module util::REPL
 
-import Message;
+extend Content;
 
 alias Completion
  = tuple[int offset, list[str] suggestions];
 
-data CommandResult(list[Message] messages = [])
-  = commandResult(str result)
-  ;  
- 
 data REPL
-  = repl(str title, str welcome, str prompt, loc history, 
-         CommandResult (str line) handler,
-         Completion(str line, int cursor) completor)
-  | repl( 
-         CommandResult (str line) handler,
-         Completion(str line, int cursor) completor)         
-  ;
+  = repl(
+     str title = "", 
+     str welcome = "", 
+     str prompt = "\n\>",
+     str quit = "", 
+     loc history = |home:///.term-repl-history|, 
+     Response (str command) handler = echo,
+     Completion(str line, int cursor) completor = noSuggestions,
+     str () stacktrace = str () { return ""; }
+   );
+
+private Response echo(str line) = plain(line);
+   
+private Completion noSuggestions(str _, int _) = <0, []>;
 
 @javaClass{org.rascalmpl.library.util.TermREPL}
 @reflect
-java void startREPL(REPL repl);
+java void startREPL(REPL repl, 
+  
+  // filling in defaults from the repl constructor, for use in the Java code:
+  str title = repl.title, 
+  str welcome = repl.welcome, 
+  str prompt = repl.prompt, 
+  str quit = repl.quit,
+  loc history = repl.history,
+  Response (str ) handler = repl.handler,
+  Completion(str , int) completor = repl.completor,
+  str () stacktrace = repl.stacktrace);

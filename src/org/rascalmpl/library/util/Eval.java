@@ -76,7 +76,7 @@ public class Eval {
 		if (this.eval == null) {
 			GlobalEnvironment heap = new GlobalEnvironment();
 			ModuleEnvironment root = new ModuleEnvironment("$eval$", heap);
-			this.eval = new Evaluator(ctx.getValueFactory(), ctx.getStdErr(), ctx.getStdOut(), root, heap, ctx.getEvaluator().getClassLoaders(), ctx.getEvaluator().getRascalResolver());
+			this.eval = new Evaluator(ctx.getValueFactory(), ctx.getInput(), ctx.getStdErr(), ctx.getStdOut(), root, heap, ctx.getEvaluator().getClassLoaders(), ctx.getEvaluator().getRascalResolver());
 			this.eval.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 		}
 		

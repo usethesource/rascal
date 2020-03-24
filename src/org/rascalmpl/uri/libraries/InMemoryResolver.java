@@ -147,6 +147,17 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 	}
 	
 	@Override
+	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
+	    File file = get(uri);
+	    
+	    if (file == null) {
+	        throw new FileNotFoundException(uri.toString());
+	    }
+	    
+	    file.lastModified = timestamp;
+	}
+	
+	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return null;
 	}

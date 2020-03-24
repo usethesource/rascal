@@ -1,19 +1,15 @@
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
+@contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 module lang::rascal::tests::functionality::Visit1
-
-/*******************************************************************************
- * Copyright (c) 2009-2015 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-*******************************************************************************/
 
 import Node;
 
@@ -30,7 +26,7 @@ test bool visit1b() {
 	int f1b(){
 		visit([1,2,3]) {
 				case list[int] l => [ ( 0 | it + i | int i <- l) ]
-				case int i : return 42;
+				case int _ : return 42;
 			};
 		return 101;
 		}
@@ -49,7 +45,7 @@ test bool visit2b(){
 	int f2b(){
 		top-down visit([1,2,3]) {
 				case list[int] l => [ ( 0 | it + i | int i <- l) ]
-				case int i: return 42;
+				case int _: return 42;
 			}
 		return 101;
 	}
@@ -154,7 +150,7 @@ test bool visit9() {
 test bool visit10() {
 	return visit({ "a"(1,1), "b"(2,2), "c"(3,3) }) {
 				case set[node] s => s + { "d"(4,5) }
-				case node n:str s(int x,int y) => { elem = ( 0 | it + i | int i <- n); (s + "_been_here")(elem,elem); }
+				case node n:str s(int _,int _) => { elem = ( 0 | it + i | int i <- n); (s + "_been_here")(elem,elem); }
 				case int i => i + 100
 			} 
 			==
@@ -169,7 +165,7 @@ test bool visit10() {
 test bool visit11() {
 	return top-down visit({ "a"(1,1), "b"(2,2), "c"(3,3) }) {
 				case set[node] s => s + { "d"(4,5) }
-				case node n:str s(int x,int y) => { elem = ( 0 | it + i | int i <- n); (s + "_been_here")(elem,elem); }
+				case node n:str s(int _,int _) => { elem = ( 0 | it + i | int i <- n); (s + "_been_here")(elem,elem); }
 				case int i => i + 100
 			}
 			==
@@ -289,7 +285,7 @@ test bool visit17b() {
 	l = [ 1,0,1,1,0,1,0,1,0,1,0 ]; // 11
 	int f17b(){
 	 	innermost visit({ l }) {
-			case [*int sub, 1, 0]: return 42;
+			case [*int _, 1, 0]: return 42;
 			case 10 => 20
 		}
 		return 101;
@@ -316,9 +312,9 @@ test bool visit19() {
 	return [ visit(lst([1])) {
 				// list[str] <: list[value]; typeOf(subject) <: list[value] 
 				// '+' list[str] <: typeOf(subject)
-				case list[value] l: insert [ "666" ];
+				case list[value] _: insert [ "666" ];
 				case list[int] l: { insert l + [ 666 ]; l = l + [ 777 ]; }
-				case int i: insert 999;
+				case int _: insert 999;
 		     } ]
 		     == 
 		      [lst([999,666])];
@@ -328,9 +324,9 @@ test bool visit19() {
 test bool visit20() {
 	return 
 		   [ visit(lst([1])) {
-				case list[value] l => [ "666" ]
+				case list[value] _ => [ "666" ]
 				case list[int] l => l + [ 666 ]
-				case int i => 999
+				case int _ => 999
 		     } ]
 		   ==
 		   [ lst([999,666]) ];
@@ -365,7 +361,7 @@ test bool visit22() =
 
 data Z = z(int n);
 
-test bool visit23() = visit (z(2)) { case node nd => z(3) } == z(3);
+test bool visit23() = visit (z(2)) { case node _ => z(3) } == z(3);
 
 @ignoreInterpreter{Interpreter crashes on this test}
 test bool visit24() = visit([]) { case _ => [1] } == [];
@@ -398,7 +394,7 @@ data NODE10 = f1(int I) | g1(list[NODE10] L) | h1(NODE10 N1, NODE10 N2);
 int cnt(NODE1 t) {
 	int C = 0;
 	visit(t) {
-		case int N: C = C + 1;
+		case int _: C = C + 1;
 	}
 	return C;
 }

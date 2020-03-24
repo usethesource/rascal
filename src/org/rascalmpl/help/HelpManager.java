@@ -197,7 +197,7 @@ public class HelpManager {
 	}
 	
 	
-	private static final Pattern BAD_QUERY_CHARS = Pattern.compile("([+\\-!(){}\\[\\]\\^\"~*?:\\\\/]|(&&)|(\\|\\|))");
+	private static final Pattern BAD_QUERY_CHARS = Pattern.compile("([" + Pattern.quote("+-!()\\[]^\"~*?:/") + "]|(&&)|(\\|\\|))"); 
 
 	private static String escapeForQuery(String s){
 	    return BAD_QUERY_CHARS.matcher(s.toLowerCase()).replaceAll("\\\\$1");

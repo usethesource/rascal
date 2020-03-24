@@ -10,9 +10,6 @@
 module lang::sdf2::util::Load
 
 import lang::sdf2::\syntax::Sdf2;
-import IO;
-import Exception;
-import String;
 import ParseTree;
 import Set;
 import util::Reflective;

@@ -1,14 +1,12 @@
 // tag::module[]
 module demo::lang::Pico::Uninit
 
-import Prelude;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
 
 import demo::lang::Pico::UseDef;
 import demo::lang::Pico::ControlFlow;
 
-import Relation;
 import analysis::graphs::Graph;
 
 public set[CFNode] defNodes(PicoId Id, set[Occurrence] Defs) =

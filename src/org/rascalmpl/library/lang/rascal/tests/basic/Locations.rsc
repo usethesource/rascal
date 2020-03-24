@@ -27,7 +27,7 @@ str createValidScheme(str s) {
 
 @ignoreInterpreter{Renaming}
 @expected{InvalidURI}
-test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
+test bool noOpaqueURI() = loc _ := |home:://this:is:opaque|;
 
 @ignoreCompiler{Remove-after-transtion-to-compiler: Renaming}
 @expected{MalFormedURI}
@@ -127,7 +127,7 @@ test bool offSetLengthEnclosing(int aOffset, int aLength, int bOffset, int bLeng
   
 
 // Simulate a list of 1000 lines each of length < 1000;
-public list[int] lineSizes = [ arbInt(1000) | int i <- [1 .. 1000] ];   
+public list[int] lineSizes = [ arbInt(1000) | int _ <- [1 .. 1000] ];   
 
 public int maxIndex = (0 | it + lineSizes[i] | int i <- index(lineSizes));        
 
@@ -233,7 +233,7 @@ test bool equal2(int f, int t){
 // Create a list of n different locations
 
 list[loc] getLocs(int n){
-    locs = [getLoc(arbInt(maxIndex), arbInt(maxIndex)) | int i <- [0 .. n]];
+    locs = [getLoc(arbInt(maxIndex), arbInt(maxIndex)) | int _ <- [0 .. n]];
     return[ locs[i] | int i <- [0..n], !any(int j <- [0..n], i != j, locs[i] == locs[j]) ];
 }
 
@@ -279,7 +279,16 @@ tuple[loc, loc] makeLocsWithGap(int gap){
     
     rlen = m2 == maxIndex ? 0 : arbInt(maxIndex - m2);
     r = getLoc(m2, m2 + rlen);
-    return l.offset < r.offset ? <l, r> : <r, l>;
+    
+    if (l.offset == r.offset && r.length == 0) {
+      return <r, l>;
+    }
+    else if (l.offset >= r.offset) {
+      return <r, l>;
+    } 
+    else {
+      return <l, r>;
+    }
 }
 
 bool report(loc l1, loc l2, bool expected){
@@ -297,9 +306,33 @@ bool isLexicallyLess1(int f, int t){
     return report(l1, l2, isLexicallyLess(l1, l2));
 }
 
-bool isLexicallyLess1(int f){
+bool isLexicallyLess1(int _){
     <l1, l2> = makeLocsWithGap(10);
     return report(l1, l2, isLexicallyLess(l1, l2));
+}
+
+test bool isSameFile1(){
+    l = |C:///a|;
+    r = |C:///a#1|;
+    return isSameFile(l, r);
+}
+
+test bool isSameFile2(){
+    l = |C:///a|;
+    r = |C:///b#1|;
+    return !isSameFile(l, r);
+}
+
+test bool isSameFile3(loc l){
+    return isSameFile(l, l);
+}
+
+test bool isSameFile4(loc l){
+    return !isSameFile(l[scheme="A"], l[scheme="B"]);
+}
+
+test bool isSameFile5(loc l){
+    return !isSameFile(l[authority="A"], l[authority="B"]);
 }
 
 // isContainedIn
@@ -322,81 +355,82 @@ test bool isContainedIn2(int f, int len){
 
 // beginsBefore
 
-test bool beginsBefore1(int f){
+@ignore{unknown}
+test bool beginsBefore1(int _){
     <l1, l2> = makeLocsWithGap(-10);
     return report(l1, l2, beginsBefore(l1, l2));
 }
 
-test bool beginsBefore2(int f){
+test bool beginsBefore2(int _){
     <l1, l2> = makeLocsWithGap(10);
     return report(l1, l2, !beginsBefore(l2, l1));
 }
 
 // isBefore
 
-test bool isBefore1(int f){
+test bool isBefore1(int _){
     <l1, l2> = makeLocsWithGap(10);
     return report(l1, l2, isBefore(l1, l2));
 }
 
-test bool isBefore2(int f){
+test bool isBefore2(int _){
     <l1, l2> = makeLocsWithGap(10);
     return report(l1, l2, !isBefore(l2, l1));
 }
 
 // isImmediatelyBefore
 
-test bool isImmediatelyBefore1(int f){
+test bool isImmediatelyBefore1(int _){
     <l1, l2> = makeLocsWithGap(0);
     return report(l1, l2, isImmediatelyBefore(l1, l2));
 }
 
-test bool isImmediatelyBefore2(int f){
+test bool isImmediatelyBefore2(int _){
     <l1, l2> = makeLocsWithGap(0);
     return report(l1, l2, !isImmediatelyBefore(l2, l1));
 }
 
 // beginsAfter
 
-test bool beginsAfter1(int f){
+test bool beginsAfter1(int _){
     <l1, l2> = makeLocsWithGap(-10);
     return report(l1, l2, beginsAfter(l2, l1));
 }
 
 // isAfter
 
-test bool isAfter1(int f){
+test bool isAfter1(int _){
     <l1, l2> = makeLocsWithGap(10);
     return report(l1, l2, isAfter(l2, l1));
 }
 
 // isImmediatelyAfter
-test bool isImmediatelyAfter1(int f){
+test bool isImmediatelyAfter1(int _){
     <l1, l2> = makeLocsWithGap(0);
     return report(l1, l2, isImmediatelyAfter(l2, l1));
 }
 
 // isOverlapping
 
-test bool isOverlapping1(int f){
+test bool isOverlapping1(int _){
    <l1, l2> = makeLocsWithGap(-1);
     return report(l1, l2, isOverlapping(l1, l2));
 }
 
-test bool isOverlapping2(int f){
+test bool isOverlapping2(int _){
    <l1, l2> = makeLocsWithGap(10);
     return !isOverlapping(l1, l2);
 }
 
 // cover
 
-test bool isCover1(int f){
+test bool isCover1(int _){
    <l1, l2> = makeLocsWithGap(10);
    u = cover([l1, l2]);
    return report(l1, l2, isContainedIn(l1, u) && isContainedIn(l2, u));
 }
 
-test bool isCover2(int f){
+test bool isCover2(int _){
    <l1, l2> = makeLocsWithGap(-10);
    u = cover([l1, l2]);
    return report(l1, l2, isContainedIn(l1, u) && isContainedIn(l2, u));

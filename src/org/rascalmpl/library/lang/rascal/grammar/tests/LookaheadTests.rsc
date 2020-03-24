@@ -5,11 +5,6 @@ import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Productions;
 import ParseTree;
-import List;
-import Set;
-import IO;
-import Map;
-import Exception;
 extend  lang::rascal::grammar::Lookahead;
 
 // -------- Examples and tests -------------------

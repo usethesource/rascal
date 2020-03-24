@@ -96,7 +96,7 @@ public class Resource {
 		IResource handler = Resource.getResourceHandler(uriLoc);
 		String tagStr = tag.getValue();
 		Type t = handler.getResourceType(ctx, uriLoc);
-		PrintWriter currentOutStream = ctx.getStdOut();
+		PrintWriter currentOutStream = ctx.getOutPrinter();
 		
 		// Declare an alias to the type of the resource
 		TypeStore ts = ctx.getCurrentEnvt().getStore();

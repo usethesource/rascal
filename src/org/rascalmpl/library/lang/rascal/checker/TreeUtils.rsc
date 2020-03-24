@@ -34,7 +34,7 @@ public map[int,str] getProductionTypes(Tree t) {
 }
 
 public bool containsSort(Symbol s) {
-    if (Symbol sym := s[0] && sort(srt) := sym) return true;
+    if (Symbol sym := s[0] && sort(_) := sym) return true;
     return false;
 }
 
@@ -56,7 +56,7 @@ public list[Tree] prodFilter(Tree t, bool(Production) fltr) {
 }
 
 public list[Tree] getAllNodes(Tree t) {
-    if (appl(p,list[Tree] tl) := t) {
+    if (appl(_,list[Tree] tl) := t) {
         return [ t ] + [ *getAllNodes(tli) | Tree tli <- tl ];
     } else {
         return [  ] ;

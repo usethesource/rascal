@@ -1,4 +1,3 @@
-@ignoreCompiler{Not yet implemented in type checker}
 module lang::rascal::tests::functionality::KeywordParameterImport1::DiamondLeft
 
 import lang::rascal::tests::functionality::KeywordParameterImport1::DiamondTop;

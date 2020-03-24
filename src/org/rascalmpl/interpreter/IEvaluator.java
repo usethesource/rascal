@@ -34,13 +34,14 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.values.uptr.ITree;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.uptr.ITree;
 
 /**
  * TODO: This interface was used by the
@@ -137,7 +138,11 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 
 	public IValue call(String name, IValue... args);
 	
-	public IValue call(String returnType, String name, IValue... args);
+	/**
+	 * Calls a constructor function, or an overloaded function with the same
+	 * signature which overrrides it.
+	 */
+	public IValue call(String adt, String name, IValue... args);
 
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
 			IMap robust, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects);

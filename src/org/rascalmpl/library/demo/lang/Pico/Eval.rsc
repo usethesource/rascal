@@ -1,10 +1,8 @@
 // tag::module[]
 module demo::lang::Pico::Eval
 
-import Prelude;
 import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
-
 
 data PicoValue = natval(int n) | strval(str s) | errorval(loc l, str msg); // <1>
 

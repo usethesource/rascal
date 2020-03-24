@@ -143,22 +143,16 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	
 	@Override
 	public boolean next(){
-		if(firstMatch){
+		if (firstMatch){
 			firstMatch = false;
-// TODO Commented out caching code since it does not seem to help;
-//			matcher = matcherCache.get(RegExpAsString);
-//			if(matcher == null){
-				matcher = pat.matcher(subject);
-//				matcherCache.put(RegExpAsString, matcher);
-//			} else
-//				matcher.reset(subject);
+			matcher = pat.matcher(subject);
 			IString empty = ctx.getValueFactory().string("");
 			
 			// Initialize all pattern variables to ""
 			for(String name : patternVars){
-				if(!this.iWroteItMySelf 
-						&& !ctx.getCurrentEnvt().declareVariable(tf.stringType(), name))
+				if(!this.iWroteItMySelf && !ctx.getCurrentEnvt().declareVariable(tf.stringType(), name)) {
 					throw new RedeclaredVariable(name, ctx.getCurrentAST());
+				}
 				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), empty, ctx));
 			}
 			this.iWroteItMySelf = true;

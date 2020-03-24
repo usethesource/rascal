@@ -225,6 +225,30 @@ public class Environment implements IRascalFrame {
 		String varName = Names.name(Names.lastName(name));
 		return getFrameVariable(varName);
 	}
+	
+	public Result<IValue> getFunctionForReturnType(Type returnType, String name) {
+	    List<AbstractFunction> candidates = new LinkedList<>();
+        
+        getAllFunctions(name, candidates);
+        
+        if (candidates.isEmpty()) {
+            return null;
+        }
+        
+        List<AbstractFunction> filtered = new LinkedList<>();
+        
+        for (AbstractFunction candidate : candidates) {
+            if (candidate.getReturnType().isAbstractData() && candidate.getReturnType() == returnType) {
+                filtered.add(candidate);
+            }
+        }
+
+        if (filtered.isEmpty()) {
+            return null;  
+        }
+        
+        return new OverloadedFunction(name, filtered);
+	}
 
 	public Result<IValue> getVariable(Name name) {
 		return getFrameVariable(Names.name(name));

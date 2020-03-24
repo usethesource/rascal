@@ -4,10 +4,6 @@ Content provides access to the content server of the Rascal terminal for viewing
 }
 module Content
 
-import util::UUID;
-import Exception;
-import IO;
-
 @doc{
 .Synopsis
 Content wraps the HTTP Request/Response API to support interactive visualization types
@@ -107,6 +103,12 @@ Response response(str content)                    = response(ok(), "text/html", 
 Utility to quickly report an HTTP error with a user-defined message
 }
 Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
+
+@doc{
+.Synopsis
+Utility to quickly make a plaintext response.
+}
+Response plain(str text) = response(ok(), "text/plain", (), text);
 
 @doc{
 .Synopsis

@@ -1,16 +1,13 @@
+@license{
+ Copyright (c) 2009-2015 CWI
+ All rights reserved. This program and the accompanying materials
+ are made available under the terms of the Eclipse Public License v1.0
+ which accompanies this distribution, and is available at
+ http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module lang::rascal::tests::functionality::FunctionComposition
-/*******************************************************************************
- * Copyright (c) 2009-2015 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
-
- *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
-*******************************************************************************/
 
 /*
  * The 'o' function composition operator
@@ -182,7 +179,7 @@ test bool nonDeterministicChoiceAndNormalComposition21() {
     list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ]; 
     list[int] outputs1 = [ (k + l)(n) | int n <- inputs ]; 
     
-    return outputs == outputs;
+    return outputs == outputs1;
    }
 
 test bool nonDeterministicChoiceAndNormalComposition22() {
@@ -204,7 +201,6 @@ test bool nonDeterministicChoiceAndNormalComposition23() {
 
 test bool nonDeterministicChoiceAndNormalComposition24() {
     list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-    list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ]; 
 
     list[int] outputs5 = [ (j0 + j1 + (k + l) o j3)(n) | int n <- inputs ]; 
     list[int] outputs7 = [0,1] + [ 2*n*(2*n - 1) | int n <- inputs - [0,1] ]; 
@@ -215,18 +211,16 @@ test bool nonDeterministicChoiceAndNormalComposition24() {
 
 test bool nonDeterministicChoiceAndNormalComposition25() {
     list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-    list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ];    
     
     list[int] outputs6 = [ ((k + l) o j4 + j0 + j1)(n) | int n <- inputs ]; 
     list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
     list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
-     
+
     return outputs6 == outputs8 || outputs6 == outputs10 ;
 }
 
 test bool nonDeterministicChoiceAndNormalComposition26() {
     list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-    list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ];    
     
     list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
     list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
@@ -237,7 +231,6 @@ test bool nonDeterministicChoiceAndNormalComposition26() {
 
 test bool nonDeterministicChoiceAndNormalComposition27() {
     list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-    list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ];    
     
     list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
     list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
