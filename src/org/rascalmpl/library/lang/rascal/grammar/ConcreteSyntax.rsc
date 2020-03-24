@@ -13,8 +13,6 @@
 module lang::rascal::grammar::ConcreteSyntax
 
 import ValueIO;
-import List;
-import IO;
 import ParseTree;
 import Grammar;
 import lang::rascal::\syntax::Rascal;
@@ -22,7 +20,6 @@ import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Literals;
 import lang::rascal::grammar::definition::Regular;
 import lang::rascal::grammar::definition::Symbols;
-import lang::rascal::format::Escape;
 
 public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(object)));
 
@@ -80,8 +77,8 @@ private Symbol getTargetSymbol(Symbol sym) {
   switch(sym) {
     case \iter(s) : return s;
     case \iter-star(s) : return s;  
-    case \iter-seps(s, seps) : return s; 
-    case \iter-star-seps(s, seps) : return s; 
+    case \iter-seps(s, _) : return s; 
+    case \iter-star-seps(s, _) : return s; 
     case \opt(s) : return s; 
     default: return sym;
   } 

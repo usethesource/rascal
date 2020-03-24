@@ -17,6 +17,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Stack;
@@ -26,6 +28,7 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
@@ -39,8 +42,17 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public StackTrace getStackTrace();
 	
 	/** for standard IO */
-	public PrintWriter getStdOut();
-	public PrintWriter getStdErr();
+	public default PrintWriter getOutPrinter() {
+	    return new PrintWriter(getStdOut());
+	}
+	public default PrintWriter getErrorPrinter() {
+	    return new PrintWriter(getStdErr());
+	}
+	
+	public OutputStream getStdOut();
+	public OutputStream getStdErr();
+
+	public InputStream getInput();
 	
 	/** for "internal use" */
 	public IEvaluator<Result<IValue>> getEvaluator();

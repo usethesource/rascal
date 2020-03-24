@@ -128,7 +128,7 @@ public class Prelude {
 	protected final IValueFactory values;
 	private final Random random;
 	
-	private final boolean trackIO = false;
+	private final boolean trackIO = System.getenv("TRACKIO") != null;
 	
 	public Prelude(IValueFactory values){
 		super();
@@ -859,7 +859,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void print(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
+		PrintWriter currentOutStream = eval.getOutPrinter();
 		
 		try{
 			if(arg.getType().isString()){
@@ -886,7 +886,7 @@ public class Prelude {
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprint(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
-		Writer output = eval.getStdOut();
+		Writer output = eval.getOutPrinter();
 		if (lineLimit.signum() > 0) {
 		    output = new LimitedLineWriter(output, lineLimit.longValue());
 		}
@@ -901,7 +901,7 @@ public class Prelude {
 			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
 		}
 		finally {
-		    if (output != eval.getStdOut()) {
+		    if (output != eval.getOutPrinter()) {
 		        try {
 		            output.flush();
                     output.close();
@@ -909,7 +909,7 @@ public class Prelude {
                 catch (IOException e) {
                 }
 		    }
-			eval.getStdOut().flush();
+			eval.getOutPrinter().flush();
 		}
 	}
 	
@@ -929,19 +929,19 @@ public class Prelude {
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintln(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
 	    iprint(arg, lineLimit, eval);
-	    eval.getStdOut().println();
-	    eval.getStdOut().flush();
+	    eval.getOutPrinter().println();
+	    eval.getOutPrinter().flush();
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IEvaluatorContext eval) {
-		eval.getStdOut().println();
-		eval.getStdOut().flush();
+		eval.getOutPrinter().println();
+		eval.getOutPrinter().flush();
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
+		PrintWriter currentOutStream = eval.getOutPrinter();
 		
 		try{
 			if(arg.getType().isString()){
@@ -968,7 +968,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprintln(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
+		PrintWriter currentOutStream = eval.getOutPrinter();
 		
 		try {
 			currentOutStream.print(arg.toString());
@@ -981,7 +981,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprint(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getStdOut();
+		PrintWriter currentOutStream = eval.getOutPrinter();
 		
 		try {
 			currentOutStream.print(arg.toString());
@@ -999,7 +999,9 @@ public class Prelude {
 	
 	public IValue lastModified(ISourceLocation sloc) {
 		try {
-			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		    IValue result = values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
+			return result;
 		} catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}
@@ -1007,6 +1009,19 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
+	
+	public void setLastModified(ISourceLocation sloc, IDateTime timestamp) {
+	    setLastModified(sloc, timestamp.getInstant());
+	}
+	
+	private void setLastModified(ISourceLocation sloc, long timestamp) {
+        try {
+            URIResolverRegistry.getInstance().setLastModified(sloc, timestamp);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
+    }
 	
 	public IValue isDirectory(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
@@ -1159,7 +1174,15 @@ public class Prelude {
 		}
 	}
 	
-
+	public void touch(ISourceLocation sloc) {
+	    if (URIResolverRegistry.getInstance().exists(sloc)) {
+	        setLastModified(sloc, System.currentTimeMillis());
+	    }
+	    else {
+	        writeFile(sloc, values.list(values.string("")));
+	    }
+	}
+	
 	public void writeFile(ISourceLocation sloc, IList V) {
 		writeFile(sloc, V, false);
 	}

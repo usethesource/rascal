@@ -61,12 +61,6 @@ lexical PUNCTUATION     = [. : , ; !] ;
 lexical ANYCHAR         = ![\n\t\ ]+ ; // PH
 lexical WS              = [\ \t\r]* !>> [\ \t\r];
 
-str example =
-" abc
- def
- 
-";
-
 value main(){
     return 
     parse(#ExplicitId, "[[abc]]\n"

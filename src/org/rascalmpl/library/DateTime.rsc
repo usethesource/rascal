@@ -20,7 +20,6 @@ loctoc::[1]
 }
 module DateTime
 
-import Exception;
 import List;
 
 @doc{

@@ -7,7 +7,6 @@ import List;
 import Set;
 import String;
 
-import util::SystemAPI;
 import IO;
 import util::Reflective;
 import util::Eval;
@@ -20,8 +19,8 @@ import lang::rascal::tutor::ValueGenerator;
  
 int countGenAndUse((Cmd) `<EvalCmd c>`){
     n = 0;
-    visit(c){ case GenCmd gen: n += 1; 
-              case UseCmd use: n += 1;
+    visit(c){ case GenCmd _: n += 1; 
+              case UseCmd _: n += 1;
              }
     return n;
 }
@@ -133,7 +132,7 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessC
     return <qt, ex, nholes > 0, env>;
 }
 
-str preprocessClick(int questionId, TokenOrCmdList q){
+str preprocessClick(int _, TokenOrCmdList q){
     nholes = 0;
     
     tuple[str quote, str execute] handleCmd((Cmd) `<ClickCmd cc>`){
@@ -197,7 +196,7 @@ str removeComments(Intro? intro){
 }
 
 public str compileQuestions(str qmodule, PathConfig pcfg) {
-    pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin, boot=pcfg.boot,courses=pcfg.courses);
+    pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin,courses=pcfg.courses);
     bn = split("/", qmodule)[-1];
     qloc = pcfg.courses[0] + ("/" + qmodule + "/" + bn + ".questions");
     return compileQuestions(qloc, pcfg);

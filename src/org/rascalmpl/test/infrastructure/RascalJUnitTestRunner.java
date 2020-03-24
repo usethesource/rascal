@@ -41,6 +41,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.uri.project.ProjectURIResolver;
+import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -62,9 +63,7 @@ public class RascalJUnitTestRunner extends Runner {
         heap = new GlobalEnvironment();
         root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
 
-        stderr = new PrintWriter(System.err);
-        stdout = new PrintWriter(System.out);
-        evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+        evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
         evaluator.getConfiguration().setErrors(true);
     }  
@@ -88,6 +87,7 @@ public class RascalJUnitTestRunner extends Runner {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         String projectName = new RascalManifest().getProjectName(projectRoot);
         reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
         
         try {
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot);
@@ -120,8 +120,22 @@ public class RascalJUnitTestRunner extends Runner {
             }
 
             File current = new File(file);
+            
             while (current != null && current.exists() && current.isDirectory()) {
                 if (new File(current, "META-INF/RASCAL.MF").exists()) {
+                    // this is perhaps the copy of RASCAL.MF in a bin/target folder;
+                    // it would be better to find the source RASCAL.MF such that tests
+                    // are run against the sources of test files rather than the ones accidentally
+                    // copied to the bin folder.
+                    
+                    // TODO: if someone knows how to parametrize this nicely instead of hard-coding the
+                    // mvn project setup, I'm all ears. It has to work from both the Eclipse JUnit runner 
+                    // and MVN surefire calling contexts. 
+                    if (current.getName().equals("classes") && current.getParentFile().getName().equals("target")) {
+                        current = current.getParentFile().getParentFile();
+                        continue; // try again in the source folder
+                    }
+                    
                     return URIUtil.createFileLocation(current.getAbsolutePath());
                 }
                 current = current.getParentFile();
@@ -187,7 +201,7 @@ public class RascalJUnitTestRunner extends Runner {
                     List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                 
                     if (tests.isEmpty()) {
-                        stderr.println("\tskipping. Module has not tests.");
+                        stderr.println("\tskipping. Module has no tests.");
                         continue;
                     }
                     

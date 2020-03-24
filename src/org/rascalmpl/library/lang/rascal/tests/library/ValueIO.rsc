@@ -1,20 +1,17 @@
+@license{
+   Copyright (c) 2009-2015 CWI
+   All rights reserved. This program and the accompanying materials
+   are made available under the terms of the Eclipse Public License v1.0
+   which accompanies this distribution, and is available at
+   http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
+@contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::library::ValueIO
-/*******************************************************************************
- * Copyright (c) 2009-2015 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the EclipseLicense v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
- *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-*******************************************************************************/
 import ValueIO;
-import IO;
 import util::Reflective;
 import util::UUID;
 
@@ -30,7 +27,7 @@ loc value_io_test = |test-temp:///value-io-<"<uuidi()>">.test|;
 
 /*TODO: cleanup generated files as in Java version */
 
-private bool  binaryWriteRead(type[&T] typ, value exp) {
+private bool  binaryWriteRead(type[&T] _, value exp) {
    writeBinaryValueFile(value_io_test,exp);
    if (&T N := readBinaryValueFile(value_io_test) && N == exp) return true;
    return false;
@@ -68,15 +65,9 @@ test bool binParamAliasInt() = binaryWriteRead(#Y, 1);
 
 loc value_io2_test = |test-temp:///value-io2-<"<uuidi()>">.test|;
 
-private bool textWriteRead(type[&T] typ, value exp) {
+private bool textWriteRead(type[&T] _, value exp) {
    writeTextValueFile(value_io2_test,exp);
    if (&T N := readTextValueFile(value_io2_test) && N == exp) return true;
-   return false;
-   }
-   
-private bool textWriteRead1(type[&T] typ, value exp) {
-   writeTextValueFile(value_io2_test,exp);
-   if (&T N := readTextValueFile(typ, value_io2_test) && N == exp) return true;
    return false;
    }
    

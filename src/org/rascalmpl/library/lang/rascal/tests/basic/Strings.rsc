@@ -1,6 +1,5 @@
 module lang::rascal::tests::basic::Strings
 
-import IO;
 import String;
 import List;
 import util::Math;

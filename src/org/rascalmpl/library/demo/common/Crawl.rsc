@@ -14,32 +14,27 @@ import String;
 
 public list[loc] crawl(loc dir, str suffix){
   res = [];
-  for(str entry <- listEntries(dir)){
-      loc sub = dir + entry;   /*1*/
-      if(isDirectory(sub)) {
-          res += crawl(sub, suffix);
-      } else {
-	      if(endsWith(entry, suffix)) { 
-	         res += [sub]; 
-	      }
+  for (loc entry <- dir.ls) {
+      if (isDirectory(entry)) {
+          res += crawl(entry, suffix);
+      } else if(endsWith(entry.path, suffix)) { 
+	      res += [entry]; 
       }
   };
   return res;
 }
 
-//public list[loc] crawl2(loc dir, str suffix){
-//  return 
-//	  for(str entry <- listEntries(dir)){
-//	      loc sub = dir + entry;  
-//	      if(isDirectory(sub)) {
-//	          append crawl(sub, suffix);  /*2*/
-//	      } else {
-//		      if(endsWith(entry, suffix)) { 
-//		         append [sub];           /*3*/
-//		      }
-//	      }
-//	  };
-//}
+public list[loc] crawl2(loc dir, str suffix) {
+  return result:for (loc entry <- dir.ls) {
+	      for (isDirectory(entry), sub <- crawl(entry, suffix)) {
+	          append result: sub;  /*2*/
+	      }
+		      
+		  if(!isDirectory(entry), endsWith(entry.path, suffix)) { 
+		      append result: entry; /*3*/
+		  }
+	  }
+}
 
 public list[loc] crawl3(loc dir, str suffix) =
-  isDirectory(dir) ? [*crawl(e,suffix) | e <- dir.ls] : (dir.extension == suffix ? [dir] : []);
+  isDirectory(dir) ? [*crawl3(e,suffix) | e <- dir.ls] : (dir.extension == suffix ? [dir] : []);

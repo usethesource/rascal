@@ -67,12 +67,12 @@ public class Manager {
 	
 	public IValue startTransaction(IEvaluatorContext ctx) {
 		if(base == null)
-			base = new Transaction(ctx.getStdErr());
-		return new Transaction(base, ctx.getStdErr());
+			base = new Transaction(ctx.getErrorPrinter());
+		return new Transaction(base, ctx.getErrorPrinter());
 	}
 	
 	public IValue startTransaction(IValue tr, IEvaluatorContext ctx) {
-		return new Transaction(transaction(tr), ctx.getStdErr());
+		return new Transaction(transaction(tr), ctx.getErrorPrinter());
 	}
 	
 	public void endTransaction(IValue tr) {

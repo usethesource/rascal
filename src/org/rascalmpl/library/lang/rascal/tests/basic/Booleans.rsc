@@ -1,3 +1,10 @@
+@license{
+  Copyright (c) 2009-2020 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
 module lang::rascal::tests::basic::Booleans
 
 import Boolean;
@@ -57,30 +64,30 @@ test bool matchTypedAnonymousReturn(){
 }
 
 test bool matchVar(){
-    b = [x] := [1];
+    b = [_] := [1];
     return b;
 }
 
 test bool matchVarReturn(){
-    return [x] := [1];
+    return [_] := [1];
 }
 
 test bool matchTypedVar(){
-    b = [int x] := [1];
+    b = [int _] := [1];
     return b;
 }
 
 test bool matchTypedVarReturn(){
-    return [int x] := [1];
+    return [int _] := [1];
 }
 
 test bool matchAnonymousListVar1(){
-    b = [_*] := [1];
+    b = [*_] := [1];
     return b;
 }
   
 test bool matchAnonymousListVar1Return(){
-    return [_*] := [1];
+    return [*_] := [1];
 }
 
 test bool matchAnonymousListVar2(){
@@ -102,72 +109,72 @@ test bool matchTypedAnonymousListVarReturn(){
 }
 
 test bool matchListVar1(){
-    b = [x*] := [1];
+    b = [*_] := [1];
     return b;
 }
 
 test bool matchListVar1Return(){
-    return [x*] := [1];
+    return [*_] := [1];
 }
 
 test bool matchListVar2(){
-    b = [*x] := [1];
+    b = [*_] := [1];
     return b;
 }
 
 test bool matchListVar2Return(){
-    return [*x] := [1];
+    return [*_] := [1];
 }
 
 test bool matchTypedListVar(){
-    b = [*int x] := [1];
+    b = [*int _] := [1];
     return b;
 }
 
 test bool matchTypedListVarReturn(){
-    return [*int x] := [1];
+    return [*int _] := [1];
 }
 
 test bool matchTypedVarAndTrue(){
     ten = 10;
-    b = [int x] := [1] && ten > 9;
+    b = [int _] := [1] && ten > 9;
     return b;
 }
 
 test bool matchTypedVarAndFalse(){
     ten = 10;
-    b = [int x] := [1] && 9 > ten;
+    b = [int _] := [1] && 9 > ten;
     return !b;
 }
 
 test bool matchTypedListVarAnd(){
     ten = 10;
-    b = [*int x] := [1] && ten > 9;
+    b = [*int _] := [1] && ten > 9;
     return b;
 }
 
 test bool matchTypedListVarAndFalse(){
     ten = 10;
-    b = [*int x] := [1] && 9 > ten;
+    b = [*int _] := [1] && 9 > ten;
     return !b;
 }
 
 test bool compositeAnd() {
     ten = 10;
-    b = [*int x, int  y, *int z] := [1,2,3] && ten > 9;
+    b = [*int _, int  _, *int _] := [1,2,3] && ten > 9;
     return b;
 }
 
 test bool compositeAndFalse() {
     ten = 10;
-    b = [*int x, int  y, *int z] := [1,2,3] && 9 > ten;
+    b = [*int _, int  _, *int _] := [1,2,3] && 9 > ten;
     return !b;
 }
 
 test bool compositeAndCnt() {
     n = 0;
     ten = 10;
-    if( [*int x, int  y, *int z] := [1,2,3] && ten > 9 )  {
+    if( [*int _, int  _, *int _] := [1,2,3] && ten > 9 )  {
         n = n + 1;
         fail;
     }
@@ -177,7 +184,7 @@ test bool compositeAndCnt() {
 test bool compositeAndCommaCnt() {
     n = 0;
     ten = 10;
-    if( [*int x, int  y, *int z] := [1,2,3] , ten > 9 )  {
+    if( [*int _, int  _, *int _] := [1,2,3] , ten > 9 )  {
         n = n + 1;
         fail;
     }
@@ -186,13 +193,13 @@ test bool compositeAndCommaCnt() {
 
 test bool compositeAndCntBTLast1() {
     ten = 10;
-    return ten > 9 && [*int x, int  y, *int z] := [1,2,3];
+    return ten > 9 && [*int _, int  _, *int _] := [1,2,3];
 }
 
 test bool compositeAndCntBTLast2() {
     n = 0;
     ten = 10;
-    if( ten > 9 && [*int x, int  y, *int z] := [1,2,3] )  {
+    if( ten > 9 && [*int _, int  _, *int _] := [1,2,3] )  {
         n = n + 1;
         fail;
     }
@@ -202,7 +209,7 @@ test bool compositeAndCntBTLast2() {
 test bool compositeAndCommaCntBTLast() {
     n = 0;
     ten = 10;
-    if( ten > 9 && [*int x, int  y, *int z] := [1,2,3] )  {
+    if( ten > 9 && [*int _, int  _, *int _] := [1,2,3] )  {
         n = n + 1;
         fail;
     }
@@ -210,12 +217,12 @@ test bool compositeAndCommaCntBTLast() {
 }
 
 test bool compositeAndBothBT() {
-    return [*int x, int  y, *int z] := [1,2,3] && [*int p, int  q, *int r] := [4, 5, 6];
+    return [*int _, int  _, *int _] := [1,2,3] && [*int _, int  _, *int _] := [4, 5, 6];
 }
 
 test bool compositeAndBothBTCnt() {
     n = 0;
-    if( [*int x, int  y, *int z] := [1,2,3] && [*int p, int  q, *int r] := [4, 5, 6] )  {
+    if( [*int _, int  _, *int _] := [1,2,3] && [*int _, int  _, *int _] := [4, 5, 6] )  {
         n = n + 1;
         fail;
     }
@@ -224,7 +231,7 @@ test bool compositeAndBothBTCnt() {
 
 test bool compositeOrBTLast() {
     n = 0;
-    if( int p := 3 || ([*int x,*int y] := [4,5,6]) )  {
+    if( int _ := 3 || ([*int _,*int _] := [4,5,6]) )  {
         n = n + 1;
         fail;
     }
@@ -233,7 +240,7 @@ test bool compositeOrBTLast() {
 
 test bool compositeOrBTFirst() {
     n = 0;
-    if( [*int x,*int y] := [4,5,6] || int p := 3)  {
+    if( [*int _,*int _] := [4,5,6] || int _ := 3)  {
         n = n + 1;
         fail;
     }
@@ -242,7 +249,7 @@ test bool compositeOrBTFirst() {
 
 test bool compositeAndOr() {
     n = 0;
-    if( ([*int x,*int y] := [1,2,3] && int z := 3) || ([*int x,*int y] := [4,5,6] && int z := 4) )  {
+    if( ([*int _,*int _] := [1,2,3] && int _ := 3) || ([*int _,*int _] := [4,5,6] && int _ := 4) )  {
         n = n + 1;
         fail;
     }
@@ -253,31 +260,31 @@ test bool compositeAndOr() {
 
 test bool compositeImplTrue(){
   ten = 10;
-  b = [*int x, int  y, *int z] := [1,2,3] ==> ten > 9;
+  b = [*int _, int  _, *int _] := [1,2,3] ==> ten > 9;
   return b;
 }
 
 test bool compositeImplFalse(){
   ten = 10;
-  b = [*int x, int  y, *int z] := [1,2,3] ==> 9 > ten;
+  b = [*int _, int  _, *int _] := [1,2,3] ==> 9 > ten;
   return !b;
 }
 
 test bool compositeImplBTLast1(){
   ten = 10;
-  b = 9 > ten ==> [*int x, int  y, *int z] := [1,2,3];
+  b = 9 > ten ==> [*int _, int  _, *int _] := [1,2,3];
   return b;
 }
 
 test bool compositeImplBTLast2(){
   ten = 10;
-  b = ten > 9 ==> [*int x, int  y, *int z] := [1,2,3];
+  b = ten > 9 ==> [*int _, int  _, *int _] := [1,2,3];
   return b;
 }
 
 test bool compositeImplBothBT(){
   ten = 10;
-  b = [*int x, int  y, *int z] := [1,2,3] ==> ([*int p, *int q] := [4,5,6] && int r := 4);
+  b = [*int _, int  _, *int _] := [1,2,3] ==> ([*int _, *int _] := [4,5,6] && int _ := 4);
   return b;
 }
 
@@ -286,31 +293,31 @@ test bool compositeImplBothBT(){
 
 test bool compositeEquivTrue(){
   ten = 10;
-  b = [*int x, int  y, *int z] := [1,2,3] <==> ten > 9;
+  b = [*int _, int  _, *int _] := [1,2,3] <==> ten > 9;
   return b;
 }
 
 test bool compositeEquivFalse(){
   ten = 10;
-  b = [*int x, int  y, *int z] := [1,2,3]<==> 9 > ten;
+  b = [*int _, int  _, *int _] := [1,2,3]<==> 9 > ten;
   return !b;
 }
 
 test bool compositeEquivBTLast1(){
   ten = 10;
-  b = 9 > ten <==> [*int x, int  y, *int z] := [1,2,3];
+  b = 9 > ten <==> [*int _, int  _, *int _] := [1,2,3];
   return !b;
 }
 
 test bool compositeEquivBTLast2(){
   ten = 10;
-  b = ten > 9 <==> [*int x, int  y, *int z] := [1,2,3];
+  b = ten > 9 <==> [*int _, int  _, *int _] := [1,2,3];
   return b;
 }
 
 test bool compositeEquivBothBT(){
   ten = 10;
-  b = [*int x, int  y, *int z] := [1,2,3] <==> ([*int p, *int q] := [4,5,6] && int r := 4);
+  b = [*int _, int  _, *int _] := [1,2,3] <==> ([*int _, *int _] := [4,5,6] && int _ := 4);
   return b;
 }
 

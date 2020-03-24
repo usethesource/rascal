@@ -10,7 +10,6 @@ module lang::rascal::grammar::definition::Attributes
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Literals;
 import ParseTree;
-import IO;
 import ValueIO;
 import util::Maybe;
 

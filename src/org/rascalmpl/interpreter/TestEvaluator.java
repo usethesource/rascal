@@ -111,7 +111,7 @@ public class TestEvaluator {
                 TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
                     try {
                         IValue testResult = test.call(actuals, args, null).getValue();
-                        if (((IBool)testResult).getValue()) {
+                        if ((testResult instanceof IBool) && ((IBool)testResult).getValue()) {
                             return QuickCheck.SUCCESS;
                         }
                         else {
@@ -123,8 +123,8 @@ public class TestEvaluator {
                     }
                 }, env.getRoot().getStore(), tries, maxDepth, maxWidth, ignoreAnnotations);
                 
-                eval.getStdOut().flush();
-                eval.getStdErr().flush();
+                eval.getOutPrinter().flush();
+                eval.getErrorPrinter().flush();
                 
                 if (!result.succeeded()) {
                     StringWriter sw = new StringWriter();
@@ -139,8 +139,8 @@ public class TestEvaluator {
             catch(Throwable e){
                 testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
             }
-            eval.getStdOut().flush();
-            eval.getStdErr().flush();
+            eval.getOutPrinter().flush();
+            eval.getErrorPrinter().flush();
         }
         testResultListener.done();
     }

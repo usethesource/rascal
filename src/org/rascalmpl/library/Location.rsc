@@ -26,14 +26,18 @@ module Location
 import IO;
 import List;
 import Set;
+import String;
 import Exception;
 
 @doc{
 .Synopsis
 Check that two locations refer to the same file.
-}
+}    
 bool isSameFile(loc l, loc r)
-    = l.top == r.top;
+    = (isEmpty(l.fragment) ? l.top : l.top[fragment=""])
+      == 
+      (isEmpty(r.fragment) ? r.top : r.top[fragment=""])
+    ;
     
 @doc{
 .Synopsis
@@ -71,11 +75,18 @@ Strict containment between two locations `inner` and `outer` holds when
 - both.
 }
 
-bool isStrictlyContainedIn(loc inner, loc outer)
-    = isSameFile(inner, outer) && (  (inner.offset? && inner.offset > 0 && !outer.offset?) 
-                                  || inner.offset == outer.offset && inner.offset + inner.length < outer.offset + outer.length
-                                  || inner.offset > outer.offset && inner.offset + inner.length <= outer.offset + outer.length
-                                  );
+bool isStrictlyContainedIn(loc inner, loc outer){
+    if(isSameFile(inner, outer)){
+       if(inner.offset?){
+          return outer.offset? ==> (  inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
+                                   || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length
+                                   );
+       } else {
+         return inner.offset > 0 && !outer.offset?;
+       }
+    }
+    return false;
+}
 
 @doc{
 .Synopsis
@@ -89,11 +100,16 @@ Containment between two locations `inner` and `outer` holds when
 - `inner` is strictly contained in `outer`.
 }
 
-bool isContainedIn(loc inner, loc outer)
-    = isSameFile(inner, outer) && ( (inner.offset? && inner.offset > 0 && !outer.offset?) 
-                                  || inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length
-                                  );
-
+bool isContainedIn(loc inner, loc outer){
+    if(isSameFile(inner, outer)){
+       if(inner.offset?){
+          return outer.offset? ==> (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
+       } else {
+         return !outer.offset?;
+       }
+    }
+    return false;
+}
 
 @doc{
 .Synopsis
