@@ -59,8 +59,15 @@ bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditi
 bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`, str fname,  Collector c)
     = returnsViaAllPath(thenStatement, fname, c) && returnsViaAllPath(elseStatement, fname, c);
  
-bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = returnsValue(statement, fname, c) && (returnsViaAllPath(statement, fname, c) || true);
-bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = returnsValue(statement,fname, c);
+bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = 
+    returnsValue(statement, fname, c) && (returnsViaAllPath(statement, fname, c) || true)
+    when !(statement is emptyStatement);
+bool returnsViaAllPath((Statement) `return;`, str fname,  Collector c) =  true;
+
+bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = returnsValue(statement,fname, c)
+    when !(statement is emptyStatement);
+bool returnsViaAllPath((Statement) `throw;`, str fname,  Collector c) = true;   
+    
 bool returnsViaAllPath((Statement) `fail <Target target>;`, str fname,  Collector c) = isEmpty("<target>") || "<target>" == fname;
 bool returnsViaAllPath((Statement) `filter;`, str fname,  Collector c) = true;
 bool returnsViaAllPath((Statement) `insert <DataTarget dataTarget> <Statement statement>`, str fname,  Collector c) = true;

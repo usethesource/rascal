@@ -280,7 +280,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             c.report(warning(decl, "Empty function body"));
         }
         if(decl is \default){
-            if("<signature.\type>" != "void" && !returnsViaAllPath(decl.body, "<fname>", c)){
+            if(!returnsViaAllPath(decl.body, "<fname>", c) && "<signature.\type>" != "void"){
                 c.report(error(decl, "Missing return statement"));
             }
         }
