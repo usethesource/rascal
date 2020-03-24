@@ -1,23 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst2
 
 
-int goed(){
-    return 1;
-    goed();
-}
-void err0(){
-    return ;
-    err0();
-}
 
-void err1(){
-    throw "BOO";
-    err1();
-}
-
-void err2(){
-    throw;
-    err2();
+void foo(node tree){
+  for (a <- tree) {
+    if (node x := a);
+    if (list[value] _ := a);
+  }
 }
 
 //data Symbol = \int();
