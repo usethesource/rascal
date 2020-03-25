@@ -188,8 +188,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
 
         private GlobalEnvironment heap;
         private ModuleEnvironment root;
-        private PrintWriter stderr;
-        private PrintWriter stdout;
+        private PrintWriter stderr = new PrintWriter(System.err);
+        private PrintWriter stdout = new PrintWriter(System.out);
         private Evaluator evaluator;
         private final List<Description> testModules = new ArrayList<>();
 
