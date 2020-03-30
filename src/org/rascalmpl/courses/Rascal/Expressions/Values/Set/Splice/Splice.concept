@@ -28,7 +28,7 @@ The operator `*` splices the elements of a set in an enclosing set.
 
 .Examples
 
-Consider the following set in which the set `{10, 20, 30]` occurs as set element. It has as type `set[value]`:
+Consider the following set in which the set `{10, 20, 30}` occurs as set element. It has as type `set[value]`:
 [source,rascal-shell,continue]
 ----
 {1, 2, {10, 20, 30}, 3, 4};
