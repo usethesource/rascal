@@ -43,10 +43,10 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	/** for standard IO */
 	public default PrintWriter getOutPrinter() {
-	    return new PrintWriter(getStdOut());
+	    return new PrintWriter(getStdOut(), true);
 	}
 	public default PrintWriter getErrorPrinter() {
-	    return new PrintWriter(getStdErr());
+	    return new PrintWriter(getStdErr(), true);
 	}
 	
 	public OutputStream getStdOut();
