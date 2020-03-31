@@ -90,13 +90,14 @@ test bool notequal3(map[&K,&V] M1, map[&K,&V] M2)
 	(domain(M1) != domain(M2)
 	|| range(M1) != range(M2)
 	|| isEmpty(M1) 
-	|| any(x <- M1, M1[x] != M2[x]));
-test bool notequal4()
-{
+	|| any(x <- M1, !eq(M1[x],M2[x])));
+	
+test bool notequal4() {
 	map[value,value] iie = (1:1) - (1:1);
 	map[value,value] sse = ("x":"x") - ("x":"x");
 	return !(iie != sse);
 }
+
 test bool notequal5() = !((2:20,1:10) != (1:10,2:20));
 test bool notequal6()
 {
