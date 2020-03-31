@@ -12,12 +12,12 @@ data REPL
      str prompt = "\n\>",
      str quit = "", 
      loc history = |home:///.term-repl-history|, 
-     Response (str command) handler = echo,
+     Content (str command) handler = echo,
      Completion(str line, int cursor) completor = noSuggestions,
      str () stacktrace = str () { return ""; }
    );
 
-private Response echo(str line) = plain(line);
+private Content echo(str line) = text(line);
    
 private Completion noSuggestions(str _, int _) = <0, []>;
 
@@ -31,6 +31,6 @@ java void startREPL(REPL repl,
   str prompt = repl.prompt, 
   str quit = repl.quit,
   loc history = repl.history,
-  Response (str ) handler = repl.handler,
+  Content (str ) handler = repl.handler,
   Completion(str , int) completor = repl.completor,
   str () stacktrace = repl.stacktrace);
