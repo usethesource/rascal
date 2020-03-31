@@ -86,12 +86,16 @@ public class ReadEvalPrintDialogMessages {
 					content.append("\nParse error at column ");
 					content.append(""+pe.getEndColumn());
 				}
+				
+				content.append("\n");
 			}
 		}
 		else {
 		    printSourceLocation(content, pe.getLocation(), writer);
 			content.println(": Parse error");
 		}
+		
+		content.flush();
 	}
 
 	public static String interruptedExceptionMessage(InterruptException i) {
@@ -200,5 +204,6 @@ public class ReadEvalPrintDialogMessages {
 		printSourceLocation(out, e.getLocation(), writer);
 	    out.print(": ");
 	    out.println(e.getMessage());
+	    out.flush();
 	}
 }
