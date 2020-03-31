@@ -34,23 +34,28 @@ When you are happy with the interaction, or you want a permanent visualization w
 garbage collected after 30 minutes, you can consider wrapping the same callback in
 a webserver using the <<util::Webserver::serve>> function. 
 }
-data Content = content(str id, Response (Request) callback);
+data Content 
+  = content(str id, Response (Request) callback)
+  | content(Response response)
+  ;
 
 @doc{
 .Synopsis
 Directly serve a static html page
 }
-Content html(str id, str html) = content(id, Response (Request _) {
-   return response(html);
-});
+Content html(str html) = content(response(html));
 
 @doc{
 .Synopsis
 Directly serve the contents of a file
 }
-Content file(str id, loc src) = content(id, Response (Request _) {
-   return response(src);
-});
+Content file(loc src) = content(response(src));
+
+@doc{
+.Synopsis
+Directly serve the contents of a string as plain text
+}
+Content text(str text) = content(plain(text));
 
 alias Body = value (type[value] expected);
 
