@@ -79,9 +79,27 @@ public class NodeResult extends ElementResult<INode> {
                 }
             }
         }
+	    
+	    if (value.mayHaveKeywordParameters()) {
+	        IValue parameter = value.asWithKeywordParameters().getParameter(name);
+	        if (parameter != null) {
+	            return makeResult(getTypeFactory().valueType(), parameter, ctx);
+	        }    
+	    }  
+	    
 	    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
+	    if (value.mayHaveKeywordParameters()) {
+	        return makeResult(type, value.asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
+	    }
+	    else {
+	        return makeResult(type, value, ctx);
+	    }
+	}
+	
 	@Override
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToNode(this);

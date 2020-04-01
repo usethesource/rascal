@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.17.0-simulated-annotations-SNAPSHOT</version>
+    <version>0.18.0-simulated-annotations-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -124,7 +124,7 @@
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/java/syntax/Java18.rsc</ignore>
                             <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
                         </srcIgnores>
-                        <enableStandardLibrary>false</enableStandardLibrary><!-- this project contains the standard library source itself -->
+                        <enableStandardLibrary>false</enableStandardLibrary>
                     </configuration>
                     <executions>
                         <execution>

@@ -246,7 +246,7 @@ public abstract class Import {
 		addImportToCurrentModule(src, name, eval);
 		
 		if (heap.getModule(name).isDeprecated()) {
-			eval.getStdErr().println(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
+			eval.getErrorPrinter().println(src + ":" + name + " is deprecated, " + heap.getModule(name).getDeprecatedMessage());
 		}
 		
 		return;
@@ -296,7 +296,7 @@ public abstract class Import {
 	        Module module = buildModule(uri, env, eval);
 
 	        if (isDeprecated(module)) {
-	            eval.getStdErr().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
+	            eval.getErrorPrinter().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
 	        }
 
 	        if (module != null) {

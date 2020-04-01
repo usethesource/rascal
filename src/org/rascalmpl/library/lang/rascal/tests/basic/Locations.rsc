@@ -311,6 +311,30 @@ bool isLexicallyLess1(int _){
     return report(l1, l2, isLexicallyLess(l1, l2));
 }
 
+test bool isSameFile1(){
+    l = |C:///a|;
+    r = |C:///a#1|;
+    return isSameFile(l, r);
+}
+
+test bool isSameFile2(){
+    l = |C:///a|;
+    r = |C:///b#1|;
+    return !isSameFile(l, r);
+}
+
+test bool isSameFile3(loc l){
+    return isSameFile(l, l);
+}
+
+test bool isSameFile4(loc l){
+    return !isSameFile(l[scheme="A"], l[scheme="B"]);
+}
+
+test bool isSameFile5(loc l){
+    return !isSameFile(l[authority="A"], l[authority="B"]);
+}
+
 // isContainedIn
 
 test bool isContainedIn1(int f, int len){
