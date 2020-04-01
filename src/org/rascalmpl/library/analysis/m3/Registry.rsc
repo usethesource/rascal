@@ -36,6 +36,57 @@ void registerProject(loc project, M3 model) {
     rel[str scheme, loc name, loc src] perScheme 
       = {<name.scheme, name, src> | <name, src> <- model.declarations};
     
-    for (str scheme <- perScheme<scheme>)
+    for (str scheme <- perScheme<scheme>) {
        registerLocations(scheme, project.authority, (name : src | <name, src> <- perScheme[scheme]));
+    }
+}
+
+@doc{ 
+.Synopsis
+unregister an M3 model for a certain project name.
+
+.Description
+
+The effect of unregistering a project is that all references will be
+removed from the registry, clearing memory.
+
+.Benefits
+
+*  this cleans up the memory used by the registry
+
+.Pitfalls
+
+*  if a different model is used for unregistering than for registering,
+   there could be a memory leak of remaining schemes and their respective locations.
+}
+void unregisterProject(loc project, M3 model) {
+    for (loc name <- model.declarations<name>) {
+           unregisterLocations(name.scheme, project.authority);
+    }
+}
+
+@doc{  
+.Synopsis
+unregister an M3 model for a set of given schemes
+
+.Description
+
+The effect of unregistering a project is that all references will be
+removed from the registry, clearing memory.
+
+.Benefits
+
+* This cleans up the memory used by the registry, and by giving all possible
+   schemes for a certain language the chance is high there are not dangling
+   entries afterwards.
+
+.Pitfalls
+
+*  If more schemes were registered than are unregistered here, there is a
+   memory leak.
+} 
+void unregisterProjectSchemes(loc project, set[str] schemes) {
+    for (str scheme <- schemes) {
+           unregisterLocations(scheme, project.authority);
+    }
 }

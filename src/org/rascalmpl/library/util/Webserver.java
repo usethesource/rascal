@@ -115,12 +115,12 @@ public class Webserver {
             Throwable actualException = e.getCause();
             if (actualException instanceof Throw) {
               Throw rascalException = (Throw) actualException;
-              ctx.getStdErr().println(rascalException.getMessage());
+              ctx.getErrorPrinter().println(rascalException.getMessage());
               return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
             }
             else if (actualException instanceof StaticError) {
                 StaticError error = (StaticError) actualException;
-                ctx.getStdErr().println(error.getLocation() + ": " + error.getMessage());
+                ctx.getErrorPrinter().println(error.getLocation() + ": " + error.getMessage());
                 return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, error.getMessage());
             }
             else {
@@ -133,8 +133,8 @@ public class Webserver {
       }
 
       private Response handleGeneralThrowable(final IEvaluatorContext ctx, Throwable actualException) {
-          ctx.getStdErr().println(actualException.getMessage());
-          actualException.printStackTrace(ctx.getStdErr());
+          ctx.getErrorPrinter().println(actualException.getMessage());
+          actualException.printStackTrace(ctx.getErrorPrinter());
           return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, actualException.getMessage());
       }
 
@@ -330,8 +330,8 @@ public class Webserver {
       server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDeamon.getValue());
       servers.put(url, server);
       if (!asDeamon.getValue()) {
-          ctx.getStdOut().println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
-          ctx.getStdOut().flush();
+          ctx.getOutPrinter().println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
+          ctx.getOutPrinter().flush();
           while(!ctx.isInterrupted()) {
               try {
                   Runnable job;

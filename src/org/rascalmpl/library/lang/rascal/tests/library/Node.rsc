@@ -201,3 +201,8 @@ test bool kwParamsDoNotInfluenceNoMatch() {
    node b = ""(n=1);
    return !(a !:= b) && !(b !:= a);
 }
+
+test bool keywordParametersAreFields() {
+   node a = "x"(age=1);
+   return a.age == 1 && a[age=2].age == 2;
+}
