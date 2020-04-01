@@ -58,7 +58,7 @@ public class TestFramework {
 		
 		stderr = new PrintWriter(System.err);
 		stdout = new PrintWriter(System.out);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), stderr, stdout,  root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
 		
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		

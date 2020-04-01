@@ -39,10 +39,8 @@ import fi.iki.elonen.NanoHTTPD.Response;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
@@ -163,74 +161,25 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         // or we have output wrapped in a content wrapper:
         if (result.getType().isSubtypeOf(RascalValueFactory.Content)) {
             serveContent(result, output, metadata);
+            output.put(mimeType, stringStream("ok\n"));
             return;
         }
        
         // otherwise we have simple output to print on the REPL in either text/html or text/plain format:
         final StringWriter out = new StringWriter();
-        OutputWriter writer;
-        if (htmlOutput) {
-            // TODO: merge the Content feature here, which can replace the Salix feature
-            // because it could handle all HTML code not just salix
-            try {
-                if(result.getType().isTuple() && result.getType().getName().equalsIgnoreCase("SalixMultiplexer")){
-                    ISourceLocation http = (ISourceLocation)((ITuple)result.getValue()).get(2);
-                    evalStatement("serverSalixHttp1 = \""+ http.getURI() +"\";", null);
-                }
+        OutputWriter writer = new OutputWriter() {
+            @Override
+            public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
+                out.write(tp.toString());
+                out.write(": ");
+                contentsWriter.accept(out);
             }
-            catch (IllegalOperationException|InterruptedException e) {
-                e.printStackTrace();
+
+            @Override
+            public void finishOutput() {
+                out.write('\n');
             }
-            writer = new OutputWriter() {
-                @Override
-                public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
-                    
-                    try{
-                        // TODO: Not sure about this, but it works in most cases 
-                        if(tp.isAliased() && tp.isString() && tp.getName().equals("VisOutput")){
-                            String scope = ((IString) result.getValue()).getValue();
-                            IRascalResult gg = evalStatement("serverSalixHttp1;", "serverSalixHttp1;");
-                            
-                            out.write("<script>");
-                            out.write("var "+ scope +" = new Salix('"+ scope +"', '" + ((IString) gg.getValue()).getValue() +"');");
-                            out.write("google.charts.load('current', {'packages':['corechart']});");
-                            out.write("google.charts.setOnLoadCallback(function () { registerCharts("+scope+");\n registerDagre("+scope+"); \n registerTreeView("+ scope +"); \n"+ scope + ".start();});");
-                            out.write("</script>");
-                            out.write("<div id=\""+ scope +"\">");
-                            out.write("</div>");
-                        }
-                        else{
-                            out.write("<div>");
-                            out.write("<pre title=\"Type: " + tp.toString() + "\">");
-                            contentsWriter.accept(out);
-                            out.write("</pre>");
-                            out.write("</div>");
-                        }
-                    }
-                    catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                @Override
-                public void finishOutput() {
-                }
-            };
-        }
-        else {
-            writer = new OutputWriter() {
-                @Override
-                public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
-                    out.write(tp.toString());
-                    out.write(": ");
-                    contentsWriter.accept(out);
-                }
-                
-                @Override
-                public void finishOutput() {
-                    out.write('\n');
-                }
-            };
-        }
+        };
        
         writeOutput(result, writer);
 
@@ -245,15 +194,26 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private void serveContent(IRascalResult result, Map<String, InputStream> output, Map<String, String> metadata)
         throws IOException {
         IConstructor provider = (IConstructor) result.getValue();
-        String id = ((IString) provider.get("id")).getValue();
-        Function<IValue, IValue> target = liftProviderFunction(provider.get("callback"));
+        String id;
+        Function<IValue, IValue> target;
         
+        if (provider.has("id")) {
+            id = ((IString) provider.get("id")).getValue();
+            target = liftProviderFunction(provider.get("callback"));
+        }
+        else {
+            id = "***static content***";
+            target = (r) -> provider.get("response");
+        }
+
         // this installs the provider such that subsequent requests are handled.
         REPLContentServer server = contentManager.addServer(id, target);
-        
+
         // now we need some HTML to show
         Response response = server.serve("/", Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-        metadata.put("url", "http://localhost:" + server.getListeningPort() + "/");
+        String URL = "http://localhost:" + server.getListeningPort() + "/";
+        metadata.put("url", URL);
+        getOutputWriter().println("Serving visual content at |" + URL + "|");
         output.put(response.getMimeType(), response.getData());
     }            
         
@@ -286,6 +246,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
 
     public abstract PrintWriter getErrorWriter();
     public abstract PrintWriter getOutputWriter();
+    public abstract InputStream getInput();
 
     public abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
 

@@ -26,14 +26,18 @@ module Location
 import IO;
 import List;
 import Set;
+import String;
 import Exception;
 
 @doc{
 .Synopsis
 Check that two locations refer to the same file.
-}
+}    
 bool isSameFile(loc l, loc r)
-    = l.top == r.top;
+    = (isEmpty(l.fragment) ? l.top : l.top[fragment=""])
+      == 
+      (isEmpty(r.fragment) ? r.top : r.top[fragment=""])
+    ;
     
 @doc{
 .Synopsis

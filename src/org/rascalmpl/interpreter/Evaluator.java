@@ -22,6 +22,8 @@ package org.rascalmpl.interpreter;
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
@@ -118,9 +120,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
-
-
-
     private final IValueFactory vf; // sharable
     private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
     protected volatile Environment currentEnvt; // not sharable
@@ -161,10 +160,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private final List<ClassLoader> classLoaders; // sharable if frozen
     private final ModuleEnvironment rootScope; // sharable if frozen
 
-    private final PrintWriter defStderr;
-    private final PrintWriter defStdout;
-    private PrintWriter curStderr = null;
-    private PrintWriter curStdout = null;
+    private final OutputStream defStderr;
+    private final OutputStream defStdout;
+    private final InputStream defInput;
+    
+    private OutputStream curStderr = null;
+    private OutputStream curStdout = null;
+    private InputStream curInput = null;
 
     /**
      * Probably not sharable
@@ -187,13 +189,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private final URIResolverRegistry resolverRegistry; // sharable
 
     private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // TODO: can this be shared?
+    
     private static final Object dummy = new Object();	
 
-    public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-        this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
     }
 
-    public Evaluator(IValueFactory vf, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
+    public Evaluator(IValueFactory vf, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
         super();
 
         this.vf = vf;
@@ -206,6 +209,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.javaBridge = new JavaBridge(classLoaders, vf, config);
         this.rascalPathResolver = rascalPathResolver;
         this.resolverRegistry = rascalPathResolver.getRegistry();
+        this.defInput = input;
         this.defStderr = stderr;
         this.defStdout = stdout;
         this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>();
@@ -244,6 +248,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.resolverRegistry = source.resolverRegistry;
         this.defStderr = source.defStderr;
         this.defStdout = source.defStdout;
+        this.defInput = source.defInput;
         this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>(source.constructorDeclaredListeners);
         this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>(source.suspendTriggerListeners);
 
@@ -352,8 +357,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public PrintWriter getStdOut() {
+    public OutputStream getStdOut() {
         return curStdout == null ? defStdout : curStdout;
+    }
+
+    @Override
+    public InputStream getInput() {
+        return curInput == null ? defInput : curInput;
     }
 
     @Override	
@@ -402,7 +412,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public PrintWriter getStdErr() {
+    public OutputStream getStdErr() {
         return curStderr == null ? defStderr : curStderr;
     }
 
@@ -561,7 +571,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         catch (MatchFailed e) {
-            getStdOut().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+            getOutPrinter().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
             return null;
         }
         finally {
@@ -1176,7 +1186,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         try {
             Set<String> onHeap = new HashSet<>();
             Set<String> extendingModules = new HashSet<>();
-            PrintWriter errStream = getStdErr();
+            PrintWriter errStream = getErrorPrinter();
 
             try {
                 monitor.startJob("Cleaning modules", names.size());
@@ -1481,7 +1491,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
-            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getStdOut());
+            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter());
 
             new TestEvaluator(this, new ITestResultListener() {
 
@@ -1541,14 +1551,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return new NullRascalMonitor();
     }
 
-    public void overrideDefaultWriters(PrintWriter newStdOut, PrintWriter newStdErr) {
+    public void overrideDefaultWriters(InputStream newInput, OutputStream newStdOut, OutputStream newStdErr) {
         this.curStdout = newStdOut;
         this.curStderr = newStdErr;
+        this.curInput = newInput;
     }
 
     public void revertToDefaultWriters() {
         this.curStderr = null;
         this.curStdout = null;
+        this.curInput = null;
     }
 
     public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {

@@ -37,7 +37,7 @@ import io.usethesource.vallang.type.TypeStore;
 
 public class REPLContentServer extends NanoHTTPD {
     private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-    private final Function<IValue, IValue> callback;
+    private Function<IValue, IValue> callback;
     private long lastServedAt = 0L;
     
     public REPLContentServer(int port, Function<IValue, IValue> callback) {
@@ -46,6 +46,11 @@ public class REPLContentServer extends NanoHTTPD {
         this.lastServedAt = System.currentTimeMillis();
     }
 
+    public void updateCallback(Function<IValue, IValue> callback) {
+        this.callback = callback;
+        lastServedAt = System.currentTimeMillis();
+    }
+    
     /**
      * @return the system time at which the last page was served by this server,
      * for GC purposes.
