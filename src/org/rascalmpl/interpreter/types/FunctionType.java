@@ -14,7 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -456,7 +455,7 @@ public class FunctionType extends RascalType {
 	}
 	
 	private static final GlobalEnvironment randomHeap = new GlobalEnvironment();
-	private static final Evaluator randomFunctionEvaluator = new Evaluator(IRascalValueFactory.getInstance(), new PrintWriter(System.out),  new PrintWriter(System.err), new ModuleEnvironment("random function", randomHeap), randomHeap);
+	private static final Evaluator randomFunctionEvaluator = new Evaluator(IRascalValueFactory.getInstance(), System.in, System.out,  System.err, new ModuleEnvironment("random function", randomHeap), randomHeap);
 	
 	@Override
 	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth) {
