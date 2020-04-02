@@ -256,7 +256,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
                   if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
                   c.define(base, formalOrPatternFormal(c), argName, 
                             defLub([], AType(Solver s) { 
-                            return inSet ? makeSetType(tau) : makeListType(tau);}));
+                            return inSet ? makeSetType(s.getType(tau)) : makeListType(s.getType(tau));}));
               }
              }
         } else {

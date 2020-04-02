@@ -211,7 +211,7 @@ data LoopInfo = loopInfo(str name, list[Tree] appends);
 // ---- while -----------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`,  Collector c){
-    c.enterScope(conditions);   // body may refer to variables defined in conditions
+    c.enterScope(current);   // body may refer to variables defined in conditions
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
@@ -226,7 +226,7 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
         endPatternScope(c);
         collect(body, c);
         computeLoopType("while statement", loopName, current, c);
-    c.leaveScope(conditions);
+    c.leaveScope(current);
 }
 
 private void computeLoopType(str loopKind, str loopName1, Statement current, Collector c){
@@ -371,7 +371,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
 // ---- if --------------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart>`,  Collector c){
-    c.enterScope(conditions); // thenPart may refer to variables defined in conditions
+    c.enterCompositeScope([conditions, thenPart]); // thenPart may refer to variables defined in conditions
         if(label is \default){
             c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
@@ -384,7 +384,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         collect(condList, c);
         endPatternScope(c);
         collect(thenPart, c);
-    c.leaveScope(conditions);   
+    c.leaveCompositeScope([conditions, thenPart]);   
 }
 
 // --- if then else -----------------------------------------------------------
@@ -634,9 +634,13 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
     } else {
         if(operator == "="){
            c.define(base, variableId(), name, defLub([statement], AType(Solver s){ return s.getType(statement); }));
-        } else {
            //c.useLub(name, variableRoles);
-           c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){ return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s); }));
+        } else {
+           //if(c.isAlreadyDefined(base, name)) {
+            //c.useLub(name, variableRoles);
+           //} else {
+            c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){ return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s); }));
+           //}
         }
     }
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
