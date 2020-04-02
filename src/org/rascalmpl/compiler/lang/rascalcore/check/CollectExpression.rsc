@@ -612,6 +612,14 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 }
                 return aloc();
             }
+            if(isConstructorType(texp) && getConstructorResultType(texp).adtName == "Tree" && "<expression>" == "char"){
+                nactuals = size(actuals);
+                if(nactuals != 1){
+                    s.report(error(current, "`char` requires 1 argument, found %v", nactuals));
+                }
+                s.requireEqual(actuals[0], aint(), error(actuals[0], "Argument should be of type `int`, found %t", actuals[0]));
+                return \char-class([arange(1,0x10FFFF)]);
+            }
              
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
               <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));

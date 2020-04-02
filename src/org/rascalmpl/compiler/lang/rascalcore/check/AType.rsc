@@ -525,7 +525,9 @@ bool asubtype(areified(AType s), anode(_)) = true;
 bool asubtype(anode(list[AType] l), anode(list[AType] r)) = l <= r;
 
 // Character classes
-bool asubtype(l:\char-class(_), r:\char-class(_)) = l.ranges == r.ranges || (difference(r, l) != \char-class([]));
+bool asubtype(l:\char-class(_), r:\char-class(_)) {
+    return  l.ranges == r.ranges || (difference(r, l) != \char-class([]));
+}
 bool asubtype(l:\char-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
 
 // Utilities

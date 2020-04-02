@@ -87,7 +87,8 @@ str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyATyp
 // terminal symbols
 str prettyAType(AType::\lit(str string)) = string;
 str prettyAType(AType::\cilit(str string)) = string;
-str prettyAType(\char-class(list[ACharRange] ranges)) = "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
+str prettyAType(\char-class(list[ACharRange] ranges)) = 
+    ranges == [arange(1, 0x10FFFF)] ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
 
 str prettyAType(\start(AType symbol)) = "start[<prettyAType(symbol)>]";
 
