@@ -713,17 +713,21 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
                  prevFormals = formals;
               } else {
                  relevantFormals = [0 .. size(formals) - (ft.varArgs ? 1 : 0)];
-                 for(int i <- relevantFormals) identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
+                 for(int i <- relevantFormals) {
+                   identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
+                 }
               }
            }
-        } else
-        if(acons(aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := tp){
+        } 
+        else if(acons(aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := tp){
            if(size(fields) == arity){
               filteredOverloads += ovl;
               if(isEmpty(prevFormals)){
                  prevFormals = fields; //<1>;
               } else {
-                 for(int i <- index(fields)) identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
+                 for(int i <- index(fields)) {
+                   identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
+                 }
               }
             }
         }

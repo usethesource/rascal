@@ -150,7 +150,6 @@ void collect(current: (PatternWithAction) `<Pattern pattern>: <Statement stateme
                     scope = c.getScope();
                     c.setScopeInfo(scope, replacementScope(), replacementInfo(pattern));
                     // force type calculation of pattern
-                    //c.calculateEager("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, avalue(), scope, s); });
                     c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), scope, s); });
                     beginPatternScope("pattern-with-action", c);
                         collect(pattern, c);
@@ -161,7 +160,6 @@ void collect(current: (PatternWithAction) `<Pattern pattern>: <Statement stateme
            } else {
               c.enterScope(current);
                     // force type calculation of pattern
-                    //c.calculateEager("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, s.getType(expression), scope, s); });
                     c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, s.getType(expression), scope, s); });
                     beginPatternScope("pattern-with-action", c);
                         collect(pattern, c);

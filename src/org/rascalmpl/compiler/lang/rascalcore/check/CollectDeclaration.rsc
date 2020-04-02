@@ -292,7 +292,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             c.report(warning(decl, "Empty function body"));
         }
         if(decl is \default){
-            if("<signature.\type>" != "void" && !returnsViaAllPath(decl.body, "<fname>", c)){
+            if(!returnsViaAllPath(decl.body, "<fname>", c) && "<signature.\type>" != "void"){
                 c.report(error(decl, "Missing return statement"));
             }
         }
@@ -450,7 +450,12 @@ void returnRequirement(Tree returnExpr, AType theDeclaredReturnType, Solver s){
     catch invalidMatch(str reason):
           s.report(error(returnExpr, reason));
       
-    actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+    actualReturnType = returnExprType;
+    try {
+        actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+    } catch invalidInstantiation(str reason):{
+        s.report(error(returnExpr, "Returned type %t does not match declared type %t: %v", returnExprType, theDeclaredReturnType, reason));
+    }
 
     if(s.isFullyInstantiated(actualReturnType)){
         s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
