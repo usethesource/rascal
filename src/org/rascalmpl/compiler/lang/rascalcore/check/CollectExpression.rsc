@@ -524,18 +524,15 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
     res = [result];
     c.enterScope(current);
     beginPatternScope("reducer", c);
-        //tau = c.newTypeVar();
-        c.define("it", variableId(), init, defLub([init, result], AType(Solver s) { return s.lub(init, result); }));
+        c.define("it", variableId(), init, defType(init));
         c.require("reducer", current, gens,
             void (Solver s) { 
                 checkNonVoid(init, s, "Initialization expression of reducer");
                 checkNonVoid(result, s, "Result expession of reducer");
                 for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
-        //c.calculate("reducer result", current, [result], AType(Solver s) { return s.getType(result); });
         
         c.fact(current, result);
-        //c.requireEager("reducer it", current, [init, result], void (Solver s){ unify(tau, lub(getType(init), getType(result)), onError(current, "Can determine it")); });
          
         collect(init, c);
         collectGenerators(res, gens, c);
@@ -544,7 +541,7 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
 }
 
 void collect(current: (Expression) `it`, Collector c){
-    c.use(current, {variableId()});
+    c.useLub(current, {variableId()});
 }
 
 // ---- set
@@ -930,7 +927,7 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     } else {
        if(base != "_"){
           //if(inPatternScope(c)){
-            if(c.top(currentAdt)?){
+            if(!isEmpty(c.getStack(currentAdt))){
                 c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
             } else {
                 c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});

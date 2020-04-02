@@ -88,7 +88,19 @@ void collect(Header header, Collector c){
 }
 
 void collect(Body body, Collector c){
-    collect(body.toplevels, c);
+    // First collect all variable declarations to ensure that forward references to
+    // variables are available during type unference inside function bodies
+    for(toplevel <- body.toplevels){
+        if(toplevel.declaration is variable){
+            collect(toplevel.declaration, c);
+        }
+    }
+     for(toplevel <- body.toplevels){
+        if(!(toplevel.declaration is variable)){
+            collect(toplevel.declaration, c);
+        }
+    }
+    //collect(body.toplevels, c);
 }
 
 void collect(Toplevel toplevel, Collector c){
@@ -348,11 +360,11 @@ void collect(Signature signature, Collector c){
     try {
         creturnType = c.getType(returnType);
         cparameters = c.getType(parameters);
-        formalsList = atypeList(elems) := cparameters ? elems : [tformals];
+        formalsList = atypeList(elems) := cparameters ? elems : [cparameters];
         kwformalsList = [<c.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
         c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
         return;
-    } catch TypeUnavailable: {
+    } catch TypeUnavailable(): {
         c.calculate("signature", signature, [returnType, parameters, *exceptions],// + kwFormals<0>,
             AType(Solver s){
                 tformals = s.getType(parameters);
