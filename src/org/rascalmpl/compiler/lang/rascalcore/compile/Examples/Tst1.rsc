@@ -1,4 +1,13 @@
 module lang::rascalcore::compile::Examples::Tst1
+
+//import ParseTree;
+//import String;
+
+data Tree = char(int);
+
+list[![]] characters(str x) = [char(i) | i <- [1..10]];
+
+list[![]] main() = characters("abc");
 // 
 //&L strange(&L <: num arg1, &R <: &L arg2){
 //  return arg2;
@@ -62,19 +71,19 @@ module lang::rascalcore::compile::Examples::Tst1
 //
 //}
 
-void removeIdPairs(rel[int,int] inp){
-   res = inp;
-   if ( { < a, b >, < b, b >, *c } := res ) 
-        res = { *c, < a, b > };
-}
-
-public list[&T] dup(list[&T] lst) {
-  done = {};
-  return for (e <- lst, e notin done) {
-    done = done + {e};
-    append e;
-  }
-}
+//void removeIdPairs(rel[int,int] inp){
+//   res = inp;
+//   if ( { < a, b >, < b, b >, *c } := res ) 
+//        res = { *c, < a, b > };
+//}
+//
+//public list[&T] dup(list[&T] lst) {
+//  done = {};
+//  return for (e <- lst, e notin done) {
+//    done = done + {e};
+//    append e;
+//  }
+//}
 //
 //int eval1(int main, list[int] args) {
 //  penv = [ f | f <-args ];
