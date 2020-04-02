@@ -18,6 +18,7 @@ import Set;
 void collect(current: (Expression) `<Expression e> is <Name n>`, Collector c){
     scope = c.getScope();
     c.calculate("is", current, [e], AType(Solver s) { return unaryOp("is", _computeIsType, current, s.getType(e), s);  });
+    c.use(n, {constructorId()});
     collect(e, c); 
 }
 

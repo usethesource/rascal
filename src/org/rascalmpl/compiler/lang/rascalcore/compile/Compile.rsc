@@ -66,7 +66,7 @@ list[Message] compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|,
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
 list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
     start_check = cpuTime();   
-    <tmodels, moduleLocs, modules> =  rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig());
+    <tmodels, moduleLocs, modules> =  rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig()/*[logSolverSteps=true]*/);
     //iprintln(tmodels[qualifiedModuleName], lineLimit=10000);
     //return tmodels[qualifiedModuleName].messages;
     check_time = (cpuTime() - start_check)/1000000;

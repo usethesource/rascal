@@ -1,14 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst1
- 
- 
-//int main(){
-//    M = ();
-//    M += (1:10);
-//    M["a"]="A";
-//    return M[1];
-//}
-//data L(str e = "e", str f = e + e) = n(str g = f + f);
 // 
+//&L strange(&L <: num arg1, &R <: &L arg2){
+//  return arg2;
+//}
+//
+//value main() = strange(3, "abc");
+
+
 //set[str] f(){
 //    res = {};
 //    res += 1;

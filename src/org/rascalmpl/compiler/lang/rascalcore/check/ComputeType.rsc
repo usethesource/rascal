@@ -822,6 +822,9 @@ private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver 
 
 AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
     requireFullyInstantiated(s, subjectType);
+    if(isConstructorType(subjectType)){
+        subjectType = getConstructorResultType(subjectType);
+    }
     tp = getPatternType0(p, subjectType, scope, s);
     s.fact(p, tp);
     return tp;
@@ -900,7 +903,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
     if(argument is typedVariable){
        uname = unescape("<argument.name>");
        if(uname == "_"){
-          return subjectType;
+          return s.getType(argument.\type);
        } else {
           inameType = s.getType(argument.name);
           s.fact(argument, inameType);
@@ -916,39 +919,34 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
           }
           s.report(error(current, "Cannot get element type for %t", inameType)); 
        }
-    } if(argument is qualifiedName){
+    }
+    if(argument is qualifiedName){
          argName = argument.qualifiedName;
          base = prettyPrintBaseName(argName);
-         if(base != "_"){
+         if(base == "_"){
+            return subjectType;
+         } else {
            elmType = subjectType;
-           //try {
-               inameType = s.getType(argument.qualifiedName);
-               elmType = avoid();
-               if(isListType(inameType)){
-                    elmType = getListElementType(inameType);
-               } else if(isSetType(inameType)){
-                    elmType = getSetElementType(inameType);
-               } else {
-                s.report(error(argument, "List or set type expected, found %t", inameType));
-               }
-                 
-               if(!s.isFullyInstantiated(elmType) || !s.isFullyInstantiated(subjectType)){
-                  s.requireUnify(elmType, subjectType, error(current, "Type of pattern could not be computed"));
-                  elmType = s.instantiate(elmType);
-                  //s.fact(argName, nameElementType);//<<
-                  s.fact(current, elmType); // <<
-                  subjectType = s.instantiate(elmType);
-               }
-           //} catch TypeUnavailable(): {
-           //     nameElementType = subjectType;
-           //    //s.fact(argName, nameElementType); //<<
-           //    s.fact(current, nameElementType); //<<
-           //}
-           //nameElementType = isListType(nameType) ? getListElementType(nameType) : getSetElementType(nameType);
+           inameType = s.getType(argName);
+           elmType = avoid();
+           if(isListType(inameType)){
+                elmType = getListElementType(inameType);
+           } else if(isSetType(inameType)){
+                elmType = getSetElementType(inameType);
+           } else {
+            s.report(error(argument, "List or set type expected, found %t", inameType));
+           }
+             
+           if(!s.isFullyInstantiated(elmType) || !s.isFullyInstantiated(subjectType)){
+              s.requireUnify(elmType, subjectType, error(current, "Type of pattern could not be computed"));
+              elmType = s.instantiate(elmType);
+              //s.fact(argName, nameElementType);//<<
+              s.fact(current, elmType); // <<
+              subjectType = s.instantiate(elmType);
+           }
            s.requireComparable(elmType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, elmType));
            return elmType;
-        } else
-           return subjectType;
+        }
     } else {
         s.report(error(current, "Unsupported construct in splice pattern"));
         return subjectType;
@@ -1134,9 +1132,25 @@ private AType getPatternType0(current: (Pattern) `( <{Mapping[Pattern] ","}* mps
     return amap(avoid(),avoid()); // TODO
 }
 
-//TODO: reifiedType
+// ---- reifiedType
+
+private AType getPatternType0(current: (Pattern) `type ( <Pattern symbol>, <Pattern definitions> )`, AType subjectType, loc scope, Solver s){
+    pats = [symbol, definitions];
+    //TODO: duplicates info from lang::rascalcore::check::Checker
+    typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+    SymbolType = aadt("Symbol", [], dataSyntax());
+    ProductionType = aadt("Production", [], dataSyntax());
+    symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+    definitionsField = amap(SymbolType, ProductionType)[label="definitions"];
+    fields = [symbolField, definitionsField];
+    return computeADTType(current, "Type", scope, typeType, fields, [], pats, [], [true | int i <- index(fields)], s);
+}
 
 // ---- asType
+
+private AType getPatternType0(current: (Pattern) `[ <Type tp> ] <Pattern p>`, AType subjectType, loc scope, Solver s){
+    return s.getType(tp);
+}
 
 // ---- anti
 
