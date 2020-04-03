@@ -194,12 +194,21 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private void serveContent(IRascalResult result, Map<String, InputStream> output, Map<String, String> metadata)
         throws IOException {
         IConstructor provider = (IConstructor) result.getValue();
-        String id = ((IString) provider.get("id")).getValue();
-        Function<IValue, IValue> target = liftProviderFunction(provider.get("callback"));
+        String id;
+        Function<IValue, IValue> target;
         
+        if (provider.has("id")) {
+            id = ((IString) provider.get("id")).getValue();
+            target = liftProviderFunction(provider.get("callback"));
+        }
+        else {
+            id = "***static content***";
+            target = (r) -> provider.get("response");
+        }
+
         // this installs the provider such that subsequent requests are handled.
         REPLContentServer server = contentManager.addServer(id, target);
-        
+
         // now we need some HTML to show
         Response response = server.serve("/", Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         String URL = "http://localhost:" + server.getListeningPort() + "/";

@@ -119,7 +119,7 @@ str clean(/\\<rest:.*>/) = clean(rest);
 str clean(str x:/\n/) = clean(visit(x) { case /\n/ => " " });
 
 // cut-off too long
-str clean(str x) = clean(x[..72]) when size(x) > 75;
+str clean(str x) = clean(x[..239]) when size(x) > 256;
 
 // done
 default str clean(str x) = x;

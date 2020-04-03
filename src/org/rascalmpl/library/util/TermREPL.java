@@ -9,8 +9,10 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -19,10 +21,14 @@ import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
+import org.rascalmpl.repl.REPLContentServer;
+import org.rascalmpl.repl.REPLContentServerManager;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 import com.google.gson.stream.JsonWriter;
 
+import fi.iki.elonen.NanoHTTPD.Method;
+import fi.iki.elonen.NanoHTTPD.Response;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -40,6 +46,7 @@ import jline.TerminalFactory;
 public class TermREPL {
     private final IValueFactory vf;
     private ILanguageProtocol lang;
+   
     
     public TermREPL(IValueFactory vf) {
         this.vf = vf;
@@ -56,6 +63,7 @@ public class TermREPL {
     }
 
     public static class TheREPL implements ILanguageProtocol {
+        private final REPLContentServerManager contentManager = new REPLContentServerManager();
         private final TypeFactory tf = TypeFactory.getInstance();
         private OutputStream stdout;
         private OutputStream stderr;
@@ -122,17 +130,23 @@ public class TermREPL {
             else {
                 try {
                     handler.getEval().__setInterrupt(false);
-                    IConstructor response = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+                    IConstructor content = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
                
-                    switch (response.getName()) {
-                        case "response":
-                            handlePlainTextResponse(output, response);
-                            break;
-                        case "fileResponse":
-                            handleFileResponse(output, response);
-                            break;
-                        case "jsonResponse":
-                            handleJSONResponse(output, response);
+                    if (content.has("id")) {
+                        handleInteractiveContent(output, metadata, content);
+                    }
+                    else {
+                        IConstructor response = (IConstructor) content.get("response");
+                        switch (response.getName()) {
+                            case "response":
+                                handlePlainTextResponse(output, response);
+                                break;
+                            case "fileResponse":
+                                handleFileResponse(output, response);
+                                break;
+                            case "jsonResponse":
+                                handleJSONResponse(output, response);
+                        }
                     }
                 }
                 catch (IOException e) {
@@ -141,6 +155,38 @@ public class TermREPL {
             }
         }
 
+        private void handleInteractiveContent(Map<String, InputStream> output, Map<String, String> metadata,
+            IConstructor content) throws IOException, UnsupportedEncodingException {
+            String id = ((IString) content.get("id")).getValue();
+            Function<IValue, IValue> callback = liftProviderFunction(content.get("callback"));
+            REPLContentServer server = contentManager.addServer(id, callback);
+            
+            Response response = server.serve("/", Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+            String URL = "http://localhost:" + server.getListeningPort() + "/";
+            metadata.put("url", URL);
+            
+            output.put(response.getMimeType(), response.getData());
+            
+            String message = "Serving visual content at |" + URL + "|";
+            output.put("text/plain", new ByteArrayInputStream(message.getBytes("UTF8")));
+        }
+
+        private Function<IValue, IValue> liftProviderFunction(IValue callback) {
+            ICallableValue func = (ICallableValue) callback;
+
+            return (t) -> {
+                // This function will be called from another thread (the webserver)
+                // That is problematic if the current repl is doing something else at that time.
+                // The evaluator is already locked by the outer Rascal REPL (if this REPL was started from `startREPL`).
+//              synchronized(eval) {
+                  return func.call(
+                      new Type[] { REPLContentServer.requestType },
+                      new IValue[] { t },
+                      Collections.emptyMap()).getValue();
+//              }
+            };
+        }
+        
         private void handleJSONResponse(Map<String, InputStream> output, IConstructor response) throws IOException {
             IValue data = response.get("val");
             IWithKeywordParameters<? extends IConstructor> kws = response.asWithKeywordParameters();
