@@ -166,7 +166,8 @@ public PathConfig getRascalCorePathConfig() {
    return pathConfig(   
         srcs = [|project://rascal/src/org/rascalmpl/library|, 
                 |project://rascal-core/src/org/rascalmpl/core/library|,
-                |project://rascal_eclipse/src/org/rascalmpl/eclipse/library|
+                |project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
+                |project://salix/src|
                ], 
         bin = |test-modules:///rascal-core-bin-<snpc>|, 
         libs = [|lib://rascal/|, |lib://typepal/|]
@@ -436,13 +437,13 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
 CheckerResult rascalTModelForNames(list[str] moduleNames, PathConfig pcfg, TypePalConfig config){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     iprintln(pcfg);
-    try {
+    //try {
         mlocs = [ getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
         return rascalTModelForLocs(mlocs, pcfg, config);
-    } catch value e: {
-        throw e;
-        //return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]] | moduleName <- moduleNames), (), ()>;
-    }
+    //} catch value e: {
+    //    throw e;
+    //    //return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]] | moduleName <- moduleNames), (), ()>;
+    //}
 }
 
 // ---- checker functions for IDE

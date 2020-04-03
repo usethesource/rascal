@@ -1,13 +1,29 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+
+int f(str s, value vals...) = 0;
+int f(int n, str s, value vals...) = 1;
+int f(bool b, int n, str s, value vals...) = 2;
+
+void main(){
+    f("a");
+    f("a", 1);
+    f("a", 1, 2);
+    f(10, "a");
+    f(10, "a", 1);
+    f(10, "a", 1, 2);
+    f(true, 10, "a");
+    f(true, 10, "a", 1);
+    f(true, 10, "a", 1, 2);
+
+}
+
+
+
 //import ParseTree;
 //import String;
 
-data Tree = char(int);
 
-list[![]] characters(str x) = [char(i) | i <- [1..10]];
-
-list[![]] main() = characters("abc");
 // 
 //&L strange(&L <: num arg1, &R <: &L arg2){
 //  return arg2;
