@@ -43,6 +43,22 @@ test bool functionWithVarargsAndKeyword2() = fn("b",kw="xxx") == "b--xxx";
 test bool functionWithVarargsAndKeyword3() = fn("c",1,2,3)== "c-1-2-3-keyword";
 test bool functionWithVarargsAndKeyword4() = fn("d",1,2,3,kw="xxx") == "d-1-2-3-xxx";
 
+int fvarargs(str s, value vals...) = 0;
+int fvarargs(int n, str s, value vals...) = 1;
+int fvarargs(bool b, int n, str s, value vals...) = 2;
+
+test bool overloadedWithVarArgs1() = fvarargs("a") == 0;
+test bool overloadedWithVarArgs2() = fvarargs("a", 1) == 0;
+test bool overloadedWithVarArgs3() = fvarargs("a", 1, 2) == 0;
+
+test bool overloadedWithVarArgs4() = fvarargs(10, "a") == 1;
+test bool overloadedWithVarArgs5() = fvarargs(10, "a", 1) == 1;
+test bool overloadedWithVarArgs6() = fvarargs(10, "a", 1, 2) == 1;
+
+test bool overloadedWithVarArgs7() = fvarargs(true, 10, "a") == 2;
+test bool overloadedWithVarArgs8() = fvarargs(true, 10, "a", 1) == 2;
+test bool overloadedWithVarArgs9() = fvarargs(true, 10, "a", 1, 2) == 2;
+
 int f1() {
     int g1() = 101;
     int () k1() {
