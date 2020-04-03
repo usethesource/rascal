@@ -190,7 +190,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
 // ---- function declaration --------------------------------------------------
 
 void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collector c){
-//println("********** function declaration: <decl.signature.name>");
+//println("********** function declaration: <decl.signature.name>, <getLoc(decl)>");
     signature = decl.signature;
     fname = signature.name;
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];

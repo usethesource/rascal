@@ -164,7 +164,7 @@ bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialD
 bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 		"Undefined _",
-		"Unresolved type for call of function/constructor"
+		"Unresolved type for _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 

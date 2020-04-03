@@ -24,6 +24,7 @@ import Node;
 import Set;
 import String;
 import ValueIO;
+import util::Math;
 
 // ---- Rascal literals
 
@@ -583,6 +584,7 @@ void collect(current: (Expression) `[ <{Expression ","}* elements0> ]`, Collecto
 // ---- call or tree
            
 void collect(current: (Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`, Collector c){
+//println("<current>, <getLoc(current)>");
     actuals = [a | Expression a <- arguments];  
     kwactuals = keywordArguments is \default ? [ kwa.expression | kwa <- keywordArguments.keywordArgumentList] : [];
   
@@ -720,8 +722,9 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
               if(isEmpty(prevFormals)){
                  prevFormals = formals;
               } else {
-                 relevantFormals = [0 .. size(formals) - (ft.varArgs ? 1 : 0)];
-                 for(int i <- relevantFormals) {
+                 nRelevantFormals = size(formals) - (ft.varArgs ? 1 : 0);
+                 nPrevFormals =  size(prevFormals);
+                 for(int i <- [0 .. min(nRelevantFormals, nPrevFormals)]) {
                    identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
                  }
               }
