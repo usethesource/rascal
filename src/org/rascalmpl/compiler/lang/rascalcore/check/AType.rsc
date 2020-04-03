@@ -128,6 +128,8 @@ data Tree
      | amb(set[Tree] alternatives) // <3> 
      | char(int character) // <4>
      ;
+     
+public /*const*/ AType treeType = aadt("Tree", [], dataSyntax());
 
 @doc{
 .Synopsis
@@ -235,6 +237,10 @@ Character ranges and character class
 data ACharRange = arange(int begin, int end);
 
 alias ACharClass = list[ACharRange];
+
+public /*const*/ int minUniCode = 1;
+public /*const*/int maxUniCode = 0x10FFFF;
+public /*const*/ AType anyCharType = \char-class([arange(minUniCode, maxUniCode)]);
 
 @doc{
 .Synopsis

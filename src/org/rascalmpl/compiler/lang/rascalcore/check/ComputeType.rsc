@@ -404,7 +404,9 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
                     return tp;
                 }
             }
-        }
+        } 
+     } else if(isAnyCharType(containerType)){
+            return computeFieldTypeWithADT(treeType, field, scope, s);
     } else if (isTupleType(containerType)) {
         if(tupleHasFieldNames(containerType)){
             idx = indexOf(getTupleFieldNames(containerType), fieldName);

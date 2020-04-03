@@ -620,7 +620,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     s.report(error(current, "`char` requires 1 argument, found %v", nactuals));
                 }
                 s.requireEqual(actuals[0], aint(), error(actuals[0], "Argument should be of type `int`, found %t", actuals[0]));
-                return \char-class([arange(1,0x10FFFF)]);
+                return anyCharType;
             }
              
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){

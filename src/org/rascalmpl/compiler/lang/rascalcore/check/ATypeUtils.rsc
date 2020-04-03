@@ -87,8 +87,8 @@ str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyATyp
 // terminal symbols
 str prettyAType(AType::\lit(str string)) = string;
 str prettyAType(AType::\cilit(str string)) = string;
-str prettyAType(\char-class(list[ACharRange] ranges)) = 
-    ranges == [arange(1, 0x10FFFF)] ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
+str prettyAType(cc: \char-class(list[ACharRange] ranges)) = 
+    cc == anyCharType ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
 
 str prettyAType(\start(AType symbol)) = "start[<prettyAType(symbol)>]";
 
@@ -1048,6 +1048,11 @@ list[AType] getNonTerminalSeqTypes(seq(list[AType] atypes)) = atypes;
 default list[AType] getNonTerminalSeqTypes(AType t){
     throw rascalCheckerInternalError("<prettyAType(t)> is not a seq non-terminal type");
 }
+
+// char-class
+
+bool isAnyCharType(aparameter(_,AType tvb)) = isAnyCharType(tvb);
+default bool isAnyCharType(AType t) = t == anyCharType;
 
 // start
 bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
