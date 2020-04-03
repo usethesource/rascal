@@ -1,23 +1,28 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+import Node;
+import ParseTree;
 
-int f(str s, value vals...) = 0;
-int f(int n, str s, value vals...) = 1;
-int f(bool b, int n, str s, value vals...) = 2;
+syntax A = "a";
+syntax B = "b" | [b]; // ambiguous on purpose
 
-void main(){
-    f("a");
-    f("a", 1);
-    f("a", 1, 2);
-    f(10, "a");
-    f(10, "a", 1);
-    f(10, "a", 1, 2);
-    f(true, 10, "a");
-    f(true, 10, "a", 1);
-    f(true, 10, "a", 1, 2);
+// we only allow declarations on Tree for now, for lack of a syntax to declare them on non-terminals.
+data Tree(str y = "y");
+// to be able to access the kw param feature, you have to remove the loc annotation first (until we remove annotations):
+&T<:Tree get(&T<:Tree e) = delAnnotation(e, "loc");
 
-}
 
+test bool charTest() = get(char(32)).y == "y";
+
+//test bool charTest2() = get(char(32))[y="z"].y == "z";
+//
+//test bool charTest3() = get(char(32))[y="z"].character == 32;
+//
+//test bool charTest4() {
+//   t = get(char(32));
+//   t.y = "z";
+//   return t.y == "z";
+//}
 
 
 //import ParseTree;
