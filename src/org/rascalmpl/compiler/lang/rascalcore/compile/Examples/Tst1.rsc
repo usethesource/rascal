@@ -1,7 +1,15 @@
 module lang::rascalcore::compile::Examples::Tst1
 
 
-bool f(type[&T] _: type(symbol,definitions)) = true;
+data Wrap[&T] = wrap(&T val);
+
+&T id(&T arg) = arg;
+
+&S f(&S param) {
+  Wrap[&S] x = wrap(param);
+
+  return id(x);
+}
 
 
 
