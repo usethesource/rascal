@@ -522,8 +522,16 @@ bool asubtype(amap(AType from1, AType to1), amap(AType from2, AType to2))
 bool asubtype(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
     = asubtype(r1, r2) && comparable(p1, p2);
 
-bool asubtype(aparameter(str _, AType bound), AType r) = asubtype(bound, r);
-bool asubtype(AType l, aparameter(str _, AType bound)) = asubtype(l, bound);
+bool asubtype(aparameter(str _, AType bound1), aparameter(str _, AType bound2) )
+    = asubtype(bound1, bound2);
+    
+bool asubtype(l:aparameter(str pname, AType bound), AType r) = asubtype(bound, r)
+    when aparameter(_, _) !:= r, 
+         /aparameter(pname,_) !:= r;
+    
+bool asubtype(AType l, r:aparameter(str pname, AType bound)) = asubtype(l, bound)
+    when aparameter(_, _) !:= l,
+         /aparameter(pname,_) !:= l;
 
 bool asubtype(areified(AType s), areified(AType t)) = asubtype(s,t);
 bool asubtype(areified(AType s), anode(_)) = true;
