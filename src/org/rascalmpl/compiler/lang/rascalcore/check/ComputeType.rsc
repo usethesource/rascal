@@ -242,6 +242,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
         checkExpressionKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArgumentsExp, bindings, scope, s);
     case (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`:
         checkPatternKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArguments, bindings, scope, s);
+    case []: ;
     default:
         throw rascalCheckerInternalError("computeADTReturnType: illegal keywordArguments: <keywordArguments>");
     }
@@ -1138,14 +1139,7 @@ private AType getPatternType0(current: (Pattern) `( <{Mapping[Pattern] ","}* mps
 
 private AType getPatternType0(current: (Pattern) `type ( <Pattern symbol>, <Pattern definitions> )`, AType subjectType, loc scope, Solver s){
     pats = [symbol, definitions];
-    //TODO: duplicates info from lang::rascalcore::check::Checker
-    typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-    SymbolType = aadt("Symbol", [], dataSyntax());
-    ProductionType = aadt("Production", [], dataSyntax());
-    symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
-    definitionsField = amap(SymbolType, ProductionType)[label="definitions"];
-    fields = [symbolField, definitionsField];
-    return computeADTType(current, "Type", scope, typeType, fields, [], pats, [], [true | int i <- index(fields)], s);
+    return areified(avalue());
 }
 
 // ---- asType

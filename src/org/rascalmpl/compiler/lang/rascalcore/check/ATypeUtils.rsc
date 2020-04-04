@@ -70,7 +70,7 @@ str prettyAType(t: acons(AType adt, /*str consName,*/
                  = "<prettyAType(adt)>::<t.label>(<intercalate(", ", ["<prettyAType(ft)><ft.label? ? " <ft.label>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
 
 str prettyAType(amodule(str mname)) = "module <mname>";         
-str prettyAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyAType(t)>";
+str prettyAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> : <prettyAType(t)>";
 str prettyAType(areified(AType t)) = "type[<prettyAType(t)>]";
 
 // utilities
