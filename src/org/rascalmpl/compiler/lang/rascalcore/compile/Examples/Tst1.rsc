@@ -1,17 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+import Set;
+import Relation;
+test bool product(set[&A]X, set[&B] Y) =
+  isEmpty(X) ==> isEmpty(X * Y) ||
+  isEmpty(Y) ==> isEmpty(X * Y) ||
+  all(<x, y> <- X * Y, z <- range(X * Y), <x, z> in X, <z, y> in Y);
 
-
-int X = 1;
-int X = 2;
-
-//import Set;
-//import Relation;
-//test bool product(set[&A]X, set[&B] Y) =
-//  isEmpty(X) ==> isEmpty(X * Y) ||
-//  isEmpty(Y) ==> isEmpty(X * Y) ||
-//  all(<x, y> <- X * Y, z <- range(X * Y), <x, z> in X, <z, y> in Y);
-//
 //public map[&K, &V] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
 //{
 //  return (F(key) : G(M[key]) | &K key <- M);
