@@ -17,6 +17,7 @@ import util::Math;
 import Type;
 import Node;
 import Exception;
+import IO;
 
 private map[&K,&V] emptyMap(type[map[&K,&V]] _) = ();
 private list[&T] emptyList(type[&T] _) = [];
@@ -153,23 +154,30 @@ test bool union4() = (1:10) + (2:20) == (1:10,2:20);
 ////////////////////////////////////////////////////////////////////////////////
 // legacy
 
+bool keyIsInRange(&K x, map[&K, &V] A, map[&K, &V] B, map[&K, &V] C)
+    = (x in domain(B) && eq(C[x],B[x])) || (x in domain(A) && eq(C[x],A[x]));
+
+bool rightValIsUsedForKey(&K x, map[&K, &V] A, map[&K, &V] B, map[&K, &V] C)
+    =  (x in domain(B) && x in domain(A)) ==> eq(C[x],B[x]);
+    
 // is A + B == C?
 bool isUnion(map[&K, &V] A, map[&K, &V] B, map[&K, &V] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     ( domain(A) + domain(B) == domain(C) &&
-       range(C) <= range(A) + range(B) &&
-       all(x <- C,  x in domain(B) && eq(C[x],B[x]) || x in domain(A) && eq(C[x],A[x])) &&
-       all(x <- C,  (x in domain(B) && x in domain(A)) ==> eq(C[x],B[x]))
-     );
-    
+     isEmpty(A) ? C == B
+                : (isEmpty(B) ? C == A
+                              : ( domain(A) + domain(B) == domain(C) &&
+                                  range(C) <= range(A) + range(B) &&
+                                  all(x <- C, keyIsInRange(x,A,B,C)) &&
+                                  all(x <- C, rightValIsUsedForKey(x, A, B, C))
+     ));
+  
 test bool union(map[&K, &V] A, map[&K, &V] B) = isUnion(A,   B,  A + B);
 
 // is A - B == C?
 bool isDiff(map[&K, &V] A, map[&K, &V] B, map[&K, &V] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     all(x <- C, x in domain(A) && x notin domain(B));
+     isEmpty(A) ? isEmpty(C)
+                : ( isEmpty(B) ? C == A
+                               : (isEmpty(C) ? domain(A) <= domain(B)
+                                             : all(x <- C, x in domain(A) && x notin domain(B))));
      
 test bool diff(map[&K, &V] A, map[&K, &V] B) = isDiff(A, B, A - B);
  

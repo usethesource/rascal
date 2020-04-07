@@ -199,7 +199,7 @@ test bool tstFindLast(str S1, str S2){
   return i >= 0 && startsWith((i < size(S) ? S[i..] : ""), S2);
 }
 
-test bool tstIsEmpty(str S) = isEmpty(S) ==> size(S) == 0;
+test bool tstIsEmpty(str S) = isEmpty(S) ? size(S) == 0 : size(S) > 0;
 
 test bool tstStringChar(str S) {
   for(i <- [0 .. size(S)])
