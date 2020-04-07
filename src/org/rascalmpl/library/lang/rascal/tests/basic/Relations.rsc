@@ -6,23 +6,25 @@ import Relation;
 // Operators
 
 test bool product(set[&A]X, set[&B] Y) =
-  isEmpty(X) ==> isEmpty(X * Y) ||
-  isEmpty(Y) ==> isEmpty(X * Y) ||
-  all(<x, y> <- X * Y, z <- range(X * Y), <x, z> in X, <z, y> in Y);
-  
-test bool composition(rel[&A, &B]X, rel[&B, &C] Y) =
-  isEmpty(X) ==> isEmpty(X o Y) ||
-  isEmpty(Y) ==> isEmpty(X o Y) ||
-  all(<x, y> <- X o Y, z <- range(X o Y), <x, z> in X, <z, y> in Y);
-  
+  isEmpty(X) ? isEmpty(X * Y) 
+             : (isEmpty(Y) ? isEmpty(X * Y) 
+                           : all(x <- X, x in domain(X * Y)) &&
+                             all(y <- Y, y in range(X * Y)) &&
+                             all(<x, y> <- X * Y, x in X, y in Y));
+
+test bool composition(rel[int, str]X, rel[str, int] Y) =
+  isEmpty(X) ? isEmpty(X o Y)
+             : (isEmpty(Y) ? isEmpty(X o Y)
+                           : (isEmpty(X o Y) || all(<x, y> <- X o Y, x in domain(X o Y), y in range(X o Y))));
+                             
 test bool selection(rel[&A fa, &B fb] X) =
   X.fa == domain(X) && X.fb == range(X) && X.fa == X<0> && X.fb == X<1>;
-  
+
 test bool \join(rel[&A, &B]X, rel[&B, &C, &D] Y) =
-  isEmpty(X) ==> size(X join Y) == size(Y) ||			// Note X join Y and Y cannot be compared in type system.
-  isEmpty(Y) ==> size(X join Y) == size(X) ||
-  (X join Y)<0, 1> == X && (X join Y)<2,3,4> == Y;  
-  
+  isEmpty(X)  ? isEmpty(X join Y)
+              : (isEmpty(Y) ? isEmpty(X join Y)
+                            : (X join Y)<0, 1> == X && (X join Y)<2,3,4> == Y);
+                              
 test bool subscription(rel[&A, &B, &C] X) =
   isEmpty(X) ||
   all(&A a <- domain(X), any(<&B b, &C c> <- X[a], <a, b, c> in X)) &&

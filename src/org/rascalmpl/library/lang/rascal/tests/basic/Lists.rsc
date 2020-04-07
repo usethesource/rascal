@@ -9,19 +9,23 @@ import Type;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     (slice(C, 0, size(A) - 1) == A && slice(C, size(A), size(C) - size(A)) == B);
+     isEmpty(A) ? C == B
+                : (isEmpty(B) ? C == A
+                              : (slice(C, 0, size(A)) == A && slice(C, size(A), size(C) - size(A)) == B));
 
 test bool concat1(list[&T] A, list[&T] B) = isConcat(A, B, A + B);
 test bool concat2(     &T  A, list[&T] B) = isConcat([A], B, [A] + B);
 test bool concat3(list[&T] A,      &T  B) = isConcat(A, [B], A + [B]);
 
+bool isElemProperlyRemoved(&T x, list[&T] A, list[&T] B)
+    = x in A && (x notin B || freq(x, A) > freq(x, B));
+    
 // is A - B == C?
 bool isDiff(list[&T] A, list[&T] B, list[&T] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     all(x <- C, x in A && (x notin B || freq(x, A) > freq(x, B)));
+     isEmpty(A) ? isEmpty(C)
+                : (isEmpty(B) ? C == A
+                              : (isEmpty(C) ? (isEmpty(B) || all(x <- B, freq(x, A) <= freq(x, B)))
+                                            : all(x <- C, isElemProperlyRemoved(x, A, B))));
 
 test bool diff(list[&T] A, list[&T] B) = isDiff(A, B, A - B);
 
@@ -353,7 +357,7 @@ test bool tstIntercalate(str sep, list[value] L) =
        intercalate(sep, L) == (isEmpty(L) ? ""
                                           : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
 
-test bool tstIsEmpty(list[&T] L) = isEmpty(L) ==> (size(L) == 0);
+test bool tstIsEmpty(list[&T] L) = isEmpty(L) ? size(L) == 0 : size(L) > 0;
 
 test bool tstLast(list[&T] L) = isEmpty(L) || eq(last(L),elementAt(L,-1));
 
