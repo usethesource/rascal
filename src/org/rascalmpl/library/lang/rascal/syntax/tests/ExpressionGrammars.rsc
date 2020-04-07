@@ -51,8 +51,8 @@ test bool ext2() = (Exp) `e*e/e+e` := removeBrackets((Exp) `((e*e)/e)+e`);
 test bool ext3() = (Exp) `e*e--e` := removeBrackets((Exp) `(e*e)--e`);
 test bool ext4() = (Exp) `e*e.e` := removeBrackets((Exp) `(e*e).e`);
 test bool ext5() = (Exp) `e+e.e` := removeBrackets((Exp) `(e+e).e`);
-test bool ext5() = (Exp) `e--e-e` := removeBrackets((Exp) `(e--e)-e`);
-test bool ext6() = (Exp) `e-e--e` := removeBrackets((Exp) `(e-e)--e`);
+test bool ext6() = (Exp) `e--e-e` := removeBrackets((Exp) `(e--e)-e`);
+test bool ext7() = (Exp) `e-e--e` := removeBrackets((Exp) `(e-e)--e`);
 
 test bool safeLeft() = F _ := parse(#F,"--f");
 test bool safeRight() = F _ := parse(#F,"f++");

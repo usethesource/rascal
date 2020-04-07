@@ -9,6 +9,7 @@ module lang::rascal::grammar::definition::Keywords
 
 import Grammar;
 import ParseTree;
+import Node;
 import lang::rascal::grammar::definition::Symbols;
 
 public Grammar expandKeywords(Grammar g) {
