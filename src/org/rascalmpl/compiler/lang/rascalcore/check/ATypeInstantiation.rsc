@@ -29,24 +29,24 @@ public alias Bindings = map[str varName, AType varType];
 // TODO: Add support for bags if we ever get around to supporting them...
 // TODO: Add support for overloaded types if they can make it to here (this is
 // usually invoked on specific types that are inside overloads)
-public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIdenticalVars=false) {
+public Bindings matchRascalTypeParams(AType r, AType s, Bindings b) {
     //println("matchRascalTypeParams: <r>, <s>");
     if(tvar(_) := r) throw TypeUnavailable();
     if(tvar(_) := s) throw TypeUnavailable();
     if (!typeContainsRascalTypeParams(r)) return b;
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := r){
         lb = lubList(toList(overloads<2>));
-        return matchRascalTypeParams(lb, s, b, bindIdenticalVars);
+        return matchRascalTypeParams0(lb, s, b);
     }
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := s){
         lb = lubList(toList(overloads<2>));
-        return matchRascalTypeParams(r, lb, b, bindIdenticalVars);
+        return matchRascalTypeParams0(r, lb, b);
     }
     
-    return matchRascalTypeParams(r,s,b,bindIdenticalVars);
+    return matchRascalTypeParams0(r,s,b);
 }
 
-public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIdenticalVars) {
+public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
 
     // The simple case: if the receiver is a basic type or a node 
     // (i.e., has no internal structure), just do a comparability
@@ -57,9 +57,9 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
     if (!typeContainsRascalTypeParams(r)) return b;
         
     // Handle type parameters
-    if (isRascalTypeParam(r) && isRascalTypeParam(s) && getRascalTypeParamName(r) == getRascalTypeParamName(s) && getRascalTypeParamBound(r) == getRascalTypeParamBound(s) && !bindIdenticalVars) {
-        return b;
-    }
+    //if (isRascalTypeParam(r) && isRascalTypeParam(s) && getRascalTypeParamName(r) == getRascalTypeParamName(s) && getRascalTypeParamBound(r) == getRascalTypeParamBound(s) && !bindIdenticalVars) {
+    //    return b;
+    //}
     
     if (isRascalTypeParam(r)) {
         str varName = getRascalTypeParamName(r);
@@ -81,11 +81,11 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
     // able to be matched to one another
     if ( isSetType(r) && isSetType(s) ) {
         if ( isRelType(r) && isVoidType(getSetElementType(s)) ) {
-            return matchRascalTypeParams(getSetElementType(r), atuple(atypeList([avoid() | idx <- index(getRelFields(r))])), b, bindIdenticalVars);
+            return matchRascalTypeParams0(getSetElementType(r), atuple(atypeList([avoid() | idx <- index(getRelFields(r))])), b);
         } else if ( isVoidType(getSetElementType(s)) ) {
             return b;
         } else {    
-            return matchRascalTypeParams(getSetElementType(r), getSetElementType(s), b, bindIdenticalVars);
+            return matchRascalTypeParams0(getSetElementType(r), getSetElementType(s), b);
         }
     }
         
@@ -93,44 +93,44 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
     // able to be matched to one another
     if ( isListType(r) && isListType(s) ) {
         if ( isListRelType(r) && isVoidType(getListElementType(s)) ) {
-            return matchRascalTypeParams(getListElementType(r), atuple(atypeList([avoid() | idx <- index(getListRelFields(r))])), b, bindIdenticalVars);
+            return matchRascalTypeParams0(getListElementType(r), atuple(atypeList([avoid() | idx <- index(getListRelFields(r))])), b);
         } else if ( isVoidType(getListElementType(s)) ) {
             return b;
         } else {
-            return matchRascalTypeParams(getListElementType(r), getListElementType(s), b, bindIdenticalVars);
+            return matchRascalTypeParams0(getListElementType(r), getListElementType(s), b);
         }
     }
         
     // For maps, match the domains and ranges
     if ( isMapType(r) && isMapType(s) )
-        return matchRascalTypeParams(getMapFieldsAsTuple(r), getMapFieldsAsTuple(s), b, bindIdenticalVars);
+        return matchRascalTypeParams0(getMapFieldsAsTuple(r), getMapFieldsAsTuple(s), b);
     
     // For reified types, match the type being reified
     if ( isReifiedType(r) && isReifiedType(s) )
-        return matchRascalTypeParams(getReifiedType(r), getReifiedType(s), b, bindIdenticalVars);
+        return matchRascalTypeParams0(getReifiedType(r), getReifiedType(s), b);
 
     // For ADTs, try to match parameters when the ADTs are the same
     if ( isADTType(r) && isADTType(s) && getADTName(r) == getADTName(s) && size(getADTTypeParameters(r)) == size(getADTTypeParameters(s))) {
         rparams = getADTTypeParameters(r);
         sparams = getADTTypeParameters(s);
-        for (idx <- index(rparams)) b = matchRascalTypeParams(rparams[idx], sparams[idx], b, bindIdenticalVars);
+        for (idx <- index(rparams)) b = matchRascalTypeParams0(rparams[idx], sparams[idx], b);
         return b;
     }
             
     // For constructors, match when the constructor name, ADT name, and arity are the same, then we can check params
     if ( isConstructorType(r) && isConstructorType(s) && getADTName(r) == getADTName(s)) {
-        b = matchRascalTypeParams(getConstructorArgumentTypesAsTuple(r), getConstructorArgumentTypesAsTuple(s), b, bindIdenticalVars);
-        return matchRascalTypeParams(getConstructorResultType(r), getConstructorResultType(s), b, bindIdenticalVars);
+        b = matchRascalTypeParams0(getConstructorArgumentTypesAsTuple(r), getConstructorArgumentTypesAsTuple(s), b);
+        return matchRascalTypeParams0(getConstructorResultType(r), getConstructorResultType(s), b);
     }
     
     if ( isConstructorType(r) && isADTType(s) ) {
-        return matchRascalTypeParams(getConstructorResultType(r), s, b, bindIdenticalVars);
+        return matchRascalTypeParams0(getConstructorResultType(r), s, b);
     }
     
     // For functions, match the return types and the parameter types
     if ( isFunctionType(r) && isFunctionType(s) ) {
-        b = matchRascalTypeParams(getFunctionArgumentTypesAsTuple(r), getFunctionArgumentTypesAsTuple(s), b, bindIdenticalVars);
-        return matchRascalTypeParams(getFunctionReturnType(r), getFunctionReturnType(s), b, bindIdenticalVars);
+        b = matchRascalTypeParams0(getFunctionArgumentTypesAsTuple(r), getFunctionArgumentTypesAsTuple(s), b);
+        return matchRascalTypeParams0(getFunctionReturnType(r), getFunctionReturnType(s), b);
     }
     
     // For tuples, check the arity then match the item types
@@ -139,7 +139,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
         sfields = getTupleFieldTypes(s);
         for (idx <- index(rfields)) {
             if (!isVoidType(sfields[idx])) {
-                b = matchRascalTypeParams(rfields[idx], sfields[idx], b, bindIdenticalVars);
+                b = matchRascalTypeParams0(rfields[idx], sfields[idx], b);
             }
         }
         return b;

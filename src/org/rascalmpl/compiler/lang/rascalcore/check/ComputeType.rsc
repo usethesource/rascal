@@ -40,7 +40,7 @@ void(Solver) makeVarInitRequirement(Variable var)
             initialType = s.getType(var.initial);
             varType = s.getType(var.name);
             checkNonVoid(var, varType, s, "Variable declaration");
-            try   bindings = matchRascalTypeParams(initialType, varType, bindings, bindIdenticalVars=true);
+            try   bindings = matchRascalTypeParams(initialType, varType, bindings);
             catch invalidMatch(str reason):
                   s.report(error(var.initial, reason));
             
@@ -210,7 +210,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
     Bindings bindings = ();
     index_formals = index(formalTypes);
     for(int i <- index_formals, !dontCare[i]){
-        try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings, bindIdenticalVars=true);
+        try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings);
         catch invalidMatch(str reason): 
               s.report(error(current, reason));   
     }

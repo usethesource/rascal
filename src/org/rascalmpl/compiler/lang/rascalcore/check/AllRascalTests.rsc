@@ -422,8 +422,9 @@ void allFiles(PathConfig pcfg = pathConfig(
          bin = |test-modules:///rascal-core-bin|,
          libs = [])){
     modulePaths =  find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); });
+                   //find(|std:///lang/rascal/tests|, bool(loc l) { return endsWith(l.path, ".rsc"); });
                    // find(|project://salix/src|, bool(loc l) { return endsWith(l.path, ".rsc"); });
-                   // find(|project://rascal-core/src/org/rascalmpl/core/library/|, bool(loc l) { return endsWith(l.path, ".rsc"); });
+                  //find(|project://rascal-core/src/org/rascalmpl/core/library|, bool(loc l) { return endsWith(l.path, ".rsc"); });
     println("<size(modulePaths)> files");
     problems = ();
     crashed = ();
