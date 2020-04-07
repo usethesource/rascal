@@ -5,24 +5,26 @@ import ListRelation;
 import Type;
 
 // Operators
-
-test bool product(list[&A]X, list[&B] Y) =
-  isEmpty(X) ==> isEmpty(X * Y) ||
-  isEmpty(Y) ==> isEmpty(X * Y) ||
-  all(<x, y> <- X * Y, z <- range(X * Y), <x, z> in X, <z, y> in Y);
+  
+ test bool product(list[&A]X, list[&B] Y) =
+  isEmpty(X) ? isEmpty(X * Y) 
+             : (isEmpty(Y) ? isEmpty(X * Y) 
+                           : all(x <- X, x in domain(X * Y)) &&
+                             all(y <- Y, y in range(X * Y)) &&
+                             all(<x, y> <- X * Y, x in X, y in Y));
   
 test bool composition(lrel[int, str]X, lrel[str, int] Y) =
-  isEmpty(X) ==> isEmpty(X o Y) ||
-  isEmpty(Y) ==> isEmpty(X o Y) ||
-  all(<x, y> <- X o Y, z <- range(X), <x, z> in X, <z, y> in Y);
+  isEmpty(X) ? isEmpty(X o Y)
+             : (isEmpty(Y) ? isEmpty(X o Y)
+                           : (isEmpty(X o Y) || all(<x, y> <- X o Y, x in domain(X o Y), y in range(X o Y))));
 
 test bool selection(lrel[&A fa, &B fb] X) =
   domain(X) <= X.fa && range(X) <= X.fb && X.fa == X<0> && X.fb == X<1>;
   
 test bool \join(lrel[&A, &B]X, lrel[&B, &C, &D] Y) =
-  isEmpty(X) ==> size(X join Y) == size(Y) ||
-  isEmpty(Y) ==> size(X join Y) == size(X) ||
-  (X join Y)<0, 1> == X && (X join Y)<2,3,4> == Y;  
+  isEmpty(X)  ? isEmpty(X join Y)
+              : (isEmpty(Y) ? isEmpty(X join Y)
+                            : toSet((X join Y)<0, 1>) == toSet(X) && toSet((X join Y)<2,3,4>) == toSet(Y));
   
 // Note that all subscriptions are of the form X[{a}] to avoid that a is interpreted as an integer index.  
 test bool subscription1(lrel[&A, &B, &C] X) =

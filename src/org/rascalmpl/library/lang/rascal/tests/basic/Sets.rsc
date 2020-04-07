@@ -18,21 +18,28 @@ test bool eqSet(value a, value b) = eq(a,b) <==> size({a,b}) == 1;
 
 // Set operators
 
+bool elemInAorB(&T x, set[&T] A, set[&T] B)
+    =  (x in A) || (x in B);
+
 // is A + B == C?
 bool isUnion(set[&T] A, set[&T] B, set[&T] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     all(x <- C, x in A || x in B);
+     isEmpty(A) ? C == B
+                : (isEmpty(B) ? C == A
+                              : all(x <- C, elemInAorB(x, A, B)));
 
 test bool union1(set[&T] A, set[&T] B) = isUnion(A,   B,  A + B);
 test bool union2(     &T A, set[&T] B) = isUnion({A}, B,  {A} + B);
 test bool union3(set[&T] A,      &T B) = isUnion(A,   {B}, A +{B});
 
+bool elemInAandNotInB(&T x, set[&T] A, set[&T] B)
+    =  (x in A) && (x notin B);
+                                            
 // is A - B == C?
 bool isDiff(set[&T] A, set[&T] B, set[&T] C) =
-     isEmpty(A) ==> C == B ||
-     isEmpty(B) ==> C == A ||
-     all(x <- C, x in A && x notin B);
+     isEmpty(A) ? isEmpty(C)
+                : (isEmpty(B) ? C == A
+                              : (isEmpty(C) ? all(x <- A, x in B)
+                                            : all(x <- C, elemInAandNotInB(x, A, B))));
      
 test bool diff(set[&T] A, set[&T] B) = isDiff(A, B, A - B);
 
