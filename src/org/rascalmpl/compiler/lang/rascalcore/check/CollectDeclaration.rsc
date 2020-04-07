@@ -446,7 +446,7 @@ void returnRequirement(Tree returnExpr, AType theDeclaredReturnType, Solver s){
       
     returnExprType = s.getType(returnExpr);
     Bindings bindings = ();
-    try   bindings = matchRascalTypeParams(returnExprType, theDeclaredReturnType, bindings, bindIdenticalVars=true);
+    try   bindings = matchRascalTypeParams(returnExprType, theDeclaredReturnType, bindings);
     catch invalidMatch(str reason):
           s.report(error(returnExpr, reason));
       

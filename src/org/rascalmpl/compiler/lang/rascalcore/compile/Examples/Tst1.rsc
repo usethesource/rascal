@@ -1,36 +1,40 @@
 module lang::rascalcore::compile::Examples::Tst1
 
 
-data Wrap[&T] = wrap(&T val);
 
-&T id(&T arg) = arg;
+int X = 1;
+int X = 2;
 
-&S f(&S param) {
-  Wrap[&S] x = wrap(param);
-
-  return id(x);
-}
-
-
-
-//import ParseTree;
-//import String;
-
-
-// 
-//&L strange(&L <: num arg1, &R <: &L arg2){
+//import Set;
+//import Relation;
+//test bool product(set[&A]X, set[&B] Y) =
+//  isEmpty(X) ==> isEmpty(X * Y) ||
+//  isEmpty(Y) ==> isEmpty(X * Y) ||
+//  all(<x, y> <- X * Y, z <- range(X * Y), <x, z> in X, <z, y> in Y);
+//
+//public map[&K, &V] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
+//{
+//  return (F(key) : G(M[key]) | &K key <- M);
+//}
+//
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java list[&T] reverse(list[&T] lst);
+//
+//public list[int] index(list[&T] lst) = [];
+//
+//public int lastIndexOf(list[&T] lst, &T elt) {
+//    for(i <- reverse(index(lst))) {
+//        if(lst[i] == elt) return i;
+//    }
+//    return -1;
+//}
+//
+//&L <: num strange(&L <: num arg1, &R <: &L <: num arg2){
 //  return arg2;
 //}
 //
 //value main() = strange(3, "abc");
 
-
-//set[str] f(){
-//    res = {};
-//    res += 1;
-//   
-//    return res;
-//}
 
 //test bool compositeAndBothBTCnt() {
 //    n = 0;

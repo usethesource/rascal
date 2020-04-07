@@ -3,6 +3,10 @@ module lang::rascalcore::check::tests::ParameterizedTypes
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
 
+test bool typeParamOK() = checkOK("&T f(&T x) = x;");
+test bool typeParamKO() = undeclaredVariable("&T f(&S x) = x;");
+test bool typeParaKOK() = undeclaredVariable("&S f(&T x) = x;");
+
 test bool issue1300a() =
     unexpectedType("&T f(&T param) {
                    '  Wrap[&T] x = wrap(param);
@@ -26,6 +30,14 @@ test bool issue1300c() =
                    '  Wrap[&T] x = wrap(param);
                    '
                    ' return x;
+                   '}",
+                   initialDecls = ["data Wrap[&T] = wrap(&T val);
+                                   '&T id(&T arg) = arg;"]);
+test bool issue1300d() =
+           checkOK("&T f(&T param) {
+                   '  Wrap[&T] x = wrap(param);
+                   '
+                   ' return x.val;
                    '}",
                    initialDecls = ["data Wrap[&T] = wrap(&T val);
                                    '&T id(&T arg) = arg;"]);

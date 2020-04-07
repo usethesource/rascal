@@ -795,7 +795,7 @@ private AType computeReturnType(Expression current, loc scope, AType retType, li
     index_formals = index(formalTypes);
     Bindings bindings = ();
     for(int i <- index_formals){
-        try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings, bindIdenticalVars=true);
+        try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings);
         catch invalidMatch(str reason):
               s.report(error(i < size(actuals)  ? actuals[i] : current, reason));
     }
