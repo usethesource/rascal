@@ -24,6 +24,8 @@ test bool tstEsc8() = "<esc(lit("\""))>" == "<"lit(\\\"\\\\\\\"\\\")">";
 test bool tstEsc9() = "<for(s <- [sort("S"), lit("\"")]){><esc(s)><}>" ==  "sort(\\\"S\\\")lit(\\\"\\\\\\\"\\\")";
 test bool tstEsc10() = "\"<for(s <- [sort("S"), lit("\"")]){>\"<esc(s)>\"<}>\"" ==  "\"\"sort(\\\"S\\\")\"\"lit(\\\"\\\\\\\"\\\")\"\"";
 
+void hoi() { println(GEMPTY); }
+
 test bool tstExpandParameterizedSymbols1() = expandParameterizedSymbols(GEMPTY) == GEMPTY;
 test bool tstExpandParameterizedSymbols2() = expandParameterizedSymbols(G0) == G0;
 test bool tstExpandParameterizedSymbols3() = expandParameterizedSymbols(GEXP) == GEXP;
