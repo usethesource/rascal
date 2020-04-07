@@ -27,8 +27,6 @@ import org.rascalmpl.uri.URIResolverRegistry;
 
 import com.google.gson.stream.JsonWriter;
 
-import fi.iki.elonen.NanoHTTPD.Method;
-import fi.iki.elonen.NanoHTTPD.Response;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -161,11 +159,11 @@ public class TermREPL {
             Function<IValue, IValue> callback = liftProviderFunction(content.get("callback"));
             REPLContentServer server = contentManager.addServer(id, callback);
             
-            Response response = server.serve("/", Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             String URL = "http://localhost:" + server.getListeningPort() + "/";
             metadata.put("url", URL);
             
-            output.put(response.getMimeType(), response.getData());
+            String iframe = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
+            output.put("text/html", new ByteArrayInputStream(iframe.getBytes("UTF8")));
             
             String message = "Serving visual content at |" + URL + "|";
             output.put("text/plain", new ByteArrayInputStream(message.getBytes("UTF8")));
