@@ -129,8 +129,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(base != "_"){
        if(inPatternNames(base, c)){
-          //println("qualifiedName: <name>, useLub, <getLoc(current)>");
-          c.useLub(name, {formalId(), nestedFormalId(), patternVariableId()});
+          c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);
@@ -157,8 +156,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(base != "_"){
        if(inPatternNames(base, c)){
-          //println("qualifiedName: <name>, useLub, <getLoc(current)>");
-          c.useLub(name, {formalId(), nestedFormalId(), patternVariableId()});
+          c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);
@@ -166,7 +164,6 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
        
        if(isTopLevelParameter(c)){
           c.fact(current, alist(avalue()));
-          //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
           c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(); }));
        } else {
           if(c.isAlreadyDefined("<name>", name)) {
