@@ -73,12 +73,16 @@ AType(Solver) makeFieldType(str fieldName, Tree fieldType)
 void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <KeywordFormals keywordArguments> )`, Collector c){
     formals = getFormals(current);
     kwFormals = getKwFormals(current);
+    
+    declaredFieldNames = {};
        
     // Define all fields in the outer scope of the data declaration in order to be easily found there.
     
     for(ta <- formals){
         if(ta is named){
             fieldName = prettyPrintName(ta.name);
+            if(fieldName in declaredFieldNames) c.report(error(ta, "Double declaration of field `%v`", fieldName));
+            declaredFieldNames += fieldName;
             fieldType = ta.\type;
             dt = defType([fieldType], makeFieldType(fieldName, fieldType));
             c.define(fieldName, fieldId(), ta.name, dt);
@@ -87,6 +91,8 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
     
     for(KeywordFormal kwf <- kwFormals){
         fieldName = prettyPrintName(kwf.name);
+        if(fieldName in declaredFieldNames) c.report(error(kwf, "Double declaration of field `%v`", fieldName));
+        declaredFieldNames += fieldName;
         kwfType = kwf.\type;
         dt = defType([kwfType], makeFieldType(fieldName, kwfType));
         c.define(fieldName, keywordFieldId(), kwf.name, dt);    

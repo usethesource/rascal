@@ -93,7 +93,7 @@ public str key_current_module = "current_module";
 public str key_pathconfig = "pathconfig";
 
 data TypePalConfig(
-    bool logImports                 = false,
+    bool logImports                 = true,
     bool classicReifier             = true,
     bool warnUnused                 = true,
     bool warnUnusedFormals          = true,
