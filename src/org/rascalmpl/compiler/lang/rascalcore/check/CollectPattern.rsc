@@ -103,7 +103,7 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     
     if(uname != "_"){
        if(inPatternNames(uname, c)){
-          c.use(name, {formalId()});
+          c.use(name, {formalId(),  patternVariableId(), nestedFormalId()});
           c.require("typed variable pattern", current, [tp, name], 
             void (Solver s){
                 nameType = alist(s.getType(tp), label=uname);
