@@ -1,38 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-data D = a(D d, int i) | b(int i);
+data D = d(int a, int a, int n = 1, int n = 2);
 
-void foo(D d) {
-  int n = 0;
-  visit(d) {
-    case a(
-           b(n),
-           n
-          ) :;
-  }
-} 
-
-//int X = 1;
-//int X = 10;
-//int Y = X;
-
-//public map[&K, &V] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
-//{
-//  return (F(key) : G(M[key]) | &K key <- M);
-//}
-//
-//@javaClass{org.rascalmpl.library.Prelude}
-//public java list[&T] reverse(list[&T] lst);
-//
-//public list[int] index(list[&T] lst) = [];
-//
-//public int lastIndexOf(list[&T] lst, &T elt) {
-//    for(i <- reverse(index(lst))) {
-//        if(lst[i] == elt) return i;
-//    }
-//    return -1;
-//}
-//
 //&L <: num strange(&L <: num arg1, &R <: &L <: num arg2){
 //  return arg2;
 //}

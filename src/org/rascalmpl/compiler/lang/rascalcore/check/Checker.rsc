@@ -167,6 +167,7 @@ public PathConfig getRascalCorePathConfig() {
         srcs = [|project://rascal/src/org/rascalmpl/library|, 
                 |project://rascal-core/src/org/rascalmpl/core/library|,
                 |project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
+                |project://typepal/src|,
                 |project://salix/src|
                ], 
         bin = |test-modules:///rascal-core-bin-<snpc>|, 
