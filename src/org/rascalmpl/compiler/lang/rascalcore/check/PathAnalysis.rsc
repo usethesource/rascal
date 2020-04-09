@@ -60,8 +60,8 @@ bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditi
     = returnsViaAllPath(thenStatement, fname, c) && returnsViaAllPath(elseStatement, fname, c);
  
 bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = 
-    returnsValue(statement, fname, c) && (returnsViaAllPath(statement, fname, c) || true)
-    when !(statement is emptyStatement);
+    (returnsViaAllPath(statement, fname, c) || true);
+    
 bool returnsViaAllPath((Statement) `return;`, str fname,  Collector c) =  true;
 
 bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = returnsValue(statement,fname, c)
@@ -110,7 +110,8 @@ bool returnsValue(stat:(Statement) `<Label label> <Visit vis>`, str fname, Colle
 bool returnsValue((Statement) `<Label label> { <Statement+ statements> }`,  str fname, Collector c)
     = returnsValue([stat | stat <- statements][-1], fname, c);
 
-default bool returnsValue(Statement s,  str fname, Collector c) = s is expression || s is \visit || s is \assert || s is assertWithMessage || s is \return;
+default bool returnsValue(Statement s,  str fname, Collector c) = s is expression || s is \visit || s is \assert || s is assertWithMessage 
+                                                                  || (s is \return && returnsValue(s.statement, fname, c));
 
 bool leavesBlock((Statement) `fail <Target target> ;`) = true;
 bool leavesBlock((Statement) `filter ;`) = true;
