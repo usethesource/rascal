@@ -79,22 +79,38 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
         tpResolved = c.getType(tp)[label=uname];
         c.fact(current, tpResolved);
         if(uname != "_"){
-            c.push(patternNames, <uname, getLoc(name)>);
-            if(aadt(adtName,_,SyntaxRole sr) := tpResolved 
-               && (isConcreteSyntaxRole(sr) || adtName == "Tree")
-               && c.isAlreadyDefined("<name>", name)){
-              c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+            if(inPatternNames(uname, c)){
+                c.use(name, {formalId(),  patternVariableId(), nestedFormalId()});
+                c.require("typed variable pattern", current, [tp, name], 
+                    void (Solver s){
+                        s.requireEqual(name, tp, error(name, "Expected %t for %q, found %q", tp, uname, name));
+                    });
             } else {
-                c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
+                c.push(patternNames, <uname, getLoc(name)>);
+                if(aadt(adtName,_,SyntaxRole sr) := tpResolved 
+                   && (isConcreteSyntaxRole(sr) || adtName == "Tree")
+                   && c.isAlreadyDefined("<name>", name)){
+                  c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+                } else {
+                    c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
+                }
+                return;
             }
-            return;
         }
     } catch TypeUnavailable(): {
         c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[label=uname]; });
     }
     if(uname != "_"){
-       c.push(patternNames, <uname, getLoc(name)>);
-       c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp)[label=uname]; }));
+      if(inPatternNames(uname, c)){
+        c.use(name, {formalId(),  patternVariableId(), nestedFormalId()});
+        c.require("typed variable pattern", current, [tp, name], 
+            void (Solver s){
+                s.requireEqual(name, tp, error(name, "Expected %t for %q, found %q", tp, uname, name));
+            });
+      } else {
+        c.push(patternNames, <uname, getLoc(name)>);
+        c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp)[label=uname]; }));
+       }
     }
 }
 
@@ -103,8 +119,8 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     
     if(uname != "_"){
        if(inPatternNames(uname, c)){
-          c.use(name, {formalId(),  patternVariableId(), nestedFormalId()});
-          c.require("typed variable pattern", current, [tp, name], 
+          c.use(name, {variableId(), formalId(),  patternVariableId(), nestedFormalId()});
+          c.require("typed variable arguments pattern", current, [tp, name], 
             void (Solver s){
                 nameType = alist(s.getType(tp), label=uname);
                 s.requireEqual(name, nameType, error(name, "Expected %t for %q, found %q", nameType, uname, name));
