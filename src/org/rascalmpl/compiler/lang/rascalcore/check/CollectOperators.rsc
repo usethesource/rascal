@@ -12,6 +12,7 @@ import lang::rascal::\syntax::Rascal;
 
 import Node;
 import Set;
+import Relation;
 
 // ---- is
 
@@ -734,6 +735,42 @@ void collect(current: (Expression) `<Expression lhs> && <Expression rhs>`, Colle
     collect(lhs, rhs, c);
 }
 
+private set[str] introducedVars(Expression exp){
+    return exp is match ? introducedVars(exp.pattern) : {};
+}
+
+private set[str] introducedVars(Pattern e){
+    vars = {};
+    top-down-break visit(e){
+        case (Pattern) `<QualifiedName qualifiedName>`: {
+             nm = "<qualifiedName>"; 
+             if(nm != "_") vars += nm;
+        }
+        case (Pattern) `<Type _> <Name name>` : { 
+             nm = "<name>"; 
+             if(nm != "_") vars += nm;
+        }
+        case (Pattern) `<Name name> : <Pattern pattern>`: {
+             nm = "<name>"; 
+             if(nm != "_") vars += nm;
+             vars += introducedVars(pattern);
+        }
+        case (Pattern) `<Type _> <Name name> : <Pattern pattern>`: {
+             nm = "<name>"; 
+             if(nm != "_") vars += nm;
+             vars += introducedVars(pattern);
+        }
+        case (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`: {
+            if(!(expression is qualifiedName)) vars += introducedVars(expression);
+            vars += {*introducedVars(argument) | argument <- arguments};
+            if(keywordArguments is \default){
+                vars += { *introducedVars(kwa.expression) | kwa <- keywordArguments };
+            }
+        } 
+    }
+    return vars;
+}
+
 // ---- or
 
 void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Collector c){
@@ -747,25 +784,23 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
           
     // Check that the names introduced in lhs and rhs are the same    
     
-    namesBeforeOr = c.getStack(patternNames);
-    collect(lhs, c);
-    namesAfterLhs = c.getStack(patternNames);
+    introLhs = introducedVars(lhs);
+    introRhs = introducedVars(rhs);
     
-    // Restore patternNames
-    c.clearStack(patternNames);
-    for(nm <- reverse(namesBeforeOr)) c.push(patternNames, nm);
+    collect(lhs, c);
     
     // Trick 1: wrap rhs in a separate scope to avoid double declarations with names introduced in lhs
     // Trick 2: use "current" as scope (to avoid clash with scope created by rhs)
     c.enterScope(lhs);
         collect(rhs, c);
     c.leaveScope(lhs);
-    namesAfterRhs = c.getStack(patternNames);
-  
-    missingInLhs = namesAfterRhs - namesAfterLhs;
-    missingInRhs = namesAfterLhs - namesAfterRhs;
-    //if(!isEmpty(missingInLhs)) c.report(error(lhs, "Left argument of `||` should also introduce <fmt(missingInLhs)>");
-    //if(!isEmpty(missingInRhs)) c.report(error(rhs, "Right argument of `||` should also introduce <fmt(missingInRhs)>");
+    
+    for(nm <- introLhs){
+      if(nm notin introRhs) c.report(error(rhs, "Arguments of `||` should introduce same variables, right argument does not introduce `%v`", nm));
+    }
+    for(nm <- introRhs){
+      if(nm notin introLhs) c.report(error(lhs, "Arguments of `||` should introduce same variables, left argument does not introduce `%v`", nm));
+    }
 }
 
 // ---- if expression
