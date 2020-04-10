@@ -38,8 +38,8 @@ bool returnsViaAllPath((Statement) `try <Statement body> <Catch+ handlers> final
     
 
 bool returnsViaAllPath((Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`, str fname,  Collector c){
-    br = returnsViaAllPath(body, fname, c); 
-    return ("<conditions>" == "true") ? br : false;
+    returnsViaAllPath(body, fname, c); 
+    return false;
 }
 
 bool returnsViaAllPath((Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`, str fname,  Collector c){
