@@ -2,6 +2,7 @@ module lang::rascalcore::check::tests::ATypeInstantiationTests
 
 import lang::rascalcore::check::ATypeInstantiation;
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
 
 test bool matchIntInt() = matchRascalTypeParams(aint(), aint(), ()) == ();
 
