@@ -303,14 +303,14 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                   // We do in this case not check that the type of the expression as a whole is compatible with the return type.
                   // TODO: cover the case that we leave the expression via a return AND via the value of the expression as a whole
             } else {
-                c.requireEager("check on return type `<fname>`", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, signature.\type));
+                c.require("check on return type `<fname>`", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, signature.\type));
             }
             collect(decl.expression, c);
         } 
         if(decl is conditional){
             conditions = [cond | cond <- decl.conditions];
             storeAllowUseBeforeDef(decl, decl.expression, c);
-            c.requireEager("when conditions", decl.conditions, conditions,
+            c.require("when conditions", decl.conditions, conditions,
                 void (Solver s){
                 for(cond <- conditions){
                     condType = s.getType(cond);
@@ -496,7 +496,7 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
 
     for(<scope, scopeInfo> <- functionScopes){
         if(returnInfo(Type returnType) := scopeInfo){
-           c.requireEager("check return type", current, [returnType], makeReturnRequirement(statement, returnType));
+           c.require("check return type", current, [returnType], makeReturnRequirement(statement, returnType));
            c.fact(current, statement);
            collect(statement, c);
            return;

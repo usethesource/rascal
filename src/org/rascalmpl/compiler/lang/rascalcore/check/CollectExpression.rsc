@@ -98,7 +98,7 @@ void collect(current: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Sta
     c.enterScope(conditions);  // thenPart may refer to variables defined in conditions
         condList = [cond | Expression cond <- conditions];
         c.fact(current, avalue());
-        c.requireEager("if then template", current, condList, void (Solver s){ checkConditions(condList, s); });
+        c.require("if then template", current, condList, void (Solver s){ checkConditions(condList, s); });
         beginPatternScope("conditions", c);
         collect(conditions, c);
         endPatternScope(c);
@@ -132,7 +132,7 @@ void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <S
 void collect(current: (StringTemplate) `for( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){
     c.enterScope(generators);   // body may refer to variables defined in conditions
         condList = [cond | Expression cond <- generators];
-        c.requireEager("for statement  template", current, condList, void (Solver s){ checkConditions(condList, s); });
+        c.require("for statement  template", current, condList, void (Solver s){ checkConditions(condList, s); });
         beginPatternScope("conditions", c);
         collect(condList, c);
         endPatternScope(c);
@@ -143,7 +143,7 @@ void collect(current: (StringTemplate) `for( <{Expression ","}+ generators> ) { 
 void collect(current: (StringTemplate) `do { <Statement* preStats> <StringMiddle body> <Statement* postStats> } while( <Expression condition> )`, Collector c){
     c.enterScope(current);   // condition may refer to variables defined in body
         condList = [condition];
-        c.requireEager("do statement template", current, condList, void (Solver s){ checkConditions(condList, s); });
+        c.require("do statement template", current, condList, void (Solver s){ checkConditions(condList, s); });
         collect(preStats, body, postStats, c);
         beginPatternScope("conditions", c);
         collect(condition, c);
@@ -154,7 +154,7 @@ void collect(current: (StringTemplate) `do { <Statement* preStats> <StringMiddle
 void collect(current: (StringTemplate) `while( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){
     c.enterScope(condition);   // body may refer to variables defined in conditions
         condList = [condition];
-        c.requireEager("while statement  template", current, condList, void (Solver s){ checkConditions(condList, s); });
+        c.require("while statement  template", current, condList, void (Solver s){ checkConditions(condList, s); });
         beginPatternScope("conditions", c);
         collect(condList, c);
         endPatternScope(c);
@@ -245,7 +245,7 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
 //           }
 //        }
 //    }
-//   // c.calculateEager("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
+//   // c.calculate("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
 //    c.fact(current, symbol);
 //    collect(symbol, c);
 //}
@@ -558,7 +558,7 @@ void collect(current: (Expression) `{ <{Expression ","}* elements0> }`, Collecto
     if(isEmpty(elms)){
         c.fact(current, aset(avoid()));
     } else {
-        c.calculateEager("set expression", current, elms, AType(Solver s) { 
+        c.calculate("set expression", current, elms, AType(Solver s) { 
             for(elm <- elms) checkNonVoidOrSplice(elm, s, "Element of set");
             return aset(s.lubList([s.getType(elm) | elm <- elms]));
         });
@@ -573,7 +573,7 @@ void collect(current: (Expression) `[ <{Expression ","}* elements0> ]`, Collecto
     if(isEmpty(elms)){
         c.fact(current, alist(avoid()));
     } else {
-        c.calculateEager("list expression", current, elms, AType(Solver s) { 
+        c.calculate("list expression", current, elms, AType(Solver s) { 
             for(elm <- elms) checkNonVoidOrSplice(elm, s, "Element of list");
             return alist(s.lubList([s.getType(elm) | elm <- elms])); 
         });
@@ -812,7 +812,7 @@ private AType computeReturnType(Expression current, loc scope, AType retType, li
     for(int i <- index_formals){
         ai = actualTypes[i];
         ai = s.instantiate(ai);
-        if(tvar(loc l) := ai || !s.isFullyInstantiated(ai)){
+        if(tvar(loc _) := ai || !s.isFullyInstantiated(ai)){
            if(identicalFormals[i]){
               s.requireUnify(ai, iformalTypes[i], error(current, "Cannot unify %t with %t", ai, iformalTypes[i]));
               ai = s.instantiate(ai);
@@ -887,7 +887,7 @@ private list[AType] computeExpressionKwArgs((KeywordArguments[Expression]) `<Key
 
 void collect(current: (Expression) `\< <{Expression ","}+ elements1> \>`, Collector c){
     elms = [ e | Expression e <- elements1 ];
-    c.calculateEager("tuple expression", current, elms,
+    c.calculate("tuple expression", current, elms,
         AType(Solver s) {
                 for(elm <- elms) checkNonVoid(elm, s, "Element of tuple");
                 return atuple(atypeList([ s.getType(elm) | elm <- elms ]));

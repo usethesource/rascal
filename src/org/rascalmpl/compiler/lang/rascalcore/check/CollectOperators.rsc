@@ -552,7 +552,7 @@ void collect(current: (Expression) `<Pattern pat> := <Expression expression>`, C
 
 void computeMatchPattern(Expression current, Pattern pat, str operator, Expression expression, Collector c){
     scope = c.getScope();
-    c.calculateEager("match", current, [expression],
+    c.calculate("match", current, [expression],
         AType(Solver s) {
             subjectType = s.getType(expression);
             if(isStartNonTerminalType(subjectType)){
@@ -612,7 +612,7 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
     
     collect(pat, c); // collect pat in standard fashion
     
-    c.calculateEager("enumeration", current, [expression],
+    c.calculate("enumeration", current, [expression],
        AType(Solver s) { 
              exprType = s.getType(expression);
              elmType = avalue();
@@ -696,7 +696,7 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
 void collect(current: (Expression) `<Expression lhs> ==\> <Expression rhs>`, Collector c){
     c.fact(current, abool());
    
-    c.requireEager("implication", current, [lhs, rhs],
+    c.require("implication", current, [lhs, rhs],
         void (Solver s){ s.requireUnify(abool(), s.getType(lhs), error(lhs, "Argument of ==\> should be `bool`, found %t", lhs));
             //clearBindings();
             s.requireUnify(abool(), rhs, error(rhs, "Argument of ==\> should be `bool`, found %t", rhs));
@@ -710,7 +710,7 @@ void collect(current: (Expression) `<Expression lhs> ==\> <Expression rhs>`, Col
 void collect(current: (Expression) `<Expression lhs> \<==\> <Expression rhs>`, Collector c){
     //c.fact(current, abool());
    
-    c.calculateEager("equivalence", current, [lhs, rhs],
+    c.calculate("equivalence", current, [lhs, rhs],
         AType(Solver s){ s.requireUnify(abool(), lhs, error(lhs, "Argument of \<==\> should be `bool`, found %t", lhs));
                   //clearBindings();
                   s.requireUnify(abool(), rhs, error(rhs, "Argument of \<==\> should be `bool`, found %t", rhs));
@@ -725,7 +725,7 @@ void collect(current: (Expression) `<Expression lhs> \<==\> <Expression rhs>`, C
 void collect(current: (Expression) `<Expression lhs> && <Expression rhs>`, Collector c){
     c.fact(current, abool());
    
-    c.requireEager("and", current, [lhs, rhs],
+    c.require("and", current, [lhs, rhs],
         void (Solver s){ 
             s.requireUnify(abool(), lhs, error(lhs, "Argument of && should be `bool`, found %t", lhs));
             //clearBindings();
@@ -764,7 +764,7 @@ private set[str] introducedVars(Pattern e){
             if(!(expression is qualifiedName)) vars += introducedVars(expression);
             vars += {*introducedVars(argument) | argument <- arguments};
             if(keywordArguments is \default){
-                vars += { *introducedVars(kwa.expression) | kwa <- keywordArguments };
+                vars += { *introducedVars(kwa.expression) | kwa <- keywordArguments.keywordArgumentList };
             }
         } 
     }
@@ -776,7 +776,7 @@ private set[str] introducedVars(Pattern e){
 void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Collector c){
     c.fact(current, abool());
       
-    c.requireEager("or", current, [lhs, rhs],
+    c.require("or", current, [lhs, rhs],
         void (Solver s){ 
             s.requireUnify(abool(), lhs, error(lhs, "Argument of || should be `bool`, found %t", lhs));
             s.requireUnify(abool(), rhs, error(rhs, "Argument of || should be `bool`, found %t", rhs));
