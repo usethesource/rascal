@@ -109,8 +109,7 @@ test bool noMatchTupleArityError() = cannotMatch("\<1\> !:= \<1,2\>;");
 test bool matchSetStringError() = cannotMatch("{1} := \"a\";");  
   
 test bool matchListError1() = checkOK("list[int] x = [1,2,3]; [1, *list[int] L, 2, list[int] M] !:= x;");   // DISCUSS, was: cannotMatch	
-
-@ignore{TODO} 	
+	
 test bool matchListError2() = declarationError("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
   	
 test bool matchListError4() = checkOK("!([1, list[str] L, 2] := [1,2,3]);");  // DISCUSS, was: cannotMatch
