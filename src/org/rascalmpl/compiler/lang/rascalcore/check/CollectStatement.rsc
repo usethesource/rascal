@@ -95,14 +95,14 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                     scope = c.getScope();
                     c.setScopeInfo(scope, replacementScope(), replacementInfo(pattern));
                     // force type calculation of pattern
-                    //c.calculateEager("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, avalue(), scope, s); });
+                    //c.calculate("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, avalue(), scope, s); });
                     c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), scope, s); });
                     
                     conditions = replacement is conditional ? [c | Expression c <- replacement.conditions] : [];
                     
                     if(replacement is conditional){
                        storeAllowUseBeforeDef(current, replacement.replacementExpression, c);
-                       c.requireEager("when conditions in replacement", replacement.conditions, conditions,
+                       c.require("when conditions in replacement", replacement.conditions, conditions,
                           void (Solver s){ for(cond <- conditions){
                                   condType = s.getType(cond);
                                   if(!s.isFullyInstantiated(condType)){
@@ -114,7 +114,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                             });
                     }
                     
-                    c.requireEager("pattern replacement", current, /*replacement.replacementExpression + */conditions,
+                    c.require("pattern replacement", current, /*replacement.replacementExpression + */conditions,
                        void (Solver s){ 
                            exprType = s.getType(replacement.replacementExpression);
                            patType = getPatternType(pattern, avalue(), scope, s);
@@ -182,7 +182,7 @@ void collect(current: (Statement) `insert <Statement expr>`, Collector c){
     replacementScopes = c.getScopeInfo(replacementScope());
     for(<scope, scopeInfo> <- replacementScopes){
       if(replacementInfo(Pattern pat) := scopeInfo){
-         c.requireEager("insert expression", expr, [expr], 
+         c.require("insert expression", expr, [expr], 
              void (Solver s) { exprType = s.getType(expr);
                   patType = getPatternType(pat, avalue(), scope, s);
                   if(!s.isFullyInstantiated(exprType) || !s.isFullyInstantiated(patType)){
@@ -218,7 +218,7 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // record appends in body, initially []
         condList = [cond | Expression cond <- conditions];
         
-        c.requireEager("while statement", current, condList + [body], void (Solver s){ checkConditions(condList, s); });
+        c.require("while statement", current, condList + [body], void (Solver s){ checkConditions(condList, s); });
         beginPatternScope("conditions", c);
             collect(condList, c);
         endPatternScope(c);
@@ -262,7 +262,7 @@ void collect(current: (Statement) `<Label label> do <Statement body> while ( <Ex
             c.define(loopName, labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
-        c.requireEager("do statement", current, [body, condition], void (Solver s){ checkConditions([condition], s); });
+        c.require("do statement", current, [body, condition], void (Solver s){ checkConditions([condition], s); });
         
         collect(body, c);
         beginPatternScope("conditions", c);
@@ -284,7 +284,7 @@ void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditi
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         condList = [cond | Expression cond <- conditions];
         
-        c.requireEager("for statement", current, condList + [body], void (Solver s){ checkConditions(condList, s); });
+        c.require("for statement", current, condList + [body], void (Solver s){ checkConditions(condList, s); });
         
         beginPatternScope("conditions", c);
         collect(condList, c);
@@ -376,7 +376,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         condList = [cond | Expression cond <- conditions];
         c.fact(current, avalue());
         
-        c.requireEager("if then", current, condList + thenPart, void (Solver s){ checkConditions(condList, s); });
+        c.require("if then", current, condList + thenPart, void (Solver s){ checkConditions(condList, s); });
         
         beginPatternScope("conditions", c);
         collect(condList, c);
@@ -498,7 +498,7 @@ void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, Colle
         collect(pattern, c);
         c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), getLoc(current), s); });
         
-        //c.requireEager("catch pattern", pattern, [],
+        //c.require("catch pattern", pattern, [],
         //   () { tpat = getType(pattern);
         //        if(!isFullyInstantiated(tpat)){
         //           unify(tpat, avalue()) || reportError(pattern, "Cannot bind pattern");
