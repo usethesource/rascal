@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
@@ -44,8 +45,8 @@ import jline.TerminalFactory;
 public class TermREPL {
     private final IValueFactory vf;
     private ILanguageProtocol lang;
-   
-    
+
+
     public TermREPL(IValueFactory vf) {
         this.vf = vf;
     }
@@ -72,7 +73,8 @@ public class TermREPL {
         private final ICallableValue completor;
         private final IValueFactory vf;
         private final ICallableValue stacktrace;
-        
+
+
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
             IValue handler, IValue completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
             this.vf = vf;
@@ -84,6 +86,7 @@ public class TermREPL {
             this.stacktrace = (ICallableValue) stacktrace;
             this.currentPrompt = prompt.getValue();
             this.quit = quit.getValue();
+
         }
 
         @Override
@@ -91,17 +94,17 @@ public class TermREPL {
             handler.getEval().interrupt();
             handler.getEval().__setInterrupt(false);
         }
-        
+
         @Override
         public void terminateRequested() {
             handler.getEval().interrupt();
         }
-        
+
         @Override
         public void stop() {
             handler.getEval().interrupt();
         }
-        
+
         @Override
         public void stackTraceRequested() {
             stacktrace.call(new Type[0], new IValue[0], null);
@@ -121,15 +124,15 @@ public class TermREPL {
 
         @Override
         public void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
-            
+
             if (line.trim().equals(quit)) {
                 throw new InterruptedException(quit);
             }
             else {
                 try {
                     handler.getEval().__setInterrupt(false);
-                    IConstructor content = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
-               
+                    IConstructor content = (IConstructor) call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+
                     if (content.has("id")) {
                         handleInteractiveContent(output, metadata, content);
                     }
@@ -152,21 +155,32 @@ public class TermREPL {
                 }
             }
         }
-
+        
         private void handleInteractiveContent(Map<String, InputStream> output, Map<String, String> metadata,
             IConstructor content) throws IOException, UnsupportedEncodingException {
             String id = ((IString) content.get("id")).getValue();
             Function<IValue, IValue> callback = liftProviderFunction(content.get("callback"));
             REPLContentServer server = contentManager.addServer(id, callback);
             
-            String URL = "http://localhost:" + server.getListeningPort() + "/";
-            metadata.put("url", URL);
+            String URL = "http://localhost:" + server.getListeningPort();
             
-            String iframe = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
+            produceHTMLResponse(id, URL, output, metadata);
+        }
+        
+        private void produceHTMLResponse(String id, String URL, Map<String, InputStream> output, Map<String, String> metadata) throws UnsupportedEncodingException{
+            String iframe;
+            if (metadata.get("origin").equals("notebook"))
+                iframe = "<script> \n var "+ id +" = new Salix('"+ id + "', '" + URL + "'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+ id +");\n registerDagre(" + id + ");\n registerTreeView("+ id +"); \n"+ id + ".start();});\n </script> \n <div id=\"" + id + "\"> \n </div>";
+            else
+                iframe = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
+            
+            metadata.put("url", URL);
+
             output.put("text/html", new ByteArrayInputStream(iframe.getBytes("UTF8")));
             
             String message = "Serving visual content at |" + URL + "|";
             output.put("text/plain", new ByteArrayInputStream(message.getBytes("UTF8")));
+            
         }
 
         private Function<IValue, IValue> liftProviderFunction(IValue callback) {
@@ -176,19 +190,19 @@ public class TermREPL {
                 // This function will be called from another thread (the webserver)
                 // That is problematic if the current repl is doing something else at that time.
                 // The evaluator is already locked by the outer Rascal REPL (if this REPL was started from `startREPL`).
-//              synchronized(eval) {
-                  return func.call(
-                      new Type[] { REPLContentServer.requestType },
-                      new IValue[] { t },
-                      Collections.emptyMap()).getValue();
-//              }
+                //              synchronized(eval) {
+                return func.call(
+                    new Type[] { REPLContentServer.requestType },
+                    new IValue[] { t },
+                    Collections.emptyMap()).getValue();
+                //              }
             };
         }
-        
+
         private void handleJSONResponse(Map<String, InputStream> output, IConstructor response) throws IOException {
             IValue data = response.get("val");
             IWithKeywordParameters<? extends IConstructor> kws = response.asWithKeywordParameters();
-            
+
             IValue dtf = kws.getParameter("dateTimeFormat");
             IValue ics = kws.getParameter("implicitConstructors");
             IValue ipn = kws.getParameter("implicitNodes");
@@ -200,15 +214,15 @@ public class TermREPL {
                 .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
                 .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
-              final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-              
-              JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
-              
-              writer.write(out, data);
-              out.flush();
-              out.close();
-              
-              output.put("application/json",  new ByteArrayInputStream(baos.toByteArray()));
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
+
+            writer.write(out, data);
+            out.flush();
+            out.close();
+
+            output.put("application/json",  new ByteArrayInputStream(baos.toByteArray()));
         }
 
         private void handleFileResponse(Map<String, InputStream> output, IConstructor response)
@@ -227,7 +241,7 @@ public class TermREPL {
             throws UnsupportedEncodingException {
             IString content = (IString) response.get("content");
             IString contentMimetype = (IString) response.get("mimeType");
-                  
+
             output.put(contentMimetype.getValue(), new ByteArrayInputStream(content.getValue().getBytes("UTF8")));
         }
 
@@ -266,7 +280,7 @@ public class TermREPL {
         @Override
         public CompletionResult completeFragment(String line, int cursor) {
             ITuple result = (ITuple)call(completor, new Type[] { tf.stringType(), tf.integerType() },
-                            new IValue[] { vf.string(line), vf.integer(cursor) }); 
+                new IValue[] { vf.string(line), vf.integer(cursor) }); 
 
             List<String> suggestions = new ArrayList<>();
 
@@ -282,7 +296,7 @@ public class TermREPL {
 
             return new CompletionResult(offset, suggestions);
         }
-        
+
         @Override
         public void handleReset(Map<String, InputStream> output, Map<String, String> metadata) throws InterruptedException {
             handleInput("", output, metadata);
