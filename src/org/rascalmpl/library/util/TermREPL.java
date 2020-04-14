@@ -168,15 +168,15 @@ public class TermREPL {
         }
         
         private void produceHTMLResponse(String id, String URL, Map<String, InputStream> output, Map<String, String> metadata) throws UnsupportedEncodingException{
-            String iframe;
+            String html;
             if (metadata.get("origin").equals("notebook"))
-                iframe = "<script> \n var "+ id +" = new Salix('"+ id + "', '" + URL + "'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+ id +");\n registerDagre(" + id + ");\n registerTreeView("+ id +"); \n"+ id + ".start();});\n </script> \n <div id=\"" + id + "\"> \n </div>";
+                html = "<script> \n var "+ id +" = new Salix('"+ id + "', '" + URL + "'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+ id +");\n registerDagre(" + id + ");\n registerTreeView("+ id +"); \n"+ id + ".start();\n});\n </script> \n <div id = \"" + id + "\"> \n </div>";
             else
-                iframe = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
+                html = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
             
             metadata.put("url", URL);
 
-            output.put("text/html", new ByteArrayInputStream(iframe.getBytes("UTF8")));
+            output.put("text/html", new ByteArrayInputStream(html.getBytes("UTF8")));
             
             String message = "Serving visual content at |" + URL + "|";
             output.put("text/plain", new ByteArrayInputStream(message.getBytes("UTF8")));
