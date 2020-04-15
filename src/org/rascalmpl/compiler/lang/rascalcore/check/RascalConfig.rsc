@@ -73,11 +73,11 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     
       // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
                   
-      if(lrel[loc,loc] allowedParts := s.getStore(key_allow_use_before_def)){
+      if(lrel[loc,loc] allowedParts := s.getStack(key_allow_use_before_def)){
          list[loc] parts = allowedParts[use.scope];
          return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
        } else {
-            throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStore(key_allow_use_before_def)>";
+            throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStack(key_allow_use_before_def)>";
        }
     }
     Define d = s.getDefine(def);

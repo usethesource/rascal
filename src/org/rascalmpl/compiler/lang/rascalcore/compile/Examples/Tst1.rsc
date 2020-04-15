@@ -1,22 +1,25 @@
 module lang::rascalcore::compile::Examples::Tst1
-         
-import Map;       
-bool main() = !([1, list[int] L, 2, list[int] L] := [1,2,3]); 
+    
+data Formula 
+  = \true()
+  | \or(Formula lhs, Formula rhs)
+  | \or(set[Formula] args)
+  //| \if(Formula lhs, Formula rhs)
+  //| \fi(Formula lhs, Formula rhs)
+  //| \iff(Formula lhs, Formula rhs)
+  ;
+
+Formula simplify(or({\true(), Formula _}))   = \true();
 
 
-int f(int n) { return n += 1; }      
-          
-data D = d1(int n) | d2(int n, int m);
+data F = 
+         f(str s, int n)
+       | f(int n, str s)
+       ;
 
-set[int] f(list[D] ds)
-    = { n | d <- ds, d1(n) := d || d2(m, _) := d };
-    
+str g(f(str s, n)) 
+    = n;
 
-set[int] f(list[int] ns)
-    = { n | x <- ns, n := 3 || m := 4};
-    
-set[int] g(set[set[int]] ns)
-    = { *x | st <- ns, set[int] X:{1, *x} := st || {2, *y} := st };
-    
-    
-test bool in1(map[&K,&V] M) = isEmpty(M) || all(&K k <- M, k in M);
+
+//set[int] g(set[set[int]] ns)
+//    = { *x | st <- ns, {1, *int x} := st || {2, *int x} := st };
