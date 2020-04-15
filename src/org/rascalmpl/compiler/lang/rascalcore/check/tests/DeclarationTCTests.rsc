@@ -190,7 +190,27 @@ test bool voidClosureInTuple4() {
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
+test bool nonAmbiguousParameter1() =
+    checkOK("int getN(f(str s, n)) = n;", 
+            initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
+            
+test bool nonAmbiguousParameter2() =
+    checkOK("int getN(f(\"a\", n)) = n;", 
+            initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
+    
+test bool nonAmbiguousParameter3() =
+    checkOK("int getN(f(s, int n)) = n;", 
+            initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);	
 
+test bool nonAmbiguousParameter4() =
+    checkOK("int getN(f(n)) = n;", 
+            initialDecls=["data F = f(int n) | f(int n, str s);"]);
 
-	
+test bool nonAmbiguousParameter5() =
+    checkOK("int getN(f(n, s)) = n;", 
+            initialDecls=["data F = f(int n) | f(int n, str s);"]);                 
+            
+test bool ambiguousParameter1() =
+    declarationError("int getN(f(s, n)) = n;", 
+            initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
 	
