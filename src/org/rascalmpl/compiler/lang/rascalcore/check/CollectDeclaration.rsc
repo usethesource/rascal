@@ -418,7 +418,9 @@ void collect(Parameters parameters, Collector c){
             } catch TypeUnavailable():{
                 c.calculate("formals", parameters, [],
                     AType(Solver s) { 
+                        s.push(inFormals, true);
                         formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
+                        s.pop(inFormals);
                         int last = size(formalTypes) -1;
                         if(parameters is varArgs){
                             formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
@@ -466,28 +468,6 @@ void returnRequirement(Tree returnExpr, AType theDeclaredReturnType, Solver s){
                      !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
     }   
  }
- 
- //void(Solver s) makeReturnRequirement(Tree returnExpr, Type theDeclaredReturnType)
- //   = void(Solver s){
- //       theDeclaredReturnType = s.getType(theDeclaredReturnType);
- //         
- //       returnExprType = s.getType(returnExpr);
- //       Bindings bindings = ();
- //       try   bindings = matchRascalTypeParams(returnExprType, theDeclaredReturnType, bindings, bindIdenticalVars=true);
- //       catch invalidMatch(str reason):
- //             s.report(error(returnExpr, reason));
- //         
- //       actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
- //   
- //       if(s.isFullyInstantiated(actualReturnType)){
- //           s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
- //                        !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
- //       } else
- //           if(!s.unify(actualReturnType, theDeclaredReturnType)){
- //           s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
- //                        !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
- //       }   
- //    };
 
 // ---- return statement (closely interacts with function declaration) --------
 

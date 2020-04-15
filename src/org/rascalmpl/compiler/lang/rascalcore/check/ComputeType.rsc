@@ -11,6 +11,7 @@ import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::check::BuiltinFields;
+import lang::rascalcore::check::ScopeInfo;
 
 import IO;
 import Map;
@@ -1004,10 +1005,23 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
         return computePatternNodeType(current, scope, pats, keywordArguments, s, subjectType);
     }       
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
-       <filteredOverloads, identicalFields> = filterOverloadedConstructors(overloads, size(pats), subjectType);
+       bareArgTypes = for(p <- pats){
+                        try {
+                            append s.getType(p);
+                        } catch TypeUnavailable():
+                            append avalue();
+                      };
+       <filteredOverloads, identicalFields> = filterOverloadedConstructors(overloads, bareArgTypes, subjectType, s);
        if({<key, idr, tp>} := filteredOverloads){
           texp = tp;
        } else {
+          if(insideFormals(s) && (size(overloads) > 1)){
+            if(any(tp <- bareArgTypes, !s.isFullyInstantiated(tp))){
+                defs = itemizeLocs(filteredOverloads<0>);
+                s.report(error(expression, "Constructor `%v` in formal parameter should be unique, found %t, defined at %v", "<expression>", expression, defs));
+                return avalue();
+            }
+          }
          overloads = filteredOverloads;
          validReturnTypeOverloads = {};
          validOverloads = {};
@@ -1039,21 +1053,20 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
     return avalue();
 }
 
-tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, int arity, AType subjectType){
+tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, list[AType] argTypes, AType subjectType, Solver s){
+    int arity = size(argTypes);
     filteredOverloads = {};
-    prevFields = [];
     identicalFields = [true | int i <- [0 .. arity]];
     
+    uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
+    bool acceptable(int i, AType a, AType b)
+        = uninstantiated[i] || comparable(a, b);
+    
     for(ovl:<key, idr, tp> <- overloads){                       
-        if(acons(ret:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := tp, comparable(ret, subjectType)){
-           if(size(fields) == arity){
-              filteredOverloads += ovl;
-              if(isEmpty(prevFields)){
-                 prevFields = fields;
-              } else {
-                 for(int i <- index(fields)) identicalFields[i] = identicalFields[i] && (comparable(prevFields[i], fields[i]));
-              }
-            }
+        if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
+           if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i])))){
+            filteredOverloads += ovl;
+           }
         }
     }
     return <filteredOverloads, identicalFields>;

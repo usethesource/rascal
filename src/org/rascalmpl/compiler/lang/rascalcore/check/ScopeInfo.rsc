@@ -4,14 +4,16 @@ module lang::rascalcore::check::ScopeInfo
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascal::\syntax::Rascal;
 
-public str patternContainer = "patternContainer";
-public str patternNames     = "patternNames";
+public /*const*/ str patternContainer = "patternContainer";
+public /*const*/ str patternNames     = "patternNames";
 
 
-public str currentAdt = "currentAdt";       // used to mark data declarations
-public str inAlternative = "inAlternative"; // used to mark top-level alternative in syntax declaration
-public str typeContainer = "typeContainer";
-public str inConcreteLiteral = "concreteLiteral"; // used to mark that we are inside a concrete literal
+public /*const*/ str currentAdt = "currentAdt";       // used to mark data declarations
+public /*const*/ str inAlternative = "inAlternative"; // used to mark top-level alternative in syntax declaration
+public /*const*/ str typeContainer = "typeContainer";
+public /*const*/ str inConcreteLiteral = "concreteLiteral"; // used to mark that we are inside a concrete literal
+
+public /*const*/ str inFormals = "inFormals";
 
 // Some utilities on patterns
 
@@ -50,3 +52,8 @@ data VisitOrSwitchInfo = visitOrSwitchInfo(Expression expression, bool isVisit);
 data ReturnInfo
     = returnInfo(Type returnType)
     ;
+
+bool insideFormals(Solver s){
+    return !isEmpty(s.getStack(inFormals));
+}
+ 

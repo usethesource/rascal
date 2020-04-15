@@ -306,26 +306,6 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
     c.pop(patternContainer);
 }
 
-tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, int arity, AType subjectType){
-    filteredOverloads = {};
-    prevFields = [];
-    identicalFields = [true | int i <- [0 .. arity]];
-    
-    for(ovl:<key, idr, tp> <- overloads){                       
-        if(acons(ret:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := tp, comparable(ret, subjectType)){
-           if(size(fields) == arity){
-              filteredOverloads += ovl;
-              if(isEmpty(prevFields)){
-                 prevFields = fields;
-              } else {
-                 for(int i <- index(fields)) identicalFields[i] = identicalFields[i] && (comparable(prevFields[i], fields[i]));
-              }
-            }
-        }
-    }
-    return <filteredOverloads, identicalFields>;
-}
-
 // ---- variable becomes pattern
 
 void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){

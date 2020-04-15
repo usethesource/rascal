@@ -28,7 +28,7 @@ void addADTsAndCommonKeywordFields(Solver s){
 void addADTs(Solver s){
     facts = s.getFacts();
     usedADTs = { t | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k] };
-    s.putStore("ADTs", usedADTs);
+    s.push("ADTs", usedADTs);
 }
 
 void addCommonKeywordFields(Solver s){
@@ -58,7 +58,7 @@ void addCommonKeywordFields(Solver s){
             ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
       
     }
-    s.putStore("CommonKeywordFields", commonKeywordFields);
+    s.push("CommonKeywordFields", commonKeywordFields);
     
     // Warn for overlapping declarations of common keyword fields and ordinary fields
       
@@ -165,7 +165,7 @@ AGrammar addGrammar(loc scope, Solver s){
             }
         }
         g = expandKeywords(g);
-        s.putStore("grammar", g);
+        s.push("grammar", g);
         return g;
     } catch TypeUnavailable(): {
         // protect against undefined entities in the grammar that have not yet been reported.
