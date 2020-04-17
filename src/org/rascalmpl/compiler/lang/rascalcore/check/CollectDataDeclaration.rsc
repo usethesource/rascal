@@ -49,18 +49,11 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
         }
         
         c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
-          
-        collect(typeParameters, c);
-        if(!isEmpty(commonKeywordParameterList)){
-            collect(commonKeywordParameterList, c);
-             //for(kwa <- commonKeywordParameterList) { 
-             //   //c.enterScope(kwa); 
-             //   collect(kwa.\type, kwa.expression, c); 
-             //   c.fact(kwa, kwa.\type); 
-             //   // c.leaveScope(kwa); 
-             // }
-        }
-   
+            collect(typeParameters, c);
+            if(!isEmpty(commonKeywordParameterList)){
+                collect(commonKeywordParameterList, c);
+            }
+       
             // visit all the variants in the parent scope of the data declaration
             collect(variants, c);
         c.pop(currentAdt);

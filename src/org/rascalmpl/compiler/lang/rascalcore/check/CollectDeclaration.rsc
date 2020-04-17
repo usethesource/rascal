@@ -217,7 +217,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         collect(decl.signature, c);
         
         DefInfo dt;
-        try {
+        try { // try immediate computation of the function type if all types are already available
             ft = c.getType(decl.signature);
             if(signature.parameters is varArgs) {
                     ft.varArgs = true;
@@ -247,7 +247,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
              dt = defType(ft);
       
         } catch TypeUnavailable():{
-        
+            //  Delayed computation of the function type if some types are anot yet available
             dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
                 
@@ -336,11 +336,9 @@ void collect(Signature signature, Collector c){
     returnType  = signature.\type;
     parameters  = signature.parameters;
     kwFormals   = getKwFormals(parameters);
-  
-    for(tv <- getTypeVars(returnType)){
-        c.use(tv.name, {typeVarId()});
-    }
     
+    handleTypeVars(signature, c);
+ 
     exceptions = [];
     
     if(signature is withThrows){
@@ -376,26 +374,52 @@ void collect(Signature signature, Collector c){
      }
 }
 
-void collect(Parameters parameters, Collector c){
-    formals = getFormals(parameters);
-    kwFormals = getKwFormals(parameters);
-   
-    typeVarsInFunctionParams = [*getTypeVars(t) | t <- formals + kwFormals];
-    seenTypeVars = {};
-    for(tv <- typeVarsInFunctionParams){
+void handleTypeVars(Signature signature, Collector c){
+    formals = getFormals(signature.parameters);
+    kwFormals = getKwFormals(signature.parameters);
+    returnType  = signature.\type;
+    
+    typeVarsInParams = [*getTypeVars(t) | t <- formals + kwFormals];
+    typeVarsInReturn = getTypeVars(returnType);
+    
+    tvnamesInParams = { "<tv.name>" | tv <- typeVarsInParams };
+    
+    seenInReturn = {};
+    for(tv <- typeVarsInReturn){
         if(tv is bounded){
             for(tvbound <- getTypeVars(tv.bound)){
                 c.use(tvbound.name, {typeVarId()});
             }
         }
         tvname = "<tv.name>";
-        if(tvname in seenTypeVars){
+        if(tvname in seenInReturn || tvname in tvnamesInParams){
             c.use(tv.name, {typeVarId()});
         } else {
-            seenTypeVars += tvname;
+            seenInReturn += tvname;
             c.define(tvname, typeVarId(), tv.name, defType(tv));
         }
     }
+    
+    seenInParams = {};
+    for(tv <- typeVarsInParams){
+        if(tv is bounded){
+            for(tvbound <- getTypeVars(tv.bound)){
+                c.use(tvbound.name, {typeVarId()});
+            }
+        }
+        tvname = "<tv.name>";
+        if(tvname in seenInParams){
+            c.use(tv.name, {typeVarId()});
+        } else {
+            seenInParams += tvname;
+            c.define(tvname, typeVarId(), tv.name, defType(tv));
+        }
+    }
+}
+
+void collect(Parameters parameters, Collector c){
+    formals = getFormals(parameters);
+    kwFormals = getKwFormals(parameters);
     
     beginPatternScope("parameter", c);
         if(parameters is varArgs){
