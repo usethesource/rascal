@@ -235,7 +235,8 @@ AType xxInstantiateRascalTypeParameters(Tree selector, AType t, Bindings binding
                                         s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
                                     }
                                   } else {
-                                        throw invalidInstantiation("Type parameter `<pname>` cannot be properly instantiated");
+                                        insert param;
+                                        //throw invalidInstantiation("Type parameter `<pname>` cannot be properly instantiated");
                                   
                                        //s.report(error(selector, "Type parameter %q cannot be properly instantiated", pname));
                                   }
