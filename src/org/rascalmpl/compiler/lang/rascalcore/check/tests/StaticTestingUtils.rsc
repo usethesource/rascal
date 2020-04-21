@@ -120,7 +120,9 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Tuple index must be between _ and _",
 	    "Cannot assign righthand side of type _ to lefthand side of type _",
 	    "Field subscript _ out of range",
-	    "Types _ and _ do not match"
+	    "Types _ and _ do not match",
+	    "Cannot instantiate formal parameter type _",
+	    "Bounds _ and _ are not comparable"
 		//"_ not defined for _ and _", 
 		//"not defined on _ and _", 
 		//"not declared on",

@@ -61,3 +61,22 @@ test bool maybeBoundOK() = checkOK("Maybe[&S \<: num] mb() { if(3 \> 2) return j
                         
 test bool maybeBoundViolated() = unexpectedType("Maybe[&S \<: num] mb() { if(3 \> 2) return just(3); return just(\"Abc\"); }",         
             initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    );                 
+
+test bool boundViolatedInCall()
+    = unexpectedType("value main() = strange(3, \"abc\");",
+        initialDecls = ["bool strange(&L \<: num _, &R \<: &L _) = false;"] );
+       
+test bool boundViolatedInFormals()
+    =  unexpectedType("bool strange(&L \<: num _, &R \<: &L \<: str _) = false;");
+
+test bool boundViolatedInFormalsIndirect1()  
+    = unexpectedType("bool strange(&A \<: num _, &B \<: &A _, &B \<: str _) = false;");
+    
+test bool boundViolatedInFormalsIndirect2()      
+    = unexpectedType("bool strange(&A \<: num _, &B \<: &A _, &S \<: str _, &B \<: &S _) = false;");
+
+test bool circular()   
+    = checkOK("bool strange(&A \<: &B _, &B \<: &A _) = false;"); 
+ 
+ test bool circularBoundsViolated()
+    = unexpectedType("bool strange(&A \<: &B \<: str _, &B \<: &A \<: num _) = false;");
