@@ -802,11 +802,14 @@ private AType computeReturnType(Expression current, loc scope, AType retType, li
   
     iformalTypes = formalTypes;
     if(!isEmpty(bindings)){
-        try {
-          iformalTypes = [instantiateRascalTypeParams(formalTypes[i], bindings) | int i <- index_formals];
-        } catch invalidInstantiation(str msg): {
-            s.report(error(current, msg));
-        }
+       iformalTypes =
+            for(int i <- index_formals){
+                try {
+                    append instantiateRascalTypeParams(formalTypes[i], bindings);
+                } catch invalidInstantiation(str msg): {
+                    s.report(error(current, "Cannot instantiate formal parameter type `<prettyAType(formalTypes[i])>`: " + msg));
+                }
+            };
     }
     
     for(int i <- index_formals){

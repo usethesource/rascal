@@ -407,12 +407,12 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
         c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
     
-    //try {
-    //    <msgs, result> = handleUserType(n,  aadt("<n>", [], dataSyntax()));
-    //    for(m <- msgs) c.report(m);
-    //    c.fact(current, result);
-    //} catch TypeUnavailable(): 
-    //
+    try {
+        <msgs, result> = handleUserType(n,  c.getType(n));
+        for(m <- msgs) c.report(m);
+        c.fact(current, result);
+    } catch TypeUnavailable(): 
+    
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
             <msgs, result> = handleUserType(n, s.getType(n));

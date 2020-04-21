@@ -43,7 +43,8 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b) {
         return matchRascalTypeParams0(r, lb, b);
     }
     
-    return matchRascalTypeParams0(r,s,b);
+    res = matchRascalTypeParams0(r,s,b);
+    return res;
 }
 
 public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {

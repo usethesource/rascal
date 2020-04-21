@@ -337,8 +337,6 @@ void collect(Signature signature, Collector c){
     parameters  = signature.parameters;
     kwFormals   = getKwFormals(parameters);
     
-    handleTypeVars(signature, c);
- 
     exceptions = [];
     
     if(signature is withThrows){
@@ -354,33 +352,110 @@ void collect(Signature signature, Collector c){
     }
     
     collect(returnType, parameters, c);
+    
+    rel[str,Type] tvbounds = handleTypeVars(signature, c);
      
     try {
         creturnType = c.getType(returnType);
         cparameters = c.getType(parameters);
         formalsList = atypeList(elems) := cparameters ? elems : [cparameters];
         kwformalsList = [<c.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
-        c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
+        //c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
+        c.fact(signature, updateBounds(afunc(creturnType, formalsList, kwformalsList), minimizeBounds(tvbounds, c)));
         return;
     } catch TypeUnavailable(): {
         c.calculate("signature", signature, [returnType, parameters, *exceptions],// + kwFormals<0>,
             AType(Solver s){
                 tformals = s.getType(parameters);
                 formalsList = atypeList(elems) := tformals ? elems : [tformals];
-                res = afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s));
-                //println("signature <signature> ==\> <res>");
-                return res;
+                //return afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s));
+                return updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minimizeBounds(tvbounds, s));
             });
      }
 }
 
-void handleTypeVars(Signature signature, Collector c){
+AType updateBounds(AType t, map[str,AType] bounds){
+    return visit(t) {case aparameter(pname, bnd) => aparameter(pname, bounds[pname] ? avalue()) };
+}
+
+map[str,AType] minimizeBounds(rel[str,Type] typeVarBounds, Collector c){
+    return propagateParams((tvname : commonLowerBound(typeVarBounds, tvname, c) | tvname <- domain(typeVarBounds)));
+}
+
+map[str,AType] minimizeBounds(rel[str,Type] typeVarBounds, Solver s){
+    return propagateParams((tvname : commonLowerBound(typeVarBounds, tvname, s) | tvname <- domain(typeVarBounds)));
+}
+
+map[str, AType] propagateParams(map[str,AType] typeVarBounds){
+    return (tvname : (aparameter(tvname2, _) := typeVarBounds[tvname]) ? typeVarBounds[tvname2] : typeVarBounds[tvname] | tvname <- typeVarBounds);
+}
+
+AType commonLowerBound(rel[str,Type] typeVarBounds, str tvname, Collector c){
+    bounds = typeVarBounds[tvname];
+   
+    solve(bounds){
+        for(b <- bounds){
+            if(b is variable && TypeVar tv := b.typeVar){
+                bounds += typeVarBounds["<tv.name>"];
+            } else bounds += b;
+        }
+    }
+    minBound = avalue();
+    for(b <- bounds){
+       bt = c.getType(b);
+       if(asubtype(minBound, bt)){
+            ;// keep smallest
+        } else if(asubtype(bt, minBound)){
+            minBound = bt;
+        } else {
+            c.report(error(b, "Bounds %t and %t for type parameter `%v` are not comparable", bt, minBound, tvname));
+        }
+    }
+    return minBound;
+}
+
+AType commonLowerBound(rel[str,Type] typeVarBounds, str tvname,  Solver s){
+    bounds = typeVarBounds[tvname];
+    solve(bounds){
+        for(b <- bounds){
+            if(b is variable && TypeVar tv := b.typeVar){
+                bounds += typeVarBounds["<tv.name>"];
+            } else bounds += b;
+        }
+    }
+    minBound = avalue();
+    for(b <- bounds){
+       bt = s.getType(b);
+       if(asubtype(minBound, bt)){
+            ;// keep smallest
+        } else if(asubtype(bt, minBound)){
+            minBound = bt;
+        } else {
+            s.report(error(b, "Bounds %t and %t for type parameter `%v` are not comparable", bt, minBound, tvname));
+        }
+    }
+    return minBound;
+}
+
+AType(Solver) makeBoundDef(str tvname,  rel[str,Type] typeVarBounds)
+    = AType(Solver s) { return aparameter(tvname, commonLowerBound(typeVarBounds, tvname, s)); };
+    
+rel[str,Type] handleTypeVars(Signature signature, Collector c){
     formals = getFormals(signature.parameters);
     kwFormals = getKwFormals(signature.parameters);
     returnType  = signature.\type;
-    
-    typeVarsInParams = [*getTypeVars(t) | t <- formals + kwFormals];
+   
+    typeVarsInParams = {*getTypeVars(t) | t <- formals + kwFormals};
     typeVarsInReturn = getTypeVars(returnType);
+    
+    rel[str,Type] typeVarBounds = {};
+    
+    for(tv <-  typeVarsInParams + typeVarsInReturn){
+        tvname = "<tv.name>";
+        if(tv is bounded){
+            typeVarBounds += <tvname, tv.bound>;
+        }
+    }
     
     tvnamesInParams = { "<tv.name>" | tv <- typeVarsInParams };
     
@@ -396,7 +471,8 @@ void handleTypeVars(Signature signature, Collector c){
             c.use(tv.name, {typeVarId()});
         } else {
             seenInReturn += tvname;
-            c.define(tvname, typeVarId(), tv.name, defType(tv));
+            c.define(tvname, typeVarId(), tv.name, 
+                defType(toList(typeVarBounds[tvname]), makeBoundDef(tvname, typeVarBounds)));
         }
     }
     
@@ -412,9 +488,11 @@ void handleTypeVars(Signature signature, Collector c){
             c.use(tv.name, {typeVarId()});
         } else {
             seenInParams += tvname;
-            c.define(tvname, typeVarId(), tv.name, defType(tv));
+            c.define(tvname, typeVarId(), tv.name, 
+                defType(toList(typeVarBounds[tvname]), makeBoundDef(tvname, typeVarBounds)));
         }
     }
+    return typeVarBounds;
 }
 
 void collect(Parameters parameters, Collector c){

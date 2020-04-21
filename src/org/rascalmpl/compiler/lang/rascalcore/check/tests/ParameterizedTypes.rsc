@@ -65,6 +65,10 @@ test bool maybeBoundViolated() = unexpectedType("Maybe[&S \<: num] mb() { if(3 \
 test bool boundViolatedInCall()
     = unexpectedType("value main() = strange(3, \"abc\");",
         initialDecls = ["bool strange(&L \<: num _, &R \<: &L _) = false;"] );
+        
+test bool boundOKInCall()
+    = checkOK("value main() = strange(3, 1.5);",
+        initialDecls = ["bool strange(&L \<: num _, &R \<: &L _) = false;"] );
        
 test bool boundViolatedInFormals()
     =  unexpectedType("bool strange(&L \<: num _, &R \<: &L \<: str _) = false;");
