@@ -226,7 +226,7 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	      "Invalid initialization of _",
 	      "Undefined _",
 	      "Double declaration of _",
-	      "Constructor _ of data type _ clashes with other declaration with comparable fields",
+	      "Constructor _ clashes with other declaration with comparable fields",
 	      "Unresolved type for _",
 	       "Constructor _ in formal parameter should be unique"
 		  //"Constructor _ overlaps existing constructors in the same datatype", 
