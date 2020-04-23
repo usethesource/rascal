@@ -20,6 +20,7 @@ extend lang::rascalcore::grammar::ParserGenerator;
 import List;
 import Map;
 import Set;
+import Relation;
 import String;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
@@ -149,7 +150,7 @@ Accept rascalIsAcceptablePath(loc defScope, loc def, Use use, PathRole pathRole,
     return res;
 }
 
-alias Bindings = map[str varName, AType varType];
+//alias Bindings = map[str varName, AType varType];
 
 AType rascalInstantiateTypeParameters(Tree selector,
                                       def:aadt(str adtName1, list[AType] formals, SyntaxRole syntaxRole1),
@@ -349,7 +350,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                                 t2.adt.syntaxRole == dataSyntax(),
                                 d1.scope in moduleScopes && d2.scope in moduleScopes && t1.adt == t2.adt, size(t1.fields) == size(t2.fields), comparable(t1.fields, t2.fields)
                                 )){
-            msgs = [ error("Constructor `<id>` of data type `<prettyAType(t1.adt)>` clashes with other declaration with comparable fields", d.defined) | d <- defs ];
+            msgs = [ error("Constructor `<id>` clashes with other declaration with comparable fields", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }      
     }

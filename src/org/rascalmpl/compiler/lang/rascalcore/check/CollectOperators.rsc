@@ -12,7 +12,6 @@ import lang::rascal::\syntax::Rascal;
 
 import Node;
 import Set;
-import Relation;
 
 // ---- is
 

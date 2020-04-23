@@ -28,6 +28,7 @@ import lang::rascalcore::grammar::definition::Attributes;
 import IO;
 import List;
 import Map;
+import Relation;
 import Node;
 import Set;
 import String;
