@@ -1077,13 +1077,13 @@ AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label
 default AType removeConditional(AType s) = s;
 
 @doc{Determine the size of a concrete list}
-int size(appl(regular(\iter(AType symbol)), list[Tree] args)) = size(args);
-int size(appl(regular(\iter-star(AType symbol)), list[Tree] args)) = size(args);
+int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);
+int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args);
 
-int size(appl(regular(\iter-seps(AType symbol, list[AType] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
-int size(appl(regular(\iter-star-seps(AType symbol, list[AType] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
 
-int size(appl(prod(AType symbol, list[AType] symbols), list[Tree] args)) = 
+int size(appl(prod(Symbol symbol, list[Symbol] symbols), list[Tree] args)) = 
     \label(str label, Symbol symbol1) := symbol && [Symbol itersym] := symbols
     ? size(appl(prod(symbol1, symbols), args))
     : size(args[0]);
