@@ -376,7 +376,11 @@ void collect(Signature signature, Collector c){
 }
 
 AType updateBounds(AType t, map[str,AType] bounds){
-    return visit(t) {case aparameter(pname, bnd) => aparameter(pname, bounds[pname] ? avalue()) };
+    return visit(t) {case aparameter(pname, bnd, label=L) : {
+                            bnd = bounds[pname] ? avalue();
+                            insert isEmpty(L) ? aparameter(pname, bnd) : aparameter(pname, bnd, label=L);
+                        }
+                    };
 }
 
 map[str,AType] minimizeBounds(rel[str,Type] typeVarBounds, Collector c){
