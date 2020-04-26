@@ -280,6 +280,29 @@ data MuCatch = muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body);
 
 data MuCase = muCase(int fingerprint, MuExp exp);
 
+
+// ==== Checks ================================================================
+
+MuExp muVar(str name, str fuid, int pos, AType atype){
+    assert !isEmpty(name);
+    fail;
+}
+
+MuExp muTmpIValue(str name, str fuid, AType atype){
+    assert !isEmpty(name);
+    fail;
+}
+
+MuExp muTmpNative(str name, str fuid, NativeKind nkind) {
+    assert !isEmpty(name);
+    fail;
+}
+             
+MuExp muVarKwp(str name, str fuid, AType atype) {
+    assert !isEmpty(name);
+    fail;
+}
+
 // ==== Utilities =============================================================
 
 bool isClosureName(str name)

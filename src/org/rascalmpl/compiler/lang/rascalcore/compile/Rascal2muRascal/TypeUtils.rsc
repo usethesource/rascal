@@ -258,12 +258,16 @@ void extractScopes(TModel tm){
     defUses = invert(useDef);
     modules = {};
     
-    if(AGrammar g := tm.store["grammar"]){
+    if([AGrammar g] := tm.store["grammar"]){
         grammar = g;
+    } else {
+        throw "`grammar` has incorrect format in store";
     }
     
-    if(set[AType] adts := tm.store["ADTs"]){
+    if([set[AType] adts] := tm.store["ADTs"]){
         ADTs = adts;
+    } else {
+        throw "`ADTs` has incorrect format in store";
     }
    
     if(lrel[AType,KeywordFormal] common := tm.store["CommonKeywordFields"]){
@@ -529,15 +533,15 @@ loc declareGeneratedFunction(str name, str fuid, AType rtype, loc src){
 // Get the type of an expression as Symbol
 private AType getType0(loc l) {
    //println("getType(<l>)");
-    if(definitions[l]?){
-        return getDefType(l);
-    }
-    assert specializedFacts[l]? || facts[l]? : "getType for <l>";
+    //assert specializedFacts[l]? || facts[l]? : "getType for <l>";
     if(specializedFacts[l]?){
         return specializedFacts[l];
     }
     if(facts[l]?){
     	return facts[l];
+    }
+    if(definitions[l]?){
+        return getDefType(l);
     }
     throw "getType0 cannot find type for <l>";
 }	
