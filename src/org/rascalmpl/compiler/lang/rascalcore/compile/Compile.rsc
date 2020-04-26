@@ -26,10 +26,8 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     className = getBaseClass(qualifiedModuleName);
    
     list[Message] errors = [ e | e:error(_,_) <- tm.messages];
-    //for(src <- tm.facts){
-    //    if(contains(src.path, "Tst1")) println("<src>: <tm.facts[src]>");
-    //}
-    return tm.messages; // TMP
+    
+    //return tm.messages; // TMP
     if(!isEmpty(errors)){
         return errors;
     }

@@ -739,8 +739,9 @@ str trans(muConstr(AType ctype), JGenie jg){
 
 // ---- muVar -----------------------------------------------------------------
 
-str varName(muVar(str name, str fuid, int pos, AType atype), JGenie jg)
-    = (name[0] != "$") ? "<name><(pos >= 0) ? "_<pos>" : "">" : name;
+str varName(muVar(str name, str fuid, int pos, AType atype), JGenie jg){
+    return (name[0] != "$") ? "<name><(pos >= 0) ? "_<pos>" : "">" : name;
+}
         
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype), JGenie jg)
     = jg.isExternalVar(var) && pos >= 0 ? "<varName(var, jg)>.getValue()" : varName(var, jg);
@@ -1135,10 +1136,10 @@ default JCode trans(muGuardedGetField(AType resultType, consType:acons(AType adt
 // ---- muSetField ------------------------------------------------------------
 
 JCode trans(muSetField(AType resultType, aloc(), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
-    = "$aloc_field_update(<trans(baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
+    = "$aloc_field_update(<transWithCast(aloc(), baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
 
 JCode trans(muSetField(AType resultType, adatetime(), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
-    = "$adatetime_field_update(<trans(baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
+    = "$adatetime_field_update(<transWithCast(adatetime(), baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
 
 default JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "<trans(baseExp, jg)>.set(\"<fieldName>\", <trans(repl, jg)>)";
