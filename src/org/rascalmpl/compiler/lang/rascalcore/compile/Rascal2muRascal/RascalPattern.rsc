@@ -52,34 +52,24 @@ default MuExp translateMatch(Pattern pat, Expression exp, BTSCOPES btscopes, MuE
 /*                  Get Backtracking Scopes for a Pattern            */
 /*********************************************************************/
 
-alias BTSCOPE = tuple[str enter, str resume, str \fail];
-alias BTSCOPES = map[loc,BTSCOPE];
-alias BTINFO = tuple[BTSCOPE btscope, BTSCOPES btscopes];
+alias BTSCOPE = tuple[str enter, str resume, str \fail];  // The enter/resume/fail labels of a backtracking scope
+alias BTSCOPES = map[loc,BTSCOPE];                        // Map from program fragments to backtracking scopes
+alias BTINFO = tuple[BTSCOPE btscope, BTSCOPES btscopes]; // Complete backtracking information
+
+// Getters on backtracking scopes
 
 str getEnter(BTSCOPE btscope) = btscope.enter;
 str getResume(BTSCOPE btscope) = btscope.resume;
 str getFail(BTSCOPE btscope) = btscope.\fail;
 
-str getEnter(Tree t, BTSCOPES btscopes){
-    return btscopes[getLoc(t)].enter;
-}
-str getEnter(loc l, BTSCOPES btscopes){
-    return btscopes[l].enter;
-}
+str getEnter(Tree t, BTSCOPES btscopes) = btscopes[getLoc(t)].enter;
+str getEnter(loc l, BTSCOPES btscopes)  = btscopes[l].enter;
 
-str getResume(Tree t, BTSCOPES btscopes){
-    return btscopes[getLoc(t)].resume;
-}
-str getResume(loc l, BTSCOPES btscopes){
-    return btscopes[l].resume;
-}
+str getResume(Tree t, BTSCOPES btscopes) = btscopes[getLoc(t)].resume;
+str getResume(loc l, BTSCOPES btscopes)  = btscopes[l].resume;
 
-str getFail(Tree t, BTSCOPES btscopes){
-    return btscopes[getLoc(t)].\fail;
-}
-str getFail(loc l, BTSCOPES btscopes){
-    return btscopes[l].\fail;
-}
+str getFail(Tree t, BTSCOPES btscopes) = btscopes[getLoc(t)].\fail;
+str getFail(loc l, BTSCOPES btscopes)  = btscopes[l].\fail;
 
 BTINFO registerBTScope(Tree t, BTSCOPE btscope, BTSCOPES btscopes){
     btscopes[getLoc(t)] = btscope;
@@ -595,8 +585,10 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 // ---- getBTInfo
 
 BTINFO getBTInfo(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 =  btscope.enter; //contains(btscope.enter, "_TPAT") ? btscope.enter : "<btscope.enter>_TPAT";
-    resume1 = enter1;
+    //enter1 =  btscope.enter; //contains(btscope.enter, "_TPAT") ? btscope.enter : "<btscope.enter>_TPAT";
+    //enter1 = backtrackFree(p) ? btscope.enter : "<btscope.enter>_CALL";
+    enter1 = "<btscope.enter>_CALL";
+    resume1 = btscope.resume;
     fail1 = btscope.resume;
     BTSCOPE btscope1 = <enter1, resume1, fail1>;
     <btscope1, btscopes> = getBTInfo(expression, btscope1, btscopes);
@@ -669,17 +661,16 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
     
 BTINFO getBTInfo(p:(Pattern) `{<{Pattern ","}* pats>}`,  BTSCOPE btscope, BTSCOPES btscopes){
     <fixedLiterals, toBeMatchedPats, fixedVars, fixedMultiVars, leftMostVar> = analyzeSetPattern(p);
-    
-    println("<p> ==\> <for(pat <- toBeMatchedPats){><pat> <}>");
-    
-    enter1 = btscope.enter; //"<btscope.enter>_LPAT";
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    BTSCOPE btscope1 = <enter1, resume1, fail1>;
+   
+    enterFirst = "<btscope.enter>_SET";
+    resumeFirst = btscope.resume;
+    failFirst = btscope.resume;
+    BTSCOPE btscopeLast = <enterFirst, resumeFirst, failFirst>;
+    btscopesAll = btscopes;
     for(pat <- pats){
-        <btscope1, btscopes> = getBTInfoListOrSet(pat, btscope1, btscopes);
+        <btscopeLast, btscopesAll> = getBTInfoListOrSet(pat, btscopeLast, btscopesAll);
     }
-    return registerBTScope(p, <enter1, btscope1.resume, btscope.resume>, btscopes);
+    return registerBTScope(p, <enterFirst, btscopeLast.resume, btscope.resume>, btscopesAll);
 }
 
 // ---- translate set pattern
@@ -947,7 +938,7 @@ tuple[list[MuExp] literals, list[Pattern] toBeMatched, list[Pattern] vars, list[
                   }
               }
               if(pat is literal){
-                fixedLiterals += isConstant(pat.literal) ? muCon(getLiteralValue(pat.literal)) : translate(lit);
+                fixedLiterals += isConstant(pat.literal) ? muCon(getLiteralValue(pat.literal)) : translate(pat.literal);
               } else if(pat is splice || pat is multiVariable){
                 if(allVarsDefinedOutsidePat(pat, p)){
                     fixedMultiVars += pat;
@@ -988,7 +979,7 @@ tuple[list[MuExp] literals, list[Pattern] toBeMatched, list[Pattern] vars, list[
 
 MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false) {
   
-   list[Pattern] lpats = [pat | pat <- pats]; // TODO: unnnecessary
+   //list[Pattern] lpats = [pat | pat <- pats]; // TODO: unnnecessary
    elmType = (aset(tp) := subjectType && tp != avoid()) ? tp : avalue();
    typecheckNeeded = !asubtype(getType(p), subjectType);
    my_btscope = btscopes[getLoc(p)];
@@ -996,8 +987,8 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
    
    fixedLiterals = [];                  // constant elements in the set pattern
    list[Pattern] toBeMatchedPats = [];  // the list of patterns that will ultimately be matched
-   fixedVars = [];                      // var pattern elements with already (previosuly) defined value
-   fixedMultiVars = [];                 // multi-var pattern elements with already (previosuly) defined value
+   list[Pattern] fixedVars = [];        // var pattern elements with already (previosuly) defined value
+   list[Pattern] fixedMultiVars = [];   // multi-var pattern elements with already (previosuly) defined value
    int leftMostVar = -1;                // index of leftmost multi-variable
    
    <fixedLiterals, toBeMatchedPats, fixedVars, fixedMultiVars, leftMostVar> = analyzeSetPattern(p);
@@ -1069,14 +1060,15 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
 // ---- getBTInfo
 
 BTINFO getBTInfo(p:(Pattern) `\<<{Pattern ","}* pats>\>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter; //"<btscope.enter>_TPAT";
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    BTSCOPE btscope1 = <enter1, resume1, fail1>;
+    enterFirst = "<btscope.enter>_TUP";
+    resumeFirst = btscope.resume;
+    failFirst = btscope.resume;
+    BTSCOPE btscopeLast = <enterFirst, resumeFirst, failFirst>;
+    btscopesAll = btscopes;
     for(pat <- pats){
-        <btscope1, btscopes> = getBTInfo(pat, btscope1, btscopes);
+        <btscopeLast, btscopesAll> = getBTInfo(pat, btscopeLast, btscopesAll);
     }
-    return registerBTScope(p, <enter1, btscope1.resume, btscope.\fail>, btscopes);
+    return registerBTScope(p, <enterFirst, btscopeLast.resume, btscope.resume>, btscopes);
 }
 
 // ---- translate tuple pattern
@@ -1131,22 +1123,33 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType subjectType, M
 // ---- getBTInfo 
 
 BTINFO getBTInfo(p:(Pattern) `[<{Pattern ","}* pats>]`,  BTSCOPE btscope, BTSCOPES btscopes){
-    enter1 = btscope.enter; //"<btscope.enter>_LPAT";
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    BTSCOPE btscope1 = <enter1, resume1, fail1>;
+    enterFirst = "<btscope.enter>_LIST";
+    resumeFirst = btscope.resume;
+    failFirst = btscope.resume;
+    BTSCOPE btscopeLast = <enterFirst, resumeFirst, failFirst>;
+    btscopesAll = btscopes;
     for(pat <- pats){
-        <btscope1, btscopes> = getBTInfoListOrSet(pat, btscope1, btscopes);
+        <btscopeLast, btscopesAll> = getBTInfoListOrSet(pat, btscopeLast, btscopesAll);
     }
-    return registerBTScope(p, <enter1, btscope1.resume, btscope.resume>, btscopes);
+    return registerBTScope(p, <enterFirst, btscopeLast.resume, btscope.resume>, btscopesAll);
+}
+
+str nameSuffix(str s, Name name){
+    sname = "<name>";
+    return sname == "_" ? "_<s><nextTmp(sname)>" : "_<s>_<sname>";
+}
+
+str nameSuffix(str s, QualifiedName name){
+    sname = "<name>";
+    return sname == "_" ? "_<s><nextTmp(sname)>" : "_<s>_<sname>";
 }
 
 BTINFO getBTInfoListOrSet(p:(Pattern) `<QualifiedName name>`, BTSCOPE btscope, BTSCOPES btscopes){
-    btscope.enter += "_VAR_<name>";
+    btscope.enter += nameSuffix("VAR", name); //"_VAR_<name>";
     return registerBTScope(p, btscope, btscopes);
 }    
 BTINFO getBTInfoListOrSet(p:(Pattern) `<Type tp> <Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    btscope.enter += "_VAR_<name>";
+    btscope.enter += nameSuffix("VAR", name); ; //"_VAR_<name>";
     return registerBTScope(p, btscope, btscopes);
 }
     
@@ -1154,21 +1157,21 @@ BTINFO getBTInfoListOrSet(p:(Pattern) `<Literal lit>`, BTSCOPE btscope, BTSCOPES
     = registerBTScope(p, btscope, btscopes);
 
 BTINFO getBTInfoListOrSet(p:(Pattern) `<QualifiedName name>*`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter + "_MVAR_<name>";
+    enter1 = btscope.enter + nameSuffix("MVAR", name); ; //"_MVAR_<name>";
     resume1 = enter1;
     fail1 = btscope.resume;
     return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
 }
 
 BTINFO getBTInfoListOrSet(p:(Pattern) `*<Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter + "_MVAR_<name>";
+    enter1 = btscope.enter + nameSuffix("MVAR", name); ; //"_MVAR_<name>";
     resume1 = enter1;
     fail1 = btscope.resume;
     return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
 }
 
 BTINFO getBTInfoListOrSet(p:(Pattern) `*<Type tp> <Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter + "_MVAR_<name>";
+    enter1 = btscope.enter + nameSuffix("MVAR", name); ; //"_MVAR_<name>";
     resume1 = enter1;
     fail1 = btscope.resume;
     return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
@@ -1467,6 +1470,7 @@ BTINFO getBTInfo(p:(Pattern) `/ <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES b
     enter_pat = "<btscope.enter>_DESC_PAT";
     my_btscope = <enter_desc, enter_desc, enter_desc>;
     <btscope1, btscopes1> = getBTInfo(pattern, <enter_pat, enter_pat, enter_desc>, btscopes);
+    my_btscope.resume = btscope1.resume;
     return registerBTScope(p, my_btscope, btscopes1);
 }
 
@@ -1628,5 +1632,13 @@ bool backtrackFree(p:(Pattern) `[<{Pattern ","}* pats>]`) = false; // p == (Patt
 bool backtrackFree(p:(Pattern) `{<{Pattern ","}* pats>}`) = false; //p == (Pattern) `{}` || all(pat <- pats, backtrackFree(pat));
 bool backtrackFree(p:(Pattern) `<Name name> : <Pattern pattern>`) = backtrackFree(pattern);
 bool backtrackFree(p:(Pattern) `[ <Type tp> ] <Pattern pattern>`) = backtrackFree(pattern);
+
+bool backtrackFree(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`)
+    = backtrackFree(expression) && (isEmpty(argumentList) || all(arg <- argumentList, backtrackFree(arg)))
+                                && (isEmpty(keywordArgumentList) || all(kwa <- keywordArgumentList, backtrackFree(kwa.expression)))
+    when argumentList := [arg | arg <- arguments], 
+         keywordArgumentList := (((KeywordArguments[Pattern]) `<OptionalComma optionalComma> <{KeywordArgument[Pattern] ","}+ kwaList>` := keywordArguments)
+                                ? [kwa | kwa <- kwaList]
+                                : []);
 
 default bool backtrackFree(Pattern p) = !isMultiVar(p);

@@ -427,8 +427,8 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      funCode = visit(funCode) { case muFail(fname) => muFailReturn(ftype) };
     
      iprintln(funCode);
-     alwaysReturns = leaveWithReturn(funCode);
-     formalsBTFree = all(f <- formals, backtrackFree(f));
+     alwaysReturns = leaveWithReturn(funCode) || isVoidType(getResult(ftype));
+     formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
      if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){
         funCode = muBlock([muEnter(fname, funCode), muFailReturn(ftype)]);
      }

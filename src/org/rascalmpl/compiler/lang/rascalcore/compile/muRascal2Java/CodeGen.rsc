@@ -1323,9 +1323,9 @@ JCode trans(muInsert(MuExp exp, AType atype), JGenie jg)    // Change ts to $ts 
 
 JCode trans(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
     return "if(<trans2NativeBool(cond, jg)>){
-            '   <trans(thenPart, jg)>
+            '   <trans2Void(thenPart, jg)>
             '} else {
-            '   <trans(elsePart, jg)>
+            '   <trans2Void(elsePart, jg)>
             '}";
 }
 

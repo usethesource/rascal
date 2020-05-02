@@ -434,7 +434,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(MuExp switchval, str fuid, bool 
 MuExp translate(s: (Statement) `fail <Target target> ;`, BTSCOPES btscopes) {
     if(target is empty){
         try {
-            return muFail(getResume(btscopes));
+            return muFail(getResume(btscopes)); // "###";
         } catch e: {
             return muFailReturn(getType(currentFunctionDeclaration()));
         }
@@ -550,17 +550,27 @@ MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catc
               exp = muIfelse(muEqual(thrown, translate(c.pattern.literal)), trBody, catch_code);
           } else if(c.pattern is typedVariable) {
               varType = translateType(c.pattern.\type);
-              <fuid, pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
-              patVar = muVar("<c.pattern.name>", fuid, pos, varType);
-              exp = muIfelse(muValueIsSubType(thrown, varType), 
-                                   muBlock([ muVarInit(patVar, thrown), trBody ]),
-                                   catch_code);
+              if("<c.pattern.name>" == "_"){
+                   exp = muIfelse(muValueIsSubType(thrown, varType), 
+                                  trBody,
+                                  catch_code);
+              } else {
+                  <fuid, pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
+                  patVar = muVar("<c.pattern.name>", fuid, pos, varType);
+                  exp = muIfelse(muValueIsSubType(thrown, varType), 
+                                       muBlock([ muVarInit(patVar, thrown), trBody ]),
+                                       catch_code);
+              }
                             
           } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
               varType = getType(c.pattern);
-              <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
-              patVar = muVar("<c.pattern.qualifiedName>", fuid, pos, varType);
-              exp = muBlock([muVarInit(patVar, thrown), trBody, catch_code]);
+              if("<c.pattern.qualifiedName>" == "_"){
+                  exp = muBlock([trBody, catch_code]);
+              } else {
+                  <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
+                  patVar = muVar("<c.pattern.qualifiedName>", fuid, pos, varType);
+                  exp = muBlock([muVarInit(patVar, thrown), trBody, catch_code]);
+              }
           } else {
               ifname = nextLabel();
               btscopes = getBTScopes(c.pattern, ifname, btscopes);

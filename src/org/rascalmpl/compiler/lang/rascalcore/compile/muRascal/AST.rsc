@@ -436,7 +436,7 @@ bool leaveWithReturn(muForRangeInt(str label, MuExp var, int ifirst, int istep, 
     = false; //leave(exp2, leave);
     
 bool leaveWithReturn(muTry(MuExp exp, MuCatch \catch, MuExp \finally), bool(MuExp) leave)
-    = leave(exp, leave) && leave(\catch.body, leave);
+    = leave(exp, leave) && leave(\catch.body, leave) || leave(\finally, leave);
 
 bool leaveWithReturn(muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body), bool(MuExp) leave) 
     = leave(body, leave);
@@ -874,7 +874,7 @@ MuExp insertThenPart(MuExp exp, MuExp thenPart, set[str] entered){
 MuExp muIfelse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
-MuExp muIfelse(MuExp cond, muCon(_), muCon(_)) = muBlock([]);
+//MuExp muIfelse(MuExp cond, muCon(_), muCon(_)) = muBlock([]);
 
 MuExp muIfelse(MuExp cond, muIfExp(cond1, thenPart1, elsePart1), MuExp elsePart) 
     = muIfelse(cond, muIfelse(cond1, thenPart1, elsePart1), elsePart);
