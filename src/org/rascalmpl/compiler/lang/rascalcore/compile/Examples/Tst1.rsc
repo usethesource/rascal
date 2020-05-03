@@ -1,12 +1,28 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
 
-B and(B b1, and(B b2, B b3)) = and(and(b1,b2),b3);
+syntax A = x: "a";
 
-test bool normalizedVisit() =
-  /and(_, and(_, _)) !:= visit (or(or(t(),t()),or(t(),t()))) { case or(a,b) => and(a,b) };
+//import String;
+//
+//test bool tstContains(str S1, str S2, str S3) = contains(S1+S2+S3, S1) && contains(S1+S2+S3, S2) && contains(S1+S2+S3, S3);
 
+//
+//str toLowerCase(str s) = s;
+//test bool tstToLowerCase(str S) = /[A-Z]/ !:= toLowerCase(S);
+
+
+//data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
+//
+//B and(B b1, and(B b2, B b3)) = and(and(b1,b2),b3);
+//
+//value main() = //test bool normalizedVisit() =
+//  /and(_, and(_, _)) !:= visit (or(or(t(),t()),or(t(),t()))) { case or(a,b) => and(a,b) };
+
+
+//value main(){
+//    return /and(_,_) := t();
+//}
 ////////////////////////////////
 //void compositeAndCnt() {
 //    if( [*int _, *int _] := [1] )  {

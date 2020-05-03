@@ -167,8 +167,12 @@ JGenie makeJGenie(MuModule m,
                 if(defType(AType tp) := def.defInfo){
                     baseName = _finalResolverName("<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>_<def.defined.end.line>", tp);
                     if(isContainedIn(def.defined, currentModuleScope)){
-                        fun = muFunctionsByLoc[def.defined];
-                        return getJavaName(getUniqueFunctionName(fun));
+                        if(isConstructorType(getTypeFromDef(def))){
+                            return baseName;
+                        } else {
+                            fun = muFunctionsByLoc[def.defined];
+                            return getJavaName(getUniqueFunctionName(fun));
+                        }
                     } else {
                         return "<_getImportedModuleName(src)>.<baseName>";
                     }

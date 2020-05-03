@@ -769,13 +769,13 @@ default bool isConstructorType(AType _) = false;
 @doc{Get the ADT type of the constructor.}
 AType getConstructorResultType(AType ct) {
     if (acons(a,_,_) := unwrapType(ct)) return a;
-    throw rascalCheckerInternalError("Cannot get constructor ADT type from non-constructor type <prettyAType(ct)>");
+    throw rascalCheckerInternalError("Cannot get constructor ADT type from non-constructor type, got <prettyAType(ct)>");
 }
 
 @doc{Get a list of the argument types in a constructor.}
 list[AType] getConstructorArgumentTypes(AType ct) {
     if (acons(_,list[AType] cts,_) := unwrapType(ct)) return cts;
-    throw rascalCheckerInternalError("Cannot get constructor arguments from non-constructor type <prettyAType(ct)>");
+    throw rascalCheckerInternalError("Cannot get constructor arguments from non-constructor type, got <prettyAType(ct)>");
 }
 
 @doc{Get a tuple with the argument types as the fields.}
@@ -794,7 +794,7 @@ default bool isFunctionType(AType _) = false;
 @doc{Get a list of arguments for the function.}
 list[AType] getFunctionArgumentTypes(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return ats;
-    throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyAType(ft)>");
+    throw rascalCheckerInternalError("Cannot get function arguments from non-function type, got <prettyAType(ft)>");
 }
 
 @doc{Get a list of arguments for overloaded function/constructors}
@@ -817,39 +817,42 @@ list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
         //if(atypeList(list[AType] argTypes) := result) return argTypes;
         //throw rascalCheckerInternalError("Expected atypeList, found <prettyAType(result)>");
     }
-    throw rascalCheckerInternalError("Cannot get function/constructor arguments from type <prettyAType(ft)>");
+    throw rascalCheckerInternalError("Cannot get function/constructor arguments from type, got <prettyAType(ft)>");
 }
 
 @doc{Get the arguments for a function in the form of a tuple.}
 AType getFunctionArgumentTypesAsTuple(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return atuple(atypeList(ats));
-    throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyAType(ft)>");
+    throw rascalCheckerInternalError("Cannot get function arguments from non-function type, got <prettyAType(ft)>");
 }
 
 @doc{Get the return type for a function.}
 AType getFunctionReturnType(AType ft) {
     if (afunc(rt, _, _) := unwrapType(ft)) return rt;
-    throw rascalCheckerInternalError("Cannot get function return type from non-function type <prettyAType(ft)>");
+    throw rascalCheckerInternalError("Cannot get function return type from non-function type, got <prettyAType(ft)>");
 }
 
 int getArity(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = size(formals);
 int getArity(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = size(fields);
 default int getArity(AType t) {
-    throw rascalCheckerInternalError("Can only get arity from function or constructor type <prettyAType(t)>");
+    throw rascalCheckerInternalError("Can only get arity from function or constructor type, got <prettyAType(t)>");
 }
 
 list[AType] getFormals(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = formals;
 list[AType] getFormals(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = fields;
 list[AType] getFormals(aprod(prod(AType def, list[AType] atypes))) = [t | t <- atypes, isADTType(t)];
+list[AType] getFormals(aprod(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))) = getFormals(aprod(getFirstFrom(alternatives)));
 default list[AType] getFormals(AType t){
-    throw rascalCheckerInternalError("Can only get formals from function or constructor type <prettyAType(t)>");
+    iprintln(t);
+    throw rascalCheckerInternalError("Can only get formals from function or constructor type, got <prettyAType(t)>");
 }
 
 AType getResult(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
 AType getResult(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
 AType getResult(aprod(prod(AType def, list[AType] atypes))) = def;
-AType getResult(AType t){
-    throw rascalCheckerInternalError("Can only get result type from function or constructor type <prettyAType(t)>");
+AType getResult(aprod(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))) = getResult(aprod(getFirstFrom(alternatives)));
+default AType getResult(AType t){
+    throw rascalCheckerInternalError("Can only get result type from function or constructor type, got <prettyAType(t)>");
 }
 
 @doc{

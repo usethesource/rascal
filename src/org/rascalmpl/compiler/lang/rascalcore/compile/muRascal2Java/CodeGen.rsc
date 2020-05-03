@@ -443,17 +443,20 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
 
 JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
     funType = jg.getType(of);
+    println("funType = <funType>");
     kwpActuals = "$kwpActuals";
     formalTypes = getFormals(funType);
+    arityFormalTypes = size(formalTypes);
     returns_void = funType has ret && funType.ret == avoid();
     resolverFormalTypes = getFormals(resolverFunType);
+    arityResolverFormalTypes = size(resolverFormalTypes);
     
-    if(!isEmpty(formalTypes) && any(int i <- index(formalTypes), unsetRec(formalTypes[i]) != unsetRec(resolverFormalTypes[i]))){
+    if(!isEmpty(formalTypes) && any(int i <- index(formalTypes), (i < arityResolverFormalTypes && (unsetRec(formalTypes[i]) != unsetRec(resolverFormalTypes[i]))))){
         // The formal types of this overload are not equal to those of the resolver, so generate conditions to check the parameters
         conds = [];
         actuals = [];
         for(int i <- index(resolverFormalTypes)){
-            if(unsetRec(formalTypes[i]) != resolverFormalTypes[i]){
+            if(i < arityFormalTypes && unsetRec(formalTypes[i]) != resolverFormalTypes[i]){
                 conds +=  atype2istype("$<i>", formalTypes[i]);
                 actuals += "(<atype2javatype(formalTypes[i])>) $<i>";
             } else {
@@ -474,7 +477,7 @@ JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
              }
             call_code = "<jg.getAccessorInResolver(of)>(<intercalate(", ", actuals)>)";
             di = jg.getDefine(of).defInfo;
-            returns_void = funType.ret == avoid();
+            returns_void = aprod(_) !:= funType && funType.ret == avoid();
             
             base_call = di has canFail && true /*di.canFail*/ ? (returns_void ? "try { <call_code>; return; } catch (FailReturnFromVoidException e){}\n"
                                                                      : "res = <call_code>;

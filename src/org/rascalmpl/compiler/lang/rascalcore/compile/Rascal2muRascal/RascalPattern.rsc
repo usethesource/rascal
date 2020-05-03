@@ -1468,14 +1468,16 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, AType subject
 BTINFO getBTInfo(p:(Pattern) `/ <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES btscopes) {
     enter_desc = "<btscope.enter>_DESC";
     enter_pat = "<btscope.enter>_DESC_PAT";
-    my_btscope = <enter_desc, enter_desc, enter_desc>;
-    <btscope1, btscopes1> = getBTInfo(pattern, <enter_pat, enter_pat, enter_desc>, btscopes);
-    my_btscope.resume = btscope1.resume;
+    BTSCOPE my_btscope = <enter_desc, enter_desc, enter_desc>;
+    <btscope1, btscopes1> = getBTInfo(pattern, <enter_pat, enter_pat, enter_pat>, btscopes);
+   //my_btscope.enter = btscope1.enter;
+    //my_btscope.resume = btscope1.enter;
+    //my_btscope.\fail = btscope1.enter;
     return registerBTScope(p, my_btscope, btscopes1);
 }
 
 MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`,  AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
-	pat_btscope = btscopes[getLoc(pattern)];
+	p_btscope = btscopes[getLoc(p)];
 	concreteMatch = concreteTraversalAllowed(pattern, subjectType);
 
 	reachable_syms = { avalue() };
@@ -1489,8 +1491,8 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`,  AType subjectType, MuExp 
     elem = muTmpIValue("elem", fuid, avalue());
     elmType = avalue(); // TODO: make more precise?
     code = 
-        muForAll(pat_btscope.enter, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor),
-                translatePat(pattern, avalue(), elem, btscopes, trueCont, muFail(pat_btscope.resume) /*falseCont*/)
+        muForAll(p_btscope.enter, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor),
+                translatePat(pattern, avalue(), elem, btscopes, trueCont, muFail(p_btscope.resume) /*falseCont*/)
              ); 
     return code;
 }

@@ -8,7 +8,7 @@ str removeEmptyLines(str s){
     return visit(s) { case /^\n[ ]*\n/ => "\n" };
 }
 
-str replaceColonAndDash(str s) = replaceAll(replaceAll(s, "-", "_"), "::", ".");
+str replaceColonAndDash(str s) = replaceAll(replaceAll(replaceAll(s, "-", "_"), "::", "."), "\\", "");
 
 str getQualClassName(str qname){
     return replaceColonAndDash(qname);
