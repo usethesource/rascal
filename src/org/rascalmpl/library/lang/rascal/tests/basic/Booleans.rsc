@@ -25,6 +25,16 @@ test bool equiv(bool b1, bool b2) = (b1 <==> b2) <==> (!b1 && !b2 || b1 && b2);
 
 test bool impl(bool b1, bool b2) = (b1 ==> b2) <==> !(b1 && !b2);
 
+test bool assignAnd(bool b1, bool b2) { 
+    int n = b1 && b2 ? 10 : 20;
+    if(b1 && b2) return n == 10; else return n == 20;
+}
+
+test bool assignOr(bool b1, bool b2) { 
+    int n = b1 || b2 ? 10 : 20;
+    if(b1 || b2) return n == 10; else return n == 20;
+}
+
 // Library functions
 
 test bool tstArbBool() { b = arbBool() ; return b == true || b == false; }
