@@ -27,11 +27,11 @@ str createValidScheme(str s) {
 
 @ignoreInterpreter{Renaming}
 @expected{InvalidURI}
-test bool noOpaqueURI() = loc _ := |home:://this:is:opaque|;
+test bool noOpaqueURI1() = loc _ := |home:://this:is:opaque|;
 
 @ignoreCompiler{Remove-after-transtion-to-compiler: Renaming}
 @expected{MalFormedURI}
-test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
+test bool noOpaqueURI2() = loc l := |home:://this:is:opaque|;
 
 test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  createValidScheme(s);
 test bool canChangeScheme2(loc l, str s) { l.scheme = createValidScheme(s); return l.scheme ==  createValidScheme(s); }
