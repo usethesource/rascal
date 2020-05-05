@@ -594,7 +594,15 @@ test bool matchList48() {
 		    []
 		  ]
 		];
-}		
+}	
+
+test bool matchListDynamic1() = [str s, int n] := ["a", 1];
+test bool matchListDynamic2() = [str _, int _] := ["a", 1];
+test bool matchListDynamic3() = [*str s, int n] := ["a", 1];
+test bool matchListDynamic4() = [str s, *int n] := ["a", 1];
+test bool matchListDynamic5() = [str _, int _] := ["a", 1];
+test bool matchListDynamic6() = [*str _, int _] := ["a", 1];
+test bool matchListDynamic7() = [str _, *int _] := ["a", 1];
   		
 @ignore{investigate} test bool matchList() {([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);}
   		
