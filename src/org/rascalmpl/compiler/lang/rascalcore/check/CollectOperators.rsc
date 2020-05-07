@@ -541,7 +541,9 @@ void collect(current: (Expression) `<Expression e1> ? <Expression e2>`, Collecto
 // ---- noMatch
 
 void collect(current: (Expression) `<Pattern pat> !:= <Expression expression>`, Collector c){
+    c.enterScope(current);  // wrap in extra scope to avoid that variables in pattern leak to surroundings
     computeMatchPattern(current, pat, "!:=", expression, c);
+    c.leaveScope(current);
 }
 // ---- match
 

@@ -375,5 +375,7 @@ void collect(current: (Pattern) `[ <Type tp> ] <Pattern p>`, Collector c){
 
 void collect(current: (Pattern) `! <Pattern pattern>`, Collector c){
     c.fact(current, avoid());
+    c.enterScope(current); // wrap in extra scope to avoid that variables in pattern leak to surroundings
     collect(pattern, c);
+    c.leaveScope(current);
 }
