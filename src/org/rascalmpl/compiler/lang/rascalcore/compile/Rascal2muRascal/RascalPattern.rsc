@@ -36,8 +36,19 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 /*                  Match                                            */
 /*********************************************************************/
 
-default MuExp translateMatch(Pattern pat, Expression exp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) =
-    translatePat(pat, getType(exp), translate(exp), btscopes, trueCont, falseCont);
+default MuExp translateMatch(Pattern pat, Expression exp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
+    expType = getType(exp);
+    expTrans = translate(exp);
+    if(isVarOrTmp(expTrans)){
+        return translatePat(pat, expType, expTrans, btscopes, trueCont, falseCont);
+    } else {
+        str fuid = topFunctionScope();
+        exp_val = muTmpIValue(nextTmp("exp_val"), fuid, getType(exp));
+        return muValueBlock(abool(), [ muConInit(exp_val, expTrans), 
+                                       translatePat(pat, expType, exp_val, btscopes, trueCont, falseCont) 
+                                     ]);
+    }
+}
 
 //MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`, str btscope, MuExp trueCont, MuExp falseCont) 
 //    = translateMatch(pat, exp, btscope, trueCont, falseCont);
@@ -52,7 +63,7 @@ default MuExp translateMatch(Pattern pat, Expression exp, BTSCOPES btscopes, MuE
 /*                  Get Backtracking Scopes for a Pattern            */
 /*********************************************************************/
 
-alias BTSCOPE = tuple[str enter, str resume, str \fail];  // The enter/resume/fail labels of a backtracking scope
+alias BTSCOPE = tuple[str enter, str resume, str \fail];  // The enter/resume/fail labels of one backtracking scope
 alias BTSCOPES = map[loc,BTSCOPE];                        // Map from program fragments to backtracking scopes
 alias BTINFO = tuple[BTSCOPE btscope, BTSCOPES btscopes]; // Complete backtracking information
 
@@ -76,8 +87,58 @@ BTINFO registerBTScope(Tree t, BTSCOPE btscope, BTSCOPES btscopes){
     return <btscope, btscopes>;
 }
 
-BTSCOPES getBTScopes(Pattern p, str enter) = getBTInfo(p, <enter, enter, enter>, ()).btscopes;
-BTSCOPES getBTScopes(Pattern p, str enter, BTSCOPES btscopes) = getBTInfo(p, <enter, enter, enter>, btscopes).btscopes;
+BTSCOPES getBTScopes(Tree t, str enter) = getBTInfo(t, <enter, enter, enter>, ()).btscopes;
+BTSCOPES getBTScopes(Tree t, str enter, BTSCOPES btscopes) = getBTInfo(t, <enter, enter, enter>, btscopes).btscopes;
+
+//BTSCOPES getBTScopes(Expression e, str enter) =  getBTInfo(e, <enter, enter, enter>, ()).btscopes;
+//BTSCOPES getBTScopes(Expression e, BTSCOPE btscope) =  getBTInfo(e, btscope, ()).btscopes;
+//BTSCOPES getBTScopes(Expression e, str enter, BTSCOPES btscopes) =  getBTInfo(e, <enter, enter, enter>, btscopes).btscopes;
+
+BTINFO getBTInfo(Tree t, str enter, BTSCOPES btscopes) = getBTInfo(t, <enter, enter, enter>, btscopes);
+
+default BTINFO getBTInfo(Tree t, BTSCOPE btscope, BTSCOPES btscopes)
+    = registerBTScope(t, btscope, btscopes);
+
+//default BTINFO getBTInfo(Expression e, BTSCOPE btscope, BTSCOPES btscopes) {
+//    if(!btscopes[getLoc(e)]?){
+//        btscopes[getLoc(e)] = btscope;
+//    }
+//    return <btscopes[getLoc(e)], btscopes>;
+//}
+
+//str getResume(BTSCOPES btscopes){
+//    println("btscopes:"); iprintln(btscopes);
+//    r2l_scopes = sort(domain(btscopes), beginsAfter);
+//    println("r2l_scopes:"); iprintln(r2l_scopes);
+//   
+//    resume = btscopes[r2l_scopes[0]].resume;
+//    for(l <- r2l_scopes){
+//        btscope = btscopes[l];
+//        println("<l>: <btscope>");
+//        resume = btscope.resume;
+//        if(btscope.enter !=  btscope.resume){
+//            return btscope.resume;
+//        }
+//    }
+//    return resume;
+//}
+
+str getResume(BTSCOPES btscopes){
+    r2l_scopes = reverse(sort(domain(btscopes)));
+    resume = btscopes[r2l_scopes[-1]].resume;
+    for(l <- r2l_scopes){
+        btscope = btscopes[l];
+        resume = btscope.resume;
+        if(btscope.enter !=  btscope.resume){
+            return btscope.resume;
+        }
+    }
+    return resume;
+}
+
+bool haveEntered(str enter, BTSCOPES btscopes){
+    return enter in range(btscopes)<0>;
+}
 
 /*********************************************************************/
 /*                  Patterns                                         */
@@ -565,13 +626,13 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
 	   return var == subjectExp ? trueCont : muBlock([muVarInit(var, subjectExp), trueCont]);
    }
    if("<name>" == "_" || subjectAssigned){
-      return muIfelse(muValueIsSubType(subjectExp, trType), trueCont, falseCont);
+      return muIfelse(muValueIsComparable(subjectExp, trType), trueCont, falseCont);
    }
    ppname = prettyPrintName(name);
    <fuid, pos> = getVariableScope(ppname, name@\loc);
    var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
-   return var == subjectExp ? muIfelse(muValueIsSubType(subjectExp, trType), trueCont, falseCont)
-                            : muIfelse(muValueIsSubType(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+   return var == subjectExp ? muIfelse(muValueIsComparable(subjectExp, trType), trueCont, falseCont)
+                            : muIfelse(muValueIsComparable(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
 }  
 
 // ==== reified type pattern ==================================================
@@ -720,7 +781,7 @@ MuExp translateVarAsSetElem(MuExp var, bool isDefinition, loc patloc, bool last,
    }
    
    if(!asubtype(elmType, var.atype)){
-        code = muIfelse(muValueIsSubType(prevSubject, aset(var.atype)), code, muFail(getFail(patloc, btscopes)));
+        code = muIfelse(muValueIsComparable(prevSubject, aset(var.atype)), code, muFail(getFail(patloc, btscopes)));
    }
    
    return muIf(//last ? muEqualNativeInt(muSize(prevSubject, aset(elmType)), muCon(1)) 
@@ -791,7 +852,7 @@ MuExp translateMultiVarAsSetElem(MuExp var, bool isDefinition, loc patsrc, bool 
     }
     
     if(!asubtype(aset(elmType), var.atype) ){
-        code = muIf(muValueIsSubType(prevSubject, var.atype), 
+        code = muIf(muValueIsComparable(prevSubject, var.atype), 
                     code
                     //, muFail(getFail(my_btscope))
                     );
@@ -1060,7 +1121,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
 // ---- getBTInfo
 
 BTINFO getBTInfo(p:(Pattern) `\<<{Pattern ","}* pats>\>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enterFirst = "<btscope.enter>_TUP";
+    enterFirst = btscope.enter; //"<btscope.enter>_TUP";
     resumeFirst = btscope.resume;
     failFirst = btscope.resume;
     BTSCOPE btscopeLast = <enterFirst, resumeFirst, failFirst>;
@@ -1220,7 +1281,7 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
                       muIf(size_test, 
                                body
                                //, muFail(getFail(p, btscopes))) // <<<<<<<<<<<
-                               //, falseCont
+                              // , falseCont
                                )
                     ]);
     iprintln(block);
@@ -1309,7 +1370,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
                             trueCont 
                           ]));
       if(!asubtype(subjectType, alist(trType))){
-            code = muIf(muValueIsSubType(subject, trType), code);
+            code = muIf(muValueIsComparable(subject, alist(trType)), code);
       }
       return code;
    } else {
@@ -1317,7 +1378,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
        var.atype = getType(tp);
        check = muLessNativeInt(cursor, sublen);
        if(!asubtype(subjectType, alist(trType))){ 
-          check = muAndNativeBool(check, muValueIsSubType(muSubscript(subject, cursor), trType));
+          check = muAndNativeBool(check, muValueIsComparable(muSubscript(subject, cursor), trType));
        }
        
        code = muIfelse(check,
@@ -1469,10 +1530,7 @@ BTINFO getBTInfo(p:(Pattern) `/ <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES b
     enter_desc = "<btscope.enter>_DESC";
     enter_pat = "<btscope.enter>_DESC_PAT";
     BTSCOPE my_btscope = <enter_desc, enter_desc, enter_desc>;
-    <btscope1, btscopes1> = getBTInfo(pattern, <enter_pat, enter_pat, enter_pat>, btscopes);
-   //my_btscope.enter = btscope1.enter;
-    //my_btscope.resume = btscope1.enter;
-    //my_btscope.\fail = btscope1.enter;
+    <my_btscope, btscopes1> = getBTInfo(pattern, <enter_pat, enter_pat, enter_pat>, btscopes);
     return registerBTScope(p, my_btscope, btscopes1);
 }
 
@@ -1490,9 +1548,10 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`,  AType subjectType, MuExp 
     fuid = topFunctionScope();
     elem = muTmpIValue("elem", fuid, avalue());
     elmType = avalue(); // TODO: make more precise?
+    desc_label = p_btscope.enter+"_INNER";
     code = 
-        muForAll(p_btscope.enter, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor),
-                translatePat(pattern, avalue(), elem, btscopes, trueCont, muFail(p_btscope.resume) /*falseCont*/)
+        muForAll(desc_label, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor),
+                translatePat(pattern, avalue(), elem, btscopes, trueCont, muFail(desc_label) /*falseCont*/)
              ); 
     return code;
 }

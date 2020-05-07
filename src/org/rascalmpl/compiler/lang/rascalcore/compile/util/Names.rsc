@@ -114,6 +114,9 @@ str escapeAsJavaString(str s){
   return replaceAll(replaceAll(s, "\n", "\\n"), "\"", "\\\"");    //TODO: make precise and more efficient 
 }
 
+str unescapeAndStandardize(str s){
+  return replaceAll(replaceAll(s, "\\", ""), "-", "_");
+}
 
     
 

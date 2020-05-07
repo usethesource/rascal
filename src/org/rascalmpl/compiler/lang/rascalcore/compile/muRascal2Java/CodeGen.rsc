@@ -1714,7 +1714,11 @@ JCode trans(muValueIsSubType(MuExp exp, AType tp), JGenie jg){
 }
 JCode trans(muValueIsSubTypeOfValue(MuExp exp1, MuExp exp2), JGenie jg)
     ="<trans(exp1, jg)>.getType().isSubtypeOf(<trans(exp2, jg)>.getType())";
-    
+
+JCode trans(muValueIsComparable(MuExp exp, AType tp), JGenie jg){
+    return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
+                      : "$isComparable(<trans(exp, jg)>.getType(), <jg.shareType(tp)>)";   
+} 
 
 JCode trans(muHasTypeAndArity(AType atype, int arity, MuExp exp), JGenie jg){
     v = trans(exp, jg);

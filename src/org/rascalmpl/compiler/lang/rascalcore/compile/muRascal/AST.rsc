@@ -229,6 +229,7 @@ public data MuExp =
           | muHasTypeAndArity(AType atype, int arity, MuExp exp)
           | muHasNameAndArity(AType atype, AType consType, MuExp nameExp, int arity, MuExp exp)
           | muValueIsSubType(MuExp exp, AType tp)
+          | muValueIsComparable(MuExp exp, AType tp)
           | muValueIsSubTypeOfValue(MuExp exp2, MuExp exp1)
           | muIsDefinedValue(MuExp exp)
           | muGetDefinedValue(MuExp exp, AType tp)
@@ -353,7 +354,7 @@ bool producesNativeBool(muTmpNative(_,_,nativeBool()))
     
 default bool producesNativeBool(MuExp exp)
     = getName(exp) in {"muEqual", "muEqualNativeInt", "muNotNegativeNativeInt", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
-                  "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
+                  "muHasNameAndArity", "muValueIsSubType", "muValueIsComparable", "muValueIsSubTypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
                   "muRegExpFind",  "muIsDefinedValue", "muIsInitialized", "muHasField"};
 
 // Produces NativeInt
@@ -1127,6 +1128,7 @@ MuExp muSetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp
    = muValueBlock(resultType, [*pre, muSetField(resultType, baseType, last, fieldIdentity, repl)]);
 
 MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;
+MuExp muValueIsComparable(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;
 
 //============== constant folding rules =======================================
 // TODO:
