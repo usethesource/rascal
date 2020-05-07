@@ -66,6 +66,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 	
+	public final boolean $isComparable(Type t1, Type t2) {
+		return t1.isSubtypeOf(t2) || t2.isSubtypeOf(t1);
+	}
+	
 	/*************************************************************************/
 	/*		Rascal primitives called by generated code						 */
 	/*************************************************************************/
@@ -1018,7 +1022,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		ISetWriter w = $VF.setWriter();
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
-		for(int i = 1; i < indexArity; i++){
+		for(int i = 0; i < indexArity; i++){
 			intFields[i]  = ((IInteger) fields[i]).intValue();
 		}
 		IValue[] elems = new IValue[indexArity];

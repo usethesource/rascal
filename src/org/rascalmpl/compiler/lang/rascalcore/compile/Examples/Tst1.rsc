@@ -1,13 +1,19 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-
-syntax A = x: "a";
+//data F = f() | f(int n) | g(int n) | deep(F f);
+//anno int F@pos;
+//
+//value main() = //test bool annotationsInSets6() = 
+//    {X = {f() [@pos=1]} + {f() [@pos=2]}; {F elem} := X && (elem@pos == 2 || elem@pos == 1);};
+    
+value main() = { X = {1}; {"a", Y} !:= X ==> (Y == 0 || Y == 2);};
 
 //import String;
-//
-//test bool tstContains(str S1, str S2, str S3) = contains(S1+S2+S3, S1) && contains(S1+S2+S3, S2) && contains(S1+S2+S3, S3);
 
-//
+//test bool top2(loc x) = toLocation(x.uri) == x.top;
+
+//value main() = toLocation(|project://rascal/src/org/rascalmpl/library/List.rsc|.uri);
+
 //str toLowerCase(str s) = s;
 //test bool tstToLowerCase(str S) = /[A-Z]/ !:= toLowerCase(S);
 
@@ -111,8 +117,8 @@ syntax A = x: "a";
 //
 //test bool compositeImplBothBT(){
 //  ten = 10;
-//  return  [*int a, int  b, *int c] := [1,2,3] ==> ([*int d, *int e] := [4,5,6] && int f := 4);
-//  //return x;
+//  b = [*int x, *int y] := [1] ==> ([*int p] := [4] && 2>3);
+//  return b;
 //}
 
 //test bool compositeEquivTrue(){

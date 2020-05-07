@@ -205,7 +205,7 @@ str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType,
         formalsType = alub(formalsType, atypeList(getFormals(tp)));
     }
     ftype = atypeList(atypes) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
-    return atype2IValue(ftyp, defs);
+    return atype2IValue(ftype, defs);
 }
 
 str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs)
@@ -527,6 +527,20 @@ str atype2istype1(str e, str get, overloadedAType(rel[loc, IdRole, AType] overlo
 str atype2istype1(str e, str get, aparameter(str pname, AType bound)) = atype2istype(e, bound);
 str atype2istype1(str e, str get, areified(AType atype))   = "isReified(<e>)";    // TODO
 str atype2istype1(str e, str get, avalue())                = "true"; // "<e>.<get>.isTop()";
+
+
+// TODO complete cases and generate right code
+
+str atype2istype1(str e, str get, AType::\iter(AType symbol)) = "isTree(<e>)";
+
+str atype2istype1(str e, str get, AType::\iter-star(AType symbol)) = "isTree(<e>)";
+
+str atype2istype1(str e, str get, AType::\iter-seps(AType symbol, list[AType] separators)) = "isTree(<e>)";  
+ 
+str atype2istype1(str e, str get, AType::\iter-star-seps(AType symbol, list[AType] separators)) = "isTree(<e>)";  
+
+str atype2istype1(str e, str get, AType::\iter-seps(AType symbol, list[AType] separators)) = "isTree(<e>)";
+
 default str atype2istype1(str e, str get, AType t)         { throw "atype2istype1: cannot handle <t>"; }
 
 // ----

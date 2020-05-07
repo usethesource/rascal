@@ -93,7 +93,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
         seen += kwType;
         str kwFieldName = kwType.label;
         str fuid = getGetterNameForKwpField(adtType, kwFieldName);
-        str getterName = "$get_<adtName>_<kwFieldName>";
+        str getterName = unescapeAndStandardize("$get_<adtName>_<kwFieldName>");
        
         getterType = afunc(kwType, [adtType], []);
         adtVar = muVar(getterName, fuid, 0, adtType);
@@ -119,7 +119,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
             str kwFieldName = kwType.label;
             kwfield2cons += <kwFieldName, kwType, consType>;
             str fuid = getGetterNameForKwpField(consType, kwFieldName);
-            str getterName = "$get_<adtName>_<consName>_<kwFieldName>";
+            str getterName = unescapeAndStandardize("$get_<adtName>_<consName>_<kwFieldName>");
             
             getterType = afunc(kwType, [consType], []);
             consVar = muVar(consName, fuid, 0, consType);
@@ -137,7 +137,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
     for(str kwFieldName <- domain(kwfield2cons)){
         conses = kwfield2cons[kwFieldName];
         str fuid = getGetterNameForKwpField(adtType, kwFieldName);
-        str getterName = "$get_<adtName>_<kwFieldName>";
+        str getterName = unescapeAndStandardize("$get_<adtName>_<kwFieldName>");
             
         returnType = lubList(conses<0>);
         getterType = afunc(returnType, [adtType], []);
@@ -169,7 +169,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
         fieldName = fieldType.label;
         conses = field2cons[fieldType];
         str fuid = getGetterNameForKwpField(adtType, fieldName);
-        str getterName = "$get_<adtName>_<fieldName>";
+        str getterName = unescapeAndStandardize("$get_<adtName>_<fieldName>");
         
         getterType = afunc(fieldType, [adtType], []);
         adtVar = muVar(adtName, fuid, 0, adtType);

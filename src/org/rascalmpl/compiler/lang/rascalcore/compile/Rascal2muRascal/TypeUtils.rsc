@@ -694,8 +694,8 @@ int getPositionInScope(str name, loc l){
 // Create unique symbolic names for functions, constructors and productions
 
 str getGetterNameForKwpField(AType tp, str fieldName)
-    =  tp is acons ? "$get_<tp.adt.adtName>_<tp.label>_<fieldName>"
-                   : "$get_<tp.adtName>_<fieldName>";
+    =  unescapeAndStandardize(tp is acons ? "$get_<tp.adt.adtName>_<tp.label>_<fieldName>"
+                                          : "$get_<tp.adtName>_<fieldName>");
 
 str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)
