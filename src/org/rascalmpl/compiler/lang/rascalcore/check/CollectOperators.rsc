@@ -541,9 +541,9 @@ void collect(current: (Expression) `<Expression e1> ? <Expression e2>`, Collecto
 // ---- noMatch
 
 void collect(current: (Expression) `<Pattern pat> !:= <Expression expression>`, Collector c){
-    c.enterScope(current);  // wrap in extra scope to avoid that variables in pattern leak to surroundings
+    //c.enterScope(current);  // wrap in extra scope to avoid that variables in pattern leak to surroundings
     computeMatchPattern(current, pat, "!:=", expression, c);
-    c.leaveScope(current);
+    //c.leaveScope(current);
 }
 // ---- match
 
@@ -575,7 +575,9 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
             return abool();
         });
     c.push(patternContainer, "match");
+    if(operator == "!:=") c.enterScope(pat);  // wrap in extra scope to avoid that variables in pattern leak to surroundings
     collect(pat, c);
+    if(operator == "!:=") c.leaveScope(pat);
     c.pop(patternContainer);
     collect(expression, c);
 }

@@ -6,7 +6,7 @@ module lang::rascalcore::compile::Examples::Tst1
 //value main() = //test bool annotationsInSets6() = 
 //    {X = {f() [@pos=1]} + {f() [@pos=2]}; {F elem} := X && (elem@pos == 2 || elem@pos == 1);};
     
-value main() = { X = {1}; {"a", Y} !:= X ==> (Y == 0 || Y == 2);};
+value main() = { X = {1}; {Y} := X <==> (Y == 0 || Y == 1);};
 
 //import String;
 
