@@ -201,22 +201,12 @@ test bool compositeAndCommaCnt() {
     return n == 3;
 }
 
-test bool compositeAndCntBTLast1() {
+test bool compositeAndBTLast() {
     ten = 10;
     return ten > 9 && [*int _, int  _, *int _] := [1,2,3];
 }
 
-test bool compositeAndCntBTLast2() {
-    n = 0;
-    ten = 10;
-    if( ten > 9 && [*int _, int  _, *int _] := [1,2,3] )  {
-        n = n + 1;
-        fail;
-    }
-    return n == 3;
-}
-
-test bool compositeAndCommaCntBTLast() {
+test bool compositeAndCntBTLast() {
     n = 0;
     ten = 10;
     if( ten > 9 && [*int _, int  _, *int _] := [1,2,3] )  {
@@ -239,7 +229,7 @@ test bool compositeAndBothBTCnt() {
     return n == 9;
 }
 
-test bool compositeOrBTLast() {
+test bool compositeOrCntBTLast() {
     n = 0;
     if( int _ := 3 || ([*int _,*int _] := [4,5,6]) )  {
         n = n + 1;
@@ -248,7 +238,7 @@ test bool compositeOrBTLast() {
     return n == 5;
 }   
 
-test bool compositeOrBTFirst() {
+test bool compositeOrCntBTFirst() {
     n = 0;
     if( [*int _,*int _] := [4,5,6] || int _ := 3)  {
         n = n + 1;
@@ -257,7 +247,7 @@ test bool compositeOrBTFirst() {
     return n == 5;
 }    
 
-test bool compositeAndOr() {
+test bool compositeAndOrCnt() {
     n = 0;
     if( ([*int _,*int _] := [1,2,3] && int _ := 3) || ([*int _,*int _] := [4,5,6] && int _ := 4) )  {
         n = n + 1;
@@ -292,10 +282,48 @@ test bool compositeImplBTLast2(){
   return b;
 }
 
-test bool compositeImplBothBT(){
+test bool compositeImplVarBothBT(){
   ten = 10;
   b = [*int _, int  _, *int _] := [1,2,3] ==> ([*int _, *int _] := [4,5,6] && int _ := 4);
   return b;
+}
+
+test bool compositeImplCnt() {
+    n = 0;
+    ten = 10;
+    if( [*int _, int  _, *int _] := [1,2,3] ==> ten > 9 )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 1;
+}
+
+test bool compositeImplCntBTLast1() {
+    ten = 10;
+    return ten > 9 ==> [*int _, int  _, *int _] := [1,2,3];
+}
+
+test bool compositeImplCntBTLast2() {
+    n = 0;
+    ten = 10;
+    if( ten > 9 ==> [*int _, int  _, *int _] := [1,2,3] )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
+}
+
+test bool compositeImplReturnBothBT() {
+    return [*int _, int  _, *int _] := [1,2,3] ==> [*int _, int  _, *int _] := [4, 5, 6];
+}
+
+test bool compositeImplBothBTCnt() {
+    n = 0;
+    if( [*int _, int  _, *int _] := [1,2,3] ==> [*int _, int  _, *int _] := [4, 5, 6] )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
 }
 
 
@@ -325,10 +353,48 @@ test bool compositeEquivBTLast2(){
   return b;
 }
 
-test bool compositeEquivBothBT(){
+test bool compositeEquivVarBothBT(){
   ten = 10;
   b = [*int _, int  _, *int _] := [1,2,3] <==> ([*int _, *int _] := [4,5,6] && int _ := 4);
   return b;
+}
+
+test bool compositeEquivCnt() {
+    n = 0;
+    ten = 10;
+    if( [*int _, int  _, *int _] := [1,2,3] <==> ten > 9 )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
+}
+
+test bool compositeEquivCntBTLast1() {
+    ten = 10;
+    return ten > 9 <==> [*int _, int  _, *int _] := [1,2,3];
+}
+
+test bool compositeEquivCntBTLast2() {
+    n = 0;
+    ten = 10;
+    if( ten > 9 <==> [*int _, int  _, *int _] := [1,2,3] )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
+}
+
+test bool compositeEquivReturnBothBT() {
+    return [*int _, int  _, *int _] := [1,2,3] <==> [*int _, int  _, *int _] := [4, 5, 6];
+}
+
+test bool compositeEquivBothBTCnt() {
+    n = 0;
+    if( [*int _, int  _, *int _] := [1,2,3] <==> [*int _, int  _, *int _] := [4, 5, 6] )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
 }
 
 ////
