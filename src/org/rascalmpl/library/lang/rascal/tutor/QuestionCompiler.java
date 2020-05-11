@@ -13,7 +13,6 @@
 package org.rascalmpl.library.lang.rascal.tutor;
 
 import java.io.File;
-import java.io.PrintWriter;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;

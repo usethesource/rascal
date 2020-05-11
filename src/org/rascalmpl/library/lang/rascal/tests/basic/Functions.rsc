@@ -43,9 +43,9 @@ test bool functionWithVarargsAndKeyword2() = fn("b",kw="xxx") == "b--xxx";
 test bool functionWithVarargsAndKeyword3() = fn("c",1,2,3)== "c-1-2-3-keyword";
 test bool functionWithVarargsAndKeyword4() = fn("d",1,2,3,kw="xxx") == "d-1-2-3-xxx";
 
-int fvarargs(str s, value vals...) = 0;
-int fvarargs(int n, str s, value vals...) = 1;
-int fvarargs(bool b, int n, str s, value vals...) = 2;
+int fvarargs(str _, value _...) = 0;
+int fvarargs(int _, str s, value _...) = 1;
+int fvarargs(bool _, int _, str _, value _...) = 2;
 
 test bool overloadedWithVarArgs1() = fvarargs("a") == 0;
 test bool overloadedWithVarArgs2() = fvarargs("a", 1) == 0;
