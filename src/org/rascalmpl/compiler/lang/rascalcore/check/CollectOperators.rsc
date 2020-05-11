@@ -170,7 +170,7 @@ private AType _computeSpliceType(Tree current, AType t1, Solver s){
     if (isBagType(t1)) return getBagElementType(t1);
     if (isRelType(t1)) return getRelElementType(t1);
     if (isListRelType(t1)) return getListRelElementType(t1);
-    return t1;
+    s.report(error(current, "Splice not defined on expression of type %t", t1));
 }
 
 // ---- asType
