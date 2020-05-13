@@ -11,6 +11,7 @@ assignees: ''
 
 * Every time this document says "release X" ; we mean to execute the instructions of this Wiki page: https://github.com/usethesource/rascal/wiki/How-to-make-a-release-of-a-Rascal-implemenation-project
 * The current release instructions are focused on the Rascal commandline tools and the Eclipse IDE plugin
+* If you edit this template, then please push relevant improvements to the template itself for future reference.
 
 # Pre-releasing dependent tools in unstable
 
