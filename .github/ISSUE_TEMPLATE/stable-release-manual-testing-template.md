@@ -66,6 +66,7 @@ First a "pre-release" of the supporting compiler/typechecker tools must be done,
 - [ ] release rascal-eclipse project (take care to choose the right release versions of typepal and rascal-core you release earlier and choose their new SNAPSHOT dependencies to the latest)
 - [ ] change the configuration of the stable version in `update-site-nexus-link-script/refresh-nexus-data` to the released version
 - [ ] test the stable update site at https://update.rascal-mpl.org/stable
+- [ ] write release notes and publish on the usethesource.io blog
 
 # Downstream implications
 
