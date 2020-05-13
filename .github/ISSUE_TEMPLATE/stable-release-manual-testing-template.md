@@ -7,6 +7,11 @@ assignees: ''
 
 ---
 
+# Preliminaries
+
+* Every time this document says "release X" ; we mean to execute the instructions of this Wiki page: https://github.com/usethesource/rascal/wiki/How-to-make-a-release-of-a-Rascal-implemenation-project
+* The current release instructions are focused on the Rascal commandline tools and the Eclipse IDE plugin
+
 # Pre-releasing dependent tools in unstable
 
 First a "pre-release" of the supporting compiler/typechecker tools must be done, so we know we are releasing a consistently compiled standard library.
