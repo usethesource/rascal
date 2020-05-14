@@ -152,3 +152,17 @@ private default bool singletonSetWithMap(value _) = false;
 
 @Ignore
 test bool callSingletonSetWithMap() = singletonSetWithMap({()});
+
+data F = 
+         fff(str s, int n)
+       | fff(int n, str s)
+       ;
+       
+ int getN1(fff(str s, n)) = n;
+ 
+ int getN2(fff(n, str s)) = n;
+ 
+ test bool overloadedCons1(str s, int n) = getN1(fff(s, n)) == n;
+ test bool overloadedCons2(str s, int n) = getN2(fff(n, s)) == n;
+ 
+ 
