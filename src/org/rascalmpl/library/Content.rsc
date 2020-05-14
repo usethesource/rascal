@@ -126,7 +126,7 @@ Response response(loc f)                          = fileResponse(f, mimeTypes[f.
 Utility to quickly serve any rascal value as a json text. This comes in handy for
 asynchronous HTTP requests from Javascript.
 }
-default  Response response(value val)             = jsonResponse(ok(), (), val);
+default  Response response(value val, map[str,str] header = ())             = jsonResponse(ok(), header, val);
   
 @doc{
 .Synopsis

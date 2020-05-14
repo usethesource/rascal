@@ -52,7 +52,6 @@ public class RascalJUnitTestRunner extends Runner {
     private static GlobalEnvironment heap;
     private static ModuleEnvironment root;
     private static PrintWriter stderr;
-    private static PrintWriter stdout;
     private Description desc;
 
     private final String prefix;
