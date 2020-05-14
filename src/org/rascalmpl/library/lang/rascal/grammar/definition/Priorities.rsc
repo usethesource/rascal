@@ -45,14 +45,14 @@ the associativity groups and the ! restriction operator.
 }
 public DoNotNest doNotNest(Grammar g) {
   g = references(g); 
-  result = {};
+  DoNotNest result = {};
   
   for (s <- g.rules) {
     // note how the analysis is still _per non-terminal_
     // TODO: support relations between mutually recursive non-terminals
     // TODO: support 'deep' priority (for the ML case)
     // TODO: instead of DoNotNest generate data-dependent constraints
-    defined = extract(g.rules[s]);
+    Extracted defined = extract(g.rules[s]);
 
     // select and then close the different relations: left, right, non-assoc and priorities 
     // this is to make sure modular specifications (where rules for the same non-terminal are split 

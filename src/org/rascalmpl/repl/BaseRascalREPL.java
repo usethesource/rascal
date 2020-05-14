@@ -11,7 +11,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -34,8 +33,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-import fi.iki.elonen.NanoHTTPD.Method;
-import fi.iki.elonen.NanoHTTPD.Response;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -210,11 +207,13 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         REPLContentServer server = contentManager.addServer(id, target);
 
         // now we need some HTML to show
-        Response response = server.serve("/", Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         String URL = "http://localhost:" + server.getListeningPort() + "/";
+        
         metadata.put("url", URL);
         getOutputWriter().println("Serving visual content at |" + URL + "|");
-        output.put(response.getMimeType(), response.getData());
+        
+        String iframe = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
+        output.put("text/html", new ByteArrayInputStream(iframe.getBytes("UTF8")));
     }            
         
     abstract protected Function<IValue, IValue> liftProviderFunction(IValue callback);

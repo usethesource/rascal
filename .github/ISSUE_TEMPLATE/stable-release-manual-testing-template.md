@@ -1,22 +1,40 @@
 ---
 name: Stable release manual testing template
-about: This is a list of things to check at the time of a stable release
-title: "[RELEASE] manual testing version 0.x.x"
+about: This is a list of things to do and to check at the time of a stable release
+title: "[RELEASE] version 0.x.x"
 labels: release testing
 assignees: ''
 
 ---
 
-First:
+# Preliminaries
+
+* Every time this document says "release X" ; we mean to execute the instructions of this Wiki page: https://github.com/usethesource/rascal/wiki/How-to-make-a-release-of-a-Rascal-implemenation-project
+* The current release instructions are focused on the Rascal commandline tools and the Eclipse IDE plugin
+* If you edit this template, then please push relevant improvements to the template itself for future reference.
+
+# Pre-releasing dependent tools in unstable
+
+First a "pre-release" of the supporting compiler/typechecker tools must be done, so we know we are releasing a consistently compiled standard library.
+
+- [ ] typepal and rascal-core compile in the continuous integration environment and no tests fail
+- [ ] release typepal
+- [ ] release rascal-core
+- [ ] bump typepal and rascal-core versions in rascal-maven-plugin to latest releases
+- [ ] bump typepal and rascal-core versions in rascal-eclipse to latests SNAPSHOT releases
+- [ ] release rascal-maven-plugin
+- [ ] bump rascal-maven-plugin dependency in rascal and rascal-eclipse project
+- [ ] fix new errors and warnings in rascal and rascal-eclipse project
+
+# Manual version checks
 
 - [ ] Continuous Integration runs all unit and integration tests and fails no test
 - [ ] Maximum number of compiler warnings are resolved
 - [ ] Version numbers are verified manually
-- [ ] Releases depend on the right versions of dependencies (manually verified)
 
-Then the following features need manual testing in Eclipse:
+# Manual feature tests
 
-- [ ] Eclipse downloads latest stable release from update site https://update.rascal-mpl.org/unstable
+- [ ] Eclipse download and install latest unstable release from update site https://update.rascal-mpl.org/unstable
 - [ ] Open a Rascal REPL using the toolbar button
 - [ ] Can create new Rascal project using the wizard
 - [ ] Can create new Rascal module using the wizard
@@ -36,8 +54,24 @@ Then the following features need manual testing in Eclipse:
 - [ ] add dependency on another project by editing `RASCAL.MF`: `Required-Libraries: |lib://otherProject|`, import a module and test the type-checker as well as the interpreter for correct resolution
 - [ ] `import demo::lang::Pico::Plugin; registerPico();` and test the editor of the example pico files (syntax highlighting, menu options)
 - [ ] open tutor view and test the search box
-- [ ] open tutor view and test browsing the documentation 
+- [ ] open tutor view and test browsing the documentation
 - [ ] `import demo::lang::Pico::Plugin; rascal>:edit  demo::lang::Pico::Plugin`
 - [ ] edit a .concept file, save it and watch the preview in the Tutor Preview view
 - [ ] Tutor Preview "edit" button opens the corresponding concept file of the currently visited Concept URL
 - [ ] Tutor Preview Forward/Back/Refresh buttons work
+
+# Actual release
+
+- [ ] release rascal project (when resolving SNAPSHOT dependencies choose the right versions of vallang etc, and make sure to bump the new rascal SNAPSHOT release one minor version)
+- [ ] release rascal-eclipse project (take care to choose the right release versions of typepal and rascal-core you release earlier and choose their new SNAPSHOT dependencies to the latest)
+- [ ] change the configuration of the stable version in `update-site-nexus-link-script/refresh-nexus-data` to the released version
+- [ ] test the stable update site at https://update.rascal-mpl.org/stable
+- [ ] write release notes and publish on the usethesource.io blog
+
+# Downstream implications
+
+The following items can be executed asynchronously, but are nevertheless not to be forgotten:
+
+- [ ] change dependencies on rascal-eclipse and rascal in rascal-eclipse-libraries and the projects it depends on
+- [ ] change dependencies of typepal to latest rascal and rascal-eclipse
+- [ ] change dependency of rascal-core to latest stable rascal
