@@ -19,7 +19,9 @@ package org.rascalmpl.interpreter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Stack;
 
@@ -43,10 +45,10 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	/** for standard IO */
 	public default PrintWriter getOutPrinter() {
-	    return new PrintWriter(getStdOut(), true);
+	    return new PrintWriter(new OutputStreamWriter(getStdOut(), StandardCharsets.UTF_8), true);
 	}
 	public default PrintWriter getErrorPrinter() {
-	    return new PrintWriter(getStdErr(), true);
+	    return new PrintWriter(new OutputStreamWriter(getStdErr(), StandardCharsets.UTF_8), true);
 	}
 	
 	public OutputStream getStdOut();
