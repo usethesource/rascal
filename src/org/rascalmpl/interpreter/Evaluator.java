@@ -24,9 +24,11 @@ import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -162,10 +164,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     private final OutputStream defStderr;
     private final OutputStream defStdout;
+    private final PrintWriter defOutWriter;
+    private final PrintWriter defErrWriter;
     private final InputStream defInput;
     
     private OutputStream curStderr = null;
     private OutputStream curStdout = null;
+    private PrintWriter curOutWriter = null;
+    private PrintWriter curErrWriter = null;
     private InputStream curInput = null;
 
     /**
@@ -212,6 +218,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.defInput = input;
         this.defStderr = stderr;
         this.defStdout = stdout;
+        this.defErrWriter = wrapWriter(stderr, true);
+        this.defOutWriter = wrapWriter(stdout, false);
         this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>();
         this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>();
 
@@ -226,6 +234,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         // default event trigger to swallow events
         setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
+    }
+
+    private static PrintWriter wrapWriter(OutputStream out, boolean autoFlush) {
+        return new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), autoFlush);
     }
 
     private Evaluator(Evaluator source, ModuleEnvironment scope) {
@@ -249,6 +261,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.defStderr = source.defStderr;
         this.defStdout = source.defStdout;
         this.defInput = source.defInput;
+        this.defErrWriter = source.defErrWriter;
+        this.defOutWriter = source.defOutWriter;
         this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>(source.constructorDeclaredListeners);
         this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>(source.suspendTriggerListeners);
 
@@ -360,6 +374,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public OutputStream getStdOut() {
         return curStdout == null ? defStdout : curStdout;
     }
+    
+    @Override
+    public PrintWriter getOutPrinter() {
+        return curOutWriter == null ?  defOutWriter : curOutWriter;
+    }
+
+    @Override
+    public PrintWriter getErrorPrinter() {
+        return curErrWriter == null ?  defErrWriter : curErrWriter;
+    }
+    
 
     @Override
     public InputStream getInput() {
@@ -1555,12 +1580,22 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.curStdout = newStdOut;
         this.curStderr = newStdErr;
         this.curInput = newInput;
+        this.curErrWriter = wrapWriter(newStdErr, true);
+        this.curOutWriter = wrapWriter(newStdOut, false);
     }
 
     public void revertToDefaultWriters() {
         this.curStderr = null;
         this.curStdout = null;
         this.curInput = null;
+        if (curOutWriter != null) {
+            curOutWriter.flush();
+        }
+        this.curOutWriter = null;
+        if (curErrWriter != null) {
+            curErrWriter.flush();
+        }
+        this.curErrWriter = null;
     }
 
     public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
