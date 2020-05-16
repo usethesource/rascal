@@ -334,6 +334,7 @@ public class BaseREPL {
                 }
                 catch (UserInterruptException u) {
                     reader.println();
+                    reader.flush();
                     handleReset(new HashMap<>(), new HashMap<>());
                     updatePrompt();
                 }
@@ -360,7 +361,7 @@ public class BaseREPL {
             throw e;
         }
         finally {
-            reader.getOutput().flush();
+            reader.flush();
             originalStdOut.flush();
             if (historyFlusher != null) {
                 ShutdownHooks.remove(historyFlusher);
@@ -377,6 +378,7 @@ public class BaseREPL {
             handledQueue = true;
             reader.resetPromptLine(reader.getPrompt(), queuedCommand, 0);
             reader.println();
+            reader.flush();
             reader.getHistory().add(queuedCommand);
             try {
                 handlingInput = true;
@@ -390,6 +392,7 @@ public class BaseREPL {
             String oldPrompt = reader.getPrompt();
             reader.resetPromptLine("", "", 0);
             reader.setPrompt(oldPrompt);
+            reader.flush();
         }
     }
 

@@ -18,6 +18,7 @@
 package org.rascalmpl.interpreter.result;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -322,6 +323,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 				b.append(":");
 				b.append(strval(result));
 			}
+			
 			eval.getOutPrinter().println(b);
 			eval.getOutPrinter().flush();
 		}

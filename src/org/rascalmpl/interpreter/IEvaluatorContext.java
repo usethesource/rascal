@@ -44,12 +44,8 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public StackTrace getStackTrace();
 	
 	/** for standard IO */
-	public default PrintWriter getOutPrinter() {
-	    return new PrintWriter(new OutputStreamWriter(getStdOut(), StandardCharsets.UTF_8), true);
-	}
-	public default PrintWriter getErrorPrinter() {
-	    return new PrintWriter(new OutputStreamWriter(getStdErr(), StandardCharsets.UTF_8), true);
-	}
+	public PrintWriter getOutPrinter();
+	public PrintWriter getErrorPrinter();
 	
 	public OutputStream getStdOut();
 	public OutputStream getStdErr();
