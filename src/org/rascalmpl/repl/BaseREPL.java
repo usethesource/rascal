@@ -99,7 +99,7 @@ public class BaseREPL {
         else {
             this.errorWriter = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
         }
-        initialize(stdin, stdout /*JURGEN LET OP reader.getOutput()*/, stderr);
+        initialize(stdin, terminal.wrapOutIfNeeded(stdout) /*JURGEN LET OP reader.getOutput()*/, terminal.wrapOutIfNeeded(stderr));
         if (supportsCompletion()) {
             reader.addCompleter(new Completer(){
                 @Override
