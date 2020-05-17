@@ -256,10 +256,8 @@ public class TermREPL {
         }
 
         private IValue call(ICallableValue f, Type[] types, IValue[] args) {
-            synchronized (f.getEval()) {
-                Evaluator eval = (Evaluator) f.getEval();
-                OutputStream prevErr = eval.getStdErr();
-                OutputStream prevOut = eval.getStdOut();
+            Evaluator eval = (Evaluator) f.getEval();
+            synchronized (eval) {
                 try {
                     eval.overrideDefaultWriters(input, stdout, stderr);
                     return f.call(types, args, null).getValue();
@@ -268,7 +266,7 @@ public class TermREPL {
                     try {
                         stdout.flush();
                         stderr.flush();
-                        eval.overrideDefaultWriters(eval.getInput(), prevOut, prevErr);
+                        eval.revertToDefaultWriters();
                     }
                     catch (IOException e) {
                         // ignore
