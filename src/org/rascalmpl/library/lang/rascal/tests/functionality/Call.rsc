@@ -277,7 +277,7 @@ test bool  dispatchTest2() {
     int f2(yy()) = 2;
     int f2(zz()) = 3;
     default int f2(int x) = x;
-  	return [f2(xx()),f2(yy()),f2(zz()), f(4)] == [1,2,3,4];
+  	return [f2(xx()),f2(yy()),f2(zz()), f2(4)] == [1,2,3,4];
 }
 
 
