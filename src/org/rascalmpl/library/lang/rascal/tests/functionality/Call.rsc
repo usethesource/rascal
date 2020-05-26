@@ -266,31 +266,31 @@ data X = xx() | yy() | zz();
 // dispatchTest1
   
 test bool  dispatchTest1() { 
-    int f(xx()) = 1;
-    int f(yy()) = 2;
-    int f(zz()) = 3;
-  	return [f(xx()),f(yy()),f(zz())] == [1,2,3];
+    int f1(xx()) = 1;
+    int f1(yy()) = 2;
+    int f1(zz()) = 3;
+  	return [f1(xx()),f1(yy()),f1(zz())] == [1,2,3];
 }
   	
 test bool  dispatchTest2() { 
-    int f(xx()) = 1;
-    int f(yy()) = 2;
-    int f(zz()) = 3;
-    default int f(int x) = x;
-  	return [f(xx()),f(yy()),f(zz()), f(4)] == [1,2,3,4];
+    int f2(xx()) = 1;
+    int f2(yy()) = 2;
+    int f2(zz()) = 3;
+    default int f2(int x) = x;
+  	return [f2(xx()),f2(yy()),f2(zz()), f(4)] == [1,2,3,4];
 }
 
 
 test bool  dispatchTest3() { 
-	int f(/[a-z]+/) = 1;
-    int f(/[0-9]+/) = 2;
-    return f("abc") == 1 && f("123") == 2;
+	int f3(/[a-z]+/) = 1;
+    int f3(/[0-9]+/) = 2;
+    return f3("abc") == 1 && f3("123") == 2;
 }
 
 test bool  dispatchTest4() { 
-    str f(/X<v:[a-z]+>Y/) = v;
-    str f(/X<v:[0-9]+>Y/) = v;
-    return f("XabcY") == "abc" && f("X123Y") == "123";
+    str f4(/X<v:[a-z]+>Y/) = v;
+    str f4(/X<v:[0-9]+>Y/) = v;
+    return f4("XabcY") == "abc" && f4("X123Y") == "123";
 }
 
 // Indirect calls
