@@ -13,10 +13,13 @@
  *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -34,9 +37,13 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.util.ExpiringFunctionResultCache;
 
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 
 abstract public class NamedFunction extends AbstractFunction {
@@ -50,8 +57,10 @@ abstract public class NamedFunction extends AbstractFunction {
     protected final String resolverScheme;
     protected final Map<String, IValue> tags;
 
-    private SoftReference<MemoizationCache<Result<IValue>>> memoization;
+    private SoftReference<ExpiringFunctionResultCache<Result<IValue>>> memoization;
     protected final boolean hasMemoization;
+    private final int memoizationTimeout;
+    private final int memoizationMaxEntries;
 
     public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, List<KeywordFormal> initializers, String name,
             boolean varargs, boolean isDefault, boolean isTest, Environment env) {
@@ -66,11 +75,21 @@ abstract public class NamedFunction extends AbstractFunction {
             this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
             this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
             this.hasMemoization = checkMemoization((FunctionDeclaration) ast);
+            if (hasMemoization) {
+                this.memoizationTimeout = getMemoizationTimeout((FunctionDeclaration) ast);
+                this.memoizationMaxEntries = getMemoizationMaxEntries((FunctionDeclaration) ast);
+            }
+            else {
+                this.memoizationTimeout = 0;
+                this.memoizationMaxEntries = 0;
+            }
         } else {
             tags = new HashMap<String, IValue>();
             this.resourceScheme = null;
             this.resolverScheme = null;
             this.hasMemoization = false;
+            this.memoizationTimeout = 0;
+            this.memoizationMaxEntries = 0;
         }
     }
 
@@ -91,7 +110,7 @@ abstract public class NamedFunction extends AbstractFunction {
 
     public void clearMemoizationCache() {
         if (memoization != null) {
-            MemoizationCache<Result<IValue>> m = memoization.get();
+            ExpiringFunctionResultCache<Result<IValue>> m = memoization.get();
             
             if (m != null) {
                 m.clear();
@@ -104,35 +123,25 @@ abstract public class NamedFunction extends AbstractFunction {
     
     protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
         if (hasMemoization()) {
-            MemoizationCache<Result<IValue>> memoizationActual = getMemoizationCache(false);
-            if (memoizationActual == null) {
-                return null;
-            }
-            return memoizationActual.getStoredResult(argValues, keyArgValues);
+            ExpiringFunctionResultCache<Result<IValue>> memoizationActual = getMemoizationCache(false);
+            return memoizationActual == null ? null : memoizationActual.lookup(argValues, keyArgValues);
         }
         return null;
     }
 
-    private MemoizationCache<Result<IValue>> getMemoizationCache(boolean returnFresh) {
-        MemoizationCache<Result<IValue>> result = null;
-        if (memoization == null) {
-            result = new MemoizationCache<Result<IValue>>();
+    private ExpiringFunctionResultCache<Result<IValue>> getMemoizationCache(boolean returnFresh) {
+        ExpiringFunctionResultCache<Result<IValue>> result = memoization == null ? null : memoization.get();
+        if (result == null && returnFresh) {
+            result = new ExpiringFunctionResultCache<Result<IValue>>(memoizationTimeout, memoizationMaxEntries);
             memoization = new SoftReference<>(result);
-            return returnFresh ? result : null;
-
-        }
-        result = memoization.get();
-        if (result == null ) {
-            result = new MemoizationCache<Result<IValue>>();
-            memoization = new SoftReference<>(result);
-            return returnFresh ? result : null;
+            return result;
         }
         return result;
     }
 
     protected Result<IValue> storeMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues, Result<IValue> result) {
         if (hasMemoization()) {
-            getMemoizationCache(true).storeResult(argValues, keyArgValues, result);
+            getMemoizationCache(true).store(argValues, keyArgValues, result);
         }
         return result;
     }
@@ -165,6 +174,55 @@ abstract public class NamedFunction extends AbstractFunction {
         }
         return false;
     }
+    private int getMemoizationTimeout(FunctionDeclaration func) {
+        for (Tag tag : func.getTags().getTags()) {
+            if (Names.name(tag.getName()).equalsIgnoreCase("memo")) {
+                IMap params = parseMemoTag(tag);
+                IValue value = params.get(getValueFactory().string("expireSeconds"));
+                if (value instanceof IInteger) {
+                    return ((IInteger)value).intValue();
+                }
+                value = params.get(getValueFactory().string("expireMinutes"));
+                if (value instanceof IInteger) {
+                    return (int) TimeUnit.MINUTES.toSeconds(((IInteger)value).intValue());
+                }
+            }
+        }
+        return (int) TimeUnit.HOURS.toSeconds(1);
+    }
+
+    private int getMemoizationMaxEntries(FunctionDeclaration func) {
+        for (Tag tag : func.getTags().getTags()) {
+            if (Names.name(tag.getName()).equalsIgnoreCase("memo")) {
+                IMap params = parseMemoTag(tag);
+                IValue value = params.get(getValueFactory().string("maxEntries"));
+                if (value instanceof IInteger) {
+                    return ((IInteger)value).intValue();
+                }
+            }
+        }
+        return -1;
+    }
+    
+    
+    private IMap parseMemoTag(Tag tag) {
+        if  (tag.hasContents()) {
+            String contents = ((TagString.Lexical) tag.getContents()).getString();
+            if (contents.length() > 2 && contents.startsWith("{")) {
+                contents = contents.substring(1, contents.length() - 1);
+            }
+            try {
+                IValue parameters = new StandardTextReader().read(getValueFactory(), new StringReader(contents));
+                if (parameters instanceof IMap) {
+                    return (IMap)parameters;
+                }
+            }
+            catch (FactTypeUseException | IOException e) {
+            }
+        }
+        return getValueFactory().map();
+    }
+    
     
     protected int computeIndexedPosition(AbstractAST node) {
     	if (ast instanceof FunctionDeclaration) {
