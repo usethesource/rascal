@@ -92,24 +92,6 @@ test bool matchNodeWithKeywords14() ="f1"(1, M=_, B=false)  := "f1"(1, B=false, 
 test bool matchNodeWithKeywords15() ="f1"(_, M=20, B=false) := "f1"(1, B=false, M=20);
   		
 test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
-    
-//	matchTuple
-  
-test bool matchTuple1() = <1> := <1>;
-test bool matchTuple2() = <1, "abc">  := <1, "abc">;
-test bool matchTuple3() = !(<2>  := <1>);
-test bool matchTuple4() = <2> !:= <1>;
-  		
-test bool matchTuple5() = <1, "abc"> !:= <1, "def">;
-test bool matchTuple6() = <1, "abc"> !:= <1, "def">;
-  		
-test bool matchTuple7() = <_, "abc">  := <1, "abc">;
-test bool matchTuple8() = <1, _>        := <1, "abc">;
-test bool matchTuple9() = <_, _>        := <1, "abc">;
-  	
-
-// T is not initialized on purpose here 
-test bool matchTupleExternalVar1() {tuple[int,int] T; return T := <1,2> && T[0] == 1 && T[1] == 2;}
   
 //	matchVariable
 
