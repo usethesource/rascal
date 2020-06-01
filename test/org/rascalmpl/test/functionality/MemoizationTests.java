@@ -1,53 +1,53 @@
 package org.rascalmpl.test.functionality;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 
 public class MemoizationTests extends TestFramework {
-	@Test
-	public void memoryIsReleased() throws InterruptedException {
-		prepare("@memo list[int] OneMB(int w) = [ w | i <- [0..(1024*1024/8)]];");
-		runTestInSameEvaluator("( true | it && OneMB(i)[0] == i | i <- [0..10])");
-		// Force an OoM
-		// use all memory to cause the memoization to cleanup
-	    try {
-	        final ArrayList<Object[]> allocations = new ArrayList<Object[]>();
-	        while(true)
-	            allocations.add( new Object[(int) Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory())] );
-	    } catch( OutOfMemoryError e ) {
-	        // great!
-	    }
-		// actually hit the cache to cause a cleanup
-		runTestInSameEvaluator("OneMB(1)[0]==1");
-	}
 	
 	@Test
-	public void memoryIsReleased2() {
+	public void memoryIsReleased() throws InterruptedException {
 	    prepare("int n = 0;");
-		prepareMore("@memo list[int] OneMB(int w) { n += 1; return [ n | i <- [0..(1024*1024/8)]];}");
-		runTestInSameEvaluator("( true | it && OneMB(1)[0] == 1 | i <- [0..10])");
-		runTestInSameEvaluator("OneMB(1)[0]==1");
+		prepareMore("@memo list[int] OneMB(int w) { n += 1; return [ n | i <- [0..(1024*1024*3)]];}");
+		assertTrue("Let's fill up the memory a bit", runTestInSameEvaluator("( true | it && OneMB(i)[0] == i + 1 | i <- [0..5])"));
 		// Force an OoM
 		// use all memory to cause the memoization to cleanup
-	    try {
-	        final ArrayList<Object[]> allocations = new ArrayList<Object[]>();
-	        while(true)
-	            allocations.add( new Object[(int) Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory())] );
-	    } catch( OutOfMemoryError e ) {
-	        // great!
-	    }
+		for (int i =0; i< 5; i++) {
+            try {
+                final ArrayList<Object[]> allocations = new ArrayList<Object[]>();
+                while(true)
+                    allocations.add( new Object[(int) Math.min(Integer.MAX_VALUE, Runtime.getRuntime().maxMemory())] );
+            } catch( OutOfMemoryError e ) {
+                // great!
+            }
+            System.gc();
+            Thread.sleep(10);
+		}
 		// actually hit the cache to cause a cleanup
-		runTestInSameEvaluator("OneMB(1)[0]==2");
+		assertTrue("Should be run again, since GC happened", runTestInSameEvaluator("OneMB(1)[0] != 2"));
+	}
+
+	@Test
+	public void memoryIsReleasedTimeout() throws InterruptedException {
+	    prepare("int n = 0;");
+		prepareMore("@memo{(\"expireSeconds\":1)} int calc(int w) { n +=1; return n; }");
+		assertTrue("Memo works", runTestInSameEvaluator("( true | it && calc(1) == 1 | i <- [0..100])"));
+		assertTrue("Memo works", runTestInSameEvaluator("calc(1) == 1"));
+		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
+		assertTrue("Entry should be cleared by now", runTestInSameEvaluator("calc(1) == 2"));
 	}
 
 	@Test
 	public void manyEntries() throws InterruptedException {
 		prepare("import String;");
 		prepareMore("@memo str dup(str s) = s + s;");
-		runTestInSameEvaluator("(true | it && dup(s) == s + s | i <- [0..30000], str s := stringChar(i))");   ;
+		assertTrue(runTestInSameEvaluator("(true | it && dup(s) == s + s | i <- [0..30000], str s := stringChar(i))"));  
 	}
 
 }
