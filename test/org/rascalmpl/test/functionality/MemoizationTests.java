@@ -59,6 +59,18 @@ public class MemoizationTests extends TestFramework {
 	}
 
 	@Test
+	public void memoryIsReleasedCombination() throws InterruptedException {
+	    prepare("int n = 0;");
+	    prepareMore("import util::Memo;");
+		prepareMore("@memo={expireAfter(seconds=1),maximumSize(200)} int calc(int w) { n +=1; return n; }");
+		assertTrue("Memo works", runTestInSameEvaluator("( true | it && calc(i) == i + 1 | i <- [0..100])"));
+		assertTrue("Memo works", runTestInSameEvaluator("calc(1) == 2"));
+		prepareMore("for (i <- [0..100]) { calc(100 + i); }");
+		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
+		assertTrue("Entry should be cleared by now", runTestInSameEvaluator("calc(1) != 2"));
+	}
+
+	@Test
 	public void manyEntries() throws InterruptedException {
 		prepare("import String;");
 		prepareMore("@memo str dup(str s) = s + s;");
