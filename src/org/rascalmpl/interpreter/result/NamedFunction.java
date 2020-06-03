@@ -13,10 +13,7 @@
  *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.lang.ref.SoftReference;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +39,7 @@ import org.rascalmpl.util.ExpiringFunctionResultCache;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 
 abstract public class NamedFunction extends AbstractFunction {
     private static final String RESOURCE_TAG = "resource";
@@ -59,19 +52,6 @@ abstract public class NamedFunction extends AbstractFunction {
     protected final String resolverScheme;
     protected final Map<String, IValue> tags;
     
-    private static final Type MEMO_CONFIG_ADT;
-    private static final TypeStore MEMO_ADT_STORE;
-    static {
-        TypeFactory tf = TypeFactory.getInstance();
-        MEMO_ADT_STORE = new TypeStore();
-        MEMO_CONFIG_ADT = tf.abstractDataType(MEMO_ADT_STORE, "MemoCache");
-        Type constr = tf.constructor(MEMO_ADT_STORE, MEMO_CONFIG_ADT, "expire");
-        MEMO_ADT_STORE.declareKeywordParameter(constr, "seconds", tf.integerType());
-        MEMO_ADT_STORE.declareKeywordParameter(constr, "minutes", tf.integerType());
-        MEMO_ADT_STORE.declareKeywordParameter(constr, "hours", tf.integerType());
-        MEMO_ADT_STORE.declareKeywordParameter(constr, "entries", tf.integerType());
-    }
-
     private SoftReference<ExpiringFunctionResultCache<Result<IValue>>> memoization;
     protected final boolean hasMemoization;
     private final int memoizationTimeout;
@@ -89,17 +69,16 @@ abstract public class NamedFunction extends AbstractFunction {
             tags = parseTags((FunctionDeclaration) ast);
             this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
             this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
-            Tag memoTag = checkMemoization((FunctionDeclaration) ast);
+            IValue memoTag = tags.get("memo");
             if (memoTag != null) {
                 this.hasMemoization = true;
-                Map<String, IValue> memoConfig = parseMemoConfig(memoTag);
-                this.memoizationTimeout = getMemoizationTimeout(memoConfig);
-                this.memoizationMaxEntries = getMemoizationMaxEntries(memoConfig);
+                this.memoizationTimeout = getMemoizationTimeout(memoTag);
+                this.memoizationMaxEntries = getMemoizationMaxEntries(memoTag);
             }
             else {
                 this.hasMemoization = false;
-                this.memoizationTimeout = 0;
-                this.memoizationMaxEntries = 0;
+                this.memoizationTimeout = (int) TimeUnit.HOURS.toSeconds(1);
+                this.memoizationMaxEntries = -1;
             }
         } else {
             tags = new HashMap<String, IValue>();
@@ -192,51 +171,34 @@ abstract public class NamedFunction extends AbstractFunction {
         }
         return null;
     }
-    private int getMemoizationTimeout(Map<String, IValue> memoConfig) {
-        IValue value = memoConfig.get("seconds");
-        if (value instanceof IInteger) {
-            return ((IInteger)value).intValue();
-        }
-        value = memoConfig.get("minutes");
-        if (value instanceof IInteger) {
-            return (int) TimeUnit.MINUTES.toSeconds(((IInteger)value).intValue());
-        }
-        value = memoConfig.get("hours");
-        if (value instanceof IInteger) {
-            return (int) TimeUnit.HOURS.toSeconds(((IInteger)value).intValue());
+    private int getMemoizationTimeout(IValue memoTag) {
+        if (memoTag instanceof IConstructor && ((IConstructor) memoTag).getName().equals("expireAfter")) {
+            Map<String, IValue> kwParams = ((IConstructor)memoTag).asWithKeywordParameters().getParameters();
+            IValue value = kwParams.get("seconds");
+            if (value instanceof IInteger) {
+                return ((IInteger)value).intValue();
+            }
+            value = kwParams.get("minutes");
+            if (value instanceof IInteger) {
+                return (int) TimeUnit.MINUTES.toSeconds(((IInteger)value).intValue());
+            }
+            value = kwParams.get("hours");
+            if (value instanceof IInteger) {
+                return (int) TimeUnit.HOURS.toSeconds(((IInteger)value).intValue());
+            }
         }
         return (int) TimeUnit.HOURS.toSeconds(1);
     }
 
-    private int getMemoizationMaxEntries(Map<String, IValue> memoConfig) {
-        IValue value = memoConfig.get("entries");
-        if (value instanceof IInteger) {
-            return ((IInteger)value).intValue();
+    private int getMemoizationMaxEntries(IValue memoTag) {
+        if (memoTag instanceof IConstructor && ((IConstructor) memoTag).getName().equals("maximumSize")) {
+            IValue value = ((IConstructor)memoTag).get("entries");
+            if (value instanceof IInteger) {
+                return ((IInteger)value).intValue();
+            }
         }
         return -1;
     }
-    
-    
-
-    private Map<String, IValue> parseMemoConfig(Tag tag) {
-        if  (tag.hasContents()) {
-            String contents = ((TagString.Lexical) tag.getContents()).getString();
-            if (contents.length() > 2 && contents.startsWith("{")) {
-                contents = contents.substring(1, contents.length() - 1);
-            }
-            try {
-                IValue parameterConfig = new StandardTextReader().read(getValueFactory(), MEMO_ADT_STORE, MEMO_CONFIG_ADT, new StringReader(contents));
-                if (parameterConfig instanceof IConstructor) {
-                    return ((IConstructor)parameterConfig).asWithKeywordParameters().getParameters();
-                }
-            }
-            catch (FactTypeUseException | IOException e) {
-            }
-        }
-        return Collections.emptyMap();
-    }
-    
-
     
     
     protected int computeIndexedPosition(AbstractAST node) {
