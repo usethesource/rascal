@@ -38,6 +38,7 @@ import org.rascalmpl.util.ExpiringFunctionResultCache;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -72,8 +73,11 @@ abstract public class NamedFunction extends AbstractFunction {
             IValue memoTag = tags.get("memo");
             if (memoTag != null) {
                 this.hasMemoization = true;
-                this.memoizationTimeout = getMemoizationTimeout(memoTag);
-                this.memoizationMaxEntries = getMemoizationMaxEntries(memoTag);
+                if (!(memoTag instanceof ISet)) {
+                    memoTag = vf.set(memoTag);
+                }
+                this.memoizationTimeout = getMemoizationTimeout((ISet)memoTag);
+                this.memoizationMaxEntries = getMemoizationMaxEntries((ISet)memoTag);
             }
             else {
                 this.hasMemoization = false;
@@ -171,30 +175,34 @@ abstract public class NamedFunction extends AbstractFunction {
         }
         return null;
     }
-    private int getMemoizationTimeout(IValue memoTag) {
-        if (memoTag instanceof IConstructor && ((IConstructor) memoTag).getName().equals("expireAfter")) {
-            Map<String, IValue> kwParams = ((IConstructor)memoTag).asWithKeywordParameters().getParameters();
-            IValue value = kwParams.get("seconds");
-            if (value instanceof IInteger) {
-                return ((IInteger)value).intValue();
-            }
-            value = kwParams.get("minutes");
-            if (value instanceof IInteger) {
-                return (int) TimeUnit.MINUTES.toSeconds(((IInteger)value).intValue());
-            }
-            value = kwParams.get("hours");
-            if (value instanceof IInteger) {
-                return (int) TimeUnit.HOURS.toSeconds(((IInteger)value).intValue());
+    private int getMemoizationTimeout(ISet memoTags) {
+        for (IValue memoTag : memoTags) {
+            if (memoTag instanceof IConstructor && ((IConstructor) memoTag).getName().equals("expireAfter")) {
+                Map<String, IValue> kwParams = ((IConstructor)memoTag).asWithKeywordParameters().getParameters();
+                IValue value = kwParams.get("seconds");
+                if (value instanceof IInteger) {
+                    return ((IInteger)value).intValue();
+                }
+                value = kwParams.get("minutes");
+                if (value instanceof IInteger) {
+                    return (int) TimeUnit.MINUTES.toSeconds(((IInteger)value).intValue());
+                }
+                value = kwParams.get("hours");
+                if (value instanceof IInteger) {
+                    return (int) TimeUnit.HOURS.toSeconds(((IInteger)value).intValue());
+                }
             }
         }
         return (int) TimeUnit.HOURS.toSeconds(1);
     }
 
-    private int getMemoizationMaxEntries(IValue memoTag) {
-        if (memoTag instanceof IConstructor && ((IConstructor) memoTag).getName().equals("maximumSize")) {
-            IValue value = ((IConstructor)memoTag).get("entries");
-            if (value instanceof IInteger) {
-                return ((IInteger)value).intValue();
+    private int getMemoizationMaxEntries(ISet memoTags) {
+        for (IValue memoTag : memoTags) {
+            if (memoTag instanceof IConstructor && ((IConstructor) memoTag).getName().equals("maximumSize")) {
+                IValue value = ((IConstructor)memoTag).get("entries");
+                if (value instanceof IInteger) {
+                    return ((IInteger)value).intValue();
+                }
             }
         }
         return -1;
