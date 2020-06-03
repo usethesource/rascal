@@ -193,6 +193,7 @@ public class ExpiringFunctionResultCache<TResult> {
 
     private void removeOverflowingEntires() {
         int toRemove = entries.size() - maxEntries;
+        toRemove += toRemove / 4; // always cleanout 25% more than needed
 		if (toRemove > 0) {
 		    // we have to clear some entries, since we don't keep a sorted tree based on the usage
 		    // we'll just randomly clear
