@@ -36,11 +36,24 @@ public class MemoizationTests extends TestFramework {
 	@Test
 	public void memoryIsReleasedTimeout() throws InterruptedException {
 	    prepare("int n = 0;");
-		prepareMore("@memo{(\"expireSeconds\":1)} int calc(int w) { n +=1; return n; }");
+		prepareMore("@memo{expire(seconds=1)} int calc(int w) { n +=1; return n; }");
 		assertTrue("Memo works", runTestInSameEvaluator("( true | it && calc(1) == 1 | i <- [0..100])"));
 		assertTrue("Memo works", runTestInSameEvaluator("calc(1) == 1"));
 		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
 		assertTrue("Entry should be cleared by now", runTestInSameEvaluator("calc(1) == 2"));
+	}
+
+	@Test
+	public void memoryIsReleasedEntries() throws InterruptedException {
+	    prepare("int n = 0;");
+		prepareMore("@memo{expire(entries=100)} int calc(int w) { n +=1; return n; }");
+		assertTrue("Just storing something in range", runTestInSameEvaluator("( true | it && calc(i) == i + 1 | i <- [0..100])"));
+		assertTrue("Memo works", runTestInSameEvaluator("calc(1) == 2"));
+		prepareMore("for (i <- [0..100]) { calc(100 + i); }");
+		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
+		prepareMore("for (i <- [0..100]) { calc(i); }");
+		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
+		assertTrue("Memo should have been cleared", runTestInSameEvaluator("calc(1) != 2"));
 	}
 
 	@Test
