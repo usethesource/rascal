@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.result;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.ref.SoftReference;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,17 +35,18 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.util.ExpiringFunctionResultCache;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 abstract public class NamedFunction extends AbstractFunction {
     private static final String RESOURCE_TAG = "resource";
@@ -56,6 +58,19 @@ abstract public class NamedFunction extends AbstractFunction {
     protected final String resourceScheme;
     protected final String resolverScheme;
     protected final Map<String, IValue> tags;
+    
+    private static final Type MEMO_CONFIG_ADT;
+    private static final TypeStore MEMO_ADT_STORE;
+    static {
+        TypeFactory tf = TypeFactory.getInstance();
+        MEMO_ADT_STORE = new TypeStore();
+        MEMO_CONFIG_ADT = tf.abstractDataType(MEMO_ADT_STORE, "MemoCache");
+        Type constr = tf.constructor(MEMO_ADT_STORE, MEMO_CONFIG_ADT, "expire");
+        MEMO_ADT_STORE.declareKeywordParameter(constr, "seconds", tf.integerType());
+        MEMO_ADT_STORE.declareKeywordParameter(constr, "minutes", tf.integerType());
+        MEMO_ADT_STORE.declareKeywordParameter(constr, "hours", tf.integerType());
+        MEMO_ADT_STORE.declareKeywordParameter(constr, "entries", tf.integerType());
+    }
 
     private SoftReference<ExpiringFunctionResultCache<Result<IValue>>> memoization;
     protected final boolean hasMemoization;
@@ -74,12 +89,15 @@ abstract public class NamedFunction extends AbstractFunction {
             tags = parseTags((FunctionDeclaration) ast);
             this.resourceScheme = getResourceScheme((FunctionDeclaration) ast);
             this.resolverScheme = getResolverScheme((FunctionDeclaration) ast);
-            this.hasMemoization = checkMemoization((FunctionDeclaration) ast);
-            if (hasMemoization) {
-                this.memoizationTimeout = getMemoizationTimeout((FunctionDeclaration) ast);
-                this.memoizationMaxEntries = getMemoizationMaxEntries((FunctionDeclaration) ast);
+            Tag memoTag = checkMemoization((FunctionDeclaration) ast);
+            if (memoTag != null) {
+                this.hasMemoization = true;
+                Map<String, IValue> memoConfig = parseMemoConfig(memoTag);
+                this.memoizationTimeout = getMemoizationTimeout(memoConfig);
+                this.memoizationMaxEntries = getMemoizationMaxEntries(memoConfig);
             }
             else {
+                this.hasMemoization = false;
                 this.memoizationTimeout = 0;
                 this.memoizationMaxEntries = 0;
             }
@@ -166,62 +184,59 @@ abstract public class NamedFunction extends AbstractFunction {
         return getScheme(RESOLVER_TAG, declaration);
     }
 
-    protected boolean checkMemoization(FunctionDeclaration func) {
+    protected Tag checkMemoization(FunctionDeclaration func) {
         for (Tag tag : func.getTags().getTags()) {
             if (Names.name(tag.getName()).equalsIgnoreCase("memo")) {
-                return true;
+                return tag;
             }
         }
-        return false;
+        return null;
     }
-    private int getMemoizationTimeout(FunctionDeclaration func) {
-        for (Tag tag : func.getTags().getTags()) {
-            if (Names.name(tag.getName()).equalsIgnoreCase("memo")) {
-                IMap params = parseMemoTag(tag);
-                IValue value = params.get(getValueFactory().string("expireSeconds"));
-                if (value instanceof IInteger) {
-                    return ((IInteger)value).intValue();
-                }
-                value = params.get(getValueFactory().string("expireMinutes"));
-                if (value instanceof IInteger) {
-                    return (int) TimeUnit.MINUTES.toSeconds(((IInteger)value).intValue());
-                }
-            }
+    private int getMemoizationTimeout(Map<String, IValue> memoConfig) {
+        IValue value = memoConfig.get("seconds");
+        if (value instanceof IInteger) {
+            return ((IInteger)value).intValue();
+        }
+        value = memoConfig.get("minutes");
+        if (value instanceof IInteger) {
+            return (int) TimeUnit.MINUTES.toSeconds(((IInteger)value).intValue());
+        }
+        value = memoConfig.get("hours");
+        if (value instanceof IInteger) {
+            return (int) TimeUnit.HOURS.toSeconds(((IInteger)value).intValue());
         }
         return (int) TimeUnit.HOURS.toSeconds(1);
     }
 
-    private int getMemoizationMaxEntries(FunctionDeclaration func) {
-        for (Tag tag : func.getTags().getTags()) {
-            if (Names.name(tag.getName()).equalsIgnoreCase("memo")) {
-                IMap params = parseMemoTag(tag);
-                IValue value = params.get(getValueFactory().string("maxEntries"));
-                if (value instanceof IInteger) {
-                    return ((IInteger)value).intValue();
-                }
-            }
+    private int getMemoizationMaxEntries(Map<String, IValue> memoConfig) {
+        IValue value = memoConfig.get("entries");
+        if (value instanceof IInteger) {
+            return ((IInteger)value).intValue();
         }
         return -1;
     }
     
     
-    private IMap parseMemoTag(Tag tag) {
+
+    private Map<String, IValue> parseMemoConfig(Tag tag) {
         if  (tag.hasContents()) {
             String contents = ((TagString.Lexical) tag.getContents()).getString();
             if (contents.length() > 2 && contents.startsWith("{")) {
                 contents = contents.substring(1, contents.length() - 1);
             }
             try {
-                IValue parameters = new StandardTextReader().read(getValueFactory(), new StringReader(contents));
-                if (parameters instanceof IMap) {
-                    return (IMap)parameters;
+                IValue parameterConfig = new StandardTextReader().read(getValueFactory(), MEMO_ADT_STORE, MEMO_CONFIG_ADT, new StringReader(contents));
+                if (parameterConfig instanceof IConstructor) {
+                    return ((IConstructor)parameterConfig).asWithKeywordParameters().getParameters();
                 }
             }
             catch (FactTypeUseException | IOException e) {
             }
         }
-        return getValueFactory().map();
+        return Collections.emptyMap();
     }
+    
+
     
     
     protected int computeIndexedPosition(AbstractAST node) {
