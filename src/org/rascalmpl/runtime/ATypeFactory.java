@@ -2,6 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.util.Arrays;
 
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IBool;
@@ -23,6 +24,7 @@ public class ATypeFactory {
 	public final IValueFactory $VF = ValueFactoryFactory.getValueFactory();
 	public final TypeFactory $TF = TypeFactory.getInstance();
 	public final TypeStore $TS = new TypeStore();
+	public final TypeReifier $TR = new TypeReifier($VF);	//Temporary, for conversions vtype <==> atype
 
 	// ADTs needed for AType, Tree and related types
 	public final Type AType = $TF.abstractDataType($TS, "AType");
@@ -48,6 +50,7 @@ public class ATypeFactory {
 
 	public IConstructor $avoid() { return $VF.constructor(AType_avoid); }
 	public IConstructor $avoid(IString label) { return $VF.constructor(AType_avoid_lab, label); }
+	public IConstructor $avoid(String label) { return $avoid($VF.string(label)); }
 
 	// abool
 	public final Type AType_abool = $TF.constructor($TS, AType, "abool");
@@ -56,6 +59,7 @@ public class ATypeFactory {
 
 	public IConstructor $abool() { return $VF.constructor(AType_abool); }
 	public IConstructor $abool(IString label) { return $VF.constructor(AType_abool_lab, label); }
+	public IConstructor $abool(String label) { return $abool($VF.string(label)); }
 
 	// aint
 	public final Type AType_aint = $TF.constructor($TS, AType, "aint");
@@ -64,6 +68,7 @@ public class ATypeFactory {
 	
 	public IConstructor $aint() { return $VF.constructor(AType_aint); }
 	public IConstructor $aint(IString label) { return $VF.constructor(AType_aint_lab, label); }
+	public IConstructor $aint(String label) { return $aint($VF.string(label)); }
 
 	// areal
 	public final Type AType_areal = $TF.constructor($TS, AType, "areal");
@@ -72,6 +77,7 @@ public class ATypeFactory {
 
 	public IConstructor $areal() { return $VF.constructor(AType_areal); }
 	public IConstructor $areal(IString label) { return $VF.constructor(AType_areal_lab, label); }
+	public IConstructor $areal(String label) { return $areal($VF.string(label)); }
 
 	// arat
 	public final Type AType_arat = $TF.constructor($TS, AType, "arat");
@@ -80,6 +86,7 @@ public class ATypeFactory {
 
 	public IConstructor $arat() { return $VF.constructor(AType_arat); }
 	public IConstructor $arat(IString label) { return $VF.constructor(AType_arat_lab, label); }
+	public IConstructor $arat(String label) { return $arat($VF.string(label)); }
 
 	// anum	
 	public final Type AType_anum = $TF.constructor($TS, AType,  "anum");
@@ -88,6 +95,7 @@ public class ATypeFactory {
 
 	public IConstructor $anum() { return $VF.constructor(AType_anum); }
 	public IConstructor $anum(IString label ) { return $VF.constructor(AType_anum_lab, label); }
+	public IConstructor $anum(String label ) { return $anum($VF.string(label)); }
 
 	// astr
 	public final Type AType_astr = $TF.constructor($TS, AType,  "astr");
@@ -96,6 +104,7 @@ public class ATypeFactory {
 
 	public IConstructor $astr() { return $VF.constructor(AType_astr); }
 	public IConstructor $astr(IString label) { return $VF.constructor(AType_astr_lab, label); }
+	public IConstructor $astr(String label) { return $VF.constructor(AType_astr_lab, $VF.string(label)); }
 
 	// aloc
 	public final Type AType_aloc = $TF.constructor($TS, AType,  "aloc");
@@ -104,6 +113,7 @@ public class ATypeFactory {
 
 	public IConstructor $aloc() { return $VF.constructor(AType_aloc); }
 	public IConstructor $aloc(IString label) { return $VF.constructor(AType_aloc_lab, label); }
+	public IConstructor $aloc(String label) { return $VF.constructor(AType_aloc_lab, $VF.string(label)); }
 
 	// adatetime
 	public final Type AType_adatetime = $TF.constructor($TS, AType,  "adatetime");
@@ -112,6 +122,7 @@ public class ATypeFactory {
 
 	public IConstructor $adatetime() { return $VF.constructor(AType_adatetime); }
 	public IConstructor $adatetime(IString label) { return $VF.constructor(AType_adatetime_lab, label); }
+	public IConstructor $adatetime(String label) { return $adatetime($VF.string(label)); }
 
 	// alist
 	public final Type AType_alist = $TF.constructor($TS, AType, "alist", AType, "elmType");
@@ -120,6 +131,7 @@ public class ATypeFactory {
 
 	public IConstructor $alist(IConstructor t) { return $VF.constructor(AType_alist, t); }
 	public IConstructor $alist(IConstructor t, IString label) { return $VF.constructor(AType_alist_lab, t, label); }
+	public IConstructor $alist(IConstructor t, String label) { return $alist(t, $VF.string(label)); }
 
 	// abag
 	public final Type AType_abag = $TF.constructor($TS, AType, "abag", AType, "elmType");
@@ -128,6 +140,7 @@ public class ATypeFactory {
 
 	public IConstructor $abag(IConstructor t) { return $VF.constructor(AType_abag, t); }
 	public IConstructor $abag(IConstructor t, IString label) { return $VF.constructor(AType_abag_lab, t, label); }
+	public IConstructor $abag(IConstructor t, String label) { return $abag(t, $VF.string(label)); }
 
 	// aset
 	public final Type AType_aset = $TF.constructor($TS, AType, "aset", AType, "elmType");
@@ -136,6 +149,7 @@ public class ATypeFactory {
 
 	public IConstructor $aset(IConstructor t) { return $VF.constructor(AType_aset, t); }
 	public IConstructor $aset(IConstructor t, IString label) { return $VF.constructor(AType_aset_lab, t, label); }
+	public IConstructor $aset(IConstructor t, String label) { return $aset(t, $VF.string(label)); }
 
 	// arel
 	public final Type AType_arel = $TF.constructor($TS, AType, "arel", AType, "elmType");
@@ -148,6 +162,7 @@ public class ATypeFactory {
 		vals[ts.length]= label; 
 		return $VF.constructor(AType_arel_lab, vals);
 	}
+	public IConstructor $arel(IConstructor[] ts, String label) { return $arel(ts, $VF.string(label)); }
 
 	// alrel
 	public final Type AType_alrel = $TF.constructor($TS, AType, "alrel",AType, "elmType");
@@ -160,6 +175,7 @@ public class ATypeFactory {
 		vals[ts.length]= label; 
 		return $VF.constructor(AType_alrel, vals); 
 	}
+	public IConstructor $alrel(IConstructor[] ts, String label) { return $alrel(ts,  $VF.string(label)); }
 
 	// atuple
 	public final Type AType_atuple = $TF.constructor($TS, AType, "atuple", AType, "elmType");
@@ -172,6 +188,7 @@ public class ATypeFactory {
 		vals[ts.length]= label; 
 		return $VF.constructor(AType_atuple, vals); 
 	}
+	public IConstructor $atuple(IConstructor[] ts, String label) { return $atuple(ts, $VF.string(label)); }
 
 	// amap
 	public final Type AType_amap = $TF.constructor($TS, AType, "amap", AType, "from", AType, "to");
@@ -180,6 +197,7 @@ public class ATypeFactory {
 
 	public IConstructor $amap(IConstructor k, IConstructor v) { return $VF.constructor(AType_amap, k, v); }
 	public IConstructor $amap(IConstructor k, IConstructor v, IString label) { return $VF.constructor(AType_amap_lab, k, v, label); }
+	public IConstructor $amap(IConstructor k, IConstructor v, String label) { return $amap(k, v, $VF.string(label)); }
 
 	// afunc
 	public final Type AType_afunc = $TF.constructor($TS, AType, "afunc", AType, "ret", $TF.listType(AType), "formals", $TF.listType(Keyword), "kwFormals");
@@ -196,6 +214,7 @@ public class ATypeFactory {
 
 	public IConstructor $anode() { return $VF.constructor(AType_anode); }
 	public IConstructor $anode(IString label) { return $VF.constructor(AType_anode_lab, label); }
+	public IConstructor $anode(String label) { return $anode($VF.string(label)); }
 
 	// aadt
 	public final Type AType_aadt = $TF.constructor($TS, AType, "aadt", str, "name", $TF.listType(AType), "parameters");
@@ -204,6 +223,7 @@ public class ATypeFactory {
 
 	public IConstructor $aadt(IString adtName, IList parameters, IConstructor syntaxRole) { return $VF.constructor(AType_aadt, adtName, parameters, syntaxRole); }
 	public IConstructor $aadt(IString adtName, IList parameters, IConstructor syntaxRole, IString label) { return $VF.constructor(AType_aadt_lab, adtName, parameters, syntaxRole, label); }
+	public IConstructor $aadt(IString adtName, IList parameters, IConstructor syntaxRole, String label) { return $aadt(adtName, parameters, syntaxRole, $VF.string(label)); }
 
 	// acons
 	public final Type AType_acons = $TF.constructor($TS, AType, "acons", AType, "aadt", $TF.listType(AType), "fields", $TF.listType(Keyword), "kwFields");
@@ -212,6 +232,7 @@ public class ATypeFactory {
 
 	public IConstructor $acons(IConstructor adt, IList fields, IList kwFields) { return $VF.constructor(AType_acons, adt, fields, kwFields); }
 	public IConstructor $acons(IConstructor adt, IList fields, IList kwFields, IString label) { return $VF.constructor(AType_acons_lab, adt, fields, kwFields, label); }
+	public IConstructor $acons(IConstructor adt, IList fields, IList kwFields, String label) { return $acons(adt, fields, kwFields, $VF.string(label)); }
 
 	// aprod
 	public final Type AType_aprod = $TF.constructor($TS, AType,  "aprod", AProduction, "production");
@@ -220,6 +241,7 @@ public class ATypeFactory {
 
 	public IConstructor $aprod(IConstructor production) { return $VF.constructor(AType_aprod, production); }
 	public IConstructor $aprod(IConstructor production, IString label) { return $VF.constructor(AType_aprod_lab, production, label); }
+	public IConstructor $aprod(IConstructor production, String label) { return $aprod(production, $VF.string(label)); }
 
 	// aparameter
 	public final Type AType_aparameter = $TF.constructor($TS, AType, "aparameter", str , "pname", AType, "bound");
@@ -236,6 +258,7 @@ public class ATypeFactory {
 
 	public IConstructor $areified(IConstructor t) { return $VF.constructor(AType_areified, t); }
 	public IConstructor $areified(IConstructor t, IString label) { return $VF.constructor(AType_areified_lab, t, label); }
+	public IConstructor $areified(IConstructor t, String label) { return $areified(t, $VF.string(label)); }
 
 	// avalue
 	public final Type AType_avalue = $TF.constructor($TS, AType,  "avalue");
@@ -244,6 +267,7 @@ public class ATypeFactory {
 
 	public IConstructor $avalue() { return $VF.constructor(AType_avalue); }
 	public IConstructor $avalue(IString label) { return $VF.constructor(AType_avalue_lab, label); }
+	public IConstructor $avalue(String label) { return $avalue($VF.string(label)); }
 
 	// atype (reified type constructor)
 	final Type AType_atype = $TF.constructor($TS, AType, "atype", ReifiedAType, "symbol", $TF.mapType(ReifiedAType,$TF.setType(ReifiedAType)), "definitions");

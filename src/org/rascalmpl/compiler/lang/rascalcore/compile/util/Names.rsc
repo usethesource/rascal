@@ -111,7 +111,20 @@ str module2interface(str moduleName){
 }
 
 str escapeAsJavaString(str s){
-  return replaceAll(replaceAll(s, "\n", "\\n"), "\"", "\\\"");    //TODO: make precise and more efficient 
+  return
+    visit(s){
+        case /^[\u0008]/ => "\\b"
+        case /^[\t]/ => "\\t"
+        case /^[\n]/ => "\\n"
+        case /^[\f]/ => "\\f"
+        case /^[\r]/ => "\\r"
+        case /^[\"]/ => "\\\""
+        case /^[\']/ => "\\\'"
+        case /^[\\]/ => "\\\\"
+    
+        // \u{0000-FFFF}
+        //\{0-377}
+    };
 }
 
 str unescapeAndStandardize(str s){

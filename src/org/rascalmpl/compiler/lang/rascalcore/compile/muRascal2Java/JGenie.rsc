@@ -156,6 +156,9 @@ JGenie makeJGenie(MuModule m,
         } else {
             return finalName;
         }
+      } else {
+        finalName = _finalResolverName(oname, otype);
+        return finalName;
       }
       throw "Non-overloaded type: <otype>";
     }
@@ -260,7 +263,9 @@ JGenie makeJGenie(MuModule m,
                'private final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t)>;
                '<}>
                '<for(t <- atype_constants){>
-               'private final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;
+               '//Intermediate solution that is compatible with legacy type reifier for vtypes
+               'private final IConstructor <atype_constants[t]> = $TR.typeToValue(<atype2vtype(t)>, $TS, $buildMap());
+               '//Future solution: private final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;
                '<}>";
     }
     

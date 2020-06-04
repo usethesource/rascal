@@ -15,6 +15,7 @@ import Map;
 import Node;
 import IO;
 import Type;
+import util::Math;
 import util::Reflective;
 
 import lang::rascalcore::compile::muRascal2Java::Primitives;
@@ -140,16 +141,20 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
     
     the_class =         "<if(!isEmpty(packageName)){>package <packageName>;<}>
                         'import java.io.PrintWriter;
+                        'import java.io.StringWriter;
                         'import java.util.*;
                         'import java.util.regex.Matcher;
                         'import io.usethesource.vallang.*;
                         'import io.usethesource.vallang.type.*;
+                        'import org.rascalmpl.ast.AbstractAST;  // Needed for exceptions, should be removed
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.RascalExecutionContext;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
+                        'import org.rascalmpl.interpreter.control_exceptions.Throw; // Dependency on interpreter, make standalone
                         'import org.rascalmpl.interpreter.result.util.MemoizationCache;
+                        'import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
                         '
                         '<module_imports>
                         '
@@ -743,7 +748,7 @@ str trans(muConstr(AType ctype), JGenie jg){
 // ---- muVar -----------------------------------------------------------------
 
 str varName(muVar(str name, str fuid, int pos, AType atype), JGenie jg){
-    return (name[0] != "$") ? "<name><(pos >= 0) ? "_<pos>" : "">" : name;
+    return (name[0] != "$") ? "<name><(pos >= 0 || name == "_") ? "_<abs(pos)>" : "">" : name;
 }
         
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype), JGenie jg)
@@ -764,20 +769,20 @@ JCode trans(var: muTmpNative(str name, str fuid, NativeKind nkind), JGenie jg)
 
 JCode trans(muVarDecl(v: muVar(str name, str fuid, int pos, AType atype)), JGenie jg){
     jtype = atype2javatype(atype);
-    return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <varName(v, jg)>;\n"
-                               : "<jtype> <varName(v, jg)>;\n";  
+    return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <varName(v, jg)> = null;\n"
+                               : "<jtype> <varName(v, jg)> = null;\n";  
 }
 
 JCode trans(muVarDecl(v: muTmpIValue(str name, str fuid, AType atype)), JGenie jg){
     jtype = atype2javatype(atype);
-    return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <name>;\n"
-                               : "<jtype> <name>;\n";
+    return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <name> = null;\n"
+                               : "<jtype> <name> = null;\n";
 }
 
 JCode trans(muVarDecl(var: muTmpNative(str name, str fuid, NativeKind nkind)), JGenie jg){
     <base, ref> = native2ref[nkind];
-    return jg.isExternalVar(var) ? "<ref> <name>;\n"
-                                 : "<base> <name>;\n";
+    return jg.isExternalVar(var) ? "<ref> <name> = null;\n"
+                                 : "<base> <name> = null;\n";
 }
   
 // ---- muVarInit --------------------------------------------------------------
@@ -1001,7 +1006,7 @@ list[JCode] getActuals(list[AType] argTypes, list[MuExp] largs, JGenie jg)
     = [ i < size(argTypes) ? transWithCast(argTypes[i], largs[i], jg) : trans(largs[i], jg) | i <- index(largs) ];
     
 JCode getKwpActuals(lrel[str name, MuExp exp] kwpActuals, JGenie jg){
-    if(isEmpty(kwpActuals)) return "Collections.emptyMap()";
+    if(isEmpty(kwpActuals)) return "Util.kwpMap()"; //"Collections.emptyMap()";
     return "Util.kwpMap(<intercalate(", ",  [ *["\"<key>\"", trans(exp, jg)] | <str key,  MuExp exp> <- kwpActuals])>)";
 }
 
@@ -1143,6 +1148,9 @@ JCode trans(muSetField(AType resultType, aloc(), MuExp baseExp, str fieldName, M
 
 JCode trans(muSetField(AType resultType, adatetime(), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "$adatetime_field_update(<transWithCast(adatetime(), baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
+    
+JCode trans(muSetField(AType resultType, anode(_), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
+    = "$anode_field_update(<transWithCast(anode([]), baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";    
 
 default JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "<trans(baseExp, jg)>.set(\"<fieldName>\", <trans(repl, jg)>)";
@@ -1394,14 +1402,23 @@ JCode trans(mw: muForAll(str btscope, MuExp var, AType iterType, MuExp iterable,
 
     noInnerLoops = false; ///muForAll(_,_,_,_,_) := body;
     iterCode = (muCallPrim3("subsets", _, _, _, _) := iterable ||  muDescendantMatchIterator(_,_) := iterable) ? trans(iterable, jg) : transWithCast(iterType, iterable, jg);
-//  'for(<atype2javatype(getEnumeratorElementType(iterType))> <var.name> : <iterCode>){   
+
     return
-    "<isEmpty(btscope) ? "" : "<btscope>:">
-    'for(IValue <var.name>_for : <iterCode>){
-    '    <atype2javatype(var.atype)> <var.name> = (<atype2javatype(var.atype)>) <var.name>_for;
-    '    <trans2Void(body, jg)>
-    '}
-    '<noInnerLoops ? "throw new RuntimeException(\"muForAll exhausted\");" : "">\n";
+        (muDescendantMatchIterator(_,_) := iterable) ? 
+            ("<isEmpty(btscope) ? "" : "<btscope>:">
+             'for(IValue <var.name> : <iterCode>){
+             '    <trans2Void(body, jg)>
+             '}
+             '<noInnerLoops ? "throw new RuntimeException(\"muForAll exhausted\");" : "">\n
+             ")
+        :
+            ("<isEmpty(btscope) ? "" : "<btscope>:">
+            'for(IValue <var.name>_for : <iterCode>){
+            '    <atype2javatype(var.atype)> <var.name> = (<atype2javatype(var.atype)>) <var.name>_for;
+            '    <trans2Void(body, jg)>
+            '}
+            '<noInnerLoops ? "throw new RuntimeException(\"muForAll exhausted\");" : "">\n");
+   
 }
 
 //JCode trans(muEnter(btscope, muBlock([*exps, muSucceed(btscope)])), JGenie jg)
@@ -1627,8 +1644,13 @@ JCode trans(muThrow(muTmpNative(str name, str fuid, nativeException()), loc src)
     return "throw <name>;";
 }
 
+JCode trans(muThrow(muCall(muConstr(ac: acons(aadt("RuntimeException",[],dataSyntax()), _, _)), acons(_, _, _), list[MuExp] args, list[Keyword] kwargs), loc src), JGenie jg){
+    exceptionName = ac.label == "IO" ? "io" : toLowerCase(ac.label[0]) + ac.label[1..];
+    return "throw RuntimeExceptionFactory.<exceptionName>(<intercalate(",", [trans(arg, jg) | arg <- args] + ["null", "null"])>);";
+}
+
 default JCode trans(muThrow(MuExp exp, loc src), JGenie jg){
-    return "throw new RascalException(<trans(exp, jg)>);";
+    return "throw new Throw(<trans(exp, jg)>, (AbstractAST)null, null);";
 }
 
 JCode trans(muTry(MuExp exp, MuCatch \catch, MuExp \finally), JGenie jg){
@@ -1642,8 +1664,8 @@ JCode trans(muTry(MuExp exp, MuCatch \catch, MuExp \finally), JGenie jg){
 }  
 
 JCode trans(muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body), JGenie jg){
-    return " catch (RascalException <thrown_as_exception.name>) {
-           '    IValue <thrown.name> = <thrown_as_exception.name>.getValue();
+    return " catch (Throw <thrown_as_exception.name>) {
+           '    IValue <thrown.name> = <thrown_as_exception.name>.getException();
            '   
            '    <trans(body, jg)>
            '}";
@@ -1685,12 +1707,15 @@ JCode trans2IBool(MuExp exp, JGenie jg)
 
 JCode trans2NativeStr(muCon(str s), JGenie jg)
     = "\"<escapeForJ(s)>\"";
-    
- JCode trans2NativeRegExpStr(muCon(str s), JGenie jg)
-    = "\"<escapeForJRegExp(s)>\"";
-    
 default JCode trans2NativeStr(MuExp exp, JGenie jg)
     = "<transWithCast(astr(), exp, jg)>.getValue()";
+        
+ JCode trans2NativeRegExpStr(muCon(str s), JGenie jg){
+    return "\"<escapeForJRegExp(s)>\"";
+} 
+default JCode trans2NativeRegExpStr(MuExp exp, JGenie jg){
+    return transWithCast(astr(), exp, jg);
+}
 
 // -----
 
@@ -1701,6 +1726,9 @@ JCode trans(muRequire(MuExp exp, str msg, loc src), JGenie jg)
  
 JCode trans(muEqual(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans(exp1, jg)>.isEqual(<trans(exp2, jg)>)";
+    
+JCode trans(muMatch(MuExp exp1, MuExp exp2), JGenie jg)
+    = "<trans(exp1, jg)>.match(<trans(exp2, jg)>)";
       
 JCode trans(muEqualNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans2NativeInt(exp1, jg)> == <trans2NativeInt(exp2, jg)>";
@@ -1805,9 +1833,9 @@ JCode trans(muSubList(MuExp lst, MuExp from, MuExp len), JGenie jg)
 
 // Regular expressions
 
-JCode trans(muRegExpCompile(MuExp regExp, MuExp subject), JGenie jg)
-    = "$regExpCompile(<trans2NativeRegExpStr(regExp, jg)>, <trans2NativeStr(subject, jg)>)";
-    
+JCode trans(muRegExpCompile(MuExp regExp, MuExp subject), JGenie jg){
+    return "$regExpCompile(<trans2NativeRegExpStr(regExp, jg)>, <trans2NativeStr(subject, jg)>)";
+}    
 JCode trans(muRegExpBegin(MuExp matcher), JGenie jg)
     = "<trans(matcher, jg)>.start()";
     
@@ -1825,8 +1853,9 @@ JCode trans(muRegExpGroup(MuExp matcher, int n), JGenie jg)
     
 // String templates
 
-JCode trans(muTemplate(str initial), JGenie jg)
-    = "new Template($VF, \"<escapeAsJavaString(initial)>\")";
+JCode trans(muTemplate(str initial), JGenie jg){
+    return "new Template($VF, \"<escapeAsJavaString(initial)>\")";
+}
 
 JCode trans(muTemplateBeginIndent(MuExp template, str indent), JGenie jg)
     = "<trans(template, jg)>.beginIndent(\"<indent>\");\n";
@@ -1839,7 +1868,6 @@ JCode trans(muTemplateAdd(MuExp template, muCon(str s)), JGenie jg)
     
 JCode trans(muTemplateAdd(MuExp template, str s), JGenie jg){
     if(isEmpty(s)) return "";
-    s = replaceAll(s, "\n", "\\n");
     return "<trans(template, jg)>.addStr(\"<escapeAsJavaString(s)>\");\n";
 }
     

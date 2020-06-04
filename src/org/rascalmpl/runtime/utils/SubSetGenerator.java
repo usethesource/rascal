@@ -2,6 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
 
 import java.util.Iterator;
 
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISet;
@@ -36,7 +37,7 @@ class SubSetIterator implements Iterator<ISet> {
 	SubSetIterator(ISet s){
 		len = s.size();
 		if(len >= 64) {
-			throw RascalExceptionFactory.illegalArgument(s, "Set patterns with more than 64 elements are not supported");
+			throw RuntimeExceptionFactory.illegalArgument(s, null, null, "Set patterns with more than 64 elements are not supported");
 		}
 		n = 0;
 		max = (1L << len);

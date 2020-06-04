@@ -67,7 +67,7 @@ list[str] transPrimArgs(str prim, AType r, list[AType] atypes, list[MuExp] exps,
 JCode transPrim("add_list_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)        = "<w>.append(<v>);\n"; 
 JCode transPrim("add_set_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)         = "<w>.insert(<v>);\n"; 
 JCode transPrim("add_map_writer", AType r, list[AType] atypes, [str w, str k, str v], JGenie jg)  = "<w>.insert($VF.tuple(<k>, <v>));\n"; 
-JCode transPrim("add_string_writer", AType r, list[AType] atypes, [str w, str s], JGenie jg)      = "<w>.append(<s>);\n";
+JCode transPrim("add_string_writer", AType r, list[AType] atypes, [str w, str s], JGenie jg)      = "<w>.write(<s>.getValue());\n";
 
 // ---- assert_fails ----------------------------------------------------------
 
@@ -398,6 +398,9 @@ list[str] transPrimArgs("splice_set", AType r, [AType a, AType b], [MuExp x, MuE
 JCode transPrim("splice_set", AType r, [AType a, AType b],  [str w, str v], JGenie jg)     = "$setwriter_splice(<w>,<v>);\n";
 // TODO: concrete cases
     
+// str_escape_for_regexp
+JCode transPrim("str_escape_for_regexp", astr(), [astr()], [str x], JGenie jg)             = x; // TODO
+
 // ---- subscript -------------------------------------------------------------
     
 list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg)  

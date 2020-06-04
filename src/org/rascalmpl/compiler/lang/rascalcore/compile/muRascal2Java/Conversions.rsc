@@ -160,7 +160,7 @@ str atype2IValue(AType t,  map[AType, set[AType]] defs){
     return res; 
 }
 
-str lbl(AType at) = at.label? ? "_lab(<at.label>" : "(";
+str lbl(AType at) = at.label? ? "(\"<at.label>\"" : "(";
 
 str atype2IValue1(at:avoid(), _)              = "$avoid<lbl(at)>)";
 str atype2IValue1(at:abool(), _)              = "$abool<lbl(at)>)";

@@ -47,6 +47,7 @@ import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.ITree;
 
 import io.usethesource.vallang.IBool;
@@ -411,7 +412,7 @@ public class JavaBridge {
 
 					return m;
 				}catch(SecurityException e){
-					throw RascalExceptionFactory.permissionDenied(vf.string(e.getMessage()));
+					throw RuntimeExceptionFactory.permissionDenied(vf.string(e.getMessage()), null, null);
 				}catch(NoSuchMethodException e){
 					throw new UndeclaredJavaMethod(e.getMessage(), func);
 				}

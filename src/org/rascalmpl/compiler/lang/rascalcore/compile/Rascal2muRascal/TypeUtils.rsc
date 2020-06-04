@@ -270,7 +270,7 @@ void extractScopes(TModel tm){
         throw "`ADTs` has incorrect format in store";
     }
    
-    if(lrel[AType,KeywordFormal] common := tm.store["CommonKeywordFields"]){
+    if([lrel[AType,KeywordFormal] common] := tm.store["CommonKeywordFields"]){
         adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[label="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
         adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
     }
@@ -650,7 +650,7 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
         }
     }
     
-    throw "getConstructor, no constructor found for <adtType>, <fieldType>, <fieldName>";
+    throw "getConstructorInfo, no constructor found for <adtType>, <fieldType>, <fieldName>";
 }
 	
 alias KeywordParamMap = map[str kwName, AType kwType];
