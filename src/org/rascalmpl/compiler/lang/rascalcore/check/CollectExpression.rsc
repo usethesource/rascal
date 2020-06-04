@@ -287,21 +287,23 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     c.enterLubScope(current);
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), returnInfo(returnType));
+        clos_name = closureName(current);
+        bool returnsViaAll = returnsViaAllPath(stats, clos_name, c);
         
         formals = getFormals(parameters);
         kwFormals = getKwFormals(parameters);
         
         c.calculate("type of closure", current, returnType + formals,
-            AType(Solver s){ return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); });
+            AType(Solver s){ return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll); });
             
         dt = defType(returnType + formals, AType(Solver s){
-                return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); 
+                return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll); 
              });
-        clos_name = closureName(current);
+       
         c.defineInScope(parentScope, clos_name, functionId(), current, dt); 
-        if(!returnsViaAllPath(stats, clos_name, c) && "<returnType>" != "void"){
+        if(!returnsViaAll && "<returnType>" != "void"){
                 c.report(error(current, "Missing return statement"));
-            }
+        }
         collect(returnType + formals + kwFormals + stats, c);
     c.leaveScope(current);
 }

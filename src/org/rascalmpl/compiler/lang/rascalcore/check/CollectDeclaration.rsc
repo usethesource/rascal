@@ -209,6 +209,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     }
     
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
+    
+    bool returnsViaAllPath = (decl is \default) ? returnsViaAllPath(decl.body, "<fname>", c) : true;
    
     parentScope = c.getScope();
        
@@ -235,6 +237,10 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
              if("test" in modifiers){
                 ft.isTest = true;
                 c.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
+             }
+             
+             if(returnsViaAllPath){
+                ft.returnsViaAllPath = true;
              }
       
              if(size(ft.formals) > 0){
@@ -268,6 +274,10 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                     ft.isTest = true;
                     s.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
                  }
+                 
+                 if(returnsViaAllPath){
+                    ft.returnsViaAllPath = true;
+                 }
           
                  if(size(ft.formals) > 0){
                     the_formals = getFormals(signature.parameters);
@@ -293,7 +303,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             c.report(warning(decl, "Empty function body"));
         }
         if(decl is \default){
-            if(!returnsViaAllPath(decl.body, "<fname>", c) && "<signature.\type>" != "void"){
+            if(!returnsViaAllPath && "<signature.\type>" != "void"){
                 c.report(error(decl, "Missing return statement"));
             }
         }
