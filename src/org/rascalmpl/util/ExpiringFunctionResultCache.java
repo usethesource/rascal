@@ -56,7 +56,7 @@ public class ExpiringFunctionResultCache<TResult> {
      * A queue of all the SoftReferences cleared, we later iterate through them to cleanup the entries in the map
      */
     @SuppressWarnings("rawtypes")
-	private final ReferenceQueue cleared;
+    private final ReferenceQueue cleared;
 
     /**
      * Threshold for when to expire entries by time
@@ -80,20 +80,20 @@ public class ExpiringFunctionResultCache<TResult> {
      * @param maxEntries starts clearing out entries after the table gets "full". <= 0 disables this threshold
      */
     @SuppressWarnings("rawtypes")
-	public ExpiringFunctionResultCache(int secondsTimeout, int maxEntries) {
+    public ExpiringFunctionResultCache(int secondsTimeout, int maxEntries) {
         this.entries =  new ConcurrentHashMap<>();
-	    this.cleared =  new ReferenceQueue();
-	    this.secondsTimeout = secondsTimeout <= 0 ? Integer.MAX_VALUE : secondsTimeout;
+        this.cleared =  new ReferenceQueue();
+        this.secondsTimeout = secondsTimeout <= 0 ? Integer.MAX_VALUE : secondsTimeout;
         this.maxEntries = maxEntries <= 0 ? Integer.MAX_VALUE : maxEntries;
         Cleanup.Instance.register(this);
     }
     
-	/**
-	 * Get cached function result
-	 * @param args positional arguments
-	 * @param kwParameters (nullable) keyword arguments
-	 * @return either cached result or null in case of no entry
-	 */
+    /**
+     * Get cached function result
+     * @param args positional arguments
+     * @param kwParameters (nullable) keyword arguments
+     * @return either cached result or null in case of no entry
+     */
     public @Nullable TResult lookup(IValue[] args, @Nullable Map<String, IValue> kwParameters) {
         LastUsedTracker<TResult> result = entries.get(new LookupKey(args, kwParameters));
         if (result != null) {
@@ -137,7 +137,7 @@ public class ExpiringFunctionResultCache<TResult> {
         // note, we do not clear the key references, since the map is used in a concurrent setting, 
         // and we have to wait for the GC to cleanup to be sure there aren't equals happing on another thread
         entries.values().forEach(LastUsedTracker::clear);
-	    entries.clear();
+        entries.clear();
     }
 
     /**
@@ -151,59 +151,59 @@ public class ExpiringFunctionResultCache<TResult> {
 
     private void removePartiallyClearedEntries() {
         Map<CacheKey, Object> toCleanup = new IdentityHashMap<>(); // we can have GC cleared multiple soft references in the same CacheKey, but we don't want reference equality!
-		synchronized (cleared) {
-			Reference<?> gced = null;
-			do {
-				gced = cleared.poll();
-				if (gced != null && gced instanceof LastUsedTracker<?>) {
-					toCleanup.put(((LastUsedTracker<?>)gced).key, gced);
-				}
-			}
-			while (gced != null);
-		}
+        synchronized (cleared) {
+            Reference<?> gced = null;
+            do {
+                gced = cleared.poll();
+                if (gced != null && gced instanceof LastUsedTracker<?>) {
+                    toCleanup.put(((LastUsedTracker<?>)gced).key, gced);
+                }
+            }
+            while (gced != null);
+        }
 
-		for (CacheKey ck : toCleanup.keySet()) {
-			entries.remove(ck);
-		}
+        for (CacheKey ck : toCleanup.keySet()) {
+            entries.remove(ck);
+        }
     }
 
 
     private void removeExpiredEntries() {
-		int currentTick = SecondsTicker.current();
+        int currentTick = SecondsTicker.current();
         int oldestTick = currentTick - secondsTimeout;
         // to avoid iterating over all the values everytime, we keep around the oldest use we saw the last time we iterated
-		if (lastOldest < oldestTick) {
-		    // there might be an expired entry (or it could have been cleared)
-		    int newOldest = currentTick; // we calculate the oldest entry that is kept in the cache
-		    Iterator<LastUsedTracker<TResult>> it = entries.values().iterator();
-		    while (it.hasNext()) {
-		        LastUsedTracker<TResult> cur = it.next();
-		        int lastUsed = cur.lastUsed;
+        if (lastOldest < oldestTick) {
+            // there might be an expired entry (or it could have been cleared)
+            int newOldest = currentTick; // we calculate the oldest entry that is kept in the cache
+            Iterator<LastUsedTracker<TResult>> it = entries.values().iterator();
+            while (it.hasNext()) {
+                LastUsedTracker<TResult> cur = it.next();
+                int lastUsed = cur.lastUsed;
 
-		        if (lastUsed < oldestTick) {
-		            it.remove();
-		        }
-		        else if (lastUsed < newOldest) {
-		            newOldest = lastUsed;
-		        }
-		    }
-		    lastOldest = newOldest;
-		}
+                if (lastUsed < oldestTick) {
+                    it.remove();
+                }
+                else if (lastUsed < newOldest) {
+                    newOldest = lastUsed;
+                }
+            }
+            lastOldest = newOldest;
+        }
     }
 
     private void removeOverflowingEntires() {
         int toRemove = entries.size() - maxEntries;
         toRemove += toRemove / 4; // always cleanout 25% more than needed
-		if (toRemove > 0) {
-		    // we have to clear some entries, since we don't keep a sorted tree based on the usage
-		    // we'll just randomly clear
-		    Iterator<Entry<Object, LastUsedTracker<TResult>>> it = entries.entrySet().iterator();
-		    while (toRemove > 0 && it.hasNext()) {
-		        it.next();
-		        it.remove();
-		        toRemove--;
-		    }
-		}
+        if (toRemove > 0) {
+            // we have to clear some entries, since we don't keep a sorted tree based on the usage
+            // we'll just randomly clear
+            Iterator<Entry<Object, LastUsedTracker<TResult>>> it = entries.entrySet().iterator();
+            while (toRemove > 0 && it.hasNext()) {
+                it.next();
+                it.remove();
+                toRemove--;
+            }
+        }
         
     }
 
@@ -213,112 +213,112 @@ public class ExpiringFunctionResultCache<TResult> {
      * 
      * Take care to not clear the SoftReferences, as it might partially used on a differen thread.
      */
-	private static class CacheKey {
-		private final int storedHash;
-		@SuppressWarnings("rawtypes")
-		private final LastUsedTracker[] params;
-		private final @Nullable Map<String, LastUsedTracker<IValue>> keyArgs;
-		
-		public CacheKey(IValue[] params, @Nullable Map<String, IValue> keyArgs, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
-			this.storedHash = calculateHash(params, keyArgs);
-			
-			this.params = new LastUsedTracker[params.length];
-			for (int i = 0; i < params.length; i++) {
-				this.params[i] = new LastUsedTracker<>(params[i], this, queue);
-			}
-			
-			if (keyArgs != null) {
-				this.keyArgs = new HashMap<>(keyArgs.size());
-				for (Entry<String, IValue> e : keyArgs.entrySet()) {
-					this.keyArgs.put(e.getKey(), new LastUsedTracker<>(e.getValue(), this, queue));
-				}
-			}
-			else {
-			    this.keyArgs = null;
-			}
-		}
+    private static class CacheKey {
+        private final int storedHash;
+        @SuppressWarnings("rawtypes")
+        private final LastUsedTracker[] params;
+        private final @Nullable Map<String, LastUsedTracker<IValue>> keyArgs;
+        
+        public CacheKey(IValue[] params, @Nullable Map<String, IValue> keyArgs, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
+            this.storedHash = calculateHash(params, keyArgs);
+            
+            this.params = new LastUsedTracker[params.length];
+            for (int i = 0; i < params.length; i++) {
+                this.params[i] = new LastUsedTracker<>(params[i], this, queue);
+            }
+            
+            if (keyArgs != null) {
+                this.keyArgs = new HashMap<>(keyArgs.size());
+                for (Entry<String, IValue> e : keyArgs.entrySet()) {
+                    this.keyArgs.put(e.getKey(), new LastUsedTracker<>(e.getValue(), this, queue));
+                }
+            }
+            else {
+                this.keyArgs = null;
+            }
+        }
 
         @Override
-		public int hashCode() {
-			return storedHash;
-		}
-		
+        public int hashCode() {
+            return storedHash;
+        }
+        
         @SuppressWarnings("unlikely-arg-type")
         @Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj instanceof LookupKey) {
-				return ((LookupKey)obj).equals(this);
-			}
-			return false;
-		}
-	}
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj instanceof LookupKey) {
+                return ((LookupKey)obj).equals(this);
+            }
+            return false;
+        }
+    }
 
 
-	// Special Version of the Key data
-	// need to make sure the lookup key references
-	// aren't released during lookup
-	// and avoid creating extra SoftReferences
-	private static class LookupKey {
-		private final int storedHash;
-		private final IValue[] params;
-		private final @Nullable Map<String, IValue> keyArgs;
+    // Special Version of the Key data
+    // need to make sure the lookup key references
+    // aren't released during lookup
+    // and avoid creating extra SoftReferences
+    private static class LookupKey {
+        private final int storedHash;
+        private final IValue[] params;
+        private final @Nullable Map<String, IValue> keyArgs;
 
-		public LookupKey(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
-			this.storedHash = calculateHash(params, keyArgs);
-			this.params = params;
-			this.keyArgs = keyArgs;
-		}
-		
-		@Override
-		public int hashCode() {
-			return storedHash;
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof CacheKey) {
-				CacheKey other = (CacheKey)obj;
-				if (other.storedHash != this.storedHash || other.params.length != this.params.length) {
-					return false;
-				}
+        public LookupKey(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
+            this.storedHash = calculateHash(params, keyArgs);
+            this.params = params;
+            this.keyArgs = keyArgs;
+        }
+        
+        @Override
+        public int hashCode() {
+            return storedHash;
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof CacheKey) {
+                CacheKey other = (CacheKey)obj;
+                if (other.storedHash != this.storedHash || other.params.length != this.params.length) {
+                    return false;
+                }
 
-				for (int i = 0; i < params.length; i++) {
-					if (nullOrNotEquals(params[i], (IValue)other.params[i].get())) {
-						return false; 
-					}
-				}
-				
-				if (keyArgs != null && other.keyArgs != null) {
-					for (Entry<String, IValue> kv: keyArgs.entrySet()) {
-						if (nullOrNotEquals(kv.getValue(), other.keyArgs.get(kv.getKey()).get())) {
-							return false; 
-						}
-					}
-					return true;
-				}
-				// if they aren't both set, than they should both be empty
-				return keyArgs == null && other.keyArgs == null;
-			}
-			return false;
-		}
+                for (int i = 0; i < params.length; i++) {
+                    if (nullOrNotEquals(params[i], (IValue)other.params[i].get())) {
+                        return false; 
+                    }
+                }
+                
+                if (keyArgs != null && other.keyArgs != null) {
+                    for (Entry<String, IValue> kv: keyArgs.entrySet()) {
+                        if (nullOrNotEquals(kv.getValue(), other.keyArgs.get(kv.getKey()).get())) {
+                            return false; 
+                        }
+                    }
+                    return true;
+                }
+                // if they aren't both set, than they should both be empty
+                return keyArgs == null && other.keyArgs == null;
+            }
+            return false;
+        }
 
         private static boolean nullOrNotEquals(IValue a, IValue b) {
             return a == null || b == null || !a.isEqual(b);
         }
-	}
+    }
 
-	private static final class LastUsedTracker<T> extends SoftReference<T> {
+    private static final class LastUsedTracker<T> extends SoftReference<T> {
         private volatile int lastUsed;
-		private final CacheKey key;
+        private final CacheKey key;
 
         @SuppressWarnings({"unchecked", "initialization"})
         public LastUsedTracker(T obj, @UnknownInitialization CacheKey key, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
             super(obj, queue);
-	        this.lastUsed = SecondsTicker.current();
-	        this.key = key;
+            this.lastUsed = SecondsTicker.current();
+            this.key = key;
         } 
         
         public T use() {
@@ -326,13 +326,13 @@ public class ExpiringFunctionResultCache<TResult> {
             return get();
         }
         
-	}
-	private static int calculateHash(IValue[] params, Map<String, IValue> keyArgs) {
-	    if (keyArgs == null) {
-	        return Arrays.hashCode(params);
-	    }
-	    return (1 + (31 * Arrays.hashCode(params))) + keyArgs.hashCode();
-	}
+    }
+    private static int calculateHash(IValue[] params, Map<String, IValue> keyArgs) {
+        if (keyArgs == null) {
+            return Arrays.hashCode(params);
+        }
+        return (1 + (31 * Arrays.hashCode(params))) + keyArgs.hashCode();
+    }
 
     /**
      * Cleanup singleton that wraps {@linkplain CleanupThread}
