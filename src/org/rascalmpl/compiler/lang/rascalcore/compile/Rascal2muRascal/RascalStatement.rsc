@@ -87,13 +87,17 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     
     loopBody = muWhileDo(whileName, 
                          muCon(true), 
-                         muBlock([ translateAndConds(btscopes, 
+                         //muBlock([   
+                                   translateAndConds(btscopes, 
                                                      conds, 
-                                                     muBlock([ translateLoopBody(body, btscopes), muContinue(whileName) ]), 
+                                                     muBlock([ translateLoopBody(body, btscopes), muContinue(whileName /*getResume(btscopes)*/ ) ]), 
                                                      muBreak(whileName), 
-                                                     normalize=toStat), 
-                                   muBreak(whileName)
-                                 ]));
+                                                     normalize=toStat)
+                        //                             , 
+                        //           muContinue(whileName)
+                        //         ])
+                                 );
+    iprintln(loopBody);
     code = muBlock([]);
     if(containsAppend(body)){     
         writer = muTmpListWriter("listwriter_<whileName>", fuid);                                                           
@@ -126,25 +130,28 @@ MuExp translateLoopBody(Statement body, BTSCOPES btscopes){
 }
 
 // Due to the similarity of some statements and their template version, we present both versions together
-MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, BTSCOPES btscopes){
+MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
     whileName = nextLabel();
     whileBT = "<whileName>_BT";
     str fuid = topFunctionScope();
     enterLoop(whileName,fuid);
     
     conds = [ condition ];
-    btscopes = getBTScopesAnd(conds, whileBT, btscopes);
+    btscopes = getBTScopesAnd(conds, whileBT, ());
     
     code = muWhileDo(whileName, 
                      muCon(true), 
-                     muBlock([ translateAndConds(btscopes,
+                     //muBlock([ 
+                               translateAndConds(btscopes,
                                                  conds,
                                                  muBlock([ translateStats(preStats, btscopes), *translateMiddle(template, indent, body), translateStats(postStats, btscopes), muContinue(whileName) ]), 
                                                  muBreak(whileName),
-                                                 normalize=toStat),
-                               muBreak(whileName)
-                             ]));
-    
+                                                 normalize=toStat)
+                            //   ,
+                             //  muBlock([]) // muBreak(whileName)
+                            // ])
+                             );
+    iprintln(code);
     leaveLoop();
     return code;
 }
@@ -179,19 +186,19 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     return code;
 }
 
-MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `do { < Statement* preStats> <StringMiddle body> <Statement* postStats> } while ( <Expression condition> )`, BTSCOPES btscopes) {
+MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `do { < Statement* preStats> <StringMiddle body> <Statement* postStats> } while ( <Expression condition> )`) {
     doName = nextLabel();
     str fuid = topFunctionScope();  
     enterLoop(doName,fuid);
    
     conds = [ condition ];
-    btscopes = getBTScopesAnd(conds, doName, btscopes);
+    btscopes = getBTScopesAnd(conds, doName, ());
     code = muWhileDo(doName, 
                      muCon(true),
                      muBlock([ translateStats(preStats, btscopes),
                                *translateMiddle(template, indent, body),
                                translateStats(postStats, btscopes),
-                               translateAndConds(doName, conds, muContinue(doName), muBreak(doName), normalize=toStat )
+                               translateAndConds(btscopes, conds, muContinue(doName), muBreak(doName), normalize=toStat )
                              ]));
           
     leaveLoop();
@@ -207,7 +214,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     
     conds = [c | Expression c <- generators];
     btscopes = getBTScopesAnd(conds, forName, btscopes);
-    
+    iprintln(btscopes);
     loopBody = muEnter(forName, translateAndConds(btscopes, conds, translateLoopBody(body, btscopes), muFail(forName)));
     code = muBlock([]);
     if(containsAppend(body)){ 
@@ -229,13 +236,13 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
 // A more precise check would look for appends belonging to the current loop statement
 bool containsAppend(Statement body) = /(Statement) `append <DataTarget dataTarget> <Statement statement>` := body;
 
-MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, BTSCOPES btscopes){
+MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
     forName = nextLabel();
     str fuid = topFunctionScope();
     enterLoop(forName,fuid);
     
     conds = [c | Expression c <- generators];
-    btscopes = getBTScopesAnd(conds, forName, btscopes);
+    btscopes = getBTScopesAnd(conds, forName, ());
     
     code = muEnter(forName, 
                    translateAndConds(btscopes, 
@@ -260,11 +267,11 @@ MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> )
     return translateAndConds(btscopes, conds, translate(thenStatement, btscopes), muBlock([]), normalize=toStat);
 }
 
-MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if (<{Expression ","}+ conditions> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, BTSCOPES btscopes){
+MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if (<{Expression ","}+ conditions> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){
     ifName = nextLabel();
     
     conds = [c | Expression c <- conditions];
-    btscopes = getBTScopesAnd(conds, ifName, btscopes);
+    btscopes = getBTScopesAnd(conds, ifName, ());
     
     code = translateAndConds(btscopes, 
                           conds, 
@@ -288,11 +295,11 @@ MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> )
     return all(Expression c <- conditions, backtrackFree(c)) ? code : muEnter(ifName, code);
 }
 
-MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if ( <{Expression ","}+ conditions> ) { <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> }  else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, BTSCOPES btscopes){              
+MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if ( <{Expression ","}+ conditions> ) { <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> }  else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`){              
     ifName = nextLabel();
     
     conds = [c | Expression c <- conditions];
-    btscopes = getBTScopesAnd(conds, ifName, btscopes);
+    btscopes = getBTScopesAnd(conds, ifName, ());
     
     code = muValueBlock(astr(), [ translateAndConds(btscopes, 
                                                  [ c | Expression c <- conditions ], 
@@ -761,15 +768,25 @@ MuExp translateReturn(exp:(Statement) `<Expression expression>;`, BTSCOPES btsco
 		return muValueBlock(resultType, [ muConInit(result, translate(statement, btscopes)), muReturn1(resultType, result) ]);
 	} 
    	if(isBoolType(resultType)){
-   	    texp =  translate(expression);
-   	    iprintln(texp);
-   	   res = muReturn1(abool(), texp);
-   	   return leaveWithReturn(res) ? res : addReturnFalse(resultType, res);                     
-    } else if(isConditional(expression) && !backtrackFree(expression)){
+   	    res =  translate(expression);
+   	    iprintln(res);
+   	    res = muReturn1(abool(), res);
+   	    iprintln(res);
+   	    //res = exitViaReturn(res) ? res : addReturnFalse(resultType, res); 
+   	    //iprintln(res);
+   	    res = removeDeadCode(res);
+   	    iprintln(res);
+   	    return res;                    
+    } else 
+    if(isConditional(expression) && !backtrackFree(expression)){
         btscopes1 = getBTScopes(expression, nextTmp("RET"));
        return muEnter(getEnter(expression, btscopes1), translateBool(expression.condition, btscopes1, muReturn1(resultType, translate(expression.thenExp)), muReturn1(resultType, translate(expression.elseExp))));
     } else {
-       return muReturn1(resultType, translate(expression));
+        res = muReturn1(resultType, translate(expression));
+        iprintln(res);
+        //res = exitViaReturn(res) ? res : addReturnFalse(resultType, res); 
+        //iprintln(res);
+       return res;
     }
     
 }

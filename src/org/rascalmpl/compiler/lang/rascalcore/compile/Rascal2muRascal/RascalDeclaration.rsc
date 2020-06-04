@@ -404,7 +404,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      str fuid = topFunctionScope();
      bt = nextTmp("FUNCTION_<fname>");
      my_btscopes = getBTScopesParams(formalsList, fname);
-     
+     iprintln(body);
    
     
      
@@ -425,13 +425,20 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
                         
      funCode = functionBody(isVoidType(ftype.ret) || !addReturn ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
      funCode = visit(funCode) { case muFail(fname) => muFailReturn(ftype) };
+     
+     funCode = removeDeadCode(funCode);
     
      iprintln(funCode);
-     alwaysReturns = leaveWithReturn(funCode) || isVoidType(getResult(ftype));
+     alwaysReturns = ftype.returnsViaAllPath || isVoidType(getResult(ftype));
      formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
      if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){
         funCode = muBlock([muEnter(fname, funCode), muFailReturn(ftype)]);
      }
+     //if(!isVoidType(getResult(ftype))){
+     //   funCode = muBlock([funCode, muFailReturn(ftype)]);
+     //}
+      
+     funCode = removeDeadCode(funCode);
 
      return <formalVars, funCode>;
 }

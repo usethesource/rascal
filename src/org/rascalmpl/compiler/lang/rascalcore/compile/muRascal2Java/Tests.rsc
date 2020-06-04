@@ -31,7 +31,8 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import org.junit.jupiter.api.TestFactory;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
-           'import org.rascalmpl.interpreter.control_exceptions.Throw;  // Temporary to enable interop with Prelude
+           'import org.rascalmpl.interpreter.control_exceptions.Throw;
+           'import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
            '
            'class <className>Tests extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
            '    <className> $me;
@@ -78,14 +79,8 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
                    'void <test_name_uniq>(){
                    '    try {
                    '        <fun_name>(<externalArgs>);
-                   '    } catch (RascalException e) {
-                   '        if(((IConstructor) e.getValue()).getConstructorType() == RascalExceptionFactory.<expected>) {
-                   '            assertTrue(true);
-                   '            return;
-                   '         }
-                   '         fail(\"Expected `<expected>`, got: \" + e);
                    '    } catch (Throw e) { // Temporary to enable interop with Prelude
-                   '        if(((IConstructor) e.getException()).getConstructorType() == RascalExceptionFactory.<expected>) {
+                   '        if(((IConstructor) e.getException()).getConstructorType().getName() == \"<expected>\") {
                    '            assertTrue(true);
                    '            return;
                    '         }

@@ -12,11 +12,10 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalException;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalExceptionFactory;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.Type2ATypeReifier;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -333,11 +332,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			IValue result = val.asAnnotatable().getAnnotation(label);
 
 			if(result == null) {
-				throw RascalExceptionFactory.noSuchAnnotation(label);
+				throw RuntimeExceptionFactory.noSuchAnnotation(label, null, null);
 			}
 			return result;
 		} catch (FactTypeUseException e) {
-			throw  RascalExceptionFactory.noSuchAnnotation(label);
+			throw  RuntimeExceptionFactory.noSuchAnnotation(label, null, null);
 		}
 	}
 
@@ -357,7 +356,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	// ---- assert_fails ------------------------------------------------------
 
 	public final void $assert_fails(final IString message) {
-		throw RascalExceptionFactory.assertionFailed(message);
+		throw RuntimeExceptionFactory.assertionFailed(message, null, null);
 	}
 
 	// ---- create ------------------------------------------------------------
@@ -369,10 +368,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		catch (URISyntaxException e) {
 			// this is actually an unexpected run-time exception since Rascal prevents you from 
 			// creating non-encoded 
-			throw RascalExceptionFactory.malformedURI(uri.getValue());
+			throw RuntimeExceptionFactory.malformedURI(uri.getValue(), null, null);
 		}
 		catch (UnsupportedOperationException e) {
-			throw RascalExceptionFactory.malformedURI(uri.getValue() + ":" + e.getMessage());
+			throw RuntimeExceptionFactory.malformedURI(uri.getValue() + ":" + e.getMessage(), null, null);
 		}
 	}
 
@@ -459,7 +458,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.divide(b);
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -467,7 +466,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b,  $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -475,7 +474,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.toRational().divide(b);
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -483,7 +482,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -491,7 +490,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return (IReal) a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -499,7 +498,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -507,7 +506,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return (IReal) a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -515,7 +514,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -523,7 +522,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.divide(b);
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -531,7 +530,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b,  $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -539,7 +538,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.toRational().divide(b);
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -547,7 +546,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -555,7 +554,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -563,14 +562,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 	public final INumber $anum_divide_arat(final INumber a, final IRational b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -578,7 +577,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
-			throw RascalExceptionFactory.arithmeticException("divide by zero");
+			throw RuntimeExceptionFactory.arithmeticException("divide by zero", null, null);
 		}
 	}
 
@@ -627,14 +626,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				}
 			}
 		}
-		throw RascalExceptionFactory.noSuchField(fieldName);
+		throw RuntimeExceptionFactory.noSuchField(fieldName, null, null);
 	}
 	
 	public final GuardedIValue $guarded_anode_get_field(final INode nd, final String fieldName) {
 		try {
 			IValue result = $anode_get_field(nd, fieldName);
 			return new GuardedIValue(result);
-		} catch (RascalException e) {
+		} catch (RuntimeException e) {
 			return UNDEFINED;
 		}
 	}
@@ -650,7 +649,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if($TS.hasKeywordParameter(consType, fieldName)) {
 			IValue result = cons.asWithKeywordParameters().getParameter(fieldName);
 			if(result == null) {
-				throw RascalExceptionFactory.noSuchField(fieldName);
+				throw RuntimeExceptionFactory.noSuchField(fieldName, null, null);
 			}
 			return result;
 		}
@@ -668,11 +667,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(cons.isAnnotatable()){
 			IValue result = cons.asAnnotatable().getAnnotation(fieldName);
 			if(result == null) {
-				throw RascalExceptionFactory.noSuchField(fieldName);
+				throw RuntimeExceptionFactory.noSuchField(fieldName, null, null);
 			}
 			return result;
 		} else {
-			throw RascalExceptionFactory.noSuchField(fieldName);
+			throw RuntimeExceptionFactory.noSuchField(fieldName, null, null);
 		}
 	}
 	
@@ -680,7 +679,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			IValue result = $aadt_get_field(cons, fieldName);
 			return new GuardedIValue(result);
-		} catch (RascalException e) {
+		} catch (RuntimeException e) {
 			return UNDEFINED;
 		}
 	}
@@ -700,7 +699,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 		case "host":
 			if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				throw RascalExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.");
+				throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", null, null);
 			}
 			s = sloc.getURI().getHost();
 			v = $VF.string(s == null ? "" : s);
@@ -713,7 +712,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		case "parent":
 			String path = sloc.getPath();
 			if (path.equals("") || path.equals("/")) {
-				throw RascalExceptionFactory.noParent(sloc);
+				throw RuntimeExceptionFactory.noParent(sloc, null, null);
 			}
 			int i = path.lastIndexOf("/");
 
@@ -728,7 +727,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				}
 				v = $aloc_field_update(sloc, "path", $VF.string(path));
 			} else {
-				throw RascalExceptionFactory.noParent(sloc);
+				throw RuntimeExceptionFactory.noParent(sloc, null, null);
 			}
 			break;	
 
@@ -754,13 +753,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					}
 				}
 				catch (FactTypeUseException | IOException e) {
-					throw RascalExceptionFactory.io($VF.string(e.getMessage()));
+					throw RuntimeExceptionFactory.io($VF.string(e.getMessage()), null, null);
 				}
 
 				v = w.done();
 				break;
 			} else {
-				throw RascalExceptionFactory.io($VF.string("You can only access ls on a directory, or a container."));
+				throw RuntimeExceptionFactory.io($VF.string("You can only access ls on a directory, or a container."), null, null);
 			}
 
 		case "extension":
@@ -797,7 +796,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 		case "user":
 			if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				throw RascalExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.");
+				throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", null, null);
 			}
 			s = sloc.getURI().getUserInfo();
 			v = $VF.string(s == null ? "" : s);
@@ -805,7 +804,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 		case "port":
 			if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				throw RascalExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.");
+				throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", null, null);
 			}
 			int n = sloc.getURI().getPort();
 			v = $VF.integer(n);
@@ -816,7 +815,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				v = $VF.integer(sloc.getLength());
 				break;
 			} else {
-				throw RascalExceptionFactory.unavailableInformation("length");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"length",*/ null, null);
 			}
 
 		case "offset":
@@ -824,7 +823,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				v = $VF.integer(sloc.getOffset());
 				break;
 			} else {
-				throw RascalExceptionFactory.unavailableInformation("offset");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"offset",*/ null, null);
 			}
 
 		case "begin":
@@ -832,14 +831,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				v = $VF.tuple($VF.integer(sloc.getBeginLine()), $VF.integer(sloc.getBeginColumn()));
 				break;
 			} else {
-				throw RascalExceptionFactory.unavailableInformation("begin");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"begin",*/ null, null);
 			}
 		case "end":
 			if(sloc.hasLineColumn()){
 				v = $VF.tuple($VF.integer(sloc.getEndLine()), $VF.integer(sloc.getEndColumn()));
 				break;
 			} else {
-				throw RascalExceptionFactory.unavailableInformation("end");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"end",*/ null, null);
 			}
 
 		case "uri":
@@ -851,7 +850,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			break;
 
 		default:
-			throw RascalExceptionFactory.noSuchField(field);
+			throw RuntimeExceptionFactory.noSuchField(field, null, null);
 		}
 
 		return v;
@@ -861,7 +860,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			IValue result = $aloc_get_field(sloc, field);
 			return new GuardedIValue(result);
-		} catch (RascalException e) {
+		} catch (RuntimeException e) {
 			return UNDEFINED;
 		}
 	}
@@ -884,69 +883,69 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					v = $VF.integer(dt.getCentury());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the century on a time value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the century on a time value",*/ null, null);
 			case "year":
 				if (!dt.isTime()) {
 					v = $VF.integer(dt.getYear());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the year on a time value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the year on a time value",*/ null, null);
 
 			case "month":
 				if (!dt.isTime()) {
 					v = $VF.integer(dt.getMonthOfYear());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the month on a time value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the month on a time value",*/ null, null);
 			case "day":
 				if (!dt.isTime()) {
 					v = $VF.integer(dt.getDayOfMonth());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the day on a time value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the day on a time value",*/ null, null);
 			case "hour":
 				if (!dt.isDate()) {
 					v = $VF.integer(dt.getHourOfDay());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the hour on a date value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the hour on a date value",*/ null, null);
 			case "minute":
 				if (!dt.isDate()) {
 					v = $VF.integer(dt.getMinuteOfHour());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the minute on a date value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the minute on a date value",*/ null, null);
 			case "second":
 				if (!dt.isDate()) {
 					v = $VF.integer(dt.getSecondOfMinute());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the second on a date value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the second on a date value",*/ null, null);
 			case "millisecond":
 				if (!dt.isDate()) {
 					v = $VF.integer(dt.getMillisecondsOfSecond());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the millisecond on a date value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the millisecond on a date value",*/ null, null);
 			case "timezoneOffsetHours":
 				if (!dt.isDate()) {
 					v = $VF.integer(dt.getTimezoneOffsetHours());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the timezone offset hours on a date value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the timezone offset hours on a date value",*/ null, null);
 			case "timezoneOffsetMinutes":
 				if (!dt.isDate()) {
 					v = $VF.integer(dt.getTimezoneOffsetMinutes());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the timezone offset minutes on a date value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the timezone offset minutes on a date value",*/ null, null);
 
 			case "justDate":
 				if (!dt.isTime()) {
 					v = $VF.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the date component of a time value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the date component of a time value",*/ null, null);
 			case "justTime":
 				if (!dt.isDate()) {
 					v = $VF.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
@@ -954,14 +953,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 							dt.getTimezoneOffsetMinutes());
 					break;
 				}
-				throw RascalExceptionFactory.unavailableInformation("Can not retrieve the time component of a date value");
+				throw RuntimeExceptionFactory.unavailableInformation(/*"Can not retrieve the time component of a date value",*/ null, null);
 			default:
-				throw RascalExceptionFactory.noSuchField(field);
+				throw RuntimeExceptionFactory.noSuchField(field, null, null);
 			}
 			return v;
 
 		} catch (InvalidDateTimeException e) {
-			throw RascalExceptionFactory.invalidArgument(dt);
+			throw RuntimeExceptionFactory.illegalArgument(dt, null, null);
 		}
 	}
 	
@@ -969,7 +968,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			IValue result = $adatetime_get_field(dt, field);
 			return new GuardedIValue(result);
-		} catch (RascalException e) {
+		} catch (RuntimeException e) {
 			return UNDEFINED;
 		}
 	}
@@ -977,7 +976,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public final IValue $atuple_get_field(final ITuple tup, final String fieldName) {
 		IValue result = tup.get(fieldName);
 		if(result == null) {
-			throw RascalExceptionFactory.noSuchField(fieldName);
+			throw RuntimeExceptionFactory.noSuchField(fieldName, null, null);
 		}
 		return result;
 	}
@@ -986,7 +985,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			IValue result = $atuple_get_field(tup, fieldName);
 			return new GuardedIValue(result);
-		} catch (RascalException e) {
+		} catch (RuntimeException e) {
 			return UNDEFINED;
 		}
 	}
@@ -1138,7 +1137,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			case "host":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.");
+					throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", null, null);
 				}
 				uri = URIUtil.changeHost(sloc.getURI(), newStringValue);
 				authority = uri.getAuthority();
@@ -1175,7 +1174,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				break;	
 
 			case "ls":
-				throw RascalExceptionFactory.noSuchField("Cannot update the children of a location");
+				throw RuntimeExceptionFactory.noSuchField("Cannot update the children of a location", null, null);
 
 			case "extension":
 				String ext = newStringValue;
@@ -1228,7 +1227,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			case "user":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.");
+					throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", null, null);
 				}
 				uri = sloc.getURI();
 				if (uri.getHost() != null) {
@@ -1241,7 +1240,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.");
+					throw RuntimeExceptionFactory.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", null, null);
 				}
 				if (sloc.getURI().getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
@@ -1254,14 +1253,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			case "length":
 				iLength = ((IInteger) repl).intValue();
 				if (iLength < 0) {
-					throw RascalExceptionFactory.invalidArgument(repl);
+					throw RuntimeExceptionFactory.illegalArgument(repl, null, null);
 				}
 				break;
 
 			case "offset":
 				iOffset = ((IInteger) repl).intValue();
 				if (iOffset < 0) {
-					throw RascalExceptionFactory.invalidArgument(repl);
+					throw RuntimeExceptionFactory.illegalArgument(repl, null, null);
 				}
 				break;
 
@@ -1270,7 +1269,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				iBeginColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iBeginColumn < 0 || iBeginLine < 0) {
-					throw RascalExceptionFactory.invalidArgument(repl);
+					throw RuntimeExceptionFactory.illegalArgument(repl, null, null);
 				}
 				break;
 			case "end":
@@ -1278,12 +1277,12 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				iEndColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iEndColumn < 0 || iEndLine < 0) {
-					throw RascalExceptionFactory.invalidArgument(repl);
+					throw RuntimeExceptionFactory.illegalArgument(repl, null, null);
 				}
 				break;			
 
 			default:
-				throw RascalExceptionFactory.noSuchField("Modification of field " + field + " in location not allowed");
+				throw RuntimeExceptionFactory.noSuchField("Modification of field " + field + " in location not allowed", null, null);
 			}
 
 			ISourceLocation newLoc = sloc;
@@ -1321,7 +1320,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			if (iBeginColumn != -1 || iEndColumn != -1 || iBeginLine != -1 || iBeginColumn != -1) {
 				// trying to add line/column info to a uri that has no offset length
-				throw RascalExceptionFactory.invalidUseOfLocation("Can not add line/column information without offset/length");
+				throw RuntimeExceptionFactory.invalidUseOfLocation("Can not add line/column information without offset/length", null, null);
 			}
 
 			// trying to set offset that was not there before, adding length automatically
@@ -1347,9 +1346,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return newLoc;
 
 		} catch (IllegalArgumentException e) {
-			throw RascalExceptionFactory.invalidArgument();
+			throw RuntimeExceptionFactory.illegalArgument(sloc, null, null);
 		} catch (URISyntaxException e) {
-			throw RascalExceptionFactory.malformedURI(e.getMessage());
+			throw RuntimeExceptionFactory.malformedURI(e.getMessage(), null, null);
 		}
 	}
 
@@ -1370,69 +1369,69 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			case "year":
 				if (dt.isTime()) {
-					throw RascalExceptionFactory.invalidUseOfTime("Can not update the year on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the year on a time value", null, null);
 				}
 				year = ((IInteger)repl).intValue();
 				break;
 
 			case "month":
 				if (dt.isTime()) {
-					throw RascalExceptionFactory.invalidUseOfTime("Can not update the month on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the month on a time value", null, null);
 				}
 				month = ((IInteger)repl).intValue();
 				break;
 
 			case "day":
 				if (dt.isTime()) {
-					throw RascalExceptionFactory.invalidUseOfTime("Can not update the day on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the day on a time value", null, null);
 				}	
 				day = ((IInteger)repl).intValue();
 				break;
 
 			case "hour":
 				if (dt.isDate()) {
-					throw RascalExceptionFactory.invalidUseOfDate("Can not update the hour on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the hour on a date value", null, null);
 				}	
 				hour = ((IInteger)repl).intValue();
 				break;
 
 			case "minute":
 				if (dt.isDate()) {
-					throw RascalExceptionFactory.invalidUseOfDate("Can not update the minute on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the minute on a date value", null, null);
 				}
 				minute = ((IInteger)repl).intValue();
 				break;
 
 			case "second":
 				if (dt.isDate()) {
-					throw RascalExceptionFactory.invalidUseOfDate("Can not update the second on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the second on a date value", null, null);
 				}
 				second = ((IInteger)repl).intValue();
 				break;
 
 			case "millisecond":
 				if (dt.isDate()) {
-					throw RascalExceptionFactory.invalidUseOfDate("Can not update the millisecond on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the millisecond on a date value", null, null);
 				}
 				milli = ((IInteger)repl).intValue();
 				break;
 
 			case "timezoneOffsetHours":
 				if (dt.isDate()) {
-					throw RascalExceptionFactory.invalidUseOfDate("Can not update the timezone offset hours on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the timezone offset hours on a date value", null, null);
 				}
 				tzOffsetHour = ((IInteger)repl).intValue();
 				break;
 
 			case "timezoneOffsetMinutes":
 				if (dt.isDate()) {
-					throw RascalExceptionFactory.invalidUseOfDate("Can not update the timezone offset minutes on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the timezone offset minutes on a date value", null, null);
 				}
 				tzOffsetMin = ((IInteger)repl).intValue();
 				break;			
 
 			default:
-				throw RascalExceptionFactory.noSuchField(field);
+				throw RuntimeExceptionFactory.noSuchField(field, null, null);
 			}
 			IDateTime newdt = null;
 			if (dt.isDate()) {
@@ -1445,10 +1444,25 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return newdt;
 		}
 		catch (IllegalArgumentException e) {
-			throw RascalExceptionFactory.invalidArgument(repl, "Cannot update field " + field + ", this would generate an invalid datetime value");
+			throw RuntimeExceptionFactory.illegalArgument(repl, /*"Cannot update field " + field + ", this would generate an invalid datetime value",*/ null, null);
 		}
 		catch (InvalidDateTimeException e) {
-			throw RascalExceptionFactory.invalidArgument(dt, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dt, /*e.getMessage(),*/ null, null);
+		}
+	}
+	
+	public final INode $anode_field_update(final INode nd, final String fieldName, IValue repl) {
+		if(nd.getType().isAbstractData()) {
+			return $aadt_field_update((IConstructor) nd, fieldName, repl);
+		}
+		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
+			return nd.asWithKeywordParameters().setParameter(fieldName, repl);
+		} else {
+			if(nd.isAnnotatable()){
+				return nd.asAnnotatable().setAnnotation(fieldName, repl);
+			} else {
+				throw RuntimeExceptionFactory.illegalArgument(nd, /*fieldName,*/ null, null);
+			}
 		}
 	}
 	
@@ -1477,7 +1491,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 //		if(cons.isAnnotatable()){
 //			return cons.asAnnotatable().setAnnotation(fieldName, repl);
 //		} else {
-//			throw RascalExceptionFactory.noSuchField(fieldName);
+//			throw RuntimeExceptionFactory.noSuchField(fieldName);
 //		}
 	}
 	
@@ -2884,7 +2898,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return (idx >= 0) ? str.substring(idx, idx+1)
 					: str.substring(str.length() + idx, str.length() + idx + 1);
 		} catch(IndexOutOfBoundsException e) {
-			throw RascalExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx), null, null);
 		}
 	}
 
@@ -2902,7 +2916,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return lst.get((idx >= 0) ? idx : (lst.length() + idx));
 		} catch(IndexOutOfBoundsException e) {
-			throw RascalExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx), null, null);
 		}
 	}
 
@@ -2917,7 +2931,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public final IValue $amap_subscript(final IMap map, final IValue idx) {
 		IValue v = map.get(idx);
 		if(v == null) {
-			throw RascalExceptionFactory.noSuchKey(idx);
+			throw RuntimeExceptionFactory.noSuchKey(idx, null, null);
 		}
 		return v;
 	}
@@ -2931,7 +2945,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return tup.get((idx >= 0) ? idx : tup.arity() + idx);
 		} catch(IndexOutOfBoundsException e) {
-			throw RascalExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx), null, null);
 		}
 	}
 
@@ -2951,7 +2965,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			}
 			return node.get(idx);  
 		} catch(IndexOutOfBoundsException e) {
-			throw RascalExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx), null, null);
 		}
 	}
 
@@ -2971,7 +2985,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 		} catch(IndexOutOfBoundsException e) {
-			throw RascalExceptionFactory.indexOutOfBounds($VF.integer(idx));
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx), null, null);
 		}
 	}
 
@@ -3387,7 +3401,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return lst.put(n, v);
 		} catch (IndexOutOfBoundsException e){
-			throw RascalExceptionFactory.indexOutOfBounds($VF.integer(n));
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(n), null, null);
 
 		}
 	}
@@ -3409,7 +3423,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		try {
 			return tup.set(n, v);
 		} catch (IndexOutOfBoundsException e){
-			throw RascalExceptionFactory.indexOutOfBounds($VF.integer(n));
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(n), null, null);
 
 		}
 	}
