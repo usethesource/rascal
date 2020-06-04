@@ -94,6 +94,8 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     if(uname != "_"){
        c.push(patternNames, <uname, getLoc(name)>);
        c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp)[label=uname]; }));
+    } else {
+        c.fact(name, tp);
     }
 }
 
@@ -223,6 +225,9 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
           }
           c.define(uname, formalOrPatternFormal(c), argName, defType([tp], 
                AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));     
+       } else {
+          c.calculate("typed anonymous variable in splice pattern", argName, [tp], AType(Solver s){ 
+            return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); });
        }
        c.calculate("typed variable in splice pattern", current, [tp], AType(Solver s){ return s.getType(tp); });
        collect(tp, c);
@@ -333,6 +338,7 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
 // ---- descendant pattern
 
 void collect(current: (Pattern) `/ <Pattern pattern>`, Collector c){
+    c.fact(current, avalue());
     collect(pattern, c);
 }
 
