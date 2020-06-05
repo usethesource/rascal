@@ -47,7 +47,8 @@ test bool descendant28() = {s | /str s := [1, rect(10,20), 5, rect(30,40,color="
 test bool descendant30() = /g(2) := f(g(1),f(g(2),g(3)));
 test bool descendant31() = [1, /g(2), 3] := [1, f(g(1),f(g(2),g(3))), 3];
 test bool descendant32() = [1, !/g(5), 3] := [1, f(g(1),f(g(2),g(3))), 3];
-  		
+
+@ignoreCompiler{Typechecker: missing constraints}	
 test bool descendant33() = [1, [F] /f(/g(2), F _), 3] := [1, f(g(1),f(g(2),g(3))), 3];
 test bool descendant34() = [1, /f(/g(2),/g(3)), 3] := [1, f(g(1),f(g(2),g(3))), 3];
   		
