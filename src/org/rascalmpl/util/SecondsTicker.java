@@ -15,7 +15,9 @@ package org.rascalmpl.util;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A monotonic ticker that fast to frequently access and is updated roughly once every second
+ * A monotonic ticker that fast to frequently access and is updated roughly once every second<br/>
+ * <br/>
+ * For more reasons why we want a fast time field, see <a href="http://pzemtsov.github.io/2017/07/23/the-slow-currenttimemillis.html">this discussion</a>.
  */
 public class SecondsTicker {
 
@@ -45,6 +47,9 @@ public class SecondsTicker {
         t.start();
     }
     
+    /**
+     * Get a monotonic increasing integer that increments roughly every second
+     */
     public static int current() {
         return tick;
     }
