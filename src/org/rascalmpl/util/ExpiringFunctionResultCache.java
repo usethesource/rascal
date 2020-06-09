@@ -17,6 +17,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -50,7 +51,7 @@ public class ExpiringFunctionResultCache<TResult> {
      * The keys in this map are bit special, we use a different class for lookup and for storing. 
      * This is primarily to avoid allocation SoftReferences and a fresh map purely for lookup.
      */
-    private final ConcurrentMap<Object, LastUsedTracker<TResult>> entries;
+    private final ConcurrentMap<Object, ValueSoftReference<TResult>> entries;
 
     /**
      * A queue of all the SoftReferences cleared, we later iterate through them to cleanup the entries in the map
@@ -95,7 +96,7 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return either cached result or null in case of no entry
      */
     public @Nullable TResult lookup(IValue[] args, @Nullable Map<String, IValue> kwParameters) {
-        LastUsedTracker<TResult> result = entries.get(new LookupKey(args, kwParameters));
+        ValueSoftReference<TResult> result = entries.get(new KeyTuple(args, kwParameters, false));
         if (result != null) {
             return result.use();
         }
@@ -110,11 +111,12 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return
      */
     public TResult store(IValue[] args, @Nullable Map<String, IValue> kwParameters, TResult result) {
-        final CacheKey key = new CacheKey(args, kwParameters, cleared);
-        final LastUsedTracker<TResult> value = new LastUsedTracker<>(result, key, cleared);
+        final KeyTuple key = new KeyTuple(args, kwParameters, true);
+        final KeyTupleSoftReference keyRef = new KeyTupleSoftReference(key, cleared);
+        final ValueSoftReference<TResult> value = new ValueSoftReference<>(result, keyRef, cleared);
         while (true) {
             // we "race" to insert our mapping
-            LastUsedTracker<TResult> stored = entries.putIfAbsent(key, value);
+            ValueSoftReference<TResult> stored = entries.putIfAbsent(keyRef, value);
             if (stored == null) {
                 // new entry, so we won the race
                 return result;
@@ -134,9 +136,6 @@ public class ExpiringFunctionResultCache<TResult> {
      * Clear entries and try to help GC with cleaning up memory
      */
     public void clear() {
-        // note, we do not clear the key references, since the map is used in a concurrent setting, 
-        // and we have to wait for the GC to cleanup to be sure there aren't equals happing on another thread
-        entries.values().forEach(LastUsedTracker::clear);
         entries.clear();
     }
 
@@ -150,21 +149,22 @@ public class ExpiringFunctionResultCache<TResult> {
     }
 
     private void removePartiallyClearedEntries() {
-        Map<CacheKey, Object> toCleanup = new IdentityHashMap<>(); // we can have GC cleared multiple soft references in the same CacheKey, but we don't want reference equality!
+        Map<KeyTupleSoftReference, Object> toCleanup = new IdentityHashMap<>(); // we want reference equality, since it could be that both the key & the value are cleared in the same period
         synchronized (cleared) {
             Reference<?> gced = null;
             do {
                 gced = cleared.poll();
-                if (gced != null && gced instanceof LastUsedTracker<?>) {
-                    toCleanup.put(((LastUsedTracker<?>)gced).key, gced);
+                if (gced instanceof KeyTupleSoftReference) {
+                    toCleanup.putIfAbsent((KeyTupleSoftReference) gced, gced);
+                }
+                else if (gced instanceof ValueSoftReference) {
+                    toCleanup.putIfAbsent(((ValueSoftReference<?>) gced).key, gced);
                 }
             }
             while (gced != null);
         }
 
-        for (CacheKey ck : toCleanup.keySet()) {
-            entries.remove(ck);
-        }
+        toCleanup.keySet().forEach(entries::remove);
     }
 
 
@@ -175,9 +175,9 @@ public class ExpiringFunctionResultCache<TResult> {
         if (lastOldest < oldestTick) {
             // there might be an expired entry (or it could have been cleared)
             int newOldest = currentTick; // we calculate the oldest entry that is kept in the cache
-            Iterator<LastUsedTracker<TResult>> it = entries.values().iterator();
+            Iterator<ValueSoftReference<TResult>> it = entries.values().iterator();
             while (it.hasNext()) {
-                LastUsedTracker<TResult> cur = it.next();
+                ValueSoftReference<TResult> cur = it.next();
                 int lastUsed = cur.lastUsed;
 
                 if (lastUsed < oldestTick) {
@@ -197,7 +197,7 @@ public class ExpiringFunctionResultCache<TResult> {
         if (toRemove > 0) {
             // we have to clear some entries, since we don't keep a sorted tree based on the usage
             // we'll just randomly clear
-            Iterator<Entry<Object, LastUsedTracker<TResult>>> it = entries.entrySet().iterator();
+            Iterator<Entry<Object, ValueSoftReference<TResult>>> it = entries.entrySet().iterator();
             while (toRemove > 0 && it.hasNext()) {
                 it.next();
                 it.remove();
@@ -208,114 +208,92 @@ public class ExpiringFunctionResultCache<TResult> {
     }
 
 
-    /**
-     * Class used to store the tuple of positional and keyword arguments
-     * 
-     * Take care to not clear the SoftReferences, as it might partially used on a differen thread.
-     */
-    private static class CacheKey {
+    private static class KeyTuple {
         private final int storedHash;
-        @SuppressWarnings("rawtypes")
-        private final LastUsedTracker[] params;
-        private final @Nullable Map<String, LastUsedTracker<IValue>> keyArgs;
-        
-        public CacheKey(IValue[] params, @Nullable Map<String, IValue> keyArgs, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
-            this.storedHash = calculateHash(params, keyArgs);
-            
-            this.params = new LastUsedTracker[params.length];
-            for (int i = 0; i < params.length; i++) {
-                this.params[i] = new LastUsedTracker<>(params[i], this, queue);
-            }
-            
-            if (keyArgs != null) {
-                this.keyArgs = new HashMap<>(keyArgs.size());
-                for (Entry<String, IValue> e : keyArgs.entrySet()) {
-                    this.keyArgs.put(e.getKey(), new LastUsedTracker<>(e.getValue(), this, queue));
+        private final IValue[] params;
+        private final Map<String, IValue> keyArgs;
+
+        public KeyTuple(IValue[] params, Map<String, IValue> keyArgs, boolean copy) {
+            this.storedHash =  (1 + (31 * Arrays.hashCode(params))) + keyArgs.hashCode();
+            if (copy) {
+                this.params = new IValue[params.length];
+                System.arraycopy(params, 0, this.params, 0, params.length);
+                if (keyArgs == Collections.EMPTY_MAP) {
+                    this.keyArgs = keyArgs;
+                }
+                else {
+                    this.keyArgs = new HashMap<>(keyArgs);
                 }
             }
             else {
-                this.keyArgs = null;
+                this.params = params;
+                this.keyArgs = keyArgs;
             }
         }
-
+        
         @Override
         public int hashCode() {
             return storedHash;
         }
         
-        @SuppressWarnings("unlikely-arg-type")
         @Override
         public boolean equals(Object obj) {
-            if (this == obj) {
+            if (obj == this) {
                 return true;
             }
-            if (obj instanceof LookupKey) {
-                return ((LookupKey)obj).equals(this);
+            if (obj instanceof KeyTupleSoftReference && ((KeyTupleSoftReference) obj).hashCode == storedHash) {
+                // key in the map, so we have to look inside of it
+                return equals(((KeyTupleSoftReference)obj).get());
+            }
+            if (obj instanceof KeyTuple) {
+                KeyTuple other = (KeyTuple)obj;
+                return other.storedHash == this.storedHash
+                    && Arrays.equals(params, other.params)
+                    && keyArgs.equals(other.keyArgs)
+                    ;
             }
             return false;
         }
     }
 
+    private static class KeyTupleSoftReference extends SoftReference<KeyTuple> {
+        private final int hashCode;
 
-    // Special Version of the Key data
-    // need to make sure the lookup key references
-    // aren't released during lookup
-    // and avoid creating extra SoftReferences
-    private static class LookupKey {
-        private final int storedHash;
-        private final IValue[] params;
-        private final @Nullable Map<String, IValue> keyArgs;
-
-        public LookupKey(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
-            this.storedHash = calculateHash(params, keyArgs);
-            this.params = params;
-            this.keyArgs = keyArgs;
+        @SuppressWarnings("unchecked")
+        public KeyTupleSoftReference(KeyTuple obj, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
+            super(obj, queue);
+            this.hashCode = obj.storedHash;
         }
         
         @Override
         public int hashCode() {
-            return storedHash;
+            return hashCode;
         }
         
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof CacheKey) {
-                CacheKey other = (CacheKey)obj;
-                if (other.storedHash != this.storedHash || other.params.length != this.params.length) {
-                    return false;
-                }
-
-                for (int i = 0; i < params.length; i++) {
-                    if (nullOrNotEquals(params[i], (IValue)other.params[i].get())) {
-                        return false; 
-                    }
-                }
-                
-                if (keyArgs != null && other.keyArgs != null) {
-                    for (Entry<String, IValue> kv: keyArgs.entrySet()) {
-                        if (nullOrNotEquals(kv.getValue(), other.keyArgs.get(kv.getKey()).get())) {
-                            return false; 
-                        }
-                    }
-                    return true;
-                }
-                // if they aren't both set, than they should both be empty
-                return keyArgs == null && other.keyArgs == null;
+            if (obj == this) {
+                return true;
+            }
+            if (obj instanceof KeyTuple) {
+                return obj.equals(this);
+            }
+            if (obj instanceof KeyTupleSoftReference && ((KeyTupleSoftReference) obj).hashCode == hashCode) {
+                KeyTuple our = get();
+                return our != null && our.equals(((KeyTupleSoftReference)obj).get());
             }
             return false;
         }
 
-        private static boolean nullOrNotEquals(IValue a, IValue b) {
-            return a == null || b == null || !a.isEqual(b);
-        }
+        
     }
 
-    private static final class LastUsedTracker<T> extends SoftReference<T> {
+    private static class ValueSoftReference<T> extends SoftReference<T> {
         private volatile int lastUsed;
-        private final CacheKey key;
+        private final KeyTupleSoftReference key;
 
-        @SuppressWarnings({"unchecked", "initialization"})
-        public LastUsedTracker(T obj, @UnknownInitialization CacheKey key, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
+        @SuppressWarnings({"unchecked"})
+        public ValueSoftReference(T obj, KeyTupleSoftReference key, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
             super(obj, queue);
             this.lastUsed = SecondsTicker.current();
             this.key = key;
@@ -325,14 +303,8 @@ public class ExpiringFunctionResultCache<TResult> {
             lastUsed = SecondsTicker.current();
             return get();
         }
-        
     }
-    private static int calculateHash(IValue[] params, Map<String, IValue> keyArgs) {
-        if (keyArgs == null) {
-            return Arrays.hashCode(params);
-        }
-        return (1 + (31 * Arrays.hashCode(params))) + keyArgs.hashCode();
-    }
+    
 
     /**
      * Cleanup singleton that wraps {@linkplain CleanupThread}
