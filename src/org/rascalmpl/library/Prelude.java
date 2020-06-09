@@ -3779,7 +3779,7 @@ public class Prelude {
 	
 	public void sleep(IInteger seconds) {
 	    try {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(seconds.longValue()));
+            TimeUnit.SECONDS.sleep(seconds.longValue());
         }
         catch (InterruptedException e) {
         }
