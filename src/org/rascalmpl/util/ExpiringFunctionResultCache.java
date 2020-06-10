@@ -213,8 +213,11 @@ public class ExpiringFunctionResultCache<TResult> {
         private final IValue[] params;
         private final Map<String, IValue> keyArgs;
 
-        public KeyTuple(IValue[] params, Map<String, IValue> keyArgs, boolean copy) {
-            this.storedHash =  (1 + (31 * Arrays.hashCode(params))) + keyArgs.hashCode();
+        public KeyTuple(IValue[] params, @Nullable Map<String, IValue> keyArgs, boolean copy) {
+            if (keyArgs == null) {
+                keyArgs = Collections.emptyMap();
+            }
+            this.storedHash =  (1 + (31 * Arrays.hashCode(params))) +  keyArgs.hashCode();
             if (copy) {
                 this.params = new IValue[params.length];
                 System.arraycopy(params, 0, this.params, 0, params.length);
