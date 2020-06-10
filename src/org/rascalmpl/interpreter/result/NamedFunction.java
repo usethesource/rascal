@@ -142,7 +142,7 @@ abstract public class NamedFunction extends AbstractFunction {
 
     protected Result<IValue> storeMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues, Result<IValue> result) {
         if (hasMemoization()) {
-            getMemoizationCache(true).store(argValues, keyArgValues, result);
+            return getMemoizationCache(true).store(argValues, keyArgValues, result);
         }
         return result;
     }
@@ -154,7 +154,7 @@ abstract public class NamedFunction extends AbstractFunction {
         Result<IValue> result = getMemoizedResult(argValues, keyArgValues);
         if (result == null) {
             result = super.call(argTypes, argValues, keyArgValues);
-            storeMemoizedResult(argValues, keyArgValues, result);
+            return storeMemoizedResult(argValues, keyArgValues, result);
         }
         return result;
     }
