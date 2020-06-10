@@ -52,6 +52,13 @@ public class ExpiringFunctionResultCache<TResult> {
      * This is primarily to avoid allocation SoftReferences and a fresh map purely for lookup.
      */
     private final ConcurrentMap<Object, ResultRef<TResult>> entries;
+    
+    private static final ThreadLocal<Parameters> KEY_CACHE = new ThreadLocal<Parameters>() {
+        @Override
+        protected Parameters initialValue() {
+            return new Parameters();
+        }
+    };
 
     /**
      * A queue of all the SoftReferences cleared, we later iterate through them to cleanup the entries in the map
@@ -94,11 +101,17 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return either cached result or null in case of no entry
      */
     public @Nullable TResult lookup(IValue[] args, @Nullable Map<String, IValue> kwParameters) {
-        ResultRef<TResult> result = entries.get(new Parameters(args, kwParameters, false));
-        if (result != null) {
-            return result.use();
+        Parameters key = KEY_CACHE.get().fill(args, kwParameters);
+        try {
+            ResultRef<TResult> result = entries.get(key);
+            if (result != null) {
+                return result.use();
+            }
+            return null;
         }
-        return null;
+        finally  {
+            key.clear();
+        }
     }
     
     /**
@@ -109,7 +122,7 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return
      */
     public TResult store(IValue[] args, @Nullable Map<String, IValue> kwParameters, TResult result) {
-        final Parameters key = new Parameters(args, kwParameters, true);
+        final Parameters key = new Parameters(args, kwParameters);
         final ParametersRef keyRef = new ParametersRef(key, cleared);
         final ResultRef<TResult> value = new ResultRef<>(result, keyRef, cleared);
         while (true) {
@@ -204,29 +217,40 @@ public class ExpiringFunctionResultCache<TResult> {
     }
 
 
-    private static class Parameters {
-        private final int storedHash;
-        private final IValue[] params;
-        private final Map<String, IValue> keyArgs;
 
-        public Parameters(IValue[] params, @Nullable Map<String, IValue> keyArgs, boolean copy) {
+    private static class Parameters {
+        private int storedHash;
+        private IValue[] params;
+        private Map<String, IValue> keyArgs;
+
+        
+        public Parameters() {
+            
+        }
+        
+        public Parameters fill(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
             if (keyArgs == null) {
                 keyArgs = Collections.emptyMap();
             }
-            this.storedHash =  (1 + (31 * Arrays.hashCode(params))) +  keyArgs.hashCode();
-            if (copy) {
-                this.params = new IValue[params.length];
-                System.arraycopy(params, 0, this.params, 0, params.length);
-                if (keyArgs == Collections.EMPTY_MAP) {
-                    this.keyArgs = keyArgs;
-                }
-                else {
-                    this.keyArgs = new HashMap<>(keyArgs);
-                }
+            this.params = params;
+            this.keyArgs = keyArgs;
+            this.storedHash = (1 + (31 * Arrays.hashCode(params))) + keyArgs.hashCode();
+            return this;
+        }
+        
+        public void clear() {
+            params = null;
+            keyArgs = null;
+        }
+
+        public Parameters(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
+            IValue[] newParams = new IValue[params.length];
+            System.arraycopy(params, 0, newParams, 0, params.length);
+            if (keyArgs == null || keyArgs.isEmpty()) {
+                fill(newParams, Collections.emptyMap());
             }
             else {
-                this.params = params;
-                this.keyArgs = keyArgs;
+                fill(newParams, new HashMap<>(keyArgs));
             }
         }
         
