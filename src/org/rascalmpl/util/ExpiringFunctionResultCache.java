@@ -51,13 +51,12 @@ public class ExpiringFunctionResultCache<TResult> {
      * The keys in this map are bit special, we use a different class for lookup and for storing. 
      * This is primarily to avoid allocation SoftReferences and a fresh map purely for lookup.
      */
-    private final ConcurrentMap<Object, ValueSoftReference<TResult>> entries;
+    private final ConcurrentMap<Object, ResultRef<TResult>> entries;
 
     /**
      * A queue of all the SoftReferences cleared, we later iterate through them to cleanup the entries in the map
      */
-    @SuppressWarnings("rawtypes")
-    private final ReferenceQueue cleared;
+    private final ReferenceQueue<Object> cleared;
 
     /**
      * Threshold for when to expire entries by time
@@ -80,10 +79,9 @@ public class ExpiringFunctionResultCache<TResult> {
      * @param secondsTimeout clear entries that haven't been used for this amount of seconds, <= 0 disables this expiration behavoir
      * @param maxEntries starts clearing out entries after the table gets "full". <= 0 disables this threshold
      */
-    @SuppressWarnings("rawtypes")
     public ExpiringFunctionResultCache(int secondsTimeout, int maxEntries) {
         this.entries =  new ConcurrentHashMap<>();
-        this.cleared =  new ReferenceQueue();
+        this.cleared =  new ReferenceQueue<Object>();
         this.secondsTimeout = secondsTimeout <= 0 ? Integer.MAX_VALUE : secondsTimeout;
         this.maxEntries = maxEntries <= 0 ? Integer.MAX_VALUE : maxEntries;
         Cleanup.Instance.register(this);
@@ -96,7 +94,7 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return either cached result or null in case of no entry
      */
     public @Nullable TResult lookup(IValue[] args, @Nullable Map<String, IValue> kwParameters) {
-        ValueSoftReference<TResult> result = entries.get(new KeyTuple(args, kwParameters, false));
+        ResultRef<TResult> result = entries.get(new Parameters(args, kwParameters, false));
         if (result != null) {
             return result.use();
         }
@@ -111,12 +109,12 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return
      */
     public TResult store(IValue[] args, @Nullable Map<String, IValue> kwParameters, TResult result) {
-        final KeyTuple key = new KeyTuple(args, kwParameters, true);
-        final KeyTupleSoftReference keyRef = new KeyTupleSoftReference(key, cleared);
-        final ValueSoftReference<TResult> value = new ValueSoftReference<>(result, keyRef, cleared);
+        final Parameters key = new Parameters(args, kwParameters, true);
+        final ParametersRef keyRef = new ParametersRef(key, cleared);
+        final ResultRef<TResult> value = new ResultRef<>(result, keyRef, cleared);
         while (true) {
             // we "race" to insert our mapping
-            ValueSoftReference<TResult> stored = entries.putIfAbsent(keyRef, value);
+            ResultRef<TResult> stored = entries.putIfAbsent(keyRef, value);
             if (stored == null) {
                 // new entry, so we won the race
                 return result;
@@ -149,19 +147,17 @@ public class ExpiringFunctionResultCache<TResult> {
     }
 
     private void removePartiallyClearedEntries() {
-        Map<KeyTupleSoftReference, Object> toCleanup = new IdentityHashMap<>(); // we want reference equality, since it could be that both the key & the value are cleared in the same period
+        Map<ParametersRef, Object> toCleanup = new IdentityHashMap<>(); // we want reference equality, since it could be that both the key & the value are cleared in the same period
         synchronized (cleared) {
-            Reference<?> gced = null;
-            do {
-                gced = cleared.poll();
-                if (gced instanceof KeyTupleSoftReference) {
-                    toCleanup.putIfAbsent((KeyTupleSoftReference) gced, gced);
+            Reference<?> gced;
+            while ((gced = cleared.poll()) != null) {
+                if (gced instanceof ParametersRef) {
+                    toCleanup.putIfAbsent((ParametersRef) gced, gced);
                 }
-                else if (gced instanceof ValueSoftReference) {
-                    toCleanup.putIfAbsent(((ValueSoftReference<?>) gced).key, gced);
+                else if (gced instanceof ResultRef) {
+                    toCleanup.putIfAbsent(((ResultRef<?>) gced).key, gced);
                 }
             }
-            while (gced != null);
         }
 
         toCleanup.keySet().forEach(entries::remove);
@@ -175,9 +171,9 @@ public class ExpiringFunctionResultCache<TResult> {
         if (lastOldest < oldestTick) {
             // there might be an expired entry (or it could have been cleared)
             int newOldest = currentTick; // we calculate the oldest entry that is kept in the cache
-            Iterator<ValueSoftReference<TResult>> it = entries.values().iterator();
+            Iterator<ResultRef<TResult>> it = entries.values().iterator();
             while (it.hasNext()) {
-                ValueSoftReference<TResult> cur = it.next();
+                ResultRef<TResult> cur = it.next();
                 int lastUsed = cur.lastUsed;
 
                 if (lastUsed < oldestTick) {
@@ -197,7 +193,7 @@ public class ExpiringFunctionResultCache<TResult> {
         if (toRemove > 0) {
             // we have to clear some entries, since we don't keep a sorted tree based on the usage
             // we'll just randomly clear
-            Iterator<Entry<Object, ValueSoftReference<TResult>>> it = entries.entrySet().iterator();
+            Iterator<Entry<Object, ResultRef<TResult>>> it = entries.entrySet().iterator();
             while (toRemove > 0 && it.hasNext()) {
                 it.next();
                 it.remove();
@@ -208,12 +204,12 @@ public class ExpiringFunctionResultCache<TResult> {
     }
 
 
-    private static class KeyTuple {
+    private static class Parameters {
         private final int storedHash;
         private final IValue[] params;
         private final Map<String, IValue> keyArgs;
 
-        public KeyTuple(IValue[] params, @Nullable Map<String, IValue> keyArgs, boolean copy) {
+        public Parameters(IValue[] params, @Nullable Map<String, IValue> keyArgs, boolean copy) {
             if (keyArgs == null) {
                 keyArgs = Collections.emptyMap();
             }
@@ -244,12 +240,12 @@ public class ExpiringFunctionResultCache<TResult> {
             if (obj == this) {
                 return true;
             }
-            if (obj instanceof KeyTupleSoftReference && ((KeyTupleSoftReference) obj).hashCode == storedHash) {
+            if (obj instanceof ParametersRef && ((ParametersRef) obj).hashCode == storedHash) {
                 // key in the map, so we have to look inside of it
-                return equals(((KeyTupleSoftReference)obj).get());
+                return equals(((ParametersRef)obj).get());
             }
-            if (obj instanceof KeyTuple) {
-                KeyTuple other = (KeyTuple)obj;
+            if (obj instanceof Parameters) {
+                Parameters other = (Parameters)obj;
                 return other.storedHash == this.storedHash
                     && Arrays.equals(params, other.params)
                     && keyArgs.equals(other.keyArgs)
@@ -259,11 +255,10 @@ public class ExpiringFunctionResultCache<TResult> {
         }
     }
 
-    private static class KeyTupleSoftReference extends SoftReference<KeyTuple> {
+    private static class ParametersRef extends SoftReference<Parameters> {
         private final int hashCode;
 
-        @SuppressWarnings("unchecked")
-        public KeyTupleSoftReference(KeyTuple obj, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
+        public ParametersRef(Parameters obj, ReferenceQueue<Object> queue) {
             super(obj, queue);
             this.hashCode = obj.storedHash;
         }
@@ -278,12 +273,12 @@ public class ExpiringFunctionResultCache<TResult> {
             if (obj == this) {
                 return true;
             }
-            if (obj instanceof KeyTuple) {
+            if (obj instanceof Parameters) {
                 return obj.equals(this);
             }
-            if (obj instanceof KeyTupleSoftReference && ((KeyTupleSoftReference) obj).hashCode == hashCode) {
-                KeyTuple our = get();
-                return our != null && our.equals(((KeyTupleSoftReference)obj).get());
+            if (obj instanceof ParametersRef && ((ParametersRef) obj).hashCode == hashCode) {
+                Parameters our = get();
+                return our != null && our.equals(((ParametersRef)obj).get());
             }
             return false;
         }
@@ -291,12 +286,11 @@ public class ExpiringFunctionResultCache<TResult> {
         
     }
 
-    private static class ValueSoftReference<T> extends SoftReference<T> {
+    private static class ResultRef<T> extends SoftReference<T> {
         private volatile int lastUsed;
-        private final KeyTupleSoftReference key;
+        private final ParametersRef key;
 
-        @SuppressWarnings({"unchecked"})
-        public ValueSoftReference(T obj, KeyTupleSoftReference key, @SuppressWarnings("rawtypes") ReferenceQueue queue) {
+        public ResultRef(T obj, ParametersRef key, ReferenceQueue<Object> queue) {
             super(obj, queue);
             this.lastUsed = SecondsTicker.current();
             this.key = key;
