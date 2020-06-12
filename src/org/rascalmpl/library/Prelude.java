@@ -55,6 +55,7 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
@@ -3774,6 +3775,14 @@ public class Prelude {
 
 	        return d0 < d1 ? -1 : ((d0 == d1) ? 0 : 1);
 	    }
+	}
+	
+	public void sleep(IInteger seconds) {
+	    try {
+            TimeUnit.SECONDS.sleep(seconds.longValue());
+        }
+        catch (InterruptedException e) {
+        }
 	}
 
 }
