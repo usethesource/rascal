@@ -13,7 +13,9 @@ test bool descendant4() = /int N := [1] && N == 1;
 test bool descendant5() = /int N := [1,2,3,2] && N > 2;
 test bool descendant6() = !/4 := [1,2,3,2];
 test bool descendant7() = /!4 := [1,2,3,2];
+@ignoreInterpreter{TBD}
 test bool descendant8() = /!4 !:= [1,2,3,4];
+@ignoreInterpreter{TBD}
 test bool descendant9() = !/!4 := [1,2,3,4];
 test bool descendant10() = /int N := (1 : 10) && (N == 1 || N == 10);
     
