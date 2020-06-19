@@ -8,6 +8,7 @@ import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
 import util::Reflective;
+import lang::rascal::grammar::tests::ParserGeneratorTests;
 
 public Grammar Pico = grammar({sort("Program")},
 
