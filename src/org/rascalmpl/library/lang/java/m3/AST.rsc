@@ -6,6 +6,8 @@ module lang::java::m3::AST
 
 extend analysis::m3::AST;
 extend analysis::m3::Core; // necessary for initializing EclipseJavaCompiler class
+extend lang::java::m3::TypeSymbol; // necessary for initializing EclipseJavaCompiler class to express type annotations
+
 import util::FileSystem;
 import IO;
 import String;
