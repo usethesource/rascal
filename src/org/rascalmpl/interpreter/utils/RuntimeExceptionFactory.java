@@ -110,12 +110,12 @@ public class RuntimeExceptionFactory {
 	    return new Throw(VF.constructor(CallFailed, loc, arguments), ast, trace);
 	}
 	            
-	public static Throw arithmeticException(String msg, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(ArithmeticException, VF.string(msg)), ast, trace);
+	public static Throw arithmeticException(IString msg) {
+		return new Throw(VF.constructor(ArithmeticException, msg), (AbstractAST)null, (StackTrace)null);
 	}
 	
-	public static Throw arithmeticException(IString msg) {
-        return new Throw(VF.constructor(ArithmeticException, msg), (AbstractAST)null, (StackTrace)null);
+	public static Throw arithmeticException(IString msg, AbstractAST ast, StackTrace trace) {
+        return new Throw(VF.constructor(ArithmeticException, msg), ast, trace);
     }
 	
 	public static Throw assertionFailed(AbstractAST ast, StackTrace trace) {
@@ -399,6 +399,10 @@ public class RuntimeExceptionFactory {
 	public static Throw noSuchElement(IValue v, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(NoSuchElement,v), ast, trace);	
 	}
+	
+	public static Throw noSuchField(IString name) {
+        return new Throw(VF.constructor(NoSuchField, name), (AbstractAST)null, (StackTrace)null);
+    }
 
 	public static Throw noSuchField(IString name, AbstractAST ast, StackTrace trace) {
         return new Throw(VF.constructor(NoSuchField, name), ast, trace);
