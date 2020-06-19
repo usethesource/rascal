@@ -110,12 +110,12 @@ public class RuntimeExceptionFactory {
 	    return new Throw(VF.constructor(CallFailed, loc, arguments), ast, trace);
 	}
 	            
-	public static Throw arithmeticException(IString msg) {
-		return new Throw(VF.constructor(ArithmeticException, msg), (AbstractAST)null, (StackTrace)null);
+	public static Throw arithmeticException(String msg, AbstractAST ast, StackTrace trace) {
+		return new Throw(VF.constructor(ArithmeticException, VF.string(msg)), ast, trace);
 	}
 	
-	public static Throw arithmeticException(IString msg, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(ArithmeticException, msg), ast, trace);
+	public static Throw arithmeticException(IString msg) {
+        return new Throw(VF.constructor(ArithmeticException, msg), (AbstractAST)null, (StackTrace)null);
     }
 	
 	public static Throw assertionFailed(AbstractAST ast, StackTrace trace) {
