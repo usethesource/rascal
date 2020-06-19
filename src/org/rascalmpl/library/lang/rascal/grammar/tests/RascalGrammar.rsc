@@ -6,6 +6,7 @@ import IO;
 import List;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
+import lang::rascal::grammar::tests::ParserGeneratorTests;
 import util::Benchmark;
 import util::Reflective;
 
