@@ -157,25 +157,13 @@ public class RuntimeExceptionFactory {
 		return new Throw(VF.constructor(EmptySet), ast, trace);
 	}
 	
-	public static Throw illegalArgument() {
-        return new Throw(VF.constructor(AnonymousIllegalArgument), (AbstractAST)null, (StackTrace)null); 
-    }
-	
 	public static Throw illegalArgument(AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(AnonymousIllegalArgument), ast, trace);	
 	}
 	
-	public static Throw illegalArgument(IValue v) {
-        return new Throw(VF.constructor(IllegalArgument), (AbstractAST)null, (StackTrace)null);  
-    }
-	
 	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(IllegalArgument), ast, trace);	
 	}
-	
-	public static Throw illegalArgument(IValue v, IString message) {
-        return new Throw(VF.constructor(IllegalArgument, v, message), (AbstractAST)null, (StackTrace)null);   
-    }
 	
 	public static Throw illegalArgument(IValue v, IString message, AbstractAST ast, StackTrace trace) {
         return new Throw(VF.constructor(IllegalArgument, v, message), ast, trace);   
