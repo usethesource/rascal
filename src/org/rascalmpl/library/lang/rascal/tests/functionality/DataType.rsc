@@ -12,6 +12,7 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::functionality::DataType
 import Exception;
+import List;
 
 // bool
     	
@@ -715,22 +716,22 @@ test bool testSetMultiVariable2() = {*S1, *S2} := {} && (S1 == {}) && (S2 == {})
 test bool testSetMultiVariable3() = {*int S1, *int S2} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));
 test bool testSetMultiVariable4() = {*S1, *S2} := {100} && ((S1 == {100} && S2 == {}) || (S1 == {} && S2 == {100}));
     		
-test bool testSetMultiVariable5()  {R = for({*int S1, *int S2} := {100}) append <S1, S2>; return R == [<{100}, {}>, <{}, {100}> ];}
-test bool testSetMultiVariable6()  {R = for({*S1, *S2} := {100}) append <S1, S2>; return R == [<{100}, {}>, <{}, {100}> ];}
+test bool testSetMultiVariable5()  {R = for({*int S1, *int S2} := {100}) append <S1, S2>; return toSet(R) == { <{100}, {}>, <{}, {100}> };}
+test bool testSetMultiVariable6()  {R = for({*S1, *S2} := {100}) append <S1, S2>; return toSet(R) == { <{100}, {}>, <{}, {100}> };}
     
-test bool testSetMultiVariable7()  {R = for({*S1, *S2} := {100}) append <S1, S2>; return R == [<{100}, {}>, <{}, {100}> ];}
+test bool testSetMultiVariable7()  {R = for({*S1, *S2} := {100}) append <S1, S2>; return toSet(R) == { <{100}, {}>, <{}, {100}> };}
     		//
     		// TODO: the following test requires a specific implementation specific
     		// set representation and, thus, should be refactored. To check
     		// splicing, without taking order into account, the list 'R' is now
     		// converted to a set.
     		//
-test bool testSetMultiVariable8()  {R = for({*S1, *S2} := {100, 200}) append <S1, S2>; return {*R} == {<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>};}
-test bool testSetMultiVariable9()  {R = for({*int S1, *S2} := {100, "a"})  append <S1, S2>; return R == [<{100}, {"a"}>, <{},{100,"a"}>];}
-test bool testSetMultiVariable10()  {R = for({*int S1, *str S2} := {100, "a"}) append <S1, S2>; return R == [<{100}, {"a"}>];}
+test bool testSetMultiVariable8()  {R = for({*S1, *S2} := {100, 200}) append <S1, S2>; return toSet(R) == {<{200,100}, {}>, <{200}, {100}>, <{100}, {200}>, <{}, {200,100}>};}
+test bool testSetMultiVariable9()  {R = for({*int S1, *S2} := {100, "a"})  append <S1, S2>; return toSet(R) == { <{100}, {"a"}>, <{},{100,"a"}> };}
+test bool testSetMultiVariable10()  {R = for({*int S1, *str S2} := {100, "a"}) append <S1, S2>; return toSet(R) == { <{100}, {"a"}> };}
     		
-test bool testSetMultiVariable11()  {R = for({*str S1, *S2} := {100, "a"})  append <S1, S2>; return R == [<{"a"},{100}>, <{},{100,"a"}>];}
-test bool testSetMultiVariable12()  {R = for({*str S1, *int S2} := {100, "a"})  append <S1, S2>; return R == [<{"a"},{100}>];}
+test bool testSetMultiVariable11()  {R = for({*str S1, *S2} := {100, "a"})  append <S1, S2>; return toSet(R) == { <{"a"},{100}>, <{},{100,"a"}> };}
+test bool testSetMultiVariable12()  {R = for({*str S1, *int S2} := {100, "a"})  append <S1, S2>; return toSet(R) == { <{"a"},{100}> };}
     		
 test bool testSetMultiVariable13() = !({*str _, *str _} := {100, "a"});
 test bool testSetMultiVariable14() = !({*int _, *int _} := {100, "a"});
