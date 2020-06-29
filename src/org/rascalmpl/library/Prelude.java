@@ -322,14 +322,14 @@ public class Prelude {
 	
 	private IValue incrementTime(IDateTime dt, int field, String fieldName, IInteger amount) {
 		if (dt.isDate())
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a date value.", null, null);
+			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a date value.");
 		
 		return incrementDTField(dt, field, amount);
 	}
 
 	private IValue incrementDate(IDateTime dt, int field, String fieldName, IInteger amount) {
 		if (dt.isTime())
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a time value.", null, null);
+			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a time value.");
 		
 		return incrementDTField(dt, field, amount);
 	}
@@ -416,9 +416,9 @@ public class Prelude {
 						values.integer(0), values.integer(0), values.integer(0),
 						values.integer(0));
 			} else if (dEnd.isTime()) {
-				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a date with no time and a time with no date.", null, null);	
+				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a date with no time and a time with no date.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a date with no time and a datetime.", null, null);					
+				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a date with no time and a datetime.");					
 			}
 		} else if (dStart.isTime()) {
 			if (dEnd.isTime()) {
@@ -431,9 +431,9 @@ public class Prelude {
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.SECOND)),
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND)));
 			} else if (dEnd.isDate()) {
-				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a time with no date and a date with no time.", null, null);	
+				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a time with no date and a date with no time.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a time with no date and a datetime.", null, null);					
+				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a time with no date and a datetime.");					
 			}
 		} else {
 			if (dEnd.isDateTime()) {
@@ -446,9 +446,9 @@ public class Prelude {
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.SECOND)),
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND)));
 			} else if (dEnd.isDate()) {
-				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a datetime and a date with no time.", null, null);	
+				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a datetime and a date with no time.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a datetime and a time with no date.", null, null);					
+				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a datetime and a time with no date.");					
 			}
 		}
 		return duration;
@@ -464,10 +464,10 @@ public class Prelude {
 			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
-					" using format string: " + formatString.getValue(), null, null);
+					" using format string: " + formatString.getValue());
 		} catch (ParseException e) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
-					" using format string: " + formatString.getValue(), null, null);
+					" using format string: " + formatString.getValue());
 		}
 	}
 	
@@ -481,10 +481,10 @@ public class Prelude {
 			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
-					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		} catch (ParseException e) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
-					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		}
 	}
 
@@ -505,10 +505,10 @@ public class Prelude {
 			return values.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputTime.getValue() + 
-					" using format string: " + formatString.getValue(), null, null);
+					" using format string: " + formatString.getValue());
 		} catch (ParseException e) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputTime.getValue() + 
-					" using format string: " + formatString.getValue(), null, null);
+					" using format string: " + formatString.getValue());
 		}
 	}
 	
@@ -529,10 +529,10 @@ public class Prelude {
 			return values.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputTime.getValue() + 
-					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		} catch (ParseException e) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputTime.getValue() + 
-					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		}
 	}
 
@@ -553,10 +553,10 @@ public class Prelude {
 			return values.datetime(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
-					" using format string: " + formatString.getValue(), null, null);
+					" using format string: " + formatString.getValue());
 		} catch (ParseException e) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
-					" using format string: " + formatString.getValue(), null, null);
+					" using format string: " + formatString.getValue());
 		}			
 	}
 	
@@ -572,10 +572,10 @@ public class Prelude {
 			return values.datetime(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
-					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		} catch (ParseException e) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
-					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue(), null, null);
+					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		}
 	}
 
@@ -625,7 +625,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print date " + inputDate + " with format " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print date " + inputDate + " with format " + formatString.getValue());
 		}
 	}
 
@@ -647,7 +647,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print date " + inputDate + " with format " + formatString.getValue() + ", in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print date " + inputDate + " with format " + formatString.getValue() + ", in locale: " + locale.getValue());
 		}
 	}
 
@@ -660,7 +660,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputDate + " in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputDate + " in locale: " + locale.getValue());
 		}
 	}
 
@@ -673,7 +673,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " with format: " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " with format: " + formatString.getValue());
 		}			
 	}
 	
@@ -695,7 +695,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " in locale: " + locale.getValue());
 		}
 	}
 
@@ -708,7 +708,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " in locale: " + locale.getValue());
 		}
 	}
 
@@ -721,7 +721,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " using format string: " + formatString.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " using format string: " + formatString.getValue());
 		}		
 	}
 
@@ -744,7 +744,7 @@ public class Prelude {
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " using format string: " + formatString.getValue() +
-					" in locale: " + locale.getValue(), null, null);
+					" in locale: " + locale.getValue());
 		}
 	}
 
@@ -757,7 +757,7 @@ public class Prelude {
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " in locale: " + locale.getValue(), null, null);
+			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " in locale: " + locale.getValue());
 		}
 	}
 	
@@ -772,7 +772,7 @@ public class Prelude {
                     
                     return values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.DAY_OF_MONTH));
             }
-            throw RuntimeExceptionFactory.invalidUseOfTimeException("Both inputs must include dates.", null, null);
+            throw RuntimeExceptionFactory.invalidUseOfTimeException("Both inputs must include dates.");
     }
 
     /*
@@ -877,7 +877,7 @@ public class Prelude {
 			}
 		}
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
 		finally {
 			currentOutStream.flush();
@@ -923,7 +923,7 @@ public class Prelude {
 			w.write(arg, sw);
 			writeFile(sloc, values.list(values.string(sw.toString())));
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);		
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
 		}
 	}
 	
@@ -960,7 +960,7 @@ public class Prelude {
 			currentOutStream.println();
 		}
 		catch (IOException e) {
-		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 		finally {
 			currentOutStream.flush();
@@ -1004,10 +1004,10 @@ public class Prelude {
 		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
 			return result;
 		} catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -1020,7 +1020,7 @@ public class Prelude {
             URIResolverRegistry.getInstance().setLastModified(sloc, timestamp);
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
 	
@@ -1037,7 +1037,7 @@ public class Prelude {
 			URIResolverRegistry.getInstance().remove(sloc);
 		}
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -1046,7 +1046,7 @@ public class Prelude {
 	    URIResolverRegistry.getInstance().mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
-	    RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	    RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 	
@@ -1059,9 +1059,9 @@ public class Prelude {
 			}
 			return w.done(); 
 		} catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		} 
 	}
 	
@@ -1079,10 +1079,10 @@ public class Prelude {
 			return values.string(consumeInputStream(reader));
 		} 
 		catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -1092,10 +1092,10 @@ public class Prelude {
 			return values.string(consumeInputStream(reader));
 		} 
 		catch (FileNotFoundException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		} 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 
@@ -1149,11 +1149,11 @@ public class Prelude {
 			
 			hash = md.digest();
 		}catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}catch(IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
 		} catch (NoSuchAlgorithmException e) {
-			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
+			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"));
 		}
         
         StringBuffer result = new StringBuffer(hash.length * 2);
@@ -1214,10 +1214,10 @@ public class Prelude {
 			}
 		} 
 		catch (FileNotFoundException fnfex) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		} 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 		
 		if (detected != null)
@@ -1236,7 +1236,7 @@ public class Prelude {
 		URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
 		if (!Charset.forName(charset.getValue()).canEncode()) {
-		    throw RuntimeExceptionFactory.illegalArgument(charset, null, null);
+		    throw RuntimeExceptionFactory.illegalArgument(charset);
 		}
 		
 		Reader prefix = null;
@@ -1289,14 +1289,14 @@ public class Prelude {
 			}
 		} 
 		catch(FileNotFoundException fnfex){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		} 
 		catch (UnsupportedOperationException e) {
 			assert false; // we tested for offset length above
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		} 
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
 		}
 		finally {
 			try {
@@ -1307,7 +1307,7 @@ public class Prelude {
 					postfix.close();
 				}
 			} catch (IOException e) {
-				throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+				throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 			}
 		}
 		
@@ -1323,10 +1323,10 @@ public class Prelude {
 			}
 		}
 		catch(FileNotFoundException e){
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch(IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 		return;
 	}
@@ -1345,13 +1345,13 @@ public class Prelude {
 			return consumeInputStreamLines(reader);
 		}
 		catch (MalformedURLException e) {
-		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
+		    throw RuntimeExceptionFactory.malformedURI(sloc.toString());
 		}
 		catch (FileNotFoundException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		} 
 	}
 	
@@ -1361,13 +1361,13 @@ public class Prelude {
 			return consumeInputStreamLines(reader);
 		}
 		catch (MalformedURLException e) {
-		    throw RuntimeExceptionFactory.malformedURI(sloc.toString(), null, null);
+		    throw RuntimeExceptionFactory.malformedURI(sloc.toString());
 		}
 		catch (FileNotFoundException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 
@@ -1398,10 +1398,10 @@ public class Prelude {
 			} 
 		}
 		catch (FileNotFoundException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 
 		return w.done();
@@ -1430,7 +1430,7 @@ public class Prelude {
             return values.string(result.toString());
         }
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
 	
@@ -1491,7 +1491,7 @@ public class Prelude {
         return this;
       }
       if(less.less(array[0], array[0])) {
-    	  throw RuntimeExceptionFactory.illegalArgument(less.less, null, null, "Bad comparator: Did you use less-or-equals instead of less-than?");
+    	  throw RuntimeExceptionFactory.illegalArgument(less.less, "Bad comparator: Did you use less-or-equals instead of less-than?");
       }
       sort(0, size - 1);
 
@@ -1530,14 +1530,14 @@ public class Prelude {
 	
 	public IValue elementAt(IList lst, IInteger index) {
 		if(lst.length() == 0)
-			throw RuntimeExceptionFactory.emptyList(null, null);
+			throw RuntimeExceptionFactory.emptyList();
 		try {
 			int i = index.intValue();
 			if(index.intValue() < 0)
 				i = i + lst.length();
 			return lst.get(i);
 		} catch (IndexOutOfBoundsException e){
-			 throw RuntimeExceptionFactory.indexOutOfBounds(index, null, null);
+			 throw RuntimeExceptionFactory.indexOutOfBounds(index);
 		}
 	}
 	
@@ -1635,7 +1635,7 @@ public class Prelude {
 		try {
 			return lst.delete(n.intValue());
 		} catch (IndexOutOfBoundsException e){
-			 throw RuntimeExceptionFactory.indexOutOfBounds(n, null, null);
+			 throw RuntimeExceptionFactory.indexOutOfBounds(n);
 		}
 	}
 	
@@ -1657,7 +1657,7 @@ public class Prelude {
 	      return lst.get(0);
 	   }
 	   
-	   throw RuntimeExceptionFactory.emptyList(null, null);
+	   throw RuntimeExceptionFactory.emptyList();
 	}
 
 	public IValue head(IList lst, IInteger n)
@@ -1668,7 +1668,7 @@ public class Prelude {
 	      return lst.sublist(0, n.intValue());
 	   } catch(IndexOutOfBoundsException e){
 		   IInteger end = values.integer(n.intValue() - 1);
-	      throw RuntimeExceptionFactory.indexOutOfBounds(end, null, null);
+	      throw RuntimeExceptionFactory.indexOutOfBounds(end);
 	   }
 	}
 
@@ -1680,7 +1680,7 @@ public class Prelude {
 			return lst.get(random.nextInt(n));
 		}
 		
-		throw RuntimeExceptionFactory.emptyList(null, null);
+		throw RuntimeExceptionFactory.emptyList();
 	}
 
 	public IValue insertAt(IList lst, IInteger n, IValue elm)
@@ -1703,7 +1703,7 @@ public class Prelude {
 	      return w.done();
 	    }
 	    
-		throw RuntimeExceptionFactory.indexOutOfBounds(n, null, null);
+		throw RuntimeExceptionFactory.indexOutOfBounds(n);
 	 }
 	
 	public IValue isEmpty(IList lst)
@@ -1731,7 +1731,7 @@ public class Prelude {
 			return lst.sublist(start.intValue(), len.intValue());
 		} catch (IndexOutOfBoundsException e){
 			IInteger end = values.integer(start.intValue() + len.intValue());
-			throw RuntimeExceptionFactory.indexOutOfBounds(end, null, null);
+			throw RuntimeExceptionFactory.indexOutOfBounds(end);
 		}
 	 }
 
@@ -1741,7 +1741,7 @@ public class Prelude {
 	 	try {
 	 		return lst.sublist(1, lst.length()-1);
 	 	} catch (IndexOutOfBoundsException e){
-	 		throw RuntimeExceptionFactory.emptyList(null, null);
+	 		throw RuntimeExceptionFactory.emptyList();
 	 	}
 	 }
 	 
@@ -1755,7 +1755,7 @@ public class Prelude {
 	 		return lst.sublist(lstLen - lenVal, lenVal);
 	 	} catch (IndexOutOfBoundsException e){
 	 		IInteger end = values.integer(lenVal - lstLen);
-	 		throw RuntimeExceptionFactory.indexOutOfBounds(end, null, null);
+	 		throw RuntimeExceptionFactory.indexOutOfBounds(end);
 	 	}
 	 }
 	  
@@ -1831,7 +1831,7 @@ public class Prelude {
 	      return values.tuple(pick, w.done());
 	   	}
 	   
-	   throw RuntimeExceptionFactory.emptyList(null, null);
+	   throw RuntimeExceptionFactory.emptyList();
 	}
 	
 	public IMap toMap(IList lst)
@@ -1872,7 +1872,7 @@ public class Prelude {
 		   IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
 		   IValue val = t.get(1);
 		   if(seenKeys.containsKey(key)) { 
-		       throw RuntimeExceptionFactory.MultipleKey(key.getValue(), seenKeys.get(key), val, null, null);
+		       throw RuntimeExceptionFactory.MultipleKey(key.getValue(), seenKeys.get(key), val);
 		   }
 		   seenKeys.put(key, val);
 		   w.put(key.getValue(), val);
@@ -1914,7 +1914,7 @@ public class Prelude {
 			return values.string(result.toString());
 		} 
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string("Could not convert list to indented value"), null, null);
+			RuntimeExceptionFactory.io(values.string("Could not convert list to indented value"));
 			throw new RuntimeException("previous command should always throw");
 		}
 	}
@@ -1946,7 +1946,7 @@ public class Prelude {
 	   int i = 0;
 	   int sz = m.size();
 	   if(sz == 0){
-	      throw RuntimeExceptionFactory.emptyMap(null, null);
+	      throw RuntimeExceptionFactory.emptyMap();
 	   }
 	   int k = random.nextInt(sz);
 	   Iterator<Entry<IValue,IValue>> iter = m.entryIterator();
@@ -1973,7 +1973,7 @@ public class Prelude {
 			IValue val = entry.getValue();
 			IsEqualsAdapter valWrap = new IsEqualsAdapter(val);
 			if (seenValues.containsKey(valWrap)) {
-					throw RuntimeExceptionFactory.MultipleKey(val, key, seenValues.get(valWrap), null, null);
+					throw RuntimeExceptionFactory.MultipleKey(val, key, seenValues.get(valWrap));
 			}
 			seenValues.put(valWrap, key);
 			w.put(val, key);
@@ -2233,7 +2233,7 @@ public class Prelude {
 		}
 		catch (Ambiguous e) {
 			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)), null, null);
+			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
@@ -2292,11 +2292,11 @@ public class Prelude {
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = pe.getLocation();
-			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+			throw RuntimeExceptionFactory.parseError(errorLoc);
 		}
 		catch (Ambiguous e) {
 			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)), null, null);
+			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
@@ -2315,11 +2315,11 @@ public class Prelude {
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = pe.getLocation();
-			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+			throw RuntimeExceptionFactory.parseError(errorLoc);
 		}
 		catch (Ambiguous e) {
 			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)), null, null);
+			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
 		}
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
@@ -2337,7 +2337,7 @@ public class Prelude {
 		if (type.isAbstractData()) {
 			return (IConstructor)value;
 		}
-		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", null, null);
+		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
 	}
 	
 	protected java.lang.String unescapedConsName(ITree tree) {
@@ -2452,7 +2452,7 @@ public class Prelude {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
 				if (!type.isAbstractData() && !isUntypedNodeType(type)) {
-					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
+					throw RuntimeExceptionFactory.illegalArgument(tree, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 				}
 				
 				if (isUntypedNodeType(type)) {
@@ -2475,7 +2475,7 @@ public class Prelude {
 					}
 				}
 				
-				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
+				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a constructor " + type));
 			}
 			if (type.isInteger()) {
 				return values.integer(yield);
@@ -2490,14 +2490,14 @@ public class Prelude {
 				if (yield.equals("false")) {
 					return values.bool(false);
 				}
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Bool type does not match with " + yield));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Bool type does not match with " + yield));
 			}
 			if (type.isString() || isUntypedNodeType(type)) {
 				// NB: in "node space" all lexicals become strings
 				return values.string(yield);
 			}
 			
-			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Missing lexical constructor");
+			throw RuntimeExceptionFactory.illegalArgument(tree, "Missing lexical constructor");
 		}
 		
 		//Set implementation added here by Jurgen at 19/07/12 16:45
@@ -2526,7 +2526,7 @@ public class Prelude {
 				return w.done();
 			}
 			else {
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot match list with " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot match list with " + type));
 			}
 		}
 		//Changes end here
@@ -2541,7 +2541,7 @@ public class Prelude {
 		
 		if (TreeAdapter.isOpt(tree)) {
 			if (!type.isList() && !isUntypedNodeType(type)) {
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Optional should match with a list and not " + type));
 			}
 			Type elementType = isUntypedNodeType(type) ? type : type.getElementType();
 			IListWriter w = values.listWriter();
@@ -2564,7 +2564,7 @@ public class Prelude {
 		
 		if (TreeAdapter.isAmb(tree)) {
 			if (!type.isSet()) {
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and not " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Ambiguous node should match with set and not " + type));
 			}
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter();
@@ -2631,11 +2631,11 @@ public class Prelude {
 				}
 
 				if (!type.isTuple()) {
-					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor does not match with " + type));
+					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Constructor does not match with " + type));
 				}
 				
 				if (length != type.getArity()) {
-					throw new Backtrack(RuntimeExceptionFactory.arityMismatch(type.getArity(), length, null, null));
+					throw new Backtrack(RuntimeExceptionFactory.arityMismatch(type.getArity(), length));
 				}
 
 				return values.tuple(implodeArgs(store, type, args, ctx));
@@ -2649,7 +2649,7 @@ public class Prelude {
 			
 			// make a typed constructor
 			if (!type.isAbstractData()) {
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
 			}
 
 			Set<Type> conses = findConstructors(type, constructorName, length, store);
@@ -2670,11 +2670,11 @@ public class Prelude {
 				}
 			}
 			
-			throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+			throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree,
                 "Cannot find a constructor for " + type + " with name " + constructorName + " and arity " + length + " for syntax type \'" + ProductionAdapter.getSortName(TreeAdapter.getProduction(tree)) + "\'"));
 		}
 		
-		throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+		throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, 
 				"Cannot find a constructor for " + type));
 	}
 	
@@ -2730,13 +2730,13 @@ public class Prelude {
 	
 	private static IConstructor checkPreconditions(IValue start, Type reified) {
 		if (!(reified instanceof ReifiedType)) {
-		   throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A reified type is required instead of " + reified);
+		   throw RuntimeExceptionFactory.illegalArgument(start, "A reified type is required instead of " + reified);
 		}
 		
 		Type nt = reified.getTypeParameters().getFieldType(0);
 		
 		if (!(nt instanceof NonTerminalType)) {
-			throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A non-terminal type is required instead of  " + nt);
+			throw RuntimeExceptionFactory.illegalArgument(start, "A non-terminal type is required instead of  " + nt);
 		}
 		
 		return (IConstructor) start;
@@ -2774,7 +2774,7 @@ public class Prelude {
 		int sz = st.size();
 
 		if (sz == 0) {
-			throw RuntimeExceptionFactory.emptySet(null, null);
+			throw RuntimeExceptionFactory.emptySet();
 		}
 		int k = random.nextInt(sz);
 		int i = 0;
@@ -2786,7 +2786,7 @@ public class Prelude {
 			i++;
 		}
 		
-		throw RuntimeExceptionFactory.emptySet(null, null);
+		throw RuntimeExceptionFactory.emptySet();
 	}
 
 	public IValue isEmpty(ISet st)
@@ -2848,7 +2848,7 @@ public class Prelude {
 			}
 			return values.tuple(pick, w.done());
 		}
-		throw RuntimeExceptionFactory.emptySet(null, null);
+		throw RuntimeExceptionFactory.emptySet();
 	}
 
 	public IValue toList(ISet st)
@@ -2898,7 +2898,7 @@ public class Prelude {
 			IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
 			IValue val = t.get(1); 
 			if(seenKeys.containsKey(key)) {  
-				throw RuntimeExceptionFactory.MultipleKey(key.getValue(), seenKeys.get(key), val, null, null);
+				throw RuntimeExceptionFactory.MultipleKey(key.getValue(), seenKeys.get(key), val);
 			}
 			seenKeys.put(key, val);
 			w.put(key.getValue(), val);
@@ -2936,7 +2936,7 @@ public class Prelude {
 			return values.string(intValue);
 		}
 		else {
-			throw RuntimeExceptionFactory.illegalArgument(i, null, null);
+			throw RuntimeExceptionFactory.illegalArgument(i);
 		}
 	}
 	
@@ -2946,7 +2946,7 @@ public class Prelude {
 		for (int i = 0; i < lst.length(); i ++) {
 			chars[i] = ((IInteger) lst.get(i)).intValue();
 			if (!Character.isValidCodePoint(chars[i])) {
-				throw RuntimeExceptionFactory.illegalArgument(values.integer(chars[i]), null, null);
+				throw RuntimeExceptionFactory.illegalArgument(values.integer(chars[i]));
 			}
 		}
 		
@@ -2960,7 +2960,7 @@ public class Prelude {
 		return values.integer(s.charAt(i.intValue()));
 	  }
 	  catch (IndexOutOfBoundsException e) {
-	    throw RuntimeExceptionFactory.indexOutOfBounds(i, null, null);
+	    throw RuntimeExceptionFactory.indexOutOfBounds(i);
 	  }
 	}
 
@@ -3144,7 +3144,7 @@ public class Prelude {
 		try {
 			return s.substring(begin.intValue());
 		} catch (IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(begin, null, null);
+			throw RuntimeExceptionFactory.indexOutOfBounds(begin);
 		}
 	}
 	
@@ -3154,7 +3154,7 @@ public class Prelude {
 		} catch (IndexOutOfBoundsException e) {
 			int bval = begin.intValue();
 			IInteger culprit = (bval < 0 || bval >= s.length()) ? begin : end;
-		    throw RuntimeExceptionFactory.indexOutOfBounds(culprit, null, null);
+		    throw RuntimeExceptionFactory.indexOutOfBounds(culprit);
 		}
 	
 	}
@@ -3186,7 +3186,7 @@ public class Prelude {
 			return values.integer(bi.toString());
 		}
 		catch (NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(s, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(s, e.getMessage());
 		}
 	}
 	
@@ -3286,7 +3286,7 @@ public class Prelude {
 	      InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
 	      return values.string(toBase64(bytes, in.length() * 2));
 	  } catch (IOException e) {
-	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 
@@ -3295,7 +3295,7 @@ public class Prelude {
 	        return values.string(toBase64(in, 1024));
 	    }
 	    catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	    }
 	}
 	
@@ -3312,7 +3312,7 @@ public class Prelude {
 	        fromBase64(in.getValue(), result);
 	        return values.string(result.toString(StandardCharsets.UTF_8.name()));
 	    } catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	    }
 	}
 
@@ -3473,7 +3473,7 @@ public class Prelude {
 	
 	public IList fieldsOf(IValue v){
 		if(!v.getType().isTuple())
-			throw RuntimeExceptionFactory.illegalArgument(v, null, null, "argument of type tuple is required");
+			throw RuntimeExceptionFactory.illegalArgument(v, "argument of type tuple is required");
 		ITuple tp = (ITuple) v;
 		Type tt = tp.getType();
 		int a = tt.getArity();
@@ -3495,7 +3495,7 @@ public class Prelude {
 		if (g.getScheme().equals("file")) {
 			File f = new File(g.getURI());
 			if (!f.exists() || f.isDirectory()) { 
-				throw RuntimeExceptionFactory.io(values.string(g.toString()), null, null);
+				throw RuntimeExceptionFactory.io(values.string(g.toString()));
 			}
 			
 			return values.integer(f.length());
@@ -3517,7 +3517,7 @@ public class Prelude {
 		try {
 			return URIResolverRegistry.getInstance().logicalToPhysical(loc);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.schemeNotSupported(loc, null, null);
+			throw RuntimeExceptionFactory.schemeNotSupported(loc);
 		}
 	}
 	
@@ -3532,16 +3532,16 @@ public class Prelude {
 			if(val.getType().isSubtypeOf(start)){
 				return val;
 			} else {
-			throw RuntimeExceptionFactory.io(values.string("Requested type " + start + ", but found " + val.getType()), null, null);
+			throw RuntimeExceptionFactory.io(values.string("Requested type " + start + ", but found " + val.getType()));
 			}
 		}
 		catch (IOException e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 		catch (Exception e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 
@@ -3567,16 +3567,16 @@ public class Prelude {
 			if(val.getType().isSubtypeOf(start)){
 				return val;
 			} else {
-			throw RuntimeExceptionFactory.io(values.string("Requested type " + start + ", but found " + val.getType()), null, null);
+			throw RuntimeExceptionFactory.io(values.string("Requested type " + start + ", but found " + val.getType()));
 			}
 		}
 		catch (IOException e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 		catch (Exception e) {
 			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -3604,13 +3604,13 @@ public class Prelude {
 			return new StandardTextReader().read(values, store, start, in);
 		}
 		catch (FactTypeUseException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         } 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 		catch (Exception e) {
-		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -3622,13 +3622,13 @@ public class Prelude {
 			return new StandardTextReader().read(values, store, start, in);
 		} 
 		catch (FactTypeUseException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		} 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 		catch (Exception e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
 	}
 
@@ -3639,7 +3639,7 @@ public class Prelude {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
 		}
     }
 
@@ -3662,7 +3662,7 @@ public class Prelude {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
 		}
 	}
 
@@ -3683,7 +3683,7 @@ public class Prelude {
 			new io.usethesource.vallang.io.old.BinaryValueWriter().write(value, out, compression.getValue());
 		}
 		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
 		}
 	}
 	
@@ -3693,7 +3693,7 @@ public class Prelude {
 			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -3719,7 +3719,7 @@ public class Prelude {
 		} 
 		catch (URISyntaxException e) {
 			assert false;
-			throw RuntimeExceptionFactory.malformedURI("uuid://" + uuid, null, null);
+			throw RuntimeExceptionFactory.malformedURI("uuid://" + uuid);
 		}
 	}
 	
@@ -3733,7 +3733,7 @@ public class Prelude {
 			return values.integer(bytes.toByteArray());
 		} 
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string("could not generate unique number " + uuid), null, null);
+			throw RuntimeExceptionFactory.io(values.string("could not generate unique number " + uuid));
 		}
 	}
 	
