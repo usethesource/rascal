@@ -364,7 +364,7 @@ public void shutdown(ISourceLocation server) {
       //}
     }
     else {
-      throw RuntimeExceptionFactory.illegalArgument(server, null, null, "could not shutdown");
+      throw RuntimeExceptionFactory.illegalArgument(server, "could not shutdown");
     }
   }
   
