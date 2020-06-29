@@ -3209,7 +3209,7 @@ public class Prelude {
 			return values.integer(bi.toString());
 		}
 		catch (NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(null, null);
+			throw RuntimeExceptionFactory.illegalArgument();
 		}
 	}
 	
@@ -3220,7 +3220,7 @@ public class Prelude {
 			return values.real(s.getValue());
 		}
 		catch (NumberFormatException e){
-			throw RuntimeExceptionFactory.illegalArgument(null, null);
+			throw RuntimeExceptionFactory.illegalArgument();
 		}
 	}
 	

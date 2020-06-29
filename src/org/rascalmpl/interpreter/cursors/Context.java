@@ -10,6 +10,6 @@ public abstract class Context {
 	public abstract IValue up(IValue focus);
 	
 	public  IList toPath(IValueFactory vf) {
-		throw RuntimeExceptionFactory.illegalArgument(null, null);
+		throw RuntimeExceptionFactory.illegalArgument();
 	}
 }
