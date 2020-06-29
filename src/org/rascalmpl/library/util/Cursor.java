@@ -97,8 +97,7 @@ public class Cursor {
 
 	private static void checkCursorness(String arg, IValue cursor) {
 		if (!(cursor instanceof ICursor)) {
-			throw RuntimeExceptionFactory.illegalArgument(cursor, null, null,
-					arg + " argument should be a cursor");
+			throw RuntimeExceptionFactory.illegalArgument(cursor, arg + " argument should be a cursor");
 		}
 	}
 	
