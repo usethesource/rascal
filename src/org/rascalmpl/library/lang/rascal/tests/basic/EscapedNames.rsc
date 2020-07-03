@@ -1,8 +1,8 @@
 module lang::rascal::tests::basic::EscapedNames
 
-import lang::rascal::tests::basic::\Escaped-name-module;
-
-test bool escapedNameModule() = importedFromEscapedNameModule();
+//import lang::rascal::tests::basic::\Escaped-name-module;
+//
+//test bool escapedNameModule() = importedFromEscapedNameModule();
 
 int \an-int = 42;
 
