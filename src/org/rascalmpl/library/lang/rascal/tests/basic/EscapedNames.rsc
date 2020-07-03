@@ -92,18 +92,61 @@ test bool escapedAlias4() { \B x = 3; return x == 3; }
 test bool escapedAlias5() { C x = 3; return x == 3; }
 test bool escapedAlias6() { \C x = 3; return x == 3; }
 
-test bool escapedPatternName1() = \x := 3 && x == 3;
-test bool escapedPatternName2() = int \x := 3 && x == 3;
-test bool escapedPatternName3() = \y: int \x := 3 && y == 3;
-test bool escapedPatternName4() = [\x] := [3] && x == 3;
-test bool escapedPatternName5() = [*\x] := [3, 4] && x == [3, 4];
-test bool escapedPatternName6() = [*int \x] := [3, 4] && x == [3, 4];
-test bool escapedPatternName7() = {\x} := {3} && x == 3;
-test bool escapedPatternName8() = {*\x} := {3, 4} && x == {3, 4};
-test bool escapedPatternName9() = {*int \x} := {3, 4} && x == {3, 4};
-test bool escapedPatternName10() = <\x> := <3> && x == 3;
+test bool escapedPatternName1a() = \x := 3 && x == 3;
+test bool escapedPatternName1b() = \a-x := 3 && \a-x == 3;
+
+test bool escapedPatternName2a() = int \x := 3 && x == 3;
+test bool escapedPatternName2b() = int \a-x := 3 && \a-x == 3;
+
+test bool escapedPatternName3a() = \y: int \x := 3 && y == 3;
+test bool escapedPatternName3b() = \a-y: int \x := 3 && \a-y == 3;
+
+test bool escapedPatternName4a() = [\x] := [3] && x == 3;
+test bool escapedPatternName4b() = [\a-x] := [3] && \a-x == 3;
+
+test bool escapedPatternName5a() = [*\x] := [3, 4] && x == [3, 4];
+test bool escapedPatternName5b() = [*\a-x] := [3, 4] && \a-x == [3, 4];
+
+test bool escapedPatternName6a() = [*int \x] := [3, 4] && x == [3, 4];
+test bool escapedPatternName6b() = [*int \a-x] := [3, 4] && \a-x == [3, 4];
+
+test bool escapedPatternName7a() = {\x} := {3} && x == 3;
+test bool escapedPatternName7b() = {\a-x} := {3} && \a-x == 3;
+
+test bool escapedPatternName8a() = {*\x} := {3, 4} && x == {3, 4};
+test bool escapedPatternName8b() = {*\a-x} := {3, 4} && \a-x == {3, 4};
+
+test bool escapedPatternName9a() = {*int \x} := {3, 4} && x == {3, 4};
+test bool escapedPatternName9b() = {*int \a-x} := {3, 4} && \a-x == {3, 4};
+
+test bool escapedPatternName10a() = <\x> := <3> && x == 3;
+test bool escapedPatternName10b() = <\a-x> := <3> && \a-x == 3;
 
 @ignoreInterpreter{TBD}
-test bool escapedPatternName11() = /a<\z:[b]>c/ := "abc" && z == "b";
+test bool escapedPatternName11a() = /a<\z:[b]>c/ := "abc" && z == "b";
+
+@ignoreInterpreter{TBD}
+test bool escapedPatternName11b() = /a<\a-z:[b]>c/ := "abc" && \a-z == "b";
+
+test bool escapedWhileLabel() {
+    \a-l: while(true){
+            break \a-l;
+        }
+    return true;
+}
+
+test bool escapedDoLabel() {
+    \a-l: do {
+            break \a-l;
+        } while(true);
+    return true;
+}
+
+test bool escapedForLabel() {
+    \a-l: for(x <- [1..10]){
+            break \a-l;
+          }
+    return true;
+}
 
 
