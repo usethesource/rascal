@@ -84,6 +84,7 @@ data RuntimeException =
      | Java(str class, str message, RuntimeException cause) // deprecated
      | JavaException(str class, str message)
      | JavaException(str class, str message, RuntimeException cause)
+     | MalFormedURI(str uri)
      | ModuleNotFound(str name)                 // Deprecated
      | MultipleKey(value key, value first, value second)
      | NoMainFunction()

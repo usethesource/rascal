@@ -578,6 +578,15 @@ test bool matchSetDynamic5() = {str _, int _} := {"a", 1};
 test bool matchSetDynamic6() = {*str _, int _} := {"a", 1};
 test bool matchSetDynamic7() = {str _, *int _} := {"a", 1};
 
+test bool matchSetDynamicNoMatch1() = {str s, int n} !:= {"a", true};
+test bool matchSetDynamicNoMatch2() = {str _, int _} !:= {"a", true};
+test bool matchSetDynamicNoMatch3() = {*str s, int n} !:= {"a", true};
+test bool matchSetDynamicNoMatch4() = {str s, *int n} !:= {"a", true};
+test bool matchSetDynamicNoMatch5() = {str _, int _} !:= {"a", true};
+test bool matchSetDynamicNoMatch6() = {*str _, int _} !:= {"a", true};
+test bool matchSetDynamicNoMatch7() = {str _, *int _} !:= {"a", true};
+
+
 test bool matchSetModuleVar1() = {ModVar42} := {42};
 test bool matchSetModuleVar2() = {*ModVarSet_41_42_43} := ModVarSet_41_42_43;
 test bool matchSetModuleVar3() = {ModVar44, *ModVarSet_41_42_43} := {ModVar44, *ModVarSet_41_42_43};
