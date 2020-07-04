@@ -603,6 +603,14 @@ test bool matchListDynamic4() = [str s, *int n] := ["a", 1];
 test bool matchListDynamic5() = [str _, int _] := ["a", 1];
 test bool matchListDynamic6() = [*str _, int _] := ["a", 1];
 test bool matchListDynamic7() = [str _, *int _] := ["a", 1];
+
+test bool matchListDynamicNoMatch1() = [str s, int n] !:= ["a", true];
+test bool matchListDynamicNoMatch2() = [str _, int _] !:= ["a", true];
+test bool matchListDynamicNoMatch3() = [*str s, int n] !:= ["a", true];
+test bool matchListDynamicNoMatch4() = [str s, *int n] !:= ["a", true];
+test bool matchListDynamicNoMatch5() = [str _, int _] !:= ["a", true];
+test bool matchListDynamicNoMatch6() = [*str _, int _] !:= ["a", true];
+test bool matchListDynamicNoMatch7() = [str _, *int _] !:= ["a", true];
   		
 @ignore{investigate} test bool matchList() {([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);}
   		

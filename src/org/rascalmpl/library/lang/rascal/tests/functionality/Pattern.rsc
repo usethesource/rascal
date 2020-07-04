@@ -61,15 +61,23 @@ test bool matchADTwithKeywords5() = f1(1, M=X)             := f1(1, B=false, M=2
 test bool matchNode1() ="f"(1)                := "f"(1);
 test bool matchNode2() ="f"(1, "g"("abc"), true) := "f"(1, "g"("abc"), true);
 test bool matchNode3() = "g"(1)               !:= "f"(1);
-test bool matchNode4() = "g"(1)                !:= "f"(1);
+
+@ignoreInterpreter{to be determined}
+test bool matchNode4() = !"g"(1)              := "f"(1);
 test bool matchNode5() = "f"(1, 2)            !:= "f"(1);
-test bool matchNode6() = "f"(1, 2)             !:= "f"(1);
-  		
-test bool matchNode7() = "f"(_)                := "f"(1);
-test bool matchNode8() = "f"(_,_)              := "f"(1,2);
-test bool matchNode9() = "f"(_,_,_)            := "f"(1,2.5,true);
-test bool matchNode10() = "f"(1,_,3)            := "f"(1,2,3);
-test bool matchNode11() = "f"(_,2,_)            := "f"(1,2,3);
+
+@ignoreInterpreter{to be determined}
+test bool matchNode6() = !"f"(1, 2)           := "f"(1);
+test bool matchNode7() = "f"(1, 2)            !:= "f"(1, 2, 3);
+
+@ignoreInterpreter{to be determined}
+test bool matchNode8() = !"f"(1, 2)           := "f"(1, 2, 3);
+
+test bool matchNode9() = "f"(_)                := "f"(1);
+test bool matchNode10() = "f"(_,_)              := "f"(1,2);
+test bool matchNode11() = "f"(_,_,_)            := "f"(1,2.5,true);
+test bool matchNode12() = "f"(1,_,3)            := "f"(1,2,3);
+test bool matchNode13() = "f"(_,2,_)            := "f"(1,2,3);
   
 // matchNodeWithKeywords
   
@@ -92,24 +100,6 @@ test bool matchNodeWithKeywords14() ="f1"(1, M=_, B=false)  := "f1"(1, B=false, 
 test bool matchNodeWithKeywords15() ="f1"(_, M=20, B=false) := "f1"(1, B=false, M=20);
   		
 test bool matchNodeWithKeywords16() = "f1"(1, M=X) := "f1"(1, B=false, M=20) && X == 20;
-    
-//	matchTuple
-  
-test bool matchTuple1() = <1> := <1>;
-test bool matchTuple2() = <1, "abc">  := <1, "abc">;
-test bool matchTuple3() = !(<2>  := <1>);
-test bool matchTuple4() = <2> !:= <1>;
-  		
-test bool matchTuple5() = <1, "abc"> !:= <1, "def">;
-test bool matchTuple6() = <1, "abc"> !:= <1, "def">;
-  		
-test bool matchTuple7() = <_, "abc">  := <1, "abc">;
-test bool matchTuple8() = <1, _>        := <1, "abc">;
-test bool matchTuple9() = <_, _>        := <1, "abc">;
-  	
-
-// T is not initialized on purpose here 
-test bool matchTupleExternalVar1() {tuple[int,int] T; return T := <1,2> && T[0] == 1 && T[1] == 2;}
   
 //	matchVariable
 
@@ -146,9 +136,39 @@ test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
 // antiPattern
 
 test bool antiPattern1() = !4 := 3;
-test bool antiPattern2() = (!(!3 := 3));	
-test bool antiPattern3() = ![1,2,3] := [1,2,4];
-test bool antiPattern4() = !(![1,2,3] := [1,2,3]);
+test bool antiPattern2() = !4 !:= 4;
+test bool antiPattern3() = !(!4 := 4);
+test bool antiPattern4() = !!4 := 4;
+test bool antiPattern5() = !!4 !:= 3;
+test bool antiPattern6() = !(!!4 := 3);
+test bool antiPattern7() = (!(!3 := 3));	
+test bool antiPattern8() = ![1,2,3] := [1,2,4];
+test bool antiPattern9() = ![1,2,3] !:= [1,2,3];
+test bool antiPattern10() = !(![1,2,3] := [1,2,3]);
+
+test bool antiPattern11() = ![1,2] := [1,2,3];
+@ignoreInterpreter{to be determined}
+test bool antiPattern12() = ![1,2,3] := [1,2];
+
+@ignoreInterpreter{to be determined}
+test bool antiPattern13() = !{1,2,3} := {1,2,4};
+
+test bool antiPattern14() = !{1,2,3} !:= {1,2,3};
+test bool antiPattern15() = !(!{1,2,3} := {1,2,3});
+
+test bool antiPattern16() = !{1,2} := {1,2,4};
+
+@ignoreInterpreter{to be determined}
+test bool antiPattern17() = !{1,2,3} := {1,2};
+
+test bool antiPattern18() = !<1,2,3> := <1,2,4>;
+test bool antiPattern19() = !<1,2,3> !:= <1,2,3>;
+test bool antiPattern20() = !(!<1,2,3> := <1,2,3>);
+
+@ignoreInterpreter{to be determined}
+test bool antiPattern21() = !<1,2> := <1,2,4>;
+@ignoreInterpreter{to be determined}
+test bool antiPattern22() = !<1,2,3> := <1,2>;
   	
 // Match in loops
 
