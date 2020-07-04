@@ -130,6 +130,9 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             getErrorWriter().println("Internal error: ambiguous command: " + TreeAdapter.yield(e.getTree()));
             return;
         }
+        finally {
+            getOutputWriter().flush();
+        }
     }
 
     @Override
