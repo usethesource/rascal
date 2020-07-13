@@ -51,7 +51,6 @@ public class RascalJUnitTestRunner extends Runner {
     private static Evaluator evaluator;
     private static GlobalEnvironment heap;
     private static ModuleEnvironment root;
-    private static PrintWriter stderr;
     private Description desc;
 
     private final String prefix;
@@ -200,11 +199,11 @@ public class RascalJUnitTestRunner extends Runner {
                     List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                 
                     if (tests.isEmpty()) {
-                        stderr.println("\tskipping. Module has no tests.");
+                        System.err.println("\tskipping. Module has no tests.");
                         continue;
                     }
                     
-                    stderr.println("\t adding " + tests.size() + " tests for " + name);
+                    System.err.println("\t adding " + tests.size() + " tests for " + name);
                     desc.addChild(modDesc);
 
                     // the order of the tests aren't decided by this list so no need to randomly order them.
