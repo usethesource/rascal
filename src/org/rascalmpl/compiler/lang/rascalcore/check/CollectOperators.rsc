@@ -188,7 +188,14 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c){
 
 void collect(current: (Expression) `<Expression lhs> o <Expression rhs>`, Collector c){
     c.calculate("composition", current, [lhs, rhs],  
-       AType(Solver s){ return binaryOp("composition", _computeCompositionType, current, s.getType(lhs), s.getType(rhs), s); });
+       AType(Solver s){ 
+            lhsType = s.getType(lhs);
+            rhsType = s.getType(rhs);
+            if(isOverloadedAType(lhsType) && isOverloadedAType(rhsType)){
+                return _computeCompositionType(current, lhsType, rhsType, s);
+            }
+            return binaryOp("composition", _computeCompositionType, current, lhsType, rhsType, s); 
+       });
     collect(lhs, rhs, c); 
 }
 
@@ -249,10 +256,10 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
         }
     }
     
-    if (isFunctionType(t1) && isFunctionType(t2)) {
-        compositeArgs = getFunctionArgumentTypes(t2);
+    if (isFunctionType(t1) && isFunctionType(t2) || isOverloadedAType(t1) && isOverloadedAType(t2)) {
+        compositeArgs = getFunctionOrConstructorArgumentTypes(t2);
         compositeRet = getFunctionReturnType(t1);
-        linkingArgs = getFunctionArgumentTypes(t1);
+        linkingArgs = getFunctionOrConstructorArgumentTypes(t1);
         
         // For f o g, f should have exactly one formal parameter
         if (size(linkingArgs) != 1) {
@@ -266,7 +273,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
         
         // If both of those pass, the result type is a function with the args of t2 and the return type of t1
         rt = afunc(compositeRet, compositeArgs,[]);
-        return return rt;         
+        return rt;         
     }
 
    s.report(error(current, "Composition not defined on %t and %t", t1, t2));
