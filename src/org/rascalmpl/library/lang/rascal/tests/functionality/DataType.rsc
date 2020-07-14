@@ -313,17 +313,35 @@ test bool testString22() = "def" > "abc";
     	
 //	 stringEscapes
     
-test bool testStringEscapes1() = "\\b" == "\\b";
-test bool testStringEscapes2() = "\\t" == "\\t";
-test bool testStringEscapes3() = "\\n" == "\\n";
-test bool testStringEscapes4() = "\\f" == "\\f";
-test bool testStringEscapes5() = "\\r" == "\\r";
+test bool testStringEscapes1a() = "\\b" == "\\b";
+test bool testStringEscapes1b() = "\\" + "b" == "\\b";
+
+test bool testStringEscapes2a() = "\\t" == "\\t";
+test bool testStringEscapes2b() = "\\" + "t" == "\\t";
+
+test bool testStringEscapes3a() = "\\n" == "\\n";
+test bool testStringEscapes3b() = "\\" + "n" == "\\n";
+
+test bool testStringEscapes4a() = "\\f" == "\\f";
+test bool testStringEscapes4b() = "\\" + "f" == "\\f";
+
+test bool testStringEscapes5a() = "\\r" == "\\r";
+test bool testStringEscapes5b() = "\\" + "r" == "\\r";
     		
-test bool testStringEscapes6() = "\"\"" == "\"\"";
-test bool testStringEscapes7() = "\\\'" == "\\\'";
-test bool testStringEscapes8() = "\\\\" == "\\\\";
-test bool testStringEscapes9() = "\"\<" == "\"\<";
-test bool testStringEscapes10() = "\"\>" == "\"\>";
+test bool testStringEscapes6a() = "\"\"" == "\"\"";
+test bool testStringEscapes6b() = "\"" + "\"" == "\"\"";
+
+test bool testStringEscapes7a() = "\\\'" == "\\\'";
+test bool testStringEscapes7b() = "\\" + "\'" == "\\\'";
+
+test bool testStringEscapes8a() = "\\\\" == "\\\\";
+test bool testStringEscapes8b() = "\\" + "\\" == "\\\\";
+
+test bool testStringEscapes9a() = "\"\<" == "\"\<";
+test bool testStringEscapes9b() = "\"" + "\<" == "\"\<";
+
+test bool testStringEscapes10a() = "\"\>" == "\"\>";
+test bool testStringEscapes10b() = "\"" + "\>" == "\"\>";
     		
 test bool testStringEscapes11() = "\a20" == " ";
 test bool testStringEscapes12() = "\U01F35D" == "🍝";
