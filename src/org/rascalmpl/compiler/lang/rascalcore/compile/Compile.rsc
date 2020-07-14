@@ -19,7 +19,7 @@ import lang::rascalcore::compile::util::Names;
 
 loc generatedDir = |project://rascal-codegen-ideas/generated|;
 
-list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
+list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=true){
     tm = tmodels[qualifiedModuleName];
     iprintln(tm);
     targetDir = generatedDir + module2path(qualifiedModuleName);
@@ -41,10 +41,10 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
    	try {
         //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
      
-       	muMod = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
-
-        <the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
+       	<tm, muMod> = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+        tmodels[qualifiedModuleName] = tm;
         
+        <the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
      
         //writeFile(targetDir + "$<className>.java", the_interface);
         writeFile(targetDir + "<className>.java", the_class);
@@ -62,7 +62,7 @@ list[Message] compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|,
     compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose = verbose, optimize=optimize, enableAsserts=enableAsserts);
 
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
-list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
+list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=true){
     start_check = cpuTime();   
     <tmodels, moduleLocs, modules> =  rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig()/*[logSolverSteps=true]*/);
     //iprintln(tmodels[qualifiedModuleName], lineLimit=10000);

@@ -43,11 +43,12 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
     ftype = afunc(avalue(),[avalue()], []);
     enterFunctionScope("<module_name>_init");
    	for(var <- variables){
-   		addVariableToModule(muModuleVar(getType(tp), "<var.name>"));
+   	    unescapedVarName = unescapeName("<var.name>");
+   		addVariableToModule(muModuleVar(getType(tp), unescapedVarName));
    		//variables_in_module += [];
    		if(var is initialized) {
    		   init_code =  translate(var.initial);
-   		   asg = muAssign( muVar("<var.name>", getModuleName(), -1, getType(tp)), init_code);
+   		   asg = muAssign( muVar(unescapedVarName, getModuleName(), -1, getType(tp)), init_code);
    		   addVariableInitializationToModule(asg);
    		}
    	}
@@ -100,7 +101,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
         
         defExprCode = fixFieldReferences(translate(defaultExpr), adtType, adtVar);
         body = muReturn1(kwType, muIfelse(muIsKwpDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /*
@@ -126,7 +127,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
             
             defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar);
             body = muReturn1(kwType, muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExprCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", 1, 1, false, true, false, {}, {}, getModuleScope(), [], (), body));               
        }
     }
     
@@ -148,7 +149,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
                        ]
                        + muFailReturn(returnType)
                       );
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /* 
@@ -183,7 +184,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
                                         []),
                                         |unknown:///|)
                       );
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, {}, {}, getModuleScope(), [], (), body));            
     }
  }
 
@@ -231,7 +232,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                                          false, 
                                          true,
                                          false,
-                                         [],
+                                         {},
+                                         {},
                                          fd@\loc, 
                                          tmods, 
                                          ttags,
@@ -296,6 +298,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       								 isPub,
       								 isMemo,
       								 getExternalRefs(tbody, fuid),
+      								 getLocalRefs(tbody),
       								 fd@\loc, 
       								 tmods, 
       								 ttags,
@@ -344,8 +347,14 @@ bool hasParameterName((Pattern) `<Name name> : <Pattern pattern>`, int i) = "<na
 bool hasParameterName((Pattern) `<Type tp> <Name name> : <Pattern pattern>`, int i) = "<name>" != "_";
 default bool hasParameterName(Pattern p, int i) = false;
 
-list[MuExp] getExternalRefs(MuExp exp, str fuid)
-    = toList({ v | /v:muVar(str name, str fuid2, int pos, AType atype) := exp, fuid2 != fuid, fuid2 != "" });
+set[MuExp] getAssignedInVisit(list[MuCase] cases, MuExp def)
+    = { v | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str name, str fuid2, int pos, AType atype), MuExp _) := exp};
+    
+set[MuExp] getLocalRefs(MuExp exp)
+  = { *getAssignedInVisit(cases, defaultExp) | /muVisit(str _, MuExp _, list[MuCase] cases, MuExp defaultExp, VisitDescriptor _) := exp };
+
+set[MuExp] getExternalRefs(MuExp exp, str fuid)
+    = { v | /v:muVar(str name, str fuid2, int pos, AType atype) := exp, fuid2 != fuid, fuid2 != "" };
     
 /********************************************************************/
 /*                  Translate keyword parameters                    */
@@ -486,7 +495,7 @@ public map[str,str] translateTags(Tags tags){
      } else if (tg is empty)
         m[name] = "";
      else
-        m[name] = "<tg.expression>"[1 .. -1];
+        m[name] = "<tg.expression>";
    }
    return m;
 }

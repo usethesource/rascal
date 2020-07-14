@@ -293,7 +293,7 @@ JCode transPrim("not", abool(), [abool()], [str x], JGenie jg)                  
 
 // ---- notequal --------------------------------------------------------------
 
-JCode transPrim("notequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$equal(<x>,<y>)).not()";
+JCode transPrim("notequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$equal(<x>,<y>).not()";
 
 // ---- notin -----------------------------------------------------------------
 

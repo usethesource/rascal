@@ -54,7 +54,8 @@ public data MuFunction =
                            bool isVarArgs,
                            bool isPublic,
                            bool isMemo,
-                           list[MuExp] externalVars,
+                           set[MuExp] externalVars,
+                           set[MuExp] localRefs,
                            loc src,
                            list[str] modifiers,
                            map[str,str] tags,
@@ -103,12 +104,12 @@ public data MuExp =
           | muNoValue()                                         // Absent value in optional construct
           | muATypeCon(AType atype, map[AType,set[AType]] defs) // AType as constant
           
-          | muFun1(loc uid /* str fuid*/)   			        // *muRascal* function constant: functions at the root
+          | muFun(loc uid, AType atype)                         // *muRascal* function constant: functions at the root
            
-          | muOFun(str fuid)                                    // *Rascal* function, i.e., overloaded function at the root
+          | muOFun(str fuid, AType atype)                       // *Rascal* function, i.e., overloaded function at the root
           
           | muConstr(AType ctype) 					        	// Constructor
-          //| muConstrCompanion(str fuid)                         // Companion function for constructor with keyword parameters
+          //| muConstrCompanion(str fuid)                       // Companion function for constructor with keyword parameters
           
           	// Variables and temporaries
           | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)
@@ -156,7 +157,7 @@ public data MuExp =
           | muGetKwp(MuExp var, AType atype, str kwpName)
           | muHasKwp(MuExp var, str kwpName)
           
-          | muInsert(MuExp exp, AType atype)				    // Insert statement
+          | muInsert(AType atype, MuExp exp)				    // Insert statement
               
           // Get and assign values
           
@@ -173,6 +174,7 @@ public data MuExp =
           | muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
           | muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
           | muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)
+          | muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)
 
           | muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)
           
@@ -201,19 +203,19 @@ public data MuExp =
           | muFail(str label)                                 // Fail in current backtracking scope                      
           
           //  Visit
-          | muVisit(MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
+          | muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
           | muDescendantMatchIterator(MuExp subject, DescendantDescriptor ddescriptor)
-          | muSucceedVisitCase()                              // Marks a success exit point of a visit case
+          | muSucceedVisitCase(str visitName)                 // Marks a success exit point of a visit case
         
           // Switch
-          | muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)		// switch over cases for specific value
+          | muSwitch(str switchName, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)		// switch over cases for specific value
           
-          | muFailCase()                                      // Marks the failure exit point of a switch or visit case
-          | muSucceedSwitchCase()                             // Marks a success exit point of a switch case
+          | muFailCase(str switchName)                        // Marks the failure exit point of a switch or visit case
+          | muSucceedSwitchCase(str switchName)               // Marks a success exit point of a switch case
                  
            // Multi-expressions
           | muBlock(list[MuExp] exps)                         // A list of expressions that does not deliver a value
-          | muValueBlock(AType result, list[MuExp] exps)  				  // A list of expressions, only last value remains
+          | muValueBlock(AType result, list[MuExp] exps)  	  // A list of expressions, only last value remains
                                                              
           // Exceptions
           
@@ -234,7 +236,7 @@ public data MuExp =
           | muValueIsSubTypeOfValue(MuExp exp2, MuExp exp1)
           | muIsDefinedValue(MuExp exp)
           | muGetDefinedValue(MuExp exp, AType tp)
-          | muHasField(MuExp exp, AType tp, str fieldName)
+          | muHasField(MuExp exp, AType tp, str fieldName, set[AType] consesWithField)
           | muIsInitialized(MuExp exp)
           
           | muSubscript(MuExp exp, MuExp idx)
@@ -247,6 +249,7 @@ public data MuExp =
           | muEqualNativeInt(MuExp exp1, MuExp exp2)
           | muLessNativeInt(MuExp exp1, MuExp exp2)
           | muGreaterEqNativeInt(MuExp exp1, MuExp exp2)
+          | muToNativeInt(MuExp exp)
           
           // Operations on native booleans
           | muAndNativeBool(MuExp exp1, MuExp exp2)
@@ -260,6 +263,9 @@ public data MuExp =
           | muRegExpEnd(MuExp matcher)
           | muRegExpFind(MuExp matcher)
           | muRegExpSetRegion(MuExp matcher, int begin, int end)
+          | muRegExpSetRegionInVisit(MuExp matcher)
+          | muRegExpSetMatchedInVisit(MuExp matcher)
+          | muStringSetMatchedInVisit(int end)
           | muRegExpGroup(MuExp matcher, int n)
           
           // String templates
@@ -307,6 +313,9 @@ MuExp muVarKwp(str name, str fuid, AType atype) {
 
 // ==== Utilities =============================================================
 
+bool isSyntheticFunctionName(str name)
+    = name[0] == "$";
+    
 bool isClosureName(str name)
     = findFirst(name, "$CLOSURE") >= 0;
 
@@ -346,7 +355,7 @@ bool isVarOrTmp(MuExp exp)
 // Produces NativeBool
    
 bool producesNativeBool(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] args, loc src)){
-    if(name in {/*"equal",*/ "notequal", "is", "subset"}) return true;
+    if(name in {/*"equal", "notequal",*/"is", "subset"}) return true;
     fail producesNativeBool;
 }
 
@@ -364,7 +373,7 @@ bool producesNativeInt(muTmpNative(_,_,nativeInt()))
     = true;
                      
 default bool producesNativeInt(MuExp exp)
-    = getName(exp) in {"muSize", "muAddNativeInt", "muSubNativeInt", "muRegExpBegin", "muRegExpEnd"};
+    = getName(exp) in {"muSize", "muAddNativeInt", "muSubNativeInt", "muToNativeInt", "muRegExpBegin", "muRegExpEnd"};
 
 // Produces NativeGuardedIValue
 
@@ -378,6 +387,13 @@ default bool producesNativeGuardedIValue(MuExp exp)
    = getName(exp) in {"muGuardedGetAnno", "muGuardedGetField"};
     
 // Get the result type of a MuExp
+AType getType(muCon(bool b)) = abool();
+AType getType(muCon(int n)) = aint();
+AType getType(muCon(real r)) = areal();
+AType getType(muCon(rat q)) = arat();
+AType getType(muCon(loc l)) = aloc();
+AType getType(muCon(str s)) = astr();
+AType getType(muCon(datetime dt)) = adatetime();
 AType getType(muVar(str name, str fuid, int pos, AType atype)) = atype;
 AType getType(muTmpIValue(str name, str fuid, AType atype)) = atype;
 AType getType(muVarKwp(str name, str fuid, AType atype)) = atype;
@@ -448,11 +464,11 @@ bool exitViaReturn1(muWhileDo(str label, muCon(true), MuExp body)){
 bool exitViaReturn1(muDoWhile(str label,  MuExp body, muCon(false)))
     = exitViaReturn(body);  
     
-bool exitViaReturn1( muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)) {
+bool exitViaReturn1( muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)) {
     return all(c <- cases, exitViaReturn(c.exp)) && exitViaReturn(defaultExp);
 }
 
-bool exitViaReturn1( muVisit(MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)) {
+bool exitViaReturn1( muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)) {
     return all(c <- cases, exitViaReturn(c.exp)) && exitViaReturn(defaultExp);
 }
 
@@ -466,6 +482,9 @@ default bool exitViaReturn1(MuExp exp)
     = false;
 
 // ---- noSequentialExit ------------------------------------------------------
+
+bool hasSequentialExit(MuExp exp) = !noSequentialExit(exp);
+
 // There is no sequential exit from this expression
 
 bool noSequentialExit(MuExp exp)
@@ -474,10 +493,10 @@ bool noSequentialExit(MuExp exp)
 bool noSequentialExit(muFail(str label), list[str] entered) 
     = true; //label notin entered;
 
-bool noSequentialExit(muFailCase(), list[str] entered)
+bool noSequentialExit(muFailCase(_,_), list[str] entered)
     = false;
 
-bool noSequentialExit(muSucceedSwitchCase(), list[str] entered)
+bool noSequentialExit(muSucceedSwitchCase(str switchName), list[str] entered)
     = false;
       
 bool noSequentialExit(muSucceed(str label), list[str] entered) 
@@ -494,6 +513,8 @@ bool noSequentialExit(muReturn0(), list[str] entered)
     = true;
 bool noSequentialExit(muReturn1(_, _), list[str] entered) 
     = true;
+bool noSequentialExit(muFail(_), list[str] entered) 
+    = true;
 bool noSequentialExit(muFailReturn(_), list[str] entered) 
     = true;
 bool noSequentialExit(muCheckMemo(_,_,_), list[str] entered) 
@@ -506,7 +527,7 @@ bool noSequentialExit(muThrow(_,_), list[str] entered)
     = true;
 
 bool noSequentialExit(muEnter(str enter, MuExp exp), list[str] entered){
-    return exitViaReturn(exp); //false; //noSequentialExit(exp, entered);  
+    return exitViaReturn(exp); //noSequentialExit(exp, entered);  //exitViaReturn(exp); //false; //noSequentialExit(exp, entered);  
 }
     
 bool noSequentialExit(muBlock([*exps1, exp2]), list[str] entered) 
@@ -516,19 +537,19 @@ bool noSequentialExit(muValueBlock(AType t, [*exps1, exp2]), list[str] entered)
     = noSequentialExit(exp2, entered);
     
 bool noSequentialExit(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart), list[str] entered)
-    = noSequentialExit(thenPart, entered) || noSequentialExit(elsePart, entered);
+    = noSequentialExit(thenPart, entered) && noSequentialExit(elsePart, entered);
     
 bool noSequentialExit(muWhileDo(str label, muCon(true), MuExp body), list[str] entered){
-    return noSequentialExit(body, label + entered);
+    return false; //noSequentialExit(body, label + entered);
 }    
 bool noSequentialExit(muDoWhile(str label,  MuExp body, muCon(false)), list[str] entered)
     = noSequentialExit(body, label + entered);  
     
-bool noSequentialExit( muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint), list[str] entered) {
+bool noSequentialExit( muSwitch(str switchName, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint), list[str] entered) {
     return any(c <- cases, noSequentialExit(c.exp, entered)) || noSequentialExit(defaultExp, entered);
 }
 
-bool noSequentialExit( muVisit(MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor), list[str] entered) {
+bool noSequentialExit( muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor), list[str] entered) {
     return any(c <- cases, noSequentialExit(c.exp, entered)) || noSequentialExit(defaultExp, entered);
 }
 
@@ -553,13 +574,22 @@ MuExp muBlock([MuExp exp]) = exp;
 MuExp muBlock([ *exps1, muBlock([*exps2]), *exps3 ])
     = muBlock([ *exps1, *exps2, *exps3 ]);
     
-MuExp muBlock([ *exps1, muReturn1(t, exp), *exps2 ])
-    = muBlock([ *exps1, muReturn1(t, exp) ])
-    when !isEmpty(exps2); 
+//MuExp muBlock([ *exps1, muReturn1(t, exp), *exps2 ])
+//    = muBlock([ *exps1, muReturn1(t, exp) ])
+//    when !isEmpty(exps2); 
+//    
+//MuExp muBlock([ *exps1, muInsert(t, exp), *exps2])
+//    = muBlock([*exps1, muInsert(t, exp)])
+//    when !isEmpty(exps2); 
     
-MuExp muBlock([ *exps1, muInsert(t, exp), *exps2])
-    = muBlock([*exps1, muInsert(t, exp)])
-    when !isEmpty(exps2);     
+MuExp muBlock([ *exps1, exp0, *exps2])
+    = muBlock([*exps1, exp0])
+    when !isEmpty(exps2),
+         muReturn1(t, exp1) := exp0 ||
+         muInsert(t, exp1) := exp0 ||
+         muBreak(str label) := exp0 || 
+         muContinue(str label) := exp0 ||   
+         muFail(str label) := exp0;
 
 MuExp muBlock([*MuExp pre, muValueBlock(AType t, list[MuExp] elems), *MuExp post])
     = muBlock([*pre, *elems, *post]);
@@ -657,38 +687,44 @@ MuExp muReturn1(AType t, muWhileDo(str label, MuExp cond, MuExp body)){
 //MuExp muReturn1(AType t, fo: muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body))
 //    = addReturnFalse(t, fo);
 
-MuExp muReturn1(AType t, sw: muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint))
-    = //any(c <- cases, !leaveFlow(c.exp)) || !leaveFlow(defaultExp)
-      //? 
-         muBlock([muSwitch(exp, [muCase(c.fingerprint, muReturn1(t, c.exp)) | c <- cases], muReturn1(t, defaultExp), useConcreteFingerprint)
-                //, muFailReturn(t)
-                ])
-      //: sw
-      ;
+MuExp muReturn1(AType t, muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)){
+    dflt = muReturn1(t, defaultExp);
+    //if(any(c <- cases, !exitWithReturn(c))){
+    //    dflt = muIfthen(execDefault, dflt);
+    //}
+    return muSwitch(label, exp, [muCase(c.fingerprint, muReturn1(t, c.exp)) | c <- cases], dflt, useConcreteFingerprint);
+}
 //
 //MuExp muReturn1(abool(), muSucceed(str label))
 //    = muReturn1(abool(), muCon(true));
     
-MuExp addReturnFalse(AType t, bl: muBlock([*exps, muReturn1(abool(), muCon(false))])) = bl;
+private MuExp addReturn(AType t, bool result, bl: muBlock([*exps, muReturn1(abool(), muCon(result))])) = bl;
 
-default MuExp addReturnFalse(AType t, MuExp exp) = muBlock([exp, (t == abool() || t == avalue()) ? muReturn1(abool(), muCon(false)) : muFailReturn(t)]);
+private default MuExp addReturn(AType t, bool result, MuExp exp) = muBlock([exp, (t == abool() || t == avalue()) ? muReturn1(abool(), muCon(result)) : muFailReturn(t)]);
 
 MuExp insertReturn(MuExp exp, list[str] entered, bool asBool){
     return
           top-down-break visit(exp) { 
-                case muSucceed(enter) => muReturn1(abool(), muCon(true)) when enter == entered[0]
+                case muSucceed(enter): {
+                    println("enter: <enter>");
+                    println("entered[-1]: <entered[-1]>");
+                    if(enter != entered[-1]) fail;
+                        insert muReturn1(abool(), muCon(true));
+                    }
                 case muFail(enter) => asBool ? {
                     muReturn1(abool(), muCon(false));
-                    } : muFailReturn(t) when enter == entered[0] //<<<
-                case muEnter(str enter1, MuExp exp1) => muEnter(enter1, insertReturn(exp1, enter1 + entered, asBool)) when enter1 in entered
+                    } : muFailReturn(t) when enter == entered[-1] //<<<
+                case muEnter(str enter1, MuExp exp1) => muEnter(enter1, insertReturn(exp1, enter1 + entered, asBool))
 //                case muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart) => 
 //                      muIfelse(cond, insertReturn(thenPart, entered, asBool), insertReturn(elsePart, entered, asBool))
 //                case muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart) => 
 //                      muIfExp(cond, insertReturn(thenPart, entered, asBool), insertReturn(elsePart, entered, asBool))
 //
                 case muWhileDo(str enter1, MuExp cond, MuExp body) => muWhileDo(enter1, cond, insertReturn(body, enter1 + entered, asBool)) //when enter1 in entered
-                case muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body) => 
-                     muForAll(label, var, iterType, iterable, insertReturn(body, label + entered, asBool)) when label in entered
+                case muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body):{ 
+                     //if(label notin entered) fail;
+                     insert muForAll(label, var, iterType, iterable, insertReturn(body, label + entered, asBool));
+                     }
                 case muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp2) =>
                      muForRange(label, var, first, second, last, insertReturn(exp2, label + entered, asBool)) when label in entered
                 case muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp2) =>
@@ -702,16 +738,18 @@ MuExp removeDeadCode(MuExp exp)
 MuExp removeDeadCode(MuExp exp, list[str] entered){
     println("Before removeDeadCode:"); iprintln(exp);
     res =  top-down-break visit(exp){
-        case muBlock([*MuExp pre, MuExp exp2, *MuExp post]) => muBlock([*pre, exp2]) when !isEmpty(post), post[-1] == muSucceedSwitchCase() ? noSequentialExit(exp2) : exitViaReturn(exp2), bprintln("muBlock removes: <post>")
+        case muBlock([*MuExp pre, MuExp exp2, *MuExp post]) => muBlock([*pre, exp2]) 
+             when !isEmpty(post), 
+                  muSucceedSwitchCase(_) := post[-1] ? noSequentialExit(exp2) : exitViaReturn(exp2), bprintln("muBlock removes: <post>")
         //case muValueBlock(AType t, [*MuExp pre, MuExp exp2, *MuExp post]) => muValueBlock(t, [*pre, exp2]) when !isEmpty(post), noSequentialExit(exp2, entered)
         case muEnter(str enter1, MuExp exp1) => muEnter(enter1, removeDeadCode(exp1, enter1 + entered))
         case muWhileDo(str enter1, MuExp cond, MuExp body) => muWhileDo(enter1, cond, removeDeadCode(body, enter1 + entered))
-        case muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint) =>
-             muSwitch(exp, [muCase(c.fingerprint, removeDeadCode(c.exp, entered)) | c <- cases], removeDeadCode(defaultExp, entered), useConcreteFingerprint)
-        //case muCase(int fingerPrint, muBlock([*MuExp pre, MuExp exp2, muSucceedSwitchCase()])) => muCase(fingerPrint, muBlock([*pre, exp2]))
+        case muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint) =>
+             muSwitch(label, exp, [muCase(c.fingerprint, removeDeadCode(c.exp, entered)) | c <- cases], removeDeadCode(defaultExp, entered), useConcreteFingerprint)
+        //case muCase(int fingerPrint, muBlock([*MuExp pre, MuExp exp2, muSucceedSwitchCase(_)])) => muCase(fingerPrint, muBlock([*pre, exp2]))
         //    when noSequentialExit(exp2, entered)
         case muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body) => 
-             muForAll(label, var, iterType, iterable, removeDeadCode(body, label + entered)) when label in entered
+             muForAll(label, var, iterType, iterable, removeDeadCode(body, /*label + */entered)) when label in entered
         case muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp2) =>
              muForRange(label, var, first, second, last, removeDeadCode(exp2, label + entered)) when label in entered
         case muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp2) =>
@@ -721,18 +759,31 @@ MuExp removeDeadCode(MuExp exp, list[str] entered){
     return res;
 }
 
-MuExp negate(str enter, MuExp exp){
-    return visit(exp) { 
-                case muSucceed(enter1) => muFail(enter1) when enter1 == enter
-                case muFail(enter1) => muSucceed(enter1) when enter1 == enter
-                //case muReturn1(abool(), muCon(bool b)) => muReturn1(abool(), muCon(!b))
-            };
+//MuExp negate(list[str] entered, MuExp exp){
+//    return visit(exp) { 
+//                case muSucceed(enter1) => muFail(enter1) when enter1 in entered
+//                case muFail(enter1) => muSucceed(enter1) when enter1 in entered
+//                //case muReturn1(abool(), muCon(bool b)) => muReturn1(abool(), muCon(!b))
+//            };
+//}
+MuExp negate(MuExp exp, list[str] entered){
+    res =  top-down-break visit(exp){
+            case muEnter(str enter1, MuExp exp1) => muEnter(enter1, negate(exp1, enter1 + entered))
+            case muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body) => 
+                  muForAll(label, var, iterType, iterable, negate(body, entered))
+            
+            case muSucceed(enter1) => muFail(enter1) when enter1 in entered
+            case muFail(enter1) => muSucceed(enter1) when enter1 in entered
+          };
+    return res;
 }
+
 
 MuExp muReturn1(AType t, me:muEnter(str btscope, MuExp exp)){
     //return muEnter(btscope, muReturn1(t, exp));
     res = muReturn1(t, insertReturn(exp, [btscope], t == abool() || t == avalue()));
-    res = exitViaReturn(res) ? res : addReturnFalse(t, res); 
+    iprintln(res);
+    res = noSequentialExit(res) ? res : addReturn(t, false, res); 
     return muEnter(btscope, res);
 } 
 
@@ -767,8 +818,8 @@ MuExp muReturn1(AType t, muContinue(str btscope)){
     return muContinue(btscope);
 }
      
-MuExp muReturn1(AType t, muFailCase()){
-    return muFailCase();
+MuExp muReturn1(AType t, mf: muFailCase(str switchName)){
+    return mf;
 }
 
 MuExp muReturn1(AType t, muFailReturn(AType t)){
@@ -878,7 +929,7 @@ MuExp muAssign(MuExp var, muWhileDo(str label, MuExp cond, MuExp body))
 MuExp muVarInit(var, muEnter(str btscope, MuExp exp))
     = muBlock([muVarInit(var, muCon(false)), muEnter(btscope, insertAssignBool(var, exp, {btscope}))]);     
  
-MuExp muAssign(var, muEnter(str btscope, MuExp exp))
+MuExp muAssign(var, me:muEnter(str btscope, MuExp exp))
     = muBlock([muAssign(var, muCon(false)), muEnter(btscope, insertAssignBool(var, exp, {btscope}))]); 
 
 // ----
@@ -906,9 +957,15 @@ MuExp muConInit(MuExp var, muIf(MuExp cond, MuExp thenPart))
     
 MuExp muVarInit(MuExp var, muIf(MuExp cond, MuExp thenPart))
     =  muVarInit(var, muIfExp(cond, thenPart, muCon(false))) when var.atype == abool();
+
+MuExp muVarInit(MuExp var, muIf(MuExp cond, MuExp thenPart))
+    =  muVarInit(var, muIfExp(cond, thenPart, var)) when var.atype != abool();
     
 MuExp muAssign(MuExp var, muIf(MuExp cond, MuExp thenPart))
     =  muAssign(var, muIfExp(cond, thenPart, muCon(false))) when var.atype == abool();
+    
+MuExp muAssign(MuExp var, muIf(MuExp cond, MuExp thenPart))
+    =  muAssign(var, muIfExp(cond, thenPart, var)) when var.atype != abool();
          
 // ----
 MuExp muAssign(MuExp var1, muIfEqualOrAssign(MuExp var2, MuExp other, MuExp body))
@@ -943,7 +1000,7 @@ MuExp muIfthen(muCon(true), MuExp thenPart) = thenPart;
 
 MuExp muIfthen(muCon(false), MuExp thenPart) = muBlock([]);
 
-MuExp muIfthen(muEnter(enter, cond), MuExp thenPart)   
+MuExp muIfthen(me:muEnter(enter, cond), MuExp thenPart)   
       = muEnter(enter, insertThenPart(cond, thenPart, {enter}));
 
 // ---- muIfExp ---------------------------------------------------------------
@@ -965,7 +1022,7 @@ MuExp muIfExp(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, M
 //    = muValueBlock(t, cond, thenPart, muValueBlock([*exps, muIfExp(cond, thenPart, exp), elsePart));
     
     
-MuExp muIfExp(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
+//MuExp muIfExp(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 
 MuExp muIfExp(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
@@ -990,10 +1047,13 @@ MuExp insertThenPart(MuExp exp, MuExp thenPart, set[str] entered){
 }
 
 //MuExp muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart) = thenPart when thenPart == elsePart;
-MuExp muIfelse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
-MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
+//MuExp muIfelse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart
+//    when /muFail(_) !:= thenPart;
+//MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
 //MuExp muIfelse(MuExp cond, muCon(_), muCon(_)) = muBlock([]);
+
+MuExp muIfelse(MuExp cond, MuExp thenPart, muBlock([])) = muIf(cond, thenPart);
 
 MuExp muIfelse(MuExp cond, muIfExp(cond1, thenPart1, elsePart1), MuExp elsePart) 
     = muIfelse(cond, muIfelse(cond1, thenPart1, elsePart1), elsePart);
@@ -1004,7 +1064,7 @@ MuExp muIfelse(MuExp cond, MuExp thenPart, muIfExp(cond1, thenPart1, elsePart1))
 MuExp muIfelse(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, MuExp elsePart)
     = muBlock([*exps, muIfelse(exp, thenPart, elsePart)]); 
 
-MuExp muIfelse(muEnter(enter, cond), MuExp thenPart, MuExp elsePart)   
+MuExp muIfelse(me:muEnter(enter, cond), MuExp thenPart, MuExp elsePart)   
       = muBlock([muEnter(enter, insertThenPart(cond, thenPart, {enter})), elsePart]);
               
 MuExp muIfelse(muForAll(str label, MuExp var2, AType iterType, MuExp iterable, MuExp body), MuExp thenPart, MuExp elsePart)
@@ -1018,11 +1078,11 @@ MuExp muIfelse(muForRangeInt(str label, MuExp var2, int ifirst, int istep, MuExp
 
 // ---- muEnter ---------------------------------------------------------------
 
+MuExp muEnter(str btscope, MuExp exp=false)
+    = muEnter(btscope, exp);
+
 MuExp muEnter(str btscope, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
     =  muEnter(btscope, muIfelse(cond, thenPart, elsePart));
-
-MuExp muEnter(str enter, muEnter(enter, MuExp exp))
-    = muEnter(enter, exp);
     
 MuExp muEnter(str enter, MuExp exp) = exp when containsEnter(enter, exp);
 
@@ -1065,12 +1125,14 @@ bool shouldFlatten(MuExp arg)
        || muAssign(MuExp var, MuExp exp) := arg
        || muVarInit(MuExp var, MuExp exp) := arg
        || muConInit(MuExp var, MuExp exp) := arg
+       || muInsert( AType tp, MuExp exp) := arg
        || muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg
        || muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl) := arg
        || muEnter(btscope, exp) := arg 
        || muIfelse(cond, thenPart, elsePart) := arg 
        || muWhileDo(str ab, MuExp cond, MuExp body) := arg
        || muBlock(elems) := arg 
+       //|| muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor) := arg
        //|| muIfExp(cond, thenPart, elsePart) := arg && (shouldFlatten(thenPart) || shouldFlatten(elsePart))
        ;
  
@@ -1108,12 +1170,19 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                  <fl1, aux1, pre1, post1> = flattenArgs([exp]);
                  auxVars += aux1;
                  pre += pre1;
-                 newArgs += muVarInit(var, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
+                 newArgs += muVarInit(var, size(post1) == 1 ? post1[0] : muValueBlock(avalue(), post1));
             } else if(muConInit(MuExp var, MuExp exp) := arg){
                  <fl1, aux1, pre1, post1> = flattenArgs([exp]);
                  auxVars += aux1;
                  pre += pre1;
-                 newArgs += muConInit(var, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
+                 newArgs += muConInit(var, size(post1) == 1 ? post1[0] : muValueBlock(avalue(), post1));
+            } else if(muInsert(AType tp, MuExp exp) := arg){
+                <fl1, aux1, pre1, post1> = flattenArgs([exp]);
+                 auxVars += aux1;
+                 pre += pre1;
+                 newArgs += muInsert(tp, size(post1) == 1 ? post1[0] : muValueBlock(avalue(), post1));
+            //} else if (muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor) := arg){
+            //   ;  
             } else if(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg){
                  <fl1, aux1, pre1, post1> = flattenArgs([repl]);
                  auxVars += aux1;
@@ -1217,14 +1286,14 @@ MuExp muInsert(AType t, MuExp arg)
     = muValueBlock(t, auxVars + pre + muInsert(t, flatArgs[0]))
     when <true, auxVars, pre, flatArgs> := flattenArgs([arg]);
     
-// TODO: defaultExp?
-MuExp muVisit(MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
-   = muValueBlock(auxVars + pre + muVisit(flatArgs[0], cases, defaultExp, vdescriptor))
+// muVisit
+MuExp muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
+   = muValueBlock(auxVars + pre + muVisit(visitName, flatArgs[0], cases, defaultExp, vdescriptor))
     when <true, auxVars, pre, flatArgs> := flattenArgs([subject]) && !isEmpty(pre);
 
 //muSwitch
-MuExp muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)        // switch over cases for specific value
-    = muValueBlock(auxVars + pre + muSwitch(flatArgs[0], cases, defaultExp, useConcreteFingerprint))
+MuExp muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)        // switch over cases for specific value
+    = muValueBlock(auxVars + pre + muSwitch(label, flatArgs[0], cases, defaultExp, useConcreteFingerprint))
     when <true, auxVars, pre, flatArgs> := flattenArgs([exp]) && !isEmpty(pre);
 
 //muThrow

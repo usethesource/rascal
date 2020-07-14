@@ -39,7 +39,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=false){
+tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=true){
    try {
       resetModuleInfo(optimize, enableAsserts);
       setModuleScope(M@\loc);
@@ -48,7 +48,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
       mtags = translateTags(M.header.tags);
       setModuleTags(mtags);
       if(ignoreTest(mtags)){
-            return errorMuModule(getModuleName(), {info("Ignore tag suppressed compilation", M@\loc)}, M@\loc);
+            return <tmodel, errorMuModule(getModuleName(), {info("Ignore tag suppressed compilation", M@\loc)}, M@\loc)>;
       }
      
       if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
@@ -65,7 +65,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
                       
-   	  return /*relocMuModule(*/
+   	  return < getTModel(),
+   	            /*relocMuModule(*/
    	            muModule(modName,
    	  				  getModuleTags(),
    	                  toSet(tmodel.messages), 
@@ -83,15 +84,16 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
    	  				  {}, //{<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
    	  				  M@\loc) /*,   
    	  				  reloc,
-   	  				  pcfg.srcs)*/;
+   	  				  pcfg.srcs)*/
+   	  	      >;
 
    }
    catch ParseError(loc l): {
         if (verbose) println("Parse error in concrete syntax <l>; returning error module");
-        return errorMuModule(getModuleName(), {error("Parse error in concrete syntax fragment", l)}, M@\loc);
+        return <tmodel, errorMuModule(getModuleName(), {error("Parse error in concrete syntax fragment", l)}, M@\loc)>;
    }
    catch CompileTimeError(Message m): {
-        return errorMuModule(getModuleName(), {m}, M@\loc);
+        return <tmodel, errorMuModule(getModuleName(), {m}, M@\loc)>;
    }
    //catch value e: {
    //     return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);

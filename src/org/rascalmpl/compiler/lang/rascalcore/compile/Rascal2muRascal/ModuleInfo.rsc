@@ -18,7 +18,7 @@ private set[str] overriddenLibs = {};				// Java libraries overriden for compile
 private set[str] notOverriddenLibs = {};			// Java libraries not overridden for compiler
 
 private bool optimize = true;
-private bool checkAsserts = false;
+private bool checkAsserts = true;
 
 // Access functions
 
@@ -78,10 +78,7 @@ public list[MuFunction] getFunctionsInModule() {
 }
 
 public void addFunctionToModule(MuFunction fun) {
-   //println("addFunctionToModule: <fun.qname>, \"<fun.scopeIn>\"");
    functions_in_module += [fun];
-   
-   //for(f <- functions_in_module){ println("\t<f.qname>, \"<f.scopeIn>\""); }
 }
 
 public void addFunctionsToModule(list[MuFunction] funs) {

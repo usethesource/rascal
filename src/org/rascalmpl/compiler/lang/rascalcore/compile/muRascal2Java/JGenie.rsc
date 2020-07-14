@@ -45,8 +45,11 @@ data JGenie
         str(AType, map[AType,set[AType]]) shareATypeConstant,
         str () getConstants,
         bool (str con) isWildCard,
-        void(list[MuExp] evars) addExternalVars,
+        void(set[MuExp] evars) addExternalVars,
         bool (MuExp exp) isExternalVar,
+        void(set[MuExp] lvars) addLocalRefs,
+        bool(MuExp lvar) isLocalRef,
+        bool(MuExp var) isRef,
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
@@ -79,6 +82,7 @@ JGenie makeJGenie(MuModule m,
     int ntconstants = -1;
     
     set[MuExp] externalVars = {};
+    set[MuExp] localRefs = {};
     int ntmps = -1;
     set[str] importedLibraries = {};
     
@@ -89,7 +93,7 @@ JGenie makeJGenie(MuModule m,
     str functionName = "$UNKNOWN";
     MuFunction function;
     
-    map[loc,list[MuExp]] fun2externals = (fun.src : fun.externalVars  | fun <- range(muFunctions));
+    map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalVars  | fun <- range(muFunctions));
     map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
     rel[str,AType,str] mergedOverloads = {};
    
@@ -137,7 +141,6 @@ JGenie makeJGenie(MuModule m,
                     if(isContainedIn(def.defined, currentModuleScope)){
                         fun = muFunctionsByLoc[def.defined];
                         return getJavaName(_finalResolverName(getFunctionName(fun), fun.ftype));
-                        return "$me.<baseName>";
                     } else {
                         return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
                     }
@@ -160,7 +163,6 @@ JGenie makeJGenie(MuModule m,
         finalName = _finalResolverName(oname, otype);
         return finalName;
       }
-      throw "Non-overloaded type: <otype>";
     }
     
     str _getAccessorInResolver(loc src){
@@ -168,7 +170,7 @@ JGenie makeJGenie(MuModule m,
             if(tmodels[mname].definitions[src]?){
                 def = tmodels[mname].definitions[src];
                 if(defType(AType tp) := def.defInfo){
-                    baseName = _finalResolverName("<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>_<def.defined.end.line>", tp);
+                    baseName = _finalResolverName("<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>", tp);
                     if(isContainedIn(def.defined, currentModuleScope)){
                         if(isConstructorType(getTypeFromDef(def))){
                             return baseName;
@@ -197,7 +199,7 @@ JGenie makeJGenie(MuModule m,
     
     list[MuExp] _getExternalVars(loc src){
         if(fun2externals[src]?){
-            evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : [];
+            evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
             return [var | var <- evars, var.pos >= 0 ];
         }
         return [];
@@ -219,7 +221,7 @@ JGenie makeJGenie(MuModule m,
     
     bool _hasCommonKeywordFields(AType ctype){
         switch(ctype){
-            case adt(_,_,_):
+            case aadt(_,_,_):
                 return commonKeywordFieldsNameAndType[ctype]?;
             case acons(AType adt, _, _): 
                 return commonKeywordFieldsNameAndType[adt]?;
@@ -276,11 +278,19 @@ JGenie makeJGenie(MuModule m,
         return false;
     }
     
-    void _addExternalVars(list[MuExp] vars){
-        externalVars += toSet(vars);
+    void _addExternalVars(set[MuExp] vars){
+        externalVars += vars;
     }
     
     bool _isExternalVar(MuExp var) = var in externalVars && var.pos != -1;
+    
+    void _addLocalRefs(set[MuExp] vars){
+        localRefs += vars;
+    }
+    
+    bool _isLocalRef(MuExp var) = var in localRefs;
+    
+    bool _isRef(MuExp var) = _isExternalVar(var) || _isLocalRef(var);
     
     str _newTmp(str prefix){
         ntmps += 1;
@@ -359,6 +369,9 @@ JGenie makeJGenie(MuModule m,
                 _isWildCard,
                 _addExternalVars,
                 _isExternalVar,
+                _addLocalRefs,
+                _isLocalRef,
+                _isRef,
                 _newTmp,
                 _addImportedLibrary,
                 _getImportedLibraries,

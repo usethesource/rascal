@@ -548,6 +548,7 @@ default str atype2istype1(str e, str get, AType t)         { throw "atype2istype
 // TODO cover all cases
 
 str escapeForJ(str s){
+   //s = deescape(s);
    n = size(s);
    i = 0;
    res = "";
@@ -565,7 +566,7 @@ str escapeForJ(str s){
                         i += 1;
                         if(c1 == "\\"){
                             res += "<c><c1><c><c1>";
-                        } else if(c1 in {"b","f","t","n","r","\'", "\""}){
+                        } else if(c1 in {"b","f","t",/*"n",*/"r","\'", "\""}){
                             res += "<c><c><c><c1>";
                         } else {
                             res += "<c><c><c1>";
@@ -760,10 +761,10 @@ str atype2vtype(amap(AType d, AType r)) = "$TF.mapType(<atype2vtype(d)>,<atype2v
 str atype2vtype(arel(AType t)) = "$TF.setType($TF.tupleType(<atype2vtype(t)>))";
 str atype2vtype(alrel(AType t)) = "$TF.listType($TF.tupleType(<atype2vtype(t)>))";
 str atype2vtype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = getADTName(adtName);
-str atype2vtype(acons(AType adt,
+str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
-                 = "IConstructor";
+                 = "$TF.constructor($TS, <atype2vtype(adt)>, \"<c.label>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[atype2vtype(t), "\"<t.label>\""] | t <- fields])>)";
 str atype2vtype(aparameter(str pname, AType bound)) = atype2vtype(bound);
 str atype2vtype(atypeList(list[AType] atypes)) = intercalate(", ", [atype2vtype(t) | t <- atypes]);
 str atype2vtype(areified(AType atype)) = "AType";

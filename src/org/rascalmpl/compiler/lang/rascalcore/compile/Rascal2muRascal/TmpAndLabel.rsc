@@ -3,7 +3,10 @@ module lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel
 
 import IO;
 import List;
+import ListRelation;
+import String;
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
@@ -67,8 +70,6 @@ public str nextLabel(str prefix){
 // - append
 // - break/continue/fail
 
-bool inBacktrackingScope() = !isEmpty(backtrackingScopes);
-
 private lrel[str label,str fuid] loops = []; // *** state
 
 void enterLoop(str name, str fuid){
@@ -90,6 +91,9 @@ str getCurrentLoopScope() {
   return top(loops).fuid;
 }
 
+bool inLoop(str name)
+    = name in domain(loops);
+
 str getCurrentLoopScope(DataTarget target) {
   if(target is empty) {
       return getCurrentLoopScope();
@@ -102,82 +106,122 @@ void leaveLoop(){
   loops = tail(loops);
 }
 
-// Backtracking scopes also include if-then-else scopes that allow backtracking in case of using fail
-private list[str] backtrackingScopes = [];	// *** state
-private map[str,str] resumptionScopes = (); // *** state
+// labelled statements (if, while, 
 
-void initBacktrackingScopes(){
-    backtrackingScopes = [];
-    resumptionScopes = ();
+lrel[str label, str resume] labelledStats = [];               // *** state
+
+void initLabelledStats(){
+    labelledStats = [];
 }
 
-void enterBacktrackingScope(str name){
-  println("enterBacktrackingScope: <name>; <backtrackingScopes>");
-  backtrackingScopes = name + backtrackingScopes;
-}
-
-str getBacktrackingScope(){
-    return backtrackingScopes[0];
-}
-
-str getResumptionScope(){
-  println("getResumptionScope: <backtrackingScopes>");
-  return top(backtrackingScopes) ? "";
-}
-
-bool haveEnteredBacktrackingScope(str name)
-    = name in backtrackingScopes;
-
-str getResumptionScope(str name){
-    println("getResumptionScope: <name>; <backtrackingScopes>");
-    println("resumptionScopes: <resumptionScopes>");
-    while(resumptionScopes[name]?){
-        name = resumptionScopes[name];
-    }
-    println("getResumptionScope ==\> <name>");
-    return name;
-}
-
-void leaveBacktrackingScope(str name){
-  println("leaveBacktrackingScope: <name>; <backtrackingScopes>");
-  i = indexOf(backtrackingScopes, name);
-  if(i < 0) throw "leaveBacktrackingScope: <name> not found";
-  if(i == 0){
-    backtrackingScopes = tail(backtrackingScopes);
-    if(!isEmpty(backtrackingScopes)){
-        previous = backtrackingScopes[0];
-        if(!resumptionScopes[previous]?){
-            resumptionScopes[previous] = name;
-        }
+void enterLabelled(Label label, str alt, str resume){
+    if(label is \default){
+        labelName = "<label.name>";
+        labelledStats = <labelName, resume> + labelledStats;
     } else {
-        resumptionScopes = ();
+        labelledStats = <alt, resume> + labelledStats;
     }
-    //println(resumptionScopes);
-    return;
-  }
-  
-  resumptionPoint = backtrackingScopes[i - 1];
-  backtrackingScopes = backtrackingScopes[i+1 ..];
-  if(!isEmpty(backtrackingScopes)){
-    previous = backtrackingScopes[0];
-    if(!resumptionScopes[previous]?){
-        resumptionScopes[previous] = resumptionPoint;
+}
+
+void enterLabelled(Label label, str alt){
+    if(label is \default){
+        labelName = "<label.name>";
+        labelledStats = <labelName, labelName> + labelledStats;
+    } else {
+        labelledStats = <alt, alt> + labelledStats;
     }
-  }
-  //println(resumptionScopes);
 }
-  
-MuExp updateBTScope(MuExp exp, str fromScope, str toScope){
-    //return exp; //<<<
-    if(fromScope == toScope) return exp;
-    
-    println("updateBTScope: <fromScope> =\> <toScope>; <exp>");
-    return visit(exp){
-        //case muSucceed(fromScope) => muSucceed(toScope)
-        case muContinue(fromScope):{ println("muContinue(<fromScope>) =\> muContine(<toScope>)"); insert muContinue(toScope); }
-        case muFail(fromScope): { println("muFail(<fromScope>) =\> muFail(<toScope>)"); insert muFail(toScope); }
-    };
+
+void leaveLabelled(){
+    labelledStats = tail(labelledStats);
 }
+
+tuple[bool,str] inLabelled(str label){
+    res = labelledStats[label];
+    return isEmpty(res) ? <false, ""> : <true, res[0]>;
+}
+
+tuple[bool, str] getLabelled(){
+    if(isEmpty(labelledStats)) return <false, "">;
+    return <true, labelledStats[0].resume>;
+}
+
+// Backtracking scopes also include if-then-else scopes that allow backtracking in case of using fail
+//private list[str] backtrackingScopes = [];	// *** state
+//private map[str,str] resumptionScopes = (); // *** state
+//
+//void initBacktrackingScopes(){
+//    backtrackingScopes = [];
+//    resumptionScopes = ();
+//}
+//
+//void enterBacktrackingScope(str name){
+//  println("enterBacktrackingScope: <name>; <backtrackingScopes>");
+//  backtrackingScopes = name + backtrackingScopes;
+//}
+//
+//str getBacktrackingScope(){
+//    return backtrackingScopes[0];
+//}
+//
+//str getResumptionScope(){
+//  println("getResumptionScope: <backtrackingScopes>");
+//  return top(backtrackingScopes) ? "";
+//}
+//
+//bool haveEnteredBacktrackingScope(str name)
+//    = name in backtrackingScopes;
+//
+//str getResumptionScope(str name){
+//    println("getResumptionScope: <name>; <backtrackingScopes>");
+//    println("resumptionScopes: <resumptionScopes>");
+//    while(resumptionScopes[name]?){
+//        name = resumptionScopes[name];
+//    }
+//    println("getResumptionScope ==\> <name>");
+//    return name;
+//}
+//
+//void leaveBacktrackingScope(str name){
+//  println("leaveBacktrackingScope: <name>; <backtrackingScopes>");
+//  i = indexOf(backtrackingScopes, name);
+//  if(i < 0) throw "leaveBacktrackingScope: <name> not found";
+//  if(i == 0){
+//    backtrackingScopes = tail(backtrackingScopes);
+//    if(!isEmpty(backtrackingScopes)){
+//        previous = backtrackingScopes[0];
+//        if(!resumptionScopes[previous]?){
+//            resumptionScopes[previous] = name;
+//        }
+//    } else {
+//        resumptionScopes = ();
+//    }
+//    //println(resumptionScopes);
+//    return;
+//  }
+//  
+//  resumptionPoint = backtrackingScopes[i - 1];
+//  backtrackingScopes = backtrackingScopes[i+1 ..];
+//  if(!isEmpty(backtrackingScopes)){
+//    previous = backtrackingScopes[0];
+//    if(!resumptionScopes[previous]?){
+//        resumptionScopes[previous] = resumptionPoint;
+//    }
+//  }
+//  //println(resumptionScopes);
+//}
+//  
+//MuExp updateBTScope(MuExp exp, str fromScope, str toScope){
+//    //return exp; //<<<
+//    if(fromScope == toScope) return exp;
+//    
+//    println("updateBTScope: <fromScope> =\> <toScope>; <exp>");
+//    return visit(exp){
+//        //case muSucceed(fromScope) => muSucceed(toScope)
+//        case muContinue(fromScope):{ println("muContinue(<fromScope>) =\> muContine(<toScope>)"); insert muContinue(toScope); }
+//        case muFail(fromScope): { println("muFail(<fromScope>) =\> muFail(<toScope>)"); insert muFail(toScope); }
+//    };
+//}
 
 str getLabel(Label label) =
   (label is \default) ? "<label.name>" : nextTmp();
@@ -233,7 +277,7 @@ private list[loc] functionDeclarations = []; // *** state
 
 void enterFunctionDeclaration(loc src){
     functionDeclarations = src + functionDeclarations;
-    initBacktrackingScopes();
+    initLabelledStats();
 }
 
 void leaveFunctionDeclaration(){
@@ -267,14 +311,15 @@ void leaveFunctionScope() {
 
 private list[AType] visits = [];		// *** state
 
-AType topCaseType() = top(visits);
+//AType topCaseType() = top(visits);
 
-void enterVisit() {
-	visits = avoid() + visits;
+void enterVisit(AType subjectType) {
+	visits = subjectType + visits;
 }
 
-bool inStringVisit()
-    = top(visits) == astr();
+bool inStringVisit(){
+    return !isEmpty(visits) && isStrType(top(visits));
+}
 
 void leaveVisit() {
 	visits = tail(visits);
@@ -284,9 +329,9 @@ void fillCaseType(AType t) {
 	visits = t + tail(visits);
 }
 
-void clearCaseType() {
-	visits = avoid() + tail(visits);
-}
+//void clearCaseType() {
+//	visits = avoid() + tail(visits);
+//}
 
 int allCounter = 0;								// *** state
 
