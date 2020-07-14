@@ -251,7 +251,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                     ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
                 }
              }
-             dt = defType(ft);
+             dt = defType(ft[label=unescape("<fname>")]);
       
         } catch TypeUnavailable():{
             //  Delayed computation of the function type if some types are anot yet available
@@ -287,7 +287,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                         ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
                     }
                  }
-                 return ft;
+                 return ft[label=unescape("<fname>")];
              });
         }
         dt.vis = getVis(decl.visibility, publicVis());
