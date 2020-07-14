@@ -272,7 +272,7 @@ void collect(current: (Expression) `( <Expression expression> )`, Collector c){
 
 str closureName(Expression closure){
     l = getLoc(closure);
-    return "$CLOSURE<l.offset>";
+    return "$CLOSURE_<l.begin.line>A<l.offset>";
 }
 
 void collect(current: (Expression) `<Type returnType> <Parameters parameters> { <Statement+ statements> }`, Collector c){
@@ -297,7 +297,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
             AType(Solver s){ return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll); });
             
         dt = defType(returnType + formals, AType(Solver s){
-                return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll); 
+                return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll)[label=clos_name]; 
              });
        
         c.defineInScope(parentScope, clos_name, functionId(), current, dt); 
