@@ -586,8 +586,12 @@ bool outerComparable1(alrel(_), alist(_)) = true;
 bool outerComparable1(atuple(atypeList(ts1)), atuple(atypeList(ts2))) = size(ts1) == size(ts2);
 bool outerComparable1(amap(_,_), amap(_,_)) = true;
 
-bool outerComparable1(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
-    = outerComparable(r1, r2) && outerComparable(p1, p2);
+bool outerComparable1(f1:afunc(AType r1, list[AType] p1, list[Keyword] _), f2:afunc(AType r2, list[AType] p2, list[Keyword] _))
+    = outerComparable(r1, r2) && (f1.varArgs ? (f2.varArgs ? outerComparable(p1, p2)
+                                                           : outerComparable(p1[0..-1], p2))
+                                             : (f2.varArgs ? outerComparable(p1, p2[0..-1])
+                                                           : outerComparable(p1, p2)));              
+    
 bool outerComparable1(afunc(AType r1, list[AType] p1, list[Keyword] _), acons(AType r2, list[AType] p2, list[Keyword] _))
     = outerComparable(r1, r2) && outerComparable(p1, p2);
 bool outerComparable1(acons(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
