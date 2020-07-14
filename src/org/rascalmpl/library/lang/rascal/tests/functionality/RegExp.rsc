@@ -100,24 +100,27 @@ test bool nogrouplookaheadandbehind() = /(?s)a.c/ := "a\nc";
 	
 // InterpolateInPatternVarDecl
 
-test bool interpolateIndPatternDecl1(){ int n = 3; return (/<x:<n>>/ := "3" && x == "3");}
-test bool interpolateIndPatternDecl2(){ int n = 3; return (/<x:<n>><x>/ := "33" && x == "3");}
-test bool interpolateIndPatternDecl3(){ int n = 3; return  (/<x:a<n>>/ := "a3" && x == "a3");}
-test bool interpolateIndPatternDecl4(){ int n = 3; return  (/<x:<n>b>/ := "3b" && x == "3b");}
-test bool interpolateIndPatternDecl5(){ int n = 3; return  (/<x:a<n>b>/ := "a3b" && x == "a3b");}
-test bool interpolateIndPatternDecl6(){ int n = 3;  return (/<x:a<n>b>/ := "a3b" && x == "a3b");}
-test bool interpolateIndPatternDecl7(){ int n = 3; return (/<x:a<n>b<n>c>/ := "a3b3c" && x == "a3b3c");}
-test bool interpolateIndPatternDecl8(){ int n = 3; return (/<x:a<n>b<n>c><x>/ := "a3b3ca3b3c" && x == "a3b3c");}
-test bool interpolateIndPatternDecl9(){ int n = 3; return (/<x:a{<n>}>/ := "aaa" && x == "aaa");}
-test bool interpolateIndPatternDecl10(){ str a = "a"; int n = 3; return (/<x:<a>{<n>}>/ := "aaa" && x == "aaa");}
-test bool interpolateIndPatternDecl11(){ str a = "abc"; int n = 3; return (/<x:(<a>){<n>}>/ := "abcabcabc" && x == "abcabcabc");}
-	
-test bool interpolateIndPatternDecl12(){ return (/<x:\\>/ := "\\" && x == "\\");}
-test bool interpolateIndPatternDecl13(){ return (/<x:\>>/ := "\>" && x == "\>");}
+test bool interpolateIndPatternDeclSimple1(){ int n = 3; return (/<x:<n>>/ := "3" && x == "3");}
+test bool interpolateIndPatternDeclSimple2(){ real n = 3.5; return (/<x:<n>>/ := "3.5" && x == "3.5");}
+test bool interpolateIndPatternDeclSimple3(){ rat n = 2r3; return (/<x:<n>>/ := "2r3" && x == "2r3");}
 
-test bool interpolateIndPatternDecl14(){ return (/<x:\<>/ := "\<" && x == "\<");}
-test bool interpolateIndPatternDecl15(){ int n = 3;  return (/<x:\< <n>>/ := "\< 3" && x == "\< 3");}
-test bool interpolateIndPatternDecl16(){ int n = 3;  return (/<x:\< <n>\>>/ := "\< 3\>" && x == "\< 3\>");}
+test bool interpolateIndPatternDecl1(){ int n = 3; return (/<x:<n>><x>/ := "33" && x == "3");}
+test bool interpolateIndPatternDecl2(){ int n = 3; return  (/<x:a<n>>/ := "a3" && x == "a3");}
+test bool interpolateIndPatternDecl3(){ int n = 3; return  (/<x:<n>b>/ := "3b" && x == "3b");}
+test bool interpolateIndPatternDecl4(){ int n = 3; return  (/<x:a<n>b>/ := "a3b" && x == "a3b");}
+test bool interpolateIndPatternDecl5(){ int n = 3;  return (/<x:a<n>b>/ := "a3b" && x == "a3b");}
+test bool interpolateIndPatternDecl6(){ int n = 3; return (/<x:a<n>b<n>c>/ := "a3b3c" && x == "a3b3c");}
+test bool interpolateIndPatternDecl7(){ int n = 3; return (/<x:a<n>b<n>c><x>/ := "a3b3ca3b3c" && x == "a3b3c");}
+test bool interpolateIndPatternDecl8(){ int n = 3; return (/<x:a{<n>}>/ := "aaa" && x == "aaa");}
+test bool interpolateIndPatternDecl9(){ str a = "a"; int n = 3; return (/<x:<a>{<n>}>/ := "aaa" && x == "aaa");}
+test bool interpolateIndPatternDecl10(){ str a = "abc"; int n = 3; return (/<x:(<a>){<n>}>/ := "abcabcabc" && x == "abcabcabc");}
+	
+test bool interpolateIndPatternDecl11(){ return (/<x:\\>/ := "\\" && x == "\\");}
+test bool interpolateIndPatternDecl12(){ return (/<x:\>>/ := "\>" && x == "\>");}
+
+test bool interpolateIndPatternDecl13(){ return (/<x:\<>/ := "\<" && x == "\<");}
+test bool interpolateIndPatternDecl14(){ int n = 3;  return (/<x:\< <n>>/ := "\< 3" && x == "\< 3");}
+test bool interpolateIndPatternDecl15(){ int n = 3;  return (/<x:\< <n>\>>/ := "\< 3\>" && x == "\< 3\>");}
 	
 //	multipleMatches
 
