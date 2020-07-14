@@ -634,8 +634,9 @@ AType makeListType(AType elementType) {
 @doc{Get the element type of a list.}
 AType getListElementType(AType t) {
     if (alist(et) := unwrapType(t)) return et;
-    if (alrel(ets) := unwrapType(t)) return atuple(ets);    
-    throw rascalCheckerInternalError("Cannot get list element type from type <prettyAType(t)>");
+    if (alrel(ets) := unwrapType(t)) return atuple(ets);  
+    return avalue();  
+    //throw rascalCheckerInternalError("Cannot get list element type from type <prettyAType(t)>");
 }  
 
 // ---- map
@@ -757,6 +758,8 @@ list[AType] getADTTypeParameters(AType t) {
 @doc{Return whether the ADT has type parameters.}
 bool adtHasTypeParameters(AType t) = size(getADTTypeParameters(t)) > 0;
 
+bool isOverloadedAType(overloadedAType(rel[loc, IdRole, AType] overloads)) = true;
+default bool isOverloadedType(AType t) = false;
 
 @doc{
 .Synopsis
@@ -829,6 +832,9 @@ AType getFunctionArgumentTypesAsTuple(AType ft) {
 @doc{Get the return type for a function.}
 AType getFunctionReturnType(AType ft) {
     if (afunc(rt, _, _) := unwrapType(ft)) return rt;
+    if(overloadedAType(rel[loc, IdRole, AType] overloads) := unwrapType(ft)) {
+        return getResult( unwrapType(ft));
+    }
     throw rascalCheckerInternalError("Cannot get function return type from non-function type, got <prettyAType(ft)>");
 }
 
@@ -842,6 +848,7 @@ list[AType] getFormals(afunc(AType ret, list[AType] formals, list[Keyword] kwFor
 list[AType] getFormals(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = fields;
 list[AType] getFormals(aprod(prod(AType def, list[AType] atypes))) = [t | t <- atypes, isADTType(t)];
 list[AType] getFormals(aprod(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))) = getFormals(aprod(getFirstFrom(alternatives)));
+list[AType] getFormals(overloadedAType(rel[loc, IdRole, AType] overloads)) = (getFormals(getFirstFrom(overloads<2>)) | alubList(it, getFormals(tp) )| tp <- overloads<2>);
 default list[AType] getFormals(AType t){
     iprintln(t);
     throw rascalCheckerInternalError("Can only get formals from function or constructor type, got <prettyAType(t)>");
@@ -851,6 +858,8 @@ AType getResult(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) 
 AType getResult(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
 AType getResult(aprod(prod(AType def, list[AType] atypes))) = def;
 AType getResult(aprod(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))) = getResult(aprod(getFirstFrom(alternatives)));
+AType getResult(overloadedAType(rel[loc, IdRole, AType] overloads)) = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>);
+
 default AType getResult(AType t){
     throw rascalCheckerInternalError("Can only get result type from function or constructor type, got <prettyAType(t)>");
 }
