@@ -75,8 +75,10 @@ set[str] javaKeywords = {
     "const",    "float",    "native",     "super",     "while"};
     
 
-str getJavaName(str fname, bool completeId = true)
-    = completeId && fname in javaKeywords ? "$<fname>" : replaceAll(fname, "-", "_");
+str getJavaName(str fname, bool completeId = true){
+    res = completeId && fname in javaKeywords ? "$<fname>" : replaceAll(replaceAll(fname, "-", "_"), "\\", "");
+    return res;
+}
     
 str  module2uqclass(str qname, str inModule){
     qname = replaceAll(qname, "::", ".");
@@ -129,6 +131,10 @@ str escapeAsJavaString(str s){
 
 str unescapeAndStandardize(str s){
   return replaceAll(replaceAll(s, "\\", ""), "-", "_");
+}
+
+str unescapeName(str s){
+    return s[0] ==  "\\" ? s[1..] : s;
 }
 
     

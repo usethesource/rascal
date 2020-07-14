@@ -396,17 +396,17 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 
 		while (subjectCursor < len){
 			tr.setMatchedAndChanged(false, false);
-			tr.setBegin(subjectCursor);
+			tr.setBegin(0);
 			tr.setEnd(len);
 
-			String repl = ((IString) traverseTop(subject, tr)).getValue();
+			String repl = ((IString) traverseTop(vf.string(subjectString.substring(subjectCursor, len)), tr)).getValue();
 
 			if(tr.hasMatched()){
-				if(tr.getBegin() > subjectCursor){
-					replacementString.append(subjectString.substring(subjectCursor, tr.getBegin()));
+				if(tr.getBegin() > 0){
+					replacementString.append(subjectString.substring(subjectCursor, subjectCursor + tr.getBegin()));
 				}
 				replacementString.append(repl);
-				subjectCursor = tr.getEnd();
+				subjectCursor = subjectCursor + tr.getEnd();
 			} else {
 				replacementString.append(subjectString.substring(subjectCursor, subjectCursor + 1));
 				subjectCursor++;

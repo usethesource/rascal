@@ -73,7 +73,7 @@ public class PreludeCompiled extends Prelude {
 			}
 		}
         catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e.getMessage());
         }
 		finally {
 			currentOutStream.flush();
@@ -116,7 +116,7 @@ public class PreludeCompiled extends Prelude {
 		    // ignore since we wanted this
 		}
 		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string("Could not print indented value"), null, null);
+			throw RuntimeExceptionFactory.io("Could not print indented value");
 		}
 		finally {
 		    if (output != rex.getStdOut()) {
@@ -161,7 +161,7 @@ public class PreludeCompiled extends Prelude {
 			currentOutStream.println();
 		}
 		catch (IOException e) {
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(e.getMessage());
         }
 		finally {
 			currentOutStream.flush();
@@ -233,7 +233,7 @@ public class PreludeCompiled extends Prelude {
 				return this;
 			}
 			if(less.less(array[0], array[0])) {
-				throw RuntimeExceptionFactory.illegalArgument(null, null); // "Bad comparator: Did you use less-or-equals instead of less-than?"
+				throw RuntimeExceptionFactory.illegalArgument(); // "Bad comparator: Did you use less-or-equals instead of less-than?"
 			}
 			sort(0, size - 1);
 
@@ -325,7 +325,7 @@ public class PreludeCompiled extends Prelude {
 //	    }
 //	    catch (ParseError pe) {
 //	        ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
-//	        throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+//	        throw RuntimeExceptionFactory.parseError(errorLoc);
 //	    }
 //	    catch (Ambiguous e) {
 //	        return e.getTree();
@@ -338,7 +338,7 @@ public class PreludeCompiled extends Prelude {
 //	    }
 //	    catch (ParseError pe) {
 //	        ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
-//	        throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+//	        throw RuntimeExceptionFactory.parseError(errorLoc);
 //	    }
 //	    catch (Ambiguous e) {
 //	        return e.getTree();
@@ -354,7 +354,7 @@ public class PreludeCompiled extends Prelude {
 		if (type.isAbstractData()) {
 			return (IConstructor)value;
 		}
-		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", null, null);
+		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
 	}
 	
 	/*** begin of implode **/
@@ -366,7 +366,7 @@ public class PreludeCompiled extends Prelude {
 		if (type.isAbstractData()) {
 			return (IConstructor)value;
 		}
-		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor", null, null);
+		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
 	}
 	
 	public IValue implode(IValue reifiedType, IConstructor arg0, RascalExecutionContext rex) {
@@ -448,7 +448,7 @@ public class PreludeCompiled extends Prelude {
 				// make a single argument constructor  with yield as argument
 				// if there is a singleton constructor with a str argument
 				if (!type.isAbstractData() && !isUntypedNodeType(type)) {
-					throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
+					throw RuntimeExceptionFactory.illegalArgument(tree, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 				}
 				
 				if (isUntypedNodeType(type)) {
@@ -469,7 +469,7 @@ public class PreludeCompiled extends Prelude {
 						continue;
 					}
 				}
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a constructor " + type));
 			}
 			if (type.isInteger()) {
 				return values.integer(yield);
@@ -484,14 +484,14 @@ public class PreludeCompiled extends Prelude {
 				if (yield.equals("false")) {
 					return values.bool(false);
 				}
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Bool type does not match with " + yield));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Bool type does not match with " + yield));
 			}
 			if (type.isString() || isUntypedNodeType(type)) {
 				// NB: in "node space" all lexicals become strings
 				return values.string(yield);
 			}
 			
-			throw RuntimeExceptionFactory.illegalArgument(tree, null, null, "Missing lexical constructor");
+			throw RuntimeExceptionFactory.illegalArgument(tree, "Missing lexical constructor");
 		}
 		
 		//Set implementation added here by Jurgen at 19/07/12 16:45
@@ -520,7 +520,7 @@ public class PreludeCompiled extends Prelude {
 				return w.done();
 			}
 			else {
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot match list with " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot match list with " + type));
 			}
 		}
 		//Changes end here
@@ -535,7 +535,7 @@ public class PreludeCompiled extends Prelude {
 		
 		if (TreeAdapter.isOpt(tree)) {
 			if (!type.isList() && !isUntypedNodeType(type)) {
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Optional should match with a list and not " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Optional should match with a list and not " + type));
 			}
 			Type elementType = isUntypedNodeType(type) ? type : type.getElementType();
 			IListWriter w = values.listWriter();
@@ -558,7 +558,7 @@ public class PreludeCompiled extends Prelude {
 		
 		if (TreeAdapter.isAmb(tree)) {
 			if (!type.isSet()) {
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Ambiguous node should match with set and not " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Ambiguous node should match with set and not " + type));
 			}
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter();
@@ -625,11 +625,11 @@ public class PreludeCompiled extends Prelude {
 				}
 
 				if (!type.isTuple()) {
-					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor does not match with " + type));
+					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Constructor does not match with " + type));
 				}
 				
 				if (length != type.getArity()) {
-					throw new Backtrack(RuntimeExceptionFactory.arityMismatch(type.getArity(), length, null, null));
+					throw new Backtrack(RuntimeExceptionFactory.arityMismatch(type.getArity(), length));
 				}
 
 				return values.tuple(implodeArgs(store, type, args, rex));
@@ -643,7 +643,7 @@ public class PreludeCompiled extends Prelude {
 			
 			// make a typed constructor
 			if (!type.isAbstractData()) {
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
+				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
 			}
 
 			Set<Type> conses = findConstructors(type, constructorName, length, store);
@@ -663,7 +663,7 @@ public class PreludeCompiled extends Prelude {
 			
 		}
 		
-		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree,
 				"Cannot find a constructor for " + type));
 	}
 	

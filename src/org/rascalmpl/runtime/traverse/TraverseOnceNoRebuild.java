@@ -261,6 +261,7 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 
 	private IValue traverseString(IValue subject, final TraversalState tr){
 		IString subjectIString = (IString) subject;
+		String subjectString = subjectIString.getValue();
 		int len = subjectIString.length();
 		int subjectCursor = 0;
 
@@ -269,13 +270,13 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 
 		while (subjectCursor < len){
 			tr.setMatchedAndChanged(false, false);
-			tr.setBegin(subjectCursor);
+			tr.setBegin(0);
 			tr.setEnd(len);
 
-			traverseTop(subject, tr);
+			traverseTop(vf.string(subjectString.substring(subjectCursor, len)), tr);
 
 			if(tr.hasMatched()){
-				subjectCursor = tr.getEnd();
+				subjectCursor = subjectCursor + tr.getEnd();
 			} else {
 				subjectCursor++;
 			}

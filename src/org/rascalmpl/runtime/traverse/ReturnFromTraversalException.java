@@ -2,7 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 
 import io.usethesource.vallang.IValue;
 
-class ReturnFromTraversalException extends RuntimeException {
+public class ReturnFromTraversalException extends RuntimeException {
 	private final static long serialVersionUID = -5118318371303187359L;
 	
 	private final IValue returnValue;

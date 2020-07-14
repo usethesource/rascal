@@ -20,6 +20,7 @@ import lang::rascalcore::compile::muRascal::AST;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
@@ -47,7 +48,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalConstantCall;
 // Generate code for completely type-resolved operators
 
 private MuExp infix(str op, Expression e) { 
-    return muCallPrim3(op, getType(e), [getType(e.lhs), getType(e.rhs)], [*translate(e.lhs), *translate(e.rhs)], e@\loc);
+    return muCallPrim3(op, getType(e), [getType(e.lhs), getType(e.rhs)], [translate(e.lhs), translate(e.rhs)], e@\loc);
 }    
 private MuExp unary(str op, Expression e, Expression arg) = 
     muCallPrim3(op, getType(e), [getType(arg)], [translate(arg)], e@\loc);
@@ -59,6 +60,12 @@ private MuExp compose(Expression e){
   return isFunctionType(lhsType) || isOverloadedAType(lhsType) ? translateComposeFunction(e) : infix("compose", e);
 }
 
+str getFunctionName(af:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = af.label;
+str getFunctionName(ovl: overloadedAType(rel[loc, IdRole, AType] overloads)) = getFirstFrom(overloads)[2].label;
+str getFunctionName(AType t) {
+    throw "getFunctionName: <t>";
+}
+
 private MuExp translateComposeFunction(Expression e){
   lhsType = getType(e.lhs);
   rhsType = getType(e.rhs);
@@ -68,40 +75,42 @@ private MuExp translateComposeFunction(Expression e){
   MuExp rhsReceiver = visit(translate(e.rhs)) { case str s => replaceAll(s, "::" , "_") };
   
   println("rhsReceiver: <rhsReceiver>");
-  
-  str ofqname = replaceAll("<lhsReceiver.fuid>_o_<rhsReceiver.fuid>", "::", "_");  // name of composition
-  
-  if(hasOverloadingResolver(ofqname)){
-    return muOFun(ofqname);
-  }
-  
-  // Unique 'id' of a visit in the function body
-  //int i = nextVisit();  // TODO: replace by generated function counter
+  str compResolverName = "$<getFunctionName(lhsType)>_COMP_<getFunctionName(rhsType)>_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>"; // name of compositiosition
     
-  // Generate and add a function COMPOSED_FUNCTIONS_<i>
+  // Generate and add a function COMPOSE_<...>
   str scopeId = topFunctionScope();
-  str comp_name = "COMPOSED_FUNCTION_<e@\loc.begin.line>_<e@\loc.end.line>";
+  str comp_name = "$COMPOSE_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";
   str comp_fuid = scopeId + "_" + comp_name;
   
   AType comp_ftype = avoid(); 
   int nargs = 0;
   if(isFunctionType(resType)) {
-     nargs = size(resType.formals);
-     comp_ftype = resType;
-  } else {
-     nargs = size(getFirstFrom(resType.overloads).parameters);
-     for(t <- resType.overloads){
-         if(size(t.formals) != nargs){
+      nargs = size(resType.formals);
+      comp_ftype = resType;
+  } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := resType){
+      comp_ftype = getFirstFrom(overloads)[2];
+      nargs = getArity(comp_ftype);
+      for(<l, role, tp> <- overloads){
+        if(getArity(tp) != nargs){
             throw "cannot handle composition/overloading for different arities";
-         }
+        }
+        comp_ftype = alub(comp_ftype, tp);
      }
-     comp_ftype = afunc(avalue(), [avalue() | int j <- [0 .. nargs]], []);
+  } else {
+    throw "cannot handle result type <resType>";
+  }
+  
+  if(hasOverloadingResolver(compResolverName)){
+    return muOFun(compResolverName, comp_ftype);
   }
     
   enterFunctionScope(comp_fuid);
   //TODO kwargs
-  rhsCall = muOCall3(rhsReceiver, atuple(atypeList([rhsType])), [muVar(resType.formals[j].label, comp_fuid, j, resType.formals[j]) | int j <- [0 .. nargs]], e.rhs@\loc);
-  body_exps =  [muReturn1(muOCall3(lhsReceiver, atuple(atypeList([lhsType])), [rhsCall], e.lhs@\loc))];
+  formals = [muVar("$<j>" /*resType.formals[j].label*/, comp_fuid, j, comp_ftype.formals[j]) | int j <- [0 .. nargs]];
+  rhsCall = muOCall3(rhsReceiver, rhsType, formals, [], e.rhs@\loc);
+  
+  body_exps =  [muReturn1(comp_ftype.ret, muOCall3(lhsReceiver, lhsType, [rhsCall], [], e.lhs@\loc))];
+  //body_exps =  [muReturn1(lhsType.ret, muOCall3(lhsReceiver, atuple(atypeList([lhsType])), [rhsCall], [], e.lhs@\loc))];
   
   
   //kwargs = muCallMuPrim("copy_and_update_keyword_mmap", [muCon(nargs)]);
@@ -110,60 +119,56 @@ private MuExp translateComposeFunction(Expression e){
    
   leaveFunctionScope();
   body_code = muBlock(body_exps);
-  fun = muFunction(comp_fuid, comp_name, comp_ftype, ["a", "b"], [],  scopeId, nargs, 2, false, false, false, getExternalRefs(body_code, comp_fuid), \e@\loc, [], (), body_code);
- 
+  fun = muFunction(compResolverName, compResolverName, comp_ftype, formals, [],  scopeId, nargs, 2, false, false, false, getExternalRefs(body_code, comp_fuid), {}, e@\loc, [], (), body_code);
+  iprintln(e@\loc);
   loc uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
-  //addOverloadedFunctionAndResolver(ofqname, <comp_name, comp_ftype, getModuleName(), [ofqname], []>);
+  addDefineAndType(<currentFunctionDeclaration(), comp_name, functionId(), e@\loc, defType(comp_ftype)>, comp_ftype);
+  addOverloadedFunctionAndResolver(compResolverName, <compResolverName, comp_ftype, compResolverName/*getModuleName()*/, [e@\loc], []>);
  
-  return muOFun(comp_fuid);
+  return muOFun(compResolverName, comp_ftype);
 }
 
 // ----------- addition: exp + exp ----------------
 
 private  MuExp add(Expression e){
     lhsType = getType(e.lhs);
-    return isFunctionType(lhsType) /*|| isOverloadedType(lhsType)*/ ? translateAddFunction(e) :infix("add", e);
+    return isFunctionType(lhsType) || isOverloadedAType(lhsType) ? translateAddFunction(e) :infix("add", e);
 }
 
 private MuExp translateAddFunction(Expression e){
-    return muBlock([]); // TODO
-//  //println("translateAddFunction: <e>");
-//  lhsType = getType(e.lhs);
-//  rhsType = getType(e.rhs);
-//  
-//  str2uid = invertUnique(uid2str);
-//
-//  MuExp lhsReceiver = translate(e.lhs);
-//  OFUN lhsOf;
-//  
-//  if(hasOverloadingResolver(lhsReceiver.fuid)){
-//    lhsOf = getOverloadedFunction(lhsReceiver.fuid);
-//  } else {
-//    uid = str2uid[lhsReceiver.fuid];
-//    lhsOf = <lhsReceiver.fuid, lhsType, topFunctionScope(), [uid]>;
-//    addOverloadedFunctionAndResolver(lhsReceiver.fuid, lhsOf);
-//  }
-// 
-//  MuExp rhsReceiver = translate(e.rhs);
-//  OFUN rhsOf;
-//  
-//  if( hasOverloadingResolver(rhsReceiver.fuid)){
-//    rhsOf = getOverloadedFunction(rhsReceiver.fuid);
-//  } else {
-//    uid = str2uid[rhsReceiver.fuid];
-//    rhsOf = <rhsReceiver.fuid, rhsType, topFunctionScope(), [uid]>;
-//    addOverloadedFunctionAndResolver(rhsReceiver.fuid, rhsOf);
-//  }
-//  
-//   str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>#<e@\loc.offset>_<e@\loc.length>";  // name of addition
-// 
-//  OFUN compOf = <ofqname, lhsType, lhsOf[2], lhsOf[3] + rhsOf[3]>; // add all alternatives
-//  
-// 
-// 
-//  addOverloadedFunctionAndResolver(ofqname, compOf); 
-//  return muOFun(ofqname);
+  lhsType = getType(e.lhs);
+  rhsType = getType(e.rhs);
+  resType = getType(e);
+
+  MuExp lhsReceiver = translate(e.lhs);
+  
+  lhsOFunctions = lhsOConstructors = [];
+  if(muFun(loc src, AType tp) := lhsReceiver){
+    lhsOFunctions = [src];
+  } else if(muOFun(str resolverName, AType tp) := lhsReceiver){
+    lhsOf = getOverloadedFunction(resolverName);
+    lhsOFunctions = lhsOf.ofunctions;
+    lhsOConstructors = lhsOf.oconstructors;
+  }
+ 
+  MuExp rhsReceiver = translate(e.rhs);
+  
+  rhsOFunctions = rhsOConstructors = [];
+  if(muFun(loc src, AType tp) := rhsReceiver){
+    rhsOFunctions = [src];
+  } else if(muOFun(str resolverName, AType tp) := rhsReceiver){
+    rhsOf = getOverloadedFunction(resolverName);
+    rhsOFunctions = rhsOf.ofunctions;
+    rhsOConstructors = rhsOf.oconstructors;
+  }
+ 
+  str addResolverName = "$<getFunctionName(lhsType)>_ADD_<getFunctionName(rhsType)>_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";  // name of addition
+ 
+  OFUN addOFun = <addResolverName, lhsType, addResolverName, lhsOFunctions + rhsOFunctions, lhsOConstructors + rhsOConstructors>; // add all alternatives
+ 
+  addOverloadedFunctionAndResolver(addResolverName, addOFun); 
+  return muOFun(addResolverName, resType);
 }
 
 MuExp comparison(str op, Expression e)
@@ -242,8 +247,9 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
 					     ]);
 }
                     
-private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant>`) =
-	muCon(deescape(readTextValueString(removeMargins("<constant>"))));
+private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant>`) {
+    return muCon(/*deescape(*/readTextValueString(removeMargins("<constant>"))/*)*/);
+}
 
 // --- translateExpInStringLiteral
 
@@ -615,7 +621,6 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
  	uid = e@\loc;
 	fuid = convert2fuid(uid);
 	surrounding = topFunctionScope();
-	//fuid = nextLabel("  SURE");
 	
 	enterFunctionScope(fuid);
 	
@@ -629,8 +634,8 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     // TODO: we plan to introduce keyword patterns as formal parameters
     <formalVars, funBody> = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat, ()) | stat <- cbody]), false, []);
     
-    addFunctionToModule(muFunction("$CLOSURE<uid.offset>", 
-                                   "$CLOSURE<uid.offset>", 
+    addFunctionToModule(muFunction("$CLOSURE_<uid.begin.line>A<uid.offset>", 
+                                   "$CLOSURE_<uid.begin.line>A<uid.offset>", 
                                    ftype, 
                                    formalVars,
                                    kwps,
@@ -641,13 +646,14 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   								   false,
   								   false,
   								   getExternalRefs(funBody, fuid),  // << TODO
+  								   getLocalRefs(funBody),
   								   e@\loc,
   								   [],
   								   (),
   								   funBody));
   	
   	leaveFunctionScope();								  
-  	return muFun1(uid); // TODO!
+  	return muFun(uid, ftype); // TODO!
 }
 
 // -- range expression ----------------------------------------------
@@ -689,13 +695,13 @@ MuExp translate (e:(Expression) `<Label label> <Visit visitItself>`) = translate
 
 public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \visit, BTSCOPES btscopes) {	
     str fuid = topFunctionScope();
-    
-    enterVisit();
     subjectType = getType(\visit.subject);
-    switchname = getLabel(label);
-    switchval = muTmpIValue(asTmp(switchname), fuid, avalue()/*subjectType*/);
+    enterVisit(subjectType);
+   
+    visitName = getLabel(label, "VISIT");
+    visitSubject = muTmpIValue("$<visitName>_subject", fuid, avalue());    
+	visitResult = muTmpIValue("$<visitName>_result", fuid, avalue());    
     
-	
 	bool isStringSubject = false; //subjectType == \str();
 	
 	cases = [ c | Case c <- \visit.cases ];
@@ -737,9 +743,9 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	}
 	
 	vdescriptor = visitDescriptor(direction, fixedpoint, progress, rebuild, ddescriptor);
-	<case_code, default_code> = translateSwitchCases(switchval, fuid, useConcreteFingerprint, cases, muSucceedVisitCase(), btscopes);
-	
-    visitCode = muVisit(muConInit(switchval, translate(\visit.subject)), case_code, default_code, vdescriptor);
+	<case_code, default_code> = translateSwitchCases(visitName, visitSubject, fuid, useConcreteFingerprint, cases, muSucceedVisitCase(visitName), btscopes);
+    
+    visitCode = muVisit(visitName, muConInit(visitSubject, translate(\visit.subject)), case_code, default_code, vdescriptor);
     leaveVisit();
     return visit(visitCode) { case muReturn0() => muReturn0FromVisit() case muReturn1(AType t, MuExp e) => muReturn1FromVisit(t, e) };
 }
@@ -835,7 +841,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    if(getOuterType(expression) == "aloc"){
        return muCallPrim3(size(args) == 2 ? "create_loc_with_offset" : "create_loc_with_offset_and_begin_end", aloc(), [aloc()], [receiver, *args], e@\loc);
    }
-   if(muFun1(_) := receiver || muConstr(AType _) := receiver) {
+   if(muFun(_,_) := receiver || muConstr(AType _) := receiver) {
         return muCall(receiver, ftype, args, kwargs);
    }
    
@@ -944,9 +950,9 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
     enterLoop(whileName,fuid);
    
     my_btscopes = getBTScopesAnd(gens, nextTmp("ALL"), ());
-    resume_gen = getResume(gens[0], my_btscopes);
-    exit = muBlock([muAssign(all_true, muCon(false)), muBreak(resume_gen)]);
-    code = muContinue(resume_gen);
+    enter_gen = getEnter(gens[0], my_btscopes);
+    exit = muBlock([muAssign(all_true, muCon(false)), muBreak(enter_gen)]);
+    code = muContinue(enter_gen);
     for(gen <- reverse(gens)){
         if((Expression) `<Pattern pat> \<- <Expression exp>` := gen){
            enter_gen = getEnter(gen, my_btscopes);
@@ -1286,11 +1292,33 @@ MuExp translateBool(e:(Expression) `<Expression expression> is <Name name>`, BTS
 // -- has expression -----------------------------------------------
 
 MuExp translate ((Expression) `<Expression expression> has <Name name>`) {
-    if(getOuterType(expression) notin {"aadt", "anode"}){   // static cases: compute result here
-        return muCon(hasField(getType(expression), unescape("<name>")));
-    } else {                                                // dynamic cases: compute result at runtime
-        return muHasField(translate(expression), getType(expression), unescape("<name>"));
-    }			    
+    uname = unescape("<name>");
+    outer = getOuterType(expression);
+    tp = getType(expression);
+    if(outer == "anode"){
+      // Always compute existence of field at run time
+      return muHasField(translate(expression), tp, uname, {}); 
+    } else if (outer == "aadt"){
+        commonKwFields = getCommonKeywordFieldsNameAndType()[tp] ? ();  
+        if(commonKwFields[uname]?){
+            return muCon(true); // If desired field is a common keyword field, all constructors have it
+        }
+        
+        // Determine set of constructors with the desired field                                    
+        constructors = getConstructorsMap()[tp] ? {};
+        consesWithField = {c | c:acons(AType adt, list[AType] fields, list[Keyword] kwFields) <- constructors,
+                               (!isEmpty(fields) && any(f <- fields, f.label == uname)) ||
+                               (!isEmpty(kwFields) && any(kwf <- kwFields, kwf.fieldType.label == uname))
+                           };
+        //if(isEmpty(consesWithField)){
+        //    return muCon(false);    // It is statically known that there is no constructor with desired field
+        //}
+
+        // Compute result at runtime, guided by the set of constructors that do have the desired field
+        return muHasField(translate(expression), tp, uname, consesWithField); 
+    } else { // all other cases: compute result statically
+        return muCon(hasField(tp, uname));
+    }		    
 }
 
 MuExp translateBool(e: (Expression) `<Expression expression> has <Name name>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
@@ -1355,6 +1383,9 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
     if( muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName) := muLHS){
         muLHS = muGuardedGetField(resultType, baseType, baseExp, fieldName);
         lshType = resultType;
+    } else if(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName) := muLHS){
+        muLHS = muGuardedGetField(resultType, consType.adt, exp, fieldName);
+        lshType = resultType;
     } else if(muCallPrim3("subscript", AType result, list[AType] details, list[MuExp] exps, loc src) := muLHS){
         muLHS = muCallPrim3("guarded_subscript", result, details, exps, src);
         lhsType = result;
@@ -1402,13 +1433,15 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
    
 // -- asType expression ---------------------------------------------
 
-MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
+MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  {
+   throw "asType: TODO";
     muCon(false); // TODO
  //muCallPrim3("parse", [muCon(getModuleName()), 
  //  					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
  //  					    translate(argument)], 
  //  					    argument@\loc);
- // 
+}
+
 // -- composition expression ----------------------------------------
 
 MuExp translate(e: (Expression) `<Expression lhs> o <Expression rhs>`) 
@@ -1561,15 +1594,19 @@ MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression exp>`,  BTSCOPES b
     my_btscope = btscopes[getLoc(e)];
     iprintln(btscopes);
     println("my_btscope = <my_btscope>");
-   return muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muFail(my_btscope.\fail), muSucceed(my_btscope.enter)));
+   //return muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muFail(my_btscope.\fail), muSucceed(my_btscope.enter)));
    //return muCallPrim3("not", abool(), [abool()], [translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))], e@\loc);
     
-    //return negate(my_btscope.enter, muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
+    code = muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail)));
+    iprintln(code);
+    code = negate(code, []);
+    iprintln(code);
+    return code;
 }
     
 MuExp translateBool(e:(Expression) `<Pattern pat> !:= <Expression exp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
     my_btscope = btscopes[getLoc(e)];
-    return negate(my_btscope.enter, muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
+    return negate(muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))), []);
     //code = translateMatch(pat, exp, btscopes, falseCont, trueCont);
     //return code;
 }
@@ -1983,15 +2020,20 @@ BTINFO getBTInfo(Expression e:(Expression) `<Expression condition> ? <Expression
 
 MuExp translate((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) {
 	btscopes = getBTScopes(condition, nextTmp("COND"));
-	return translateBool(condition, btscopes,  translate(thenExp), translate(elseExp));
+	res = translateBool(condition, btscopes,  translate(thenExp), translate(elseExp));
+	iprintln(res);
+	return res;
 }
 
 bool isConditional((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) = true;
 bool isConditional((Expression) `( <Expression exp> )`) = isConditional(exp);
 default bool isConditional(Expression e) = false;
 
-MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
-    = translateBool(condition, btscopes, muBlock([translate(thenExp), trueCont]),  muBlock([translate(elseExp), falseCont]));
+MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
+    res = translateBool(condition, btscopes, muBlock([translate(thenExp), trueCont]),  muBlock([translate(elseExp), falseCont]));
+    iprintln(res);
+    return res;
+}
 
 // -- any other expression that may require backtracking ------------
 

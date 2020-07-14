@@ -6,13 +6,17 @@ import Set;
 import Map;
 import Node;
 import Relation;
+import Set;
 import String;
 import ListRelation;
+import util::Math;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::util::Names;  // TODO: merge name utils
 import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
+
 import Location;
 
 import lang::rascalcore::check::BasicRascalConfig;
@@ -21,6 +25,8 @@ import Type;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
+
+
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
@@ -48,23 +54,22 @@ import lang::rascalcore::check::ATypeUtils;
 alias UID = loc;                                    // A UID is a unique identifier determined by the source location of a construct
 
 /*
- * We will use FUID (for Function UID) to create a readable string representation for 
- * any enity of interest. Typically a FUID consists of:
- * - the name of the entity
- * - its type
- * - optional modifiers (to indicate a specific use, case, etc)
- *
+ * We will use FUID (for Function UID) to create a readable string representation for any enity of interest. 
  */
 
 alias FUID = str; 
 
-private AGrammar grammar = grammar({}, ());
+TModel current_tmodel = tmodel();                   // TModel for current module
 
-AGrammar getGrammar() = grammar;
+TModel getTModel() = current_tmodel;                // Get the (possibly updated) TModel
 
-private set[AType] ADTs = {};
+private AGrammar grammar = grammar({}, ());         // Grammar for current module
 
-set[AType] getADTs() = ADTs;
+AGrammar getGrammar() = grammar;                    // Get the grammar
+
+private set[AType] ADTs = {};                       // ADTs defined in current module
+
+set[AType] getADTs() = ADTs;                        // Get ADTs
 
 Scopes scopes = ();                                 // All scopes
 rel[UID,UID] td_reachable_scopes = {};              // Transitive closure of top down reachable scopes
@@ -116,15 +121,19 @@ int getModuleVarInitLocals(str mname) {
 	//assert module_var_init_locals[mname]? : "getModuleVarInitLocals <mname>";
 	return module_var_init_locals[mname] ? 0;
 }
-//public set[UID] keywordFormals = {};				// declared keyword parameters & common keyword fields declared on datatypes
 
 private map[tuple[UID,UID], bool] funInnerScopes = ();
 
-alias OFUN = tuple[str name, AType funType, str fuid, list[loc] ofunctions, list[loc] oconstructors];		// An overloaded function and all its possible resolutions
+// An overloaded function and all its possible resolutions
+alias OFUN = tuple[str name, AType funType,         // function name (as used in the Rascal source program) and its type
+                   str resolverName,                // unique name of resolver
+                   list[loc] ofunctions,            // list of applicable functions, defaults last)
+                   list[loc] oconstructors          // list of applicable constructors, defaults last
+                   ];
 
-private map[str,int] overloadingResolver = ();		// map function name to overloading resolver
-private map[tuple[str fname, AType ftype],str] overloadedTypeResolver = (); // map overloaded function types to the name of their resolver
-private list[OFUN] overloadedFunctions = [];		// list of overloaded functions 
+private map[str,OFUN] overloadingResolver = ();		// map resolver name name to overloaded function
+private map[tuple[str fname, AType ftype, loc scope], str] overloadedTypeResolver = (); // map overloaded function types to the name of their resolver
+private list[OFUN] overloadedFunctions = [];		// list of overloaded functions // TODO overlaps with overloadingResolver, rempve?
 
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 
@@ -132,17 +141,21 @@ list[OFUN] getOverloadedFunctions() = overloadedFunctions;
 
 bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 
-OFUN getOverloadedFunction(FUID fuid) {
-	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
-	resolver = overloadingResolver[fuid];
-	return overloadedFunctions[resolver];
+OFUN getOverloadedFunction(FUID resolverName) {
+	assert overloadingResolver[resolverName]? : "No overloading resolver defined for <resolverName>";
+	return overloadingResolver[resolverName];
+}
+
+void addOverloadedFunctionAndResolver(FUID resolverName, OFUN ofun){
+    overloadingResolver[resolverName] = ofun;
+    overloadedFunctions += ofun;
 }
 
 // Reset the above global variables, when compiling the next module.
 
 public void resetScopeExtraction() {  
+    current_tmodel = tmodel();
     functions = {}; 
-    //keywordFormals = {};
     defaultFunctions = {};
     module_var_init_locals = ();
     declares = {};
@@ -174,6 +187,16 @@ bool isDefinition(UID d){
     return definitions[d]?;
 }
 
+void addDefineAndType(Define def, AType tp){
+    definitions[def.defined] = def;
+    current_tmodel.definitions[def.defined] = def;
+    facts[def.defined] = tp;
+    current_tmodel.facts[def.defined] = tp;
+}
+
+Define getDefine(UID d)
+    = definitions[d];
+    
 loc getDefinition(UID d){
     return definitions[d].defined;
 }
@@ -245,6 +268,7 @@ loc findContainer(Define d){
 // extractScopes: extract and convert type information from the Configuration delivered by the type checker.
 void extractScopes(TModel tm){
     //iprintln(tm);
+    current_tmodel = tm;
     scopes = tm.scopes;
     module_scopes = { s | s <- scopes, scopes[s] == |global-scope:///|};
 
@@ -256,7 +280,7 @@ void extractScopes(TModel tm){
     vars_per_scope = ();
     useDef = tm.useDef;
     defUses = invert(useDef);
-    modules = {};
+    set[loc] modules = {};
     
     if([AGrammar g] := tm.store["grammar"]){
         grammar = g;
@@ -310,15 +334,11 @@ void extractScopes(TModel tm){
                 vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
        }
     }
-    
-    println("adt_uses_type: <adt_uses_type>");
+   
     reachableTypes = (adt_uses_type<1,2>)+;
-    println("reachableTypes: <reachableTypes>");
-    
-    //println("vars_per_scope"); iprintln(vars_per_scope);
     
     // Determine position of module variables
-    for(m <- modules){
+    for(loc m <- modules){
         module_vars_set = vars_per_scope[m] ? {};
         module_vars_list = toList(module_vars_set);
         for(int i <- index(module_vars_list)){
@@ -332,23 +352,19 @@ void extractScopes(TModel tm){
     declaredIn = (d.defined : findContainer(d) | d <- defines, d.id != "type");
     declares = invert(toRel(declaredIn));
     
-    //println("declaredIn"); iprintln(declaredIn);
-    
     // Determine position of variables inside functions
-    
+    iprintln(functions);
     for(fun <- functions){   
         fundef = definitions[fun];
-        println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
-        println("vars_per_scope:"); iprintln(vars_per_scope);
+        //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
+        //println("vars_per_scope:"); iprintln(vars_per_scope);
         locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], bprintln(sc), facts[sc]? ? isFunctionType(getType(sc)) ==> sc == fun : true};
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
         formals = [v | v <- vars, is_formal(v)];
         outer_formals = [v | v <- formals, is_outer_formal(v) ];
         non_formals = [v | v <- vars, !is_formal(v)];
     
-        /* frame organization: outer_formals, kw_map, kw_defaults, formals, variables */
-        // ***Note: Includes keyword parameters as a single map parameter when applicable
-        ftype = defInfo(AType atype) := fundef.defInfo ? atype : avalue();
+        ftype = defType(AType atype) := fundef.defInfo ? atype : avalue();
         kwpDelta = (ftype has kwFormals && size(ftype.kwFormals) > 0 ||
                     ftype has kwFields && size(ftype.kwFields) > 0) ? 1 : 0;
         formal_base = /*size(formals) + */kwpDelta; 
@@ -367,13 +383,13 @@ void extractScopes(TModel tm){
   // create overloading resolvers ...
    
    funNameAndDef = { <def.id, def> | cf <- functions+constructors, def := definitions[cf] };
-    
-   noverloaded = 0;
+   iprintln(funNameAndDef);
    
    // ... all overloaded functions
   
-    bool compatible(Define l, Define r){
-        return outerComparable(getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(l.defined))), 
+    bool compatibleInOverlappingScope(Define l, Define r){
+        return (isContainedIn(l.scope, r.scope) || isContainedIn(r.scope, l.scope)) && 
+               outerComparable(getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(l.defined))), 
                                getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(r.defined))));
     }
     
@@ -406,34 +422,26 @@ void extractScopes(TModel tm){
       return result;  
     }
     
-    //bool compatible(Define l, Define r){
-    //    return outerComparable(getDefType(l.defined), 
-    //                           getDefType(r.defined));
+    //bool compatibleInOverlappingScope(Define l, Define r){
+    //    return l.scope == r.scope && outerComparable(getDefType(l.defined), getDefType(r.defined));
     //}
    
    for(fname <- domain(funNameAndDef)){
-        // Separate functions defined at a module level (may be overloaded) and functions defined in inner scopes
+        // Separate functions defined at a module level (and may be overloaded) vs functions defined in inner scopes
         defs0 = funNameAndDef[fname];
-        if(fname == "treeAt"){
-            println("treeAt");
-        }
        
-        
-        // Outer scopes, group by similar outer type
-        globalDefs0 = {  def | Define def <- defs0, def.scope in module_scopes };
-        globalDefs = mygroup(globalDefs0, compatible);
-
-println("globalDefs:");
-for(defs <- globalDefs){
-    println("<size(defs)>: <for(Define def <- defs){><def.defined.begin.line> <}>");
- }
-iprintln(globalDefs, lineLimit=10000);
-
-        // Inner scopes, group by similar outer type
-        innerDefs0 = defs0 - globalDefs0;
-        innerDefs = mygroup(innerDefs0,  compatible);
+        fdefs0 = { def | Define def <- defs0 };
+        fdefs =  mygroup(fdefs0, compatibleInOverlappingScope);
+//        // Outer scopes, group by similar outer type
+//        globalDefs0 = {  def | Define def <- defs0, def.scope in module_scopes };
+//        globalDefs = mygroup(globalDefs0, compatibleInOverlappingScope);
+//
+//        // Inner scopes, group by similar outer type
+//        innerDefs0 = defs0 - globalDefs0;
+//        innerDefs = mygroup(innerDefs0,  compatibleInOverlappingScope);
+//        iprintln(innerDefs);
   
-        for(defs <- {*globalDefs, *innerDefs}){
+        for(defs <- fdefs /*{*globalDefs, *innerDefs}*/){
             types = { unsetRec(getDefType(def.defined)) | Define def <- defs };
             
             // filter out the largest types in the given set that subsume others
@@ -449,7 +457,7 @@ iprintln(globalDefs, lineLimit=10000);
             }
             
             // Create resolvers for the remaining types
-            
+            iprintln(types);
             for(ftype <- types){
                 ovl_non_defaults = [];
                 ovl_defaults = [];
@@ -495,26 +503,64 @@ iprintln(globalDefs, lineLimit=10000);
                         }
                     }
                 }
+                alts = sorted_non_defaults + sorted_defaults + sorted_constructors;
+                scope_prefix = "";
+               
+                first_alt = definitions[alts[0]];
+                if(first_alt.scope notin module_scopes && definitions[first_alt.scope]?){
+                    scope_def = definitions[first_alt.scope];
+                    scope_prefix = "<scope_def.id>_<scope_def.defined.begin.line>A<scope_def.defined.offset>L<scope_def.defined.length>_";
+                }
+                oname = "<scope_prefix><fname>_AT_<intercalate("_OR_",  abbreviate(alts))>";
                 
-                oname = "<fname>_AT_<intercalate("_OR_",  abbreviate(sorted_non_defaults + sorted_defaults + sorted_constructors))>";
                 ftype2 =  afunc(resType, formalsType.atypes, []);
                 ofun = <fname,  ftype2, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
                 if(!overloadingResolver[oname]?){
-                    
                     overloadedFunctions += ofun;
-                    overloadingResolver[oname] = noverloaded;
-                    noverloaded += 1;
-                    overloadedTypeResolver[<fname, ftype2>] = oname;
+                    overloadingResolver[oname] = ofun;
+                    overloadedTypeResolver[<fname, ftype2, first_alt.scope>] = oname;
                 }
             }
         }
+   }
+   
+   // Create "umbrella" resolvers for overloaded functions that have different formal types
+   iprintln(funNameAndDef);
+   
+   bool isInScope(OFUN ovl, loc scope){
+    return (isEmpty(ovl.ofunctions) || all(of <- ovl.ofunctions, definitions[of].scope == scope)) &&
+           (isEmpty(ovl.oconstructors) || all(of <- ovl.oconstructors, definitions[of].scope == scope));
+   }
+   
+   for(fname <- domain(funNameAndDef)){
+        fname_scopes = {def. scope | def <- funNameAndDef[fname]};
+        for(fname_scope <- fname_scopes){
+            fname_types = { tp | <fname, AType tp, fname_scope> <- domain(overloadedTypeResolver) /*, OFUN ovl := overloadingResolver[overloadedTypeResolver[<fname, tp>]], isInScope(ovl, fname_scope)*/ };
+            max_arity = (0 | max(it, getArity(tp)) | tp <- fname_types);
+            for(int arity <- [0 .. max_arity+1]){
+               ftypes_of_arity = { tp | tp <- fname_types, getArity(tp) == arity };
+               if(size(ftypes_of_arity) > 1){
+                    lub_ftype = (avoid() | alub(it, ftype) | ftype <- ftypes_of_arity);
+                    oname = "umbrella_<intercalate("_OR_",  [ overloadedTypeResolver[<fname, ftype, fname_scope>] | ftype <- ftypes_of_arity ])>";
+                    ofun = <fname,  lub_ftype, oname, [ *res.ofunctions | ftype <- ftypes_of_arity, OFUN res := overloadingResolver[overloadedTypeResolver[<fname, ftype, fname_scope>]]],
+                                                      [ *res.oconstructors | ftype <- ftypes_of_arity, OFUN res := overloadingResolver[overloadedTypeResolver[<fname, ftype, fname_scope>]]]
+                           >;
+                    if(!overloadingResolver[oname]?){
+                        overloadedFunctions += ofun;
+                        overloadingResolver[oname] = ofun;
+                        overloadedTypeResolver[<fname, lub_ftype, fname_scope>] = oname;
+                    }
+               }
+            }
+        }
+   
    }
 }
 
 list[str] abbreviate(list[loc] locs){
     return for(l <- locs){
                k = findLast(l.path, "/");
-               append "<l.path[k+1 .. -4]>_<l.begin.line>";
+               append "<l.path[k+1 .. -4]>_<l.begin.line>A<l.offset>";
            };
 }
 
@@ -671,7 +717,7 @@ iprintln(definitions);
         if(isContainedIn(l, c)){ container = c; found = true; break; }
     }
     if(!found){
-        for(c <- modules){
+        for(c <- module_scopes){
          if(isContainedIn(l, c)){ container = c; found = true; break; }
         }
     }
@@ -704,7 +750,7 @@ str convert2fuid(UID uid) {
 	str name = definitions[uid]? ? definitions[uid].id : "XXX";
 
     if(declaredIn[uid]?) {
-       if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = name + "_<uid.begin.line>_<uid.end.line>";
+       if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = name + "_<uid.begin.line>A<uid.offset>";
 	   //if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = convert2fuid(declaredIn[uid]) + "$" + name + "_<uid.begin.line>_<uid.end.line>";
     }
 	return name;
@@ -721,10 +767,22 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) 
 // Collect all types that are reachable from a given type
 
 map[AType,set[AType]] collectNeededDefs(AType t){
-   map[AType, set[AType]] definitions = 
-        (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])} 
-        | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t
-        );
+    map[AType, set[AType]] definitions = ();
+    list[AType] tparams = [];
+    if(isADTType(t)){
+        tparams = getADTTypeParameters(t);
+    } 
+    
+    if(!isEmpty(tparams)){
+       for(/adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
+          found_cons = {*(adt_constructors[some_adt] ? {aprod(grammar.rules[some_adt])}) | some_adt <- adt_constructors, some_adt.adtName == adtName, size(some_adt.parameters) == size(parameters)};
+          definitions[t] = found_cons;   
+        }
+    } else {
+        definitions = (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])}
+                      | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t
+                      );
+    }
    
    solve(definitions){
     definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 
@@ -782,40 +840,40 @@ MuExp mkVar(str name, loc l) {
   println("<name>, <l>");
  
   uqname = getUnqualifiedName(name);
+  name_type = getType(l);
   defs = useDef[l];
   if(size(defs) > 1){
     assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions or constructors can have multiple definitions" ;
     println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
-  
+    fname = definitions[getFirstFrom(defs)].id;
     ftype = unsetRec(getType(l));
     orgFtype = ftype;
     println("orgFtype = <orgFtype>");
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := ftype){
        arities = { size(getFormals(tp)) | tp <- overloads<2> };
-       assert size(arities) == 1;
+       //assert size(arities) == 1;
        ar = getFirstFrom(arities);
        resType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>, bprintln(tp));
        formalsTypes = [avoid() | i <- [0 .. ar]];
        
-       formalsTypes = (formalsTypes | alubList(it, getFormals(tp)) | tp <- overloads<2>);
-       
-        //resType = avoid();
-        //formalsType = avoid();
-        //for(<def, idrole, tp> <- overloads){
-        //    println("<def>, <idrole>, <tp>");
-        //    resType = alub(resType, getResult(tp));
-        //    formalsType = alub(formalsType, atypeList(getFormals(tp)));
-        //}
-        //ftype = atypeList(atypes) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
-        ftype = afunc(resType, formalsTypes, []);
+       formalsTypes = (formalsTypes | alubList(it, getFormals(tp)) | tp <- overloads<2>, bprintln(tp));
+       ftype = afunc(resType, formalsTypes, []);
     }
-    iprintln(overloadedTypeResolver, lineLimit=10000);
-    println("orgFtype = <orgFtype>");
-    println("ftype = <ftype>");
-    for(<nm, tp> <- overloadedTypeResolver){
-        if(nm == uqname) println("<nm>: <tp> ==\> <overloadedTypeResolver[<nm, tp>]>");
+    fscope = currentFunctionDeclaration();
+    while(true){
+        if(overloadedTypeResolver[<fname,ftype, fscope>]?){
+            return muOFun(overloadedTypeResolver[<fname,ftype,fscope>], ftype);
+        }
+        if(scopes[fscope]?){
+            fscope = scopes[fscope];
+        } else {
+            break;
+        }
     }
-    return muOFun(overloadedTypeResolver[<uqname,ftype>]);
+
+     println("overloadedTypeResolver:");
+     iprintln(overloadedTypeResolver);
+     throw "mkVar(<name>, <l>) fails, no entry for \<<fname>,<ftype>,<fscope>\>";
   }
   
   Define def;
@@ -825,7 +883,7 @@ MuExp mkVar(str name, loc l) {
         uid = l;
         def = definitions[l];
     } else if(name == "_"){
-        return muVar("_", "", -1, getType(l));
+        return muVar("_", "", -1, name_type);
     } else {
         throw "mkVar: <uqname> at <l>";
     }   
@@ -836,17 +894,17 @@ MuExp mkVar(str name, loc l) {
   
   // Keyword parameters
   if(def.idRole == keywordFormalId()) {
-       return muVarKwp(uqname, getScope(uid), getType(l));
+       return muVarKwp(uqname, getScope(uid), name_type);
   }
   
   if(def.idRole == fieldId()) {
     scp = getScope(uid);
     //pos = getPositionInScope(name, uid);
-    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, -1, getType(l));
+    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, -1, name_type);
   }
   
   if(def.idRole == keywordFieldId()){
-       return muVarKwp(uqname, getScope(uid), getType(l));
+       return muVarKwp(uqname, getScope(uid), name_type);
   }
   
   if(def.idRole in variableRoles){
@@ -862,7 +920,7 @@ MuExp mkVar(str name, loc l) {
   if(def.idRole == functionId()){ 
     //tp = getType(l);
     //if(uid in overloadedFunctions) return muOFun(overloadedTypeResolver[unsetRec(getType(l))]);
-    return muFun1(uid); //muFun1(functions_and_constructors_to_fuid[uid]);
+    return muFun(uid, name_type); //muFun1(functions_and_constructors_to_fuid[uid]);
   }
     throw "End of mkVar reached for <uqname> at <l>: <def>";
 }
