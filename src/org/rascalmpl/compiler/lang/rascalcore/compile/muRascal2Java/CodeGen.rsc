@@ -1785,10 +1785,13 @@ default JCode trans2NativeStr(MuExp exp, JGenie jg)
     = "<transWithCast(astr(), exp, jg)>.getValue()";
         
  JCode trans2NativeRegExpStr(muCon(str s), JGenie jg){
-    return "\"<escapeForJRegExp(s)>\"";
+    res = "\"<escapeForJRegExp(s)>\"";
+    return "\"<s>\"";
 } 
 default JCode trans2NativeRegExpStr(MuExp exp, JGenie jg){
-    return transWithCast(astr(), exp, jg);
+    return trans(exp, jg);
+    //return trans(muCallPrim3("str_escape_for_regexp", astr(), [astr()], [exp], |unknown:///|), jg);
+    //return transWithCast(astr(), exp, jg);
 }
 
 // -----
