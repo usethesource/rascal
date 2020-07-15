@@ -76,7 +76,7 @@ Result apply(Atom("\>"),     [Lval x, Lval y],              Env e) = <x >= y ? T
 Result apply(Atom("equal?"), [Lval x, Lval y],              Env e) = <x == y ? TRUE : FALSE, e>;
 Result apply(Atom("null?"),  [List(list[Lval] x)],          Env e) = <isEmpty(x) ? TRUE : FALSE, e>;
 Result apply(Atom("cons"),   [Lval x, List(list[Lval] y)],  Env e) = <List([x, *y]), e>;
-Result apply(Atom("append"), [List(list[Lval] x), Lval y],  Env e) = <List([*x, *y]), e>;
+Result apply(Atom("append"), [List(list[Lval] x), Lval y],  Env e) = <List([*x, y]), e>;
 Result apply(Atom("car"),    [List(list[Lval] x)],          Env e) = <head(x), e>;
 Result apply(Atom("cdr"),    [List(list[Lval] x)],          Env e) = <List(tail(x)), e>;
 Result apply(Atom("list"),   list[Lval] x,                  Env e) = <List(x), e>;
