@@ -67,6 +67,8 @@ public class MemoizationTests extends TestFramework {
 		assertTrue("Memo works", runTestInSameEvaluator("calc(1) == 2"));
 		prepareMore("for (i <- [0..100]) { calc(100 + i); }");
 		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
+		prepareMore("for (i <- [0..100]) { calc(200 + i); }");
+		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
 		assertTrue("Entry should be cleared by now", runTestInSameEvaluator("calc(1) != 2"));
 	}
 
