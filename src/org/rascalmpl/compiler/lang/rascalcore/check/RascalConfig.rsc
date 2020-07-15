@@ -22,6 +22,7 @@ import Map;
 import Set;
 import Relation;
 import String;
+import util::Memo;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
@@ -64,7 +65,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
 
 set[IdRole] defBeforeUseRoles = {variableId(), formalId(), keywordFormalId(), patternVariableId()};
 
-@memo
+@memo{expireAfter(minutes=15)}
 Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
  

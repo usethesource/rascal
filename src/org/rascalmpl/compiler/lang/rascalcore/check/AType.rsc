@@ -12,6 +12,8 @@ import Node;
 import String;
 import IO;
 
+import util::Memo;
+
 alias Keyword     = tuple[AType fieldType, Expression defaultExp];
    
 data AType (str label = "")
@@ -57,7 +59,7 @@ data AType (str label = "")
      | avalue()
      ;
      
-@memo
+@memo{expireAfter(minutes=15)}
 AType overloadedAType(rel[loc, IdRole, AType] overloads){
     if(all(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName, params, syntaxRole) := t)){
       str adtName = "";
