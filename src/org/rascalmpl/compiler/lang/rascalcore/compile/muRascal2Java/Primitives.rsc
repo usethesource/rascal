@@ -67,13 +67,17 @@ list[str] transPrimArgs(str prim, AType r, list[AType] atypes, list[MuExp] exps,
 JCode transPrim("add_list_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)        = "<w>.append(<v>);\n"; 
 JCode transPrim("add_set_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)         = "<w>.insert(<v>);\n"; 
 JCode transPrim("add_map_writer", AType r, list[AType] atypes, [str w, str k, str v], JGenie jg)  = "<w>.insert($VF.tuple(<k>, <v>));\n"; 
-JCode transPrim("add_string_writer", AType r, list[AType] atypes, [str w, str s], JGenie jg)      = "<w>.write(<s>.getValue());\n";
+JCode transPrim("add_string_writer", AType r, [AType a], [str w, str s], JGenie jg)      = "<w>.write(<s>.getValue());\n" when a == astr();
+JCode transPrim("add_string_writer", AType r, [AType a], [str w, str s], JGenie jg)      = "<w>.write(<s>.toString());\n" when a != astr();
 
 // ---- assert_fails ----------------------------------------------------------
 
 JCode transPrim("assert_fails", AType r, [astr()], [str x], JGenie jg)                   = "$assert_fails(<x>)";
 
 // ---- close_..._writer ------------------------------------------------------
+
+list[str] transPrimArgs(str prim, AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) = [ trans(exp, jg) | exp <- exps ] 
+                                                                                              when prim in {"close_list_writer", "close_set_writer", "close_map_writer", "close_string_writer"};
 
 JCode transPrim("close_list_writer", AType r, [_], [str w], JGenie jg)                    = "<w>.done()";
 JCode transPrim("close_set_writer", AType r, [_], [str w], JGenie jg)                     = "<w>.done()";   
@@ -399,7 +403,7 @@ JCode transPrim("splice_set", AType r, [AType a, AType b],  [str w, str v], JGen
 // TODO: concrete cases
     
 // str_escape_for_regexp
-JCode transPrim("str_escape_for_regexp", astr(), [astr()], [str x], JGenie jg)             = x; // TODO
+JCode transPrim("str_escape_for_regexp", astr(), [astr()], [str x], JGenie jg)             = "$str_escape_for_regexp(<x>)";
 
 // ---- subscript -------------------------------------------------------------
     

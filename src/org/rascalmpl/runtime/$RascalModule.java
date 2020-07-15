@@ -2595,6 +2595,21 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		Pattern p = Pattern.compile(pat);
 		return p.matcher(subject);
 	}
+	
+	public final IString $str_escape_for_regexp(IString insert) {
+		StringBuilder sw = new StringBuilder();
+		for(int i : insert) {
+			char c = (char) i;
+			switch(c){
+				case '.': sw.append("\\."); break;
+				case '(': sw.append("\\("); break;
+				case ')': sw.append("\\)"); break;
+				case '*': sw.append("\\*"); break;
+				default: sw.append(c);
+			}
+		}
+		return $VF.string(sw.toString());
+	}
 
 	// ---- slice -------------------------------------------------------------
 

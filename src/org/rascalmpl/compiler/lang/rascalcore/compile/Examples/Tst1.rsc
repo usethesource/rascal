@@ -1,10 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-value main() { //test bool interpolateIndPatternDecl1(){ 
-    int n = 3; 
-    return (/<x:<n>>/ := "3" && x == "3");
+value main() { //test bool interpolation1() {
+   return "\\b" == "\\b";
+    //return /\\b/ := "\\b";
 }
-
 
 
  ///////////////////////////

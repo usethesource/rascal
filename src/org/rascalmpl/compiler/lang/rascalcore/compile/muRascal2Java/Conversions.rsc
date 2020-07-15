@@ -561,6 +561,7 @@ str escapeForJ(str s){
         case "\r": res += "\\r";
         case "\'": res += "\\\'";
         case "\"": res += "\\\"";
+        //case "\\" : res += "\\\\";
         case "\\": if(i+1 < n){ 
                         c1 = s[i+1];
                         i += 1;
