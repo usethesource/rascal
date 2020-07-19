@@ -36,7 +36,6 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            '
            'class <className>Tests extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
            '    <className> $me;
-           '    //final TypeFactory $TF = TypeFactory.getInstance();
            '    final GenerateActuals generator = new GenerateActuals(5, 5, 10);
        
            '    public <className>Tests(){
@@ -110,15 +109,8 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
                '        try {
                '            $me.<test_name>(<actuals>);
                '            fail(\"Expected `<expected>`, but nothing was thrown\");
-               '        } catch (RascalException e) {
-               '            if(((IConstructor) e.getValue()).getConstructorType() == RascalExceptionFactory.<expected>) {
-               '               assertTrue(true);
-               '               return;
-               '            } else {
-               '              fail(\"Expected `<expected>`, but got `\" + e + \"`\");
-               '            }
-               '        } catch (Throw e) { // Temporary to enable interop with Prelude
-               '            if(((IConstructor) e.getException()).getConstructorType() == RascalExceptionFactory.<expected>) {
+               '        } catch (Throw e) {
+               '            if(((IConstructor) e.getException()).getConstructorType() == RuntimeExceptionFactory.<expected>) {
                '                assertTrue(true);
                '                return;
                '             }

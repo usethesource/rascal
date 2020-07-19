@@ -213,7 +213,7 @@ str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] 
 str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) 
     = "$aprod(<tree2IValue(production, defs)>)";
 str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions) 
-    = "reifiedAType(<atype2IValue(atype, definitions)>, <defs(definitions)>)";
+    = "$reifiedAType(<atype2IValue(atype, definitions)>, <defs(definitions)>)";
 str atype2IValue1(at:avalue(), _)               
      = "$avalue(<lab(at)>)";
 //default str atype2IValue1(AType t, map[AType, set[AType]] defs) { throw "atype2IValue1: cannot handle <t>"; }
@@ -226,6 +226,9 @@ str atype2IValue(lrel[AType fieldType,Expression defaultExp] ts, map[AType, set[
 str atype2IValue(set[AType] ts, map[AType, set[AType]] defs) 
     = "$VF.set(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
 
+str atype2IValue(atypeList(list[AType] atypes), map[AType, set[AType]] defs) 
+    = "$VF.list(<intercalate(", ", [atype2IValue(t,defs) | t <- atypes])>)";
+    
 str defs(map[AType, set[AType]] defs) {
     res = "$buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $VF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
     return res;
@@ -546,9 +549,9 @@ default str atype2istype1(str e, str get, AType t)         { throw "atype2istype
 // ----
 
 // TODO cover all cases
+// Escape a string using Java escape conventions
 
 str escapeForJ(str s){
-   //s = deescape(s);
    n = size(s);
    i = 0;
    res = "";
@@ -559,22 +562,23 @@ str escapeForJ(str s){
         case "\t": res += "\\t";
         case "\n": res += "\\n";
         case "\r": res += "\\r";
+        case "\a0C": res += "\\f";  // formfeed
         case "\'": res += "\\\'";
         case "\"": res += "\\\"";
-        //case "\\" : res += "\\\\";
-        case "\\": if(i+1 < n){ 
-                        c1 = s[i+1];
-                        i += 1;
-                        if(c1 == "\\"){
-                            res += "<c><c1><c><c1>";
-                        } else if(c1 in {"b","f","t",/*"n",*/"r","\'", "\""}){
-                            res += "<c><c><c><c1>";
-                        } else {
-                            res += "<c><c><c1>";
-                        }
-                    } else {
-                        res += "<c><c>";
-                    }
+        case "\\" : res += "\\\\";
+        //case "\\": if(i+1 < n){ 
+        //                c1 = s[i+1];
+        //                i += 1;
+        //                if(c1 == "\\"){
+        //                    res += "<c><c1><c><c1>";
+        //                } else if(c1 in {"b","f","t",/*"n",*/"r","\'", "\""}){
+        //                    res += "<c><c><c><c1>";
+        //                } else {
+        //                    res += "<c><c><c1>";
+        //                }
+        //            } else {
+        //                res += "<c><c>";
+        //            }
         default: res +=  c;
      }
      i += 1;
@@ -593,13 +597,23 @@ str escapeForJRegExp(str s){
         case "\t": res += "\\t";
         case "\n": res += "\\n";
         case "\r": res += "\\r";
+        case "\a0C": res += "\\f";  // formfeed
         case "\'": res += "\\\'";
         case "\"": res += "\\\"";
+        //case "(": res += "\\(";
+        //case ")": res += "\\)";
+        //case "[": res += "\\[";
+        //case "]": res += "\\]";
+        //case ".": res += "\\.";
+        //case "$": res += "\\$";
+        //case "^": res += "\\^";
         case "\\": if(i+1 < n){ 
                         c1 = s[i+1];
                         i += 1;
                         if(c1 == "\\"){
                             res += "<c><c1><c><c1>";
+                        } else if (c1 == "/"){
+                            res += "/";
                         } else  if(c1 in {"b","f","t","n","r","\'", "\""}){
                             res += "<c><c1>";
                         } else {
@@ -758,17 +772,44 @@ str atype2vtype(adatetime()) = "$TF.dateTimeType()";
 str atype2vtype(alist(AType t)) = "$TF.listType(<atype2vtype(t)>)";
 str atype2vtype(aset(AType t)) = "$TF.setType(<atype2vtype(t)>)";
 str atype2vtype(atuple(AType ts)) = "$TF.tupleType(<atype2vtype(ts)>)";
-str atype2vtype(amap(AType d, AType r)) = "$TF.mapType(<atype2vtype(d)>,<atype2vtype(r)>)";
+
+str atype2vtype(amap(AType d, AType r)) {
+    return d.label? ? "$TF.mapType(<atype2vtype(d)>, \"<d.label>\", <atype2vtype(r)>, \"<r.label>\")"
+                    : "$TF.mapType(<atype2vtype(d)>,<atype2vtype(r)>)";
+}
 str atype2vtype(arel(AType t)) = "$TF.setType($TF.tupleType(<atype2vtype(t)>))";
 str atype2vtype(alrel(AType t)) = "$TF.listType($TF.tupleType(<atype2vtype(t)>))";
+
+str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)){
+    vformals = isEmpty(formals) ? "$TF.tupleEmpty()" 
+                                : ( (!isEmpty(formals) && any(t <- formals, t.label?)) 
+                                        ? "$TF.tupleType(<intercalate(", ", [ *[atype2vtype(t), "\"<t.label>\""] | t <- formals])>)"
+                                        : "$TF.tupleType(<intercalate(", ", [ atype2vtype(t) | t <- formals])>)"
+                                  );
+    vkwformals = isEmpty(kwFormals) ? "$TF.tupleEmpty()" 
+                                    : "$TF.tupleType(<intercalate(", ", [ atype2vtype(t.fieldType) | t <- kwFormals])>)"; 
+    return "$RTF.functionType(<atype2vtype(ret)>, <vformals>, <vkwformals>)";
+}
+      
 str atype2vtype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = getADTName(adtName);
 str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
                  = "$TF.constructor($TS, <atype2vtype(adt)>, \"<c.label>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[atype2vtype(t), "\"<t.label>\""] | t <- fields])>)";
-str atype2vtype(aparameter(str pname, AType bound)) = atype2vtype(bound);
-str atype2vtype(atypeList(list[AType] atypes)) = intercalate(", ", [atype2vtype(t) | t <- atypes]);
-str atype2vtype(areified(AType atype)) = "AType";
+str atype2vtype(aparameter(str pname, AType bound)) = "$TF.parameterType(\"<pname>\", <atype2vtype(bound)>)";
+
+
+str atype2vtype(atypeList(list[AType] atypes))
+    = atypes[0].label? ? intercalate(", ", [*[atype2vtype(t), "\"<t.label>\""] | t <- atypes])
+                       : intercalate(", ", [atype2vtype(t) | t <- atypes]);
+                       
+str atype2vtype(areified(AType atype)) {
+ //   dfs = collectNeededDefs(atype);
+    return "$RTF.reifiedType(<atype2vtype(atype)>)";
+  //return atype2IValue(atype, dfs);
+   // return "$reifiedAType(<atype2IValue(atype, dfs)>, <value2IValue(dfs)>)";
+}
+
 default str atype2vtype(AType t) = "$TF.valueType()";
 
 ///******************************************************************************/

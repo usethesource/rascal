@@ -815,10 +815,7 @@ private MuExp translateReducer(Expression e){
 // -- reified type expression ---------------------------------------
 //TODO
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) {
-    return muBlock([]); // TODO
-	//
- //   return muCallPrim3("reifiedType_create", [translate(symbol), translate(definitions)], e@\loc);
- //   
+    return muCallPrim3("create_reifiedType", avalue(), [avalue(), avalue()], [translate(symbol), translate(definitions)], e@\loc);   
 }
 
 // -- call expression -----------------------------------------------
@@ -1096,8 +1093,8 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
     }
 }
 
-// -- reified type expression ---------------------------------------
-//TODO
+// -- reified type expression --------------------------------------
+
 MuExp translate (e: (Expression) `# <Type tp>`) {
 	t = translateType(tp);
 	return muATypeCon(t, collectNeededDefs(t));

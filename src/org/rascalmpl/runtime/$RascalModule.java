@@ -2610,6 +2610,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 		return $VF.string(sw.toString());
 	}
+	
+	public final IString $str_escape_for_regexp(String insert) {
+		return $str_escape_for_regexp($VF.string(insert));
+	}
 
 	// ---- slice -------------------------------------------------------------
 

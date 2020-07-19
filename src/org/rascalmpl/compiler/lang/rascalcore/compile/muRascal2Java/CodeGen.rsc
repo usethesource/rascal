@@ -718,8 +718,10 @@ default JCode trans(MuExp exp, JGenie jg){
 
 JCode trans(muCon(value v), JGenie jg) = jg.shareConstant(v);
 
-JCode trans(muATypeCon(AType t, map[AType, set[AType]] definitions), JGenie jg) = jg.shareATypeConstant(t, definitions);
-                       
+JCode trans(muATypeCon(AType t, map[AType, set[AType]] definitions), JGenie jg) {
+    return jg.shareATypeConstant(t, definitions);
+} 
+                      
 JCode trans(muFun(loc uid, AType ftype), JGenie jg){
    
     fun = muFunctionsByLoc[uid];
@@ -1780,13 +1782,13 @@ JCode trans2IBool(MuExp exp, JGenie jg)
 // ----
 
 JCode trans2NativeStr(muCon(str s), JGenie jg)
-    = "\"<escapeForJ(s)>\"";
+    = "\"" + escapeForJ(s) + "\"";
 default JCode trans2NativeStr(MuExp exp, JGenie jg)
     = "<transWithCast(astr(), exp, jg)>.getValue()";
         
  JCode trans2NativeRegExpStr(muCon(str s), JGenie jg){
-    res = "\"<escapeForJRegExp(s)>\"";
-    return "\"<s>\"";
+    res = "\"" + escapeForJRegExp(s) + "\"";
+    return res;
 } 
 default JCode trans2NativeRegExpStr(MuExp exp, JGenie jg){
     return trans(exp, jg);

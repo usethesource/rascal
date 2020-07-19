@@ -79,13 +79,13 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
                
             // Reified type
             if(c.getConfig().classicReifier){
-                //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-                typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-                SymbolType = aadt("Symbol", [], dataSyntax());
-                ProductionType = aadt("Production", [], dataSyntax());
-                symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
-                definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
-                c.define("type", constructorId(), mkTree(3), defType(acons(typeType, [symbolField, definitionsField], [], label="type")));
+                ;////data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
+                //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+                //SymbolType = aadt("Symbol", [], dataSyntax());
+                //ProductionType = aadt("Production", [], dataSyntax());
+                //symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+                //definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
+                //c.define("type", constructorId(), mkTree(3), defType(acons(typeType, [symbolField, definitionsField], [], label="type")));
                 // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
             } else {
                 //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);

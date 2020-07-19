@@ -769,25 +769,33 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) 
 map[AType,set[AType]] collectNeededDefs(AType t){
     map[AType, set[AType]] definitions = ();
     list[AType] tparams = [];
-    if(isADTType(t)){
-        tparams = getADTTypeParameters(t);
-    } 
+    base_t = t;
+    
+    if(isReifiedType(t)){
+        base_t = getReifiedType(t);
+    }
+    
+    if(isADTType(base_t)){
+        tparams = getADTTypeParameters(base_t);
+    }
     
     if(!isEmpty(tparams)){
        for(/adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
           found_cons = {*(adt_constructors[some_adt] ? {aprod(grammar.rules[some_adt])}) | some_adt <- adt_constructors, some_adt.adtName == adtName, size(some_adt.parameters) == size(parameters)};
-          definitions[t] = found_cons;   
+          //TODO: properly instantiate constructors
+          definitions[base_t] = found_cons;   
         }
     } else {
         definitions = (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])}
-                      | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t
+                      | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t
                       );
     }
+    iprintln(definitions);
    
    solve(definitions){
     definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 
                                 | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions, 
-                                  adt1 := unsetRec(adt), 
+                                  adt1 := unsetRec(adt), bprintln(adt1),
                                   !definitions[adt1]?
                                 );
    }
