@@ -34,7 +34,7 @@ test bool match14() = /<x:[a-z]+>-<x>/ !:= "abc-def";
 
 test bool match15() = /\// := "/";
 
-test bool match16() = /<x:\/>/ := "/" && x == x;
+test bool match16() = /<x:\/>/ := "/" && x == "/";
 test bool match17() = /<x:\/>/ := "/" && x == "/";
 
 /* NOTE: we no longer allow local shadowing of variables
