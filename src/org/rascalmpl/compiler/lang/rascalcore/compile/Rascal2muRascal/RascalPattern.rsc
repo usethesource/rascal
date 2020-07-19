@@ -279,7 +279,7 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
         	if(varnames["<name>"]?){
         	   fragment += "\\<varnames["<name>"]>";
         	} else {
-        	  fragmentCode += [ muCallPrim3("str_escape_for_regexp", astr(), [astr()], [ translate(name) ], r@\loc)];
+        	  fragmentCode += [ muCallPrim3("str_escape_for_regexp", astr(), [getType(name)], [ translate(name) ], r@\loc)];
         	}
           case (RegExp) `\<<Name name>:<NamedRegExp* namedregexps>\>`: {
          		<varref, fragmentCode1> = extractNamedRegExp(r);
@@ -722,14 +722,28 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    expType = getType(expression);
    subjectInit = /*subjectAssigned ? [] : */muConInit(subject, subjectExp);
    if(expression is qualifiedName){
-      fun_name = getUnqualifiedName(prettyPrintName(getType(expression).label));
-      code = muBlock([*subjectInit, muIfelse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
+      qname = "";
+      if(expType.label?){
+        qname = expType.label;
+      } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType,
+                any(<_, _, tp> <- overloads, tp.label?)){
+        for(<_, _, tp> <- overloads){
+            if(tp.label?){
+                qname = tp.label; break;
+            }
+        }
+      } else {
+        throw "Cannot get name in call pattern: <expType>";
+      }
+      fun_name = getUnqualifiedName(prettyPrintName(qname));
+      //fun_name = getUnqualifiedName(prettyPrintName(getType(expression).label));
+      code = muBlock([subjectInit, muIfelse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
    } else if(expression is literal){ // StringConstant
       fun_name = prettyPrintName("<expression>"[1..-1]);
-      code = muBlock([*subjectInit, muIfelse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
+      code = muBlock([subjectInit, muIfelse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
     } else {
      fun_name_subject = muTmpIValue(nextTmp("fun_name_subject"), fuid, expType);
-     code = muBlock([*subjectInit,
+     code = muBlock([subjectInit,
                      muIfelse(muValueIsComparable(subject, anode([])),
                               muBlock([ muConInit(fun_name_subject, muCallPrim3("get_anode_name", astr(), [anode([])], [subject], getLoc(expression))),
                                         translatePat(expression, expType, fun_name_subject, btscopes, 

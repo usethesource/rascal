@@ -2,6 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.util.Arrays;
 
+import org.rascalmpl.core.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -23,6 +24,7 @@ public class ATypeFactory {
 	// Factories and stores
 	public final IValueFactory $VF = ValueFactoryFactory.getValueFactory();
 	public final TypeFactory $TF = TypeFactory.getInstance();
+	public final RascalTypeFactory $RTF = RascalTypeFactory.getInstance();
 	public final TypeStore $TS = new TypeStore();
 	public final TypeReifier $TR = new TypeReifier($VF);	//Temporary, for conversions vtype <==> atype
 
@@ -272,13 +274,11 @@ public class ATypeFactory {
 	// atype (reified type constructor)
 	final Type AType_atype = $TF.constructor($TS, AType, "atype", ReifiedAType, "symbol", $TF.mapType(ReifiedAType,$TF.setType(ReifiedAType)), "definitions");
 
-	public final IConstructor reifiedAType(IConstructor t, IMap definitions) {
-		IConstructor res = $VF.constructor(AType_atype, t, definitions);
-		System.err.println(res);
-		return res;
+	public final IConstructor $reifiedAType(IConstructor t, IMap definitions) {
+		return $VF.constructor(AType_atype, t, definitions);
 	}
 	
-	public final boolean isReified(IValue v) {
+	public final boolean $isReified(IValue v) {
 		return v.getType() == ReifiedAType;
 	}
 

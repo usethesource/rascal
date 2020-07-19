@@ -1,104 +1,81 @@
 module lang::rascalcore::compile::Examples::Tst1
-
-value main() { //test bool interpolation1() {
-   return "\\b" == "\\b";
-    //return /\\b/ := "\\b";
-}
-
-
- ///////////////////////////
-//@javaClass{org.rascalmpl.library.Type}
-//public java bool eq(value x, value y);
 //
-//@javaClass{org.rascalmpl.library.Prelude}
-//public java bool isEmpty(list[&T] lst);
-
-//test bool dtstDifference(list[&T] lst) {
-//    //if(isEmpty(lst)) 
-//    //  return true;
-//    //  
-//    for(&T elem <- lst) {
-//        bool deleted = false;
-//        lhs = lst - [elem];
-//        rhs = [ *( (eq(elem,el) && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
-//        
-//        //if (!eq(lhs,rhs) || typeOf(lhs) != typeOf(rhs)) {
-//        //  throw "Removed <elem> from <lst> resulted in <lhs> instead of <rhs>";
-//        //  
-//        //}
-//    }
-//    return true;
-//}
-
-//value main(){
-//    bool deleted = false;
-//    lst = [1,2,3,1,2,4,4,4];
-//    for(int elem <- lst) {
-//        bool deleted = false;
-//        lhs = lst - [elem];
-//        rhs = [ *( (elem == el && !deleted) ? { deleted = true; []; } : [ el ]) | int el <- lst ]; 
-//    }
+//data D[&T] = d1(&T fld);
 //
-//}
-
-//value main(){
-//    int n = 0;
-//    lst = [1,2,3,1,2,3];
-//    lst = [ *( (e > 2) ? {n += 1; []; } : [e]) | int e <- lst];
-//    return <lst, n>;
-//}
+//value main() = #type[D[int]];
 
 
 
-//import IO;
-//data PAIR = pair(int a, int b);
-//
-//value main(){
-//    res = {pair(1,2),pair(2,2),pair(2,3),pair(3,3)};
-//    if ( { pair( a, b ), pair(b, b), *c } := res ) 
-//              res = { *c, pair( a, b ) };
-//    return res;
-//}
+
+syntax Sym
+    =   
+     empty: "(" ")"
+    ;
+
+syntax Type
+    = bracket \bracket: "(" Type type ")" 
+    | symbol: Sym symbol
+    ;
+    
+value main() = true;
 
 
-//value main(){
-//    res = {pair(1,2),pair(2,2),pair(2,3),pair(3,3)};
-//    return { pair(a, b) } := res ;
-//}
-
-//value main(){
-//    res = {<1,2>,<2,2>,<2,3>,<3,3>};
-//    return { < a, b > } := res ;
-//}
-
-//value main(){
-//    res = {<1,2>,<2,2>,<2,3>,<3,3>};
-//    return { < a, b >, <b, b>, *c } := res ;
-//}
-
-//value main(){
-//    res = {<1,2>,<2,2>,<2,3>,<3,3>};
-//    if ( { < a, b >, <b, b>, *c } := res ) 
-//              res = { *c, < a, b > };
-//    return res;
-//}
-
-//rel[int,int] removeIdPairs(rel[int,int] inp){
-//   res = inp;
-//   //solve(res) {
-//         println(res);
-//         if ( { < a, b >, < b, b >, *c } := res ) 
-//              res = { *c, < a, b > };
-//         //else ;
-//   //}
-//   return res;
-//}
  
-//value main() //test bool removeIdPairs1() 
-//    = removeIdPairs({});// == {};
-//test bool removeIdPairs2() = removeIdPairs({<1,2>,<2,3>}) == {<1,2>,<2,3>};
-//value main() // test bool removeIdPairs3() 
-//    = removeIdPairs({<1,2>,<2,3>,<2,2>});// == {<1,2>,<2,3>};
-//test bool removeIdPairs4() = removeIdPairs({<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
-//test bool removeIdPairs5() = removeIdPairs({<2,2>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
-//test bool removeIdPairs6() = removeIdPairs({<2,2>,<3,3>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
+data Symbol     // <2>
+     = \label(str name, Symbol symbol)
+     ;
+  
+//data Symbol      // <3>
+//     = \set(Symbol symbol)
+//     | \rel(list[Symbol] symbols)
+//     | \lrel(list[Symbol] symbols)
+//     | \tuple(list[Symbol] symbols)
+//     | \list(Symbol symbol)
+//     | \map(Symbol from, Symbol to)
+//     | \bag(Symbol symbol)
+//     | \adt(str name, list[Symbol] parameters)
+//     | \cons(Symbol \adt, str name, list[Symbol] parameters)
+//     | \alias(str name, list[Symbol] parameters, Symbol aliased)
+//     | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
+//     | \func(Symbol ret, list[Symbol] parameters) // deprecated
+//     | \overloaded(set[Symbol] alternatives)
+//     | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
+//     | \reified(Symbol symbol)
+//     ;
+//
+//data Symbol // <4>
+//     = \parameter(str name, Symbol bound) 
+//     ;
+//
+//@doc{
+//.Synopsis
+//A production in a grammar or constructor in a data type.
+//
+//.Description
+//Productions represent abstract (recursive) definitions of abstract data type constructors and functions:
+//
+//* `cons`: a constructor for an abstract data type.
+//* `func`: a function.
+//* `choice`: the choice between various alternatives.
+//* `composition`: composition of two productions.
+//
+//In ParseTree, see <<ParseTree-Production>>, 
+//Productions will be further extended and will be used to represent productions in syntax rules.
+//}  
+//data Production
+//     = \cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes)
+//     | \func(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes /*, str code = "", map[str,value] bindings = (), loc cpe = |unknown:///|*/)
+//     | \choice(Symbol def, set[Production] alternatives)
+//     | \composition(Production lhs, Production rhs)
+//     ;
+//
+//@doc{
+//.Synopsis
+//Attributes register additional semantics annotations of a definition. 
+//}
+//data Attr 
+//     = \tag(value \tag) 
+//     ;
+  
+  
+

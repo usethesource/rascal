@@ -94,8 +94,8 @@ JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie j
 // ---- create_... ------------------------------------------------------------
                                                                                     
 // TODO reconsider arg [AType a]
-JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)            = "$VF.list(<intercalate(", ", args)>)";
-JCode transPrim("create_set", AType r, [AType a], list[str] args, JGenie jg)             = "$VF.set(<intercalate(", ", args)>)";
+JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)             = "$VF.list(<intercalate(", ", args)>)";
+JCode transPrim("create_set", AType r, [AType a], list[str] args, JGenie jg)              = "$VF.set(<intercalate(", ", args)>)";
 JCode transPrim("create_map", AType r, [AType a, AType b], list[str] args, JGenie jg)     = "$buildMap(<intercalate(", ", args)>)";
 JCode transPrim("create_loc", aloc(), [AType a], [str uri], JGenie jg)                    = "$create_aloc(<uri>)";
 JCode transPrim("create_loc_with_offset", aloc(), [aloc()], [str l, str off, str len], JGenie jg)
@@ -105,9 +105,16 @@ JCode transPrim("create_loc_with_offset_and_begin_end", aloc(), [aloc()], [str l
 
 JCode transPrim("create_tuple", AType r, list[AType] argTypes, list[str] args, JGenie jg) = "$VF.tuple(<intercalate(", ", args)>)";
 
-list[str] transPrimArgs("create_node", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) = [ trans(exp, jg) | exp <- exps ];
+list[str] transPrimArgs("create_node", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) 
+                                                                                          = [ trans(exp, jg) | exp <- exps ];
 JCode transPrim("create_node", AType r, list[AType] argTypes, [str name, *str args, str kwpMap], JGenie jg)
-                                                                                         = "$VF.node(<name>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
+                                                                                          = "$VF.node(<name>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
+                                                                                          
+list[str] transPrimArgs("create_reifiedType", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) 
+                                                                                          = [ trans(exp, jg) | exp <- exps ];
+JCode transPrim("create_reifiedType", AType r, [AType a, AType b], [str sym, str defs], JGenie jg)    
+                                                                                          = "$reifiedAType(<sym>, <defs>)";
+
 // ---- divide ----------------------------------------------------------------
  
 JCode transPrim("divide", AType r, [AType l, aparameter(_, AType bnd)], [str x, str y], JGenie jg)  
@@ -403,7 +410,7 @@ JCode transPrim("splice_set", AType r, [AType a, AType b],  [str w, str v], JGen
 // TODO: concrete cases
     
 // str_escape_for_regexp
-JCode transPrim("str_escape_for_regexp", astr(), [astr()], [str x], JGenie jg)             = "$str_escape_for_regexp(<x>)";
+JCode transPrim("str_escape_for_regexp", astr(), [AType a], [str x], JGenie jg)             = "$str_escape_for_regexp(<a == astr() ? "<x>" : "<x>.toString()">)";
 
 // ---- subscript -------------------------------------------------------------
     
@@ -420,15 +427,6 @@ JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie 
 
 JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$alist_subscript_int(<x>,<y>)" when isListOnlyType(a);
 JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$amap_subscript(<x>,<y>)" when isMapType(a);
-
-
-//JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "$astr_subscript_int(<x>,<y>)";
-//JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = castArg(r, "$atuple_subscript_int(<x>,<y>)") when isTupleType(a);
-//JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = castArg(r, "$anode_subscript_int(<x>,<y>)") when isNodeType(a);
-//JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = castArg(r, "$aadt_subscript_int(<x>,<y>)") when isADTType(a);
-//
-//JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = castArg(r, "<x>.get(<y>)") when isListOnlyType(a);
-//JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = castArg(r, "<x>.get(<y>)") when isMapType(a);
 
 default JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
     if(arel(atypeList(list[AType] elemTypes)) := a){
