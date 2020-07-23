@@ -1371,63 +1371,63 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			case "year":
 				if (dt.isTime()) {
-					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the year on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTime("Can not update the year on a time value");
 				}
 				year = ((IInteger)repl).intValue();
 				break;
 
 			case "month":
 				if (dt.isTime()) {
-					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the month on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTime("Can not update the month on a time value");
 				}
 				month = ((IInteger)repl).intValue();
 				break;
 
 			case "day":
 				if (dt.isTime()) {
-					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the day on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTime("Can not update the day on a time value");
 				}	
 				day = ((IInteger)repl).intValue();
 				break;
 
 			case "hour":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the hour on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the hour on a date value");
 				}	
 				hour = ((IInteger)repl).intValue();
 				break;
 
 			case "minute":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the minute on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the minute on a date value");
 				}
 				minute = ((IInteger)repl).intValue();
 				break;
 
 			case "second":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the second on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the second on a date value");
 				}
 				second = ((IInteger)repl).intValue();
 				break;
 
 			case "millisecond":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the millisecond on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the millisecond on a date value");
 				}
 				milli = ((IInteger)repl).intValue();
 				break;
 
 			case "timezoneOffsetHours":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the timezone offset hours on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the timezone offset hours on a date value");
 				}
 				tzOffsetHour = ((IInteger)repl).intValue();
 				break;
 
 			case "timezoneOffsetMinutes":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the timezone offset minutes on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the timezone offset minutes on a date value");
 				}
 				tzOffsetMin = ((IInteger)repl).intValue();
 				break;			
@@ -1525,19 +1525,18 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public final boolean $aadt_has_field(final IConstructor cons, final String fieldName, Type... consesWithField) {
 
 		Type consType = cons.getConstructorType();
-		
 		for(Type ct : consesWithField) {
 			if(consType.equals(ct)) return true;
 		}
 
-//		// Does fieldName exist as positional field?
-//		if(consType.hasField(fieldName)){
-//			return true;
-//		}
-//		
-//		if($TS.hasKeywordParameter(consType, fieldName)) {
-//			return cons.asWithKeywordParameters().getParameter(fieldName) != null;
-//		}
+		// Does fieldName exist as positional field?
+		if(consType.hasField(fieldName)){
+			return true;
+		}
+		
+		if($TS.hasKeywordParameter(consType, fieldName)) {
+			return cons.asWithKeywordParameters().getParameter(fieldName) != null;
+		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
 			IConstructor prod = ((ITree) cons).getProduction();
@@ -2592,8 +2591,12 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final Matcher $regExpCompile(String pat, String subject) {
 		//pat = pat.replaceAll("\\\\", "\\\\\\\\");
-		Pattern p = Pattern.compile(pat);
-		return p.matcher(subject);
+		try {
+			Pattern p = Pattern.compile(pat);
+			return p.matcher(subject);
+		} catch (java.util.regex.PatternSyntaxException e) {
+			throw RuntimeExceptionFactory.regExpSyntaxError(e.getMessage());
+		}
 	}
 	
 	public final IString $str_escape_for_regexp(IString insert) {
