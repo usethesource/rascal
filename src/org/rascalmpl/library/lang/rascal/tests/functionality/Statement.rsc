@@ -266,19 +266,21 @@ test bool solveIndexOutOfBounds1() {
   		  solve (T; -1)  T = T + (T o R1);
     		return T == {<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};
 		}
-		
-rel[int,int] removeIdPairs(rel[int,int] inp){
+
+data PAIR = pair(int x, int y);		
+
+set[PAIR] removeIdPairs(set[PAIR] inp){
    res = inp;
    solve(res) {
-         if ( { < a, b >, < b, b >, *c } := res ) 
-              res = { *c, < a, b > };
+         if ( { pair(a, b), pair(b, b), *c } := res ) 
+              res = { *c, pair(a, b) };
    }
    return res;
 }
  
 test bool removeIdPairs1() = removeIdPairs({}) == {};
-test bool removeIdPairs2() = removeIdPairs({<1,2>,<2,3>}) == {<1,2>,<2,3>};
-test bool removeIdPairs3() = removeIdPairs({<1,2>,<2,3>,<2,2>}) == {<1,2>,<2,3>};
-test bool removeIdPairs4() = removeIdPairs({<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
-test bool removeIdPairs5() = removeIdPairs({<2,2>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
-test bool removeIdPairs6() = removeIdPairs({<2,2>,<3,3>,<1,2>,<2,2>,<2,3>,<3,3>}) == {<1,2>,<2,3>};
+test bool removeIdPairs2() = removeIdPairs({pair(1,2),pair(2,3)}) == {pair(1,2),pair(2,3)};
+test bool removeIdPairs3() = removeIdPairs({pair(1,2),pair(2,3),pair(2,2)}) == {pair(1,2),pair(2,3)};
+test bool removeIdPairs4() = removeIdPairs({pair(1,2),pair(2,2),pair(2,3),pair(3,3)}) == {pair(1,2),pair(2,3)};
+test bool removeIdPairs5() = removeIdPairs({pair(2,2),pair(1,2),pair(2,2),pair(2,3),pair(3,3)}) == {pair(1,2),pair(2,3)};
+test bool removeIdPairs6() = removeIdPairs({pair(2,2),pair(3,3),pair(1,2),pair(2,2),pair(2,3),pair(3,3)}) == {pair(1,2),pair(2,3)};
