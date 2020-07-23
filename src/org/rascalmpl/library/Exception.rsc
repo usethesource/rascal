@@ -70,14 +70,14 @@ data RuntimeException =
      | EmptyMap() 
      | EmptySet()
      | IndexOutOfBounds(int index)
-     | IllegalArgument()                        // deprecated
-     | IllegalArgument(value v)                 // deprecated
-     | IllegalArgument(value v, str message)    // deprecated
+     | IllegalArgument()                        
+     | IllegalArgument(value v)                 
+     | IllegalArgument(value v, str message)    
      
      | ImplodeError(str message)
-     | InvalidArgument()
-     | InvalidArgument(value v)
-     | InvalidArgument(value v, str message)
+     //| InvalidArgument()
+     //| InvalidArgument(value v)
+     //| InvalidArgument(value v, str message)
      
      | InvalidURI(str uri)
      | InvalidUseOfDate(str message)
@@ -94,6 +94,7 @@ data RuntimeException =
      | ModuleNotFound(str name)                 // Deprecated
      | MultipleKey(value key, value first, value second)
      | NoMainFunction()
+     | NoParent(loc location)
      | NoSuchAnnotation(str label)
      | NoSuchElement(value v)
      | NoSuchField(str name)
@@ -101,12 +102,14 @@ data RuntimeException =
      | NotImplemented(str message)
      | ParseError(loc location)
      // add versions of ParseError
-     | PathNotFound(loc l)          // Deprecated
-     | PathNotFound(set[loc] locs)  // deprecated
+     | PathNotFound(loc l)          
+     | PathNotFound(set[loc] locs)
      | PermissionDenied()
      | PermissionDenied(str message)
      | RegExpSyntaxError(str message)
-     | StackOverflow()          // Deprecated
+     | SchemeNotSupported(loc location)
+     | StackOverflow()          
+     | Timeout()
      | UnavailableInformation()
      
 // Status to be determined:     
@@ -115,7 +118,7 @@ data RuntimeException =
 //   | IllegalIdentifier(str name)
 //   | SchemeNotSupported(loc l)
     
-     | Timeout()
+    
 
    
 	 ;
