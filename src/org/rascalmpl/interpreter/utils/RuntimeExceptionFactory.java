@@ -333,19 +333,24 @@ public class RuntimeExceptionFactory {
 	    return new Throw(VF.constructor(InvalidUseOfDate,message), (AbstractAST)null, (StackTrace)null);
 	}
 
-	public static Throw invalidUseOfDate(String message) {
+	public static Throw invalidUseOfDateException(String message) {
 	    return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), (AbstractAST)null, (StackTrace)null);
 	}
+	
+	public static Throw invalidUseOfDate(String message) {
+        return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), (AbstractAST)null, (StackTrace)null);
+    }
 
 	public static Throw invalidUseOfDate(IString message, AbstractAST ast, StackTrace trace) {
 	    return new Throw(VF.constructor(InvalidUseOfDate,message), ast, trace);
 	}
 
-	public static Throw invalidUseOfDate(String message, AbstractAST ast, StackTrace trace) {
+	public static Throw invalidUseOfDateException(String message, AbstractAST ast, StackTrace trace) {
 	    return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), ast, trace);
 	}
-
-	
+	public static Throw invalidUseOfDate(String message, AbstractAST ast, StackTrace trace) {
+        return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), ast, trace);
+    }
 
 	// invalidUseOfDateTime
 	
@@ -353,17 +358,25 @@ public class RuntimeExceptionFactory {
 	    return new Throw(VF.constructor(InvalidUseOfDateTime, message), (AbstractAST)null, (StackTrace)null);
 	}
 
-	public static Throw invalidUseOfDateTime(String message) {
+	public static Throw invalidUseOfDateTimeException(String message) {
 	    return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), (AbstractAST)null, (StackTrace)null);
 	}
+	
+	public static Throw invalidUseOfDateTime(String message) {
+        return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), (AbstractAST)null, (StackTrace)null);
+    }
 
 	public static Throw invalidUseOfDateTime(IString message, AbstractAST ast, StackTrace trace) {
 	    return new Throw(VF.constructor(InvalidUseOfDateTime, message), ast, trace);
 	}
 
-	public static Throw invalidUseOfDateTime(String message, AbstractAST ast, StackTrace trace) {
+	public static Throw invalidUseOfDateTimeException(String message, AbstractAST ast, StackTrace trace) {
 	    return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), ast, trace);
 	}
+	
+	public static Throw invalidUseOfDateTime(String message, AbstractAST ast, StackTrace trace) {
+        return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), ast, trace);
+    }
 	
 	// invalidUseOfLocation
 	
@@ -389,6 +402,10 @@ public class RuntimeExceptionFactory {
         return new Throw(VF.constructor(InvalidUseOfTime, message), (AbstractAST)null, (StackTrace)null);
     }
 
+    public static Throw invalidUseOfTimeException(String message) {
+        return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), (AbstractAST)null, (StackTrace)null);
+    }
+    
     public static Throw invalidUseOfTime(String message) {
         return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), (AbstractAST)null, (StackTrace)null);
     }
@@ -397,6 +414,10 @@ public class RuntimeExceptionFactory {
         return new Throw(VF.constructor(InvalidUseOfTime, message), ast, trace);
     }
 
+    public static Throw invalidUseOfTimeException(String message, AbstractAST ast, StackTrace trace) {
+        return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), ast, trace);
+    }
+    
     public static Throw invalidUseOfTime(String message, AbstractAST ast, StackTrace trace) {
         return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), ast, trace);
     }
