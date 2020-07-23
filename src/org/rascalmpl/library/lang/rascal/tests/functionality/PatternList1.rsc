@@ -666,6 +666,38 @@ test bool matchListSpliceVars3() = [1, *_, 4, 5] := [1, 2, 3, 4, 5];
 test bool matchListSpliceVars4() = [1, * int _, 4, 5] := [1, 2, 3, 4, 5];
 test bool matchListSpliceVars5() = [1, *L, 4, *L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];
 test bool matchListSpliceVars6() = [1, * int L, 4, *L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];
+
+// match list of tuples
+
+test bool matchListTuples1() = [<1, 2, 3>] := [<1, 2, 3>];
+test bool matchListTuples2() = [<1, int n, 3>] := [<1, 2, 3>];
+test bool matchListTuples3() = [<1, int _, 3>] := [<1, 2, 3>];
+test bool matchListTuples4() = [<a, b>, *c] := [<1, 2>, <3, 4>];
+test bool matchListTuples5() = [*c, <a, a>] := [<1, 2>, <3, 3>];
+test bool matchListTuples6() = [*c, <int a, a>] := [<1, 2>, <3, 3>];
+test bool matchListTuples7() = [<int a, int b>, <b, b>, *c] := [<1, 2>, <2, 2>, <3, 4>];
+
+// match list of lists
+
+test bool matchListLists1() = [[1, 2, 3]] := [[1, 2, 3]];
+test bool matchListLists2() = [[1, int n, 3]] := [[1, 2, 3]];
+test bool matchListLists3() = [[1, int _, 3]] := [[1, 2, 3]];
+test bool matchListLists4() = [[a, b], *c] := [[1, 2], [3, 4]];
+test bool matchListLists5() = [*c, [a, a]] := [[1, 2], [3, 3]];
+test bool matchListLists6() = [*c, [int a, a]] := [[1, 2], [3, 3]];
+test bool matchListLists7() = [[int a, int b], [b, b], *c] := [[1, 2], [2, 2], [3, 4]];
+
+// match list of ADTs
+
+data D = d(int x, int y) | d(int x, int y, int z);
+
+test bool matchListADTs1() = [d(1, 2, 3)] := [d(1, 2, 3)];
+test bool matchListADTs2() = [d(1, int n, 3)] := [d(1, 2, 3)];
+test bool matchListADTs3() = [d(1, int _, 3)] := [d(1, 2, 3)];
+test bool matchListADTs4() = [d(a, b), *c] := [d(1, 2), d(3, 4)];
+test bool matchListADTs5() = [*c, d(a, a)] := [d(1, 2), d(3, 3)];
+test bool matchListADTs6() = [*c, d(int a, a)] := [d(1, 2), d(3, 3)];
+test bool matchListADTs7() = [d(int a, int b), d(b, b), *c] := [d(1, 2), d(2, 2), d(3, 4)];
   
 //	matchListHasOrderedElement
 
