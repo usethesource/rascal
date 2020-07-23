@@ -293,9 +293,9 @@ public class RuntimeExceptionFactory {
         return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast, trace);   
     }
 	
-//	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace, String message) {
-//		return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast, trace);	
-//	}
+	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace, String message) {
+		return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast, trace);	
+	}
 	
 	// implodeError
 	
