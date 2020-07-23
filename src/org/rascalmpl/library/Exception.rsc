@@ -114,11 +114,7 @@ data RuntimeException =
      
 // Status to be determined:     
      
-//   | AccessDenied(loc l)
 //   | IllegalIdentifier(str name)
-//   | SchemeNotSupported(loc l)
     
-    
-
    
 	 ;
