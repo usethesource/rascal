@@ -375,9 +375,9 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 							VF.integer(0)),
 						ctx);
 			} else if (dEnd.isTime()) {
-				throw RuntimeExceptionFactory.invalidUseOfTime("Cannot determine the duration between a date with no time and a time with no date.", ctx.getCurrentAST(), null);	
+				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a date with no time and a time with no date.", ctx.getCurrentAST(), null);	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfDateTime("Cannot determine the duration between a date with no time and a datetime.", ctx.getCurrentAST(), null);					
+				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a date with no time and a datetime.", ctx.getCurrentAST(), null);					
 			}
 		} else if (dStart.isTime()) {
 			if (dEnd.isTime()) {
@@ -392,9 +392,9 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND))),
 						ctx);
 			} else if (dEnd.isDate()) {
-				throw RuntimeExceptionFactory.invalidUseOfDate("Cannot determine the duration between a time with no date and a date with no time.", ctx.getCurrentAST(), null);	
+				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a time with no date and a date with no time.", ctx.getCurrentAST(), null);	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfDateTime("Cannot determine the duration between a time with no date and a datetime.", ctx.getCurrentAST(), null);					
+				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a time with no date and a datetime.", ctx.getCurrentAST(), null);					
 			}
 		} else {
 			if (dEnd.isDateTime()) {
@@ -409,9 +409,9 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 							VF.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND))),
 						ctx);
 			} else if (dEnd.isDate()) {
-				throw RuntimeExceptionFactory.invalidUseOfDate("Cannot determine the duration between a datetime and a date with no time.", ctx.getCurrentAST(), null);	
+				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a datetime and a date with no time.", ctx.getCurrentAST(), null);	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfTime("Cannot determine the duration between a datetime and a time with no date.", ctx.getCurrentAST(), null);					
+				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a datetime and a time with no date.", ctx.getCurrentAST(), null);					
 			}
 		}
 	}
