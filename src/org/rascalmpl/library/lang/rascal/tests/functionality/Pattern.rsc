@@ -122,15 +122,13 @@ test bool matchVariableBecomes1() = N : 3 := 3 && N == 3;
   
 // variableBecomesEquality
 
-@IgnoreCompiler{TODO: fails, reason unknown}        
+@IgnoreCompiler{TODO: fails, assignment to N is not undone}        
 test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
 
 test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
   		
-@ignoreCompiler{FIX:Typechecker canot determine pattern type}
 test bool doubleVariableBecomes1() = !(([N : 3, N : 4] := [3,4]) && N == 3);
 
-@ignoreCompiler{FIX: Typechecker canot determine pattern type}
 test bool doubleVariableBecomes2() = [N : 3, N : 3] := [3,3] && N == 3;
   	
 // antiPattern
