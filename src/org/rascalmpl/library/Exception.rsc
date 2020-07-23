@@ -64,6 +64,8 @@ data RuntimeException =
      | ArithmeticException(str message)
      | AssertionFailed() 
      | AssertionFailed(str label)
+     | DateTimeParsingError(str message)
+     | DateTimePrintingError(str message)
      | EmptyList()
      | EmptyMap() 
      | EmptySet()
@@ -72,12 +74,14 @@ data RuntimeException =
      | IllegalArgument(value v)                 // deprecated
      | IllegalArgument(value v, str message)    // deprecated
      
+     | ImplodeError(str message)
      | InvalidArgument()
      | InvalidArgument(value v)
      | InvalidArgument(value v, str message)
      
      | InvalidURI(str uri)
      | InvalidUseOfDate(str message)
+     | InvalidUseOfDateTime(str message)
      | InvalidUseOfLocation(str message)
      | InvalidUseOfTime(str message)
  
@@ -91,6 +95,7 @@ data RuntimeException =
      | MultipleKey(value key, value first, value second)
      | NoMainFunction()
      | NoSuchAnnotation(str label)
+     | NoSuchElement(value v)
      | NoSuchField(str name)
      | NoSuchKey(value key)
      | NotImplemented(str message)
@@ -98,23 +103,18 @@ data RuntimeException =
      // add versions of ParseError
      | PathNotFound(loc l)          // Deprecated
      | PathNotFound(set[loc] locs)  // deprecated
+     | PermissionDenied()
+     | PermissionDenied(str message)
      | RegExpSyntaxError(str message)
      | StackOverflow()          // Deprecated
-     | UnavailableInformation(str message)
+     | UnavailableInformation()
      
 // Status to be determined:     
      
 //   | AccessDenied(loc l)
-//   | FileNotFound(str file)
 //   | IllegalIdentifier(str name)
 //   | SchemeNotSupported(loc l)
-//   | HostNotFound(loc l)
-     | ImplodeError(str message)
-//   | MissingCase(value x)
-     | NoSuchElement(value v)
-     | PermissionDenied()
-     | PermissionDenied(str message)
-//   | Subversion(str message)
+    
      | Timeout()
 
    

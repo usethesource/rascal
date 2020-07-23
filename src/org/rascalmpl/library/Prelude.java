@@ -322,14 +322,14 @@ public class Prelude {
 	
 	private IValue incrementTime(IDateTime dt, int field, String fieldName, IInteger amount) {
 		if (dt.isDate())
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a date value.");
+			throw RuntimeExceptionFactory.invalidUseOfDate("Cannot increment the " + fieldName + " on a date value.");
 		
 		return incrementDTField(dt, field, amount);
 	}
 
 	private IValue incrementDate(IDateTime dt, int field, String fieldName, IInteger amount) {
 		if (dt.isTime())
-			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a time value.");
+			throw RuntimeExceptionFactory.invalidUseOfDate("Cannot increment the " + fieldName + " on a time value.");
 		
 		return incrementDTField(dt, field, amount);
 	}
@@ -416,9 +416,9 @@ public class Prelude {
 						values.integer(0), values.integer(0), values.integer(0),
 						values.integer(0));
 			} else if (dEnd.isTime()) {
-				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a date with no time and a time with no date.");	
+				throw RuntimeExceptionFactory.invalidUseOfTime("Cannot determine the duration between a date with no time and a time with no date.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a date with no time and a datetime.");					
+				throw RuntimeExceptionFactory.invalidUseOfDateTime("Cannot determine the duration between a date with no time and a datetime.");					
 			}
 		} else if (dStart.isTime()) {
 			if (dEnd.isTime()) {
@@ -431,9 +431,9 @@ public class Prelude {
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.SECOND)),
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND)));
 			} else if (dEnd.isDate()) {
-				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a time with no date and a date with no time.");	
+				throw RuntimeExceptionFactory.invalidUseOfDate("Cannot determine the duration between a time with no date and a date with no time.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a time with no date and a datetime.");					
+				throw RuntimeExceptionFactory.invalidUseOfDateTime("Cannot determine the duration between a time with no date and a datetime.");					
 			}
 		} else {
 			if (dEnd.isDateTime()) {
@@ -446,9 +446,9 @@ public class Prelude {
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.SECOND)),
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND)));
 			} else if (dEnd.isDate()) {
-				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a datetime and a date with no time.");	
+				throw RuntimeExceptionFactory.invalidUseOfDate("Cannot determine the duration between a datetime and a date with no time.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a datetime and a time with no date.");					
+				throw RuntimeExceptionFactory.invalidUseOfTime("Cannot determine the duration between a datetime and a time with no date.");					
 			}
 		}
 		return duration;
@@ -772,7 +772,7 @@ public class Prelude {
                     
                     return values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.DAY_OF_MONTH));
             }
-            throw RuntimeExceptionFactory.invalidUseOfTimeException("Both inputs must include dates.");
+            throw RuntimeExceptionFactory.invalidUseOfTime("Both inputs must include dates.");
     }
 
     /*
