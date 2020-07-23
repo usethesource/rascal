@@ -101,8 +101,6 @@ public class RuntimeExceptionFactory {
 
 	public static final Type RegExpSyntaxError = TF.constructor(TS, Exception, "RegExpSyntaxError", TF.stringType(), "message");
 	
-	// unused: public static final Type LocationNotFound = TF.constructor(TS,Exception,"LocationNotFound",TF.sourceLocationType(), "location");
-
 	public static final Type SchemeNotSupported = TF.constructor(TS, Exception, "SchemeNotSupported", TF.sourceLocationType(), "location");
 	public static final Type NoParent = TF.constructor(TS, Exception, "NoParent", TF.sourceLocationType(), "noParentUri");
 	public static final Type NameMismatch = TF.constructor(TS, Exception, "NameMismatch", TF.stringType(), "expectedName", TF.stringType(), "gotName");
@@ -513,6 +511,24 @@ public class RuntimeExceptionFactory {
 		return newTrace.freeze();
 	}
 	
+	// malformedURI
+
+	public static Throw malformedURI(IString uri) {
+	    return new Throw(VF.constructor(MalFormedURI, uri), (AbstractAST)null, (StackTrace)null);
+	}
+
+	public static Throw malformedURI(String uri) {
+	    return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), (AbstractAST)null, (StackTrace)null);
+	}
+
+	public static Throw malformedURI(IString uri, AbstractAST ast, StackTrace trace) {
+	    return new Throw(VF.constructor(MalFormedURI, uri), ast, trace);
+	}
+
+	public static Throw malformedURI(String uri, AbstractAST ast, StackTrace trace) {
+	    return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), ast, trace);
+	}
+	
 	// moduleNotFound
 	
 	public static Throw moduleNotFound(IString module) {
@@ -522,6 +538,26 @@ public class RuntimeExceptionFactory {
 	public static Throw moduleNotFound(IString module, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ModuleNotFound, module), ast, trace);
 	}
+	
+	// multipleKey
+
+    public static Throw MultipleKey(IValue v, IValue first, IValue second) {
+        return new Throw(VF.constructor(MultipleKey, v, first, second), (AbstractAST)null, (StackTrace)null);
+    }
+    
+    public static Throw MultipleKey(IValue v, IValue first, IValue second, AbstractAST ast, StackTrace trace) {
+        return new Throw(VF.constructor(MultipleKey, v, first, second), ast, trace);
+    }
+    
+    // noParent
+    
+    public static Throw noParent(ISourceLocation loc) {
+        return new Throw(VF.constructor(NoParent, loc), (AbstractAST)null, (StackTrace)null);
+    }
+    
+    public static Throw noParent(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
+        return new Throw(VF.constructor(NoParent, loc), ast, trace);
+    }
 	
 	// noSuchAnnotation
 	
@@ -623,6 +659,12 @@ public class RuntimeExceptionFactory {
 	    return new Throw(VF.constructor(RegExpSyntaxError, VF.string(message)), (AbstractAST)null, (StackTrace)null);
 	}
 	
+	// schemeNotSupported
+	
+	public static Throw schemeNotSupported(ISourceLocation file) {
+        return new Throw(VF.constructor(SchemeNotSupported, file), (AbstractAST)null, (StackTrace)null);
+    }
+	
 	// stackOverflow
 	
 	public static Throw stackOverflow() {
@@ -633,6 +675,12 @@ public class RuntimeExceptionFactory {
 		return new Throw(VF.constructor(StackOverflow), ast, trace);
 	}
 	
+	// timeout
+	
+	public static Throw timeout(AbstractAST ast, StackTrace trace) {
+        return new Throw(VF.constructor(Timeout), ast, trace);
+    }
+	
 	// unavailableInformation
 	
 	public static Throw unavailableInformation(AbstractAST ast, StackTrace trace){
@@ -640,14 +688,8 @@ public class RuntimeExceptionFactory {
     }
 	
 	// The status of the following exceptions is to be determined (alphabetical order)
-
-//	public static Throw illegalCharacter(IInteger i) {
-//        return new Throw(VF.constructor(IllegalChar, i), (AbstractAST)null, (StackTrace)null);
-//    }
-//	
-//	public static Throw illegalCharacter(IInteger i, AbstractAST ast, StackTrace trace) {
-//		return new Throw(VF.constructor(IllegalChar, i), ast, trace);
-//	}
+	
+	// illegalTypeArgument -- not in Exception, specific for interpreter?
 	
 	public static Throw illegalTypeArgument(IString type, IString message){
         return new Throw(VF.constructor(IllegalTypeArgument,type,message), (AbstractAST)null, (StackTrace)null);   
@@ -673,72 +715,19 @@ public class RuntimeExceptionFactory {
 		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type), VF.string("")), ast, trace);	
 	}
 	
-	
-
-	
-	
-	
-	
-//	public static Throw locationNotFound(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
-//		return new Throw(LocationNotFound.make(VF, loc), ast, trace);
-//	}
-	
-	public static Throw malformedURI(IString uri) {
-        return new Throw(VF.constructor(MalFormedURI, uri), (AbstractAST)null, (StackTrace)null);
-    }
-	
-	public static Throw malformedURI(String uri) {
-        return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), (AbstractAST)null, (StackTrace)null);
-    }
-	
-	public static Throw malformedURI(IString uri, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(MalFormedURI, uri), ast, trace);
-    }
-	
-	public static Throw malformedURI(String uri, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), ast, trace);
-	}
-	
-	public static Throw MultipleKey(IValue v, IValue first, IValue second) {
-        return new Throw(VF.constructor(MultipleKey, v, first, second), (AbstractAST)null, (StackTrace)null);
-    }
-	
-	public static Throw MultipleKey(IValue v, IValue first, IValue second, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(MultipleKey, v, first, second), ast, trace);
-	}
-	
-	public static Throw nameMismatch(IString expected, String got, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(NameMismatch, expected, VF.string(got)), ast, trace);
-    }
+	// nameMismatch -- not in Exception, specific for interpreter
 	
 	public static Throw nameMismatch(String expected, String got, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), ast, trace);
 	}
 	
-	public static Throw noParent(ISourceLocation loc) {
-        return new Throw(VF.constructor(NoParent, loc), (AbstractAST)null, (StackTrace)null);
-    }
-	
-	public static Throw noParent(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(NoParent, loc), ast, trace);
-	}
 	
 	
 	
 	
 	
 	
-	public static Throw schemeNotSupported(ISourceLocation file) {
-	    return new Throw(VF.constructor(SchemeNotSupported, file), (AbstractAST)null, (StackTrace)null);
-	}
 	
-	public static Throw schemeNotSupported(ISourceLocation file,
-			AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(SchemeNotSupported, file), ast, trace);
-	}
 	
-	public static Throw timeout(AbstractAST ast, StackTrace trace) {
-    	return new Throw(VF.constructor(Timeout), ast, trace);
-    }
 	
 }
