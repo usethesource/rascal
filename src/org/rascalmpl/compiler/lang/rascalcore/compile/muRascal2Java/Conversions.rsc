@@ -528,7 +528,7 @@ str atype2istype1(str e, str get, t: acons(AType adt, list[AType fieldType] fiel
 str atype2istype1(str e, str get, overloadedAType(rel[loc, IdRole, AType] overloads))
                                           = "<e>.<get>.isOverloaded()";
 str atype2istype1(str e, str get, aparameter(str pname, AType bound)) = atype2istype(e, bound);
-str atype2istype1(str e, str get, areified(AType atype))   = "isReified(<e>)";    // TODO
+str atype2istype1(str e, str get, areified(AType atype))   = "$isReified(<e>)";    // TODO
 str atype2istype1(str e, str get, avalue())                = "true"; // "<e>.<get>.isTop()";
 
 
@@ -774,8 +774,9 @@ str atype2vtype(aset(AType t)) = "$TF.setType(<atype2vtype(t)>)";
 str atype2vtype(atuple(AType ts)) = "$TF.tupleType(<atype2vtype(ts)>)";
 
 str atype2vtype(amap(AType d, AType r)) {
-    return d.label? ? "$TF.mapType(<atype2vtype(d)>, \"<d.label>\", <atype2vtype(r)>, \"<r.label>\")"
-                    : "$TF.mapType(<atype2vtype(d)>,<atype2vtype(r)>)";
+    return (d.label? && d.label != "_")
+             ? "$TF.mapType(<atype2vtype(d)>, \"<d.label>\", <atype2vtype(r)>, \"<r.label>\")"
+             : "$TF.mapType(<atype2vtype(d)>,<atype2vtype(r)>)";
 }
 str atype2vtype(arel(AType t)) = "$TF.setType($TF.tupleType(<atype2vtype(t)>))";
 str atype2vtype(alrel(AType t)) = "$TF.listType($TF.tupleType(<atype2vtype(t)>))";
@@ -800,8 +801,9 @@ str atype2vtype(aparameter(str pname, AType bound)) = "$TF.parameterType(\"<pnam
 
 
 str atype2vtype(atypeList(list[AType] atypes))
-    = atypes[0].label? ? intercalate(", ", [*[atype2vtype(t), "\"<t.label>\""] | t <- atypes])
-                       : intercalate(", ", [atype2vtype(t) | t <- atypes]);
+    = (atypes[0].label? && atypes[0].label != "_")
+         ? intercalate(", ", [*[atype2vtype(t), "\"<t.label>\""] | t <- atypes])
+         : intercalate(", ", [atype2vtype(t) | t <- atypes]);
                        
 str atype2vtype(areified(AType atype)) {
  //   dfs = collectNeededDefs(atype);

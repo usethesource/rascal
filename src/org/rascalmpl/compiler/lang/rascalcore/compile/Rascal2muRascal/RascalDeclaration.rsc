@@ -101,7 +101,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
         
         defExprCode = fixFieldReferences(translate(defaultExpr), adtType, adtVar);
         body = muReturn1(kwType, muIfelse(muIsKwpDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /*
@@ -127,7 +127,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
             
             defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar);
             body = muReturn1(kwType, muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExprCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", 1, 1, false, true, false, {}, {}, getModuleScope(), [], (), body));               
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
        }
     }
     
@@ -149,7 +149,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
                        ]
                        + muFailReturn(returnType)
                       );
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /* 
@@ -184,7 +184,7 @@ private void generateGettersForAdt(AType adtType, set[AType] constructors, list[
                                         []),
                                         |unknown:///|)
                       );
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", 1, 1, false, true, false, {}, {}, getModuleScope(), [], (), body));            
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));            
     }
  }
 
@@ -227,11 +227,10 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                                          [],
                                          [],
                                          inScope, 
-                                         0, 
-                                         0, 
                                          false, 
                                          true,
                                          false,
+                                         {},
                                          {},
                                          {},
                                          fd@\loc, 
@@ -292,13 +291,14 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       								 formalVars,
       								 kwps,
       								 inScope,
-      								 getFormals(funsrc), 
-      								 getScopeSize(funsrc),
+      								 //getFormals(funsrc), 
+      								 //getScopeSize(funsrc),
       								 isVarArgs, 
       								 isPub,
       								 isMemo,
       								 getExternalRefs(tbody, fuid),
       								 getLocalRefs(tbody),
+      								 getKeywordParameterRefs(tbody, fuid),
       								 fd@\loc, 
       								 tmods, 
       								 ttags,
@@ -355,6 +355,9 @@ set[MuExp] getLocalRefs(MuExp exp)
 
 set[MuExp] getExternalRefs(MuExp exp, str fuid)
     = { v | /v:muVar(str name, str fuid2, int pos, AType atype) := exp, fuid2 != fuid, fuid2 != "" };
+
+set[MuExp] getKeywordParameterRefs(MuExp exp, str fuid)
+    = { v | /v:muVarKwp(str name, str fuid2, AType atype) := exp, fuid2 != fuid };
     
 /********************************************************************/
 /*                  Translate keyword parameters                    */
@@ -408,7 +411,6 @@ MuExp functionBody(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo)
 tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp body, bool isMemo, list[Expression] when_conditions, bool addReturn=false){
      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
      
-     //enterBacktrackingScope(fname);
      list[Pattern] formalsList = [f | f <- formals];
      str fuid = topFunctionScope();
      bt = nextTmp("FUNCTION_<fname>");

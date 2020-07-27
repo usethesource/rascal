@@ -361,8 +361,8 @@ void extractScopes(TModel tm){
         locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], bprintln(sc), facts[sc]? ? isFunctionType(getType(sc)) ==> sc == fun : true};
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
         formals = [v | v <- vars, is_formal(v)];
-        outer_formals = [v | v <- formals, is_outer_formal(v) ];
-        non_formals = [v | v <- vars, !is_formal(v)];
+        //outer_formals = [v | v <- formals, is_outer_formal(v) ];
+        //non_formals = [v | v <- vars, !is_formal(v)];
     
         ftype = defType(AType atype) := fundef.defInfo ? atype : avalue();
         kwpDelta = (ftype has kwFormals && size(ftype.kwFormals) > 0 ||
@@ -371,7 +371,7 @@ void extractScopes(TModel tm){
         for(int i <- index(vars)){
             vdefine = vars[i];
             if(vdefine.idRole != keywordFormalId()){
-                position_in_container[vdefine.defined] = formal_base + i;
+                position_in_container[vdefine.defined] = (is_formal(vdefine) ? 0 : formal_base) + i;
             }
         }
     }
@@ -388,7 +388,7 @@ void extractScopes(TModel tm){
    // ... all overloaded functions
   
     bool compatibleInOverlappingScope(Define l, Define r){
-        return (isContainedIn(l.scope, r.scope) || isContainedIn(r.scope, l.scope)) && 
+        return (l.scope in module_scopes && r.scope in module_scopes || isContainedIn(l.scope, r.scope) || isContainedIn(r.scope, l.scope)) && 
                outerComparable(getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(l.defined))), 
                                getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(r.defined))));
     }
@@ -875,6 +875,9 @@ MuExp mkVar(str name, loc l) {
         if(scopes[fscope]?){
             fscope = scopes[fscope];
         } else {
+            for(<fname, ftype, loc gscope> <- domain(overloadedTypeResolver)){
+                return muOFun(overloadedTypeResolver[<fname,ftype,gscope>], ftype);
+            }
             break;
         }
     }

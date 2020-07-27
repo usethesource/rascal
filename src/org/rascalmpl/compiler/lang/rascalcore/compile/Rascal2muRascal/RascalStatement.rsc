@@ -121,6 +121,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
                        ]);
     } else {
         code = loopBody;
+        //code = muValueBlock(getType(s), [ loopBody, muCon([]) ]);
     }
    
     leaveLoop();
@@ -193,6 +194,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
                             ]);
     } else {
         code = loopBody;
+        //code = muValueBlock(getType(s), [ loopBody, muCon([]) ]);
     }
                           
     leaveLoop();
@@ -238,7 +240,8 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
                               muCallPrim3("close_list_writer", avalue(), [avalue()], [writer], s@\loc)
                             ]);
     } else {
-        code = muValueBlock(avoid(), [ loopBody, muCon([]) ]);
+        code = loopBody;
+        //code = muValueBlock(avoid(), [ loopBody, muCon([]) ]);
     }
     
     leaveLoop();
@@ -590,18 +593,18 @@ MuExp translateSolve(current:(Statement) `solve ( <{QualifiedName ","}+ variable
    varTmps = [ nextTmp("<var>") | QualifiedName var <- variables ];
    
    return muBlock([ muVarInit(iterations, (bound is empty) ? muCon(1000000) : muToNativeInt(translate(bound.expression))),
-    				muRequire(muNotNegativeNativeInt(iterations), "Negative bound in solve", bound@\loc),
-                         muVarInit(change, muCon(true)),
-                         muWhileDo(nextLabel("while"),
-                            muAndNativeBool(change, muGreaterEqNativeInt(iterations, muCon(0))), 
-                            muBlock([ muAssign(change, muCon(false)),
-                                      *[ muVarInit(muTmpIValue(varTmps[i], fuid, getType(vars[i])), varCode[i]) | int i <- index(varCode) ],
-                                      muVarInit(result, translateLoopBody(body, btscopes)),
-                                     *[ muIf(muCallPrim3("notequal", abool(), [getType(vars[i]), getType(vars[i])], [muTmpIValue(varTmps[i],fuid, getType(vars[i])), varCode[i]], bound@\loc), muAssign(change, muCon(true))) 
-                 			          | int i <- index(varCode)    //TODO: prefer index(variables) here
-                 			          ],
-                                      muIncNativeInt(iterations, muCon(-1)) 
-                                    ]))
+    				muRequireNonNegativeBound(iterations),
+                    muVarInit(change, muCon(true)),
+                    muWhileDo(nextLabel("while"),
+                        muAndNativeBool(change, muGreaterEqNativeInt(iterations, muCon(0))), 
+                        muBlock([ muAssign(change, muCon(false)),
+                                  *[ muVarInit(muTmpIValue(varTmps[i], fuid, getType(vars[i])), varCode[i]) | int i <- index(varCode) ],
+                                  muVarInit(result, translateLoopBody(body, btscopes)),
+                                 *[ muIf(muCallPrim3("notequal", abool(), [getType(vars[i]), getType(vars[i])], [muTmpIValue(varTmps[i],fuid, getType(vars[i])), varCode[i]], bound@\loc), muAssign(change, muCon(true))) 
+             			          | int i <- index(varCode)    //TODO: prefer index(variables) here
+             			          ],
+                                  muIncNativeInt(iterations, muCon(-1)) 
+                                ]))
                        ]);
 }
 

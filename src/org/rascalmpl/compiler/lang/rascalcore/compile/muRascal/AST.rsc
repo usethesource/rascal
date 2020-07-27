@@ -49,13 +49,14 @@ public data MuFunction =
                            list[MuExp] formals,
                            lrel[str name, AType atype, MuExp defaultExp] kwpDefaults, 
                            str scopeIn,
-                           int nformals, 
-                           int nlocals, 
+                           //int nformals, 
+                           //int nlocals, 
                            bool isVarArgs,
                            bool isPublic,
                            bool isMemo,
                            set[MuExp] externalVars,
                            set[MuExp] localRefs,
+                           set[MuExp] keywordParameterRefs,
                            loc src,
                            list[str] modifiers,
                            map[str,str] tags,
@@ -225,7 +226,7 @@ public data MuExp =
           // Auxiliary operations used in generated code
           
           // Various tests
-          | muRequire(MuExp exp, str msg, loc src)              // Abort if exp is false
+          | muRequireNonNegativeBound(MuExp bnd)              // Abort if exp is false
           | muEqual(MuExp exp1, MuExp exp2)    
           | muMatch(MuExp exp1, MuExp exp2)                     // equal that ignores keyword parameters
           
@@ -254,7 +255,7 @@ public data MuExp =
           // Operations on native booleans
           | muAndNativeBool(MuExp exp1, MuExp exp2)
           | muNotNativeBool(MuExp exp)
-          | muNotNegativeNativeInt(MuExp exp)
+        //  | muNotNegativeNativeInt(MuExp exp)
           | muSubList(MuExp lst, MuExp from, MuExp len)
           
           // Regular expressions
@@ -363,7 +364,7 @@ bool producesNativeBool(muTmpNative(_,_,nativeBool()))
     = true;
     
 default bool producesNativeBool(MuExp exp)
-    = getName(exp) in {"muEqual", "muMatch", "muEqualNativeInt", "muNotNegativeNativeInt", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
+    = getName(exp) in {"muEqual", "muMatch", "muEqualNativeInt", /*"muNotNegativeNativeInt",*/ "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
                   "muHasNameAndArity", "muValueIsSubType", "muValueIsComparable", "muValueIsSubTypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
                   "muRegExpFind",  "muIsDefinedValue", "muIsInitialized", "muHasField"};
 
@@ -1133,7 +1134,7 @@ bool shouldFlatten(MuExp arg)
        || muWhileDo(str ab, MuExp cond, MuExp body) := arg
        || muBlock(elems) := arg 
        //|| muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor) := arg
-       //|| muIfExp(cond, thenPart, elsePart) := arg && (shouldFlatten(thenPart) || shouldFlatten(elsePart))
+       || muIfExp(cond, thenPart, elsePart) := arg && (shouldFlatten(thenPart) || shouldFlatten(elsePart))
        ;
  
 int nauxVars = -1;
@@ -1216,12 +1217,12 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                 pre += muAssign(aux, me);
                 newArgs += aux;
                
-            //} else if(muIfExp(cond, thenPart, elsePart) := arg){
-            //    <flThen, auxThen, preThen, postThen> = flattenArgs([thenPart]);
-            //    <flElse, auxElse, preElse, postElse> = flattenArgs([elsePart]);
-            //    pre += preThen + preElse;
-            //    newArgs += muIfExp(cond, size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
-            //                             size(postElse) == 1 ? postElse[0] : muValueBlock(avalue(), postElse));
+            } else if(muIfExp(cond, thenPart, elsePart) := arg){
+                <flThen, auxThen, preThen, postThen> = flattenArgs([thenPart]);
+                <flElse, auxElse, preElse, postElse> = flattenArgs([elsePart]);
+                pre += preThen + preElse;
+                newArgs += muIfExp(cond, size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
+                                         size(postElse) == 1 ? postElse[0] : muValueBlock(avalue(), postElse));
             } else {
                 newArgs += arg;
             }
