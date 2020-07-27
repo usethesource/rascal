@@ -107,6 +107,95 @@ test bool keywordParam93(){
 	return f12() == true;
 }
 
+test bool keywordParam101(){
+    int f13(int c = 10){
+        int g13(int d = 100){
+            return c + d;
+        }
+        return g13();
+    }
+    return f13() == 110;
+}
+
+test bool keywordParam102(){
+    int f14(int c = 10){
+        int g14(int d = 100){
+            return c + d;
+        }
+        return g14();
+    }
+    return f14(c=11) == 111;
+}
+
+test bool keywordParam103(){
+    int f15(int c = 10){
+        int g15(int d = 100){
+            return c + d;
+        }
+        return g15();
+    }
+    return f15(c=11) == 111;
+}
+
+test bool keywordParam104(){
+    int f16(int c = 10){
+        int g16(int d = 100){
+            return c + d;
+        }
+        return g16(d=200);
+    }
+    return f16(c=11) == 211;
+}
+
+test bool keywordParam105(){
+    int f17(int c = 10){
+        int g17(int c = 100){
+            return c;
+        }
+        return g17(c=200);
+    }
+    return f17(c=11) == 200;
+}
+
+test bool keywordParam106(){
+    int f18(int c = 10){
+        int h18(){
+            int g18(int d = 100){
+                return c + d;
+            }
+            return g18(d=200);
+        }
+        return h18();
+    }
+    return f18(c=11) == 211;
+}
+
+test bool keywordParam107(){
+    int f19(int c = 10){
+        int h19(){
+            int g19(int c = 1, int d = 100){
+                return c + d;
+            }
+            return g19(d=200);
+        }
+        return h19();
+    }
+    return f19(c=11) == 201;
+}
+
+test bool keywordParam108(){
+    int f20(int c = 10){
+        int h20(){
+            int g20(int c = 1, int d = c * 100){
+                return c + d;
+            }
+            return g20(c=2);
+        }
+        return h20();
+    }
+    return f20(c=11) == 202;
+}
+
 data X(int y = 1) = xx(int z = 0);
 data X(int yy = 2) = xx(int u);
 data X(int yyy = 3);

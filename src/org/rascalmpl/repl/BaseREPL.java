@@ -38,6 +38,8 @@ public class BaseREPL {
     protected final ConsoleReader reader;
     protected final OutputStream originalStdOut;
     protected final OutputStream stderr;
+    protected final InputStream wrappedStream;
+
     
     protected final Writer errorWriter;
     
@@ -71,6 +73,10 @@ public class BaseREPL {
         
         if (!(stdin instanceof NotifieableInputStream) && !(stdin.getClass().getCanonicalName().contains("jline"))) {
             stdin = new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b));
+            wrappedStream = stdin;
+        }
+        else {
+            wrappedStream = null;
         }
         reader = new ConsoleReader(stdin, stdout, terminal);
         this.ideServices = ideServices;
@@ -361,13 +367,24 @@ public class BaseREPL {
             throw e;
         }
         finally {
-            reader.flush();
-            originalStdOut.flush();
-            if (historyFlusher != null) {
-                ShutdownHooks.remove(historyFlusher);
-                history.flush();
+            try {
+                reader.flush();
+                originalStdOut.flush();
+                if (historyFlusher != null) {
+                    ShutdownHooks.remove(historyFlusher);
+                    history.flush();
+                }
+            } 
+            finally {
+                if (wrappedStream != null) {
+                    try {
+                        wrappedStream.close();
+                    }
+                    catch (IOException e) {
+                    }
+                }
+                reader.close();
             }
-            reader.close();
         }
     }
 

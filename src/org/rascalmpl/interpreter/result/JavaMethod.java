@@ -164,7 +164,7 @@ public class JavaMethod extends NamedFunction {
 			resultType = unrenameType(renamings, resultType);
 			
 			resultValue = ResultFactory.makeResult(resultType, result, eval);
-			storeMemoizedResult(actuals, keyArgValues, resultValue);
+			resultValue = storeMemoizedResult(actuals, keyArgValues, resultValue);
 			printEndTrace(resultValue.value);
 			return resultValue;
 		}

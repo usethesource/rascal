@@ -585,7 +585,7 @@ public class Environment implements IRascalFrame {
 		}
 		
 		if (list == null || !this.isNameFlagged(name,NameFlags.OVERLOADABLE_NAME)) {
-			list = new LinkedList<AbstractFunction>();
+			list = new ArrayList<>(1); // we allocate an array list of 1, since most cases it's only a single overload, and we want to avoid allocating more memory than needed
 			
 			if (functionEnvironment == null) {
 				functionEnvironment = new HashMap<String, List<AbstractFunction>>();

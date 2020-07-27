@@ -125,7 +125,7 @@ public class Resource {
 		try {
 			return vf.string(URLEncoder.encode(str.getValue(), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			throw RuntimeExceptionFactory.illegalArgument(str, null, null, "UTF-8 is not a valid encoding");
+			throw RuntimeExceptionFactory.illegalArgument(str, "UTF-8 is not a valid encoding");
 		}
 	}
 	
@@ -133,7 +133,7 @@ public class Resource {
 		try {
 			return vf.string(URLDecoder.decode(str.getValue(), "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			throw RuntimeExceptionFactory.illegalArgument(str, null, null, "UTF-8 is not a valid encoding");
+			throw RuntimeExceptionFactory.illegalArgument(str, "UTF-8 is not a valid encoding");
 		}
 	}
 }
