@@ -2,6 +2,7 @@ module lang::rascal::tests::basic::Exceptions
 
 import List;
 import Exception;
+import String;
 
 test bool exceptionHandling1(){
 	value f() { throw "Try to catch me!"; }
@@ -506,37 +507,19 @@ test bool exceptionHandlingNotHandled(){
 	}
 }
 
-//@ignoreCompiler{Renamed Exception}
-@ignore
 test bool exceptionHandlingNotHandledSimple1(){
 	void divide() { 1/0; }
 
-	value main() {
-		return divide();
+	void main() {
+		divide();
 	}
 	
 	try {
-		return main();
-	} 
-	catch value v: {
-		return v == ArithmeticException("/ by zero");
-	}
-}
-
-//@ignoreInterpreter{Renamed Exception}
-@ignore
-test bool exceptionHandlingNotHandledSimple2(){
-    void divide() { 1/0; }
-
-    value main() {
-        return divide();
-    }
-    
-    try {
-        return main();
+		main();
+		return false;
     } 
     catch value v: {
-        return v == ArithmeticException("divide by zero");
+		return ArithmeticException(str msg) := v && endsWith(msg, "by zero"); 
     }
 }
 

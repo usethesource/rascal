@@ -111,7 +111,7 @@ test bool lexSliceSepStep2() = ([XComma] "x,y,z,X,Y,Z,x,y,z").xcommas[0,3..] == 
 test bool lexSliceSepNegStep1() = ([XComma] "x,y,z,X,Y,Z,x,y,z").xcommas[8,6..] == ([XComma] "z,x,Y,z,x").xcommas;
 
 @ignoreInterpreter{Incorrect/not implemented}
-@expected{InvalidArgument}
+@expected{IllegalArgument}
 test bool lexIllegalSlice() { ([XPlus] "xyz").xs1[0 .. 0]; return false; }
 
 @ignoreInterpreter{Incorrect/not implemented}
@@ -207,5 +207,5 @@ test bool cfgSliceSepStep2() = ([AComma] "a,b,c,A,B,C,a,b,c").acommas [0,3..] ==
 test bool cfgSliceSepNegStep1() = ([AComma] "a,b,c,A,B,C,a,b,c").acommas [8,6..] == ([AComma] "c,a,B,c,a").acommas;
 
 @ignoreInterpreter{Incorrect/not implemented}
-@expected{InvalidArgument}
+@expected{IllegalArgument}
 test bool cfgIllegalSlice() { ([APlus] "abc").as1[0 .. 0]; return false; }

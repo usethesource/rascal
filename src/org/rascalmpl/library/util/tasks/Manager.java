@@ -85,7 +85,7 @@ public class Manager {
 	
 	public IValue getFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
 
 		IValue fact = transaction(tr).getFact(ctx, typeReifier.valueToType((IConstructor) key), name);
 		if(fact == null)
@@ -95,7 +95,7 @@ public class Manager {
 
 	private IValue check(IValue fact, IValue key, IValue name, IEvaluatorContext ctx) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
 
 		if(fact == null)
 			throw RuntimeExceptionFactory.noSuchKey(vf.string(typeReifier.valueToType((IConstructor) key).toString() + ":" + name.toString()), 
@@ -108,21 +108,21 @@ public class Manager {
 
 	public IValue queryFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
 
 		return check(transaction(tr).queryFact(typeReifier.valueToType((IConstructor) key), name), key, name, ctx);
 	}
 
 	public void removeFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
 
 		transaction(tr).removeFact(typeReifier.valueToType((IConstructor) key), name);
 	}
 
 	public void setFact(IValue tr, IValue key, IValue name, IValue value, IEvaluatorContext ctx) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, ctx.getCurrentAST(), ctx.getStackTrace(), "key is not a reified type");
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
 
 		Type keyType = typeReifier.valueToType((IConstructor) key);
 		if(!value.getType().isSubtypeOf(keyType))

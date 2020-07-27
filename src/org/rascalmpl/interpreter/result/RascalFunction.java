@@ -295,7 +295,7 @@ public class RascalFunction extends NamedFunction {
                     bindKeywordArgs(keyArgValues);
                     checkReturnTypeIsNotVoid(formals, actuals);
                     result = runBody();
-                    storeMemoizedResult(actuals,keyArgValues, result);
+          result = storeMemoizedResult(actuals,keyArgValues, result);
                     if (callTracing) {
                         printEndTrace(result.getValue());
                     }

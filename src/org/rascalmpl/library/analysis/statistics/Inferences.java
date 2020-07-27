@@ -47,7 +47,7 @@ public class Inferences {
 			expected[i] = (long) exp.toReal(values.getPrecision()).doubleValue();
 			observed[i] = obs.toInteger().longValue();
 			
-			if(expected[i] < 0 || observed[i] < 0) throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "Chi test requires positive values");
+			if(expected[i] < 0 || observed[i] < 0) throw RuntimeExceptionFactory.illegalArgument(dataValues,  "Chi test requires positive values");
 			i++;
 		}
 	}
@@ -74,9 +74,9 @@ public class Inferences {
 		try {
 			return values.real(new ChiSquareTestImpl().chiSquareTest(expected, observed));
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dataValues,  e.getMessage());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, e.getMessage());
 		}
 	}
 	
@@ -85,9 +85,9 @@ public class Inferences {
 		try {
 			return values.bool(new ChiSquareTestImpl().chiSquareTest(expected, observed, alpha.doubleValue()));
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, e.getMessage());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, e.getMessage());
 		}
 	}
 	
@@ -101,9 +101,9 @@ public class Inferences {
 			//System.err.println("r = " + r);
 			return values.real(r);
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(sample1, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(sample1, e.getMessage());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(sample1, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(sample1, e.getMessage());
 		}
 	}
 	
@@ -113,9 +113,9 @@ public class Inferences {
 		try {
 			return values.bool(new TTestImpl().tTest(s1, s2, alpha.toReal(values.getPrecision()).doubleValue()));
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(sample1, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(sample1, e.getMessage());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(sample1, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(sample1, e.getMessage());
 		}
 	}
 	
@@ -124,9 +124,9 @@ public class Inferences {
 		try {
 			return values.bool(new TTestImpl().tTest( mu.toReal(values.getPrecision()).doubleValue(), s, alpha.toReal(values.getPrecision()).doubleValue()));
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(sample, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(sample, e.getMessage());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(sample, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(sample, e.getMessage());
 		}
 	}
 	
@@ -134,7 +134,7 @@ public class Inferences {
 	public IValue gini(IList dataValues){
 		
 		if(dataValues.length() < 2)
-			throw RuntimeExceptionFactory.illegalArgument(dataValues, null, null, "At least 2 observations required");
+			throw RuntimeExceptionFactory.illegalArgument(dataValues, "At least 2 observations required");
 		double sum = 0;
 		double g = 0;
 		double N = 0;
@@ -157,7 +157,7 @@ public class Inferences {
 			ITuple T = (ITuple) dataValues.get(i);
 			double Y = ((INumber) T.get(1)).toReal(values.getPrecision()).doubleValue();
 			if(Y < 0)
-				throw RuntimeExceptionFactory.illegalArgument(T, null, null, "Frequency should be positive");
+				throw RuntimeExceptionFactory.illegalArgument(T, "Frequency should be positive");
 			
 			g += xvalues[i] * rank[i] * Y;
 			N += Y;
@@ -187,9 +187,9 @@ public class Inferences {
 		try {
 			return values.real(new OneWayAnovaImpl().anovaFValue(makeAnova(categoryData)));
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(categoryData, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(categoryData, e.getMessage());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(categoryData, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(categoryData, e.getMessage());
 		}
 	}
 	
@@ -197,9 +197,9 @@ public class Inferences {
 		try {
 			return values.real(new OneWayAnovaImpl().anovaPValue(makeAnova(categoryData)));
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(categoryData, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(categoryData, e.getMessage());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(categoryData, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(categoryData, e.getMessage());
 		}
 	}
 	
@@ -207,9 +207,9 @@ public class Inferences {
 		try {
 			return values.bool(new OneWayAnovaImpl().anovaTest(makeAnova(categoryData), alpha.toReal(values.getPrecision()).doubleValue()));
 		} catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(categoryData, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(categoryData, e.getMessage());
 		} catch (MathException e) {
-			throw RuntimeExceptionFactory.illegalArgument(categoryData, null, null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(categoryData, e.getMessage());
 		}
 	}
 }

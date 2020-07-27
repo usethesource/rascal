@@ -181,30 +181,29 @@ Create a new location that refers to the smallest text area that overlaps with t
 The given locations should all refer to the same file but they may be overlapping or be contained in each other.
 }
 loc cover(list[loc] locs){
-    switch(size(locs)){
-    case 0: 
-        throw IllegalArgument(locs, "Cover of empty list of locations");
-    case 1:
+    n = size(locs);
+    if(n == 0){
+         throw IllegalArgument(locs, "Cover of empty list of locations");
+    } else if(n == 1){
         return locs[0];
-    default: {
-            locs = [ l | l <- locs, !any(m <- locs, m != l, isContainedIn(l, m)) ];
-            locs = sort(locs, beginsBefore);
-            loc first = locs[0];
-            loc last = locs[-1];
+    } else {
+        locs = [ l | l <- locs, !any(m <- locs, m != l, isContainedIn(l, m)) ];
+        locs = sort(locs, beginsBefore);
+        loc first = locs[0];
+        loc last = locs[-1];
  
-            tops = {l.top | l <- locs};
-            if(size(tops) > 1){
-                throw IllegalArgument(locs, "Cover of locations with different scheme, authority or path");
-            }
-            if(first.begin? && last.end?){
-                return first.top(first.offset, last.offset + last.length - first.offset, 
-                               <first.begin.line, first.begin.column>,
-                               <last.end.line, last.end.column>);
-            } else if(first.offset? && last.offset?){
-                return first.top(first.offset, last.offset + last.length - first.offset);
-            } else {
-                return first.top;
-            }
+        tops = {l.top | l <- locs};
+        if(size(tops) > 1){
+            throw IllegalArgument(locs, "Cover of locations with different scheme, authority or path");
+        }
+        if(first.begin? && last.end?){
+            return first.top(first.offset, last.offset + last.length - first.offset, 
+                           <first.begin.line, first.begin.column>,
+                           <last.end.line, last.end.column>);
+        } else if(first.offset? && last.offset?){
+            return first.top(first.offset, last.offset + last.length - first.offset);
+        } else {
+            return first.top;
         }
     }
 }

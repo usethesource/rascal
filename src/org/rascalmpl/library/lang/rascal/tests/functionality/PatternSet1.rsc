@@ -612,10 +612,8 @@ test bool matchNestedSet10() = {*set[int] _} := {{1,2}};
           
 test bool matchNestedSet11() = ({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5},{6,7,8}}) && (L == {{2,3},{4,5}});
 test bool matchNestedSet12() = !(({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5},{8}}) && (L == {{2,3},{4,5}}));
-
-
- /*TODO: fails*/  
- @Ignore  
+ 
+ @IgnoreInterpreter{TBD}
 test bool matchNestedSet13() = ({{1}, *set[int] L, {6,7,8}, *L} := {{1},{2,3},{4,5},{6,7,8},{2,3},{4,5}}) && (L == {{2,3},{4,5}});
 
 //    matchSetMultiVars
@@ -629,6 +627,38 @@ test bool matchSetSpliceVars1() = {1, *S, 4, 5}:= {1, 2, 3, 4, 5} && S == {2, 3}
 test bool matchSetSpliceVars2() = {1, * int S, 4, 5}:= {1, 2, 3, 4, 5} && S == {2, 3};
 test bool matchSetSpliceVars3() = {1, *_, 4, 5} := {1, 2, 3, 4, 5};
 test bool matchSetSpliceVars4() = {1, * int _, 4, 5} := {1, 2, 3, 4, 5};
+
+// match set of tuples
+
+test bool matchSetTuples1() = {<1, 2, 3>} := {<1, 2, 3>};
+test bool matchSetTuples2() = {<1, int n, 3>} := {<1, 2, 3>};
+test bool matchSetTuples3() = {<1, int _, 3>} := {<1, 2, 3>};
+test bool matchSetTuples4() = {<a, b>, *c} := {<1, 2>, <3, 4>};
+test bool matchSetTuples5() = {<a, a>, *c} := {<1, 2>, <3, 3>};
+test bool matchSetTuples6() = {<int a, a>, *c} := {<1, 2>, <3, 3>};
+test bool matchSetTuples7() = {<int a, int b>, <b, b>, *c} := {<1, 2>, <2, 2>, <3, 4>};
+
+// match set of lists
+
+test bool matchSetLists1() = {[1, 2, 3]} := {[1, 2, 3]};
+test bool matchSetLists2() = {[1, int n, 3]} := {[1, 2, 3]};
+test bool matchSetLists3() = {[1, int _, 3]} := {[1, 2, 3]};
+test bool matchSetLists4() = {[a, b], *c} := {[1, 2], [3, 4]};
+test bool matchSetLists5() = {[a, a], *c} := {[1, 2], [3, 3]};
+test bool matchSetLists6() = {[int a, a], *c} := {[1, 2], [3, 3]};
+test bool matchSetLists7() = {[int a, int b], [b, b], *c} := {[1, 2], [2, 2], [3, 4]};
+
+// match set of ADTs
+
+data D = d(int x, int y) | d(int x, int y, int z);
+
+test bool matchSetADTs1() = {d(1, 2, 3)} := {d(1, 2, 3)};
+test bool matchSetADTs2() = {d(1, int n, 3)} := {d(1, 2, 3)};
+test bool matchSetADTs3() = {d(1, int _, 3)} := {d(1, 2, 3)};
+test bool matchSetADTs4() = {d(a, b), *c} := {d(1, 2), d(3, 4)};
+test bool matchSetADTs5() = {d(a, a), *c} := {d(1, 2), d(3, 3)};
+test bool matchSetADTs6() = {d(int a, a), *c} := {d(1, 2), d(3, 3)};
+test bool matchSetADTs7() = {d(int a, int b), d(b, b), *c} := {d(1, 2), d(2, 2), d(3, 4)};
 
 // matchListSetVariableScopes
 

@@ -158,7 +158,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				throw new UnsupportedOperation("Can not retrieve the time component of a date value",ctx.getCurrentAST());
 			}
 		} catch (InvalidDateTimeException e) {
-			throw RuntimeExceptionFactory.illegalArgument(dt, ctx.getCurrentAST(), null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(dt, e.getMessage(), ctx.getCurrentAST(), null);
 
 		}
 		throw new UndeclaredField(name, getTypeFactory().dateTimeType(), ctx.getCurrentAST());
@@ -273,10 +273,10 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 			return makeResult(getType(), newdt, ctx);
 		} 
 		catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(repl.getValue(), ctx.getCurrentAST(), null, "Cannot update field " + name + ", this would generate an invalid datetime value");
+			throw RuntimeExceptionFactory.illegalArgument(repl.getValue(),  "Cannot update field " + name + ", this would generate an invalid datetime value", ctx.getCurrentAST(), null);
 		} 	
 		catch (InvalidDateTimeException e) {
-			throw RuntimeExceptionFactory.illegalArgument(repl.getValue(), ctx.getCurrentAST(), null, e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(repl.getValue(), e.getMessage(), ctx.getCurrentAST(), null);
 
 		}
 	}

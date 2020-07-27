@@ -39,11 +39,22 @@ anno loc Production@\loc;
  
  
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
-  rules = ();
+  map[Symbol, Production] rules = ();
 
   for (p <- prods) {
     t = (p.def is label) ? p.def.symbol : p.def;
-    rules[t] = t in rules ? choice(t, {p, *rules[t]}) : choice(t, {p});
+
+    if (t in rules) {
+        if (choice(_, existing) := rules[t]) {
+            rules[t] = choice(t, existing + p);
+        }
+        else {
+            rules[t] = choice(t, {p, rules[t]});
+        }
+    }
+    else {
+        rules[t] = choice(t, {p});
+    }
   } 
   return grammar(starts, rules);
 } 
