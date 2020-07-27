@@ -628,13 +628,12 @@ JCode trans(MuFunction fun, JGenie jg){
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
         returnType = atype2javatype(ftype.ret);
-        <argTypes, constantKwpDefaults,nonConstantKwpDefaults> = getArgTypes(fun, jg);
+        <argTypes, constantKwpDefaults, nonConstantKwpDefaults> = getArgTypes(fun, jg);
         memoCache = "";
         if(fun.isMemo){
             <secondsTimeout, maxSize> = getMemoSettings(fun.tags["memo"] ? "");
             memoCache = "private final ExpiringFunctionResultCache\<IValue\> $memo_<shortName> = new ExpiringFunctionResultCache\<IValue\>(<secondsTimeout>, <maxSize>);\n";
-            //memoCache = "private final MemoizationCache\<IValue\> $memo_<shortName> = new MemoizationCache\<IValue\>();\n" : "";
-       }
+        }
         body = trans2Void(fun.body, jg);
         containsVisit = /muVisit(_,_,_,_,_) := fun.body;
         if(containsVisit){
@@ -644,7 +643,11 @@ JCode trans(MuFunction fun, JGenie jg){
                    '    return (<returnType>) e.getValue();
                    '}\n";
         }
-        
+        kwpActuals = "";
+        if(!isEmpty(fun.keywordParameterRefs) && !contains(argTypes, "$kwpActuals")){
+            kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
+        }
+        argTypes = isEmpty(argTypes) ? kwpActuals : (((isEmpty(kwpActuals) || contains(argTypes, "$kwpActuals")) ? argTypes : "<argTypes>, <kwpActuals>"));
         return isEmpty(kwFormals) ? "<memoCache><visibility><returnType> <shortName>(<argTypes>){
                                     '    <body>
                                     '}"
@@ -692,7 +695,7 @@ JCode transGetter(MuFunction fun, JGenie jg){
     
     if(afunc(AType ret, acons(AType adt, list[AType] fields, list[Keyword] kwFields), []) := ftype){
         returnType = atype2javatype(ftype.ret);
-        <argTypes, constantKwpDefaults,nonConstantKwpDefaults> = getArgTypes(fun, jg);
+        <argTypes, constantKwpDefaults, nonConstantKwpDefaults> = getArgTypes(fun, jg);
         return isEmpty(kwFormals) ? "public <returnType> <shortName>(<argTypes>){
                                     '    <trans2Void(fun.body, jg)>
                                     '}"
@@ -1798,9 +1801,9 @@ default JCode trans2NativeRegExpStr(MuExp exp, JGenie jg){
 
 // -----
 
-JCode trans(muRequire(MuExp exp, str msg, loc src), JGenie jg)
-    = "if(!(<trans2NativeBool(exp, jg)>)){
-      ' throw new RuntimeException(\"<msg> at <src>\");
+JCode trans(muRequireNonNegativeBound(MuExp idx), JGenie jg)
+    = "if(<trans2NativeInt(idx, jg)> \<= 0){
+      ' throw RuntimeExceptionFactory.indexOutOfBounds(<trans2IInteger(idx, jg)>);
       '}\n";
  
 JCode trans(muEqual(MuExp exp1, MuExp exp2), JGenie jg)
@@ -1812,9 +1815,6 @@ JCode trans(muMatch(MuExp exp1, MuExp exp2), JGenie jg)
 JCode trans(muEqualNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans2NativeInt(exp1, jg)> == <trans2NativeInt(exp2, jg)>";
     
-JCode trans(muNotNegativeNativeInt(MuExp exp), JGenie jg)
-    = "<trans2NativeInt(exp, jg)> \>= 0";
-
 JCode trans(muValueIsSubType(MuExp exp, AType tp), JGenie jg){
     return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
                       : "<trans(exp, jg)>.getType().isSubtypeOf(<jg.shareType(tp)>)";

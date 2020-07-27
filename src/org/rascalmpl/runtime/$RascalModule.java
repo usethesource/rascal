@@ -1371,63 +1371,63 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			case "year":
 				if (dt.isTime()) {
-					throw RuntimeExceptionFactory.invalidUseOfTime("Can not update the year on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the year on a time value");
 				}
 				year = ((IInteger)repl).intValue();
 				break;
 
 			case "month":
 				if (dt.isTime()) {
-					throw RuntimeExceptionFactory.invalidUseOfTime("Can not update the month on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the month on a time value");
 				}
 				month = ((IInteger)repl).intValue();
 				break;
 
 			case "day":
 				if (dt.isTime()) {
-					throw RuntimeExceptionFactory.invalidUseOfTime("Can not update the day on a time value");
+					throw RuntimeExceptionFactory.invalidUseOfTimeException("Can not update the day on a time value");
 				}	
 				day = ((IInteger)repl).intValue();
 				break;
 
 			case "hour":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the hour on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the hour on a date value");
 				}	
 				hour = ((IInteger)repl).intValue();
 				break;
 
 			case "minute":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the minute on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the minute on a date value");
 				}
 				minute = ((IInteger)repl).intValue();
 				break;
 
 			case "second":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the second on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the second on a date value");
 				}
 				second = ((IInteger)repl).intValue();
 				break;
 
 			case "millisecond":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the millisecond on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the millisecond on a date value");
 				}
 				milli = ((IInteger)repl).intValue();
 				break;
 
 			case "timezoneOffsetHours":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the timezone offset hours on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the timezone offset hours on a date value");
 				}
 				tzOffsetHour = ((IInteger)repl).intValue();
 				break;
 
 			case "timezoneOffsetMinutes":
 				if (dt.isDate()) {
-					throw RuntimeExceptionFactory.invalidUseOfDate("Can not update the timezone offset minutes on a date value");
+					throw RuntimeExceptionFactory.invalidUseOfDateException("Can not update the timezone offset minutes on a date value");
 				}
 				tzOffsetMin = ((IInteger)repl).intValue();
 				break;			

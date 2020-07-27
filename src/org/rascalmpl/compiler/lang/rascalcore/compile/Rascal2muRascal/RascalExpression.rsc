@@ -640,13 +640,12 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
                                    formalVars,
                                    kwps,
                                    surrounding, 
-  								   nformals,
-  								   getScopeSize(uid), 
   								   isVarArgs, 
   								   false,
   								   false,
   								   getExternalRefs(funBody, fuid),  // << TODO
   								   getLocalRefs(funBody),
+  								   {},
   								   e@\loc,
   								   [],
   								   (),
@@ -888,12 +887,12 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) {
     enterLoop(whileName,fuid);
     my_enter = nextTmp("ANY");
     my_btscopes = getBTScopesAnd(gens, my_enter, ());
-    my_fail = getEnter(gens[0], my_btscopes);
+    my_fail = getEnter(gens[0], my_btscopes)+"_FOR";
     exit = muBlock([]);
     code = muBlock([muAssign(any_found, muCon(true)), muBreak(whileName)]);
     for(gen <- reverse(gens)){
         if((Expression) `<Pattern pat> \<- <Expression exp>` := gen){
-            enter_gen = getEnter(gen, my_btscopes);
+            enter_gen = getEnter(gen, my_btscopes)+"_FOR";
             if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){     
                 elemType = alub(getType(first), getType(last));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
@@ -948,11 +947,11 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
    
     my_btscopes = getBTScopesAnd(gens, nextTmp("ALL"), ());
     enter_gen = getEnter(gens[0], my_btscopes);
-    exit = muBlock([muAssign(all_true, muCon(false)), muBreak(enter_gen)]);
-    code = muContinue(enter_gen);
+    exit = muBlock([muAssign(all_true, muCon(false)), muBreak(enter_gen+"_FOR")]);
+    code = muContinue(enter_gen+"_FOR");
     for(gen <- reverse(gens)){
         if((Expression) `<Pattern pat> \<- <Expression exp>` := gen){
-           enter_gen = getEnter(gen, my_btscopes);
+           enter_gen = getEnter(gen, my_btscopes)+"_FOR";
             if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){
                 elemType = alub(getType(first), getType(last));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);

@@ -108,10 +108,6 @@ BTINFO registerBTScope(Tree t, BTSCOPE btscope, BTSCOPES btscopes){
 BTSCOPES getBTScopes(Tree t, str enter) = getBTInfo(t, <enter, enter, enter>, ()).btscopes;
 BTSCOPES getBTScopes(Tree t, str enter, BTSCOPES btscopes) = getBTInfo(t, <enter, enter, enter>, btscopes).btscopes;
 
-//BTSCOPES getBTScopes(Expression e, str enter) =  getBTInfo(e, <enter, enter, enter>, ()).btscopes;
-//BTSCOPES getBTScopes(Expression e, BTSCOPE btscope) =  getBTInfo(e, btscope, ()).btscopes;
-//BTSCOPES getBTScopes(Expression e, str enter, BTSCOPES btscopes) =  getBTInfo(e, <enter, enter, enter>, btscopes).btscopes;
-
 BTINFO getBTInfo(Tree t, str enter, BTSCOPES btscopes) = getBTInfo(t, <enter, enter, enter>, btscopes);
 
 default BTINFO getBTInfo(Tree t, BTSCOPE btscope, BTSCOPES btscopes)
@@ -713,12 +709,9 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    body = contExp;
    code = muBlock([]);
    for(int i <- reverse(index(lpats))){
-       println("i = <i>");
-       iprintln(body);
-       body = translatePat(lpats[i], getType(lpats[i]), muSubscript(subject, muCon(i)), btscopes, body, i == 0 ? falseCont : muFail(getResume(lpats[i-1], btscopes)));
-       iprintln(body);
+       body = translatePat(lpats[i], getType(lpats[i]), muSubscript(subject, muCon(i)), btscopes, body, computeFail(p, lpats, i-1, btscopes, falseCont));
    }
-   //body =  ( contExp | translatePat(lpats[i], getType(lpats[i]), muSubscript(subject, muCon(i)), btscopes, it, falseCont) | int i <- reverse(index(lpats)) );
+ 
    expType = getType(expression);
    subjectInit = /*subjectAssigned ? [] : */muConInit(subject, subjectExp);
    if(expression is qualifiedName){
@@ -736,7 +729,6 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
         throw "Cannot get name in call pattern: <expType>";
       }
       fun_name = getUnqualifiedName(prettyPrintName(qname));
-      //fun_name = getUnqualifiedName(prettyPrintName(getType(expression).label));
       code = muBlock([subjectInit, muIfelse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
    } else if(expression is literal){ // StringConstant
       fun_name = prettyPrintName("<expression>"[1..-1]);
@@ -754,7 +746,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
                                falseCont)
                     ]);         
    }
-   code = muEnter(getEnter(p, btscopes)+"_outer", code);
+   code = muEnter(getEnter(p, btscopes), code);
    return code;
 }
 
@@ -811,13 +803,9 @@ BTINFO getBTInfoSet(p:(Pattern) `*<Type tp> <Name name>`, BTSCOPE btscope, BTSCO
 }
 
 BTINFO getBTInfoSet(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, BTSCOPE btscope, BTSCOPES btscopes){ 
+    //return getBTInfo(p, btscope, btscopes);
     enter1 = btscope.enter;
-    res = getBTInfo(p, <enter1, enter1+"_CONS_<consLabel(expression)>", enter1>, btscopes);
-    iprintln(res);
-    return res;
-    
-    //my_btscope = getBTInfo(p, btscope[,fail=btscope.resume btscopes).btscope;
-    //return registerBTScope(p, <my_btscope.enter, my_btscope.resume, my_btscope.resume>, btscopes);
+    return getBTInfo(p, <enter1, enter1+"_CONS_<consLabel(expression)>", enter1>, btscopes);
 }
 
 BTINFO getBTInfoSet(p:(Pattern) `[<{Pattern ","}* pats>]`, BTSCOPE btscope, BTSCOPES btscopes)
@@ -1010,28 +998,26 @@ MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last, AType 
 }   
 
 default MuExp translatePatAsSetElem(Pattern p, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
+
+//TODO: take last element into account
   try {
         pcon = muCon(translatePatternAsConstant(p));
         return muIfelse(muCallPrim3("in", abool(), [elmType, aset(elmType)], [pcon, prevSubject], p@\loc),
                         muBlock([ muConInit(subject, muCallPrim3("delete", aset(elmType), [aset(elmType), elmType], [prevSubject, pcon], p@\loc)),
                                   trueCont ]),
-                        //muBlock([ *(last ? [] : [muConInit(subject, muCallPrim3("delete", aset(elmType), [aset(elmType), elmType], [prevSubject, pcon], p@\loc))]),
-                        //          trueCont ]),
-                         /*muFail(my_btscope)*/falseCont);                            
+                        falseCont);                            
   } catch: {
         str fuid = topFunctionScope();
         elem = muTmpIValue(nextTmp("elem"), fuid, elmType);
         my_btscope = btscopes[getLoc(p)];
         // TODO length check?
-        code = muForAll(my_btscope.enter, elem, aset(elmType), prevSubject,
+        forAll_scope = my_btscope.enter+ "_DFLT_SET_ELM";
+        code = muForAll(forAll_scope, elem, aset(elmType), prevSubject,
                         translatePat(p, elmType, elem, btscopes, 
                             muBlock([ muConInit(subject, muCallPrim3("delete", aset(elmType), [aset(elmType), elmType], [prevSubject, elem], p@\loc)),
-                                      trueCont ]),
-                            //muBlock([ *(last ? [] : [muConInit(subject, muCallPrim3("delete", aset(elmType), [aset(elmType), elmType], [prevSubject, elem], p@\loc))]),
-                            //        trueCont ]),
-                            muFail(my_btscope.\fail)/*falseCont*/
+                                      trueCont ]),            
+                            muFail(forAll_scope)
                             ));
-      
         return code;
   }
 }
@@ -1270,8 +1256,8 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
 // ---- getBTInfo
 
 BTINFO getBTInfo(p:(Pattern) `\<<{Pattern ","}* pats>\>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enterTuple = "<btscope.enter>_TUPLE"; //btscope.enter; //"<btscope.enter>_TUPLE";
-    BTSCOPE btscopeLast =  <enterTuple, enterTuple,  btscope.resume>; //<enterTuple, btscope.resume, btscope.resume>;
+    enterTuple = "<btscope.enter>_TUPLE";
+    BTSCOPE btscopeLast =  <enterTuple, /*btscope.resume,*/ enterTuple, btscope.resume>; //<enterTuple, btscope.resume, btscope.resume>;
     for(pat <- pats){
         <btscopeLast, btscopes> = getBTInfo(pat, btscopeLast, btscopes);
     }
@@ -1293,9 +1279,11 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType subjectType, M
     str fuid = topFunctionScope();
     subject = muTmpIValue(nextTmp("tuple_subject"), fuid, subjectType);
   
+    iprintln(btscopes);
+    
     body = trueCont;
     for(int i <- reverse(index(lpats))){
-        body = translatePat(lpats[i], elmTypes[i], muSubscript(subject, muCon(i)), btscopes, body, i == 0 ? falseCont : muFail(getResume(lpats[i-1], btscopes))); 
+        body = translatePat(lpats[i], elmTypes[i], muSubscript(subject, muCon(i)), btscopes, body, computeFail(p, lpats, i-1, btscopes, falseCont));
     }
     body = muEnter(getEnter(p, btscopes), body);
     code = [ muConInit(subject, subjectExp), muIfelse(muHasTypeAndArity(patType, size(lpats), subject), body, falseCont)];
@@ -1394,6 +1382,14 @@ default BTINFO getBTInfoList(Pattern p, BTSCOPE btscope, BTSCOPES btscopes) = ge
 
 // ---- translate list pattern
 
+MuExp computeFail(Pattern p, list[Pattern] lpats, int i, btscopes, MuExp falseCont){
+    iprintln(btscopes);
+    if(i < 0) return falseCont;
+    resume_elm = getResume(lpats[i], btscopes);
+    fail_p = getFail(p, btscopes);
+    return resume_elm == fail_p ? falseCont : muFail(resume_elm);
+}
+
 MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false) {
     iprintln(btscopes);
     lookahead = computeLookahead(p);  
@@ -1418,11 +1414,9 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
     iprintln(trueCont);
     trueCont = muIfelse(muEqualNativeInt(cursor, sublen), trueCont, muFail(getResume(lpats[-1], btscopes)));
     for(i <- reverse(index(lpats))){
-        println(btscopes[getLoc(lpats[i])]);
         trueCont = translatePatAsListElem(lpats[i], lookahead[i], subjectType, subject, sublen, cursor, btscopes, 
                                                     trueCont, 
-                                                    i == 0 ? falseCont : muFail(getResume(lpats[i-1], btscopes)));
-        iprintln(trueCont);
+                                                    computeFail(p, lpats, i-1, btscopes, falseCont));
     }
     
     body = trueCont;
@@ -1433,10 +1427,9 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
                                                                                      : muGreaterEqNativeInt(sublen, muCon(lookahead[0].nElem + (i_am_multivar ? 0 : 1)));      
     block = muBlock([ muConInit(sublen, muSize(subject, alist(elmType))),
                       muIfelse(size_test, 
-                               body
-                               //, muFail(getFail(p, btscopes))) // <<<<<<<<<<<
-                              , falseCont
-                               )
+                               body,
+                               falseCont
+                              )
                     ]);
     iprintln(block);
     code = muBlock([ *(subjectAssigned ? [muVarInit(subject, subjectExp)] : [muConInit(subject, subjectExp)]),   
@@ -1536,20 +1529,18 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
        var.atype = getType(tp);
        
        return muIfelse(check, muBlock([ muVarInit(var, muSubscript(subject, cursor)), muIncNativeInt(cursor, muCon(1)), trueCont ]),
-                              falseCont); // <<<
+                              falseCont);
    }
  } 
 
 MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
     if(lit is regExp) fail;
  
-    return muBlock([ muIfelse(muAndNativeBool(muLessNativeInt(cursor, sublen), muEqual(translate(lit), muSubscript(subject, cursor))), 
-                          muBlock([ muIncNativeInt(cursor, muCon(1)), 
-                                    trueCont
-                                  ])
-                     , falseCont // <<<<
-                     )
-                   ]);
+    return muIfelse(muAndNativeBool(muLessNativeInt(cursor, sublen), muEqual(translate(lit), muSubscript(subject, cursor))), 
+                    muBlock([ muIncNativeInt(cursor, muCon(1)), 
+                              trueCont
+                            ]),
+                    falseCont);
 }
 
 // Multi variables
@@ -1639,25 +1630,29 @@ MuExp translateMultiVarAsListElem(MuExp var, bool isDefinition, Lookahead lookah
 }
 
 default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
-  try {
+    try {
         pcon = muCon(translatePatternAsConstant(p));
         return muIfelse(muAndNativeBool(muLessNativeInt(cursor, sublen), muEqual(muSubscript(subject, cursor), pcon)),         
                         muBlock([ muAssign(cursor, muAddNativeInt(cursor, muCon(1))),
                                   trueCont ])
                         , falseCont // <<<<
                         );                            
-  } catch: {
-   // -2 is ok since p matches at least 1 element (it cannot be a multivar)
-  trueCont = top-down-break visit(trueCont) { 
-            case muBlock([muIncNativeInt(_, muCon(-2)), muFail(_)]): {;}    // prevent cascading insertion of decrement
-            case mf: muFail(_) => muBlock([muIncNativeInt(cursor, muCon(-2)), mf]) 
-          };
+    } catch: {
+        if(p is descendant){
+            // Make sure to undo cursor updates
+            // -2 is ok since p matches at least 1 element (it cannot be a multivar)
+            first = true;
+            trueCont = top-down-break visit(trueCont) { 
+                case muForAll( _, _, _, muDescendantMatchIterator(_, _), _): {if(first) { first = false; fail;}} // skip nested descandants
+                case muBlock([muIncNativeInt(_, muCon(-2)), muFail(_)]): {;}    // prevent cascading insertion of decrement
+                case mf: muFail(_) => muBlock([muIncNativeInt(cursor, muCon(-2)), mf]) 
+            };
+        }
   
-  return translatePat(p, getListElementType(subjectType), muSubscript(subject, cursor), btscopes, 
-                         muValueBlock(avalue(), [ muIncNativeInt(cursor, muCon(1)), trueCont]), 
-                         falseCont
-                     );
-   
+        return translatePat(p, getListElementType(subjectType), muSubscript(subject, cursor), btscopes, 
+                               muValueBlock(avalue(), [ muIncNativeInt(cursor, muCon(1)), trueCont]), 
+                              falseCont
+                           );
    }
 }
 
