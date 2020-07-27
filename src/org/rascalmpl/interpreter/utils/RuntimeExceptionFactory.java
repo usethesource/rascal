@@ -54,7 +54,6 @@ public class RuntimeExceptionFactory {
 
 	public static final Type AssertionFailed = TF.constructor(TS,Exception,"AssertionFailed");
 	public static final Type LabeledAssertionFailed = TF.constructor(TS,Exception,"AssertionFailed", TF.stringType(), "label");
-    /*Not in Exception.rsc*/public static final Type CallFailed = TF.constructor(TS, Exception, "CallFailed", TF.sourceLocationType(), "caller", TF.listType(TF.valueType()), "arguments");
     
     public static final Type DateTimeParsingError = TF.constructor(TS, Exception, "DateTimeParsingError", TF.stringType(), "message");
     public static final Type DateTimePrintingError = TF.constructor(TS, Exception, "DateTimePrintingError", TF.stringType(), "message");
@@ -123,10 +122,10 @@ public class RuntimeExceptionFactory {
 	  return new Throw(VF.constructor(Ambiguity, loc, type, string), ast, trace);
 	}
 	
-<<<<<<< HEAD
 	public static Throw callFailed(IList arguments, AbstractAST ast, StackTrace trace) {
 	    return new Throw(VF.constructor(CallFailed, arguments), ast, trace);
-=======
+	}
+	
 	// arihmeticException
 	
 	public static Throw arithmeticException(IString msg) {
@@ -135,7 +134,6 @@ public class RuntimeExceptionFactory {
     
     public static Throw arithmeticException(String msg) {
         return new Throw(VF.constructor(ArithmeticException, VF.string(msg)), (AbstractAST)null, (StackTrace)null);
->>>>>>> master
 	}
 	            
 	public static Throw arithmeticException(String msg, AbstractAST ast, StackTrace trace) {
