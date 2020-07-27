@@ -112,7 +112,7 @@ public class RunTests {
             throw e;
         }
         catch (Throwable e) {
-            throw RuntimeExceptionFactory.illegalArgument(vf.string(module), null, null, e.getMessage());
+            throw RuntimeExceptionFactory.illegalArgument(vf.string(module), e.getMessage());
         }
         finally {
             eval.setCurrentEnvt(old);

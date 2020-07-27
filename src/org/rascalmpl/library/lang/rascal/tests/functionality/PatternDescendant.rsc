@@ -12,17 +12,25 @@ test bool descendant4() = /int N := [1] && N == 1;
   
 test bool descendant5() = /int N := [1,2,3,2] && N > 2;
 test bool descendant6() = !/4 := [1,2,3,2];
-test bool descendant7() = /int N := (1 : 10) && (N == 1 || N == 10);
+test bool descendant7() = /!4 := [1,2,3,2];
+@ignoreInterpreter{TBD}
+test bool descendant8() = /!4 !:= [1,2,3,4];
+@ignoreInterpreter{TBD}
+test bool descendant9() = !/!4 := [1,2,3,4];
+test bool descendant10() = /int N := (1 : 10) && (N == 1 || N == 10);
     
-test bool descendant8() = !(/int _ := {});
-test bool descendant9() = /int N := {1} && N == 1;
-test bool descendant10() = /int N := {<false,1>} && N == 1;
+test bool descendant11() = !(/int _ := {});
+test bool descendant12() = /int N := {1} && N == 1;
+test bool descendant13() = /int N := {<false,1>} && N == 1;
         
-test bool descendant11() = /int N := ("a" : 1) && N == 1;
-test bool descendant12() = /int N := <"a", 1> && N == 1;
+test bool descendant14() = /int N := ("a" : 1) && N == 1;
+test bool descendant15() = /int N := <"a", 1> && N == 1;
         
-test bool descendant13() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 1;
-test bool descendant14() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;
+test bool descendant16() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 1;
+test bool descendant17() = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;
+
+test bool descendant18() = <1, /int N, 3> := <1, [1,2,3,2], 3> && N == 1;
+test bool descendant19() = <1, /int N, 3> := <1, [1,2,3,2], 3> && N == 2;
 
 // descendant2
  

@@ -678,7 +678,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(getType(), newLoc, ctx);
 		} 
 		catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(getValue(), ctx.getCurrentAST(), ctx.getStackTrace(), "can not update field " + name + ": " + e.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(getValue(), "can not update field " + name + ": " + e.getMessage(), ctx.getCurrentAST(), ctx.getStackTrace());
 		} catch (URISyntaxException e) {
 			throw RuntimeExceptionFactory.parseError(ctx.getCurrentAST().getLocation(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}

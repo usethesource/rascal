@@ -155,7 +155,7 @@ public class JDBC {
 			connectionMap.put(newKey, conn);
 			return vf.constructor(JDBC.jdbcConnection, newKey);
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connectString, null, null, addMessage("Could not connect with given connect string", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connectString, addMessage("Could not connect with given connect string", sqle));
 		}
 	}
 	
@@ -167,10 +167,10 @@ public class JDBC {
 				conn.close();
 				connectionMap.remove(connectionId);
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -186,10 +186,10 @@ public class JDBC {
 				rs.close();
 				return resultWriter.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -211,10 +211,10 @@ public class JDBC {
 				}
 				return setRes.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -236,10 +236,10 @@ public class JDBC {
 				}
 				return setRes.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", null));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", null));
 		}
 	}
 
@@ -279,10 +279,10 @@ public class JDBC {
 				}
 				return setRes.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}		
 	}
 	
@@ -304,10 +304,10 @@ public class JDBC {
 				rs.close();
 				return vf.constructor(table, tableName, listRes.done());
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, addMessage("Could not close the given connection", sqle));
+			throw RuntimeExceptionFactory.illegalArgument(connection, addMessage("Could not close the given connection", sqle));
 		}
 	}
 
@@ -386,7 +386,7 @@ public class JDBC {
 			case Types.VARCHAR:
 				return JDBC.jdbcVarChar;
 		}
-		throw RuntimeExceptionFactory.illegalArgument(ValueFactoryFactory.getValueFactory().integer(columnType), null, null, "Invalid JDBC type id given: " + columnType);
+		throw RuntimeExceptionFactory.illegalArgument(ValueFactoryFactory.getValueFactory().integer(columnType), "Invalid JDBC type id given: " + columnType);
 	}
 
 	public static Type jdbc2pdbType(int columnType, boolean nullable) {
@@ -769,10 +769,10 @@ public class JDBC {
 				
 				return sw.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, sqle.getMessage());
 		}
 	}
 
@@ -801,10 +801,10 @@ public class JDBC {
 				
 				return sw.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, sqle.getMessage());
 		}
 	}
 
@@ -833,10 +833,10 @@ public class JDBC {
 				
 				return lw.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, sqle.getMessage());
 		}
 	}
 
@@ -864,10 +864,10 @@ public class JDBC {
 				
 				return lw.done();
 			} else {
-				throw RuntimeExceptionFactory.illegalArgument(connection, null, null, "Connection does not exist.");
+				throw RuntimeExceptionFactory.illegalArgument(connection, "Connection does not exist.");
 			}
 		} catch (SQLException sqle) {
-			throw RuntimeExceptionFactory.illegalArgument(connection, null, null, sqle.getMessage());
+			throw RuntimeExceptionFactory.illegalArgument(connection, sqle.getMessage());
 		}
 	}
 	

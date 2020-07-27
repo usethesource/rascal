@@ -47,7 +47,21 @@ test bool constructorDynamicMatch() {
   return d(int i) := d(x) && i == 1;
 }
 
-test bool overloading3(){
+data D3 = d3(str s) | d3(int n) | d3();
+
+D3 d3(0) = d3(-1);
+D3 d3("0") = d3("-1");
+
+test bool overloading3a(){
+    x = d3(0);
+    y = d3("0");
+    k = d3(1);
+    z = d3("1");
+    return <x,y,k,z> == <d3(-1), d3("-1"), d3(1), d3("1")>;
+}
+
+@ignoreCompiler{This test is deprecated for compiler -- No more overloading across scopes}
+test bool overloading3b(){
 
 	public D d(0) = d(-1);
 	public D d("0") = d("-1");
@@ -72,8 +86,23 @@ test bool overloadingDynamicCall(){
 	return <y, z> == <"100 + arg", 101>;
 }
 
-@ignoreCompiler{TODO}
-test bool overloadingMatch(){
+data D4 = d4(str s) | d4(int n) | d4();
+
+default D4 d4(str s) = d4();
+
+D4 d4(0) = d4(-1);
+D4 d4("0") = d4("-1");
+
+test bool overloadingMatcha(){
+    int n = 0;
+    if( D4::d4(int v) := d4(0) ) {
+        n = v;
+    } 
+    return n == -1;
+}
+
+@ignoreCompiler{This test is deprecated for compiler -- No more overloading across scopes}
+test bool overloadingMatchb(){
 	default D d(str s) = d();
 
 	D d(0) = d(-1);
@@ -128,6 +157,7 @@ test bool overloadingPlusPolymorphism2(){
 	return group({1,2,3}, similar) == {{1}, {2}, {3}};
 }	
 
+@ignoreCompiler{Not yet supported by compiler}
 test bool overloadingPlusVarArgs(){
 
 	str f(500) = "500";

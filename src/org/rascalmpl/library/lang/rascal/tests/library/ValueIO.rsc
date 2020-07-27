@@ -186,8 +186,10 @@ test bool reifyRel1()   = binaryWriteRead(#rel[int,str]);
 test bool reifyRel2()   = binaryWriteRead(#rel[int i, str s]);
 test bool reifyMap1()   = binaryWriteRead(#map[int,str]);
 test bool reifyMap2()   = binaryWriteRead(#map[int k,str v]);
-test bool reifyFun()    = binaryWriteRead(#int (int));
-test bool reifyPar()    = binaryWriteRead(#&T);
+test bool reifyFun1()   = binaryWriteRead(#int (int));
+test bool reifyFun2()   = binaryWriteRead(#int (int n));
+test bool reifyPar1()   = binaryWriteRead(#&T);
+test bool reifyPar2()   = binaryWriteRead(#&T <: num);
 
 alias A[&T] = list[&T];
 alias B[&T] = list[A[&T]];
