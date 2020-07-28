@@ -19,13 +19,25 @@ import Relation;
 import List;
 import IO;
 import Exception;
+import Type;
 
 // delete
 test bool delete1(&K k) = isEmpty(delete((),k));
 test bool delete2() = delete((1:10, 2:20), 0)  == (1:10, 2:20);
 test bool delete3() = delete((1:10, 2:20), 10) == (1:10, 2:20);
 test bool delete4() = delete((1:10, 2:20), 1)  == (2:20);
-test bool delete5(map[&K, &V] M) = (M | delete(it,k) | &K k <- M) == ();
+test bool delete5(map[&K, &V] M) {
+  X = (M | delete(it,k) | &K k <- M);
+  if (X != ()) {
+    println(X);
+    println(typeOf(X));
+    println(M);
+    return false;
+  }
+  else {
+    return true;
+  }
+}
 test bool delete6(map[&K, &V] M) = isEmpty(M) || size(M) == size(delete(M,getOneFrom(M))) +1;
 test bool delete7(map[str, &V] M) = size(M) == size(delete(M,1));
 test bool delete8(map[int, &V] M) = size(M) == size(delete(M,"1"));
@@ -60,7 +72,8 @@ test bool domainX3(map[&K,&V] M)
 }
 
 // getOneFrom
-@expected{EmptyMap} test bool getOneFrom1() { v = getOneFrom(()); return true; }
+@expected{CallFailed} 
+test bool getOneFrom1() { v = getOneFrom(()); return true; }
 test bool getOneFrom2() = getOneFrom((1:10)) == 1;
 test bool getOneFrom3() = getOneFrom((1:10, 2:20)) in {1,2};
 test bool getOneFrom4(map[&K,&V] M) = isEmpty(M) || getOneFrom(M) in domain(M);
@@ -73,46 +86,40 @@ test bool invert4() = invert((1:10, 2:10, 3:30, 4:30)) == (10: {1,2}, 30:{3,4});
 test bool invert5(map[&K,&V] M) = range(M) == domain(invert(M));	
 test bool invert6(map[&K,&V] M) = domain(M) == {*invert(M)[v] | v <- invert(M)};	
 
-anno int node@x;
-test bool invertWithAnnotations() {
-    m = (1: "n"()[@x=1], 2: "n"()[@x=3]);
-    m_inverted = invert(m);
-    if (size(m_inverted) != 1) {
-        throw "More than one key was kept: <m_inverted>";
-    }
-    if (k <- m_inverted) {
-        return {1,2} == m_inverted[k];
-    }
-    return false;
-}
-
 // invertUnique
 test bool invertUnique1() = invertUnique(()) == ();
 test bool invertUnique2() = invertUnique((1:10)) == (10:1);
 test bool invertUnique3() = invertUnique((1:10, 2:20)) == (10:1, 20:2);
 test bool invertUnique4() = invertUnique(([[]]:0,[[2]]:2,[[1,2],[2,1]]:1,[[1]]:3)) == (0:[[]],2:[[2]],1:[[1,2],[2,1]],3:[[1]]);
 @expected{MultipleKey} test bool invertUnique5() { invertUnique((1:10, 2:10)); return true; }
-test bool invertUnique6(map[&K,&V] M)
-{
+
+test bool invertUnique6(map[&K,&V] M) {
 	try	{ 
 		map[&V,&K] RM = invertUnique(M);
 		return range(M) == domain(RM);
-	} catch MultipleKey(_,_,_): return true;
-	
+	} 
+	catch MultipleKey(_,_,_): 
+	  return true;
 }
-test bool invertUnique7(map[&K,&V] M)
-{
+
+test bool invertUnique7(map[&K,&V] M) {
 	try	{
 		map[&V,&K] RM = invertUnique(M);
 		return range(RM) == domain(M);
-	} catch MultipleKey(_,_,_): return true;
+	} 
+	catch MultipleKey(_,_,_): 
+	  return true;
 }
-test bool invertUnique8(set[int] D, set[int] R)
-{
-	if (isEmpty(D) || isEmpty(R)) return true;
+
+test bool invertUnique8(set[int] D, set[int] R) {
+	if (isEmpty(D) || isEmpty(R)) {
+	  return true;
+	}
+	
 	dList = toList(D);
 	rList = toList(R);
 	M = (dList[i] : rList[i] | i <- [0.. size(D) > size(R) ? Set::size(R) : Set::size(D) ]);
+	
 	return domain(M) == range(invertUnique(M)) && range(M) == domain(invertUnique(M));
 }
 

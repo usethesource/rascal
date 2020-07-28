@@ -67,10 +67,14 @@ loc value_io2_test = |test-temp:///value-io2-<"<uuidi()>">.test|;
 
 private bool textWriteRead(type[&T] _, value exp) {
    writeTextValueFile(value_io2_test,exp);
-   if (&T N := readTextValueFile(value_io2_test) && N == exp) return true;
-   return false;
+   
+   if (&T N := readTextValueFile(value_io2_test) && N == exp) {
+     return true;
    }
    
+   return false;
+}
+
 test bool textBool() = textWriteRead(#bool, true);
  
 test bool textInt() = textWriteRead(#int, 1);
@@ -149,21 +153,6 @@ test bool writingParseTreeWorksWithoutCompression() {
 	return readBinaryValueFile(parsetree1) == t;
 }
 
-
-data ADTFunc 
-    = a(int b)
-    | c(int () x)
-    ;
-
-test bool writeADTWithFunctions() 
-    = binaryWriteRead(#ADTFunc, a(2));
-
-@expected{Java}
-@ignoreCompiler
-test bool writeADTWithFunctions2() 
-    = binaryWriteRead(#ADTFunc, c(int() { return 1;}));
-    
-    
 alias XX = loc;
 data ExtraAliases
     = al0(int x)

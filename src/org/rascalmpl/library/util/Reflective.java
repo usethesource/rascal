@@ -418,7 +418,7 @@ public class Reflective {
 		if(!oldVal.getType().equals(newVal.getType())){
 			return indent + "old " + oldVal.getType() + ",  new " + newVal.getType();
 		}
-		if(oldVal.isEqual(newVal)){
+		if(oldVal.equals(newVal)){
 			return "no diff";
 		}
 		if(oldVal.getType().isString()){
@@ -442,7 +442,7 @@ public class Reflective {
 			IList nv = (IList) newVal;
 			String ldiff = (ov.length() == nv.length()) ? "" : ("size " + ov.length() + " vs " +  nv.length() + "; ");
 			for(int i = 0; i < ov.length() && i < nv.length(); i++){
-				if(!ov.get(i).isEqual(nv.get(i))){
+				if(!ov.get(i).equals(nv.get(i))){
 					return indent + ldiff + "diff at index " + i + " in list " + preview(ov) + ":\n"
 				                  +  idiff(indent + " ", ov.get(i), nv.get(i));
 				}
@@ -452,7 +452,7 @@ public class Reflective {
 			ITuple ov = (ITuple) oldVal;
 			ITuple nv = (ITuple) newVal;
 			for(int i = 0; i < ov.arity(); i++){
-				if(!ov.get(i).isEqual(nv.get(i))){
+				if(!ov.get(i).equals(nv.get(i))){
 					return indent + "diff at index " + i + " in tuple " + preview(ov) + ":\n"
 				                  + idiff(indent + " ", ov.get(i), nv.get(i));
 				}
@@ -503,7 +503,7 @@ public class Reflective {
 					}
 					continue;
 				}
-				if(!ov.get(key).isEqual(nv.get(key))){
+				if(!ov.get(key).equals(nv.get(key))){
 					if(nDiff < 10){
 						if(diffValCurrent.length() > 80){
 							diffVal += diffValCurrent + "\n" + indent + key;
@@ -539,7 +539,7 @@ public class Reflective {
 				return indent + "diff in arity for function symbol " + oldName + ": "+ oldArity + " vs " + newArity;
 			}
 			for(int i = 0; i < oldArity; i++){
-				if(!ov.get(i).isEqual(nv.get(i))){
+				if(!ov.get(i).equals(nv.get(i))){
 					String argId = Integer.toString(i);
 					if(ov instanceof IConstructor){
 						IConstructor cov = (IConstructor) ov;

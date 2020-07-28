@@ -40,8 +40,8 @@ concat([[1],[],[2,3]]);
 concat([[1,2],[3],[4,5],[]]);
 ----
 }
-public list[&T] concat(list[list[&T]] xxs) =
-  [*xs | list[&T] xs <- xxs];
+public list[&T] concat(list[list[&T]] xxs) 
+  = [*xs | list[&T] xs <- xxs];
 
 @doc{
 .Synopsis
@@ -80,6 +80,7 @@ public map[&T element, int occurs] distribution(list[&T] lst) {
      }
      return res; 
 }
+
 
 @doc{
 .Synopsis
@@ -148,7 +149,7 @@ Pick first element from a list.
 .Description
 Get the first element from a list. As opposed to <<List-getOneFrom>> this function always returns the same (first) list element.
 }
-public  &T getFirstFrom(list[&T] lst) = head(lst);
+public &T getFirstFrom([&T f, *&T _]) = f;
 
 @doc{
 .Synopsis
@@ -156,7 +157,7 @@ Get the first element(s) from a list.
 
 .Description
 
-* Returns the first element of a list or throws `EmptyList` when the list is empty. 
+* Returns the first element of a list or throws `CallFailed(_,[[]])` when the list is empty. 
   This is identical to <<top>>.
 * Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short. 
   This is similar to <<take>>.
@@ -188,8 +189,7 @@ An exception is thrown when the second argument exceeds the length of the list:
 ----
 head([1, 2, 3, 5], 5);
 ----}
-@javaClass{org.rascalmpl.library.Prelude}
-public java &T head(list[&T] lst) throws EmptyList;
+public &T head([&T h, *&T _]) = h; 
 
 // Get the first n elements of a list
 @javaClass{org.rascalmpl.library.Prelude}
@@ -210,12 +210,9 @@ import List;
 headTail([3, 1, 4, 5]);
 pop([3, 1, 4, 5]);
 headTail(["zebra", "elephant", "snake", "owl"]);
-----}
-public tuple[&T, list[&T]] headTail(list[&T] lst) throws EmptyList {
-	 if(!isEmpty(lst))
-    return <head(lst), tail(lst)>;
-  throw EmptyList();
+----
 }
+public tuple[&T, list[&T]] headTail([&T h, *&T t]) = <h, t>; 
 
 @doc{
 .Synopsis
@@ -233,7 +230,8 @@ index(["zebra", "elephant", "snake", "owl"]);
 ----
 
 .Benefits
-This function is useful in link:/Rascal#Statements-For[for] loops over lists.}
+This function is useful in link:/Rascal#Statements-For[for] loops over lists.
+}
 public list[int] index(list[&T] lst) = upTill(size(lst));
 
 
@@ -348,12 +346,7 @@ last([3, 1, 4, 5]);
 last(["zebra", "elephant", "snake", "owl"]);
 tail([3, 1, 4, 5]);
 ----}
-public &T last(list[&T] lst) throws EmptyList {
-  if([*_, l] := lst){
-  	return l;
-  }
-  throw EmptyList(); 
-}
+public &T last([*&T _, &T l]) = l;
 
 @doc{
 .Synopsis
@@ -404,8 +397,7 @@ import List;
 max([1, 3, 5, 2, 4]);
 max(["zebra", "elephant", "snake", "owl"]);
 ----}
-public &T max(list[&T] lst) throws EmptyList =
-	(head(lst) | (e > it ? e : it) | e <- tail(lst));
+public &T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t);
 	
 @doc{
 .Synopsis
@@ -430,7 +422,6 @@ Merge two lists of strings and use their length as ordering:
 import String;
 merge(["ape", "owl", "snale", "zebra", "elephant"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return size(x) <= size(y); });
 ----}
-  
 public list[&T] merge(list[&T] left, list[&T] right){
   res = while(!isEmpty(left) && !isEmpty(right)) {
     if(head(left) <= head(right)) {
@@ -468,8 +459,7 @@ import List;
 min([1, 3, 5, 2, 4]);
 min(["zebra", "elephant", "snake", "owl"]);
 ----}
-public &T min(list[&T] lst) =
-	(head(lst) | (e < it ? e : it) | e <- tail(lst));
+public &T min([&T h, *&T t]) = (h | e < it ? e : it | e <- t);
 
 @doc{
 .Synopsis
@@ -504,7 +494,7 @@ Compute all permutations of a list.
 import List;
 permutations([1,2,3]);
 ----}
-public set[list[&T]] permutations(list[&T] lst) =
+set[list[&T]] permutations(list[&T] lst) =
 	permutationsBag(distribution(lst));
 
 private set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
@@ -526,8 +516,7 @@ pop([3, 1, 4, 5]);
 headTail([3, 1, 4, 5]);
 pop(["zebra", "elephant", "snake", "owl"]);
 ----}
-public tuple[&T, list[&T]] pop(list[&T] lst) throws EmptyList =
-  headTail(lst);
+public tuple[&T, list[&T]] pop(list[&T] lst) = headTail(lst);
 
 @doc{
 .Synopsis
@@ -679,7 +668,7 @@ sort(fruits);
 sort(fruits, bool(str a, str b){ return size(a) > size(b); });
 ----}
 public list[&T] sort(list[&T] lst) =
-	sort(lst, bool (&T a,&T b) { return a < b; } );
+	sort(lst, bool (&T a, &T b) { return a < b; } );
 	
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
@@ -738,13 +727,6 @@ public tuple[list[&T],list[&T]] split(list[&T] l) {
 	return <take(half,l), drop(half,l)>;
 }
 
-public (&T <:num) sum(list[(&T <:num)] _:[]) {
-	throw ArithmeticException(
-		"For the emtpy list it is not possible to decide the correct precision to return.\n
-		'If you want to call sum on empty lists, use sum([0.000]+lst) or sum([0r] +lst) or sum([0]+lst) 
-		'to make the list non-empty and indicate the required precision for the sum of the empty list
-		");
-}
 @doc{
 .Synopsis
 Sum the elements of a list.
@@ -756,8 +738,7 @@ import List;
 sum([3, 1, 4, 5]);
 sum([3, 1.5, 4, 5]);
 ----}
-public default (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl])
-	= (hd | it + i | i <- tl);
+public (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- tl);
 
 @doc{
 .Synopsis
@@ -793,8 +774,7 @@ Try an error case:
 ----
 tail([10, 20, 30, 40, 50, 60], 10);
 ----}
-@javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] tail(list[&T] lst) throws EmptyList;
+public list[&T] tail([&T _, *&T t]) = t;
  
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBounds;
@@ -925,7 +905,7 @@ import List;
 top([3, 1, 4, 5]);
 top(["zebra", "elephant", "snake", "owl"]);
 ----}
-public &T top(list[&T] lst) throws EmptyList = head(lst);
+public &T top([&T t, *&T _]) = t;
 
 @doc{
 .Synopsis

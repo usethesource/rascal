@@ -14,6 +14,7 @@ package org.rascalmpl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -32,11 +33,14 @@ public class TypeReificationTest extends TestCase {
 
     public void testJustRandomTypesWithoutExceptions() {
         TypeFactory tf = TypeFactory.getInstance();
+        TypeStore store = new TypeStore();
+        Random rnd = new Random();
+        
         List<Type> collector = new LinkedList<>();
         int tries = 50000;
         
         for (int i = 0; i < tries; i++) {
-            collector.add(tf.randomType());
+            collector.add(tf.randomType(store, rnd, 5));
         }
         
         // no exceptions thrown

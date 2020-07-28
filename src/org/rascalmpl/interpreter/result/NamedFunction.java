@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.FunctionModifier;
 import org.rascalmpl.ast.KeywordFormal;
@@ -52,7 +53,7 @@ abstract public class NamedFunction extends AbstractFunction {
     protected final String resourceScheme;
     protected final String resolverScheme;
     protected final Map<String, IValue> tags;
-    
+
     private SoftReference<ExpiringFunctionResultCache<Result<IValue>>> memoization;
     protected final boolean hasMemoization;
     private final int memoizationTimeout;
@@ -158,6 +159,22 @@ abstract public class NamedFunction extends AbstractFunction {
         }
         return result;
     }
+    
+    protected void checkReturnTypeIsNotVoid(List<Expression> formals, IValue[] actuals) {
+        // this is a dynamic check of the formal type parameters
+        Map<Type, Type> bindings = new HashMap<>();
+        
+        for (int i = 0; i < actuals.length; i++) {
+            formals.get(i).typeOf(declarationEnvironment, getEval(), false).match(actuals[i].getType(), bindings);
+        }
+        
+        if (!getReturnType().isBottom() && getReturnType().instantiate(bindings).isBottom()) {
+            // this means the function has a type parameter &T, but would return `void`
+            // and since Rascal does not have a "null" value, this function alternative is unapplicable
+            // to the current parameters.
+            throw new MatchFailed();
+        }
+    }
 
     protected static String getResourceScheme(FunctionDeclaration declaration) {
         return getScheme(RESOURCE_TAG, declaration);
@@ -195,7 +212,7 @@ abstract public class NamedFunction extends AbstractFunction {
         }
         return (int) TimeUnit.HOURS.toSeconds(1);
     }
-
+    
     private int getMemoizationMaxEntries(ISet memoTags) {
         for (IValue memoTag : memoTags) {
             if (memoTag instanceof IConstructor && ((IConstructor) memoTag).getName().equals("maximumSize")) {

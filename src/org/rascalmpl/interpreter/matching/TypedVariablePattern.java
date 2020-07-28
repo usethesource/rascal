@@ -27,29 +27,36 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 
 public class TypedVariablePattern extends AbstractMatchingResult implements IVarPattern {
 	private String name;
-	protected io.usethesource.vallang.type.Type declaredType;
+	protected final io.usethesource.vallang.type.Type declaredType;
+	protected final io.usethesource.vallang.type.Type instantiatedDeclaredType;
 	private boolean anonymous = false;
 	private boolean debug = false;
 	protected boolean alreadyStored = false;
+    private final boolean bindTypeParameters;
 
-	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type type, org.rascalmpl.ast.Name name) {
+	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type type, org.rascalmpl.ast.Name name, boolean bindTypeParameters) {
 		super(ctx, x);
+		assert type != TypeFactory.getInstance().voidType();
 		this.name = Names.name(name);
+		this.bindTypeParameters = bindTypeParameters;
 		this.declaredType = type;
+		this.instantiatedDeclaredType = type.instantiate(ctx.getCurrentEnvt().getStaticTypeBindings());
 		this.anonymous = Names.name(name).equals("_");
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
-		
 	}
 	
-	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type type, String name) {
+	public TypedVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type type, String name, boolean bindTypeParameters) {
 		super(ctx, x);
 		this.name = name;
 		this.declaredType = type;
+		this.instantiatedDeclaredType = type.instantiate(ctx.getCurrentEnvt().getStaticTypeBindings());
 		this.anonymous = name.equals("_");
+		this.bindTypeParameters = bindTypeParameters;
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
 		
 	}
@@ -86,32 +93,38 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			System.err.println("AbstractTypedVariable.next: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		}
 
-		Type tmp;
+		// first test the static type (should match at the very least)
 		if (subject.getValue().getType().isSubtypeOf(declaredType)) {
 			if(debug)System.err.println("matches");
 			
-			try {
-				// type checking code for formal parameters; the static type of the actual should be a sub-type of the type of the formal
-				Map<Type, Type> bindings = new HashMap<>(ctx.getCurrentEnvt().getTypeBindings());
-				declaredType.match(subject.getType(), bindings);
+			if (bindTypeParameters) {
+			    try {
+			        Map<Type, Type> staticBindings = new HashMap<>(ctx.getCurrentEnvt().getStaticTypeBindings());
 
-			   tmp = declaredType.instantiate(bindings);
-
-				if (tmp != declaredType) {
-					ctx.getCurrentEnvt().storeTypeBindings(bindings);
-				}
+			        // collect the type bindings for later usage
+			        declaredType.match(subject.getType(), staticBindings);
+			        ctx.getCurrentEnvt().storeStaticTypeBindings(staticBindings);
+			        
+			        // also check the dynamic type:
+	                Map<Type, Type> dynBindings = new HashMap<>(ctx.getCurrentEnvt().getDynamicTypeBindings());
+	                // collect the type bindings for later usage
+	                declaredType.match(subject.getValue().getType(), dynBindings);
+	                ctx.getCurrentEnvt().storeDynamicTypeBindings(dynBindings);
+			    }
+			    catch (FactTypeUseException e) {
+			        // however, in normal matching (not formal parameters) we allow the static type to be a strict super-type, as long as the dynamic type is a sub-type of the pattern we succeed!
+			    }
 			}
-			catch (FactTypeUseException e) {
-				// however, in normal matching (not formal parameters) we allow the static type to be a strict super-type, as long as the dynamic type is a sub-type of the pattern we succeed!
-				tmp = declaredType;
+			  
+			if (!subject.getValue().getType().isSubtypeOf(declaredType.instantiate(ctx.getCurrentEnvt().getDynamicTypeBindings()))) {
+			    return false;
 			}
 			
 			if (anonymous) {
 				return true;
 			}
-			
 		
-			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(tmp, subject.getValue(), ctx));
+			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
 			this.alreadyStored = true;
 			return true;
 		}

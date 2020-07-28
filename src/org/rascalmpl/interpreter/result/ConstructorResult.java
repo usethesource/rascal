@@ -23,9 +23,9 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -68,18 +69,22 @@ public class ConstructorResult extends NodeResult {
 						|| (ctx.getCurrentEnvt()
 								.getStore()
 								.getKeywordParameterType(
-										getValue().getConstructorType(), sname) != null)
-						|| (getValue().isAnnotatable() && getValue()
-								.asAnnotatable().getAnnotation(sname) != null),
+										getValue().getConstructorType(), sname) != null),
 						ctx);
 	}
 
 	@Override
 	public Result<IBool> isDefined(Name name) {
-		String sname = Names.name(name);
-		return ResultFactory.bool(getValue().has(sname)
-				|| getValue().asWithKeywordParameters().hasParameter(sname),
-				ctx);
+	    try {
+	        String sname = Names.name(name);
+	        return ResultFactory.bool(getValue().has(sname)
+	            || getValue().asWithKeywordParameters().hasParameter(sname),
+	            ctx);
+	    }
+	    catch (Throw e) { // NoSuchAnnotation
+	        // TODO Can only happen due to the simulation of annotations by kw parameters
+	        return ResultFactory.bool(false, ctx);
+	    }
 	}
 
 	@Override
@@ -259,22 +264,19 @@ public class ConstructorResult extends NodeResult {
 	}
 
 	@Override
-	public <U extends IValue> Result<U> getAnnotation(String annoName,
-			Environment env) {
-		Type annoType = env.getAnnotationType(getType(), annoName);
-
-		if (annoType == null) {
-			throw new UndeclaredAnnotation(annoName, getType(),
-					ctx.getCurrentAST());
-		}
-
-		IValue annoValue = getValue().asAnnotatable().getAnnotation(annoName);
-		if (annoValue == null) {
-			throw RuntimeExceptionFactory.noSuchAnnotation(annoName,
-					ctx.getCurrentAST(), null);
-		}
-		// TODO: applyRules?
-		return makeResult(annoType, annoValue, ctx);
+	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
+	    // TODO: still simulating annotations with kw fields here
+	    if (getValue().getType().isSubtypeOf(RascalValueFactory.Tree) && "loc".equals(annoName)) {
+	        annoName = "src";
+        }
+	    try {
+	        return keywordFieldAccess(getValue().getConstructorType(), annoName, env.getStore());
+	    }
+	    catch (UndeclaredField e) {
+	        // this happens due to the simulation of annotations by keyword parameters if the parameter is not
+	        // present (and we did not generate a default since that does not simulate the behavior of annotations)
+	        throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ctx.getCurrentAST(), ctx.getStackTrace());
+	    }
 	}
 
 }

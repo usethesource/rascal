@@ -32,6 +32,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 public class SetPattern extends AbstractMatchingResult {
+    private final boolean bindTypeParameters;
 	private List<IMatchingResult> patternChildren; // The elements of the set pattern
 	private int patternSize;					// Number of elements in the set pattern
 	private ISet setSubject;					// Current subject	
@@ -67,8 +68,9 @@ public class SetPattern extends AbstractMatchingResult {
 	private Type staticSetSubjectType;
 	private Type staticSubjectElementType;
 	
-	public SetPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list){
+	public SetPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list, boolean bindTypeParameters){
 		super(ctx, x);
+		this.bindTypeParameters = bindTypeParameters;
 		this.patternChildren = list;
 		this.patternSize = list.size();
 	}
@@ -214,7 +216,7 @@ public class SetPattern extends AbstractMatchingResult {
 		          TypedMultiVariablePattern tmv = (TypedMultiVariablePattern) child;
 		          
 		          // now we know what we are, a set multi variable!
-		          child = new DesignatedTypedMultiVariablePattern(ctx, (Expression) tmv.getAST(), tf.setType(tmv.getType(env,  null)), tmv.getName()); 
+		          child = new DesignatedTypedMultiVariablePattern(ctx, (Expression) tmv.getAST(), tf.setType(tmv.getType(env,  null)), tmv.getName(), bindTypeParameters); 
 		          
 		          // cache this information for the next round, we'll still be a list
 		          patternChildren.set(i, child);
@@ -555,7 +557,7 @@ public class SetPattern extends AbstractMatchingResult {
 		if(firstMatch){
 			firstMatch = hasNext = false;
 			if(nVar == 0){
-				return fixedSetElements.isEqual(setSubject);
+				return fixedSetElements.equals(setSubject);
 			}
 			if(!fixedSetElements.isSubsetOf(setSubject)){
 				return false;

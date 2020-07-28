@@ -22,7 +22,6 @@ import java.util.Map;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
@@ -225,13 +224,6 @@ public class NodeResult extends ElementResult<INode> {
     	}
     }
     
-    if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
-    	if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
-    		// bail out 
-    		return new LessThanOrEqualResult(false, true, ctx);
-    	}
-    }
-    
     if ((!left.mayHaveKeywordParameters() || !left.asWithKeywordParameters().hasParameters()) && (right.mayHaveKeywordParameters() && right.asWithKeywordParameters().hasParameters())) {
     	return new LessThanOrEqualResult(true, false, ctx);
     }
@@ -287,18 +279,7 @@ public class NodeResult extends ElementResult<INode> {
 	
 	@Override
 	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env) {
-		Type annoType = env.getAnnotationType(getType(), annoName);
-	
-		if (annoType == null) {
-			throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
-		}
-	
-		IValue annoValue = getValue().asAnnotatable().getAnnotation(annoName);
-		if (annoValue == null) {
-			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ctx.getCurrentAST(), null);
-		}
-		// TODO: applyRules?
-		return makeResult(annoType, annoValue, ctx);
+	    // TODO: simulating annotations using kw fields
+		return fieldAccess(annoName, env.getStore());
 	}
-
 }
