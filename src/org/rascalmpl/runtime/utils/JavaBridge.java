@@ -194,7 +194,7 @@ public class JavaBridge {
 	}
 	
 	private Class<?> toJavaClass(org.rascalmpl.ast.Type tp, Environment env) {
-		return toJavaClass(tp.typeOf(env, true, null));
+		return toJavaClass(tp.typeOf(env, null, true));
 	}
 
 	private Class<?> toJavaClass(io.usethesource.vallang.type.Type type) {
@@ -202,7 +202,7 @@ public class JavaBridge {
 	}
 	
 	private io.usethesource.vallang.type.Type toValueType(Expression formal, Environment env) {
-		return formal.typeOf(env, true, null);
+		return formal.typeOf(env, null, true);
 	}
 	
 	private static class JavaClasses extends DefaultRascalTypeVisitor<Class<?>, RuntimeException> {
