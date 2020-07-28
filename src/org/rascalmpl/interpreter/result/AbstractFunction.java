@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
@@ -42,8 +44,8 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IListWriter;
@@ -57,7 +59,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -329,18 +330,63 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 	
-	protected void bindTypeParameters(Type actualTypes, Type formals, Environment env) {
+	protected Type bindTypeParameters(Type actualTypes, IValue[] actuals, Type formals, Map<Type, Type> renamings, Environment env) {
 		try {
-			Map<Type, Type> bindings = new HashMap<Type, Type>();
-			if (!formals.match(actualTypes, bindings)) {
-				throw new MatchFailed();
+			if (actualTypes.isOpen()) {
+			    // we have to make the environment hygenic now, because the caller scope
+			    // may have the same type variable names as the current scope
+			    actualTypes = renameType(actualTypes, renamings);
 			}
-			env.storeTypeBindings(bindings);
+			
+			Map<Type, Type> staticBindings = new HashMap<Type, Type>();
+			
+			if (formals.match(actualTypes, staticBindings)) {
+			    env.storeStaticTypeBindings(staticBindings);
+			    // formal parameters do not have to match the static types, they only have to match the dynamic types
+			    // so continue even if the static types do not match. 
+			}
+			
+			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
+			for (int i = 0; i < formals.getArity(); i++) {
+			    if (!formals.getFieldType(i).match(actuals[i].getType(), dynamicBindings)) {
+			        throw new MatchFailed();
+			    }
+			}
+			env.storeDynamicTypeBindings(dynamicBindings);
+			
+			
+			return actualTypes;
 		}
 		catch (FactTypeUseException e) {
 			throw new UnexpectedType(formals, actualTypes, ast);
 		}
-	}	
+	}
+
+	protected Type unrenameType(Map<Type, Type> renamings, Type resultType) {
+	    if (resultType.isOpen()) {
+	        // first reverse the renamings
+	        Map<Type, Type> unrenamings = new HashMap<>();
+
+	        for (Entry<Type, Type> entry : renamings.entrySet()) {
+	            unrenamings.put(entry.getValue(), entry.getKey());
+	        }
+	        // then undo the renamings
+	        resultType = resultType.instantiate(unrenamings);
+	    }
+	    return resultType;
+	}
+	  
+    protected Type renameType(Type actualTypes, Map<Type, Type> renamings) {
+        actualTypes.match(getTypeFactory().voidType(), renamings);
+        
+        // rename all the bound type parameters
+        for (Entry<Type,Type> entry : renamings.entrySet()) {
+            Type key = entry.getKey();
+            renamings.put(key, getTypeFactory().parameterType(key.getName() + ":" + UUID.randomUUID().toString(), key.getBound()));
+        }
+        actualTypes = actualTypes.instantiate(renamings);
+        return actualTypes;
+    }	
 	
 	protected IValue[] computeVarArgsActuals(IValue[] actuals, Type formals) {
 		int arity = formals.getArity();
@@ -424,11 +470,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return v.visitExternal(this);
 	}
 
-	@Override
-	public boolean isEqual(IValue other) {
-		return other == this;
-	}
-	
 	@Override
     public boolean match(IValue other) {
         return other == this;
@@ -538,12 +579,15 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null)
+		if (obj == null) {
 			return false;
+		}
+		
 		if (obj.getClass() == getClass()) {
 			AbstractFunction other = (AbstractFunction) obj;
 			return other.declarationEnvironment == declarationEnvironment && other.ast.equals(ast);
 		}
+		
 		return false;
 	}
 	
@@ -561,17 +605,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	public boolean hasResolverScheme() {
 		return false;
-	}
-
-	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
 	}
 
 	@Override

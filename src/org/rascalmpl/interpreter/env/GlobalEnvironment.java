@@ -184,7 +184,7 @@ public class GlobalEnvironment {
 	 */
 	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser(Map<String,ParserTuple> store, String module, IMap productions) {
 		ParserTuple parser = store.get(module);
-		if(parser != null && parser.getProductions().isEqual(productions)) {
+		if(parser != null && parser.getProductions().equals(productions)) {
 			return parser.getParser();
 		}
 		

@@ -609,7 +609,7 @@ private static boolean isDeprecated(Module preModule){
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
       eval.getMonitor().warning("parse error in concrete syntax", src);
-      return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
+      return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
     }
     catch (Ambiguous e) {
         ISourceLocation ambLocation = e.getLocation();
@@ -625,19 +625,19 @@ private static boolean isDeprecated(Module preModule){
             : loc;
         
         eval.getMonitor().warning("ambiguity in concrete syntax", src);
-        return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
+        return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
     }
     catch (StaticError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
       eval.getMonitor().warning(e.getMessage(), e.getLocation());
-      return (ITree) tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+      return (ITree) tree.asWithKeywordParameters().setParameter("can not parse fragment due to " + e.getMessage(), src);
     }
     catch (UndeclaredNonTerminalException e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
       eval.getMonitor().warning(e.getMessage(), src);
-      return (ITree) tree.asAnnotatable().setAnnotation("can not parse fragment due to " + e.getMessage(), src);
+      return (ITree) tree.asWithKeywordParameters().setParameter("can not parse fragment due to " + e.getMessage(), src);
     }
   }
   
@@ -789,8 +789,8 @@ private static boolean isDeprecated(Module preModule){
           }
           
           IConstructor type = retrieveHoleType(tree);
-          return  (ITree) antiquotes.get(TreeAdapter.yield(tree)).asAnnotatable().setAnnotation("holeType", type)
-          		.asAnnotatable().setAnnotation("category", vf.string("MetaVariable"));
+          return  (ITree) antiquotes.get(TreeAdapter.yield(tree)).asWithKeywordParameters().setParameter("holeType", type)
+          		.asWithKeywordParameters().setParameter("category", vf.string("MetaVariable"));
           
         }
         

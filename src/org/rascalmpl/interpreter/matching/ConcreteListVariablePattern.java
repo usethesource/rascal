@@ -165,7 +165,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		if (args.length() == 1) {
 			org.rascalmpl.values.uptr.ITree arg = (org.rascalmpl.values.uptr.ITree) args.get(0);
 			
-			if (TreeAdapter.isList(arg) && TreeAdapter.getProduction(arg).isEqual(prod)) {
+			if (TreeAdapter.isList(arg) && TreeAdapter.getProduction(arg).equals(prod)) {
 				return arg;
 			}
 		}

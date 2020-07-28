@@ -192,7 +192,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			IConstructor p1 = TreeAdapter.getProduction(left);
 			IConstructor p2 = TreeAdapter.getProduction(right);
 			
-			if (!p1.isEqual(p2)) {
+			// TODO: max-sharing productions would reduce this to reference equality
+			if (!p1.equals(p2)) {
 				return bool(false, ctx);
 			}
 			

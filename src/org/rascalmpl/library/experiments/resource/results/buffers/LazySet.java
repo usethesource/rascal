@@ -11,7 +11,6 @@ import java.util.Iterator;
 
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -112,18 +111,6 @@ public class LazySet implements ISet {
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	@Override
-    public boolean match(IValue other) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-	@Override
 	public String toString() {
 		return "Buffered Relation";
 	}
@@ -141,25 +128,13 @@ public class LazySet implements ISet {
 	}
 	
 	@Override
-	public boolean isAnnotatable() {
-		return false;
+	public boolean mayHaveKeywordParameters() {
+	    return false;
 	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
-	}
-	
-	 @Override
-   public boolean mayHaveKeywordParameters() {
-     return false;
-   }
    
-   @Override
-   public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-     throw new IllegalOperationException(
-         "Cannot be viewed as with keyword parameters", getType());
-   }
-	
+	@Override
+	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
+	    throw new IllegalOperationException(
+	        "Cannot be viewed as with keyword parameters", getType());
+	}
 }

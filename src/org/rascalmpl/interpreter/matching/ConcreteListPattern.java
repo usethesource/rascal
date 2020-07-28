@@ -34,13 +34,13 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class ConcreteListPattern extends AbstractMatchingResult {
 	private ListPattern pat;
 	private Expression callOrTree;
+	private final boolean bindTypeParameters; 
 
-	public ConcreteListPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list) {
+	public ConcreteListPattern(IEvaluatorContext ctx, Expression x, List<IMatchingResult> list, boolean bindTypeParameters) {
 		super(ctx, x);
-		
+		this.bindTypeParameters = bindTypeParameters;
 		callOrTree = x;
 		initListPatternDelegate(list);
-		//System.err.println("ConcreteListPattern");
 	}
 
 	private void initListPatternDelegate(List<IMatchingResult> list) {
@@ -50,10 +50,10 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			IConstructor rhs = ((NonTerminalType) type).getSymbol();
 
 		   if (SymbolAdapter.isIterPlus(rhs) || SymbolAdapter.isIterStar(rhs)) {
-				pat = new ListPattern(ctx, callOrTree, list, 1);
+				pat = new ListPattern(ctx, callOrTree, list, 1, bindTypeParameters);
 			}
 			else if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
-				pat = new ListPattern(ctx, callOrTree, list, SymbolAdapter.getSeparators(rhs).length() + 1);
+				pat = new ListPattern(ctx, callOrTree, list, SymbolAdapter.getSeparators(rhs).length() + 1, bindTypeParameters);
 			}
 			else {
 				throw new ImplementationError("crooked production: non (cf or lex) list symbol: " + rhs);

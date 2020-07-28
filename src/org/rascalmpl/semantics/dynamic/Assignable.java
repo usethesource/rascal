@@ -56,6 +56,10 @@ import io.usethesource.vallang.type.TypeStore;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
+    /**
+     * TODO: remove this class when the syntax is not supported anymore.
+     * Currently annotations are simulated via keyword fields.
+     */
 	static public class Annotation extends
 			org.rascalmpl.ast.Assignable.Annotation {
 
@@ -66,43 +70,30 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
-			String label = org.rascalmpl.interpreter.utils.Names.name(this
-					.getAnnotation());
-			Result<IValue> result = this.getReceiver().interpret(
-					(Evaluator) __eval.__getEval());
+			String label = org.rascalmpl.interpreter.utils.Names.name(this.getAnnotation());
+			Result<IValue> result = this.getReceiver().interpret((Evaluator) __eval.__getEval());
 
 			if (result == null || result.getValue() == null) {
 				throw new UninitializedVariable(label, this.getReceiver());
 			}
 
-			if (!__eval.__getEnv().declaresAnnotation(result.getType(), label)) {
-				throw new UndeclaredAnnotation(label, result.getType(),
-						this);
-			}
-
 			try {
-				__eval.__setValue(__eval.newResult(result.getAnnotation(label,
-						__eval.__getEnv()), __eval.__getValue()));
+				__eval.__setValue(__eval.newResult(result.getAnnotation(label, __eval.__getEnv()), __eval.__getValue()));
 			} catch (Throw e) {
 				// NoSuchAnnotation
 			}
-			return __eval.recur(this, result.setAnnotation(label, __eval
-					.__getValue(), __eval.__getEnv()));
-			// result.setValue(((IConstructor)
-			// result.getValue()).setAnnotation(label, value.getValue()));
-			// return recur(this, result);
-
+			
+			return __eval.recur(this, result.setAnnotation(label, __eval.__getValue(), __eval.__getEnv()));
 		}
 
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
-			return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getAnnotation()).getValue(), __eval.getEvaluator());
+		    return makeResult(TF.boolType(), getReceiver().interpret(__eval.getEvaluator()).has(getAnnotation()).getValue(), __eval.getEvaluator());
 		}
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
+		    
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			String label = Names.name(this.getAnnotation());
 
@@ -115,7 +106,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			Type type = __eval.getCurrentEnvt().getAnnotationType(
 					receiver.getType(), label);
             IValue value = ((IConstructor) receiver.getValue())
-					.asAnnotatable().getAnnotation(label);
+					.asWithKeywordParameters().getParameter(label);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
 					type, value, __eval);
@@ -455,10 +446,8 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
 			__eval.__getEval().setCurrentAST(this);
-			Result<IValue> rec = this.getReceiver().interpret(
-					(Evaluator) __eval.__getEval());
-			Result<IValue> subscript = this.getSubscript().interpret(
-					(Evaluator) __eval.__getEval());
+			Result<IValue> rec = this.getReceiver().interpret(__eval.__getEval());
+			Result<IValue> subscript = this.getSubscript().interpret(__eval.__getEval());
 			Result<IValue> result;
 
 			if (rec == null || rec.getValue() == null) {
@@ -506,8 +495,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					            __eval.__getEval());
 					}
 				} else {
-					throw new UnexpectedType(keyType, subscript.getType(),
-							this.getSubscript());
+					throw new UnexpectedType(keyType, subscript.getType(), this.getSubscript());
 				}
 
 			} else if (rec.getType().isNode()
@@ -582,7 +570,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		 * potential rules have already been applied to it.
 		 */
 		private Result<IValue> normalizedResult(IEvaluator<Result<IValue>> __eval, Type t, IValue v) {
-			Map<Type, Type> bindings = __eval.getCurrentEnvt().getTypeBindings();
+			Map<Type, Type> bindings = __eval.getCurrentEnvt().getStaticTypeBindings();
 			Type instance;
 
 			if (bindings.size() > 0) {

@@ -37,68 +37,6 @@ public java int arity(node T);
 
 @doc{
 .Synopsis
-Delete a specific annotation from a node.
-
-.Examples
-[source,rascal-shell]
-----
-import Node;
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
-delAnnotation(F, "size");
-----
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{To print warning}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
-public java &T <: node delAnnotation(&T <: node x, str label);
-
-@doc{
-.Synopsis
-Delete all annotations from a node.
-
-.Examples
-[source,rascal-shell]
-----
-import Node;
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
-delAnnotations(F);
-----
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{To print warning}
-@deprecated{Use keyword fields instead of annotations and [unset] for delAnnotations.}
-public java &T <: node  delAnnotations(&T <: node x);
-
-@doc{
-.Synopsis
-Delete recursively all annotations from all nodes in a value.
-
-.Examples
-[source,rascal-shell]
-----
-import Node;
-G = setAnnotations("g"("def"), ("level" : "20", "direction" : "north"));
-F = setAnnotations("f"(10, G), ("color" : "red", "size" : "large"));
-delAnnotationsRec(F);
-----
-}
-@deprecated{Use keyword fields instead of annoations and [unsetRec] for delAnnotationsRec.}
-public &T delAnnotationsRec(&T v) = visit(v) { 
-     case node n => delAnnotations(n) 
-  };
-
-@doc{
-.Synopsis
-
-Retrieve the annotations of a node value as a map. Annotations are deprecated.
-
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
-public java map[str,value] getAnnotations(node x);
-
-@doc{
-.Synopsis
 Get the children of a node.
 
 .Examples
@@ -125,6 +63,9 @@ getKeywordParameters("f"(10, "abc", height=0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[str,value] getKeywordParameters(node T);
 
+@Deprecated{Use getKeywordParameters(T)}
+public map[str, value] getAnnotations(node T) = getKeywordParameters(T);
+
 @doc{
 .Synopsis
 Set the keyword parameters of a node.
@@ -139,6 +80,10 @@ setKeywordParameters("f"(10, "abc"), ("height":0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters);
 
+@Deprecated{Use setKeywordParameters(x, keywordParameters)}
+public &T <: node setAnnotations(&T <: node x, map[str,value] keywordParameters)
+  = setKeywordParameters(x, keywordParameters);
+  
 @doc{
 .Synopsis
 Determine the name of a node.
@@ -167,33 +112,6 @@ makeNode("f", [10, "abc"]);
 @javaClass{org.rascalmpl.library.Prelude}
 public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
 
-
-
-@doc{
-.Synopsis
-Add a map of annotations to a node value.
-
-.Description
-Set the annotations on node value `x` as described by the map `annotations`.
-
-.Examples
-[source,rascal-shell]
-----
-import Node;
-setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
-----
-
-.Benefits
-
-.Pitfalls
-This function may result in run-time type errors later if
-you store a value with a label that has an incomparable annotation type
-declared.
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
-public java &T <: node setAnnotations(&T <: node x, map[str, value] annotations);
-
 @doc{
 .Synopsis
 Reset a specific keyword parameter back to their default on a node.
@@ -201,6 +119,8 @@ Reset a specific keyword parameter back to their default on a node.
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x, str keywordParameter);
 
+@Deprecated{Use unset(x, kw)}
+public &T <: node delAnnotation(&T <:  node x, str keywordParameter) = unset(x, keywordParameter); 
 
 @doc{
 .Synopsis
@@ -221,14 +141,19 @@ Reset all keyword parameters back to their default.
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x);
 
+@Deprecated{Use `unset(x)`}
+public &T <: node delAnnotations(&T <: node x) = unset(x);
 
 @doc{
 .Synopsis
 Recursively reset all keyword parameters of the node and its children back to their default.
 }
-public &T <: node unsetRec(&T <: node x) = visit(x) { 
+public &T unsetRec(&T x) = visit(x) { 
   case node n => unset(n) 
 };
+
+@Deprecated{Use `unsetRec(x)`}
+public &T delAnnotationsRec(&T x) = unsetRec(x);
 
 @doc{
 .Synopsis
@@ -259,7 +184,7 @@ Convert a node to a string.
 [source,rascal-shell]
 ----
 import Node;
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+F = "f"(10, "abc", color="red", size="large");
 toString(F);
 ----
 }
@@ -275,7 +200,7 @@ Convert a node to an indented string.
 [source,rascal-shell]
 ----
 import Node;
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+F = "f"(10, "abc", color="red", size="large");
 itoString(F);
 ----
 }

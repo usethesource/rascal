@@ -14,25 +14,28 @@ loc targetFile = |test-temp:///csv-test-file--<"<uuidi()>">.csv|;
 bool readWrite(set[&T] dt) = readWrite(type(typeOf(dt), ()), dt);
 bool readWrite(type[&T] returnType, set[&T1] dt) {
 	if (dt == {}) return true;
-	writeCSV(dt, targetFile);
+	writeCSV(returnType, dt, targetFile);
 
 	if (dt != readCSV(returnType, targetFile)) {
 		throw "Default read/write params";
 	}
-	writeCSV(dt, targetFile, header = false);
+	writeCSV(returnType, dt, targetFile, header = false);
 	if (dt != readCSV(returnType, targetFile, header = false)) {
 		throw "Header = false";
 	}
 
-	writeCSV(dt, targetFile, separator = ";");
+	writeCSV(returnType, dt, targetFile, separator = ";");
 	if (dt != readCSV(returnType, targetFile, separator = ";")) {
 		throw "separator = ;";
 	}
 
 	if (/\node() !:= typeOf(dt)) {
 	   dt = fixAmbStrings(dt);
-		writeCSV(dt, targetFile);
+		writeCSV(returnType, dt, targetFile);
 		if (dt != readCSV(targetFile)) {
+		println("expected: <returnType>");
+		println(dt);
+		println(readCSV(targetFile));
 			throw "inferred types";	
 		}
 	}
@@ -79,10 +82,16 @@ test bool csvWithSet(rel[set[&T] first, int second] dt) = readWrite(dt);
 test bool csvWithMap(rel[map[&T, &Y] first, int second] dt) = readWrite(dt);
 test bool csvWithNode(rel[node first, int second] dt) = readWrite(dt);
 
-test bool csvRandom(rel[&T,&X] dt) = readWrite(dt);
+// this can not work, when reading back we do not have enough information
+// to specialize int and loc back to the original values.
+//test bool csvRandom(rel[value x, value y] dt) = readWrite(dt);
 
 test bool csvMoreTuples(rel[str a, str b, int c, bool d, real e] dt) = readWrite(dt);
-test bool csvMoreRandomTypes(rel[&T1 a, &T2 b, int c, str d, &T3 e] dt) = readWrite(dt);
+
+// this can not work, when reading back we do not have enough information
+// to specialize int and loc back to the original values.
+// test bool csvMoreRandomTypes(rel[&T1 a, &T2 b, int c, str d, &T3 e] dt) = readWrite(dt);
+ test bool csvMoreRandomTypes(rel[loc a, loc b, int c, str d, loc e] dt) = readWrite(dt);
 
 bool checkType(type[value] expected, str input) {
     writeFile(targetFile, input);

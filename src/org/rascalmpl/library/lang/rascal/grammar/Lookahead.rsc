@@ -59,7 +59,7 @@ public Grammar compileLookaheads(Grammar G) {
   // first we remove first and assoc groups for simplicity's sake
   G = visit (G) {
     case lookahead(rhs, {}, _) => choice(rhs, {})
-    case priority(rhs, ordr)     => choice(rhs, {p | p <- ordr})
+    case priority(rhs, order)     => choice(rhs, {p | p <- order})
     case associativity(rhs, _, alts)  => choice(rhs, alts)
   }
 

@@ -40,6 +40,7 @@ import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.AndResult;
 import org.rascalmpl.interpreter.matching.AntiPattern;
@@ -73,6 +74,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
@@ -82,7 +84,6 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -107,6 +108,9 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
+ // TODO inline this when we find out it works
+    private final static boolean instantiateTypeParameters = true;
+
   private static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
 	
 	static public class Addition extends org.rascalmpl.ast.Expression.Addition {
@@ -241,13 +245,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			IMatchingResult absPat = getPattern().buildMatcher(__eval);
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
+			IMatchingResult absPat = getPattern().buildMatcher(__eval, bindTypeParameters);
 			return new AntiPattern(__eval, this, absPat);
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TypeFactory.getInstance().voidType();
 		}
 	}
@@ -315,8 +319,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return this.getExpression().buildMatcher(__eval);
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
+			return this.getExpression().buildMatcher(__eval, bindTypeParameters);
 		}
 
 		@Override
@@ -354,7 +358,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			org.rascalmpl.ast.Expression nameExpr = getExpression();
 		
 			if (nameExpr.isQualifiedName()) {
@@ -363,19 +367,19 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					cachedConstructorType  = computeConstructorType(eval, nameExpr);
 				}
 				 
-				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval), visitKeywordArguments(eval));
+				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval, bindTypeParameters), visitKeywordArguments(eval, bindTypeParameters));
 			}
 
-			return new NodePattern(eval, this, nameExpr.buildMatcher(eval), null, TF.nodeType(), visitArguments(eval), visitKeywordArguments(eval));
+			return new NodePattern(eval, this, nameExpr.buildMatcher(eval, bindTypeParameters), null, TF.nodeType(), visitArguments(eval, bindTypeParameters), visitKeywordArguments(eval, bindTypeParameters));
 		}
 
-		private java.util.Map<String, IMatchingResult> visitKeywordArguments(IEvaluatorContext eval) {
+		private java.util.Map<String, IMatchingResult> visitKeywordArguments(IEvaluatorContext eval, boolean bindTypeParameters) {
 			java.util.Map<String,IMatchingResult> result = new HashMap<>();
 			KeywordArguments_Expression keywordArgs;
 
 			if (hasKeywordArguments() && (keywordArgs = getKeywordArguments()).isDefault()) {
 				for (KeywordArgument_Expression kwa : keywordArgs.getKeywordArgumentList()) {
-					result.put(Names.name(kwa.getName()), kwa.getExpression().buildMatcher(eval));
+					result.put(Names.name(kwa.getName()), kwa.getExpression().buildMatcher(eval, bindTypeParameters));
 				}
 			}
 
@@ -400,7 +404,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 //				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
 			}
 			
-			Type signature = getArgumentTypes(eval);
+			Type signature = getArgumentTypes(eval, false);
 			Type constructorType = adt != null ? adt : TF.nodeType();
 			
 			for (AbstractFunction candidate : functions) {
@@ -415,8 +419,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return constructorType;
 		}
 
-		private Type getArgumentTypes(IEvaluatorContext eval) {
-			java.util.List<IMatchingResult> args = visitArguments(eval);
+		private Type getArgumentTypes(IEvaluatorContext eval, boolean bindTypeParameters) {
+			java.util.List<IMatchingResult> args = visitArguments(eval, bindTypeParameters);
 			Type[] argTypes = new Type[args.size()];
 			for (int i = 0; i < argTypes.length; i++) {
 				argTypes[i] = args.get(i).getType(eval.getCurrentEnvt(), null);
@@ -451,8 +455,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 		}
 		
-		private java.util.List<IMatchingResult> visitArguments(IEvaluatorContext eval) {
-			return buildMatchers(getArguments(), eval);
+		private java.util.List<IMatchingResult> visitArguments(IEvaluatorContext eval, boolean bindTypeParameters) {
+			return buildMatchers(getArguments(), eval, bindTypeParameters);
 		}
 
 		@Override
@@ -533,7 +537,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					res = function.call(types, actuals, kwActuals);
 				}
 				catch (Failure | MatchFailed e) {
-				    throw RuntimeExceptionFactory.callFailed(eval.getCurrentAST().getLocation(), eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
+				    throw RuntimeExceptionFactory.callFailed(eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
 				}
 				return res;
 			}
@@ -543,8 +547,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			Type lambda = getExpression().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			Type lambda = getExpression().typeOf(env, eval, instantiateTypeParameters);
 
 			if (lambda.isString()) {
 				return TF.nodeType();
@@ -557,10 +561,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (lambda.isExternalType()) {
 				if (lambda instanceof FunctionType) {
 					return ((FunctionType) lambda).getReturnType();
-				}
-				
-				if (lambda instanceof OverloadedFunctionType) {
-					return ((OverloadedFunctionType) lambda).getReturnType();
 				}
 			}
 
@@ -585,7 +585,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		
-
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
@@ -593,8 +592,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			Environment env = __eval.getCurrentEnvt();
 			Parameters parameters = getParameters();
-			Type formals = parameters.typeOf(env, true, __eval);
-			Type returnType = typeOf(env, true, __eval);
+			Type formals = parameters.typeOf(env, __eval, instantiateTypeParameters);
+			Type returnType = typeOf(env, __eval, instantiateTypeParameters);
 			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
 			Type kwParams = TF.voidType();
@@ -613,8 +612,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getType().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -691,8 +690,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
     }
     
     @Override
-    public Type typeOf(Environment env, boolean instantiateTypeParameters,
-    		IEvaluator<Result<IValue>> eval) {
+    public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
        return RascalValueFactory.Tree;
     }
 
@@ -702,7 +700,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
     }
     
     @Override
-    public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+    public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
       throw new SyntaxError("concrete syntax fragment", getLocation());
     }
   }
@@ -715,13 +713,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			IMatchingResult absPat = this.getPattern().buildMatcher(eval);
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			IMatchingResult absPat = this.getPattern().buildMatcher(eval, bindTypeParameters);
 			return new DescendantPattern(eval, this, absPat);
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TypeFactory.getInstance().valueType();
 		}
 
@@ -765,7 +763,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-			return new EnumeratorResult(eval, getPattern().buildMatcher(eval.getEvaluator()), getExpression());
+			return new EnumeratorResult(eval, getPattern().buildMatcher(eval.getEvaluator(), false), getExpression());
 		}
 
 		@Override
@@ -859,20 +857,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(__eval, this);
 		}
 
-	
-
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
 			Result<IValue> expr = this.getExpression().interpret(__eval);
-			String field = org.rascalmpl.interpreter.utils.Names.name(this
-					.getField());
+			String field = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
 			return expr.fieldAccess(field, __eval.getCurrentEnvt().getStore());
-
 		}
 		
 		@Override
@@ -982,7 +975,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
-			return getExpression().interpret(__eval).has(getName());
+		    try {
+		        return ResultFactory.bool(getExpression().interpret(__eval).getAnnotation(Names.name(getName()), __eval.getCurrentEnvt()) != null, __eval);
+		    }
+		    catch (Throw e) {
+		        // TODO NoSuchAnnotation can happen because we simulate 
+		        // annotations with keyword parameters
+		        return ResultFactory.bool(false, __eval);
+		    }
 		}
 	}
 
@@ -1055,9 +1055,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			Type type = getType().typeOf(eval.getCurrentEnvt(), true, eval.getEvaluator());
-			IMatchingResult absPat = this.getArgument().buildMatcher(eval);
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			Type type = getType().typeOf(eval.getCurrentEnvt(), eval.getEvaluator(), instantiateTypeParameters);
+			IMatchingResult absPat = this.getArgument().buildMatcher(eval, bindTypeParameters);
 			return new GuardedPattern(eval, this, type, absPat);
 		}
 
@@ -1068,7 +1068,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 
 			Result<IValue> result = this.getArgument().interpret(__eval);
-			Type expected = getType().typeOf(__eval.getCurrentEnvt(), true, __eval);
+			Type expected = getType().typeOf(__eval.getCurrentEnvt(), __eval, instantiateTypeParameters);
 
 			if (!(expected instanceof NonTerminalType)) {
 				throw new UnsupportedOperation("inline parsing", expected, this);
@@ -1111,8 +1111,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getType().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -1155,7 +1155,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);	
 			
 			if (getLhs().isDefined(__eval).getValue().getValue()) {
-				return getLhs().interpret(__eval);
+			    try {
+			        return getLhs().interpret(__eval);
+			    }
+			    catch (UndeclaredField | Throw e) {
+			        // TODO: this happens when annotations are simulated by kw fields, since there
+			        // is not default value associated in this case
+			        return getRhs().interpret(__eval);
+			    }
 			}
 			else {
 				return getRhs().interpret(__eval);
@@ -1458,8 +1465,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			return new ListPattern(eval, this, buildMatchers(getElements0(), eval));
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			return new ListPattern(eval, this, buildMatchers(getElements0(), eval, bindTypeParameters), bindTypeParameters);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1516,11 +1523,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			Type elementType = TF.voidType();
 
 			for (org.rascalmpl.ast.Expression elt : getElements0()) {
-				elementType = elementType.lub(elt.typeOf(env, instantiateTypeParameters, eval));
+				elementType = elementType.lub(elt.typeOf(env, eval, instantiateTypeParameters));
 			}
 
 			return TF.listType(elementType);
@@ -1544,8 +1551,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return this.getLiteral().buildMatcher(__eval);
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
+			return this.getLiteral().buildMatcher(__eval, bindTypeParameters);
 		}
 
 		@Override
@@ -1558,8 +1565,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getLiteral().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getLiteral().typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -1578,7 +1585,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
 			throw new ImplementationError("Map in pattern not yet implemented");
 		}
 
@@ -1630,13 +1637,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			Type keyType = TF.voidType();
 			Type valueType = TF.valueType();
 			
 			for (Mapping_Expression me : getMappings()) {
-				keyType = keyType.lub(me.getFrom().typeOf(env, instantiateTypeParameters, eval));
-				valueType = valueType.lub(me.getTo().typeOf(env, instantiateTypeParameters, eval));
+				keyType = keyType.lub(me.getFrom().typeOf(env, eval, instantiateTypeParameters));
+				valueType = valueType.lub(me.getTo().typeOf(env, eval, instantiateTypeParameters));
 			}
 			
 			return TF.mapType(keyType, valueType);
@@ -1735,7 +1742,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return new MultiVariablePattern(eval, this, getQualifiedName());
 		}
 
@@ -1764,10 +1771,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			// we return the element type here, such that lub at a higher level
 			// does the right thing!
-			return getQualifiedName().typeOf(env, instantiateTypeParameters, eval);
+			return getQualifiedName().typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -1780,19 +1787,19 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			org.rascalmpl.ast.Expression arg = this.getArgument();
 			if (arg.hasType() && arg.hasName()) {
 				Environment env = eval.getCurrentEnvt();
-				Type type = arg.getType().typeOf(env, true, eval.getEvaluator());
-				type = type.instantiate(env.getTypeBindings());
+				Type type = arg.getType().typeOf(env, eval.getEvaluator(), instantiateTypeParameters);
+				type = type.instantiate(env.getStaticTypeBindings());
 				
 				// TODO: Question, should we allow non terminal types in splices?
 				if (type instanceof NonTerminalType) {
 					throw new UnsupportedOperation("splicing match", type, this);
 //					throw new ImplementationError(null);
 				}				
-				return new TypedMultiVariablePattern(eval, this, type, arg.getName());
+				return new TypedMultiVariablePattern(eval, this, type, arg.getName(), bindTypeParameters);
 			}
 			if(arg.hasQualifiedName()){
 				return new MultiVariablePattern(eval, this, arg.getQualifiedName());
@@ -1823,15 +1830,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			// we return the element type here, such that lub at a higher level
 			// does the right thing!
 			org.rascalmpl.ast.Expression arg = this.getArgument();
 			if (arg.hasType() && arg.hasName()) {
-				return arg.getType().typeOf(env, instantiateTypeParameters, eval);
+				return arg.getType().typeOf(env, eval, instantiateTypeParameters);
 			}
 			if(arg.hasQualifiedName()){
-				return arg.getQualifiedName().typeOf(env, instantiateTypeParameters, eval);
+				return arg.getQualifiedName().typeOf(env, eval, instantiateTypeParameters);
 			}
 			throw new ImplementationError(null);
 		}
@@ -1859,7 +1866,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.boolType();
 		}
 
@@ -1879,8 +1886,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 		
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
-			return new NegativePattern(__eval, this, getArgument().buildMatcher(__eval));
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
+			return new NegativePattern(__eval, this, getArgument().buildMatcher(__eval, bindTypeParameters));
 		}
 
 		@Override
@@ -2062,7 +2069,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
 
 			Result<IValue> r = eval.getEvaluator().getCurrentEnvt().getSimpleVariable(name);
@@ -2142,8 +2149,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getQualifiedName().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getQualifiedName().typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -2264,8 +2271,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			return new ReifiedTypePattern(eval, this, getSymbol().buildMatcher(eval), getDefinitions().buildMatcher(eval));
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			return new ReifiedTypePattern(eval, this, getSymbol().buildMatcher(eval, bindTypeParameters), getDefinitions().buildMatcher(eval, bindTypeParameters));
 		}
 
 		@Override
@@ -2298,7 +2305,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			// TODO: check if this would do it?
 			return RascalTypeFactory.getInstance().reifiedType(TF.valueType());
 		}
@@ -2317,7 +2324,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.setCurrentAST(this);
 			eval.notifyAboutSuspension(this);			
 
-			Type t = getType().typeOf(eval.getCurrentEnvt(), false, eval);
+			Type t = getType().typeOf(eval.getCurrentEnvt(), eval, instantiateTypeParameters);
 			IMap gr = eval.__getVf().mapWriter().done();
 			
 			if (!t.isTop()) {
@@ -2359,8 +2366,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			return new SetPattern(eval, this, buildMatchers(this.getElements0(), eval));
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			return new SetPattern(eval, this, buildMatchers(this.getElements0(), eval, bindTypeParameters), bindTypeParameters);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -2405,21 +2412,21 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				elementType = elementType.lub(resultElem.getType());
 				results.add(results.size(), resultElem.getValue());
 			}
+			
 			Type resultType = TF.setType(elementType);
 			ISetWriter w = __eval.__getVf().setWriter();
 			w.insertAll(results);
-			// Was: return makeResult(resultType, applyRules(w.done()));
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					resultType, w.done(), __eval);
+			
+			return makeResult(resultType, w.done(), __eval);
 
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			Type elementType = TF.voidType();
 
 			for (org.rascalmpl.ast.Expression elt : getElements0()) {
-				Type eltType = elt.typeOf(env, instantiateTypeParameters, eval);
+				Type eltType = elt.typeOf(env, eval, instantiateTypeParameters);
 				
 				// TODO: here we need to properly deal with splicing operators!!!
 				if (eltType.isSet()) {
@@ -2689,24 +2696,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-
-			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
-					this);
-
+			throw new UnexpectedType(TF.boolType(), this.interpret(__eval.getEvaluator()).getType(), this);
 		}
-
-		
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
-			return this.getArgument().interpret(__eval)
-					.transitiveReflexiveClosure();
-
+			return this.getArgument().interpret(__eval).transitiveReflexiveClosure();
 		}
 
 	}
@@ -2726,8 +2724,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			return new TuplePattern(eval, this, buildMatchers(this.getElements(), eval));
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			return new TuplePattern(eval, this, buildMatchers(this.getElements(), eval, bindTypeParameters));
 		}
 
 		@Override
@@ -2761,20 +2759,19 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			java.util.List<org.rascalmpl.ast.Expression> fields = getElements();
 			Type fieldTypes[] = new Type[fields.size()];
 
 			for (int i = 0; i < fields.size(); i++) {
-				fieldTypes[i] = fields.get(i).typeOf(env, instantiateTypeParameters, eval);
+				fieldTypes[i] = fields.get(i).typeOf(env, eval, instantiateTypeParameters);
 			}
 
 			return TF.tupleType(fieldTypes);
 		}
 	}
 
-	static public class TypedVariable extends
-			org.rascalmpl.ast.Expression.TypedVariable {
+	static public class TypedVariable extends org.rascalmpl.ast.Expression.TypedVariable {
 		public TypedVariable(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Type __param2,
 				Name __param3) {
 			super(__param1, tree, __param2, __param3);
@@ -2786,38 +2783,31 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			Environment env = eval.getCurrentEnvt();
-			Type type = getType().typeOf(env, true, eval.getEvaluator());
+			Type type = getType().typeOf(env, eval.getEvaluator(), instantiateTypeParameters);
 
-			type = type.instantiate(env.getTypeBindings());
-			
-			return new TypedVariablePattern(eval, this, type, getName());
+			return new TypedVariablePattern(eval, this, type, getName(), bindTypeParameters);
 		}
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 			
 			// TODO: should allow qualified names in TypeVariables?!?
-			Result<IValue> result = __eval.getCurrentEnvt().getFrameVariable(
-					org.rascalmpl.interpreter.utils.Names.name(this.getName()));
+			Result<IValue> result = __eval.getCurrentEnvt().getFrameVariable(Names.name(this.getName()));
 
 			if (result != null && result.getValue() != null) {
 				return result;
 			}
 
-			throw new UninitializedVariable(
-					org.rascalmpl.interpreter.utils.Names.name(this.getName()),
-					this);
-
+			throw new UninitializedVariable(Names.name(this.getName()), this);
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getType().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, eval, instantiateTypeParameters);
 		}
 	}
 
@@ -2838,10 +2828,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			Type type = getType().typeOf(eval.getCurrentEnvt(), true, eval.getEvaluator());
-			IMatchingResult pat = this.getPattern().buildMatcher(eval);
-			IMatchingResult var = new TypedVariablePattern(eval, this, type, this.getName());
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			Type type = getType().typeOf(eval.getCurrentEnvt(), eval.getEvaluator(), instantiateTypeParameters);
+			IMatchingResult pat = this.getPattern().buildMatcher(eval, bindTypeParameters);
+			IMatchingResult var = new TypedVariablePattern(eval, this, type, this.getName(), bindTypeParameters);
 			return new VariableBecomesPattern(eval, this, var, pat);
 
 		}
@@ -2857,8 +2847,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getType().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getType().typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -2872,13 +2862,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			org.rascalmpl.ast.Expression pattern = this.getPattern();
 			
 			if (pattern instanceof Splice) {
 			    throw new UnsupportedPattern("named splices (i.e. name:*pattern)", this);
 			}
-            IMatchingResult pat = pattern.buildMatcher(eval);
+            IMatchingResult pat = pattern.buildMatcher(eval, bindTypeParameters);
 			LinkedList<Name> names = new LinkedList<Name>();
 			names.add(this.getName());
 			IMatchingResult var = new QualifiedNamePattern(eval, this, ASTBuilder.<org.rascalmpl.ast.QualifiedName> make("QualifiedName", "Default", this.getLocation(), names));
@@ -2896,8 +2886,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getPattern().typeOf(env, instantiateTypeParameters, eval);
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getPattern().typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -2947,7 +2937,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.notifyAboutSuspension(this);			
 
 			Parameters parameters = getParameters();
-			Type formals = parameters.typeOf(eval.getCurrentEnvt(), true, eval);
+			Type formals = parameters.typeOf(eval.getCurrentEnvt(), eval, instantiateTypeParameters);
 			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
 			Type kwParams = TF.voidType();
@@ -2968,12 +2958,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		super(__param1, tree);
 	}
 	
-	private static java.util.List<IMatchingResult> buildMatchers(java.util.List<org.rascalmpl.ast.Expression> elements, IEvaluatorContext eval) {
+	private static java.util.List<IMatchingResult> buildMatchers(java.util.List<org.rascalmpl.ast.Expression> elements, IEvaluatorContext eval, boolean bindTypeParameters) {
 		ArrayList<IMatchingResult> args = new ArrayList<IMatchingResult>(elements.size());
 
 		int i = 0;
 		for (org.rascalmpl.ast.Expression e : elements) {
-			args.add(i++, e.buildMatcher(eval));
+			args.add(i++, e.buildMatcher(eval, bindTypeParameters));
 		}
 		
 		return args;

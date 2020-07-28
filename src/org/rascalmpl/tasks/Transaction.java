@@ -66,7 +66,14 @@ IExpirationListener<IValue> {
 		public Type asAbstractDataType() {
 		  // TODO Auto-generated method stub
 		  return null;
-		}};
+		}
+		
+		public IValue randomValue(java.util.Random random, IValueFactory vf, TypeStore store, java.util.Map<Type,Type> typeParameters, int maxDepth, int maxBreadth) {
+		    // TODO Auto-generated method stub
+	          return null;
+		};
+		};
+		
 	private final Transaction parent;
 	private final boolean commitEnabled;
 	private final Map<Key, IFact<IValue>> map = new HashMap<Key, IFact<IValue>>();
@@ -114,11 +121,6 @@ IExpirationListener<IValue> {
 		return TransactionType;
 	}
 
-	@Override
-	public boolean isEqual(IValue other) {
-		return false;
-	}
-	
 	@Override
 	public boolean match(IValue other) {
         return false;
@@ -442,7 +444,7 @@ class Key {
 		if (name == null) {
 			if (other.name != null)
 				return false;
-		} else if (!name.isEqual(other.name))
+		} else if (!name.equals(other.name))
 			return false;
 		if (type == null) {
 			if (other.type != null)

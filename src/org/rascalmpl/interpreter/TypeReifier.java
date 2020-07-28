@@ -193,6 +193,10 @@ public class TypeReifier {
             extendStore(parent);
         }
         
+        public IMap getGrammar() {
+            return grammar;
+        }
+        
         public ISet getRules(IConstructor nt) {
             IConstructor choice = (IConstructor) grammar.get(nt);
             

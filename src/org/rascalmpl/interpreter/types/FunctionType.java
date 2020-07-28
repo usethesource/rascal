@@ -15,8 +15,8 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -24,18 +24,34 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.ast.Name;
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Function types are an extension of the pdb's type system, especially tailored to Rascal's functions 
@@ -110,8 +126,12 @@ public class FunctionType extends RascalType {
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
-            return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), rnd.nextBoolean() ? tf().voidType() : randomTuple(next, store, rnd));
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
+//            RandomTypesConfig newRnd = rnd.maxDepth(0);
+            // TODO: more complex return types or argument types lead to bugs in the interpreter...
+//            return RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().integerType(), randomTuple(next, store, newRnd), rnd.nextBoolean() ? tf().voidType() : randomTuple(next, store, newRnd));
+            // TODO: for now we generate an int instead. The interpreter breaks on random instances of functions in many many ways:
+            return TypeFactory.getInstance().integerType();
         }
         
         @Override
@@ -295,7 +315,7 @@ public class FunctionType extends RascalType {
 	  FunctionType f = (FunctionType) type;
 	  
 	  Type returnType = getReturnType().lub(f.getReturnType());
-	  Type argumentTypes = getArgumentTypes().glb(f.getArgumentTypes());
+	  Type argumentTypes = getArgumentTypes().lub(f.getArgumentTypes());
 	  
 	  if (argumentTypes.isTuple() && argumentTypes.getArity() == getArity()) {
 	    return RTF.functionType(returnType, 
@@ -325,28 +345,6 @@ public class FunctionType extends RascalType {
 	  return TF.voidType();
 	}
 		
-	@Override
-	protected boolean isSubtypeOfOverloadedFunction(RascalType type) {
-	  OverloadedFunctionType function = (OverloadedFunctionType) type;
-	  for (FunctionType f : function.getAlternatives()) {
-	    if (!this.isSubtypeOf(f)) {
-		  return false;
-	    }
-	  }
-	  
-	  return true;
-	}
-
-	@Override
-	protected Type lubWithOverloadedFunction(RascalType type) {
-	  return type.lubWithFunction(this);
-	}
-	
-	@Override 
-	protected Type glbWithOverloadedFunction(RascalType type) {
-		return type.glbWithFunction(this);
-	}
-	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -429,19 +427,7 @@ public class FunctionType extends RascalType {
 				matched = matched.getAliased();
 			}
 	
-			if (matched instanceof OverloadedFunctionType) {
-				OverloadedFunctionType of = (OverloadedFunctionType) matched;
-				// at least one needs to match (also at most one can match)
-				
-				for (Type f : of.getAlternatives()) {
-					if (this.match(f, bindings)) {
-						return true;
-					}
-				}
-				
-				return false;
-			}
-			else if (matched instanceof FunctionType) {
+			if (matched instanceof FunctionType) {
 				return argumentTypes.match(((FunctionType) matched).getArgumentTypes(), bindings)
 						&& returnType.match(((FunctionType) matched).getReturnType(), bindings);
 			}
@@ -456,23 +442,55 @@ public class FunctionType extends RascalType {
 		if (right.isBottom()) {
 			return right;
 		}
-		Set<FunctionType> newAlternatives = new HashSet<>();
 		
-		if(right instanceof FunctionType) {
+		if (right instanceof FunctionType) {
 			if(TF.tupleType(((FunctionType) right).returnType).isSubtypeOf(this.argumentTypes)) {
 				return RTF.functionType(this.returnType, ((FunctionType) right).getArgumentTypes(), ((FunctionType) right).keywordParameters);
 			}
-		} else if(right instanceof OverloadedFunctionType) {
-			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
-				if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(this.argumentTypes)) {
-					newAlternatives.add((FunctionType) RTF.functionType(this.returnType, ftype.getArgumentTypes(), ftype.keywordParameters));
-				}
-			}
-		} else {
+		}  else {
 			throw new IllegalOperationException("compose", this, right);
 		}
-		if(!newAlternatives.isEmpty()) 
-			return RTF.overloadedFunctionType(newAlternatives);
+
 		return TF.voidType();
+	}
+	
+	private static final GlobalEnvironment randomHeap = new GlobalEnvironment();
+	private static final Evaluator randomFunctionEvaluator = new Evaluator(IRascalValueFactory.getInstance(), System.in, System.out,  System.err, new ModuleEnvironment("random function", randomHeap), randomHeap);
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth) {
+	    final int arity = random.nextInt(maxBreadth + 1);
+	    final Type returnType = getReturnType();
+        final IValue returnValue = returnType.randomValue(random, vf, store, typeParameters, maxDepth, arity);
+	    
+        Name ast = Names.toName("randomFunc", URIUtil.rootLocation("random"));
+        
+        return new AbstractFunction(ast, randomFunctionEvaluator, this, Collections.emptyList(), false, randomFunctionEvaluator.getCurrentEnvt()) {
+            @Override
+            public boolean isStatic() {
+                return false;
+            }
+            
+            @Override
+            public ICallableValue cloneInto(Environment env) {
+                return this;
+            }
+            
+            @Override
+            public boolean isDefault() {
+                return false;
+            }
+            
+            @Override
+            public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
+                Map<String, IValue> keyArgValues) {
+                return ResultFactory.makeResult(returnType, returnValue, randomFunctionEvaluator);
+            }
+
+            @Override
+            public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
+                return ResultFactory.makeResult(returnType, returnValue, randomFunctionEvaluator);
+            }
+        };
 	}
 }

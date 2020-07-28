@@ -17,8 +17,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
  * Signals a * pattern variable for which the type is known (set or list var)
  */
 public class DesignatedTypedMultiVariablePattern extends TypedVariablePattern {
-	public DesignatedTypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type type, String name) {
-		super(ctx, x, type, name);
+	public DesignatedTypedMultiVariablePattern(IEvaluatorContext ctx, Expression x, io.usethesource.vallang.type.Type type, String name, boolean bindTypeParameters) {
+		super(ctx, x, type, name, bindTypeParameters);
 	}
 	
 	@Override

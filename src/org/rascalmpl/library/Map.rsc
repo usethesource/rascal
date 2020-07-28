@@ -108,7 +108,7 @@ getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 ----
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java &K getOneFrom(map[&K, &V] M)  ;
+public java &K getOneFrom(map[&K, &V] M);
 
 @doc{
 .Synopsis
@@ -191,9 +191,8 @@ mapper(("apple": 1, "pear": 2, "orange": 3), prefix, incr);
 ----
 }
 public map[&K, &V] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
-{
-  return (F(key) : G(M[key]) | &K key <- M);
-}
+ = (F(key) : G(M[key]) | &K key <- M);
+
 
 @doc{
 .Synopsis
@@ -288,8 +287,8 @@ import Map;
 toRel(("apple": 1, "pear": 2, "orange": 3));
 ----
 }
-public rel[&K,&V] toRel(map[&K,set[&V]] M) = isEmpty(M) ? {} : {<k,v> | &K k <- M, &V v <- M[k]};
-public rel[&K,&V] toRel(map[&K,list[&V]] M) = {<k,v> | &K k <- M, &V v <- M[k]};
+public rel[&K,&V] toRel(map[&K, set[&V]] M)  = {<k,v> | &K k <- M, &V v <- M[k]};
+public rel[&K,&V] toRel(map[&K, list[&V]] M) = {<k,v> | &K k <- M, &V v <- M[k]};
 @javaClass{org.rascalmpl.library.Prelude}
 public default java rel[&K, &V] toRel(map[&K, &V] M);
 

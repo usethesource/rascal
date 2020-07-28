@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -34,6 +35,7 @@ import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -66,6 +68,8 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 
 public class JavaBridge {
@@ -187,7 +191,7 @@ public class JavaBridge {
 	}
 	
 	private Class<?> toJavaClass(org.rascalmpl.ast.Type tp, Environment env) {
-		return toJavaClass(tp.typeOf(env, true, null));
+		return toJavaClass(tp.typeOf(env, null, false));
 	}
 
 	private Class<?> toJavaClass(io.usethesource.vallang.type.Type type) {
@@ -195,7 +199,7 @@ public class JavaBridge {
 	}
 	
 	private io.usethesource.vallang.type.Type toValueType(Expression formal, Environment env) {
-		return formal.typeOf(env, true, null);
+		return formal.typeOf(env, null, false);
 	}
 	
 	private static class JavaClasses extends DefaultRascalTypeVisitor<Class<?>, RuntimeException> {
@@ -306,34 +310,10 @@ public class JavaBridge {
 		}
 	}
 	
-	public synchronized Object getJavaClassInstance(Class<?> clazz){
-		Object instance = instanceCache.get(clazz);
-		if(instance != null){
-			return instance;
-		}
-		
-		try{
-			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-			instance = constructor.newInstance(vf);
-			instanceCache.put(clazz, instance);
-			return instance;
-		} catch (IllegalArgumentException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (SecurityException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} 
-	}
-	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func){
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err) {
 		String className = getClassName(func);
+		PrintWriter[] outputs = new PrintWriter[] { out, err };
+		int writers = 0;
 
 		try {
 			for(ClassLoader loader : loaders){
@@ -345,8 +325,37 @@ public class JavaBridge {
 						return instance;
 					}
 
-					Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-					instance = constructor.newInstance(vf);
+					if (clazz.getConstructors().length > 1) {
+					    throw new IllegalArgumentException("Rascal JavaBridge can only deal with one constructor. This class has multiple: " + clazz);
+					}
+					
+					Constructor<?> constructor = clazz.getConstructors()[0];
+
+					Object[] args = new Object[constructor.getParameterCount()];
+					Class<?>[] formals = constructor.getParameterTypes();
+
+					for (int i = 0; i < constructor.getParameterCount(); i++) {
+					    if (formals[i].isAssignableFrom(IValueFactory.class)) {
+					        args[i] = vf;
+					    }
+					    else if (formals[i].isAssignableFrom(TypeStore.class)) {
+					        args[i] = store;
+					    }
+					    else if (formals[i].isAssignableFrom(TypeFactory.class)) {
+					        args[i] = TypeFactory.getInstance();
+					    }
+					    else if (formals[i].isAssignableFrom(PrintWriter.class)) {
+					        args[i] = outputs[writers++ % 2];
+					    }
+					    else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
+					        args[i] = monitor;
+					    }
+					    else {
+					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
+					    }
+					}
+
+					instance = constructor.newInstance(args);
 					instanceCache.put(clazz, instance);
 					return instance;
 				}
@@ -373,9 +382,6 @@ public class JavaBridge {
 		catch (SecurityException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		} 
-		catch (NoSuchMethodException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		}
 		
 		throw new JavaMethodLink(className, "class not found", func, null);
 	}

@@ -75,7 +75,8 @@ public class Environment implements IRascalFrame {
 	protected Map<String, Result<IValue>> variableEnvironment;
 	protected Map<String, List<AbstractFunction>> functionEnvironment;
 	protected Map<String,NameFlags> nameFlags;
-	protected Map<Type, Type> typeParameters;
+	protected Map<Type, Type> staticTypeParameters;
+	protected Map<Type, Type> dynamicTypeParameters;
 	protected final Environment parent;
 	protected final Environment callerScope;
 	protected ISourceLocation callerLocation; // different from the scope location (more precise)
@@ -177,7 +178,8 @@ public class Environment implements IRascalFrame {
 		this.callerLocation = old.callerLocation;
 		this.variableEnvironment = old.variableEnvironment;
 		this.functionEnvironment = old.functionEnvironment;
-		this.typeParameters = old.typeParameters;
+		this.staticTypeParameters = old.staticTypeParameters;
+		this.dynamicTypeParameters = old.dynamicTypeParameters;
 		this.nameFlags = old.nameFlags;
 	}
 
@@ -449,19 +451,33 @@ public class Environment implements IRascalFrame {
 		flagName(name, NameFlags.OVERLOADABLE_NAME);
 	}
 	
-	public void storeParameterType(Type par, Type type) {
-		if (typeParameters == null) {
-			typeParameters = new HashMap<Type,Type>();
+	public void storeStaticParameterType(Type par, Type type) {
+		if (staticTypeParameters == null) {
+			staticTypeParameters = new HashMap<Type,Type>();
 		}
-		typeParameters.put(par, type);
+		staticTypeParameters.put(par, type);
 	}
+	
+	public void storeDynamicParameterType(Type par, Type type) {
+        if (dynamicTypeParameters == null) {
+            dynamicTypeParameters = new HashMap<Type,Type>();
+        }
+        dynamicTypeParameters.put(par, type);
+    }
 
-	public Type getParameterType(Type par) {
-		if (typeParameters != null) {
-			return typeParameters.get(par);
+	public Type getStaticParameterType(Type par) {
+		if (staticTypeParameters != null) {
+			return staticTypeParameters.get(par);
 		}
 		return null;
 	}
+	
+	public Type getDynamicParameterType(Type par) {
+        if (dynamicTypeParameters != null) {
+            return dynamicTypeParameters.get(par);
+        }
+        return null;
+    }
 
 	/**
 	 * Search for the environment that declared a variable.
@@ -610,18 +626,18 @@ public class Environment implements IRascalFrame {
 		return true;
 	}
 	
-	public Map<Type, Type> getTypeBindings() {
+	public Map<Type, Type> getStaticTypeBindings() {
 		Environment env = this;
 		Map<Type, Type> result = null;
 
 		while (env != null) {
-			if (env.typeParameters != null) {
-				for (Type key : env.typeParameters.keySet()) {
+			if (env.staticTypeParameters != null) {
+				for (Type key : env.staticTypeParameters.keySet()) {
 				    if (result ==  null) {
 				        result = new HashMap<>();
 				    }
 					if (!result.containsKey(key)) {
-						result.put(key, env.typeParameters.get(key));
+						result.put(key, env.staticTypeParameters.get(key));
 					}
 				}
 			}
@@ -634,12 +650,43 @@ public class Environment implements IRascalFrame {
 		return Collections.unmodifiableMap(result);
 	}
 
-	public void storeTypeBindings(Map<Type, Type> bindings) {
-		if (typeParameters == null) {
-			typeParameters = new HashMap<Type, Type>();
+	public Map<Type, Type> getDynamicTypeBindings() {
+        Environment env = this;
+        Map<Type, Type> result = null;
+
+        while (env != null) {
+            if (env.dynamicTypeParameters != null) {
+                for (Type key : env.dynamicTypeParameters.keySet()) {
+                    if (result ==  null) {
+                        result = new HashMap<>();
+                    }
+                    if (!result.containsKey(key)) {
+                        result.put(key, env.dynamicTypeParameters.get(key));
+                    }
+                }
+            }
+            env = env.parent;
+        }
+
+        if (result == null) {
+            return Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(result);
+    }
+	
+	public void storeStaticTypeBindings(Map<Type, Type> bindings) {
+		if (staticTypeParameters == null) {
+			staticTypeParameters = new HashMap<Type, Type>();
 		}
-		typeParameters.putAll(bindings);
+		staticTypeParameters.putAll(bindings);
 	}
+	
+	public void storeDynamicTypeBindings(Map<Type, Type> bindings) {
+        if (dynamicTypeParameters == null) {
+            dynamicTypeParameters = new HashMap<Type, Type>();
+        }
+        dynamicTypeParameters.putAll(bindings);
+    }
 
 	@Override
 	public String toString(){
@@ -811,7 +858,7 @@ public class Environment implements IRascalFrame {
 	public void reset() {
 		this.variableEnvironment = null;
 		this.functionEnvironment = null;
-		this.typeParameters = null;
+		this.staticTypeParameters = null;
 		this.nameFlags = null;
 	}
 	
@@ -844,11 +891,11 @@ public class Environment implements IRascalFrame {
 	}
 
 	protected void extendTypeParams(Environment other) {
-		if (other.typeParameters != null) {
-		    if (this.typeParameters == null) {
-		      this.typeParameters = new HashMap<Type, Type>();
+		if (other.staticTypeParameters != null) {
+		    if (this.staticTypeParameters == null) {
+		      this.staticTypeParameters = new HashMap<Type, Type>();
 		    }
-		    this.typeParameters.putAll(other.typeParameters);
+		    this.staticTypeParameters.putAll(other.staticTypeParameters);
 		  }
 	}
 	

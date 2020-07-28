@@ -634,7 +634,11 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void declareAnnotation(Type onType, String label, Type valueType) {
-		typeStore.declareAnnotation(onType, label, valueType);
+	    // TODO: simulating annotations still here
+	    if (onType == RascalValueFactory.Tree && "loc".equals(label)) {
+	        label = "src";
+	    }
+		typeStore.declareKeywordParameter(onType, label, valueType);
 	}
 	
 	private boolean keywordFormalExists(List<KeywordFormal> haystack, KeywordFormal needle) {
@@ -730,9 +734,9 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Type getAnnotationType(Type type, String label) {
-		Type anno = typeStore.getAnnotationType(type, label);
+		Type anno = typeStore.getKeywordParameterType(type, label);
 		if (anno == null && type instanceof NonTerminalType) {
-			return typeStore.getAnnotationType(RascalValueFactory.Tree, label);
+			return typeStore.getKeywordParameterType(RascalValueFactory.Tree, label);
 		}
 		return anno;
 	}
@@ -746,10 +750,9 @@ public class ModuleEnvironment extends Environment {
 	}
 
 	public Map<Type, Map<String, Type>> getAnnotations() {
-		return typeStore.getAnnotations();
+	    // TODO: simulating annotations here
+		return typeStore.getKeywordParameters();
 	}
-	
-
 
 	@Override
 	public Type getAbstractDataType(String sort) {
@@ -832,7 +835,8 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public boolean declaresAnnotation(Type type, String label) {
-		return typeStore.getAnnotationType(type, label) != null;
+	    // TODO: we simulate annotations using kw fields here
+		return typeStore.getKeywordParameterType(type, label) != null;
 	}
 	
 	@Override

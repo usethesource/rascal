@@ -455,18 +455,4 @@ public class JSONWritingValueVisitor implements IValueVisitor<Void, IOException>
 		}
 		return null;
 	}
-
-	@Override
-	public Void visitRelation(ISet o) throws IOException {
-		visitSet(o);
-		return null;
-	}
-
-	@Override
-	public Void visitListRelation(IList o) throws IOException {
-		visitList(o);
-		return null;
-	}
-
-
 }

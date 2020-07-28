@@ -88,14 +88,14 @@ Reading the values in fields is straightforward, except for the case that the te
 Given is the follwing file `ex1.csv`:
 [source,rascal]
 ----
-include::{LibDir}Rascal/Libraries/lang/csv/ex1.csv[]
+include::{LibDir}Libraries/lang/csv/ex1.csv[]
 ----
 
                 We can read it in various ways:
 [source,rascal-shell]
 ----
 import lang::csv::IO;
-R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = ";");
+R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Libraries/lang/csv/ex1.csv|, separator = ";");
 ----
 Now we can, for instance, select one of the fields of `R1`:
 [source,rascal-shell,continue]
@@ -105,26 +105,22 @@ R1.artist;
 It is also possible to infer the type:
 [source,rascal-shell,continue]
 ----
-R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = ";");
+R1 = readCSV(|courses:///Libraries/lang/csv/ex1.csv|, separator = ";");
 ----
 
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{For getting IO streams}
-public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8", bool printInferredType = false);
+public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @deprecated{use the readCSV with keyword parameters}
 public value readCSV(loc location, map[str,str] options) {
 	return readCSV(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
 
-
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{For getting IO streams}
 public java &T readCSV(type[&T] result, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{For getting IO streams}
 public java type[value] getCSVType(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @doc{
@@ -149,8 +145,8 @@ rel[int position, str artist, str title, int year] R1 = {
   <2,"Queen","Bohemian rhapsody",1975>,
   <3,"Boudewijn de Groot","Avond",1997>
 };
-writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1a.csv|);
-writeCSV(R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
+writeCSV(#rel[int position, str artist, str title, int year], R1, |courses:///Rascal/Libraries/lang/csv/ex1a.csv|);
+writeCSV(rel[int, str, str, int], R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
 ----
 will produce the following files:
 
@@ -169,8 +165,7 @@ include::{LibDir}Rascal/Libraries/lang/csv/ex1b.csv[]
                 
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses type parameter.}
-public java void writeCSV(&T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
+public java void writeCSV(type[&T] schema, &T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 public lang::csv::ast::CSV::Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 

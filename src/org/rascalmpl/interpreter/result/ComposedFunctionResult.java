@@ -23,7 +23,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
@@ -249,17 +248,6 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 
 	}
 
-	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
-	}
-	
 	@Override
 	public boolean mayHaveKeywordParameters() {
 	  return false;

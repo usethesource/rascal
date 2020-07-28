@@ -48,7 +48,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.dateTimeType();
 		}
 		

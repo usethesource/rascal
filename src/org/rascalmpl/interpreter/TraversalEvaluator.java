@@ -42,6 +42,7 @@ import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.values.uptr.ITree;
@@ -158,7 +159,7 @@ public class TraversalEvaluator {
 			hasChanged = tr.changed;
 		}
 
-		if (subjectType.isAbstractData()){
+		if (subjectType.isAbstractData() || RascalType.isNonterminal(subjectType) || RascalType.isReified(subjectType) ){
 			result = traverseADTOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
 		} else if (subjectType.isNode()){
 			result = traverseNodeOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
@@ -431,10 +432,6 @@ public class TraversalEvaluator {
 			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
 		  }
 		  
-		  if (!cons.mayHaveKeywordParameters() && cons.asAnnotatable().hasAnnotations()) {
-		    rcons = rcons.asAnnotatable().setAnnotations(cons.asAnnotatable().getAnnotations());
-		  }
-
 		  return rcons;
 		}
 		else {
@@ -629,10 +626,6 @@ public class TraversalEvaluator {
 			}
 			else {
 				n = hasChanged ? eval.getValueFactory().node(node.getName(), args) : node;
-			
-				if (hasChanged && !node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
-					n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
-				}
 			}
 			
 			result = n;
