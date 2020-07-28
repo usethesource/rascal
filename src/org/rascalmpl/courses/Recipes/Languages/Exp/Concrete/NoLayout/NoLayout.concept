@@ -29,9 +29,9 @@ Notes:
 <3> Defines alternative #1: an `IntegerLiteral`.
 <4> Defines alternative #2: parentheses. The `|` says that this alternative has the same priority as the previous one.
     The keyword `bracket` marks this as an alternative that defines parentheses.
-<5> Defines alternative #3: multiplication. The `>` says that the previous rule has a higher priorrity than the current one.
+<5> Defines alternative #3: multiplication. The `>` says that the previous rule has a higher priority than the current one.
     The keyword `left` marks this as a left-associative rule.
-<6> Defines alternative #4: addition. The `>` says again that the previous rule has a higher priorrity than the current one.
+<6> Defines alternative #4: addition. The `>` says again that the previous rule has a higher priority than the current one.
     The keyword `left` marks this as a left-associative rule.
 
 
