@@ -1,6 +1,5 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -21,24 +20,8 @@ public class FunctionInstance implements IExternalValue {
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-		return this == other;
-	}
-
-	@Override
 	public boolean match(IValue other) {
 		 return this == other;
-	}
-
-	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException("Cannot be viewed as annotatable", getType());
-
 	}
 
 	@Override
