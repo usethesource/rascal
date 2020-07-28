@@ -48,7 +48,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 		
@@ -65,7 +65,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.boolType();
 		}
 
@@ -85,7 +85,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.dateTimeType();
 		}
 
@@ -98,7 +98,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 
@@ -108,7 +108,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.integerType();
 		}
 
@@ -128,7 +128,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.sourceLocationType();
 		}
 
@@ -141,7 +141,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 
@@ -159,7 +159,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.realType();
 		}
 	}
@@ -171,7 +171,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 
@@ -184,7 +184,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.rationalType();
 		}
 	}
@@ -196,9 +196,9 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext __eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
 
-			return this.getRegExpLiteral().buildMatcher(__eval);
+			return this.getRegExpLiteral().buildMatcher(__eval, bindTypeParameters);
 
 		}
 
@@ -212,7 +212,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.stringType();
 		}
 
@@ -228,7 +228,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return new LiteralPattern(eval, this, interpret(eval.getEvaluator()).getValue());
 		}
 
@@ -266,7 +266,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return TF.stringType();
 		}
 

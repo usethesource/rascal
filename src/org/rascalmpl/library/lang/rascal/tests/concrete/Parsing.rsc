@@ -10,7 +10,7 @@ layout WS = [\ \t\n\r]*;
 
 start syntax B = "b" | [a-z];
 
-test bool strExpr() = [A] "a" == parse(#A,"a");
+test bool strExpr() = (A) `a` := parse(#A,"a");
 
 test bool allowAmb() = /amb(_) := parse(#B, "b", allowAmbiguity=true);
 

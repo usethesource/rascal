@@ -338,28 +338,6 @@ public class JSONReadingTypeVisitor implements
 			}
 
 			@Override
-			public IValue visitRelation(ISet o) throws RuntimeException {
-				List<IValue> elements = new ArrayList<IValue>(o.size());
-				for (IValue e : o) {
-					elements.add(e.accept(this));
-				}
-				ISetWriter writer = vf.setWriter();
-				writer.insertAll(elements);
-				return writer.done();
-			}
-
-			@Override
-			public IValue visitListRelation(IList o) throws RuntimeException {
-				List<IValue> elements = new ArrayList<IValue>(o.length());
-				for (IValue e : o) {
-					elements.add(e.accept(this));
-				}
-				IListWriter writer = vf.listWriter();
-				writer.appendAll(elements);
-				return writer.done();
-			}
-
-			@Override
 			public IValue visitSet(ISet o) throws RuntimeException {
 				List<IValue> elements = new ArrayList<IValue>(o.size());
 				for (IValue e : o) {
@@ -369,6 +347,7 @@ public class JSONReadingTypeVisitor implements
 				writer.insertAll(elements);
 				return writer.done();
 			}
+			
 			@Override
 			public IValue visitTuple(ITuple o) throws RuntimeException {
 				IValue[] elements = new IValue[o.arity()];

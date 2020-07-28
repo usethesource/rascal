@@ -53,15 +53,12 @@ public class MapResult extends ElementResult<IMap> {
 	@Override 
 	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result) {
 		return result.subtractMap(this);
-		
 	}
 	
-
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result) {
 		return result.intersectMap(this);
 	}
-	
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -69,6 +66,7 @@ public class MapResult extends ElementResult<IMap> {
 		if (subscripts.length != 1) {
 			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
 		}
+		
 		Result<IValue> key = (Result<IValue>) subscripts[0];
 		if (!getType().getKeyType().comparable(key.getType())) {
 			throw new UnexpectedType(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
@@ -231,13 +229,13 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	protected Result<IBool> lessThanMap(MapResult that) {
 		// note reversed args: we need that < this
-		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().isEqual(getValue()), ctx);
+		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().equals(getValue()), ctx);
 	}
 	
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualMap(MapResult that) {
 	  boolean subMap = that.getValue().isSubMap(getValue());
-	  boolean equals = that.getValue().isEqual(getValue());
+	  boolean equals = that.getValue().equals(getValue());
 	  return new LessThanOrEqualResult(subMap && !equals, equals, ctx);
 	}
 

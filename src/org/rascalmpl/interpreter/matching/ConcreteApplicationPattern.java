@@ -23,6 +23,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -129,7 +130,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		Type subjectType = subject.getValue().getType();
 		super.initMatch(subject);
 
-		if(subjectType.isAbstractData() && subject.getValue() instanceof ITree) {
+		if(subjectType.isExternalType() && ((RascalType) subjectType).isNonterminal() && subject.getValue() instanceof ITree) {
 			org.rascalmpl.values.uptr.ITree treeSubject = (org.rascalmpl.values.uptr.ITree)subject.getValue();
 		
 			if (!TreeAdapter.isAppl(treeSubject)) {
@@ -138,7 +139,8 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 
-			if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
+			// TODO: max-sharing prods would optimize this
+			if (!TreeAdapter.getProduction(treeSubject).equals(production)) {
 				// fail early if the subject's production is not the same
 				hasNext = false;
 				return;

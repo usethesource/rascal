@@ -38,7 +38,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
 					.getInstance();
 			Parameters parameters = getParameters();
@@ -49,7 +49,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
 			}
 
-			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), parameters.typeOf(env, instantiateTypeParameters, eval), kwParams);
+			return RTF.functionType(getType().typeOf(env, eval, instantiateTypeParameters), parameters.typeOf(env, eval, instantiateTypeParameters), kwParams);
 		}
 	}
 
@@ -61,7 +61,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
 			Type kwParams = TF.voidType();
@@ -73,8 +73,8 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
 			}
 
-			return RTF.functionType(getType().typeOf(env, instantiateTypeParameters, eval), getParameters()
-					.typeOf(env, instantiateTypeParameters, eval), kwParams);
+			return RTF.functionType(getType().typeOf(env, eval, instantiateTypeParameters), getParameters()
+					.typeOf(env, eval, instantiateTypeParameters), kwParams);
 		}
 
 	}

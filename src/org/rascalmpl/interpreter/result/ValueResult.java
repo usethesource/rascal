@@ -23,6 +23,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class ValueResult extends ElementResult<IValue> {
 
@@ -45,19 +46,21 @@ public class ValueResult extends ElementResult<IValue> {
 		return equals(that).negate();
 	}
 
-	
-	
 	@Override
 	public <V extends IValue> LessThanOrEqualResult lessThanOrEqual(Result<V> that) {
-	  Type thisRuntimeType = getValue().getType();
-    Type thatRuntimeType = that.getValue().getType();
-    
-    if (thisRuntimeType.comparable(thatRuntimeType)) {
-	    return makeResult(thisRuntimeType, getValue(), ctx).lessThanOrEqual(makeResult(thatRuntimeType, that.getValue(), ctx));
-	  }
-    else {
-      return new LessThanOrEqualResult(false, false, ctx);
-    }
+	    Type thisRuntimeType = getValue().getType();
+	    Type thatRuntimeType = that.getValue().getType();
+
+	    if (thisRuntimeType.comparable(thatRuntimeType)) {
+	        return makeResult(thisRuntimeType, getValue(), ctx).lessThanOrEqual(makeResult(thatRuntimeType, that.getValue(), ctx));
+	    }
+	    else if (thisRuntimeType.lub(thatRuntimeType).isNumber()) {
+	        Type numberType = TypeFactory.getInstance().numberType();
+            return makeResult(numberType, getValue(), ctx).lessThanOrEqual(makeResult(numberType, that.getValue(), ctx));
+	    }
+	    else {
+	        return new LessThanOrEqualResult(false, false, ctx);
+	    }
 	}
 	
 	@Override

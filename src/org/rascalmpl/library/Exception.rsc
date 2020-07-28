@@ -64,6 +64,7 @@ data RuntimeException =
      | ArithmeticException(str message)
      | AssertionFailed() 
      | AssertionFailed(str label)
+     | CallFailed(list[value] arguments)
      | DateTimeParsingError(str message)
      | DateTimePrintingError(str message)
      | EmptyList()
@@ -115,6 +116,6 @@ data RuntimeException =
 // Status to be determined:     
      
 //   | IllegalIdentifier(str name)
-    
+
    
 	 ;

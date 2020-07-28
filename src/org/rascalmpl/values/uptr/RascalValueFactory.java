@@ -19,29 +19,28 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
-import io.usethesource.vallang.IAnnotatable;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UndeclaredFieldException;
-import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
 import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
 import io.usethesource.vallang.impl.fields.AbstractValueFactoryAdapter;
-import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
 import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
 import io.usethesource.vallang.io.StandardTextReader;
@@ -51,7 +50,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 /**
  * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin
@@ -250,20 +248,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Grammar = tf.abstractDataType(uptr,  "Grammar");
 	public static final Type Grammar_Default = tf.constructor(uptr,  Grammar, "grammar", tf.setType(Symbol), "starts", tf.mapType(Symbol, "sort", Production, "def"), "rules");
     
-	@Deprecated
-	/** Will be replaced by keyword parameter "origin" */
-	public static final String Location = "loc";
-	@Deprecated
-	/** Will be removed completely */
-	public static final String Length = "len";
+	public static final String Location = "src";
 	
 	static {
-		uptr.declareAnnotation(Tree, Location, tf.sourceLocationType());
-		uptr.declareAnnotation(Tree, Length, tf.integerType());
+		uptr.declareKeywordParameter(Tree, Location, tf.sourceLocationType());
 	}
 
-	
-	
 	/** nested class for thread safe singleton allocation */
 	static private class InstanceHolder {
 		static final RascalValueFactory sInstance = new RascalValueFactory();
@@ -328,12 +318,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	@Override
-	public INode node(String name, Map<String, IValue> annotations,	IValue... children) throws FactTypeUseException {
-		IConstructor res = specializeNode(name, children);
-		return res != null ? res: super.node(name, annotations, children);
-	}
-	
-	@Override
 	public INode node(String name, IValue[] children,
 			Map<String, IValue> kws) throws FactTypeUseException {
 		IConstructor result = specializeNode(name, children);
@@ -367,18 +351,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		return result != null ? result : super.constructor(constructor, children);
 	}
 	
-	@Override
-	public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
-	    if (constructor == null) { throw new NullPointerException(); }
-        Arrays.stream(children).forEach(t -> { if (t == null) throw new NullPointerException(); });
-        annotations.values().stream().forEach(t -> { if (t == null) throw new NullPointerException(); });
-        
-		IConstructor result = specializeConstructor(constructor, children);
-		return result != null 
-				? result.asAnnotatable().setAnnotations(annotations) 
-				: super.constructor(constructor, annotations, children);
-	}
-
 	/**
 	 * This is where the core functionality of this class is implemented, specializing IConstructor values
 	 */
@@ -432,7 +404,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 
 	@Override
 	public ITree appl(Map<String,IValue> annos, IConstructor prod, IList args) {
-		return (ITree) appl(prod, args).asAnnotatable().setAnnotations(annos);
+		return (ITree) appl(prod, args).asWithKeywordParameters().setParameters(annos);
 	}
 
 	/**
@@ -544,17 +516,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return (ITree) v.visitTreeChar(this);
 		}
 		
-		@Override
-		public IAnnotatable<? extends ITree> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<ITree>(this) {
-				@Override
-				protected ITree wrap(ITree content,
-						io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return new AnnotatedCharFacade(content, annotations);
-				}
-			};
-		}
-		
 		public CharInt(int ch) {
 			this.ch = ch;
 		}
@@ -593,14 +554,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof IValue)) {
-				return false;
-			}
-			return isEqual((IValue) obj);
-		}
-
-		@Override
 		public Iterator<IValue> iterator() {
 			return new Iterator<IValue>() {
 				boolean done = false;
@@ -636,7 +589,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public boolean isEqual(IValue other) {
+		public boolean equals(Object other) {
+		    if (other == null) {
+		        return false;
+		    }
+		    
 			if (other instanceof CharInt) {
 				CharInt o = (CharInt) other;
 				return o.ch == ch;
@@ -647,14 +604,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public boolean match(IValue other) {
-		    return isEqual(other);
+		    return equals(other);
 		}
 		
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
 		@Override
 		public boolean mayHaveKeywordParameters() {
 			return true;
@@ -706,11 +658,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public boolean declaresAnnotation(TypeStore store, String label) {
-			return false;
-		}
-
-		@Override
         public IWithKeywordParameters<ITree> asWithKeywordParameters() {
              return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
                     @Override
@@ -738,17 +685,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		    return set(0, childArray[0]);
 		}
 		
-		@Override
-		public IAnnotatable<? extends ITree> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<ITree>(this) {
-				@Override
-				protected ITree wrap(ITree content,
-						io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return new AnnotatedCharFacade(content, annotations);
-				}
-			};
-		}
-		 
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeChar(this);
@@ -823,7 +759,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public boolean isEqual(IValue other) {
+		public boolean equals(Object other) {
+		    if (other == null) {
+		        return false;
+		    }
+		    
 			if (other instanceof CharByte) {
 				CharByte o = (CharByte) other;
 				return o.ch == ch;
@@ -834,22 +774,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
         public boolean match(IValue other) {
-            return isEqual(other);
+            return equals(other);
         }
 		
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof IValue)) {
-				return false;
-			}
-			return isEqual((IValue) obj);
-		}
-
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
 		@Override
 		public boolean mayHaveKeywordParameters() {
 			return true;
@@ -901,11 +828,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public boolean declaresAnnotation(TypeStore store, String label) {
-			return false;
-		}
-
-		@Override
         public IWithKeywordParameters<ITree> asWithKeywordParameters() {
              return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
                     @Override
@@ -923,17 +845,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public Cycle(IConstructor symbol, int cycleLength) {
 			this.symbol = symbol;
 			this.cycleLength = cycleLength;
-		}
-		
-		@Override
-		public IAnnotatable<? extends ITree> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<ITree>(this) {
-				@Override
-				protected ITree wrap(ITree content,
-						io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return new AnnotatedCycleFacade(content, annotations);
-				}
-			};
 		}
 		
 		@Override
@@ -967,12 +878,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public boolean isEqual(IValue other) {
+		public boolean equals(Object other) {
+		    if (other == null) {
+		        return false;
+		    }
+		    
 			if (other instanceof IConstructor) {
 				IConstructor cons = (IConstructor) other;
 				
 				return cons.getConstructorType() == getConstructorType()
-						&& cons.get(0).isEqual(get(0))
+						&& cons.get(0).equals(get(0))
 						&& ((IInteger) cons.get(1)).intValue() == cycleLength;
 			}
 			
@@ -981,16 +896,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
         public boolean match(IValue other) {
-            return isEqual(other);
+            return equals(other);
         }
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof IValue)) {
-				return false;
-			}
-			return isEqual((IValue) obj);
-		}
 		
 		@Override
 		public Iterator<IValue> iterator() {
@@ -1036,11 +943,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return v.visitConstructor(this);
 		}
 		
-		@Override
-		public boolean isAnnotatable() {
-			return true;
-		}
-
 		@Override
 		public boolean mayHaveKeywordParameters() {
 			return false;
@@ -1101,11 +1003,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public boolean declaresAnnotation(TypeStore store, String label) {
-			return store.getAnnotations(Tree).containsKey(label);
-		}
-
-		@Override
 		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
@@ -1130,17 +1027,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		public Amb(ISet alts) {
 			this.alternatives = alts;
-		}
-		
-		@Override
-		public IAnnotatable<? extends ITree> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<ITree>(this) {
-				@Override
-				protected ITree wrap(ITree content,
-						io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return new AnnotatedAmbFacade(content, annotations);
-				}
-			};
 		}
 		
 		@Override
@@ -1174,10 +1060,14 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public boolean isEqual(IValue other) {
+		public boolean equals(Object other) {
+		    if (other == null) {
+		        return false;
+		    }
+		    
 			if (other instanceof Amb) {
 				ITree cons = (ITree) other;
-				return cons.getAlternatives().isEqual(alternatives);
+				return cons.getAlternatives().equals(alternatives);
 			}
 			
 			return false;
@@ -1192,15 +1082,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             
             return false;
         }
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof IValue)) {
-				return false;
-			}
-			return isEqual((IValue) obj);
-		}
-		
 		
 		@Override
 		public ISet getAlternatives() {
@@ -1250,11 +1131,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return v.visitConstructor(this);
 		}
 		
-		@Override
-		public boolean isAnnotatable() {
-			return true;
-		}
-
 		@Override
 		public boolean mayHaveKeywordParameters() {
 			return true;
@@ -1319,11 +1195,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public boolean declaresAnnotation(TypeStore store, String label) {
-			return store.getAnnotations(Tree).containsKey(label);
-		}
-
-		@Override
 		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
 			 return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
@@ -1378,11 +1249,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
         
         @Override
-        public IAnnotatable<? extends IConstructor> asAnnotatable() {
-            throw new UnsupportedOperationException();
-        }
-        
-        @Override
         public boolean isAppl() {
             return true;
         }
@@ -1392,62 +1258,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             return ((ITree) content).getProduction();
         }
     }
-	
-	static class AnnotatedApplFacade extends AnnotatedConstructorFacade implements ITree {
-		public AnnotatedApplFacade(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-			super(content, annotations);
-		}
-
-		@Override
-		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
-			return v.visitTreeAppl(this);
-		}
-		
-		@Override
-		public ITree set(String label, IValue newChild)
-				throws FactTypeUseException {
-			IConstructor newContent = content.set(label, newChild);
-			return new AnnotatedApplFacade(newContent, annotations);				
-		}
-		
-		@Override
-		public ITree set(int index, IValue newChild)
-				throws FactTypeUseException {
-			IConstructor newContent = content.set(index, newChild);
-			return new AnnotatedApplFacade(newContent, annotations);			
-		}
-		
-		@Override
-		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
-				@Override
-				protected IConstructor wrap(IConstructor content,
-						io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return annotations.isEmpty() ? content : new AnnotatedApplFacade(content, annotations);
-				}
-			};
-		}
-		
-		@Override
-		public boolean mayHaveKeywordParameters() {
-		    return false;
-		}
-		
-		@Override
-		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
-		    throw new UnsupportedOperationException(); 
-		}
-		
-		@Override
-		public boolean isAppl() {
-			return true;
-		}
-		
-		@Override
-		public IConstructor getProduction() {
-			return ((ITree) content).getProduction();
-		}
-	}
 	
 	static public class AmbWithKeywordParametersFacade extends ConstructorWithKeywordParametersFacade implements ITree {
         public AmbWithKeywordParametersFacade(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
@@ -1485,11 +1295,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
         
         @Override
-        public IAnnotatable<? extends IConstructor> asAnnotatable() {
-            throw new UnsupportedOperationException();
-        }
-        
-        @Override
         public boolean isAmb() {
             return true;
         }
@@ -1499,52 +1304,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             return ((ITree) content).getAlternatives();
         }
     }
-	
-	static public class AnnotatedAmbFacade extends AnnotatedConstructorFacade implements ITree {
-		public AnnotatedAmbFacade(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-			super(content, annotations);
-		}
-
-		@Override
-		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
-			return v.visitTreeAmb(this);
-		}
-		
-		@Override
-		public ITree set(String label, IValue newChild)
-				throws FactTypeUseException {
-			IConstructor newContent = content.set(label, newChild);
-			return new AnnotatedAmbFacade(newContent, annotations);				
-		}
-		
-		@Override
-		public ITree set(int index, IValue newChild)
-				throws FactTypeUseException {
-			IConstructor newContent = content.set(index, newChild);
-			return new AnnotatedAmbFacade(newContent, annotations);			
-		}
-		
-		@Override
-		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
-				@Override
-				protected IConstructor wrap(IConstructor content,
-						io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return annotations.isEmpty() ? content : new AnnotatedAmbFacade(content, annotations);
-				}
-			};
-		}
-		
-		@Override
-		public boolean isAmb() {
-			return true;
-		}
-
-		@Override
-		public ISet getAlternatives() {
-			return ((ITree) content).getAlternatives();
-		}
-	}
 	
 	static public class CycleWithKeywordParametersFacade extends ConstructorWithKeywordParametersFacade implements ITree {
         public CycleWithKeywordParametersFacade(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
@@ -1582,56 +1341,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
         
         @Override
-        public IAnnotatable<? extends IConstructor> asAnnotatable() {
-            throw new UnsupportedOperationException();
-        }
-        
-        @Override
         public boolean isCycle() {
             return true;
         }
     }
 	
-	static class AnnotatedCycleFacade extends AnnotatedConstructorFacade implements ITree {
-		public AnnotatedCycleFacade(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-			super(content, annotations);
-		}
-
-		@Override
-		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
-			return v.visitTreeCycle(this);
-		}
-		
-		@Override
-		public ITree set(String label, IValue newChild)
-				throws FactTypeUseException {
-			IConstructor newContent = content.set(label, newChild);
-			return new AnnotatedCycleFacade(newContent, annotations);				
-		}
-		
-		@Override
-		public ITree set(int index, IValue newChild)
-				throws FactTypeUseException {
-			IConstructor newContent = content.set(index, newChild);
-			return new AnnotatedCycleFacade(newContent, annotations);			
-		}
-		
-		@Override
-		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
-				@Override
-				protected IConstructor wrap(IConstructor content,
-						io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return annotations.isEmpty() ? content : new AnnotatedCycleFacade(content, annotations);
-				}
-			};
-		}
-		
-		@Override
-		public boolean isCycle() {
-			return true;
-		}
-	}
 	
 	static public class CharWithKeywordParametersFacade extends ConstructorWithKeywordParametersFacade implements ITree {
         public CharWithKeywordParametersFacade(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
@@ -1669,11 +1383,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
         
         @Override
-        public IAnnotatable<? extends IConstructor> asAnnotatable() {
-            throw new UnsupportedOperationException();
-        }
-        
-        @Override
         public boolean isChar() {
             return true;
         }
@@ -1684,52 +1393,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
     }
 	
-	static class AnnotatedCharFacade extends AnnotatedConstructorFacade implements ITree {
-		public AnnotatedCharFacade(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-			super(content, annotations);
-		}
-
-		@Override
-		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
-			return v.visitTreeChar(this);
-		}
-		
-		@Override
-		public ITree set(String label, IValue newChild)
-				throws FactTypeUseException {
-			IConstructor newContent = content.set(label, newChild);
-			return new AnnotatedCharFacade(newContent, annotations);				
-		}
-		
-		@Override
-		public ITree set(int index, IValue newChild)
-				throws FactTypeUseException {
-			IConstructor newContent = content.set(index, newChild);
-			return new AnnotatedCharFacade(newContent, annotations);			
-		}
-		
-		@Override
-		public IAnnotatable<? extends IConstructor> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
-				@Override
-				protected IConstructor wrap(IConstructor content,
-						io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return annotations.isEmpty() ? content : new AnnotatedCharFacade(content, annotations);
-				}
-			};
-		}
-		
-		@Override
-		public boolean isChar() {
-			return true;
-		}
-		
-		@Override
-		public IInteger getCharacter() {
-		    return ((ITree) content).getCharacter();
-		}
-	}
-	
 	private static abstract class AbstractAppl implements ITree, IExternalValue {
 		protected final IConstructor production;
 		protected final boolean isMatchIgnorable;
@@ -1739,16 +1402,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 		    return v.visitTreeAppl(this);
-		}
-		
-		@Override
-		public IAnnotatable<? extends ITree> asAnnotatable() {
-			return new AbstractDefaultAnnotatable<ITree>(this) {
-				@Override
-				protected ITree wrap(ITree content, io.usethesource.capsule.Map.Immutable<String, IValue> annotations) {
-					return new AnnotatedApplFacade(content, annotations);
-				}
-			};
 		}
 		
 		protected AbstractAppl(IConstructor production) {
@@ -1792,13 +1445,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public boolean isEqual(IValue other) {
+		public boolean equals(Object other) {
+		    if (other == null) {
+		        return false;
+		    }
+		    
 			if (other instanceof IConstructor) {
 				IConstructor cons = (IConstructor) other;
 				
 				return cons.getConstructorType() == getConstructorType()
-						&& cons.get(0).isEqual(get(0))
-						&& cons.get(1).isEqual(get(1));
+						&& cons.get(0).equals(get(0))
+						&& cons.get(1).equals(get(1));
 			}
 			
 			return false;
@@ -1815,20 +1472,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
                 IConstructor cons = (IConstructor) other;
                 
                 return cons.getConstructorType() == getConstructorType()
-                        && cons.get(0).isEqual(get(0))
+                        && cons.get(0).equals(get(0))
                         && cons.get(1).match(get(1));
             }
             
             return false;
         }
-		
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof IValue)) {
-				return false;
-			}
-			return isEqual((IValue) obj);
-		}
 		
 		@Override
 		abstract public IList getArgs();
@@ -1877,11 +1526,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return v.visitConstructor(this);
 		}
 		
-		@Override
-		public boolean isAnnotatable() {
-			return true;
-		}
-
 		@Override
 		public boolean mayHaveKeywordParameters() {
 			return true;
@@ -1947,11 +1591,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public boolean declaresAnnotation(TypeStore store, String label) {
-			return store.getAnnotations(Tree).containsKey(label);
-		}
-
-		@Override
 		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
 			 return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
@@ -1985,37 +1624,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public boolean contains(IValue e) {
-			for (int i = 0; i < length(); i++) {
-				if (get(i).isEqual(e)) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
-		
-		@Override
 		public String toString() {
 			return defaultToString();
 		}
 		
 		@Override
-		public boolean isEqual(IValue other) {
-			if (other instanceof IList) {
-				IList o = (IList) other;
-				if (o.length() == length()) {
-					for (int i = 0; i < length(); i++) {
-						if (!o.get(i).isEqual(get(i))) {
-							return false;
-						}
-					}
-					
-					return true;
-				}
-			}
-			
-			return false;
+		public boolean equals(Object other) {
+		    return defaultEquals(other);
 		}
 		
 		@Override
@@ -2036,14 +1651,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             return false;
         }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (!(obj instanceof IValue)) {
-				return false;
-			}
-			return isEqual((IValue) obj);
-		}
-		
 		@Override
 		public int hashCode(){
 			if (hash != 0) {

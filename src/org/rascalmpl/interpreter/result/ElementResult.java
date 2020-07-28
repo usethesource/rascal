@@ -22,10 +22,10 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.Iterator;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.cursors.ICursor;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INode;
@@ -150,18 +150,24 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno, Environment env) {
-		Type annoType = env.getAnnotationType(getType(), annoName);
+	    // TODO: simulating annotations still here
+	    Type annoType;
+	    
+	    if (getType().isSubtypeOf(RascalValueFactory.Tree) && "loc".equals(annoName)) {
+            annoName = "src";
+            annoType = getTypeFactory().sourceLocationType();
+        }
+	    else {
+	        annoType = env.getKeywordParameterTypes(getType()).get(annoName);
+	    }
 
 		if (getType() != getTypeFactory().nodeType()) {
-			if (getType() != getTypeFactory().nodeType() && annoType == null) {
-				throw new UndeclaredAnnotation(annoName, getType(), ctx.getCurrentAST());
-			}
-			if (!anno.getType().isSubtypeOf(annoType)){
+			if (!anno.getType().isSubtypeOf(annoType)) {
 				throw new UnexpectedType(annoType, anno.getType(), ctx.getCurrentAST());
 			}
 		}
 
-		IValue annotatedBase = ((INode)getValue()).asAnnotatable().setAnnotation(annoName, anno.getValue());
+		IValue annotatedBase = ((INode)getValue()).asWithKeywordParameters().setParameter(annoName, anno.getValue());
 
 		return makeResult(getType(), annotatedBase, ctx);
 	}
@@ -192,30 +198,17 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return that.equalityBoolean(this);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> equalityBoolean(ElementResult<V> that) {
 		V a = that.getValue();
 		T b = this.getValue();
-		if (a instanceof ICursor) {
-			a = (V) ((ICursor)a).getWrappedValue();
-		}
-		if (b instanceof ICursor) {
-			b = (T) ((ICursor)b).getWrappedValue();
-		}
-		return bool(a.isEqual(b), ctx);
+
+		return bool(a.equals(b), ctx);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> nonEqualityBoolean(ElementResult<V> that) {
 		V a = that.getValue();
 		T b = this.getValue();
-		if (a instanceof ICursor) {
-			a = (V) ((ICursor)a).getWrappedValue();
-		}
-		if (b instanceof ICursor) {
-			b = (T) ((ICursor)b).getWrappedValue();
-		}
-		return bool((!a.isEqual(b)), ctx);
+		return bool((!a.equals(b)), ctx);
 	}
 	
 	@SuppressWarnings("unchecked")

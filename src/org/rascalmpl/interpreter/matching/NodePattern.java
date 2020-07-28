@@ -30,9 +30,12 @@ import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
+import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Names;
-import io.usethesource.vallang.IAnnotatable;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
@@ -44,9 +47,6 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class NodePattern extends AbstractMatchingResult {
 	private final TypeFactory tf = TypeFactory.getInstance();
@@ -92,11 +92,11 @@ public class NodePattern extends AbstractMatchingResult {
 			throw new UninitializedPatternMatch("Uninitialized pattern match: trying to match a value of the type 'void'", ctx.getCurrentAST());
 		}
 
-		if (!subject.getValue().getType().isNode()) {
+		if (!subject.getValue().getType().isSubtypeOf(tf.nodeType())) {
 			return;
 		}
 
-		if (!matchUPTR && subject.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((ITree) subject.getValue())) {
+		if (!matchUPTR && RascalType.isNonterminal(subject.getType()) && TreeAdapter.isAppl((ITree) subject.getValue())) {
 			this.subject = new TreeAsNode((ITree) subject.getValue());
 		}
 		else {
@@ -389,16 +389,6 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		@Override
-		public boolean isEqual(IValue other) {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-        public boolean match(IValue other) {
-            throw new UnsupportedOperationException();
-        }
-
-		@Override
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			// TODO: this should deal with regular expressions in the "right" way, such as skipping 
 			// over optionals and alternatives.
@@ -439,17 +429,6 @@ public class NodePattern extends AbstractMatchingResult {
 		public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException,
 		IndexOutOfBoundsException {
 			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends INode> asAnnotatable() {
-			throw new IllegalOperationException(
-					"Facade cannot be viewed as annotatable.", getType());
 		}
 
 		@Override

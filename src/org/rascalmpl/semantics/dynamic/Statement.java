@@ -140,7 +140,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 								.boolType(), r.getType(), this);
 			}
 
-			if (r.getValue().isEqual(__eval.__getVf().bool(false))) {
+			if (r.getValue().equals(__eval.__getVf().bool(false))) {
 				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
 						.assertionFailed(this, __eval.getStackTrace());
 			}
@@ -172,7 +172,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						org.rascalmpl.interpreter.Evaluator.__getTf()
 								.boolType(), r.getType(), this);
 			}
-			if (r.getValue().isEqual(__eval.__getVf().bool(false))) {
+			if (r.getValue().equals(__eval.__getVf().bool(false))) {
 				Result<IValue> msgValue = this.getMessage().interpret(__eval);
 //				IString msg = __eval.__getVf().string(
 //						org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(msgValue.getValue().toString());
@@ -779,9 +779,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);
 			
-			throw new org.rascalmpl.interpreter.control_exceptions.Return(this
-					.getStatement().interpret(__eval), this.getStatement()
-					.getLocation());
+            throw new org.rascalmpl.interpreter.control_exceptions.Return(getStatement().interpret(__eval), this.getStatement().getLocation());
 
 		}
 
@@ -864,7 +862,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						Result<IValue> v = __eval.getCurrentEnvt().getVariable(
 								var);
 						if (currentValue[i] == null
-								|| !v.getValue().isEqual(currentValue[i])) {
+								|| !v.getValue().equals(currentValue[i])) {
 							change = true;
 							currentValue[i] = v.getValue();
 						}
@@ -951,7 +949,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						break;
 					}
  
-					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern().buildMatcher(eval), c.getBody(), eval)) {
+					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern().buildMatcher(eval, false), c.getBody(), eval)) {
 						handled = true;
 						break;
 					}

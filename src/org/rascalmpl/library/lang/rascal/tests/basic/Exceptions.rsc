@@ -156,7 +156,7 @@ test bool exceptionHandling3(){
 test bool exceptionHandling4(){
     try { 
         head([]); 
-    } catch EmptyList():
+    } catch CallFailed([[]]):
         return true;
     return false; 
 }
@@ -517,10 +517,10 @@ test bool exceptionHandlingNotHandledSimple1(){
 	try {
 		main();
 		return false;
-	} 
-	catch value v: {
+    } 
+    catch value v: {
 		return ArithmeticException(str msg) := v && endsWith(msg, "by zero"); 
-	}
+    }
 }
 
 test bool rascalException1() {

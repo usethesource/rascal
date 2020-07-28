@@ -26,7 +26,6 @@ public java str toJSON(value v);
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@reflect{Uses type store}
 @deprecated{use readJSON}
 public java &T fromJSON(type[&T] typ, str src);
 

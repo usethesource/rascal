@@ -44,10 +44,10 @@ test bool cntLit()    {cnt = 0; visit(G0){ case lit(_): cnt += 1;}; return cnt =
  
 test bool cntLitCC()  {cnt = 0; visit(G0){ case lit(_): cnt += 1; case \char-class(_): cnt += 1;} return cnt == 5; }
 
-test bool cntInt()    {cnt = 0; visit(G0){ case int _: cnt += 1; } return cnt == 2; }
+test bool cntInt()    {cnt = 0; visit(G0){ case int _: cnt += 1; } return cnt == 11; } // visit does go into kw params
 
 test bool cntStr()    {cnt = 0; visit(G0){ case str _: cnt += 1; } return cnt == 8; }
 
-test bool cntIntStr() {cnt = 0; visit(G0){ case int _: cnt += 1; case str _: cnt += 1; } return cnt == 10; }
+test bool cntIntStr() {cnt = 0; visit(G0){ case int _: cnt += 1; case str _: cnt += 1; } return cnt == 19; }
    
 test bool cntProd()   {cnt = 0; visit(G0){case prod(_,_,_): cnt += 1;} return cnt == 2; }

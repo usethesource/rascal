@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
+import org.rascalmpl.ast.Declaration.Annotation;
 import org.rascalmpl.ast.Declaration.Data;
 import org.rascalmpl.ast.Declaration.DataAbstract;
 import org.rascalmpl.ast.KeywordFormal;
@@ -66,19 +67,31 @@ public class TypeDeclarationEvaluator {
 
 	public void evaluateDeclarations(List<Toplevel> decls, Environment env) {
 		this.env = env;
-		Set<UserType> abstractDataTypes = new HashSet<UserType>();
-		Set<Data> constructorDecls = new HashSet<Data>();
-		Set<Alias> aliasDecls = new HashSet<Alias>();
+		Set<UserType> abstractDataTypes = new HashSet<>();
+		Set<Data> constructorDecls = new HashSet<>();
+		Set<Alias> aliasDecls = new HashSet<>();
+		Set<Annotation> annotationDecls = new HashSet<>();
 
 		// this code is very much order dependent
 		collectDeclarations(decls, abstractDataTypes, constructorDecls,
-				aliasDecls);
+				aliasDecls, annotationDecls);
 		declareAbstractDataTypes(abstractDataTypes);
+		declareAnnotations(annotationDecls);
 		declareAliases(aliasDecls);
 		declareConstructors(constructorDecls);
 	}
 	
-	private void declareConstructors(Set<Data> constructorDecls) {
+	private void declareAnnotations(Set<Annotation> annotationDecls) {
+        for (Annotation anno : annotationDecls) {
+            declareAnnotation(anno, env);
+        }
+    }
+
+    private void declareAnnotation(Annotation anno, Environment env2) {
+        anno.interpret(eval);
+    }
+
+    private void declareConstructors(Set<Data> constructorDecls) {
 		for (Data data : constructorDecls) {
 			declareConstructor(data, env);
 		}
@@ -91,7 +104,7 @@ public class TypeDeclarationEvaluator {
 		int i = 0;
 		for (KeywordFormal kw : kws) {
 			kwLabels[i] = Names.name(kw.getName());
-			kwTypes[i++] = kw.getType().typeOf(eval.getCurrentEnvt(), false, eval);
+			kwTypes[i++] = kw.getType().typeOf(eval.getCurrentEnvt(), eval, true);
 		}
 		
 		return TypeFactory.getInstance().tupleType(kwTypes, kwLabels);
@@ -133,7 +146,7 @@ public class TypeDeclarationEvaluator {
 
 				for (int i = 0; i < args.size(); i++) {
 					TypeArg arg = args.get(i);
-					fields[i] = arg.getType().typeOf(env, true, eval);
+					fields[i] = arg.getType().typeOf(env, eval, true);
 
 					if (fields[i] == null) {
 						throw new UndeclaredType(arg.hasName() ? Names.name(arg.getName()) : "?", arg);
@@ -202,7 +215,7 @@ public class TypeDeclarationEvaluator {
 	
 	public void declareAlias(Alias x, Environment env) {
 		try {
-			Type base = x.getBase().typeOf(env, true, eval);
+			Type base = x.getBase().typeOf(env, eval, false);
 
 			assert base != null;
 			
@@ -274,7 +287,7 @@ public class TypeDeclarationEvaluator {
 									+ formal + " is not allowed", formal.getLocation());
 				}
 				TypeVar var = formal.getTypeVar();	
-				Type bound = var.hasBound() ? var.getBound().typeOf(env, true, eval) : tf
+				Type bound = var.hasBound() ? var.getBound().typeOf(env, eval, false) : tf
 						.valueType();
 				params[i++] = tf
 						.parameterType(Names.name(var.getName()), bound);
@@ -287,9 +300,9 @@ public class TypeDeclarationEvaluator {
 
 	private void collectDeclarations(List<Toplevel> decls,
 			Set<UserType> abstractDataTypes, Set<Data> constructorDecls,
-			Set<Alias> aliasDecls) {
+			Set<Alias> aliasDecls, Set<Annotation> annotations) {
 		DeclarationCollector collector = new DeclarationCollector(
-				abstractDataTypes, constructorDecls, aliasDecls);
+				abstractDataTypes, constructorDecls, aliasDecls, annotations);
 
 		for (Toplevel t : decls) {
 			t.accept(collector);
@@ -297,15 +310,17 @@ public class TypeDeclarationEvaluator {
 	}
 
 	private static class DeclarationCollector extends NullASTVisitor<Declaration> {
-		private Set<UserType> abstractDataTypes;
-		private Set<Data> constructorDecls;
-		private Set<Alias> aliasDecls;
+		private final Set<UserType> abstractDataTypes;
+		private final Set<Data> constructorDecls;
+		private final Set<Alias> aliasDecls;
+        private final Set<Annotation> annotations;
 
 		public DeclarationCollector(Set<UserType> abstractDataTypes,
-				Set<Data> constructorDecls, Set<Alias> aliasDecls) {
+				Set<Data> constructorDecls, Set<Alias> aliasDecls, Set<Annotation> annotations) {
 			this.abstractDataTypes = abstractDataTypes;
 			this.constructorDecls = constructorDecls;
 			this.aliasDecls = aliasDecls;
+			this.annotations = annotations;
 		}
 
 		@Override
@@ -330,6 +345,12 @@ public class TypeDeclarationEvaluator {
 		public Declaration visitDeclarationDataAbstract(DataAbstract x) {
 			abstractDataTypes.add(x.getUser());
 			return x;
+		}
+		
+		@Override
+		public Declaration visitDeclarationAnnotation(Annotation x) {
+		    annotations.add(x);
+		    return x;
 		}
 	}
 }

@@ -46,13 +46,13 @@ Exp removeBrackets(Exp e) = visit(e) {
   case (Exp) `(<Exp b>)` => b
 };
 
-test bool ext1() = (Exp) `e+e.e` == removeBrackets((Exp) `(e+e).e`);
-test bool ext2() = (Exp) `e*e/e+e` == removeBrackets((Exp) `((e*e)/e)+e`);
-test bool ext3() = (Exp) `e*e--e` == removeBrackets((Exp) `(e*e)--e`);
-test bool ext4() = (Exp) `e*e.e` == removeBrackets((Exp) `(e*e).e`);
-test bool ext5() = (Exp) `e+e.e` == removeBrackets((Exp) `(e+e).e`);
-test bool ext6() = (Exp) `e--e-e` == removeBrackets((Exp) `(e--e)-e`);
-test bool ext7() = (Exp) `e-e--e` == removeBrackets((Exp) `(e-e)--e`);
+test bool ext1() = (Exp) `e+e.e` := removeBrackets((Exp) `(e+e).e`);
+test bool ext2() = (Exp) `e*e/e+e` := removeBrackets((Exp) `((e*e)/e)+e`);
+test bool ext3() = (Exp) `e*e--e` := removeBrackets((Exp) `(e*e)--e`);
+test bool ext4() = (Exp) `e*e.e` := removeBrackets((Exp) `(e*e).e`);
+test bool ext5() = (Exp) `e+e.e` := removeBrackets((Exp) `(e+e).e`);
+test bool ext6() = (Exp) `e--e-e` := removeBrackets((Exp) `(e--e)-e`);
+test bool ext7() = (Exp) `e-e--e` := removeBrackets((Exp) `(e-e)--e`);
 
 test bool safeLeft() = F _ := parse(#F,"--f");
 test bool safeRight() = F _ := parse(#F,"f++");
@@ -62,13 +62,13 @@ test bool safeGroupRight() = G _ := parse(#G,"g++");
 Exp noBrackets(Exp e) = visit (e) { case (Exp) `(<Exp a>)` => a };
 bool hasAmb(Tree x) = /amb(_) := x;
 
-test bool \assoc() = noBrackets(parse(#Exp,"(a + b) + c")) == parse(#Exp, "a + b + c");
+test bool \assoc() = x := noBrackets(parse(#Exp,"(a + b) + c")) when x := parse(#Exp, "a + b + c");
 
-test bool \mutualAssoc1() = noBrackets(parse(#Exp,"(a - b) + c")) == parse(#Exp, "a - b + c");
+test bool \mutualAssoc1() = x := noBrackets(parse(#Exp,"(a - b) + c")) when x := parse(#Exp, "a - b + c");
 
-test bool \mutualAssoc2() = noBrackets(parse(#Exp,"(a + b) - c")) == parse(#Exp, "a + b - c");
+test bool \mutualAssoc2() = x := noBrackets(parse(#Exp,"(a + b) - c")) when x := parse(#Exp, "a + b - c");
 
-test bool \prio() = noBrackets(parse(#Exp,"(a*b)+c")) == parse(#Exp, "a*b+c");
+test bool \prio() = x := noBrackets(parse(#Exp,"(a*b)+c")) when x := parse(#Exp, "a*b+c");
 
 test bool \safePrio1() = parse(#Exp,"a[a+b]") is ind;
 
@@ -78,7 +78,7 @@ test bool \safePrio3() = parse(#Exp,"a*b*") is mul;
 
 test bool \safePrio4() = parse(#Exp,"(a*)[b]") is ind;
 
-test bool \transPrio() = noBrackets(parse(#Exp,"a,(b*c)")) == parse(#Exp,"a,b*c");
+test bool \transPrio() = x := noBrackets(parse(#Exp,"a,(b*c)")) when x := parse(#Exp,"a,b*c");
     
 test bool \exceptNormal() = parse(#Exp,"a+[a]") is add;
 

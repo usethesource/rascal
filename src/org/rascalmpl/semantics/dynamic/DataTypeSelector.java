@@ -41,7 +41,7 @@ public abstract class DataTypeSelector extends
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			Type adt;
 			QualifiedName sort = this.getSort();
 			String name = org.rascalmpl.interpreter.utils.Names.typeName(sort);

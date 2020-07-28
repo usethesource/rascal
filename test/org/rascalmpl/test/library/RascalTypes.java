@@ -14,9 +14,8 @@ package org.rascalmpl.test.library;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.junit.Test;
@@ -24,74 +23,41 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
-import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class RascalTypes extends TestFramework {
     
-    private static class RascalTypeGenerartor extends RandomTypeGenerator {
-        private final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-
-        @Override
-        public Type next(int maxDepth) {
-            if (random.nextInt(6) != 0 || maxDepth < 2) {
-                // most cases do the normal stuff
-                return super.next(maxDepth);
-            }
-            // sometimes go for rascal types
-            switch (random.nextInt(3)) {
-                case 0:
-                    return getFunctionType(maxDepth);
-                case 1:
-                    return getOverloadedFunctionType(maxDepth);
-                case 2:
-                default: // there is not other value, but java flow analyis can't see this.
-                    return getReifiedType(maxDepth);
-            }
-        }
+    @Test
+    public void testFunctionLub() {
+        TypeFactory tf = TypeFactory.getInstance();
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         
-        public Type getFunctionType(int maxDepth) {
-            return rtf.functionType(next(maxDepth), getTupleType(maxDepth), tf.voidType());
-        }
-
-        private List<Type> getTypeList(int maxDepth, int length) {
-            List<Type> result = new ArrayList<>(length);
-            for (int i = 0; i < length; i++) {
-                result.add(next(maxDepth));
-            }
-            return result;
-        }
-
+        Type t1 = rtf.functionType(tf.integerType(), tf.tupleType(tf.integerType(), tf.integerType()), tf.voidType());
+        Type t2 = rtf.functionType(tf.integerType(), tf.tupleType(tf.rationalType(), tf.rationalType()), tf.voidType());
         
-        public Type getOverloadedFunctionType(int maxDepth) {
-            Type returnType = next(maxDepth);
-            List<Type> l = getTypeList(maxDepth, 2);
-            Set<FunctionType> alternatives = new HashSet<FunctionType>();
-            for(Type t : l) {
-                if(t.isTuple()) {
-                    alternatives.add((FunctionType)rtf.functionType(returnType, t, tf.voidType()));
-                } else {
-                    alternatives.add((FunctionType)rtf.functionType(returnType, tf.tupleType(t), tf.voidType()));
-                }
-            }
-            return rtf.overloadedFunctionType(alternatives);
-        }
-
-        public Type getReifiedType(int maxDepth) {
-            return rtf.reifiedType(next(maxDepth));
-        }
+        // if the arity is the same, the lub is still a function type (for computing the types of overloaded functions)
+        assertTrue(!t1.lub(t2).isTop());
+        assertTrue(t1.getArity() == t1.lub(t2).getArity());
+        
+        // but if its not the same, then we default to value, because we don't know how to call a function with different amounts of parameters
+        Type t3 = rtf.functionType(tf.integerType(), tf.tupleType(tf.stringType()), tf.voidType());
+        assertTrue(t1.lub(t3).isTop());
     }
-	
+    
 	@Test
 	public void testLubAndGlb() {
+	    TypeFactory tf = TypeFactory.getInstance();
+	    TypeStore store = new TypeStore();
+	    Random rnd = new Random();
 		Set<Type> types = new HashSet<Type>();
 		
-		RascalTypeGenerartor rg = new RascalTypeGenerartor();
-		
-		for(int i = 0; i <= 1000; i++) {
-			types.add(rg.getFunctionType(2));
-			types.add(rg.getReifiedType(5));
-			types.add(rg.getOverloadedFunctionType(2));
+		for (int i = 0; i <= 15000; i++) {
+		    // due to dependency injection tf.randomType will also generate
+		    // the external types offered by the rascal project, such
+		    // as functions, reifiedtypes and non-terminaltypes
+			types.add(tf.randomType(store, rnd, 5));
 		}
 		
 		for (Type t : types) {
@@ -114,10 +80,10 @@ public class RascalTypes extends TestFramework {
 				
 				 if(t1.comparable(t2)) {
 					 if (t1.isSubtypeOf(t2)) {
-						 assertTrue(t1.lub(t2).equivalent(t2));
+						 assertTrue(t2.isSubtypeOf(t1.lub(t2)));
 					 }
 					 if(t2.isSubtypeOf(t1)) {
-						 assertTrue(t1.lub(t2).equivalent(t1));
+						 assertTrue(t1.isSubtypeOf(t1.lub(t2)));
 					 }
 				 }
 				 
@@ -174,15 +140,15 @@ public class RascalTypes extends TestFramework {
 			        
 			   if(t1.comparable(t2)) {
 			       if(t1.isSubtypeOf(t2)) {
-			           assertTrue(t1.glb(t2).equivalent(t1));
+			           assertTrue(t1.glb(t2).isSubtypeOf(t1));
 			       }
 			       if(t2.isSubtypeOf(t1)) {
-			           assertTrue(t1.glb(t2).equivalent(t2));
+			           assertTrue(t1.glb(t2).isSubtypeOf(t2));
 			       }
 			    }
 			 }
 		}
-
 	}
-
+	
+	
 }

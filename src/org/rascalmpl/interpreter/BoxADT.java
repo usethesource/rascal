@@ -216,7 +216,7 @@ public class BoxADT {
 		}
 		IConstructor r = BoxADT.TAG.H.create(q);
 		if (hspace >= 0)
-			r = r.asAnnotatable().setAnnotation("hs", vf.integer(hspace));
+			r = r.asWithKeywordParameters().setParameter("hs", vf.integer(hspace));
 		return r;
 	}
 
@@ -259,7 +259,7 @@ public class BoxADT {
 		// }
 		IConstructor r =  BoxADT.TAG.V.create(q);
 		if (vspace >= 0)
-			r = r.asAnnotatable().setAnnotation("vs", vf.integer(vspace));
+			r = r.asWithKeywordParameters().setParameter("vs", vf.integer(vspace));
 		return r;
 	}
 
@@ -300,9 +300,10 @@ public class BoxADT {
 				q = q.append(indent && !q.isEmpty() ? I(a) : a);
 		}
 		IConstructor r = BoxADT.TAG.HOV.create(q);
-		if (hspace >= 0)
-			r = r.asAnnotatable().setAnnotation("hs", vf.integer(hspace));
-		r = r.asAnnotatable().setAnnotation("vs", vf.integer(0));
+		if (hspace >= 0) {
+			r = r.asWithKeywordParameters().setParameter("hs", vf.integer(hspace));
+		}
+		r = r.asWithKeywordParameters().setParameter("vs", vf.integer(0));
 		return r;
 	}
 
@@ -318,9 +319,10 @@ public class BoxADT {
 				q = q.append(indent && !q.isEmpty() ? I(a) : a);
 		}
 		IConstructor r = BoxADT.TAG.HV.create(q);
-		if (hspace >= 0)
-			r = r.asAnnotatable().setAnnotation("hs", vf.integer(hspace));
-		r = r.asAnnotatable().setAnnotation("vs", vf.integer(0));
+		if (hspace >= 0) {
+			r = r.asWithKeywordParameters().setParameter("hs", vf.integer(hspace));
+		}
+		r = r.asWithKeywordParameters().setParameter("vs", vf.integer(0));
 		return r;
 	}
 

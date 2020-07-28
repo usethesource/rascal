@@ -19,6 +19,7 @@ package org.rascalmpl.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -48,7 +50,7 @@ public class JavaMethod extends NamedFunction {
 	private final JavaBridge javaBridge;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		this(eval, (FunctionType) func.getSignature().typeOf(env, true, eval), func, hasTestMod(func.getSignature()), isDefault(func), varargs, env, javaBridge);
+		this(eval, (FunctionType) func.getSignature().typeOf(env, eval, false), func, hasTestMod(func.getSignature()), isDefault(func), varargs, env, javaBridge);
 	}
 	
 	@Override
@@ -70,6 +72,7 @@ public class JavaMethod extends NamedFunction {
 		
 		return TF.tupleType(types, labels);
 	}
+	
 	/*
 	 *  This one is to be called by cloneInto only, to avoid
 	 *  looking into the environment again for obtaining the type.
@@ -81,12 +84,9 @@ public class JavaMethod extends NamedFunction {
 		super(func, eval, type , getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
-		this.instance = javaBridge.getJavaClassInstance(func);
+		this.instance = javaBridge.getJavaClassInstance(func, eval.getMonitor(), env.getStore(), eval.getOutPrinter(), eval.getErrorPrinter());
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
-
-	
-	
 
 	@Override
 	public JavaMethod cloneInto(Environment env) {
@@ -110,7 +110,7 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+	public Result<IValue> call(Type[] actualStaticTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
 		Result<IValue> resultValue = getMemoizedResult(actuals, keyArgValues);
 		
 		if (resultValue !=  null) {
@@ -120,28 +120,20 @@ public class JavaMethod extends NamedFunction {
 		Type formals = getFormals();
 
 		
-		Object[] oActuals;
-
 		if (hasVarArgs) {
-			oActuals = computeVarArgsActuals(actuals, formals);
+            actuals = computeVarArgsActuals(actuals, formals);
+            actualTypesTuple = computeVarArgsActualTypes(actualStaticTypes, formals);
 		}
 		else {
-			oActuals = actuals;
-		}
-		
-		if (hasVarArgs) {
-			actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
-		}
-		else {
-			actualTypesTuple = TF.tupleType(actualTypes);
+		    actualTypesTuple = TF.tupleType(actualStaticTypes);
 		}
 		
 		if (!actualTypesTuple.isSubtypeOf(formals)) {
 			// resolve overloading
 			throw new MatchFailed();
 		}
-		
-		oActuals = addKeywordActuals(oActuals, formals, keyArgValues);
+
+		Object[] oActuals = addKeywordActuals(actuals, formals, keyArgValues);
 
 		if (hasReflectiveAccess) {
 			oActuals = addCtxActual(oActuals);
@@ -157,11 +149,19 @@ public class JavaMethod extends NamedFunction {
 			ctx.pushEnv(getName());
 
 			Environment env = ctx.getCurrentEnvt();
-			bindTypeParameters(actualTypesTuple, formals, env); 
+			Map<Type, Type> renamings = new HashMap<>();
+			bindTypeParameters(actualTypesTuple, actuals, formals, renamings, env); 
 			
+			if (!getReturnType().isBottom() && getReturnType().instantiate(env.getStaticTypeBindings()).isBottom()) {
+			    // type parameterized functions are not allowed to return void,
+			    // so they are never called if this happens (if void is bound to the return type parameter)
+			    throw new MatchFailed();
+			}
+			    
 			IValue result = invoke(oActuals);
 			
-			Type resultType = getReturnType().instantiate(env.getTypeBindings());
+			Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
+			resultType = unrenameType(renamings, resultType);
 			
 			resultValue = ResultFactory.makeResult(resultType, result, eval);
 			resultValue = storeMemoizedResult(actuals, keyArgValues, resultValue);
@@ -179,7 +179,7 @@ public class JavaMethod extends NamedFunction {
 			ctx.unwind(old);
 		}
 	}
-	
+
 	private Object[] addCtxActual(Object[] oActuals) {
 		Object[] newActuals = new Object[oActuals.length + 1];
 		System.arraycopy(oActuals, 0, newActuals, 0, oActuals.length);

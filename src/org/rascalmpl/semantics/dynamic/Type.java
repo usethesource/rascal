@@ -36,10 +36,9 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return this.getBasic().typeOf(__eval, instantiateTypeParameters, eval);
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getBasic().typeOf(__eval, eval, instantiateTypeParameters);
 		}
-
 	}
 
 	static public class Bracket extends org.rascalmpl.ast.Type.Bracket {
@@ -49,12 +48,9 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-
-			return this.getType().typeOf(__eval, instantiateTypeParameters, eval);
-
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getType().typeOf(__eval, eval, instantiateTypeParameters);
 		}
-
 	}
 
 	static public class Function extends org.rascalmpl.ast.Type.Function {
@@ -64,12 +60,9 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-
-			return this.getFunction().typeOf(__eval, instantiateTypeParameters, eval);
-
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getFunction().typeOf(__eval, eval, instantiateTypeParameters);
 		}
-
 	}
 
 	static public class Selector extends org.rascalmpl.ast.Type.Selector {
@@ -79,12 +72,9 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-
-			return this.getSelector().typeOf(__eval, instantiateTypeParameters, eval);
-
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getSelector().typeOf(__eval, eval, instantiateTypeParameters);
 		}
-
 	}
 
 	static public class Structured extends org.rascalmpl.ast.Type.Structured {
@@ -94,10 +84,9 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-			return getStructured().typeOf(__eval, instantiateTypeParameters, eval);
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getStructured().typeOf(__eval, eval, instantiateTypeParameters);
 		}
-
 	}
 
 	static public class Symbol extends org.rascalmpl.ast.Type.Symbol {
@@ -107,7 +96,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			// TODO: !!! where to get the right layout name for this non-terminal? It depends on where it was/is used when parsing whatever
 			// is being analyzed here...
 			// TODO AND: we always assume this non-terminal is not a lexical one here for some reason.
@@ -118,45 +107,34 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 	}
 
 	static public class User extends org.rascalmpl.ast.Type.User {
-
 		public User(ISourceLocation __param1, IConstructor tree, UserType __param2) {
 			super(__param1, tree, __param2);
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment __eval, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
-
-			return this.getUser().typeOf(__eval, instantiateTypeParameters, eval);
-
+		public io.usethesource.vallang.type.Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return this.getUser().typeOf(__eval, eval, instantiateTypeParameters);
 		}
-
 	}
 
 	static public class Variable extends org.rascalmpl.ast.Type.Variable {
-
 		public Variable(ISourceLocation __param1, IConstructor tree, TypeVar __param2) {
 			super(__param1, tree, __param2);
 		}
 
 		@Override
-		public io.usethesource.vallang.type.Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public io.usethesource.vallang.type.Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			TypeVar var = this.getTypeVar();
 			io.usethesource.vallang.type.Type param;
 
 			if (var.isBounded()) {
-				param = TF.parameterType(Names.name(var.getName()), var
-						.getBound().typeOf(env, instantiateTypeParameters, eval));
+				param = TF.parameterType(Names.name(var.getName()), var.getBound().typeOf(env, eval, instantiateTypeParameters));
 			} else {
 				param = TF.parameterType(Names.name(var.getName()));
 			}
 
-			if (instantiateTypeParameters) {
-				return param.instantiate(env.getTypeBindings());
-			}
 			return param;
-
 		}
-
 	}
 
 	public Type(ISourceLocation __param1, IConstructor tree) {

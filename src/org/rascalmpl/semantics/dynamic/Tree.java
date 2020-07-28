@@ -77,7 +77,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return type;
 		}
 
@@ -115,13 +115,13 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext ctx) {
+		public IMatchingResult buildMatcher(IEvaluatorContext ctx, boolean bindTypeParameters) {
 			IConstructor symbol = ((NonTerminalType) type).getSymbol();
 			if (SymbolAdapter.isStarList(symbol) || SymbolAdapter.isPlusList(symbol)) {
 				return new ConcreteListVariablePattern(ctx, this, type, name);
 			}
 			else {
-				return new TypedVariablePattern(ctx, this, type, name);
+				return new TypedVariablePattern(ctx, this, type, name, bindTypeParameters);
 			}
 		}
 		
@@ -179,7 +179,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return type;
 		}
 
@@ -209,11 +209,11 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 			for (Expression kid : args) { 
 				if (!((Tree) kid).isLayout()) {
-					kids.add(kid.buildMatcher(eval));
+					kids.add(kid.buildMatcher(eval, bindTypeParameters));
 				}
 			}
 			return new ConcreteApplicationPattern(eval, this,  kids);
@@ -231,10 +231,10 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			java.util.List<IMatchingResult> kids = new ArrayList<IMatchingResult>(args.size());
 			if (args.size() == 1) {
-				kids.add(args.get(0).buildMatcher(eval));
+				kids.add(args.get(0).buildMatcher(eval, bindTypeParameters));
 			}
 			return new ConcreteOptPattern(eval, this,  kids);
 		}
@@ -254,12 +254,12 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 			for (org.rascalmpl.ast.Expression arg : args) {
-				kids.add(arg.buildMatcher(eval));
+				kids.add(arg.buildMatcher(eval, bindTypeParameters));
 			}
-			return new ConcreteListPattern(eval, this,  kids);
+			return new ConcreteListPattern(eval, this,  kids, bindTypeParameters);
 		}
 
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
@@ -371,7 +371,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return type;
 		}
 
@@ -381,13 +381,13 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(alts.size());
 			for (org.rascalmpl.ast.Expression arg : alts) {
-				kids.add(arg.buildMatcher(eval));
+				kids.add(arg.buildMatcher(eval, bindTypeParameters));
 			}
 
-			IMatchingResult setMatcher = new SetPattern(eval, this,  kids);
+			IMatchingResult setMatcher = new SetPattern(eval, this,  kids, bindTypeParameters);
 			java.util.List<IMatchingResult> wrap = new ArrayList<IMatchingResult>(1);
 			wrap.add(setMatcher);
 
@@ -433,12 +433,12 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return new LiteralPattern(eval, this,  node);
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return RascalValueFactory.Tree;
 		}
 	}
@@ -482,12 +482,12 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 		}
 
 		@Override
-		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
+		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return new LiteralPattern(eval, this, VF.cycle(node,length));
 		}
 
 		@Override
-		public Type typeOf(Environment env, boolean instantiateTypeParameters, IEvaluator<Result<IValue>> eval) {
+		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			return RascalValueFactory.Tree;
 		}
 	}
