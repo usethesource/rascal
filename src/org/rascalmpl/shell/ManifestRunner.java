@@ -46,10 +46,12 @@ public class ManifestRunner implements ShellRunner {
         try {
             IValue v = eval.main(monitor, module, main, args);
 
-            if (v.getType().isInteger()) {
+            if (v != null && v.getType().isInteger()) {
                 System.exit(((IInteger) v).intValue());
             } else {
-                new StandardTextWriter(true).write(v, eval.getOutPrinter());
+                if (v != null) {
+                    new StandardTextWriter(true).write(v, eval.getOutPrinter());
+                }
                 eval.getOutPrinter().flush();
                 System.exit(0);
             }
