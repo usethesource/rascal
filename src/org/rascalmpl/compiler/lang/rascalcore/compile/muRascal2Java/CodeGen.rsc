@@ -806,10 +806,13 @@ str varName(muVar(str name, str fuid, int pos, AType atype), JGenie jg){
     return (name[0] != "$") ? "<getJavaName(name)><(pos >= 0 || name == "_") ? "_<abs(pos)>" : "">" : getJavaName(name);
 }
         
-JCode trans(var:muVar(str name, str fuid, int pos, AType atype), JGenie jg)
-    = jg.isRef(var) && pos >= 0 ? "<varName(var, jg)>.getValue()" : varName(var, jg);
+JCode trans(var:muVar(str name, str fuid, int pos, AType atype), JGenie jg){
+   return jg.isRef(var) && pos >= 0 ? "<varName(var, jg)>.getValue()" 
+                                    : ( pos >= 0 ? varName(var, jg)
+                                                 : "<fuid == jg.getFunctionName() ? "" : fuid == jg.getModuleName() ? "$me." : "<module2field(fuid)>."><varName(var, jg)>"
+                                      );
        //= jg.isExternalVar(var) && pos >= 0 ? "<varName(var, jg)>.value" : varName(var, jg);
-
+}
 // ---- muTmpIValue -----------------------------------------------------------------
 
 JCode trans(var: muTmpIValue(str name, str fuid, AType atype), JGenie jg)
