@@ -1,12 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import List;
-
-test bool tstIntercalate(str sep, list[value] L) = 
-       intercalate(sep, L) == (isEmpty(L) ? ""
-                                          : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
-       
-value main() = intercalate("", []);
+test bool Test91() { 
+    int f(3) = 3;
+    return f(3) == 3;
+}
                                           
 //data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
 //

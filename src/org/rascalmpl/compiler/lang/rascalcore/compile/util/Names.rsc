@@ -2,6 +2,7 @@ module lang::rascalcore::compile::util::Names
 
 import String;
 import IO;
+import List;
 
 str compiled_rascal_package = "compiled_rascal";
 
@@ -9,10 +10,22 @@ str removeEmptyLines(str s){
     return visit(s) { case /^\n[ ]*\n/ => "\n" };
 }
 
+list[str] split(str qname)
+    = split("::", qname);
+
+list[str] normalize(list[str] parts)
+    = [ replaceAll(replaceAll(p, "-", "_"), "\\", "") | p <- parts ];
+
+list[str] escapeJavaKeywords(list[str] parts)
+    = [ p in javaKeywords ? "$<p>" : p | p <- parts ];
+    
+str normalizeQName(str qname)
+    = intercalate(".", escapeJavaKeywords(normalize(split(qname))));
+
 str replaceColonAndDash(str s) = replaceAll(replaceAll(replaceAll(s, "-", "_"), "::", "."), "\\", "");
 
 str getQualClassName(str qname){
-    return replaceColonAndDash(qname);
+    return normalizeQName; //replaceColonAndDash(qname);
 }
 
 str getUnqualifiedName(str qname){
@@ -31,13 +44,13 @@ str getQualifier(str qname){
 }
 
 str getClassName(str qname){
-    qname = replaceColonAndDash(qname);
+    qname = normalizeQName(qname); // replaceColonAndDash(qname);
     n = findLast(qname, ".");
     return n >= 0 ? qname[n+1 ..] : qname;
 }
 
 str getClassRef(str qname, str inModule){
-    qname = replaceColonAndDash(qname);
+    qname = normalizeQName(qname); // replaceColonAndDash(qname);
     n = findLast(qname, ".");
     //if(getPackageName(inModule) != compiled_rascal_package){
         qname = "<compiled_rascal_package>.<qname>";
@@ -46,19 +59,19 @@ str getClassRef(str qname, str inModule){
 }
 
 str getPackageName(str qname){
-    className = replaceColonAndDash(qname);
+    className = normalizeQName(qname); // replaceColonAndDash(qname);
     n = findLast(className, ".");
     return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>" : compiled_rascal_package;
 }
 
 str getClass(str qname){
-    qname = replaceColonAndDash(qname);
+    qname = normalizeQName(qname); // replaceColonAndDash(qname);
     n = findLast(qname, ".");
     return n >= 0 ? "<compiled_rascal_package>.<qname[n+1 ..]>" : "<compiled_rascal_package>.<qname>";
 }
 
 str getBaseClass(str qname){
-    qname = replaceColonAndDash(qname);
+    qname = normalizeQName(qname); // replaceColonAndDash(qname);
     n = findLast(qname, ".");
     return n >= 0 ? qname[n+1 ..] : qname;
 }
@@ -73,7 +86,7 @@ set[str] javaKeywords = {
     "break",    "double",   "implements", "protected", "throw",
     "byte",     "else",     "import",     "public",    "throws",
     "case",     "enum",     "instanceof", "return",    "transient",
-    "catch",     "extends",  "int",        "short",     "try",
+    "catch",    "extends",  "int",        "short",     "try",
     "char",     "final",    "interface",  "static",    "void",
     "class",    "finally",  "long",       "strictfp",  "volatile",
     "const",    "float",    "native",     "super",     "while"};
@@ -85,7 +98,7 @@ str getJavaName(str fname, bool completeId = true){
 }
     
 str  module2uqclass(str qname, str inModule){
-    qname = replaceAll(qname, "::", ".");
+    qname = normalizeQName(qname); // replaceAll(qname, "::", ".");
     n = findLast(qname, ".");
     uqname = n >= 0 ? qname[n+1 ..] : qname;
    //if(getPackageName(inModule) != compiled_rascal_package){
@@ -105,7 +118,7 @@ str module2path(str qname){
 }
 
 str module2field(str qname){
-    return "M_" + replaceAll(replaceColonAndDash(qname), ".", "_");
+    return "M_" + replaceAll(normalizeQName(qname) /*replaceColonAndDash(qname)*/, ".", "_");
 }
 
 str colon2ul(str s) = replaceAll(replaceAll(s, "::", "_"), "$", ".");
