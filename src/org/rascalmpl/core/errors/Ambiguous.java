@@ -13,6 +13,7 @@ package org.rascalmpl.core.errors;
 
 import org.rascalmpl.core.uri.URIUtil;
 import org.rascalmpl.core.values.uptr.ITree;
+import org.rascalmpl.core.values.uptr.RascalValueFactory;
 import org.rascalmpl.core.values.uptr.TreeAdapter;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -30,7 +31,7 @@ public final class Ambiguous extends AssertionError {
 	}
 
     private ISourceLocation computeLocation(ITree tree) {
-        ISourceLocation tmp = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asAnnotatable().getAnnotation("loc");
+        ISourceLocation tmp = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asWithKeywordParameters().getParameter(RascalValueFactory.Location);
         if (tmp == null) {
             return URIUtil.rootLocation("unknown");
         }

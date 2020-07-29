@@ -976,7 +976,7 @@ JCode trans(muGuardedGetAnno(MuExp exp, AType resultType, str annoName), JGenie 
     
 // muSetAnno
 JCode trans(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl), JGenie jg)
-    = "<trans(exp, jg)>.asAnnotatable().setAnnotation(\"<annoName>\",<trans(repl, jg)>)";
+    = "<trans(exp, jg)>.asWithKeywordParameters().setParameter(\"<annoName>\",<trans(repl, jg)>)";
 
 // Call/Apply/return      
 
