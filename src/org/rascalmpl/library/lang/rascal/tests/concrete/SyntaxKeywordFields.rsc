@@ -9,6 +9,8 @@ syntax B = "b" | [b]; // ambiguous on purpose
 // we only allow declarations on Tree for now, for lack of a syntax to declare them on non-terminals.
 data Tree(str y = "y");
 
+&T<:Tree get(&T<:Tree e) = e;
+
 // to be able to access the kw param feature, you have to remove the loc annotation first (until we remove annotations):
 
 @ignoreCompiler{FIX: type checker does not accept this}
