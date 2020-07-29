@@ -28,11 +28,13 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.core.values.uptr.RascalValueFactory;
@@ -110,7 +112,7 @@ public class FunctionType extends RascalType {
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), rnd.nextBoolean() ? tf().voidType() : randomTuple(next, store, rnd));
         }
         
@@ -295,7 +297,7 @@ public class FunctionType extends RascalType {
 	  FunctionType f = (FunctionType) type;
 	  
 	  Type returnType = getReturnType().lub(f.getReturnType());
-	  Type argumentTypes = getArgumentTypes().glb(f.getArgumentTypes());
+	  Type argumentTypes = getArgumentTypes().lub(f.getArgumentTypes());
 	  
 	  if (argumentTypes.isTuple() && argumentTypes.getArity() == getArity()) {
 	    return RTF.functionType(returnType, 
@@ -372,8 +374,8 @@ public class FunctionType extends RascalType {
 	        for (Type arg : keywordParameters) {
 	            sb.append(", ");
 	            sb.append(arg.toString());
-	            if (argumentTypes.hasFieldNames()) {
-	                sb.append(" " + argumentTypes.getFieldName(i) + " = ...");
+	            if (keywordParameters.hasFieldNames()) {
+	                sb.append(" " + keywordParameters.getFieldName(i) + " = ...");
 	            }
 	            
 	            i++;
@@ -474,5 +476,12 @@ public class FunctionType extends RascalType {
 		if(!newAlternatives.isEmpty()) 
 			return RTF.overloadedFunctionType(newAlternatives);
 		return TF.voidType();
+	}
+
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+			int maxDepth, int maxBreadth) {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("randomValue on FunctionType not yet implemented");
 	}
 }

@@ -15,6 +15,7 @@ package org.rascalmpl.core.types;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,6 +41,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.BottomUpVisitor;
@@ -192,7 +194,7 @@ public class NonTerminalType extends RascalType {
         }
         
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             // TODO: this is not random enough
             return RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(randomLabel(rnd))));
@@ -454,7 +456,7 @@ public class NonTerminalType extends RascalType {
 		
 		if (obj.getClass() == getClass()) {
 			NonTerminalType other = (NonTerminalType) obj;
-			return symbol.isEqual(other.symbol);
+			return symbol.equals(other.symbol);
 		}
 		
 		return false;
@@ -468,5 +470,16 @@ public class NonTerminalType extends RascalType {
 	@Override
 	public String toString() {
 		return SymbolAdapter.toString(symbol, false);
+	}
+
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	    int maxDepth, int maxBreadth) {
+	    // TODO this should be made more carefully (use the grammar to generate a true random instance of the 
+	    // given non-terminal
+	    IRascalValueFactory rvf = (IRascalValueFactory) vf;
+	    
+	    // TODO: this generates an on-the-fly nullable production and returns a tree for that rule
+	    return rvf.appl(vf.constructor(RascalValueFactory.Production_Default, symbol, vf.list(), vf.set()), vf.list());
 	}
 }

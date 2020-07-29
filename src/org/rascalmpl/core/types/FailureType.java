@@ -11,6 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.core.types;
 
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -19,8 +20,10 @@ import java.util.function.Supplier;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.core.values.ValueFactoryFactory;
@@ -70,7 +73,7 @@ public class FailureType extends RascalType {
         }
         
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return RascalTypeFactory.getInstance().failureType(ValueFactoryFactory.getValueFactory().set());
         }
 	}
@@ -178,5 +181,11 @@ public class FailureType extends RascalType {
 	@Override
 	public int hashCode() {
 		return 93 + messages.hashCode();
+	}
+
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+			int maxDepth, int maxBreadth) {
+		throw new RuntimeException("randomValue not implemented for FailureType");
 	}
 }

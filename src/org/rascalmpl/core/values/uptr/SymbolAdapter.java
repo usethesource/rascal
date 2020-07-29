@@ -704,7 +704,7 @@ public class SymbolAdapter {
 		}
 		
 		if ((isLiteral(l) && isLiteral(r)) || (isCILiteral(l) && isCILiteral(r)) || (isCharClass(l) && isCharClass(r))) {
-			return l.isEqual(r);
+			return l.equals(r);
 		}
 		
 		return false;
