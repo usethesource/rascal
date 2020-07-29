@@ -27,7 +27,7 @@ test bool eqTest0() = get((A)`a`) != get((A)`a`);
 test bool eqTest() = (A)`a` := (A)`a`;
 
 @ignoreCompiler{FIX: type checker does not accept this}
-test bool eqTest() = get((A)`a`) == get((A)`a`);
+test bool eqTest() = get((A)`a`) := get((A)`a`);
 
 test bool eqTest2() = get((A)`a`).y == get((A)`a`)[y="y"].y;
 
