@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -30,6 +31,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.core.values.uptr.RascalValueFactory;
@@ -121,7 +123,7 @@ public class OverloadedFunctionType extends RascalType {
         }
         
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             int size = rnd.nextInt(5) + 2;
             Set<FunctionType> alts = new HashSet<>(); 
             Type returnType = next.get();
@@ -383,6 +385,13 @@ public class OverloadedFunctionType extends RascalType {
 		if(!newAlternatives.isEmpty()) 
 			return RTF.overloadedFunctionType(newAlternatives);
 		return TF.voidType();
+	}
+
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+			int maxDepth, int maxBreadth) {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("randomValue not implemented on OverloadedFunctionType");
 	}
 
 }

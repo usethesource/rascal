@@ -348,7 +348,7 @@ public class Symbols {
 	}
 
     public static IConstructor unionCharClasses(IConstructor lhs, IConstructor rhs) {
-        if (lhs == rhs || lhs.isEqual(rhs)) {
+        if (lhs == rhs || lhs.equals(rhs)) {
             return lhs;
         }
         return charclass(unionRanges(SymbolAdapter.getRanges(lhs), SymbolAdapter.getRanges(rhs)));
@@ -365,7 +365,7 @@ public class Symbols {
     }
     
     public static IConstructor differencesCharClasses(IConstructor lhs, IConstructor rhs) {
-        if (lhs == rhs || lhs.isEqual(rhs)) {
+        if (lhs == rhs || lhs.equals(rhs)) {
             return factory.constructor(RascalValueFactory.Symbol_CharClass, factory.list());
         }
         
@@ -432,7 +432,7 @@ public class Symbols {
     }
 
     public static IConstructor intersectCharClasses(IConstructor lhs, IConstructor rhs) {
-        if (lhs == rhs || lhs.isEqual(rhs)) {
+        if (lhs == rhs || lhs.equals(rhs)) {
             return lhs;
         }
         return charclass(intersectRanges(SymbolAdapter.getRanges(lhs), SymbolAdapter.getRanges(rhs)));
