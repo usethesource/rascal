@@ -328,29 +328,31 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	// ---- annotation_get ----------------------------------------------------
 
 	public final IValue  $annotation_get(final IValue val, final String label) {
-		try {
-			IValue result = val.asAnnotatable().getAnnotation(label);
-
-			if(result == null) {
-				throw RuntimeExceptionFactory.noSuchAnnotation(label);
-			}
-			return result;
-		} catch (FactTypeUseException e) {
-			throw  RuntimeExceptionFactory.noSuchAnnotation(label);
-		}
+		return $aadt_get_field((IConstructor)val, label);
+//		try {
+//			IValue result = val.asAnnotatable().getAnnotation(label);
+//
+//			if(result == null) {
+//				throw RuntimeExceptionFactory.noSuchAnnotation(label);
+//			}
+//			return result;
+//		} catch (FactTypeUseException e) {
+//			throw  RuntimeExceptionFactory.noSuchAnnotation(label);
+//		}
 	}
 
 	public final GuardedIValue $guarded_annotation_get(final IValue val, final String label) {
-		try {
-			IValue result = val.asAnnotatable().getAnnotation(label);
-
-			if(result == null) {
-				return UNDEFINED;
-			}
-			return new GuardedIValue(result);
-		} catch (FactTypeUseException e) {
-			return UNDEFINED;
-		}
+		return $guarded_aadt_get_field((IConstructor)val, label);
+//		try {
+//			IValue result = val.asAnnotatable().getAnnotation(label);
+//
+//			if(result == null) {
+//				return UNDEFINED;
+//			}
+//			return new GuardedIValue(result);
+//		} catch (FactTypeUseException e) {
+//			return UNDEFINED;
+//		}
 	}
 
 	// ---- assert_fails ------------------------------------------------------
@@ -589,9 +591,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if (leftType.isSubtypeOf($TF.numberType()) && rightType.isSubtypeOf($TF.numberType())) {
 			return ((INumber)left).equal((INumber)right);
 		} else if(leftType.isNode() && rightType.isNode()){
-			return ((INode) left).isEqual((INode) right) ? Rascal_TRUE : Rascal_FALSE;
+			return ((INode) left).equals((INode) right) ? Rascal_TRUE : Rascal_FALSE;
 		} else {
-			return $VF.bool(left.isEqual(right));
+			return $VF.bool(left.equals(right));
 		}
 	}
 	
@@ -610,12 +612,12 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				return res;
 			}
 		}
-		if(nd.isAnnotatable()){
-			IValue res =  nd.asAnnotatable().getAnnotation(fieldName);
-			if(res != null) {
-				return res;
-			}
-		}
+//		if(nd.isAnnotatable()){
+//			IValue res =  nd.asAnnotatable().getAnnotation(fieldName);
+//			if(res != null) {
+//				return res;
+//			}
+//		}
 		if(nd instanceof IConstructor) {
 			IConstructor c = (IConstructor) nd;
 			if(c.has(fieldName)) {
@@ -666,15 +668,15 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				}
 			}
 		}
-		if(cons.isAnnotatable()){
-			IValue result = cons.asAnnotatable().getAnnotation(fieldName);
-			if(result == null) {
-				throw RuntimeExceptionFactory.noSuchField(fieldName);
-			}
-			return result;
-		} else {
+//		if(cons.isAnnotatable()){
+//			IValue result = cons.asAnnotatable().getAnnotation(fieldName);
+//			if(result == null) {
+//				throw RuntimeExceptionFactory.noSuchField(fieldName);
+//			}
+//			return result;
+//		} else {
 			throw RuntimeExceptionFactory.noSuchField(fieldName);
-		}
+//		}
 	}
 	
 	public final GuardedIValue $guarded_aadt_get_field(final IConstructor cons, final String fieldName) {
@@ -1460,11 +1462,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 			return nd.asWithKeywordParameters().setParameter(fieldName, repl);
 		} else {
-			if(nd.isAnnotatable()){
-				return nd.asAnnotatable().setAnnotation(fieldName, repl);
-			} else {
+//			if(nd.isAnnotatable()){
+//				return nd.asAnnotatable().setAnnotation(fieldName, repl);
+//			} else {
 				throw RuntimeExceptionFactory.illegalArgument(nd, /*fieldName,*/ null, null);
-			}
+//			}
 		}
 	}
 	
@@ -1510,11 +1512,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 			return true;
 		} else {
-			if(nd.isAnnotatable()){
-				return nd.asAnnotatable().getAnnotation(fieldName) != null;
-			} else {
+//			if(nd.isAnnotatable()){
+//				return nd.asAnnotatable().getAnnotation(fieldName) != null;
+//			} else {
 				return false;
-			}
+//			}
 		}
 	}
 	
@@ -1547,11 +1549,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					return true;			        }
 			}
 		}
-		if(cons.isAnnotatable()){
-			return cons.asAnnotatable().getAnnotation(fieldName) != null;
-		} else {
+//		if(cons.isAnnotatable()){
+//			return cons.asAnnotatable().getAnnotation(fieldName) != null;
+//		} else {
 			return false;
-		}
+//		}
 	}
 	
 	// TODO nonterminal
@@ -2062,10 +2064,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 
 		if (!left.mayHaveKeywordParameters() && !right.mayHaveKeywordParameters()) {
-			if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
-				// bail out 
-				return Rascal_FALSE;
-			}
+//			if (left.asAnnotatable().hasAnnotations() || right.asAnnotatable().hasAnnotations()) {
+//				// bail out 
+//				return Rascal_FALSE;
+//			}
 		}
 
 		if (!left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
@@ -2110,7 +2112,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
 			for (r = Math.max(l, r) ; r < right.length(); r++) {
-				if (left.get(l).isEqual(right.get(r))) {
+				if (left.get(l).equals(right.get(r))) {
 					r++;
 					continue OUTER;
 				}
@@ -2121,7 +2123,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	}
 
 	public final IBool $aset_less_aset(final ISet left, final ISet right) {
-		return $VF.bool(!left.isEqual(right) && left.isSubsetOf(right));
+		return $VF.bool(!left.equals(right) && left.isSubsetOf(right));
 	}
 
 	public final IBool $amap_less_amap(final IMap left, final IMap right) {
@@ -2423,7 +2425,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 		OUTER:for (int l = 0, r = 0; l < left.length(); l++) {
 			for (r = Math.max(l, r) ; r < right.length(); r++) {
-				if (left.get(l).isEqual(right.get(r))) {
+				if (left.get(l).equals(right.get(r))) {
 					continue OUTER;
 				}
 			}
@@ -2434,7 +2436,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	}
 
 	public final IBool $aset_lessequal_aset(final ISet left, final ISet right) {
-		return $VF.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
+		return $VF.bool(left.size() == 0 || left.equals(right) || left.isSubsetOf(right));
 	}
 
 	public final IBool $amap_lessequal_amap(final IMap left, final IMap right) {
@@ -3099,7 +3101,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					for(int k = 0; k < indexArity; k++){
 						switch(subsDesc[k]){
 						case 0: 
-							if(!tup.get(k).isEqual(idx[k])) continue allValues; 
+							if(!tup.get(k).equals(idx[k])) continue allValues; 
 							continue;
 						case 1: {
 							IValue tup_k = tup.get(k);
@@ -3118,7 +3120,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					for(int k = 0; k < indexArity; k++){
 						switch(subsDesc[k]){
 						case 0: 
-							if(!tup.get(k).isEqual(idx[k])) continue allValues; 
+							if(!tup.get(k).equals(idx[k])) continue allValues; 
 							continue;
 						case 1: {
 							IValue tup_k = tup.get(k);
@@ -3251,7 +3253,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					for(int k = 0; k < indexArity; k++){
 						switch(subsDesc[k]){
 						case 0: 
-							if(!tup.get(k).isEqual(idx[k])) continue allValues; 
+							if(!tup.get(k).equals(idx[k])) continue allValues; 
 							continue;
 						case 1: 
 							if(!(((ISet)idx[k]).contains(tup.get(k)))) continue allValues;
@@ -3267,7 +3269,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					for(int k = 0; k < indexArity; k++){
 						switch(subsDesc[k]){
 						case 0: 
-							if(!tup.get(k).isEqual(idx[k])) continue allValues; 
+							if(!tup.get(k).equals(idx[k])) continue allValues; 
 							continue;
 						case 1: 
 							if(!((ISet)idx[k]).contains(tup.get(k))) continue allValues;
