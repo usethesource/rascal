@@ -353,9 +353,9 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 			else {
 				n = vf.node(node.getName(), args);
 
-				if (!node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
-					n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
-				}
+//				if (!node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
+//					n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
+//				}
 			}
 			result = n;
 		}
@@ -426,21 +426,20 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 	
 	@SuppressWarnings("deprecation")
 	private INode rebuild(IValue subject, IValue[] args, Map<String,IValue> kwargs) {
-		Map<String, IValue> annotations = subject.isAnnotatable() ? subject.asAnnotatable().getAnnotations() : emptyAnnotationsMap;
+		Map<String, IValue> kwParameters = subject.mayHaveKeywordParameters() ? subject.asWithKeywordParameters().getParameters() : emptyAnnotationsMap;
 		// TODO: jurgen can be optimized for the ITree case
 		if(subject.getType().isAbstractData()){
 			IConstructor cons1 = (IConstructor) subject;
 			IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
-			if(annotations.size() > 0){
-				// TODO: @paulklint what about the keyword parameters?
-				cons2 = cons2.asAnnotatable().setAnnotations(annotations);
+			if(kwParameters.size() > 0){
+				cons2 = cons2.asWithKeywordParameters().setParameters(kwParameters);
 			}
 			return cons2;
 		} else {
 			INode node1 = (INode) subject;
 			INode node2 = vf.node(node1.getName(), args, kwargs);
-			if(annotations.size() > 0){
-				node2 = node2.asAnnotatable().setAnnotations(annotations);
+			if(kwParameters.size() > 0){
+				node2 = node2.asWithKeywordParameters().setParameters(kwParameters);
 			}
 			return node2;
 		}

@@ -110,7 +110,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 	}
 	
 	public ITree addPositionInformation(ITree node, ISourceLocation location){
-		return (ITree) node.asAnnotatable().setAnnotation(RascalValueFactory.Location, location);
+		return (ITree) node.asWithKeywordParameters().setParameter(RascalValueFactory.Location, location);
 	}
 	
 	public ArrayList<ITree> getChildren(ITree node){
