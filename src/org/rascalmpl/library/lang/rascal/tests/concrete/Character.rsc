@@ -32,7 +32,8 @@ list[![]] produceCharClass() = [ w.head |  w <- t.words ]
    when Example t := [Example] "CamelCaseBaseFeest";
 
 test bool characterClassSubType() {
-  [A-Za-z] tmp = (Example) `A`.head; // assignment into bigger class: always allowed
+  [A-Z] head = char(65);
+  [A-Za-z] tmp = head; // assignment into bigger class: always allowed
   
   if ([A-Z] _ := tmp) { // binding to smaller class should match if it fits
     return true;
