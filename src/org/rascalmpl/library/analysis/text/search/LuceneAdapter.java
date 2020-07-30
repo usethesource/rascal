@@ -118,7 +118,6 @@ public class LuceneAdapter {
     private static final FieldType SOURCELOCATION_TYPE = makeSourceLocationType();
     private final IValueFactory vf;
     private final TypeFactory tf = TypeFactory.getInstance();
-    private final Prelude prelude;
     private final Map<ISourceLocation, SingleInstanceLockFactory> lockFactories;
     private final TypeStore store = new TypeStore();
     
@@ -132,7 +131,6 @@ public class LuceneAdapter {
     
     public LuceneAdapter(IValueFactory vf) {
         this.vf = vf;
-        this.prelude = new Prelude(vf);
         lockFactories = new HashMap<>();
     }
     
@@ -201,11 +199,11 @@ public class LuceneAdapter {
     }
     
     private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory) throws IOException {
-        return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
+        return new SourceLocationDirectory(vf, lockFactory, indexFolder);
     }
 
     public IList searchDocument(ISourceLocation doc, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException, InvalidTokenOffsetsException {
-        String entireDocument = prelude.readFile(doc).getValue();
+        String entireDocument = Prelude.readFile(vf, false, doc).getValue();
         
         try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc)) {
             TokenStream tokenStream = makeAnalyzer(analyzer).tokenStream(SRC_FIELD_NAME, reader);
@@ -698,7 +696,7 @@ public class LuceneAdapter {
         luceneDoc.add(idField);
         
         if (URIResolverRegistry.getInstance().exists(loc)) {
-            Field srcField = new Field(SRC_FIELD_NAME, prelude.readFile(loc).getValue(), SOURCELOCATION_TYPE);
+            Field srcField = new Field(SRC_FIELD_NAME, Prelude.readFile(vf, false, loc).getValue(), SOURCELOCATION_TYPE);
             luceneDoc.add(srcField);
         }
         
@@ -711,7 +709,7 @@ public class LuceneAdapter {
                 luceneDoc.add(new Field(label, ((IString) val).getValue() ,TextField.TYPE_STORED));
             }
             else if (val.getType().isSourceLocation()) {
-                luceneDoc.add(new Field(label, prelude.readFile((ISourceLocation) val).getValue(), SOURCELOCATION_TYPE));
+                luceneDoc.add(new Field(label, Prelude.readFile(vf, false, (ISourceLocation) val).getValue(), SOURCELOCATION_TYPE));
             }
             else {
                 luceneDoc.add(new Field(label, val.toString() ,TextField.TYPE_STORED));
@@ -894,12 +892,12 @@ public class LuceneAdapter {
     private static class SourceLocationDirectory extends BaseDirectory {
         private final ISourceLocation src;
         private final URIResolverRegistry reg;
-        private final Prelude prelude;
         private final AtomicLong nextTempFileCounter = new AtomicLong();
+        private final IValueFactory vf;
 
-        public SourceLocationDirectory(LockFactory lockFactory, Prelude prelude, ISourceLocation src) throws IOException {
+        public SourceLocationDirectory(IValueFactory vf, LockFactory lockFactory, ISourceLocation src) throws IOException {
             super(lockFactory);
-            this.prelude = prelude;
+            this.vf = vf;
             this.src = src;
             this.reg = URIResolverRegistry.getInstance();
             
@@ -921,7 +919,7 @@ public class LuceneAdapter {
         @Override
         public long fileLength(String name) throws IOException {
             try {
-                return prelude.__getFileSize(location(name)).longValue();
+                return Prelude.__getFileSize(vf, location(name)).longValue();
             }
             catch (URISyntaxException e) {
                 throw new IOException(e);

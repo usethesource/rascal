@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -310,10 +311,14 @@ public class JavaBridge {
 		}
 	}
 	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err) {
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr) {
 		String className = getClassName(func);
+		
 		PrintWriter[] outputs = new PrintWriter[] { out, err };
 		int writers = 0;
+        
+		OutputStream[] rawOutputs = new OutputStream[] { rawOut, rawErr };
+		int rawWriters = 0;
 
 		try {
 			for(ClassLoader loader : loaders){
@@ -346,6 +351,9 @@ public class JavaBridge {
 					    }
 					    else if (formals[i].isAssignableFrom(PrintWriter.class)) {
 					        args[i] = outputs[writers++ % 2];
+					    }
+					    else if (formals[i].isAssignableFrom(OutputStream.class)) {
+					        args[i] = rawOutputs[rawWriters++ %2];
 					    }
 					    else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
 					        args[i] = monitor;

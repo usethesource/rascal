@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -14,9 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
@@ -45,19 +44,25 @@ import jline.TerminalFactory;
 public class TermREPL {
     private final IValueFactory vf;
     private ILanguageProtocol lang;
+    private final OutputStream out;
+    private final OutputStream err;
+    private final InputStream in;
 
 
-    public TermREPL(IValueFactory vf) {
+    public TermREPL(IValueFactory vf, OutputStream out, OutputStream err, InputStream in) {
         this.vf = vf;
+        this.out = out;
+        this.err = err;
+        this.in = in;
     }
 
     public void startREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
-        ISourceLocation history, IValue handler, IValue completor, IValue stacktrace, IEvaluatorContext ctx) {
+        ISourceLocation history, IValue handler, IValue completor, IValue stacktrace) {
         try {
-            lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, ctx.getInput(), ctx.getStdErr(), ctx.getStdOut());
-            new BaseREPL(lang, null, ctx.getInput(), ctx.getStdErr(), ctx.getStdOut(), true, true, history, TerminalFactory.get(), null).run();
+            lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, in, err, out);
+            new BaseREPL(lang, null, in, err, out, true, true, history, TerminalFactory.get(), null).run();
         } catch (Throwable e) {
-            e.printStackTrace(ctx.getErrorPrinter());
+            e.printStackTrace(new PrintWriter(err));
         }
     }
 
