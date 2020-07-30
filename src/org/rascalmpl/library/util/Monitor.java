@@ -12,7 +12,6 @@
 package org.rascalmpl.library.util;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IString;
@@ -36,8 +35,7 @@ public class Monitor {
 		monitor.startJob(name.getValue(), totalWork.intValue());
 	}
 
-	public void startJob(IString name, IInteger workShare, IInteger totalWork,
-			IEvaluatorContext ctx) {
+	public void startJob(IString name, IInteger workShare, IInteger totalWork) {
 		monitor.startJob(name.getValue(), workShare.intValue(),
 				totalWork.intValue());
 	}
