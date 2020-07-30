@@ -27,11 +27,9 @@ import java.sql.Types;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import io.usethesource.vallang.IConstructor;
@@ -104,47 +102,28 @@ public class JDBC {
 	public static final Type Nullable = TF.abstractDataType(TS, "Nullable", nullableT);
 
 	private final IValueFactory vf;
+	private final ClassLoader loader;
+	
 	private int connectionCounter = 0;
 	private HashMap<IInteger,Connection> connectionMap;
 
-	public JDBC(IValueFactory vf) {
+	public JDBC(IValueFactory vf, ClassLoader loader) {
 		this.vf = vf;
+		this.loader = loader;
 		this.connectionMap = new HashMap<IInteger,Connection>();
 	}
 	
-	public void registerJDBCClass(IString className, IEvaluatorContext eval) {
-		List<ClassLoader> loaders = eval.getEvaluator().getClassLoaders();
+	public void registerJDBCClass(IString className) {
 		Class<?> driverClass = null;
-		Throwable ex = null;
-		
-		for (ClassLoader loader : loaders) {
-			try {
-				driverClass = loader.loadClass(className.getValue());
-				if (driverClass != null) {
-					Driver driver = (Driver)driverClass.newInstance();
-					DriverManager.registerDriver(new DriverShim(driver));
-				}
-			} catch (ClassNotFoundException e) {
-			  ex = e;
-				continue;
-			} catch (InstantiationException e) {
-				driverClass = null;
-				ex = e;
-				continue;
-			} catch (IllegalAccessException e) {
-				driverClass = null;
-				ex = e;
-				continue;
-			} catch (SQLException e) {
-				driverClass = null;
-				ex = e;
-				continue;
-			}
-			break;
-		}
-		
-		if (driverClass == null) {
-		  RuntimeExceptionFactory.javaException(new RuntimeException("An appropriate class loader to load class " + className.getValue() + " could not be found, either this class does not exist or the jar containing this class has not been added to the classpath.", ex), eval.getCurrentAST(), null);
+
+		try {
+		    driverClass = loader.loadClass(className.getValue());
+		    if (driverClass != null) {
+		        Driver driver = (Driver)driverClass.newInstance();
+		        DriverManager.registerDriver(new DriverShim(driver));
+		    }
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException e) {
+		    throw RuntimeExceptionFactory.javaException(new RuntimeException("An appropriate class loader to load class " + className.getValue() + " could not be found, either this class does not exist or the jar containing this class has not been added to the classpath.", e), null, null);
 		}
 	}
 	
