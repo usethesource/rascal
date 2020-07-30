@@ -350,6 +350,9 @@ public class JavaBridge {
 					    else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
 					        args[i] = monitor;
 					    }
+					    else if (formals[i].isAssignableFrom(ClassLoader.class)) {
+					        args[i] = new ListClassLoader(loaders, getClass().getClassLoader()); 
+					    }
 					    else {
 					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
 					    }
