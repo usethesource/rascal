@@ -52,7 +52,7 @@ public class TypeReifier {
         IConstructor symbol = reify(t, definitions, store, syntax);
 
         // now we hash the relation on adt, resulting in a map from adt to set of constructors
-        IMap index = new Prelude(vf).index(definitions.done()); // TODO: bring index functionality to rascal-value library 
+        IMap index = Prelude.index(vf, definitions.done()); // TODO: bring index functionality to rascal-value library 
         IMapWriter grammar = vf.mapWriter(); 
         
         // and here we wrap the set of constructors in a choice operator
