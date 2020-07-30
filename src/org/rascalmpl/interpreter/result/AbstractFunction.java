@@ -18,7 +18,6 @@
 package org.rascalmpl.interpreter.result;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;

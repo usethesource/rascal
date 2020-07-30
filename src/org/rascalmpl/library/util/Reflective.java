@@ -74,13 +74,11 @@ public class Reflective {
 	protected final IValueFactory values;
 	private Evaluator cachedEvaluator;
 	private int robin = 0;
-	protected final Prelude prelude;
 	private static final int maxCacheRounds = 500;
 
 	public Reflective(IValueFactory values){
 		super();
 		this.values = values;
-		prelude = new Prelude(values);
 	}
 	
 	public IString getRascalVersion() {
@@ -573,7 +571,7 @@ public class Reflective {
 		} catch (URISyntaxException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot create |home:///" + name1 + "|"), null, null);
 		}
-		prelude.writeTextValueFile(watchLoc, val);
+		Prelude.writeTextValueFile(values, false, watchLoc, val);
 		return val;
 	}
 

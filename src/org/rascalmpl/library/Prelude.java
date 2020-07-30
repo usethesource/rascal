@@ -541,7 +541,11 @@ public class Prelude {
 	  return values.string(SymbolAdapter.toString(symbol, withLayout.getValue()));
 	}
 	
-	public IValue parseDateTime(IString inputDateTime, IString formatString) 
+	public IValue parseDateTime(IString inputDateTime, IString formatString) {
+	    return parseDateTime(values, inputDateTime, formatString);
+	}
+	
+	static public IValue parseDateTime(IValueFactory values, IString inputDateTime, IString formatString) 
 	//@doc{Parse an input datetime given as a string using the given format string}
 	{
 		try {
@@ -1073,6 +1077,10 @@ public class Prelude {
 	} 
 	
 	public IString readFile(ISourceLocation sloc){
+	    return readFile(values, trackIO, sloc);
+	}
+	
+	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc){
 		if(trackIO) System.err.println("readFile: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
 			return values.string(consumeInputStream(reader));
@@ -3510,7 +3518,11 @@ public class Prelude {
         return new IValueInputStream(registry.getInputStream(loc), values, TYPE_STORE_SUPPLIER);
     }
 
-	public IInteger __getFileSize(ISourceLocation loc) throws URISyntaxException, IOException {
+    public IInteger __getFileSize(ISourceLocation loc) throws URISyntaxException, IOException {
+        return __getFileSize(values, loc);
+    }
+    
+	static public IInteger __getFileSize(IValueFactory values, ISourceLocation loc) throws URISyntaxException, IOException {
 	    if (loc.getScheme().contains("compressed+")) {
 	        loc = URIUtil.changeScheme(loc, loc.getScheme().replace("compressed+", ""));
 	    }
@@ -3607,7 +3619,11 @@ public class Prelude {
         }
     }
 
-	public void writeTextValueFile(ISourceLocation loc, IValue value){
+    public void writeTextValueFile(ISourceLocation loc, IValue value){
+        writeTextValueFile(values, trackIO, loc, value); 
+    }
+    
+	static public void writeTextValueFile(IValueFactory values, boolean trackIO, ISourceLocation loc, IValue value){
 		if(trackIO) System.err.println("writeTextValueFile: " + loc);
 		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
 			new StandardTextWriter().write(value, out);
