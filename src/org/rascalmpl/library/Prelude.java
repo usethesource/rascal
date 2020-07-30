@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2017 CWI
+ * Copyright (c) 2009-2020 CWI, NWO-I CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -128,11 +128,15 @@ public class Prelude {
 	private final Random random;
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
+    private final PrintWriter out;
+    private final PrintWriter err;
 	
-	public Prelude(IValueFactory values){
+	public Prelude(IValueFactory values, PrintWriter out, PrintWriter err){
 		super();
 		
 		this.values = values;
+		this.out = out;
+		this.err = err;
 		this.tr = new TypeReifier(values);
 		random = new Random();
 	}
@@ -857,8 +861,8 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void print(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getOutPrinter();
+	public void print(IValue arg){
+		PrintWriter currentOutStream = err;
 		
 		try{
 			if(arg.getType().isString()){
@@ -883,9 +887,9 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void iprint(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
+	public void iprint(IValue arg, IInteger lineLimit){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
-		Writer output = eval.getOutPrinter();
+		Writer output = out;
 		if (lineLimit.signum() > 0) {
 		    output = new LimitedLineWriter(output, lineLimit.longValue());
 		}
@@ -897,18 +901,15 @@ public class Prelude {
 	        // ignore, it's what we wanted
 	    }
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string("Could not print indented value"), eval.getCurrentAST(), eval.getStackTrace());
+			RuntimeExceptionFactory.io(values.string("Could not print indented value"));
 		}
 		finally {
-		    if (output != eval.getOutPrinter()) {
-		        try {
-		            output.flush();
-                    output.close();
-                }
-                catch (IOException e) {
-                }
+		    try {
+		        output.flush();
+		        output.close();
 		    }
-			eval.getOutPrinter().flush();
+		    catch (IOException e) {
+		    }
 		}
 	}
 	
@@ -926,21 +927,21 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void iprintln(IValue arg, IInteger lineLimit, IEvaluatorContext eval){
-	    iprint(arg, lineLimit, eval);
-	    eval.getOutPrinter().println();
-	    eval.getOutPrinter().flush();
+	public void iprintln(IValue arg, IInteger lineLimit){
+	    iprint(arg, lineLimit);
+	    out.println();
+	    out.flush();
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void println(IEvaluatorContext eval) {
-		eval.getOutPrinter().println();
-		eval.getOutPrinter().flush();
+	public void println() {
+		out.println();
+		out.flush();
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void println(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getOutPrinter();
+	public void println(IValue arg){
+		PrintWriter currentOutStream = out;
 		
 		try{
 			if(arg.getType().isString()){
@@ -966,8 +967,8 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void rprintln(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getOutPrinter();
+	public void rprintln(IValue arg){
+		PrintWriter currentOutStream = out;
 		
 		try {
 			currentOutStream.print(arg.toString());
@@ -979,8 +980,8 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void rprint(IValue arg, IEvaluatorContext eval){
-		PrintWriter currentOutStream = eval.getOutPrinter();
+	public void rprint(IValue arg){
+		PrintWriter currentOutStream = out;
 		
 		try {
 			currentOutStream.print(arg.toString());
@@ -2751,13 +2752,17 @@ public class Prelude {
 	}
 	
 	public IMap index(ISet s) {
-	    return indexIterable(s, s.size());
+	    return indexIterable(values, s, s.size());
 	}
 	public IMap index(IList l) {
-	    return indexIterable(l, l.length());
+	    return indexIterable(values, l, l.length());
 	}
 	
-	private IMap indexIterable(Iterable<IValue> s, int suggestedSize) {
+    public static IMap index(IValueFactory vf, ISet s) {
+	    return indexIterable(vf, s, s.size());
+	}
+	
+	private static IMap indexIterable(IValueFactory values, Iterable<IValue> s, int suggestedSize) {
 		Map<IsEqualsAdapter, ISetWriter> map = new HashMap<>(suggestedSize);
 		
 		for (IValue t : s) {
