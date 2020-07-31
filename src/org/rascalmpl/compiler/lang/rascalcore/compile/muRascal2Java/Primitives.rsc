@@ -129,8 +129,8 @@ JCode transPrim("divide", AType r, [AType a, AType b], [str x, str y], JGenie jg
 
 JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         =  "$equal(<x>, <y>)";
 
-//JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).isEqual(<y>)"   when !(isNodeType(a) || isNodeType(b)); // was .equal
-//JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).isEqual(<y>)"   when isNodeType(a) || isNodeType(b);    //WHY?
+//JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).equals(<y>)"   when !(isNodeType(a) || isNodeType(b)); // was .equal
+//JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).equals(<y>)"   when isNodeType(a) || isNodeType(b);    //WHY?
 
 // ---- field_project ---------------------------------------------------------
 
