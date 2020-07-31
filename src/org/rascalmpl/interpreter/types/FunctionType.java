@@ -16,7 +16,6 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -279,31 +278,40 @@ public class FunctionType extends RascalType {
 	
 	@Override
 	public boolean isSubtypeOfFunction(RascalType other) {
-		// Rascal functions are co-variant in the return type position and
-		// contra-variant in the argument positions, such that a sub-function
-		// can safely simulate a super function.
-	  FunctionType otherType = (FunctionType) other;
+	    // Rascal functions are co-variant in the return type position and
+	    // *variant* (co- _and_ contra-variant) in their argument positions, such that a sub-function
+	    // can safely simulate a super function and in particular overloaded functions may have contributions which
+	    // do not match the currently requested function type. 
+	    
+	    // For example, an overloadeded function `X f(int) + X f(str)` is substitutable at high-order parameter positions of type `X (int)` 
+	    // even though its function type is `X (value)`. Rascal's type system does not check completeness of function definitions,
+	    // only _possible_ applicability in this manner. Every function may throw `CallFailed` at run-time 
+	    // if non of their arguments match for none of their alternatives.
+	    
+	    FunctionType otherType = (FunctionType) other;
 
-	  if (getReturnType().isSubtypeOf(otherType.getReturnType())) {
-	    if (otherType.getArgumentTypes().isSubtypeOf(getArgumentTypes())) {
-	      return true;
+	    if (getReturnType().isSubtypeOf(otherType.getReturnType())) {
+	        
+	        Type argTypes = getArgumentTypes();
+	        Type otherArgTypes = otherType.getArgumentTypes();
+	        
+	        if (argTypes.getArity() != otherArgTypes.getArity()) {
+	            return false;
+	        }
+	        
+	        // arguments must be (pairwise) comparable. delegation to tuple type
+	        // comparability will not work here, since that is not defined pairwise.
+	        for (int i = 0; i < argTypes.getArity(); i++) {
+	            if (!argTypes.getFieldType(i).comparable(otherArgTypes.getFieldType(i))) {
+	                return false;
+	            }
+	        }
+	        
+	        // all arguments are (pairwise) comparable
+	        return true;
 	    }
 
-	    // type parameterized functions are never sub-types before instantiation
-	    // because the argument types are co-variant. This would be weird since
-	    // instantiated functions are supposed to be substitutable for their generic
-	    // counter parts. So, we try to instantiate first, and then check again.
-	    Map<Type,Type> bindings = new HashMap<>();
-
-	    if (!otherType.match(this, bindings)) {
-	      return false;
-	    }
-	    if (bindings.size() != 0) {
-	      return isSubtypeOf(otherType.instantiate(bindings));
-	    }
-	  }
-	  
-	  return false;
+	    return false;
 	}
 
 	@Override
