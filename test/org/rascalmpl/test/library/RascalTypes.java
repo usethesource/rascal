@@ -19,7 +19,6 @@ import java.util.Random;
 import java.util.Set;
 
 import org.junit.Test;
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
@@ -80,10 +79,21 @@ public class RascalTypes extends TestFramework {
 
                 if(t1.comparable(t2)) {
                     if (t1.isSubtypeOf(t2)) {
-                        assertTrue(t2.isSubtypeOf(t1.lub(t2)));
+                        if(!t2.isSubtypeOf(lub1)) {
+                            System.err.println("Failure. A type should be a sub-type of a lub it contributes to.");
+                            System.err.println(t1 + ".lub(" + t2 + ") = " + lub1);
+                            System.err.println("but: " + t2 + ".isSubTypeOf(" + lub1 + ") = false?");
+                            fail("types should be sub-types of the lub they contribute to");
+                        }
                     }
+                    
                     if(t2.isSubtypeOf(t1)) {
-                        assertTrue(t1.isSubtypeOf(t1.lub(t2)));
+                        if(!t1.isSubtypeOf(t1.lub(t2))) {
+                            System.err.println("Failure. A type should be a sub-type of a lub it contributes to.");
+                            System.err.println(t1 + ".lub(" + t2 + ") = " + lub1);
+                            System.err.println("but: " + t1 + ".isSubTypeOf(" + lub1 + ") = false?");
+                            fail("types should be sub-types of the lub they contribute to");
+                        }
                     }
                 }
             }
