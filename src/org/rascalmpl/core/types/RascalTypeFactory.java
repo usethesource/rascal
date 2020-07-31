@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.core.types;
 
+import java.util.Set;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -38,9 +40,9 @@ public class RascalTypeFactory {
 		return tf.externalType(new NonTerminalType(symbol, lex, layout));
 	}
 	
-//	public Type overloadedFunctionType(Set<FunctionType> newAlternatives) {
-//		return tf.externalType(new OverloadedFunctionType(newAlternatives));
-//	}
+	public Type overloadedFunctionType(Set<FunctionType> newAlternatives) {
+		return tf.externalType(new OverloadedFunctionType(newAlternatives));
+	}
 
 	public Type reifiedType(Type arg) {
 		return tf.externalType(new ReifiedType(arg));
