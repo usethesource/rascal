@@ -221,6 +221,7 @@ public class ConstructorFunction extends NamedFunction {
 		for (int i = 0; i < actuals.length; i++) {
 		    if (!actuals[i].getType().isSubtypeOf(fieldTypes.getFieldType(i))) {
 		        System.err.println("TODO remove DEBUG Print: sub-type match of constructor argument failed on " + i + "-th argument of " + constructorType);
+		        System.err.println("expected: " + fieldTypes.getFieldType(i) + " but got: " + actuals[i].getType());
 		        throw new MatchFailed();
 		    }
 		}
