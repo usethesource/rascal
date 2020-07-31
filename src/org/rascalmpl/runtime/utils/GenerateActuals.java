@@ -5,14 +5,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Stream;
 
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ATypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeStore;
 
 public class GenerateActuals {
@@ -43,7 +42,9 @@ public class GenerateActuals {
 				Stream.generate(() -> 
 				{ IValue[] values = new IValue[formals.length];
 				for (int n = 0; n < values.length; n++) {
+					System.err.print("n = " + n + ", types[n] = " + types[n]);
 					values[n] = types[n].randomValue(random, $VF, $TS, tpbindings, maxDepth, maxWidth);
+					System.err.println(", values[n] = " + values[n]);
 				}
 				return values;
 				});

@@ -7,5 +7,5 @@ public interface IRascalTypeVisitor<T,E extends Throwable> extends ITypeVisitor<
   T visitOverloadedFunction(RascalType type) throws E;
   T visitReified(RascalType type) throws E;
   T visitNonTerminal(RascalType type) throws E;
-  T visitFailureType(RascalType type) throws E;
+ // T visitFailureType(RascalType type) throws E;
 }

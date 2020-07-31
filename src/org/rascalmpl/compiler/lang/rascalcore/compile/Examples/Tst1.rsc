@@ -1,9 +1,6 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-test bool Test91() { 
-    int f(3) = 3;
-    return f(3) == 3;
-}
+test bool transEq1(value x, value y, value z) = (x == y && y == z) ==> (x == z);
                                           
 //data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
 //
@@ -11,8 +8,6 @@ test bool Test91() {
 //    = ([a(), f({a(), b(), DATA X6})] := [a(), f({a(),b(),c()})]) && (X6 == c());
 //test bool matchListSet9() = ([a(), f({a(), b(), DATA X8}), *DATA Y8] := [a(), f({a(),b(),c()}), b()]) && (X8 == c() && Y8 == [b()]);
 
-//value main() //test bool descendant17() 
-//    = [1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;
 
 //data F = f(F left, F right) | g(int N);
 //test bool descendant33() = [1, [F] /f(/g(2), F _), 3] := [1, f(g(1),f(g(2),g(3))), 3];

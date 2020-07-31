@@ -25,7 +25,7 @@ str normalizeQName(str qname)
 str replaceColonAndDash(str s) = replaceAll(replaceAll(replaceAll(s, "-", "_"), "::", "."), "\\", "");
 
 str getQualClassName(str qname){
-    return normalizeQName; //replaceColonAndDash(qname);
+    return normalizeQName(qname); //replaceColonAndDash(qname);
 }
 
 str getUnqualifiedName(str qname){

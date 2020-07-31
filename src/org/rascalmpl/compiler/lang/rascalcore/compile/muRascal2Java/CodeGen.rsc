@@ -1430,7 +1430,7 @@ JCode trans(muIfEqualOrAssign(MuExp var, MuExp other, MuExp body), JGenie jg){
            '    <trans(body, jg)>
            '} else {
            '    <trans(muAssign(var, other), jg)>
-           '    if(<trans(var, jg)>.isEqual(<trans(other, jg)>)){
+           '    if(<trans(var, jg)>.equals(<trans(other, jg)>)){
            '       <trans(body, jg)>
            '    }
            '}\n";
@@ -1810,7 +1810,7 @@ JCode trans(muRequireNonNegativeBound(MuExp idx), JGenie jg)
       '}\n";
  
 JCode trans(muEqual(MuExp exp1, MuExp exp2), JGenie jg)
-    = "<trans(exp1, jg)>.isEqual(<trans(exp2, jg)>)";
+    = "<trans(exp1, jg)>.equals(<trans(exp2, jg)>)";
     
 JCode trans(muMatch(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans(exp1, jg)>.match(<trans(exp2, jg)>)";
