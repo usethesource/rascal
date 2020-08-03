@@ -337,6 +337,18 @@ public class NonTerminalType extends RascalType {
 	}
 	
 	@Override
+	protected boolean intersects(RascalType type) {
+	    return type.intersectsWithNonTerminal(this);
+	}
+
+	@Override
+	protected boolean intersectsWithNonTerminal(RascalType type) {
+	    // TODO: are there more non-empty intersections than this?
+	    // one could imagine sequence types... being similar to tuples.
+	    return this.comparable(type);
+	}
+	
+	@Override
 	public boolean isSubtypeOfNonTerminal(RascalType other) {
 		if (other == this) {
 			return true;
