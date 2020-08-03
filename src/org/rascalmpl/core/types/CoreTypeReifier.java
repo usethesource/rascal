@@ -16,20 +16,20 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.rascalmpl.core.types.ReifiedType;
+import org.rascalmpl.core.values.uptr.IRascalValueFactory;
+import org.rascalmpl.core.values.uptr.RascalValueFactory;
 import org.rascalmpl.library.Prelude;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
-import io.usethesource.vallang.IValue;  
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.core.values.uptr.IRascalValueFactory;
-import org.rascalmpl.core.values.uptr.RascalValueFactory;
 
 /**
  * TypeReifier maps types to values that represent these types and their definitions. These values have
@@ -51,7 +51,7 @@ public class CoreTypeReifier {
         IConstructor symbol = reify(t, definitions, store, syntax);
 
         // now we hash the relation on adt, resulting in a map from adt to set of constructors
-        IMap index = new Prelude(vf).index(definitions.done()); // TODO: bring index functionality to rascal-value library 
+        IMap index = Prelude.index(vf, definitions.done()); // TODO: bring index functionality to rascal-value library 
         IMapWriter grammar = vf.mapWriter(); 
         
         // and here we wrap the set of constructors in a choice operator
