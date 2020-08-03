@@ -21,12 +21,19 @@ public abstract class RascalType extends ExternalType {
 
   protected abstract Type lub(RascalType type);
   protected abstract Type glb(RascalType type);
+  protected abstract boolean intersects(RascalType type);
 
   @Override
   protected boolean isSubtypeOfExternal(Type type) {
     assert type instanceof RascalType;
     return ((RascalType) type).isSupertypeOf(this);
   }
+  
+  
+  @Override
+    protected boolean intersectsWithExternal(Type type) {
+      return type.intersects(this);
+    }
 
   protected abstract boolean isSupertypeOf(RascalType type);
   
@@ -84,6 +91,18 @@ public abstract class RascalType extends ExternalType {
   
   protected Type glbWithReified(RascalType type) {
 	return TF.voidType();
+  }
+  
+  protected boolean intersectsWithNonTerminal(RascalType type) {
+      return false;
+  }
+
+  protected boolean intersectsWithFunction(RascalType type) {
+      return false;
+  }
+
+  protected boolean intersectsWithReified(RascalType type) {
+      return false;
   }
   
 //  protected Type glbWithFailure(RascalType type) {

@@ -139,6 +139,16 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
+    protected boolean intersects(RascalType type) {
+        return type.intersectsWithReified(this);
+    }
+    
+    @Override
+    protected boolean intersectsWithReified(RascalType type) {
+        return arg.intersects(((ReifiedType) type).arg);
+    }
+	
+	@Override
 	public Type getTypeParameters() {
 		return TypeFactory.getInstance().tupleType(arg);
 	}
