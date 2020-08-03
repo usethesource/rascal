@@ -45,7 +45,7 @@ public class RascalTypes extends TestFramework {
         assertTrue(t1.lub(t3).isTop());
     }
 
-    @Test
+   // IGNORE FOR NOW @Test
     public void testLubAndGlb() {
         TypeFactory tf = TypeFactory.getInstance();
         TypeStore store = new TypeStore();
