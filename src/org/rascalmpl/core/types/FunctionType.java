@@ -260,6 +260,24 @@ public class FunctionType extends RascalType {
 	}
 	
 	@Override
+	protected boolean intersects(RascalType type) {
+	    return type.intersectsWithFunction(this);
+	}
+	
+	@Override
+    protected boolean intersectsWithFunction(RascalType other) {
+        FunctionType otherType = (FunctionType) other;
+        
+        if (other.getArity() != getArity()) {
+            return false;
+        }
+        
+        // TODO should the return type intersect or just be comparable? 
+        return otherType.getReturnType().intersects(getReturnType())
+            && otherType.getArgumentTypes().intersects(getArgumentTypes());
+    }
+	
+	@Override
 	public boolean isSubtypeOfFunction(RascalType other) {
 		// Rascal functions are co-variant in the return type position and
 		// contra-variant in the argument positions, such that a sub-function
