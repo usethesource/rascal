@@ -394,4 +394,10 @@ public class OverloadedFunctionType extends RascalType {
 		throw new RuntimeException("randomValue not implemented on OverloadedFunctionType");
 	}
 
+    @Override
+    protected boolean intersects(RascalType type) {
+        // TODO: do not know what this should mean
+        return false;
+    }
+
 }
