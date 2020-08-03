@@ -38,6 +38,10 @@ public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternal
 IExpirationListener<IValue> {
 	public static final Type TransactionType = new ExternalType() {
 
+	    protected boolean intersectsWithExternal(Type type) {
+	        return false;
+	    };
+	    
 		@Override
 		protected Type lubWithExternal(Type type) {
 			// TODO Auto-generated method stub
