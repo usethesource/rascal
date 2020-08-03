@@ -1,6 +1,18 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-test bool transEq1(value x, value y, value z) = (x == y && y == z) ==> (x == z);
+data Solver
+    = solver(bool (value, value) unify);
+    
+Solver newSolver(){
+    bool unify(int x, str y) = true;
+    bool unify(int x, str y, bool b) = b; //<<< uncomment en krijg CallFailed
+    
+    return solver(unify);
+}
+
+value main() = newSolver();
+
+//test bool transEq1(value x, value y, value z) = (x == y && y == z) ==> (x == z);
                                           
 //data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
 //
