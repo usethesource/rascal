@@ -2,6 +2,7 @@ module lang::rascal::tests::basic::Functions
 
 import List;
 import Node;
+import Exception;
 
 data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
 
@@ -183,7 +184,7 @@ test bool functionTypeArgumentVariance2() =
   int (int _) _ := int (value x ) { return 1; };
   
 test bool functionTypeArgumentVariance3() {
-  value f = int (str x ) { return "1"; };
+  value f = int (str x ) { return 1; };
   return int (int _) _ !:= f;
 } 
 
