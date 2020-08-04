@@ -238,7 +238,7 @@ test bool higherOrderFunctionCompatibility3() {
    
    // the higher order function expects to call the
    // parameter function with tuple[value, int]
-   int hof(int (tuple[value, int]) p, tuple[int,int] i) { return p(i); }
+   int hof(int (tuple[value, int]) p, tuple[value,int] i) { return p(i); }
    
    // this is ok, the parameter function's type has a non-empty
    // intersection at tuple[int, int], so at least for such 
