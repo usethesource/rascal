@@ -453,7 +453,10 @@ public class FunctionType extends RascalType {
 				    return false;
 				}
 				
-				
+//				if (!argumentTypes.match(matchedFunction.getArgumentTypes(), bindings)) {
+//				    return false;
+//				}
+//				
 				for (int i = 0; i < argumentTypes.getArity(); i++) {
 				    Type fieldType = argumentTypes.getFieldType(i);
                     Type otherFieldType = matchedFunction.getArgumentTypes().getFieldType(i);
