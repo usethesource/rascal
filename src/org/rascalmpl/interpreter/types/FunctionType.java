@@ -16,6 +16,7 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -317,16 +318,8 @@ public class FunctionType extends RascalType {
 	            return false;
 	        }
 	        
-	        // arguments must be (pairwise) comparable. delegation to tuple type
-	        // comparability will not work here, since that is not defined pairwise.
-	        for (int i = 0; i < argTypes.getArity(); i++) {
-	            if (!argTypes.getFieldType(i).comparable(otherArgTypes.getFieldType(i))) {
-	                return false;
-	            }
-	        }
-	        
-	        // all arguments are (pairwise) comparable
-	        return true;
+	        // arguments must be have non-empty intersections. 
+	        return argTypes.intersects(otherArgTypes);
 	    }
 
 	    return false;
@@ -454,8 +447,29 @@ public class FunctionType extends RascalType {
 			}
 	
 			if (matched instanceof FunctionType) {
-				return argumentTypes.match(((FunctionType) matched).getArgumentTypes(), bindings)
-						&& returnType.match(((FunctionType) matched).getReturnType(), bindings);
+				FunctionType matchedFunction = (FunctionType) matched;
+				
+				if (argumentTypes.getArity() != matchedFunction.getArity()) {
+				    return false;
+				}
+				
+				
+				for (int i = 0; i < argumentTypes.getArity(); i++) {
+				    Type fieldType = argumentTypes.getFieldType(i);
+                    Type otherFieldType = matchedFunction.getArgumentTypes().getFieldType(i);
+                    Map<Type, Type> originalBindings = new HashMap<>();
+                    originalBindings.putAll(bindings);
+                    
+                    if (!fieldType.match(otherFieldType, bindings)) {
+                        bindings = originalBindings;
+                        if (!otherFieldType.match(matchedFunction, bindings)) {
+                            // neither co nor contra-variant
+                            return false;
+                        }
+				    }
+				}
+				
+                return returnType.match(matchedFunction.getReturnType(), bindings);
 			}
 			else {
 				return false;

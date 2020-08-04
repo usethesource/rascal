@@ -85,6 +85,7 @@ public abstract class RascalType extends ExternalType {
     protected boolean intersectsWithReified(RascalType type) {
         return false;
     }
+    
     public boolean isNonterminal() {
         return false;
     }

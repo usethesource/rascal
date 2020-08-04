@@ -3,6 +3,12 @@ module lang::rascal::tests::basic::Matching
 data T1 = \int() | \void() | string(str s);
 data T2 = \int() | \void() | string(str s);
 
+@ignoreCompiler{TODO}
+test bool incomparableTypesButNonEmptyIntersectionCanMatch() {
+   tuple[int, num] a = <1,1>;
+   return tuple[num, int] _ := a;
+}
+
 test bool tstQNameInPatternInt(){
     T1 t1 = T1::\int();
     T2 t2 = T2::\int();

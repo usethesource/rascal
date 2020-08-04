@@ -175,3 +175,15 @@ test bool parameterizedFunctionsDoNotReturnVoid() {
   set[value] emptySet = {};
   return "hello" == something(emptySet);
 }
+
+test bool functionTypeArgumentVariance1() =
+  int (value _) _ := int (int x ) { return 1; };
+  
+test bool functionTypeArgumentVariance2() =
+  int (int _) _ := int (value x ) { return 1; };
+  
+test bool functionTypeArgumentVariance3() {
+  value f = int (str x ) { return "1"; };
+  return int (int _) _ !:= f;
+} 
+  
