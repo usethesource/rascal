@@ -608,7 +608,7 @@ private static boolean isDeprecated(Module preModule){
     catch (ParseError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-      eval.getMonitor().warning("parse error in concrete syntax", src);
+      eval.getMonitor().warning("parse error in concrete syntax: "+ src, src);
       return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
     }
     catch (Ambiguous e) {
