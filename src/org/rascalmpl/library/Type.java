@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import io.usethesource.vallang.IBool;
@@ -40,11 +39,11 @@ public class Type {
 		emptyMap = vf.mapWriter().done();
 	}
 	  
-	public IValue typeOf(IValue v, IEvaluatorContext ctx) {
+	public IValue typeOf(IValue v) {
 		return new TypeReifier(vf).typeToValue(
 		        v.getType(), 
-		        ctx.getCurrentEnvt().getStore(),
-		        (IMap) ctx.getEvaluator().getGrammar(ctx.getCurrentEnvt()).get("rules")
+		        new TypeStore(),
+		        vf.mapWriter().done()
 		        ).get("symbol");
 	}
 	
