@@ -258,7 +258,7 @@ test bool higherOrderFunctionCompatibility3() {
    catch CallFailed(_):
      return true; 
      
-   return true;
+   return false;
 }
 
 test bool higherOrderVoidFunctionCompatibility() {
