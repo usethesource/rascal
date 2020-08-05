@@ -260,4 +260,14 @@ test bool higherOrderFunctionCompatibility3() {
      
    return true;
 }
-  
+
+test bool higherOrderVoidFunctionCompatibility() {
+   bool hof (bool(int s) g) { return g(0); }
+   bool ff(int _) { return true; }
+   
+   try {
+     return hof(ff);
+   }  
+   catch CallFailed(_): 
+     return false;
+}
