@@ -262,8 +262,8 @@ test bool higherOrderFunctionCompatibility3() {
 }
 
 test bool higherOrderVoidFunctionCompatibility() {
-   bool hof (bool(int s) g) { return g(0); }
-   bool ff(int _) { return true; }
+   bool hof (void(int s) g) { g(0); return true; }
+   void ff(int _) { return; }
    
    try {
      return hof(ff);
