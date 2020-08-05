@@ -202,6 +202,9 @@ public class ResultFactory {
 			        // the weird thing is, that value is also a result in that case.
 			        return (AbstractFunction) value;
 			    }
+			    else if (value instanceof OverloadedFunction) {
+			        return (OverloadedFunction) value;
+			    }
 			    else {
 			        // otherwise this is an abstract ICalleableValue
 			        // for which no further operations are defined?
