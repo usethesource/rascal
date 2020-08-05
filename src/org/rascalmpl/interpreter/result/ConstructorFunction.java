@@ -220,8 +220,6 @@ public class ConstructorFunction extends NamedFunction {
 	    
 		for (int i = 0; i < actuals.length; i++) {
 		    if (!actuals[i].getType().isSubtypeOf(fieldTypes.getFieldType(i))) {
-		        ctx.getErrorPrinter().println("TODO: arg " + i + " failed. Expected: " + fieldTypes.getFieldType(i) + " but got " + actuals[i].getType());
-		        ctx.getErrorPrinter().println("TODO: " + ctx.getCurrentAST().getLocation());
 		        throw new MatchFailed();
 		    }
 		}
