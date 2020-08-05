@@ -52,7 +52,11 @@ import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.Funct
 public class PreludeCompiled extends Prelude {
 
 	public PreludeCompiled(IValueFactory values) {
-		super(values);
+		super(values, new PrintWriter(System.out),  new PrintWriter(System.err));
+	}
+	
+	public PreludeCompiled(IValueFactory values, PrintWriter out, PrintWriter err) {
+		super(values, out,  err);
 	}
 	
 	public void print(IValue arg, RascalExecutionContext rex){

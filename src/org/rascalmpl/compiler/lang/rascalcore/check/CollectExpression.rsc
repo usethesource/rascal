@@ -771,8 +771,13 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
     
     list[AType] formalTypes =  formals;
     
+    int noverloaded = 0;
     for(int i <- index_formals){
         if(overloadedAType(rel[loc, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
+            noverloaded += 1;
+            if(noverloaded > 1){
+                s.report(error(current, "Cannot yet handle calls with multiple overloaded arguments"));
+            }
             //println("checkArgsAndComputeReturnType: <current>");
             //iprintln(overloads);
             returnTypeForOverloadedActuals = {};
@@ -785,7 +790,7 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
                   catch NoBinding():/* continue with next overload */;
              }
              if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Call with %v arguments cannot be resolved", size(actuals)));}
-             else return overloadedAType(returnTypeForOverloadedActuals);
+             else /*retType = */ return overloadedAType(returnTypeForOverloadedActuals);
         }
     }
     //No overloaded actual
