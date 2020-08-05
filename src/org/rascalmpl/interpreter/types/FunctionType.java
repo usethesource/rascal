@@ -290,6 +290,10 @@ public class FunctionType extends RascalType {
 	        return false;
 	    }
 	    
+	    if (otherType.getReturnType().isBottom() && getReturnType().isBottom()) {
+	        return otherType.getArgumentTypes().intersects(getArgumentTypes());
+	    }
+	    
 	    // TODO should the return type intersect or just be comparable? 
 	    return otherType.getReturnType().intersects(getReturnType())
 	        && otherType.getArgumentTypes().intersects(getArgumentTypes());
