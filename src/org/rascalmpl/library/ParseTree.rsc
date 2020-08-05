@@ -498,7 +498,6 @@ public java str unparse(Tree tree);
 public java str printSymbol(Symbol sym, bool withLayout);
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
 @doc{
 .Synopsis
 Implode a parse tree according to a given (ADT) type.
@@ -574,13 +573,13 @@ ADT type names correspond to syntax non-terminal names, and constructor names co
 to production labels. Labels of production arguments do not have to match with labels
  in ADT constructors.
 
-Finally, source location annotations are propagated as annotations on constructor ASTs. 
-To access them, the user is required to explicitly declare a location annotation on all
+Finally, source location fields are propagated as keyword fields on constructor ASTs. 
+To access them, the user is required to explicitly declare a keyword field on all
 ADTs used in implosion. In other words, for every ADT type `T`, add:
 
 [source,rascal]
 ----
-anno loc T@location;
+data T(loc location=|unknown);
 ----
 
 .Examples

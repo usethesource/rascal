@@ -55,11 +55,11 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
@@ -2285,13 +2285,13 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	protected IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
-		IValue value = ctx.getEvaluator().call(returnType.getName(), name, args);
-		Type type = value.getType();
-		if (type.isAbstractData()) {
-			return (IConstructor)value;
-		}
-		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
+	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
+	    IValue value = values.constructor(store.lookupConstructor(returnType, name, TypeFactory.getInstance().tupleType(args)), args, new HashMap<String, IValue>());
+        Type type = value.getType();
+        if (type.isAbstractData()) {
+            return (IConstructor)value;
+        }
+        throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
 	}
 	
 	protected java.lang.String unescapedConsName(ITree tree) {
@@ -2313,26 +2313,14 @@ public class Prelude {
 		return constructors;
 	}
 
-	
-//	private Type findConstructor(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
-//		for (Type candidate: store.lookupConstructor(type, constructorName)) {
-//			// It finds the first with suitable arity, so this is inaccurate
-//			// if there are overloaded constructors with the same arity
-//			if (arity == candidate.getArity()) {
-//				return candidate;
-//			}
-//		}
-//		return null;
-//	}
-
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue implode(IValue reifiedType, IConstructor arg, IEvaluatorContext ctx) {
+	public IValue implode(IValue reifiedType, IConstructor arg) {
 		ITree tree = (ITree) arg;
 		
 		TypeStore store = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {
-			IValue result = implode(store, type, tree, false, ctx); 
+			IValue result = implode(store, type, tree, false); 
 			if (isUntypedNodeType(type) && !type.isTop() && (TreeAdapter.isList(tree) || TreeAdapter.isOpt(tree))) {
 				// Ensure the result is actually a node, even though
 				// the tree given to implode is a list.
@@ -2357,18 +2345,18 @@ public class Prelude {
 		}
 	}
 	
-	private IValue[] implodeArgs(TypeStore store, Type type, IList args, IEvaluatorContext ctx) {
+	private IValue[] implodeArgs(TypeStore store, Type type, IList args) {
 		int length = args.length();
 		IValue implodedArgs[] = new IValue[length];
 		for (int i = 0; i < length; i++) {
 			Type argType = isUntypedNodeType(type) ? type : type.getFieldType(i);
-			implodedArgs[i] = implode(store, argType, (ITree)args.get(i), false, ctx);
+			implodedArgs[i] = implode(store, argType, (ITree)args.get(i), false);
 		}
 		return implodedArgs;
 	}
 	
 	
-	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing, IEvaluatorContext ctx) {
+	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing) {
 		ITree tree = (ITree) arg0;
 		Backtrack failReason = null;
 		
@@ -2382,7 +2370,7 @@ public class Prelude {
 			ITree before = (ITree) args.get(0);
 			ITree ast = (ITree) args.get(1);
 			ITree after = (ITree) args.get(2);
-			IValue result = implode(store, type, ast, splicing, ctx);
+			IValue result = implode(store, type, ast, splicing);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
 				comments.putAll((IMap)((INode)result).asWithKeywordParameters().getParameter("comments"));
@@ -2420,7 +2408,7 @@ public class Prelude {
 						@SuppressWarnings("unused")
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
-						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
+						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
 						return ast.asWithKeywordParameters().setParameter("location", loc);
 					}
 					catch (Backtrack b) {
@@ -2467,7 +2455,7 @@ public class Prelude {
 				}
 				IListWriter w = values.listWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-					w.append(implode(store, elementType, (ITree) arg, false, ctx));
+					w.append(implode(store, elementType, (ITree) arg, false));
 				}
 				return w.done();
 			}
@@ -2475,7 +2463,7 @@ public class Prelude {
 				Type elementType = splicing ? type : type.getElementType();
 				ISetWriter w = values.setWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-					w.insert(implode(store, elementType, (ITree) arg, false, ctx));
+					w.insert(implode(store, elementType, (ITree) arg, false));
 				}
 				return w.done();
 			}
@@ -2500,7 +2488,7 @@ public class Prelude {
 			Type elementType = isUntypedNodeType(type) ? type : type.getElementType();
 			IListWriter w = values.listWriter();
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
-				IValue implodedArg = implode(store, elementType, (ITree) arg, true, ctx);
+				IValue implodedArg = implode(store, elementType, (ITree) arg, true);
 				if (implodedArg instanceof IList) {
 					// splicing
 					for (IValue nextArg: (IList)implodedArg) {
@@ -2523,13 +2511,13 @@ public class Prelude {
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter();
 			for (IValue arg: TreeAdapter.getAlternatives(tree)) {
-				w.insert(implode(store, elementType, (ITree) arg, false, ctx));
+				w.insert(implode(store, elementType, (ITree) arg, false));
 			}
 			return w.done();
 		}
 		
 		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), RascalValueFactory.Attribute_Bracket)) {
-			return implode(store, type, (ITree) TreeAdapter.getASTArgs(tree).get(0), false, ctx);
+			return implode(store, type, (ITree) TreeAdapter.getASTArgs(tree).get(0), false);
 		}
 		
 		if (TreeAdapter.isAppl(tree)) {
@@ -2575,13 +2563,13 @@ public class Prelude {
 			if (constructorName == null) {
 				if (length == 1) {
 					// jump over injection
-					return implode(store, type, (ITree) args.get(0), splicing, ctx);
+					return implode(store, type, (ITree) args.get(0), splicing);
 				}
 				
 				
 				// make a tuple if we're in node space
 				if (isUntypedNodeType(type)) {
-					return values.tuple(implodeArgs(store, type, args, ctx));
+					return values.tuple(implodeArgs(store, type, args));
 				}
 
 				if (!type.isTuple()) {
@@ -2592,12 +2580,12 @@ public class Prelude {
 					throw new Backtrack(RuntimeExceptionFactory.arityMismatch(type.getArity(), length));
 				}
 
-				return values.tuple(implodeArgs(store, type, args, ctx));
+				return values.tuple(implodeArgs(store, type, args));
 			}
 			
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
-				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
+				INode ast = values.node(constructorName, implodeArgs(store, type, args));
 				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
@@ -2614,8 +2602,8 @@ public class Prelude {
 				try {
 					Type cons = iter.next();
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
-					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
-					IConstructor ast = makeConstructor(type, constructorName, ctx, implodedArgs);
+					IValue[] implodedArgs = implodeArgs(store, cons, args);
+					IConstructor ast = makeConstructor(store, type, constructorName, implodedArgs);
 					return ast
 					        .asWithKeywordParameters()
 					        .setParameter("location", loc)
