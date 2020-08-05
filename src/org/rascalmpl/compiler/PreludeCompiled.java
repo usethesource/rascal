@@ -59,258 +59,236 @@ public class PreludeCompiled extends Prelude {
 		super(values, out,  err);
 	}
 	
-	public void print(IValue arg, RascalExecutionContext rex){
-		PrintWriter currentOutStream = rex.getStdOut();
-		
-		try{
-			if(arg.getType().isString()){
-			    ((IString) arg).write(currentOutStream);
-			}
-			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
-				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-			}
-			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
-				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
-			}
-			else{
-				currentOutStream.print(arg.toString());
-			}
-		}
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
-        }
-		finally {
-			currentOutStream.flush();
-		}
-	}
-	
-//	@SuppressWarnings("deprecation")
-//    public INode delAnnotations(INode node, RascalExecutionContext ctx) {
-//        if (node.isAnnotatable()) {
-//            return node.asAnnotatable().removeAnnotations();
+//	public void print(IValue arg, RascalExecutionContext rex){
+//		PrintWriter currentOutStream = rex.getStdOut();
+//		
+//		try{
+//			if(arg.getType().isString()){
+//			    ((IString) arg).write(currentOutStream);
+//			}
+//			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
+//				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+//			}
+//			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
+//				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
+//			}
+//			else{
+//				currentOutStream.print(arg.toString());
+//			}
+//		}
+//        catch (IOException e) {
+//            throw RuntimeExceptionFactory.io(e.getMessage());
 //        }
-//        else {
-//            ctx.getStdErr().println("Trying to remove annotations from a node which has keyword parameters.");
-//            return node;
+//		finally {
+//			currentOutStream.flush();
+//		}
+//	}
+//    
+//	public void iprint(IValue arg, IInteger lineLimit, RascalExecutionContext rex){
+//		StandardTextWriter w = new StandardTextWriter(true, 2);
+//		Writer output = rex.getStdOut();
+//		if (lineLimit.signum() > 0) {
+//		    output = new LimitedLineWriter(output, lineLimit.longValue());
+//		}
+//		
+//		try {
+//			w.write(arg, output);
+//		} 
+//		catch (IOLimitReachedException e) {
+//		    // ignore since we wanted this
+//		}
+//		catch (IOException e) {
+//			throw RuntimeExceptionFactory.io("Could not print indented value");
+//		}
+//		finally {
+//		    if (output != rex.getStdOut()) {
+//		        try {
+//                    output.flush();
+//                    output.close();
+//                }
+//                catch (IOException e) {
+//                }
+//		    }
+//			rex.getStdOut().flush();
+//		}
+//	}
+//	
+//	public void iprintln(IValue arg, IInteger lineLimit, RascalExecutionContext rex){
+//	    iprint(arg, lineLimit, rex);
+//		rex.getStdOut().println();
+//		rex.getStdOut().flush();
+//	}
+//	
+//	public void println(RascalExecutionContext rex) {
+//		rex.getStdOut().println();
+//		rex.getStdOut().flush();
+//	}
+//	
+//	public void println(IValue arg, RascalExecutionContext rex){
+//		PrintWriter currentOutStream = rex.getStdOut();
+//		
+//		try{
+//			if(arg.getType().isString()){
+//			    ((IString) arg).write(currentOutStream);
+//			}
+//			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
+//				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
+//			}
+//			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
+//				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
+//			}
+//			else{
+//				currentOutStream.print(arg.toString());
+//			}
+//			currentOutStream.println();
+//		}
+//		catch (IOException e) {
+//            throw RuntimeExceptionFactory.io(e.getMessage());
 //        }
-//    }
-    
-//    @SuppressWarnings("deprecation")
-//    public INode delAnnotation(INode node, IString label, RascalExecutionContext ctx) {
-//        if (node.isAnnotatable()) {
-//            return node.asAnnotatable().removeAnnotation(label.getValue());
-//        }
-//        else {
-//            ctx.getStdErr().println("Trying to remove annotations from a node which has keyword parameters.");
-//            return node;
-//        }
-//    }
-    
-	public void iprint(IValue arg, IInteger lineLimit, RascalExecutionContext rex){
-		StandardTextWriter w = new StandardTextWriter(true, 2);
-		Writer output = rex.getStdOut();
-		if (lineLimit.signum() > 0) {
-		    output = new LimitedLineWriter(output, lineLimit.longValue());
-		}
-		
-		try {
-			w.write(arg, output);
-		} 
-		catch (IOLimitReachedException e) {
-		    // ignore since we wanted this
-		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io("Could not print indented value");
-		}
-		finally {
-		    if (output != rex.getStdOut()) {
-		        try {
-                    output.flush();
-                    output.close();
-                }
-                catch (IOException e) {
-                }
-		    }
-			rex.getStdOut().flush();
-		}
-	}
+//		finally {
+//			currentOutStream.flush();
+//		}
+//	}
+//	
+//	public void rprintln(IValue arg, RascalExecutionContext rex){
+//		PrintWriter currentOutStream = rex.getStdOut();
+//		
+//		try {
+//			currentOutStream.print(arg.toString());
+//			currentOutStream.println();
+//		}
+//		finally {
+//			currentOutStream.flush();
+//		}
+//	}
+//	
+//	public void rprint(IValue arg, RascalExecutionContext rex){
+//		PrintWriter currentOutStream = rex.getStdOut();
+//		
+//		try {
+//			currentOutStream.print(arg.toString());
+//		}
+//		finally {
+//			currentOutStream.flush();
+//		}
+//	}
 	
-	public void iprintln(IValue arg, IInteger lineLimit, RascalExecutionContext rex){
-	    iprint(arg, lineLimit, rex);
-		rex.getStdOut().println();
-		rex.getStdOut().flush();
-	}
+//	// Begin of sorting functions
+//
+//	/**
+//	 * A mini class to wrap a lessThan function
+//	 */
+//	private class Less {
+//		private final FunctionInstance2<IValue,IValue,IValue> less;
+//
+//		Less(FunctionInstance2<IValue,IValue,IValue> less) {
+//			this.less = less;
+//		}
+//
+//		public boolean less(IValue x, IValue y) {
+//			return ((IBool)less.call(x, y)).getValue();
+//		}
+//	}
+//
+//	private class Sorting {
+//		private final IValue[] array;
+//		private final int size;
+//		private final Less less;
+//
+//		private void swap(int i, int j) {
+//			IValue tmp = array[i];
+//			array[i] = array[j];
+//			array[j] = tmp;
+//		}
+//
+//		public Sorting(IValue[] array, Less less) {
+//			this.array = array;
+//			this.size = array.length;
+//			this.less = less;
+//		}
+//
+//		/**
+//		 * @throws IllegalArgument if comparator is illegal (i.e., if pivot equals pivot)
+//		 */
+//		public Sorting sort() {
+//			if (size == 0) {
+//				return this;
+//			}
+//			if(less.less(array[0], array[0])) {
+//				throw RuntimeExceptionFactory.illegalArgument(); // "Bad comparator: Did you use less-or-equals instead of less-than?"
+//			}
+//			sort(0, size - 1);
+//
+//			return this;
+//		}
+//
+//		public Sorting shuffle() {
+//			for (int i = 0; i < size; i++) {
+//				swap(i, i + (int) (Math.random() * (size-i)));
+//			}
+//			return this;
+//		}
+//
+//		private void sort(int low, int high) {
+//			IValue pivot = array[low + (high-low)/2];
+//			int oldLow = low;
+//			int oldHigh = high;
+//
+//			while (low < high) {
+//				for ( ; less.less(array[low], pivot); low++); 
+//				for ( ; less.less(pivot, array[high]); high--); 
+//
+//				if (low <= high) {
+//					swap(low, high);
+//					low++;
+//					high--;
+//				}
+//			}
+//
+//			if (oldLow < high)
+//				sort(oldLow, high);
+//			if (low < oldHigh)
+//				sort(low, oldHigh);
+//		}
+//	}
+//
+//	public IList sort(IList l, FunctionInstance2<IValue,IValue,IValue> cmpv){
+//		IValue[] tmpArr = new IValue[l.length()];
+//		for(int i = 0 ; i < l.length() ; i++){
+//			tmpArr[i] = l.get(i);
+//		}
+//
+//		// we randomly swap some elements to make worst case complexity unlikely
+//		new Sorting(tmpArr, new Less(cmpv)).shuffle().sort();
+//
+//
+//		IListWriter writer = values.listWriter();
+//		writer.append(tmpArr);
+//		return writer.done();
+//	}
+//
+//	public IList sort(ISet l, FunctionInstance2<IValue,IValue,IValue> cmpv) {
+//		IValue[] tmpArr = new IValue[l.size()];
+//		int i = 0;
+//
+//		// we assume that the set is reasonably randomly ordered, such
+//		// that the worst case of quicksort is unlikely
+//		for (IValue elem : l){
+//			tmpArr[i++] = elem;
+//		}
+//
+//		new Sorting(tmpArr, new Less(cmpv)).sort();
+//
+//		IListWriter writer = values.listWriter();
+//		for(IValue v : tmpArr){
+//			writer.append(v);
+//		}
+//
+//		return writer.done();
+//	}
+//	// end of sorting functions
 	
-	public void println(RascalExecutionContext rex) {
-		rex.getStdOut().println();
-		rex.getStdOut().flush();
-	}
-	
-	public void println(IValue arg, RascalExecutionContext rex){
-		PrintWriter currentOutStream = rex.getStdOut();
-		
-		try{
-			if(arg.getType().isString()){
-			    ((IString) arg).write(currentOutStream);
-			}
-			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
-				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
-			}
-			else if (arg.getType().isSubtypeOf(RascalValueFactory.Type)) {
-				currentOutStream.print(SymbolAdapter.toString((IConstructor) ((IConstructor) arg).get("symbol"), false));
-			}
-			else{
-				currentOutStream.print(arg.toString());
-			}
-			currentOutStream.println();
-		}
-		catch (IOException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
-        }
-		finally {
-			currentOutStream.flush();
-		}
-	}
-	
-	public void rprintln(IValue arg, RascalExecutionContext rex){
-		PrintWriter currentOutStream = rex.getStdOut();
-		
-		try {
-			currentOutStream.print(arg.toString());
-			currentOutStream.println();
-		}
-		finally {
-			currentOutStream.flush();
-		}
-	}
-	
-	public void rprint(IValue arg, RascalExecutionContext rex){
-		PrintWriter currentOutStream = rex.getStdOut();
-		
-		try {
-			currentOutStream.print(arg.toString());
-		}
-		finally {
-			currentOutStream.flush();
-		}
-	}
-	
-	// Begin of sorting functions
-
-	/**
-	 * A mini class to wrap a lessThan function
-	 */
-	private class Less {
-		private final FunctionInstance2<IValue,IValue,IValue> less;
-
-		Less(FunctionInstance2<IValue,IValue,IValue> less) {
-			this.less = less;
-		}
-
-		public boolean less(IValue x, IValue y) {
-			return ((IBool)less.call(x, y)).getValue();
-		}
-	}
-
-	private class Sorting {
-		private final IValue[] array;
-		private final int size;
-		private final Less less;
-
-		private void swap(int i, int j) {
-			IValue tmp = array[i];
-			array[i] = array[j];
-			array[j] = tmp;
-		}
-
-		public Sorting(IValue[] array, Less less) {
-			this.array = array;
-			this.size = array.length;
-			this.less = less;
-		}
-
-		/**
-		 * @throws IllegalArgument if comparator is illegal (i.e., if pivot equals pivot)
-		 */
-		public Sorting sort() {
-			if (size == 0) {
-				return this;
-			}
-			if(less.less(array[0], array[0])) {
-				throw RuntimeExceptionFactory.illegalArgument(); // "Bad comparator: Did you use less-or-equals instead of less-than?"
-			}
-			sort(0, size - 1);
-
-			return this;
-		}
-
-		public Sorting shuffle() {
-			for (int i = 0; i < size; i++) {
-				swap(i, i + (int) (Math.random() * (size-i)));
-			}
-			return this;
-		}
-
-		private void sort(int low, int high) {
-			IValue pivot = array[low + (high-low)/2];
-			int oldLow = low;
-			int oldHigh = high;
-
-			while (low < high) {
-				for ( ; less.less(array[low], pivot); low++); 
-				for ( ; less.less(pivot, array[high]); high--); 
-
-				if (low <= high) {
-					swap(low, high);
-					low++;
-					high--;
-				}
-			}
-
-			if (oldLow < high)
-				sort(oldLow, high);
-			if (low < oldHigh)
-				sort(low, oldHigh);
-		}
-	}
-
-	public IList sort(IList l, FunctionInstance2<IValue,IValue,IValue> cmpv){
-		IValue[] tmpArr = new IValue[l.length()];
-		for(int i = 0 ; i < l.length() ; i++){
-			tmpArr[i] = l.get(i);
-		}
-
-		// we randomly swap some elements to make worst case complexity unlikely
-		new Sorting(tmpArr, new Less(cmpv)).shuffle().sort();
-
-
-		IListWriter writer = values.listWriter();
-		writer.append(tmpArr);
-		return writer.done();
-	}
-
-	public IList sort(ISet l, FunctionInstance2<IValue,IValue,IValue> cmpv) {
-		IValue[] tmpArr = new IValue[l.size()];
-		int i = 0;
-
-		// we assume that the set is reasonably randomly ordered, such
-		// that the worst case of quicksort is unlikely
-		for (IValue elem : l){
-			tmpArr[i++] = elem;
-		}
-
-		new Sorting(tmpArr, new Less(cmpv)).sort();
-
-		IListWriter writer = values.listWriter();
-		for(IValue v : tmpArr){
-			writer.append(v);
-		}
-
-		return writer.done();
-	}
-	// end of sorting functions
-	
-	// parsing functions
+//	// parsing functions
 //	public IValue parse(IValue start, IString input, ISourceLocation origin, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
 //        return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, origin, allowAmbiguity.getValue(), hasSideEffects.getValue(), null, rex);
 //    }
