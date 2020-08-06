@@ -30,5 +30,4 @@ test bool orNOTOK7() = undeclaredVariable("set[int] f(list[D] ds) = { n | d \<- 
                             initialDecls=["data D = d1(int n) | d2(int n, int m);"]);
 test bool orNOTOK8() = undeclaredVariable("set[int] f(list[D] ds) = { n | d \<- ds, d1(int n) := d || d2(int m, _) := d };",
                             initialDecls=["data D = d1(int n) | d2(int n, int m);"]);
-                            
-test bool orOK9() = checkOK("bool in1(map[&K,&V] M) = isEmpty(M) || all(&K k \<- M, k in M);", importedModules=["Map"]);
+                        

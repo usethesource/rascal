@@ -47,9 +47,3 @@ test bool functionParameter() =
 					  "TYPESET simp(TYPESET  ts) = ts;",
 					  "bool testSimp(TYPESET ats, TYPESET (TYPESET  ts) aSimp) = ats == aSimp(ats);"
 		]);
-	
-test bool varArgs1() =
-	checkOK("writeFile(|file:///|, 1);", importedModules=["IO"]);
-	
-test bool varArgs2() =
-	checkOK("writeFile(|file:///|, 1, \"abc\");", importedModules=["IO"]);

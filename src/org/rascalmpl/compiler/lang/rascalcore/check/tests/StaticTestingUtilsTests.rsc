@@ -23,12 +23,6 @@ test bool testUtils08() = checkOK("and(t(),t());f();", initialDecls=["data Bool 
 
 test bool testUtils09() = checkOK("NODE N = f(0, \"a\", 3.5);", initialDecls = ["data NODE = f(int a, str b, real c);"]);
 
-test bool testUtils10() = checkOK("13;", importedModules = ["util::Math"]);
-	
-test bool testUtils11() = checkOK("max(3, 4);", importedModules = ["util::Math"]);
-
-test bool testUtils12() = checkOK("size([1,2,3]);", importedModules=["Exception", "List"]);
-
 test bool testUtils13(){
 	makeModule("MMM", "int x = 3;"); 
 	return checkOK("13;", importedModules=["MMM"]);
