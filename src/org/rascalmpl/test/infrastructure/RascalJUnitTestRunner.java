@@ -12,7 +12,6 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
