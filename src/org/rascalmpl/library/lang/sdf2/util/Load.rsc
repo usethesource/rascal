@@ -14,7 +14,7 @@ import ParseTree;
 import Set;
 import util::Reflective;
 
-public SDF loadSDF2Module(str name) {
+public SDF loadSDF2Module(str name, PathConfig pcfg) {
   set[Module] modules = {};
   set[str] newnames = {name};
   set[str] done = {};
@@ -23,7 +23,7 @@ public SDF loadSDF2Module(str name) {
     <n,newnames> = takeOneFrom(newnames);
     
     if (n notin done) {
-      file = getSearchPathLocation(n + ".sdf");
+      file = getSearchPathLoc(n + ".sdf", pcfg);
       \mod = parse(#start[Module], file).top;
       modules += \mod;
       newnames += getImports(\mod);
