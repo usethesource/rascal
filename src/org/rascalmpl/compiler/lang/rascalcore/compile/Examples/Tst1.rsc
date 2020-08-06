@@ -2,11 +2,12 @@ module lang::rascalcore::compile::Examples::Tst1
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
-test bool ifThenElseError1() = unexpectedType("if(\"abc\") {n = 4;} else {n=5;}");
-test bool testUtils12() = checkOK("size([1,2,3]);", importedModules=["Exception", "List"]);
+//test bool ifThenElseError1() = unexpectedType("if(\"abc\") {n = 4;} else {n=5;}");
+//test bool testUtils12() = checkOK("size([1,2,3]);", importedModules=["Exception", "List"]);
 test bool testAppendHasLexicalScopingClosure() =
     illegalUse("{ f = () { append 3; }; for (x \<- [1,2,3]) { f(); } } == [3,3,3];");
 
+value main() = testAppendHasLexicalScopingClosure();
 //bool  solver(bool (value, value) unify1) = true;
 //   
 //bool unify(int x, str y) = true;
