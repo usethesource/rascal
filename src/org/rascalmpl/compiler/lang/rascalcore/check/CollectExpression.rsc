@@ -310,14 +310,17 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
 
 // ---- void closure
 
+private Type voidReturnType = (Type) `void`[@\loc=|synthetic-void:///|];
+
 void collect(current: (Expression) `<Parameters parameters> { <Statement* statements0> }`, Collector c){
     //if(!isEmpty(c.getScopeInfo(loopScope())) || inPatternScope(c)){
     //    c.report(warning(current, "Function closure inside loop or backtracking scope, be aware of interactions with current function context"));
     //}
-    returnType = (Type) `void`;
-    c.fact(returnType, avoid());
+    //voidReturnType = (Type) `void`;
+    //iprintln((Type) `void`);
+    c.fact(voidReturnType, avoid());
     
-    collectClosure(current, returnType, parameters, [stat | stat <- statements0], c);
+    collectClosure(current, voidReturnType, parameters, [stat | stat <- statements0], c);
 }
 
 // ---- step range
