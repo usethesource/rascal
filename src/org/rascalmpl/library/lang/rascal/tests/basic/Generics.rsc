@@ -1,6 +1,8 @@
 @doc{tests specific aspects of generic functions and generic data-types in Rascal}
 module lang::rascal::tests::basic::Generics
 
+import Exception;
+
 data Wrapper[&SAME] = something(&SAME wrapped);
 alias Graph[&SAME] = rel[&SAME from, &SAME to];
 
