@@ -22,7 +22,7 @@ test bool Issue448b() =
 										 }"]);	
 										 
 // https://github.com/cwi-swat/rascal/issues/449	
-@ignore{TODO: PathConfig}
+
 test bool Issue449() =
 	checkOK("true;", importedModules = ["Exception", "ParseTree"],
 					 initialDecls =   ["syntax A = a: \"a\";",
@@ -33,7 +33,7 @@ test bool Issue449() =
 										 }"]);
 										 
 // https://github.com/cwi-swat/rascal/issues/450
-@ignore{TODO: PathConfig}
+
 test bool Issue450() =
 	checkOK("true;", importedModules = ["Exception", "List", "ParseTree"],
 					 initialDecls =   ["syntax A = a: \"a\";",
@@ -48,7 +48,7 @@ test bool Issue450() =
 										}"]);
 
 // https://github.com/cwi-swat/rascal/issues/452
-@ignore{TODO: PathConfig}
+
 test bool Issue452() =
 	checkOK("true;", importedModules = ["ParseTree"]);
 
@@ -66,7 +66,7 @@ test bool Issue459() =
 
 
 // https://github.com/cwi-swat/rascal/issues/481
-@ignore{TODO: PathConfig}
+
 test bool Issue481() =
 	checkOK("true;", importedModules=["ParseTree"],
 					initialDecls = ["syntax A = a: \"a\";",
@@ -147,7 +147,7 @@ test bool Issue502(){
 }
 	
 // https://github.com/cwi-swat/rascal/issues/503
-@ignore{TODO: PathConfig}
+
 test bool Issue503(){												
 	makeModule("M1", "import M2;
 				  	  import ParseTree;");		 
