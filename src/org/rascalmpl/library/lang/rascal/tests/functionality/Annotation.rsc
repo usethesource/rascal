@@ -59,7 +59,7 @@ test bool simulationOfAnnotationsAsKeywordFields() {
    // TODO: JV this still fails
    //if (example[pos=3]@\pos != 3) return false;
    
-   // keyword assignments are visible to anno projecten:
+   // keyword assignments are visible to anno projection:
    example.pos = 4;
    if (example@pos != 4) return false;
    
