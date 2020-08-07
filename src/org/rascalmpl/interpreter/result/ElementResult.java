@@ -153,8 +153,8 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	    // TODO: simulating annotations still here
 	    Type annoType;
 	    
-	    if (getType().isSubtypeOf(RascalValueFactory.Tree) && "loc".equals(annoName)) {
-            annoName = "src";
+	    if (RascalValueFactory.isLegacySourceLocationAnnotation(getType(), annoName)) {
+            annoName = RascalValueFactory.Location;
             annoType = getTypeFactory().sourceLocationType();
         }
 	    else {
