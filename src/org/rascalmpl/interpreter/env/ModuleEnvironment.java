@@ -635,8 +635,8 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public void declareAnnotation(Type onType, String label, Type valueType) {
 	    // TODO: simulating annotations still here
-	    if (onType == RascalValueFactory.Tree && "loc".equals(label)) {
-	        label = "src";
+	    if (RascalValueFactory.isLegacySourceLocationAnnotation(onType, label)) {
+	        label = RascalValueFactory.Location;
 	    }
 		typeStore.declareKeywordParameter(onType, label, valueType);
 	}
