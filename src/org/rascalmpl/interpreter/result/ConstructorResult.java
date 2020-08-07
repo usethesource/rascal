@@ -224,20 +224,18 @@ public class ConstructorResult extends NodeResult {
     }
 
     @Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
-			String name, Result<V> repl, TypeStore store) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(
 				getValue().getConstructorType());
 		Type kwTypes = cons.getKeywordArgumentTypes(ctx.getCurrentEnvt());
 
-		if (!getType().hasField(name, store) && !kwTypes.hasField(name)) {
+		if (!getType().hasField(name, store) && store.hasKeywordParameter(getType(), name)) {
 			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 		}
 
 		Type nodeType = getValue().getConstructorType();
 		if (!nodeType.hasField(name) && !kwTypes.hasField(name)) {
-			throw RuntimeExceptionFactory.noSuchField(name,
-					ctx.getCurrentAST(), null);
+			throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
 		}
 
 		if (kwTypes.hasField(name)) {
@@ -247,8 +245,7 @@ public class ConstructorResult extends NodeResult {
 						ctx.getCurrentAST());
 			}
 
-			return makeResult(getType(), getValue().asWithKeywordParameters()
-					.setParameter(name, repl.getValue()), ctx);
+			return makeResult(getType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
 		} else {
 		    // normal field
 			int index = nodeType.getFieldIndex(name);

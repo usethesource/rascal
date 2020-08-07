@@ -26,7 +26,7 @@ import io.usethesource.vallang.IValueFactory;
 public interface IRascalValueFactory extends IValueFactory {
 	IConstructor reifiedType(IConstructor symbol, IMap definitions);
 	
-	ITree appl(Map<String,IValue> annos, IConstructor prod, IList args);
+	ITree appl(Map<String,IValue> kwParams, IConstructor prod, IList args);
 	ITree appl(IConstructor prod, IList args);
 	ITree appl(IConstructor prod, IValue... args);
 	@Deprecated IConstructor appl(IConstructor prod, ArrayList<ITree> args);
