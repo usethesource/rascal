@@ -997,7 +997,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     }
     
     prunedReachableTypes = reachableTypes ;
-    if(\value() notin desiredSubjectTypes){
+    if(avalue() notin desiredSubjectTypes){
         // if specific subject types are given, the reachability relation can be further pruned
         prunedReachableTypes = carrierR(reachableTypes,reachableTypes[desiredSubjectTypes]);
         //println("removed from reachableTypes:[<size(reachableTypes - prunedReachableTypes)>]"); //for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
@@ -1020,7 +1020,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
         }
         ;
     }
-    if(\value() in descend_into){
+    if(avalue() in descend_into){
         println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
       descend_into = {avalue()};
     }
