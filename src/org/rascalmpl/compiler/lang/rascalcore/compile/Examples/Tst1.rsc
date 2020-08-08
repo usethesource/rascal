@@ -1,9 +1,23 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-//import lang::rascalcore::check::tests::StaticTestingUtils;
-import lang::rascal::\syntax::Rascal;
+import ParseTree;
 
-value main() = (Type) `void`@\loc;
+syntax A = "a";
+
+//test bool concreteExpressionsHaveSourceLocations1() 
+//  = (A) `a`.src?;
+  
+value main() //test bool concreteExpressionsHaveSourceLocations2() 
+  = (A) `a`.src.length == 1;
+  
+//test bool reflexEq1(value x) = x == x;
+//test bool transEq1(value x, value y, value z) = (x == y && y == z) ==> (x == z);
+//test bool commutativeEq1(value x, value y) = (x == y) <==> (y == x);
+//
+//// the matching operator is also an equivalence relation on values:
+//test bool reflexEq2(value x) = x := x;
+//test bool transEq2(value x, value y, value z) = (x := y && y := z) ==> (x := z);
+//test bool commutativeEq2(value x, value y) = (x := y) <==> (y := x);
 
 //test bool ifThenElseError1() = unexpectedType("if(\"abc\") {n = 4;} else {n=5;}");
 //test bool testUtils12() = checkOK("size([1,2,3]);", importedModules=["Exception", "List"]);
