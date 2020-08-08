@@ -8,6 +8,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Characters;
 
 import List;
+import Set;
 import Node;
 import String;
 import IO;
@@ -452,9 +453,9 @@ bool asubtype(AType l, tvar(s)) {
 }
 
 
-bool asubtype(overloadedAType(overloads), AType r) = any(<k, idr, tp> <- overloads, asubtype(tp, r));
+bool asubtype(overloadedAType(overloads), AType r) = !isEmpty(overloads) && any(<k, idr, tp> <- overloads, asubtype(tp, r));
 
-bool asubtype(AType l, overloadedAType(overloads)) = any(<k, idr, tp> <- overloads, asubtype(l, tp));
+bool asubtype(AType l, overloadedAType(overloads)) = !isEmpty(overloads) && any(<k, idr, tp> <- overloads, asubtype(l, tp));
 
 bool asubtype(AType _, avalue()) = true;
 
