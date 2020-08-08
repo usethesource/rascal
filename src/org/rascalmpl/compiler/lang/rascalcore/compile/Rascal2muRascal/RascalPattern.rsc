@@ -758,8 +758,8 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
     for(kwarg <- keywordArgumentList){
         kwtype = getType(kwarg.expression);
         kwfield = "<kwarg.name>";
-        code = muIfelse(muHasKwp(subject, kwfield),
-                        muIfelse(muEqual(muGetKwp(subject, kwtype, kwfield), translate(kwarg.expression)), code, falseCont),
+        code = muIfelse(muHasKwp(subjectExp, kwfield),
+                        muIfelse(muEqual(muGetKwp(subjectExp, kwtype, kwfield), translate(kwarg.expression)), code, falseCont),
                         falseCont);
    }
    return code;
@@ -1546,9 +1546,9 @@ MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead, A
 // Multi variables
 
 bool isUsed(MuExp var, MuExp exp){
-    return true;
-    nm = var.name;
-    return /nm := exp; // In some cases, the type in the var can still be a type var, so only look for the var name;
+    return true; // TODO
+    //nm = var.name;
+    //return /nm := exp; // In some cases, the type in the var can still be a type var, so only look for the var name;
 }
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
