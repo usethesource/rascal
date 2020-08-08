@@ -293,11 +293,11 @@ loc currentFunctionDeclaration(){
 
 private lrel[str scope,int counter] functionScopes = []; // *** state
 
-str topFunctionScope() = isEmpty(functionScopes) ? "" : top(functionScopes).scope;
+str topFunctionScope() = isEmpty(functionScopes) ? "" : top(functionScopes)[0] /*.scope*/;
 
 int nextVisit() {
 	int counter = top(functionScopes).counter;
-	functionScopes = <top(functionScopes).scope, counter + 1> + tail(functionScopes);
+	functionScopes = <top(functionScopes)[0]/*.scope*/, counter + 1> + tail(functionScopes);
 	return counter;
 }
 
