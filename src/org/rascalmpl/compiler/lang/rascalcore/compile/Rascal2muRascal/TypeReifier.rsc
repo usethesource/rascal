@@ -316,7 +316,7 @@ private  tuple[set[AType], set[Production]] getReachableConcreteTypes(AType subj
 	//println("desiredPatternTypes = <desiredPatternTypes>");
 	
 	prunedReachableConcreteTypes = reachableConcreteTypes;
-	if(\value() notin desiredSubjectTypes){
+	if(avalue() notin desiredSubjectTypes){
 	    // if specific subject types are given, the reachability relation can be further pruned
 		prunedReachableConcreteTypes = carrierR(reachableConcreteTypes, (reachableConcreteTypes)[desiredSubjectTypes] + desiredSubjectTypes);
 		//println("removed from reachableConcreteTypes:"); for(x <- reachableConcreteTypes - prunedReachableConcreteTypes){println("\t<x>");}
