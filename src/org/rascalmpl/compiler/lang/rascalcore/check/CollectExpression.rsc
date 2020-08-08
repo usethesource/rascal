@@ -640,8 +640,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
-                            if(tp.deprecationMessage? && c.getConfig().warnDeprecated){
-                                s.report(warning(expression, "Deprecated function%v", isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage));
+                            if(ft.deprecationMessage? && c.getConfig().warnDeprecated){
+                                s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
                             if(size(formals) == 0){
                                 s.report(error(expression, "Nullary function may not be overloaded"));
