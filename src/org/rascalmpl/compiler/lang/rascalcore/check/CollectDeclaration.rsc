@@ -210,7 +210,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
     
-    bool returnsViaAllPath = (decl is \default) ? returnsViaAllPath(decl.body, "<fname>", c) : true;
+    bool myReturnsViaAllPath = (decl is \default) ? returnsViaAllPath(decl.body, "<fname>", c) : true;
    
     parentScope = c.getScope();
        
@@ -239,7 +239,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                 c.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
              }
              
-             if(returnsViaAllPath){
+             if(myReturnsViaAllPath){
                 ft.returnsViaAllPath = true;
              }
       
@@ -275,7 +275,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                     s.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
                  }
                  
-                 if(returnsViaAllPath){
+                 if(myReturnsViaAllPath){
                     ft.returnsViaAllPath = true;
                  }
           
@@ -303,7 +303,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             c.report(warning(decl, "Empty function body"));
         }
         if(decl is \default){
-            if(!returnsViaAllPath && "<signature.\type>" != "void"){
+            if(!myReturnsViaAllPath && "<signature.\type>" != "void"){
                 c.report(error(decl, "Missing return statement"));
             }
         }
