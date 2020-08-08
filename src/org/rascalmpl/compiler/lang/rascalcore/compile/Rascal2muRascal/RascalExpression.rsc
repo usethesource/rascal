@@ -119,7 +119,7 @@ private MuExp translateComposeFunction(Expression e){
    
   leaveFunctionScope();
   body_code = muBlock(body_exps);
-  fun = muFunction(compResolverName, compResolverName, comp_ftype, formals, [],  scopeId, nargs, 2, false, false, false, getExternalRefs(body_code, comp_fuid), {}, e@\loc, [], (), body_code);
+  fun = muFunction(compResolverName, compResolverName, comp_ftype, formals, [], scopeId, false, false, false, getExternalRefs(body_code, comp_fuid), {}, {}, e@\loc, [], (), body_code);
   iprintln(e@\loc);
   loc uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
@@ -229,7 +229,7 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <S
     template = muTmpTemplate(nextTmp("template"), fuid);
 	return muValueBlock( astr(),
 	                     [ muConInit(template, muTemplate(translatePreChars(pre))),
-                           *translateTemplate(template, preIndent, stemplate),
+                           translateTemplate(template, preIndent, stemplate),
                            *translateTail(template, preIndent, tail),
                            muTemplateClose(template)
                          ]);
@@ -471,7 +471,7 @@ MuExp translateBool(e:(Expression)  `<Literal s>`, BTSCOPES btscopes, MuExp true
 // -- concrete syntax expression  ------------------------------------
 //TODO
 MuExp translate(e:(Expression) `<Concrete concrete>`) {
-    return translateConcrete(concrete);
+    return translateConcrete(concrete, e@\loc);
 }
 
 /* Recap of relevant rules from Rascal grammar:
@@ -519,15 +519,15 @@ public Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
  //   }
 }  
 
-public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
+public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs), loc src){ 
     fragType = getType(e);
     //println("translateConcrete, fragType = <fragType>");
     //reifiedFragType = symbolToValue(fragType);
     //println("translateConcrete, reified: <reifiedFragType>");
     //Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
     Tree parsedFragment = parseConcrete(e);
-    //println("parsedFragment, before"); iprintln(parsedFragment);
-    return translateConcreteParsed(parsedFragment, parsedFragment@\loc);
+    println("parsedFragment, before"); iprintln(parsedFragment);
+    return translateConcreteParsed(parsedFragment, src/*parsedFragment@\loc*/);
 }
 
 private default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muCon(c);
@@ -1243,7 +1243,7 @@ MuExp translateProject(Expression e, Expression base, list[Field] fields, loc sr
         if(isGuarded){
             return muGuardedGetField(avalue(), tp, translate(base), fieldName);
          } else {
-           return muGetField(avalue(), tp, translate(base), fieldsName);
+           return muGetField(avalue(), tp, translate(base), fieldName);
          }
     }
     
@@ -1431,7 +1431,6 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
 
 MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  {
    throw "asType: TODO";
-    muCon(false); // TODO
  //muCallPrim3("parse", [muCon(getModuleName()), 
  //  					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
  //  					    translate(argument)], 
