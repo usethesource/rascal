@@ -1,5 +1,7 @@
 module lang::rascal::tests::concrete::Locations
 
+import ParseTree;
+
 syntax A = "a";
 
 test bool concreteExpressionsHaveSourceLocations1() 
