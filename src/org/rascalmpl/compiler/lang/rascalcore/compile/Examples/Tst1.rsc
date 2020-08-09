@@ -1,14 +1,23 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import ParseTree;
+data D = d1() | d2();
 
-syntax A = "a";
-
-//test bool concreteExpressionsHaveSourceLocations1() 
-//  = (A) `a`.src?;
-  
-value main() //test bool concreteExpressionsHaveSourceLocations2() 
-  = (A) `a`.src.length == 1;
+int recursiveGenericFunction(&T<:D n) {
+   if (d1() := n) {
+     return 0;
+   }
+   return 1;
+}
+   
+//import ParseTree;
+//
+//syntax A = "a";
+//
+////test bool concreteExpressionsHaveSourceLocations1() 
+////  = (A) `a`.src?;
+//  
+//value main() //test bool concreteExpressionsHaveSourceLocations2() 
+//  = (A) `a`.src.length == 1;
   
 //test bool reflexEq1(value x) = x == x;
 //test bool transEq1(value x, value y, value z) = (x == y && y == z) ==> (x == z);
