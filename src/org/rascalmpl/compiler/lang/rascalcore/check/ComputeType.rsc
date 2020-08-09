@@ -1087,7 +1087,7 @@ AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (Ke
        return anode([]);
     } else if(anode(list[AType] fields) := subjectType){
         return computePatternNodeTypeWithKwArgs(current, keywordArgumentsPat, fields, scope, s);
-    } else if(avalue() := subjectType){
+    } else if(isValueType(subjectType)){
         return anode([]);
     }
     s.report(error(current, "Node pattern does not match %t", subjectType));
