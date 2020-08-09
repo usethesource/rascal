@@ -291,7 +291,7 @@ public class RascalFunction extends NamedFunction {
                     bindKeywordArgs(keyArgValues);
                     checkReturnTypeIsNotVoid(formals, actuals);
                     result = runBody();
-          result = storeMemoizedResult(actuals,keyArgValues, result);
+                    result = storeMemoizedResult(actuals,keyArgValues, result);
                     if (callTracing) {
                         printEndTrace(result.getValue());
                     }
@@ -420,7 +420,7 @@ public class RascalFunction extends NamedFunction {
         IMatchingResult[] matchers = new IMatchingResult[size];
 
         for (int i = 0; i < size; i++) {
-            matchers[i] = formals.get(i).getMatcher(ctx, true);
+            matchers[i] = formals.get(i).getMatcher(ctx, false);
         }
 
         return matchers;
