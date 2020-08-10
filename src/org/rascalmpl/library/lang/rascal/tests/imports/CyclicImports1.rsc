@@ -9,4 +9,6 @@ test bool Cycle2() = isDint(d("abc")) == false;
 test bool Cycle3() = isDstr(d("abc")) == true;
 test bool Cycle4() = isDstr(d(13)) == false;
 
+test bool Cycle5() = C2func(1) == 1;
+test bool Cycle6() = C1func(2) == 2;
 
