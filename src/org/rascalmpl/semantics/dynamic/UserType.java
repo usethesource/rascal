@@ -41,40 +41,39 @@ public abstract class UserType extends org.rascalmpl.ast.UserType {
 
 		@Override
 		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			Environment theEnv = __eval.getHeap().getEnvironmentForName(
-					getName(), __eval);
-			String name = Names.typeName(this.getName());
+		    Environment theEnv = __eval.getHeap().getEnvironmentForName(getName(), __eval);
+		    String name = Names.typeName(this.getName());
 
-			if (theEnv != null) {
-				Type type = theEnv.lookupAlias(name);
+		    if (theEnv != null) {
+		        Type type = theEnv.lookupAlias(name);
 
-                                if (type != null) {
-                                    if (type.isParameterized()) {
-                                        throw new MissingTypeParameters(type, this);
-                                    }
+		        if (type != null) {
+		            if (type.isParameterized()) {
+		                throw new MissingTypeParameters(type, this);
+		            }
 
-                                    return type.getAliased();
-                                }
+		            return type.getAliased();
+		        }
 
-				Type tree = theEnv.lookupAbstractDataType(name);
+		        Type tree = theEnv.lookupAbstractDataType(name);
 
-				if (tree != null) {
-				    
-				    if (tree.isParameterized()) {
-				        throw new MissingTypeParameters(tree, this);
-				    }
-				    
-					return tree;
-				}
+		        if (tree != null) {
 
-				Type symbol = theEnv.lookupConcreteSyntaxType(name);
+		            if (tree.isParameterized()) {
+		                throw new MissingTypeParameters(tree, this);
+		            }
 
-				if (symbol != null) {
-					return symbol;
-				}
-			}
+		            return tree;
+		        }
 
-			throw new UndeclaredType(name, this);
+		        Type symbol = theEnv.lookupConcreteSyntaxType(name);
+
+		        if (symbol != null) {
+		            return symbol;
+		        }
+		    }
+
+		    throw new UndeclaredType(name, this);
 		}
 
 	}

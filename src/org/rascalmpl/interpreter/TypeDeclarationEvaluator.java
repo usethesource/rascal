@@ -236,10 +236,6 @@ public class TypeDeclarationEvaluator {
 	}
 
 	private void declareAbstractDataTypes(Set<UserType> abstractDataTypes) {
-//		for (UserType decl : abstractDataTypes) {
-//			declareAbstractDataType(decl, env);
-//		}
-		
 		List<UserType> todo = new LinkedList<UserType>();
 		todo.addAll(abstractDataTypes);
 		
@@ -315,8 +311,7 @@ public class TypeDeclarationEvaluator {
 		private final Set<Alias> aliasDecls;
         private final Set<Annotation> annotations;
 
-		public DeclarationCollector(Set<UserType> abstractDataTypes,
-				Set<Data> constructorDecls, Set<Alias> aliasDecls, Set<Annotation> annotations) {
+		public DeclarationCollector(Set<UserType> abstractDataTypes, Set<Data> constructorDecls, Set<Alias> aliasDecls, Set<Annotation> annotations) {
 			this.abstractDataTypes = abstractDataTypes;
 			this.constructorDecls = constructorDecls;
 			this.aliasDecls = aliasDecls;
