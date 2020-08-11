@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -418,7 +419,9 @@ private static boolean isDeprecated(Module preModule){
       try {
           eval.setCurrentEnvt(env);
           env.setInitialized(true);
-
+          
+          declareTypesWhichDoNotNeedImportedModulesAlready(eval, env, top);
+          
           eval.getCurrentModuleEnvironment().clearProductions();
           ISet rules = Modules.getSyntax(top);
           for (IValue rule : rules) {
@@ -453,7 +456,13 @@ private static boolean isDeprecated(Module preModule){
       return result;
   } 
   
-  public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
+  private static void declareTypesWhichDoNotNeedImportedModulesAlready(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree top) {
+      List<org.rascalmpl.ast.Toplevel> decls = Modules.getTypeDeclarations(top);
+
+      eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), true);
+  }
+
+public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
 	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
 	  try {
 		  imp.interpret(eval);
