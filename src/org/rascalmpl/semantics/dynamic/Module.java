@@ -73,7 +73,7 @@ public abstract class Module {
 				}
 
 			  List<Toplevel> decls = this.getBody().getToplevels();
-			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt());
+			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), false);
 
 			  for (Toplevel l : decls) {
 			    l.interpret(eval);

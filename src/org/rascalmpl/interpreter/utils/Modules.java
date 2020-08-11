@@ -5,6 +5,12 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import org.rascalmpl.ast.Toplevel;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -27,6 +33,24 @@ public class Modules {
   
   public static ISet getSyntax(ITree tree) {
     return get(tree, "syntax");
+  }
+  
+  public static List<Toplevel> getTypeDeclarations(ITree tree) {
+      ITree body = TreeAdapter.getArg(tree, "body");
+      ITree toplevels = TreeAdapter.getArg(body, "toplevels");
+      List<Toplevel> result = new LinkedList<>();
+      ASTBuilder builder = new ASTBuilder();
+      
+      for (IValue toplevel : TreeAdapter.getListASTArgs(toplevels)) {
+          ITree declaration = TreeAdapter.getArg((ITree) toplevel, "declaration");
+          String cons = TreeAdapter.getConstructorName(declaration);
+          
+          if (cons.equals("dataAbstract") || cons.equals("alias")) {
+              result.add((Toplevel) builder.buildValue((ITree) toplevel));
+          }
+      }
+      
+      return result;
   }
   
   private static ISet get(ITree tree, String type) {
