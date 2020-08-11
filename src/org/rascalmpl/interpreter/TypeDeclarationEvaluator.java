@@ -65,7 +65,7 @@ public class TypeDeclarationEvaluator {
 
 	private Environment env;
 
-	public void evaluateDeclarations(List<Toplevel> decls, Environment env) {
+	public void evaluateDeclarations(List<Toplevel> decls, Environment env, boolean ignoreErrors) {
 		this.env = env;
 		Set<UserType> abstractDataTypes = new HashSet<>();
 		Set<Data> constructorDecls = new HashSet<>();
@@ -73,12 +73,19 @@ public class TypeDeclarationEvaluator {
 		Set<Annotation> annotationDecls = new HashSet<>();
 
 		// this code is very much order dependent
-		collectDeclarations(decls, abstractDataTypes, constructorDecls,
-				aliasDecls, annotationDecls);
+		collectDeclarations(decls, abstractDataTypes, constructorDecls, aliasDecls, annotationDecls);
+		
 		declareAbstractDataTypes(abstractDataTypes);
-		declareAnnotations(annotationDecls);
-		declareAliases(aliasDecls);
-		declareConstructors(constructorDecls);
+		
+		if (!ignoreErrors) {
+		    declareAnnotations(annotationDecls);
+		}
+		
+		declareAliases(aliasDecls, ignoreErrors);
+		
+		if (!ignoreErrors) {
+		    declareConstructors(constructorDecls, ignoreErrors);
+		}
 	}
 	
 	private void declareAnnotations(Set<Annotation> annotationDecls) {
@@ -91,9 +98,19 @@ public class TypeDeclarationEvaluator {
         anno.interpret(eval);
     }
 
-    private void declareConstructors(Set<Data> constructorDecls) {
+    private void declareConstructors(Set<Data> constructorDecls, boolean ignoreErrors) {
 		for (Data data : constructorDecls) {
-			declareConstructor(data, env);
+		    try {
+		        declareConstructor(data, env);
+		    }
+		    catch (UndeclaredType e) {
+		        if (ignoreErrors) {
+		            return;
+		        }
+		        else {
+		            throw e;
+		        }
+		    }
 		}
 	}
 
@@ -190,7 +207,7 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 	
-	private void declareAliases(Set<Alias> aliasDecls) {
+	private void declareAliases(Set<Alias> aliasDecls, boolean ignoreErrors) {
 		List<Alias> todo = new LinkedList<Alias>();
 		todo.addAll(aliasDecls);
 		
@@ -205,7 +222,13 @@ public class TypeDeclarationEvaluator {
 			catch (UndeclaredType e) {
 				if (countdown == 0) {	
 					// Cycle
-					throw e;
+				    if (!ignoreErrors) {
+				        throw e;
+				    }
+				    else {
+				        return;
+				    }
+				    
 				}
 				// Put at end of queue
 				todo.add(trial);
@@ -250,7 +273,7 @@ public class TypeDeclarationEvaluator {
 			catch (UndeclaredType e) {
 				if (countdown == 0) {	
 					// Cycle
-					throw e;
+				    throw e;
 				}
 				// Put at end of queue
 				todo.add(trial);
