@@ -155,6 +155,8 @@ void collect(Tag tg, Collector c){
 // ---- annotation ------------------------------------------------------------
 
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
+
+    c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
