@@ -352,7 +352,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     if(isNonTerminalType(containerType) && fieldName == "top"){
         return containerType;
     }
-    return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId()}, scope);
+    return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId(), annoId()}, scope); // DURING TRANSITION: allow annoIds
 }
     
 @doc{Compute the type of field fn on type containerType. A checkFailed is thrown if the field is not defined on the given type.}

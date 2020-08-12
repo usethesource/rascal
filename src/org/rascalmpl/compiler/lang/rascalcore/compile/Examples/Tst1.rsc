@@ -1,13 +1,19 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-data D = d1() | d2();
+extend lang::rascalcore::compile::Examples::Tst2;
 
-int recursiveGenericFunction(&T<:D n) {
-   if (d1() := n) {
-     return 0;
-   }
-   return 1;
-}
+value main() = n;
+
+//data F = f() | f(int n) | g(int n) | deep(F f);
+//anno int F@pos;
+//
+//value main() {
+//   F example = f();
+//   
+//   example@pos = 1;
+//   return example.pos;
+//   
+//}
    
 //import ParseTree;
 //
