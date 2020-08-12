@@ -966,6 +966,7 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
 }
 
 private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
+   c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
    c.use(n, {annoId()});
    names = getReceiver(receiver, c);
    c.useLub(names[0], variableRoles);
