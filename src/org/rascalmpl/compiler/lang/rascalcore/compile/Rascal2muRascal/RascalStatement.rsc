@@ -41,6 +41,11 @@ import lang::rascalcore::compile::util::Names;
 
 MuExp translateStats(Statement* statements, BTSCOPES btscopes) = muBlock([ translate(stat, btscopes) | stat <- statements ]);
 
+// Normalize expression to statement
+
+MuExp toStat(muIfExp(c, t, f)) = muIfelse(c, toStat(t), toStat(f));
+default MuExp toStat(MuExp exp) = exp;
+
 /********************************************************************/
 /*                  Translate one statement                         */
 /********************************************************************/
