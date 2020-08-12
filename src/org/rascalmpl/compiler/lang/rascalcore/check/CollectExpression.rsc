@@ -1024,7 +1024,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 // ---- fieldAccess
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
-    c.useViaType(expression, field, {fieldId(), keywordFieldId()});
+    c.useViaType(expression, field, {fieldId(), keywordFieldId(), annoId()}); // DURING TRANSITION: allow annoIds
     c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of field selection"));
     c.fact(current, field);
     collect(expression, c);
@@ -1157,6 +1157,7 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
 // ---- setAnnotation
 
 void collect(current:(Expression) `<Expression e> [ @ <Name n> = <Expression er> ]`, Collector c) {
+    c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     c.use(n, {annoId()});
     scope = c.getScope();
     c.calculate("set annotation", current, [e, n, er],
@@ -1188,6 +1189,7 @@ private AType _computeSetAnnotationType(Tree current, AType t1, AType tn, AType 
 // ---- getAnnotation
 
 void collect(current:(Expression) `<Expression e>@<Name n>`, Collector c) {
+    c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     c.use(n, {annoId()});
     scope = c.getScope();
     c.calculate("get annotation", current, [e, n],
