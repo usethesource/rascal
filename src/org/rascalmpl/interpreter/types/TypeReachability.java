@@ -65,11 +65,6 @@ public class TypeReachability {
             }
 
             @Override
-            public Boolean visitOverloadedFunction(RascalType type) throws RuntimeException {
-                return false;
-            }
-
-            @Override
             public Boolean visitReified(RascalType type) throws RuntimeException {
                 // TODO: we can be more precise here because we know only Symbols and Definitions can occur in 
                 // reified types
