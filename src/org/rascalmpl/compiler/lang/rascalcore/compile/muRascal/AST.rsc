@@ -339,14 +339,6 @@ str getUniqueFunctionName(MuFunction fun){
     return "<fun.scopeIn>_<fun.uniqueName>";
 }
 
-// Normalize expression to statement
-
-MuExp toStat(muIfExp(c, t, f)) = muIfelse(c, toStat(t), toStat(f));
-default MuExp toStat(MuExp exp) = exp;
-
-// Identity on expressions
-
-MuExp identity(MuExp exp) = exp;
 
 set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
 
