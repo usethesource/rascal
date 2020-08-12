@@ -1754,6 +1754,8 @@ list[Expression] normalizeAnd(list[Expression] exps)
 
 // ---- translateAndConds
 
+MuExp identity(MuExp exp) = exp;
+
 MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCont, MuExp falseCont, MuExp(MuExp) normalize = identity){
     if(isEmpty(conds)) return normalize(trueCont);
     conds = normalizeAnd(conds);
