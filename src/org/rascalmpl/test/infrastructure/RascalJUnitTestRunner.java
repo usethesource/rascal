@@ -70,7 +70,9 @@ public class RascalJUnitTestRunner extends Runner {
         this.projectRoot = inferProjectRoot(clazz);
         this.clazz = clazz;
         
+        System.err.println("Rascal Junit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
         System.err.println("Rascal JUnit Project root: " + projectRoot);
+        
 
         if (projectRoot != null) {
             configureProjectEvaluator(evaluator, projectRoot);
@@ -79,7 +81,7 @@ public class RascalJUnitTestRunner extends Runner {
             throw new IllegalArgumentException("could not setup tests for " + clazz.getCanonicalName());
         }
     }
-
+    
     public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         String projectName = new RascalManifest().getProjectName(projectRoot);
