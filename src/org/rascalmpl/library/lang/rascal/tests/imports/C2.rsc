@@ -10,3 +10,7 @@ bool isDstr(d(str _)) = true;
 default bool isDstr(D _) = false;
 
 C2Alias C2func(C1Alias i) = i;
+
+int C2function() = 2;
+
+int C2testFunction(int () f = C1function) = f();
