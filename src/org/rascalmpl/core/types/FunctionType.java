@@ -345,17 +345,17 @@ public class FunctionType extends RascalType {
 	  return TF.voidType();
 	}
 		
-	@Override
-	protected boolean isSubtypeOfOverloadedFunction(RascalType type) {
-	  OverloadedFunctionType function = (OverloadedFunctionType) type;
-	  for (FunctionType f : function.getAlternatives()) {
-	    if (!this.isSubtypeOf(f)) {
-		  return false;
-	    }
-	  }
-	  
-	  return true;
-	}
+//	@Override
+//	protected boolean isSubtypeOfOverloadedFunction(RascalType type) {
+//	  OverloadedFunctionType function = (OverloadedFunctionType) type;
+//	  for (FunctionType f : function.getAlternatives()) {
+//	    if (!this.isSubtypeOf(f)) {
+//		  return false;
+//	    }
+//	  }
+//	  
+//	  return true;
+//	}
 
 	@Override
 	protected Type lubWithOverloadedFunction(RascalType type) {
@@ -449,19 +449,20 @@ public class FunctionType extends RascalType {
 				matched = matched.getAliased();
 			}
 	
-			if (matched instanceof OverloadedFunctionType) {
-				OverloadedFunctionType of = (OverloadedFunctionType) matched;
-				// at least one needs to match (also at most one can match)
-				
-				for (Type f : of.getAlternatives()) {
-					if (this.match(f, bindings)) {
-						return true;
-					}
-				}
-				
-				return false;
-			}
-			else if (matched instanceof FunctionType) {
+//			if (matched instanceof OverloadedFunctionType) {
+//				OverloadedFunctionType of = (OverloadedFunctionType) matched;
+//				// at least one needs to match (also at most one can match)
+//				
+//				for (Type f : of.getAlternatives()) {
+//					if (this.match(f, bindings)) {
+//						return true;
+//					}
+//				}
+//				
+//				return false;
+//			}
+//			else 
+				if (matched instanceof FunctionType) {
 				return argumentTypes.match(((FunctionType) matched).getArgumentTypes(), bindings)
 						&& returnType.match(((FunctionType) matched).getReturnType(), bindings);
 			}
@@ -482,17 +483,18 @@ public class FunctionType extends RascalType {
 			if(TF.tupleType(((FunctionType) right).returnType).isSubtypeOf(this.argumentTypes)) {
 				return RTF.functionType(this.returnType, ((FunctionType) right).getArgumentTypes(), ((FunctionType) right).keywordParameters);
 			}
-		} else if(right instanceof OverloadedFunctionType) {
-			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
-				if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(this.argumentTypes)) {
-					newAlternatives.add((FunctionType) RTF.functionType(this.returnType, ftype.getArgumentTypes(), ftype.keywordParameters));
-				}
-			}
 		} else {
+//			if(right instanceof OverloadedFunctionType) {
+//			for(FunctionType ftype : ((OverloadedFunctionType) right).getAlternatives()) {
+//				if(TF.tupleType(ftype.getReturnType()).isSubtypeOf(this.argumentTypes)) {
+//					newAlternatives.add((FunctionType) RTF.functionType(this.returnType, ftype.getArgumentTypes(), ftype.keywordParameters));
+//				}
+//			}
+//		} else {
 			throw new IllegalOperationException("compose", this, right);
 		}
-		if(!newAlternatives.isEmpty()) 
-			return RTF.overloadedFunctionType(newAlternatives);
+//		if(!newAlternatives.isEmpty()) 
+//			return RTF.overloadedFunctionType(newAlternatives);
 		return TF.voidType();
 	}
 
