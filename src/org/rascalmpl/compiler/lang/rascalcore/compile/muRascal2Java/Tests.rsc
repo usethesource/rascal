@@ -34,6 +34,7 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import org.rascalmpl.interpreter.control_exceptions.Throw;
            'import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
            '
+           '@SuppressWarnings(\"unused\")
            'class <className>Tests extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
            '    <className> $me;
            '    final GenerateActuals generator = new GenerateActuals(5, 5, 10);

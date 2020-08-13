@@ -114,6 +114,7 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                         '    this(new ModuleStore());
                         '}
                         '
+                        '@SuppressWarnings(\"unused\")
                         'public <className>(ModuleStore store){
                         '   this.$me = this;
                         '   <for(imp <- m.imports, imp notin m.extends){>
