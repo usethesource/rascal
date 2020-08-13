@@ -6,9 +6,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -20,6 +22,7 @@ import java.util.zip.ZipEntry;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -46,6 +49,26 @@ public class RascalManifest {
     protected static final String REQUIRE_BUNDLES = "Require-Bundles";
     protected static final String REQUIRE_LIBRARIES = "Require-Libraries";
 
+    public static String getRascalVersionNumber() {
+        try {
+            Enumeration<URL> resources = RascalManifest.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+            while (resources.hasMoreElements()) {
+                Manifest manifest = new Manifest(resources.nextElement().openStream());
+                String bundleName = manifest.getMainAttributes().getValue("Name");
+                if (bundleName != null && bundleName.equals("rascal")) {
+                    String result = manifest.getMainAttributes().getValue("Specification-Version");
+                    if (result != null) {
+                        return result;
+                    }
+                }
+            }
+
+            return "Rascal version not specified in META-INF/MANIFEST.MF???";
+        } catch (IOException e) {
+            return "unknown (due to " + e.getMessage();
+        }
+    }
+    
     public Manifest getDefaultManifest(String projectName) {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
