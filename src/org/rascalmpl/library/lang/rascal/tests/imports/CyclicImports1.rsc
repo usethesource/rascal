@@ -13,5 +13,5 @@ test bool Cycle5() = C2func(1) == 1;
 test bool Cycle6() = C1func(2) == 2;
 
 test bool Cycle7() = C1testFunction() == 2;
-test bool Cycle8() = C2testFunction() == 2;
+test bool Cycle8() = C2testFunction() == 1;
 

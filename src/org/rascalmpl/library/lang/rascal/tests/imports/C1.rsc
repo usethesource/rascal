@@ -11,6 +11,6 @@ default bool isDint(D _) = false;
 
 C1Alias C1func(C2Alias i) = i;
 
-int C1function() = 1;
+public int C1function() { return 1; }
 
 int C1testFunction(int () f = C2function) = f();
