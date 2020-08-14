@@ -68,6 +68,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
 
 
     public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) {
+        System.err.println("Rascal JUnit uses Rascal version " + RascalManifest.getRascalVersionNumber());
+        
         this.projectRoot = RascalJUnitTestRunner.inferProjectRoot(clazz);
         System.err.println("Rascal JUnit Project root: " + projectRoot);
         

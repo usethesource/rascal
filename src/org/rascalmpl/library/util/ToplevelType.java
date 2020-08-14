@@ -178,13 +178,6 @@ public enum ToplevelType {
 				// TODO: @paulk review
 				return VALUE;
 			}
-			
-			@Override
-			public ToplevelType visitOverloadedFunction(RascalType type)
-					throws RuntimeException {
-				// TODO: @paulk review
-				return VALUE;
-			}
 
 			@Override
 			public ToplevelType visitDateTime(Type type)
