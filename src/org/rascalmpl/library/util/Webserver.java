@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -59,6 +60,10 @@ import io.usethesource.vallang.type.TypeStore;
 
 public class Webserver {
   private final IValueFactory vf;
+  private final TypeStore store;
+  private final PrintWriter out;
+  private final PrintWriter err;
+  
   private final Map<ISourceLocation, NanoHTTPD> servers;
   private final Map<IConstructor,Status> statusValues = new HashMap<>();
   private Type requestType;
@@ -70,17 +75,20 @@ public class Webserver {
   private Type functionType;
   
   
-  public Webserver(IValueFactory vf) {
+  public Webserver(IValueFactory vf, TypeStore store, PrintWriter out, PrintWriter err) {
     this.vf = vf;
+    this.store = store;
+    this.out = out;
+    this.err = err;
     this.servers = new HashMap<>();
   }
   
   
   
   
-  public void serve(ISourceLocation url, final IValue callback, IBool asDeamon, final IEvaluatorContext ctx) {
+  public void serve(ISourceLocation url, final IValue callback, IBool asDeamon, IEvaluatorContext ctx) {
     URI uri = url.getURI();
-    initMethodAndStatusValues(ctx);
+    initMethodAndStatusValues(store);
 
     int port = uri.getPort() != -1 ? uri.getPort() : 80;
     String host = uri.getHost() != null ? uri.getHost() : "localhost";
@@ -115,26 +123,26 @@ public class Webserver {
             Throwable actualException = e.getCause();
             if (actualException instanceof Throw) {
               Throw rascalException = (Throw) actualException;
-              ctx.getErrorPrinter().println(rascalException.getMessage());
+              err.println(rascalException.getMessage());
               return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
             }
             else if (actualException instanceof StaticError) {
                 StaticError error = (StaticError) actualException;
-                ctx.getErrorPrinter().println(error.getLocation() + ": " + error.getMessage());
+                err.println(error.getLocation() + ": " + error.getMessage());
                 return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, error.getMessage());
             }
             else {
-                return handleGeneralThrowable(ctx, actualException);
+                return handleGeneralThrowable(actualException);
             }
         }
         catch (Throwable t) {
-            return handleGeneralThrowable(ctx, t);
+            return handleGeneralThrowable(t);
         }
       }
 
-      private Response handleGeneralThrowable(final IEvaluatorContext ctx, Throwable actualException) {
-          ctx.getErrorPrinter().println(actualException.getMessage());
-          actualException.printStackTrace(ctx.getErrorPrinter());
+      private Response handleGeneralThrowable(Throwable actualException) {
+          err.println(actualException.getMessage());
+          actualException.printStackTrace(err);
           return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, actualException.getMessage());
       }
 
@@ -153,16 +161,16 @@ public class Webserver {
           case GET:
             return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
           case PUT:
-            return vf.constructor(put, new IValue[]{vf.string(path), getContent(files, "content")}, kws);
+            return vf.constructor(put, new IValue[]{vf.string(path), getContent(files, "content", ctx)}, kws);
           case POST:
-            return vf.constructor(post, new IValue[]{vf.string(path), getContent(files, "postData")}, kws);
+            return vf.constructor(post, new IValue[]{vf.string(path), getContent(files, "postData", ctx)}, kws);
           default:
               throw new IOException("Unhandled request " + method);
         }
       }
 
       // TODO: this is highly interpreter dependent and must be reconsidered for the compiler version
-      protected IValue getContent(Map<String, String> parms, String contentParamName) throws IOException {
+      protected IValue getContent(Map<String, String> parms, String contentParamName, IEvaluatorContext ctx) throws IOException {
           return new AbstractFunction(ctx.getCurrentAST(), ctx.getEvaluator(), (FunctionType) functionType, Collections.<KeywordFormal>emptyList(), false, ctx.getCurrentEnvt()) {
             
             @Override
@@ -209,7 +217,7 @@ public class Webserver {
 
       private Response translateResponse(Method method, IValue value) throws IOException {
         IConstructor cons = (IConstructor) value;
-        initMethodAndStatusValues(ctx);
+        initMethodAndStatusValues(store);
         
         switch (cons.getName()) {
           case "fileResponse":
@@ -313,7 +321,7 @@ public class Webserver {
       }
 
       private Status translateStatus(IConstructor cons) {
-        initMethodAndStatusValues(ctx);
+        initMethodAndStatusValues(store);
         return statusValues.get(cons);
       }
 
@@ -330,8 +338,8 @@ public class Webserver {
       server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDeamon.getValue());
       servers.put(url, server);
       if (!asDeamon.getValue()) {
-          ctx.getOutPrinter().println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
-          ctx.getOutPrinter().flush();
+          out.println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
+          out.flush();
           while(!ctx.isInterrupted()) {
               try {
                   Runnable job;
@@ -431,36 +439,35 @@ public void shutdown(ISourceLocation server) {
 
   
 
-  private void initMethodAndStatusValues(final IEvaluatorContext ctx) {
+  private void initMethodAndStatusValues(TypeStore store) {
     if (statusValues.isEmpty() || requestType == null) {
-      Environment env = ctx.getHeap().getModule("util::Webserver");
       TypeFactory tf = TypeFactory.getInstance();
-      Type statusType = env.getAbstractDataType("Status");
+      Type statusType = store.lookupAbstractDataType("Status");
                         
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "ok", tf.voidType())), Status.OK);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "created", tf.voidType())), Status.CREATED);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "accepted", tf.voidType())), Status.ACCEPTED);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "noContent", tf.voidType())), Status.NO_CONTENT);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "partialContent", tf.voidType())), Status.PARTIAL_CONTENT);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "redirect", tf.voidType())), Status.REDIRECT);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "notModified", tf.voidType())), Status.NOT_MODIFIED);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "badRequest", tf.voidType())), Status.BAD_REQUEST);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "unauthorized", tf.voidType())), Status.UNAUTHORIZED);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "forbidden", tf.voidType())), Status.FORBIDDEN);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "notFound", tf.voidType())), Status.NOT_FOUND);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "rangeNotSatisfiable", tf.voidType())), Status.RANGE_NOT_SATISFIABLE);
-      statusValues.put(vf.constructor(env.getConstructor(statusType, "internalError", tf.voidType())), Status.INTERNAL_ERROR);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "ok", tf.voidType())), Status.OK);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "created", tf.voidType())), Status.CREATED);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "accepted", tf.voidType())), Status.ACCEPTED);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "noContent", tf.voidType())), Status.NO_CONTENT);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "partialContent", tf.voidType())), Status.PARTIAL_CONTENT);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "redirect", tf.voidType())), Status.REDIRECT);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "notModified", tf.voidType())), Status.NOT_MODIFIED);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "badRequest", tf.voidType())), Status.BAD_REQUEST);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "unauthorized", tf.voidType())), Status.UNAUTHORIZED);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "forbidden", tf.voidType())), Status.FORBIDDEN);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "notFound", tf.voidType())), Status.NOT_FOUND);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "rangeNotSatisfiable", tf.voidType())), Status.RANGE_NOT_SATISFIABLE);
+      statusValues.put(vf.constructor(store.lookupConstructor(statusType, "internalError", tf.voidType())), Status.INTERNAL_ERROR);
       
-      requestType = env.getAbstractDataType("Request");
+      requestType = store.lookupAbstractDataType("Request");
       
       RascalTypeFactory rtf = RascalTypeFactory.getInstance();
       functionType = rtf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.voidType());
           
-      get = env.getConstructor(requestType, "get", tf.tupleType(tf.stringType()));
-      put = env.getConstructor(requestType, "put",  tf.tupleType(tf.stringType(), functionType));
-      post = env.getConstructor(requestType, "post",  tf.tupleType(tf.stringType(), functionType));
-      delete = env.getConstructor(requestType, "delete",  tf.tupleType(tf.stringType()));
-      head = env.getConstructor(requestType, "head",  tf.tupleType(tf.stringType()));
+      get = store.lookupConstructor(requestType, "get", tf.tupleType(tf.stringType()));
+      put = store.lookupConstructor(requestType, "put",  tf.tupleType(tf.stringType(), functionType));
+      post = store.lookupConstructor(requestType, "post",  tf.tupleType(tf.stringType(), functionType));
+      delete = store.lookupConstructor(requestType, "delete",  tf.tupleType(tf.stringType()));
+      head = store.lookupConstructor(requestType, "head",  tf.tupleType(tf.stringType()));
     }
   }
 }
