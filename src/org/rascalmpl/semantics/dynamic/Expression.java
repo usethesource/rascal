@@ -608,7 +608,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					(FunctionType) RTF.functionType(returnType, formals, kwParams),
 					kwd,
 					this.getParameters()
-					.isVarArgs(), false, false, this.getStatements(), env, __eval.__getAccumulators());
+					.isVarArgs(), false, false, false, this.getStatements(), env, __eval.__getAccumulators());
 		}
 
 		@Override
@@ -2949,7 +2949,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			return new RascalFunction(this, eval, null, (FunctionType) RTF
 					.functionType(TF.voidType(), formals, kwParams), kws, this.getParameters()
-					.isVarArgs(), false, false, this.getStatements0(), eval
+					.isVarArgs(), false, false, false, this.getStatements0(), eval
 					.getCurrentEnvt(), eval.__getAccumulators());
 		}
 	}

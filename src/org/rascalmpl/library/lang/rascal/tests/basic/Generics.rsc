@@ -1,6 +1,8 @@
 @doc{tests specific aspects of generic functions and generic data-types in Rascal}
 module lang::rascal::tests::basic::Generics
 
+import Exception;
+
 data Wrapper[&SAME] = something(&SAME wrapped);
 alias Graph[&SAME] = rel[&SAME from, &SAME to];
 
@@ -94,4 +96,25 @@ test bool typeParametersAreCheckedStaticallyButAlsoBoundDynamically3_2()
   = [1,1r,2,1r2,3,1r3] == \filter(t, [1, "1", 1r, 2, "2", 1r2, 3, "3", 1r3]) when type[value] t := #num; 
   
 test bool typeParametersAreCheckedStaticallyButAlsoBoundDynamically3_3() 
-  = [1,"1",1r,2,"2",1r2,3,"3",1r3] == \filter(t, [1, "1", 1r, 2, "2", 1r2, 3, "3", 1r3]) when type[value] t := #value;     
+  = [1,"1",1r,2,"2",1r2,3,"3",1r3] == \filter(t, [1, "1", 1r, 2, "2", 1r2, 3, "3", 1r3]) when type[value] t := #value;   
+  
+test bool staticTypeParametersKeepElementLabelsAlsoWithListMatch() {
+   &T first([&T head, *&T tail]) = head;
+   
+   lrel[int first, int second] myList = [<1,2>,<2,3>];
+   
+   myElem = first(myList);
+   
+   return myElem.first == 1 && myElem.second == 2;
+}  
+
+test bool staticTypeParametersKeepElementLabelsAlsoWithSetMatch() {
+   &T take({&T some, *&T other}) = some;
+   
+   rel[int first, int second] mySet = {<1,2>,<2,3>};
+   
+   myElem = take(mySet);
+   
+   return myElem.first == 1 && myElem.second == 2;
+}  
+
