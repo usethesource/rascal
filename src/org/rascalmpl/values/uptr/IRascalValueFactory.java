@@ -11,14 +11,17 @@
 package org.rascalmpl.values.uptr;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import org.rascalmpl.parser.gtd.util.ArrayList;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
 
 /**
  * See {@link RascalValueFactory} for documentation.
@@ -40,6 +43,8 @@ public interface IRascalValueFactory extends IValueFactory {
 	ITree character(byte ch);
 	
 	IConstructor grammar(IMap rules);
+	
+	IValue function(Type functionType, Function<IValue[], IValue> func);
 	
 	static IRascalValueFactory getInstance() {
 		return RascalValueFactory.getInstance();
