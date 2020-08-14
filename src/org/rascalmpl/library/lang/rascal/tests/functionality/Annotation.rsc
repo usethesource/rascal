@@ -8,7 +8,9 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module lang::rascal::tests::functionality::Annotation
- 
+
+import Exception;
+
 data F = f() | f(int n) | g(int n) | deep(F f);
 anno int F@pos;
 data AN = an(int n);
