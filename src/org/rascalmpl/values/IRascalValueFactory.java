@@ -8,12 +8,14 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.values;
 
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.uptr.ITree;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -44,7 +46,9 @@ public interface IRascalValueFactory extends IValueFactory {
 	
 	IConstructor grammar(IMap rules);
 	
-	IValue function(Type functionType, Function<IValue[], IValue> func);
+	default IFunction function(Type functionType, BiFunction<IValue[], Map<String, IValue>, IValue> func) {
+	    throw new UnsupportedOperationException("This Rascal value factory does not support function values:" + getClass());
+	}
 	
 	static IRascalValueFactory getInstance() {
 		return RascalValueFactory.getInstance();

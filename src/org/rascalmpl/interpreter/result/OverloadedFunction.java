@@ -16,6 +16,7 @@
 package org.rascalmpl.interpreter.result;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +30,8 @@ import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -314,7 +316,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
     @Override
     public int getArity() {
-        throw new UnsupportedOperationException();
+        return getType().getArity();
     }
 
     @Override
@@ -371,6 +373,22 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
         }
 
         return result;
+    }
+    
+    
+    
+    @Override
+    public IValue call(IValue[] parameters, Map<String, IValue> keywordParameters) {
+        if (parameters.length != getArity()) {
+            throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(parameters).collect(getValueFactory().listWriter()));
+        }
+        
+        try {
+            return ICallableValue.super.call(parameters, keywordParameters);
+        }
+        catch (MatchFailed e) {
+            throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(parameters).collect(getValueFactory().listWriter()));
+        }
     }
 
     private static Result<IValue> callWith(List<AbstractFunction> candidates, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues, boolean mustSucceed) {

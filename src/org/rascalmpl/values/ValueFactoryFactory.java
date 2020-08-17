@@ -16,7 +16,6 @@
 package org.rascalmpl.values;
 
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public class ValueFactoryFactory{
     private ValueFactoryFactory () {}

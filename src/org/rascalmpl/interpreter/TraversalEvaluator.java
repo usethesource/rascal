@@ -45,8 +45,8 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;

@@ -43,7 +43,8 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
@@ -59,7 +60,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
-abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
+abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue, IFunction {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
 	protected final Environment declarationEnvironment;
@@ -210,7 +211,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			ctx.getEvaluator().setMonitor(old);
 		}
 	}
-
+	
 	private boolean mayMatchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;

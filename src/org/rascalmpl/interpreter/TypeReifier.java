@@ -18,8 +18,8 @@ import java.util.Set;
 
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;

@@ -10,7 +10,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Paul Klint - Paul.Klint@cwi.nl 
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.values;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,16 +19,13 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
@@ -286,7 +283,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	/**
 	 * Use getInstance()
 	 */
-	private RascalValueFactory() {
+	public RascalValueFactory() {
 		super(bootFactory);
 	}
 	
@@ -2256,63 +2253,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 					;
 		}
 	}
-
-    @Override
-    public IValue function(final io.usethesource.vallang.type.Type functionType,  final java.util.function.Function<IValue[], IValue> func) {
-        return new ICallableValue() {
-            
-            @Override
-            public io.usethesource.vallang.type.Type getType() {
-                return functionType;
-            }
-            
-            @Override
-            public boolean isStatic() {
-                return false;
-            }
-            
-            @Override
-            public boolean hasVarArgs() {
-                return false;
-            }
-            
-            @Override
-            public boolean hasKeywordArguments() {
-                return ((FunctionType) functionType).hasKeywordParameters();
-            }
-            
-            @Override
-            public IEvaluator<Result<IValue>> getEval() {
-                // TODO is this even safe?
-                return null;
-            }
-            
-            @Override
-            public int getArity() {
-                return functionType.getArity();
-            }
-            
-            @Override
-            public ICallableValue cloneInto(Environment env) {
-                // TODO no cloning necessary?
-                return this;
-            }
-            
-            @Override
-            public Result<IValue> call(io.usethesource.vallang.type.Type[] argTypes, IValue[] argValues,
-                Map<String, IValue> keyArgValues) {
-                // TODO: can a result do without an evaluator?
-                return ResultFactory.makeResult(functionType, func.apply(argValues), null);
-            }
-            
-            @Override
-            public Result<IValue> call(IRascalMonitor monitor, io.usethesource.vallang.type.Type[] argTypes, IValue[] argValues,
-                Map<String, IValue> keyArgValues) {
-                // TODO: can a result do without an evaluator?
-                return ResultFactory.makeResult(functionType, func.apply(argValues), null);
-            }
-        };
-    }
 
 	// please put additional methods above the nested classes
 }

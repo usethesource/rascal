@@ -1,5 +1,5 @@
 /** 
- * Copyright (c) 2018, Jurgen J. Vinju, Centrum Wiskunde & Informatica (NWOi - CWI) 
+ * Copyright (c) 2020, Jurgen J. Vinju, Centrum Wiskunde & Informatica (NWOi - CWI) 
  * All rights reserved. 
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
@@ -10,32 +10,33 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.library.lang.rascal.tutor;
+package org.rascalmpl.values.functions;
 
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.IRascalValueFactory;
+import java.util.Collections;
+import java.util.Map;
 
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.IValue;
 
-public class ModuleDocExtractor {
-    private final IValueFactory vf = IRascalValueFactory.getInstance();
-    private final GlobalEnvironment heap = new GlobalEnvironment();
-    private final ModuleEnvironment top = new ModuleEnvironment("***module extractor***", heap);
-    private final Evaluator eval = new Evaluator(vf, System.in, System.err, System.out, top, heap);
-
-    public ModuleDocExtractor() {
-        eval.addRascalSearchPath(URIUtil.rootLocation("std"));
-        eval.doImport(null, "lang::rascal::tutor::RascalExtraction");
-        eval.doImport(null, "lang::rascal::tutor::ExtractDoc");
-    }
+public interface IFunction extends IExternalValue {
     
-    public ITuple extractDoc(IString parent, ISourceLocation moduleLoc) {
-        return (ITuple) eval.call("extractDoc", parent, moduleLoc);
+    /**
+     * Invokes the receiver function.
+     * 
+     * @param parameters are all IValue instances
+     * @param keywordParameters provide optional named parameters
+     * @return an IValue, always, never null
+     * @throws CallFailed exception if the function does not apply to the current parameters
+     */
+    IValue call(IValue[] parameters, Map<String,IValue> keywordParameters);
+    
+    /**
+     * Convenience version of call which offers an empty map for keywordParameters
+     * @param  parameters are all IValue instances
+     * @return an IValue, always, never null
+     * @throws CallFailed exception if the function does not apply to the current parameters
+     */
+    default IValue call(IValue[] parameters) {
+        return call(parameters, Collections.emptyMap());
     }
 }

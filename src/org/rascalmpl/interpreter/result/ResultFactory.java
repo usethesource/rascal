@@ -19,7 +19,7 @@ package org.rascalmpl.interpreter.result;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
