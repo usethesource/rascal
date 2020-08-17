@@ -26,12 +26,13 @@ import org.rascalmpl.ast.QualifiedName.Default;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 	

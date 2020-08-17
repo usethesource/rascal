@@ -15,7 +15,7 @@
 
 package org.rascalmpl.library;
 
-import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
+import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -82,9 +82,10 @@ import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
@@ -1557,7 +1558,7 @@ public class Prelude {
 		return l.shuffle(new Random());
 	}
 	
-	public IList sort(IList l, IValue cmpv){
+	public IList sort(IList l, IFunction cmpv){
 		IValue[] tmpArr = new IValue[l.length()];
 		for(int i = 0 ; i < l.length() ; i++){
 			tmpArr[i] = l.get(i);
@@ -1572,7 +1573,7 @@ public class Prelude {
 		return writer.done();
 	}
 	
-	public IList sort(ISet l, IValue cmpv) {
+	public IList sort(ISet l, IFunction cmpv) {
 		IValue[] tmpArr = new IValue[l.size()];
 		int i = 0;
 		
@@ -1592,7 +1593,7 @@ public class Prelude {
 		return writer.done();
 	}
 	
-	public IList top(IInteger k, ISet l, IValue cmpv) {
+	public IList top(IInteger k, ISet l, IFunction cmpv) {
         final LinkedList<IValue> result = new LinkedList<>();
         final Less less = new Less((ICallableValue) cmpv);
         final int K = k.intValue();

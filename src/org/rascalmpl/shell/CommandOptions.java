@@ -13,8 +13,8 @@ import java.util.function.Function;
 
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;

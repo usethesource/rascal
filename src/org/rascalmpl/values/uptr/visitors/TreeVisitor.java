@@ -18,8 +18,9 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IdentityVisitor;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E> {
 	
