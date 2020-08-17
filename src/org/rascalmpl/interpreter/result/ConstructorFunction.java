@@ -37,7 +37,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;

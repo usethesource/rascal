@@ -29,8 +29,8 @@ import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;

@@ -41,8 +41,8 @@ import org.rascalmpl.ast.StringTemplate.While;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;

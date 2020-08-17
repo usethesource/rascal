@@ -31,7 +31,8 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

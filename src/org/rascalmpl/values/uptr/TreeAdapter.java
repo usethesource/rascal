@@ -29,6 +29,7 @@ import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 

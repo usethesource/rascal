@@ -50,6 +50,9 @@ import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalFunctionValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.uptr.ITree;
 
 import io.usethesource.vallang.IBool;
@@ -309,9 +312,14 @@ public class JavaBridge {
 				throws RuntimeException {
 			return ITree.class;
 		}
+		
+		@Override
+		public Class<?> visitFunction(RascalType type) throws RuntimeException {
+		    return IFunction.class;
+		}
 	}
 	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr) {
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr, IEvaluatorContext ctx) {
 		String className = getClassName(func);
 		
 		PrintWriter[] outputs = new PrintWriter[] { out, err };
@@ -360,6 +368,9 @@ public class JavaBridge {
 					    }
 					    else if (formals[i].isAssignableFrom(ClassLoader.class)) {
 					        args[i] = new ListClassLoader(loaders, getClass().getClassLoader()); 
+					    }
+					    else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
+					        args[i] = new RascalFunctionValueFactory(ctx);
 					    }
 					    else {
 					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");

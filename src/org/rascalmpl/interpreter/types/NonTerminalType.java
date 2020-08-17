@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
