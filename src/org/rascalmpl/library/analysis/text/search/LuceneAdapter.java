@@ -82,11 +82,12 @@ import org.apache.lucene.store.OutputStreamIndexOutput;
 import org.apache.lucene.store.SingleInstanceLockFactory;
 import org.apache.lucene.util.BytesRef;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -393,22 +394,22 @@ public class LuceneAdapter {
             case "filterClass":
                 return filterFromClass(stream, ((IString) node.get("filterClassName")).getValue());
             case "editFilter":
-                return makeEditFilter(stream, ((ICallableValue) node.get("editor")));
+                return makeEditFilter(stream, ((IFunction) node.get("editor")));
             case "removeFilter":
-                return makeRemoveFilter(stream, ((ICallableValue) node.get("accept")));
+                return makeRemoveFilter(stream, ((IFunction) node.get("accept")));
             case "splitFilter":
-                return makeSplitFilter(stream, ((ICallableValue) node.get("splitter")));
+                return makeSplitFilter(stream, ((IFunction) node.get("splitter")));
             case "synonymFilter":
-                return makeSynonymFilter(stream, ((ICallableValue) node.get("generator")));
+                return makeSynonymFilter(stream, ((IFunction) node.get("generator")));
             case "tagFilter":
-                return makeTagFilter(stream, ((ICallableValue) node.get("generator")));    
+                return makeTagFilter(stream, ((IFunction) node.get("generator")));    
             
             default:
                 throw new IllegalArgumentException();
         }
     }
 
-    private TokenStream makeEditFilter(TokenStream stream, ICallableValue function) {
+    private TokenStream makeEditFilter(TokenStream stream, IFunction function) {
         return new TokenFilter(stream) {
             private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
             
@@ -418,7 +419,7 @@ public class LuceneAdapter {
                     final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
 
                     try {
-                        IString result = (IString) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
+                        IString result = (IString) function.call(token);
 
                         if (result.length() == 0) {
                             termAtt.setEmpty();
@@ -441,7 +442,7 @@ public class LuceneAdapter {
         };
     }
     
-    private TokenStream makeTagFilter(TokenStream stream, ICallableValue function) {
+    private TokenStream makeTagFilter(TokenStream stream, IFunction function) {
         return new TokenFilter(stream) {
             private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
             private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
@@ -453,15 +454,14 @@ public class LuceneAdapter {
                     final IString tag = vf.string(typeAtt.type());
                     
                     try {
-                        Type str = TypeFactory.getInstance().stringType();
-                        IString result = (IString) function.call(new Type[] { str, str }, new IValue[] { token, tag }, null).getValue();
+                        IString result = function.call(token, tag);
 
                         if (result.length() != 0) {
                             typeAtt.setType(result.getValue());
                         }
                     }
-                    catch (MatchFailed e) {
-                        // that's ok. case missed
+                    catch (Throw e) {
+                        // that's ok. case missed (CallFailed)
                     }
 
                     return true;
@@ -473,7 +473,7 @@ public class LuceneAdapter {
         };
     }
     
-    private TokenStream makeRemoveFilter(TokenStream stream, ICallableValue function) {
+    private TokenStream makeRemoveFilter(TokenStream stream, IFunction function) {
         return new FilteringTokenFilter(stream) {
             private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
             
@@ -482,7 +482,7 @@ public class LuceneAdapter {
                 final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
 
                 try {
-                    IBool result = (IBool) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
+                    IBool result = function.call(token);
                     return result.getValue();
                 }
                 catch (MatchFailed e) {
@@ -494,7 +494,7 @@ public class LuceneAdapter {
         };
     }
     
-    private TokenStream makeSplitFilter(TokenStream stream, ICallableValue function) {
+    private TokenStream makeSplitFilter(TokenStream stream, IFunction function) {
         return new TokenFilter(stream) {
             private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
             private PositionIncrementAttribute posAttr = addAttribute(PositionIncrementAttribute.class);
@@ -513,7 +513,7 @@ public class LuceneAdapter {
                     final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
 
                     try {
-                        backLog = (IList) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
+                        backLog = function.call(token);
                         
                         if (backLog.length() > 0) {
                             offset = offsetAttr.startOffset();
@@ -524,7 +524,7 @@ public class LuceneAdapter {
                             return true;
                         }
                     }
-                    catch (MatchFailed e) {
+                    catch (Throw e) {
                         // that's ok, case missed
                         return true; // simply copy token
                     }
@@ -550,7 +550,7 @@ public class LuceneAdapter {
         };
     }
     
-    private TokenStream makeSynonymFilter(TokenStream stream, ICallableValue function) {
+    private TokenStream makeSynonymFilter(TokenStream stream, IFunction function) {
         return new TokenFilter(stream) {
             private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
             private PositionIncrementAttribute posAttr = addAttribute(PositionIncrementAttribute.class);
@@ -567,7 +567,7 @@ public class LuceneAdapter {
                     final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
 
                     try {
-                        backLog = (IList) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
+                        backLog = function.call(token);
                         
                         if (backLog.length() > 0) {
                             popOneTerm(1);
@@ -577,7 +577,7 @@ public class LuceneAdapter {
                             return true;
                         }
                     }
-                    catch (MatchFailed e) {
+                    catch (Throw e) {
                         // that's ok, case missed
                         return true; // simply copy token
                     }
@@ -605,13 +605,13 @@ public class LuceneAdapter {
             case "tokenizerClass":
                 return tokenizerFromClass(((IString) node.get("tokenizerClassName")).getValue());
             case "tokenizer":
-                return makeTokenizer(((ICallableValue) node.get("tokenizerFunction")));
+                return makeTokenizer(((IFunction) node.get("tokenizerFunction")));
             default:
                 throw new IllegalArgumentException();
         }
     }
 
-    private Tokenizer makeTokenizer(final ICallableValue function) {
+    private Tokenizer makeTokenizer(final IFunction function) {
         return new Tokenizer() {
             private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
             private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
@@ -630,7 +630,7 @@ public class LuceneAdapter {
                 if (result == null) {
                     IString parameter = vf.string(Prelude.consumeInputStream(input));
                     try {
-                        IList terms = (IList) function.call(new Type[] { tf.stringType() }, new IValue[] { parameter }, null).getValue();
+                        IList terms = function.call(parameter);
                         result = terms.iterator();
                     }
                     catch (Throwable e) {

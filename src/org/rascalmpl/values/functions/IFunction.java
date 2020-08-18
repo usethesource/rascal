@@ -28,7 +28,7 @@ public interface IFunction extends IExternalValue {
      * @return an IValue, always, never null
      * @throws CallFailed exception if the function does not apply to the current parameters
      */
-    IValue call(IValue[] parameters, Map<String,IValue> keywordParameters);
+    <T extends IValue> T call(Map<String,IValue> keywordParameters, IValue... parameters);
     
     /**
      * Convenience version of call which offers an empty map for keywordParameters
@@ -36,7 +36,8 @@ public interface IFunction extends IExternalValue {
      * @return an IValue, always, never null
      * @throws CallFailed exception if the function does not apply to the current parameters
      */
-    default IValue call(IValue[] parameters) {
-        return call(parameters, Collections.emptyMap());
+    @SuppressWarnings("unchecked")
+    default <T extends IValue> T call(IValue... parameters) {
+        return (T) call(Collections.emptyMap(), parameters);
     }
 }

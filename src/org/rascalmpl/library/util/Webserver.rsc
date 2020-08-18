@@ -14,7 +14,7 @@ test bool testWebServer() {
    
    // simple get
    Response testServer(get("/hello")) = response("hello world!");
-   Response testServer(put("/upload", value (type[value] _) stuff)) = response("uploaded: <stuff(#int)>");   
+   Response testServer(put("/upload", value (type[value] _) stuff)) = response("uploaded: <stuff(#str)>");   
    
    try {
       serve(testLoc, testServer);
