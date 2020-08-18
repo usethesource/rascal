@@ -31,6 +31,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -199,7 +200,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         
         if (provider.has("id")) {
             id = ((IString) provider.get("id")).getValue();
-            target = liftProviderFunction(provider.get("callback"));
+            target = liftProviderFunction((IFunction) provider.get("callback"));
         }
         else {
             id = "***static content***";
@@ -219,7 +220,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         output.put("text/html", new ByteArrayInputStream(iframe.getBytes("UTF8")));
     }            
         
-    abstract protected Function<IValue, IValue> liftProviderFunction(IValue callback);
+    abstract protected Function<IValue, IValue> liftProviderFunction(IFunction callback);
 
     private void writeOutput(IRascalResult result, OutputWriter target) throws IOException {
         IValue value = result.getValue();

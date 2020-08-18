@@ -20,9 +20,6 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.tasks.IIValueTask;
 import org.rascalmpl.tasks.ITaskRegistry;
@@ -30,6 +27,7 @@ import org.rascalmpl.tasks.ITransaction;
 import org.rascalmpl.tasks.PDBValueTaskRegistry;
 import org.rascalmpl.tasks.Transaction;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -97,11 +95,13 @@ public class Manager {
 		if(!(key instanceof IConstructor))
 			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
 
-		if(fact == null)
+		if(fact == null) {
 			throw RuntimeExceptionFactory.noSuchKey(vf.string(typeReifier.valueToType((IConstructor) key).toString() + ":" + name.toString()), 
 					ctx.getCurrentAST(), ctx.getStackTrace());
-		else if(!fact.getType().isSubtypeOf(typeReifier.valueToType((IConstructor) key)))
-			throw new UnexpectedType(typeReifier.valueToType((IConstructor) key), fact.getType(), ctx.getCurrentAST());
+		}
+		else if(!fact.getType().isSubtypeOf(typeReifier.valueToType((IConstructor) key))) {
+		    throw RuntimeExceptionFactory.illegalArgument(fact, "fact is not a subtype of " + typeReifier.valueToType((IConstructor) key));
+		}
 		else
 			return fact;
 	}
@@ -126,13 +126,13 @@ public class Manager {
 
 		Type keyType = typeReifier.valueToType((IConstructor) key);
 		if(!value.getType().isSubtypeOf(keyType))
-			throw new UnexpectedType(keyType, value.getType(), ctx.getCurrentAST());
+		    throw RuntimeExceptionFactory.illegalArgument(value, "value is not a subtype of " + keyType);
 		else
 			transaction(tr).setFact(keyType, name, value);
 	}
 	
-	public void registerProducer(IValue producer, ISet keys, IEvaluatorContext ctx) {
-		ProducerWrapper wrapper = new ProducerWrapper(ctx, (ICallableValue)producer, keys);
+	public void registerProducer(IFunction producer, ISet keys, IEvaluatorContext ctx) {
+		ProducerWrapper wrapper = new ProducerWrapper(ctx, producer, keys);
 		producers.put(new IValueWrapper(producer), wrapper);
 		registry.registerProducer(wrapper);
 	}
@@ -166,11 +166,11 @@ public class Manager {
 	
 	class ProducerWrapper implements IIValueTask {
 		
-		private ICallableValue fun;
+		private IFunction fun;
 		private IEvaluatorContext ctx;
 		private Collection<Type> keys = new ArrayList<Type>();
 		
-		ProducerWrapper(IEvaluatorContext ctx, ICallableValue fun, ISet keys) {
+		ProducerWrapper(IEvaluatorContext ctx, IFunction fun, ISet keys) {
 			this.ctx = ctx;
 			this.fun = fun;
 			for(IValue v : keys) {
@@ -193,12 +193,13 @@ public class Manager {
 				Type key, IValue name) {
 			Transaction t = (Transaction)tr;
 			IValue reifiedKey = reify(ctx, key);
-			Result<IValue> result = fun.call(monitor, new Type[] {t.getType(), reifiedKey.getType(), name.getType()},
-					new IValue[] {t, reifiedKey, name}, null);
-			if(result.getValue() instanceof IBool)
-				return ((IBool)result.getValue()).getValue();
-			else
-				throw new UnexpectedType(TypeFactory.getInstance().boolType(), result.getType(), ctx.getCurrentAST());
+			IValue result = fun.call(t, reifiedKey, name);
+			if(result instanceof IBool) {
+				return ((IBool)result).getValue();
+			}
+			else {
+			    throw RuntimeExceptionFactory.illegalArgument(result, "result is not a bool");
+			}
 				
 		}
 		
