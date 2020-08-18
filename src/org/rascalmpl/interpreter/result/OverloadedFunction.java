@@ -378,13 +378,13 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
     
     
     @Override
-    public IValue call(IValue[] parameters, Map<String, IValue> keywordParameters) {
+    public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
         if (parameters.length != getArity()) {
             throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(parameters).collect(getValueFactory().listWriter()));
         }
         
         try {
-            return ICallableValue.super.call(parameters, keywordParameters);
+            return ICallableValue.super.call(keywordParameters, parameters);
         }
         catch (MatchFailed e) {
             throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(parameters).collect(getValueFactory().listWriter()));

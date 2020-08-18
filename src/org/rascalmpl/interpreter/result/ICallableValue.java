@@ -17,13 +17,13 @@ import java.util.Map;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
+@Deprecated
 public interface ICallableValue extends IExternalValue, IFunction {
 	public int getArity();
 	public boolean hasVarArgs();
@@ -32,12 +32,13 @@ public interface ICallableValue extends IExternalValue, IFunction {
 	public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues);
 	
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues);
-	
+
 	/**
      * For calls from other locations than the interpreter.
      */
-	@Override
-	default IValue call(IValue[] parameters, Map<String, IValue> keywordParameters) {
+	@SuppressWarnings("unchecked")
+    @Override
+	default <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
 	    Type[] types = Arrays.stream(parameters).map(v -> v.getType()).toArray(Type[]::new);
 
 	    Result<IValue> result = call(types, parameters, keywordParameters);
@@ -46,7 +47,7 @@ public interface ICallableValue extends IExternalValue, IFunction {
 	        return null;
 	    }
 	    else {
-	        return result.getValue();
+	        return (T) result.getValue();
 	    }
 	}
 	

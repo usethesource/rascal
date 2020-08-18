@@ -67,7 +67,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
@@ -1456,21 +1455,18 @@ public class Prelude {
 	
 	private WeakReference<IList> indexes;
 
-	
-	
 	/**
 	 * A mini class to wrap a lessThan function
 	 */
 	private class Less {
-		private final ICallableValue less;
+		private final IFunction less;
 
-		Less(ICallableValue less) {
+		Less(IFunction less) {
 			this.less = less;
 		}
 
 		public boolean less(IValue x, IValue y) {
-			return ((IBool) less.call(new Type[] { x.getType(), y.getType() },
-					new IValue[] { x, y }, null).getValue()).getValue();
+			return ((IBool) less.call(new IValue[] { x, y })).getValue();
 		}
 	}
 	
@@ -1565,7 +1561,7 @@ public class Prelude {
 		}
 
 		// we randomly swap some elements to make worst case complexity unlikely
-		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).shuffle().sort();
+		new Sorting(tmpArr, new Less(cmpv)).shuffle().sort();
 
 
 		IListWriter writer = values.listWriter();
@@ -1583,7 +1579,7 @@ public class Prelude {
 			tmpArr[i++] = elem;
 		}
 		
-		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).sort();
+		new Sorting(tmpArr, new Less(cmpv)).sort();
 		
 		IListWriter writer = values.listWriter();
 		for(IValue v : tmpArr){
@@ -1595,7 +1591,7 @@ public class Prelude {
 	
 	public IList top(IInteger k, ISet l, IFunction cmpv) {
         final LinkedList<IValue> result = new LinkedList<>();
-        final Less less = new Less((ICallableValue) cmpv);
+        final Less less = new Less(cmpv);
         final int K = k.intValue();
         final int absK = Math.abs(K);
         
