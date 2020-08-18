@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -379,7 +378,7 @@ public class Webserver {
 
     private void executeCallback(IFunction callback, CompletableFuture<IValue> target, IValue request, boolean asDaemon) {
         try {
-            target.complete(callback.call(new IValue[] { request }, Collections.emptyMap()));
+            target.complete(callback.call(request));
         }
         catch (Throwable t) {
             target.completeExceptionally(t);
