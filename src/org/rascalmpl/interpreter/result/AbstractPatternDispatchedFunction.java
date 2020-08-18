@@ -36,8 +36,8 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	private final Map<String, List<AbstractFunction>> alternatives;

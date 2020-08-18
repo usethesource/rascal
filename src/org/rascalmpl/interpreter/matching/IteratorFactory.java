@@ -25,6 +25,10 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.TypeReachability;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -34,9 +38,6 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class IteratorFactory {
 	

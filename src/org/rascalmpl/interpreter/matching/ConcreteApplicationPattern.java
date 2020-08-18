@@ -25,10 +25,10 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.semantics.dynamic.Tree;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -131,7 +131,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		super.initMatch(subject);
 
 		if(subjectType.isExternalType() && ((RascalType) subjectType).isNonterminal() && subject.getValue() instanceof ITree) {
-			org.rascalmpl.values.uptr.ITree treeSubject = (org.rascalmpl.values.uptr.ITree)subject.getValue();
+			org.rascalmpl.values.parsetrees.ITree treeSubject = (org.rascalmpl.values.parsetrees.ITree)subject.getValue();
 		
 			if (!TreeAdapter.isAppl(treeSubject)) {
 				// fail early if the subject is an ambiguity cluster

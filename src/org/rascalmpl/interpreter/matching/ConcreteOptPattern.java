@@ -30,9 +30,9 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class ConcreteOptPattern extends AbstractMatchingResult {
 	private enum Opt { Exist, NotExist, MayExist }
@@ -74,7 +74,7 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 			hasNext = false;
 			return;
 		}
-		org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
+		org.rascalmpl.values.parsetrees.ITree tree = (org.rascalmpl.values.parsetrees.ITree) subject.getValue();
 		
 		if (tree.getConstructorType() != RascalValueFactory.Tree_Appl) {
 			hasNext = false;

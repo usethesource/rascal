@@ -67,11 +67,11 @@ import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+import org.rascalmpl.values.parsetrees.visitors.IdentityTreeVisitor;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;

@@ -13,7 +13,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.values.parsetrees;
 
 import static org.rascalmpl.values.RascalValueFactory.CharRange_Range;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Adt;

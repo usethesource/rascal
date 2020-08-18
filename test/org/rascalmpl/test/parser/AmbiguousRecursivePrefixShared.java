@@ -18,7 +18,7 @@ import io.usethesource.vallang.io.StandardTextReader;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 // NOTE: This test only succeeds when the expect builder is used and it shares
 // all productions correctly. Otherwise graph node sharing breaks, since the
 // id's of the stack nodes do not end up being unique.
