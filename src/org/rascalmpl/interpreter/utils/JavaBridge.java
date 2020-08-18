@@ -53,7 +53,7 @@ import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;

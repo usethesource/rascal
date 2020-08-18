@@ -13,7 +13,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.values.parsetrees;
 
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import io.usethesource.vallang.IConstructor;

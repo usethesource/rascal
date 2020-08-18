@@ -43,9 +43,9 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 /**
  * These classes special case Expression.CallOrTree for concrete syntax patterns
@@ -295,7 +295,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			boolean previousWasEmpty = false;
 
 			for (int i = 0; i < args.length(); i+=(delta+1)) {
-				org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) args.get(i);
+				org.rascalmpl.values.parsetrees.ITree tree = (org.rascalmpl.values.parsetrees.ITree) args.get(i);
 
 				if (TreeAdapter.isList(tree) && ProductionAdapter.shouldFlatten(production, TreeAdapter.getProduction(tree))) {
 					IList nestedArgs = TreeAdapter.getArgs(tree);

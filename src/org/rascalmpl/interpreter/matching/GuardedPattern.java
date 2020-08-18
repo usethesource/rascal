@@ -28,7 +28,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class GuardedPattern extends AbstractMatchingResult {
 	private Type type;

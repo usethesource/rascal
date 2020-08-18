@@ -1,4 +1,6 @@
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.values.parsetrees;
+
+import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -6,8 +8,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
-
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public interface ITree extends IConstructor {
     

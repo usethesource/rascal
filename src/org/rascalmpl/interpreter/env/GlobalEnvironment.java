@@ -30,10 +30,11 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.values.parsetrees.ITree;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
-import org.rascalmpl.values.uptr.ITree;
 
 
 /**

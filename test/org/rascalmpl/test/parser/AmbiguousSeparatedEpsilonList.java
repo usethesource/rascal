@@ -18,7 +18,7 @@ import io.usethesource.vallang.io.StandardTextReader;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 @SuppressWarnings({"unchecked", "cast"})
 public class AmbiguousSeparatedEpsilonList extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));

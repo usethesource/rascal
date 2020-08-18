@@ -92,8 +92,7 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.util.IsEqualsAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -1596,7 +1595,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 
 			java.util.List<Mapping_Expression> mappings = this.getMappings();
-			java.util.Map<IsEqualsAdapter, IValue> seen = new HashMap<>();
+			java.util.Map<IValue, IValue> seen = new HashMap<>();
 			Type keyType = TF.voidType();
 			Type valueType = TF.voidType();
 			IMapWriter w = __eval.__getVf().mapWriter();
@@ -1613,7 +1612,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					throw new NonVoidTypeRequired(mapping.getTo());
 				}
 				
-				IsEqualsAdapter key = new IsEqualsAdapter(keyResult.getValue());
+				IValue key = keyResult.getValue();
 
 				keyType = keyType.lub(keyResult.getType());
 				valueType = valueType.lub(valueResult.getType());
@@ -1627,7 +1626,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				
 				seen.put(key, valueResult.getValue());
-				w.put(key.getValue(), valueResult.getValue());
+				w.put(key, valueResult.getValue());
 			}
 
 			Type type = TF.mapType(keyType, valueType);
