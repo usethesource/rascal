@@ -14,7 +14,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.values.parsetrees;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;

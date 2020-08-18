@@ -9,8 +9,9 @@ import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+
 import io.usethesource.vallang.IConstructor;
-import org.rascalmpl.values.uptr.ProductionAdapter;
 
 public class DebugLogger implements IDebugListener<IConstructor>{
 	private final PrintWriter out;

@@ -29,11 +29,12 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class ListPattern extends AbstractMatchingResult  {
   private List<IMatchingResult> patternChildren;  // The elements of this list pattern

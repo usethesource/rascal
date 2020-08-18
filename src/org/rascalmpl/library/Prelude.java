@@ -83,12 +83,11 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
-import org.rascalmpl.values.util.IsEqualsAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
@@ -784,13 +783,13 @@ public class Prelude {
 	 * Graph
 	 */
 	
-	private Map<IsEqualsAdapter,Distance> distance;
-	private Map<IsEqualsAdapter, IsEqualsAdapter> pred;
-	private Set<IsEqualsAdapter> settled;
-	private PriorityQueue<IsEqualsAdapter> Q;
+	private Map<IValue,Distance> distance;
+	private Map<IValue, IValue> pred;
+	private Set<IValue> settled;
+	private PriorityQueue<IValue> Q;
 	private int MAXDISTANCE = 10000;
 	
-	private Map<IsEqualsAdapter, LinkedList<IsEqualsAdapter>> adjacencyList;
+	private Map<IValue, LinkedList<IValue>> adjacencyList;
 	
 	private void buildAdjacencyListAndDistance(ISet G){
 		adjacencyList = new HashMap<> ();
@@ -798,15 +797,15 @@ public class Prelude {
 		
 		for(IValue v : G){
 			ITuple tup = (ITuple) v;
-			IsEqualsAdapter from = new IsEqualsAdapter(tup.get(0));
-			IsEqualsAdapter to = new IsEqualsAdapter(tup.get(1));
+			IValue from = tup.get(0);
+			IValue to = tup.get(1);
 			
 			if(distance.get(from) == null)
 				distance.put(from, new Distance(MAXDISTANCE));
 			if(distance.get(to) == null)
 				distance.put(to, new Distance(MAXDISTANCE));
 			
-			LinkedList<IsEqualsAdapter> adjacencies = adjacencyList.computeIfAbsent(from, (k) -> new LinkedList<>());
+			LinkedList<IValue> adjacencies = adjacencyList.computeIfAbsent(from, (k) -> new LinkedList<>());
 			adjacencies.add(to);
 			adjacencyList.put(from, adjacencies);
 		}
@@ -814,7 +813,7 @@ public class Prelude {
 	
 	public IValue shortestPathPair(ISet G, IValue From, IValue To){
 		buildAdjacencyListAndDistance(G);
-		IsEqualsAdapter start = new IsEqualsAdapter(From);
+		IValue start = From;
 		distance.put(start, new Distance(0));
 		
 		pred = new HashMap<>();
@@ -823,8 +822,8 @@ public class Prelude {
 		Q.add(start);
 		
 		while(!Q.isEmpty()){
-			IsEqualsAdapter u = Q.remove();
-			if(u.getValue().equals(To)) {	
+			IValue u = Q.remove();
+			if(u.equals(To)) {	
 				return extractPath(start, u);
 			}
 			settled.add(u);
@@ -833,10 +832,10 @@ public class Prelude {
 		return values.list();
 	}
 	
-	private void relaxNeighbours(IsEqualsAdapter u){
-		LinkedList<IsEqualsAdapter> adjacencies = adjacencyList.get(u);
+	private void relaxNeighbours(IValue u){
+		LinkedList<IValue> adjacencies = adjacencyList.get(u);
 		if(adjacencies != null) {
-			for(IsEqualsAdapter v : adjacencyList.get(u)){
+			for(IValue v : adjacencyList.get(u)){
 				if(!settled.contains(v)){
 					Distance dv = distance.get(v);
 					Distance du = distance.get(u);
@@ -850,17 +849,17 @@ public class Prelude {
 		}
 	}
 	
-	private IList extractPath(IsEqualsAdapter start, IsEqualsAdapter u){
+	private IList extractPath(IValue start, IValue u){
 		IListWriter w = values.listWriter();
 		
 		if(!start.equals(u)){
-			w.insert(u.getValue());
+			w.insert(u);
 			while(!pred.get(u).equals(start)){
 				u = pred.get(u);
-				w.insert(u.getValue());
+				w.insert(u);
 			}
 		}
-		w.insert(start.getValue());
+		w.insert(start);
 		return w.done();
 	}
 	
@@ -1841,11 +1840,11 @@ public class Prelude {
 	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
 	{ 	    
-	    Map<IsEqualsAdapter,IListWriter> hm = new HashMap<>();
+	    Map<IValue,IListWriter> hm = new HashMap<>();
 
         for (IValue v : lst) {
             ITuple t = (ITuple) v;
-            IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+            IValue key = t.get(0);
             IValue val = t.get(1);
             IListWriter wValList = hm.get(key);
             if(wValList == null){
@@ -1856,8 +1855,8 @@ public class Prelude {
         }
 		
 		IMapWriter w = values.mapWriter();
-		for(IsEqualsAdapter v : hm.keySet()){
-			w.put(v.getValue(), hm.get(v).done());
+		for(IValue v : hm.keySet()){
+			w.put(v, hm.get(v).done());
 		}
 		return w.done();
 	}
@@ -1870,16 +1869,16 @@ public class Prelude {
 	   }
 	  
 	   IMapWriter w = values.mapWriter();
-	   Map<IsEqualsAdapter,IValue> seenKeys = new HashMap<>();
+	   Map<IValue,IValue> seenKeys = new HashMap<>();
 	   for(IValue v : lst){
 		   ITuple t = (ITuple) v;
-		   IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+		   IValue key = t.get(0);
 		   IValue val = t.get(1);
 		   if(seenKeys.containsKey(key)) { 
-		       throw RuntimeExceptionFactory.MultipleKey(key.getValue(), seenKeys.get(key), val);
+		       throw RuntimeExceptionFactory.MultipleKey(key, seenKeys.get(key), val);
 		   }
 		   seenKeys.put(key, val);
-		   w.put(key.getValue(), val);
+		   w.put(key, val);
 	   }
 	   return w.done();
 	}
@@ -1969,17 +1968,16 @@ public class Prelude {
 	//@doc{invertUnique -- return map with key and value inverted; values are unique}
 	{
 		IMapWriter w = values.mapWriter();
-		Map<IsEqualsAdapter,IValue> seenValues = new HashMap<>();
+		Map<IValue,IValue> seenValues = new HashMap<>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
 			IValue key = entry.getKey();
 			IValue val = entry.getValue();
-			IsEqualsAdapter valWrap = new IsEqualsAdapter(val);
-			if (seenValues.containsKey(valWrap)) {
-					throw RuntimeExceptionFactory.MultipleKey(val, key, seenValues.get(valWrap));
+			if (seenValues.containsKey(val)) {
+					throw RuntimeExceptionFactory.MultipleKey(val, key, seenValues.get(val));
 			}
-			seenValues.put(valWrap, key);
+			seenValues.put(val, key);
 			w.put(val, key);
 		}
 		return w.done();
@@ -1988,18 +1986,18 @@ public class Prelude {
 	public IValue invert(IMap M)
 	//@doc{invert -- return map with key and value inverted; values are not unique and are collected in a set}
 	{
-		Map<IsEqualsAdapter,ISetWriter> hm = new HashMap<>();
+		Map<IValue,ISetWriter> hm = new HashMap<>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
 			IValue key = entry.getKey();
-			IsEqualsAdapter val = new IsEqualsAdapter(entry.getValue());
+			IValue val = entry.getValue();
 			hm.computeIfAbsent(val, (k) -> values.setWriter()).insert(key);
 		}
 		
 		IMapWriter w = values.mapWriter();
-		for(Entry<IsEqualsAdapter, ISetWriter> v : hm.entrySet()){
-			w.put(v.getKey().getValue(), v.getValue().done());
+		for(Entry<IValue, ISetWriter> v : hm.entrySet()){
+			w.put(v.getKey(), v.getValue().done());
 		}
 		return w.done();
 	}
@@ -2756,18 +2754,18 @@ public class Prelude {
 	}
 	
 	private static IMap indexIterable(IValueFactory values, Iterable<IValue> s, int suggestedSize) {
-		Map<IsEqualsAdapter, ISetWriter> map = new HashMap<>(suggestedSize);
+		Map<IValue, ISetWriter> map = new HashMap<>(suggestedSize);
 		
 		for (IValue t : s) {
 			ITuple tuple = (ITuple) t;
-			IsEqualsAdapter key = new IsEqualsAdapter(tuple.get(0));
+			IValue key = tuple.get(0);
 			IValue value = tuple.get(1);
 			map.computeIfAbsent(key, (k) -> values.setWriter()).insert(value);
 		}
 		
 		IMapWriter mapWriter = values.mapWriter();
-		for (Entry<IsEqualsAdapter, ISetWriter> ent: map.entrySet()) {
-			mapWriter.put(ent.getKey().getValue(), ent.getValue().done());
+		for (Entry<IValue, ISetWriter> ent: map.entrySet()) {
+			mapWriter.put(ent.getKey(), ent.getValue().done());
 		}
 		return mapWriter.done();
 	}
@@ -2813,11 +2811,11 @@ public class Prelude {
 	public IValue toMap(ISet st)
 	// @doc{toMap -- convert a set of tuples to a map; value in old map is associated with a set of keys in old map}
 	{
-		Map<IsEqualsAdapter,ISetWriter> hm = new HashMap<>();
+		Map<IValue,ISetWriter> hm = new HashMap<>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
-			IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+			IValue key = t.get(0);
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
@@ -2828,8 +2826,8 @@ public class Prelude {
 		}
 		
 		IMapWriter w = values.mapWriter();
-		for(IsEqualsAdapter v : hm.keySet()){
-			w.put(v.getValue(), hm.get(v).done());
+		for(IValue v : hm.keySet()){
+			w.put(v, hm.get(v).done());
 		}
 		return w.done();
 	}
@@ -2838,17 +2836,17 @@ public class Prelude {
 	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
 		IMapWriter w = values.mapWriter();
-		HashMap<IsEqualsAdapter, IValue> seenKeys = new HashMap<>();
+		HashMap<IValue, IValue> seenKeys = new HashMap<>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
-			IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+			IValue key = t.get(0);
 			IValue val = t.get(1); 
 			if(seenKeys.containsKey(key)) {  
-				throw RuntimeExceptionFactory.MultipleKey(key.getValue(), seenKeys.get(key), val);
+				throw RuntimeExceptionFactory.MultipleKey(key, seenKeys.get(key), val);
 			}
 			seenKeys.put(key, val);
-			w.put(key.getValue(), val);
+			w.put(key, val);
 		}
 		return w.done();
 	}
@@ -3683,14 +3681,14 @@ public class Prelude {
 	    }
 	}
 
-	private static class NodeComparator implements Comparator<IsEqualsAdapter> {
-	    private final Map<IsEqualsAdapter,Distance> distance;
+	private static class NodeComparator implements Comparator<IValue> {
+	    private final Map<IValue,Distance> distance;
 
-	    NodeComparator(Map<IsEqualsAdapter,Distance> distance){
+	    NodeComparator(Map<IValue,Distance> distance){
 	        this.distance = distance;
 	    }
 
-	    public int compare(IsEqualsAdapter arg0, IsEqualsAdapter arg1) {
+	    public int compare(IValue arg0, IValue arg1) {
 	        int d0 = distance.get(arg0).intval;
 	        int d1 = distance.get(arg1).intval;
 

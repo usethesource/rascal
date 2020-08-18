@@ -33,7 +33,7 @@ import io.usethesource.vallang.IValueFactory;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 public class Symbols {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();

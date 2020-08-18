@@ -43,7 +43,7 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -126,7 +126,7 @@ public class StringTemplateConverter {
 			private void appendToString(IValue value, StringBuilder b) {
 				if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 				    // TODO: could this be replaced by a lazy IString::ITree.asString?
-					b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
+					b.append(org.rascalmpl.values.parsetrees.TreeAdapter.yield((IConstructor) value));
 				}
 				else if (value.getType().isSubtypeOf(RascalValueFactory.Type)) {
 					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false));

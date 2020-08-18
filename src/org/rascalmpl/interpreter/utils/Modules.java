@@ -12,8 +12,8 @@ import java.util.List;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class Modules {
   private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();

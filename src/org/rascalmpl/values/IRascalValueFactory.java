@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
 
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.values.functions.IFunction;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
