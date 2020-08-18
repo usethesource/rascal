@@ -109,7 +109,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            'import org.rascalmpl.parser.gtd.util.IntegerMap;
            'import org.rascalmpl.values.ValueFactoryFactory;
            'import org.rascalmpl.values.RascalValueFactory;
-           'import org.rascalmpl.values.uptr.ITree;
+           'import org.rascalmpl.values.parsetrees.ITree;
            '
            '@SuppressWarnings(\"all\")
            'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, ITree, ISourceLocation\> {
