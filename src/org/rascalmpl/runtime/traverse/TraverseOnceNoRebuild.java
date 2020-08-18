@@ -3,6 +3,9 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -13,8 +16,6 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpecialization {
 	

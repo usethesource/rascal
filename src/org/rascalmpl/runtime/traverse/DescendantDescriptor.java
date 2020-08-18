@@ -10,8 +10,8 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ATypeFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 
 /**
  * Create a descendant descriptor given

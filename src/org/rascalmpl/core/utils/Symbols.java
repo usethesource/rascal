@@ -13,8 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.core.utils;
 
-import static org.rascalmpl.values.uptr.RascalValueFactory.CharRange_Range;
-import static org.rascalmpl.values.uptr.RascalValueFactory.Symbol_CharClass;
+import static org.rascalmpl.values.RascalValueFactory.CharRange_Range;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_CharClass;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;

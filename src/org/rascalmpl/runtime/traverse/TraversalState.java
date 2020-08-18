@@ -1,6 +1,6 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IValue;
 

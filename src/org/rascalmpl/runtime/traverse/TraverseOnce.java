@@ -1,9 +1,10 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 
+import org.rascalmpl.values.parsetrees.ITree;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.ITree;
 
 public abstract class TraverseOnce {
 

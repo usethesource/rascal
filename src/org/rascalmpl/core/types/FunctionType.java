@@ -24,6 +24,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.core.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -37,7 +39,6 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.core.values.uptr.RascalValueFactory;
 
 /**
  * Function types are an extension of the pdb's type system, especially tailored to Rascal's functions 

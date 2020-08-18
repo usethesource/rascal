@@ -1,48 +1,34 @@
 package org.rascalmpl.core.library;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.RascalExecutionContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.repl.LimitedLineWriter;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
-import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
-import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ICallableCompiledValue;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.RascalExecutionContext;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.FunctionInstance2;
 
 /*
  * This class overrides methods from Prelude that need to be handled differenty in compiled code.
@@ -341,7 +327,7 @@ public class PreludeCompiled extends Prelude {
 	
 	/*** begin of implode **/
 	
-	private IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
+	public IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
 		// TODO: in general, the following should be the call to an overloaded function
 		IValue value = values.constructor(store.lookupConstructor(returnType, name, TypeFactory.getInstance().tupleType(args)), args, new HashMap<String, IValue>());
 		Type type = value.getType();

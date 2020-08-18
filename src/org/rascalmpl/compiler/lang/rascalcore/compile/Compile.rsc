@@ -19,6 +19,7 @@ import lang::rascalcore::compile::util::Names;
 
 loc generatedDir = |project://rascal-codegen-ideas/generated|;
 
+
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=true){
     tm = tmodels[qualifiedModuleName];
     iprintln(tm);
