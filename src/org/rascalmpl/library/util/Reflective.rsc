@@ -23,7 +23,6 @@ import lang::manifest::IO;
 public java str getLineSeparator();
 
 @javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to evaluate}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
 @doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
