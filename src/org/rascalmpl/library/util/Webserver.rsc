@@ -1,3 +1,4 @@
+
 module util::Webserver
 
 extend Content;
@@ -13,15 +14,16 @@ test bool testWebServer() {
    loc testLoc = |http://localhost:10001|;
    
    // simple get
-   Response testServer(get("/hello")) = response("hello world!");
-   Response testServer(put("/upload", value (type[value] _) stuff)) = response("uploaded: <stuff(#str)>");   
+   // Response testServer(get("/hello")) = response("hello world!");
+   Response testServer(put("/upload4", value (type[value] _) stuff)) = response("uploaded: <stuff(#value)>");   
    
    try {
       serve(testLoc, testServer);
+      return true;
    }
    catch value exception:
      throw exception;
    finally {
      shutdown(testLoc);
-   } 
+   }
 }

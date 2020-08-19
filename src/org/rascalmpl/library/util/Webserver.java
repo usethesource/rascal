@@ -2,11 +2,14 @@ package org.rascalmpl.library.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringReader;
+import java.io.Reader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,12 +25,13 @@ import java.util.function.Function;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
@@ -53,7 +57,6 @@ public class Webserver {
     private final IRascalValueFactory vf;
     private final TypeStore store;
     private final PrintWriter out;
-    private final PrintWriter err;
 
     private final Map<ISourceLocation, NanoHTTPD> servers;
     private final Map<IConstructor,Status> statusValues = new HashMap<>();
@@ -66,11 +69,10 @@ public class Webserver {
     private Type put;
     private Type functionType;
 
-    public Webserver(IRascalValueFactory vf, TypeStore store, PrintWriter out, PrintWriter err, IRascalMonitor monitor) {
+    public Webserver(IRascalValueFactory vf, TypeStore store, PrintWriter out, IRascalMonitor monitor) {
         this.vf = vf;
         this.store = store;
         this.out = out;
-        this.err = err;
         this.monitor = monitor;
         this.servers = new HashMap<>();
     }
@@ -113,13 +115,13 @@ public class Webserver {
                     Throwable actualException = e.getCause();
                     if (actualException instanceof Throw) {
                         Throw rascalException = (Throw) actualException;
-                        err.println(rascalException.getMessage());
-                        return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
-                    }
-                    else if (actualException instanceof StaticError) {
-                        StaticError error = (StaticError) actualException;
-                        err.println(error.getLocation() + ": " + error.getMessage());
-                        return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, error.getMessage());
+
+                        if (isCallFailed(rascalException)) {
+                            return newFixedLengthResponse(Status.NOT_FOUND, MIME_PLAINTEXT, "404: NOT FOUND\n\n" + rascalException.getMessage());
+                        }
+                        else {
+                            return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, "500: INTERNAL ERROR\n\n" + rascalException.getMessage());
+                        }
                     }
                     else {
                         return handleGeneralThrowable(actualException);
@@ -130,10 +132,16 @@ public class Webserver {
                 }
             }
 
+            private boolean isCallFailed(Throw rascalException) {
+                IValue exc = rascalException.getException();
+                
+                return exc.getType().isAbstractData() 
+                    && ((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.CallFailed;
+            }
+            
+
             private Response handleGeneralThrowable(Throwable actualException) {
-                err.println(actualException.getMessage());
-                actualException.printStackTrace(err);
-                return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, actualException.getMessage());
+                return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, "500 INTERNAL SERVER ERROR:\n\n" + actualException.getMessage());
             }
 
             private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
@@ -166,9 +174,11 @@ public class Webserver {
                         Type topType = new TypeReifier(vf).valueToType((IConstructor) argValues[0], store);
 
                         if (topType.isString()) {
-                            return vf.string(parms.get(contentParamName));
+                            // if #str is requested we literally provide the content
+                            return getRawContent(parms, contentParamName);
                         }
                         else {
+                            // otherwise the content is parsed as JSON and validated against the given type
                             IValue dtf = keyArgValues.get("dateTimeFormat");
                             IValue ics = keyArgValues.get("implicitConstructors");
                             IValue icn = keyArgValues.get("implicitNodes");
@@ -177,12 +187,20 @@ public class Webserver {
                                 .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                                 .setConstructorsAsObjects((ics != null) ? ((IBool) ics).getValue() : true)
                                 .setNodesAsObjects((icn != null) ? ((IBool) icn).getValue() : true)
-                                .read(new JsonReader(new StringReader(parms.get(contentParamName))), topType);
+                                .read(new JsonReader(getRawContentReader(parms, contentParamName)), topType);
                         }
-                    } catch (IOException e) {
+                    } catch (IOException | URISyntaxException e) {
                         throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
                     }
                 });
+            }
+
+            private Reader getRawContentReader(Map<String, String> parms, String contentParamName) throws FileNotFoundException {
+                return new FileReader(parms.get(contentParamName));
+            }
+
+            private IString getRawContent(Map<String, String> parms, String contentParamName) throws URISyntaxException {
+                return Prelude.readFile(vf, false, URIUtil.createFileLocation(parms.get(contentParamName)));
             }
 
             private Response translateResponse(Method method, IValue value) throws IOException {
