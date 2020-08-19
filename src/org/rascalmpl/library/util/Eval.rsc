@@ -56,13 +56,11 @@ eval(["X = 2 * 3;", "X + 5;"]);
 
 // -- Give input string to the Rascal evaluator and return its value
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
 public java Result[&T] eval(type[&T] typ, str command) throws Timeout, StaticError, ParseError;
 public Result[value] eval(str command)  = eval(#value, command);
 
 // -- Give list of commands to the Rascal evaluator and return value of the last one.
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
 public java Result[&T] eval(type[&T] typ, list[str] commands) throws Timeout, StaticError, ParseError;
 public Result[value] eval(list[str] commands)  = eval(#value, commands);
  
@@ -70,13 +68,11 @@ public Result[value] eval(list[str] commands)  = eval(#value, commands);
 
 // -- Give input string to the Rascal evaluator and return its value within duration ms.
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
 public java Result[&T] eval(type[&T] typ, str command, int duration) throws Timeout, StaticError, ParseError;
 public Result[value] eval(str command, int duration)  = eval(#value, command, duration);
 
 // -- Give list of commands to the Rascal evaluator and return value of the last one within duration ms.
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
 public java Result[&T] eval(type[&T] typ, list[str] commands, int duration) throws Timeout, StaticError, ParseError;
 public Result[value] eval(list[str] commands, int duration) = eval(#value, commands, duration);
 
@@ -102,26 +98,21 @@ evalType("[1, 2, 3];");
 
 // -- Give input string to the Rascal evaluator and return its type as string.
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
 public java str evalType(str command) throws Timeout, StaticError, ParseError;
 
 // -- Give list of commands to the Rascal evaluator and return the type of the last one.
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
 public java str evalType(list[str] commands) throws Timeout, StaticError, ParseError;
 
 // --- evalType with given duration (in milliseconds)
 
 //-- Give input string to the Rascal evaluator and return its type as string within duration ms.
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
 public java str evalType(str command, int duration) throws Timeout, StaticError, ParseError;
 
 // -- Give list of commands to the Rascal evaluator and return the type of the last one within duration ms.
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
 public java str evalType(list[str] commands, int duration) throws Timeout, StaticError, ParseError;
 
 @javaClass{org.rascalmpl.library.util.Eval}
-@reflect
-public java void unimport(str muduleName);
+public java void unimport(str moduleName);
