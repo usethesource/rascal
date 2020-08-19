@@ -16,11 +16,16 @@ import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 
 @Deprecated
@@ -41,13 +46,19 @@ public interface ICallableValue extends IExternalValue, IFunction {
 	default <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
 	    Type[] types = Arrays.stream(parameters).map(v -> v.getType()).toArray(Type[]::new);
 
-	    Result<IValue> result = call(types, parameters, keywordParameters);
+	    try {
+	        Result<IValue> result = call(types, parameters, keywordParameters);
 
-	    if (result.getType().isBottom()) {
-	        return null;
+	        if (result.getType().isBottom()) {
+	            return null;
+	        }
+	        else {
+	            return (T) result.getValue();
+	        }
 	    }
-	    else {
-	        return (T) result.getValue();
+	    catch (MatchFailed e) {
+	        IValueFactory vf = IRascalValueFactory.getInstance();
+	        throw RuntimeExceptionFactory.callFailed(URIUtil.rootLocation("anonymous"), Arrays.stream(parameters).collect(vf.listWriter()));
 	    }
 	}
 	
