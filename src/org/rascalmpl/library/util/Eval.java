@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +33,9 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -41,13 +46,12 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Eval {
 	private final IValueFactory values;
 		
 	private final IInteger duration;
-	private Evaluator eval;
+	private final Evaluator eval;
 	private int evalCount = 0;
 
 	private final TypeReifier tr;
@@ -59,33 +63,27 @@ public class Eval {
 	public final Type Result_value = tf.constructor(store, Result, "result", param, "val");
 	public final Type Exception = tf.abstractDataType(store, "Exception");
 	public final Type Exception_StaticError = tf.constructor(store, Exception, "StaticError", tf.stringType(), "messages", tf.sourceLocationType(), "location");
+ 
+
 			
-	public Eval(IValueFactory values){
+	public Eval(IValueFactory values, OutputStream out, OutputStream err, InputStream in, ClassLoader loader) {
 		super();
 		this.values = values;
 		this.tr = new TypeReifier(values);
-		duration = values.integer(1000*100); // default duration for eval
-	}
-
-	private ModuleEnvironment getUniqueModuleEnvironment(IEvaluatorContext ctx) {
-		ModuleEnvironment mod = new ModuleEnvironment("$evalinstance$" + evalCount++ , ctx.getHeap());
-		return mod;
-	}
-
-	private Evaluator getSharedEvaluator(IEvaluatorContext ctx) {
-		if (this.eval == null) {
-			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = new ModuleEnvironment("$eval$", heap);
-			this.eval = new Evaluator(ctx.getValueFactory(), ctx.getInput(), ctx.getStdErr(), ctx.getStdOut(), root, heap, ctx.getEvaluator().getClassLoaders(), ctx.getEvaluator().getRascalResolver());
-			this.eval.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
-		}
+		this.duration = values.integer(1000*100); // default duration for eval
 		
-		return this.eval;
+		GlobalEnvironment heap = new GlobalEnvironment();
+        ModuleEnvironment root = new ModuleEnvironment("$eval$", heap);
+        this.eval = new Evaluator(values, in, err, out, root, heap);
+        //          this.eval.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 	}
-	
-	
-	public IValue eval (IValue typ, IString input, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration,  getSharedEvaluator(ctx), true);
+
+	private ModuleEnvironment getUniqueModuleEnvironment() {
+		return new ModuleEnvironment("$evalinstance$" + evalCount++ , eval.getHeap());
+	}
+
+	public IValue eval (IValue typ, IString input, IInteger duration) {
+		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration, true);
 		
 		if(result.getType().isBottom()){
 		  return values.constructor(Result_void);
@@ -97,12 +95,12 @@ public class Eval {
 		}
 	}
 	
-	public IValue eval (IValue typ, IString input, IEvaluatorContext ctx) {
-		return eval(typ, input, duration,  getSharedEvaluator(ctx));
+	public IValue eval (IValue typ, IString input) {
+		return eval(typ, input, duration);
 	}
 
-	public IValue eval (IValue typ, IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(typ, commands, duration,  getSharedEvaluator(ctx), true);
+	public IValue eval (IValue typ, IList commands, IInteger duration) {
+		Result<IValue> result = doEval(typ, commands, duration, true);
 		
 		if(result.getType().isBottom()){
 		//if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
@@ -115,36 +113,36 @@ public class Eval {
 		}
 	}
 	
-	public IValue eval (IValue typ, IList commands, IEvaluatorContext ctx) {
-		return eval(typ, commands, duration,  getSharedEvaluator(ctx));
+	public IValue eval (IValue typ, IList commands) {
+		return eval(typ, commands, duration);
 	}
 	
-	public IValue evalType (IString input, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result =  doEval(null, values.list(input), duration,  getSharedEvaluator(ctx), true);
+	public IValue evalType (IString input, IInteger duration) {
+		Result<IValue> result =  doEval(null, values.list(input), duration, true);
 		// Make sure redundant spaces are removed from the type.
 		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
 	
-	public IValue evalType (IString input, IEvaluatorContext ctx) {
-		return evalType(input, duration,  getSharedEvaluator(ctx));
+	public IValue evalType (IString input) {
+		return evalType(input, duration);
 	}
 	
-	public IValue evalType (IList commands, IInteger duration, IEvaluatorContext ctx) {
-		Result<IValue> result = doEval(null, commands, duration,  getSharedEvaluator(ctx), true);
+	public IValue evalType (IList commands, IInteger duration) {
+		Result<IValue> result = doEval(null, commands, duration, true);
 		return values.string(result.getType().toString().replaceAll(" ", ""));
 	}
 	
-	public IValue evalType (IList commands, IEvaluatorContext ctx) {
-		return evalType(commands, duration, getSharedEvaluator(ctx));
+	public IValue evalType (IList commands) {
+		return evalType(commands, duration);
 	}
 	
-	public Result<IValue> doEval (IValue expected, IList commands, IInteger duration, IEvaluatorContext ctx, boolean forRascal) {
-		IEvaluator<Result<IValue>> evaluator = ctx.getEvaluator();
+	public Result<IValue> doEval (IValue expected, IList commands, IInteger duration, boolean forRascal) {
+		IEvaluator<Result<IValue>> evaluator = eval;
 		EvalTimer timer = new EvalTimer(evaluator, duration.intValue());
 
 		Result<IValue> result = null;
 		Environment old = evaluator.getCurrentEnvt();
-		ModuleEnvironment env = getUniqueModuleEnvironment(evaluator);
+		ModuleEnvironment env = getUniqueModuleEnvironment();
 		
 		try {
 			timer.start();
@@ -163,7 +161,7 @@ public class Eval {
 				if (expected != null) {
 					Type typ = tr.valueToType((IConstructor) expected);
 					if (!result.getType().isSubtypeOf(typ)) {
-						throw new UnexpectedType(typ, result.getType(), ctx.getCurrentAST());
+						throw new UnexpectedType(typ, result.getType(), URIUtil.rootLocation("eval"));
 					}
 				}
 				return result;
@@ -176,7 +174,7 @@ public class Eval {
 		}
 		catch (StaticError e) {
 			if (forRascal) {
-			  throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, ctx.getStackTrace());
+			  throw new Throw(values.constructor(Exception_StaticError, values.string(e.getMessage()), e.getLocation()), (ISourceLocation) null, null);
 			}
 			throw e;
 		} 
