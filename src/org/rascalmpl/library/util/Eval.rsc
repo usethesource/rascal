@@ -114,5 +114,3 @@ public java str evalType(str command, int duration) throws Timeout, StaticError,
 @javaClass{org.rascalmpl.library.util.Eval}
 public java str evalType(list[str] commands, int duration) throws Timeout, StaticError, ParseError;
 
-@javaClass{org.rascalmpl.library.util.Eval}
-public java void unimport(str moduleName);

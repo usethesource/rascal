@@ -22,7 +22,6 @@ import java.util.Map;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -253,11 +252,5 @@ public class Eval {
 			eval.interrupt();
 		}
 	}
-	
-	public void unimport (IString moduleName, IEvaluatorContext ctx) {
-	        if (this.eval!=null && this.eval.getHeap()!=null) this.eval.getHeap().removeModule(eval.getHeap().getModule(moduleName.getValue()));
-     }
-
-	
 }
 
