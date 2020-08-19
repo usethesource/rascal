@@ -26,7 +26,6 @@ import java.net.URISyntaxException;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
@@ -69,9 +68,6 @@ import io.usethesource.vallang.type.Type;
 
 public class Reflective {
 	protected final IValueFactory values;
-	private Evaluator cachedEvaluator;
-	private int robin = 0;
-	private static final int maxCacheRounds = 500;
 
 	public Reflective(IValueFactory values){
 		super();
@@ -111,7 +107,7 @@ public class Reflective {
 	}
     
     
-	public IList evalCommands(IList commands, ISourceLocation loc, IEvaluatorContext ctx) {
+	public IList evalCommands(IList commands, ISourceLocation loc) {
 	    OutputStream out = new ByteArrayOutputStream();
 	    OutputStream err = new ByteArrayOutputStream();
 		IListWriter result = values.listWriter();
@@ -203,27 +199,6 @@ public class Reflective {
 	    out.flush();
 	    return sw.toString();
 	  }
-	
-	private Evaluator getPrivateEvaluator(IEvaluatorContext ctx) {
-		if (cachedEvaluator == null || robin++ > maxCacheRounds) {
-			robin = 0;
-			IEvaluator<?> callingEval = ctx.getEvaluator();
-			
-			
-			GlobalEnvironment heap = new GlobalEnvironment();
-			ModuleEnvironment root = heap.addModule(new ModuleEnvironment("$parser$", heap));
-			cachedEvaluator = new Evaluator(callingEval.getValueFactory(), callingEval.getInput(), callingEval.getStdErr(), callingEval.getStdOut(), root, heap);
-			
-			// Update the classpath so it is the same as in the context interpreter.
-			cachedEvaluator.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
-		  // clone the classloaders
-	    for (ClassLoader loader : ctx.getEvaluator().getClassLoaders()) {
-	      cachedEvaluator.addClassLoader(loader);
-	    }
-		}
-		
-		return cachedEvaluator;
-	}
 	
 	protected char[] getResourceContent(ISourceLocation location) throws IOException{
 		char[] data;
