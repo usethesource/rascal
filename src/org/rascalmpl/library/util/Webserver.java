@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -196,11 +197,25 @@ public class Webserver {
             }
 
             private Reader getRawContentReader(Map<String, String> parms, String contentParamName) throws FileNotFoundException {
-                return new FileReader(parms.get(contentParamName));
+                String path = parms.get(contentParamName);
+                if (path != null && !path.isEmpty()) {
+                    return new FileReader(path);
+                }
+                else {
+                    // empty content is a valid response (data could be in the parameters map)
+                    return new StringReader("");
+                }
             }
 
             private IString getRawContent(Map<String, String> parms, String contentParamName) throws URISyntaxException {
-                return Prelude.readFile(vf, false, URIUtil.createFileLocation(parms.get(contentParamName)));
+                String path = parms.get(contentParamName);
+                if (path != null && !path.isEmpty()) {
+                    return Prelude.readFile(vf, false, URIUtil.createFileLocation(path));
+                }
+                else {
+                    // empty content is a valid response.
+                    return vf.string("");
+                }
             }
 
             private Response translateResponse(Method method, IValue value) throws IOException {
