@@ -15,7 +15,7 @@ test bool testWebServer() {
    
    // simple get
    // Response testServer(get("/hello")) = response("hello world!");
-   Response testServer(put("/upload4", value (type[value] _) stuff)) = response("uploaded: <stuff(#value)>");   
+   Response testServer(p:post("/upload8", value (type[value] _) stuff)) = response("uploaded: <p.parameters["firstname"]> <stuff(#value)>");   
    
    try {
       serve(testLoc, testServer);
