@@ -132,6 +132,13 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
+	public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
+	    synchronized (ctx.getEvaluator()) {
+	        return ICallableValue.super.call(keywordParameters, parameters);
+	    }
+	}
+	
+	@Override
   public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
     Result<IValue> rightResult = right.call(argTypes, argValues, null);
     return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, keyArgValues);
