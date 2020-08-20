@@ -245,7 +245,7 @@ public class ParserGenerator {
 		}
 	}
 
-  public String createHole(IConstructor part, int size) {
-    return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
-  }
+	public String createHole(IConstructor part, int size) {
+	    return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
+	}
 }
