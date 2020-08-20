@@ -50,6 +50,10 @@ public interface IRascalValueFactory extends IValueFactory {
 	    throw new UnsupportedOperationException("This Rascal value factory does not support function values:" + getClass());
 	}
 	
+	default IFunction parser(Type grammar) {
+	    throw new UnsupportedOperationException("This Rascal value factory does not support parser generator:" + getClass());
+	}
+	
 	static IRascalValueFactory getInstance() {
 		return RascalValueFactory.getInstance();
 	}
