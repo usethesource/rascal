@@ -434,18 +434,21 @@ catch ParseError(loc l): {
 }
 ----
 }
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false);
+public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false)
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input);
 
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false);
+public &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false)
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, origin=origin);
+  
+public &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false)
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, origin=input);
 
+@doc{
+.Synopsis 
+Returns a parser function that can take either a str or a loc as input parameter.
+}
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false);
-
+public java Tree (value input) parser(type[Tree] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false); 
 
 @doc{
 .Synopsis parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.
@@ -458,13 +461,11 @@ the cost of constructing nested ambiguity clusters.
 
 If the input sentence is not ambiguous after all, simply the entire tree is returned.
 }
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java Tree firstAmbiguity(type[&T<:Tree] begin, str input);
+public Tree firstAmbiguity(type[&T<:Tree] begin, str input)
+  = parser(begin, firstAmbiguity=true)(input);
 
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java Tree firstAmbiguity(type[&T<:Tree] begin, loc input);
+public Tree firstAmbiguity(type[&T<:Tree] begin, loc input)
+  = parser(begin, firstAmbiguity=true)(input);
 
 
 @doc{
@@ -491,8 +492,7 @@ First parse an expression, this results in a parse tree. Then unparse this parse
 unparse(parse(#Exp, "2+3"));
 ----
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java str unparse(Tree tree);
+public str unparse(Tree tree) = "<tree>";
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printSymbol(Symbol sym, bool withLayout);
