@@ -63,17 +63,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
@@ -81,6 +74,7 @@ import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -124,16 +118,18 @@ import io.usethesource.vallang.type.TypeStore;
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	protected final IValueFactory values;
+	protected final IRascalValueFactory rascalValues;
 	private final Random random;
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
     private final PrintWriter err;
 	
-	public Prelude(IValueFactory values, PrintWriter out, PrintWriter err){
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, PrintWriter err){
 		super();
 		
 		this.values = values;
+		this.rascalValues = rascalValues;
 		this.out = out;
 		this.err = err;
 		this.tr = new TypeReifier(values);
@@ -2153,130 +2149,8 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
-	    // TODO remove this legacy method
-	    return parse(start, input, allowAmbiguity, values.bool(false), ctx);
-	}
-	    
-	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
-	}
-	
-	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
-	    // TODO remove this legacy method
-        return parse(start, robust, input, allowAmbiguity, values.bool(false), ctx);
-	}
-	
-	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		Type reified = start.getType();
-		IConstructor grammar = checkPreconditions(start, reified);
-		
-		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue(), hasSideEffects.getValue());
-		}
-		catch (ParseError pe) {
-			ISourceLocation errorLoc = pe.getLocation();
-			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
-		}
-		catch (Ambiguous e) {
-			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
-		}
-		catch (UndeclaredNonTerminalException e){
-			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-		}
-	}
-	
-	// REFLECT -- copy in {@link PreludeCompiled}
-    public IValue firstAmbiguity(IValue start, IString input, IEvaluatorContext ctx) {
-        Type reified = start.getType();
-        IConstructor grammar = checkPreconditions(start, reified);
-        
-        try {
-            return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input.getValue(), false, false);
-        }
-        catch (ParseError pe) {
-            ISourceLocation errorLoc = pe.getLocation();
-            throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
-        }
-        catch (Ambiguous e) {
-            return e.getTree();
-        }
-        catch (UndeclaredNonTerminalException e){
-            throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-        }
-    }
-    
-    public IValue firstAmbiguity(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
-        Type reified = start.getType();
-        IConstructor grammar = checkPreconditions(start, reified);
-        
-        try {
-            return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input, false, false);
-        }
-        catch (ParseError pe) {
-            ISourceLocation errorLoc = pe.getLocation();
-            throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
-        }
-        catch (Ambiguous e) {
-            return e.getTree();
-        }
-        catch (UndeclaredNonTerminalException e){
-            throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-        }
-    }
-	
-	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
-	}
-	
-	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		try {
-			Type reified = start.getType();
-			IConstructor grammar = checkPreconditions(start, reified);
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue(), hasSideEffects.getValue());
-		}
-		catch (ParseError pe) {
-			ISourceLocation errorLoc = pe.getLocation();
-			throw RuntimeExceptionFactory.parseError(errorLoc);
-		}
-		catch (Ambiguous e) {
-			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
-		}
-		catch (UndeclaredNonTerminalException e){
-			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-		}
-	}
-	
-	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, loc, allowAmbiguity,  hasSideEffects, ctx);
-	}
-	
-	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
-		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc, allowAmbiguity.getValue(), hasSideEffects.getValue());
-		}
-		catch (ParseError pe) {
-			ISourceLocation errorLoc = pe.getLocation();
-			throw RuntimeExceptionFactory.parseError(errorLoc);
-		}
-		catch (Ambiguous e) {
-			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
-		}
-		catch (UndeclaredNonTerminalException e){
-			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-		}
-	}
-	
-	public IString unparse(IConstructor tree) {
-		return values.string(TreeAdapter.yield(tree));
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, firstAmbiguity);
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
@@ -2664,23 +2538,6 @@ public class Prelude {
 	protected boolean isUntypedNodeType(Type type) {
 		return (type.isNode() && !type.isConstructor() && !type.isAbstractData()) 
 				|| type.isTop();
-	}
-	
-	
-	
-	
-	private static IConstructor checkPreconditions(IValue start, Type reified) {
-		if (!(reified instanceof ReifiedType)) {
-		   throw RuntimeExceptionFactory.illegalArgument(start, "A reified type is required instead of " + reified);
-		}
-		
-		Type nt = reified.getTypeParameters().getFieldType(0);
-		
-		if (!(nt instanceof NonTerminalType)) {
-			throw RuntimeExceptionFactory.illegalArgument(start, "A non-terminal type is required instead of  " + nt);
-		}
-		
-		return (IConstructor) start;
 	}
 	
 	/*
@@ -3625,11 +3482,6 @@ public class Prelude {
 		}
 	}
 
-	// TODO: is this relevant in the compiler?
-	public IList getTraversalContext(IEvaluatorContext ctx) {
-		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
-	}
-	
 	public ISourceLocation uuid() {
 		String uuid = UUID.randomUUID().toString();
 		

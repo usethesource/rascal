@@ -17,6 +17,7 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -46,11 +47,43 @@ public interface IRascalValueFactory extends IValueFactory {
 	
 	IConstructor grammar(IMap rules);
 	
+	/**
+	 * Construct a function-as-value (i.e. IValue) with interface IFunction.
+	 * 
+	 * @param functionType the type of the function 
+	 * @param func         a JVM closure or any other form which implements the BiFunction interface
+	 * @return a function as value
+	 */
 	default IFunction function(Type functionType, BiFunction<IValue[], Map<String, IValue>, IValue> func) {
 	    throw new UnsupportedOperationException("This Rascal value factory does not support function values:" + getClass());
 	}
 	
-	default IFunction parser(Type grammar) {
+	/**
+	 * Constructs a parse function from a grammar, where the parse function has the following (overloaded) signature:
+	 *
+	 * Tree parse(str input, loc origin=|unknown://|);
+	 * Tree parse(loc input, loc origin=input);
+	 * 
+	 * The parse function
+	 *   * is overloaded on the first argument; it reads input either from a str or the contents of the resource that a loc points to.
+	 *   * behaves differently depending on the keyword parameters.
+	 *   * uses `origin` for the source location references in the resulting parse tree, which defaults to the loc parameter in case of a loc input;
+	 *     when a str input is given it defaults to |unknown:///|.
+	 *     
+	 *  Parameters:
+	 *     
+	 *  `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
+	 *                    the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
+	 *                    if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
+	 * 
+	 *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
+	 *                    interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
+	 *  
+	 *  `firstAmbiguity`: if true, then the parser returns the subforest for the first (left-most innermost) ambiguity instead of a parse tree for
+	 *                    the entire input string. This is for grammar debugging purposes a much faster solution then waiting for an entire 
+	 *                    parse forest to be constructed in polynomial time.
+	 */
+	default IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
 	    throw new UnsupportedOperationException("This Rascal value factory does not support parser generator:" + getClass());
 	}
 	
