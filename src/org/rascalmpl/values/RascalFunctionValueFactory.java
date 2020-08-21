@@ -19,17 +19,36 @@ import java.util.function.BiFunction;
 
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.interpreter.types.FunctionType;
+import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class RascalFunctionValueFactory extends RascalValueFactory {
     private final IEvaluatorContext ctx;
@@ -89,5 +108,177 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 return ResultFactory.makeResult(functionType.getReturnType(), returnValue, ctx);
             }
         };
+    }
+    
+    @Override
+    public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        Type functionType = rtf.functionType(RascalValueFactory.Tree, 
+            tf.tupleType(tf.valueType()), 
+            tf.tupleType(new Type[] { tf.sourceLocationType()}, new String[] { "origin"}));
+        
+        return function(functionType, new ParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity));
+    }
+    
+    /**
+     * This class wraps the parseObject methods of the Evaluator by presenting it as an implementation of IFunction.
+     * In this way library builtins can use the parser generator functionality of the Evaluator without knowing about
+     * the internals of parser generation and parser caching.
+     */
+    static private class ParseFunction implements BiFunction<IValue[], Map<String, IValue>, IValue> {
+        private final IEvaluatorContext ctx;
+        private final IValue grammar;
+        private final IValueFactory vf;
+        private final boolean allowAmbiguity;
+        private final boolean hasSideEffects;
+        private final boolean firstAmbiguity;
+        
+        public ParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+            this.ctx = ctx;
+            this.vf = ctx.getValueFactory();
+            this.grammar = grammar;
+            this.allowAmbiguity = allowAmbiguity.getValue() || firstAmbiguity.getValue();
+            this.hasSideEffects = hasSideEffects.getValue();
+            this.firstAmbiguity = firstAmbiguity.getValue();
+        }
+        
+        @Override
+        public IValue apply(IValue[] parameters, Map<String, IValue> keywordParameters) {
+            if (parameters.length != 1) {
+                throw fail(parameters);
+            }
+
+            if (firstAmbiguity) {
+                if (parameters[0].getType().isString()) {
+                    return firstAmbiguity(grammar, (IString) parameters[0], ctx);
+                }
+                else if (parameters[0].getType().isSourceLocation()) {
+                    return firstAmbiguity(grammar, (ISourceLocation) parameters[0], ctx);
+                }
+            }
+            else {
+                if (parameters[0].getType().isString()) {
+                    return parse(grammar, (IString) parameters[0], (ISourceLocation) keywordParameters.get("origin"), allowAmbiguity, hasSideEffects, ctx);
+                }
+                else if (parameters[0].getType().isSourceLocation()) {
+                    return parse(grammar, (ISourceLocation) parameters[0], (ISourceLocation) keywordParameters.get("origin"), allowAmbiguity, hasSideEffects, ctx);
+                }
+            }
+            
+            throw fail(parameters);
+        }
+
+        private Throw fail(IValue... parameters) {
+            return RuntimeExceptionFactory.callFailed(URIUtil.rootLocation("unknown"), Arrays.stream(parameters).collect(ctx.getValueFactory().listWriter()));
+        }
+        
+        public IValue parse(IValue start, IString input,  ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, IEvaluatorContext ctx) {
+            try {
+                Type reified = start.getType();
+                if (origin == null) {
+                    origin = URIUtil.rootLocation("unknown");
+                }
+                
+                IConstructor grammar = checkPreconditions(start, reified);
+                IMap emptyMap = ctx.getValueFactory().map();
+                return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, emptyMap, input.getValue(), origin, allowAmbiguity, hasSideEffects);
+            }
+            catch (ParseError pe) {
+                ISourceLocation errorLoc = pe.getLocation();
+                throw RuntimeExceptionFactory.parseError(errorLoc);
+            }
+            catch (Ambiguous e) {
+                ITree tree = e.getTree();
+                throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree)), vf.string(TreeAdapter.yield(tree)));
+            }
+            catch (UndeclaredNonTerminalException e){
+                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+            }
+        }
+        
+        public IValue firstAmbiguity(IValue start, IString input, IEvaluatorContext ctx) {
+            Type reified = start.getType();
+            IConstructor grammar = checkPreconditions(start, reified);
+            
+            try {
+                return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, vf.map(), input.getValue(), false, false);
+            }
+            catch (ParseError pe) {
+                ISourceLocation errorLoc = pe.getLocation();
+                throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+            }
+            catch (Ambiguous e) {
+                return e.getTree();
+            }
+            catch (UndeclaredNonTerminalException e){
+                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+            }
+        }
+        
+        public IValue firstAmbiguity(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
+            Type reified = start.getType();
+            IConstructor grammar = checkPreconditions(start, reified);
+            
+            try {
+                return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, vf.map(), input, false, false);
+            }
+            catch (ParseError pe) {
+                ISourceLocation errorLoc = pe.getLocation();
+                throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+            }
+            catch (Ambiguous e) {
+                return e.getTree();
+            }
+            catch (UndeclaredNonTerminalException e){
+                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+            }
+        }
+        
+        private IString printSymbol(IConstructor symbol) {
+            return vf.string(SymbolAdapter.toString(symbol, false));
+        }
+
+        private IValue parse(IValue start, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, IEvaluatorContext ctx) {
+            Type reified = start.getType();
+            IConstructor grammar = checkPreconditions(start, reified);
+            
+            if (origin == null) {
+                origin = input;
+            }
+            
+            try {
+                IMap emptyMap = ctx.getValueFactory().map();
+                return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, emptyMap, input, allowAmbiguity, hasSideEffects);
+            }
+            catch (ParseError pe) {
+                ISourceLocation errorLoc = pe.getLocation();
+                throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+            }
+            catch (Ambiguous e) {
+                ITree tree = e.getTree();
+                throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree)), vf.string(TreeAdapter.yield(tree)));
+            }
+            catch (UndeclaredNonTerminalException e){
+                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+            }
+        }
+
+        private static IConstructor checkPreconditions(IValue start, Type reified) {
+            if (!(reified instanceof ReifiedType)) {
+               throw RuntimeExceptionFactory.illegalArgument(start, "A reified type is required instead of " + reified);
+            }
+            
+            Type nt = reified.getTypeParameters().getFieldType(0);
+            
+            if (!(nt instanceof NonTerminalType)) {
+                throw RuntimeExceptionFactory.illegalArgument(start, "A non-terminal type is required instead of  " + nt);
+            }
+            
+            return (IConstructor) start;
+        }
+
+       
     }
 }
