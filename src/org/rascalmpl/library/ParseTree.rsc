@@ -175,7 +175,7 @@ A `Tree` defines the trees normally found after parsing; additional constructors
 <4> A single character. 
 }
 
-data Tree /*(loc src = |undefined:///|)*/
+data Tree (loc src = |undefined:///|(0,0,<0,0>,<0,0>))
      = appl(Production prod, list[Tree] args) // <1>
      | cycle(Symbol symbol, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
