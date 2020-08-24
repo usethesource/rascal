@@ -2153,6 +2153,10 @@ public class Prelude {
 	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, firstAmbiguity);
 	}
 	
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, firstAmbiguity);
+    }
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
 	    IValue value = values.constructor(store.lookupConstructor(returnType, name, TypeFactory.getInstance().tupleType(args)), args, new HashMap<String, IValue>());
