@@ -1269,13 +1269,59 @@ MuExp translateProject(Expression e, Expression base, list[Field] fields, loc sr
 
 // -- set annotation expression -------------------------------------
 
-MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression val> ]`) =
-    muSetAnno(translate(expression), getType(e), unescape("<name>"), translate(val));
+// Deprecated
+MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expression val> ]`) {
+    tp = getType(expression);  
+    list[str] fieldNames = [];
+    if(isRelType(tp)){
+       tp = getSetElementType(tp);
+    } else if(isListType(tp)){
+       tp = getListElementType(tp);
+    } else if(isMapType(tp)){
+       tp = getMapFieldsAsTuple(tp);
+    } else if(isADTType(tp)){
+        return muSetField(tp, getType(expression), translate(expression), unescape("<name>"), translate(val));
+    } else if(isLocType(tp)){
+        return muSetField(tp, getType(expression), translate(expression), unescape("<name>"), translate(val));
+    } else if(isNodeType(tp)){
+        return muSetField(tp, getType(expression), translate(expression), unescape("<name>"), translate(val));
+    }
+    if(tupleHasFieldNames(tp)){
+          fieldNames = getTupleFieldNames(tp);
+    }   
+    //TODO
+    return muSetField(tp, getType(expression), translate(expression), indexOf(fieldNames, unescape("<name>")), translate(val));
+    
+}
 
 // -- get annotation expression -------------------------------------
-
+//Deprecated
 MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) =
     muGetAnno(translate(expression), getType(e), unescape("<name>"));
+
+//// Deprecated
+//MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) {
+//   
+//   tp = getType(expression);
+//   fieldType = getType(name);
+//   
+//   if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
+//       return translateProject(e, expression, [(Field)`<Name name>`], e@\loc, false);
+//   }
+//   //if(isNonTerminalType(tp)){
+//   //   return muGetField("nonterminal", getConstructorType(tp, fieldType), translate(expression), unescape("<field>"));
+//   //}
+//   op = getOuterType(expression);
+//   ufield = unescape("<name>");
+//   if(op == "aadt"){
+//        <consType, isKwp> = getConstructorInfo(tp, fieldType, ufield);
+//          return isKwp ? muGetKwField(consType, tp, translate(expression), ufield)
+//                       : muGetField(getType(e), consType, translate(expression), ufield);
+//    }
+//    
+//    return muGetField(getType(e), getType(expression), translate(expression), ufield);  
+//    
+//    }
 
 // -- is expression --------------------------------------------------
 
@@ -1355,6 +1401,7 @@ MuExp translateGuarded(exp: (Expression) `<Expression expression> \< <{Field ","
     = translateProject(exp, expression, [f | f <- fields], exp@\loc, true);
 
 MuExp translateGuarded(exp: (Expression) `<Expression expression>@<Name name>`)
+    //= muGuardedGetField(getType(exp), getType(expression), translate(expression), unescape("<name>"));
     = muGuardedGetAnno(translate(expression), getType(exp), unescape("<name>"));
 
 MuExp translateGuarded(exp: (Expression) `<Expression expression> . <Name field>`)
@@ -1380,12 +1427,13 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
         muLHS = muGuardedGetField(resultType, baseType, baseExp, fieldName);
         lshType = resultType;
     } else if(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName) := muLHS){
-        muLHS = muGuardedGetField(resultType, consType.adt, exp, fieldName);
+        muLHS = muGuardedGetField(resultType, consType has adt ? consType.adt : consType, exp, fieldName);
         lshType = resultType;
     } else if(muCallPrim3("subscript", AType result, list[AType] details, list[MuExp] exps, loc src) := muLHS){
         muLHS = muCallPrim3("guarded_subscript", result, details, exps, src);
         lhsType = result;
-    } else if(muGetAnno(MuExp exp, AType resultType, str annoName) := muLHS){
+    } 
+    else if(muGetAnno(MuExp exp, AType resultType, str annoName) := muLHS){
         muLHS = muGuardedGetAnno(exp, resultType, annoName);
         lhsType = resultType;
     }

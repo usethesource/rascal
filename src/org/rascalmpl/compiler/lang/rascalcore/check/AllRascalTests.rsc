@@ -16,6 +16,8 @@ import util::Reflective;
 import util::FileSystem;
 import ValueIO;
 
+//import lang::rascalcore::compile::Compile;
+
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
 
@@ -416,12 +418,12 @@ void allFiles(PathConfig pcfg = pathConfig(
                 |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
                 |project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
-                |project://salix/src|,
-                |std:///|
+                |project://salix/src|
+                //|std:///|
                ],
          bin = |test-modules:///rascal-core-bin|,
-         libs = [])){
-    modulePaths =  find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); });
+         libs = [/*|lib://rascal/|, |lib://typepal/|*/])){
+    modulePaths =  find(|project://rascal/src/org/rascalmpl/library|, bool(loc l) { return endsWith(l.path, ".rsc"); });
                    //find(|std:///lang/rascal/tests|, bool(loc l) { return endsWith(l.path, ".rsc"); });
                    // find(|project://salix/src|, bool(loc l) { return endsWith(l.path, ".rsc"); });
                   //find(|project://rascal-core/src/org/rascalmpl/core/library|, bool(loc l) { return endsWith(l.path, ".rsc"); });
@@ -445,6 +447,7 @@ void allFiles(PathConfig pcfg = pathConfig(
         println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(problems)>/C:<size(crashed)>/S:<nskipped>)");
         try {
             modulesAndmsgs = filterErrors(checkModules([qualifiedModuleName], rascalTypePalConfig(), pcfg));
+            //modulesAndmsgs = (qualifiedModuleName : filterErrors(compile(qualifiedModuleName, rascalTypePalConfig(),pcfg)));
             if(modulesAndmsgs[qualifiedModuleName]?) iprintln(modulesAndmsgs);
             problems += modulesAndmsgs;
             //if(modulesAndmsgs[qualifiedModuleName]?) {

@@ -751,11 +751,17 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optF
 MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> , <Expression second> .. <OptionalExpression optLast> ]`, str operator,  AType rhs_type, MuExp rhs) =
      assignTo(receiver, "=", rhs_type, muCallPrim3("<getOuterType(receiver)>_slice_<getAssignOp(operator)>", getType(receiver), [getType(receiver)], [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs], a@\loc));
 
-MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, str operator,  AType rhs_type, MuExp rhs) =
+MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, str operator,  AType rhs_type, MuExp rhs) {
+    println("a: <getType(a)>");
+    println("receiver: <getType(receiver)>");
+    println("getValues(receiver)[0]: <getValues(receiver)[0]>");
+    res = 
      getOuterType(receiver) == "atuple" 
      ? assignTo(receiver,  "=", rhs_type, muCallPrim3("update", rhs_type, [getType(receiver)], [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), applyOperator(operator, a, rhs_type, rhs)], a@\loc) )
      : assignTo(receiver, "=", rhs_type, muSetField(getType(a), getType(receiver), getValues(receiver)[0], "<field>", applyOperator(operator, a, rhs_type, rhs)) );
-
+     println("res:"); iprintln(res);
+     return res;
+}
 MuExp assignTo(Assignable a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator,  AType rhs_type, MuExp rhs) = 
     assignTo(receiver,  "=", rhs_type, applyOperator(operator, a, rhs_type, rhs));
     
@@ -785,9 +791,14 @@ MuExp assignTo(Assignable a: (Assignable) `<Name name> ( <{Assignable ","}+ argu
                     ]);
 }
 
-MuExp assignTo(Assignable a: (Assignable) `<Assignable receiver>@<Name annotation>`,  str operator,  AType rhs_type, MuExp rhs) =
-    assignTo(receiver, "=", rhs_type, muSetAnno(getValues(receiver)[0], getType(a), "<annotation>", applyOperator(operator, a, rhs_type, rhs)));
+MuExp assignTo(Assignable a: (Assignable) `<Assignable receiver>@<Name annotation>`, str operator, AType rhs_type, MuExp rhs) =
 
+    getOuterType(receiver) == "atuple" 
+     ? assignTo(receiver,  "=", rhs_type, muCallPrim3("update", rhs_type, [getType(receiver)], [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<annotation>")), applyOperator(operator, a, rhs_type, rhs)], a@\loc) )
+     : assignTo(receiver, "=", rhs_type, muSetField(getType(a), getType(receiver), getValues(receiver)[0], "<annotation>", applyOperator(operator, a, rhs_type, rhs)) );
+
+    //assignTo(receiver, "=", rhs_type, muSetAnno(getValues(receiver)[0], getType(a), "<annotation>", applyOperator(operator, a, rhs_type, rhs)));
+    
 // getValues: get the current value(s) of an assignable
 
 list[MuExp] getValues((Assignable) `<QualifiedName qualifiedName>`) = 
@@ -808,10 +819,15 @@ list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> [ <Optio
 }
 
 list[MuExp] getValues(Assignable a:(Assignable) `<Assignable receiver> . <Name field>`) { 
+    receiverType = getType(receiver);
+    println(receiverType);
+    println(getType(field));
     ufield = unescape("<field>");
-    <consType, isKwp> =  getConstructorInfo(getType(receiver), getType(field), ufield);
-    return isKwp ? [ muGetKwField(getType(a), consType, getValues(receiver)[0], ufield) ]
-                 : [ muGetField(getType(a), consType, getValues(receiver)[0], ufield) ];
+    <consType, isKwp> =  getConstructorInfo(receiverType, getType(field), ufield);
+    return isKwp ? [ muGetKwField(consType, receiverType, getValues(receiver)[0], ufield) ]
+                 : [ muGetField(consType, receiverType, getValues(receiver)[0], ufield) ];
+    //return isKwp ? [ muGetKwField(getType(a), consType, getValues(receiver)[0], ufield) ]
+    //             : [ muGetField(getType(a), consType, getValues(receiver)[0], ufield) ];
 }    
 
 list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 
@@ -821,8 +837,15 @@ list[MuExp] getValues((Assignable) `\<  <{Assignable ","}+ elements > \>` ) = [ 
 
 list[MuExp] getValues((Assignable) `<Name name> ( <{Assignable ","}+ arguments> )` ) = [ *getValues(arg) | Assignable arg <- arguments ];
 
-list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver>@<Name annotation>`) = 
-    [ muGetAnno(getValues(receiver)[0], getType(a), unescape("<annotation>")) ];
+list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver>@<Name annotation>`) 
+//{
+//    receiverType = getType(receiver);
+//    ufield = unescape("<annotation>");
+//    <consType, isKwp> =  getConstructorInfo(getType(receiver), getType(annotation), ufield);
+//    return isKwp ? [ muGetKwField(consType, receiverType, getValues(receiver)[0], ufield) ]
+//                 : [ muGetField(consType, receiverType, getValues(receiver)[0], ufield) ];
+//}
+    = [ muGetAnno(getValues(receiver)[0], getType(a), unescape("<annotation>")) ];
 
 default list[MuExp] getValues(Assignable a) {
     throw "getValues: unhandled case <a>";

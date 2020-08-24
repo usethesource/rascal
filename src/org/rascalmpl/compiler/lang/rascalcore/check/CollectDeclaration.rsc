@@ -154,18 +154,32 @@ void collect(Tag tg, Collector c){
 
 // ---- annotation ------------------------------------------------------------
 
+// Deprecated
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
 
     c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+    
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
+    collect(annoType, onType, c);
     
-    pname = prettyPrintName(name);
-    dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
-    dt.vis = getVis(current.visibility, publicVis());
-    if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-    c.define(pname, annoId(), name, dt);
-    collect(annoType, onType, c); 
+    //userType = onType has user ? onType.user 
+    adtName = onType is user ? prettyPrintName(onType.user.name) : "<onType>";
+    commonKeywordParameterList = [ (KeywordFormal) `<Type annoType> <Name name> = 0` ]; // The default expression `0` is arbitrary since a NoSuchAnnotation
+                                                                                        // will be thrown before it can be executed
+    
+    dt = defType(aadt(adtName, [], dataSyntax()));
+    
+    dt.commonKeywordFields = commonKeywordParameterList;
+    c.define(adtName, dataId(), current, dt);
+     
+    
+    //pname = prettyPrintName(name);
+    //dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
+    //dt.vis = getVis(current.visibility, publicVis());
+    //if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+    //c.define(pname, annoId(), name, dt);
+    //collect(annoType, onType, c); 
 }
 
 // ---- keyword Formal --------------------------------------------------------
