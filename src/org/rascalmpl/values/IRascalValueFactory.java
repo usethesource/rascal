@@ -30,6 +30,10 @@ import io.usethesource.vallang.type.Type;
  * See {@link RascalValueFactory} for documentation.
  */
 public interface IRascalValueFactory extends IValueFactory {
+    static IRascalValueFactory getInstance() {
+        return RascalValueFactory.getInstance();
+    }
+    
 	IConstructor reifiedType(IConstructor symbol, IMap definitions);
 	
 	ITree appl(Map<String,IValue> kwParams, IConstructor prod, IList args);
@@ -98,7 +102,5 @@ public interface IRascalValueFactory extends IValueFactory {
         throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator:" + getClass());
     }
 	
-	static IRascalValueFactory getInstance() {
-		return RascalValueFactory.getInstance();
-	}
+	
 }

@@ -498,10 +498,10 @@ the cost of constructing nested ambiguity clusters.
 If the input sentence is not ambiguous after all, simply the entire tree is returned.
 }
 public Tree firstAmbiguity(type[&T<:Tree] begin, str input)
-  = parser(begin, firstAmbiguity=true)(input);
+  = parser(begin, firstAmbiguity=true)(input, |unknown:///|);
 
 public Tree firstAmbiguity(type[&T<:Tree] begin, loc input)
-  = parser(begin, firstAmbiguity=true)(input);
+  = parser(begin, firstAmbiguity=true)(input, input);
 
 
 @doc{
