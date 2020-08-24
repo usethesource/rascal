@@ -14,6 +14,7 @@ package org.rascalmpl.values;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -96,16 +97,38 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
          * For calls directly from the interpreter:
          */
         public org.rascalmpl.interpreter.result.Result<IValue> call(Type[] argTypes, IValue[] argValues, java.util.Map<String,IValue> keyArgValues) {
-            IValue returnValue = func.apply(argValues, keyArgValues);
-            
-            if (functionType.isBottom()) {
-                return ResultFactory.nothing();
+            Environment old = ctx.getCurrentEnvt();
+
+            try {
+                ctx.pushEnv(getName());
+                Environment env = ctx.getCurrentEnvt();
+
+                Map<Type, Type> renamings = new HashMap<>();
+                bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, functionType.getFieldTypes(), renamings, env); 
+
+                if (!getReturnType().isBottom() && getReturnType().instantiate(env.getStaticTypeBindings()).isBottom()) {
+                    // type parameterized functions are not allowed to return void,
+                    // so they are never called if this happens (if void is bound to the return type parameter)
+                    throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
+                }
+
+                IValue returnValue = func.apply(argValues, keyArgValues);
+
+                Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
+                resultType = unrenameType(renamings, resultType);
+
+                if (functionType.isBottom()) {
+                    return ResultFactory.nothing();
+                }
+                else if (returnValue == null) {
+                    throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
+                }
+                else {
+                    return ResultFactory.makeResult(resultType, returnValue, ctx);
+                }
             }
-            else if (returnValue == null) {
-                throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
-            }
-            else {
-                return ResultFactory.makeResult(functionType.getReturnType(), returnValue, ctx);
+            finally {
+                ctx.unwind(old);
             }
         };
     }
@@ -115,11 +138,30 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
-        Type functionType = rtf.functionType(RascalValueFactory.Tree, 
-            tf.tupleType(tf.valueType()), 
-            tf.tupleType(new Type[] { tf.sourceLocationType()}, new String[] { "origin"}));
+        // the return type of the generated parse function is instantiated here to the start nonterminal of
+        // the provided grammar:
+        Type functionType = rtf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+            tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+            tf.voidType());
         
         return function(functionType, new ParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity));
+    }
+    
+    @Override
+    public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        // here the return type is parametrized and instantiated when the parser function is called with the
+        // given start non-terminal:
+        
+        Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
+        
+        Type functionType = rtf.functionType(parameterType,
+            tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
+            tf.voidType());
+        
+        return function(functionType, new ParametrizedParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity));
     }
     
     /**
@@ -128,12 +170,12 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
      * the internals of parser generation and parser caching.
      */
     static private class ParseFunction implements BiFunction<IValue[], Map<String, IValue>, IValue> {
-        private final IEvaluatorContext ctx;
-        private final IValue grammar;
-        private final IValueFactory vf;
-        private final boolean allowAmbiguity;
-        private final boolean hasSideEffects;
-        private final boolean firstAmbiguity;
+        protected final IEvaluatorContext ctx;
+        protected final IValue grammar;
+        protected final IValueFactory vf;
+        protected final boolean allowAmbiguity;
+        protected final boolean hasSideEffects;
+        protected final boolean firstAmbiguity;
         
         public ParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
             this.ctx = ctx;
@@ -146,7 +188,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         @Override
         public IValue apply(IValue[] parameters, Map<String, IValue> keywordParameters) {
-            if (parameters.length != 1) {
+            if (parameters.length != 2) {
                 throw fail(parameters);
             }
 
@@ -159,22 +201,26 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 }
             }
             else {
+                if (!parameters[1].getType().isSourceLocation()) {
+                   throw fail(parameters); 
+                }
+                
                 if (parameters[0].getType().isString()) {
-                    return parse(grammar, (IString) parameters[0], (ISourceLocation) keywordParameters.get("origin"), allowAmbiguity, hasSideEffects, ctx);
+                    return parse(grammar, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
                 }
                 else if (parameters[0].getType().isSourceLocation()) {
-                    return parse(grammar, (ISourceLocation) parameters[0], (ISourceLocation) keywordParameters.get("origin"), allowAmbiguity, hasSideEffects, ctx);
+                    return parse(grammar, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
                 }
             }
             
             throw fail(parameters);
         }
 
-        private Throw fail(IValue... parameters) {
+        protected Throw fail(IValue... parameters) {
             return RuntimeExceptionFactory.callFailed(URIUtil.rootLocation("unknown"), Arrays.stream(parameters).collect(ctx.getValueFactory().listWriter()));
         }
         
-        public IValue parse(IValue start, IString input,  ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, IEvaluatorContext ctx) {
+        protected IValue parse(IValue start, IString input,  ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, IEvaluatorContext ctx) {
             try {
                 Type reified = start.getType();
                 if (origin == null) {
@@ -198,7 +244,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
         }
         
-        public IValue firstAmbiguity(IValue start, IString input, IEvaluatorContext ctx) {
+        protected IValue firstAmbiguity(IValue start, IString input, IEvaluatorContext ctx) {
             Type reified = start.getType();
             IConstructor grammar = checkPreconditions(start, reified);
             
@@ -217,7 +263,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
         }
         
-        public IValue firstAmbiguity(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
+        protected IValue firstAmbiguity(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
             Type reified = start.getType();
             IConstructor grammar = checkPreconditions(start, reified);
             
@@ -240,7 +286,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             return vf.string(SymbolAdapter.toString(symbol, false));
         }
 
-        private IValue parse(IValue start, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, IEvaluatorContext ctx) {
+        protected IValue parse(IValue start, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, IEvaluatorContext ctx) {
             Type reified = start.getType();
             IConstructor grammar = checkPreconditions(start, reified);
             
@@ -278,7 +324,54 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             
             return (IConstructor) start;
         }
+    }
+    
+    /**
+     * This class wraps the parseObject methods of the Evaluator by presenting it as an implementation of IFunction.
+     * In this way library builtins can use the parser generator functionality of the Evaluator without knowing about
+     * the internals of parser generation and parser caching.
+     * 
+     * It generates different parse functions from @see {@link ParseFunction}; they have an additional first
+     * parameter for the start-nonterminal.
+     */
+    static private class ParametrizedParseFunction extends ParseFunction {
+        
+        public ParametrizedParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+            super(ctx, grammar, allowAmbiguity, hasSideEffects, firstAmbiguity);
+        }
+        
+        @Override
+        public IValue apply(IValue[] parameters, Map<String, IValue> keywordParameters) {
+            if (parameters.length != 3) {
+                throw fail(parameters);
+            }
 
-       
+            if (firstAmbiguity) {
+                if (parameters[1].getType().isString()) {
+                    return firstAmbiguity(parameters[0], (IString) parameters[1], ctx);
+                }
+                else if (parameters[1].getType().isSourceLocation()) {
+                    return firstAmbiguity(parameters[0], (ISourceLocation) parameters[1], ctx);
+                }
+            }
+            else {
+                if (!(parameters[0].getType() instanceof ReifiedType)) {
+                    throw fail(parameters);
+                }
+                
+                if (!parameters[2].getType().isSourceLocation()) {
+                   throw fail(parameters); 
+                }
+                
+                if (parameters[1].getType().isString()) {
+                    return parse(parameters[0], (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
+                }
+                else if (parameters[1].getType().isSourceLocation()) {
+                    return parse(parameters[0], (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
+                }
+            }
+            
+            throw fail(parameters);
+        }
     }
 }
