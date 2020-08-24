@@ -435,20 +435,56 @@ catch ParseError(loc l): {
 ----
 }
 public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false)
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input);
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, |unknown:///|);
 
 public &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false)
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, origin=origin);
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, origin);
   
 public &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false)
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, origin=input);
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, input);
 
 @doc{
 .Synopsis 
-Returns a parser function that can take either a str or a loc as input parameter.
+Generates a parser from an input grammar.
+
+.Description
+
+This builtin function wraps the Rascal parser generator by transforming a grammar into a parsing function.
+
+The resulting parsing function has the following overloaded signature:
+
+   * Tree parse(str input, loc origin);
+   * Tree parse(loc input, loc origin);
+
+So the parse function reads either directly from a str or via the contents of a loc. It also takes a `origin` parameter
+which leads to the prefix of the `src` fields of the resulting tree.
+
+The parse function behaves differently depending of the given keyword parameters:
+     *  `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
+     *                    the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
+     *                    if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
+     * 
+     *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
+     *                    interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
+     *  
+     *  `firstAmbiguity`: if true, then the parser returns the subforest for the first (left-most innermost) ambiguity instead of a parse tree for
+     *                    the entire input string. This is for grammar debugging purposes a much faster solution then waiting for an entire 
+     *                    parse forest to be constructed in polynomial time.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java Tree (value input) parser(type[Tree] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false); 
+public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false); 
+
+@doc{
+.Synopsis
+Generates parsers from a grammar (reified type), where all non-terminals in the grammar can be used as start-symbol.
+
+.Description
+
+This parser generator behaves the same as the `parser` function, but it produces parser functions which have an additional
+nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
+ }
+@javaClass{org.rascalmpl.library.Prelude}
+public java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false); 
 
 @doc{
 .Synopsis parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.

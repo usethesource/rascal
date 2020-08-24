@@ -61,10 +61,11 @@ public interface IRascalValueFactory extends IValueFactory {
 	/**
 	 * Constructs a parse function from a grammar, where the parse function has the following (overloaded) signature:
 	 *
-	 * Tree parse(str input, loc origin=|unknown://|);
-	 * Tree parse(loc input, loc origin=input);
+	 * &T parse(str input, loc origin);
+	 * &T parse(loc input, loc origin);
 	 * 
 	 * The parse function
+	 *   * its return type is bound by the start-nonterminal of the grammar which was provided.
 	 *   * is overloaded on the first argument; it reads input either from a str or the contents of the resource that a loc points to.
 	 *   * behaves differently depending on the keyword parameters.
 	 *   * uses `origin` for the source location references in the resulting parse tree, which defaults to the loc parameter in case of a loc input;
@@ -84,8 +85,18 @@ public interface IRascalValueFactory extends IValueFactory {
 	 *                    parse forest to be constructed in polynomial time.
 	 */
 	default IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
-	    throw new UnsupportedOperationException("This Rascal value factory does not support parser generator:" + getClass());
+	    throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator:" + getClass());
 	}
+	
+	/**
+	 * Same as `parser` but produces parsers which are parametrized by the start-nonterminal:
+	 * 
+	 *  * &U parse(type[&U <: Tree], str input, loc origin);
+	 *  * &U parse(type[&U <: Tree], loc input, loc origin);
+	 */
+	default IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+        throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator:" + getClass());
+    }
 	
 	static IRascalValueFactory getInstance() {
 		return RascalValueFactory.getInstance();
