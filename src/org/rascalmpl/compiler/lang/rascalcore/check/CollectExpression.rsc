@@ -1155,19 +1155,33 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
 }
 
 // ---- setAnnotation
-
-void collect(current:(Expression) `<Expression e> [ @ <Name n> = <Expression er> ]`, Collector c) {
+// Deprecated
+void collect(current:(Expression) `<Expression expression> [ @ <Name field> = <Expression repl> ]`, Collector c) {
     c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
-    c.use(n, {annoId()});
-    scope = c.getScope();
-    c.calculate("set annotation", current, [e, n, er],
+    
+     scope = c.getScope();
+   
+    c.calculate("field update of `<field>`", current, [expression, repl],
         AType(Solver s){ 
-                t1 = s.getType(e); tn = s.getType(n); t2 = s.getType(er);
-                checkNonVoid(e, s, "Base expression of set annotation");
-                checkNonVoid(er, s, "Replacement expression of set annotation");
-                return computeSetAnnotationType(current, t1, tn, t2, s);
-               });
-    collect(e, er, c);
+                 fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
+                 replType = s.getType(repl);
+                 checkNonVoid(expression, s, "Base expression of field update`");
+                 checkNonVoid(repl, s, "Replacement expression of field update`");
+                 s.requireSubType(replType, fieldType, error(current, "Cannot assign type %t to field %q of type %t", replType, field, fieldType));
+                 return s.getType(expression);
+        });
+    collect(expression, repl, c);
+    
+    //c.use(n, {annoId()});
+    //scope = c.getScope();
+    //c.calculate("set annotation", current, [e, n, er],
+    //    AType(Solver s){ 
+    //            t1 = s.getType(e); tn = s.getType(n); t2 = s.getType(er);
+    //            checkNonVoid(e, s, "Base expression of set annotation");
+    //            checkNonVoid(er, s, "Replacement expression of set annotation");
+    //            return computeSetAnnotationType(current, t1, tn, t2, s);
+    //           });
+    //collect(e, er, c);
 }
 
 private AType computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s)
@@ -1188,16 +1202,23 @@ private AType _computeSetAnnotationType(Tree current, AType t1, AType tn, AType 
 
 // ---- getAnnotation
 
-void collect(current:(Expression) `<Expression e>@<Name n>`, Collector c) {
+// Deprecated
+void collect(current:(Expression) `<Expression expression>@<Name field>`, Collector c) {
     c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
-    c.use(n, {annoId()});
-    scope = c.getScope();
-    c.calculate("get annotation", current, [e, n],
-        AType(Solver s){ 
-                 t1 = s.getType(e);
-                 tn = s.getType(n);
-                 checkNonVoid(e, s, "Base expression of get annotation`");
-                 return computeGetAnnotationType(current, t1, tn, s);
-               });
-    collect(e, c);
+    
+    c.useViaType(expression, field, {fieldId(), keywordFieldId(), annoId()});
+    c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of field selection"));
+    c.fact(current, field);
+    collect(expression, c);
+    
+    
+    //c.use(n, {annoId()});
+    //scope = c.getScope();
+    //c.calculate("get annotation", current, [e, n],
+    //    AType(Solver s){ 
+    //             t1 = s.getType(e);
+    //             tn = s.getType(n);
+    //             checkNonVoid(e, s, "Base expression of get annotation`");
+    //             return computeGetAnnotationType(current, t1, tn, s);
+   //collect(e, c);
 }

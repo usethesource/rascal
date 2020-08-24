@@ -685,10 +685,16 @@ private AType computeReceiverType(Statement current, asg:(Assignable) `<Assignab
 private AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
-    annoNameType = s.getTypeInScope(n, scope, {annoId()});
-    getAnnoType = computeGetAnnotationType(current, receiverType, annoNameType, s);
-    s.fact(asg, getAnnoType);
-    return getAnnoType;
+    fieldType = computeFieldTypeWithADT(receiverType, n, scope, s);
+    s.fact(asg, fieldType);
+    return fieldType;
+    
+    //receiverType = computeReceiverType(current, receiver, scope, s);
+    //s.fact(receiver, receiverType);
+    //annoNameType = s.getTypeInScope(n, scope, {annoId()});
+    //getAnnoType = computeGetAnnotationType(current, receiverType, annoNameType, s);
+    //s.fact(asg, getAnnoType);
+    //return getAnnoType;
 }
 
 private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s){
@@ -967,18 +973,31 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
 
 private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
    c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
-   c.use(n, {annoId()});
+   
    names = getReceiver(receiver, c);
-   c.useLub(names[0], variableRoles);
+   c.use(names[0], variableRoles);
    scope = c.getScope();
    
-   c.calculate("assignable with annotation", current, [n, rhs], 
+   c.calculate("assignable with field", current, [rhs], 
       AType(Solver s){ 
-           rt = computeReceiverType(current, receiver, scope, s);
+           res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope, s),  n, operator, s.getType(rhs), scope, s);
+           //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            s.fact(asg, s.getType(rhs));
-           return computeAnnoAssignableType(current, rt,  n, operator, s.getType(rhs), scope, s);
+           return res;
          });
-   //collect(receiver, c);
+   
+   //c.use(n, {annoId()});
+   //names = getReceiver(receiver, c);
+   //c.useLub(names[0], variableRoles);
+   //scope = c.getScope();
+   //
+   //c.calculate("assignable with annotation", current, [n, rhs], 
+   //   AType(Solver s){ 
+   //        rt = computeReceiverType(current, receiver, scope, s);
+   //        s.fact(asg, s.getType(rhs));
+   //        return computeAnnoAssignableType(current, rt,  n, operator, s.getType(rhs), scope, s);
+   //      });
+   collect(receiver, c);
 }
 
 private AType computeAnnoAssignableType(Statement current, AType receiverType, Name annoName, str operator, AType rhs, loc scope, Solver s){
