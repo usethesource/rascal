@@ -70,7 +70,7 @@ CheckerResult checkStatements(str stmts, list[str] importedModules = [], list[st
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
      errors = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls));
-     //println(errors);
+     println(errors);
      for(eitem <- errors, str exp <- expected){
          if(matches(eitem.msg, exp))
                return true;          

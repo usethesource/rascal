@@ -1041,7 +1041,7 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
                  replType = s.getType(repl);
                  checkNonVoid(expression, s, "Base expression of field update`");
                  checkNonVoid(repl, s, "Replacement expression of field update`");
-                 s.requireSubType(replType, fieldType, error(current, "Cannot assign type %t to field %q of type %t", replType, field, fieldType));
+                 s.requireSubType(replType, fieldType, error(current, "Cannot assign value of type %t to field %q of type %t", replType, field, fieldType));
                  return s.getType(expression);
         });
     collect(expression, repl, c);
@@ -1165,9 +1165,9 @@ void collect(current:(Expression) `<Expression expression> [ @ <Name field> = <E
         AType(Solver s){ 
                  fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
                  replType = s.getType(repl);
-                 checkNonVoid(expression, s, "Base expression of field update`");
-                 checkNonVoid(repl, s, "Replacement expression of field update`");
-                 s.requireSubType(replType, fieldType, error(current, "Cannot assign type %t to field %q of type %t", replType, field, fieldType));
+                 checkNonVoid(expression, s, "Base expression of annotation update`");
+                 checkNonVoid(repl, s, "Replacement expression of annotation update`");
+                 s.requireSubType(replType, fieldType, error(current, "Cannot assign value of type %t to annotation %q of type %t", replType, field, fieldType));
                  return s.getType(expression);
         });
     collect(expression, repl, c);
