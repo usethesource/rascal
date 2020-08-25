@@ -100,6 +100,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Comparison not defined on _",
 	    "Initialization of _ should be _",
 	    "Undefined anno _",
+	    "No definition found for _",
 	    "Undefined _",
 	    "Cannot assign value of type _ to _",
 	    "_ is defined as _ and cannot be applied to argument",

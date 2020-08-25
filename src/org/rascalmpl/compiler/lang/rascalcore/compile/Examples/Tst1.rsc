@@ -1,10 +1,10 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-//import lang::rascalcore::check::tests::StaticTestingUtils;
+import lang::rascalcore::check::tests::StaticTestingUtils;
  
-value main() //test bool annotationNotAllowed1() 
-    = 1[@an=3];
-    //= unexpectedType("1 [@an=3];");
+value main() //test bool annotationNotAllowed41() 
+    = unexpectedType("f() [@wrongpos=true];", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F@pos;"]); 
+
 
 
 
