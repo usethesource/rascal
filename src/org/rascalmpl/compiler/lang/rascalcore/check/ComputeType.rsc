@@ -454,7 +454,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
     } else if (isNodeType(containerType)) {
         return avalue();
     } 
-    s.report(error(field, "computeFieldType: Cannot access fields on type %t", containerType));
+    s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
     return avalue();
 }
 
