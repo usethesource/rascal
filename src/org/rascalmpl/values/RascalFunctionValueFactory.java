@@ -21,8 +21,10 @@ import java.util.function.BiFunction;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -103,6 +105,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 ctx.pushEnv(getName());
                 Environment env = ctx.getCurrentEnvt();
 
+                if (argValues.length != getArity()) {
+                    throw new MatchFailed();
+                }
+                
                 Map<Type, Type> renamings = new HashMap<>();
                 bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, functionType.getFieldTypes(), renamings, env); 
 
@@ -176,9 +182,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected final boolean allowAmbiguity;
         protected final boolean hasSideEffects;
         protected final boolean firstAmbiguity;
+        protected final ModuleEnvironment callingModule;
         
         public ParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
             this.ctx = ctx;
+            this.callingModule = retrieveCallingModuleEnvironment(ctx);
             this.vf = ctx.getValueFactory();
             this.grammar = grammar;
             this.allowAmbiguity = allowAmbiguity.getValue() || firstAmbiguity.getValue();
@@ -186,34 +194,60 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             this.firstAmbiguity = firstAmbiguity.getValue();
         }
         
-        @Override
-        public IValue apply(IValue[] parameters, Map<String, IValue> keywordParameters) {
-            if (parameters.length != 2) {
-                throw fail(parameters);
-            }
-
-            if (firstAmbiguity) {
-                if (parameters[0].getType().isString()) {
-                    return firstAmbiguity(grammar, (IString) parameters[0], ctx);
-                }
-                else if (parameters[0].getType().isSourceLocation()) {
-                    return firstAmbiguity(grammar, (ISourceLocation) parameters[0], ctx);
-                }
-            }
-            else {
-                if (!parameters[1].getType().isSourceLocation()) {
-                   throw fail(parameters); 
-                }
-                
-                if (parameters[0].getType().isString()) {
-                    return parse(grammar, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
-                }
-                else if (parameters[0].getType().isSourceLocation()) {
-                    return parse(grammar, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
-                }
+        /**
+         * This workaround retrieves the user module that called the parser functions such that
+         * the right normalizing overloads can be executed after parsing. 
+         * @return
+         */
+        private ModuleEnvironment retrieveCallingModuleEnvironment(IEvaluatorContext ctx) {
+            Environment current = ctx.getCurrentEnvt();
+            ModuleEnvironment currentModule = (ModuleEnvironment) current.getRoot();
+            
+            while (currentModule.getName().equals("ParseTree")) {
+                current = current.getCallerScope();
+                currentModule = (ModuleEnvironment) current.getRoot();
             }
             
-            throw fail(parameters);
+            return currentModule;
+        }
+
+        @Override
+        public IValue apply(IValue[] parameters, Map<String, IValue> keywordParameters) {
+            Environment old = ctx.getCurrentEnvt();
+            
+            try {
+                ctx.setCurrentEnvt(callingModule);
+                
+                if (parameters.length != 2) {
+                    throw fail(parameters);
+                }
+
+                if (firstAmbiguity) {
+                    if (parameters[0].getType().isString()) {
+                        return firstAmbiguity(grammar, (IString) parameters[0], ctx);
+                    }
+                    else if (parameters[0].getType().isSourceLocation()) {
+                        return firstAmbiguity(grammar, (ISourceLocation) parameters[0], ctx);
+                    }
+                }
+                else {
+                    if (!parameters[1].getType().isSourceLocation()) {
+                        throw fail(parameters); 
+                    }
+
+                    if (parameters[0].getType().isString()) {
+                        return parse(grammar, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
+                    }
+                    else if (parameters[0].getType().isSourceLocation()) {
+                        return parse(grammar, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
+                    }
+                }
+
+                throw fail(parameters);
+            }
+            finally {
+                ctx.setCurrentEnvt(old);
+            }
         }
 
         protected Throw fail(IValue... parameters) {
@@ -342,36 +376,44 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         @Override
         public IValue apply(IValue[] parameters, Map<String, IValue> keywordParameters) {
-            if (parameters.length != 3) {
-                throw fail(parameters);
-            }
-
-            if (firstAmbiguity) {
-                if (parameters[1].getType().isString()) {
-                    return firstAmbiguity(parameters[0], (IString) parameters[1], ctx);
-                }
-                else if (parameters[1].getType().isSourceLocation()) {
-                    return firstAmbiguity(parameters[0], (ISourceLocation) parameters[1], ctx);
-                }
-            }
-            else {
-                if (!(parameters[0].getType() instanceof ReifiedType)) {
+            Environment old = ctx.getCurrentEnvt();
+            try {
+                ctx.setCurrentEnvt(callingModule);
+                
+                if (parameters.length != 3) {
                     throw fail(parameters);
                 }
-                
-                if (!parameters[2].getType().isSourceLocation()) {
-                   throw fail(parameters); 
+
+                if (firstAmbiguity) {
+                    if (parameters[1].getType().isString()) {
+                        return firstAmbiguity(parameters[0], (IString) parameters[1], ctx);
+                    }
+                    else if (parameters[1].getType().isSourceLocation()) {
+                        return firstAmbiguity(parameters[0], (ISourceLocation) parameters[1], ctx);
+                    }
                 }
-                
-                if (parameters[1].getType().isString()) {
-                    return parse(parameters[0], (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
+                else {
+                    if (!(parameters[0].getType() instanceof ReifiedType)) {
+                        throw fail(parameters);
+                    }
+
+                    if (!parameters[2].getType().isSourceLocation()) {
+                        throw fail(parameters); 
+                    }
+
+                    if (parameters[1].getType().isString()) {
+                        return parse(parameters[0], (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
+                    }
+                    else if (parameters[1].getType().isSourceLocation()) {
+                        return parse(parameters[0], (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
+                    }
                 }
-                else if (parameters[1].getType().isSourceLocation()) {
-                    return parse(parameters[0], (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
-                }
+
+                throw fail(parameters);
             }
-            
-            throw fail(parameters);
-        }
+            finally {
+                ctx.setCurrentEnvt(old);
+            }
+        } 
     }
 }
