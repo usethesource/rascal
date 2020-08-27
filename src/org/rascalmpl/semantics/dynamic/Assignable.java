@@ -37,9 +37,10 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSlice;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.types.FunctionType;
+import org.rascalmpl.types.NonTerminalType;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;

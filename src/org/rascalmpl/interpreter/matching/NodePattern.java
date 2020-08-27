@@ -30,9 +30,9 @@ import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
-import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.types.RascalType;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 

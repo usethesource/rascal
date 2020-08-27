@@ -1,4 +1,4 @@
-package org.rascalmpl.interpreter.types;
+package org.rascalmpl.types;
 
 import io.usethesource.vallang.type.DefaultTypeVisitor;
 import io.usethesource.vallang.type.Type;

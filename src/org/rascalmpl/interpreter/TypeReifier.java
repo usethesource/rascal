@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 

@@ -9,7 +9,7 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *******************************************************************************/
-package org.rascalmpl.interpreter.types;
+package org.rascalmpl.types;
 
 import java.util.HashSet;
 import java.util.Set;

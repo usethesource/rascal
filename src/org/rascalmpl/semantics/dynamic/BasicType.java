@@ -336,12 +336,12 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
 		    if (__eval.__getTypeArgument().isBottom()) {
-                return org.rascalmpl.interpreter.types.RascalTypeFactory
+                return org.rascalmpl.types.RascalTypeFactory
                     .getInstance().reifiedType(TF.voidType());
             }
 		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
-				return org.rascalmpl.interpreter.types.RascalTypeFactory
+				return org.rascalmpl.types.RascalTypeFactory
 						.getInstance().reifiedType(
 								__eval.__getTypeArgument().getFieldType(0));
 			}
