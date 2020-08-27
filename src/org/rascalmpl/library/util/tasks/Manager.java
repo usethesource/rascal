@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.tasks.IIValueTask;
 import org.rascalmpl.tasks.ITaskRegistry;
 import org.rascalmpl.tasks.ITransaction;

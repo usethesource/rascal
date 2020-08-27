@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import io.usethesource.vallang.type.Type;
 

@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;

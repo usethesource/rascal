@@ -20,8 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;

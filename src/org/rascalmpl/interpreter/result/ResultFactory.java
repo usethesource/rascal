@@ -16,8 +16,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.types.RascalType;
 import org.rascalmpl.values.RascalValueFactory;
 

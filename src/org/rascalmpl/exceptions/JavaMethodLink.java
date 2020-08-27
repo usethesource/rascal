@@ -9,14 +9,15 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.staticErrors;
+package org.rascalmpl.exceptions;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 
-public class JavaMethodLink extends StaticError {
+public class JavaMethodLink extends RuntimeException {
 	private static final long serialVersionUID = 3867556518416718308L;
 
-	public JavaMethodLink(String name, String message, AbstractAST ast, Throwable cause) {
-		super("Cannot link method " + name + " because: " + message, ast, cause);
+	public JavaMethodLink(String name, String message, Throwable cause) {
+		super("Cannot link method " + name + " because: " + message, cause);
 	}
 }

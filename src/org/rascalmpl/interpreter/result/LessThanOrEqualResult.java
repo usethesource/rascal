@@ -12,8 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.type.TypeFactory;
 
