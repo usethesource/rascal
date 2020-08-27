@@ -21,6 +21,8 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.values.iterators.IteratorFactory;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 

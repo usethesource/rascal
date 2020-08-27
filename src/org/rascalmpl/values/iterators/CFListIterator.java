@@ -9,43 +9,38 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.interpreter.matching;
+package org.rascalmpl.values.iterators;
 
 import java.util.Iterator;
 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 
-
-/*
- * SingleIValueIterator turns a single IValue into an Iterator that
- * can be used for implementing generators.
- */
-
-public class SingleIValueIterator implements Iterator<IValue> {	
-	private IValue value;
-	private boolean firstCall;
-
-	SingleIValueIterator(IValue value){
-		this.value = value;
-		this.firstCall = true;
+class CFListIterator implements Iterator<IValue> {
+	private IList list;
+	private int index;
+	private int delta;
+	
+	CFListIterator(IList l, int delta){
+		this.list = l;
+		this.index = 0;
+		this.delta = delta;
 	}
 
 	public boolean hasNext() {
-		
-		return firstCall;
+		return index < list.length();
 	}
 
 	public IValue next() {
-		if(!firstCall){
-			throw new ImplementationError("next called more than once");
-		}
-		firstCall = false;
-		return value;
+		IValue v = list.get(index);
+		//System.err.println("index = " + index + ": " + v);
+		index += delta;
+		return v;
 	}
 
 	public void remove() {
-		throw new UnsupportedOperationException("remove for SingleIValueIterator");
-	}	
+		throw new UnsupportedOperationException("remove in CFListIterator");
+	}
 }

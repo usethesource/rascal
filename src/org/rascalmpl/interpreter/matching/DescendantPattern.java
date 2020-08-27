@@ -23,6 +23,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.types.TypeReachability;
+import org.rascalmpl.values.iterators.IteratorFactory;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
