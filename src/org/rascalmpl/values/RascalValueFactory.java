@@ -19,9 +19,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;

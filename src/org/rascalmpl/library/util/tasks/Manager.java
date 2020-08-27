@@ -18,14 +18,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.tasks.IIValueTask;
 import org.rascalmpl.tasks.ITaskRegistry;
 import org.rascalmpl.tasks.ITransaction;
 import org.rascalmpl.tasks.PDBValueTaskRegistry;
 import org.rascalmpl.tasks.Transaction;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IBool;
