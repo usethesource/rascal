@@ -425,7 +425,6 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 		return vf.string(replacementString.toString());
 	}
 	
-	@SuppressWarnings("deprecation")
 	private INode rebuild(IValue subject, IValue[] args, Map<String,IValue> kwargs) {
 		Map<String, IValue> kwParameters = subject.mayHaveKeywordParameters() ? subject.asWithKeywordParameters().getParameters() : emptyAnnotationsMap;
 		// TODO: jurgen can be optimized for the ITree case

@@ -11,7 +11,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeStore;
 
 public class GenerateActuals {
