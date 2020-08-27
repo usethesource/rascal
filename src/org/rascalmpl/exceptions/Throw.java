@@ -11,12 +11,12 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.interpreter.control_exceptions;
+package org.rascalmpl.exceptions;
 
 import java.io.IOException;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.StackTrace;
+import org.rascalmpl.interpreter.control_exceptions.ControlException;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import io.usethesource.vallang.ISourceLocation;

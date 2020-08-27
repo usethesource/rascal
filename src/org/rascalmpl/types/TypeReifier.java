@@ -10,14 +10,13 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
-package org.rascalmpl.interpreter;
+package org.rascalmpl.types;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 
