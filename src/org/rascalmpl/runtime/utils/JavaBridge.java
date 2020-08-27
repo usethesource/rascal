@@ -21,9 +21,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -51,15 +49,11 @@ public class JavaBridge {
 
     private final IValueFactory vf;
 
-    private final Map<Class<?>, Object> instanceCache;
-
-
     private String javaCompilerPath;
 
     public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory, PathConfig config) {
         this.loaders = classLoaders;
         this.vf = valueFactory;
-        this.instanceCache = new HashMap<Class<?>, Object>();
 
         StringBuilder sw = new StringBuilder();
         for(IValue v : config.getJavaCompilerPath()) {
@@ -112,11 +106,6 @@ public class JavaBridge {
                 try{
                     Class<?> clazz = loader.loadClass(className);
 
-                    Object instance = instanceCache.get(clazz);
-                    if(instance != null){
-                        return (T) instance;
-                    }
-
                     if (clazz.getConstructors().length > 1) {
                         throw new IllegalArgumentException("Rascal JavaBridge can only deal with one constructor. This class has multiple: " + clazz);
                     }
@@ -149,7 +138,12 @@ public class JavaBridge {
                             args[i] = monitor;
                         }
                         else if (formals[i].isAssignableFrom(ClassLoader.class)) {
-                            args[i] = new ListClassLoader(loaders, getClass().getClassLoader()); 
+                            if (loaders.size() == 1) {
+                                args[i] = loaders.get(0);
+                            }
+                            else {
+                                args[i] = new ListClassLoader(loaders, getClass().getClassLoader());
+                            }
                         }
                         else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
                             args[i] = new RascalRuntimeValueFactory(module);
@@ -162,9 +156,7 @@ public class JavaBridge {
                         }
                     }
 
-                    instance = constructor.newInstance(args);
-                    instanceCache.put(clazz, instance);
-                    return (T) instance;
+                   return (T) constructor.newInstance(args);
                 }
                 catch(ClassNotFoundException e){
                     continue;
