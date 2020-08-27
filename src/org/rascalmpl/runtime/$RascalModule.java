@@ -1,16 +1,24 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.JavaBridge;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.Type2ATypeReifier;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.interpreter.NullRascalMonitor;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.uri.SourceLocationURICompare;
@@ -46,10 +54,35 @@ import io.usethesource.vallang.type.Type;
 
 public abstract class $RascalModule extends Type2ATypeReifier {
 	
+    
 	/*************************************************************************/
 	/*		Utilities for generated code									 */
 	/*************************************************************************/
   
+    // ---- library helper methods and fields  -------------------------------------------
+    // TODO: make pathconfig configurable?
+    private final PathConfig $config = new PathConfig();
+    
+    // TODO: make classloaders configurable?
+    private final java.util.List<ClassLoader> $loaders = Collections.singletonList(getClass().getClassLoader());
+    
+    // TODO: make OUT and ERR configurable?
+    private final PrintStream $OUT = System.out;
+    private final PrintWriter $OUTWRITER = new PrintWriter($OUT);
+    private final PrintStream $ERR = System.err;
+    private final PrintWriter $ERRWRITER = new PrintWriter($ERR);
+    private final InputStream $IN = System.in;
+    
+    // TODO: make monitor configurable?
+    private final IRascalMonitor $MONITOR = new NullRascalMonitor();
+    
+    private final JavaBridge $JAVABRIDGE = new JavaBridge($loaders, $VF, $config);
+    
+    @SuppressWarnings("unchecked")
+    protected <T> T $initLibrary(String className) {
+        return (T) $JAVABRIDGE.getJavaClassInstance(className, $MONITOR, $TS, $OUTWRITER, $ERRWRITER, $OUT, $ERR, $IN, this);
+    }
+    
 	// ---- utility methods ---------------------------------------------------
 
 	public final IMap $buildMap(final IValue...values){
