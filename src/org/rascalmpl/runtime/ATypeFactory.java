@@ -2,7 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.util.Arrays;
 
-import org.rascalmpl.core.types.RascalTypeFactory;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.values.ValueFactoryFactory;
 

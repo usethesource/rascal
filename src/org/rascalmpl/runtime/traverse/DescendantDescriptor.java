@@ -2,16 +2,14 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 
 import java.util.HashSet;
 
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+
 //import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ATypeFactory;
-import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.parsetrees.ITree;
 
 /**
  * Create a descendant descriptor given
@@ -23,13 +21,9 @@ import org.rascalmpl.values.parsetrees.ITree;
  */
 
 public class DescendantDescriptor {
-	private static final ATypeFactory TF = new ATypeFactory();
 	private /*final*/ HashSet<Object> mSymbolSet;
 	private /*final*/ boolean concreteMatch;
 	private /*final*/ boolean containsNodeOrValueType;
-//	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, /*RascalExecutionContext*/ Object rex){
-//		throw new RuntimeException("DescendantDescriptor not yet finished");
-//	}
 	
 	public DescendantDescriptor(Type[] symbolset, IConstructor[] prodset, IBool concreteMatch){
 		mSymbolSet = new HashSet<Object>(symbolset.length + prodset.length);
