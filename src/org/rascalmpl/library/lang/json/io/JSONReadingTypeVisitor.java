@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;

@@ -38,7 +38,7 @@ public abstract class FunctionType extends org.rascalmpl.ast.FunctionType {
 		public Type typeOf(Environment __eval, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			Type returnType = this.getType().typeOf(__eval, eval, instantiateTypeParameters);
 			Type argTypes = TypeUtils.typeOf(this.getArguments(), __eval);
-			return org.rascalmpl.interpreter.types.RascalTypeFactory
+			return org.rascalmpl.types.RascalTypeFactory
 					.getInstance().functionType(returnType, argTypes, TF.voidType());
 		}
 	}

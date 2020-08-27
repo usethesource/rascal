@@ -11,7 +11,7 @@
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.interpreter.types;
+package org.rascalmpl.types;
 
 import java.util.Arrays;
 import java.util.HashSet;

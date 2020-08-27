@@ -35,7 +35,7 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IBool;

@@ -53,11 +53,11 @@ import org.rascalmpl.interpreter.staticErrors.MissingReturn;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.semantics.dynamic.Tree.Appl;
+import org.rascalmpl.types.FunctionType;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
