@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.rascalmpl.interpreter.TypeReifier;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.types.TypeReifier;
 import org.yaml.snakeyaml.Yaml;
 
 import io.usethesource.vallang.IBool;

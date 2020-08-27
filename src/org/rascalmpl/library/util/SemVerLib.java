@@ -1,6 +1,6 @@
 package org.rascalmpl.library.util;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.util.VersionInfo;
 
 import io.usethesource.vallang.IString;

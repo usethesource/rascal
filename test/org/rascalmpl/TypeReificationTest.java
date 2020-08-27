@@ -16,9 +16,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.types.TypeReifier;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
