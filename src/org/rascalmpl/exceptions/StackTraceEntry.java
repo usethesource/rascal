@@ -9,7 +9,7 @@
  *
  *   * Anya Helene Bagge - UiB
  *******************************************************************************/
-package org.rascalmpl.interpreter;
+package org.rascalmpl.exceptions;
 
 import java.io.IOException;
 import java.io.StringWriter;
