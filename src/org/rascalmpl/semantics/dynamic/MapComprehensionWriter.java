@@ -1,8 +1,8 @@
 package org.rascalmpl.semantics.dynamic;
 
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.IValue;

@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.types.TypeReifier;
 import org.yaml.snakeyaml.Yaml;
 

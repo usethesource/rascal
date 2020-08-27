@@ -14,7 +14,8 @@ package org.rascalmpl.values.iterators;
 
 import java.util.Iterator;
 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.exceptions.ImplementationError;
+
 import io.usethesource.vallang.IValue;
 
 
