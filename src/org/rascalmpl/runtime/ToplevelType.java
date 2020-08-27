@@ -1,7 +1,7 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
-import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
-import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.types.RascalType;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;

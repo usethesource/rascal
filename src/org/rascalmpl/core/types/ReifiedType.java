@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
+import org.rascalmpl.types.TypeReifier.TypeStoreWithSyntax;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
@@ -230,10 +230,10 @@ public class ReifiedType extends RascalType {
 	    
 	    if (store instanceof TypeStoreWithSyntax) {
 	        TypeStoreWithSyntax ts = (TypeStoreWithSyntax) store;
-	        return new org.rascalmpl.interpreter.TypeReifier(vf).typeToValue(arg, store, ts.getGrammar());
+	        return new org.rascalmpl.types.TypeReifier(vf).typeToValue(arg, store, ts.getGrammar());
 	    }
 	    else {
-	        return new org.rascalmpl.interpreter.TypeReifier(vf).typeToValue(arg, store, vf.map());
+	        return new org.rascalmpl.types.TypeReifier(vf).typeToValue(arg, store, vf.map());
 	    }
 	}
 
