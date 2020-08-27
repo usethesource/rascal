@@ -501,43 +501,10 @@ public class FunctionType extends RascalType {
 		return TF.voidType();
 	}
 	
-	private static final GlobalEnvironment randomHeap = new GlobalEnvironment();
-	private static final Evaluator randomFunctionEvaluator = new Evaluator(IRascalValueFactory.getInstance(), System.in, System.out,  System.err, new ModuleEnvironment("random function", randomHeap), randomHeap);
-	
 	@Override
-	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters, int maxDepth, int maxBreadth) {
-	    final int arity = random.nextInt(maxBreadth + 1);
-	    final Type returnType = getReturnType();
-        final IValue returnValue = returnType.randomValue(random, vf, store, typeParameters, maxDepth, arity);
-	    
-        Name ast = Names.toName("randomFunc", URIUtil.rootLocation("random"));
-        
-        return new AbstractFunction(ast, randomFunctionEvaluator, this, Collections.emptyList(), false, randomFunctionEvaluator.getCurrentEnvt()) {
-            @Override
-            public boolean isStatic() {
-                return false;
-            }
-            
-            @Override
-            public ICallableValue cloneInto(Environment env) {
-                return this;
-            }
-            
-            @Override
-            public boolean isDefault() {
-                return false;
-            }
-            
-            @Override
-            public Result<IValue> call(IRascalMonitor monitor, Type[] argTypes, IValue[] argValues,
-                Map<String, IValue> keyArgValues) {
-                return ResultFactory.makeResult(returnType, returnValue, randomFunctionEvaluator);
-            }
-
-            @Override
-            public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-                return ResultFactory.makeResult(returnType, returnValue, randomFunctionEvaluator);
-            }
-        };
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+			int maxDepth, int maxBreadth) {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("randomValue on FunctionType not yet implemented");
 	}
 }
