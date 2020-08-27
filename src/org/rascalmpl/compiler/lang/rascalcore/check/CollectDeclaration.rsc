@@ -168,11 +168,16 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     commonKeywordParameterList = [ (KeywordFormal) `<Type annoType> <Name name> = 0` ]; // The default expression `0` is arbitrary since a NoSuchAnnotation
                                                                                         // will be thrown before it can be executed
     
-    dt = defType(aadt(adtName, [], dataSyntax()));
+    dt1 = defType(aadt(adtName, [], dataSyntax()));
     
-    dt.commonKeywordFields = commonKeywordParameterList;
-    c.define(adtName, dataId(), current, dt);
-     
+    dt1.commonKeywordFields = commonKeywordParameterList;
+    c.define(adtName, dataId(), current, dt1);
+   
+    //pname = prettyPrintName(name);
+    //dt2 = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
+    //dt2.vis = getVis(current.visibility, publicVis());
+    //if(!isEmpty(tagsMap)) dt2.tags = tagsMap;
+    //c.define(pname, keywordFieldId(), name, dt2);
     
     //pname = prettyPrintName(name);
     //dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
