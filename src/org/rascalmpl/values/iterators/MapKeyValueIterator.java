@@ -10,31 +10,38 @@
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.matching;
+package org.rascalmpl.values.iterators;
 
 import java.util.Iterator;
+import java.util.Map.Entry;
 
-import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IValue;
 
-class NodeChildIterator implements Iterator<IValue> {
-	private INode node;
-	private int index;
+public class MapKeyValueIterator implements Iterator<IValue> {
+	private Iterator<Entry<IValue,IValue>> iter;
+	private Entry <IValue,IValue> prevEntry;
 	
-	NodeChildIterator(INode node){
-		this.node = node;
-		index = 0;
+	public MapKeyValueIterator(IMap map){
+		iter = map.entryIterator();
+		prevEntry = null;
 	}
 
 	public boolean hasNext() {
-		return index < node.arity();
+		return prevEntry != null || iter.hasNext();
 	}
 
 	public IValue next() {
-		return node.get(index++);
+		if(prevEntry == null){
+			prevEntry = iter.next();
+			return prevEntry.getKey();
+		}
+		IValue val = prevEntry.getValue();
+		prevEntry = null;
+		return val;
 	}
 
 	public void remove() {
-		throw new UnsupportedOperationException("remove in NodeChildGenerator");
+		throw new UnsupportedOperationException("remove in MapKeyValueIterator");
 	}
 }

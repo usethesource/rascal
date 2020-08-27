@@ -11,7 +11,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.interpreter.matching;
+package org.rascalmpl.values.iterators;
 
 import java.util.Iterator;
 import java.util.Stack;

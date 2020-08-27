@@ -9,33 +9,32 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.interpreter.matching;
+package org.rascalmpl.values.iterators;
 
 import java.util.Iterator;
 
-import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 
-public class TupleElementIterator implements Iterator<IValue> {
-	private ITuple tuple;
+class NodeChildIterator implements Iterator<IValue> {
+	private INode node;
 	private int index;
 	
-	public TupleElementIterator(ITuple tuple){
-		this.tuple = tuple;
+	NodeChildIterator(INode node){
+		this.node = node;
 		index = 0;
 	}
 
 	public boolean hasNext() {
-		return index < tuple.arity();
+		return index < node.arity();
 	}
 
 	public IValue next() {
-		return tuple.get(index++);
+		return node.get(index++);
 	}
 
 	public void remove() {
-		throw new UnsupportedOperationException("remove in TupleElementGenerator");
+		throw new UnsupportedOperationException("remove in NodeChildGenerator");
 	}
 }

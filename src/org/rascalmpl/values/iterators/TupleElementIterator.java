@@ -9,39 +9,33 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.interpreter.matching;
+package org.rascalmpl.values.iterators;
 
 import java.util.Iterator;
-import java.util.Map.Entry;
 
-import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 
-public class MapKeyValueIterator implements Iterator<IValue> {
-	private Iterator<Entry<IValue,IValue>> iter;
-	private Entry <IValue,IValue> prevEntry;
+public class TupleElementIterator implements Iterator<IValue> {
+	private ITuple tuple;
+	private int index;
 	
-	public MapKeyValueIterator(IMap map){
-		iter = map.entryIterator();
-		prevEntry = null;
+	public TupleElementIterator(ITuple tuple){
+		this.tuple = tuple;
+		index = 0;
 	}
 
 	public boolean hasNext() {
-		return prevEntry != null || iter.hasNext();
+		return index < tuple.arity();
 	}
 
 	public IValue next() {
-		if(prevEntry == null){
-			prevEntry = iter.next();
-			return prevEntry.getKey();
-		}
-		IValue val = prevEntry.getValue();
-		prevEntry = null;
-		return val;
+		return tuple.get(index++);
 	}
 
 	public void remove() {
-		throw new UnsupportedOperationException("remove in MapKeyValueIterator");
+		throw new UnsupportedOperationException("remove in TupleElementGenerator");
 	}
 }
