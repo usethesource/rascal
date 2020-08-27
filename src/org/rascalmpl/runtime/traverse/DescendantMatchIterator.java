@@ -5,9 +5,10 @@ import java.util.Stack;
 
 import org.rascalmpl.interpreter.matching.MapKeyValueIterator;
 import org.rascalmpl.interpreter.matching.TupleElementIterator;
-import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
