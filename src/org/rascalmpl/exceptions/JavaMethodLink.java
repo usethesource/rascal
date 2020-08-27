@@ -11,9 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.exceptions;
 
-import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
-
 public class JavaMethodLink extends RuntimeException {
 	private static final long serialVersionUID = 3867556518416718308L;
 
