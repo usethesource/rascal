@@ -70,7 +70,7 @@ public class ParserGenerator {
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Keywords");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
-			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
+			evaluator.doImport(monitor, "lang::rascal::grammar::definition::SymbolFactory");
 			evaluator.doImport(monitor, "analysis::grammars::Ambiguity");
 		}
 		finally {
