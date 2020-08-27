@@ -19,8 +19,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.rascalmpl.interpreter.StackTraceEntry;
-
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.io.StandardTextWriter;
 
