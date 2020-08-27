@@ -61,10 +61,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
   
     // ---- library helper methods and fields  -------------------------------------------
     // TODO: make pathconfig configurable?
-    private final PathConfig $config = new PathConfig();
+    private final PathConfig $CONFIG = new PathConfig();
     
     // TODO: make classloaders configurable?
-    private final java.util.List<ClassLoader> $loaders = Collections.singletonList(getClass().getClassLoader());
+    private final java.util.List<ClassLoader> $LOADERS = Collections.singletonList(getClass().getClassLoader());
     
     // TODO: make OUT and ERR configurable?
     private final PrintStream $OUT = System.out;
@@ -76,7 +76,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
     // TODO: make monitor configurable?
     private final IRascalMonitor $MONITOR = new NullRascalMonitor();
     
-    private final JavaBridge $JAVABRIDGE = new JavaBridge($loaders, $VF, $config);
+    private final JavaBridge $JAVABRIDGE = new JavaBridge($LOADERS, $VF, $CONFIG);
     
     @SuppressWarnings("unchecked")
     protected <T> T $initLibrary(String className) {
