@@ -98,7 +98,8 @@ public class JavaBridge {
         }
     }
 
-    public synchronized Object getJavaClassInstance(String className, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr, InputStream in){
+    @SuppressWarnings("unchecked")
+    public <T> T getJavaClassInstance(String className, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr, InputStream in){
         PrintWriter[] outputs = new PrintWriter[] { out, err };
         int writers = 0;
 
@@ -112,7 +113,7 @@ public class JavaBridge {
 
                     Object instance = instanceCache.get(clazz);
                     if(instance != null){
-                        return instance;
+                        return (T) instance;
                     }
 
                     if (clazz.getConstructors().length > 1) {
@@ -160,7 +161,7 @@ public class JavaBridge {
 
                     instance = constructor.newInstance(args);
                     instanceCache.put(clazz, instance);
-                    return instance;
+                    return (T) instance;
                 }
                 catch(ClassNotFoundException e){
                     continue;
