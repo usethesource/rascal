@@ -12,7 +12,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Anastasia Izmaylova - A.Izmaylova@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.types;
+package org.rascalmpl.types;
 
 import java.util.Arrays;
 import java.util.Collections;

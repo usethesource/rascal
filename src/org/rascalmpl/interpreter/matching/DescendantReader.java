@@ -16,7 +16,6 @@ package org.rascalmpl.interpreter.matching;
 import java.util.Iterator;
 import java.util.Stack;
 
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -27,6 +26,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 
+import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;

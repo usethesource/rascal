@@ -1,4 +1,4 @@
-package org.rascalmpl.interpreter.types;
+package org.rascalmpl.types;
 
 import io.usethesource.vallang.type.ExternalType;
 import io.usethesource.vallang.type.Type;

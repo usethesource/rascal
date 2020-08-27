@@ -20,8 +20,8 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
@@ -1630,6 +1630,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public Type getType() {
 			return tf.listType(getElementType());
+		}
+		
+		@Override
+		public boolean contains(IValue e) {
+			for (int i = 0; i < length(); i++) {
+				if (get(i).equals(e)) {
+					return true;
+				}
+			}
+			
+			return false;
 		}
 		
 		@Override

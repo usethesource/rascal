@@ -22,7 +22,8 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.types.RascalTypeFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -39,7 +40,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 
 		@Override
 		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			RascalTypeFactory RTF = org.rascalmpl.interpreter.types.RascalTypeFactory
+			RascalTypeFactory RTF = org.rascalmpl.types.RascalTypeFactory
 					.getInstance();
 			Parameters parameters = getParameters();
 			Type kwParams = TF.voidType();
