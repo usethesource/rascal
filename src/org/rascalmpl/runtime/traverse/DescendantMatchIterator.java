@@ -3,8 +3,6 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 import java.util.Iterator;
 import java.util.Stack;
 
-import org.rascalmpl.interpreter.matching.MapKeyValueIterator;
-import org.rascalmpl.interpreter.matching.TupleElementIterator;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalType;
@@ -20,6 +18,8 @@ import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.iterators.MapKeyValueIterator;
+import org.rascalmpl.values.iterators.TupleElementIterator;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;

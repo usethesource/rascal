@@ -9,11 +9,10 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 
-import org.rascalmpl.interpreter.staticErrors.JavaCompilation;
+import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.classloaders.PathConfigClassLoader;
 
-import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 
 public class ExecutionTools<T> {
@@ -45,13 +44,12 @@ public class ExecutionTools<T> {
 			classCache.put(interfaceName, the_interface);
 			return the_class;
 		} catch (JavaCompilerException e) {
-			ISourceLocation loc = null;
 			if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber(), loc);
+		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber(), e);
 		    }
 		    else {
-		        throw new JavaCompilation(e.getMessage(), loc);
+		        throw new JavaCompilation(e.getMessage(), e);
 		    }
 		}
 	}
