@@ -29,6 +29,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.RascalRuntimeValueFactory;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
@@ -99,7 +100,7 @@ public class JavaBridge {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getJavaClassInstance(String className, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr, InputStream in){
+    public <T> T getJavaClassInstance(String className, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr, InputStream in, $RascalModule module){
         PrintWriter[] outputs = new PrintWriter[] { out, err };
         int writers = 0;
 
@@ -151,8 +152,10 @@ public class JavaBridge {
                             args[i] = new ListClassLoader(loaders, getClass().getClassLoader()); 
                         }
                         else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
-                            // TODO: assign current $RascalModule there
-                            args[i] = new RascalRuntimeValueFactory(null);
+                            args[i] = new RascalRuntimeValueFactory(module);
+                        }
+                        else if (formals[i].isAssignableFrom($RascalModule.class)) {
+                            args[i] = module;
                         }
                         else {
                             throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");

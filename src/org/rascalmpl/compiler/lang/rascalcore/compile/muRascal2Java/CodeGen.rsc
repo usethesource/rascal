@@ -93,8 +93,8 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                
     library_inits     = "<for(class <- jg.getImportedLibraries()){
                             libclass = compilerVersionOfLibrary(getQualClassName(class));>
-                            // TODO JURGEN: should be: javaBridge.getJavaClassInstance(\"<libclass>\", $VF, $monitor, $err, $out, this);
-                         'final <libclass> <getBaseClass(class)> = new <libclass>($VF); 
+                            // TODO: getBaseClass will generate name collisions if there are more of the same name in different packages
+                         'final <libclass> <getBaseClass(class)> = $initLibrary(\"<libclass>\"); 
                          '<}>";
                         
     module_extends    =  ""; //!isEmpty(m.extends) ? ", " + intercalate(", ",[ module2class(ext) | ext <- m.extends]) : "";
