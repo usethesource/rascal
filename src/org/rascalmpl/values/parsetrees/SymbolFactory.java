@@ -11,7 +11,7 @@
  *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.interpreter.utils;
+package org.rascalmpl.values.parsetrees;
 
 import java.util.List;
 
@@ -24,6 +24,8 @@ import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
+import org.rascalmpl.interpreter.utils.Names;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -34,9 +36,8 @@ import io.usethesource.vallang.IValueFactory;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
-public class Symbols {
+public class SymbolFactory {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
 	
 	public static IConstructor typeToSymbol(Sym type, boolean lex, String layout) {
