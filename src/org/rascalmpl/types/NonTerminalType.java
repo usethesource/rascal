@@ -23,13 +23,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.types.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -90,7 +90,7 @@ public class NonTerminalType extends RascalType {
 	}
 	
     /*package*/ NonTerminalType(org.rascalmpl.ast.Type type, boolean lex, String layout) {
-		this(Symbols.typeToSymbol(type, lex, layout));
+		this(SymbolFactory.typeToSymbol(type, lex, layout));
 	}
 	
     public static class Reifier implements TypeReifier {
