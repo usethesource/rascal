@@ -93,7 +93,8 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                
     library_inits     = "<for(class <- jg.getImportedLibraries()){
                             libclass = compilerVersionOfLibrary(getQualClassName(class));>
-                         'final <libclass> <getBaseClass(class)> = new <libclass>($VF);
+                            // TODO JURGEN: should be: javaBridge.getJavaClassInstance(\"<libclass>\", $VF, $monitor, $err, $out, this);
+                         'final <libclass> <getBaseClass(class)> = new <libclass>($VF); 
                          '<}>";
                         
     module_extends    =  ""; //!isEmpty(m.extends) ? ", " + intercalate(", ",[ module2class(ext) | ext <- m.extends]) : "";
