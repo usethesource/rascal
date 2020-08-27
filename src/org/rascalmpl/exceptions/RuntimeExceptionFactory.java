@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;

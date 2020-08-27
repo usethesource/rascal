@@ -26,8 +26,8 @@ import java.util.Map;
 
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;

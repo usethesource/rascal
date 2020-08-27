@@ -23,8 +23,8 @@ import org.rascalmpl.ast.Expression.TypedVariable;
 import org.rascalmpl.ast.Expression.TypedVariableBecomes;
 import org.rascalmpl.ast.NullASTVisitor;
 import org.rascalmpl.ast.QualifiedName.Default;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.ast.StringConstant;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
 import org.rascalmpl.values.RascalValueFactory;
 

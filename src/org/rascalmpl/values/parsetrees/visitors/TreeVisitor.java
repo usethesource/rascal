@@ -13,12 +13,12 @@
 *******************************************************************************/
 package org.rascalmpl.values.parsetrees.visitors;
 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 

@@ -28,7 +28,7 @@ import java.util.Vector;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;

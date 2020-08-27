@@ -12,7 +12,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.interpreter.asserts;
+package org.rascalmpl.exceptions;
 
 import io.usethesource.vallang.ISourceLocation;
 

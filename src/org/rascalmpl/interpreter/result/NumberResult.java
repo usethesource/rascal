@@ -16,9 +16,9 @@ import static org.rascalmpl.interpreter.result.IntegerResult.makeStepRangeFromTo
 import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.INumber;

@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.types.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;

@@ -38,20 +38,21 @@ import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.JavaCompilation;
+import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.JavaMethodLink;
 import org.rascalmpl.interpreter.staticErrors.MissingTag;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.RascalType;
+import org.rascalmpl.util.ListClassLoader;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -392,25 +393,25 @@ public class JavaBridge {
 			}
 		} 
 		catch(NoClassDefFoundError e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		}
 		catch (IllegalArgumentException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (InstantiationException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (IllegalAccessException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (InvocationTargetException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (SecurityException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		
-		throw new JavaMethodLink(className, "class not found", func, null);
+		throw new JavaMethodLink(className, "class not found", null);
 	}
 
 	public Method lookupJavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){

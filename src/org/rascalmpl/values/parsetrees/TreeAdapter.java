@@ -26,7 +26,7 @@ import java.util.Map;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.values.RascalValueFactory;

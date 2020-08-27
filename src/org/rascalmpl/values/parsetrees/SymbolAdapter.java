@@ -62,7 +62,7 @@ import static org.rascalmpl.values.RascalValueFactory.Symbol_Tuple;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Value;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Void;
 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
