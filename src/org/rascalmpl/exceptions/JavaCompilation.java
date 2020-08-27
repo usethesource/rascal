@@ -9,20 +9,13 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.interpreter.staticErrors;
+package org.rascalmpl.exceptions;
 
-import org.rascalmpl.ast.AbstractAST;
-import io.usethesource.vallang.ISourceLocation;
-
-public class JavaCompilation extends StaticError {
+public class JavaCompilation extends RuntimeException {
 	private static final long serialVersionUID = 3200356264732532487L;
 
-	public JavaCompilation(String message, AbstractAST ast) {
-		super("Java compilation failed due to " + message, ast);
-	}
-	
-	public JavaCompilation(String message, ISourceLocation loc) {
-		super("Java compilation failed due to " + message, loc);
+	public JavaCompilation(String message, Exception cause) {
+		super("Java compilation failed due to " + message, cause);
 	}
 
 }
