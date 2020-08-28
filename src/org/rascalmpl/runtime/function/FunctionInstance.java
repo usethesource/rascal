@@ -1,18 +1,22 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 
+import java.util.Map;
+
+import org.rascalmpl.values.functions.IFunction;
+
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
-public class FunctionInstance implements IExternalValue {
+public abstract class FunctionInstance implements IFunction {
+	protected final TypeFactory $TF = TypeFactory.getInstance();
+//    private final FunctionType type;
 	
-	final TypeFactory $TF = TypeFactory.getInstance();
-	
-	// IExternalValue methods
+	public FunctionInstance(/*TODO: FunctionType type*/) {
+//	    this.type = type;
+    }
 	
 	@Override
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
@@ -23,19 +27,19 @@ public class FunctionInstance implements IExternalValue {
 	public boolean match(IValue other) {
 		 return this == other;
 	}
-
+	
 	@Override
-	public boolean mayHaveKeywordParameters() {
-		return false; // TODO
+	public boolean equals(Object obj) {
+	    return this == obj;
 	}
 
-	@Override
-	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-		throw new IllegalOperationException("Cannot be viewed as with keyword parameters", getType());
-	}
 
 	@Override
 	public Type getType() {
-		return $TF.valueType(); //TODO
+//	    return type;
+	    return TF.voidType();
 	}
+
+    @Override
+    abstract public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters);
 }
