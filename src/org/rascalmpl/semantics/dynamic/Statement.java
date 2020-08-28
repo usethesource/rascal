@@ -915,7 +915,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			throw new org.rascalmpl.exceptions.Throw(this
 					.getStatement().interpret(__eval).getValue(), __eval
-					.getCurrentAST(), __eval.getStackTrace());
+					.getCurrentAST().getLocation(), __eval.getStackTrace());
 		}
 
 	}
