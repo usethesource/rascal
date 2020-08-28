@@ -156,7 +156,7 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
-                        'import org.rascalmpl.exceptions.Throw; // Dependency on interpreter, make standalone
+                        'import org.rascalmpl.exceptions.Throw; 
                         '//import org.rascalmpl.interpreter.result.util.MemoizationCache;
                         'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
                         'import org.rascalmpl.util.ExpiringFunctionResultCache;
