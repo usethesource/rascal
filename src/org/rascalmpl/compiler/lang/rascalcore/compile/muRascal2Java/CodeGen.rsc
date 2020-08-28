@@ -150,7 +150,6 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                         'import java.util.regex.Matcher;
                         'import io.usethesource.vallang.*;
                         'import io.usethesource.vallang.type.*;
-                        'import org.rascalmpl.ast.AbstractAST;  // Needed for exceptions, should be removed
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.RascalExecutionContext;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
@@ -1736,7 +1735,7 @@ JCode trans(muThrow(muCall(muConstr(ac: acons(aadt("RuntimeException",[],dataSyn
 }
 
 default JCode trans(muThrow(MuExp exp, loc src), JGenie jg){
-    return "throw new Throw(<trans(exp, jg)>, (AbstractAST)null, null);";
+    return "throw new Throw(<trans(exp, jg)>);";
 }
 
 JCode trans(muTry(MuExp exp, MuCatch \catch, MuExp \finally), JGenie jg){
