@@ -15,10 +15,11 @@ package org.rascalmpl.exceptions;
 
 import java.io.IOException;
 
-import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.control_exceptions.ControlException;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -40,28 +41,6 @@ public final class Throw extends ControlException {
 	private volatile ISourceLocation loc;
 	private volatile StackTrace trace;
 	
-	
-	private static String toString(IValue value, int length){
-	    if (value == null) {
-	        return "no exception message";
-	    }
-		StandardTextWriter stw = new StandardTextWriter(true);
-		LimitedResultWriter lros = new LimitedResultWriter(length);
-		
-		try {
-			stw.write(value, lros);
-		}
-		catch (IOLimitReachedException iolrex){
-			// This is fine, ignore.
-		}
-		catch (IOException ioex) {
-			// This can never happen.
-		}
-		
-		return lros.toString();
-	}
-	
-	// It is *not* the idea that these exceptions store references to AbstractAST's!
 	/**
 	 * Make a new Rascal exception.
 	 * 
@@ -79,19 +58,41 @@ public final class Throw extends ControlException {
 		this.trace = trace;
 	}
 	
-  //	 It is *not* the idea that these exceptions store references to AbstractAST's!
 	/**
-	 * Make a new Rascal exception.
-	 * 
-	 * The AbstractAST (if non-null) is used to find the current source location.
-	 *  
-	 * @param value The Rascal exception value
-	 * @param ast An AbstractAST, or null
-	 * @param trace A stack trace, or null
-	 */
-	public Throw(IValue value, AbstractAST ast, StackTrace trace) {
-		this(value, ast != null ? ast.getLocation() : null, trace);
-	}
+     * Make a new Rascal exception.
+     * 
+     * @param value The Rascal exception value
+     * @param loc A source location, or null if unavailable
+     * @param trace A stack trace, or null
+     */
+    public Throw(IValue value) {
+        super(toString(value, 4096));
+        this.exception = value;
+        // TODO: convert top stack frame location to rascal loc 
+        this.loc = URIUtil.rootLocation("TODO");
+        // TODO: convert JVM trace to Rascal trace..
+        this.trace = StackTrace.EMPTY_STACK_TRACE;
+    }
+	
+	private static String toString(IValue value, int length){
+        if (value == null) {
+            return "no exception message";
+        }
+        StandardTextWriter stw = new StandardTextWriter(true);
+        LimitedResultWriter lros = new LimitedResultWriter(length);
+        
+        try {
+            stw.write(value, lros);
+        }
+        catch (IOLimitReachedException iolrex){
+            // This is fine, ignore.
+        }
+        catch (IOException ioex) {
+            // This can never happen.
+        }
+        
+        return lros.toString();
+    }
 	
 	/**
 	 * @return The Rascal stack trace, guaranteed to never be null
