@@ -454,7 +454,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
     } else if (isNodeType(containerType)) {
         return avalue();
     } 
-    s.report(error(field, "computeFieldType: Cannot access fields on type %t", containerType));
+    s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
     return avalue();
 }
 
@@ -607,20 +607,20 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
     return avalue();
 }
 
-AType computeGetAnnotationType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("get annotation", _computeGetAnnotationType, current, t1, t2, s);
-    
-private AType _computeGetAnnotationType(Tree current, AType t1, AType tn, Solver s){
-    if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
-        if(aanno(_, onType, annoType) := tn){
-           return annoType;
-        } else
-            s.report(error(current, "Invalid annotation type: %t", tn));
-    } else {
-        s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
-    }
-    return avalue();
-}
+//AType computeGetAnnotationType(Tree current, AType t1, AType t2, Solver s)
+//    = binaryOp("get annotation", _computeGetAnnotationType, current, t1, t2, s);
+//    
+//private AType _computeGetAnnotationType(Tree current, AType t1, AType tn, Solver s){
+//    if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
+//        if(aanno(_, onType, annoType) := tn){
+//           return annoType;
+//        } else
+//            s.report(error(current, "Invalid annotation type: %t", tn));
+//    } else {
+//        s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
+//    }
+//    return avalue();
+//}
 
 @doc{Calculate the arith type for the numeric types, taking account of coercions.}
 public AType numericArithTypes(AType l, AType r) {

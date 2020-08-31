@@ -1744,7 +1744,7 @@ default AType stripStart(AType s) = s;
 
 bool isConcretePattern(Pattern p) {
     tp = getType(p);
-    return isNonTerminalType(tp) && !(p is callOrTree) && Symbol::sort(_) := tp;
+    return isNonTerminalType(tp) && !(p is callOrTree); // && Symbol::sort(_) := tp;
 }  
 	
 bool isConcreteType(AType subjectType) =
