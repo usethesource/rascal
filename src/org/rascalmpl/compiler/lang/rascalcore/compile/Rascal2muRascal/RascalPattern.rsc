@@ -29,8 +29,6 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 
 //import lang::rascalcore::compile::RVM::Interpreter::ParsingTools;
 
-import analysis::typepal::Utils;
-
 /*
  * Compile the match operator and all possible patterns
  */
