@@ -11,7 +11,6 @@ import String;
 import ParseTree;
 import util::Math;
 
-
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
