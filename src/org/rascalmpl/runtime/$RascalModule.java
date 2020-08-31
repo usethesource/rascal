@@ -127,7 +127,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
                     args[i] = this;
                 }
                 else {
-                    throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
+                    throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore, ClassLoader, PrintWriter, OutputStream, InputStream, &T extends $RascalModule, IRascalValueFactory and TypeFactory are supported");
                 }
             }
 
