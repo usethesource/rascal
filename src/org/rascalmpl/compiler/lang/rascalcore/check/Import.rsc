@@ -78,16 +78,33 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
     
     pathsPlus = {<from, to> | <from, r, to> <- paths}+;
     
-    cyclic = {mloc1, mloc2 | <mloc1, mloc2> <- pathsPlus, mloc1 != mloc2,
-                             <mloc1, importPath(), mloc2> in paths && <mloc2, extendPath(), mloc1> in paths
-                             || <mloc1, extendPath(), mloc2> in paths && <mloc2, importPath(), mloc1> in paths };
-    for(mloc <- cyclic){
-        mname = getModuleName(mloc, moduleStrs, pcfg);
-        set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclic } +
-                         { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclic };
-        ms.messages[mname] =  (ms.messages[mname] ? []) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
+    cyclicExtend = {mloc1, mloc2 | <mloc1, mloc2> <- extendPlus, mloc1 != mloc2,
+                                      <mloc2, extendPath(), mloc1> in paths
+                                   || <mloc1, extendPath(), mloc2> in paths };
+    if(cyclicExtend <= carrier(extendPlus)){
+        for(mloc <- cyclicExtend){
+            mname = getModuleName(mloc, moduleStrs, pcfg);
+            set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- extendPlus, mloc1 == mloc, mloc2 in cyclicExtend } +
+                             { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- extendPlus, mloc2 == mloc , mloc1 in cyclicExtend };
+            if(size(cycle) > 1){
+                ms.messages[mname] =  (ms.messages[mname] ? []) + error("Extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
+            }
+        }
     }
     
+    cyclicMixed = {mloc1, mloc2 | <mloc1, mloc2> <- pathsPlus, mloc1 != mloc2,
+                             <mloc1, importPath(), mloc2> in paths && <mloc2, extendPath(), mloc1> in paths
+                             || <mloc1, extendPath(), mloc2> in paths && <mloc2, importPath(), mloc1> in paths };
+                             
+    for(mloc <- cyclicMixed){
+        mname = getModuleName(mloc, moduleStrs, pcfg);
+        set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclicMixed } +
+                         { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclicMixed };
+        if(size(cycle) > 1){
+            ms.messages[mname] =  (ms.messages[mname] ? []) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
+        }
+    }
+   
     paths += { <c, importPath(), a> | < c, importPath(), b> <- paths,  <b , extendPath(), a> <- paths};
     ms.paths = paths;
    
