@@ -45,6 +45,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.result.SourceLocationResult;
+import org.rascalmpl.interpreter.staticErrors.CyclicExtend;
 import org.rascalmpl.interpreter.staticErrors.ModuleImport;
 import org.rascalmpl.interpreter.staticErrors.ModuleNameMismatch;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -257,7 +258,12 @@ public abstract class Import {
 		GlobalEnvironment heap = eval.__getHeap();
 		ModuleEnvironment other = heap.getModule(name);
 
+		if (heap.isCyclicExtend(name)) {
+		    throw new CyclicExtend(name, heap.getExtendCycle(), x);
+		}
+		
 		try {
+		    heap.pushExtend(name);
 			if (other == null) {
 				// deal with a fresh module that needs initialization
 				heap.addModule(new ModuleEnvironment(name, heap));
@@ -277,6 +283,9 @@ public abstract class Import {
 			if (eval.isInterrupted()) {
 				throw e;
 			}
+		}
+		finally {
+		    heap.popExtend();
 		}
 	}
 	

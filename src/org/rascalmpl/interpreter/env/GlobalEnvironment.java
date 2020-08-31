@@ -16,11 +16,14 @@ package org.rascalmpl.interpreter.env;
 
 import java.net.URI;
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
@@ -52,6 +55,11 @@ public class GlobalEnvironment {
 	private final HashMap<URI, String> locationModules = new HashMap<URI,String>();
 	
 	/**
+	 * For extend cycle detector
+	 */
+	private final Deque<String> extendStack = new ArrayDeque<>();
+	
+	/**
 	 * Source location resolvers map user defined schemes to primitive schemes
 	 */
 	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
@@ -60,8 +68,20 @@ public class GlobalEnvironment {
 	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
 	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
 
-  private boolean bootstrapper;
+	private boolean bootstrapper;
 	
+	public void pushExtend(String module) {
+	    extendStack.push(module);
+	}
+	
+	public void popExtend() {
+	    extendStack.pop();
+	}
+	
+	public boolean isCyclicExtend(String module) {
+	    return extendStack.contains(module);
+	}
+  
 	public void clear() {
 		moduleEnvironment.clear();
 		moduleLocations.clear();
@@ -266,10 +286,14 @@ public class GlobalEnvironment {
 	}
 
 	public void isBootstrapper(boolean b) {
-	  this.bootstrapper = b;
+	    this.bootstrapper = b;
 	}
-	
-  public boolean isBootstrapper() {
-    return bootstrapper;
-  }
+
+	public boolean isBootstrapper() {
+	    return bootstrapper;
+	}
+
+	public List<String> getExtendCycle() {
+        return Collections.unmodifiableList(extendStack.stream().collect(Collectors.toList()));
+	}
 }
