@@ -169,7 +169,7 @@ public data MuExp =
           
           | muGetAnno(MuExp exp, AType resultType, str annoName)
           | muGuardedGetAnno(MuExp exp, AType resultType, str annoName)
-          | muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
+          //| muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
           
           // Fields of data constructors
           | muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
@@ -1119,7 +1119,7 @@ bool shouldFlatten(MuExp arg)
        || muVarInit(MuExp var, MuExp exp) := arg
        || muConInit(MuExp var, MuExp exp) := arg
        || muInsert( AType tp, MuExp exp) := arg
-       || muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg
+       //|| muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg
        || muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl) := arg
        || muEnter(btscope, exp) := arg 
        || muIfelse(cond, thenPart, elsePart) := arg 
@@ -1176,11 +1176,11 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                  newArgs += muInsert(tp, size(post1) == 1 ? post1[0] : muValueBlock(avalue(), post1));
             //} else if (muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor) := arg){
             //   ;  
-            } else if(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg){
-                 <fl1, aux1, pre1, post1> = flattenArgs([repl]);
-                 auxVars += aux1;
-                 pre += pre1;
-                 newArgs += muSetAnno(exp, resultType, annoName, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
+            //} else if(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg){
+            //     <fl1, aux1, pre1, post1> = flattenArgs([repl]);
+            //     auxVars += aux1;
+            //     pre += pre1;
+            //     newArgs += muSetAnno(exp, resultType, annoName, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
             } else if(muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl) := arg){
                  <fl1, aux1, pre1, post1> = flattenArgs([repl]);
                  auxVars += aux1;
@@ -1271,9 +1271,9 @@ MuExp muConInit(MuExp var, MuExp exp)
     = muValueBlock(getType(exp), auxVars + pre + muConInit(var, flatArgs[0]))
     when <true, auxVars, pre, flatArgs> := flattenArgs([exp]) && !isEmpty(pre);
        
-MuExp muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
-    = muValueBlock(resultType, auxVars + pre + muSetAnno(exp, resultType, annoName, flatArgs[0]))
-    when <true, auxVars, pre, flatArgs> := flattenArgs([repl]) && !isEmpty(pre);      
+//MuExp muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
+//    = muValueBlock(resultType, auxVars + pre + muSetAnno(exp, resultType, annoName, flatArgs[0]))
+//    when <true, auxVars, pre, flatArgs> := flattenArgs([repl]) && !isEmpty(pre);      
 
 MuExp muInsert(AType t, MuExp arg)
     = muValueBlock(t, auxVars + pre + muInsert(t, flatArgs[0]))

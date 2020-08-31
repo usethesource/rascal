@@ -634,7 +634,7 @@ str escapeForJRegExp(str s){
 /*****************************************************************************/
 
 str value2IValue(bool b) = "$VF.bool(<b>)";
-str value2IValue(int n) = "$VF.integer(<n>)";
+str value2IValue(int n) = "$VF.integer(\"<n>\")";
 str value2IValue(real r) = "$VF.real(<r>)";
 str value2IValue(rat rt) = "$VF.rational(\"<rt>\")";
 str value2IValue(str s) = "$VF.string(\"<escapeForJ(s)>\")";

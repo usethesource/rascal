@@ -115,7 +115,6 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                         '    this(new ModuleStore());
                         '}
                         '
-                        '@SuppressWarnings(\"unused\")
                         'public <className>(ModuleStore store){
                         '   this.$me = this;
                         '   <for(imp <- m.imports, imp notin m.extends){>
@@ -162,6 +161,7 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                         '
                         '<module_imports>
                         '
+                        '@SuppressWarnings(\"unused\")
                         'public class <className> extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule <module_extends> {
                         '    final Traverse $TRAVERSE = new Traverse($VF);
                         '    private <className> $me;
@@ -977,9 +977,9 @@ JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg)
 JCode trans(muGuardedGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg)
     = "$guarded_annotation_get(<trans(exp, jg)>,\"<annoName>\")";
     
-// muSetAnno
-JCode trans(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl), JGenie jg)
-    = "<trans(exp, jg)>.asWithKeywordParameters().setParameter(\"<annoName>\",<trans(repl, jg)>)";
+//// muSetAnno
+//JCode trans(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl), JGenie jg)
+//    = "<trans(exp, jg)>.asWithKeywordParameters().setParameter(\"<annoName>\",<trans(repl, jg)>)";
 
 // Call/Apply/return      
 
@@ -1847,10 +1847,10 @@ JCode trans(muHasNameAndArity(AType atype, AType consType, MuExp name, int arity
     v = trans(exp, jg);
     switch(consType){
         case aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole):
-            return "((IConstructor)<v>).arity() == <arity> && ((IConstructor)<v>).getType() == <getADTName(adtName)>";
+            return "((IConstructor)<v>).arity() == <arity> && ((IConstructor)<v>).getType().equivalent(<getADTName(adtName)>)";
         case acons(AType adt, list[AType] fields, list[Keyword] kwFields):
             //return "<v> instanceof IConstructor && ((IConstructor)<v>).arity() == <arity> && ((IConstructor)<v>).getName().equals(\"<name>\")";
-            return "((IConstructor)<v>).getConstructorType() == <atype2idpart(consType)>";
+            return "((IConstructor)<v>).getConstructorType().equivalent(<atype2idpart(consType)>)";
         //case anode(_):
         default:
             return "<v> instanceof INode && ((INode)<v>).arity() == <arity> && ((INode)<v>).getName().equals(<trans2NativeStr(name,jg)>)";

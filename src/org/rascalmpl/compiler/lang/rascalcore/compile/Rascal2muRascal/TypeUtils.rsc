@@ -696,6 +696,10 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
         }
     }
     
+    if(adtType.adtName == "Tree" && fieldName == "loc"){
+        return <aloc(), true>;
+    }
+    
     throw "getConstructorInfo, no constructor found for <adtType>, <fieldType>, <fieldName>";
 }
 	

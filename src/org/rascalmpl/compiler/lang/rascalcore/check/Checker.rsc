@@ -75,7 +75,8 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
             c.define("Tree", dataId(), treeScope, defType(TreeType));
             c.enterScope(treeScope);
                 c.define("top", fieldId(), mkTree(2), defType(TreeType));
-            c.leaveScope(treeScope);
+                c.define("src", fieldId(), mkTree(3), defType(aloc()));
+            c.leaveScope(treeScope); 
                
             // Reified type
             if(c.getConfig().classicReifier){
