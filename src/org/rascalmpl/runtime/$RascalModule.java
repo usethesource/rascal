@@ -160,6 +160,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	// ---- add ---------------------------------------------------------------
 
 	public final IValue $add(final IValue lhs, final IValue rhs) {
+	    // TODO: all this switching is unnecessary since INumber.add(INumber)
+	    // implements the same functionality, and faster by double dispatch.
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
