@@ -1,5 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-extend lang::rascalcore::compile::Examples::Tst2;
+import lang::rascal::\syntax::Rascal;
+import IO;
 
-public int Y = 1;
+Type b = (Type) `bool`;
+  
+value main() {
+    iprintln(b);
+    return b@\loc;
+}
