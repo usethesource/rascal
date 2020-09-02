@@ -27,6 +27,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredKeywordParameter;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
@@ -145,6 +146,11 @@ public class ConstructorResult extends NodeResult {
 	    try {
 	        if (getValue().mayHaveKeywordParameters()) { 
 	            Type kwType = store.getKeywordParameterType(getValue().getUninstantiatedConstructorType(), name);
+	            
+	            if (kwType == null) {
+	                throw new UndeclaredKeywordParameter(getValue().getUninstantiatedConstructorType().getName(), name, ctx.getCurrentAST());
+	            }
+	            
 	            IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
 
 	            if (parameter == null) { // the 'default' case, the field is not present, but it is declared 
