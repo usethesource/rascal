@@ -16,3 +16,21 @@ test bool concreteExpressionsHaveSourceLocationsLegacy1()
 test bool concreteExpressionsHaveSourceLocationsLegacy2() 
   = (A) `a`@\loc.length == 1;  
   
+test bool concreteExpressionsHaveSourceLocationsAfterVisitWithMatch()  {
+   assert /int _ := (A) `a`;
+   
+   t = visit((A) `a`) { 
+     case int i => i + 1 
+   }
+
+   return t@\loc?;   
+}  
+
+test bool concreteExpressionsHaveSourceLocationsAfterVisitWithNoMatch()  {
+   t = visit((A) `a`) { 
+     case 1239461234912634 => 123498761234896123 
+   }
+
+   return t@\loc?;   
+} 
+  
