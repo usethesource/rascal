@@ -147,7 +147,7 @@ public PathConfig getDefaultPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(   
-        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */], 
+        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */, |project://rascal/src/org/rascalmpl/library|], 
         bin = |test-modules:///rascal-core-tests-bin-<snpc>|, 
         libs = [|lib://rascal/|]
     );
