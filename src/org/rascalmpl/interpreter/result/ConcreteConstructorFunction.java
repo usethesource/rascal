@@ -52,7 +52,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 			}
 		}
 
-		IConstructor newAppl = getValueFactory().constructor(constructorType, actuals);
+		IConstructor newAppl = getValueFactory().constructor(constructorType, actuals, keyArgValues);
 
 		NonTerminalType concreteType = (NonTerminalType) RascalTypeFactory.getInstance().nonTerminalType(newAppl);
 
