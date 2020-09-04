@@ -48,7 +48,7 @@ default MuExp translateMatch(Pattern pat, Expression exp, BTSCOPES btscopes, MuE
         res = muValueBlock(abool(), [ muConInit(exp_val, expTrans), 
                                        translatePat(pat, expType, exp_val, btscopes, trueCont, falseCont) 
                                      ]);
-        iprintln(res);
+        //iprintln(res);
         return res;
     }
 }
@@ -206,7 +206,7 @@ MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifi
    matcher = muTmpMatcher(nextTmp("matcher"), fuid);
    found = muTmpBool(nextTmp("found"), fuid);
    btscope = nextLabel("REGEXP");
-   println("inStringVisit() : <inStringVisit()>");
+   //println("inStringVisit() : <inStringVisit()>");
    code = [ muConInit(matcher, muRegExpCompile(buildRegExp, subject)),
             //*( inStringVisit() ? [ muRegExpSetRegionInVisit(matcher) ]
             //                   : [] ),
@@ -627,7 +627,7 @@ MuExp translatePat(p:(Pattern) `<QualifiedName name>`, AType subjectType, MuExp 
    if("<name>" == "_"){
       return trueCont;
    }
-   println("qualified name: <name>, <name@\loc>");
+   //println("qualified name: <name>, <name@\loc>");
    var = mkVar(prettyPrintName(name), name@\loc);
    if(isDefinition(name@\loc) && !subjectAssigned){
     return muBlock([muVarInit(var, subjectExp), trueCont]);
@@ -691,7 +691,7 @@ BTINFO getBTInfo(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> 
 }
 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false) {
-   iprintln(btscopes);
+   //iprintln(btscopes);
    str fuid = topFunctionScope();
    subject = muTmpIValue(nextTmp("subject"), fuid, subjectType);
    contExp = trueCont;
@@ -1169,7 +1169,7 @@ tuple[list[MuExp] literals, list[Pattern] toBeMatched, list[Pattern] vars, list[
 */
 
 MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false) {
-    iprintln(btscopes);
+    //iprintln(btscopes);
     try {
         constantPat = translatePatternAsConstant(p);
         return muIfExp(muEqual(subjectExp, muCon(constantPat)), trueCont, falseCont);
@@ -1194,9 +1194,9 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
    fixed = muTmpIValue(nextTmp("fixed"), fuid, subjectType);     // <<<
    subjects = [ muTmpIValue(nextTmp("subject"), fuid, subjectType) | int i <- reverse(index(toBeMatchedPats)) ];
    
-   for(int i <- index(toBeMatchedPats)){
-        println("<i>: <toBeMatchedPats[i]> =\> <subjects[i]>");
-   }
+   //for(int i <- index(toBeMatchedPats)){
+   //     println("<i>: <toBeMatchedPats[i]> =\> <subjects[i]>");
+   //}
    
    MuExp fixedParts = muCon({con | muCon(value con) <- fixedLiterals });
     
@@ -1215,7 +1215,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
                             )
                           : muIfExp(muEqualNativeInt(muSize(subjects[-1], aset(avalue())), muCon(0)), trueCont,  muFail(getResume(my_btscope)))
                           ;
-   iprintln(setPatTrueCont);
+   //iprintln(setPatTrueCont);
    for(int i <- reverse(index(toBeMatchedPats))){
       pat = toBeMatchedPats[i];
       isRightMostPat = (i == rightMostPat);
@@ -1236,7 +1236,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
                                    muFail(getFail(my_btscope)))
                         ]);
    }
-   iprintln(block);
+   //iprintln(block);
    code = muBlock([ muVarInit(subject, subjectExp),
                     *( typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
                                                     block
@@ -1278,7 +1278,7 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType subjectType, M
     str fuid = topFunctionScope();
     subject = muTmpIValue(nextTmp("tuple_subject"), fuid, subjectType);
   
-    iprintln(btscopes);
+    //iprintln(btscopes);
     
     body = trueCont;
     for(int i <- reverse(index(lpats))){
@@ -1382,7 +1382,7 @@ default BTINFO getBTInfoList(Pattern p, BTSCOPE btscope, BTSCOPES btscopes) = ge
 // ---- translate list pattern
 
 MuExp computeFail(Pattern p, list[Pattern] lpats, int i, btscopes, MuExp falseCont){
-    iprintln(btscopes);
+    //iprintln(btscopes);
     if(i < 0) return falseCont;
     resume_elm = getResume(lpats[i], btscopes);
     fail_p = getFail(p, btscopes);
@@ -1390,7 +1390,7 @@ MuExp computeFail(Pattern p, list[Pattern] lpats, int i, btscopes, MuExp falseCo
 }
 
 MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false) {
-    iprintln(btscopes);
+   // iprintln(btscopes);
     lookahead = computeLookahead(p);  
     lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
     npats = size(lpats);
@@ -1410,7 +1410,7 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
     sublen = muTmpInt(subj + "_len", fuid);
     typecheckNeeded = asubtype(getType(p), subjectType);
   
-    iprintln(trueCont);
+    //iprintln(trueCont);
     trueCont = muIfelse(muEqualNativeInt(cursor, sublen), trueCont, muFail(getResume(lpats[-1], btscopes)));
     for(i <- reverse(index(lpats))){
         trueCont = translatePatAsListElem(lpats[i], lookahead[i], subjectType, subject, sublen, cursor, btscopes, 
@@ -1430,7 +1430,7 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
                                falseCont
                               )
                     ]);
-    iprintln(block);
+    //iprintln(block);
     code = muBlock([ *(subjectAssigned ? [muVarInit(subject, subjectExp)] : [muConInit(subject, subjectExp)]),   
                      muVarInit(cursor, muCon(0)), 
                      *(typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
@@ -1440,7 +1440,7 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
                                        : [ block ])
                      ]);
     //code = muEnter(getEnter(p, btscopes), code); // <<
-    iprintln(code);
+    //iprintln(code);
     return code;
 }
 
@@ -1785,10 +1785,10 @@ BTINFO getBTInfo(p:(Pattern) `! <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES b
 }
 
 MuExp translatePat(p:(Pattern) `! <Pattern pattern>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false){
-    iprintln(btscopes);
+    //iprintln(btscopes);
     my_btscope = btscopes[getLoc(p)];
     code = muEnter(my_btscope.enter, translatePat(pattern, subjectType, subjectExp, btscopes, falseCont, trueCont));
-    iprintln(code);
+    //iprintln(code);
     //if(!noSequentialExit(code)){
     //    code = muBlock([code, trueCont]);
     //    iprintln(code);

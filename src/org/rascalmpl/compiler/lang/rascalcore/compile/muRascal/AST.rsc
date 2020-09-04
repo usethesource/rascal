@@ -407,7 +407,7 @@ default AType getType(MuExp exp) = avalue();
 
 bool exitViaReturn(MuExp exp){
     res = exitViaReturn1(exp);
-    println("<exp> ==\> <res>");
+    //println("<exp> ==\> <res>");
     return res;
 }
 
@@ -699,8 +699,8 @@ MuExp insertReturn(MuExp exp, list[str] entered, bool asBool){
     return
           top-down-break visit(exp) { 
                 case muSucceed(enter): {
-                    println("enter: <enter>");
-                    println("entered[-1]: <entered[-1]>");
+                    //println("enter: <enter>");
+                    //println("entered[-1]: <entered[-1]>");
                     if(enter != entered[-1]) fail;
                         insert muReturn1(abool(), muCon(true));
                     }
@@ -729,7 +729,7 @@ MuExp removeDeadCode(MuExp exp)
     = removeDeadCode(exp, []);
     
 MuExp removeDeadCode(MuExp exp, list[str] entered){
-    println("Before removeDeadCode:"); iprintln(exp);
+    //println("Before removeDeadCode:"); iprintln(exp);
     res =  top-down-break visit(exp){
         case muBlock([*MuExp pre, MuExp exp2, *MuExp post]) => muBlock([*pre, exp2]) 
              when !isEmpty(post), 
@@ -748,7 +748,7 @@ MuExp removeDeadCode(MuExp exp, list[str] entered){
         case muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp2) =>
              muForRangeInt(label, var, ifirst, istep, last, removeDeadCode(exp2, label + entered)) when label in entered    
     }
-    println("After removeDeadCode:"); iprintln(res);
+    //println("After removeDeadCode:"); iprintln(res);
     return res;
 }
 
@@ -775,7 +775,7 @@ MuExp negate(MuExp exp, list[str] entered){
 MuExp muReturn1(AType t, me:muEnter(str btscope, MuExp exp)){
     //return muEnter(btscope, muReturn1(t, exp));
     res = muReturn1(t, insertReturn(exp, [btscope], t == abool() || t == avalue()));
-    iprintln(res);
+    //iprintln(res);
     res = noSequentialExit(res) ? res : addReturn(t, false, res); 
     return muEnter(btscope, res);
 } 
@@ -1239,7 +1239,7 @@ default AType getResultType(AType t) = t;
      
 MuExp muOCall3(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
     = muValueBlock(getResultType(atype), auxVars + pre + muOCall3(fun, atype, flatArgs, kwargs, src))
-when <true, auxVars, pre, flatArgs> := flattenArgs(args), bprintln(atype) && !isEmpty(pre);
+when <true, auxVars, pre, flatArgs> := flattenArgs(args), !isEmpty(pre);
 
 MuExp muCallPrim3(str op, AType result, list[AType] details, list[MuExp] args, loc src)
     = muValueBlock(result, auxVars + pre + muCallPrim3(op, result, details, flatArgs, src))

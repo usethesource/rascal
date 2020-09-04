@@ -171,7 +171,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <E
                              //  muBlock([]) // muBreak(whileName)
                             // ])
                              ));
-    iprintln(code);
+    //iprintln(code);
     leaveLoop();
     return code;
 }
@@ -234,7 +234,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     
     conds = [c | Expression c <- generators];
     btscopes = getBTScopesAnd(conds, forName, btscopes);
-    iprintln(btscopes);
+   // iprintln(btscopes);
     loopBody = muEnter(forName, translateAndConds(btscopes, conds, translateLoopBody(body, btscopes), muFail(forName)));
     code = muBlock([]);
     if(containsAppend(body)){ 
@@ -406,8 +406,8 @@ MuExp translateSwitch(s:(Statement) `<Label label> switch ( <Expression expressi
 
     useConcreteFingerprint = hasConcretePatternsOnly(the_cases);
     <case_code, default_code> = translateSwitchCases(switchName, switchVal, fuid, useConcreteFingerprint, the_cases, muSucceedSwitchCase(switchName), btscopes);
-    iprintln(case_code);
-    iprintln(default_code);
+    //iprintln(case_code);
+    //iprintln(default_code);
     
     return muBlock([ muConInit(switchVal, translate(expression)),
                      muSwitch(switchName, switchVal, case_code, default_code, useConcreteFingerprint)
@@ -704,7 +704,7 @@ MuExp translate((Statement) `<Label label> { <Statement+ statements> }`, BTSCOPE
 
 MuExp translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`, BTSCOPES btscopes) { 
     result = translateAssignment(s, btscopes);
-    iprintln(result);
+    //iprintln(result);
     return result;
 } 
 
@@ -752,14 +752,14 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optF
      assignTo(receiver, "=", rhs_type, muCallPrim3("<getOuterType(receiver)>_slice_<getAssignOp(operator)>", getType(receiver), [getType(receiver)], [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs], a@\loc));
 
 MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, str operator,  AType rhs_type, MuExp rhs) {
-    println("a: <getType(a)>");
-    println("receiver: <getType(receiver)>");
-    println("getValues(receiver)[0]: <getValues(receiver)[0]>");
+    //println("a: <getType(a)>");
+    //println("receiver: <getType(receiver)>");
+    //println("getValues(receiver)[0]: <getValues(receiver)[0]>");
     res = 
      getOuterType(receiver) == "atuple" 
      ? assignTo(receiver,  "=", rhs_type, muCallPrim3("update", rhs_type, [getType(receiver)], [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), applyOperator(operator, a, rhs_type, rhs)], a@\loc) )
      : assignTo(receiver, "=", rhs_type, muSetField(getType(a), getType(receiver), getValues(receiver)[0], "<field>", applyOperator(operator, a, rhs_type, rhs)) );
-     println("res:"); iprintln(res);
+     //println("res:"); iprintln(res);
      return res;
 }
 MuExp assignTo(Assignable a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator,  AType rhs_type, MuExp rhs) = 
@@ -820,8 +820,8 @@ list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> [ <Optio
 
 list[MuExp] getValues(Assignable a:(Assignable) `<Assignable receiver> . <Name field>`) { 
     receiverType = getType(receiver);
-    println(receiverType);
-    println(getType(field));
+    //println(receiverType);
+    //println(getType(field));
     ufield = unescape("<field>");
     <consType, isKwp> =  getConstructorInfo(receiverType, getType(field), ufield);
     return isKwp ? [ muGetKwField(consType, receiverType, getValues(receiver)[0], ufield) ]
@@ -897,7 +897,7 @@ MuExp translateReturn(exp:(Statement) `<Expression expression>;`, BTSCOPES btsco
    	    res =  translate(expression);
    	    res = muReturn1(abool(), res);
    	    res = removeDeadCode(res);
-   	    iprintln(res);
+   	    //iprintln(res);
    	    return res;                    
     } else
     if(isConditional(expression) && !backtrackFree(expression)){
@@ -906,11 +906,11 @@ MuExp translateReturn(exp:(Statement) `<Expression expression>;`, BTSCOPES btsco
                                 translateBool(expression.condition, btscopes1, muReturn1(resultType, translate(expression.thenExp)), muBlock([]))),
                         muReturn1(resultType, translate(expression.elseExp))
                       ]);
-        iprintln(res);
+        //iprintln(res);
         return res;
     } else {
         res = muReturn1(resultType, translate(expression));
-        iprintln(res);
+        //iprintln(res);
         //res = exitViaReturn(res) ? res : addReturnFalse(resultType, res); 
         //iprintln(res);
        return res;
