@@ -331,7 +331,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	protected Type bindTypeParameters(Type actualTypes, IValue[] actuals, Type formals, Map<Type, Type> renamings, Environment env) {
 		try {
-			if (actualTypes.isOpen()) {
+		    if (actualTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
 			    // may have the same type variable names as the current scope
 			    actualTypes = renameType(actualTypes, renamings);
@@ -339,10 +339,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			
 			Map<Type, Type> staticBindings = new HashMap<Type, Type>();
 			
-			if (formals.match(actualTypes, staticBindings)) {
-			    env.storeStaticTypeBindings(staticBindings);
-			    // formal parameters do not have to match the static types, they only have to match the dynamic types
-			    // so continue even if the static types do not match. 
+			try {
+			    if (formals.match(actualTypes, staticBindings)) {
+			        env.storeStaticTypeBindings(staticBindings);
+			        // formal parameters do not have to match the static types, they only have to match the dynamic types
+			        // so continue even if the static types do not match. 
+			    }
+			} catch (FactTypeUseException e) {
+			    // this can happen if static types collide
 			}
 			
 			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
