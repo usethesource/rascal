@@ -1,5 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-value main() { //test bool testWhileWithNoAppend() {
-    return  {x = 3; while (x > 0) {x -= 1; }} == [];
+import Set;
+import Exception;
+
+value main(){ //test bool emptySetException1() { 
+    try { 
+        getOneFrom({}); 
+    } catch CallFailed([{}]): 
+        return true; 
+    return false; 
 }

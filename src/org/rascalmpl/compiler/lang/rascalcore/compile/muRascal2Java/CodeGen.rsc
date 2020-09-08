@@ -369,6 +369,7 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
     overload.oname = resolverName;
    
     argTypes = intercalate(", ", ["<atype2javatype(f)> $<i>" | i <- index(formalTypes), f := formalTypes[i]]);
+    actuals = intercalate(", ", ["$<i>" | i <- index(formalTypes)]);
     if(anyKwParams){
         kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
@@ -452,7 +453,7 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
            '<signature>{ // Single-resolver for <prettyAType(funType)> <overload.name>
            '    <if(true /*canFail*/ && !returns_void){><atype2javatype(getResult(funType))> res;<}>
            '    <body><conses>
-           '    <if(/*canFail &&*/ isEmpty(conses) || contains(conses, "if(")){>throw new RuntimeException(\"Cannot resolve call to `<overload.name>`\");<}>
+           '    <if(/*canFail &&*/ isEmpty(conses) || contains(conses, "if(")){>throw RuntimeExceptionFactory.callFailed($VF.list(<actuals>), null, null);<}>
            '}
            '";
 }
