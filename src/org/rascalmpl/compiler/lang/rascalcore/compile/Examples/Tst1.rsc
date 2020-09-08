@@ -1,5 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-int main() {    
-    return (0 | it + e | e <- [1,2,3]);
+value main() { //test bool testWhileWithNoAppend() {
+    return  {x = 3; while (x > 0) {x -= 1; }} == [];
 }
