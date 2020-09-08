@@ -118,3 +118,10 @@ test bool staticTypeParametersKeepElementLabelsAlsoWithSetMatch() {
    return myElem.first == 1 && myElem.second == 2;
 }  
 
+test bool recursiveOverloadedGenericFunction() {
+   str f(int i) = "<i>";
+   str f(map[&K, &V] m) = "(<for (k <- m) {><f(k)>:<f(m[k])>, <}>)";
+   str f(list[&E] l) = "[<for (e <- l) {><f(l)>, <}>]";
+   
+   return f((1:(1:2))) == "(1:(1:2, ), )";
+}
