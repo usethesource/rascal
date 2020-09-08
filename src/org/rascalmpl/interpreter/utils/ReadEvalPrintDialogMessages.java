@@ -139,8 +139,9 @@ public class ReadEvalPrintDialogMessages {
         catch (IOException e1) {
             out.println("Error printing stack trace");
         }
-		e.printStackTrace(new PrintWriter(out));
+		e.printStackTrace(out);
 		out.println();
+		out.flush();
 	}
 	
 	public static void parseOrStaticOrThrowMessage(PrintWriter out, RuntimeException e, StandardTextWriter prettyPrinter) {
