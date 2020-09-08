@@ -350,6 +350,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			}
 			
 			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
+			
 			for (int i = 0; i < formals.getArity(); i++) {
 			    if (!formals.getFieldType(i).match(actuals[i].getType(), dynamicBindings)) {
 			        throw new MatchFailed();
