@@ -278,16 +278,16 @@ public class RascalFunction extends NamedFunction {
                 actuals = computeVarArgsActuals(actuals, getFormals());
                 actualTypesTuple = computeVarArgsActualTypes(actualStaticTypes, getFormals());
             }
-            actualTypesTuple = bindTypeParameters(actualTypesTuple, actuals, getFormals(), renamings, environment);
-
+         
             int size = actuals.length;
             Environment[] olds = new Environment[size];
             int i = 0;
 
-
             if (!hasVarArgs && size != this.formals.size()) {
                 throw new MatchFailed();
             }
+            
+            actualTypesTuple = bindTypeParameters(actualTypesTuple, actuals, getFormals(), renamings, environment);
 
             if (size == 0) {
                 try {
