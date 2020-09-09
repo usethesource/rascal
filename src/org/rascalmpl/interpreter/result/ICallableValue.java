@@ -61,6 +61,28 @@ public interface ICallableValue extends IExternalValue, IFunction {
 	        throw RuntimeExceptionFactory.callFailed(URIUtil.rootLocation("anonymous"), Arrays.stream(parameters).collect(vf.listWriter()));
 	    }
 	}
+
+	@SuppressWarnings("unchecked")
+    @Override
+	default <T extends IValue> T monitoredCall(IRascalMonitor monitor, Map<String, IValue> keywordParameters,
+	    IValue... parameters) {
+	    Type[] types = Arrays.stream(parameters).map(v -> v.getType()).toArray(Type[]::new);
+
+        try {
+            Result<IValue> result = call(monitor, types, parameters, keywordParameters);
+
+            if (result.getType().isBottom()) {
+                return null;
+            }
+            else {
+                return (T) result.getValue();
+            }
+        }
+        catch (MatchFailed e) {
+            IValueFactory vf = IRascalValueFactory.getInstance();
+            throw RuntimeExceptionFactory.callFailed(URIUtil.rootLocation("anonymous"), Arrays.stream(parameters).collect(vf.listWriter()));
+        }
+	}
 	
 	public abstract ICallableValue cloneInto(Environment env);
 	
