@@ -214,7 +214,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
-	    // TODO Auto-generated method stub
 	    synchronized (ctx.getEvaluator()) {
 	        return ICallableValue.super.call(keywordParameters, parameters);
 	    }
