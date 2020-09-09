@@ -41,11 +41,11 @@ map[str, list[MuExp]] resolved2external = ();
 // Generate code and test class for a single Rascal module
 
 tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
-for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"); }
+//for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"); }
     muFunctions = (f.uniqueName : f | f <- m.functions);
     muFunctionsByLoc = (f.src : f | f <- m.functions);
     resolved2overloaded = ();
-    iprintln(m.overloaded_functions);
+    //iprintln(m.overloaded_functions);
     moduleScopes = range(moduleLocs); //{ s |tm <- range(tmodels), s <- tm.scopes, tm.scopes[s] == |global-scope:///| };
     
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
@@ -110,7 +110,7 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
     module_ext_inits  = "<for(ext <- m.extends){>
                         '<module2field(ext)> = <module2class(ext)>.extend<getBaseClass(ext)>(this);
                         '<}>";
-    iprintln(m.initialization);
+    //iprintln(m.initialization);
     class_constructor = "public <className>(){
                         '    this(new ModuleStore());
                         '}
@@ -240,7 +240,7 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
 alias OF5 = tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
 
 tuple[rel[str,AType,str], list[OF5]] mergeOverloadedFunctions(list[OF5] overloadedFunctions){
-    iprintln(overloadedFunctions);
+    //iprintln(overloadedFunctions);
     overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
     mergedNames = {};
     allFuns = [];
@@ -281,7 +281,7 @@ tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions)
 
 str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleScopes, JGenie jg){
     overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
-    iprintln(overloadedFunctions, lineLimit=10000);
+    //iprintln(overloadedFunctions, lineLimit=10000);
     all_resolvers = "";
     for(fname <- toSet(overloadsWithName<0>), /*!isClosureName(fname),*/ fname != "type", !isMainName(fname)){
         for(OF5 overload <- overloadsWithName[fname]){ 
@@ -295,7 +295,7 @@ str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleScopes, JGenie jg
 
 bool leadToSameJavaType(AType t1, AType t2) {
     r = leadToSameJavaType1(t1, t2);
-    println("leadToSameJavaType(<t1>, <t2>) ==\> <r>");
+    //println("leadToSameJavaType(<t1>, <t2>) ==\> <r>");
     return r;
 }
 
@@ -616,8 +616,8 @@ bool ignoreCompiler(map[str,str] tagsMap)
 
 
 JCode trans(MuFunction fun, JGenie jg){
-    iprintln(fun);
-    println("trans: <fun.src>, <jg.getModuleLoc()>");
+    //iprintln(fun);
+    //println("trans: <fun.src>, <jg.getModuleLoc()>");
     
     if(!isContainedIn(fun.src, jg.getModuleLoc()) )return "";
     
@@ -1108,7 +1108,7 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AT
 }
 
 JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
-println("muOCall3((<fun>, <ftype>, ..., <src>");
+//println("muOCall3((<fun>, <ftype>, ..., <src>");
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     if(muOFun(str fname, AType _) := fun){
         externalVars = jg.getExternalVarsResolver(fname);
@@ -1159,7 +1159,7 @@ JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str f
 default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
     base = transWithCast(consType, cons, jg);
     qFieldName = "\"<fieldName>\"";
-    println("muGetField: <resultType>, <consType>, <fieldName>");
+    //println("muGetField: <resultType>, <consType>, <fieldName>");
     isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
     return isConsKwField ? "$get_<consType.adt.adtName>_<getJavaName(consType.label)>_<getJavaName(fieldName)>(<base>)"
                          : "$get_<consType.adt.adtName>_<getJavaName(fieldName)>(<base>)";
@@ -1517,7 +1517,7 @@ JCode trans(muSucceed(str label), JGenie jg)
 
 JCode trans(muFail(str label), JGenie jg){
     if(startsWith(jg.getFunctionName(), label)){    // TODO:this is brittle, solve in JGenie
-        println(jg.getFunction().ftype);
+       // println(jg.getFunction().ftype);
         return jg.getFunction().ftype.ret == avoid() ? "throw new FailReturnFromVoidException();"
                                                      : "return null;";
     }

@@ -214,3 +214,5 @@ test bool ambiguousParameter1() =
     declarationError("int getN(f(s, n)) = n;", 
             initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
 	
+test bool listWithWrongArity() =
+    checkOK("list[int,str] x = []");
