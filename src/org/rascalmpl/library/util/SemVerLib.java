@@ -23,7 +23,7 @@ public class SemVerLib {
 		try {
 			return new SemVer(version.getValue());
 		} catch(Exception e){
-			throw RuntimeExceptionFactory.illegalArgument(version, null, null);
+			throw RuntimeExceptionFactory.illegalArgument(version);
 		}
 	}
 	
@@ -31,7 +31,7 @@ public class SemVerLib {
 		try {
 			return vf.bool(makeSemVer(version).satisfiesVersion(rangeSet.getValue()));
 		} catch(Exception e){
-			throw RuntimeExceptionFactory.illegalArgument(rangeSet, null, null);
+			throw RuntimeExceptionFactory.illegalArgument(rangeSet);
 		}
 	}
 
