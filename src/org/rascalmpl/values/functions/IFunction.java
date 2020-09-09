@@ -15,6 +15,8 @@ package org.rascalmpl.values.functions;
 import java.util.Collections;
 import java.util.Map;
 
+import org.rascalmpl.debug.IRascalMonitor;
+
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
 
@@ -39,5 +41,25 @@ public interface IFunction extends IExternalValue {
     @SuppressWarnings("unchecked")
     default <T extends IValue> T call(IValue... parameters) {
         return (T) call(Collections.emptyMap(), parameters);
+    }
+    
+    /**
+     * Invokes the receiver function in the context of a new instance of IRascalMonitor.
+     * This allows clients to send cancellation requests and observe progress through the
+     * monitor's callback functions.
+     */
+    @SuppressWarnings("unchecked")
+    default <T extends IValue> T monitoredCall(IRascalMonitor monitor, Map<String, IValue> keywordParameters, IValue... parameters) {
+        return (T) call(keywordParameters, parameters);
+    }
+    
+    /**
+     * Invokes the receiver function in the context of a new instance of IRascalMonitor.
+     * This allows clients to send cancellation requests and observe progress through the
+     * monitor's callback functions.
+     */
+    @SuppressWarnings("unchecked")
+    default <T extends IValue> T monitoredCall(IRascalMonitor monitor, IValue... parameters) {
+        return (T) monitoredCall(monitor, Collections.emptyMap(), parameters);
     }
 }
