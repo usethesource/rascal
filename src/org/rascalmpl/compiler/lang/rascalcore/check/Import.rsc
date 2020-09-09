@@ -184,7 +184,6 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
             mloc = getModuleLocation(qualifiedModuleName, pcfg);                    
             if(logImports) println("*** parsing <qualifiedModuleName> from <mloc>");
             pt = parseModuleWithSpaces(mloc).top;
-            iprintln(pt);
             ms.modules[qualifiedModuleName] = pt;
             ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
         }

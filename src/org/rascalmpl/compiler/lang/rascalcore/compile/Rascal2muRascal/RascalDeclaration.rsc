@@ -283,7 +283,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       //  tbody = muReturn1(resultType, tbody);
       //}
       
-      iprintln(tbody);
+      //iprintln(tbody);
       
       addFunctionToModule(muFunction(prettyPrintName(fd.signature.name), 
                                      fuid, 
@@ -415,7 +415,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      str fuid = topFunctionScope();
      bt = nextTmp("FUNCTION_<fname>");
      my_btscopes = getBTScopesParams(formalsList, fname);
-     iprintln(body);
+    // iprintln(body);
    
     
      
@@ -426,7 +426,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      
      iprintln(body);
      when_body = returnFromFunction(body, ftype, formalVars, isMemo, addReturn=addReturn);
-     iprintln(when_body);
+     //iprintln(when_body);
      if(!isEmpty(when_conditions)){
         when_body = translateAndConds((), when_conditions, when_body, muFailReturn(ftype));
      }
@@ -439,7 +439,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      
      funCode = removeDeadCode(funCode);
     
-     iprintln(funCode);
+     //iprintln(funCode);
      alwaysReturns = ftype.returnsViaAllPath || isVoidType(getResult(ftype));
      formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
      if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){

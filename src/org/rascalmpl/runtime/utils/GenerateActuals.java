@@ -41,9 +41,9 @@ public class GenerateActuals {
 				Stream.generate(() -> 
 				{ IValue[] values = new IValue[formals.length];
 				for (int n = 0; n < values.length; n++) {
-					System.err.print("n = " + n + ", types[n] = " + types[n]);
+//					System.err.print("n = " + n + ", types[n] = " + types[n]);
 					values[n] = types[n].randomValue(random, $VF, $TS, tpbindings, maxDepth, maxWidth);
-					System.err.println(", values[n] = " + values[n]);
+//					System.err.println(", values[n] = " + values[n]);
 				}
 				return values;
 				});

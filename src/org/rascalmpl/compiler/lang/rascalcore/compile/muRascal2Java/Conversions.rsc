@@ -640,7 +640,6 @@ str value2IValue(rat rt) = "$VF.rational(\"<rt>\")";
 str value2IValue(str s) = "$VF.string(\"<escapeForJ(s)>\")";
 
 str value2IValue(loc l) {
-
     base = "$create_aloc($VF.string(\"<l.uri>\"))";
     return l.offset? ? "$VF.sourceLocation(<base>, <l.offset>, <l.length>, <l.begin.line>, <l.end.line>, <l.begin.column>, <l.end.column>)"
                       : base;
@@ -712,7 +711,7 @@ str value2IValue(acons(AType adt,
 
 str value2IValue(t:avoid()) { throw "value2IValue: cannot handle <t>"; }
 str value2IValue(t:areified(AType atype)) { throw "value2IValue: cannot handle <t>"; }
-default str value2IValue(AType t) { throw "value2IValue: cannot handle <t>"; }
+default str value2IValue(value v) { throw "value2IValue: cannot handle <v>"; }
 
 /*****************************************************************************/
 /*  Convert a Rascal value to Java equivalent of its outer type              */
