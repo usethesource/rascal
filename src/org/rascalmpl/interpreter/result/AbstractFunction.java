@@ -219,6 +219,20 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	    }
 	}
 	
+	@Override
+    public <T extends IValue> T monitoredCall(IRascalMonitor monitor, Map<String, IValue> keywordParameters, IValue... parameters) {
+           synchronized (ctx.getEvaluator()) {
+                return ICallableValue.super.monitoredCall(monitor, keywordParameters, parameters);
+            }
+    }
+	
+	@Override
+	public <T extends IValue> T monitoredCall(IRascalMonitor monitor, IValue... parameters) {
+	    synchronized (ctx.getEvaluator()) {
+	        return ICallableValue.super.monitoredCall(monitor, Collections.emptyMap(), parameters);
+	    }
+	}
+	
 	private boolean mayMatchVarArgsFunction(Type actuals) {
 		int arity = getFormals().getArity();
 		int i;
