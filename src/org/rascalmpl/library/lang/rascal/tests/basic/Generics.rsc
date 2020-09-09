@@ -2,6 +2,7 @@
 module lang::rascal::tests::basic::Generics
 
 import Exception;
+import util::Maybe;
 
 data Wrapper[&SAME] = something(&SAME wrapped);
 alias Graph[&SAME] = rel[&SAME from, &SAME to];
@@ -118,3 +119,24 @@ test bool staticTypeParametersKeepElementLabelsAlsoWithSetMatch() {
    return myElem.first == 1 && myElem.second == 2;
 }  
 
+test bool recursiveOverloadedGenericFunction() {
+   str f(int i) = "<i>";
+   str f(map[&K, &V] m) = "(<for (k <- m) {><f(k)>:<f(m[k])>, <}>)";
+   str f(list[&E] l) = "[<for (e <- l) {><f(l)>, <}>]";
+   
+   return f((1:(1:2))) == "(1:(1:2, ), )";
+}
+
+test bool voidMaybeShouldNotMatch() {
+   &T get(Maybe[&T] m) = m.val;
+   
+   try {
+      example = nothing();
+      value x = get(example); // return type of `get` binds to `void` dynamically
+      return x != 123; // this never happens
+   }
+   catch CallFailed([nothing()]) :
+     return true;
+     
+   return false;  
+}
