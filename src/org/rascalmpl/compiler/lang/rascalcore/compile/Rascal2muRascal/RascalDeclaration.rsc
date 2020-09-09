@@ -424,7 +424,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];
      
-     iprintln(body);
+     //iprintln(body);
      when_body = returnFromFunction(body, ftype, formalVars, isMemo, addReturn=addReturn);
      //iprintln(when_body);
      if(!isEmpty(when_conditions)){
