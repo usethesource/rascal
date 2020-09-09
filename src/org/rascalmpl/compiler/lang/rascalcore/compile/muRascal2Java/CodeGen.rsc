@@ -93,7 +93,8 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                
     library_inits     = "<for(class <- jg.getImportedLibraries()){
                             libclass = compilerVersionOfLibrary(getQualClassName(class));>
-                         'final <libclass> <getBaseClass(class)> = new <libclass>($VF);
+                            // TODO: getBaseClass will generate name collisions if there are more of the same name in different packages
+                         'final <libclass> <getBaseClass(class)> = $initLibrary(\"<libclass>\"); 
                          '<}>";
                         
     module_extends    =  ""; //!isEmpty(m.extends) ? ", " + intercalate(", ",[ module2class(ext) | ext <- m.extends]) : "";
@@ -148,15 +149,14 @@ for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"
                         'import java.util.regex.Matcher;
                         'import io.usethesource.vallang.*;
                         'import io.usethesource.vallang.type.*;
-                        'import org.rascalmpl.ast.AbstractAST;  // Needed for exceptions, should be removed
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.RascalExecutionContext;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
-                        'import org.rascalmpl.interpreter.control_exceptions.Throw; // Dependency on interpreter, make standalone
+                        'import org.rascalmpl.exceptions.Throw; 
                         '//import org.rascalmpl.interpreter.result.util.MemoizationCache;
-                        'import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+                        'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
                         'import org.rascalmpl.util.ExpiringFunctionResultCache;
                         '
                         '<module_imports>
@@ -1736,7 +1736,7 @@ JCode trans(muThrow(muCall(muConstr(ac: acons(aadt("RuntimeException",[],dataSyn
 }
 
 default JCode trans(muThrow(MuExp exp, loc src), JGenie jg){
-    return "throw new Throw(<trans(exp, jg)>, (AbstractAST)null, null);";
+    return "throw new Throw(<trans(exp, jg)>);";
 }
 
 JCode trans(muTry(MuExp exp, MuCatch \catch, MuExp \finally), JGenie jg){

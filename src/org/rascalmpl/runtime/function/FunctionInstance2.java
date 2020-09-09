@@ -1,6 +1,10 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 
-public class FunctionInstance2<R,A,B> extends FunctionInstance {
+import java.util.Map;
+
+import io.usethesource.vallang.IValue;
+
+public class FunctionInstance2<R extends IValue,A,B> extends FunctionInstance {
 	
 	private final Function2<R,A,B> function;
 
@@ -10,5 +14,10 @@ public class FunctionInstance2<R,A,B> extends FunctionInstance {
 	
 	public R call(A a, B b) {
 		return function.call(a, b);
+	}
+	
+	@Override
+	public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
+	    return call(parameters[0], parameters[1]);
 	}
 }

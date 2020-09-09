@@ -1,29 +1,35 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.Type2ATypeReifier;
-import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
-import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.JavaMethodLink;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.util.ToplevelType;
+import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -43,17 +49,95 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.InvalidDateTimeException;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 
 public abstract class $RascalModule extends Type2ATypeReifier {
 	
+    
 	/*************************************************************************/
 	/*		Utilities for generated code									 */
 	/*************************************************************************/
   
+    // ---- library helper methods and fields  -------------------------------------------
+    // TODO: make OUT and ERR configurable?
+    private final PrintStream $OUT = System.out;
+    private final PrintWriter $OUTWRITER = new PrintWriter($OUT);
+    private final PrintStream $ERR = System.err;
+    private final PrintWriter $ERRWRITER = new PrintWriter($ERR);
+    private final InputStream $IN = System.in;
+    
+    // TODO: make monitor configurable?
+    private final IRascalMonitor $MONITOR = new NullRascalMonitor();
+    
+    @SuppressWarnings("unchecked")
+    protected <T> T $initLibrary(String className) {
+        PrintWriter[] outputs = new PrintWriter[] { $OUTWRITER, $ERRWRITER };
+        int writers = 0;
+
+        OutputStream[] rawOutputs = new OutputStream[] { $OUT, $ERR };
+        int rawWriters = 0;
+
+        try{
+            Class<?> clazz = getClass().getClassLoader().loadClass(className);
+
+            if (clazz.getConstructors().length > 1) {
+                throw new IllegalArgumentException("Rascal JavaBridge can only deal with one constructor. This class has multiple: " + clazz);
+            }
+
+            Constructor<?> constructor = clazz.getConstructors()[0];
+
+            Object[] args = new Object[constructor.getParameterCount()];
+            Class<?>[] formals = constructor.getParameterTypes();
+
+            for (int i = 0; i < constructor.getParameterCount(); i++) {
+                if (formals[i].isAssignableFrom(IValueFactory.class)) {
+                    args[i] = $VF;
+                }
+                else if (formals[i].isAssignableFrom(TypeStore.class)) {
+                    args[i] = $TS;
+                }
+                else if (formals[i].isAssignableFrom(TypeFactory.class)) {
+                    args[i] = TypeFactory.getInstance();
+                }
+                else if (formals[i].isAssignableFrom(PrintWriter.class)) {
+                    args[i] = outputs[writers++ % 2];
+                }
+                else if (formals[i].isAssignableFrom(OutputStream.class)) {
+                    args[i] = rawOutputs[rawWriters++ %2];
+                }
+                else if (formals[i].isAssignableFrom(InputStream.class)) {
+                    args[i] = $IN;
+                }
+                else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
+                    args[i] = $MONITOR;
+                }
+                else if (formals[i].isAssignableFrom(ClassLoader.class)) {
+                    args[i] = getClass().getClassLoader();
+                }
+                else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
+                    args[i] = new RascalRuntimeValueFactory(this);
+                }
+                else if (formals[i].isAssignableFrom($RascalModule.class)) {
+                    args[i] = this;
+                }
+                else {
+                    throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore, ClassLoader, PrintWriter, OutputStream, InputStream, &T extends $RascalModule, IRascalValueFactory and TypeFactory are supported");
+                }
+            }
+
+            return (T) constructor.newInstance(args);
+        }
+        catch (ClassNotFoundException | NoClassDefFoundError | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException e) {
+            throw new JavaMethodLink(className, e.getMessage(), e);
+        }
+    }
+    
 	// ---- utility methods ---------------------------------------------------
 
 	public final IMap $buildMap(final IValue...values){
@@ -76,6 +160,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	// ---- add ---------------------------------------------------------------
 
 	public final IValue $add(final IValue lhs, final IValue rhs) {
+	    // TODO: all this switching is unnecessary since INumber.add(INumber)
+	    // implements the same functionality, and faster by double dispatch.
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
