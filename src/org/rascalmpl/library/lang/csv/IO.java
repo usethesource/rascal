@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;

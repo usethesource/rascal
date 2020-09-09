@@ -11,7 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.control_exceptions;
 
-import org.rascalmpl.interpreter.StackTrace;
+import org.rascalmpl.exceptions.StackTrace;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class InterruptException extends ControlException {

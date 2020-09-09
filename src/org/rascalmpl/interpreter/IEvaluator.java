@@ -34,7 +34,7 @@ import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;

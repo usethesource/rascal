@@ -19,7 +19,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.function.BiFunction;
 
-import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.exceptions.Throw;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;

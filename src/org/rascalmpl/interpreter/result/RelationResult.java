@@ -19,13 +19,14 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.rascalmpl.ast.Field;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.Arity;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IRelation;
@@ -441,7 +442,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 				}
 
 				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getType().getElementType().isBottom())) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(fieldIndices[i]),
 									ctx.getCurrentAST(), ctx.getStackTrace());
 				}

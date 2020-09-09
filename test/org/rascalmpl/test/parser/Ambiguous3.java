@@ -25,9 +25,10 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextReader;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 /*
 S ::= AA
 A ::= aa | a

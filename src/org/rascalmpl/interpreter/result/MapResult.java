@@ -21,12 +21,13 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.rascalmpl.ast.Field;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
@@ -307,7 +308,7 @@ public class MapResult extends ElementResult<IMap> {
 			}
 
 			if (fieldIndices[i] < 0 || fieldIndices[i] > 1) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(fieldIndices[i]),
 								ctx.getCurrentAST(), ctx.getStackTrace());
 			}

@@ -20,12 +20,12 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.io.IValueAdapter;
 import org.rascalmpl.library.lang.json.io.JSONReadingTypeVisitor;
 import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;

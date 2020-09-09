@@ -21,7 +21,9 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -47,7 +49,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 @SuppressWarnings("rawtypes")
 public class JSONReadingTypeVisitor implements

@@ -14,7 +14,7 @@ package org.rascalmpl.library.util;
 
 import java.io.IOException;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.util.HeapDumper;

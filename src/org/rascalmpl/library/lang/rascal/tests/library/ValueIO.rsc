@@ -144,14 +144,14 @@ loc parsetree1 = |test-temp:///parsetree1-<"<uuidi()>">.test|;
 
 @Ignore{FOR NOW}
 test bool writingParseTreeWorks() {
-	t = parseNamedModuleWithSpaces("lang::rascal::syntax::Rascal");
+	t = parseNamedModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
 	writeBinaryValueFile(parsetree1, t);
 	return readBinaryValueFile(parsetree1) == t;
 }
 
 @Ignore{FOR NOW}
 test bool writingParseTreeWorksWithoutCompression() {
-	t = parseNamedModuleWithSpaces("lang::rascal::syntax::Rascal");
+	t = parseNamedModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
 	writeBinaryValueFile(parsetree1, t, compression=false);
 	return readBinaryValueFile(parsetree1) == t;
 }

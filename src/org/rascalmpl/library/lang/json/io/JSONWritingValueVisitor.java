@@ -2,7 +2,7 @@ package org.rascalmpl.library.lang.json.io;
 
 import java.io.IOException;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.Factory;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;

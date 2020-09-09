@@ -23,6 +23,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
@@ -32,7 +34,6 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -128,6 +129,13 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	  finally {
 	    ctx.getEvaluator().setMonitor(old);
 	  }
+	}
+	
+	@Override
+	public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
+	    synchronized (ctx.getEvaluator()) {
+	        return ICallableValue.super.call(keywordParameters, parameters);
+	    }
 	}
 	
 	@Override
