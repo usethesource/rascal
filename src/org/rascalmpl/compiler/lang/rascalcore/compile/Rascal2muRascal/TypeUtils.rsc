@@ -353,7 +353,7 @@ void extractScopes(TModel tm){
     declares = invert(toRel(declaredIn));
     
     // Determine position of variables inside functions
-    iprintln(functions);
+   //iprintln(functions);
     for(fun <- functions){   
         fundef = definitions[fun];
         //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
