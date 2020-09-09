@@ -15,7 +15,7 @@
 
 package org.rascalmpl.library;
 
-import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
+import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -55,40 +55,33 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.repl.LimitedLineWriter;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
-import org.rascalmpl.values.util.IsEqualsAdapter;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
@@ -125,16 +118,18 @@ import io.usethesource.vallang.type.TypeStore;
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	protected final IValueFactory values;
+	protected final IRascalValueFactory rascalValues;
 	private final Random random;
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
     private final PrintWriter err;
 	
-	public Prelude(IValueFactory values, PrintWriter out, PrintWriter err){
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, PrintWriter err){
 		super();
 		
 		this.values = values;
+		this.rascalValues = rascalValues;
 		this.out = out;
 		this.err = err;
 		this.tr = new TypeReifier(values);
@@ -784,13 +779,13 @@ public class Prelude {
 	 * Graph
 	 */
 	
-	private Map<IsEqualsAdapter,Distance> distance;
-	private Map<IsEqualsAdapter, IsEqualsAdapter> pred;
-	private Set<IsEqualsAdapter> settled;
-	private PriorityQueue<IsEqualsAdapter> Q;
+	private Map<IValue,Distance> distance;
+	private Map<IValue, IValue> pred;
+	private Set<IValue> settled;
+	private PriorityQueue<IValue> Q;
 	private int MAXDISTANCE = 10000;
 	
-	private Map<IsEqualsAdapter, LinkedList<IsEqualsAdapter>> adjacencyList;
+	private Map<IValue, LinkedList<IValue>> adjacencyList;
 	
 	private void buildAdjacencyListAndDistance(ISet G){
 		adjacencyList = new HashMap<> ();
@@ -798,15 +793,15 @@ public class Prelude {
 		
 		for(IValue v : G){
 			ITuple tup = (ITuple) v;
-			IsEqualsAdapter from = new IsEqualsAdapter(tup.get(0));
-			IsEqualsAdapter to = new IsEqualsAdapter(tup.get(1));
+			IValue from = tup.get(0);
+			IValue to = tup.get(1);
 			
 			if(distance.get(from) == null)
 				distance.put(from, new Distance(MAXDISTANCE));
 			if(distance.get(to) == null)
 				distance.put(to, new Distance(MAXDISTANCE));
 			
-			LinkedList<IsEqualsAdapter> adjacencies = adjacencyList.computeIfAbsent(from, (k) -> new LinkedList<>());
+			LinkedList<IValue> adjacencies = adjacencyList.computeIfAbsent(from, (k) -> new LinkedList<>());
 			adjacencies.add(to);
 			adjacencyList.put(from, adjacencies);
 		}
@@ -814,7 +809,7 @@ public class Prelude {
 	
 	public IValue shortestPathPair(ISet G, IValue From, IValue To){
 		buildAdjacencyListAndDistance(G);
-		IsEqualsAdapter start = new IsEqualsAdapter(From);
+		IValue start = From;
 		distance.put(start, new Distance(0));
 		
 		pred = new HashMap<>();
@@ -823,8 +818,8 @@ public class Prelude {
 		Q.add(start);
 		
 		while(!Q.isEmpty()){
-			IsEqualsAdapter u = Q.remove();
-			if(u.getValue().equals(To)) {	
+			IValue u = Q.remove();
+			if(u.equals(To)) {	
 				return extractPath(start, u);
 			}
 			settled.add(u);
@@ -833,10 +828,10 @@ public class Prelude {
 		return values.list();
 	}
 	
-	private void relaxNeighbours(IsEqualsAdapter u){
-		LinkedList<IsEqualsAdapter> adjacencies = adjacencyList.get(u);
+	private void relaxNeighbours(IValue u){
+		LinkedList<IValue> adjacencies = adjacencyList.get(u);
 		if(adjacencies != null) {
-			for(IsEqualsAdapter v : adjacencyList.get(u)){
+			for(IValue v : adjacencyList.get(u)){
 				if(!settled.contains(v)){
 					Distance dv = distance.get(v);
 					Distance du = distance.get(u);
@@ -850,17 +845,17 @@ public class Prelude {
 		}
 	}
 	
-	private IList extractPath(IsEqualsAdapter start, IsEqualsAdapter u){
+	private IList extractPath(IValue start, IValue u){
 		IListWriter w = values.listWriter();
 		
 		if(!start.equals(u)){
-			w.insert(u.getValue());
+			w.insert(u);
 			while(!pred.get(u).equals(start)){
 				u = pred.get(u);
-				w.insert(u.getValue());
+				w.insert(u);
 			}
 		}
-		w.insert(start.getValue());
+		w.insert(start);
 		return w.done();
 	}
 	
@@ -1455,21 +1450,18 @@ public class Prelude {
 	
 	private WeakReference<IList> indexes;
 
-	
-	
 	/**
 	 * A mini class to wrap a lessThan function
 	 */
 	private class Less {
-		private final ICallableValue less;
+		private final IFunction less;
 
-		Less(ICallableValue less) {
+		Less(IFunction less) {
 			this.less = less;
 		}
 
 		public boolean less(IValue x, IValue y) {
-			return ((IBool) less.call(new Type[] { x.getType(), y.getType() },
-					new IValue[] { x, y }, null).getValue()).getValue();
+			return ((IBool) less.call(new IValue[] { x, y })).getValue();
 		}
 	}
 	
@@ -1557,14 +1549,14 @@ public class Prelude {
 		return l.shuffle(new Random());
 	}
 	
-	public IList sort(IList l, IValue cmpv){
+	public IList sort(IList l, IFunction cmpv){
 		IValue[] tmpArr = new IValue[l.length()];
 		for(int i = 0 ; i < l.length() ; i++){
 			tmpArr[i] = l.get(i);
 		}
 
 		// we randomly swap some elements to make worst case complexity unlikely
-		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).shuffle().sort();
+		new Sorting(tmpArr, new Less(cmpv)).shuffle().sort();
 
 
 		IListWriter writer = values.listWriter();
@@ -1572,7 +1564,7 @@ public class Prelude {
 		return writer.done();
 	}
 	
-	public IList sort(ISet l, IValue cmpv) {
+	public IList sort(ISet l, IFunction cmpv) {
 		IValue[] tmpArr = new IValue[l.size()];
 		int i = 0;
 		
@@ -1582,7 +1574,7 @@ public class Prelude {
 			tmpArr[i++] = elem;
 		}
 		
-		new Sorting(tmpArr, new Less((ICallableValue) cmpv)).sort();
+		new Sorting(tmpArr, new Less(cmpv)).sort();
 		
 		IListWriter writer = values.listWriter();
 		for(IValue v : tmpArr){
@@ -1592,9 +1584,9 @@ public class Prelude {
 		return writer.done();
 	}
 	
-	public IList top(IInteger k, ISet l, IValue cmpv) {
+	public IList top(IInteger k, ISet l, IFunction cmpv) {
         final LinkedList<IValue> result = new LinkedList<>();
-        final Less less = new Less((ICallableValue) cmpv);
+        final Less less = new Less(cmpv);
         final int K = k.intValue();
         final int absK = Math.abs(K);
         
@@ -1844,11 +1836,11 @@ public class Prelude {
 	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
 	{ 	    
-	    Map<IsEqualsAdapter,IListWriter> hm = new HashMap<>();
+	    Map<IValue,IListWriter> hm = new HashMap<>();
 
         for (IValue v : lst) {
             ITuple t = (ITuple) v;
-            IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+            IValue key = t.get(0);
             IValue val = t.get(1);
             IListWriter wValList = hm.get(key);
             if(wValList == null){
@@ -1859,8 +1851,8 @@ public class Prelude {
         }
 		
 		IMapWriter w = values.mapWriter();
-		for(IsEqualsAdapter v : hm.keySet()){
-			w.put(v.getValue(), hm.get(v).done());
+		for(IValue v : hm.keySet()){
+			w.put(v, hm.get(v).done());
 		}
 		return w.done();
 	}
@@ -1873,16 +1865,16 @@ public class Prelude {
 	   }
 	  
 	   IMapWriter w = values.mapWriter();
-	   Map<IsEqualsAdapter,IValue> seenKeys = new HashMap<>();
+	   Map<IValue,IValue> seenKeys = new HashMap<>();
 	   for(IValue v : lst){
 		   ITuple t = (ITuple) v;
-		   IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+		   IValue key = t.get(0);
 		   IValue val = t.get(1);
 		   if(seenKeys.containsKey(key)) { 
-		       throw RuntimeExceptionFactory.MultipleKey(key.getValue(), seenKeys.get(key), val);
+		       throw RuntimeExceptionFactory.MultipleKey(key, seenKeys.get(key), val);
 		   }
 		   seenKeys.put(key, val);
-		   w.put(key.getValue(), val);
+		   w.put(key, val);
 	   }
 	   return w.done();
 	}
@@ -1972,17 +1964,16 @@ public class Prelude {
 	//@doc{invertUnique -- return map with key and value inverted; values are unique}
 	{
 		IMapWriter w = values.mapWriter();
-		Map<IsEqualsAdapter,IValue> seenValues = new HashMap<>();
+		Map<IValue,IValue> seenValues = new HashMap<>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
 			IValue key = entry.getKey();
 			IValue val = entry.getValue();
-			IsEqualsAdapter valWrap = new IsEqualsAdapter(val);
-			if (seenValues.containsKey(valWrap)) {
-					throw RuntimeExceptionFactory.MultipleKey(val, key, seenValues.get(valWrap));
+			if (seenValues.containsKey(val)) {
+					throw RuntimeExceptionFactory.MultipleKey(val, key, seenValues.get(val));
 			}
-			seenValues.put(valWrap, key);
+			seenValues.put(val, key);
 			w.put(val, key);
 		}
 		return w.done();
@@ -1991,18 +1982,18 @@ public class Prelude {
 	public IValue invert(IMap M)
 	//@doc{invert -- return map with key and value inverted; values are not unique and are collected in a set}
 	{
-		Map<IsEqualsAdapter,ISetWriter> hm = new HashMap<>();
+		Map<IValue,ISetWriter> hm = new HashMap<>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
 			IValue key = entry.getKey();
-			IsEqualsAdapter val = new IsEqualsAdapter(entry.getValue());
+			IValue val = entry.getValue();
 			hm.computeIfAbsent(val, (k) -> values.setWriter()).insert(key);
 		}
 		
 		IMapWriter w = values.mapWriter();
-		for(Entry<IsEqualsAdapter, ISetWriter> v : hm.entrySet()){
-			w.put(v.getKey().getValue(), v.getValue().done());
+		for(Entry<IValue, ISetWriter> v : hm.entrySet()){
+			w.put(v.getKey(), v.getValue().done());
 		}
 		return w.done();
 	}
@@ -2158,140 +2149,22 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
-	    // TODO remove this legacy method
-	    return parse(start, input, allowAmbiguity, values.bool(false), ctx);
-	}
-	    
-	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, firstAmbiguity);
 	}
 	
-	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
-	    // TODO remove this legacy method
-        return parse(start, robust, input, allowAmbiguity, values.bool(false), ctx);
-	}
-	
-	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		Type reified = start.getType();
-		IConstructor grammar = checkPreconditions(start, reified);
-		
-		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue(), hasSideEffects.getValue());
-		}
-		catch (ParseError pe) {
-			ISourceLocation errorLoc = pe.getLocation();
-			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
-		}
-		catch (Ambiguous e) {
-			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
-		}
-		catch (UndeclaredNonTerminalException e){
-			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-		}
-	}
-	
-	// REFLECT -- copy in {@link PreludeCompiled}
-    public IValue firstAmbiguity(IValue start, IString input, IEvaluatorContext ctx) {
-        Type reified = start.getType();
-        IConstructor grammar = checkPreconditions(start, reified);
-        
-        try {
-            return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input.getValue(), false, false);
-        }
-        catch (ParseError pe) {
-            ISourceLocation errorLoc = pe.getLocation();
-            throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
-        }
-        catch (Ambiguous e) {
-            return e.getTree();
-        }
-        catch (UndeclaredNonTerminalException e){
-            throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-        }
-    }
-    
-    public IValue firstAmbiguity(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
-        Type reified = start.getType();
-        IConstructor grammar = checkPreconditions(start, reified);
-        
-        try {
-            return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input, false, false);
-        }
-        catch (ParseError pe) {
-            ISourceLocation errorLoc = pe.getLocation();
-            throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
-        }
-        catch (Ambiguous e) {
-            return e.getTree();
-        }
-        catch (UndeclaredNonTerminalException e){
-            throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-        }
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
+        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, firstAmbiguity);
     }
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
-	}
-	
-	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		try {
-			Type reified = start.getType();
-			IConstructor grammar = checkPreconditions(start, reified);
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue(), hasSideEffects.getValue());
-		}
-		catch (ParseError pe) {
-			ISourceLocation errorLoc = pe.getLocation();
-			throw RuntimeExceptionFactory.parseError(errorLoc);
-		}
-		catch (Ambiguous e) {
-			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
-		}
-		catch (UndeclaredNonTerminalException e){
-			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-		}
-	}
-	
-	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, loc, allowAmbiguity,  hasSideEffects, ctx);
-	}
-	
-	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
-		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc, allowAmbiguity.getValue(), hasSideEffects.getValue());
-		}
-		catch (ParseError pe) {
-			ISourceLocation errorLoc = pe.getLocation();
-			throw RuntimeExceptionFactory.parseError(errorLoc);
-		}
-		catch (Ambiguous e) {
-			ITree tree = e.getTree();
-			throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree), values.bool(false)), values.string(TreeAdapter.yield(tree)));
-		}
-		catch (UndeclaredNonTerminalException e){
-			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
-		}
-	}
-	
-	public IString unparse(IConstructor tree) {
-		return values.string(TreeAdapter.yield(tree));
-	}
-	
-	// REFLECT -- copy in {@link PreludeCompiled}
-	protected IConstructor makeConstructor(Type returnType, String name, IEvaluatorContext ctx,  IValue ...args) {
-		IValue value = ctx.getEvaluator().call(returnType.getName(), name, args);
-		Type type = value.getType();
-		if (type.isAbstractData()) {
-			return (IConstructor)value;
-		}
-		throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
+	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
+	    IValue value = values.constructor(store.lookupConstructor(returnType, name, TypeFactory.getInstance().tupleType(args)), args, new HashMap<String, IValue>());
+        Type type = value.getType();
+        if (type.isAbstractData()) {
+            return (IConstructor)value;
+        }
+        throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
 	}
 	
 	protected java.lang.String unescapedConsName(ITree tree) {
@@ -2313,26 +2186,14 @@ public class Prelude {
 		return constructors;
 	}
 
-	
-//	private Type findConstructor(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
-//		for (Type candidate: store.lookupConstructor(type, constructorName)) {
-//			// It finds the first with suitable arity, so this is inaccurate
-//			// if there are overloaded constructors with the same arity
-//			if (arity == candidate.getArity()) {
-//				return candidate;
-//			}
-//		}
-//		return null;
-//	}
-
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue implode(IValue reifiedType, IConstructor arg, IEvaluatorContext ctx) {
+	public IValue implode(IValue reifiedType, IConstructor arg) {
 		ITree tree = (ITree) arg;
 		
 		TypeStore store = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {
-			IValue result = implode(store, type, tree, false, ctx); 
+			IValue result = implode(store, type, tree, false); 
 			if (isUntypedNodeType(type) && !type.isTop() && (TreeAdapter.isList(tree) || TreeAdapter.isOpt(tree))) {
 				// Ensure the result is actually a node, even though
 				// the tree given to implode is a list.
@@ -2357,18 +2218,18 @@ public class Prelude {
 		}
 	}
 	
-	private IValue[] implodeArgs(TypeStore store, Type type, IList args, IEvaluatorContext ctx) {
+	private IValue[] implodeArgs(TypeStore store, Type type, IList args) {
 		int length = args.length();
 		IValue implodedArgs[] = new IValue[length];
 		for (int i = 0; i < length; i++) {
 			Type argType = isUntypedNodeType(type) ? type : type.getFieldType(i);
-			implodedArgs[i] = implode(store, argType, (ITree)args.get(i), false, ctx);
+			implodedArgs[i] = implode(store, argType, (ITree)args.get(i), false);
 		}
 		return implodedArgs;
 	}
 	
 	
-	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing, IEvaluatorContext ctx) {
+	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing) {
 		ITree tree = (ITree) arg0;
 		Backtrack failReason = null;
 		
@@ -2382,7 +2243,7 @@ public class Prelude {
 			ITree before = (ITree) args.get(0);
 			ITree ast = (ITree) args.get(1);
 			ITree after = (ITree) args.get(2);
-			IValue result = implode(store, type, ast, splicing, ctx);
+			IValue result = implode(store, type, ast, splicing);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
 				comments.putAll((IMap)((INode)result).asWithKeywordParameters().getParameter("comments"));
@@ -2420,7 +2281,7 @@ public class Prelude {
 						@SuppressWarnings("unused")
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
-						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
+						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
 						return ast.asWithKeywordParameters().setParameter("location", loc);
 					}
 					catch (Backtrack b) {
@@ -2467,7 +2328,7 @@ public class Prelude {
 				}
 				IListWriter w = values.listWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-					w.append(implode(store, elementType, (ITree) arg, false, ctx));
+					w.append(implode(store, elementType, (ITree) arg, false));
 				}
 				return w.done();
 			}
@@ -2475,7 +2336,7 @@ public class Prelude {
 				Type elementType = splicing ? type : type.getElementType();
 				ISetWriter w = values.setWriter();
 				for (IValue arg: TreeAdapter.getListASTArgs(tree)) {
-					w.insert(implode(store, elementType, (ITree) arg, false, ctx));
+					w.insert(implode(store, elementType, (ITree) arg, false));
 				}
 				return w.done();
 			}
@@ -2500,7 +2361,7 @@ public class Prelude {
 			Type elementType = isUntypedNodeType(type) ? type : type.getElementType();
 			IListWriter w = values.listWriter();
 			for (IValue arg: TreeAdapter.getASTArgs(tree)) {
-				IValue implodedArg = implode(store, elementType, (ITree) arg, true, ctx);
+				IValue implodedArg = implode(store, elementType, (ITree) arg, true);
 				if (implodedArg instanceof IList) {
 					// splicing
 					for (IValue nextArg: (IList)implodedArg) {
@@ -2523,13 +2384,13 @@ public class Prelude {
 			Type elementType = type.getElementType();
 			ISetWriter w = values.setWriter();
 			for (IValue arg: TreeAdapter.getAlternatives(tree)) {
-				w.insert(implode(store, elementType, (ITree) arg, false, ctx));
+				w.insert(implode(store, elementType, (ITree) arg, false));
 			}
 			return w.done();
 		}
 		
 		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), RascalValueFactory.Attribute_Bracket)) {
-			return implode(store, type, (ITree) TreeAdapter.getASTArgs(tree).get(0), false, ctx);
+			return implode(store, type, (ITree) TreeAdapter.getASTArgs(tree).get(0), false);
 		}
 		
 		if (TreeAdapter.isAppl(tree)) {
@@ -2575,13 +2436,13 @@ public class Prelude {
 			if (constructorName == null) {
 				if (length == 1) {
 					// jump over injection
-					return implode(store, type, (ITree) args.get(0), splicing, ctx);
+					return implode(store, type, (ITree) args.get(0), splicing);
 				}
 				
 				
 				// make a tuple if we're in node space
 				if (isUntypedNodeType(type)) {
-					return values.tuple(implodeArgs(store, type, args, ctx));
+					return values.tuple(implodeArgs(store, type, args));
 				}
 
 				if (!type.isTuple()) {
@@ -2592,12 +2453,12 @@ public class Prelude {
 					throw new Backtrack(RuntimeExceptionFactory.arityMismatch(type.getArity(), length));
 				}
 
-				return values.tuple(implodeArgs(store, type, args, ctx));
+				return values.tuple(implodeArgs(store, type, args));
 			}
 			
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
-				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
+				INode ast = values.node(constructorName, implodeArgs(store, type, args));
 				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
@@ -2614,8 +2475,8 @@ public class Prelude {
 				try {
 					Type cons = iter.next();
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
-					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
-					IConstructor ast = makeConstructor(type, constructorName, ctx, implodedArgs);
+					IValue[] implodedArgs = implodeArgs(store, cons, args);
+					IConstructor ast = makeConstructor(store, type, constructorName, implodedArgs);
 					return ast
 					        .asWithKeywordParameters()
 					        .setParameter("location", loc)
@@ -2681,23 +2542,6 @@ public class Prelude {
 	protected boolean isUntypedNodeType(Type type) {
 		return (type.isNode() && !type.isConstructor() && !type.isAbstractData()) 
 				|| type.isTop();
-	}
-	
-	
-	
-	
-	private static IConstructor checkPreconditions(IValue start, Type reified) {
-		if (!(reified instanceof ReifiedType)) {
-		   throw RuntimeExceptionFactory.illegalArgument(start, "A reified type is required instead of " + reified);
-		}
-		
-		Type nt = reified.getTypeParameters().getFieldType(0);
-		
-		if (!(nt instanceof NonTerminalType)) {
-			throw RuntimeExceptionFactory.illegalArgument(start, "A non-terminal type is required instead of  " + nt);
-		}
-		
-		return (IConstructor) start;
 	}
 	
 	/*
@@ -2771,18 +2615,18 @@ public class Prelude {
 	}
 	
 	private static IMap indexIterable(IValueFactory values, Iterable<IValue> s, int suggestedSize) {
-		Map<IsEqualsAdapter, ISetWriter> map = new HashMap<>(suggestedSize);
+		Map<IValue, ISetWriter> map = new HashMap<>(suggestedSize);
 		
 		for (IValue t : s) {
 			ITuple tuple = (ITuple) t;
-			IsEqualsAdapter key = new IsEqualsAdapter(tuple.get(0));
+			IValue key = tuple.get(0);
 			IValue value = tuple.get(1);
 			map.computeIfAbsent(key, (k) -> values.setWriter()).insert(value);
 		}
 		
 		IMapWriter mapWriter = values.mapWriter();
-		for (Entry<IsEqualsAdapter, ISetWriter> ent: map.entrySet()) {
-			mapWriter.put(ent.getKey().getValue(), ent.getValue().done());
+		for (Entry<IValue, ISetWriter> ent: map.entrySet()) {
+			mapWriter.put(ent.getKey(), ent.getValue().done());
 		}
 		return mapWriter.done();
 	}
@@ -2828,11 +2672,11 @@ public class Prelude {
 	public IValue toMap(ISet st)
 	// @doc{toMap -- convert a set of tuples to a map; value in old map is associated with a set of keys in old map}
 	{
-		Map<IsEqualsAdapter,ISetWriter> hm = new HashMap<>();
+		Map<IValue,ISetWriter> hm = new HashMap<>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
-			IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+			IValue key = t.get(0);
 			IValue val = t.get(1);
 			ISetWriter wValSet = hm.get(key);
 			if(wValSet == null){
@@ -2843,8 +2687,8 @@ public class Prelude {
 		}
 		
 		IMapWriter w = values.mapWriter();
-		for(IsEqualsAdapter v : hm.keySet()){
-			w.put(v.getValue(), hm.get(v).done());
+		for(IValue v : hm.keySet()){
+			w.put(v, hm.get(v).done());
 		}
 		return w.done();
 	}
@@ -2853,17 +2697,17 @@ public class Prelude {
 	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
 		IMapWriter w = values.mapWriter();
-		HashMap<IsEqualsAdapter, IValue> seenKeys = new HashMap<>();
+		HashMap<IValue, IValue> seenKeys = new HashMap<>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
-			IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+			IValue key = t.get(0);
 			IValue val = t.get(1); 
 			if(seenKeys.containsKey(key)) {  
-				throw RuntimeExceptionFactory.MultipleKey(key.getValue(), seenKeys.get(key), val);
+				throw RuntimeExceptionFactory.MultipleKey(key, seenKeys.get(key), val);
 			}
 			seenKeys.put(key, val);
-			w.put(key.getValue(), val);
+			w.put(key, val);
 		}
 		return w.done();
 	}
@@ -3642,11 +3486,6 @@ public class Prelude {
 		}
 	}
 
-	// TODO: is this relevant in the compiler?
-	public IList getTraversalContext(IEvaluatorContext ctx) {
-		return ctx.getEvaluator().__getCurrentTraversalEvaluator().getContext();
-	}
-	
 	public ISourceLocation uuid() {
 		String uuid = UUID.randomUUID().toString();
 		
@@ -3698,14 +3537,14 @@ public class Prelude {
 	    }
 	}
 
-	private static class NodeComparator implements Comparator<IsEqualsAdapter> {
-	    private final Map<IsEqualsAdapter,Distance> distance;
+	private static class NodeComparator implements Comparator<IValue> {
+	    private final Map<IValue,Distance> distance;
 
-	    NodeComparator(Map<IsEqualsAdapter,Distance> distance){
+	    NodeComparator(Map<IValue,Distance> distance){
 	        this.distance = distance;
 	    }
 
-	    public int compare(IsEqualsAdapter arg0, IsEqualsAdapter arg1) {
+	    public int compare(IValue arg0, IValue arg1) {
 	        int d0 = distance.get(arg0).intval;
 	        int d1 = distance.get(arg1).intval;
 

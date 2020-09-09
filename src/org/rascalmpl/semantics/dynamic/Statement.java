@@ -141,7 +141,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 
 			if (r.getValue().equals(__eval.__getVf().bool(false))) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.assertionFailed(this, __eval.getStackTrace());
 			}
 			return r;
@@ -176,7 +176,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				Result<IValue> msgValue = this.getMessage().interpret(__eval);
 //				IString msg = __eval.__getVf().string(
 //						org.rascalmpl.interpreter.utils.StringUtils.unescapeBase(msgValue.getValue().toString());
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.assertionFailed((IString) msgValue.getValue(), __eval.getCurrentAST(), __eval
 								.getStackTrace());
 			}
@@ -838,7 +838,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 					}
 					max = ((IInteger) res.getValue()).intValue();
 					if (max <= 0) {
-						throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+						throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 								.indexOutOfBounds((IInteger) res.getValue(),
 										__eval.getCurrentAST(), __eval
 												.getStackTrace());
@@ -913,9 +913,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			throw new org.rascalmpl.interpreter.control_exceptions.Throw(this
+			throw new org.rascalmpl.exceptions.Throw(this
 					.getStatement().interpret(__eval).getValue(), __eval
-					.getCurrentAST(), __eval.getStackTrace());
+					.getCurrentAST().getLocation(), __eval.getStackTrace());
 		}
 
 	}
@@ -937,7 +937,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 			try {
 				res = body.interpret(eval);
-			} catch (org.rascalmpl.interpreter.control_exceptions.Throw e) {
+			} catch (org.rascalmpl.exceptions.Throw e) {
 				IValue eValue = e.getException();
 
 				boolean handled = false;

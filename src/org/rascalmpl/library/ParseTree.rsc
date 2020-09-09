@@ -434,18 +434,57 @@ catch ParseError(loc l): {
 }
 ----
 }
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false);
+public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false)
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, |unknown:///|);
 
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false);
+public &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false)
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, origin);
+  
+public &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false)
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, input);
 
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false);
+@doc{
+.Synopsis 
+Generates a parser from an input grammar.
 
+.Description
+
+This builtin function wraps the Rascal parser generator by transforming a grammar into a parsing function.
+
+The resulting parsing function has the following overloaded signature:
+
+   * Tree parse(str input, loc origin);
+   * Tree parse(loc input, loc origin);
+
+So the parse function reads either directly from a str or via the contents of a loc. It also takes a `origin` parameter
+which leads to the prefix of the `src` fields of the resulting tree.
+
+The parse function behaves differently depending of the given keyword parameters:
+     *  `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
+     *                    the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
+     *                    if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
+     * 
+     *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
+     *                    interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
+     *  
+     *  `firstAmbiguity`: if true, then the parser returns the subforest for the first (left-most innermost) ambiguity instead of a parse tree for
+     *                    the entire input string. This is for grammar debugging purposes a much faster solution then waiting for an entire 
+     *                    parse forest to be constructed in polynomial time.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false); 
+
+@doc{
+.Synopsis
+Generates parsers from a grammar (reified type), where all non-terminals in the grammar can be used as start-symbol.
+
+.Description
+
+This parser generator behaves the same as the `parser` function, but it produces parser functions which have an additional
+nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
+ }
+@javaClass{org.rascalmpl.library.Prelude}
+public java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false); 
 
 @doc{
 .Synopsis parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.
@@ -458,13 +497,11 @@ the cost of constructing nested ambiguity clusters.
 
 If the input sentence is not ambiguous after all, simply the entire tree is returned.
 }
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java Tree firstAmbiguity(type[&T<:Tree] begin, str input);
+public Tree firstAmbiguity(type[&T<:Tree] begin, str input)
+  = parser(begin, firstAmbiguity=true)(input, |unknown:///|);
 
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses information about syntax definitions at call site}
-public java Tree firstAmbiguity(type[&T<:Tree] begin, loc input);
+public Tree firstAmbiguity(type[&T<:Tree] begin, loc input)
+  = parser(begin, firstAmbiguity=true)(input, input);
 
 
 @doc{
@@ -491,14 +528,12 @@ First parse an expression, this results in a parse tree. Then unparse this parse
 unparse(parse(#Exp, "2+3"));
 ----
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java str unparse(Tree tree);
+public str unparse(Tree tree) = "<tree>";
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printSymbol(Symbol sym, bool withLayout);
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{Uses Evaluator to create constructors in the caller scope (to fire rewrite rules).}
 @doc{
 .Synopsis
 Implode a parse tree according to a given (ADT) type.
@@ -574,13 +609,13 @@ ADT type names correspond to syntax non-terminal names, and constructor names co
 to production labels. Labels of production arguments do not have to match with labels
  in ADT constructors.
 
-Finally, source location annotations are propagated as annotations on constructor ASTs. 
-To access them, the user is required to explicitly declare a location annotation on all
+Finally, source location fields are propagated as keyword fields on constructor ASTs. 
+To access them, the user is required to explicitly declare a keyword field on all
 ADTs used in implosion. In other words, for every ADT type `T`, add:
 
 [source,rascal]
 ----
-anno loc T@location;
+data T(loc location=|unknown);
 ----
 
 .Examples

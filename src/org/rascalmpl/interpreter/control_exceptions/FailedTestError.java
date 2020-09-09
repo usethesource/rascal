@@ -12,6 +12,8 @@
 package org.rascalmpl.interpreter.control_exceptions;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.exceptions.Throw;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class FailedTestError extends ControlException {

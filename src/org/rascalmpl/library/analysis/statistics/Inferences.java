@@ -15,7 +15,8 @@ import org.apache.commons.math.stat.inference.ChiSquareTestImpl;
 import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
 import org.apache.commons.math.stat.inference.TTestImpl;
 import org.apache.commons.math.stat.ranking.NaturalRanking;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IReal;

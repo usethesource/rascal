@@ -16,7 +16,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;

@@ -20,7 +20,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.RunTests;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;

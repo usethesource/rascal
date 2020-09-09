@@ -21,10 +21,11 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.RascalValueFactory;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ReifiedTypePattern extends AbstractMatchingResult {
 	private final NodePattern nodePattern;

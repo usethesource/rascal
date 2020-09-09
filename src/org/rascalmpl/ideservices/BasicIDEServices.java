@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;

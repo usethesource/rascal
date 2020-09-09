@@ -12,9 +12,10 @@
 package org.rascalmpl.interpreter.asserts;
 
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
 import io.usethesource.vallang.ISourceLocation;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 
 public final class Ambiguous extends AssertionError {

@@ -29,12 +29,12 @@ import org.rascalmpl.ast.Signature;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.util.ExpiringFunctionResultCache;
 
 import io.usethesource.vallang.IConstructor;

@@ -10,13 +10,13 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
@@ -24,6 +24,7 @@ import org.rascalmpl.repl.ILanguageProtocol;
 import org.rascalmpl.repl.REPLContentServer;
 import org.rascalmpl.repl.REPLContentServerManager;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.functions.IFunction;
 
 import com.google.gson.stream.JsonWriter;
 
@@ -57,7 +58,7 @@ public class TermREPL {
     }
 
     public void startREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
-        ISourceLocation history, IValue handler, IValue completor, IValue stacktrace) {
+        ISourceLocation history, IFunction handler, IFunction completor, IFunction stacktrace) {
         try {
             lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, in, err, out);
             new BaseREPL(lang, null, in, err, out, true, true, history, TerminalFactory.get(), null).run();
@@ -74,21 +75,27 @@ public class TermREPL {
         private InputStream input;
         private String currentPrompt;
         private String quit;
-        private final ICallableValue handler;
-        private final ICallableValue completor;
+        private final AbstractFunction handler;
+        private final AbstractFunction completor;
         private final IValueFactory vf;
-        private final ICallableValue stacktrace;
+        private final AbstractFunction stacktrace;
 
 
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
-            IValue handler, IValue completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
+            IFunction handler, IFunction completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
             this.vf = vf;
             this.input = input;
             this.stderr = stderr;
             this.stdout = stdout;
-            this.handler = (ICallableValue) handler;
-            this.completor = (ICallableValue) completor;
-            this.stacktrace = (ICallableValue) stacktrace;
+            
+            // TODO: these casts mean that TheRepl only works with functions produced by the
+            // interpreter for now. The reason is that the REPL needs access to environment configuration
+            // parameters of these functions such as stdout, stdin, etc.
+            // TODO: rethink the term repl in the compiled context, based on the compiled REPL for Rascal
+            // which does not exist yet.
+            this.handler = (AbstractFunction) handler;
+            this.completor = (AbstractFunction) completor;
+            this.stacktrace = (AbstractFunction) stacktrace;
             this.currentPrompt = prompt.getValue();
             this.quit = quit.getValue();
 
@@ -189,18 +196,14 @@ public class TermREPL {
         }
 
         private Function<IValue, IValue> liftProviderFunction(IValue callback) {
-            ICallableValue func = (ICallableValue) callback;
+            IFunction func = (IFunction) callback;
 
             return (t) -> {
                 // This function will be called from another thread (the webserver)
                 // That is problematic if the current repl is doing something else at that time.
                 // The evaluator is already locked by the outer Rascal REPL (if this REPL was started from `startREPL`).
                 //              synchronized(eval) {
-                return func.call(
-                    new Type[] { REPLContentServer.requestType },
-                    new IValue[] { t },
-                    Collections.emptyMap()).getValue();
-                //              }
+                return func.call(t);
             };
         }
 
@@ -260,23 +263,28 @@ public class TermREPL {
             return false;
         }
 
-        private IValue call(ICallableValue f, Type[] types, IValue[] args) {
-            Evaluator eval = (Evaluator) f.getEval();
-            synchronized (eval) {
-                try {
-                    eval.overrideDefaultWriters(input, stdout, stderr);
-                    return f.call(types, args, null).getValue();
-                }
-                finally {
+        private IValue call(IFunction f, Type[] types, IValue[] args) {
+            if (f instanceof AbstractFunction) {
+                Evaluator eval = (Evaluator) ((AbstractFunction) f).getEval();
+                synchronized (eval) {
                     try {
-                        stdout.flush();
-                        stderr.flush();
-                        eval.revertToDefaultWriters();
+                        eval.overrideDefaultWriters(input, stdout, stderr);
+                        return f.call(args);
                     }
-                    catch (IOException e) {
-                        // ignore
+                    finally {
+                        try {
+                            stdout.flush();
+                            stderr.flush();
+                            eval.revertToDefaultWriters();
+                        }
+                        catch (IOException e) {
+                            // ignore
+                        }
                     }
                 }
+            }
+            else {
+                throw RuntimeExceptionFactory.illegalArgument(f, "term repl only works with interpreter for now");
             }
         }
 

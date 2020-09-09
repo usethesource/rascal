@@ -13,11 +13,12 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
+
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLocation>{
 	private final static RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();

@@ -16,7 +16,7 @@ package org.rascalmpl.interpreter;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.repl.ReplTextWriter;
 
 import io.usethesource.vallang.ISourceLocation;

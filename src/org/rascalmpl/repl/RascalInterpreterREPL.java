@@ -20,19 +20,19 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.exceptions.StackTrace;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -59,15 +59,11 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected Function<IValue, IValue> liftProviderFunction(IValue callback) {
-        ICallableValue func = (ICallableValue) callback;
+    protected Function<IValue, IValue> liftProviderFunction(IFunction callback) {
         
         return (t) -> {
           synchronized(eval) {
-              return func.call(
-                  new Type[] { REPLContentServer.requestType },
-                  new IValue[] { t },
-                  Collections.emptyMap()).getValue();
+              return callback.call(t);
           }
         };
     }

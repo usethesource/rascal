@@ -11,25 +11,22 @@
 *******************************************************************************/
 package org.rascalmpl.library.util.tasks;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.tasks.IIValueTask;
 import org.rascalmpl.tasks.ITaskRegistry;
 import org.rascalmpl.tasks.ITransaction;
 import org.rascalmpl.tasks.PDBValueTaskRegistry;
 import org.rascalmpl.tasks.Transaction;
-import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.types.TypeReifier;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -39,6 +36,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class Manager {
 	private Transaction base = null;
@@ -46,13 +44,13 @@ public class Manager {
 	private final IValueFactory vf;
 	private final TypeReifier typeReifier;
 	private final Map<IValueWrapper,ProducerWrapper> producers = new HashMap<IValueWrapper,ProducerWrapper>();
+    private final PrintWriter err;
+    private final IRascalMonitor monitor;
 	
-	public Manager() {
-		this(ValueFactoryFactory.getValueFactory());
-	}
-	
-	public Manager(IValueFactory vf) {
+	public Manager(IValueFactory vf, PrintWriter out, PrintWriter err, IRascalMonitor monitor) {
 		this.vf = vf;
+		this.err = err;
+		this.monitor = monitor;
 		this.typeReifier = new TypeReifier(vf);
 		this.registry = PDBValueTaskRegistry.getRegistry();
 	}
@@ -65,14 +63,14 @@ public class Manager {
 		registry.unlock();
 	}
 	
-	public IValue startTransaction(IEvaluatorContext ctx) {
+	public IValue startTransaction() {
 		if(base == null)
-			base = new Transaction(ctx.getErrorPrinter());
-		return new Transaction(base, ctx.getErrorPrinter());
+			base = new Transaction(err);
+		return new Transaction(base, err);
 	}
 	
-	public IValue startTransaction(IValue tr, IEvaluatorContext ctx) {
-		return new Transaction(transaction(tr), ctx.getErrorPrinter());
+	public IValue startTransaction(IValue tr) {
+		return new Transaction(transaction(tr), err);
 	}
 	
 	public void endTransaction(IValue tr) {
@@ -83,56 +81,57 @@ public class Manager {
 		transaction(tr).abandon();
 	}
 	
-	public IValue getFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
+	public IValue getFact(IValue tr, IValue key, IValue name) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type");
 
-		IValue fact = transaction(tr).getFact(ctx, typeReifier.valueToType((IConstructor) key), name);
+		IValue fact = transaction(tr).getFact(monitor, typeReifier.valueToType((IConstructor) key), name);
 		if(fact == null)
 			fact = null; // <- put breakpoint here!
-		return check(fact, (IConstructor) key, name, ctx);
+		return check(fact, (IConstructor) key, name);
 	}
 
-	private IValue check(IValue fact, IValue key, IValue name, IEvaluatorContext ctx) {
+	private IValue check(IValue fact, IValue key, IValue name) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type");
 
-		if(fact == null)
-			throw RuntimeExceptionFactory.noSuchKey(vf.string(typeReifier.valueToType((IConstructor) key).toString() + ":" + name.toString()), 
-					ctx.getCurrentAST(), ctx.getStackTrace());
-		else if(!fact.getType().isSubtypeOf(typeReifier.valueToType((IConstructor) key)))
-			throw new UnexpectedType(typeReifier.valueToType((IConstructor) key), fact.getType(), ctx.getCurrentAST());
+		if(fact == null) {
+			throw RuntimeExceptionFactory.noSuchKey(vf.string(typeReifier.valueToType((IConstructor) key).toString() + ":" + name.toString()));
+		}
+		else if(!fact.getType().isSubtypeOf(typeReifier.valueToType((IConstructor) key))) {
+		    throw RuntimeExceptionFactory.illegalArgument(fact, "fact is not a subtype of " + typeReifier.valueToType((IConstructor) key));
+		}
 		else
 			return fact;
 	}
 
-	public IValue queryFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
+	public IValue queryFact(IValue tr, IValue key, IValue name) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type");
 
-		return check(transaction(tr).queryFact(typeReifier.valueToType((IConstructor) key), name), key, name, ctx);
+		return check(transaction(tr).queryFact(typeReifier.valueToType((IConstructor) key), name), key, name);
 	}
 
-	public void removeFact(IValue tr, IValue key, IValue name, IEvaluatorContext ctx) {
+	public void removeFact(IValue tr, IValue key, IValue name) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type");
 
 		transaction(tr).removeFact(typeReifier.valueToType((IConstructor) key), name);
 	}
 
-	public void setFact(IValue tr, IValue key, IValue name, IValue value, IEvaluatorContext ctx) {
+	public void setFact(IValue tr, IValue key, IValue name, IValue value) {
 		if(!(key instanceof IConstructor))
-			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type", ctx.getCurrentAST(), ctx.getStackTrace());
+			throw RuntimeExceptionFactory.illegalArgument(key, "key is not a reified type");
 
 		Type keyType = typeReifier.valueToType((IConstructor) key);
 		if(!value.getType().isSubtypeOf(keyType))
-			throw new UnexpectedType(keyType, value.getType(), ctx.getCurrentAST());
+		    throw RuntimeExceptionFactory.illegalArgument(value, "value is not a subtype of " + keyType);
 		else
 			transaction(tr).setFact(keyType, name, value);
 	}
 	
-	public void registerProducer(IValue producer, ISet keys, IEvaluatorContext ctx) {
-		ProducerWrapper wrapper = new ProducerWrapper(ctx, (ICallableValue)producer, keys);
+	public void registerProducer(IFunction producer, ISet keys) {
+		ProducerWrapper wrapper = new ProducerWrapper(producer, keys);
 		producers.put(new IValueWrapper(producer), wrapper);
 		registry.registerProducer(wrapper);
 	}
@@ -151,8 +150,8 @@ public class Manager {
 		return transaction(tr).getGraph();
 	}
 
-	protected IConstructor reify(IEvaluatorContext ctx, Type type) {
-		return typeReifier.typeToValue(type, ctx.getCurrentEnvt().getStore(), vf.mapWriter().done());
+	protected IConstructor reify(Type type) {
+		return typeReifier.typeToValue(type, new TypeStore(), vf.mapWriter().done());
 	}
 	/**
 	 *  Cast an IValue to ITransaction 
@@ -166,12 +165,10 @@ public class Manager {
 	
 	class ProducerWrapper implements IIValueTask {
 		
-		private ICallableValue fun;
-		private IEvaluatorContext ctx;
+		private IFunction fun;
 		private Collection<Type> keys = new ArrayList<Type>();
 		
-		ProducerWrapper(IEvaluatorContext ctx, ICallableValue fun, ISet keys) {
-			this.ctx = ctx;
+		ProducerWrapper(IFunction fun, ISet keys) {
 			this.fun = fun;
 			for(IValue v : keys) {
 				if(v instanceof ITuple) {
@@ -192,13 +189,14 @@ public class Manager {
 		public boolean produce(IRascalMonitor monitor, ITransaction<Type, IValue, IValue> tr,
 				Type key, IValue name) {
 			Transaction t = (Transaction)tr;
-			IValue reifiedKey = reify(ctx, key);
-			Result<IValue> result = fun.call(monitor, new Type[] {t.getType(), reifiedKey.getType(), name.getType()},
-					new IValue[] {t, reifiedKey, name}, null);
-			if(result.getValue() instanceof IBool)
-				return ((IBool)result.getValue()).getValue();
-			else
-				throw new UnexpectedType(TypeFactory.getInstance().boolType(), result.getType(), ctx.getCurrentAST());
+			IValue reifiedKey = reify(key);
+			IValue result = fun.call(t, reifiedKey, name);
+			if(result instanceof IBool) {
+				return ((IBool)result).getValue();
+			}
+			else {
+			    throw RuntimeExceptionFactory.illegalArgument(result, "result is not a bool");
+			}
 				
 		}
 		

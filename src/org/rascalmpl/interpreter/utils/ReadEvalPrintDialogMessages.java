@@ -16,16 +16,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.regex.Matcher;
 
-import org.rascalmpl.interpreter.StackTrace;
+import org.rascalmpl.exceptions.StackTrace;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;

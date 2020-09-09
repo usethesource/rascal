@@ -15,7 +15,7 @@ package org.rascalmpl.library.analysis.text.stemming;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.tartarus.snowball.SnowballProgram;
 import org.tartarus.snowball.ext.KpStemmer;
 import org.tartarus.snowball.ext.LovinsStemmer;

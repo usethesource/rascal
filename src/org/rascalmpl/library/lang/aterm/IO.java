@@ -19,8 +19,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;

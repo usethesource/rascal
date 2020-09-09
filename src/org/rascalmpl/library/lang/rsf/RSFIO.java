@@ -18,8 +18,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 import io.usethesource.vallang.IConstructor;

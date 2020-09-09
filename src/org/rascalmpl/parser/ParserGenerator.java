@@ -20,19 +20,19 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
@@ -245,7 +245,7 @@ public class ParserGenerator {
 		}
 	}
 
-  public String createHole(IConstructor part, int size) {
-    return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
-  }
+	public String createHole(IConstructor part, int size) {
+	    return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
+	}
 }

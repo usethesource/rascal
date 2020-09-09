@@ -36,16 +36,18 @@ import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.types.NonTerminalType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class Cases  {
 	public static final List<String> IUPTR_NAMES = Arrays.asList("appl", "cycle", "amb", "char");
@@ -213,8 +215,8 @@ public class Cases  {
 			io.usethesource.vallang.type.Type subjectType = value
 					.getType();
 
-			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((org.rascalmpl.values.uptr.ITree) value)) {
-				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.uptr.ITree) value));
+			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((org.rascalmpl.values.parsetrees.ITree) value)) {
+				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.parsetrees.ITree) value));
 				if (alts != null) {
 					for (CaseBlock c : alts) {
 						if (c.matchAndEval(eval, subject)) {
@@ -369,10 +371,10 @@ public class Cases  {
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
 				boolean isTree = subjectType.isSubtypeOf(RascalValueFactory.Tree) 
-				    && ((org.rascalmpl.values.uptr.ITree) subject.getValue()).isAppl();
+				    && ((org.rascalmpl.values.parsetrees.ITree) subject.getValue()).isAppl();
 
 				if (isTree) { // matching abstract with concrete
-					TreeAsNode wrap = new TreeAsNode((org.rascalmpl.values.uptr.ITree) subject.getValue());
+					TreeAsNode wrap = new TreeAsNode((org.rascalmpl.values.parsetrees.ITree) subject.getValue());
 					Result<IValue> asTree = ResultFactory.makeResult(TF.nodeType(), wrap, eval);
 
 					if (tryCases(eval, asTree)) {

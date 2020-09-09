@@ -31,16 +31,16 @@ import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.AndResult;
 import org.rascalmpl.interpreter.matching.AntiPattern;
@@ -82,18 +82,17 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.util.IsEqualsAdapter;
+import org.rascalmpl.types.FunctionType;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.types.TypeReifier;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -1596,7 +1595,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 
 			java.util.List<Mapping_Expression> mappings = this.getMappings();
-			java.util.Map<IsEqualsAdapter, IValue> seen = new HashMap<>();
+			java.util.Map<IValue, IValue> seen = new HashMap<>();
 			Type keyType = TF.voidType();
 			Type valueType = TF.voidType();
 			IMapWriter w = __eval.__getVf().mapWriter();
@@ -1613,7 +1612,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					throw new NonVoidTypeRequired(mapping.getTo());
 				}
 				
-				IsEqualsAdapter key = new IsEqualsAdapter(keyResult.getValue());
+				IValue key = keyResult.getValue();
 
 				keyType = keyType.lub(keyResult.getType());
 				valueType = valueType.lub(valueResult.getType());
@@ -1621,13 +1620,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IValue keyValue = seen.get(key);
 				
 				if (keyValue != null) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.MultipleKey(keyResult.getValue(), keyValue, valueResult.getValue(), mapping.getFrom(), __eval
 									.getStackTrace());
 				}
 				
 				seen.put(key, valueResult.getValue());
-				w.put(key.getValue(), valueResult.getValue());
+				w.put(key, valueResult.getValue());
 			}
 
 			Type type = TF.mapType(keyType, valueType);

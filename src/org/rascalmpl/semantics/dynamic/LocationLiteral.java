@@ -54,10 +54,10 @@ public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral 
 						.makeResult(org.rascalmpl.interpreter.Evaluator
 								.__getTf().sourceLocationType(), r, __eval);
 			} catch (URISyntaxException e) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.malformedURI(uri, this, __eval.getStackTrace());
 			} catch (UnsupportedOperationException e) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 				.malformedURI(uri + ":" + e.getMessage(), this, __eval.getStackTrace());
 			}
 		}
