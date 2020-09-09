@@ -108,31 +108,31 @@ public list[&T] dup(list[&T] lst) {
 // ---- list
 
 void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
-    targs = [ta | ta <- tas];
-    collect(tas, c);
-    if(size(targs) == 1){
-        try {
-            c.fact(current, makeListType(c.getType(targs[0])));
-        } catch TypeUnavailable():{
-            c.calculate("list type", current, targs, AType(Solver s){ return makeListType(s.getType(targs[0])); });
-        }
-    } else {
+   targs = [ta | ta <- tas];
+    
+   collect(targs[0], c);
+   try {
+        c.fact(current, makeListType(c.getType(targs[0])));
+   } catch TypeUnavailable():{
+        c.calculate("list type", current, targs, AType(Solver s){ return makeListType(s.getType(targs[0])); });
+   }
+   if(size(targs) != 1){
         c.report(error(current, "Type `list` should have one type argument"));
-    }
+   }
 }
 
 // ---- set
 
 void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    collect(tas, c);
-    if(size(targs) == 1){
-        try {
-            c.fact(current, makeSetType(c.getType(targs[0])));
-        } catch TypeUnavailable():{
-            c.calculate("set type", current, targs, AType(Solver s){ return makeSetType(s.getType(targs[0])); });
-        }
-    } else {
+    collect(targs[0], c);
+  
+    try {
+        c.fact(current, makeSetType(c.getType(targs[0])));
+    } catch TypeUnavailable():{
+        c.calculate("set type", current, targs, AType(Solver s){ return makeSetType(s.getType(targs[0])); });
+    }
+    if(size(targs) != 1){
         c.report(error(current, "Type `set` should have one type argument"));
     }
 }
@@ -141,14 +141,13 @@ void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
 
 void collect(current:(Type)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    collect(tas, c); 
-    if(size(targs) == 1){
-        try {
-            c.fact(current, makeBagType(c.getType(targs[0])));
-       } catch TypeUnavailable(): {
-            c.calculate("bag type", current, targs, AType(Solver s){ return makeBagType(s.getType(targs[0])); });
-        }
-    } else {
+    collect(targs[0], c); 
+    try {
+        c.fact(current, makeBagType(c.getType(targs[0])));
+    } catch TypeUnavailable(): {
+        c.calculate("bag type", current, targs, AType(Solver s){ return makeBagType(s.getType(targs[0])); });
+    }
+    if(size(targs) != 1){
         c.report(error(current, "Type `bag` should have one type argument"));
     }
 }
@@ -171,23 +170,27 @@ tuple[list[FailMessage] msgs, AType atype] handleMapFields({TypeArg ","}+ tas, A
 
 void collect(current:(Type)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    collect(tas, c);
-    if(size(targs) == 2){
-        try {
-            <msgs, result> = handleMapFields(tas, c.getType(targs[0]), c.getType(targs[1]));
-            for(m <- msgs) c.report(m);
-            c.fact(current, result);
-        } catch TypeUnavailable(): {
-            c.calculate("map type", current, targs, 
-                AType(Solver s){
-                    <msgs, result> = handleMapFields(tas, s.getType(targs[0]), s.getType(targs[1]));
-                    for(m <- msgs) s.report(m);
-                    return result;                    
-            });
-        }
-    } else {
+    
+    if(size(targs) != 2){
         c.report(error(current, "Type `map` should have two type arguments"));
+        c.fact(current, amap(avalue(), avalue()));
+        return;
     }
+    collect(targs, c);
+   
+    try {
+        <msgs, result> = handleMapFields(tas, c.getType(targs[0]), c.getType(targs[1]));
+        for(m <- msgs) c.report(m);
+        c.fact(current, result);
+    } catch TypeUnavailable(): {
+        c.calculate("map type", current, targs[0..2], 
+            AType(Solver s){
+                <msgs, result> = handleMapFields(tas, s.getType(targs[0]), s.getType(targs[1]));
+                for(m <- msgs) s.report(m);
+                return result;                    
+        });
+    }
+    
 }
 
 // ---- rel
@@ -307,21 +310,21 @@ tuple[list[FailMessage] msgs, AType atype] handleTypeField({TypeArg ","}+ tas, A
 
 void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    collect(tas, c);
-    if(size(targs) == 1){
-        try {
-            <msgs, result> = handleTypeField(tas, c.getType(tas[0]));
-            for(m <- msgs) c.report(m);
-            c.fact(current, result);
-        } catch TypeUnavailable(): {
-            c.calculate("type type", current, targs, 
-                AType(Solver s){
-                    <msgs, result> = handleTypeField(tas,  s.getType(tas[0]));
-                    for(m <- msgs) s.report(m);
-                    return result;
-                 });
-        }  
-    } else {
+    collect(targs[0], c);
+   
+    try {
+        <msgs, result> = handleTypeField(tas, c.getType(targs[0]));
+        for(m <- msgs) c.report(m);
+        c.fact(current, result);
+    } catch TypeUnavailable(): {
+        c.calculate("type type", current, targs[0..1], 
+            AType(Solver s){
+                <msgs, result> = handleTypeField(tas,  s.getType(targs[0]));
+                for(m <- msgs) s.report(m);
+                return result;
+             });
+    }  
+    if(size(targs) != 1){
         c.report(error(current, "Non-well-formed type, type should have one type argument"));
     }
 }      
