@@ -460,7 +460,7 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
 
 JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
     funType = jg.getType(of);
-    println("funType = <funType>");
+    //println("funType = <funType>");
     kwpActuals = "$kwpActuals";
     formalTypes = getFormals(funType);
     arityFormalTypes = size(formalTypes);
