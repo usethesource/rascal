@@ -43,7 +43,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 			String dtPart = this.getString().substring(1);
 			String datePart = dtPart.substring(0, dtPart.indexOf("T"));
 			String timePart = dtPart.substring(dtPart.indexOf("T") + 1);
-
+			timePart = timePart.substring(0, timePart.length() - 1); // drop last $
 			return createVisitedDateTime(__eval, datePart, timePart, this);
 		}
 
@@ -55,7 +55,7 @@ public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 		public Result<IValue> createVisitedDateTime(IEvaluator<Result<IValue>> eval, String datePart, String timePart, Lexical x) {
 			try {
 				StandardTextReader parser = new StandardTextReader();
-				IValue result = parser.read(VF, new StringReader("$" + datePart + "T" + timePart));
+				IValue result = parser.read(VF, new StringReader("$" + datePart + "T" + timePart + "$"));
 				return makeResult(TF.dateTimeType(), result, eval);
 			} catch (FactTypeUseException e) {
 				throw new DateTimeSyntax(e.getMessage(), eval.getCurrentAST().getLocation());
