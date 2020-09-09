@@ -31,8 +31,8 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import org.junit.jupiter.api.TestFactory;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
-           'import org.rascalmpl.interpreter.control_exceptions.Throw;
-           'import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+           'import org.rascalmpl.exceptions.Throw;
+           'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
            '
            '@SuppressWarnings(\"unused\")
            'class <className>Tests extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {

@@ -116,8 +116,8 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            'import org.rascalmpl.core.parser.gtd.util.IntegerList;
            'import org.rascalmpl.core.parser.gtd.util.IntegerMap;
            'import org.rascalmpl.core.values.ValueFactoryFactory;
-           'import org.rascalmpl.core.values.uptr.RascalValueFactory;
-           'import org.rascalmpl.core.values.uptr.ITree;
+           'import org.rascalmpl.core.values.RascalValueFactory;
+           'import org.rascalmpl.core.values.parsetrees.ITree;
            '
            '@SuppressWarnings(\"all\")
            'public class <name> extends org.rascalmpl.core.parser.gtd.SGTDBF\<IConstructor, ITree, ISourceLocation\> {
@@ -126,7 +126,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            '  protected static IValue _read(java.lang.String s, io.usethesource.vallang.type.Type type) {
            '    try {
            '      System.err.println(s);
-           '      return new StandardTextReader().read(VF, org.rascalmpl.core.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
+           '      return new StandardTextReader().read(VF, org.rascalmpl.core.values.RascalValueFactory.uptr, type, new StringReader(s));
            '    }
            '    catch (FactTypeUseException e) {
            '      throw new RuntimeException(\"unexpected exception in generated parser\", e);  

@@ -2,7 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
 
 import java.util.Iterator;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISet;

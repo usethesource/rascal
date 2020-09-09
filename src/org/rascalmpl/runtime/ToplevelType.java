@@ -1,13 +1,14 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
-import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
-import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.values.parsetrees.ITree;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.ITree;
 
 public enum ToplevelType {
 	VOID			(0, "void"),

@@ -3,11 +3,10 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 import java.util.Iterator;
 import java.util.Stack;
 
-import org.rascalmpl.interpreter.matching.MapKeyValueIterator;
-import org.rascalmpl.interpreter.matching.TupleElementIterator;
-import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalType;
+import org.rascalmpl.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -17,10 +16,13 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.iterators.MapKeyValueIterator;
+import org.rascalmpl.values.iterators.TupleElementIterator;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class DescendantMatchIterator implements Iterator<IValue>, Iterable<IValue> {
 
