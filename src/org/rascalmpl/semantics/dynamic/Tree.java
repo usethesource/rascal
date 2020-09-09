@@ -32,8 +32,9 @@ import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalTypeFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -41,10 +42,11 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 /**
  * These classes special case Expression.CallOrTree for concrete syntax patterns
@@ -294,7 +296,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 			boolean previousWasEmpty = false;
 
 			for (int i = 0; i < args.length(); i+=(delta+1)) {
-				org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) args.get(i);
+				org.rascalmpl.values.parsetrees.ITree tree = (org.rascalmpl.values.parsetrees.ITree) args.get(i);
 
 				if (TreeAdapter.isList(tree) && ProductionAdapter.shouldFlatten(production, TreeAdapter.getProduction(tree))) {
 					IList nestedArgs = TreeAdapter.getArgs(tree);

@@ -26,17 +26,17 @@ import java.util.Map;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.Tag;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.StackTrace;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.StackTrace;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -84,7 +84,7 @@ public class JavaMethod extends NamedFunction {
 		super(func, eval, type , getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
-		this.instance = javaBridge.getJavaClassInstance(func, eval.getMonitor(), env.getStore(), eval.getOutPrinter(), eval.getErrorPrinter(), eval.getStdOut(), eval.getStdErr());
+		this.instance = javaBridge.getJavaClassInstance(func, eval.getMonitor(), env.getStore(), eval.getOutPrinter(), eval.getErrorPrinter(), eval.getStdOut(), eval.getStdErr(), eval.getInput(), eval);
 		this.method = javaBridge.lookupJavaMethod(eval, func, env, hasReflectiveAccess);
 	}
 

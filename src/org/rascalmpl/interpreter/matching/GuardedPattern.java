@@ -21,13 +21,15 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.types.NonTerminalType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class GuardedPattern extends AbstractMatchingResult {
 	private Type type;

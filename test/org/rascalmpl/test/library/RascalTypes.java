@@ -19,8 +19,8 @@ import java.util.Random;
 import java.util.Set;
 
 import org.junit.Test;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.test.infrastructure.TestFramework;
+import org.rascalmpl.types.RascalTypeFactory;
 
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;

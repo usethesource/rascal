@@ -21,12 +21,12 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.OptionalExpression;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.AssignableEvaluator.AssignmentOperator;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
@@ -37,9 +37,10 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSlice;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.types.FunctionType;
+import org.rascalmpl.types.NonTerminalType;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -154,7 +155,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			if (!node.getName().equals(
 					org.rascalmpl.interpreter.utils.Names.name(this.getName()))) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.nameMismatch(node.getName(),
 								org.rascalmpl.interpreter.utils.Names.name(this
 										.getName()), this.getName(), __eval
@@ -164,7 +165,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			List<org.rascalmpl.ast.Assignable> arguments = this.getArguments();
 
 			if (node.arity() != arguments.size()) {
-				throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+				throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 						.arityMismatch(node.arity(), arguments.size(), this,
 								__eval.__getEval().getStackTrace());
 			}
@@ -467,7 +468,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(list.getType()) : rec.getType(), list,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds((IInteger) subscript.getValue(),
 									__eval.__getEval().getCurrentAST(), __eval
 											.__getEval().getStackTrace());
@@ -504,7 +505,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				IConstructor node = (IConstructor) rec.getValue();
 
 				if (index >= node.arity()) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds((IInteger) subscript.getValue(),
 									__eval.__getEval().getCurrentAST(), __eval
 											.__getEval().getStackTrace());
@@ -520,7 +521,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				ITuple tuple = (ITuple) rec.getValue();
 
 				if (index >= tuple.arity()) {
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds((IInteger) subscript.getValue(),
 									__eval.__getEval().getCurrentAST(), __eval
 											.__getEval().getStackTrace());
@@ -621,7 +622,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 					IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
 
 					if (result == null) {
-						throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+						throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 								.noSuchKey(subscript.getValue(), this, __eval
 										.getStackTrace());
 					}
@@ -722,7 +723,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(list.getType()) : rec.getType(), list,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
@@ -744,7 +745,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(str.getType()) : rec.getType(), str,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
@@ -767,7 +768,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(node.getType()) : rec.getType(), node,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
@@ -871,7 +872,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(list.getType()) : rec.getType(), list,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
@@ -893,7 +894,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(str.getType()) : rec.getType(), str,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());
@@ -917,7 +918,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 									.lub(node.getType()) : rec.getType(), node,
 									__eval.__getEval());
 				} catch (IndexOutOfBoundsException e) { // include last in message
-					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
+					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 					.indexOutOfBounds((IInteger) first.getValue(),
 							__eval.__getEval().getCurrentAST(), __eval
 							.__getEval().getStackTrace());

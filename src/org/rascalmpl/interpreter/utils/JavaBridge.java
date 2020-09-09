@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
@@ -37,20 +38,25 @@ import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.JavaCompilation;
+import org.rascalmpl.exceptions.JavaMethodLink;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.JavaCompilation;
-import org.rascalmpl.interpreter.staticErrors.JavaMethodLink;
 import org.rascalmpl.interpreter.staticErrors.MissingTag;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
-import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
-import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.util.ListClassLoader;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalFunctionValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -111,15 +117,15 @@ public class JavaBridge {
 			return result;
 		} 
 		catch (ClassCastException e) {
-			throw new JavaCompilation(e.getMessage(), loc);
+			throw new JavaCompilation(e.getMessage(), e);
 		} 
 		catch (JavaCompilerException e) {
 		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", loc);
+		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", e);
 		    }
 		    else {
-		        throw new JavaCompilation(e.getMessage(), loc);
+		        throw new JavaCompilation(e.getMessage(), e);
 		    }
 		}
 	}
@@ -309,9 +315,14 @@ public class JavaBridge {
 				throws RuntimeException {
 			return ITree.class;
 		}
+		
+		@Override
+		public Class<?> visitFunction(RascalType type) throws RuntimeException {
+		    return IFunction.class;
+		}
 	}
 	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr) {
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr, InputStream in, IEvaluatorContext ctx) {
 		String className = getClassName(func);
 		
 		PrintWriter[] outputs = new PrintWriter[] { out, err };
@@ -355,11 +366,17 @@ public class JavaBridge {
 					    else if (formals[i].isAssignableFrom(OutputStream.class)) {
 					        args[i] = rawOutputs[rawWriters++ %2];
 					    }
+					    else if (formals[i].isAssignableFrom(InputStream.class)) {
+					        args[i] = in;
+					    }
 					    else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
 					        args[i] = monitor;
 					    }
 					    else if (formals[i].isAssignableFrom(ClassLoader.class)) {
 					        args[i] = new ListClassLoader(loaders, getClass().getClassLoader()); 
+					    }
+					    else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
+					        args[i] = new RascalFunctionValueFactory(ctx);
 					    }
 					    else {
 					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
@@ -376,25 +393,25 @@ public class JavaBridge {
 			}
 		} 
 		catch(NoClassDefFoundError e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		}
 		catch (IllegalArgumentException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (InstantiationException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (IllegalAccessException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (InvocationTargetException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		catch (SecurityException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
+			throw new JavaMethodLink(className, e.getMessage(), e);
 		} 
 		
-		throw new JavaMethodLink(className, "class not found", func, null);
+		throw new JavaMethodLink(className, "class not found", null);
 	}
 
 	public Method lookupJavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, Environment env, boolean hasReflectiveAccess){

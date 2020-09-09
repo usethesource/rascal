@@ -12,8 +12,8 @@
 package org.rascalmpl.interpreter.matching;
 
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 
 import io.usethesource.vallang.IValue;

@@ -9,7 +9,8 @@ package org.rascalmpl.library.analysis.statistics;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.regression.SimpleRegression;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.ITuple;

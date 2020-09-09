@@ -13,7 +13,7 @@ import java.util.Stack;
 import org.jdom2.JDOMConstants;
 import org.jdom2.JDOMException;
 import org.jdom2.input.sax.XMLReaders;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IListWriter;

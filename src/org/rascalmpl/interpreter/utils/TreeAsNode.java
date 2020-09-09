@@ -2,8 +2,8 @@ package org.rascalmpl.interpreter.utils;
 
 import java.util.Iterator;
 
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;

@@ -27,6 +27,8 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
+import org.rascalmpl.values.iterators.SingleIValueIterator;
+
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;

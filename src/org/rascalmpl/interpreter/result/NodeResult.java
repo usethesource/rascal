@@ -20,12 +20,12 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.Map;
 
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;

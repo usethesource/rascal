@@ -23,62 +23,14 @@ import lang::manifest::IO;
 public java str getLineSeparator();
 
 @javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Manipulates evaluator to forget about old class instances}
-public java void resetJavaBridge();
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to evaluate}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to get back the parse tree for the given command}
-public java Tree parseCommand(str command, loc location);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to get back the parse tree for the given commands}
-public java Tree parseCommands(str commands, loc location);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to access the Rascal module parser}
-@doc{This parses a module from a string, in its own evaluator context}
-public java Tree parseModuleAndFragments(str moduleContent, loc location);
-
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to access the Rascal module parser}
-@doc{This parses a module on the search path, and loads it into the current evaluator including all of its imported modules}
-public java Tree parseModuleAndFragments(loc location);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to access the Rascal module parser}
-public java Tree parseModuleAndFragments(loc location, list[loc] searchPath);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
 @doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
-public java lang::rascal::\syntax::Rascal::Module parseModule(loc location);
+public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseModuleWithSpaces(location).top;
 
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses RascalExecutionContext to resolve modulePath}
-public java start[Module] parseNamedModuleWithSpaces(str modulePath) ;
-//{
-//    return parseModuleWithSpaces(getModuleLocation(modulePath));
-//}
-
-public start[Module] parseNamedModuleWithSpaces(str modulePath, PathConfig pcfg) {
-    return parseModuleWithSpaces(getModuleLocation(modulePath, pcfg));
-}
-
-@javaClass{org.rascalmpl.library.util.Reflective}
 @doc{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
+@javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to resolve a module name in the Rascal search path}
-public java loc getModuleLocation(str modulePath);
-
-@javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to resolve a path name in the Rascal search path}
-public java loc getSearchPathLocation(str filePath);
 
 data PathConfig 
     // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
@@ -168,10 +120,6 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension =
     }
     throw "Module <qualifiedModuleName> not found, <pcfg>";
 }
-
-@reflect{Need to get the configuration from the evaluation context}
-@javaClass{org.rascalmpl.library.util.Reflective}
-java str getRascalClasspath();
 
 tuple[str,str] splitFileExtension(str path){
     int n = findLast(path, ".");
@@ -321,11 +269,9 @@ public java str diff(value old, value new);
 - running in interpreted mode: write val to a file, 
 - running in compiled mode: compare val with previously written value}
 @javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to resolve a module name in the Rascal search path}
 public java &T watch(type[&T] tp, &T val, str name);
 
 @javaClass{org.rascalmpl.library.util.Reflective}
-@reflect{Uses Evaluator to resolve a module name in the Rascal search path}
 public java &T watch(type[&T] tp, &T val, str name, value suffix);
 
 @doc{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
@@ -349,7 +295,3 @@ set[str] getRascalReservedIdentifiers() = { n | /lit(n) := #RascalKeywords.defin
     
 @javaClass{org.rascalmpl.library.util.Reflective}
 java str getRascalVersion();   
-
- @javaClass{org.rascalmpl.library.util.Reflective}
- @reflect{Uses RVMCore to find function names}
- java list[str] clearMemos(str moduleName);

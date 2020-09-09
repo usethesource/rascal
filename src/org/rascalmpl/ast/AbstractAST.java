@@ -23,26 +23,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.IRascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public abstract class AbstractAST implements IVisitable, Cloneable {
 	protected static final TypeFactory TF = TypeFactory.getInstance();

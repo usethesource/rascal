@@ -16,8 +16,8 @@ package org.rascalmpl.semantics.dynamic;
 import java.io.IOException;
 import java.io.StringReader;
 
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.DateTimeSyntax;
 import io.usethesource.vallang.IConstructor;

@@ -18,18 +18,20 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.types.NonTerminalType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class ConcreteListPattern extends AbstractMatchingResult {
 	private ListPattern pat;
@@ -70,7 +72,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			hasNext = false;
 			return;
 		}
-		org.rascalmpl.values.uptr.ITree tree = (org.rascalmpl.values.uptr.ITree) subject.getValue();
+		org.rascalmpl.values.parsetrees.ITree tree = (org.rascalmpl.values.parsetrees.ITree) subject.getValue();
 		
 		if (!tree.isAppl()) {
 			hasNext = false;

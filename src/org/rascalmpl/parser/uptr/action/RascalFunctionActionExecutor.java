@@ -18,18 +18,19 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
  * This is the way of executing actions for Rascal syntax definitions. Each function

@@ -24,7 +24,7 @@ import java.util.Iterator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;

@@ -15,7 +15,8 @@ package org.rascalmpl.library.util;
 
 import java.util.Random;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
