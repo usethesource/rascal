@@ -1,12 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import lang::rascal::\syntax::Rascal;
-import IO;
-//import ParseTree;
+import Set;
+import Exception;
 
-Type b = (Type) `bool`;
-  
-value main() {
-    iprintln(b);
-    return b@\loc;
+value main(){ //test bool emptySetException1() { 
+    try { 
+        getOneFrom({}); 
+    } catch CallFailed([{}]): 
+        return true; 
+    return false; 
 }
