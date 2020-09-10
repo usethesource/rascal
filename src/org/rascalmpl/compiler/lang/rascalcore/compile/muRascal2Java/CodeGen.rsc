@@ -1884,8 +1884,8 @@ JCode makeConsList(set[AType] consesWithField, JGenie jg){
 }
 
 JCode trans(muHasField(MuExp exp, AType tp, str fieldName, set[AType] consesWithField), JGenie jg)
-    = isADTType(tp) ? "$aadt_has_field(<trans(exp, jg)>,\"<fieldName>\"<makeConsList(consesWithField, jg)>)" 
-                    : "$anode_has_field(<trans(exp, jg)>,\"<fieldName>\")";
+    = isADTType(tp) ? "$aadt_has_field(<trans(exp, jg)>,\"<fieldName>\"<makeConsList(consesWithField, jg)>).getValue()" 
+                    : "$anode_has_field(<trans(exp, jg)>,\"<fieldName>\").getValue()";
 
 // muHasSubcscript
 JCode trans(muSubscript(MuExp exp, MuExp idx), JGenie jg){

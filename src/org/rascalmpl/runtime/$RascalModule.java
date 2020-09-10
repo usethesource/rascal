@@ -1585,17 +1585,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * Runtime check whether a node has a named field
 	 * 
 	 */
-	public final boolean $anode_has_field(final INode nd, final String fieldName) {
+	public final IBool $anode_has_field(final INode nd, final String fieldName) {
 		if(nd.getType().isAbstractData()) {
 			return $aadt_has_field((IConstructor) nd, fieldName);
 		}
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
-			return true;
+			return $VF.bool(true);
 		} else {
 //			if(nd.isAnnotatable()){
 //				return nd.asAnnotatable().getAnnotation(fieldName) != null;
 //			} else {
-				return false;
+				return $VF.bool(false);
 //			}
 		}
 	}
@@ -1604,20 +1604,20 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * Runtime check whether given constructor has a named field (positional or keyword).
 	*/
 
-	public final boolean $aadt_has_field(final IConstructor cons, final String fieldName, Type... consesWithField) {
+	public final IBool $aadt_has_field(final IConstructor cons, final String fieldName, Type... consesWithField) {
 
 		Type consType = cons.getConstructorType();
 		for(Type ct : consesWithField) {
-			if(consType.equals(ct)) return true;
+			if(consType.equals(ct)) return $VF.bool(true);
 		}
 
 		// Does fieldName exist as positional field?
 		if(consType.hasField(fieldName)){
-			return true;
+			return $VF.bool(true);
 		}
 		
 		if($TS.hasKeywordParameter(consType, fieldName)) {
-			return cons.asWithKeywordParameters().getParameter(fieldName) != null;
+			return $VF.bool(cons.asWithKeywordParameters().getParameter(fieldName) != null);
 		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
@@ -1626,13 +1626,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
 				IConstructor arg = (IConstructor) elem;
 				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-					return true;			        }
+					return $VF.bool(true);			        }
 			}
 		}
 //		if(cons.isAnnotatable()){
 //			return cons.asAnnotatable().getAnnotation(fieldName) != null;
 //		} else {
-			return false;
+			return  $VF.bool(false);
 //		}
 	}
 	
