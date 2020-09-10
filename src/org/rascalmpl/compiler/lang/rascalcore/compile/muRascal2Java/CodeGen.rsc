@@ -383,7 +383,8 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
     name_resolver = "<replaceAll(overload.name, "::", "_")>_<atype2idpart(overload.funType)>";
     signature = "public <returnType> <getJavaName(resolverName)>(<argTypes>)";
     isignature = "public <returnType> <getJavaName(overload.name)>(<argTypes>)";
-   
+    actualsNoKwParams = actuals;
+    
     imethod = "";
     if(!isInnerFunction && !isSyntheticFunctionName(overload.name)){
         actuals = intercalate(", ", ["$<i>" |  i <- index(formalTypes)]);
@@ -453,7 +454,7 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
            '<signature>{ // Single-resolver for <prettyAType(funType)> <overload.name>
            '    <if(true /*canFail*/ && !returns_void){><atype2javatype(getResult(funType))> res;<}>
            '    <body><conses>
-           '    <if(/*canFail &&*/ isEmpty(conses) || contains(conses, "if(")){>throw RuntimeExceptionFactory.callFailed($VF.list(<actuals>), null, null);<}>
+           '    <if(/*canFail &&*/ isEmpty(conses) || contains(conses, "if(")){>throw RuntimeExceptionFactory.callFailed($VF.list(<actualsNoKwParams>), null, null);<}>
            '}
            '";
 }
