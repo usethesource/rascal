@@ -124,6 +124,10 @@ public class RuntimeExceptionFactory {
 	    return new Throw(VF.constructor(CallFailed, arguments), ast.getLocation(), trace);
 	}
 	
+	public static Throw callFailed(IList arguments) {
+        return new Throw(VF.constructor(CallFailed, arguments));
+    }
+	
 	// arihmeticException
 	
 	public static Throw arithmeticException(IString msg) {
