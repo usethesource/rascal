@@ -1008,7 +1008,7 @@ private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ re
     resultType = getType(c);
     conds = normalizeAnd([ g | Expression g <- generators ]);
     btscopes = getBTScopesAnd(conds, nextTmp("LCOMP"), ());
-    iprintln(btscopes);
+    //iprintln(btscopes);
     return 
         muValueBlock(resultType,
                      [ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], c@\loc)),
@@ -1024,7 +1024,7 @@ private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ re
     resultType = getType(c);
     conds = normalizeAnd([ g | Expression g <- generators ]);
     btscopes = getBTScopesAnd(conds, nextTmp("SCOMP"), ());
-    iprintln(btscopes);
+    //iprintln(btscopes);
     return
         muValueBlock(resultType,
                      [ muConInit(writer, muCallPrim3("open_set_writer", avalue(), [], [], c@\loc)),
@@ -1819,7 +1819,7 @@ MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCon
     firstCond = size(conds) - 1;
     for(i <- reverse(index(conds))){
         cont = i == 0 ? falseCont : muFail(getResume(conds[i-1], btscopes));   // <<<
-        iprintln(cont);
+        //iprintln(cont);
         trueCont = normalize(translateBool(conds[i], btscopes, trueCont, cont));
     }
     
