@@ -454,7 +454,7 @@ str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunct
            '<signature>{ // Single-resolver for <prettyAType(funType)> <overload.name>
            '    <if(true /*canFail*/ && !returns_void){><atype2javatype(getResult(funType))> res;<}>
            '    <body><conses>
-           '    <if(/*canFail &&*/ isEmpty(conses) || contains(conses, "if(")){>throw RuntimeExceptionFactory.callFailed($VF.list(<actualsNoKwParams>), null, null);<}>
+           '    <if(/*canFail &&*/ isEmpty(conses) || contains(conses, "if(")){>throw RuntimeExceptionFactory.callFailed($VF.list(<actualsNoKwParams>));<}>
            '}
            '";
 }
