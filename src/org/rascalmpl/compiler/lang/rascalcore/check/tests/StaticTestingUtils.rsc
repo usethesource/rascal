@@ -229,7 +229,8 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	      "Double declaration of _",
 	      "Constructor _ clashes with other declaration with comparable fields",
 	      "Unresolved type for _",
-	       "Constructor _ in formal parameter should be unique"
+	       "Constructor _ in formal parameter should be unique",
+	       "Type _ should have one type argument"
 		  //"Constructor _ overlaps existing constructors in the same datatype", 
 		  //"Initializer type",
 		  //"Errors present in constructor parameters, cannot add constructor to scope"

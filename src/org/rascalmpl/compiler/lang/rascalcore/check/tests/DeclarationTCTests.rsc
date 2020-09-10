@@ -213,6 +213,6 @@ test bool nonAmbiguousParameter5() =
 test bool ambiguousParameter1() =
     declarationError("int getN(f(s, n)) = n;", 
             initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
-@ignore{until next release}	
+            
 test bool listWithWrongArity() =
-    checkOK("list[int,str] x = []");
+    declarationError("list[int,str] x = [];");
