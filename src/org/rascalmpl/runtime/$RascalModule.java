@@ -440,6 +440,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 //			}
 //		}
 	}
+	
+	public final GuardedIValue $guarded_annotation_get(final INode cons, final String fieldName) {
+		if(cons.asWithKeywordParameters().hasParameter(fieldName)) {
+			return new GuardedIValue(cons.asWithKeywordParameters().getParameter(fieldName));
+		}
+		return UNDEFINED;
+	}
 
 	// ---- assert_fails ------------------------------------------------------
 
