@@ -419,6 +419,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 		throw  RuntimeExceptionFactory.noSuchAnnotation(fieldName);
 	}
+	
+	public final IValue $annotation_get(final INode cons, final String fieldName) {
+		if(cons.asWithKeywordParameters().hasParameter(fieldName)) {
+			return cons.asWithKeywordParameters().getParameter(fieldName);
+		}
+		throw  RuntimeExceptionFactory.noSuchAnnotation(fieldName);
+	}
 
 	public final GuardedIValue $guarded_annotation_get(final IConstructor cons, final String fieldName) {
 		if(cons.asWithKeywordParameters().hasParameter(fieldName)) {
