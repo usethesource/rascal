@@ -973,11 +973,11 @@ JCode trans(muAssign(v:muTmpNative(str name, str fuid, NativeKind nkind), MuExp 
 
 // muGetAnno
 JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg)
-    = "$annotation_get(((INode)<trans(exp, jg)>,\"<annoName>\"))";
+    = "$annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
 
 // muGuardedGetAnno
 JCode trans(muGuardedGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg){
-    return "$guarded_annotation_get(((INode)<trans(exp, jg)>,\"<annoName>\"))";
+    return "$guarded_annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
 }    
 //// muSetAnno
 //JCode trans(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl), JGenie jg)
