@@ -112,11 +112,11 @@ str module2class(str qname){
 }
 
 str module2path(str qname){
+
     pieces = split("::", qname);
     pieces = [getJavaName(x) | x <- pieces];
-    path = intercalate("/", pieces);
     
-    return "<compiled_rascal_package>/<path>";
+    return size(pieces) > 1 ? "<compiled_rascal_package>/<intercalate("/", pieces[..-1])>": compiled_rascal_package;
 }
 
 str module2field(str qname){
