@@ -153,7 +153,32 @@ void collect(Tag tg, Collector c){
 }
 
 // ---- annotation ------------------------------------------------------------
+Expression makeKeywordDefaultExpression(Type annoType){
 
+    // The default expression is arbitrary since a NoSuchAnnotation will be thrown before it can be executed.
+    // However, in the generated code we need a type correct default expression.
+
+    switch(annoType){
+    case (Type) `bool`: return (Expression) `true`;
+    case (Type) `int`: return (Expression) `0`;
+    case (Type) `real`: return (Expression) `0.0`;
+    case (Type) `str`: return (Expression) `""`;
+    case (Type) `datetime`: return (Expression) `$2020-09-10T11:17:10.760+00:00$`;
+    case (Type) `loc`: return (Expression) `|project://rascal/src/org/rascalmpl/library/Node.rsc|`;
+    case (Type) `value`: return (Expression) `true`;
+    case (Type) `list[<TypeArg t>]`: return (Expression) `[]`;
+    case (Type) `set[<TypeArg t>]`: return (Expression) `{}`;
+    case (Type) `map[<TypeArg k>,<TypeArg v>]`: return (Expression) `()`;
+    case (Type) `rel[<{TypeArg ","}+ arguments>]`: return (Expression) `{}`;
+    case (Type) `lrel[<{TypeArg ","}+ arguments>]`: return (Expression) `[]`;
+    default:
+        throw "makeKeywordDefaultExpression: <annoType>";
+    }
+}
+KeywordFormal makeKeywordFormal(Type annoType, Name name){
+    Expression dflt = makeKeywordDefaultExpression(annoType);
+    return (KeywordFormal) `<Type annoType> <Name name> = <Expression dflt>`;
+}
 // Deprecated
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
 
@@ -165,9 +190,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     
     //userType = onType has user ? onType.user 
     adtName = onType is user ? prettyPrintName(onType.user.name) : "<onType>";
-    commonKeywordParameterList = [ (KeywordFormal) `<Type annoType> <Name name> = 0` ]; // The default expression `0` is arbitrary since a NoSuchAnnotation
-                                                                                        // will be thrown before it can be executed
-    
+    commonKeywordParameterList = [makeKeywordFormal(annoType, name) ];     
     dt1 = defType(aadt(adtName, [], dataSyntax()));
     
     dt1.commonKeywordFields = commonKeywordParameterList;
