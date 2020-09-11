@@ -102,7 +102,7 @@ bool isValidIsDefinedArg(Expression arg)
     || arg is fieldAccess 
     || arg is fieldProject 
     || arg is getAnnotation
-    || arg is callOrTree
+//    || arg is callOrTree
     || arg is qualifiedName
     || (arg is \bracket && isValidIsDefinedArg(arg.expression));
 
