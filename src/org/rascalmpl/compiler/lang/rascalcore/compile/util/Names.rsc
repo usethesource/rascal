@@ -111,7 +111,7 @@ str module2class(str qname){
     return getBaseClass(qname); //replaceAll(qname, "::", ".");
 }
 
-str module2path(str qname){
+str module2dir(str qname){
 
     pieces = split("::", qname);
     pieces = [getJavaName(x) | x <- pieces];
