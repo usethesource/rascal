@@ -269,14 +269,20 @@ tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas,
     labelsList = [tp.label | tp <- fieldTypes];
     nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
     distinctLabels = toSet(nonEmptyLabels);
+    msgs = [];
+    for(int i <- index(fieldTypes)){
+        if(isVoidType(fieldTypes[i])){
+            msgs += error(tas, "Non-well-formed tuple type, field #%v should not be `void`", i);
+        }
+    }
     if (size(fieldTypes) == size(distinctLabels)){
-        return <[], makeTupleType(fieldTypes)>;
+        return <msgs, makeTupleType(fieldTypes)>;
     } else if(size(distinctLabels) == 0) {
-        return <[], makeTupleType(fieldTypes)>;
+        return <msgs, makeTupleType(fieldTypes)>;
     } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-        return <[error(tas, "Non-well-formed tuple type, labels must be distinct")], makeTupleType([unset(tp, "label") | tp <- fieldTypes])>;
+        return <msgs+[error(tas, "Non-well-formed tuple type, labels must be distinct")], makeTupleType([unset(tp, "label") | tp <- fieldTypes])>;
     } else if (size(distinctLabels) > 0) {
-        return <[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeTupleType([unset(tp, "label") | tp <- fieldTypes])>;
+        return <msgs+[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeTupleType([unset(tp, "label") | tp <- fieldTypes])>;
     } 
     return <[], avoid()>; 
 }
