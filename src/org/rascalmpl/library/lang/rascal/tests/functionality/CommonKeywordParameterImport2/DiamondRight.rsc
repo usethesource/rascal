@@ -16,7 +16,7 @@ test bool Right_x_right1() = x() has right;
 test bool Right_x_right2() = !x().right?;
 test bool Right_x_right3() = x().right == 10;
 test bool Right_x_right4() = x(right = 20).right == 20;
-test bool Right_x_right5() = x(right = 20)?;
+//test bool Right_x_right5() = x(right = 20)?;
 test bool Right_x_right6() = x(right = 20).right == 20;
 
 test bool Right_x_rightsq1() = x() has rightsq;
