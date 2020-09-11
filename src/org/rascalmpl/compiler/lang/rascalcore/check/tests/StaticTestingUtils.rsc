@@ -250,7 +250,7 @@ bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecl
 
 bool nonVoidType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
     check(stmts, [
-          "Contribution to _ comprehension cannot have type `void`"
+          "Contribution to _ comprehension should not have type `void`"
           //"Non-void type required"
     ], importedModules=importedModules, initialDecls=initialDecls);
     
