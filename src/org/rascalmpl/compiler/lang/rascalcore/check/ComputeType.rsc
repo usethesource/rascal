@@ -24,6 +24,14 @@ void requireFullyInstantiated(Solver s, AType ts...){
   }
 }
 
+void checkNonVoid(Tree e, Collector c, str msg){
+    if(isVoidType(c.getType(e))) c.report(error(e, msg + " cannot have type `void`"));
+}
+
+void checkNonVoid(Tree e, AType t, Collector c, str msg){
+    if(isVoidType(t)) c.report(error(e, msg + " cannot have type `void`"));
+}
+
 void checkNonVoid(Tree e, Solver s, str msg){
     if(isVoidType(s.getType(e))) s.report(error(e, msg + " cannot have type `void`"));
 }

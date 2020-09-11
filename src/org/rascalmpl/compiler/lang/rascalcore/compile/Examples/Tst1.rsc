@@ -1,4 +1,8 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-@javaClass{org.rascalmpl.library.Prelude}
-public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
+void voidFunc() { return; }
+
+//void f() { x = 1 + (voidFunc()); }
+
+value main () = int n := voidFunc();
+

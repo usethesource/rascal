@@ -119,12 +119,14 @@ void checkIsDefinedArg(Expression arg, Collector c){
     } else if(!isValidIsDefinedArg(arg)){
         c.report(error(arg, "Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation"));
     }
+  
 }
 
 void collect(current: (Expression) `<Expression arg> ?`, Collector c){
     c.fact(current, abool());
     checkIsDefinedArg(arg, c);
     collect(arg, c); 
+    c.require("non void", arg, [], makeNonVoidRequirement(arg, "Argument of is-defined operator _ ?)"));
 }
 
 // ---- negation
@@ -543,6 +545,9 @@ void collect(current: (Expression) `<Expression e1> ? <Expression e2>`, Collecto
     checkIsDefinedArg(e1, c);   
     c.calculate("if defined", current, [e1, e2], AType(Solver s){ return s.lub(s.getType(e1), s.getType(e2)); });
     collect(e1, e2, c);
+    c.require("non void", e1, [], makeNonVoidRequirement(e1, "First argument of if-defined operator _ ? _"));
+    c.require("non void", e2, [], makeNonVoidRequirement(e2, "Second argument of if-defined operator _ ? _"));
+    
 }
 
 // ---- noMatch
@@ -563,6 +568,7 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
     c.calculate("match", current, [expression],
         AType(Solver s) {
             subjectType = s.getType(expression);
+            checkNonVoid(expression, subjectType, s, "Second argument of match operator _ := _");
             if(isStartNonTerminalType(subjectType)){
                 subjectType = getStartNonTerminalType(subjectType);
             }
@@ -821,6 +827,8 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
         c.calculate("if expression", current, [condition, thenExp, elseExp],
             AType(Solver s){
                 s.requireComparable(abool(), condition, error(condition, "Condition should be `bool`, found %t", condition));
+                checkNonVoid(thenExp, s, "Then part in conditional expression");
+                checkNonVoid(elseExp, s, "Else part in conditional expression");
                 //clearBindings();
                 //checkConditions([condition]);
                 return s.lub(thenExp, elseExp);

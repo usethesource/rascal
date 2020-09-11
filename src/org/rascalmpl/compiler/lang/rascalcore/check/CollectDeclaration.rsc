@@ -571,11 +571,16 @@ void collect(Parameters parameters, Collector c){
             scope = c.getScope();
             try {
                 formalTypes = [ c.getType(f) | f <- formals ];
+                
+                
                 int last = size(formalTypes) -1;
                 if(parameters is varArgs){
                     formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
                 }
                 c.fact(parameters, atypeList(formalTypes));
+                for(int i <- index(formals)){
+                    checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
+                }
             } catch TypeUnavailable():{
                 c.calculate("formals", parameters, [],
                     AType(Solver s) { 
@@ -585,6 +590,9 @@ void collect(Parameters parameters, Collector c){
                         int last = size(formalTypes) -1;
                         if(parameters is varArgs){
                             formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
+                        }
+                        for(int i <- index(formals)){
+                            checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
                         }
                         return atypeList(formalTypes);
                     }); 
