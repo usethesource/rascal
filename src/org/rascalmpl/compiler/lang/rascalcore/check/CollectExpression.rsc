@@ -266,6 +266,7 @@ void collect(current: (Expression) `( <Expression expression> )`, Collector c){
    //c.calculate("brackets", current, [expression],  AType(Solver s) { return s.getType(expression); } );
     c.fact(current, expression);
     collect(expression, c);
+    c.require("non-void expression", current, [expression], void(Solver s){ checkNonVoid(expression, s, "Parenthesized expression"); });
 }
 
 // ---- closure
