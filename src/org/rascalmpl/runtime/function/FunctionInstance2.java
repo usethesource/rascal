@@ -16,8 +16,14 @@ public class FunctionInstance2<R extends IValue,A,B> extends FunctionInstance {
 		return function.call(a, b);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public R call(IValue a, IValue b) {
+		return function.call((A)a, (B)b);
+	}
+	
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
-	    return call(parameters[0], parameters[1]);
+	    return (T)function.call((A)parameters[0], (B)parameters[1]);
 	}
 }
