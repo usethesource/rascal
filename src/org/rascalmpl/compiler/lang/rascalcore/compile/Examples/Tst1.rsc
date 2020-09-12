@@ -1,19 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+//    
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
-//data X = x();
-//data X(int right = 10, int rightsq = right * right);
-//
-//value main() //test bool Right_x_right5() 
-//    = x(right = 20)?;
 
-int f() = 4/0;
+value main() = f(1, 0, bool (&T a, &T b) { return a < b; });
 
-value main() = f()?;
 
-//import List;
-//
-//public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && elementAt(L,i) > elementAt(L,j));
-//
-//value main() = isSorted([1, 2, 3]);
-
+int f(int x, int y, bool(int x, int y) less) = less(x, y) ? x : y;
