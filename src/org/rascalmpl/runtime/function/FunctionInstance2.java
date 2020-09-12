@@ -12,9 +12,9 @@ public class FunctionInstance2<R extends IValue,A,B> extends FunctionInstance {
 		this.function = function;
 	}
 	
-	public R call(A a, B b) {
-		return function.call(a, b);
-	}
+//	public R call(A a, B b) {
+//		return function.call(a, b);
+//	}
 	
 	@SuppressWarnings("unchecked")
 	public R call(IValue a, IValue b) {

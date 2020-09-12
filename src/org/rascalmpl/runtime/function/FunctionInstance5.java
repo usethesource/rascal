@@ -12,9 +12,9 @@ public class FunctionInstance5<R,A,B,C,D,E> extends FunctionInstance {
 		this.function = function;
 	}
 	
-	public R call(A a, B b, C c, D d, E e) {
-		return function.call(a, b, c, d, e);
-	}
+//	public R call(A a, B b, C c, D d, E e) {
+//		return function.call(a, b, c, d, e);
+//	}
 	
 	@SuppressWarnings("unchecked")
 	public R call(IValue a, IValue b, IValue c, IValue d, IValue e) {
@@ -24,6 +24,6 @@ public class FunctionInstance5<R,A,B,C,D,E> extends FunctionInstance {
 	@SuppressWarnings("unchecked")
 	@Override
     public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
-        return (T)call((A)parameters[0], (B)parameters[1], (C)parameters[2], (D)parameters[3], (E)parameters[4]);
+        return (T)function.call((A)parameters[0], (B)parameters[1], (C)parameters[2], (D)parameters[3], (E)parameters[4]);
     }
 }
