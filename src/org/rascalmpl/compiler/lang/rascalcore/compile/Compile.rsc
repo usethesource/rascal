@@ -49,6 +49,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
      
         //writeFile(targetDir + "$<className>.java", the_interface);
         writeFile(targetDir + "<className>.java", the_class);
+        println("Written: <targetDir + "<className>.java">");
         writeFile(targetDir + "<className>Tests.java", the_test_class);
      
         return errors; //tm.messages;
