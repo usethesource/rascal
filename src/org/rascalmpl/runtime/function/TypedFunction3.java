@@ -1,6 +1,6 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 
 @FunctionalInterface
-public interface Function2<R, A, B> {
-	public R call(final A a, final B b);
+public interface TypedFunction3<R, A, B, C> {
+	public R typedCall(final A a, final B b, final C c);
 }

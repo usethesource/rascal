@@ -4,26 +4,26 @@ import java.util.Map;
 
 import io.usethesource.vallang.IValue;
 
-public class FunctionInstance1<R extends IValue,A> extends FunctionInstance {
+public class TypedFunctionInstance1<R extends IValue,A> extends TypedFunctionInstance {
 	
-	private final Function1<R,A> function;
+	private final TypedFunction1<R,A> function;
 
-	public FunctionInstance1(Function1<R,A> function){
+	public TypedFunctionInstance1(TypedFunction1<R,A> function){
 		this.function = function;
 	}
 	
-//	public R call(A a) {
-//		return function.call(a);
-//	}
+	public R typedCall(A a) {
+		return function.typedCall(a);
+	}
 	
 	@SuppressWarnings("unchecked")
 	public R call(IValue a) {
-		return function.call((A)a);
+		return function.typedCall((A)a);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
-	    return (T)function.call((A)parameters[0]);
+	    return (T)function.typedCall((A)parameters[0]);
 	}
 }

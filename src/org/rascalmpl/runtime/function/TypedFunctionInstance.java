@@ -10,11 +10,11 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
-public abstract class FunctionInstance implements IFunction {
+public abstract class TypedFunctionInstance implements IFunction {
 	protected final TypeFactory $TF = TypeFactory.getInstance();
 //    private final FunctionType type;
 	
-	public FunctionInstance(/*TODO: FunctionType type*/) {
+	public TypedFunctionInstance(/*TODO: FunctionType type*/) {
 //	    this.type = type;
     }
 	
