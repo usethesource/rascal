@@ -261,7 +261,15 @@ loc findContainer(Define d){
     //println(d);
     if(is_module(d)) return d.defined;
     cscope = d.scope;
-    while(!is_module_or_function(cscope)) cscope = scopes[cscope];
+    while(!is_module_or_function(cscope)) { 
+        if(cscope == scopes[cscope]){
+            println("scopes:"); iprintln(scopes);
+            println("d: <d>");
+            println("cscope: <cscope>");
+            throw "findContainer loops";
+        }
+        cscope = scopes[cscope];
+    }
     return cscope;
 }
     
