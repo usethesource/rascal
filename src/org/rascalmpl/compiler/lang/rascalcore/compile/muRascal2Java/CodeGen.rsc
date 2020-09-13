@@ -741,7 +741,7 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
     
-    funInstance = "new FunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals])>\>";
+    funInstance = "new TypedFunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals])>\>";
     
     bare_actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
     actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
@@ -768,7 +768,7 @@ JCode trans(muOFun(str fuid, AType ftype), JGenie jg){
     nformals = size(getFormals(ftype));
     sep = nformals > 0 ? "," : "";
     
-    funInstance = "new FunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- getFormals(ftype)])>\>";
+    funInstance = "new TypedFunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- getFormals(ftype)])>\>";
     
     bare_formals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
     formals = intercalate(", ", ["(<atype2javatype(getFormals(ftype)[i])>)$<i>" | i <- [0..nformals]]);
@@ -789,7 +789,7 @@ str trans(muConstr(AType ctype), JGenie jg){
     nformals = size(ctype.fields);
     sep = nformals > 0 ? "," : "";
     
-    funInstance = "new FunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- ctype.fields])>\>";
+    funInstance = "new TypedFunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- ctype.fields])>\>";
     
     bare_formals = ["$<i>" | i <- [0..nformals]];
     return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, hasKeywordParameters(ctype) || jg.hasCommonKeywordFields(ctype) ? [kwpActuals] : [], jg)>; })";
@@ -954,7 +954,7 @@ default str transWithCast(AType atype, MuExp exp, JGenie jg) {
 }
 
 bool producesFunctionInstance(str code)
-    = startsWith(code, "new FunctionInstance");
+    = startsWith(code, "new TypedFunctionInstance");
 
 // ---- muAssign --------------------------------------------------------------
 
@@ -1126,7 +1126,7 @@ JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName
     
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
 
-    return "<cst><trans(fun, jg)>.call(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
+    return "<cst><trans(fun, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
 }
 
 // ---- muGetKwField ------------------------------------------------------
