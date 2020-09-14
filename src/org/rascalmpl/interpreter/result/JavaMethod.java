@@ -152,12 +152,6 @@ public class JavaMethod extends NamedFunction {
 			Map<Type, Type> renamings = new HashMap<>();
 			bindTypeParameters(actualTypesTuple, actuals, formals, renamings, env); 
 			
-			if (!getReturnType().isBottom() && getReturnType().instantiate(env.getStaticTypeBindings()).isBottom()) {
-			    // type parameterized functions are not allowed to return void,
-			    // so they are never called if this happens (if void is bound to the return type parameter)
-			    throw new MatchFailed();
-			}
-			    
 			IValue result = invoke(oActuals);
 			
 			Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
@@ -166,6 +160,13 @@ public class JavaMethod extends NamedFunction {
 			resultValue = ResultFactory.makeResult(resultType, result, eval);
 			resultValue = storeMemoizedResult(actuals, keyArgValues, resultValue);
 			printEndTrace(resultValue.value);
+			
+			if (!getReturnType().isBottom() && getReturnType().instantiate(env.getStaticTypeBindings()).isBottom()) {
+			    // type parameterized functions are not allowed to return void,
+			    // so if they do not throw an exception, we now do so automatically
+			    throw new MatchFailed();
+			}
+			
 			return resultValue;
 		}
 		catch (Throwable e) {
@@ -173,6 +174,8 @@ public class JavaMethod extends NamedFunction {
 			throw e;
 		}
 		finally {
+		   
+		    
 			if (callTracing) {
 				callNesting--;
 			}
@@ -239,7 +242,7 @@ public class JavaMethod extends NamedFunction {
 				trace.addAll(th.getTrace());
 				
 				ISourceLocation loc = th.getLocation();
-				if (loc == null) {
+				if (loc == null || loc.getScheme().equals("TODO")) {
 				  loc = getAst().getLocation();
 				}
 				trace.add(loc, null);

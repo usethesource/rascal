@@ -112,16 +112,17 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 Map<Type, Type> renamings = new HashMap<>();
                 bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, functionType.getFieldTypes(), renamings, env); 
 
+               
+                IValue returnValue = func.apply(argValues, keyArgValues);
+
+                Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
+                resultType = unrenameType(renamings, resultType);
+                
                 if (!getReturnType().isBottom() && getReturnType().instantiate(env.getStaticTypeBindings()).isBottom()) {
                     // type parameterized functions are not allowed to return void,
                     // so they are never called if this happens (if void is bound to the return type parameter)
                     throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
                 }
-
-                IValue returnValue = func.apply(argValues, keyArgValues);
-
-                Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
-                resultType = unrenameType(renamings, resultType);
 
                 if (functionType.isBottom()) {
                     return ResultFactory.nothing();

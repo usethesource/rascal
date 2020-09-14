@@ -272,6 +272,8 @@ WARNING: This function is *deprecated*, use a link:/Rascal#Expressions-Reducer[r
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
 	(unit | fn(it,elm) | elm <- st);
 
+public &T reducer(set[&T] _:{}) { throw EmptySet(); }
+
 @doc{
 .Synopsis
 Determine the number of elements in a set.
@@ -342,6 +344,7 @@ Applying `getFirstFrom` on the same set will always returns the same element.
 This function helps to make set-based code more deterministic, for instance, for testing purposes.
 }
 public &T getFirstFrom({&T f, *&T _}) = f;
+public &T getFirstFrom(set[&T] _:{}) { throw EmptySet(); }
 
 @doc{
 .Synopsis
@@ -362,7 +365,7 @@ takeOneFrom({1, 2, 3, 4});
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java tuple[&T, set[&T]] takeOneFrom(set[&T] st);
- 
+
  @doc{
 .Synopsis
 Remove "first" element from a set, returns the element and a set without that element.
@@ -370,7 +373,8 @@ Remove "first" element from a set, returns the element and a set without that el
 .Description
 element of a set.
 }
-public tuple[&T, set[&T]] takeFirstFrom({&T f, *&T r}) = <f, r>;    
+public tuple[&T, set[&T]] takeFirstFrom({&T f, *&T r}) = <f, r>;  
+public tuple[&T, set[&T]] takeFirstFrom(set[&T] _:{}) { throw EmptySet(); }  
  
 @doc{
 .Synopsis

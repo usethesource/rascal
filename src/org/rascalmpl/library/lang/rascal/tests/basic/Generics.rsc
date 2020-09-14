@@ -24,14 +24,14 @@ test bool hygienicGenericADT() {
 }
 
 int recursiveGenericFunction(&T n) {
-   if (str name() := n) {
+   if (str _() := n) {
      return 0;
    }
    
    // test rebinding the generic type to another unrelated type: 
    assert recursiveGenericFunction(""()) == 0;
    
-   if (str name(value arg) := n) {
+   if (str _(value arg) := n) {
      // call a recursive function, if the type resolution is not hygienic,
      // then &T would be bound to itself or to a caller instance type
      // which might lead to infinite instantiation cycles in vallang
@@ -49,16 +49,17 @@ bool less(&T a, &T b) = a < b;
 
 test bool lessIsConsistentThroughTypeParameters(num x, num y) = (x < y) ==> less(x, y);
 
-&T avoidEmpty(list[&T] _) { throw "this should not even happen"; }
+&T avoidEmpty(list[&T] _) { return 1; }
+&T avoidEmpty(list[&T] _) { throw "this should happen"; }
 
 test bool voidReturnIsNotAllowed() {
    try {
      return avoidEmpty([]); 
-   } catch CallFailed([[]]):
+   } catch "this should happen":
      return true;
 }
 
-&T cast(type[&T] t, value x) = y when &T y := x;
+&T cast(type[&T] _, value x) = y when &T y := x;
 
 test bool typeParametersAreCheckedStaticallyButAlsoBoundDynamically() {
    // statically type[num] but dynamically type[int]
@@ -82,7 +83,7 @@ test bool typeParametersAreCheckedStaticallyButAlsoBoundDynamically() {
 // the filter functies guarantees statically all elements will be sub-type of the static instance of &T at the call
 // site, by making sure to use the _dynamic_ type of the reified type value t during pattern matching! The compiler
 // does not require to maintain information about static types at run-time because of this.
-list[&T] \filter(type[&T] t, list[value] elems) = [e | &T e <- elems];
+list[&T] \filter(type[&T] _, list[value] elems) = [e | &T e <- elems];
 
 test bool typeParametersAreCheckedStaticallyButAlsoBoundDynamically2() 
   = [1,2,3] == \filter(#int, [1, "1", 1r, 2, "2", 1r2, 3, "3", 1r3]);
@@ -100,7 +101,7 @@ test bool typeParametersAreCheckedStaticallyButAlsoBoundDynamically3_3()
   = [1,"1",1r,2,"2",1r2,3,"3",1r3] == \filter(t, [1, "1", 1r, 2, "2", 1r2, 3, "3", 1r3]) when type[value] t := #value;   
   
 test bool staticTypeParametersKeepElementLabelsAlsoWithListMatch() {
-   &T first([&T head, *&T tail]) = head;
+   &T first([&T head, *&T _]) = head;
    
    lrel[int first, int second] myList = [<1,2>,<2,3>];
    
@@ -110,7 +111,7 @@ test bool staticTypeParametersKeepElementLabelsAlsoWithListMatch() {
 }  
 
 test bool staticTypeParametersKeepElementLabelsAlsoWithSetMatch() {
-   &T take({&T some, *&T other}) = some;
+   &T take({&T some, *&T _}) = some;
    
    rel[int first, int second] mySet = {<1,2>,<2,3>};
    
@@ -122,21 +123,38 @@ test bool staticTypeParametersKeepElementLabelsAlsoWithSetMatch() {
 test bool recursiveOverloadedGenericFunction() {
    str f(int i) = "<i>";
    str f(map[&K, &V] m) = "(<for (k <- m) {><f(k)>:<f(m[k])>, <}>)";
-   str f(list[&E] l) = "[<for (e <- l) {><f(l)>, <}>]";
+   str f(list[&E] l) = "[<for (e <- l) {><f(e)>, <}>]";
    
    return f((1:(1:2))) == "(1:(1:2, ), )";
 }
 
-test bool voidMaybeShouldNotMatch() {
-   &T get(Maybe[&T] m) = m.val;
-   
+
+test bool voidMaybeShouldShouldThrowException() {
+   &T testFunction(Maybe[&T] m) = m.val; 
+    
    try {
-      example = nothing();
-      value x = get(example); // return type of `get` binds to `void` dynamically
-      return x != 123; // this never happens
+      Maybe[value] m = nothing();
+      value x = testFunction(m);
+      return x != 123; // this comparison never happens
    }
-   catch CallFailed([nothing()]) :
+   catch NoSuchField(_) :
      return true;
+}
+
+test bool voidListsShouldThrowException() {
+  tuple[&T, list[&T]] headTail(list[&T] l) {
+     if ([&T h, *&T t] := l) {
+       return <h, t>;
+     }
      
-   return false;  
+     fail;
+  }
+  
+  try {
+      list[value] m = [];
+      tuple[value,list[value]] x = headTail(m);
+      return x != <123,[456]>; // this comparison never happens
+   }
+   catch CallFailed([[]]) :
+     return true;
 }

@@ -156,7 +156,7 @@ test bool exceptionHandling3(){
 test bool exceptionHandling4(){
     try { 
         head([]); 
-    } catch CallFailed([[]]):
+    } catch EmptyList():
         return true;
     return false; 
 }

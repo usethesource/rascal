@@ -150,6 +150,7 @@ Pick first element from a list.
 Get the first element from a list. As opposed to <<List-getOneFrom>> this function always returns the same (first) list element.
 }
 public &T getFirstFrom([&T f, *&T _]) = f;
+public &T getFirstFrom(list[&T] _ :[]) { throw EmptyList(); }
 
 @doc{
 .Synopsis
@@ -157,7 +158,7 @@ Get the first element(s) from a list.
 
 .Description
 
-* Returns the first element of a list or throws `CallFailed(_,[[]])` when the list is empty. 
+* Returns the first element of a list or throws `EmptyList` when the list is empty. 
   This is identical to <<top>>.
 * Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short. 
   This is similar to <<take>>.
@@ -190,6 +191,7 @@ An exception is thrown when the second argument exceeds the length of the list:
 head([1, 2, 3, 5], 5);
 ----}
 public &T head([&T h, *&T _]) = h; 
+public &T head(list[&T] _:[]) { throw EmptyList(); }
 
 // Get the first n elements of a list
 @javaClass{org.rascalmpl.library.Prelude}
@@ -213,6 +215,7 @@ headTail(["zebra", "elephant", "snake", "owl"]);
 ----
 }
 public tuple[&T, list[&T]] headTail([&T h, *&T t]) = <h, t>; 
+public tuple[&T, list[&T]] headTail(list[&T] _:[]) { throw EmptyList(); }
 
 @doc{
 .Synopsis
@@ -347,6 +350,7 @@ last(["zebra", "elephant", "snake", "owl"]);
 tail([3, 1, 4, 5]);
 ----}
 public &T last([*&T _, &T l]) = l;
+public &T last(list[&T] _:[]) { throw EmptyList(); }
 
 @doc{
 .Synopsis
@@ -398,6 +402,7 @@ max([1, 3, 5, 2, 4]);
 max(["zebra", "elephant", "snake", "owl"]);
 ----}
 public &T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t);
+public &T max(list[&T] _:[]) { throw EmptyList(); }
 	
 @doc{
 .Synopsis
@@ -460,6 +465,7 @@ min([1, 3, 5, 2, 4]);
 min(["zebra", "elephant", "snake", "owl"]);
 ----}
 public &T min([&T h, *&T t]) = (h | e < it ? e : it | e <- t);
+public &T min(list[&T] _: []) { throw EmptyList(); }
 
 @doc{
 .Synopsis
@@ -739,6 +745,7 @@ sum([3, 1, 4, 5]);
 sum([3, 1.5, 4, 5]);
 ----}
 public (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- tl);
+public (&T <:num) sum(list[&T] _: []) { throw EmptyList(); }
 
 @doc{
 .Synopsis
@@ -775,6 +782,7 @@ Try an error case:
 tail([10, 20, 30, 40, 50, 60], 10);
 ----}
 public list[&T] tail([&T _, *&T t]) = t;
+public list[&T] tail(list[&T] _:[]) { throw EmptyList(); }
  
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBounds;
