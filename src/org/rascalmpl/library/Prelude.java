@@ -1957,7 +1957,8 @@ public class Prelude {
 	      iter.next();
 	      i++;
 	   }
-	   return null;
+	   
+	   throw RuntimeExceptionFactory.emptyMap();
 	}
 	
 	public IValue invertUnique(IMap M)

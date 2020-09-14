@@ -142,13 +142,14 @@ public final class Throw extends ControlException {
 	@Override
 	public String getMessage() {
 		if (loc != null) {
-			return (loc.getScheme().equals("file") ? (loc.getAuthority() + loc.getPath()) : loc.top()) 
-					+ ":" + loc.getBeginLine() 
-					+ "," + loc.getBeginColumn() 
-					+ ": " + super.getMessage();
+			return (loc.getScheme().equals("file") ? (loc.getAuthority() + loc.getPath()) : loc.top())
+			        +  (loc.hasLineColumn() ?
+					     ":" + loc.getBeginLine() 
+					   + "," + loc.getBeginColumn() 
+					   + ": " + super.getMessage()
+					: ": " + super.getMessage());
 		}
 		
-		// TODO remove once all errors have locations
 		return super.getMessage();
 	}
 	
