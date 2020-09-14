@@ -13,7 +13,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -35,7 +34,6 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     protected Evaluator eval;
