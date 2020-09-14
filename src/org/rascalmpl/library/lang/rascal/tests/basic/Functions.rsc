@@ -164,10 +164,8 @@ test bool closure1() {
 private &T something(set[&T] x) {
    if (e <- x) 
      return e;
-   // this should not happen because returning &T should
-   // add the matching constraint that &T is not void  
-   assert false;  
-   throw "what?";
+
+   fail;
 }
 
 private default value something({}) = "hello";

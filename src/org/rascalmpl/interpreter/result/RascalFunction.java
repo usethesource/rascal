@@ -292,7 +292,7 @@ public class RascalFunction extends NamedFunction {
             if (size == 0) {
                 try {
                     bindKeywordArgs(keyArgValues);
-                    checkReturnTypeIsNotVoid(formals, actuals);
+//                    checkReturnTypeIsNotVoid(formals, actuals);
                     result = runBody();
                     result = storeMemoizedResult(actuals,keyArgValues, result);
                     if (callTracing) {
@@ -301,6 +301,7 @@ public class RascalFunction extends NamedFunction {
                     return result;
                 }
                 catch (Return e) {
+                    checkReturnTypeIsNotVoid(formals, actuals);
                     result = computeReturn(e, renamings);
                     storeMemoizedResult(actuals,keyArgValues, result);
                     return result;
@@ -324,7 +325,7 @@ public class RascalFunction extends NamedFunction {
                         try {
                             bindKeywordArgs(keyArgValues);
 
-                            checkReturnTypeIsNotVoid(formals, actuals);
+
                             result = runBody();
                             storeMemoizedResult(actuals, keyArgValues, result);
                             return result;
@@ -356,6 +357,8 @@ public class RascalFunction extends NamedFunction {
             throw new MatchFailed();
         }
         catch (Return e) {
+            checkReturnTypeIsNotVoid(formals, actuals);
+            
             result = computeReturn(e, renamings);
             storeMemoizedResult(actuals, keyArgValues, result);
             if (callTracing) {
