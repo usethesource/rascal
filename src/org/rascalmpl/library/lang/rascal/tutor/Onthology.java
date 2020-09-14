@@ -454,7 +454,8 @@ public class Onthology {
         Arrays.sort(keys);
         HashSet<Path> seen = new HashSet<>();
 
-        StringWriter result = new StringWriter().append("\n");
+        StringWriter result = new StringWriter();
+        result.append("\n");
         for(String subConceptName : orderDetails){
             Path fullSubConceptName = conceptName.resolve(subConceptName);
             genListItemForSubConcept(conceptName, fullSubConceptName, start, start + depth, withSynopsis, result);
