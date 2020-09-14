@@ -238,10 +238,10 @@ public class HelpManager {
     }
 	
 	private ScoreDoc[] search(String[] words) {
-		try {
+		try (Analyzer a = Onthology.multiFieldAnalyzer()) {
             if (indexSearcher != null) {
                 String query = Arrays.stream(words).map(HelpManager::escapeForQuery).collect(Collectors.joining(" "));
-                return indexSearcher.search(buildQueryParser(Onthology.multiFieldAnalyzer()).parse(query), maxSearch).scoreDocs;
+                return indexSearcher.search(buildQueryParser(a).parse(query), maxSearch).scoreDocs;
             }
             return new ScoreDoc[0];
 		} catch (ParseException | IOException e) {

@@ -354,7 +354,6 @@ public class ExpiringFunctionResultCache<TResult> {
             setDaemon(true);
         }
 
-        @SuppressWarnings("initialization") // passed in reference might not be completly initialized
         public void register(@UnknownInitialization ExpiringFunctionResultCache<?> cache) {
             caches.add(new WeakReference<>(cache));
         }
@@ -386,6 +385,4 @@ public class ExpiringFunctionResultCache<TResult> {
             }
         }
     }
-
-
 }
