@@ -321,8 +321,8 @@ bool isSyntheticFunctionName(str name)
 bool isClosureName(str name)
     = findFirst(name, "$CLOSURE") >= 0;
 
-bool isMainName(str name)
-    = startsWith(name, "main");
+bool isMainName("main") = true;
+default bool isMainName(str _) = false;
 
 bool isOuterScopeName(str name)
     = isEmpty(name);
