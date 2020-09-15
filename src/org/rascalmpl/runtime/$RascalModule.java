@@ -1220,7 +1220,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			newFields[i] = field.getType().isInteger() ? tup.get(((IInteger) field).intValue())
 					: tup.get(((IString) field).getValue());
 		}
-		System.err.println("newFields = " + newFields);
 		return (n - 1 > 1) ? $VF.tuple(newFields) : newFields[0];
 	}
 	
