@@ -221,6 +221,7 @@ public data MuExp =
           // Exceptions
           
           | muThrow(MuExp exp, loc src)
+          | muBuiltinRuntimeExceptionThrow(str exceptionName, list[MuExp] args)
           | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
           
           // Auxiliary operations used in generated code
