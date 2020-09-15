@@ -462,7 +462,7 @@ JCode makeIndexDescr(list[AType] types, list[str] idx, JGenie jg)
  
 // ---- subtract --------------------------------------------------------------
 
-JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "(<atype2javatype(r)>) <x>.subtract(<y>)" when isArithType(a), isArithType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>) <x>.subtract(<y>))" when isArithType(a), isArithType(b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract(<y>)"      when isSetOrListLikeType(a), isSetOrListLikeType(b), !equivalent(getElementType(a), b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete(<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.remove(<y>)"        when isMapType(a), isMapType(b);
