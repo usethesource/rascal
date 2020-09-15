@@ -5,10 +5,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,6 +54,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.InvalidDateTimeException;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -135,6 +138,120 @@ public abstract class $RascalModule extends Type2ATypeReifier {
         }
         catch (ClassNotFoundException | NoClassDefFoundError | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException e) {
             throw new JavaMethodLink(className, e.getMessage(), e);
+        }
+    }
+    
+    void $usage(String error, Type kwargs) {
+        if (!error.isEmpty()) {
+            $ERR.println(error);
+        }
+        
+        $ERR.println("Usage: ");
+        $ERR.println("java -cp ... " + getClass().getCanonicalName() + "<options>");
+
+        if (kwargs.getArity() > 1) {
+            $ERR.println(" [options]\n\nOptions:\n");
+
+            for (String param : kwargs.getFieldNames()) {
+                $ERR.println("\t-");
+                $ERR.println(param);
+                if (kwargs.getFieldType(param).isSubtypeOf($TF.boolType())) {
+                    $ERR.println("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';\n");
+                }
+                else {
+                    $ERR.println("\t[arg]: " + kwargs.getFieldType(param) + " argument;\n");
+                }
+            }
+        }
+        else {
+            $ERR.println('\n');
+        }
+        
+        throw new IllegalArgumentException();
+    }
+
+    Map<String, IValue> $parseCommandlineParameters(String[] commandline, Type kwTypes) {
+        Map<String, Type> expectedTypes = new HashMap<>();
+
+        for (String kwp : kwTypes.getFieldNames()) {
+            expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
+        }
+
+        Map<String, IValue> params = new HashMap<>();
+
+        for (int i = 0; i < commandline.length; i++) {
+            if (commandline[i].equals("-help")) {
+                $usage("", kwTypes);
+            }
+            else if (commandline[i].startsWith("-")) {
+                String label = commandline[i].replaceFirst("^-+", "");
+                Type expected = expectedTypes.get(label);
+
+                if (expected == null) {
+                   $usage("unknown argument: " + label, kwTypes);
+                }
+
+                if (expected.isSubtypeOf($TF.boolType())) {
+                    if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
+                        params.put(label, $VF.bool(true));
+                    }
+                    else if (i < commandline.length - 1) {
+                        String arg = commandline[++i].trim();
+                        if (arg.equals("1") || arg.equals("true")) {
+                            params.put(label, $VF.bool(true));
+                        }
+                        else {
+                            params.put(label, $VF.bool(false));
+                        }
+                    }
+
+                    continue;
+                }
+                else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
+                    $usage("expected option for " + label, kwTypes);
+                }
+                else if (expected.isSubtypeOf($TF.listType($TF.valueType()))) {
+                    IListWriter writer = $VF.listWriter();
+
+                    while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
+                        writer.append($parseCommandlineOption(kwTypes, expected.getElementType(), commandline[++i]));
+                    }
+
+                    params.put(label, writer.done());
+                }
+                else if (expected.isSubtypeOf($TF.setType($TF.valueType()))) {
+                    ISetWriter writer = $VF.setWriter();
+
+                    while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
+                        writer.insert($parseCommandlineOption(kwTypes, expected.getElementType(), commandline[++i]));
+                    }
+
+                    params.put(label, writer.done());
+                }
+                else {
+                    params.put(label, $parseCommandlineOption(kwTypes, expected, commandline[++i]));
+                }
+            }
+        }
+
+        return params;
+    }    
+
+    private IValue $parseCommandlineOption(Type kwTypes, Type expected, String option) {
+        if (expected.isSubtypeOf($TF.stringType())) {
+            return $VF.string(option);
+        }
+        else {
+            StringReader reader = new StringReader(option);
+            try {
+                return new StandardTextReader().read($VF, expected, reader);
+            } catch (FactTypeUseException e) {
+                $usage("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", kwTypes);
+            } catch (IOException e) {
+                $usage("unxped problem while parsing commandline:" + e.getMessage(), kwTypes);
+            }
+            
+            throw new IllegalArgumentException();
         }
     }
     
