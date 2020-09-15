@@ -172,7 +172,7 @@ Expression makeKeywordDefaultExpression(Type annoType){
     case (Type) `rel[<{TypeArg ","}+ arguments>]`: return (Expression) `{}`;
     case (Type) `lrel[<{TypeArg ","}+ arguments>]`: return (Expression) `[]`;
     default: {
-        println("WARNING: makeKeywordDefaultExpression: <annoType> at <getLoc(annoType)>");
+        println("WARNING: makeKeywordDefaultExpression: <annoType>");
         return (Expression) `0`;
         
         }
