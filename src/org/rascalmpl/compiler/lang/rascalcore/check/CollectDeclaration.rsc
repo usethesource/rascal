@@ -171,8 +171,11 @@ Expression makeKeywordDefaultExpression(Type annoType){
     case (Type) `map[<TypeArg k>,<TypeArg v>]`: return (Expression) `()`;
     case (Type) `rel[<{TypeArg ","}+ arguments>]`: return (Expression) `{}`;
     case (Type) `lrel[<{TypeArg ","}+ arguments>]`: return (Expression) `[]`;
-    default:
-        throw "makeKeywordDefaultExpression: <annoType>";
+    default: {
+        println("WARNING: makeKeywordDefaultExpression: <annoType> at <getLoc(annoType)>");
+        return (Expression) `0`;
+        
+        }
     }
 }
 KeywordFormal makeKeywordFormal(Type annoType, Name name){
