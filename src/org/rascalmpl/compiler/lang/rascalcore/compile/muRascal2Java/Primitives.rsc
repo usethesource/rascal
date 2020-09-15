@@ -113,7 +113,7 @@ JCode transPrim("create_node", AType r, list[AType] argTypes, [str name, *str ar
 list[str] transPrimArgs("create_reifiedType", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) 
                                                                                           = [ trans(exp, jg) | exp <- exps ];
 JCode transPrim("create_reifiedType", AType r, [AType a, AType b], [str sym, str defs], JGenie jg)    
-                                                                                          = "$reifiedAType(<sym>, <defs>)";
+                                                                                          = "$reifiedAType((IConstructor) <sym>, <defs>)";
 
 // ---- divide ----------------------------------------------------------------
  

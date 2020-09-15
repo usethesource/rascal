@@ -213,7 +213,7 @@ str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] 
 str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) 
     = "$aprod(<tree2IValue(production, defs)>)";
 str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions) 
-    = "$reifiedAType(<atype2IValue(atype, definitions)>, <defs(definitions)>)";
+    = "$reifiedAType((IConstructor) <atype2IValue(atype, definitions)>, <defs(definitions)>)";
 str atype2IValue1(at:avalue(), _)               
      = "$avalue(<lab(at)>)";
 //default str atype2IValue1(AType t, map[AType, set[AType]] defs) { throw "atype2IValue1: cannot handle <t>"; }
