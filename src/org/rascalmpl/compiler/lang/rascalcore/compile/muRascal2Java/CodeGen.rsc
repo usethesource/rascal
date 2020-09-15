@@ -1731,10 +1731,10 @@ JCode trans(muThrow(muTmpNative(str name, str fuid, nativeException()), loc src)
     return "throw <name>;";
 }
 
-JCode trans(muThrow(muCall(muConstr(ac: acons(aadt("RuntimeException",[],dataSyntax()), _, _)), acons(_, _, _), list[MuExp] args, list[Keyword] kwargs), loc src), JGenie jg){
-    exceptionName = ac.label == "IO" ? "io" : toLowerCase(ac.label[0]) + ac.label[1..];
-    return "throw RuntimeExceptionFactory.<exceptionName>(<intercalate(",", [trans(arg, jg) | arg <- args])>);";
-}
+//JCode trans(muThrow(muCall(muConstr(ac: acons(aadt("RuntimeException",[],dataSyntax()), _, _)), acons(_, _, _), list[MuExp] args, list[Keyword] kwargs), loc src), JGenie jg){
+//    exceptionName = ac.label == "IO" ? "io" : toLowerCase(ac.label[0]) + ac.label[1..];
+//    return "throw RuntimeExceptionFactory.<exceptionName>(<intercalate(",", [trans(arg, jg) | arg <- args])>);";
+//}
 
 default JCode trans(muThrow(MuExp exp, loc src), JGenie jg){
     return "throw new Throw(<trans(exp, jg)>);";
