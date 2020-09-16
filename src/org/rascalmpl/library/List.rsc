@@ -24,6 +24,7 @@ module List
 
 import Exception;
 import Map;
+import String;
 
 @doc{
 .Synopsis
@@ -297,8 +298,7 @@ intercalate("/", [3, 1, 4, 5]);
 intercalate(", ", [3, 1, 4, 5]);
 intercalate(", ", ["zebra", "elephant", "snake", "owl"]);
 ----}
-public str intercalate(str sep, list[value] l) = 
-	(isEmpty(l)) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+public str intercalate(str sep:!"", list[value] l) = "<for (e <- l) {><e><sep><}>"[..-size(sep)];
 
 @doc{
 .Synopsis
@@ -313,8 +313,7 @@ intersperse(0, [1, 2, 3]);
 intersperse(1, []);
 intersperse([], [1]);
 ----}
-public list[&T] intersperse(&T sep, list[&T] xs) = 
-  (isEmpty(xs))? [] : ([head(xs)] | it + [sep,x] | x <- tail(xs));
+public list[&T] intersperse(&T sep, list[&T] xs) = [x, sep | x <- xs][..-1];
 
 @doc{
 .Synopsis

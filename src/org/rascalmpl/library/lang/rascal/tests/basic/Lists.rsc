@@ -353,9 +353,10 @@ test bool tstInsertAt(list[&T] L, &T e){
   return insertAt(L, n, e) == L[..n] + [e] + L[n..];
 }
 
-test bool tstIntercalate(str sep, list[value] L) = 
-       intercalate(sep, L) == (isEmpty(L) ? ""
-                                          : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
+test bool tstIntercalate(str sep, list[value] L) {
+  if (sep == "" || L == []) return true;
+  return intercalate(sep, L) ==  "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>";
+}
 
 test bool tstIsEmpty(list[&T] L) = isEmpty(L) ? size(L) == 0 : size(L) > 0;
 
