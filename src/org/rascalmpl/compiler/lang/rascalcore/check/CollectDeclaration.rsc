@@ -153,38 +153,44 @@ void collect(Tag tg, Collector c){
 }
 
 // ---- annotation ------------------------------------------------------------
-Expression makeKeywordDefaultExpression(Type annoType){
+Expression makeKeywordDefaultExpression(Type annoType, Collector c){
 
     // The default expression is arbitrary since a NoSuchAnnotation will be thrown before it can be executed.
     // However, in the generated code we need a type correct default expression.
 
+    res = (Expression) `0`;
     switch(annoType){
-    case (Type) `bool`: return (Expression) `true`;
-    case (Type) `int`: return (Expression) `0`;
-    case (Type) `real`: return (Expression) `0.0`;
-    case (Type) `str`: return (Expression) `""`;
-    case (Type) `datetime`: return (Expression) `$2020-09-10T11:17:10.760+00:00$`;
-    case (Type) `loc`: return (Expression) `|project://rascal/src/org/rascalmpl/library/Node.rsc|`;
-    case (Type) `value`: return (Expression) `true`;
-    case (Type) `list[<TypeArg t>]`: return (Expression) `[]`;
-    case (Type) `set[<TypeArg t>]`: return (Expression) `{}`;
-    case (Type) `map[<TypeArg k>,<TypeArg v>]`: return (Expression) `()`;
-    case (Type) `rel[<{TypeArg ","}+ arguments>]`: return (Expression) `{}`;
-    case (Type) `lrel[<{TypeArg ","}+ arguments>]`: return (Expression) `[]`;
+    case (Type) `bool`: res = (Expression) `true`;
+    case (Type) `int`: res = (Expression) `0`;
+    case (Type) `real`: res = (Expression) `0.0`;
+    case (Type) `str`: res = (Expression) `""`;
+    case (Type) `datetime`: res = (Expression) `$2020-09-10T11:17:10.760+00:00$`;
+    case (Type) `loc`: res = (Expression) `|project://rascal/src/org/rascalmpl/library/Node.rsc|`;
+    case (Type) `value`: res = (Expression) `true`;
+    case (Type) `list[<TypeArg t>]`: res = (Expression) `[]`;
+    case (Type) `set[<TypeArg t>]`: res = (Expression) `{}`;
+    case (Type) `map[<TypeArg k>,<TypeArg v>]`: res = (Expression) `()`;
+    case (Type) `rel[<{TypeArg ","}+ arguments>]`: res = (Expression) `{}`;
+    case (Type) `lrel[<{TypeArg ","}+ arguments>]`: res= (Expression) `[]`;
     default: {
         println("WARNING: makeKeywordDefaultExpression: <annoType>");
-        return (Expression) `0`;
-        
         }
     }
+    c.fact(res, c.getType(annoType)); 
+    return res; 
 }
-KeywordFormal makeKeywordFormal(Type annoType, Name name){
-    Expression dflt = makeKeywordDefaultExpression(annoType);
-    return (KeywordFormal) `<Type annoType> <Name name> = <Expression dflt>`;
+KeywordFormal makeKeywordFormal(Type annoType, Name name, Collector c){
+    Expression dflt = makeKeywordDefaultExpression(annoType, c);
+    res = (KeywordFormal) `<Type annoType> <Name name> = <Expression dflt>`;
+    res.\type@\loc = getLoc(annoType);  // set back locations in synthetic keywordFormal
+    res.expression@\loc = getLoc(annoType);
+    c.fact(res.\type, annoType);
+    c.fact(res.expression, dflt);
+    return res;
 }
 // Deprecated
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
-
+    println(current);
     c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     
     tagsMap = getTags(tags);
@@ -193,7 +199,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     
     //userType = onType has user ? onType.user 
     adtName = onType is user ? prettyPrintName(onType.user.name) : "<onType>";
-    commonKeywordParameterList = [makeKeywordFormal(annoType, name) ];     
+    commonKeywordParameterList = [makeKeywordFormal(annoType, name, c) ];     
     dt1 = defType(aadt(adtName, [], dataSyntax()));
     
     dt1.commonKeywordFields = commonKeywordParameterList;
