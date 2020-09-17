@@ -739,7 +739,8 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
                               muBlock([ muConInit(fun_name_subject, muCallPrim3("get_anode_name", astr(), [anode([])], [subject], getLoc(expression))),
                                         translatePat(expression, expType, fun_name_subject, btscopes, 
                                                      muIfelse(muHasNameAndArity(subjectType, expType, fun_name_subject, size(lpats), subject), body, falseCont),  
-                                                     falseCont/*, subjectAssigned=false*/)
+                                                     falseCont,
+                                                     subjectAssigned=false)
                                   ]),
                                falseCont)
                     ]);         
@@ -1668,7 +1669,7 @@ MuExp translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`, AType subjectT
          //<fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
         var = mkVar(prettyPrintName(name), name@\loc);
         asg = isDefinition(name@\loc) ? muVarInit(var, subjectExp) : muAssign(var, subjectExp);
-        return translatePat(pattern, subjectType, subjectExp, btscopes, muValueBlock(avalue(), [ asg, trueCont ]), falseCont/*, subjectAssigned=subjectAssigned*/);
+        return translatePat(pattern, subjectType, subjectExp, btscopes, muValueBlock(avalue(), [ asg, trueCont ]), falseCont, subjectAssigned=subjectAssigned);
     }
 }
 
@@ -1817,7 +1818,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
     trType = translateType(tp);
   
     if("<name>" == "_"){
-         trPat = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont, falseCont/*, subjectAssigned=subjectAssigned*/);
+         trPat = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont, falseCont, subjectAssigned=subjectAssigned);
          return asubtype(subjectType, trType) ? trPat : muIfelse(muValueIsSubType(subjectExp, trType), trPat, falseCont);
     }
     str fuid = ""; int pos=0;           // TODO: this keeps type checker happy, why?
@@ -1828,7 +1829,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
     if(subjectExp != var){
         trueCont2 =  muValueBlock(avalue(), [ /*subjectAssigned ? muAssign(var, subjectExp) :*/ muVarInit(var, subjectExp), trueCont ]);
     } 
-    trPat = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont2, falseCont/*, subjectAssigned=subjectAssigned*/);
+    trPat = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont2, falseCont, subjectAssigned=subjectAssigned);
     return asubtype(subjectType, trType) ? trPat :  muIfelse(muValueIsSubType(subjectExp, trType), trPat, falseCont);
 }
 
