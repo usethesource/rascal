@@ -428,7 +428,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
         when_body = translateAndConds((), when_conditions, when_body, muFailReturn(ftype));
      }
      params_when_body = ( when_body
-                        | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], my_btscopes, it, muFailReturn(ftype)/*, subjectAssigned=hasParameterName(formalsList, i)*/ ) 
+                        | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], my_btscopes, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));
                         
      funCode = functionBody(isVoidType(ftype.ret) || !addReturn ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
