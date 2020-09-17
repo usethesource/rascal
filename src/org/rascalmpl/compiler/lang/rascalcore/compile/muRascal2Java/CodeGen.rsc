@@ -59,7 +59,7 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
     AType mainType = avoid();
     MuFunction mainFunction;
     for(f <- m.functions){
-        if(isOuterScopeName(f.scopeIn) && isMainName(f.uniqueName)) {
+        if(isOuterScopeName(f.scopeIn) && isMainName(f.name)) {
             hasMainFunction = true;
             mainFunction = f;
             mainType = f.ftype;
