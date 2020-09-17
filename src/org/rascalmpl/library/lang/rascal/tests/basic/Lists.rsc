@@ -6,6 +6,7 @@ import Set;
 import Boolean;
 import util::Math;
 import Type;
+import String;
 
 // is A + B == C?
 bool isConcat(list[&T] A, list[&T] B, list[&T] C) =
@@ -353,9 +354,17 @@ test bool tstInsertAt(list[&T] L, &T e){
   return insertAt(L, n, e) == L[..n] + [e] + L[n..];
 }
 
-test bool tstIntercalate(str sep, list[value] L) = 
-       intercalate(sep, L) == (isEmpty(L) ? ""
-                                          : "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>");
+@ignoreCompiler{breaks on the negative match}
+test bool simplerIntercalateWithNegativeMatch() {
+  str ic(str sep:!"", list[value] l) = "<for (e <- l) {><e><sep><}>"[..-size(sep)];
+  
+  return ic(",",[1,2,3]) == "1,2,3";
+}
+
+test bool tstIntercalate(str sep, list[value] L) {
+  if (sep == "" || L == []) return true;
+  return intercalate(sep, L) ==  "<L[0]><for(int i <- [1..size(L)]){><sep><L[i]><}>";
+}
 
 test bool tstIsEmpty(list[&T] L) = isEmpty(L) ? size(L) == 0 : size(L) > 0;
 
