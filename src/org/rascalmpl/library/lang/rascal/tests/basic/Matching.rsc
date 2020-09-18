@@ -3,7 +3,7 @@ module lang::rascal::tests::basic::Matching
 data T1 = \int() | \void() | string(str s);
 data T2 = \int() | \void() | string(str s);
 
-@ignoreCompiler{TODO}
+@ignoreCompiler{FIXME}
 test bool incomparableTypesButNonEmptyIntersectionCanMatch() {
    tuple[int, num] a = <1,1>;
    return tuple[num, int] _ := a;
