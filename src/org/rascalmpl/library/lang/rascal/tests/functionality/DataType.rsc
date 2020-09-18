@@ -550,15 +550,15 @@ test bool  SubscriptError11() { 		[1,2][5];return false;  	}
     	
 //	 listSplicing
 
-@ignoreCompiler{Splicing no longer allowed on arbitrary types}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing1() =  [1,2,3] == [1,2,3];
-@ignoreCompiler{Splicing no longer allowed on arbitrary types}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing2() = [*1,2,3] == [1,2,3];
-@ignoreCompiler{Splicing no longer allowed on arbitrary types}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing3() = [1,*2,3] == [1,2,3];
-@ignoreCompiler{Splicing no longer allowed on arbitrary types}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing4() = [1,2,*3] == [1,2,3];
-@ignoreCompiler{Splicing no longer allowed on arbitrary types}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing5() = [*1,*2,3] == [1,2,3];
     		
 test bool testListSplicing6() {list[int] L1 = [1,2]; return [L1] == [[1,2]];}

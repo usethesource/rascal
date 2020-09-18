@@ -184,7 +184,7 @@ test bool lessequal2(int f, int t){
     return l1 <= l2;    // path is lexicographically less, other attributes are equal
 }
 
-@ignoreCompiler{unknown}
+@ignoreCompiler{FIXME}
 test  bool greater1(int f1, int t1, int f2, int t2){
     l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
     return l1.offset <  l2.offset && l1.offset + l1.length >= l2.offset + l2.length ||
@@ -198,7 +198,7 @@ test bool greater2(int f, int t){
     return !(l1 > l2);
 }
 
-@ignoreCompiler{unknown}
+@ignoreCompiler{FIXME}
 test  bool greaterequal1(int f1, int t1, int f2, int t2){
     l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
     return l1 == l2 ||

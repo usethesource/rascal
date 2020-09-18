@@ -354,7 +354,7 @@ test bool tstInsertAt(list[&T] L, &T e){
   return insertAt(L, n, e) == L[..n] + [e] + L[n..];
 }
 
-@ignoreCompiler{breaks on the negative match}
+@ignoreCompiler{FIXME: breaks on the negative match}
 test bool simplerIntercalateWithNegativeMatch() {
   str ic(str sep:!"", list[value] l) = "<for (e <- l) {><e><sep><}>"[..-size(sep)];
   
