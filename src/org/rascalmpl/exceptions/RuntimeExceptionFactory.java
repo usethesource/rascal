@@ -117,11 +117,12 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw ambiguity(ISourceLocation loc, IString type, IString string, AbstractAST ast, StackTrace trace) {
-	  return new Throw(VF.constructor(Ambiguity, loc, type, string), ast.getLocation(), trace);
+	    
+	  return new Throw(VF.constructor(Ambiguity, loc, type, string), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	public static Throw callFailed(IList arguments, AbstractAST ast, StackTrace trace) {
-	    return new Throw(VF.constructor(CallFailed, arguments), ast.getLocation(), trace);
+	    return new Throw(VF.constructor(CallFailed, arguments), ast != null ? ast != null ? ast.getLocation() : null : null, trace);
 	}
 	
 	public static Throw callFailed(IList arguments) {
@@ -139,7 +140,7 @@ public class RuntimeExceptionFactory {
 	}
 	            
 	public static Throw arithmeticException(String msg, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(ArithmeticException, VF.string(msg)), ast.getLocation(), trace);
+		return new Throw(VF.constructor(ArithmeticException, VF.string(msg)), ast != null ? ast.getLocation() : null, trace);
 	}
 	
     // arityMisMatch -- not in Exception, specific for interpreter
@@ -153,11 +154,11 @@ public class RuntimeExceptionFactory {
     }
     
     public static Throw arityMismatch(IInteger expected, IInteger got, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(ArityMismatch, expected, got), ast.getLocation(), trace);
+        return new Throw(VF.constructor(ArityMismatch, expected, got), ast != null ? ast.getLocation() : null, trace);
     }
     
     public static Throw arityMismatch(int expected, int got, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(ArityMismatch, VF.integer(expected), VF.integer(got)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(ArityMismatch, VF.integer(expected), VF.integer(got)), ast != null ? ast.getLocation() : null, trace);
     }
     
     // assertionFailed
@@ -167,14 +168,14 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw assertionFailed(AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(AssertionFailed), ast.getLocation(), trace);
+		return new Throw(VF.constructor(AssertionFailed), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	public static Throw assertionFailed(IString msg) {
         return new Throw(VF.constructor(LabeledAssertionFailed, msg));
     }
 	public static Throw assertionFailed(IString msg, AbstractAST ast, StackTrace trace) {
-    	return new Throw(VF.constructor(LabeledAssertionFailed, msg), ast.getLocation(), trace);
+    	return new Throw(VF.constructor(LabeledAssertionFailed, msg), ast != null ? ast.getLocation() : null, trace);
     }
 	
 	// callFailed -- not in Exception, specific for interpreter
@@ -184,7 +185,7 @@ public class RuntimeExceptionFactory {
     }
     
     public static Throw callFailed(ISourceLocation loc, IList arguments, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(CallFailed, loc, arguments), ast.getLocation(), trace);
+        return new Throw(VF.constructor(CallFailed, loc, arguments), ast != null ? ast.getLocation() : null, trace);
     }
     
     // dateTimeParsingError
@@ -198,11 +199,11 @@ public class RuntimeExceptionFactory {
     }
     
     public static Throw dateTimeParsingError(IString message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(DateTimeParsingError, message), ast.getLocation(), trace);
+        return new Throw(VF.constructor(DateTimeParsingError, message), ast != null ? ast.getLocation() : null, trace);
     }
     
     public static Throw dateTimeParsingError(String message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(DateTimeParsingError, VF.string(message)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(DateTimeParsingError, VF.string(message)), ast != null ? ast.getLocation() : null, trace);
     }
     
     // dateTimePrintingError
@@ -216,11 +217,11 @@ public class RuntimeExceptionFactory {
     } 
     
     public static Throw dateTimePrintingError(IString message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(DateTimePrintingError, message), ast.getLocation(), trace);
+        return new Throw(VF.constructor(DateTimePrintingError, message), ast != null ? ast.getLocation() : null, trace);
     }   
 
     public static Throw dateTimePrintingError(String message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(DateTimePrintingError, VF.string(message)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(DateTimePrintingError, VF.string(message)), ast != null ? ast.getLocation() : null, trace);
     } 
     
     // emptyList
@@ -230,7 +231,7 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw emptyList(AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(EmptyList), ast.getLocation(), trace);
+		return new Throw(VF.constructor(EmptyList), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// emptyMap
@@ -240,7 +241,7 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw emptyMap(AbstractAST ast, StackTrace trace) {
-	  return new Throw(VF.constructor(EmptyMap), ast.getLocation(), trace);
+	  return new Throw(VF.constructor(EmptyMap), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// emptySet
@@ -250,7 +251,7 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw emptySet(AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(EmptySet), ast.getLocation(), trace);
+		return new Throw(VF.constructor(EmptySet), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	public static Throw figureException(IString message, IValue v) {
@@ -258,11 +259,11 @@ public class RuntimeExceptionFactory {
     }
     
     public static Throw figureException(IString message, IValue v, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(Figure, message, v), ast.getLocation(), trace);
+        return new Throw(VF.constructor(Figure, message, v), ast != null ? ast.getLocation() : null, trace);
     }
     
     public static Throw figureException(String message, IValue v, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(Figure, VF.string(message), v), ast.getLocation(), trace);
+        return new Throw(VF.constructor(Figure, VF.string(message), v), ast != null ? ast.getLocation() : null, trace);
     }
 	
 	// illegalArgument
@@ -272,7 +273,7 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw illegalArgument(AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(AnonymousIllegalArgument), ast.getLocation(), trace);	
+		return new Throw(VF.constructor(AnonymousIllegalArgument), ast != null ? ast.getLocation() : null, trace);	
 	}
 	
 	public static Throw illegalArgument(IValue v) {
@@ -280,7 +281,7 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(IllegalArgument), ast.getLocation(), trace);	
+		return new Throw(VF.constructor(IllegalArgument), ast != null ? ast.getLocation() : null, trace);	
 	}
 	
 	public static Throw illegalArgument(IValue v, IString message) {
@@ -292,15 +293,15 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw illegalArgument(IValue v, IString message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(IllegalArgument, v, message), ast.getLocation(), trace);   
+        return new Throw(VF.constructor(IllegalArgument, v, message), ast != null ? ast.getLocation() : null, trace);   
     }
 	
 	public static Throw illegalArgument(IValue v, String message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast.getLocation(), trace);   
+        return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast != null ? ast.getLocation() : null, trace);   
     }
 	
 	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace, String message) {
-		return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast.getLocation(), trace);	
+		return new Throw(VF.constructor(IllegalArgument, v, VF.string(message)), ast != null ? ast.getLocation() : null, trace);	
 	}
 	
 	// implodeError
@@ -314,11 +315,11 @@ public class RuntimeExceptionFactory {
     }
     
     public static Throw implodeError(IString msg, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(ImplodeError, msg), ast.getLocation(), trace);
+        return new Throw(VF.constructor(ImplodeError, msg), ast != null ? ast.getLocation() : null, trace);
     }
     
     public static Throw implodeError(String msg, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(ImplodeError, VF.string(msg)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(ImplodeError, VF.string(msg)), ast != null ? ast.getLocation() : null, trace);
     }
 	
 	// indexOutOfBounds
@@ -328,7 +329,7 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw indexOutOfBounds(IInteger i, AbstractAST ast, StackTrace trace) {
-    	return new Throw(VF.constructor(IndexOutOfBounds, i), ast.getLocation(), trace);
+    	return new Throw(VF.constructor(IndexOutOfBounds, i), ast != null ? ast.getLocation() : null, trace);
     }
 	
 	// invalidUseOfDate
@@ -346,14 +347,14 @@ public class RuntimeExceptionFactory {
     }
 
 	public static Throw invalidUseOfDate(IString message, AbstractAST ast, StackTrace trace) {
-	    return new Throw(VF.constructor(InvalidUseOfDate,message), ast.getLocation(), trace);
+	    return new Throw(VF.constructor(InvalidUseOfDate,message), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	public static Throw invalidUseOfDateException(String message, AbstractAST ast, StackTrace trace) {
-	    return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), ast.getLocation(), trace);
+	    return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), ast != null ? ast.getLocation() : null, trace);
 	}
 	public static Throw invalidUseOfDate(String message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(InvalidUseOfDate, VF.string(message)), ast != null ? ast.getLocation() : null, trace);
     }
 
 	// invalidUseOfDateTime
@@ -371,15 +372,15 @@ public class RuntimeExceptionFactory {
     }
 
 	public static Throw invalidUseOfDateTime(IString message, AbstractAST ast, StackTrace trace) {
-	    return new Throw(VF.constructor(InvalidUseOfDateTime, message), ast.getLocation(), trace);
+	    return new Throw(VF.constructor(InvalidUseOfDateTime, message), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	public static Throw invalidUseOfDateTimeException(String message, AbstractAST ast, StackTrace trace) {
-	    return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), ast.getLocation(), trace);
+	    return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	public static Throw invalidUseOfDateTime(String message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(InvalidUseOfDateTime, VF.string(message)), ast != null ? ast.getLocation() : null, trace);
     }
 	
 	// invalidUseOfLocation
@@ -393,11 +394,11 @@ public class RuntimeExceptionFactory {
     } 
     
     public static Throw invalidUseOfLocation(IString msg, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(InvalidUseOfLocation, msg), ast.getLocation(), trace);
+        return new Throw(VF.constructor(InvalidUseOfLocation, msg), ast != null ? ast.getLocation() : null, trace);
     }   
     
     public static Throw invalidUseOfLocation(String msg, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(InvalidUseOfLocation, VF.string(msg)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(InvalidUseOfLocation, VF.string(msg)), ast != null ? ast.getLocation() : null, trace);
     }   
     
     // invalidUseOfTime
@@ -415,15 +416,15 @@ public class RuntimeExceptionFactory {
     }
 
     public static Throw invalidUseOfTime(IString message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(InvalidUseOfTime, message), ast.getLocation(), trace);
+        return new Throw(VF.constructor(InvalidUseOfTime, message), ast != null ? ast.getLocation() : null, trace);
     }
 
     public static Throw invalidUseOfTimeException(String message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), ast != null ? ast.getLocation() : null, trace);
     }
     
     public static Throw invalidUseOfTime(String message, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(InvalidUseOfTime, VF.string(message)), ast != null ? ast.getLocation() : null, trace);
     }
     
     // io
@@ -437,17 +438,17 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw io(IString msg, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(IO, msg), ast.getLocation(), trace);
+		return new Throw(VF.constructor(IO, msg), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// Java
 	
 	private static Throw javaException(String clazz, String message, IValue cause, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(Java, VF.string(clazz), VF.string(message), cause), ast.getLocation(), trace);
+		return new Throw(VF.constructor(Java, VF.string(clazz), VF.string(message), cause), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	private static Throw javaException(String clazz, String message, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(Java, VF.string(clazz), VF.string(message)), ast.getLocation(), trace);
+		return new Throw(VF.constructor(Java, VF.string(clazz), VF.string(message)), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	public static Throw javaException(Throwable targetException, AbstractAST ast, StackTrace rascalTrace) throws ImplementationError {
@@ -528,11 +529,11 @@ public class RuntimeExceptionFactory {
     }
 
 	public static Throw malformedURI(IString uri, AbstractAST ast, StackTrace trace) {
-	    return new Throw(VF.constructor(MalFormedURI, uri), ast.getLocation(), trace);
+	    return new Throw(VF.constructor(MalFormedURI, uri), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	public static Throw malformedURI(String uri, AbstractAST ast, StackTrace trace) {
-	    return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), ast.getLocation(), trace);
+	    return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	// moduleNotFound
@@ -542,7 +543,7 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw moduleNotFound(IString module, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(ModuleNotFound, module), ast.getLocation(), trace);
+		return new Throw(VF.constructor(ModuleNotFound, module), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// multipleKey
@@ -552,7 +553,7 @@ public class RuntimeExceptionFactory {
 	}
 	
     public static Throw MultipleKey(IValue v, IValue first, IValue second, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(MultipleKey, v, first, second), ast.getLocation(), trace);
+        return new Throw(VF.constructor(MultipleKey, v, first, second), ast != null ? ast.getLocation() : null, trace);
 	}
 	
     // noParent
@@ -562,7 +563,7 @@ public class RuntimeExceptionFactory {
     }
 	
     public static Throw noParent(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(NoParent, loc), ast.getLocation(), trace);
+        return new Throw(VF.constructor(NoParent, loc), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// noSuchAnnotation
@@ -576,11 +577,11 @@ public class RuntimeExceptionFactory {
     }   
 
 	public static Throw noSuchAnnotation(IString label, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(NoSuchAnnotation, label), ast.getLocation(), trace);
+        return new Throw(VF.constructor(NoSuchAnnotation, label), ast != null ? ast.getLocation() : null, trace);
 	}	
 	
 	public static Throw noSuchAnnotation(String label, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(NoSuchAnnotation, VF.string(label)), ast.getLocation(), trace);
+		return new Throw(VF.constructor(NoSuchAnnotation, VF.string(label)), ast != null ? ast.getLocation() : null, trace);
     }
 	
 	// noSuchElement
@@ -590,7 +591,7 @@ public class RuntimeExceptionFactory {
 	}
 	
     public static Throw noSuchElement(IValue v, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(NoSuchElement,v), ast.getLocation(), trace);  
+        return new Throw(VF.constructor(NoSuchElement,v), ast != null ? ast.getLocation() : null, trace);  
 	}
 	
 	// noSuchField
@@ -604,11 +605,11 @@ public class RuntimeExceptionFactory {
 	}
 	
     public static Throw noSuchField(IString name, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(NoSuchField, name), ast.getLocation(), trace);
+        return new Throw(VF.constructor(NoSuchField, name), ast != null ? ast.getLocation() : null, trace);
     }
 	
     public static Throw noSuchField(String name, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(NoSuchField, VF.string(name)), ast.getLocation(), trace);
+        return new Throw(VF.constructor(NoSuchField, VF.string(name)), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// noSuchKey
@@ -618,7 +619,7 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw noSuchKey(IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(NoSuchKey, v), ast.getLocation(), trace);
+		return new Throw(VF.constructor(NoSuchKey, v), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	// parseError
@@ -628,7 +629,7 @@ public class RuntimeExceptionFactory {
     }   
 	
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(ParseError, loc), ast.getLocation(), trace);
+		return new Throw(VF.constructor(ParseError, loc), ast != null ? ast.getLocation() : null, trace);
 	}	
 	
 	// pathNotFound
@@ -638,7 +639,7 @@ public class RuntimeExceptionFactory {
     }
 	
 	public static Throw pathNotFound(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(PathNotFound, loc), ast.getLocation(), trace);
+		return new Throw(VF.constructor(PathNotFound, loc), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// permissionDenied
@@ -648,7 +649,7 @@ public class RuntimeExceptionFactory {
     }
 	
     public static Throw permissionDenied(AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(AnonymousPermissionDenied), ast.getLocation(), trace);
+        return new Throw(VF.constructor(AnonymousPermissionDenied), ast != null ? ast.getLocation() : null, trace);
 	}
 	
     public static Throw permissionDenied(IString msg) {
@@ -656,7 +657,7 @@ public class RuntimeExceptionFactory {
     }
 	
     public static Throw permissionDenied(IString msg, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(PermissionDenied, msg), ast.getLocation(), trace);
+        return new Throw(VF.constructor(PermissionDenied, msg), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// regExpSyntaxError
@@ -678,19 +679,19 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw stackOverflow(AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(StackOverflow), ast.getLocation(), trace);
+		return new Throw(VF.constructor(StackOverflow), ast != null ? ast.getLocation() : null, trace);
     }
 	
 	// timeout
 	
 	public static Throw timeout(AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(Timeout), ast.getLocation(), trace);
+        return new Throw(VF.constructor(Timeout), ast != null ? ast.getLocation() : null, trace);
 	}
 	
 	// unavailableInformation
 	
 	public static Throw unavailableInformation(AbstractAST ast, StackTrace trace){
-        return new Throw(VF.constructor(UnavailableInformation), ast.getLocation(), trace);   
+        return new Throw(VF.constructor(UnavailableInformation), ast != null ? ast.getLocation() : null, trace);   
 	}
 	
 	// The status of the following exceptions is to be determined (alphabetical order)
@@ -702,11 +703,11 @@ public class RuntimeExceptionFactory {
 	}
 
 	public static Throw illegalTypeArgument(IString type, AbstractAST ast, StackTrace trace, IString message){
-        return new Throw(VF.constructor(IllegalTypeArgument,type,message), ast.getLocation(), trace);   
+        return new Throw(VF.constructor(IllegalTypeArgument,type,message), ast != null ? ast.getLocation() : null, trace);   
     }
 	
 	public static Throw illegalTypeArgument(String type, AbstractAST ast, StackTrace trace, String message){
-		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type),VF.string(message)), ast.getLocation(), trace);	
+		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type),VF.string(message)), ast != null ? ast.getLocation() : null, trace);	
 	}
 	
 	public static Throw illegalTypeArgument(IString type){
@@ -714,16 +715,16 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw illegalTypeArgument(IString type, AbstractAST ast, StackTrace trace){
-        return new Throw(VF.constructor(IllegalTypeArgument,type, VF.string("")), ast.getLocation(), trace);   
+        return new Throw(VF.constructor(IllegalTypeArgument,type, VF.string("")), ast != null ? ast.getLocation() : null, trace);   
 	}
 
 	public static Throw illegalTypeArgument(String type, AbstractAST ast, StackTrace trace){
-		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type), VF.string("")), ast.getLocation(), trace);	
+		return new Throw(VF.constructor(IllegalTypeArgument,VF.string(type), VF.string("")), ast != null ? ast.getLocation() : null, trace);	
 	}
 
 	// nameMismatch -- not in Exception, specific for interpreter
 	
 	public static Throw nameMismatch(String expected, String got, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), ast.getLocation(), trace);
+		return new Throw(VF.constructor(NameMismatch, VF.string(expected), VF.string(got)), ast != null ? ast.getLocation() : null, trace);
 	}
 }
