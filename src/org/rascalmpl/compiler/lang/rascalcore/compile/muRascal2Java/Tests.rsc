@@ -21,7 +21,6 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import io.usethesource.vallang.*;
            'import io.usethesource.vallang.type.*;
            '
-           'import static org.junit.Assert.assertTrue;
            'import static org.junit.Assert.fail;
            'import static org.junit.jupiter.api.Assertions.assertTrue;
            'import static org.junit.jupiter.api.DynamicTest.dynamicTest;
