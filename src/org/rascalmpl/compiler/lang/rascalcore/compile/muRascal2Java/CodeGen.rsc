@@ -1112,8 +1112,12 @@ JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName
 //println("muOCall3((<fun>, <ftype>, ..., <src>");
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     if(muOFun(str fname, AType _) := fun){
+        actuals = getActuals(argTypes, largs, jg);
+        if(hasKeywordParameters(ftype)){
+            actuals += getKwpActuals(kwargs, jg);
+        }
         externalVars = jg.getExternalVarsResolver(fname);
-        actuals = getActuals(argTypes, largs, jg) + [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
+        actuals += [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
         return "<jg.getAccessorOverloaded(fname, ftype)>(<intercalate(", ", actuals)>)";
     }
     

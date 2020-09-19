@@ -1,5 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst2
 
-data X = x2();
+int f13(int n, str s = "") = n when s == "";
+int f13(int n, str s = "") = -n when s != "";
 
-test bool B_x2_y1() = !(x2() has y || x2() has z);
+value main() //test bool when1() 
+    = f13(10);// == 10;
+    
+//test bool when2() = f13(10, s="a") == -10;
