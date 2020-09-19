@@ -1,4 +1,6 @@
 module lang::rascalcore::compile::Examples::Tst2
 
+import Exception;
 
-test bool f (int n, int m) = n > 0 && m > 0;
+@expected{ArithmeticException}
+test bool xxx() { 3 / 0; return true; }

@@ -119,7 +119,7 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
                '        } catch (Exception e){
                '            fail(\"Expected `<expected>`, but got Java exception `\" + e + \"`\");
                '        }
-               '    }, () -\> $displayTestArgs(args)));
+               '    }/*, () -\> $displayTestArgs(args)*/));
                '}\n";
      }
 }
