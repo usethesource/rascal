@@ -1,6 +1,4 @@
 module lang::rascalcore::compile::Examples::Tst2
 
-extend lang::rascalcore::compile::Examples::Tst1;
 
-
-public int X = 0;
+test bool f (int n, int m) = n > 0 && m > 0;
