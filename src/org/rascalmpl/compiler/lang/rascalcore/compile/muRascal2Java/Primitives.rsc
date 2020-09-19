@@ -300,7 +300,7 @@ JCode transPrim("negative", AType r, [AType a], [str x], JGenie jg)             
 
 list[str] transPrimArgs("not", abool(), [abool()], [MuExp x], JGenie jg)                 = [producesNativeBool(x) ? "$VF.bool(<trans(x, jg)>)" : trans(x, jg) ];
            
-JCode transPrim("not", abool(), [abool()], [str x], JGenie jg)                           = "(<x>).not()";
+JCode transPrim("not", abool(), [abool()], [str x], JGenie jg)                           = "(<castArg(abool(),x)>).not()";
 
 // ---- notequal --------------------------------------------------------------
 

@@ -436,7 +436,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      
      funCode = removeDeadCode(funCode);
     
-     //iprintln(funCode);
+     iprintln(funCode);
      alwaysReturns = ftype.returnsViaAllPath || isVoidType(getResult(ftype));
      formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
      if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){

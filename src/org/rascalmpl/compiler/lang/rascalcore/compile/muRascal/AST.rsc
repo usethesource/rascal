@@ -356,6 +356,9 @@ bool producesNativeBool(muCallPrim3(str name, AType result, list[AType] details,
 bool producesNativeBool(muTmpNative(_,_,nativeBool()))
     = true;
     
+bool producesNativeBool(muIfExp(MuExp cond, MuExp thenExp, MuExp elseExp))
+    = producesNativeBool(thenExp) && producesNativeBool(elseExp);
+    
 default bool producesNativeBool(MuExp exp)
     = getName(exp) in {"muEqual", "muMatch", "muEqualNativeInt", /*"muNotNegativeNativeInt",*/ "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
                   "muHasNameAndArity", "muValueIsSubType", "muValueIsComparable", "muValueIsSubTypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",

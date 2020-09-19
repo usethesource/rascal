@@ -1,6 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst2
 
-import Exception;
+data X = x2();
 
-@expected{ArithmeticException}
-test bool xxx() { 3 / 0; return true; }
+test bool B_x2_y1() = !(x2() has y || x2() has z);
