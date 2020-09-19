@@ -1420,9 +1420,15 @@ JCode trans(muIfExp(MuExp cond, MuExp thenPart, muBlock([])), JGenie jg)
      '  <trans2Void(thenPart, jg)>
      '}\n";
 
-default JCode trans(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg)
-   = "(<trans2NativeBool(cond, jg)> ? <trans(thenPart, jg)> : <trans(elsePart, jg)>)";
- 
+default JCode trans(exp: muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
+    transThen = transElse = trans;
+    if(!producesNativeBool(exp)){
+      if(producesNativeBool(thenPart)) transThen = trans2IValue;
+      if(producesNativeBool(elsePart)) transElse = trans2IValue;
+    }
+    return "(<trans2NativeBool(cond, jg)> ? <transThen(thenPart, jg)> : <transElse(elsePart, jg)>)";
+}
+
 JCode trans(muIf(MuExp cond, MuExp thenPart), JGenie jg){
     return "if(<trans2NativeBool(cond, jg)>){
             '   <trans2Void(thenPart, jg)>
