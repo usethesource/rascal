@@ -23,6 +23,7 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            '
            'import static org.junit.Assert.assertTrue;
            'import static org.junit.Assert.fail;
+           'import static org.junit.jupiter.api.Assertions.assertTrue;
            'import static org.junit.jupiter.api.DynamicTest.dynamicTest;
            '
            'import org.junit.jupiter.api.Test;
@@ -101,7 +102,7 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
     if(isEmpty(expected)){
         return "@TestFactory
                'Stream\<DynamicTest\> <test_name_uniq>(){
-               '    return generator.generateActuals(<types>, $me.$TS).map((args) -\> dynamicTest(\"<test_name>\", () -\> assertTrue(((IBool)$me.<test_name>(<actuals>)).getValue())));
+               '    return generator.generateActuals(<types>, $me.$TS).map((args) -\> dynamicTest(\"<test_name>\", () -\> assertTrue(((IBool)$me.<test_name>(<actuals>)).getValue(), () -\> $displayTestArgs(args))));
                '}\n";
      } else {
         return "@TestFactory
@@ -119,7 +120,7 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
                '        } catch (Exception e){
                '            fail(\"Expected `<expected>`, but got Java exception `\" + e + \"`\");
                '        }
-               '    }));
+               '    }, () -\> $displayTestArgs(args)));
                '}\n";
      }
 }

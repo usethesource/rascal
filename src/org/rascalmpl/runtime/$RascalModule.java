@@ -3653,6 +3653,12 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public final IConstructor $aadt_update(final IConstructor cons, final IString field, final IValue v) {
 		return cons.set(field.getValue(), v);
 	}
+
+	public String $displayTestArgs(IValue[] args) {
+		StringBuilder res = new StringBuilder("\n");
+		for(int i = 0; i < args.length; i++) { res.append("arg #").append(i).append(": ").append(args[i]).append("\n");}
+		return res.toString();
+	}
 }
 
 enum SliceOperator {
