@@ -617,7 +617,7 @@ bool ignoreCompiler(map[str,str] tagsMap)
 
 
 JCode trans(MuFunction fun, JGenie jg){
-    //iprintln(fun);
+     //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
     
     if(!isContainedIn(fun.src, jg.getModuleLoc()) )return "";
@@ -1051,7 +1051,7 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, 
         
        if(isContainedIn(uid, jg.getModuleLoc())){
          fn = muFunctionsByLoc[uid];
-         return "<getJavaName(getUniqueFunctionName(fn))>(<intercalate(", ", all_actuals)>)";
+         return "<getJavaName(getUniqueFunctionName(fn))>(<intercalate(", ", all_actuals)>)"; // Unique or not ~ match fail checking
        } else {  
         //if(!isEmpty(ftype.kwFormals) && isEmpty(kwActuals)){
         //    actuals += "Collections.emptyMap()";
