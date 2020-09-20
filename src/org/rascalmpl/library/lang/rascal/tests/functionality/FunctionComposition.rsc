@@ -143,9 +143,22 @@ int j1(1) = 1;
 default int j3(int n) = 2*n; 
 	
 default int j4(int n) = 2*n - 1; 
-		
-int k(int n) = (n%2 == 0) ? { fail; } : 2*n; 
-int l(int n) = (n%2 == 0) ? n*(n-1) : { fail; }; 
+
+int k(int n) {
+    if(n%2 == 0){
+         fail k;
+    } else {
+        return 2*n; 
+    }
+} 
+
+int l(int n) {
+    if(n%2 == 0){
+        return n*(n-1);
+    } else { 
+        fail l;
+    };
+}
 	
 test bool nonDeterministicChoiceAndNormalComposition11() {
     list[int] inputs = [2,3];
@@ -219,12 +232,20 @@ test bool nonDeterministicChoiceAndNormalComposition25() {
     return outputs6 == outputs8 || outputs6 == outputs10 ;
 }
 
+int twiceNotEven(int n) { 
+    if(n%2 == 0){
+        fail twiceNotEven; 
+    } else {
+        return 2*n;
+    }
+}
+ 
 test bool nonDeterministicChoiceAndNormalComposition26() {
     list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
     
     list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
     list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
-    list[int] outputs11 = [ (( int (int n) { return (n%2 == 0) ? { fail; } : 2*n; } + l) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; 
+    list[int] outputs11 = [ (( twiceNotEven + l) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; 
     
     return outputs11 == outputs8 || outputs11 == outputs10;             
 }
@@ -234,7 +255,7 @@ test bool nonDeterministicChoiceAndNormalComposition27() {
     
     list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
     list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
-    list[int] outputs11 = [ (( l + int (int n) { return (n%2 == 0) ? { fail; } : 2*n; } ) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; 
+    list[int] outputs11 = [ (( l + twiceNotEven ) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; 
     
     return outputs11 == outputs8 || outputs11 == outputs10;             
 }
