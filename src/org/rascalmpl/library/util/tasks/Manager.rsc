@@ -65,7 +65,13 @@ public java &T getFact(Transaction tr, type[&T] key, value name);
 public java &T queryFact(Transaction tr, type[&T] key, value name);
 
 public bool hasFact(Transaction tr, type[&T] key, value name) {
-	return queryFact(tr, key, name)?;
+    try {
+	   queryFact(tr, key, name);
+	   return true;
+	} catch _: {
+	   return false;
+	}
+    
 }
 
 @reflect{For producing exceptions with stack traces}
