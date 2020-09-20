@@ -24,10 +24,10 @@ node outline(Module m) {
    annotations = [];
    functions = ();
    imports = [];
-   grammars = ();
+   map[str,list[node]] grammars = ();
    tags = [];
    tests = ();
-   adts = ();
+   map[str,list[node]] adts = ();
    variables = []; 
    list[node] e = [];
    
