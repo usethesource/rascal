@@ -49,8 +49,6 @@ public data MuFunction =
                            list[MuExp] formals,
                            lrel[str name, AType atype, MuExp defaultExp] kwpDefaults, 
                            str scopeIn,
-                           //int nformals, 
-                           //int nlocals, 
                            bool isVarArgs,
                            bool isPublic,
                            bool isMemo,
