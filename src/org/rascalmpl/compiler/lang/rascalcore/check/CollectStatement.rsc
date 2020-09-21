@@ -1,12 +1,12 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectStatement
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeExceptions;
-extend lang::rascalcore::check::ATypeUtils;
-//extend lang::rascalcore::check::ATypeInstantiation;
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeExceptions;
+//extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::ATypeInstantiation;
 
-import lang::rascalcore::check::BasicRascalConfig;
+//import lang::rascalcore::check::BasicRascalConfig;
 
 import analysis::typepal::FailMessage;
 import lang::rascal::\syntax::Rascal;

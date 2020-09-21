@@ -1,17 +1,17 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectDeclaration
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeExceptions;
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
-extend lang::rascalcore::check::ATypeUtils;
+// lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::CollectType;
 extend lang::rascalcore::check::Fingerprint;
 
 extend lang::rascalcore::check::CollectDataDeclaration;
 extend lang::rascalcore::check::CollectSyntaxDeclaration;
 
-import lang::rascalcore::check::BasicRascalConfig;
+//import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascalcore::check::CollectVarArgs;
 import lang::rascalcore::check::ComputeType;

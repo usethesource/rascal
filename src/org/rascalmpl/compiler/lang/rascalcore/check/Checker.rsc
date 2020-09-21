@@ -23,12 +23,12 @@ module lang::rascalcore::check::Checker
  * - Reduce rechecking by comparing old and new tpl file
  */
  
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 
 import lang::rascal::\syntax::Rascal;
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeUtils;
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeUtils;
 
 extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::CollectDeclaration;
@@ -41,7 +41,7 @@ extend lang::rascalcore::check::Import;
 
 import lang::rascalcore::check::ScopeInfo;
 
-import lang::rascalcore::check::RascalConfig;
+//import lang::rascalcore::check::RascalConfig;
 
 import IO;
 import List;

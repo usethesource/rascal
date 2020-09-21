@@ -3,11 +3,12 @@ module lang::rascalcore::check::CollectPattern
 
 //extend analysis::typepal::TypePal;
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::ATypeExceptions;
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeUtils;
+//extend lang::rascalcore::check::ATypeExceptions;
+extend lang::rascalcore::check::ATypeInstantiation;
 
-import lang::rascalcore::check::BasicRascalConfig;
+//import lang::rascalcore::check::BasicRascalConfig;
 //import lang::rascalcore::check::CollectVarArgs;
 
 import analysis::typepal::FailMessage;
