@@ -302,8 +302,11 @@ void extractScopes(TModel tm){
     } else {
         throw "`ADTs` has incorrect format in store";
     }
+    
    
     if([lrel[AType,KeywordFormal] common] := tm.store["CommonKeywordFields"]){
+        println("Common keyword parameters");
+        iprintln(common);
         adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[label="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
         adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
     }
