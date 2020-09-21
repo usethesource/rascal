@@ -2,11 +2,11 @@ module lang::rascalcore::check::ComputeType
 
 //extend analysis::typepal::TypePal;
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeExceptions;
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
-extend lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::BasicRascalConfig;
+//extend lang::rascalcore::check::ATypeUtils;
+//import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::NameUtils;

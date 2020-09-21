@@ -1,9 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectDataDeclaration
 
-extend lang::rascalcore::check::AType;
+// lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeInstantiation;
-extend lang::rascalcore::check::ATypeUtils;
+//extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::CollectType;
 
 import lang::rascalcore::check::SyntaxGetters;
@@ -12,7 +12,7 @@ import lang::rascalcore::check::ScopeInfo;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::NameUtils;
 import IO;
-import lang::rascalcore::check::BasicRascalConfig;
+//import lang::rascalcore::check::BasicRascalConfig;
 
 
 // ---- data declaration ------------------------------------------------------
