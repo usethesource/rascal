@@ -23,7 +23,7 @@ module lang::rascalcore::check::Checker
  * - Reduce rechecking by comparing old and new tpl file
  */
  
-//extend analysis::typepal::TypePal;
+extend analysis::typepal::TypePal;
 
 import lang::rascal::\syntax::Rascal;
 
