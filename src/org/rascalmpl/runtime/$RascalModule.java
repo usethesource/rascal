@@ -69,14 +69,15 @@ public abstract class $RascalModule extends Type2ATypeReifier {
   
     // ---- library helper methods and fields  -------------------------------------------
     // TODO: make OUT and ERR configurable?
-    private final PrintStream $OUT = System.out;
-    private final PrintWriter $OUTWRITER = new PrintWriter($OUT);
-    private final PrintStream $ERR = System.err;
-    private final PrintWriter $ERRWRITER = new PrintWriter($ERR);
-    private final InputStream $IN = System.in;
+    /*package*/  final PrintStream $OUT = System.out;
+    /*package*/  final PrintWriter $OUTWRITER = new PrintWriter($OUT);
+    /*package*/  final PrintStream $ERR = System.err;
+    /*package*/  final PrintWriter $ERRWRITER = new PrintWriter($ERR);
+    /*package*/  final InputStream $IN = System.in;
     
     // TODO: make monitor configurable?
-    private final IRascalMonitor $MONITOR = new NullRascalMonitor();
+    /*package*/  final IRascalMonitor $MONITOR = new NullRascalMonitor();
+    
     
     @SuppressWarnings("unchecked")
     protected <T> T $initLibrary(String className) {
