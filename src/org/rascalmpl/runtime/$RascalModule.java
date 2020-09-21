@@ -267,7 +267,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	}
 	
 	public final boolean $isComparable(Type t1, Type t2) {
-		return t1.isSubtypeOf(t2) || t2.isSubtypeOf(t1);
+		return t1.comparable(t2);
 	}
 	
 	/*************************************************************************/
