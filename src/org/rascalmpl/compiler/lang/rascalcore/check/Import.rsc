@@ -264,7 +264,10 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.modelName = qualifiedModuleName;
         m1.moduleLocs = (qualifiedModuleName : mscope);
         
-        m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
+        //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
+        m1.facts = tm.facts;
+        
+        
         //if(tm.config.logImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
         //println("tm.specializedFacts:"); iprintln(tm.specializedFacts);
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
