@@ -41,7 +41,7 @@ extend lang::rascalcore::check::Import;
 
 import lang::rascalcore::check::ScopeInfo;
 
-//import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::RascalConfig;
 
 import IO;
 import List;
