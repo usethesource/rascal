@@ -11,7 +11,7 @@ test bool canonicalTypes(&T x, &Y y) = x == y ==> (typeOf(x) == typeOf(y)) || si
 
 test bool canonicalTypesRegression1() = canonicalTypes(0.0, 0);
 test bool canonicalTypesRegression2() = canonicalTypes(0r, 0);
-test bool canonicalTypesRegression2() = canonicalTypes(0r, 0.0);
+test bool canonicalTypesRegression3() = canonicalTypes(0r, 0.0);
   
 // values have an equivalence relation
 test bool reflexEq1(value x) = x == x;
