@@ -826,9 +826,10 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    //println("receiver: <receiver>");
    list[MuExp] args = [ translate(a) | Expression a <- arguments ];
    
-   if("<expression>" == "typeOf"){
-        return muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], args, e@\loc);
-   }
+   // TODO: JURGEN removed this because we have Type::typeOf to implement this.
+   //if("<expression>" == "typeOf"){
+   //     return muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], args, e@\loc);
+   //}
    
    if(getOuterType(expression) == "astr"){
    		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- arguments ], [receiver, *args, muKwpActuals(kwargs)], e@\loc);
