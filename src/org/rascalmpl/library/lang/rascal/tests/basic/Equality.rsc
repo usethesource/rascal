@@ -8,6 +8,10 @@ import Node;
 
 // the only way two values can be equal while their run-time types are not is due to conversion between int, real, rat by `==`
 test bool canonicalTypes(&T x, &Y y) = x == y ==> (typeOf(x) == typeOf(y)) || size({typeOf(x), typeOf(y)} & {\int(), \real(), \rat()}) > 1;
+
+test bool canonicalTypesRegression1() = canonicalTypes(0.0, 0);
+test bool canonicalTypesRegression2() = canonicalTypes(0r, 0);
+test bool canonicalTypesRegression2() = canonicalTypes(0r, 0.0);
   
 // values have an equivalence relation
 test bool reflexEq1(value x) = x == x;
