@@ -259,12 +259,14 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
          //if(kwfs is \default) {
          // 	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
          //}
-         if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-        	mubody = muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], params, fd@\loc);
-        	//mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
-         } else {
+         
+         // JURGEN: TODO remove commented out code; I removed the special treatment of typeOf here
+         //if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
+        	//mubody = muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], params, fd@\loc);
+        	////mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
+         //} else {
             mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid));
-        }
+        //}
       } else if(!isEmpty(body)){
             if(size(body) == 1 && addReturn){
                 mubody = translateReturn(body[0], ());
