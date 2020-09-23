@@ -602,7 +602,7 @@ MuExp translateApplAsListElem(p: prod(lit(str S), _, _), list[Tree] args, bool i
 default MuExp translateApplAsListElem(Production prod, list[Tree] args, bool isLex) {
     throw "Not implemented";
     return muApply(mkCallToLibFun("Library","MATCH_APPL_IN_LIST"), [muCon(prod), translateConcreteListPattern(args, isLex)]);
-]
+}
 
 // Is an appl node a concrete multivar?
 
