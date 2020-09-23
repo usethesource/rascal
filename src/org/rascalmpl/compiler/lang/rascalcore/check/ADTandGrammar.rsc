@@ -7,7 +7,8 @@ module lang::rascalcore::check::ADTandGrammar
 //extend lang::rascalcore::check::ATypeUtils;
 //import lang::rascalcore::check::BasicRascalConfig;
 
-extend lang::rascalcore::check::ATypeInstantiation;
+//extend lang::rascalcore::check::ATypeInstantiation;
+extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;

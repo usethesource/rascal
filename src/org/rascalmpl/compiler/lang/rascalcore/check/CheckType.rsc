@@ -1,8 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CheckType
 
-extend analysis::typepal::TypePal;
-extend lang::rascalcore::check::AType;
+//extend analysis::typepal::TypePal;
+//extend lang::rascalcore::check::AType;
+
+extend lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;
 

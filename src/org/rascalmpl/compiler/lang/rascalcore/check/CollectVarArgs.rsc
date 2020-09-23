@@ -3,7 +3,9 @@ module lang::rascalcore::check::CollectVarArgs
 
 //extend lang::rascalcore::check::AType;
 //extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::ATypeInstantiation;
+//extend lang::rascalcore::check::ATypeInstantiation;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 
 import analysis::typepal::FailMessage;

@@ -1,8 +1,11 @@
 @bootstrapParser
 module lang::rascalcore::check::PathAnalysis
 
-extend lang::rascalcore::check::AType;
-extend analysis::typepal::TypePal;
+//extend lang::rascalcore::check::AType;
+//extend analysis::typepal::TypePal;
+
+extend lang::rascalcore::check::CheckerCommon;
+
 import lang::rascal::\syntax::Rascal;
 import String;
 

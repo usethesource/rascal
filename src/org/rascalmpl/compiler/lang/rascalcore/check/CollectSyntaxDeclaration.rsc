@@ -2,10 +2,12 @@
 module lang::rascalcore::check::CollectSyntaxDeclaration
 
 //extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeInstantiation;
+//extend lang::rascalcore::check::ATypeInstantiation;
 //extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::CollectType;
+//extend lang::rascalcore::check::CollectType;
 //extend lang::rascalcore::check::BasicRascalConfig;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 import Set;
 import Node;

@@ -39,7 +39,7 @@ extend lang::rascalcore::check::CollectStatement;
 //extend lang::rascalcore::check::CollectType;
 extend lang::rascalcore::check::Import;
 
-import lang::rascalcore::check::ScopeInfo;
+//import lang::rascalcore::check::ScopeInfo;
 
 import lang::rascalcore::check::RascalConfig;
 

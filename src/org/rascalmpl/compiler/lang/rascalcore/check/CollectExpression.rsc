@@ -1,22 +1,24 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectExpression
  
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
+//
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeExceptions;
+//extend lang::rascalcore::check::ATypeInstantiation;
+//extend lang::rascalcore::check::ATypeUtils;
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeExceptions;
-extend lang::rascalcore::check::ATypeInstantiation;
-extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::CheckerCommon;
 
-import lang::rascalcore::check::BasicRascalConfig;
+//import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 
-import lang::rascalcore::check::CheckType;
-import lang::rascalcore::check::ComputeType;
-import lang::rascalcore::check::NameUtils;
-import lang::rascalcore::check::ScopeInfo;
-import lang::rascalcore::check::SyntaxGetters;
+//import lang::rascalcore::check::CheckType;
+//import lang::rascalcore::check::ComputeType;
+//import lang::rascalcore::check::NameUtils;
+//import lang::rascalcore::check::ScopeInfo;
+//import lang::rascalcore::check::SyntaxGetters;
 import lang::rascalcore::check::PathAnalysis;
 
 import Map;

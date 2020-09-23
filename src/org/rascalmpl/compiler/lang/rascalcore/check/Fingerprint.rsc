@@ -1,7 +1,8 @@
 @bootstrapParser
 module lang::rascalcore::check::Fingerprint
 
-extend lang::rascalcore::check::ATypeUtils;
+//extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;
 
