@@ -11,17 +11,12 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectType
 
-//extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeInstantiation;
-//import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
-
-extend lang::rascalcore::check::NameUtils;
 
 import IO;
 import List;

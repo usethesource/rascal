@@ -1,6 +1,5 @@
 module lang::rascalcore::check::BuiltinFields
 
-//import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
 

@@ -1,22 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectPattern
 
-//extend analysis::typepal::TypePal;
-
-//extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeUtils;
-//extend lang::rascalcore::check::ATypeExceptions;
-//extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::CheckerCommon;
 
-//import lang::rascalcore::check::BasicRascalConfig;
-//import lang::rascalcore::check::CollectVarArgs;
-
-import analysis::typepal::FailMessage;
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::NameUtils;
-import lang::rascalcore::check::ComputeType;
-import lang::rascalcore::check::ScopeInfo;
 
 import String;
 

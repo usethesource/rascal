@@ -13,11 +13,7 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeInstantiation
 
-extend analysis::typepal::TypePal;
- 
-//extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-//extend lang::rascalcore::check::ATypeExceptions;
 
 import Map;
 import Set;
