@@ -241,7 +241,7 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
    str fuid = topFunctionScope();
    fragmentCode = [];
    vars = [];
-   map[str,str] varnames = ();
+   map[str,int] varnames = ();
    str fragment = "";
    modifierString = "<modifier>";
    for(i <- [0 .. size(modifierString)]){
