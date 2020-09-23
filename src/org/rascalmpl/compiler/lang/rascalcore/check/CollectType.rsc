@@ -21,7 +21,7 @@ import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
 
-import lang::rascalcore::check::NameUtils;
+extend lang::rascalcore::check::NameUtils;
 
 import IO;
 import List;

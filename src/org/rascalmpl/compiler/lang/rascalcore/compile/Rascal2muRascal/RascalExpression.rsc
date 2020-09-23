@@ -328,7 +328,7 @@ public list[MuExp] translateMiddle(MuExp template, str indent, (StringMiddle) `<
 public list[MuExp] translateMiddle(MuExp template, str indent, s: (StringMiddle) `<MidStringChars mid> <StringTemplate stemplate> <StringMiddle tail>`) {
 	midIndent = computeIndent(mid);
     return [ *translateMidChars(template, mid),
-   			 *translateTemplate(template, indent + midIndent, stemplate),
+   			 translateTemplate(template, indent + midIndent, stemplate),
    			 *translateMiddle(template, indent, tail)
    		   ];
    	}
@@ -360,7 +360,7 @@ private list[MuExp] translateTail(MuExp template, str indent, (StringTail) `<Pos
 private list[MuExp] translateTail(MuExp template, str indent, s: (StringTail) `<MidStringChars mid> <StringTemplate stemplate> <StringTail tail>`) {
     midIndent = computeIndent(mid);
     return [ muBlock( [ *translateMidChars(template, mid),
-                        *translateTemplate(template, indent + midIndent, stemplate),
+                        translateTemplate(template, indent + midIndent, stemplate),
                         *translateTail(template, indent + midIndent,tail)
                     ])
            ];

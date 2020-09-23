@@ -827,8 +827,8 @@ map[AType,set[AType]] collectNeededDefs(AType t){
  * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
  *       on the number of formal parameters has been removed 
  */
-public MuExp mkCallToLibFun(str modName, str fname)
-	= muFun1("<modName>/<fname>");
+//public MuExp mkCallToLibFun(str modName, str fname)
+//	= muFun1("<modName>/<fname>");
 
 
 

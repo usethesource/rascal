@@ -102,12 +102,11 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	   resetModuleInfo(optimize, enableAsserts);
    	   resetScopeExtraction();
    }
-   throw "r2mu: cannot come here!";
 }
 
-TModel relocConfig(TModel tmodel, loc reloc, list[loc] srcs){
-        return visit(tmodel) { case loc l => relocLoc(l, reloc, srcs) };
-}
+//TModel relocConfig(TModel tmodel, loc reloc, list[loc] srcs){
+//        return visit(tmodel) { case loc l => relocLoc(l, reloc, srcs) };
+//}
 
 void translateModule((Module) `<Header header> <Body body>`) {
     for(imp <- header.imports) importModule(imp);

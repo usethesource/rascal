@@ -36,7 +36,7 @@ extend lang::rascalcore::check::CollectExpression;
 extend lang::rascalcore::check::CollectOperators;
 extend lang::rascalcore::check::CollectPattern;
 extend lang::rascalcore::check::CollectStatement;
-extend lang::rascalcore::check::CollectType;
+//extend lang::rascalcore::check::CollectType;
 extend lang::rascalcore::check::Import;
 
 import lang::rascalcore::check::ScopeInfo;
