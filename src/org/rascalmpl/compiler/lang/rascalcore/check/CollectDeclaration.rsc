@@ -3,7 +3,7 @@ module lang::rascalcore::check::CollectDeclaration
 
 //extend lang::rascalcore::check::AType;
 //extend lang::rascalcore::check::ATypeExceptions;
-extend lang::rascalcore::check::ATypeInstantiation;
+//extend lang::rascalcore::check::ATypeInstantiation;
 // lang::rascalcore::check::ATypeUtils;
 //extend lang::rascalcore::check::CollectType;
 extend lang::rascalcore::check::Fingerprint;
@@ -14,11 +14,11 @@ extend lang::rascalcore::check::CollectSyntaxDeclaration;
 //import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascalcore::check::CollectVarArgs;
-import lang::rascalcore::check::ComputeType;
-import lang::rascalcore::check::NameUtils;
-import lang::rascalcore::check::PathAnalysis;
-import lang::rascalcore::check::ScopeInfo;
-import lang::rascalcore::check::SyntaxGetters;
+//import lang::rascalcore::check::ComputeType;
+//import lang::rascalcore::check::NameUtils;
+//import lang::rascalcore::check::PathAnalysis;
+//import lang::rascalcore::check::ScopeInfo;
+//import lang::rascalcore::check::SyntaxGetters;
 
 import lang::rascal::\syntax::Rascal;
 

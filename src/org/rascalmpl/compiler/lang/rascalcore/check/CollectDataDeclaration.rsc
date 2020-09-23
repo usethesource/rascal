@@ -2,9 +2,11 @@
 module lang::rascalcore::check::CollectDataDeclaration
 
 // lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeInstantiation;
+//extend lang::rascalcore::check::ATypeInstantiation;
 //extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::CollectType;
+//extend lang::rascalcore::check::CollectType;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::SyntaxGetters;
 import lang::rascalcore::grammar::definition::Attributes;
