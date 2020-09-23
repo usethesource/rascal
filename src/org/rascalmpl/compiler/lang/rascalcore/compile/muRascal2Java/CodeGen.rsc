@@ -1164,7 +1164,7 @@ JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str f
 default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
     base = transWithCast(consType, cons, jg);
     qFieldName = "\"<fieldName>\"";
-    println("muGetField: <resultType>, <consType>, <fieldName>");
+    //println("muGetField: <resultType>, <consType>, <fieldName>");
     isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
     return isConsKwField ? "$get_<consType.adt.adtName>_<getJavaName(consType.label)>_<getJavaName(fieldName)>(<base>)"
                          : "$get_<consType.adt.adtName>_<getJavaName(fieldName)>(<base>)";

@@ -5,7 +5,7 @@ module lang::rascalcore::check::CollectDeclaration
 //extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
 // lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::CollectType;
+//extend lang::rascalcore::check::CollectType;
 extend lang::rascalcore::check::Fingerprint;
 
 extend lang::rascalcore::check::CollectDataDeclaration;

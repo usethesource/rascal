@@ -241,7 +241,7 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
    str fuid = topFunctionScope();
    fragmentCode = [];
    vars = [];
-   varnames = ();
+   map[str,str] varnames = ();
    str fragment = "";
    modifierString = "<modifier>";
    for(i <- [0 .. size(modifierString)]){
@@ -397,20 +397,22 @@ loc getConcreteHoleVarLoc(h: appl(Production prod, list[Tree] args)) {
 }	
 
 MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args), AType symbol){
-  //println("translateParsedConcretePattern: <prod>, <symbol>");
-  if(isConcreteHole(t)){
-     <fuid, pos> = getVariableScope("ConcreteVar",  getConcreteHoleVarLoc(t));
-     return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR"), [muTypeCon(symbol), muVarRef("ConcreteVar", fuid, pos)]);
-  }
-  //applCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon("appl")]);
-  prodCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(prod)]);
-  argsCode = translateConcreteListPattern(args, lex(_) := symbol);
-  //kwParams = muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"),  [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
-  return muApply(mkCallToLibFun("Library", "MATCH_CONCRETE_TREE"), [muCon(prod), argsCode]);
+    throw "Not implemented";
+  ////println("translateParsedConcretePattern: <prod>, <symbol>");
+  //if(isConcreteHole(t)){
+  //   <fuid, pos> = getVariableScope("ConcreteVar",  getConcreteHoleVarLoc(t));
+  //   return muApply(mkCallToLibFun("Library","MATCH_TYPED_VAR"), [muTypeCon(symbol), muVarRef("ConcreteVar", fuid, pos)]);
+  //}
+  ////applCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon("appl")]);
+  //prodCode = muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(prod)]);
+  //argsCode = translateConcreteListPattern(args, lex(_) := symbol);
+  ////kwParams = muApply(mkCallToLibFun("Library","MATCH_KEYWORD_PARAMS"),  [muCallMuPrim("make_array", []), muCallMuPrim("make_array", [])]);
+  //return muApply(mkCallToLibFun("Library", "MATCH_CONCRETE_TREE"), [muCon(prod), argsCode]);
 }
 
 MuExp translateParsedConcretePattern(cc: char(int c), AType symbol) {
-  return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(cc)]);
+    throw "Not implemented";
+  //return muApply(mkCallToLibFun("Library","MATCH_LITERAL"), [muCon(cc)]);
 }
 
 MuExp translateParsedConcretePattern(Pattern pat:(Pattern)`type ( <Pattern s>, <Pattern d> )`, AType symbol) {
@@ -480,17 +482,18 @@ list[Tree] removeSeparators(list[Tree] pats){
 }
 
 MuExp translateConcreteListPattern(list[Tree] pats, bool isLex){
- //println("translateConcreteListPattern: <for(p <- pats){><p><}>, isLex = <isLex>");
- pats = removeSeparators(pats);
- //println("After: <for(p <- pats){><p><}>");
- lookahead = computeConcreteLookahead(pats);  
- if(isLex){
- 	return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
-                   [ translatePatAsConcreteListElem(pats[i], lookahead[i], isLex) | i <- index(pats) ])]);
- }
- optionalLayoutPat = muApply(mkCallToLibFun("Library","MATCH_OPTIONAL_LAYOUT_IN_LIST"), []);
- return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
-         [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i], isLex) : optionalLayoutPat | int i <- index(pats) ])]);
+    throw "Not implemented";
+ ////println("translateConcreteListPattern: <for(p <- pats){><p><}>, isLex = <isLex>");
+ //pats = removeSeparators(pats);
+ ////println("After: <for(p <- pats){><p><}>");
+ //lookahead = computeConcreteLookahead(pats);  
+ //if(isLex){
+ //	return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
+ //                  [ translatePatAsConcreteListElem(pats[i], lookahead[i], isLex) | i <- index(pats) ])]);
+ //}
+ //optionalLayoutPat = muApply(mkCallToLibFun("Library","MATCH_OPTIONAL_LAYOUT_IN_LIST"), []);
+ //return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
+ //        [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i], isLex) : optionalLayoutPat | int i <- index(pats) ])]);
 }
 
 // Is a symbol an iterator type?
@@ -533,65 +536,73 @@ int nIter(Tree pat){
 }
 
 MuExp translatePatAsConcreteListElem(t:appl(Production applProd, list[Tree] args), Lookahead lookahead, bool isLex){
-  //println("translatePatAsConcreteListElem:"); iprintln(applProd);
-  //println("lex: <lex(_) := applProd.def>");
-  if(lex(_) := applProd.def){
-  	isLex = true;
-  }
-    if(isConcreteHole(t)){
-     varloc = getConcreteHoleVarLoc(t);
-     <fuid, pos> = getVariableScope("ConcreteVar", varloc);
-     holeType = getType(varloc);
-     //println("holeType = <holeType>");
-    
-     if(isIter(holeType)){
-        if(isIterWithSeparator(holeType)){
-           sep = getSeparator(holeType);
-           libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST";
-           //println("libFun = <libFun>");
-           //println("lookahead = <lookahead>");
-           if(!isLex){
-           		holeType = insertLayout(holeType);
-           }
-           return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
-           													  muCon(nIter(holeType)), 
-           													  muCon(1000000), 
-           													  muCon(lookahead.nElem), 
-                											  muCon(sep), 
-                											  muCon(regular(holeType))]);
-        } else {
-           libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
-           //println("libFun = <libFun>");
-           //println("lookahead = <lookahead>");
-            if(!isLex){
-           		holeType = insertLayout(holeType);
-           }
-           return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
-           													  muCon(nIter(holeType)), 
-           													  muCon(1000000), 
-           													  muCon(lookahead.nElem),  
-           													  muCon(regular(holeType))]);
-       }
-     }
-     return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("ConcreteVar", fuid, pos)]);
-  }
-  return translateApplAsListElem(applProd, args, isLex);
+    throw "Not implemented";
+  ////println("translatePatAsConcreteListElem:"); iprintln(applProd);
+  ////println("lex: <lex(_) := applProd.def>");
+  //if(lex(_) := applProd.def){
+  //	isLex = true;
+  //}
+  //  if(isConcreteHole(t)){
+  //   varloc = getConcreteHoleVarLoc(t);
+  //   <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+  //   holeType = getType(varloc);
+  //   //println("holeType = <holeType>");
+  //  
+  //   if(isIter(holeType)){
+  //      if(isIterWithSeparator(holeType)){
+  //         sep = getSeparator(holeType);
+  //         libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST";
+  //         //println("libFun = <libFun>");
+  //         //println("lookahead = <lookahead>");
+  //         if(!isLex){
+  //         		holeType = insertLayout(holeType);
+  //         }
+  //         return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
+  //         													  muCon(nIter(holeType)), 
+  //         													  muCon(1000000), 
+  //         													  muCon(lookahead.nElem), 
+  //              											  muCon(sep), 
+  //              											  muCon(regular(holeType))]);
+  //      } else {
+  //         libFun = "MATCH_<isLast(lookahead)>CONCRETE_MULTIVAR_IN_LIST";
+  //         //println("libFun = <libFun>");
+  //         //println("lookahead = <lookahead>");
+  //          if(!isLex){
+  //         		holeType = insertLayout(holeType);
+  //         }
+  //         return muApply(mkCallToLibFun("Library", libFun), [muVarRef("ConcreteListVar", fuid, pos), 
+  //         													  muCon(nIter(holeType)), 
+  //         													  muCon(1000000), 
+  //         													  muCon(lookahead.nElem),  
+  //         													  muCon(regular(holeType))]);
+  //     }
+  //   }
+  //   return muApply(mkCallToLibFun("Library","MATCH_VAR_IN_LIST"), [muVarRef("ConcreteVar", fuid, pos)]);
+  //}
+  //return translateApplAsListElem(applProd, args, isLex);
 }
 
 MuExp translatePatAsConcreteListElem(cc: char(int c), Lookahead lookahead, bool isLex){
-  return muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST"), [muCon(cc)]);
+    throw "Not implemented";
+  //return muApply(mkCallToLibFun("Library","MATCH_LITERAL_IN_LIST"), [muCon(cc)]);
 }
 
 default MuExp translatePatAsConcreteListElem(Tree c, Lookahead lookahead, bool isLex){
-  return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_LIST"), [translateParsedConcretePattern(c, getType(c))]);
+    throw "Not implemented";
+  //return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_LIST"), [translateParsedConcretePattern(c, getType(c))]);
 }
 
 // Translate an appl as element of a concrete list pattern
 
-MuExp translateApplAsListElem(p: prod(lit(str S), _, _), list[Tree] args, bool isLex) = 
- 	muApply(mkCallToLibFun("Library","MATCH_LIT_IN_LIST"), [muCon(p)]);
+MuExp translateApplAsListElem(p: prod(lit(str S), _, _), list[Tree] args, bool isLex) {
+    throw "Not implemented";
+ 	//return muApply(mkCallToLibFun("Library","MATCH_LIT_IN_LIST"), [muCon(p)]);
+}
  
-default MuExp translateApplAsListElem(Production prod, list[Tree] args, bool isLex) = muApply(mkCallToLibFun("Library","MATCH_APPL_IN_LIST"), [muCon(prod), translateConcreteListPattern(args, isLex)]);
+default MuExp translateApplAsListElem(Production prod, list[Tree] args, bool isLex) {
+    throw "Not implemented";
+    return muApply(mkCallToLibFun("Library","MATCH_APPL_IN_LIST"), [muCon(prod), translateConcreteListPattern(args, isLex)]);
+]
 
 // Is an appl node a concrete multivar?
 
@@ -663,7 +674,8 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
 // ==== reified type pattern ==================================================
 //TODO
 MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> )`, AType subjectType) {    
-    return muApply(mkCallToLibFun("Library","MATCH_REIFIED_TYPE"), [muCon(symbol)]);
+    throw "Not implemented";
+    //return muApply(mkCallToLibFun("Library","MATCH_REIFIED_TYPE"), [muCon(symbol)]);
 }
 
 // ==== call or tree pattern ==================================================

@@ -10,7 +10,7 @@ import lang::rascalcore::check::SyntaxGetters;
 import lang::rascalcore::grammar::definition::Attributes;
 import lang::rascalcore::check::ScopeInfo; 
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::NameUtils;
+//import lang::rascalcore::check::NameUtils;
 import IO;
 //import lang::rascalcore::check::BasicRascalConfig;
 
