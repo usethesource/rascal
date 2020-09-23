@@ -1,16 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectOperators
  
-//extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeUtils;
-//extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::CheckerCommon;
 
-//import lang::rascalcore::check::BasicRascalConfig;
-import lang::rascalcore::check::ComputeType;
-import lang::rascalcore::check::ScopeInfo;
 import lang::rascal::\syntax::Rascal;
-
 
 import Node;
 import Set;

@@ -1,22 +1,25 @@
 module lang::rascalcore::check::ComputeType
 
-//extend analysis::typepal::TypePal;
-
-//extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
-//extend lang::rascalcore::check::ATypeUtils;
-//import lang::rascalcore::check::BasicRascalConfig;
+extend lang::rascalcore::check::BuiltinFields;
 
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::NameUtils;
-import lang::rascalcore::check::BuiltinFields;
-import lang::rascalcore::check::ScopeInfo;
 
 import IO;
 import Map;
 import Set;
 import String;
+
+void checkConditions(list[Expression] condList, Solver s){
+    for(Expression cond <- condList){
+        tcond = s.getType(cond);
+        if(!s.isFullyInstantiated(tcond)){
+            s.requireUnify(abool(), tcond, error(cond, "Cannot unify %t with `bool`", cond));
+            tcond = s.instantiate(tcond); 
+        } 
+        s.requireSubType(tcond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
+    }
+}
 
 void requireFullyInstantiated(Solver s, AType ts...){
   for(t <- ts){

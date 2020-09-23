@@ -1,17 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectVarArgs
 
-//extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeUtils;
-//extend lang::rascalcore::check::ATypeInstantiation;
-
 extend lang::rascalcore::check::CheckerCommon;
 
-
-import analysis::typepal::FailMessage;
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::ScopeInfo;
-import lang::rascalcore::check::BasicRascalConfig;
 
 void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");

@@ -14,7 +14,6 @@ module lang::rascalcore::check::ATypeUtils
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
-//extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::BasicRascalConfig;
 
 extend ParseTree;

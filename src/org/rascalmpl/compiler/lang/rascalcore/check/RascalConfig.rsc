@@ -1,17 +1,20 @@
 @bootstrapParser
 module lang::rascalcore::check::RascalConfig
 
-extend analysis::typepal::TypePal;
-extend lang::rascalcore::check::BasicRascalConfig;
+extend lang::rascalcore::check::CheckerCommon;
+
+//extend analysis::typepal::TypePal;
+//extend lang::rascalcore::check::BasicRascalConfig;
  
 extend lang::rascalcore::check::ADTandGrammar;
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::NameUtils;
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeUtils;
+//import lang::rascalcore::check::NameUtils;
+
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
-extend lang::rascalcore::check::ComputeType;
+//extend lang::rascalcore::check::ComputeType;
 
 import Location;
 
@@ -22,7 +25,6 @@ import Map;
 import Set;
 import Relation;
 import String;
-import util::Memo;
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
