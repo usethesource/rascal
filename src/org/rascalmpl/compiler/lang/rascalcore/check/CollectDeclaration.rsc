@@ -337,11 +337,24 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
          
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt); 
         
-        if(decl is abstract && "javaClass" notin tagsMap){
-            c.report(warning(decl, "Empty function body"));
-        }
-        if(!(decl is abstract) && "java" in modifiers){
-            c.report(warning(decl, "Redundant modifier `java`"));
+        if(decl is abstract){
+            if("javaClass" in tagsMap){
+                if("java" notin modifiers){
+                    c.report(warning(decl, "Missing modifier `java`"));
+                }
+                if("test" in modifiers){
+                    c.report(warning(decl, "Modifier `test` cannot be used for Java functions"));
+                }
+            } else {
+                c.report(warning(decl, "Empty function body"));
+             }
+        } else {
+            if("javaClass" in tagsMap){
+                c.report(warning(decl, "Redundant tag `javaClass`"));
+            }
+            if("java" in modifiers){
+                c.report(warning(decl, "Redundant modifier `java`"));
+            }
         }
         
         if(decl is \default){
