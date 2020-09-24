@@ -8,6 +8,7 @@ import IO;
 import String;
 import Map;
 import Node;
+
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
 import lang::rascalcore::compile::util::Names;
@@ -15,9 +16,12 @@ import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 
 import lang::rascalcore::compile::muRascal2Java::Conversions;
 
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::BasicRascalConfig;
+extend lang::rascalcore::check::CheckerCommon;
+
+//import lang::rascalcore::check::AType;
+//import lang::rascalcore::check::ATypeUtils;
+//import lang::rascalcore::check::BasicRascalConfig;
+
 import Location;
 
 alias JCode = str;

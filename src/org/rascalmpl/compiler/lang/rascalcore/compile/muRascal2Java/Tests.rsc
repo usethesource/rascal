@@ -1,15 +1,19 @@
 module lang::rascalcore::compile::muRascal2Java::Tests
 
 import lang::rascalcore::compile::muRascal::AST;
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+
+//import lang::rascalcore::check::AType;
+//import lang::rascalcore::check::ATypeUtils;
+
+extend lang::rascalcore::check::CheckerCommon;
+
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal2Java::Conversions;
 import lang::rascalcore::compile::util::Names;
+
 import List;
 import Map;
 import Set;
-
 import String;
 
 // Generate a test class for a Rascal module

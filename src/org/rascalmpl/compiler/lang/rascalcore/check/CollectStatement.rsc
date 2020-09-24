@@ -863,7 +863,7 @@ private void checkAssignment(Statement current, asg: (Assignable) `<Assignable r
 private AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
     fieldName = unescape("<field>");
     if(isNonTerminalType(receiverType) && fieldName == "top"){
-        return receiverType;
+        return isStartNonTerminalType(receiverType) ? getStartNonTerminalType(receiverType) : receiverType;
     }
     fieldType = s.getTypeInType(receiverType, field, {fieldId(), keywordFieldId()}, scope);
     updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs, s);
