@@ -1172,7 +1172,7 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
     println("muGetField: <resultType>, <consType>, <fieldName>");
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
     if(isNonTerminalType(consType)){
-        return "//TODO: muGetField: <resultType>, <consType>, <fieldName>";
+        return "null /*TODO: muGetField: <resultType>, <consType>, <fieldName>*/";
     } else {
         isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
         return isConsKwField ? "$get_<consType.adt.adtName>_<getJavaName(consType.label)>_<getJavaName(fieldName)>(<base>)"
