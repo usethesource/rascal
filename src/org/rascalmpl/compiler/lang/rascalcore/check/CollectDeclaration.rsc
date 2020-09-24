@@ -340,6 +340,10 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         if(decl is abstract && "javaClass" notin tagsMap){
             c.report(warning(decl, "Empty function body"));
         }
+        if(!(decl is abstract) && "java" in modifiers){
+            c.report(warning(decl, "Redundant modifier `java`"));
+        }
+        
         if(decl is \default){
             if(!myReturnsViaAllPath && "<signature.\type>" != "void"){
                 c.report(error(decl, "Missing return statement"));
