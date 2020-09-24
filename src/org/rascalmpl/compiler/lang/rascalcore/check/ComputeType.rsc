@@ -361,7 +361,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     requireFullyInstantiated(s, containerType);
     fieldName = unescape("<field>");
     if(isNonTerminalType(containerType) && fieldName == "top"){
-        return containerType;
+        return isStartNonTerminalType(containerType) ? getStartNonTerminalType(containerType) : containerType;
     }
     return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId(), annoId()}, scope); // DURING TRANSITION: allow annoIds
 }

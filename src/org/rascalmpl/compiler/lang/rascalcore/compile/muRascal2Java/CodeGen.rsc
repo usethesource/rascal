@@ -3,9 +3,14 @@ module lang::rascalcore::compile::muRascal2Java::CodeGen
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::muRascal::AST;
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::BasicRascalConfig;
+
+extend lang::rascalcore::check::CheckerCommon;
+
+//import lang::rascalcore::check::AType;
+//import lang::rascalcore::check::ATypeUtils;
+//import lang::rascalcore::check::BasicRascalConfig;
+
+
 import Location;
 import List;
 import Set;
@@ -1160,14 +1165,19 @@ JCode trans(muGetField(AType resultType, adt:aadt(_,_,_), MuExp exp, str fieldNa
             
 JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str fieldName), JGenie jg)
     = "$areified_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")";
-
+ 
 default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
     base = transWithCast(consType, cons, jg);
     qFieldName = "\"<fieldName>\"";
-    //println("muGetField: <resultType>, <consType>, <fieldName>");
-    isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
-    return isConsKwField ? "$get_<consType.adt.adtName>_<getJavaName(consType.label)>_<getJavaName(fieldName)>(<base>)"
-                         : "$get_<consType.adt.adtName>_<getJavaName(fieldName)>(<base>)";
+    println("muGetField: <resultType>, <consType>, <fieldName>");
+    consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
+    if(isNonTerminalType(consType)){
+        return "//TODO: muGetField: <resultType>, <consType>, <fieldName>";
+    } else {
+        isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
+        return isConsKwField ? "$get_<consType.adt.adtName>_<getJavaName(consType.label)>_<getJavaName(fieldName)>(<base>)"
+                             : "$get_<consType.adt.adtName>_<getJavaName(fieldName)>(<base>)";
+    }
 }
  
  // ---- muGuardedGetField -------------------------------------------------

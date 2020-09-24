@@ -1,12 +1,15 @@
 module lang::rascalcore::compile::muRascal2Java::Primitives
 
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+//import lang::rascalcore::check::AType;
+//import lang::rascalcore::check::ATypeUtils;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
 import lang::rascalcore::compile::muRascal2Java::Conversions;
+
 import List;
 import Node;
 import String;

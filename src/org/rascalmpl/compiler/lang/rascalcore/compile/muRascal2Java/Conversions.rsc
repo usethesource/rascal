@@ -4,8 +4,10 @@ import Node;
 import String;
 import Map;
 import Set;
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+//import lang::rascalcore::check::AType;
+//import lang::rascalcore::check::ATypeUtils;
+
+extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
