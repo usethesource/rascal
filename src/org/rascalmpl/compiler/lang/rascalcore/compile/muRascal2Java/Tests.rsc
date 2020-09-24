@@ -61,8 +61,8 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
     test_name_uniq = "<test_name>_<f.src.begin.line>";
     formals = f.ftype.formals;
     expected = f.tags["expected"] ? "";
-    ignored = !isEmpty(domain(f.tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
-    if(ignored){
+   
+    if(!isEmpty(domain(f.tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"})){
         return "@Ignore
                'void <test_name_uniq>(){ }\n";
     }
