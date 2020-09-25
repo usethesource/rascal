@@ -22,7 +22,6 @@ private Content echo(str line) = text(line);
 private Completion noSuggestions(str _, int _) = <0, []>;
 
 @javaClass{org.rascalmpl.library.util.TermREPL}
-@reflect
 java void startREPL(REPL repl, 
   
   // filling in defaults from the repl constructor, for use in the Java code:
