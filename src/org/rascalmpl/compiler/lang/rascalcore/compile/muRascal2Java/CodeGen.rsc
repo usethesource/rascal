@@ -218,7 +218,7 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
 
 // ---- Overloading resolvers -------------------------------------------------
 //
-// An overloaded named F can have
+// An overloaded function named F can have
 // - a single (S) or multiple (M) signatures
 // - be defined in the current module (C) or in (one or more) imported modules or both
 //
@@ -245,7 +245,6 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
 alias OF5 = tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
 
 tuple[rel[str,AType,str], list[OF5]] mergeOverloadedFunctions(list[OF5] overloadedFunctions){
-    //iprintln(overloadedFunctions);
     overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
     mergedNames = {};
     allFuns = [];
@@ -257,7 +256,12 @@ tuple[rel[str,AType,str], list[OF5]] mergeOverloadedFunctions(list[OF5] overload
     return <mergedNames, allFuns>;
 }
 
+// Merge overloads that lead to the same Java argument types
+
 tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions){
+    // First elimnate overloads that are subsumed by others
+    subsumedOverloads = [ ovl1 | ovl1 <- overloadedFunctions, ovl2 <- overloadedFunctions, ovl1 != ovl2, ovl1.ofunctions <= ovl2.ofunctions && ovl1.oconstructors <= ovl2.oconstructors ];
+    overloadedFunctions -= subsumedOverloads;
     resultingOverloadedFuns = [];
     mergedFuns = {};
     while(!isEmpty(overloadedFunctions)){
@@ -281,12 +285,15 @@ tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions)
         }
     }
     
+    println("mergedFuns:"); iprintln(mergedFuns);
+    println("resultingOverloadedFuns:"); iprintln(resultingOverloadedFuns);
+    
     return <mergedFuns, resultingOverloadedFuns>;
 }
 
 str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleScopes, JGenie jg){
     overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
-    //iprintln(overloadedFunctions, lineLimit=10000);
+    iprintln(overloadedFunctions, lineLimit=10000);
     all_resolvers = "";
     for(fname <- toSet(overloadsWithName<0>), /*!isClosureName(fname),*/ fname != "type", !isMainName(fname)){
         for(OF5 overload <- overloadsWithName[fname]){ 

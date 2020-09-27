@@ -1,9 +1,15 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+import  lang::rascalcore::compile::Examples::Tst2;
 
+// If the restiction is specified as a list, we take the order of tuples from there
 
-value main()
-    = [1, [*int X, int N, *int Y], 3] := [1, [10,20], 3] && N > 10;
+    
+value main() // test bool domainRl02() 
+    = domainR([<1,10>,<2,20>], [2]) == [<2,20>];
+
+//value main()
+//    = [1, [*int X, int N, *int Y], 3] := [1, [10,20], 3] && N > 10;
 
 
 ///value main() // test bool testList6() 
