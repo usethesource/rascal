@@ -246,22 +246,22 @@ alias OF5 = tuple[str name, AType funType, str oname, list[loc] ofunctions, list
 
 tuple[rel[str,AType,str], list[OF5]] mergeOverloadedFunctions(list[OF5] overloadedFunctions){
     overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
-    mergedNames = {};
+    mergedFuns = {};
     allFuns = [];
     for(fname <- toSet(overloadsWithName<0>)){
         <merged, funs> = mergeSimilar(overloadsWithName[fname]);
-        mergedNames += merged;
+        mergedFuns += merged;
         allFuns += funs;
     }
-    return <mergedNames, allFuns>;
+    return <mergedFuns, allFuns>;
 }
 
 // Merge overloads that lead to the same Java argument types
 
 tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions){
     // First elimnate overloads that are subsumed by others
-    subsumedOverloads = [ ovl1 | ovl1 <- overloadedFunctions, ovl2 <- overloadedFunctions, ovl1 != ovl2, ovl1.ofunctions <= ovl2.ofunctions && ovl1.oconstructors <= ovl2.oconstructors ];
-    overloadedFunctions -= subsumedOverloads;
+    //subsumedOverloads = [ ovl1 | ovl1 <- overloadedFunctions, ovl2 <- overloadedFunctions, ovl1 != ovl2, ovl1.ofunctions <= ovl2.ofunctions && ovl1.oconstructors <= ovl2.oconstructors ];
+    //overloadedFunctions -= subsumedOverloads;
     resultingOverloadedFuns = [];
     mergedFuns = {};
     while(!isEmpty(overloadedFunctions)){
@@ -285,11 +285,10 @@ tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions)
         }
     }
     
-    println("mergedFuns:"); iprintln(mergedFuns);
-    println("resultingOverloadedFuns:"); iprintln(resultingOverloadedFuns);
-    
     return <mergedFuns, resultingOverloadedFuns>;
 }
+
+// Generate resolvers for all overloaded functions
 
 str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleScopes, JGenie jg){
     overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
@@ -339,7 +338,7 @@ default bool leadToSameJavaType1(AType t1, AType t2) = false;
 
 bool leadToSameJavaType(atypeList(list[AType] elms1), atypeList(list[AType] elms2)) = size(elms1) != size(elms2) || any(i <- index(elms1), leadToSameJavaType(elms1[i], elms2[i]));
 
-// Generate a resolver for a function that is S-overloaded
+// Generate a resolver for a single overloaded function
 
 str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors] overload, set[loc] moduleScopes, JGenie jg){
     if(overload.name == "type") return <"","">;
@@ -663,11 +662,11 @@ JCode trans(MuFunction fun, JGenie jg){
             kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
         }
         argTypes = isEmpty(argTypes) ? kwpActuals : (((isEmpty(kwpActuals) || contains(argTypes, "$kwpActuals")) ? argTypes : "<argTypes>, <kwpActuals>"));
-        return isEmpty(kwFormals) ? "<memoCache><visibility><returnType> <shortName>(<argTypes>){
+        return isEmpty(kwFormals) ? "<memoCache><visibility><returnType> <shortName>(<argTypes>){ // <ftype>
                                     '    <body>
                                     '}"
                                   : "<constantKwpDefaults><memoCache>
-                                    '<visibility><returnType> <shortName>(<argTypes>){
+                                    '<visibility><returnType> <shortName>(<argTypes>){ // <ftype>
                                     '    <nonConstantKwpDefaults>
                                     '    <body>
                                     '}";
