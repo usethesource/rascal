@@ -1,25 +1,23 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+//import Type;
+
 import  lang::rascalcore::compile::Examples::Tst2;
-
-// If the restiction is specified as a list, we take the order of tuples from there
-
+//   
+//value main() // test bool domainRl02() 
+//    = domainR([<1,10>,<2,20>], [2]) == [<2,20>];
     
-value main() // test bool domainRl02() 
-    = domainR([<1,10>,<2,20>], [2]) == [<2,20>];
-
-//value main()
-//    = [1, [*int X, int N, *int Y], 3] := [1, [10,20], 3] && N > 10;
+ 
+//test bool nonComparabilityImpliesNonEq(value x, value y) = !comparable(typeOf(x),typeOf(y)) ==> !eq(x,y);    
 
 
-///value main() // test bool testList6() 
-//    = [1, [*int _, int N, *int _], 3] := [1, [10,20], 3] && N > 10;
+//// Make a triple of lists from a list of triples.
+//public tuple[list[&T],list[&U],list[&V]] unzip(list[tuple[&T,&U,&V]] lst) =
+//    <[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
+//    
+//public tuple[list[&T],list[&U]] unzip(list[tuple[&T,&U]] lst) =
+//    <[t | <t,_> <- lst], [u | <_,u> <- lst]>;
+    
+test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,_> <- L], [b | <_,b> <- L]>;
 
-//import lang::rascal::\syntax::Rascal;
-//
-//@doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
-//public java lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseModuleWithSpaces(location).top;
-//
-//@doc{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
-//@javaClass{org.rascalmpl.library.util.Reflective}
-//public java start[Module] parseModuleWithSpaces(loc location);
+value main() = tstUnzip2([]);
