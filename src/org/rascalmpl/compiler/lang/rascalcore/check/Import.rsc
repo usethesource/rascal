@@ -274,9 +274,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
         
         m1.store = (key_bom : bom);
-        m1.store["grammar"] = tm.store["grammar"] ? grammar({}, ());
-        m1.store["ADTs"]    = tm.store["ADTs"] ? {};
-        m1.store["CommonKeywordFields"]    = tm.store["CommonKeywordFields"] ? [];
+        m1.store[key_grammar] = tm.store[key_grammar] ? grammar({}, ());
+        m1.store[key_ADTs]    = tm.store[key_ADTs] ? {};
+        m1.store[key_common_keyword_fields]    = tm.store[key_common_keyword_fields] ? [];
         
         m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- m1.paths, tup.from == mscope };
         //m1.paths = domainR(tm.paths, {mscope});

@@ -91,6 +91,9 @@ void storeAllowUseBeforeDef(Tree container, list[Tree] allowedParts, Collector c
 public str key_bom = "bill_of_materials";
 public str key_current_module = "current_module";
 public str key_pathconfig = "pathconfig";
+public str key_grammar = "grammar";
+public str key_ADTs = "ADTs";
+public str key_common_keyword_fields = "CommonKeywordFields";
 
 data TypePalConfig(
     bool logImports                 = true,
