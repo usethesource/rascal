@@ -291,20 +291,21 @@ void extractScopes(TModel tm){
     defUses = invert(useDef);
     set[loc] modules = {};
     
-    if([AGrammar g] := tm.store["grammar"]){
-        grammar = g;
+    if([*AGrammar gs] := tm.store[key_grammar]){
+        grammar = gs[0];
     } else {
+        iprintln(tm.store[key_grammar]);
         throw "`grammar` has incorrect format in store";
     }
     
-    if([set[AType] adts] := tm.store["ADTs"]){
-        ADTs = adts;
+    if([*set[AType] adts] := tm.store[key_ADTs]){
+        ADTs = adts[0];
     } else {
         throw "`ADTs` has incorrect format in store";
     }
     
    
-    if([lrel[AType,KeywordFormal] common] := tm.store["CommonKeywordFields"]){
+    if([lrel[AType,KeywordFormal] common] := tm.store[key_common_keyword_fields]){
         println("Common keyword parameters");
         iprintln(common);
         adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[label="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );

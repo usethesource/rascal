@@ -75,7 +75,7 @@ public void extractDeclarationInfo(TModel tm){
         throw "Cannot get grammar from tmodel";
     }
     
-    if(set[AType] adts_in_store := tm.store["ADTs"]){
+    if(set[AType] adts_in_store := tm.store[key_ADTs]){
         adts = adts_in_store;
     } else {
         throw "Cannot get ADTs from TModel";
