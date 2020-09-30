@@ -21,14 +21,5 @@ public class PreludeCompiled extends Prelude {
 		super(values, rascalValues, out,  err);
 	}
 	
-	@Override
-	public IFunction parser(IValue start, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
-	    throw new UnsupportedOperationException("have to implement parser function for compiled context");
-	}
-	
-	@Override
-	public IFunction parsers(IValue start, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
-	    throw new UnsupportedOperationException("have to implement parsers function for compiled context");
-	}
 }
 	
