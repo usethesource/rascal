@@ -270,8 +270,8 @@ JGenie makeJGenie(MuModule m,
                '<}>
                '<for(t <- atype_constants){>
                '//Intermediate solution that is compatible with legacy type reifier for vtypes
-               'private final IConstructor <atype_constants[t]> = $TR.typeToValue(<atype2vtype(t)>, $TS, $buildMap());
-               '//Future solution: private final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;
+               '// private final IConstructor <atype_constants[t]> = $TR.typeToValue(<atype2vtype(t)>, $TS, $buildMap());
+               'private final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;
                '<}>";
     }
     
