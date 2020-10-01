@@ -203,8 +203,7 @@ data AProduction
 data AProduction 
      = \priority(AType def, list[AProduction] choices) // <5>
      | \associativity(AType def, Associativity \assoc, set[AProduction] alternatives) // <6>
-     | \others(AType def) // <7>
-     | \reference(AType def, str cons) // <8>
+     | \reference(AType def, str cons) // <7>
      ;
 
 @doc{
