@@ -144,9 +144,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	/* Constructors for Production */
 	public static final Type Production_Default = tf.constructor(uptr, Production, "prod", Symbol, "def", tf.listType(Symbol), "symbols",  tf.setType(Attr), "attributes");
+	public static final Type Production_Prod = Production_Default;
 	public static final Type Production_Regular = tf.constructor(uptr, Production, "regular", Symbol, "def");
-	public static final Type Production_Error = tf.constructor(uptr, Production, "error", Production, "prod", tf.integerType(), "dot");
-	public static final Type Production_Skipped = tf.constructor(uptr, Production, "skipped");
 	public static final Type Production_Cons = tf.constructor(uptr, Production, "cons", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", tf.setType(Attr), "attributes");
 	public static final Type Production_Func = tf.constructor(uptr, Production, "func", Symbol, "def", tf.listType(Symbol), "symbols", tf.listType(Symbol), "kwTypes", tf.setType(Attr), "attributes");
 	public static final Type Production_Choice = tf.constructor(uptr, Production, "choice", Symbol, "def", tf.setType(Production), "alternatives");
