@@ -175,19 +175,19 @@ Symbol atype2symbol(AType::\lit(str string)) = Symbol::\lit(string);
 Symbol atype2symbol(AType::\cilit(str string)) = Symbol::\cilit(string);
 Symbol atype2symbol(\char-class(list[ACharRange] ranges)) = Symbol::\char-class([range(<r.begin>,<r.end>) | r <- ranges ]);
 
-Symbol atype2symbol(\start(AType symbol)) = "\\start(<atype2symbol(symbol)>)";
+Symbol atype2symbol(\start(AType symbol)) = Symbol::\start(<atype2symbol(symbol)>);
 
 // regular symbols
 Symbol atype2symbol(AType::\empty()) = Symbol::\empty();
 Symbol atype2symbol(\opt(AType symbol)) = Symbol::\opt(atype2symbol(symbol));
 Symbol atype2symbol(\iter(AType symbol)) = Symbol::\iter(atype2symbol(symbol));
 Symbol atype2symbol(\iter-star(AType symbol)) = Symbol::\iter-star(atype2symbol(symbol));
-Symbol atype2symbol(\iter-seps(AType symbol, list[AType] separators)) = "\\iter-seps(<atype2symbol(symbol)>, [<intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
-Symbol atype2symbol(\iter-star-seps(AType symbol, list[AType] separators)) = "\\iter-star-seps(<atype2symbol(symbol)>, [<intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
-Symbol atype2symbol(\alt(set[AType] alternatives)) = "\\alt({<intercalate(", ", [ atype2symbol(a) | a <- alternatives ])>})" when size(alternatives) > 1;
-Symbol atype2symbol(\seq(list[AType] sequence)) = "\\seq([<intercalate(",", [ atype2symbol(a) | a <- sequence ])>])" when size(sequence) > 1;
-Symbol atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = "\\conditional(<atype2symbol(symbol)>, {<intercalate(",", [ acond2cond(cond) | cond <- conditions ])>} )";
-default Symbol atype2symbol(AType s)  { throw "<s>"; } //"<type(s,())>";
+Symbol atype2symbol(\iter-seps(AType symbol, list[AType] separators)) = Symbol::\iter-seps(atype2symbol(symbol), [atype2symbol(sep) | sep <- separators ]);
+Symbol atype2symbol(\iter-star-seps(AType symbol, list[AType] separators)) = Symbol::\iter-star-seps(<atype2symbol(symbol)>, [ atype2symbol(sep) | sep <- separators ]);
+Symbol atype2symbol(\alt(set[AType] alternatives)) = Symbol::\alt({ atype2symbol(a) | a <- alternatives });
+Symbol atype2symbol(\seq(list[AType] sequence)) = Symbol::\seq([atype2symbol(a) | a <- sequence ]);
+Symbol atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = Symbol::\conditional(atype2symbol(symbol), [ acond2cond(cond) | cond <- conditions ]);
+default Symbol atype2symbol(AType s)  { throw "could not convert <s> to Symbol?"; }
 
 private Condition acond2cond(ACondition::\follow(AType symbol)) = \follow(atype2symbol(symbol));
 private Condition acond2cond(ACondition::\not-follow(AType symbol)) = \not-follow(atype2symbol(symbol));
@@ -201,8 +201,16 @@ private Condition acond2cond(ACondition::\except(str label)) = \except(label);
 
 Symbol atype2symbol(regular(AType def)) = \regular(atype2symbol(def));
 
-map[Symbol, Production] adefinitions2definitions(map[AType, AProduction] defs) 
-  = (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs);
+map[Symbol, Production] adefinitions2definitions(map[AType, set[AType]] defs) 
+  = (atype2symbol(k) : Production::choice(atype2symbol(k), aprods2prods(defs[k])) | k <- defs);
+
+set[Production] aprods2prods(set[AType] alts) = {aprod2prod(p) | p <- alts}; 
+ 
+Production aprod2prod(AType::aprod(AProduction prod)) = aprod2prod(prod);
+
+default Production aprod2prod(AType t) {
+  throw "internal error: do not know how to translate a <t> to a production rule?!";
+}
 
 Production aprod2prod(prod(AType lhs, list[AType] atypes, attributes=set[Attr] as))
   = Production::prod(atype2symbol(lhs), [atype2symbol(e) | e <- atypes], as); 

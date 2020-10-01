@@ -693,8 +693,33 @@ str value2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup) = "$VF.tuple(<value2I
 
 str value2IValue(map[&K,&V] mp) = "$buildMap(<intercalate(", ", ["<value2IValue(k)>, <value2IValue(mp[k])>" | k <- mp ])>)";
 
+str value2IValue(type[&T] typeValue) {
+   return "$RVF.reifiedType(<value2IValue(typeValue.symbol)>,<value2IValue(typeValue.definitions)>)";
+}
 
-str value2IValue(node nd) {
+// the builtin reified type representations (Symbol, Production) are not necessarily declared in the current scope, so
+// we lookup their constructors in the RascalValueFactory hand-written fields:
+str value2IValue(Symbol sym) {
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+}
+
+str value2IValue(Production sym) {
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+}
+
+str value2IValue(Attr sym) {
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Attr_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+}
+
+str value2IValue(Associativity sym) {
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Associativity_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+}
+
+str value2IValue(Production sym) {
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+}
+
+default str value2IValue(node nd) {
     name = getName(nd);
     name = isEmpty(name) ? "\"\"" : (name[0] == "\"" ? name : "\"<name>\"");
     children = getChildren(nd);

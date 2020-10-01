@@ -274,10 +274,6 @@ public class ATypeFactory {
 	// atype (reified type constructor)
 	final Type AType_atype = $TF.constructor($TS, AType, "atype", ReifiedAType, "symbol", $TF.mapType(ReifiedAType,$TF.setType(ReifiedAType)), "definitions");
 
-	public final IConstructor $reifiedAType(IConstructor t, IMap definitions) {
-		return $VF.constructor(AType_atype, t, definitions);
-	}
-	
 	public final boolean $isReified(IValue v) {
 		return v.getType() == ReifiedAType;
 	}
