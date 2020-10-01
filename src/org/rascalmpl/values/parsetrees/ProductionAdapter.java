@@ -51,9 +51,6 @@ public class ProductionAdapter {
 	}
 	
 	public static IConstructor getDefined(IConstructor tree) {
-		if (isSkipped(tree)) {
-			return ValueFactoryFactory.getValueFactory().constructor(RascalValueFactory.Symbol_Empty);
-		}
 		return (IConstructor) tree.get("def");
 	}
 	
@@ -61,14 +58,6 @@ public class ProductionAdapter {
     return (IConstructor) tree.set("def", sym);
   }
 	
-	public static boolean isSkipped(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Production_Skipped;
-	}
-	
-	public static boolean isError(IConstructor tree) {
-		return tree.getConstructorType() == RascalValueFactory.Production_Error;
-	}
-
 	public static IList getSymbols(IConstructor tree) {
 		if (isDefault(tree)) {
 			return (IList) tree.get("symbols");
