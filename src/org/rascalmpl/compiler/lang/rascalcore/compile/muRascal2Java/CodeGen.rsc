@@ -137,10 +137,12 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
       externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<var.name>)" | var <- sort(mainFunction.externalVars), var.pos >= 0, jtype := atype2javatype(var.atype)]);
     }              
     main_method       = hasMainFunction ? (mainFunction.ftype.ret == avoid() ? "public static void main(String[] args) {
-                                                                    'new <className>().<mainName>(<externalArgs>);
-                                                                    '}"
+                                                                               '  IValueFactory VF = org.rascalmpl.values.ValueFactoryFactory.getValueFactory();
+                                                                               '  new <className>().<mainName>(java.util.Arrays.stream(args).map(a -\> VF.string(a)).collect(VF.listWriter()));
+                                                                               '}"
                                                                   : "public static void main(String[] args) {
-                                                                    'IValue res = new <className>().<mainName>(<externalArgs>); 
+                                                                    '  IValueFactory VF = org.rascalmpl.values.ValueFactoryFactory.getValueFactory();
+                                                                    'IValue res = new <className>().<mainName>(java.util.Arrays.stream(args).map(a -\> VF.string(a)).collect(VF.listWriter())); 
                                                                     'if(res == null) throw new RuntimeException(\"Main function failed\"); else System.out.println(res);
                                                                     '}")
                                         : "public static void main(String[] args) {
