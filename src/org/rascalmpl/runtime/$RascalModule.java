@@ -63,10 +63,14 @@ import io.usethesource.vallang.type.TypeStore;
 public abstract class $RascalModule extends Type2ATypeReifier {
 	
     
+    
 	/*************************************************************************/
 	/*		Utilities for generated code									 */
 	/*************************************************************************/
   
+    // ---- value factory for creating functions, reified types and parsers unique to the Rascal runtime 
+    protected final IRascalValueFactory $RVF = new RascalRuntimeValueFactory(this);
+    
     // ---- library helper methods and fields  -------------------------------------------
     // TODO: make OUT and ERR configurable?
     /*package*/  final PrintStream $OUT = System.out;
@@ -77,7 +81,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
     
     // TODO: make monitor configurable?
     /*package*/  final IRascalMonitor $MONITOR = new NullRascalMonitor();
-    
+    public final IConstructor $reifiedAType(IConstructor t, IMap definitions) {
+        return $RVF.reifiedType(t, definitions);
+    }
     
     @SuppressWarnings("unchecked")
     protected <T> T $initLibrary(String className) {

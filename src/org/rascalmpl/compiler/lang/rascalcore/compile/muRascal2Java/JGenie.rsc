@@ -8,6 +8,7 @@ import IO;
 import String;
 import Map;
 import Node;
+import ParseTree;
 
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
@@ -46,7 +47,7 @@ data JGenie
         bool(AType) hasCommonKeywordFields,
         str(AType atype) shareType,
         str(value con) shareConstant,
-        str(AType, map[AType,set[AType]]) shareATypeConstant,
+        str(Symbol, map[Symbol,Production]) shareATypeConstant,
         str () getConstants,
         bool (str con) isWildCard,
         void(set[MuExp] evars) addExternalVars,
@@ -80,9 +81,9 @@ JGenie makeJGenie(MuModule m,
     int nconstants = -1;
     int ntypes = -1;
     
-    map[AType,str] atype_constants = ();
-    map[AType,map[AType,set[AType]]] atype_definitions = ();
-    map[str,AType] atype_constant2atype = ();
+    map[ParseTree::Symbol,str] atype_constants = ();
+    map[ParseTree::Symbol,map[ParseTree::Symbol,ParseTree::Production]] atype_definitions = ();
+    map[str,ParseTree::Symbol] atype_constant2atype = ();
     int ntconstants = -1;
     
     set[MuExp] externalVars = {};
@@ -251,7 +252,7 @@ JGenie makeJGenie(MuModule m,
         return c;
     }
     
-    str _shareATypeConstant(AType t, map[AType,set[AType]] definitions){
+    str _shareATypeConstant(Symbol t, map[Symbol, Production] definitions){
         if(atype_constants[t]?) return atype_constants[t];
         ntconstants += 1;
         c = "$R<ntconstants>";
@@ -269,9 +270,7 @@ JGenie makeJGenie(MuModule m,
                'private final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t)>;
                '<}>
                '<for(t <- atype_constants){>
-               '//Intermediate solution that is compatible with legacy type reifier for vtypes
-               '// private final IConstructor <atype_constants[t]> = $TR.typeToValue(<atype2vtype(t)>, $TS, $buildMap());
-               'private final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;
+               'private final IConstructor <atype_constants[t]> = $RVF.reifiedType(<value2IValue(t)>, <value2IValue(atype_definitions[t])>);
                '<}>";
     }
     
