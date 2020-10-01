@@ -152,7 +152,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
     private static void $usage(String module, String error, Type kwargs) {
         PrintWriter $ERR = new PrintWriter(System.err);
         
-        if (!error.isEmpty()) {
+        if (!error.isEmpty() && !error.equals("help")) {
             $ERR.println(error);
         }
         
@@ -179,7 +179,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
         
         $ERR.flush();
         
-        throw new IllegalArgumentException();
+        if (!error.equals("help")) {
+            throw new IllegalArgumentException();
+        }
     }
 
     protected static Map<String, IValue> $parseCommandlineParameters(String module, String[] commandline, Type kwTypes) {
@@ -196,7 +198,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
         for (int i = 0; i < commandline.length; i++) {
             if (commandline[i].equals("-help")) {
-                $usage(module, "", kwTypes);
+                $usage(module, "help", kwTypes);
             }
             else if (commandline[i].startsWith("-")) {
                 String label = commandline[i].replaceFirst("^-+", "");
