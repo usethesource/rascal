@@ -136,18 +136,32 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
     if(hasMainFunction && !isEmpty(mainFunction.externalVars)){
       externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<var.name>)" | var <- sort(mainFunction.externalVars), var.pos >= 0, jtype := atype2javatype(var.atype)]);
     }              
-    main_method       = hasMainFunction ? (mainFunction.ftype.ret == avoid() ? "public static void main(String[] args) {
-                                                                               '  IValueFactory VF = org.rascalmpl.values.ValueFactoryFactory.getValueFactory();
-                                                                               '  new <className>().<mainName>(java.util.Arrays.stream(args).map(a -\> VF.string(a)).collect(VF.listWriter()));
-                                                                               '}"
-                                                                  : "public static void main(String[] args) {
-                                                                    '  IValueFactory VF = org.rascalmpl.values.ValueFactoryFactory.getValueFactory();
-                                                                    'IValue res = new <className>().<mainName>(java.util.Arrays.stream(args).map(a -\> VF.string(a)).collect(VF.listWriter())); 
-                                                                    'if(res == null) throw new RuntimeException(\"Main function failed\"); else System.out.println(res);
-                                                                    '}")
-                                        : "public static void main(String[] args) {
-                                          'throw new RuntimeException(\"No function `main` found in Rascal program `<m.name>`\");
-                                          '}";
+    
+    main_method = "public static void main(String[] args) {
+                  '  throw new RuntimeException(\"No function `main` found in Rascal program `<m.name>`\");
+                  '}";
+                    
+    if (hasMainFunction) {
+      mainIsVoid     = mainFunction.ftype.ret == avoid();
+      hasListStrArgs = [alist(astr())] := mainFunction.ftype.formals;
+      hasDefaultArgs = mainFunction.ftype.kwFormals != [];
+      
+      main_method = "public static void main(String[] args) {
+                    '  IValueFactory $VF = org.rascalmpl.values.ValueFactoryFactory.getValueFactory();
+                    '  TypeFactory $TF = TypeFactory.getInstance();
+                    ' <if (!hasListStrArgs && !hasDefaultArgs) {>
+                    '    <if (!mainIsVoid) {>IValue res = <}>new <className>().<mainName>();
+                    ' <}><if (hasListStrArgs) {>
+                    '    <if (!mainIsVoid) {>IValue res = <}>new <className>().<mainName>(java.util.Arrays.stream(args).map(a -\> $VF.string(a)).collect($VF.listWriter()));
+                    ' <}><if (hasDefaultArgs) {>
+                    '   <if (!mainIsVoid) {>IValue res = <}>new <className>().<mainName>($parseCommandlineParameters(\"<className>\", args, <atype2vtype(atuple(atypeList([t |  <t,_> <- mainFunction.ftype.kwFormals])))>));
+                    ' <}><if (!mainIsVoid) {>if (res == null) {
+                    '     throw new RuntimeException(\"Main function failed\"); 
+                    '  } else {
+                    '    System.out.println(res);
+                    '  }<}>
+                    '}";
+    }
     
     the_class =         "<if(!isEmpty(packageName)){>package <packageName>;<}>
                         'import java.io.PrintWriter;
