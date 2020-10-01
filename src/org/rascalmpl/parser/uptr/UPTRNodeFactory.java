@@ -97,15 +97,6 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 		return buildCycle(1, production);
 	}
 
-	public ITree createRecoveryNode(int[] characters){
-		IListWriter listWriter = VF.listWriter();
-		for(int i = characters.length - 1; i >= 0; --i){
-			listWriter.insert(VF.character(characters[i]));
-		}
-		
-		return VF.appl(VF.constructor(RascalValueFactory.Production_Skipped), listWriter.done());
-	}
-	
 	// converting URIs to ISourceLocation is expensive (performance and memory wise)
 	// so we keep a cache of the URI root
 	private final Map<URI, ISourceLocation> uriLookup = new IdentityHashMap<>(4);
@@ -140,4 +131,9 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 	public Object getProductionFromNode(ITree node){
 		return TreeAdapter.getProduction(node);
 	}
+
+    @Override
+    public ITree createRecoveryNode(int[] characters) {
+       throw new UnsupportedOperationException(); 
+    }
 }
