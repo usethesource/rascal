@@ -736,7 +736,10 @@ default JCode trans(MuExp exp, JGenie jg){
 JCode trans(muCon(value v), JGenie jg) = jg.shareConstant(v);
 
 JCode trans(muATypeCon(AType t, map[AType, set[AType]] definitions), JGenie jg) {
-    return jg.shareATypeConstant(t, definitions);
+    // here we translate the types back to the old symbols, to be able
+    // to bootstrap on the old parser generator, and also the client code
+    // that use the definitions in the Type and ParseTree modules.
+    return jg.shareATypeConstant(atype2symbol(t), adefinitions2definitions(definitions));
 } 
                       
 JCode trans(muFun(loc uid, AType ftype), JGenie jg){
