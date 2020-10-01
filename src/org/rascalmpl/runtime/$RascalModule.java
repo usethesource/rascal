@@ -28,6 +28,7 @@ import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
@@ -69,7 +70,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	/*************************************************************************/
   
     // ---- value factory for creating functions, reified types and parsers unique to the Rascal runtime 
-    protected final IRascalValueFactory $RVF = new RascalRuntimeValueFactory(this);
+     final protected IRascalValueFactory $RVF = new RascalRuntimeValueFactory(this);
     
     // ---- library helper methods and fields  -------------------------------------------
     // TODO: make OUT and ERR configurable?
@@ -148,25 +149,27 @@ public abstract class $RascalModule extends Type2ATypeReifier {
         }
     }
     
-    void $usage(String error, Type kwargs) {
+    private static void $usage(String module, String error, Type kwargs) {
+        PrintWriter $ERR = new PrintWriter(System.err);
+        
         if (!error.isEmpty()) {
             $ERR.println(error);
         }
         
         $ERR.println("Usage: ");
-        $ERR.println("java -cp ... " + getClass().getCanonicalName() + "<options>");
+        $ERR.println("java -cp ... " + module + " <options>");
 
-        if (kwargs.getArity() > 1) {
+        if (kwargs.getArity() > 0) {
             $ERR.println(" [options]\n\nOptions:\n");
 
             for (String param : kwargs.getFieldNames()) {
-                $ERR.println("\t-");
-                $ERR.println(param);
-                if (kwargs.getFieldType(param).isSubtypeOf($TF.boolType())) {
-                    $ERR.println("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';\n");
+                $ERR.print("\t-");
+                $ERR.print(param);
+                if (kwargs.getFieldType(param).isSubtypeOf(TypeFactory.getInstance().boolType())) {
+                    $ERR.println("\t[arg]: one of nothing (true), \'1\', \'0\', \'true\' or \'false\';");
                 }
                 else {
-                    $ERR.println("\t[arg]: " + kwargs.getFieldType(param) + " argument;\n");
+                    $ERR.println("\t[arg]: " + kwargs.getFieldType(param) + " argument;");
                 }
             }
         }
@@ -174,10 +177,15 @@ public abstract class $RascalModule extends Type2ATypeReifier {
             $ERR.println('\n');
         }
         
+        $ERR.flush();
+        
         throw new IllegalArgumentException();
     }
 
-    Map<String, IValue> $parseCommandlineParameters(String[] commandline, Type kwTypes) {
+    protected static Map<String, IValue> $parseCommandlineParameters(String module, String[] commandline, Type kwTypes) {
+        IValueFactory $VF = ValueFactoryFactory.getValueFactory();
+        TypeFactory $TF = TypeFactory.getInstance();
+        
         Map<String, Type> expectedTypes = new HashMap<>();
 
         for (String kwp : kwTypes.getFieldNames()) {
@@ -188,17 +196,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
         for (int i = 0; i < commandline.length; i++) {
             if (commandline[i].equals("-help")) {
-                $usage("", kwTypes);
+                $usage(module, "", kwTypes);
             }
             else if (commandline[i].startsWith("-")) {
                 String label = commandline[i].replaceFirst("^-+", "");
                 Type expected = expectedTypes.get(label);
 
                 if (expected == null) {
-                   $usage("unknown argument: " + label, kwTypes);
+                   $usage(module, "unknown argument: " + label, kwTypes);
                 }
 
-                if (expected.isSubtypeOf($TF.boolType())) {
+                if (expected.isSubtypeOf(TypeFactory.getInstance().boolType())) {
                     if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
                         params.put(label, $VF.bool(true));
                     }
@@ -215,13 +223,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
                     continue;
                 }
                 else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
-                    $usage("expected option for " + label, kwTypes);
+                    $usage(module, "expected option for " + label, kwTypes);
                 }
                 else if (expected.isSubtypeOf($TF.listType($TF.valueType()))) {
                     IListWriter writer = $VF.listWriter();
 
                     while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.append($parseCommandlineOption(kwTypes, expected.getElementType(), commandline[++i]));
+                        writer.append($parseCommandlineOption(module, kwTypes, expected.getElementType(), commandline[++i]));
                     }
 
                     params.put(label, writer.done());
@@ -230,13 +238,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
                     ISetWriter writer = $VF.setWriter();
 
                     while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
-                        writer.insert($parseCommandlineOption(kwTypes, expected.getElementType(), commandline[++i]));
+                        writer.insert($parseCommandlineOption(module, kwTypes, expected.getElementType(), commandline[++i]));
                     }
 
                     params.put(label, writer.done());
                 }
                 else {
-                    params.put(label, $parseCommandlineOption(kwTypes, expected, commandline[++i]));
+                    params.put(label, $parseCommandlineOption(module, kwTypes, expected, commandline[++i]));
                 }
             }
         }
@@ -244,7 +252,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
         return params;
     }    
 
-    private IValue $parseCommandlineOption(Type kwTypes, Type expected, String option) {
+    private static IValue $parseCommandlineOption(String module, Type kwTypes, Type expected, String option) {
+        TypeFactory $TF = TypeFactory.getInstance();
+        IValueFactory $VF = ValueFactoryFactory.getValueFactory();
+        
         if (expected.isSubtypeOf($TF.stringType())) {
             return $VF.string(option);
         }
@@ -253,9 +264,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
             try {
                 return new StandardTextReader().read($VF, expected, reader);
             } catch (FactTypeUseException e) {
-                $usage("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", kwTypes);
+                $usage(module, "expected " + expected + " but got " + option + " (" + e.getMessage() + ")", kwTypes);
             } catch (IOException e) {
-                $usage("unxped problem while parsing commandline:" + e.getMessage(), kwTypes);
+                $usage(module, "unxped problem while parsing commandline:" + e.getMessage(), kwTypes);
             }
             
             throw new IllegalArgumentException();
