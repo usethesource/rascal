@@ -2081,6 +2081,13 @@ MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> 
     return res;
 }
 
+// -- concrete syntax
+
+MuExp translate((Expression) `<Concrete con>`) {
+  println("TODO implement concrete expressions");
+  return muCon("TODO implement concrete expressions <con>");
+}
+
 // -- any other expression that may require backtracking ------------
 
 default MuExp translate(Expression e) {
