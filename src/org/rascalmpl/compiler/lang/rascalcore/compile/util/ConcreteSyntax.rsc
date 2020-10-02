@@ -44,6 +44,8 @@ Tree doParseFragment(Symbol sym, ConcretePart* parts, map[Symbol, Production] ru
    str cleanPart((ConcretePart) `\\\>`) = "\>";
    str cleanPart((ConcretePart) `\\\``) = "`";
    str cleanPart((ConcretePart) `\\\\`) = "\\";
+   str cleanPart((ConcretePart) `
+                                '<[\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* margin>'`) = "\n";
    str cleanPart((ConcretePart) `<ConcreteHole hole>`) {
       index += 1;
       holes[index] = hole;
