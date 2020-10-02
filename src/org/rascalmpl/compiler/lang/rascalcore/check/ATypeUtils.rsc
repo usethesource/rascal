@@ -159,15 +159,20 @@ Symbol atype2symbol(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2
 Symbol atype2symbol(areified(AType t)) = Symbol::reified(atype2symbol(t));
 
 // utilities
+
+// overloaded types (union types) do not exist at the Rascal runtime level,
+// so we lub the alternatives here which is what happens at run-time as well.
 Symbol atype2symbol(overloadedAType(rel[loc, IdRole, AType] overloads))
-                = intercalateOr([atype2symbol(t1) | t1 <- {t | <k, idr, t> <- overloads} ]);
+                = atype2symbol((\avoid() | alub(it, alt) | <_, _, alt> <- overloads));
 
-Symbol atype2symbol(list[AType] atypes) = intercalate(", ", [atype2symbol(t) | t <- atypes]);
+list[Symbol] atypes2symbols(list[AType] atypes) = [atype2symbol(t) | t <- atypes];
 
-Symbol atype2symbol(Keyword kw) = "<atype2symbol(kw.fieldType) <kw.fieldType.label/*fieldName*/> = <kw.defaultExp>";
+Symbol atype2symbol(Keyword kw) = atype2symbol(kw.fieldType);
 
 // non-terminal symbols
-Symbol atype2symbol(\prod(AType s, list[AType] fs, attributes=ats)) = prod(atype2symbol(s), [ atype2symbol(f) | f <- fs ], ats); //TODO others
+
+// prods can not be Symbols, so we reduce this to the non-terminal
+Symbol atype2symbol(\prod(AType s, list[AType] _)) = atype2symbol(s);
 
 // terminal symbols
 Symbol atype2symbol(AType::\lit(str string)) = Symbol::\lit(string);
