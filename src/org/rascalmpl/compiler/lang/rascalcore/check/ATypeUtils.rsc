@@ -132,8 +132,6 @@ Symbol atype2symbol(amap(AType d, AType r)) = \map(atype2symbol(d), atype2symbol
 Symbol atype2symbol(arel(atypeList(list[AType] ts))) = \rel([atype2symbol(t) | t <- ts]);
 Symbol atype2symbol(alrel(atypeList(list[AType] ts))) = \lrel([atype2symbol(t) | t <- ts]);
 
-// TODO complete conversion from str to Symbol
-
 Symbol atype2symbol(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
                 = "<atype2symbol(ret)>(<intercalate(",", [atype2symbol(f) | f <- formals])>)";
 
@@ -146,9 +144,11 @@ Symbol atype2symbol(aadt(str s, [], contextFreeSyntax()))  = Symbol::\sort(s);
 Symbol atype2symbol(aadt(str s, [], lexicalSyntax()))      = Symbol::\lex(s);
 Symbol atype2symbol(aadt(str s, [], keywordSyntax()))      = Symbol::\keywords(s);
 Symbol atype2symbol(aadt(str s, [], layoutSyntax()))       = Symbol::\layouts(s);
+Symbol atype2symbol(aadt(str s, list[AType] ps, dataSyntax())) = Symbol::adt(s, [atype2symbol(p) | p <- ps]);
 
 Symbol atype2symbol(aadt(str s, ps, contextFreeSyntax)) = \parameterized-sort(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
 Symbol atype2symbol(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
+
 
 Symbol atype2symbol(t: acons(AType adt,
                 list[AType fieldType] fields,
