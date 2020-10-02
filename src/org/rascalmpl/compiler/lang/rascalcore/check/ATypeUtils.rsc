@@ -146,7 +146,7 @@ Symbol atype2symbol(aadt(str s, [], keywordSyntax()))      = Symbol::\keywords(s
 Symbol atype2symbol(aadt(str s, [], layoutSyntax()))       = Symbol::\layouts(s);
 Symbol atype2symbol(aadt(str s, list[AType] ps, dataSyntax())) = Symbol::adt(s, [atype2symbol(p) | p <- ps]);
 
-Symbol atype2symbol(aadt(str s, ps, contextFreeSyntax)) = \parameterized-sort(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
+Symbol atype2symbol(aadt(str s, ps, contextFreeSyntax())) = \parameterized-sort(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
 Symbol atype2symbol(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
 
 
