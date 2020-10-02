@@ -57,9 +57,9 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  extractScopes(tmodel); 
    	  
    	  // Extract all declarations for the benefit of the type reifier
-      extractDeclarationInfo(tmodel);
+      //extractDeclarationInfo(tmodel);
    	 
-   	  M = parseConcreteFragments(M, getGrammar());
+   	  //M = parseConcreteFragments(M, getGrammar());
    	  
    	  translateModule(M);
    	  
