@@ -1861,7 +1861,8 @@ default BTINFO getBTInfo(Pattern p, BTSCOPE btscope, BTSCOPES btscopes)
 
 default MuExp translatePat(Pattern p, AType subjectType,  MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) { 
     iprintln(p); 
-    throw "Pattern <p> cannot be translated"; 
+    println("Pattern <p> cannot be translated");
+    return falseCont; 
 }
 
 /*****************************************************************************/
