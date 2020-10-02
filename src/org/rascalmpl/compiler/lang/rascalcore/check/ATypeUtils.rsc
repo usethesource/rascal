@@ -133,7 +133,7 @@ Symbol atype2symbol(arel(atypeList(list[AType] ts))) = \rel([atype2symbol(t) | t
 Symbol atype2symbol(alrel(atypeList(list[AType] ts))) = \lrel([atype2symbol(t) | t <- ts]);
 
 Symbol atype2symbol(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
-                = "<atype2symbol(ret)>(<intercalate(",", [atype2symbol(f) | f <- formals])>)";
+  = \func(atype2symbol(ret), [atype2symbol(f) | f <- formals],[ atype2symbol(g) | <g, _> <- kwFormals]);
 
 Symbol atype2symbol(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
 Symbol atype2symbol(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
@@ -153,11 +153,10 @@ Symbol atype2symbol(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [a
 Symbol atype2symbol(t: acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
-                 = "<atype2symbol(adt)>::<t.label>(<intercalate(", ", ["<atype2symbol(ft)> <ft.label>" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<atype2symbol(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
+  = Symbol::cons(atype2symbol(adt), adt.label, [atype2symbol(f) | f <- fields]);
 
-Symbol atype2symbol(amodule(str mname)) = "\\module(\"<mname>\")";         
-Symbol atype2symbol(aparameter(str pn, AType t)) = "\\parameter(\"<pn>\", <atype2symbol(t)>)";
-Symbol atype2symbol(areified(AType t)) = "\\reified(<atype2symbol(t)>)";
+Symbol atype2symbol(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2symbol(t));
+Symbol atype2symbol(areified(AType t)) = Symbol::reified(atype2symbol(t));
 
 // utilities
 Symbol atype2symbol(overloadedAType(rel[loc, IdRole, AType] overloads))
@@ -229,7 +228,7 @@ Production aprod2prod(AProduction::reference(AType def, str cons))
   
 // TODO it is weird that we loose the kwFields here  
 Production aprod2prod(acons(AType adt, list[AType] fields, list[Keyword] _/*kwFields*/)) 
- = Production::cons(atype2symbol(adt), adt.label, [atype2symbol(f) | f <- fields]);
+ = Production::\cons(atype2symbol(adt), [atype2symbol(f) | f <- fields], [atype2symbol(g) | <g,_> <- fields], {});
 
 // ---- Predicates, selectors and constructors --------------------------------
 
