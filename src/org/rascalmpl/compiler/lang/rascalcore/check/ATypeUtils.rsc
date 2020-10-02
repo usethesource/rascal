@@ -226,6 +226,10 @@ Production aprod2prod(AProduction::priority(AType def, list[AProduction] alts))
   
 Production aprod2prod(AProduction::reference(AType def, str cons))
   = Production::reference(atype2symbol(def), cons);    
+  
+// TODO it is weird that we loose the kwFields here  
+Production aprod2prod(acons(AType adt, list[AType] fields, list[Keyword] _/*kwFields*/)) 
+ = Production::cons(atype2symbol(adt), adt.label, [atype2symbol(f) | f <- fields]);
 
 // ---- Predicates, selectors and constructors --------------------------------
 
