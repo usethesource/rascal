@@ -3,6 +3,7 @@ module lang::rascalcore::compile::Rascal2muRascal::ModuleInfo
 import List;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
+import Grammar;
 
  // Global state maintained when translating a Rascal module
 
