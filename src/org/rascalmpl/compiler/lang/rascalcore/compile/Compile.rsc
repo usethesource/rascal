@@ -16,7 +16,7 @@ import lang::rascalcore::compile::muRascal2Java::CodeGen;
 
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
-import lang::rascalcore::compile::util::ConcreteSyntax;
+//import lang::rascalcore::compile::util::ConcreteSyntax;
 
 loc generatedDir = |project://rascal-codegen-ideas/generated|;
 
