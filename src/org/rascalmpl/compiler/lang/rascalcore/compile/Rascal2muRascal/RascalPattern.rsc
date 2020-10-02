@@ -1840,6 +1840,8 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
   
     if("<name>" == "_"){
          trPat = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont, falseCont, subjectAssigned=subjectAssigned, restore=restore);
+         // TODO JURGEN: this static subtype test is not correct, the static subjecttype may be \value, but still this code should check
+         // whether or not the value is accidentally the right trType!
          return asubtype(subjectType, trType) ? trPat : muIfelse(muValueIsSubType(subjectExp, trType), trPat, falseCont);
     }
     str fuid = ""; int pos=0;           // TODO: this keeps type checker happy, why?
@@ -1854,6 +1856,13 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
     return asubtype(subjectType, trType) ? trPat :  muIfelse(muValueIsSubType(subjectExp, trType), trPat, falseCont);
 }
 
+MuExp translatePat(p:(Pattern) `<Concrete con>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) {
+  Sym s = con.symbol;
+  ConcretePart* parts = con.parts;
+  // TODO implement concrete pattern matching
+  return falseCont;
+} 
+
 // -- default rule for pattern ---------------------------------------
 
 default BTINFO getBTInfo(Pattern p, BTSCOPE btscope, BTSCOPES btscopes)
@@ -1864,6 +1873,11 @@ default MuExp translatePat(Pattern p, AType subjectType,  MuExp subjectExp, BTSC
     println("Pattern <p> cannot be translated");
     return falseCont; 
 }
+
+/*****************************************************************************/
+/*  for concrete syntax patterns                                         */
+/*****************************************************************************/
+
 
 /*****************************************************************************/
 /*                      Constant Patterns                                    */
