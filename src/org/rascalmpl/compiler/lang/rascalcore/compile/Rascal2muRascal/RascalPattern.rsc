@@ -1857,8 +1857,6 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
 }
 
 MuExp translatePat(p:(Pattern) `<Concrete con>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) {
-  Sym s = con.symbol;
-  ConcretePart* parts = con.parts;
   // TODO implement concrete pattern matching
   return falseCont;
 } 
@@ -1873,10 +1871,6 @@ default MuExp translatePat(Pattern p, AType subjectType,  MuExp subjectExp, BTSC
     println("Pattern <p> cannot be translated");
     return falseCont; 
 }
-
-/*****************************************************************************/
-/*  for concrete syntax patterns                                         */
-/*****************************************************************************/
 
 
 /*****************************************************************************/
