@@ -700,23 +700,23 @@ str value2IValue(type[&T] typeValue) {
 // the builtin reified type representations (Symbol, Production) are not necessarily declared in the current scope, so
 // we lookup their constructors in the RascalValueFactory hand-written fields:
 str value2IValue(Symbol sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str value2IValue(Production sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str value2IValue(Attr sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Attr_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Attr_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str value2IValue(Associativity sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Associativity_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Associativity_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str value2IValue(Production sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))>, <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 default str value2IValue(node nd) {
