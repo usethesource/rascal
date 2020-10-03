@@ -38,7 +38,7 @@ import static org.rascalmpl.values.RascalValueFactory.Symbol_Label;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_LayoutX;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Lex;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_List;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_ListRel;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_Lrel;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Lit;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Loc;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Map;
@@ -51,7 +51,7 @@ import static org.rascalmpl.values.RascalValueFactory.Symbol_ParameterizedLex;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_ParameterizedSort;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Rat;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Real;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_ReifiedType;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_Reified;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Rel;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Seq;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Set;
@@ -573,7 +573,7 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isReifiedType(IConstructor symbol) {
-		return symbol.getConstructorType() == Symbol_ReifiedType;
+		return symbol.getConstructorType() == Symbol_Reified;
 	}
 
 	public static boolean isBag(IConstructor symbol) {
@@ -597,7 +597,7 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isListRel(IConstructor symbol) {
-		return symbol.getConstructorType() == Symbol_ListRel;
+		return symbol.getConstructorType() == Symbol_Lrel;
 	}
 
 	public static boolean isMap(IConstructor symbol) {
