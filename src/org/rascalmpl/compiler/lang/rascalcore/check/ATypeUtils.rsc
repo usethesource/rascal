@@ -127,13 +127,14 @@ Symbol atype2symbol(aloc()) = \loc();
 Symbol atype2symbol(adatetime()) = \datetime();
 Symbol atype2symbol(alist(AType t)) = \list(atype2symbol(t));
 Symbol atype2symbol(aset(AType t)) = \set(atype2symbol(t));
-Symbol atype2symbol(atuple(atypeList(list[AType] ts))) = \tuple([atype2symbol(t) | t <- ts]);
+Symbol atype2symbol(atuple(atypeList(list[AType] ts))) = \tuple([atype2labeledSymbol(t) | t <- ts]);
 Symbol atype2symbol(amap(AType d, AType r)) = \map(atype2symbol(d), atype2symbol(r));
-Symbol atype2symbol(arel(atypeList(list[AType] ts))) = \rel([atype2symbol(t) | t <- ts]);
-Symbol atype2symbol(alrel(atypeList(list[AType] ts))) = \lrel([atype2symbol(t) | t <- ts]);
+Symbol atype2symbol(arel(atypeList(list[AType] ts))) = \set(\tuple([atype2labeledSymbol(t) | t <- ts]));
+Symbol atype2symbol(alrel(atypeList(list[AType] ts))) = \list(\tuple([atype2labeledSymbol(t) | t <- ts]));
 
+// TODO: kwFormals are lost here because not supported by old run-time system
 Symbol atype2symbol(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
-  = \func(atype2symbol(ret), [atype2symbol(f) | f <- formals],[ atype2symbol(g) | <g, _> <- kwFormals]);
+  = \func(atype2symbol(ret), [atype2labeledSymbol(f) | f <- formals]);
 
 Symbol atype2symbol(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
 Symbol atype2symbol(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
@@ -149,6 +150,7 @@ Symbol atype2symbol(aadt(str s, list[AType] ps, dataSyntax())) = Symbol::adt(s, 
 Symbol atype2symbol(aadt(str s, ps, contextFreeSyntax())) = \parameterized-sort(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
 Symbol atype2symbol(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
 
+Symbol atype2labeledSymbol(AType t) = t.label? ? label(t.label, atype2symbol(t)) : atype2symbol(t); 
 
 Symbol atype2symbol(t: acons(AType adt,
                 list[AType fieldType] fields,
