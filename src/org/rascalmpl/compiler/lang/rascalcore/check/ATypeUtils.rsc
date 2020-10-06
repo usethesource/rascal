@@ -128,7 +128,7 @@ Symbol atype2symbol(adatetime()) = \datetime();
 Symbol atype2symbol(alist(AType t)) = \list(atype2symbol(t));
 Symbol atype2symbol(aset(AType t)) = \set(atype2symbol(t));
 Symbol atype2symbol(atuple(atypeList(list[AType] ts))) = \tuple([atype2labeledSymbol(t) | t <- ts]);
-Symbol atype2symbol(amap(AType d, AType r)) = \map(atype2symbol(d), atype2symbol(r));
+Symbol atype2symbol(amap(AType d, AType r)) = \map(atype2labeledSymbol(d), atype2labeledSymbol(r));
 Symbol atype2symbol(arel(atypeList(list[AType] ts))) = \set(\tuple([atype2labeledSymbol(t) | t <- ts]));
 Symbol atype2symbol(alrel(atypeList(list[AType] ts))) = \list(\tuple([atype2labeledSymbol(t) | t <- ts]));
 
