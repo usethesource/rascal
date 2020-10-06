@@ -719,6 +719,10 @@ str value2IValue(Production sym) {
    return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
+str toRascalValueFactoryName(str consName) = capitalize(visit(consName) {
+    case /\-<l:[a-z]>/ => capitalize(l) 
+});
+
 default str value2IValue(node nd) {
     name = getName(nd);
     name = isEmpty(name) ? "\"\"" : (name[0] == "\"" ? name : "\"<name>\"");
