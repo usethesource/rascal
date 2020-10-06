@@ -800,11 +800,7 @@ Determine if the given type is a function.
 public bool isFunctionType(Symbol::\alias(_,_,Symbol at)) = isFunctionType(at);
 public bool isFunctionType(Symbol::\parameter(_,Symbol tvb)) = isFunctionType(tvb);
 public bool isFunctionType(Symbol::\label(_,Symbol lt)) = isFunctionType(lt);
-<<<<<<< HEAD
-public bool isFunctionType(Symbol::\func(_,_)) = true;
-=======
 public bool isFunctionType(Symbol::\func(_,_,_)) = true;
->>>>>>> 983e488aae... fixes for func symbols
 public default bool isFunctionType(Symbol _) = false;
 
 @doc{
