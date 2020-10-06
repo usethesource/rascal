@@ -111,7 +111,7 @@ private GrammarDefinition addLexicalChaining(GrammarDefinition def) {
 						case \priority(_, l) => \priority(newSymbol, l)
 						case \associativity(_, a, l) => \associativity(newSymbol, a, l)
 						case \cons(_, ss, a) => \cons(newSymbol, ss, a)
-						case \func(_, ss) => \func(newSymbol, ss, [])
+						case \func(_, ss, kws) => \func(newSymbol, ss, kws)
 						case \choice(_, ps) => \choice(newSymbol, ps)
 					};
 					g.rules = delete(g.rules, s);
