@@ -65,7 +65,7 @@ public class SymbolFactory {
 	private static IValue symbolAST2SymbolConstructor(Sym symbol, boolean lex, String layout) {
 		
 		if (symbol.isCaseInsensitiveLiteral()) {
-			return factory.constructor(RascalValueFactory.Symbol_CiLit, ciliteral2Symbol(symbol.getCistring()));
+			return factory.constructor(RascalValueFactory.Symbol_Cilit, ciliteral2Symbol(symbol.getCistring()));
 		}
 		if (symbol.isCharacterClass()) {
 			Class cc = symbol.getCharClass();
@@ -76,10 +76,10 @@ public class SymbolFactory {
 				return factory.constructor(RascalValueFactory.Symbol_IterPlus, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 			}
 			else {
-				IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
+				IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_Layouts, factory.string(layout));
 				IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 				IValue seps = factory.list(layoutSymbol);
-				return factory.constructor(RascalValueFactory.Symbol_IterSepX, elementSym, seps);
+				return factory.constructor(RascalValueFactory.Symbol_IterSeps, elementSym, seps);
 			}
 		}
 		if (symbol.isIterStar()) {
@@ -87,14 +87,14 @@ public class SymbolFactory {
 				return factory.constructor(RascalValueFactory.Symbol_IterStar, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 			}
 			else {
-				IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
+				IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_Layouts, factory.string(layout));
 				IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 				IValue seps = factory.list(layoutSymbol);
-				return factory.constructor(RascalValueFactory.Symbol_IterStarSepX, elementSym, seps);
+				return factory.constructor(RascalValueFactory.Symbol_IterStarSeps, elementSym, seps);
 			}
 		}
 		if (symbol.isIterSep()) {
-			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
+			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_Layouts, factory.string(layout));
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep(), lex, layout);
 			IValue seps;
@@ -106,11 +106,11 @@ public class SymbolFactory {
 				seps = factory.list(layoutSymbol, sepSym, layoutSymbol);
 			}
 			
-			return factory.constructor(RascalValueFactory.Symbol_IterSepX, elementSym, seps);
+			return factory.constructor(RascalValueFactory.Symbol_IterSeps, elementSym, seps);
 		}
 		
 		if (symbol.isIterStarSep()) {
-			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
+			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_Layouts, factory.string(layout));
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep(), lex, layout);
 			IValue seps;
@@ -120,7 +120,7 @@ public class SymbolFactory {
 			else {
 				seps = factory.list(layoutSymbol, sepSym, layoutSymbol);
 			}
-			return factory.constructor(RascalValueFactory.Symbol_IterStarSepX, elementSym, seps);
+			return factory.constructor(RascalValueFactory.Symbol_IterStarSeps, elementSym, seps);
 		}
 		
 		if (symbol.isLiteral()) {
@@ -132,7 +132,7 @@ public class SymbolFactory {
 		
 		if (symbol.isStart()) {
 			Nonterminal nonterminal = symbol.getNonterminal();
-			return factory.constructor(RascalValueFactory.Symbol_Start_Sort, factory.constructor(RascalValueFactory.Symbol_Sort, factory.string(((Nonterminal.Lexical) nonterminal).getString())));	
+			return factory.constructor(RascalValueFactory.Symbol_Start, factory.constructor(RascalValueFactory.Symbol_Sort, factory.string(((Nonterminal.Lexical) nonterminal).getString())));	
 		}
 		if (symbol.isNonterminal()) {
 			Nonterminal nonterminal = symbol.getNonterminal();
@@ -147,7 +147,7 @@ public class SymbolFactory {
 		
 		if(symbol.isSequence()){
 			List<Sym> symbols = symbol.getSequence();
-			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_LayoutX, factory.string(layout));
+			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_Layouts, factory.string(layout));
 			IValue[] symValues = new IValue[lex ? symbols.size() : symbols.size() * 2 - 1];
 			for(int i = symbols.size() - 1; i >= 0; i -= lex ? 1 : 2) {
 				symValues[lex ? i : i * 2] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);

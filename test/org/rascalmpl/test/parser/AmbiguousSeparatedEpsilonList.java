@@ -24,7 +24,7 @@ public class AmbiguousSeparatedEpsilonList extends SGTDBF<IConstructor, ITree, I
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
 	private final static IConstructor SYMBOL_SEP = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("Sep"));
-	private final static IConstructor SYMBOL_PLUS_LIST_SEP_A = VF.constructor(RascalValueFactory.Symbol_IterSepX, SYMBOL_A, VF.list(SYMBOL_SEP));
+	private final static IConstructor SYMBOL_PLUS_LIST_SEP_A = VF.constructor(RascalValueFactory.Symbol_IterSeps, SYMBOL_A, VF.list(SYMBOL_SEP));
 	private final static IConstructor SYMBOL_a = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("a"));
 	private final static IConstructor SYMBOL_char_a = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(97))));
 	private final static IConstructor SYMBOL_epsilon = VF.constructor(RascalValueFactory.Symbol_Empty);
