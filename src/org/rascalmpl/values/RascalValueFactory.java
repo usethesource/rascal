@@ -178,9 +178,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	/* Constructors for Symbol */
 	public static final Type Symbol_Label = tf.constructor(uptr, Symbol, "label", str, "name", Symbol, "symbol");
-	public static final Type Symbol_Start_Sort = tf.constructor(uptr, Symbol, "start", Symbol, "symbol");
+	public static final Type Symbol_Start = tf.constructor(uptr, Symbol, "start", Symbol, "symbol");
 	public static final Type Symbol_Lit = tf.constructor(uptr, Symbol, "lit", str, "string");
-	public static final Type Symbol_CiLit = tf.constructor(uptr, Symbol, "cilit", str, "string");
+	public static final Type Symbol_Cilit = tf.constructor(uptr, Symbol, "cilit", str, "string");
 	public static final Type Symbol_Empty = tf.constructor(uptr, Symbol, "empty");
 	public static final Type Symbol_Seq = tf.constructor(uptr, Symbol, "seq", tf.listType(Symbol), "symbols");
 	public static final Type Symbol_Opt = tf.constructor(uptr, Symbol, "opt", Symbol, "symbol");
@@ -190,7 +190,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Symbol_Keywords = tf.constructor(uptr, Symbol, "keywords", str, "name");
 	public static final Type Symbol_Meta = tf.constructor(uptr, Symbol, "meta", Symbol, "symbol");
 	public static final Type Symbol_Conditional = tf.constructor(uptr, Symbol, "conditional", Symbol, "symbol", tf.setType(Condition), "conditions");
-	public static final Type Symbol_IterSepX = tf.constructor(uptr, Symbol, "iter-seps", Symbol, "symbol", tf.listType(Symbol), "separators");
+	public static final Type Symbol_IterSeps = tf.constructor(uptr, Symbol, "iter-seps", Symbol, "symbol", tf.listType(Symbol), "separators");
 	public static final Type Symbol_IterStarSeps = tf.constructor(uptr, Symbol, "iter-star-seps", Symbol, "symbol", tf.listType(Symbol), "separators");
 	public static final Type Symbol_IterPlus = tf.constructor(uptr, Symbol, "iter", Symbol, "symbol");
 	public static final Type Symbol_IterStar = tf.constructor(uptr, Symbol, "iter-star", Symbol, "symbol");
