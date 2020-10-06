@@ -700,23 +700,23 @@ str value2IValue(type[&T] typeValue) {
 // the builtin reified type representations (Symbol, Production) are not necessarily declared in the current scope, so
 // we lookup their constructors in the RascalValueFactory hand-written fields:
 str value2IValue(Symbol sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str value2IValue(Production sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str value2IValue(Attr sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Attr_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Attr_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str value2IValue(Associativity sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Associativity_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Associativity_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str value2IValue(Production sym) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<capitalize(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
 str toRascalValueFactoryName(str consName) = capitalize(visit(consName) {
@@ -760,7 +760,7 @@ str value2outertype(datetime dt) = "IDateTime";
 str value2outertype(list[&T] lst) = "IList";
 str value2outertype(set[&T] st) = "ISet";
 str value2outertype(map[&K,&V] st) = "IMap";
-str value2outertype(atuple(AType ts)) = "ITuple";
+str value2outertype(atuple(AType ts)) = "ITuple"; // ?? this is not a value
 str value2outertype(tuple[&A] tup) = "ITuple";
 str value2outertype(tuple[&A,&B] tup) = "ITuple";
 str value2outertype(tuple[&A,&B,&C] tup) = "ITuple";
