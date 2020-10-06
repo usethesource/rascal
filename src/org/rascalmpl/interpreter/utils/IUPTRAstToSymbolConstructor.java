@@ -99,7 +99,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 			// TODO: escaping etc.
 			String str = arg.getString();
 			str = str.substring(1, str.length() - 1);
-			return vf.constructor(RascalValueFactory.Symbol_CiLit, vf.string(str));
+			return vf.constructor(RascalValueFactory.Symbol_Cilit, vf.string(str));
 		}
 		
 		if (name.equals("empty")) {
@@ -153,7 +153,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 				x.getArguments().get(0).getLiteral().getStringLiteral().getConstant();
 			String str = arg.getString();
 			str = str.substring(1, str.length() - 1);
-			return vf.constructor(RascalValueFactory.Symbol_LayoutX, vf.string(str));
+			return vf.constructor(RascalValueFactory.Symbol_Layouts, vf.string(str));
 		}
 		
 
@@ -174,7 +174,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 			for (Expression elem: args.getElements()) {
 				seps = seps.append(elem.accept(this));
 			}
-			return vf.constructor(RascalValueFactory.Symbol_IterStarSepX, arg, seps);
+			return vf.constructor(RascalValueFactory.Symbol_IterStarSeps, arg, seps);
 		}
 		
 		if (name.equals("iter-seps")) {
@@ -184,7 +184,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 			for (Expression elem: args.getElements()) {
 				seps = seps.append(elem.accept(this));
 			}
-			return vf.constructor(RascalValueFactory.Symbol_IterSepX, arg, seps);
+			return vf.constructor(RascalValueFactory.Symbol_IterSeps, arg, seps);
 		}
 
 		if (name.equals("parameterized-sort")) {
