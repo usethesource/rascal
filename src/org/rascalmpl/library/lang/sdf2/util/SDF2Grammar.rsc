@@ -111,7 +111,7 @@ private GrammarDefinition addLexicalChaining(GrammarDefinition def) {
 						case \priority(_, l) => \priority(newSymbol, l)
 						case \associativity(_, a, l) => \associativity(newSymbol, a, l)
 						case \cons(_, ss, a) => \cons(newSymbol, ss, a)
-						case \func(_, ss) => \func(newSymbol, ss)
+						case \func(_, ss) => \func(newSymbol, ss, [])
 						case \choice(_, ps) => \choice(newSymbol, ps)
 					};
 					g.rules = delete(g.rules, s);
@@ -172,7 +172,7 @@ private Production keep(Production source, Symbol s) = visit(source) {
 	case \priority(_, l) => \priority(s, l)
 	case \associativity(_, a, l) => \associativity(s, a, l)
 	case \cons(_, ss, a) => \cons(s, ss, a)
-	case \func(_, ss) => \func(s, ss)
+	case \func(_, ss) => \func(s, ss, [])
 	case \choice(_, ps) => \choice(s, ps)
 	case list[Production] ps => [p | p <- ps, strip(p.def) == s]
 		when size(ps) > 0 // bug #208
