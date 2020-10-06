@@ -187,17 +187,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Symbol_Alt = tf.constructor(uptr, Symbol, "alt", tf.setType(Symbol), "alternatives");
 	public static final Type Symbol_Sort = tf.constructor(uptr, Symbol, "sort", str, "name");
 	public static final Type Symbol_Lex = tf.constructor(uptr, Symbol, "lex", str, "name");
-	public static final Type Symbol_Keyword = tf.constructor(uptr, Symbol, "keywords", str, "name");
+	public static final Type Symbol_Keywords = tf.constructor(uptr, Symbol, "keywords", str, "name");
 	public static final Type Symbol_Meta = tf.constructor(uptr, Symbol, "meta", Symbol, "symbol");
 	public static final Type Symbol_Conditional = tf.constructor(uptr, Symbol, "conditional", Symbol, "symbol", tf.setType(Condition), "conditions");
 	public static final Type Symbol_IterSepX = tf.constructor(uptr, Symbol, "iter-seps", Symbol, "symbol", tf.listType(Symbol), "separators");
-	public static final Type Symbol_IterStarSepX = tf.constructor(uptr, Symbol, "iter-star-seps", Symbol, "symbol", tf.listType(Symbol), "separators");
+	public static final Type Symbol_IterStarSeps = tf.constructor(uptr, Symbol, "iter-star-seps", Symbol, "symbol", tf.listType(Symbol), "separators");
 	public static final Type Symbol_IterPlus = tf.constructor(uptr, Symbol, "iter", Symbol, "symbol");
 	public static final Type Symbol_IterStar = tf.constructor(uptr, Symbol, "iter-star", Symbol, "symbol");
 	public static final Type Symbol_ParameterizedSort = tf.constructor(uptr, Symbol, "parameterized-sort", str, "name", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_ParameterizedLex = tf.constructor(uptr, Symbol, "parameterized-lex", str, "name", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_Parameter = tf.constructor(uptr, Symbol, "parameter", str, "name", Symbol, "bound");
-	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", str, "name");
+	public static final Type Symbol_Layouts = tf.constructor(uptr, Symbol, "layouts", str, "name");
 	public static final Type Symbol_CharClass = tf.constructor(uptr, Symbol, "char-class", tf.listType(CharRange), "ranges");
 	
 	public static final Type Symbol_Int = tf.constructor(uptr, Symbol, "int");

@@ -22,7 +22,7 @@ import static org.rascalmpl.values.RascalValueFactory.Symbol_Alt;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Bag;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Bool;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_CharClass;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_CiLit;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_Cilit;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Conditional;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Cons;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Datetime;
@@ -30,12 +30,12 @@ import static org.rascalmpl.values.RascalValueFactory.Symbol_Empty;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Func;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Int;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_IterPlus;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_IterSepX;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_IterSeps;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_IterStar;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_IterStarSepX;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_Keyword;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_IterStarSeps;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_Keywords;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Label;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_LayoutX;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_Layouts;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Lex;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_List;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Lrel;
@@ -56,7 +56,7 @@ import static org.rascalmpl.values.RascalValueFactory.Symbol_Rel;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Seq;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Set;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Sort;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_Start_Sort;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_Start;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Str;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Tuple;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Value;
@@ -136,7 +136,7 @@ public class SymbolAdapter {
 	
 	public static boolean isStartSort(IConstructor tree) {
 		tree = delabel(tree);
-		return tree.getConstructorType() == Symbol_Start_Sort;
+		return tree.getConstructorType() == Symbol_Start;
 	}  
 	
 //	public static boolean isStart(IConstructor tree) {
@@ -206,7 +206,7 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isCILiteral(IConstructor tree) {
-		return tree.getConstructorType() == Symbol_CiLit;
+		return tree.getConstructorType() == Symbol_Cilit;
 	}
 
 	public static boolean isIterStar(IConstructor tree) {
@@ -218,7 +218,7 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isLayouts(IConstructor tree) {
-		return tree.getConstructorType() == Symbol_LayoutX;
+		return tree.getConstructorType() == Symbol_Layouts;
 	}
 	
 	public static boolean isStarList(IConstructor tree) {
@@ -659,12 +659,12 @@ public class SymbolAdapter {
 	
 	public static boolean isIterStarSeps(IConstructor rhs) {
 		rhs = delabel(rhs);
-		return rhs.getConstructorType() == Symbol_IterStarSepX;
+		return rhs.getConstructorType() == Symbol_IterStarSeps;
 	}
 	
 	public static boolean isIterPlusSeps(IConstructor rhs) {
 		rhs = delabel(rhs);
-		return rhs.getConstructorType() == Symbol_IterSepX;
+		return rhs.getConstructorType() == Symbol_IterSeps;
 	}
 
 	public static IList getSeparators(IConstructor rhs) {
@@ -677,7 +677,7 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isKeyword(IConstructor rhs) {
-		return rhs.getConstructorType() == Symbol_Keyword;
+		return rhs.getConstructorType() == Symbol_Keywords;
 	}
 
 	public static boolean isEmpty(IConstructor rhs) {
@@ -838,7 +838,7 @@ public class SymbolAdapter {
 			return VF.constructor(Symbol_IterPlus, getSymbol(sym));
 		}
 		else if (isIterStarSeps(sym)) {
-			return VF.constructor(Symbol_IterSepX, getSymbol(sym), getSeparators(sym));
+			return VF.constructor(Symbol_IterSeps, getSymbol(sym), getSeparators(sym));
 		}
 		
 		assert false;

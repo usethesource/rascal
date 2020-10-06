@@ -162,7 +162,7 @@ public abstract class SyntaxDefinition extends
 			
 			if (type.isNonterminal()) {
 				String nt = ((Nonterminal.Lexical) type.getNonterminal()).getString();
-				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Keyword, vf.string(nt)));
+				eval.getCurrentEnvt().concreteSyntaxType(nt, vf.constructor(RascalValueFactory.Symbol_Keywords, vf.string(nt)));
 			}
 			
 			eval.getCurrentModuleEnvironment().declareProduction(getTree());
