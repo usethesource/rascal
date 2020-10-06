@@ -135,7 +135,7 @@ data Attr
 Transform a function with varargs (`...`) to a normal function with a list argument.
 }
 public Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
-              \func(ret, parameters + \list(varArg));
+              \func(ret, parameters + \list(varArg), []);
 
 // The following normalization rules canonicalize grammars to prevent arbitrary case distinctions later
 
@@ -397,13 +397,13 @@ public Symbol lub(Symbol l, Symbol::\parameter(str _, Symbol bound)) = lub(l, bo
 public Symbol lub(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(lub(l,r));
 public Symbol lub(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();
 
-public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) {
+public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp, list[Symbol] lkw), Symbol::\func(Symbol rr, list[Symbol] rp, list[Symbol] rkw)) {
 	lubReturn = lub(lr,rr);
 	lubParams = glb(Symbol::\tuple(lp),Symbol::\tuple(rp));
 	
 	// TODO: what is the real lub of the kwparams?
 	if (isTupleType(lubParams))
-		return \func(lubReturn, lubParams.symbols);
+		return \func(lubReturn, lubParams.symbols, lkw == rkw ? lkw : []);
 	else
 		return Symbol::\value();
 }
@@ -502,11 +502,11 @@ public Symbol glb(Symbol l, Symbol::\parameter(str _, Symbol bound)) = glb(l, bo
 public Symbol glb(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(glb(l,r));
 public Symbol glb(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();
 
-public Symbol glb(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) {
+public Symbol glb(Symbol::\func(Symbol lr, list[Symbol] lp, list[Symbol] kwl), Symbol::\func(Symbol rr, list[Symbol] rp, list[Symbol] kwr)) {
 	glbReturn = glb(lr,rr);
 	glbParams = lub(Symbol::\tuple(lp),Symbol::\tuple(rp));
 	if (isTupleType(glbParams))
-		return \func(glbReturn, glbParams.symbols);
+		return \func(glbReturn, glbParams.symbols, kwl == kwr ? kwl : []);
 	else
 		return Symbol::\value();
 }
