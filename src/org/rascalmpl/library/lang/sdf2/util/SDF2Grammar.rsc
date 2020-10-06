@@ -172,7 +172,7 @@ private Production keep(Production source, Symbol s) = visit(source) {
 	case \priority(_, l) => \priority(s, l)
 	case \associativity(_, a, l) => \associativity(s, a, l)
 	case \cons(_, ss, a) => \cons(s, ss, a)
-	case \func(_, ss) => \func(s, ss, [])
+	case \func(_, ss, kws) => \func(s, ss, kws)
 	case \choice(_, ps) => \choice(s, ps)
 	case list[Production] ps => [p | p <- ps, strip(p.def) == s]
 		when size(ps) > 0 // bug #208
