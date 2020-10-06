@@ -91,7 +91,7 @@ data Symbol      // <3>
      | \adt(str name, list[Symbol] parameters)
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
-     | \func(Symbol ret, list[Symbol] parameters)
+     | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
      | \overloaded(set[Symbol] alternatives)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
@@ -118,7 +118,6 @@ Productions will be further extended and will be used to represent productions i
 }  
 data Production
      = \cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes)
-     | \func(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes /*, str code = "", map[str,value] bindings = (), loc cpe = |unknown:///|*/)
      | \choice(Symbol def, set[Production] alternatives)
      | \composition(Production lhs, Production rhs)
      ;
