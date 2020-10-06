@@ -234,7 +234,6 @@ public bool subtype(Symbol::\rel(list[Symbol] l), Symbol::\set(Symbol r)) = subt
 
 public bool subtype(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = subtype(s, t);  
 public bool subtype(Symbol::\map(Symbol from1, Symbol to1), Symbol::\map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
-public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol f2) = subtype(\func(r1, p1), f2);
 public bool subtype(Symbol f2, Symbol::\func(Symbol r1, list[Symbol] p1)) = subtype(f2, \func(r1, p1));
 public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
 public bool subtype(Symbol::\parameter(str _, Symbol bound), Symbol r) = subtype(bound, r);
