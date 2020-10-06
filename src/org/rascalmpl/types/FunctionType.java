@@ -64,46 +64,21 @@ public class FunctionType extends RascalType {
         @Override
         public Set<Type> getSymbolConstructorTypes() {
             return Arrays.stream(new Type[] { 
-                    normalFunctionSymbol(),
-                    oldNormalFunctionSymbol(),
-                    // TODO: remove this deprecated representation. A prod type is the same as a function type
-                    prodFunctionSymbol()
+                    normalFunctionSymbol()
             }).collect(Collectors.toSet());
-        }
-
-        private Type prodFunctionSymbol() {
-            return symbols().typeSymbolConstructor("prod", symbols().symbolADT(),  "sort", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters", TF.setType(symbols().attrADT()), "attributes");
         }
 
         private Type normalFunctionSymbol() {
             return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters", TF.listType(symbols().symbolADT()), "kwTypes");
         }
         
-        private Type oldNormalFunctionSymbol() {
-            return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters");
-        }
-
         @Override
         public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
-            if (symbol.getConstructorType() == prodFunctionSymbol()) {
-                // TODO remove support for deprecated representation after bootstrap
-                Type returnType = symbols().fromSymbol((IConstructor) symbol.get("sort"), store, grammar);
-                Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
-                
-                return RTF.functionType(returnType, parameters, TF.tupleEmpty());
-            } else {
-                Type returnType = symbols().fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
-                Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
-                
-                if (symbol.getConstructorType()  == oldNormalFunctionSymbol()) {
-                    return RTF.functionType(returnType, parameters, TF.tupleEmpty());
-                }
-                
-                Type kwTypes = symbols().fromSymbols((IList) symbol.get("kwTypes"), store, grammar);
+            Type returnType = symbols().fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
+            Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+            Type kwTypes = symbols().fromSymbols((IList) symbol.get("kwTypes"), store, grammar);
 
-                // TODO: while merging the other branch had tf.voidType()...    
-                return RTF.functionType(returnType, parameters, kwTypes);
-            }
+            return RTF.functionType(returnType, parameters, kwTypes);
         }
         
         @Override
