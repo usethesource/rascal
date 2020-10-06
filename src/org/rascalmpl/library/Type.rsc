@@ -233,8 +233,8 @@ public bool subtype(Symbol::\rel(list[Symbol] l), Symbol::\set(Symbol r)) = subt
 
 public bool subtype(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = subtype(s, t);  
 public bool subtype(Symbol::\map(Symbol from1, Symbol to1), Symbol::\map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
-public bool subtype(Symbol f2, Symbol::\func(Symbol r1, list[Symbol] p1)) = subtype(f2, \func(r1, p1));
-public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
+// TODO: this should be comparable parameters and we miss something about the kwparams:
+public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1, list[Symbol] kw1), Symbol::\func(Symbol r2, list[Symbol] p2, list[Symbol] kw2)) = subtype(r1, r2) && subtype(p2, p1); 
 public bool subtype(Symbol::\parameter(str _, Symbol bound), Symbol r) = subtype(bound, r);
 public bool subtype(Symbol l, Symbol::\parameter(str _, Symbol bound)) = subtype(l, bound);
 public bool subtype(Symbol::\label(str _, Symbol s), Symbol t) = subtype(s,t);
@@ -282,7 +282,7 @@ public default bool subtype(list[Symbol] l, list[Symbol] r) = size(l) == 0 && si
 .Synopsis
 Check if two types are comparable, i.e., have a common supertype.
 }
-public bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s);
+public bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s); 
 
 @doc{
 .Synopsis
@@ -400,6 +400,8 @@ public Symbol lub(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node()
 public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) {
 	lubReturn = lub(lr,rr);
 	lubParams = glb(Symbol::\tuple(lp),Symbol::\tuple(rp));
+	
+	// TODO: what is the real lub of the kwparams?
 	if (isTupleType(lubParams))
 		return \func(lubReturn, lubParams.symbols);
 	else
@@ -798,7 +800,11 @@ Determine if the given type is a function.
 public bool isFunctionType(Symbol::\alias(_,_,Symbol at)) = isFunctionType(at);
 public bool isFunctionType(Symbol::\parameter(_,Symbol tvb)) = isFunctionType(tvb);
 public bool isFunctionType(Symbol::\label(_,Symbol lt)) = isFunctionType(lt);
+<<<<<<< HEAD
 public bool isFunctionType(Symbol::\func(_,_)) = true;
+=======
+public bool isFunctionType(Symbol::\func(_,_,_)) = true;
+>>>>>>> 983e488aae... fixes for func symbols
 public default bool isFunctionType(Symbol _) = false;
 
 @doc{
