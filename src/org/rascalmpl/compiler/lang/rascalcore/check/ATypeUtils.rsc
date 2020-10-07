@@ -134,7 +134,7 @@ Symbol atype2symbol(alrel(atypeList(list[AType] ts))) = \list(\tuple([atype2labe
 
 // TODO: kwFormals are lost here because not supported by old run-time system
 Symbol atype2symbol(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
-  = \func(atype2symbol(ret), [atype2labeledSymbol(f) | f <- formals]);
+  = \func(atype2symbol(ret), [atype2labeledSymbol(f) | f <- formals], [ atype2labeledSymbol(f) | <f, _> <- kwFormals]);
 
 Symbol atype2symbol(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
 Symbol atype2symbol(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
