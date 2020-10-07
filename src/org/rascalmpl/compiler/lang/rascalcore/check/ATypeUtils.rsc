@@ -155,10 +155,7 @@ Symbol atype2labeledSymbol(AType t) = t.label? ? label(t.label, atype2symbol(t))
 Symbol atype2symbol(t: acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
-  {
-  println("atype constructor: <t>");
-  return Symbol::cons(atype2symbol(adt), t.label, [atype2labeledSymbol(f) | f <- fields]);
-  }
+ = Symbol::cons(atype2symbol(adt), t.label, [atype2labeledSymbol(f) | f <- fields]);
 
 Symbol atype2symbol(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2symbol(t));
 Symbol atype2symbol(areified(AType t)) = Symbol::reified(atype2symbol(t));

@@ -306,8 +306,8 @@ void extractScopes(TModel tm){
     
    
     if([lrel[AType,KeywordFormal] common] := tm.store[key_common_keyword_fields]){
-        println("Common keyword parameters");
-        iprintln(common);
+        //println("Common keyword parameters");
+        //iprintln(common);
         adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[label="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
         adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
     }
