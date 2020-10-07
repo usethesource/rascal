@@ -3,9 +3,11 @@ module lang::rascalcore::compile::util::ConcreteSyntax
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
+import lang::rascalcore::check::ATypeUtils;
 import ParseTree;
 import Messages;
 import lang::rascalcore::check::AType;
+import String;
 
 tuple[Module, TModel] parseConcreteFragments(Module M, TModel tm, AGrammar gr) {
    // here we translate to the original Productions and Symbol to be used by the parser generator:
@@ -60,7 +62,7 @@ Tree doParseFragment(Symbol sym, ConcretePart* parts, map[Symbol, Production] ru
    
    // replace the indexed sub-strings back with the original holes (wrapped in an easy-to-recognize appl)
    tree = visit (tree) {
-     case appl(prod(label("$MetaHole", _), _, _), [_,_,_,i,_]) => 
+     case appl(prod(label("$MetaHole", _), _, _), [_,_,_,i,_],_) => 
           appl(prod(label("$MetaHole", isPattern ? sort("Pattern") : sort("Expression")), [sort("ConcreteHole")],{}), 
                [holes[toInt("<i>")]]) 
    }

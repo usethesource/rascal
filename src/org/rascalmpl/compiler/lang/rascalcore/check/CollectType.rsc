@@ -542,7 +542,7 @@ void collect(current:(Sym) `<Sym symbol>+`, Collector c){
     collect(symbol, c);
 }
 
-void collect(current:(Sym) `<Sym symbol>*`, Collector c){
+void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     c.calculate("iterStar", current, [symbol], AType(Solver s) { return \iter-star(getSyntaxType(symbol, s)); });
     collect(symbol, c);
