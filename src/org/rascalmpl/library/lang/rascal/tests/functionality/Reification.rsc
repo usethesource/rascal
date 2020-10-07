@@ -27,8 +27,8 @@ test bool reifyBag() = #bag[int].symbol == \bag(\int());
 test bool reifyMap() = #map[int,str].symbol == \map(\int(),\str());
 test bool reifyMapWithLabels() = #map[int k,str v].symbol == \map(label("k",\int()),label("v",\str()));
 
-test bool reifyFunction() = #int (int).symbol == \func(\int(),[\int()]);
-test bool reifyFunctionWithLabel() = #int (int a).symbol == \func(\int(),[label("a", \int())]);
+test bool reifyFunction() = #int (int).symbol == \func(\int(),[\int()],[]);
+test bool reifyFunctionWithLabel() = #int (int a).symbol == \func(\int(),[label("a", \int())],[]);
 
 test bool reifyParameter() = #&T.symbol == \parameter("T", \value());
 test bool reifyParameterWithBound() = #&T <: list[&U].symbol == \parameter("T", \list(\parameter("U",\value())));
