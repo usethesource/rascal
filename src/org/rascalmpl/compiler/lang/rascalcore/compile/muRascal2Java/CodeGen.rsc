@@ -308,7 +308,7 @@ tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions)
 
 str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleScopes, JGenie jg){
     overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
-    iprintln(overloadedFunctions, lineLimit=10000);
+    //iprintln(overloadedFunctions, lineLimit=10000);
     all_resolvers = "";
     for(fname <- toSet(overloadsWithName<0>), /*!isClosureName(fname),*/ fname != "type", !isMainName(fname)){
         for(OF5 overload <- overloadsWithName[fname]){ 
