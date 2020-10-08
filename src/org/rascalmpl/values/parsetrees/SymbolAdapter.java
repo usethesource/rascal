@@ -29,7 +29,7 @@ import static org.rascalmpl.values.RascalValueFactory.Symbol_Datetime;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Empty;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Func;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Int;
-import static org.rascalmpl.values.RascalValueFactory.Symbol_IterPlus;
+import static org.rascalmpl.values.RascalValueFactory.Symbol_Iter;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_IterSeps;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_IterStar;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_IterStarSeps;
@@ -214,7 +214,7 @@ public class SymbolAdapter {
 	}
 	
 	public static boolean isIterPlus(IConstructor tree) {
-		return tree.getConstructorType() == Symbol_IterPlus;
+		return tree.getConstructorType() == Symbol_Iter;
 	}
 	
 	public static boolean isLayouts(IConstructor tree) {
@@ -835,7 +835,7 @@ public class SymbolAdapter {
 		assert isStarList(sym) && !isLabel(sym) && !isConditional(sym);
 		
 		if (isIterStar(sym)) {
-			return VF.constructor(Symbol_IterPlus, getSymbol(sym));
+			return VF.constructor(Symbol_Iter, getSymbol(sym));
 		}
 		else if (isIterStarSeps(sym)) {
 			return VF.constructor(Symbol_IterSeps, getSymbol(sym), getSeparators(sym));

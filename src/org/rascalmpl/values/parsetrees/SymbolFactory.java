@@ -73,7 +73,7 @@ public class SymbolFactory {
 		}
 		if (symbol.isIter()) {
 			if (lex) {
-				return factory.constructor(RascalValueFactory.Symbol_IterPlus, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
+				return factory.constructor(RascalValueFactory.Symbol_Iter, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 			}
 			else {
 				IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_Layouts, factory.string(layout));

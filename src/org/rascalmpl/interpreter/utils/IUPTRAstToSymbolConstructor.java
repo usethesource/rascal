@@ -159,7 +159,7 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 
 		if (name.equals("iter")) {
 			IConstructor arg = x.getArguments().get(0).accept(this);
-			return vf.constructor(RascalValueFactory.Symbol_IterPlus, arg);
+			return vf.constructor(RascalValueFactory.Symbol_Iter, arg);
 		}
 		
 		if (name.equals("iter-star")) {
