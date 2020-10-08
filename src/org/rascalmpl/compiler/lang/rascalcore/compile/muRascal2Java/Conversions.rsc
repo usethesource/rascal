@@ -715,6 +715,10 @@ str value2IValue(Associativity sym) {
    return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Associativity_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
 
+str value2IValue(CharRange sym) {
+   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.CharRange_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
+}
+
 str value2IValue(Production sym) {
    return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValue(child) | child <- getChildren(sym)])>)";
 }
