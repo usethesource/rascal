@@ -179,9 +179,9 @@ Symbol atype2symbol(\prod(AType s, list[AType] _)) = atype2symbol(s);
 // terminal symbols
 Symbol atype2symbol(AType::\lit(str string)) = Symbol::\lit(string);
 Symbol atype2symbol(AType::\cilit(str string)) = Symbol::\cilit(string);
-Symbol atype2symbol(\char-class(list[ACharRange] ranges)) = Symbol::\char-class([range(<r.begin>,<r.end>) | r <- ranges ]);
+Symbol atype2symbol(\char-class(list[ACharRange] ranges)) = Symbol::\char-class([range(r.begin, r.end) | r <- ranges ]);
 
-Symbol atype2symbol(\start(AType symbol)) = Symbol::\start(<atype2symbol(symbol)>);
+Symbol atype2symbol(\start(AType symbol)) = Symbol::\start(atype2symbol(symbol));
 
 // regular symbols
 Symbol atype2symbol(AType::\empty()) = Symbol::\empty();
