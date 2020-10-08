@@ -113,7 +113,7 @@ public class NonTerminalType extends RascalType {
                    RascalValueFactory.Symbol_Conditional,
                    RascalValueFactory.Symbol_IterSeps,
                    RascalValueFactory.Symbol_IterStarSeps,
-                   RascalValueFactory.Symbol_IterPlus,
+                   RascalValueFactory.Symbol_Iter,
                    RascalValueFactory.Symbol_IterStar,
                    RascalValueFactory.Symbol_ParameterizedSort,
                    RascalValueFactory.Symbol_ParameterizedLex,
