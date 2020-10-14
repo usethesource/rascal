@@ -86,6 +86,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     }
     
     externalVars = sort([ *toList(loc2muFunction[fun_def.defined]? ? loc2muFunction[fun_def.defined].externalVars : {}) | fun_def <- relevant_fun_defs]);
+    externalVars = [ ev | ev <- externalVars, ev.pos >= 0 ];
     if(!isEmpty(externalVars)){
         argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalVars, jtype := atype2javatype(var.atype)]);
     }
@@ -106,9 +107,10 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
        
         actuals_text = intercalate(", ", call_actuals);
         if(hasKeywordParameters(def_type)){
-            actuals_text = isEmpty(actuals_text) ? kwpActuals : "<actuals_text>, $kwpActuals";
+            actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
         }
         externalVars = sort(toList(loc2muFunction[def.defined]? ? loc2muFunction[def.defined].externalVars : {}));
+        externalVars = [ ev | ev <- externalVars, ev.pos >= 0 ];
         if(!isEmpty(externalVars)){
             actuals_text += (isEmpty(actuals_text) ? "" : ", ") +  intercalate(", ", [ varName(var) | var <- externalVars ]);
         }
