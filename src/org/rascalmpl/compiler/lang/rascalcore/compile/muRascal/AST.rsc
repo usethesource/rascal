@@ -33,11 +33,11 @@ public data MuModule =
                        lrel[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloaded_functions,
                        map[AType, map[str,AType]] commonKeywordFields,
                        AGrammar grammar,
-                       rel[str,str] importGraph,
+                       //rel[str,str] importGraph,
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], [], (), grammar({}, ()), {}, src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], [], (), grammar({}, ()), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -328,16 +328,17 @@ bool isOuterScopeName(str name)
 str getFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)) return fun.name;
     if(isClosureName(fun.name)) return "<fun.scopeIn>_<fun.uniqueName>";
-    return "<fun.scopeIn>_<fun.uniqueName>";
+    //return "<fun.scopeIn>_<fun.uniqueName>";
+    return fun.uniqueName;
 }
 
 str getUniqueFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)){
         return isMainName(fun.name) ? fun.name :  fun.uniqueName;
     }
-    return "<fun.scopeIn>_<fun.uniqueName>";
+    //return "<fun.scopeIn>_<fun.uniqueName>";
+    return fun.uniqueName;
 }
-
 
 set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
 

@@ -278,7 +278,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.store[key_ADTs]    = tm.store[key_ADTs] ? {};
         m1.store[key_common_keyword_fields]    = tm.store[key_common_keyword_fields] ? [];
         
-        m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- m1.paths, tup.from == mscope };
+        m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope };
         //m1.paths = domainR(tm.paths, {mscope});
         
         //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
@@ -296,7 +296,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                          if(defType(_) !:= tup.defInfo){
                             throw "Suspicious define in TModel: <tup>";
                          }
-                         tup.scope = mscope;
+                         //tup.scope = mscope;
                       }                  
                     append tup;
                   }

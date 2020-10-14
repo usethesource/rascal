@@ -290,8 +290,6 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       								 formalVars,
       								 kwps,
       								 inScope,
-      								 //getFormals(funsrc), 
-      								 //getScopeSize(funsrc),
       								 isVarArgs, 
       								 isPub,
       								 isMemo,

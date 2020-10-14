@@ -46,9 +46,9 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
        	<tm, muMod> = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
         tmodels[qualifiedModuleName] = tm;
         
-        <the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
+        <the_interface, the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
      
-        //writeFile(targetDir + "$<className>.java", the_interface);
+        writeFile(targetDir + "$<className>.java", the_interface);
         writeFile(targetDir + "<className>.java", the_class);
         println("Written: <targetDir + "<className>.java">");
         writeFile(targetDir + "<className>Tests.java", the_test_class);
