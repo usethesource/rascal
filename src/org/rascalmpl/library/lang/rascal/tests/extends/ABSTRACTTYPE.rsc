@@ -2,8 +2,6 @@ module lang::rascal::tests::extends::ABSTRACTTYPE
 
 extend lang::rascal::tests::extends::PARSETREE;
 
-value main() = comparable(A(), D());
-
 data SYM = E();
 
 // A <: B
