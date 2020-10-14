@@ -1005,8 +1005,8 @@ Also see <<List-unzip>>;
 [source,rascal-shell]
 ----
 import List;
-unzip([<3,"thirty">, <1,"ten">, <4,"forty">]);
-unzip([<3,"thirty",300>, <1,"ten",100>, <4,"forty",400>]);
+unzip2([<3,"thirty">, <1,"ten">, <4,"forty">]);
+unzip3([<3,"thirty",300>, <1,"ten",100>, <4,"forty",400>]);
 ----}
 public tuple[list[&T],list[&U]] unzip2(list[tuple[&T,&U]] lst) =
 	<[t | <t,_> <- lst], [u | <_,u> <- lst]>;
@@ -1041,8 +1041,8 @@ Also see <<List-unzip>>.
 [source,rascal-shell]
 ----
 import List;
-zip([3, 1, 4], ["thirty", "ten", "forty"]);
-zip([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
+zip3([3, 1, 4], ["thirty", "ten", "forty"]);
+zip3([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
 ----}
 public list[tuple[&T first, &U second]] zip2(list[&T] a, list[&U] b) {
 	if(size(a) != size(b))
