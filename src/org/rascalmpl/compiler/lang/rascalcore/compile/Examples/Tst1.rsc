@@ -1,3 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-extend lang::rascalcore::compile::Examples::Tst0;
+int X = 42;
+
+bool escapedGlobal() = X == 42;

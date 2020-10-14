@@ -260,55 +260,55 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
             kwpTypeDecls>;
 }
 
-tuple[list[Define] similar, set[Define] rest] findSimilarFunctions(set[Define] defines){
-    <s1, rest> = takeFirstFrom(defines);
-    similar = [s1];
-    s1_type = avalue();
-    if(defType(tp) := s1.defInfo){
-        s1_type = tp;
-    }
-    for(Define def <- rest){
-        if(defType(tp) := def.defInfo, isFunctionType(tp), s1.id == def.id, comparable(tp, s1_type)){
-            similar += def;
-            rest -= def;
-        }
-    }
-    return < sort(similar, bool(Define a, Define b) { return defType(ta) := a.defInfo && defType(tb) := b.defInfo && !ta.isDefault && tb.isDefault; }),
-             rest >;
-}
+//tuple[list[Define] similar, set[Define] rest] findSimilarFunctions(set[Define] defines){
+//    <s1, rest> = takeFirstFrom(defines);
+//    similar = [s1];
+//    s1_type = avalue();
+//    if(defType(tp) := s1.defInfo){
+//        s1_type = tp;
+//    }
+//    for(Define def <- rest){
+//        if(defType(tp) := def.defInfo, isFunctionType(tp), s1.id == def.id, comparable(tp, s1_type)){
+//            similar += def;
+//            rest -= def;
+//        }
+//    }
+//    return < sort(similar, bool(Define a, Define b) { return defType(ta) := a.defInfo && defType(tb) := b.defInfo && !ta.isDefault && tb.isDefault; }),
+//             rest >;
+//}
+//
+//str generateSimilarResolver(list[Define] similar, map[loc,str] loc2module){
+//    fun_type = (avoid() | alub(it, tp) | def <- similar, defType(tp) := def.defInfo);
+//    fun_id = getOneFrom(similar).id;
+//    resolver = "public <atype2javatype(fun_type.ret)> <fun_id>(<intercalate(", ", ["<atype2javatype(formal)> <formal.label ? "$<i>">" | int i <- index(fun_type.formals), formal := fun_type.formals[i] ])>){ // Resolver for non-extended <fun_id>
+//               '    <atype2javatype(fun_type.ret)> $result = null;
+//               '    <for(s <- similar, defType(s_type) := s.defInfo){>
+//               '    $result = <module2field(loc2module[s.scope])>.<s.id>(<intercalate(", ", ["<formal.label ? "$<i>">" | int i <- index(s_type.formals), formal := s_type.formals[i] ])>);
+//               '    if($result != null) return $result;
+//               '    <}>
+//               '    throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["<formal.label ? "$<i>">" | int i <- index(fun_type.formals), formal := fun_type.formals[i] ])>));
+//               '}";
+//    return resolver;
+//}
 
-str generateSimilarResolver(list[Define] similar, map[loc,str] loc2module){
-    fun_type = (avoid() | alub(it, tp) | def <- similar, defType(tp) := def.defInfo);
-    fun_id = getOneFrom(similar).id;
-    resolver = "public <atype2javatype(fun_type.ret)> <fun_id>(<intercalate(", ", ["<atype2javatype(formal)> <formal.label ? "$<i>">" | int i <- index(fun_type.formals), formal := fun_type.formals[i] ])>){ // Resolver for non-extended <fun_id>
-               '    <atype2javatype(fun_type.ret)> $result = null;
-               '    <for(s <- similar, defType(s_type) := s.defInfo){>
-               '    $result = <module2field(loc2module[s.scope])>.<s.id>(<intercalate(", ", ["<formal.label ? "$<i>">" | int i <- index(s_type.formals), formal := s_type.formals[i] ])>);
-               '    if($result != null) return $result;
-               '    <}>
-               '    throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["<formal.label ? "$<i>">" | int i <- index(fun_type.formals), formal := fun_type.formals[i] ])>));
-               '}";
-    return resolver;
-}
-
-str generatePassThroughs(str moduleName, list[str] extends, map[str,TModel] tmodels, map[str,loc] moduleLocs){
-    module_scope = moduleLocs[moduleName];
-    locsModule = invertUnique(moduleLocs);
-    funs_defined_in_module = {def | def <- tmodels[moduleName].defines, defType(tp) := def.defInfo, isFunctionType(tp), isContainedIn(def.defined, module_scope)};
-    
-    extended_funs = {def | ext <- extends, def <- tmodels[ext].defines, defType(tp) := def.defInfo, isFunctionType(tp), isContainedIn(def.defined, moduleLocs[ext])};
-    
-    non_extended_funs = { def | def <- extended_funs, defType(def_type) := def.defInfo, !any(loc_def <- funs_defined_in_module, defType(loc_type) := loc_def.defInfo, loc_def.id == def.id && comparable(loc_type, def_type)) };
-    
-    resolvers_non_extended = "";
-    
-    while(!isEmpty(non_extended_funs)){
-        <similar, non_extended_funs> = findSimilarFunctions(non_extended_funs);
-        resolvers_non_extended += generateSimilarResolver(similar, locsModule);
-    }
-    
-    return resolvers_non_extended;
-}
+//str generatePassThroughs(str moduleName, list[str] extends, map[str,TModel] tmodels, map[str,loc] moduleLocs){
+//    module_scope = moduleLocs[moduleName];
+//    locsModule = invertUnique(moduleLocs);
+//    funs_defined_in_module = {def | def <- tmodels[moduleName].defines, defType(tp) := def.defInfo, isFunctionType(tp), isContainedIn(def.defined, module_scope)};
+//    
+//    extended_funs = {def | ext <- extends, def <- tmodels[ext].defines, defType(tp) := def.defInfo, isFunctionType(tp), isContainedIn(def.defined, moduleLocs[ext])};
+//    
+//    non_extended_funs = { def | def <- extended_funs, defType(def_type) := def.defInfo, !any(loc_def <- funs_defined_in_module, defType(loc_type) := loc_def.defInfo, loc_def.id == def.id && comparable(loc_type, def_type)) };
+//    
+//    resolvers_non_extended = "";
+//    
+//    while(!isEmpty(non_extended_funs)){
+//        <similar, non_extended_funs> = findSimilarFunctions(non_extended_funs);
+//        resolvers_non_extended += generateSimilarResolver(similar, locsModule);
+//    }
+//    
+//    return resolvers_non_extended;
+//}
 
 // ---- Overloading resolvers -------------------------------------------------
 //
@@ -336,51 +336,51 @@ str generatePassThroughs(str moduleName, list[str] extends, map[str,TModel] tmod
 //   ==> generate an M-resolver method F
 
 
-alias OF5 = tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
-
-tuple[rel[str,AType,str], list[OF5]] mergeOverloadedFunctions(list[OF5] overloadedFunctions){
-    overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
-    mergedFuns = {};
-    allFuns = [];
-    for(fname <- toSet(overloadsWithName<0>)){
-        <merged, funs> = mergeSimilar(overloadsWithName[fname]);
-        mergedFuns += merged;
-        allFuns += funs;
-    }
-    return <mergedFuns, allFuns>;
-}
+//alias OF5 = tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
+//
+//tuple[rel[str,AType,str], list[OF5]] mergeOverloadedFunctions(list[OF5] overloadedFunctions){
+//    overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
+//    mergedFuns = {};
+//    allFuns = [];
+//    for(fname <- toSet(overloadsWithName<0>)){
+//        <merged, funs> = mergeSimilar(overloadsWithName[fname]);
+//        mergedFuns += merged;
+//        allFuns += funs;
+//    }
+//    return <mergedFuns, allFuns>;
+//}
 
 // Merge overloads that lead to the same Java argument types
 
-tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions){
-    // First elimnate overloads that are subsumed by others
-    //subsumedOverloads = [ ovl1 | ovl1 <- overloadedFunctions, ovl2 <- overloadedFunctions, ovl1 != ovl2, ovl1.ofunctions <= ovl2.ofunctions && ovl1.oconstructors <= ovl2.oconstructors ];
-    //overloadedFunctions -= subsumedOverloads;
-    resultingOverloadedFuns = [];
-    mergedFuns = {};
-    while(!isEmpty(overloadedFunctions)){
-        ovl1 = overloadedFunctions[0];
-        overloadedFunctions = overloadedFunctions[1..];
-        similar = [ovl2 | ovl2 <- overloadedFunctions, leadToSameJavaType(ovl1.funType, ovl2.funType)];
-        if(!isEmpty(similar)){
-            similar = ovl1 + similar;
-            mergedName = intercalate("_MERGED_", [ovl.oname | ovl <- similar]);
-            merged = <ovl1.name, 
-                      lubList([ovl.funType | ovl <- similar]), 
-                      mergedName,
-                      [*ovl.ofunctions | ovl <- similar],
-                      [*ovl.oconstructors | ovl <- similar]
-                     >;
-            resultingOverloadedFuns += merged;
-            mergedFuns = { <ovl.oname, ovl.funType, mergedName> | ovl <- similar };
-            overloadedFunctions -= similar;            
-        } else {
-            resultingOverloadedFuns += ovl1;
-        }
-    }
-    
-    return <mergedFuns, resultingOverloadedFuns>;
-}
+//tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions){
+//    // First elimnate overloads that are subsumed by others
+//    //subsumedOverloads = [ ovl1 | ovl1 <- overloadedFunctions, ovl2 <- overloadedFunctions, ovl1 != ovl2, ovl1.ofunctions <= ovl2.ofunctions && ovl1.oconstructors <= ovl2.oconstructors ];
+//    //overloadedFunctions -= subsumedOverloads;
+//    resultingOverloadedFuns = [];
+//    mergedFuns = {};
+//    while(!isEmpty(overloadedFunctions)){
+//        ovl1 = overloadedFunctions[0];
+//        overloadedFunctions = overloadedFunctions[1..];
+//        similar = [ovl2 | ovl2 <- overloadedFunctions, leadToSameJavaType(ovl1.funType, ovl2.funType)];
+//        if(!isEmpty(similar)){
+//            similar = ovl1 + similar;
+//            mergedName = intercalate("_MERGED_", [ovl.oname | ovl <- similar]);
+//            merged = <ovl1.name, 
+//                      lubList([ovl.funType | ovl <- similar]), 
+//                      mergedName,
+//                      [*ovl.ofunctions | ovl <- similar],
+//                      [*ovl.oconstructors | ovl <- similar]
+//                     >;
+//            resultingOverloadedFuns += merged;
+//            mergedFuns = { <ovl.oname, ovl.funType, mergedName> | ovl <- similar };
+//            overloadedFunctions -= similar;            
+//        } else {
+//            resultingOverloadedFuns += ovl1;
+//        }
+//    }
+//    
+//    return <mergedFuns, resultingOverloadedFuns>;
+//}
 
 //// Generate resolvers for all overloaded functions
 //
@@ -884,7 +884,7 @@ str varName(muVar(str name, str fuid, int pos, AType atype), JGenie jg){
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype), JGenie jg){
    return jg.isRef(var) && pos >= 0 ? "<varName(var, jg)>.getValue()" 
                                     : ( pos >= 0 ? varName(var, jg)
-                                                 : "<fuid == jg.getFunctionName() ? "" : fuid == jg.getModuleName() ? "$me." : "<module2field(fuid)>."><varName(var, jg)>"
+                                                 : "<fuid == jg.getFunctionName() ? "" : fuid == jg.getModuleName() ? "" : "<module2field(fuid)>."><varName(var, jg)>"
                                       );
        //= jg.isExternalVar(var) && pos >= 0 ? "<varName(var, jg)>.value" : varName(var, jg);
 }
