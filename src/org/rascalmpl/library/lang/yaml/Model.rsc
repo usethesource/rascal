@@ -175,7 +175,7 @@ bool equalNodes(Node x, Node y) {
          if (size(ls1) != size(ls2)) {
            return false;
          }
-         return ( true | it && equalNodesRec(e1, e2) | <e1, e2> <- zip(ls1, ls2) );
+         return ( true | it && equalNodesRec(e1, e2) | <e1, e2> <- zip2(ls1, ls2) );
        }
      
 	       case <scalar(v1), scalar(v2)>:
@@ -195,7 +195,7 @@ bool equalNodes(Node x, Node y) {
 	       case <mapping(m1), mapping(m2)>: {
 	         ls1 = sort(domain(m1));
 	         ls2 = sort(domain(m2));
-	         domEq = ( true | it && equalNodesRec(e1, e2) | <e1, e2> <- zip(ls1, ls2) );
+	         domEq = ( true | it && equalNodesRec(e1, e2) | <e1, e2> <- zip2(ls1, ls2) );
 	         if (!domEq) {
 	           return false;
 	         }
