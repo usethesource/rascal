@@ -23,6 +23,9 @@ import lang::rascalcore::compile::muRascal2Java::Primitives;
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal2Java::Conversions;
 import lang::rascalcore::compile::muRascal2Java::Tests;
+import lang::rascalcore::compile::muRascal2Java::Interface;
+import lang::rascalcore::compile::muRascal2Java::Resolvers;
+import lang::rascalcore::compile::muRascal2Java::SameJavaType;
 
 import lang::rascalcore::compile::util::Names;
 
@@ -31,7 +34,7 @@ bool debug = false;
 // ---- globals ---------------------------------------------------------------
 
 map[str, MuFunction] muFunctions = ();
-map[loc, MuFunction] muFunctionsByLoc = ();
+map[loc, MuFunction] loc2muFunction = ();
 map[str,str] resolved2overloaded = ();
 map[str,AType] resolved2type = ();
 map[str, list[MuExp]] resolved2external = ();
@@ -40,19 +43,40 @@ map[str, list[MuExp]] resolved2external = ();
 
 // Generate code and test class for a single Rascal module
 
-tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
-//for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"); }
+tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
+
+    moduleName = m.name;
+    locsModule = invertUnique(moduleLocs);
+    module_scope = moduleLocs[moduleName];
+    
+    extends = { locsModule[m2loc] | <module_scope, extendPath(), m2loc> <- tmodels[moduleName].paths };
+    
+    imports = { locsModule[m2loc] | <module_scope, importPath(), m2loc> <- tmodels[moduleName].paths };
+    imports += { locsModule[m2loc] | imp <- imports, impLoc := moduleLocs[imp], <impLoc, extendPath(), m2loc> <- tmodels[moduleName].paths};
+    
+    for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"); }
     muFunctions = (f.uniqueName : f | f <- m.functions);
-    muFunctionsByLoc = (f.src : f | f <- m.functions);
+    loc2muFunction = (f.src : f | f <- m.functions);
+    
+    resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs);
+    
     resolved2overloaded = ();
     //iprintln(m.overloaded_functions);
     moduleScopes = range(moduleLocs); //{ s |tm <- range(tmodels), s <- tm.scopes, tm.scopes[s] == |global-scope:///| };
     
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
+    
+  
+    
     <typestore, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors);
-    <mergedFuns, ovlFuns> = mergeOverloadedFunctions(m.overloaded_functions);
-    jg.addMergedOverloads(mergedFuns);
-    resolvers = genResolvers(ovlFuns, moduleScopes, jg);
+    //<mergedFuns, ovlFuns> = mergeOverloadedFunctions(m.overloaded_functions);
+    //jg.addMergedOverloads(mergedFuns);
+    //resolvers = genResolvers(ovlFuns, moduleScopes, jg);
+    
+    
+  
+    
+    //extend_pass_throughs = generatePassThroughs(m.name, extends, tmodels, moduleLocs);
     
     bool hasMainFunction = false;
     str mainName = "main";
@@ -68,7 +92,7 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
         jg.addExternalVars(f.externalVars);
         jg.addLocalRefs(f.localRefs);
     }
-    moduleName = m.name;
+ 
     className = getClassName(moduleName);    
     packageName = getPackageName(moduleName);
     
@@ -96,32 +120,36 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
                             // TODO: getBaseClass will generate name collisions if there are more of the same name in different packages
                          'final <libclass> <getBaseClass(class)> = $initLibrary(\"<libclass>\"); 
                          '<}>";
+    
+    module_implements =  "implements <intercalate(",", [ "\n\t<module2interface(ext)>" | ext <- moduleName + extends])>";
                         
-    module_extends    =  ""; //!isEmpty(m.extends) ? ", " + intercalate(", ",[ module2class(ext) | ext <- m.extends]) : "";
-                        
-    module_imports    = "<for(imp <- toSet(m.imports + m.extends), contains(module2class(imp), ".")){>
+    module_imports    = "<for(imp <- imports + extends, contains(module2class(imp), ".")){>
                          'import <module2class(imp)>;
                         '<}>";
                        
-    imp_ext_decls     = "<for(imp <- toSet(m.imports + m.extends)){>
+    imp_ext_decls     = "<for(imp <- imports + extends){>
                         '<getClassRef(imp, moduleName)> <module2field(imp)>;
                         '<}>";
                            
-    module_ext_inits  = "<for(ext <- m.extends){>
+    module_ext_inits  = "<for(ext <- extends){>
                         '<module2field(ext)> = <module2class(ext)>.extend<getBaseClass(ext)>(this);
                         '<}>";
     //iprintln(m.initialization);
     class_constructor = "public <className>(){
-                        '    this(new ModuleStore());
+                        '    this(new ModuleStore(), null);
                         '}
                         '
                         'public <className>(ModuleStore store){
-                        '   this.$me = this;
-                        '   <for(imp <- m.imports, imp notin m.extends){>
+                        '    this(store, null);
+                        '}
+                        '
+                        'public <className>(ModuleStore store, $<className> extended){
+                        '   this.$me = extended == null ? this : extended;
+                        '   <for(imp <- imports, imp notin extends){>
                         '   <module2field(imp)> = store.importModule(<getClassRef(imp, moduleName)>.class, <getClassRef(imp, moduleName)>::new);
                         '   <}> 
-                        '   <for(ext <- m.extends){>
-                        '   <module2field(ext)> = new <getBaseClass(ext)>(store);
+                        '   <for(ext <- extends){>
+                        '   <module2field(ext)> = store.extendModule(<getClassRef(ext, moduleName)>.class, <getClassRef(ext, moduleName)>::new, this);
                         '   <}>
                         '   <kwpDecls>
                         '   <for(exp <- m.initialization){><trans(exp, jg)>
@@ -131,7 +159,7 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
     if(hasMainFunction && !isEmpty(mainFunction.externalVars)){
       externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<var.name>)" | var <- sort(mainFunction.externalVars), var.pos >= 0, jtype := atype2javatype(var.atype)]);
     }              
-    
+        
     main_method = "public static void main(String[] args) {
                   '  throw new RuntimeException(\"No function `main` found in Rascal program `<m.name>`\");
                   '}";
@@ -171,17 +199,20 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
                         'import org.rascalmpl.exceptions.Throw; 
-                        '//import org.rascalmpl.interpreter.result.util.MemoizationCache;
                         'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
                         'import org.rascalmpl.util.ExpiringFunctionResultCache;
                         '
                         '<module_imports>
                         '
                         '@SuppressWarnings(\"unused\")
-                        'public class <className> extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule <module_extends> {
-                        '    final Traverse $TRAVERSE = new Traverse($VF);
-                        '    private <className> $me;
+                        'public class <className> 
+                        '    extends
+                        '        org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule
+                        '    <module_implements> {
+                        '
+                        '    private $<className> $me;
                         '    private RascalExecutionContext rex = new RascalExecutionContext(new PrintWriter(System.out), new PrintWriter(System.err), null, null);
+                        '    final Traverse $TRAVERSE = new Traverse($VF);
                         '    <typestore>
                         '    <library_inits>
                         '    <imp_ext_decls>
@@ -195,7 +226,9 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
                        
       the_test_class = generateTestClass(packageName, className, m.functions, jg);
       
-      return <the_class, the_test_class>;
+      the_interface = generateInterface(moduleName, packageName, className, m.functions, extends, tmodels, jg);
+      
+      return <the_interface, the_class, the_test_class>;
 }
 
 // Generate a TypeStore and declarations for keyword parameters
@@ -225,6 +258,56 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
             '<consTypeDecls>
             '",
             kwpTypeDecls>;
+}
+
+tuple[list[Define] similar, set[Define] rest] findSimilarFunctions(set[Define] defines){
+    <s1, rest> = takeFirstFrom(defines);
+    similar = [s1];
+    s1_type = avalue();
+    if(defType(tp) := s1.defInfo){
+        s1_type = tp;
+    }
+    for(Define def <- rest){
+        if(defType(tp) := def.defInfo, isFunctionType(tp), s1.id == def.id, comparable(tp, s1_type)){
+            similar += def;
+            rest -= def;
+        }
+    }
+    return < sort(similar, bool(Define a, Define b) { return defType(ta) := a.defInfo && defType(tb) := b.defInfo && !ta.isDefault && tb.isDefault; }),
+             rest >;
+}
+
+str generateSimilarResolver(list[Define] similar, map[loc,str] loc2module){
+    fun_type = (avoid() | alub(it, tp) | def <- similar, defType(tp) := def.defInfo);
+    fun_id = getOneFrom(similar).id;
+    resolver = "public <atype2javatype(fun_type.ret)> <fun_id>(<intercalate(", ", ["<atype2javatype(formal)> <formal.label ? "$<i>">" | int i <- index(fun_type.formals), formal := fun_type.formals[i] ])>){ // Resolver for non-extended <fun_id>
+               '    <atype2javatype(fun_type.ret)> $result = null;
+               '    <for(s <- similar, defType(s_type) := s.defInfo){>
+               '    $result = <module2field(loc2module[s.scope])>.<s.id>(<intercalate(", ", ["<formal.label ? "$<i>">" | int i <- index(s_type.formals), formal := s_type.formals[i] ])>);
+               '    if($result != null) return $result;
+               '    <}>
+               '    throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["<formal.label ? "$<i>">" | int i <- index(fun_type.formals), formal := fun_type.formals[i] ])>));
+               '}";
+    return resolver;
+}
+
+str generatePassThroughs(str moduleName, list[str] extends, map[str,TModel] tmodels, map[str,loc] moduleLocs){
+    module_scope = moduleLocs[moduleName];
+    locsModule = invertUnique(moduleLocs);
+    funs_defined_in_module = {def | def <- tmodels[moduleName].defines, defType(tp) := def.defInfo, isFunctionType(tp), isContainedIn(def.defined, module_scope)};
+    
+    extended_funs = {def | ext <- extends, def <- tmodels[ext].defines, defType(tp) := def.defInfo, isFunctionType(tp), isContainedIn(def.defined, moduleLocs[ext])};
+    
+    non_extended_funs = { def | def <- extended_funs, defType(def_type) := def.defInfo, !any(loc_def <- funs_defined_in_module, defType(loc_type) := loc_def.defInfo, loc_def.id == def.id && comparable(loc_type, def_type)) };
+    
+    resolvers_non_extended = "";
+    
+    while(!isEmpty(non_extended_funs)){
+        <similar, non_extended_funs> = findSimilarFunctions(non_extended_funs);
+        resolvers_non_extended += generateSimilarResolver(similar, locsModule);
+    }
+    
+    return resolvers_non_extended;
 }
 
 // ---- Overloading resolvers -------------------------------------------------
@@ -299,34 +382,6 @@ tuple[rel[str,AType,str], list[OF5]] mergeSimilar(list[OF5] overloadedFunctions)
     return <mergedFuns, resultingOverloadedFuns>;
 }
 
-// Generate resolvers for all overloaded functions
-
-str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleScopes, JGenie jg){
-    overloadsWithName = [ <ovl.name> + ovl | ovl <- overloadedFunctions ];
-    //iprintln(overloadedFunctions, lineLimit=10000);
-    all_resolvers = "";
-    for(fname <- toSet(overloadsWithName<0>), /*!isClosureName(fname),*/ fname != "type", !isMainName(fname)){
-        for(OF5 overload <- overloadsWithName[fname]){ 
-            all_resolvers += genSingleResolver(overload, moduleScopes, jg);
-        }  
-    }
-    return all_resolvers;
-}
-
-// Determine whether two atypes lead to the same Java type in the generated code
-
-bool leadToSameJavaType(AType t1, AType t2) {
-    r = leadToSameJavaType1(t1, t2);
-    //println("leadToSameJavaType(<t1>, <t2>) ==\> <r>");
-    return r;
-}
-
-bool leadToSameJavaType1(alist(AType t1), alist(AType t2)) = !equivalent(t1, t2);
-bool leadToSameJavaType1(aset(AType t1), aset(AType t2)) = !equivalent(t1, t2);
-bool leadToSameJavaType1(abag(AType t1), abag(AType t2)) = !equivalent(t1, t2);
-bool leadToSameJavaType1(arel(atypeList(list[AType] ts1)), arel(atypeList(list[AType] ts2))) = size(ts1) != size(ts2);
-bool leadToSameJavaType1(arel(atypeList(list[AType] ts1)), aset(AType t2)) = true;
-bool leadToSameJavaType1(aset(AType t1), arel(atypeList(list[AType] ts2))) = true;
 //// Generate resolvers for all overloaded functions
 //
 //str genResolvers(list[OF5] overloadedFunctions, set[loc] moduleScopes, JGenie jg){
@@ -554,240 +609,6 @@ bool leadToSameJavaType1(aset(AType t1), arel(atypeList(list[AType] ts2))) = tru
 //    }
 //}
 
-bool leadToSameJavaType1(alrel(atypeList(list[AType] ts1)), alrel(atypeList(list[AType] ts2))) = size(ts1) != size(ts2);
-bool leadToSameJavaType1(alrel(atypeList(list[AType] ts1)), alist(AType t1)) = true;
-bool leadToSameJavaType1(alist(AType t1), alrel(atypeList(list[AType] ts1))) = true;
-
-bool leadToSameJavaType1(atuple(atypeList(ts1)), atuple(atypeList(ts2))) = size(ts1) != size(ts2);
-
-bool leadToSameJavaType1(amap(AType k1, AType v1), amap(AType k2, AType v2)) = !equivalent(k1,k2) || !equivalent(v1, v2);
-bool leadToSameJavaType1(afunc(AType ret1, list[AType] formals1, list[Keyword] kwFormals1), afunc(AType ret2, list[AType] formals2, list[Keyword] kwFormals2))
-    = size(formals1) == size(formals2) && (any(int i <- index(formals1), leadToSameJavaType(formals1[i], formals2[i]))/* || leadToSameJavaType(ret1, ret2) */);
-    
-bool leadToSameJavaType1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2)) = leadToSameJavaType(bound1, bound2);
-
-bool leadToSameJavaType1(areified(AType atype1), areified(AType atype2)) = !equivalent(atype1, atype2);
-bool leadToSameJavaType1(areified(AType atype1), aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1)) = true;
-bool leadToSameJavaType1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), areified(AType atype1)) = true;
-bool leadToSameJavaType1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1), aadt(str adtName2, list[AType] parameters2, SyntaxRole syntaxRole2)) = true;
-    
-default bool leadToSameJavaType1(AType t1, AType t2) = false;
-
-bool leadToSameJavaType(atypeList(list[AType] elms1), atypeList(list[AType] elms2)) = size(elms1) != size(elms2) || any(i <- index(elms1), leadToSameJavaType(elms1[i], elms2[i]));
-
-// Generate a resolver for a single overloaded function
-
-str genSingleResolver(tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors] overload, set[loc] moduleScopes, JGenie jg){
-    if(overload.name == "type") return <"","">;
-    
-    if(isSyntheticFunctionName(overload.name)){
-        println(overload.name);
-    }
-   
-    funType = unsetRec(overload.funType);
-    returns_void = funType has ret && funType.ret == avoid();
-    formalTypes = getFormals(funType);
-    returnType = atype2javatype(getResult(funType));
-   
-    if(jg.isResolved(overload) && !jg.usesLocalFunctions(overload) /*|| getArity(funType) == 0*/) return "";
-    currentModuleLoc = jg.getModuleLoc();
-    if(all(def <- overload.ofunctions + overload.oconstructors, !isContainedIn(def, currentModuleLoc))){
-        return "";
-    }
-    
-    isInnerFunction = any(ovl <- overload.ofunctions + overload.oconstructors, jg.getDefine(ovl).scope notin moduleScopes);
-      
-    anyKwParams =    !isEmpty(overload.ofunctions) && any(ovl <- overload.ofunctions, hasKeywordParameters(jg.getType(ovl)))
-                  || !isEmpty(overload.oconstructors) && any(ovl <- overload.oconstructors, hasKeywordParameters(jg.getType(ovl)) || jg.hasCommonKeywordFields(jg.getType(ovl)));
-   
-    concretePatterns = any(ovl <- overload.ofunctions /*+ overload.oconstructors*/, jg.getType(ovl).isConcreteArg);
-  
-    resolverName = overload.oname;
-    //for(ovl <- overload.ofunctions){
-    //    if(muFunctionsByLoc[ovl]?){
-    //        fn = muFunctionsByLoc[ovl];
-    //        if(!isOuterScopeName(fn.scopeIn)){
-    //            resolverName = "<fn.scopeIn>_<resolverName>";
-    //            break;
-    //        }
-    //    }
-    //}
-    
-    resolverName = getJavaName(resolverName);
-    overload.oname = resolverName;
-   
-    argTypes = intercalate(", ", ["<atype2javatype(f)> $<i>" | i <- index(formalTypes), f := formalTypes[i]]);
-    actuals = intercalate(", ", ["$<i>" | i <- index(formalTypes)]);
-    if(anyKwParams){
-        kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-        argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
-    }
-   
-    externalVars = sort(toList({*jg.getExternalVars(ofun) | ofun <- overload.ofunctions }));
-    if(!isEmpty(externalVars)){
-        argTypes += (isEmpty(formalTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var, jg)>" | var <- externalVars, jtype := atype2javatype(var.atype)]);
-    }
-   
-    name_resolver = "<replaceAll(overload.name, "::", "_")>_<atype2idpart(overload.funType)>";
-    signature = "public <returnType> <getJavaName(resolverName)>(<argTypes>)";
-    isignature = "public <returnType> <getJavaName(overload.name)>(<argTypes>)";
-    actualsNoKwParams = actuals;
-    
-    imethod = "";
-    if(!isInnerFunction && !isSyntheticFunctionName(overload.name)){
-        actuals = intercalate(", ", ["$<i>" |  i <- index(formalTypes)]);
-        if(anyKwParams){
-            kwpActuals = "$kwpActuals";
-            actuals = isEmpty(actuals) ? kwpActuals : "<actuals>, <kwpActuals>";
-        }
-         if(!isEmpty(externalVars)){
-            actuals += (isEmpty(formalTypes) ? "" : ", ") +  intercalate(", ", [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)]);
-        }
-        imethod = "<isignature>{ // interface method <overload.name>: <prettyAType(funType)>
-                          '  <returns_void ? "" : "return "><getJavaName(resolverName)>(<actuals>);
-                          '}";
-    }
-   
-    canFail = any(of <- overload.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail);
-    map[int,str] cases = ();
-    defaultFunctions = "";
-    for(of <- overload.ofunctions){
-        ft = jg.getType(of);
-        if(ft.isDefault){
-            defaultFunctions += makeCallInResolver(funType, of, jg);
-        }
-    }
-    for(of <- overload.ofunctions){
-        ft = jg.getType(of);
-        fp = ft.abstractFingerprint;
-        if(!ft.isDefault){
-            if(cases[fp]?){
-                cases[fp] += makeCallInResolver(funType, of, jg);
-            } else {
-                cases[fp] = makeCallInResolver(funType, of, jg);
-            }
-        }
-    }
-   
-    conses = "<for(of <- overload.oconstructors){>
-             '  <makeCallInResolver(funType, of, jg)>
-             '<}>";
-     
-    body = "";
-    if(size(cases) == 0){
-        body = defaultFunctions;
-    } else if(size(cases) == 1){
-        for(c <- cases){
-            body = cases[c] + defaultFunctions;
-            break;
-        }
-    } else if(size(cases) > 1){
-        body = "switch(ToplevelType.getFingerprint($0, <concretePatterns>)){
-               '<for(caseLab <- cases, caseLab != 0){>
-               '         case <caseLab>: { 
-               '             <cases[caseLab]> 
-               '             break;
-               '         }
-               '    <}>
-               '}
-               '<cases[0]? ? (cases[0]) : "">
-               '<defaultFunctions>
-               ";
-    }
-    
-    jg.addResolver(overload, externalVars);
-   
-    return "<imethod>
-           '
-           '<signature>{ // Single-resolver for <prettyAType(funType)> <overload.name>
-           '    <if(true /*canFail*/ && !returns_void){><atype2javatype(getResult(funType))> res;<}>
-           '    <body><conses>
-           '    <if(/*canFail &&*/ isEmpty(conses) || contains(conses, "if(")){>throw RuntimeExceptionFactory.callFailed($VF.list(<actualsNoKwParams>));<}>
-           '}
-           '";
-}
-
-JCode makeCallInResolver(AType resolverFunType, loc of, JGenie jg){
-    funType = jg.getType(of);
-    //println("funType = <funType>");
-    kwpActuals = "$kwpActuals";
-    formalTypes = getFormals(funType);
-    arityFormalTypes = size(formalTypes);
-    returns_void = funType has ret && funType.ret == avoid();
-    resolverFormalTypes = getFormals(resolverFunType);
-    arityResolverFormalTypes = size(resolverFormalTypes);
-    
-    if(!isEmpty(formalTypes) && any(int i <- index(formalTypes), (i < arityResolverFormalTypes && (unsetRec(formalTypes[i]) != unsetRec(resolverFormalTypes[i]))))){
-        // The formal types of this overload are not equal to those of the resolver, so generate conditions to check the parameters
-        conds = [];
-        actuals = [];
-        for(int i <- index(resolverFormalTypes)){
-            if(i < arityFormalTypes && unsetRec(formalTypes[i]) != resolverFormalTypes[i]){
-                conds +=  atype2istype("$<i>", formalTypes[i]);
-                actuals += "(<atype2javatype(formalTypes[i])>) $<i>";
-            } else {
-                actuals += "$<i>";
-            }
-        }
-     
-        base_call = "";
-        if(isConstructorType(funType)){
-            base_call = "return <makeConstructorCall(funType, actuals, hasKeywordParameters(funType) || jg.hasCommonKeywordFields(funType) ? [kwpActuals] : [], jg)>;";
-        } else {
-            if(hasKeywordParameters(funType)){
-                actuals = isEmpty(actuals) ? [kwpActuals] : actuals + kwpActuals;
-            }
-            externalVars = jg.getExternalVars(of);
-            if(!isEmpty(externalVars)){
-                argTypes += (isEmpty(formalTypes) ? "" : ", ") +  intercalate(", ", [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)]);
-             }
-            call_code = "<jg.getAccessorInResolver(of)>(<intercalate(", ", actuals)>)";
-            di = jg.getDefine(of).defInfo;
-            returns_void = aprod(_) !:= funType && funType.ret == avoid();
-            
-            base_call = di has canFail && true /*di.canFail*/ ? (returns_void ? "try { <call_code>; return; } catch (FailReturnFromVoidException e){}\n"
-                                                                     : "res = <call_code>;
-                                                                       'if(res != null) return <returns_void ? "" : "res">;"
-                                                       )
-                                                       
-                                                     : ( returns_void ? "<call_code>; return;"
-                                                                      : "return <call_code>;"
-                                                       );
-        }
-        if(isEmpty(conds)){
-            return base_call;
-        } else {
-            return "if(<intercalate(" && ", conds)>){
-                   '    <base_call>
-                   '}\n";
-        }
-    } else {
-        actuals = ["$<i>" | i <- index(formalTypes), f := formalTypes[i]];
-        if(isConstructorType(funType)){
-            return "return <makeConstructorCall(funType, actuals, hasKeywordParameters(funType) || jg.hasCommonKeywordFields(funType) ? [kwpActuals] : [], jg)>;";
-        
-        } else {
-            if(hasKeywordParameters(funType)){
-                actuals += kwpActuals;
-            }
-            externalVars = jg.getExternalVars(of);
-            if(!isEmpty(externalVars)){
-                actuals +=  [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
-             }
-            call_code = "<jg.getAccessorInResolver(of)>(<intercalate(", ", actuals)>)";
-            di = jg.getDefine(of).defInfo;
-            returns_void = getResult(funType) == avoid();
-            return (di has canFail &&true /*di.canFail*/) ? ( returns_void ? "try { <call_code>; return; } catch (FailReturnFromVoidException e){};\n"
-                                                                   : "res = <call_code>;
-                                                                     'if(res != null) return <returns_void ? "" : "res">;\n"
-                                                    )
-                                                  : ( returns_void ? "<call_code>; return;\n"
-                                                                   : "return <call_code>;\n"
-                                                    );
-        }
-    }
-}
-
 JCode makeConstructorCall(AType consType, list[str] actuals, list[str] kwargs, JGenie jg){
     if(!isEmpty(kwargs)){
         return "$VF.constructor(<atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>}, <kwargs[0]>)";
@@ -981,7 +802,7 @@ JCode trans(muATypeCon(AType t, map[AType, set[AType]] definitions), JGenie jg) 
                       
 JCode trans(muFun(loc uid, AType ftype), JGenie jg){
    
-    fun = muFunctionsByLoc[uid];
+    fun = loc2muFunction[uid];
     //ftype = fun.ftype;
     uid = fun.src;
     //ftype = jg.getType(uid);
@@ -1301,7 +1122,7 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, 
         }
         
        if(isContainedIn(uid, jg.getModuleLoc())){
-         fn = muFunctionsByLoc[uid];
+         fn = loc2muFunction[uid];
          return "<getJavaName(getUniqueFunctionName(fn))>(<intercalate(", ", all_actuals)>)"; // Unique or not ~ match fail checking
        } else {  
         //if(!isEmpty(ftype.kwFormals) && isEmpty(kwActuals)){
@@ -1360,7 +1181,7 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AT
 }
 
 JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
-//println("muOCall3((<fun>, <ftype>, ..., <src>");
+println("muOCall3((<fun>, <ftype>, ..., <src>");
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     if(muOFun(str fname, AType _) := fun){
         actuals = getActuals(argTypes, largs, jg);
