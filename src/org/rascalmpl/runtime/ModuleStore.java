@@ -2,6 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class ModuleStore {
@@ -22,5 +23,9 @@ public final class ModuleStore {
             return (T)loadedModules.merge(module, newResult, (a, b) -> (a == newResult) ? b : a);
         }
         return result;
+    }
+
+    public <T1, T2> T1 extendModule(Class<T1> module, BiFunction<ModuleStore, T2, T1> builder, T2 extension) {
+		return builder.apply(this, extension);
     }
 }

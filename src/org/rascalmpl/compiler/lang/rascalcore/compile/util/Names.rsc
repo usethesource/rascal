@@ -125,10 +125,10 @@ str module2field(str qname){
 
 str colon2ul(str s) = replaceAll(replaceAll(s, "::", "_"), "$", ".");
 
-str module2interface(str moduleName){
-    className = module2class(moduleName);
+str module2interface(str qname){
+    className = normalizeQName(qname);
     n = findLast(className, ".");
-    return n >= 0 ? "<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
+    return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
 }
 
 str escapeAsJavaString(str s){

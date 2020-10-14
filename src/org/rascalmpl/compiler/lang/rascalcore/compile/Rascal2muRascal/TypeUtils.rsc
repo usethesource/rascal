@@ -205,7 +205,7 @@ bool isUse(UID u){
     return !isEmpty(useDef[u]);
 }
 
-AType getDefType(UID d){
+private AType getDefType(UID d){
     di = definitions[d].defInfo;
     if(defType(AType atype) := di) return atype;
     if(defType(Tree tree) := di) return getDefType(getLoc(tree));
@@ -221,19 +221,19 @@ AType getTypeFromDef(Define def){ // Move to Solver
     throw "getTypeFromDef: <def>";
 }
 
-int getFormals(UID fuid) {
+private int getFormals(UID fuid) {
     tp = getDefType(fuid);
     kwmap = size(tp.kwFormals) > 0 ? 1 : 0;
     return size(tp.formals) + kwmap;
 }
 
-str getScope(UID uid){
+private str getScope(UID uid){
     return convert2fuid(declaredIn[uid]);
 }
     
 // Compute the scope size, excluding declared nested functions, closures and keyword parameters   
 // r2mu translation of functions introduces variables in place of formal parameter patterns and uses patterns to match these variables  
-int getScopeSize(UID uid){
+private int getScopeSize(UID uid){
     vars = [];
     if(definitions[uid]?){
         def = definitions[uid];
@@ -257,7 +257,7 @@ bool is_module(Define d) = d.idRole in {moduleId()};
 
 bool is_declared_in_module(UID uid) = definitions[getFirstFrom(useDef[uid])].idRole == moduleId();
 
-loc findContainer(Define d){
+private loc findContainer(Define d){
     //println(d);
     if(is_module(d)) return d.defined;
     cscope = d.scope;
@@ -570,7 +570,7 @@ void extractScopes(TModel tm){
    }
 }
 
-list[str] abbreviate(list[loc] locs){
+private list[str] abbreviate(list[loc] locs){
     return for(l <- locs){
                k = findLast(l.path, "/");
                append "<l.path[k+1 .. -4]>_<l.begin.line>A<l.offset>";
