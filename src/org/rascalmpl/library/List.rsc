@@ -1008,11 +1008,11 @@ import List;
 unzip([<3,"thirty">, <1,"ten">, <4,"forty">]);
 unzip([<3,"thirty",300>, <1,"ten",100>, <4,"forty",400>]);
 ----}
-public tuple[list[&T],list[&U]] unzip(list[tuple[&T,&U]] lst) =
+public tuple[list[&T],list[&U]] unzip2(list[tuple[&T,&U]] lst) =
 	<[t | <t,_> <- lst], [u | <_,u> <- lst]>;
 
 // Make a triple of lists from a list of triples.
-public tuple[list[&T],list[&U],list[&V]] unzip(list[tuple[&T,&U,&V]] lst) =
+public tuple[list[&T],list[&U],list[&V]] unzip3(list[tuple[&T,&U,&V]] lst) =
 	<[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
 
 @doc{
@@ -1044,13 +1044,13 @@ import List;
 zip([3, 1, 4], ["thirty", "ten", "forty"]);
 zip([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
 ----}
-public list[tuple[&T first, &U second]] zip(list[&T] a, list[&U] b) {
+public list[tuple[&T first, &U second]] zip2(list[&T] a, list[&U] b) {
 	if(size(a) != size(b))
 		throw IllegalArgument(<size(a),size(b)>, "List size mismatch");
 	return [<elementAt(a,i), elementAt(b,i)> | i <- index(a)];
 }
 
-public list[tuple[&T first, &U second, &V third]] zip(list[&T] a, list[&U] b, list[&V] c) {
+public list[tuple[&T first, &U second, &V third]] zip3(list[&T] a, list[&U] b, list[&V] c) {
 	if(size(a) != size(b) || size(a) != size(c))
 		throw IllegalArgument(<size(a),size(b),size(c)>, "List size mismatch");
 	return [<elementAt(a,i), elementAt(b,i), elementAt(c,i)> | i <- index(a)];
