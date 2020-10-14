@@ -477,14 +477,14 @@ test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 test bool tstToString(list[value] L) = (readTextValueString(#list[value], toString(L)) == L);
 
 
-test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip(L) == <[a | <a,_> <- L], [b | <_,b> <- L]>;
+test bool tstUnzip2(list[tuple[&A, &B]] L) = unzip2(L) == <[a | <a,_> <- L], [b | <_,b> <- L]>;
 
 test bool tstUnzip3(list[tuple[&A, &B, &C]] L) = 
-     isEmpty(L) || unzip(L) == <[a | <a,_,_> <- L], [b | <_,b,_> <- L], [c | <_,_,c> <- L]>;
+     isEmpty(L) || unzip3(L) == <[a | <a,_,_> <- L], [b | <_,b,_> <- L], [c | <_,_,c> <- L]>;
      
 test bool tstUpTill(int n) = n < 0 || n > 10000 || upTill(n) == [0 .. n];
 
-test bool tstZip(list[&T] L) = zip(L, L) == [<x, x> | x <- L];
+test bool tstZip(list[&T] L) = zip2(L, L) == [<x, x> | x <- L];
 
 // Tests that check the correctness of the dynamic types of lists produced by the library functions; 
 // incorrect dynamic types make pattern matching fail;
