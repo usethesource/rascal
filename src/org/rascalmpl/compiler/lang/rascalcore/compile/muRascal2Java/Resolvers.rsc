@@ -57,11 +57,17 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     return resolvers;
 }
 
+list[MuExp] getExternalVars(Define fun_def, map[loc, MuFunction] loc2muFunction){
+    externalVars = loc2muFunction[fun_def.defined]? ? sort(loc2muFunction[fun_def.defined].externalVars) : [];
+    return [ ev | ev <- externalVars, ev.pos >= 0 ];
+}
+
+list[MuExp] getExternalVars(set[Define] relevant_fun_defs, map[loc, MuFunction] loc2muFunction){
+   return sort([ *getExternalVars(fun_def, loc2muFunction) | fun_def <- relevant_fun_defs]);
+}
+
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module){
     
-    if(moduleName == "lang::rascal::tests::extends::CHECKTYPES"){
-        println("XXX");
-    }
     local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};
     nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) && any(imp <- extend_scopes, isContainedIn(def.defined, imp)) };                             
     relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
@@ -84,9 +90,8 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     if(hasKeywordParameters(resolver_fun_type)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
     }
-    
-    externalVars = sort([ *toList(loc2muFunction[fun_def.defined]? ? loc2muFunction[fun_def.defined].externalVars : {}) | fun_def <- relevant_fun_defs]);
-    externalVars = [ ev | ev <- externalVars, ev.pos >= 0 ];
+   
+    externalVars = getExternalVars(relevant_fun_defs, loc2muFunction);
     if(!isEmpty(externalVars)){
         argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalVars, jtype := atype2javatype(var.atype)]);
     }
@@ -109,8 +114,8 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         if(hasKeywordParameters(def_type)){
             actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
         }
-        externalVars = sort(toList(loc2muFunction[def.defined]? ? loc2muFunction[def.defined].externalVars : {}));
-        externalVars = [ ev | ev <- externalVars, ev.pos >= 0 ];
+
+        externalVars = getExternalVars(def, loc2muFunction);
         if(!isEmpty(externalVars)){
             actuals_text += (isEmpty(actuals_text) ? "" : ", ") +  intercalate(", ", [ varName(var) | var <- externalVars ]);
         }
@@ -159,4 +164,3 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
    
     return resolvers;
 }
-
