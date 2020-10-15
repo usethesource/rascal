@@ -1,5 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-int X = 42;
+import List;
 
-bool escapedGlobal() = X == 42;
+test bool min2() = min([1, 1, 1]) == 1;
