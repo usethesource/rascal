@@ -30,14 +30,14 @@ public data MuModule =
                        list[MuFunction] functions, 
                        list[MuModuleVar] module_variables, 
                        list[MuExp] initialization,
-                       lrel[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloaded_functions,
+                       //lrel[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloaded_functions,
                        map[AType, map[str,AType]] commonKeywordFields,
                        AGrammar grammar,
                        //rel[str,str] importGraph,
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], [], (), grammar({}, ()), src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], (), grammar({}, ()), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -105,7 +105,7 @@ public data MuExp =
           
           | muFun(loc uid, AType atype)                         // *muRascal* function constant: functions at the root
            
-          | muOFun(str fuid, AType atype)                       // *Rascal* function, i.e., overloaded function at the root
+          | muOFun(str name, AType atype)                       // *Rascal* function, i.e., overloaded function at the root
           
           | muConstr(AType ctype) 					        	// Constructor
           //| muConstrCompanion(str fuid)                       // Companion function for constructor with keyword parameters
