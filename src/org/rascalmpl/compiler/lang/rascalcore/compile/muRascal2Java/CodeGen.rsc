@@ -867,6 +867,10 @@ str trans(muConstr(AType ctype), JGenie jg){
     return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, hasKeywordParameters(ctype) || jg.hasCommonKeywordFields(ctype) ? [kwpActuals] : [], jg)>; })";
 }
 
+str trans(c:muCompose(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType), JGenie jg){
+    println(c);
+}
+
 // Variables
 
 //// ---- muModuleVar -----------------------------------------------------------
@@ -1201,6 +1205,16 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
     }
     
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
+    if(muComposedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType) := fun){
+        rightCall = "<cst><trans(right, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
+        return "<trans(left, jg)>.typedCall(<rightCall>)";
+    }
+    
+     if(muAddedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType) := fun){
+        leftCall = "<cst><trans(left, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
+        rightCall = "<cst><trans(right, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
+        return "() -\> { try { return <leftCall>; } catch (CallFailed e) { return <rightCall>; } })";
+    }
 
     return "<cst><trans(fun, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
 }

@@ -1,15 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst1
+ 
+str h(0) = "0"; 
+str h(1) = "1"; 
+default str h(int n) { fail; } 
 
-//@javaClass{org.rascalmpl.library.Prelude}
-//public java bool isEmpty(list[&T] lst);
+str i(0) = "1"; 
+str i(1) = "2"; 
+default str i(int n) = "<n + 1>"; 
 
-public &T head([&T h, *&T _]) = h; 
-public &T head(list[&T] _:[]) { throw "EmptyList()"; }
-
-//public list[&T] tail([&T _, *&T t]) = t;
-//public list[&T] tail(list[&T] _:[]) { throw "EmptyList()"; }
-
-//public str intercalate(str sep, list[value] l) = 
-//    (isEmpty(l)) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
-
-value FFF(list[value] l) = head(l);
+value main() = (h + i)(1);
