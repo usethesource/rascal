@@ -196,8 +196,7 @@ JGenie makeJGenie(MuModule m,
     
     str _getAccessorOverloaded(str oname, AType otype){
       if(overloadedAType(rel[loc, IdRole, AType] overloads) := otype){
-        n = findFirst(oname, "_AT_"); // HACK
-        finalName = oname[..n];
+        finalName = oname;
        
         if(any(d <- overloads<0>, isContainedIn(d, currentModuleScope))){
             return "$me.<finalName>";
