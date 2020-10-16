@@ -108,6 +108,9 @@ public data MuExp =
           | muOFun(str name, AType atype)                       // *Rascal* function, i.e., overloaded function at the root
           
           | muConstr(AType ctype) 					        	// Constructor
+          
+          | muComposedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType)
+          | muAddedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType)
           //| muConstrCompanion(str fuid)                       // Companion function for constructor with keyword parameters
           
           	// Variables and temporaries

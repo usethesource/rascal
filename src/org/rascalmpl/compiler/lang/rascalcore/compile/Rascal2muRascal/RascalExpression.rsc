@@ -71,63 +71,71 @@ private MuExp translateComposeFunction(Expression e){
   rhsType = getType(e.rhs);
   resType = getType(e);
   
-  MuExp lhsReceiver = visit(translate(e.lhs)) { case str s => replaceAll(s, "::" , "_") };
-  MuExp rhsReceiver = visit(translate(e.rhs)) { case str s => replaceAll(s, "::" , "_") };
-  
-  //println("rhsReceiver: <rhsReceiver>");
-  str compResolverName = "$<getFunctionName(lhsType)>_COMP_<getFunctionName(rhsType)>_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>"; // name of compositiosition
-    
-  // Generate and add a function COMPOSE_<...>
-  str scopeId = topFunctionScope();
-  str comp_name = "$COMPOSE_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";
-  str comp_fuid = scopeId + "_" + comp_name;
-  
-  AType comp_ftype = avoid(); 
-  int nargs = 0;
-  if(isFunctionType(resType)) {
-      nargs = size(resType.formals);
-      comp_ftype = resType;
-  } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := resType){
-      comp_ftype = getFirstFrom(overloads)[2];
-      nargs = getArity(comp_ftype);
-      for(<l, role, tp> <- overloads){
-        if(getArity(tp) != nargs){
-            throw "cannot handle composition/overloading for different arities";
-        }
-        comp_ftype = alub(comp_ftype, tp);
-     }
-  } else {
-    throw "cannot handle result type <resType>";
-  }
-  
-  if(hasOverloadingResolver(compResolverName)){
-    return muOFun(compResolverName, comp_ftype);
-  }
-    
-  enterFunctionScope(comp_fuid);
-  //TODO kwargs
-  formals = [muVar("$<j>" /*resType.formals[j].label*/, comp_fuid, j, comp_ftype.formals[j]) | int j <- [0 .. nargs]];
-  rhsCall = muOCall3(rhsReceiver, rhsType, formals, [], e.rhs@\loc);
-  
-  body_exps =  [muReturn1(comp_ftype.ret, muOCall3(lhsReceiver, lhsType, [rhsCall], [], e.lhs@\loc))];
-  //body_exps =  [muReturn1(lhsType.ret, muOCall3(lhsReceiver, atuple(atypeList([lhsType])), [rhsCall], [], e.lhs@\loc))];
-  
-  
-  //kwargs = muCallMuPrim("copy_and_update_keyword_mmap", [muCon(nargs)]);
-  //rhsCall = muOCall4(rhsReceiver, atuple(atypeList([rhsType])), [muVar("parameter_<comp_name>", comp_fuid, j) | int j <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
-  //body_exps =  [muReturn1(muOCall4(lhsReceiver, atuple(atypeList([lhsType])), [rhsCall, kwargs ], e.lhs@\loc))];
-   
-  leaveFunctionScope();
-  body_code = muBlock(body_exps);
-  fun = muFunction(compResolverName, compResolverName, comp_ftype, formals, [], scopeId, false, false, false, getExternalRefs(body_code, comp_fuid), {}, {}, e@\loc, [], (), body_code);
-  //iprintln(e@\loc);
-  loc uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
-  addFunctionToModule(fun);  
-  addDefineAndType(<currentFunctionDeclaration(), comp_name, functionId(), e@\loc, defType(comp_ftype)>, comp_ftype);
-  addOverloadedFunctionAndResolver(compResolverName, <compResolverName, comp_ftype, compResolverName/*getModuleName()*/, [e@\loc], []>);
- 
-  return muOFun(compResolverName, comp_ftype);
+  return muComposedFun(translate(e.lhs), translate(e.rhs), lhsType, rhsType, resType);
 }
+
+//private MuExp translateComposeFunction(Expression e){
+//  lhsType = getType(e.lhs);
+//  rhsType = getType(e.rhs);
+//  resType = getType(e);
+//  
+//  MuExp lhsReceiver = visit(translate(e.lhs)) { case str s => replaceAll(s, "::" , "_") };
+//  MuExp rhsReceiver = visit(translate(e.rhs)) { case str s => replaceAll(s, "::" , "_") };
+//  
+//  //println("rhsReceiver: <rhsReceiver>");
+//  str compResolverName = "$<getFunctionName(lhsType)>_COMP_<getFunctionName(rhsType)>_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>"; // name of compositiosition
+//    
+//  // Generate and add a function COMPOSE_<...>
+//  str scopeId = topFunctionScope();
+//  str comp_name = "$COMPOSE_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";
+//  str comp_fuid = scopeId + "_" + comp_name;
+//  
+//  AType comp_ftype = avoid(); 
+//  int nargs = 0;
+//  if(isFunctionType(resType)) {
+//      nargs = size(resType.formals);
+//      comp_ftype = resType;
+//  } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := resType){
+//      comp_ftype = getFirstFrom(overloads)[2];
+//      nargs = getArity(comp_ftype);
+//      for(<l, role, tp> <- overloads){
+//        if(getArity(tp) != nargs){
+//            throw "cannot handle composition/overloading for different arities";
+//        }
+//        comp_ftype = alub(comp_ftype, tp);
+//     }
+//  } else {
+//    throw "cannot handle result type <resType>";
+//  }
+//  
+//  if(hasOverloadingResolver(compResolverName)){
+//    return muOFun(compResolverName, comp_ftype);
+//  }
+//    
+//  enterFunctionScope(comp_fuid);
+//  //TODO kwargs
+//  formals = [muVar("$<j>" /*resType.formals[j].label*/, comp_fuid, j, comp_ftype.formals[j]) | int j <- [0 .. nargs]];
+//  rhsCall = muOCall3(rhsReceiver, rhsType, formals, [], e.rhs@\loc);
+//  
+//  body_exps =  [muReturn1(comp_ftype.ret, muOCall3(lhsReceiver, lhsType, [rhsCall], [], e.lhs@\loc))];
+//  //body_exps =  [muReturn1(lhsType.ret, muOCall3(lhsReceiver, atuple(atypeList([lhsType])), [rhsCall], [], e.lhs@\loc))];
+//  
+//  
+//  //kwargs = muCallMuPrim("copy_and_update_keyword_mmap", [muCon(nargs)]);
+//  //rhsCall = muOCall4(rhsReceiver, atuple(atypeList([rhsType])), [muVar("parameter_<comp_name>", comp_fuid, j) | int j <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
+//  //body_exps =  [muReturn1(muOCall4(lhsReceiver, atuple(atypeList([lhsType])), [rhsCall, kwargs ], e.lhs@\loc))];
+//   
+//  leaveFunctionScope();
+//  body_code = muBlock(body_exps);
+//  fun = muFunction(compResolverName, compResolverName, comp_ftype, formals, [], scopeId, false, false, false, getExternalRefs(body_code, comp_fuid), {}, {}, e@\loc, [], (), body_code);
+//  //iprintln(e@\loc);
+//  loc uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
+//  addFunctionToModule(fun);  
+//  addDefineAndType(<currentFunctionDeclaration(), comp_name, functionId(), e@\loc, defType(comp_ftype)>, comp_ftype);
+//  addOverloadedFunctionAndResolver(compResolverName, <compResolverName, comp_ftype, compResolverName/*getModuleName()*/, [e@\loc], []>);
+// 
+//  return muOFun(compResolverName, comp_ftype);
+//}
 
 // ----------- addition: exp + exp ----------------
 
@@ -142,6 +150,8 @@ private MuExp translateAddFunction(Expression e){
   resType = getType(e);
 
   MuExp lhsReceiver = translate(e.lhs);
+  
+  return muAddedFun(translate(e.lhs), translate(e.rhs), lhsType, rhsType, resType);
   
   lhsOFunctions = lhsOConstructors = [];
   if(muFun(loc src, AType tp) := lhsReceiver){
@@ -170,6 +180,42 @@ private MuExp translateAddFunction(Expression e){
   addOverloadedFunctionAndResolver(addResolverName, addOFun); 
   return muOFun(addResolverName, resType);
 }
+
+//private MuExp translateAddFunction(Expression e){
+//  lhsType = getType(e.lhs);
+//  rhsType = getType(e.rhs);
+//  resType = getType(e);
+//
+//  MuExp lhsReceiver = translate(e.lhs);
+//  
+//  lhsOFunctions = lhsOConstructors = [];
+//  if(muFun(loc src, AType tp) := lhsReceiver){
+//    lhsOFunctions = [src];
+//  } else if(muOFun(str resolverName, AType tp) := lhsReceiver){
+//    lhsOf = getOverloadedFunction(resolverName);
+//    lhsOFunctions = lhsOf.ofunctions;
+//    lhsOConstructors = lhsOf.oconstructors;
+//  }
+// 
+//  MuExp rhsReceiver = translate(e.rhs);
+//  
+//  rhsOFunctions = rhsOConstructors = [];
+//  if(muFun(loc src, AType tp) := rhsReceiver){
+//    rhsOFunctions = [src];
+//  } else if(muOFun(str resolverName, AType tp) := rhsReceiver){
+//    rhsOf = getOverloadedFunction(resolverName);
+//    rhsOFunctions = rhsOf.ofunctions;
+//    rhsOConstructors = rhsOf.oconstructors;
+//  }
+// 
+//  str addResolverName = "$<getFunctionName(lhsType)>_ADD_<getFunctionName(rhsType)>_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";  // name of addition
+// 
+//  OFUN addOFun = <addResolverName, lhsType, addResolverName, lhsOFunctions + rhsOFunctions, lhsOConstructors + rhsOConstructors>; // add all alternatives
+// 
+//  addOverloadedFunctionAndResolver(addResolverName, addOFun); 
+//  return muOFun(addResolverName, resType);
+//}
+
 
 MuExp comparison(str op, Expression e)
     = infix(op, e);
