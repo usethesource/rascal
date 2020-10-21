@@ -197,6 +197,9 @@ JGenie makeJGenie(MuModule m,
     str _getAccessorOverloaded(str oname, AType otype){
       if(overloadedAType(rel[loc, IdRole, AType] overloads) := otype){
         finalName = oname;
+        if(isSyntheticFunctionName(finalName)){
+            return finalName;
+        }
        
         if(any(d <- overloads<0>, isContainedIn(d, currentModuleScope))){
             return "$me.<finalName>";

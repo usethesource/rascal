@@ -696,6 +696,9 @@ JCode trans(MuFunction fun, JGenie jg){
     ftype = fun.ftype;
     jg.setFunction(fun);
     shortName = getJavaName(getUniqueFunctionName(fun));
+    if(shortName == "main"){
+        println("main");
+    }
     visibility = isSyntheticFunctionName(shortName) ? "private " : "public ";
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
@@ -1208,12 +1211,6 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
     if(muComposedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType) := fun){
         rightCall = "<cst><trans(right, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
         return "<trans(left, jg)>.typedCall(<rightCall>)";
-    }
-    
-     if(muAddedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType) := fun){
-        leftCall = "<cst><trans(left, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
-        rightCall = "<cst><trans(right, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
-        return "() -\> { try { return <leftCall>; } catch (CallFailed e) { return <rightCall>; } })";
     }
 
     return "<cst><trans(fun, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";

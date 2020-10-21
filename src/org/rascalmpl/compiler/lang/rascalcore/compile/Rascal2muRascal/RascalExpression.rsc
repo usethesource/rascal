@@ -147,38 +147,44 @@ private  MuExp add(Expression e){
 private MuExp translateAddFunction(Expression e){
   lhsType = getType(e.lhs);
   rhsType = getType(e.rhs);
-  resType = getType(e);
+  eType = getType(e);
+  resType = getResult(eType);
 
-  MuExp lhsReceiver = translate(e.lhs);
-  
-  return muAddedFun(translate(e.lhs), translate(e.rhs), lhsType, rhsType, resType);
-  
-  lhsOFunctions = lhsOConstructors = [];
-  if(muFun(loc src, AType tp) := lhsReceiver){
-    lhsOFunctions = [src];
-  } else if(muOFun(str resolverName, AType tp) := lhsReceiver){
-    lhsOf = getOverloadedFunction(resolverName);
-    lhsOFunctions = lhsOf.ofunctions;
-    lhsOConstructors = lhsOf.oconstructors;
-  }
- 
+  // Generate and add a function ADD<...>
+  str scopeId = topFunctionScope();
+  str add_name = "$ADD<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";
+  str add_fuid = scopeId + "_" + add_name;
+
+  MuExp lhsReceiver = translate(e.lhs); 
   MuExp rhsReceiver = translate(e.rhs);
+
+  enterFunctionScope(add_fuid);
+  lhsFormals = getFormals(lhsType);
+  nargs = size(lhsFormals);
+  lactuals = [muVar("$<j>", add_fuid, j, lhsFormals[j]) | int j <- [0 .. nargs]];
+  lhsCall = muOCall3(lhsReceiver, lhsType, lactuals, [], e.lhs@\loc);
   
-  rhsOFunctions = rhsOConstructors = [];
-  if(muFun(loc src, AType tp) := rhsReceiver){
-    rhsOFunctions = [src];
-  } else if(muOFun(str resolverName, AType tp) := rhsReceiver){
-    rhsOf = getOverloadedFunction(resolverName);
-    rhsOFunctions = rhsOf.ofunctions;
-    rhsOConstructors = rhsOf.oconstructors;
-  }
+  rhsFormals = getFormals(rhsType);
+  nargs = size(rhsFormals);
+  ractuals = [muVar("$<j>" , add_fuid, j, rhsFormals[j]) | int j <- [0 .. nargs]];
+  rhsCall = muOCall3(rhsReceiver, rhsType, ractuals, [], e.rhs@\loc);
+  result = muTmpIValue(nextTmp("$result"), add_fuid, resType);
+  
+  body = muBlock([
+            muConInit(result, lhsCall),
+            muIf(muIsInitialized(result), muReturn1(resType, result)),
+            muReturn1(resType, rhsCall)
+            ]);
  
-  str addResolverName = "$<getFunctionName(lhsType)>_ADD_<getFunctionName(rhsType)>_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";  // name of addition
+  leaveFunctionScope();
+  funType = afunc(resType, lhsFormals, []);
+  fun = muFunction(add_name, add_name, funType, lactuals, [], scopeId, false, false, false, getExternalRefs(body, add_fuid), {}, {}, e@\loc, [], (), body);
+  iprintln(fun);
+  loc uid = declareGeneratedFunction(add_name, add_fuid, funType, e@\loc);
+  addFunctionToModule(fun);  
+  addDefineAndType(<currentFunctionDeclaration(), add_name, functionId(), e@\loc, defType(funType)>, funType);
  
-  OFUN addOFun = <addResolverName, lhsType, addResolverName, lhsOFunctions + rhsOFunctions, lhsOConstructors + rhsOConstructors>; // add all alternatives
- 
-  addOverloadedFunctionAndResolver(addResolverName, addOFun); 
-  return muOFun(addResolverName, resType);
+  return muOFun(add_name, funType);
 }
 
 //private MuExp translateAddFunction(Expression e){
