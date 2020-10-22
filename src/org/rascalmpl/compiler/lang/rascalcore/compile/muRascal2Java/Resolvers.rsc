@@ -68,9 +68,12 @@ list[MuExp] getExternalVars(set[Define] relevant_fun_defs, map[loc, MuFunction] 
 
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module){
     
-    local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope), defType(tp) := def.defInfo, isFunctionType(tp)};
-    nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) && any(imp <- extend_scopes, isContainedIn(def.defined, imp)), defType(tp) := def.defInfo, isFunctionType(tp) };                             
+    local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};
+    nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) && any(imp <- extend_scopes, isContainedIn(def.defined, imp)) };                             
     relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
+    cons_defs = { cdef | cdef <- relevant_fun_defs, defType(tp) := cdef.defInfo, isConstructorType(tp) };
+    
+    relevant_fun_defs -= cons_defs;
     
     if(isEmpty(relevant_fun_defs)) return "";
    
@@ -149,7 +152,19 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                     '    <base_call>}\n";
         }
     }
-    body += "throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$<i>" | int i <- index(resolverFormalsTypes), formal := resolverFormalsTypes[i] ])>));";
+    switch(size(cons_defs)){
+        case 0: body += "throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$<i>" | int i <- index(resolverFormalsTypes), formal := resolverFormalsTypes[i] ])>));";
+        case 1: {
+            consType = getFirstFrom(cons_defs).defInfo.atype;
+            actuals = [ "$<i>" | i <- index(consType.fields) ];
+            kwActuals = consType.kwFields;
+            body += isEmpty(kwActuals) ? "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>});"
+                                       : "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>}, $kwpActuals);";
+        }
+        default: {
+            throw "Cannot handle more than one constructor";
+        }
+    }
     resolvers = "public <atype2javatype(returnType)> <getJavaName(functionName)>(<argTypes>){
                 '   <body> 
                 '}
