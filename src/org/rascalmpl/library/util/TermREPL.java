@@ -165,6 +165,9 @@ public class TermREPL {
                 catch (IOException e) {
                     output.put("text/plain", new ByteArrayInputStream(e.getMessage().getBytes()));
                 }
+                catch (Throwable e) {
+                    output.put("text/plain",  new ByteArrayInputStream(e.getMessage().getBytes()));
+                }
             }
         }
         
