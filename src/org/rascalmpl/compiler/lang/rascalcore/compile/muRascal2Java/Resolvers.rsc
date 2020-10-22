@@ -68,8 +68,8 @@ list[MuExp] getExternalVars(set[Define] relevant_fun_defs, map[loc, MuFunction] 
 
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module){
     
-    local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};
-    nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) && any(imp <- extend_scopes, isContainedIn(def.defined, imp)) };                             
+    local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope), defType(tp) := def.defInfo, isFunctionType(tp)};
+    nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) && any(imp <- extend_scopes, isContainedIn(def.defined, imp)), defType(tp) := def.defInfo, isFunctionType(tp) };                             
     relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
     
     if(isEmpty(relevant_fun_defs)) return "";
