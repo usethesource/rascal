@@ -826,7 +826,9 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
            ext_actuals = intercalate(", ", [ "new ValueRef\<<jtype>\>(<varName(var, jg)>)" | var <- externalVars, jtype := atype2javatype(var.atype)]);
            ext_actuals = isEmpty(actuals) ? ext_actuals : "<actuals>, <ext_actuals>";
     }
-    return "<funInstance>((<bare_actuals>) -\> { return <jg.getAccessor(uid)>(<ext_actuals>); })";
+    reta = isVoidType(ftype.ret) ? "" : "return ";
+    retb = isVoidType(ftype.ret) ? "return null;" : "";
+    return "<funInstance>((<bare_actuals>) -\> { <reta><jg.getAccessor(uid)>(<ext_actuals>);<retb> })";
 }          
 // ---- muOFun ----------------------------------------------------------------
        
