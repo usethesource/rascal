@@ -152,18 +152,36 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                     '    <base_call>}\n";
         }
     }
-    switch(size(cons_defs)){
-        case 0: body += "throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$<i>" | int i <- index(resolverFormalsTypes), formal := resolverFormalsTypes[i] ])>));";
-        case 1: {
-            consType = getFirstFrom(cons_defs).defInfo.atype;
-            actuals = [ "$<i>" | i <- index(consType.fields) ];
-            kwActuals = consType.kwFields;
-            body += isEmpty(kwActuals) ? "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>});"
-                                       : "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>}, $kwpActuals);";
+    nconds = 0;
+    for(cdef <- cons_defs){
+        base_call = ""; 
+        consType = cdef.defInfo.atype;
+        conds = [];
+        call_actuals = [];
+        for(int i <- index(resolverFormalsTypes)){
+            if(i < arityFormalTypes && unsetRec(consType.fields[i]) != resolverFormalsTypes[i]){
+                conds +=  atype2istype("$<i>", consType.fields[i]);
+                call_actuals += "(<atype2javatype(consType.fields[i])>) $<i>";
+            } else {
+                call_actuals += "$<i>";
+            }
         }
-        default: {
-            throw "Cannot handle more than one constructor";
+   
+        actuals_text = intercalate(", ", call_actuals);
+        if(hasKeywordParameters(consType)){
+            actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
         }
+        base_call = "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<actuals_text>});";
+        if(isEmpty(conds)){
+            body += base_call;
+        } else {
+            nconds += 1;
+            body += "if(<intercalate(" && ", conds)>){
+                    '    <base_call>}\n";
+        }
+    }
+    if(isEmpty(cons_defs) || size(cons_defs) == nconds){
+        body += "throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$<i>" | int i <- index(resolverFormalsTypes), formal := resolverFormalsTypes[i] ])>));";
     }
     resolvers = "public <atype2javatype(returnType)> <getJavaName(functionName)>(<argTypes>){
                 '   <body> 
