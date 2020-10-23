@@ -43,6 +43,7 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     module_scope = module2loc[moduleName];
    
     loc2module = invertUnique(module2loc);
+    module_scopes = domain(loc2module);
     extend_scopes = { module2loc[ext] | ext <- extends };
     import_scopes = { module2loc[imp] | imp <- imports };
     
@@ -51,7 +52,13 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isMainName(fname), !isClosureName(fname)){
         set[Define] defs = functions_and_constructors[<fname, farity>];
-        resolvers += generateResolver(moduleName, fname, defs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module);
+        defs_in_disjoint_scopes = group(defs, bool(Define a, Define b) { 
+                                                    return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
+                                                           || a.scope in module_scopes && b.scope in module_scopes;
+                                              });
+        for(sdefs <- defs_in_disjoint_scopes){
+            resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module);
+        }
     }
     println(resolvers);
     return resolvers;
@@ -67,6 +74,7 @@ list[MuExp] getExternalVars(set[Define] relevant_fun_defs, map[loc, MuFunction] 
 }
 
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module){
+    module_scopes = domain(loc2module);
     
     local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};
     nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) && any(imp <- extend_scopes, isContainedIn(def.defined, imp)) };                             
@@ -79,6 +87,14 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
    
     resolver_fun_type = (avoid() | alub(it, tp) | fdef <- relevant_fun_defs, defType(tp) := fdef.defInfo);
     if(!isFunctionType(resolver_fun_type)) return "";
+    
+    inner_scope = "";
+    if(all(def <- relevant_fun_defs, def.scope notin module_scopes)){
+        def = getOneFrom(relevant_fun_defs);
+        fun = loc2muFunction[def.defined];
+        inner_scope = "<fun.scopeIn>_";
+    }
+    resolverName = "<inner_scope><getJavaName(functionName)>";
   
     resolverFormalsTypes = unsetRec(resolver_fun_type has formals ? resolver_fun_type.formals : resolver_fun_type.fields);
     arityFormalTypes = size(resolverFormalsTypes);
@@ -100,7 +116,12 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     }
           
     for(def <- sort(relevant_fun_defs, funBeforeDefaultBeforeConstructor)){
-        uniqueName = "<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>";
+        inner_scope = "";
+        if(def.scope notin module_scopes){
+            fun = loc2muFunction[def.defined];
+            inner_scope = "<fun.scopeIn>_";
+        }
+        uniqueName = "<inner_scope><getJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>";
         def_type = def.defInfo.atype;
         conds = [];
         call_actuals = [];
@@ -183,7 +204,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     if(isEmpty(cons_defs) || size(cons_defs) == nconds){
         body += "throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$<i>" | int i <- index(resolverFormalsTypes), formal := resolverFormalsTypes[i] ])>));";
     }
-    resolvers = "public <atype2javatype(returnType)> <getJavaName(functionName)>(<argTypes>){
+    resolvers = "public <atype2javatype(returnType)> <resolverName>(<argTypes>){
                 '   <body> 
                 '}
                 '";

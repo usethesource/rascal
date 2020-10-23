@@ -337,10 +337,10 @@ str getFunctionName(MuFunction fun){
 
 str getUniqueFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)){
-        return isMainName(fun.name) ? fun.name :  fun.uniqueName;
+        return isMainName(fun.name) ? fun.name : fun.uniqueName;
     }
-    //return "<fun.scopeIn>_<fun.uniqueName>";
-    return fun.uniqueName;
+    return "<fun.scopeIn>_<fun.uniqueName>";
+    //return fun.uniqueName;
 }
 
 set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};

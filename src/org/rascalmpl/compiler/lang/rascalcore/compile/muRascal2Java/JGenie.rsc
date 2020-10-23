@@ -106,7 +106,6 @@ JGenie makeJGenie(MuModule m,
     
    
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
-    iprintln(allPaths);
     sortedImportAndExtendScopes =
         sort(importAndExtendScopes,
             bool(loc a, loc b) { return <a, extendPath(), b> in allPaths; });
@@ -194,13 +193,35 @@ JGenie makeJGenie(MuModule m,
         throw "No accessor found for <src>";
     }
     
+    str definedInInnerScope(set[loc] srcs){
+        scopeIn = "";
+        for(d <- srcs){
+            if(isContainedIn(d, currentModuleScope)){
+                if(muFunctionsByLoc[d]?){
+                    fun = muFunctionsByLoc[d];
+                    iprintln(fun.scopeIn);
+                    if(fun.scopeIn == "") return "";
+                    scopeIn = fun.scopeIn;
+                }
+            } else {
+                return "";
+            }
+        }
+        return scopeIn;
+    }
+    
     str _getAccessorOverloaded(str oname, AType otype){
       if(overloadedAType(rel[loc, IdRole, AType] overloads) := otype){
         finalName = oname;
         if(isSyntheticFunctionName(finalName)){
             return finalName;
         }
-       
+        
+        scopeIn = definedInInnerScope(overloads<0>);
+        
+        if(scopeIn != ""){
+            return "<scopeIn>_<finalName>";
+        }
         if(any(d <- overloads<0>, isContainedIn(d, currentModuleScope))){
             return "$me.<finalName>";
         }

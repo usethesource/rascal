@@ -1,7 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import List;
-import Set;
+//import List;
+//import Set;
 
 test bool overloading1(){
     int f(0) = -1;
@@ -13,11 +13,11 @@ test bool overloading1(){
     int f(int n, str s) = -4;
     
     x = f(0);
-    y = f(5);
-    k = f("0");
-    l = f("5");
-    z = f(0,"1");
-    return x == -1 && y == 5 && k == -2 && l == -3 && z == -4;
+    //y = f(5);
+    //k = f("0");
+    //l = f("5");
+    //z = f(0,"1");
+    return x == -1;// && y == 5 && k == -2 && l == -3 && z == -4;
 }
 
 test bool overloading2(){
@@ -30,28 +30,28 @@ test bool overloading2(){
     int f(int n, str s) = -4;
 
     x = f(0);
-    y = f(5);
-    k = f("0");
-    l = f("5");
-    z = f(0,"1");
-    return x == -1 && y == 5 && k == -2 && l == -3 && z == -4;
+    //y = f(5);
+    //k = f("0");
+    //l = f("5");
+    //z = f(0,"1");
+    return x == -1;// && y == 5 && k == -2 && l == -3 && z == -4;
 }
 
-data D = d(str s) | d(int n) | d();
-
-@doc{triggers issue #1234}
-test bool constructorDynamicMatch() {
-  value x = 1;
-  
-  // Due to issue #1234, `d(x)` would throw a MatchFailed() here */
-  return d(int i) := d(x) && i == 1;
-}
-
-data D3 = d3(str s) | d3(int n) | d3();
-
-D3 d3(0) = d3(-1);
-D3 d3("0") = d3("-1");
-
+//data D = d(str s) | d(int n) | d();
+//
+//@doc{triggers issue #1234}
+//test bool constructorDynamicMatch() {
+//  value x = 1;
+//  
+//  // Due to issue #1234, `d(x)` would throw a MatchFailed() here */
+//  return d(int i) := d(x) && i == 1;
+//}
+//
+//data D3 = d3(str s) | d3(int n) | d3();
+//
+//D3 d3(0) = d3(-1);
+//D3 d3("0") = d3("-1");
+//
 //test bool overloading3a(){
 //    x = d3(0);
 //    y = d3("0");
