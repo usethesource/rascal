@@ -1,41 +1,47 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-//import List;
-//import Set;
+public list[&T] sort(list[&T] lst) =
+    sort(lst, bool (&T a, &T b) { return a < b; } );
+    
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
-test bool overloading1(){
-    int f(0) = -1;
-    default int f(int n) = n;
-    
-    int f("0") = -2;
-    default int f(str s) = -3;
-    
-    int f(int n, str s) = -4;
-    
-    x = f(0);
-    //y = f(5);
-    //k = f("0");
-    //l = f("5");
-    //z = f(0,"1");
-    return x == -1;// && y == 5 && k == -2 && l == -3 && z == -4;
-}
-
-test bool overloading2(){
-    default int f(int n) = n;
-    default int f(str s) = -3;
-    
-    int f(0) = -1;
-    int f("0") = -2;
-    
-    int f(int n, str s) = -4;
-
-    x = f(0);
-    //y = f(5);
-    //k = f("0");
-    //l = f("5");
-    //z = f(0,"1");
-    return x == -1;// && y == 5 && k == -2 && l == -3 && z == -4;
-}
+////import List;
+////import Set;
+//
+//test bool overloading1(){
+//    int f(0) = -1;
+//    default int f(int n) = n;
+//    
+//    //int f("0") = -2;
+//    //default int f(str s) = -3;
+//    //
+//    //int f(int n, str s) = -4;
+//    
+//    x = f(0);
+//    //y = f(5);
+//    //k = f("0");
+//    //l = f("5");
+//    //z = f(0,"1");
+//    return x == -1;// && y == 5 && k == -2 && l == -3 && z == -4;
+//}
+//
+//test bool overloading2(){
+//    default int f(int n) = n;
+//    //default int f(str s) = -3;
+//    
+//    int f(0) = -1;
+//    //int f("0") = -2;
+//    //
+//    //int f(int n, str s) = -4;
+//
+//    x = f(0);
+//    //y = f(5);
+//    //k = f("0");
+//    //l = f("5");
+//    //z = f(0,"1");
+//    return x == -1;// && y == 5 && k == -2 && l == -3 && z == -4;
+//}
 
 //data D = d(str s) | d(int n) | d();
 //
