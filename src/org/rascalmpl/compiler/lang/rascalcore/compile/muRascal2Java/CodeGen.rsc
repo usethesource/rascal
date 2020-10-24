@@ -696,9 +696,7 @@ JCode trans(MuFunction fun, JGenie jg){
     ftype = fun.ftype;
     jg.setFunction(fun);
     shortName = getJavaName(getUniqueFunctionName(fun));
-    if(shortName == "main"){
-        println("main");
-    }
+    
     visibility = isSyntheticFunctionName(shortName) ? "private " : "public ";
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){

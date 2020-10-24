@@ -330,7 +330,7 @@ bool isOuterScopeName(str name)
     
 str getFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)) return fun.name;
-    if(isClosureName(fun.name)) return "<fun.scopeIn>_<fun.uniqueName>";
+    if(isClosureName(fun.name)) return fun.name; // "<fun.scopeIn>_<fun.uniqueName>";
     //return "<fun.scopeIn>_<fun.uniqueName>";
     return fun.uniqueName;
 }
@@ -339,7 +339,7 @@ str getUniqueFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)){
         return isMainName(fun.name) ? fun.name : fun.uniqueName;
     }
-    return "<fun.scopeIn>_<fun.uniqueName>";
+    return isClosureName(fun.name) ? fun.uniqueName : "<fun.scopeIn>_<fun.uniqueName>";
     //return fun.uniqueName;
 }
 
