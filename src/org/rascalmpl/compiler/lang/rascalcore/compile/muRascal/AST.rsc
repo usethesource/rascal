@@ -339,7 +339,7 @@ str getUniqueFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)){
         return isMainName(fun.name) ? fun.name : fun.uniqueName;
     }
-    return isClosureName(fun.name) ? fun.uniqueName : "<fun.scopeIn>_<fun.uniqueName>";
+    return /*isClosureName(fun.name) ? fun.uniqueName : */"<fun.scopeIn>_<fun.uniqueName>";
     //return fun.uniqueName;
 }
 

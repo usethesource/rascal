@@ -165,10 +165,12 @@ JGenie makeJGenie(MuModule m,
         if(currentTModel.definitions[src]?){
             def = currentTModel.definitions[src];
             if(defType(AType tp) := def.defInfo){
-                    descriptor = atype2idpart(tp);
                     baseName = getJavaName(def.id);
-                  
                     if(isContainedIn(def.defined, currentModuleScope)){
+                        if(def.scope != currentModuleScope){    // inner function
+                            fun = muFunctionsByLoc[def.defined];
+                            return "<fun.scopeIn>_<baseName>";
+                        }
                         return baseName;
                     } else {
                         return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";

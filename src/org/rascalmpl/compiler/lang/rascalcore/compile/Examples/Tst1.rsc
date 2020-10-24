@@ -1,10 +1,10 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-public list[&T] sort(list[&T] lst) =
-    sort(lst, bool (&T a, &T b) { return a < b; } );
-    
+
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
+public java list[&T] top(int k, set[&T] l, bool (&T a, &T b) less) ;
+
+public list[&T] top(int k, set[&T] l) = top(k, l, bool (&T a, &T b) { return a < b; });
 
 ////import List;
 ////import Set;

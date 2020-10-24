@@ -835,7 +835,8 @@ JCode trans(muOFun(str fuid, AType ftype), JGenie jg){
     fname = "??";
     if(muFunctions[fuid]?){
         fun = muFunctions[fuid];
-        fname = jg.finalResolverName(fuid, ftype);
+        //fname = jg.finalResolverName(fuid, ftype);
+        fname = jg._getAccessorOverloaded(fuid, ftype);
     } else {
         overloading = true;
         fname = jg.finalResolverName(fuid, ftype);
