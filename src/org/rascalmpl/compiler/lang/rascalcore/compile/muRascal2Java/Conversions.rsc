@@ -492,10 +492,10 @@ str atype2istype1(str e, str get, astr())                  = "<e>.<get>.isString
 str atype2istype1(str e, str get, aloc())                  = "<e>.<get>.isSourceLocation()";
 str atype2istype1(str e, str get, adatetime())             = "<e>.<get>.isDateTime()";
 str atype2istype1(str e, str get, alist(AType t))          = "<e>.<get>.isList()<elem_check>"
-                                                           when tp := atype2isElementType("((IList)<e>)", t),
+                                                           when tp := "(((IList)<e>).isEmpty() || <atype2isElementType("((IList)<e>)", t)>)",
                                                                 elem_check := (tp == "true" ? "" : " && <tp>");
 str atype2istype1(str e, str get, aset(AType t))           = "<e>.<get>.isSet()<elem_check>"
-                                                           when tp := atype2isElementType("((ISet)<e>)", t),
+                                                           when tp := "(((ISet)<e>).isEmpty() || <atype2isElementType("((ISet)<e>)", t)>)",
                                                                 elem_check := (tp == "true" ? "" : " && <tp>");
 str atype2istype1(str e, str get, arel(atypeList(list[AType] ts)))         
                                                            = "<e>.<get>.isRelation() && (((ISet)<e>).isEmpty() || ((ISet)<e>).asRelation().arity() == <size(ts)>)<field_checks>"
