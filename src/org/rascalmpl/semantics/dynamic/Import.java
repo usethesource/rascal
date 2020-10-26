@@ -571,13 +571,13 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     ParserGenerator pg = eval.getParserGenerator();
     IMap definitions = grammar;
     
-    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(currentModule.getName(), definitions);
+    String parserName = currentModule.getName() + "_" + Math.abs(grammar.hashCode());
+    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(parserName, definitions);
 
     if (parser == null || force) {
         // TODO: this hashCode is not good enough!
-      String parserName = currentModule.getName() + "_" + Math.abs(grammar.hashCode());
       parser = pg.getNewParser(eval, caller, parserName, definitions);
-      eval.getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
+      eval.getHeap().storeObjectParser(parserName, definitions, parser);
     }
 
     try {
