@@ -526,107 +526,66 @@ MuExp translate(e:(Expression) `<Concrete concrete>`) {
     return translateConcrete(concrete, e@\loc);
 }
 
-/* Recap of relevant rules from Rascal grammar:
-
-   lexical Concrete 
-        = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
-
-   lexical ConcretePart
-        = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
-        | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
-        | @category="MetaVariable" hole : ConcreteHole hole
-        | @category="MetaSkipped" lt: "\\\<"
-        | @category="MetaSkipped" gt: "\\\>"
-        | @category="MetaSkipped" bq: "\\`"
-        | @category="MetaSkipped" bs: "\\\\"
-        ;
+MuExp translate(e:appl(prod(label("parsed",lex("Concrete")), [_],_),[Tree concrete]))
+  = translateConcreteParsed(concrete);
   
-   syntax ConcreteHole 
-        = \one: "\<" Sym symbol Name name "\>"
-        ;
-    
-   Recap from ParseTree declaration:
+MuExp translate(e:appl(prod(label("typed",lex("Concrete")), [_],_),_))
+  = muBlock([]); // this means a parse error occurred in the concrete fragment  
   
-   data Tree 
-        = appl(Production prod, list[Tree] args)
-        | cycle(Symbol symbol, int cycleLength) 
-        | amb(set[Tree] alternatives)  
-        | char(int character)
-        ;
-*/
-
-
-public Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
-    return cargs[0]; // TODO
-	//fragType = getType(e);
- //   //println("translateConcrete, fragType = <fragType>");
- //   reifiedFragType = symbolToValue(fragType);
- //   // TODO: getGrammar uses a global variable. Add as parameter to the call stack instead
- //   try {
- //       return parseFragment(getModuleName(), getModuleTags(), reifiedFragType, e, e@\loc, getGrammar());
- //   } catch ParseError(loc src): {
- //       throw CompileTimeError(error("Parse error in concrete fragment or pattern", src));
- //   } catch Ambiguity(loc src, str stype, str string): {
- //       throw CompileTimeError(error("Ambiguity in concrete fragment or pattern (of type <stype>)", src));
- //   }
-}  
-
-public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs), loc src){ 
-    fragType = getType(e);
-    //println("translateConcrete, fragType = <fragType>");
-    //reifiedFragType = symbolToValue(fragType);
-    //println("translateConcrete, reified: <reifiedFragType>");
-    //Tree parsedFragment = parseFragment(getModuleName(), reifiedFragType, e, e@\loc, getGrammar());
-    Tree parsedFragment = parseConcrete(e);
-    println("parsedFragment, before"); iprintln(parsedFragment);
-    return translateConcreteParsed(parsedFragment, src/*parsedFragment@\loc*/);
+private MyExp translateConcrete(appl(prod(label("$MetaHole", Symbol vartype),[sort("ConcreteHole")], {}), 
+               [ConcreteHole hole])) {
+    <fuid, pos> = getVariableScope("ConcreteVar", getConcreteHoleVarLoc(t));
+    return muVar("ConcreteVar", fuid, pos);    
 }
+      
+// TODO add cases for lists (remove separators when empty is substituted)
+private default MuExp translateConcrete(t:appl(Production p, list[Tree] args)) 
+  = muTreeAppl(p, [translateConcrete(a) | a <- args], t@\loc);
 
-private default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muCon(c);
+private MuExp translateConcrete(char(int i)) =  muTreeChar(i);
 
-private MuExp translateConcreteParsed(Tree e, loc src){
-    return muBlock([]); // TODO
-   //if(t:appl(Production prod, list[Tree] args) := e){
-   //    my_src = e@\loc ? src;
-   //    //iprintln("translateConcreteParsed:"); iprintln(e);
-   //    if(isConcreteHole(t)){
-   //        varloc = getConcreteHoleVarLoc(t);
-   //        //println("varloc = <getType(varloc)>");
-   //        <fuid, pos> = getVariableScope("ConcreteVar", varloc);
-   //        
-   //        return muVar("ConcreteVar", fuid, pos);
-   //     } 
-   //     MuExp translated_elems;
-   //     if(any(arg <- args, isConcreteListVar(arg))){ 
-   //        //println("splice in concrete list");      
-   //        str fuid = topFunctionScope();
-   //        writer = nextTmp();
-   //     
-   //        translated_args = [ muCallPrim3(isConcreteListVar(arg) ? "listwriter_splice_concrete_list_var" : "listwriter_add", 
-   //                                       [muTmpIValue(writer,fuid), translateConcreteParsed(arg, my_src)], my_src)
-   //                          | Tree arg <- args
-   //                          ];
-   //        translated_elems = muValueBlock([ muConInit(muTmpListWriter(writer, fuid), muCallPrim3("listwriter_open", [], my_src)),
-   //                                          *translated_args,
-   //                                          muCallPrim3("listwriter_close", [muTmpIValue(writer,fuid)], my_src) 
-   //                                        ]);
-   //     } else {
-   //        translated_args = [translateConcreteParsed(arg, my_src) | Tree arg <- args];
-   //        if(allConstant(translated_args)){
-   //     	  return muCon(appl(prod, [ce | muCon(Tree ce) <- translated_args])[@\loc=my_src]);
-   //        }
-   //        translated_elems = muCallPrim3("list_create", translated_args, my_src);
-   //     }
-   //     return muCallPrim3("annotation_set", [muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-   //                                                 [muCon(prod), translated_elems, muCallMuPrim("make_mmap", []), muTypeCon(avoid())]),
-   //     								     muCon("loc"), 
-   //     								     muCon(my_src)], e@\loc);
-   //     //return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-   //     //              [muCon(prod), translated_elems, muTypeCon(avoid())]);
-   // } else {
-   //     return muCon(e);
-   // }
-}
+
+//   if(t:appl(Production prod, list[Tree] args) := e){
+//       my_src = e@\loc ? src;
+//       //iprintln("translateConcreteParsed:"); iprintln(e);
+//       if(isConcreteHole(t)){
+//           varloc = getConcreteHoleVarLoc(t);
+//           //println("varloc = <getType(varloc)>");
+//           <fuid, pos> = getVariableScope("ConcreteVar", varloc);
+//           
+//           return muVar("ConcreteVar", fuid, pos);
+//        } 
+//        MuExp translated_elems;
+//        if(any(arg <- args, isConcreteListVar(arg))){ 
+//           //println("splice in concrete list");      
+//           str fuid = topFunctionScope();
+//           writer = nextTmp();
+//        
+//           translated_args = [ muCallPrim3(isConcreteListVar(arg) ? "listwriter_splice_concrete_list_var" : "listwriter_add", 
+//                                          [muTmpIValue(writer,fuid), translateConcreteParsed(arg, my_src)], my_src)
+//                             | Tree arg <- args
+//                             ];
+//           translated_elems = muValueBlock([ muConInit(muTmpListWriter(writer, fuid), muCallPrim3("listwriter_open", [], my_src)),
+//                                             *translated_args,
+//                                             muCallPrim3("listwriter_close", [muTmpIValue(writer,fuid)], my_src) 
+//                                           ]);
+//        } else {
+//           translated_args = [translateConcreteParsed(arg, my_src) | Tree arg <- args];
+//           if(allConstant(translated_args)){
+//        	  return muCon(appl(prod, [ce | muCon(Tree ce) <- translated_args])[@\loc=my_src]);
+//           }
+//           translated_elems = muCallPrim3("list_create", translated_args, my_src);
+//        }
+//        return muCallPrim3("annotation_set", [muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
+//                                                    [muCon(prod), translated_elems, muCallMuPrim("make_mmap", []), muTypeCon(avoid())]),
+//        								     muCon("loc"), 
+//        								     muCon(my_src)], e@\loc);
+//        //return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
+//        //              [muCon(prod), translated_elems, muTypeCon(avoid())]);
+//    } else {
+//        return muCon(e);
+//    }
+//}
 
 private bool isConcreteListVar(e: appl(Production prod, list[Tree] args)){
    if(isConcreteHole(e)){
