@@ -278,6 +278,10 @@ public data MuExp =
           | muTemplateEndIndent(MuExp template, str unindent)
           | muTemplateAdd(MuExp template, value val)
           | muTemplateClose(MuExp template)
+          
+          // Parse Trees
+          | muTreeAppl(Production prod, list[MuExp] args, loc src)
+          | muTreeChar(int char)
           ;
           
  data VisitDescriptor
