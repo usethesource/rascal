@@ -11,13 +11,14 @@ import lang::rascalcore::check::AType;
 import ParseTree;
 import Message;
 import String;
+import IO;
 
 tuple[Module, TModel] parseConcreteFragments(Module M, TModel tm, AGrammar gr) {
    // here we translate to the original Productions and Symbol to be used by the parser generator:
    map[Symbol, Production] rules = adefinitions2definitions(gr.rules);
    
    @doc{parse fragment or store parse error in the TModel}
-   Tree parseFragment(Sym sym, ConcretePart* parts, map[Symbol, Production] rules, bool isPattern) {
+   Tree parseFragment(Sym sym, list[Tree] parts, map[Symbol, Production] rules, bool isPattern) {
       try {
          return doParseFragment(atype2symbol(getType(sym@\loc)), parts, rules, isPattern);
       }
@@ -29,38 +30,58 @@ tuple[Module, TModel] parseConcreteFragments(Module M, TModel tm, AGrammar gr) {
    }
 
    M = visit(M) {
-     case (Expression) `<Concrete conc>` => exp 
-       when Expression exp := parseFragment(conc.symbol, conc.parts, rules, false)
+     case (Expression) `<Concrete conc>` : {
+       println(conc.symbol.prod);
+       println(conc.parts.prod);
+       if (Expression exp := parseFragment(conc.symbol, conc.parts.args, rules, false)) {
+         insert exp;
+       }
+       else {
+         fail;
+       }
+     }
        
-     case (Pattern)    `<Concrete conc>` => pat 
-       when Pattern pat := parseFragment(conc.symbol, conc.parts, rules, true)
+       
+     case (Pattern) `<Concrete conc>` : {
+       println(conc.symbol.prod);
+       println(conc.parts.prod);
+       if (Pattern exp := parseFragment(conc.symbol, conc.parts.args, rules, true)) {
+         insert exp;
+       }
+       else {
+         fail;
+       }
+     }  
+       
    }
    
    return <M, tm>;
 }
 
 
-Tree doParseFragment(Symbol sym, ConcretePart* parts, map[Symbol, Production] rules, bool isPattern) {
+Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules, bool isPattern) {
    int index = 0;
    map[int, ConcreteHole] holes = ();
    
-   str cleanPart(ConcretePart::text(((![`\<\>\\\n])+) stuff)) = "<stuff>";
-   str cleanPart(ConcretePart::lt()) = "\<";
-   str cleanPart(ConcretePart::gt()) = "\>";
-   str cleanPart(ConcretePart::bq()) = "`";
-   str cleanPart(ConcretePart::bs()) = "\\";
-   str cleanPart(ConcretePart::newline()) = "\n";
-   str cleanPart(ConcretePart::hole(ConcreteHole hole)) {
+   str cleanPart(appl(prod(label("text",lex("ConcretePart")), _, _),[Tree stuff])) = "<stuff>";
+   str cleanPart(appl(prod(label("lt",lex("ConcretePart")), _, _),_)) = "\<";
+   str cleanPart(appl(prod(label("gt",lex("ConcretePart")), _, _),_)) = "\>";
+   str cleanPart(appl(prod(label("bq",lex("ConcretePart")), _, _),_)) = "`";
+   str cleanPart(appl(prod(label("bs",lex("ConcretePart")), _, _),_)) = "\\";
+   str cleanPart(appl(prod(label("newline",lex("ConcretePart")), _, _),_)) = "\n";
+   str cleanPart(appl(prod(label("hole",lex("ConcretePart")), _, _),[Tree hole])) {
       index += 1;
       holes[index] = hole;
-      return "\u0000<hole.symbol>:<index>\u0000";
+      return "\u0000<atype2symbol(getType(hole.args[2]@\loc))>:<index>\u0000";
    }
    
    // first replace holes by indexed sub-strings
    str input = "<for (p <- parts) {><cleanPart(p)><}>";
    
    // now parse the input to get a Tree (or a ParseError is thrown)
-   Tree tree = parse(type(sym, rules), input, parts@\loc);
+   Tree tree = parse(type(sym, rules), input, |todo:///|);
+   
+   println("tree: <tree>");
    
    // replace the indexed sub-strings back with the original holes (wrapped in an easy-to-recognize appl)
    tree = visit (tree) {
