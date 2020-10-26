@@ -207,6 +207,9 @@ private Condition acond2cond(ACondition::\except(str label)) = \except(label);
 
 Symbol atype2symbol(regular(AType def)) = \regular(atype2symbol(def));
 
+map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def] defs) 
+  { return (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs); }
+
 map[Symbol, Production] adefinitions2definitions(map[AType, set[AType]] defs) 
   = (atype2symbol(k) : Production::choice(atype2symbol(k), aprods2prods(defs[k])) | k <- defs);
 
