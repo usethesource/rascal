@@ -24,6 +24,7 @@ import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 import lang::rascalcore::compile::Rascal2muRascal::TypeReifier;
+import lang::rascalcore::compile::Rascal2muRascal::ConcreteSyntax;
 
 import lang::rascalcore::compile::Rascal2muRascal::RascalDeclaration;
 import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
@@ -59,7 +60,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  // Extract all declarations for the benefit of the type reifier
       //extractDeclarationInfo(tmodel);
    	 
-   	  //M = parseConcreteFragments(M, getGrammar());
+   	  <M, tmodel> = parseConcreteFragments(M, tmodel, getGrammar());
    	  
    	  translateModule(M);
    	  

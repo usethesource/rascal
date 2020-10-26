@@ -1,12 +1,15 @@
 @bootstrapParser
-module lang::rascalcore::compile::util::ConcreteSyntax
+module lang::rascalcore::compile::Rascal2muRascal::ConcreteSyntax
 
 import lang::rascal::\syntax::Rascal;
+
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
+
 import lang::rascalcore::check::ATypeUtils;
-import ParseTree;
-import Messages;
 import lang::rascalcore::check::AType;
+
+import ParseTree;
+import Message;
 import String;
 
 tuple[Module, TModel] parseConcreteFragments(Module M, TModel tm, AGrammar gr) {
@@ -16,7 +19,7 @@ tuple[Module, TModel] parseConcreteFragments(Module M, TModel tm, AGrammar gr) {
    @doc{parse fragment or store parse error in the TModel}
    Tree parseFragment(Sym sym, ConcretePart* parts, map[Symbol, Production] rules, bool isPattern) {
       try {
-         return doParseFragment(atype2symbol(sym), parts, rules, isPattern);
+         return doParseFragment(atype2symbol(getType(sym@\loc)), parts, rules, isPattern);
       }
       catch ParseError(loc l) : {
         tm.messages += error("parse error in concrete syntax fragment `<parts>`", l);
@@ -41,14 +44,13 @@ Tree doParseFragment(Symbol sym, ConcretePart* parts, map[Symbol, Production] ru
    int index = 0;
    map[int, ConcreteHole] holes = ();
    
-   str cleanPart((ConcretePart) `<![`\<\>\\\n]+ stuff>`) = "<stuff>";
-   str cleanPart((ConcretePart) `\\\<`) = "\<";
-   str cleanPart((ConcretePart) `\\\>`) = "\>";
-   str cleanPart((ConcretePart) `\\\``) = "`";
-   str cleanPart((ConcretePart) `\\\\`) = "\\";
-   str cleanPart((ConcretePart) `
-                                '<[\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* margin>'`) = "\n";
-   str cleanPart((ConcretePart) `<ConcreteHole hole>`) {
+   str cleanPart(ConcretePart::text(((![`\<\>\\\n])+) stuff)) = "<stuff>";
+   str cleanPart(ConcretePart::lt()) = "\<";
+   str cleanPart(ConcretePart::gt()) = "\>";
+   str cleanPart(ConcretePart::bq()) = "`";
+   str cleanPart(ConcretePart::bs()) = "\\";
+   str cleanPart(ConcretePart::newline()) = "\n";
+   str cleanPart(ConcretePart::hole(ConcreteHole hole)) {
       index += 1;
       holes[index] = hole;
       return "\u0000<hole.symbol>:<index>\u0000";
