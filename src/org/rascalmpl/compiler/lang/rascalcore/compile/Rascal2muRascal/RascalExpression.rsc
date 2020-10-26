@@ -184,7 +184,7 @@ private MuExp translateAddFunction(Expression e){
   addFunctionToModule(fun);  
   addDefineAndType(<currentFunctionDeclaration(), add_name, functionId(), e@\loc, defType(funType)>, funType);
  
-  return muOFun(add_name, funType);
+  return muOFun([uid], funType);
 }
 
 //private MuExp translateAddFunction(Expression e){
