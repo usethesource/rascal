@@ -1,7 +1,4 @@
-@bootstrapParser
 module lang::rascalcore::compile::Rascal2muRascal::ConcreteSyntax
-
-import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 
@@ -13,46 +10,29 @@ import Message;
 import String;
 import IO;
 
-tuple[Module, TModel] parseConcreteFragments(Module M, TModel tm, AGrammar gr) {
+tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
    // here we translate to the original Productions and Symbol to be used by the parser generator:
    map[Symbol, Production] rules = adefinitions2definitions(gr.rules);
    
    @doc{parse fragment or store parse error in the TModel}
-   Tree parseFragment(Sym sym, list[Tree] parts, map[Symbol, Production] rules, bool isPattern) {
+   Tree parseFragment(Tree sym, list[Tree] parts, map[Symbol, Production] rules, bool isPattern) {
       try {
          return doParseFragment(atype2symbol(getType(sym@\loc)), parts, rules, isPattern);
       }
       catch ParseError(loc l) : {
         tm.messages += error("parse error in concrete syntax fragment `<parts>`", l);
-        return isPattern ? (Pattern) `(<Sym sym>) \`parse error in concrete syntax\`` 
-                         : (Expression) `(<Sym sym>) \`parse error in concrete syntax\``; 
+         // TODO
+        return appl(prod(sort("***Error***"),[],{}),[]); 
       }
    }
 
    M = visit(M) {
-     case (Expression) `<Concrete conc>` : {
-       println(conc.symbol.prod);
-       println(conc.parts.prod);
-       if (Expression exp := parseFragment(conc.symbol, conc.parts.args, rules, false)) {
-         insert exp;
-       }
-       else {
-         fail;
-       }
-     }
-       
-       
-     case (Pattern) `<Concrete conc>` : {
-       println(conc.symbol.prod);
-       println(conc.parts.prod);
-       if (Pattern exp := parseFragment(conc.symbol, conc.parts.args, rules, true)) {
-         insert exp;
-       }
-       else {
-         fail;
-       }
-     }  
-       
+//////////   "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`"
+     case appl(prod(label("concrete",sort(str point)), _, _),[
+             appl(prod(label("typed",lex("Concrete")), _, _),[_,_, Tree varsym,_,_,_,_,parts,_])
+          ]) 
+          => parseFragment(varsym, parts.args, rules, point == "Pattern")
+        when point == "Pattern" || point == "Expression"
    }
    
    return <M, tm>;
@@ -61,7 +41,7 @@ tuple[Module, TModel] parseConcreteFragments(Module M, TModel tm, AGrammar gr) {
 
 Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules, bool isPattern) {
    int index = 0;
-   map[int, ConcreteHole] holes = ();
+   map[int, Tree] holes = ();
    
    str cleanPart(appl(prod(label("text",lex("ConcretePart")), _, _),[Tree stuff])) = "<stuff>";
    str cleanPart(appl(prod(label("lt",lex("ConcretePart")), _, _),_)) = "\<";
@@ -79,6 +59,7 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    str input = "<for (p <- parts) {><cleanPart(p)><}>";
    
    // now parse the input to get a Tree (or a ParseError is thrown)
+   println("calling parser for <sym> with <rules>");
    Tree tree = parse(type(sym, rules), input, |todo:///|);
    
    println("tree: <tree>");
