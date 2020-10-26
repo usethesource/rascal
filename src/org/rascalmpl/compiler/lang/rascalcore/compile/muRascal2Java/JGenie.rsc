@@ -31,8 +31,8 @@ data JGenie
         bool (MuExp) isDefinedInCurrentFunction,
         AType (loc src) getType,
         str(loc def) getImportedModuleName,
-        str (loc src) getAccessor,
-        str (str oname, AType otype) getAccessorOverloaded,
+        str (list[loc] srcs) getAccessor,
+        //str (str oname, AType otype) getAccessorOverloaded,
         //str (loc src) getAccessorInResolver,
         Define (loc src) getDefine,
         list[MuExp] (loc src) getExternalVars,
@@ -53,10 +53,10 @@ data JGenie
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
         //void (rel[str,AType,str]) addMergedOverloads,
-        str(str,AType) finalResolverName,
+        //str(str,AType) finalResolverName,
         //void (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads, list[MuExp] externalVars) addResolver,
         //bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) isResolved,
-        list[MuExp] (str resolverName) getExternalVarsResolver,
+        //list[MuExp] (str resolverName) getExternalVarsResolver,
         bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions
       )
     ;
@@ -90,7 +90,7 @@ JGenie makeJGenie(MuModule m,
     
     TModel currentTModel = tmodels[moduleName];
     loc currentModuleScope = moduleLocs[moduleName];
-    set[tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors]] resolvers = {};
+    //set[tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors]] resolvers = {};
     map[str resolverName, list[MuExp] externalVars] resolver2externalVars = ();
     str functionName = "$UNKNOWN";
     MuFunction function;
@@ -161,41 +161,80 @@ JGenie makeJGenie(MuModule m,
         return module2field(allLocs2Module[findImportForDef(def)]);
     }
         
-    str _getAccessor(loc src){
-        if(currentTModel.definitions[src]?){
-            def = currentTModel.definitions[src];
-            if(defType(AType tp) := def.defInfo){
-                    baseName = getJavaName(def.id);
-                    if(isContainedIn(def.defined, currentModuleScope)){
-                        if(def.scope != currentModuleScope){    // inner function
-                            fun = muFunctionsByLoc[def.defined];
-                            return "<fun.scopeIn>_<baseName>";
-                        }
-                        return baseName;
-                    } else {
-                        return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
-                    }
-                 }
-        }
-        for(ms <- sortedImportAndExtendScopes, mname := allLocs2Module[ms]){
-            if(tmodels[mname].definitions[src]?){
-                def = tmodels[mname].definitions[src];
+    str _getAccessor(list[loc] srcs){
+        // Single src
+        if(size(srcs) == 1){
+            src = srcs[0];
+            if(currentTModel.definitions[src]?){
+                def = currentTModel.definitions[src];
                 if(defType(AType tp) := def.defInfo){
-                    descriptor = atype2idpart(tp);
-                    baseName = getJavaName(def.id);
-                  
-                    if(isContainedIn(def.defined, currentModuleScope)){
-                        return baseName;
-                    } else {
-                        return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
-                    }
+                        baseName = getJavaName(def.id);
+                        if(isContainedIn(def.defined, currentModuleScope)){
+                            if(def.scope != currentModuleScope){    // inner function
+                                fun = muFunctionsByLoc[def.defined];
+                                return "<fun.scopeIn>_<baseName>";
+                            }
+                            return baseName;
+                        } else {
+                            return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
+                        }
+                     }
+            }
+            for(ms <- sortedImportAndExtendScopes, mname := allLocs2Module[ms]){
+                if(tmodels[mname].definitions[src]?){
+                    def = tmodels[mname].definitions[src];
+                    if(defType(AType tp) := def.defInfo){
+                        descriptor = atype2idpart(tp);
+                        baseName = getJavaName(def.id);
+                      
+                        if(isContainedIn(def.defined, currentModuleScope)){
+                            return baseName;
+                        } else {
+                            return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
+                        }
+                     }
                  }
-             }
+            }
+            throw "No accessor found for <src>";
         }
-        throw "No accessor found for <src>";
+        // Multiple srcs
+        name = "???";
+        for(mname <- tmodels){
+            if(tmodels[mname].definitions[srcs[0]]?){
+                def = tmodels[mname].definitions[srcs[0]];
+                name = def.id;
+                break;
+            }
+        }
+       
+        if(isSyntheticFunctionName(name)){
+            return name;
+        }
+        
+        scopeIn = definedInInnerScope(srcs);
+        
+        if(scopeIn != ""){
+            return "<scopeIn>_<name>";
+        }
+        if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
+            for(d <- srcs){
+                def = currentTModel.definitions[d];
+                if(isConstructorType(def.defInfo.atype)){
+                    return name;
+                }
+            }
+            return "$me.<name>";
+        }
+        
+       for(ms <- sortedImportAndExtendScopes){
+        if(any(d <- srcs, isContainedIn(d, ms))){
+            return "<module2field(allLocs2Module[ms])>.<name>";
+        }
+       }
+       throw "_getAccessor: <name>, <srcrs>";
     }
     
-    str definedInInnerScope(set[loc] srcs){
+    str definedInInnerScope(list[loc] srcs){
         scopeIn = "";
         for(d <- srcs){
             if(isContainedIn(d, currentModuleScope)){
@@ -211,70 +250,6 @@ JGenie makeJGenie(MuModule m,
         }
         return scopeIn;
     }
-    
-    str _getAccessorOverloaded(str oname, AType otype){
-      if(overloadedAType(rel[loc, IdRole, AType] overloads) := otype){
-        finalName = oname;
-        if(isSyntheticFunctionName(finalName)){
-            return finalName;
-        }
-        
-        scopeIn = definedInInnerScope(overloads<0>);
-        
-        if(scopeIn != ""){
-            return "<scopeIn>_<finalName>";
-        }
-        if(any(d <- overloads<0>, isContainedIn(d, currentModuleScope))){
-            return "$me.<finalName>";
-        }
-        
-       for(ms <- sortedImportAndExtendScopes){
-        if(any(d <- overloads<0>, isContainedIn(d, ms))){
-            return "<module2field(allLocs2Module[ms])>.<finalName>";
-        }
-       }
-      }
-       throw "_getAccessorOverloaded: <oname>";
-    }
-    
-    //str _getAccessorOverloaded(str oname, AType otype){
-    //  if(overloadedAType(rel[loc, IdRole, AType] overloads) := otype){
-    //    n = findFirst(oname, "_AT_"); // HACK
-    //    finalName = oname[..n];
-    //   //finalName = _finalResolverName(oname, otype);
-    //    definingModules = {_getImportedModuleName(d) | d <- overloads<0>};
-    //    if({mname} := definingModules && mname != module2field(_getModuleName())){
-    //        return "<mname>.<finalName>";
-    //    } else {
-    //        return "$me.<finalName>";
-    //    }
-    //  } else {
-    //    finalName = _finalResolverName(oname, otype);
-    //    return finalName;
-    //  }
-    //}
-    
-    //str _getAccessorInResolver(loc src){
-    //    for(mname <- tmodels){
-    //        if(tmodels[mname].definitions[src]?){
-    //            def = tmodels[mname].definitions[src];
-    //            if(defType(AType tp) := def.defInfo){
-    //                baseName = _finalResolverName("<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>", tp);
-    //                if(isContainedIn(def.defined, currentModuleScope)){
-    //                    if(isConstructorType(getTypeFromDef(def))){
-    //                        return baseName;
-    //                    } else {
-    //                        fun = muFunctionsByLoc[def.defined];
-    //                        return getJavaName(getUniqueFunctionName(fun));
-    //                    }
-    //                } else {
-    //                    return "<_getImportedModuleName(src)>.<baseName>";
-    //                }
-    //             }
-    //         }
-    //    }
-    //    throw "getAccessorInResolver <src>";
-    //}
     
     Define _getDefine(loc src){
         for(mname <- tmodels){
@@ -392,15 +367,15 @@ JGenie makeJGenie(MuModule m,
     void _addMergedOverloads(rel[str,AType,str] merged){
         mergedOverloads += merged;
     }
-    str _finalResolverName(str fname, AType funType){
-        funType = unsetRec(funType);
-        if( overloadedAType(rel[loc, IdRole, AType] overloads)  := funType){
-            funType = lubList(toList(overloads<2>));
-        }
-        if({finalName} := mergedOverloads[fname, unsetRec(funType)]) 
-            return finalName;
-        return fname;
-    }
+    //str _finalResolverName(str fname, AType funType){
+    //    funType = unsetRec(funType);
+    //    if( overloadedAType(rel[loc, IdRole, AType] overloads)  := funType){
+    //        funType = lubList(toList(overloads<2>));
+    //    }
+    //    if({finalName} := mergedOverloads[fname, unsetRec(funType)]) 
+    //        return finalName;
+    //    return fname;
+    //}
     
     //void _addResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads, list[MuExp] externalVars){
     //    resolvers += overloads;
@@ -410,13 +385,13 @@ JGenie makeJGenie(MuModule m,
     //    return overloads in resolvers;
     //}
     
-    list[MuExp] _getExternalVarsResolver(str resolverName){
-         if(resolver2externalVars[resolverName]?){
-            return resolver2externalVars[resolverName];
-         }
-         return [];
-         //throw "Unknown resolver <resolverName>";
-    }
+    //list[MuExp] _getExternalVarsResolver(str resolverName){
+    //     if(resolver2externalVars[resolverName]?){
+    //        return resolver2externalVars[resolverName];
+    //     }
+    //     return [];
+    //     //throw "Unknown resolver <resolverName>";
+    //}
     
     bool _usesLocalFunctions(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
         return    any(of <- overloads.ofunctions, isContainedIn(currentTModel.definitions[of].defined, currentModuleScope))
@@ -439,7 +414,7 @@ JGenie makeJGenie(MuModule m,
                 _getType,
                 _getImportedModuleName,
                 _getAccessor,
-                _getAccessorOverloaded,
+                //_getAccessorOverloaded,
                 //_getAccessorInResolver,
                 _getDefine,
                 _getExternalVars,
@@ -460,10 +435,10 @@ JGenie makeJGenie(MuModule m,
                 _addImportedLibrary,
                 _getImportedLibraries,
                 //_addMergedOverloads,
-                _finalResolverName,
+                //_finalResolverName,
                 //_addResolver,
                // _isResolved,
-                _getExternalVarsResolver,
+               // _getExternalVarsResolver,
                 _usesLocalFunctions
             );
 }

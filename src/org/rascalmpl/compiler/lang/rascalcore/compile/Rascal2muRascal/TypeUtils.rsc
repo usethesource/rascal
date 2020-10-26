@@ -874,35 +874,17 @@ MuExp mkVar(str name, loc l) {
     ftype = unsetRec(getType(l));
     orgFtype = ftype;
     //println("orgFtype = <orgFtype>");
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := ftype){
-       arities = { size(getFormals(tp)) | tp <- overloads<2> };
-       //assert size(arities) == 1;
-       ar = getFirstFrom(arities);
-       resType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>);
-       formalsTypes = [avoid() | i <- [0 .. ar]];
-       
-       formalsTypes = (formalsTypes | alubList(it, getFormals(tp)) | tp <- overloads<2>);
-       ftype = afunc(resType, formalsTypes, []);
-    }
-    fscope = currentFunctionDeclaration();
-    return muOFun(fname, ftype);
-    //while(true){
-    //    if(overloadedTypeResolver[<fname,ftype, fscope>]?){
-    //        return muOFun(overloadedTypeResolver[<fname,ftype,fscope>], ftype);
-    //    }
-    //    if(scopes[fscope]?){
-    //        fscope = scopes[fscope];
-    //    } else {
-    //        for(<fname, ftype, loc gscope> <- domain(overloadedTypeResolver)){
-    //            return muOFun(overloadedTypeResolver[<fname,ftype,gscope>], ftype);
-    //        }
-    //        break;
-    //    }
+    //if(overloadedAType(rel[loc, IdRole, AType] overloads) := ftype){
+    //   arities = { size(getFormals(tp)) | tp <- overloads<2> };
+    //   //assert size(arities) == 1;
+    //   ar = getFirstFrom(arities);
+    //   resType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>);
+    //   formalsTypes = [avoid() | i <- [0 .. ar]];
+    //   
+    //   formalsTypes = (formalsTypes | alubList(it, getFormals(tp)) | tp <- overloads<2>);
+    //   ftype = afunc(resType, formalsTypes, []);
     //}
-
-     //println("overloadedTypeResolver:");
-     //iprintln(overloadedTypeResolver);
-     throw "mkVar(<name>, <l>) fails, no entry for \<<fname>,<ftype>,<fscope>\>";
+    return muOFun([definitions[d].defined | d <- defs], ftype);
   }
   
   Define def;
@@ -951,7 +933,7 @@ MuExp mkVar(str name, loc l) {
     //if(uid in overloadedFunctions) return muOFun(overloadedTypeResolver[unsetRec(getType(l))]);
     return muFun(uid, name_type); //muFun1(functions_and_constructors_to_fuid[uid]);
   }
-    throw "End of mkVar reached for <uqname> at <l>: <def>";
+  throw "End of mkVar reached for <uqname> at <l>: <def>";
 }
 
 // Generate a MuExp for an assignment

@@ -218,7 +218,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       tmods = translateModifiers(fd.signature.modifiers);
       if(ignoreTest(ttags)){
           // The type checker does not generate type information for ignored functions
-           addFunctionToModule(muFunction("ignored-<prettyPrintName(fd.signature.name)>-<fd@\loc.offset>", 
+           addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd@\loc.offset>", 
                                          prettyPrintName(fd.signature.name), 
                                          afunc(abool(),[],[]),
                                          [],

@@ -39,6 +39,18 @@ str varName(muVar(str name, str fuid, int pos, AType atype)){ // duplicate, see 
     return (name[0] != "$") ? "<getJavaName(name)><(pos >= 0 || name == "_") ? "_<abs(pos)>" : "">" : getJavaName(name);
 } 
 
+public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
+      remaining = input;
+      result = {};
+      while(!isEmpty(remaining)){
+        d = getFirstFrom(remaining);
+        g = d + { e | e <- remaining, similar(e, d) };
+        remaining -= g;
+        result += {g};
+      }
+      return result;  
+    }
+
 str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc){
     module_scope = module2loc[moduleName];
    
@@ -52,10 +64,13 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isMainName(fname), !isClosureName(fname)){
         set[Define] defs = functions_and_constructors[<fname, farity>];
-        defs_in_disjoint_scopes = group(defs, bool(Define a, Define b) { 
+        println("defs"); iprintln(defs);
+        defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
                                                     return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
-                                                           || a.scope in module_scopes && b.scope in module_scopes;
+                                                           || a.scope in module_scopes && b.scope in module_scopes
+                                                           ;
                                               });
+        println("defs_in_disjoint_scopes:");iprintln(defs_in_disjoint_scopes);
         for(sdefs <- defs_in_disjoint_scopes){
             resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module);
         }
@@ -81,11 +96,26 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
     cons_defs = { cdef | cdef <- relevant_fun_defs, defType(tp) := cdef.defInfo, isConstructorType(tp) };
     
-    relevant_fun_defs -= cons_defs;
-    
     if(isEmpty(relevant_fun_defs)) return "";
-   
-    resolver_fun_type = (avoid() | alub(it, tp) | fdef <- relevant_fun_defs, defType(tp) := fdef.defInfo);
+    
+    relevant_fun_defs -= cons_defs;
+  
+    acons_adt = avoid();
+    acons_fields = [];
+    acons_kwfields = [];
+    
+    for(cdef <- cons_defs, defType(ctp) := cdef.defInfo){
+        acons_adt = alub(acons_adt, ctp.adt);
+        acons_fields = alubList(acons_fields, ctp.fields);
+        acons_kwfields += ctp.kwFields;
+    }
+    
+   acons_fun_type = afunc(acons_adt, acons_fields, acons_kwfields);
+   resolver_fun_type = (avoid() | alub(it, tp) | fdef <- relevant_fun_defs, defType(tp) := fdef.defInfo);
+   resolver_fun_type = isEmpty(relevant_fun_defs) ? acons_fun_type
+                                                  : (isEmpty(cons_defs) ? resolver_fun_type
+                                                                        : alub(acons_fun_type, resolver_fun_type));
+    
     if(!isFunctionType(resolver_fun_type)) return "";
     
     inner_scope = "";

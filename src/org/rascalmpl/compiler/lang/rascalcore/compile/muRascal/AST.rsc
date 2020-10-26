@@ -105,7 +105,8 @@ public data MuExp =
           
           | muFun(loc uid, AType atype)                         // *muRascal* function constant: functions at the root
            
-          | muOFun(str name, AType atype)                       // *Rascal* function, i.e., overloaded function at the root
+          //| muOFun(str name, AType atype)  
+          | muOFun(list[loc] uids, AType atype)                         // *Rascal* function, i.e., overloaded function at the root
           
           | muConstr(AType ctype) 					        	// Constructor
           
