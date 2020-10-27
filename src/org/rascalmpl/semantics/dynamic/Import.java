@@ -546,9 +546,7 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
   
   @SuppressWarnings("unchecked")
   public static IGTD<IConstructor, ITree, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, ISourceLocation caller, IMap grammar, boolean force) {
-      eval.warning("parser uses " + currentModule.getName() + " as current module", eval.getCurrentAST().getLocation());
     if (currentModule.getBootstrap()) {
-        eval.warning("parser is a bootstrap parser!",  eval.getCurrentAST().getLocation());
       return new RascalParser();
     }
     
