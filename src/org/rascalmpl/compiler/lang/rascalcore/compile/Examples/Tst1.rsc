@@ -1,18 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-value main() { //test bool overloadingDynamicCall(){
-    int f(0) = -1;
-    default int f(int i) = 100 + i;
-    
-    //str f("0") = "- 1";
-    default str f(str s) = "100 + <s>";
+data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
 
-    x = f;
-    return x(1);
-    //y = x("arg");
-    //z = x(1);
-    //return <y, z> == <"100 + arg", 101>;
-}
+B and(B b1, and(B b2, B b3)) = and(and(b1,b2),b3);
+
+
+test bool normalizedCall(B b1, B b2, B b3) = and(b1, and(b2, b3)) == and(and(b1, b2),b3);
 
 //data D = d(str s) | d(int n) | d();
 //

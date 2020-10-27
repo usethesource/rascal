@@ -106,7 +106,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     
     for(cdef <- cons_defs, defType(ctp) := cdef.defInfo){
         acons_adt = alub(acons_adt, ctp.adt);
-        acons_fields = alubList(acons_fields, ctp.fields);
+        acons_fields = acons_fields == [] ? ctp.fields : alubList(acons_fields, ctp.fields);
         acons_kwfields += ctp.kwFields;
     }
     
