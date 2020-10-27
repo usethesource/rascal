@@ -23,12 +23,12 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
    map[Symbol, Production] rules = adefinitions2definitions(gr.rules);
    
    @doc{parse fragment or store parse error in the TModel}
-   Tree parseFragment(appl(prod(label("typed",lex("Concrete")), _, _),[_,_,Tree varsym,_,_,_,_, parts,_])) {
+   Tree parseFragment(t:appl(prod(label("typed",lex("Concrete")), _, _),[_,_,Tree varsym,_,_,_,_, parts,_])) {
       try {
          sym = atype2symbol(getType(varsym@\loc));
          return appl(prod(label("parsed",Symbol::lex("Concrete")), [sym], {}), [
                    doParseFragment(sym, parts.args, rules)
-                ]);
+                ])[@\loc=t@\loc];
       }
       catch ParseError(loc l) : {
         tm.messages += error("parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", l);
@@ -37,8 +37,8 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
    }
 
    M = visit(M) {
-     case appl(p:prod(label("concrete",sort(/Expression|Pattern/)), _, _),[Tree concrete])
-          => appl(p, [parseFragment(concrete)])
+     case t:appl(p:prod(label("concrete",sort(/Expression|Pattern/)), _, _),[Tree concrete])
+          => appl(p, [parseFragment(concrete)])[@\loc=t@\loc]
    }
    
    return <M, tm>;
@@ -78,9 +78,9 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    // use by the code generator)
    // TODO: move the source annotations on the tree according to shifts recorded earlier
    tree = visit (tree) {
-     case appl(prod(label("$MetaHole", vartype), _, _), [_,_,_,i,_],_) => 
+     case t:appl(prod(label("$MetaHole", vartype), _, _), [_,_,_,i,_],_) => 
           appl(prod(label("$MetaHole", vartype),[sort("ConcreteHole")], {}), 
-               [holes[toInt("<i>")]]) 
+               [holes[toInt("<i>")]])[@\loc=t@\loc] 
    }
    
    return tree;

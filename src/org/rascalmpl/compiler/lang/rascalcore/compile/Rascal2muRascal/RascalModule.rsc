@@ -60,7 +60,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  // Extract all declarations for the benefit of the type reifier
       //extractDeclarationInfo(tmodel);
    	 
-   	  if (<Module newModule, TModule newModel> := parseConcreteFragments(M, tmodel, getGrammar())) {
+   	  if (<Module newModule, TModel newModel> := parseConcreteFragments(M, tmodel, getGrammar())) {
    	    M = newModule;
    	    tmodel = newModel;
    	  }
