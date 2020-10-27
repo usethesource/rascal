@@ -523,7 +523,7 @@ MuExp translateBool(e:(Expression)  `<Literal s>`, BTSCOPES btscopes, MuExp true
 // -- concrete syntax expression  ------------------------------------
 //TODO
 MuExp translate(e:(Expression) `<Concrete concrete>`) {
-    return translateConcrete(concrete, e@\loc);
+    return translateConcrete(concrete);
 }
 
 MuExp translate(e:appl(prod(label("parsed",lex("Concrete")), [_],_),[Tree concrete]))
@@ -532,16 +532,16 @@ MuExp translate(e:appl(prod(label("parsed",lex("Concrete")), [_],_),[Tree concre
 MuExp translate(e:appl(prod(label("typed",lex("Concrete")), [_],_),_))
   = muThrow(muCon("(compile-time) parse error in concrete syntax", e@\loc));   
   
-private MuExp translateConcrete(appl(prod(label("$MetaHole", Symbol vartype),[sort("ConcreteHole")], {}), [ConcreteHole hole])) {
+private MuExp translateConcrete(t:appl(prod(label("$MetaHole", Symbol vartype),[sort("ConcreteHole")], {}), [ConcreteHole hole])) {
     <fuid, pos> = getVariableScope("ConcreteVar", getConcreteHoleVarLoc(t));
     return muVar("ConcreteVar", fuid, pos);    
 }
 
-private MuExp translateConcrete(t:appl(p:regular(\iter-seps(elem, seps)), list[Tree] args)) 
-  = muTreeAppl(p, muBlock(translateConcreteSeparatedList(elem, seps, args)), t@\loc);
-  
-private MuExp translateConcrete(t:appl(p:regular(\iter-star-seps(elem, seps)), list[Tree] args)) 
-  = muTreeAppl(p, muBlock(translateConcreteSeparatedList(elem, seps, args)), t@\loc);  
+//private MuExp translateConcrete(t:appl(p:regular(\iter-seps(elem, seps)), list[Tree] args)) 
+//  = muTreeAppl(p, muBlock(translateConcreteSeparatedList(elem, seps, args)), t@\loc);
+//  
+//private MuExp translateConcrete(t:appl(p:regular(\iter-star-seps(elem, seps)), list[Tree] args)) 
+//  = muTreeAppl(p, muBlock(translateConcreteSeparatedList(elem, seps, args)), t@\loc);  
         
 // TODO add cases for lists (remove separators when empty is substituted)
 private default MuExp translateConcrete(t:appl(Production p, list[Tree] args)) 
