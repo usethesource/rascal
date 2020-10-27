@@ -49,6 +49,7 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    int index = 0;
    map[int, Tree] holes = ();
    
+   // TODO: record shifts in source locations to relocate the locs of the resulting parse tree later
    str cleanPart(appl(prod(label("text",lex("ConcretePart")), _, _),[Tree stuff])) = "<stuff>";
    str cleanPart(appl(prod(label("lt",lex("ConcretePart")), _, _),_)) = "\<";
    str cleanPart(appl(prod(label("gt",lex("ConcretePart")), _, _),_)) = "\>";
@@ -66,10 +67,8 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    
    // first replace holes by indexed sub-strings
    str input = "<for (p <- parts) {><cleanPart(p)><}>";
-   
+
    // now parse the input to get a Tree (or a ParseError is thrown)
-   println("calling parser for <sym> with <rules>");
-   println("input: <input>");
    Tree tree = parse(type(sym, rules), input, |todo:///|);
    
    // TODO: source annotations in the tree should be updated/shifted according to
@@ -77,6 +76,7 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    
    // replace the indexed woven sub-strings back with the original holes (wrapped in an easily labeled appl ($MetaHole) for
    // use by the code generator)
+   // TODO: move the source annotations on the tree according to shifts recorded earlier
    tree = visit (tree) {
      case appl(prod(label("$MetaHole", vartype), _, _), [_,_,_,i,_],_) => 
           appl(prod(label("$MetaHole", vartype),[sort("ConcreteHole")], {}), 
