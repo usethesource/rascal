@@ -532,7 +532,7 @@ MuExp translate(e:appl(prod(label("parsed",lex("Concrete")), [_],_),[Tree concre
 MuExp translate(e:appl(prod(label("typed",lex("Concrete")), [_],_),_))
   = muBlock([]); // this means a parse error occurred in the concrete fragment  
   
-private MyExp translateConcrete(appl(prod(label("$MetaHole", Symbol vartype),[sort("ConcreteHole")], {}), 
+private MuExp translateConcrete(appl(prod(label("$MetaHole", Symbol vartype),[sort("ConcreteHole")], {}), 
                [ConcreteHole hole])) {
     <fuid, pos> = getVariableScope("ConcreteVar", getConcreteHoleVarLoc(t));
     return muVar("ConcreteVar", fuid, pos);    
