@@ -476,7 +476,9 @@ default str getOuter(AType t)         = "avalue";
 str atype2istype(str e, AType t)                           = atype2istype1(e, "getType()", t);
 str atype2isElementType(str e, AType t)                    = atype2istype1(e, "getElementType()", t);
 str atype2isKeyType(str e, AType t)                        = atype2istype1(e, "getKeyType()", t);
-str atype2isValueType(str e, AType t)                      = atype2istype1(e, "getValueType()", t);
+str atype2isValueType(str e, AType t)                      {
+    return atype2istype1(e, "getValueType()", t);
+}
 str atype2isFieldType(str e, int i, AType t)               = atype2istype1(e, "getType().getFieldType(<i>)", t);
 str atype2isRelFieldType(str e, int i, AType t)            = atype2istype1("((ISet)<e>).asRelation()", "getElementType().getFieldType(<i>)", t);
 str atype2isLRelFieldType(str e, int i, AType t)           = atype2istype1("((IList)<e>).asRelation()", "getElementType().getFieldType(<i>)", t);
@@ -492,10 +494,10 @@ str atype2istype1(str e, str get, astr())                  = "<e>.<get>.isString
 str atype2istype1(str e, str get, aloc())                  = "<e>.<get>.isSourceLocation()";
 str atype2istype1(str e, str get, adatetime())             = "<e>.<get>.isDateTime()";
 str atype2istype1(str e, str get, alist(AType t))          = "<e>.<get>.isList()<elem_check>"
-                                                           when tp := "(((IList)<e>).isEmpty() || <atype2isElementType("((IList)<e>)", t)>)",
+                                                           when tp := "(<e>.isEmpty() || <atype2isElementType("(<e>)", t)>)",
                                                                 elem_check := (tp == "true" ? "" : " && <tp>");
 str atype2istype1(str e, str get, aset(AType t))           = "<e>.<get>.isSet()<elem_check>"
-                                                           when tp := "(((ISet)<e>).isEmpty() || <atype2isElementType("((ISet)<e>)", t)>)",
+                                                           when tp := "(<e>.isEmpty() || <atype2isElementType("((ISet)<e>)", t)>)",
                                                                 elem_check := (tp == "true" ? "" : " && <tp>");
 str atype2istype1(str e, str get, arel(atypeList(list[AType] ts)))         
                                                            = "<e>.<get>.isRelation() && (((ISet)<e>).isEmpty() || ((ISet)<e>).asRelation().arity() == <size(ts)>)<field_checks>"
@@ -513,10 +515,14 @@ str atype2istype1(str e, str get, atuple(atypeList(list[AType] ts)))
                                                                  field_checks  := (isEmpty(field_checks0) ? "" : " && <field_checks0>");
 
 str atype2istype1(str e, str get, amap(AType d, AType r))   = "<e>.<get>.isMap()<key_check><val_check>"
-                                                            when tpk := atype2isKeyType("((IMap)<e>)", d),
+                                                            when tpk := atype2isKeyType("(<e>)", d),
+                                                            bprintln(tpk),
                                                                  key_check := (tpk == "true" ? "" : " && <tpk>"),
-                                                                 tpv := atype2isValueType("((IMap)<e>)", r),
-                                                                 val_check := (tpv == "true" ? "" : " && <tpv>")
+                                                            bprintln(key_check),
+                                                                 tpv := atype2isValueType("(<e>)", r),
+                                                            bprintln(tpv),
+                                                                 val_check := (tpv == "true" ? "" : " && <tpv>"),
+                                                            bprintln(val_check)
                                                                 ;
 
 str atype2istype1(str e, str get, afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
