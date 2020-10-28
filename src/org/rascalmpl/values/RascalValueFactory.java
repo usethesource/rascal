@@ -1264,6 +1264,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         public IConstructor getProduction() {
             return ((ITree) content).getProduction();
         }
+        
+        @Override
+        public IList getArgs() {
+            return ((ITree) content).getArgs();
+        }
     }
 	
 	static public class AmbWithKeywordParametersFacade extends ConstructorWithKeywordParametersFacade implements ITree {
