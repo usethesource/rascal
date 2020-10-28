@@ -156,7 +156,8 @@ public data MuExp =
           
           | muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)
           | muGetFieldFromConstructor(AType resultType, AType consType, MuExp var, str fieldName)
-         
+          | muTreeGetProduction(MuExp tree)
+          | muTreeGetArgs(MuExp tree)
           | muGetKwp(MuExp var, AType atype, str kwpName)
           | muHasKwp(MuExp var, str kwpName)
           

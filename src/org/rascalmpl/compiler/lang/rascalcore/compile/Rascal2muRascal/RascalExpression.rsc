@@ -522,15 +522,17 @@ MuExp translateBool(e:(Expression)  `<Literal s>`, BTSCOPES btscopes, MuExp true
 
 // -- concrete syntax expression  ------------------------------------
 //TODO
-MuExp translate(e:(Expression) `<Concrete concrete>`) {
-    return translateConcrete(concrete);
-}
+//MuExp translate(e:(Expression) `<Concrete concrete>`) {
+//    return translateConcrete(concrete);
+//}
 
-MuExp translate(e:appl(prod(label("parsed",lex("Concrete")), [_],_),[Tree concrete]))
+
+// appl(prod(label("parsed",Symbol::lex("Concrete")), [sym], {})
+MuExp translate(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete]))
   = translateConcrete(concrete);
   
 MuExp translate(e:appl(prod(label("typed",lex("Concrete")), [_],_),_))
-  = muThrow(muCon("(compile-time) parse error in concrete syntax", e@\loc));   
+  = muValueBlock([muThrow(muCon("(compile-time) parse error in concrete syntax", e@\loc))]);   
 
 private MuExp translateConcrete(t:appl(prod(lit(_),_, _), _)) = muCon(t);
 private MuExp translateConcrete(t:appl(prod(cilit(_),_, _), _)) = muCon(t);
@@ -2142,10 +2144,7 @@ MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> 
 
 // -- concrete syntax
 
-MuExp translate((Expression) `<Concrete con>`) {
-  println("TODO implement concrete expressions");
-  return muCon("TODO implement concrete expressions <con>");
-}
+MuExp translate((Expression) `<Concrete con>`) = translateConcrete(con);
 
 // -- any other expression that may require backtracking ------------
 
