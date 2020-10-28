@@ -52,6 +52,8 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
     }
 
 str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc){
+    println("generateResolvers: <moduleName>");
+    
     module_scope = module2loc[moduleName];
    
     loc2module = invertUnique(module2loc);
@@ -92,7 +94,9 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     module_scopes = domain(loc2module);
     
     local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};
-    nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) && any(imp <- extend_scopes, isContainedIn(def.defined, imp)) };                             
+    nonlocal_fun_defs = {def | def <- fun_defs, isEmpty(extend_scopes) || any(ext <- extend_scopes, isContainedIn(def.defined, ext)),
+                                                isEmpty(import_scopes) || any(imp <- import_scopes, isContainedIn(def.defined, imp)) 
+                        };                             
     relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
     cons_defs = { cdef | cdef <- relevant_fun_defs, defType(tp) := cdef.defInfo, isConstructorType(tp) };
     
@@ -119,8 +123,12 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     if(!isFunctionType(resolver_fun_type)) return "";
     
     inner_scope = "";
-    if(all(def <- relevant_fun_defs, def.scope notin module_scopes)){
+    if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
+        iprintln(relevant_fun_defs);
         def = getOneFrom(relevant_fun_defs);
+        if(!loc2muFunction[def.defined]?){
+            println("HELP");
+        }
         fun = loc2muFunction[def.defined];
         inner_scope = "<fun.scopeIn>_";
     }
@@ -147,7 +155,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
           
     for(def <- sort(relevant_fun_defs, funBeforeDefaultBeforeConstructor)){
         inner_scope = "";
-        if(def.scope notin module_scopes){
+        if(def.scope notin module_scopes, def in local_fun_defs){
             fun = loc2muFunction[def.defined];
             inner_scope = "<fun.scopeIn>_";
         }
@@ -184,10 +192,10 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                 }
             }
             call_code = "<pref><uniqueName>(<actuals_text>)";
-        } else if(isContainedIn(def.defined, def.scope)){
+        } else if(isContainedIn(def.defined, def.scope), loc2module[def.scope]?){
             call_code = "<module2field(loc2module[def.scope])>.<uniqueName>(<actuals_text>)";
         } else {
-            println("HELP");
+            continue;
         }
         if(returns_void){
             base_call += "try { <call_code>; return; } catch (FailReturnFromVoidException e){};\n";
@@ -219,10 +227,12 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         }
    
         actuals_text = intercalate(", ", call_actuals);
+       
         if(hasKeywordParameters(consType)){
-            actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
+            base_call = "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<actuals_text>}, $kwpActuals);";
+        } else {
+            base_call = "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<actuals_text>});";
         }
-        base_call = "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<actuals_text>});";
         if(isEmpty(conds)){
             body += base_call;
         } else {
@@ -238,10 +248,16 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                 '   <body> 
                 '}
                 '";
+                
     if(!isEmpty(local_fun_defs) && !isEmpty(nonlocal_fun_defs)){
-        local_fun_type = (avoid() | alub(it, tp) | fdef <- local_fun_defs, defType(tp) := fdef.defInfo);
-        localFormalsTypes = unsetRec(local_fun_type has formals ? local_fun_type.formals : local_fun_type.fields);
-        if(unsetRec(localFormalsTypes) != resolverFormalsTypes, !sameInJava(localFormalsTypes, resolverFormalsTypes)){
+        //local_fun_type = (avoid() | alub(it, tp) | fdef <- local_fun_defs, defType(tp) := fdef.defInfo);
+        local_args = [];
+        for(fdef <- local_fun_defs, defType(tp) := fdef.defInfo){
+            local_args = local_args == [] ? getFunctionOrConstructorArgumentTypes(tp) 
+                                          : alubList(local_args, getFunctionOrConstructorArgumentTypes(tp));
+        }
+        //localFormalsTypes = unsetRec(local_fun_type has formals ? local_fun_type.formals : local_fun_type.fields);
+        if(unsetRec(local_args) != resolverFormalsTypes, !sameInJava(local_args, resolverFormalsTypes)){
             resolvers += generateResolver(moduleName, functionName, local_fun_defs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module);
         }
     }
