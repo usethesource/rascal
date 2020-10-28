@@ -861,7 +861,7 @@ public class Prelude {
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void print(IValue arg){
-		PrintWriter currentOutStream = err;
+		PrintWriter currentOutStream = out;
 		
 		try{
 			if(arg.getType().isString()){
