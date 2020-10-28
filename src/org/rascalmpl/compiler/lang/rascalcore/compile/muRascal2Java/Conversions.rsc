@@ -739,6 +739,13 @@ str toRascalValueFactoryName(str consName) = capitalize(visit(consName) {
     case /\-<l:[a-z]>/ => capitalize(l) 
 });
 
+str value2IValue(char(int i))  = "$RVF.character(<i>)";
+
+str value2IValue(Tree t:appl(Production prod, list[Tree] args)) {
+    childrenContrib = isEmpty(args) ? "" : ", <intercalate(", ", [ value2IValue(child) | child <- args ])>";
+    return "$RVF.appl(<value2IValue(prod)> <childrenContrib>)";
+}
+
 default str value2IValue(node nd) {
     name = getName(nd);
     name = isEmpty(name) ? "\"\"" : (name[0] == "\"" ? name : "\"<name>\"");
@@ -770,7 +777,10 @@ str value2outertype(real r) = "IReal";
 str value2outertype(rat rt) = "IRational";
 str value2outertype(str s) = "IString";
 
-str value2outertype(node nd) = "INode";
+str value2outertype(Tree nd) = "IConstructor";
+str value2outertype(Symbol nd) = "IConstructor";
+str value2outertype(Production nd) = "IConstructor";
+default str value2outertype(node nd) = "INode";
 str value2outertype(loc l) = "ISourceLocation";
 str value2outertype(datetime dt) = "IDateTime";
 str value2outertype(list[&T] lst) = "IList";

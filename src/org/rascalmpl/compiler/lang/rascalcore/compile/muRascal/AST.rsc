@@ -280,7 +280,7 @@ public data MuExp =
           | muTemplateClose(MuExp template)
           
           // Parse Trees
-          | muTreeAppl(Production prod, list[MuExp] args, loc src)
+          | muTreeAppl(MuExp prod, list[MuExp] args, loc src)
           | muTreeChar(int char)
           ;
           
