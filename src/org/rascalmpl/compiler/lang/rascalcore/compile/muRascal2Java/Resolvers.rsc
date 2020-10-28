@@ -20,9 +20,13 @@ import util::Math;
 
 alias Name_Arity = tuple[str name, int arity];
 
+// Get all functions and constructors from a given tmodel
+
 rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel){
     return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> | def <- tmodel.defines, defType(tp) := def.defInfo, 
-        def.idRole == functionId() || def.idRole == constructorId()};
+        def.idRole == functionId() || def.idRole == constructorId()
+       //, !(tp has isTest && tp.isTest)
+        };
     //isFunctionType(tp) || isConstructorType(tp)};
 }
 
@@ -50,10 +54,10 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
       }
       return result;  
     }
-
-str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc){
-    println("generateResolvers: <moduleName>");
     
+// Generate all resolvers for a given module
+
+str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc){    
     module_scope = module2loc[moduleName];
    
     loc2module = invertUnique(module2loc);
@@ -65,19 +69,18 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
                           
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isMainName(fname), !isClosureName(fname)){
+        // Group all functions of same name and arity by scope
         set[Define] defs = functions_and_constructors[<fname, farity>];
-        println("defs"); iprintln(defs);
         defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
                                                     return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
                                                            || a.scope in module_scopes && b.scope in module_scopes
                                                            ;
                                               });
-        println("defs_in_disjoint_scopes:");iprintln(defs_in_disjoint_scopes);
+        // ... and generate a resolver for each group
         for(sdefs <- defs_in_disjoint_scopes){
             resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module);
         }
     }
-    println(resolvers);
     return resolvers;
 }
 
@@ -90,14 +93,22 @@ list[MuExp] getExternalVars(set[Define] relevant_fun_defs, map[loc, MuFunction] 
    return sort([ *getExternalVars(fun_def, loc2muFunction) | fun_def <- relevant_fun_defs]);
 }
 
+// Generate a resolver for a specific function
+
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module){
     module_scopes = domain(loc2module);
     
     local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};
-    nonlocal_fun_defs = {def | def <- fun_defs, isEmpty(extend_scopes) || any(ext <- extend_scopes, isContainedIn(def.defined, ext)),
-                                                isEmpty(import_scopes) || any(imp <- import_scopes, isContainedIn(def.defined, imp)) 
-                        };                             
-    relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
+    //nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) ==> any(ext <- extend_scopes, isContainedIn(def.defined, ext)),
+    //                                            !isEmpty(import_scopes) ==> any(imp <- import_scopes, isContainedIn(def.defined, imp)) 
+    //                    };   
+    nonlocal_fun_defs0 = 
+        for(def <- fun_defs){
+            if(!isEmpty(extend_scopes) && any(ext <- extend_scopes, isContainedIn(def.defined, ext))) append def;
+            if(!isEmpty(import_scopes) && any(imp <- import_scopes, isContainedIn(def.defined, imp))) append def;
+        };
+    nonlocal_fun_defs = toSet(nonlocal_fun_defs0);                     
+    set[Define] relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
     cons_defs = { cdef | cdef <- relevant_fun_defs, defType(tp) := cdef.defInfo, isConstructorType(tp) };
     
     if(isEmpty(relevant_fun_defs)) return "";
@@ -124,7 +135,6 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     
     inner_scope = "";
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
-        iprintln(relevant_fun_defs);
         def = getOneFrom(relevant_fun_defs);
         if(!loc2muFunction[def.defined]?){
             println("HELP");
