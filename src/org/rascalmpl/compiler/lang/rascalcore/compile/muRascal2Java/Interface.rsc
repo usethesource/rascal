@@ -31,16 +31,25 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     result = [];
     signatures = {};
     for(f <- functions, isEmpty(f.scopeIn) , !("test" in f.modifiers || isSyntheticFunctionName(f.name) || isMainName(f.name))){
-        signatures += <f.name, size(f.ftype.formals), f.ftype>;
+        signatures += <f.name, getArity(f.ftype), f.ftype>;
     }
+    iprintln(signatures);
     
-    for(ext <- extends){ // TODO also remove tests here
-        for(def <- tmodels[ext].defines, defType(tp) := def.defInfo, isFunctionType(tp), !(isSyntheticFunctionName(def.id) || isMainName(def.id))){
-            signatures += <def.id, size(tp.formals), tp>;
+    for(ext <- extends){
+        for(def <- tmodels[ext].defines, defType(tp) := def.defInfo, 
+            def.idRole == functionId() || def.idRole == constructorId(),
+            !(tp has isTest && tp.isTest),
+            !(isSyntheticFunctionName(def.id) || isMainName(def.id))){
+            signatures += <def.id, getArity(tp), tp>;
         }
     }
+    iprintln(signatures);
+
     names_and_arities = signatures<0,1>;
     for(<name, arity> <- names_and_arities){
+        if(name == "PathNotFound"){
+            println("PathNotFound");
+        }
         overloads = signatures[name, arity];
         result += <name, lubList(toList(overloads))>;
     }
@@ -56,13 +65,17 @@ str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str
 // Generate an interface method per function
 
 str generateInterfaceMethod(str fname, AType ftype){
+println("generateInterfaceMethod: <fname>, <ftype>");
     method_name = getJavaName(fname);
     
-    method_formals = intercalate(", ", ["<atype2javatype(ftype.formals[i])> $<i>" | i <- index(ftype.formals)]);
+    formals = getFormals(ftype);
+    method_formals = intercalate(", ", ["<atype2javatype(formals[i])> $<i>" | i <- index(formals)]);
     if(hasKeywordParameters(ftype)){
         kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
         method_formals = isEmpty(method_formals) ? kwpActuals : "<method_formals>, <kwpActuals>";
     }
     
-    return "<atype2javatype(ftype.ret)> <method_name>(<method_formals>);";         
+    ret = getResult(ftype);
+    
+    return "<atype2javatype(ret)> <method_name>(<method_formals>);";         
 }

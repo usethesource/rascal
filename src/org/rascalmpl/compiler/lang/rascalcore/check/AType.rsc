@@ -723,7 +723,28 @@ AType addADTLabel(AType a1, AType a2, AType adt){
   return adt;
 }
 
-AType alub(acons(AType la, list[AType] _,  list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = alub(la,ra);
+//AType alub(acons(AType la, list[AType] _,  list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = alub(la,ra);
+AType alub(acons(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, list[AType] rp, list[Keyword] rkw)) {
+    if(lr == rr && size(lp) == size(rp)){
+        return afunc(alub(lr,rr), alubList(lp, rp), lkw + (rkw - lkw)); // TODO do we want to propagate the keyword parameters?
+    } else
+        return avalue();
+}
+
+AType alub(acons(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, list[AType] rp, list[Keyword] rkw)) {
+    if(size(lp) == size(rp) && size(lp) == size(rp)){
+        return afunc(alub(lr,rr), alubList(lp, rp), lkw + (rkw - lkw)); // TODO do we want to propagate the keyword parameters?
+    } else
+        return avalue();
+}
+
+AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, list[AType] rp, list[Keyword] rkw)) {
+    if(size(lp) == size(rp) && size(lp) == size(rp)){
+        return afunc(alub(lr,rr), alubList(lp, rp), lkw + (rkw - lkw)); // TODO how do we want to propagate the keyword parameters?
+    } else
+        return avalue();
+}
+
 AType alub(acons(AType a,  list[AType] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
 AType alub(acons(AType _,  list[AType] _,  list[Keyword] _), anode(_)) = anode([]);
 
@@ -751,7 +772,7 @@ AType alub(\char-class(_), r:aadt("Tree", _, _)) = r;
 // indicate to the programmer the intuition that rather _more_ than fewer functions are substitutable.
 AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, list[AType] rp, list[Keyword] rkw)) {
     if(size(lp) == size(rp)){
-        return afunc(alub(lr,rr), alubList(lp, rp), lkw == rkw ? lkw : []); // TODO do we want to propagate the keyword parameters?
+        return afunc(alub(lr,rr), alubList(lp, rp), lkw + (rkw - lkw)); // TODO how do we want to propagate the keyword parameters?
     } else
         return avalue();
 }
