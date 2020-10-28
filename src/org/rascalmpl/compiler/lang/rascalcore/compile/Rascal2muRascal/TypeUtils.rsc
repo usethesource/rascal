@@ -124,32 +124,7 @@ int getModuleVarInitLocals(str mname) {
 
 private map[tuple[UID,UID], bool] funInnerScopes = ();
 
-//// An overloaded function and all its possible resolutions
-//alias OFUN = tuple[str name, AType funType,         // function name (as used in the Rascal source program) and its type
-//                   str resolverName,                // unique name of resolver
-//                   list[loc] ofunctions,            // list of applicable functions, defaults last)
-//                   list[loc] oconstructors          // list of applicable constructors, defaults last
-//                   ];
-//
-//private map[str,OFUN] overloadingResolver = ();		// map resolver name name to overloaded function
-//private map[tuple[str fname, AType ftype, loc scope], str] overloadedTypeResolver = (); // map overloaded function types to the name of their resolver
-//private list[OFUN] overloadedFunctions = [];		// list of overloaded functions // TODO overlaps with overloadingResolver, rempve?
-
 str unescape(str name) = name[0] == "\\" ? name[1..] : name;
-
-//list[OFUN] getOverloadedFunctions() = overloadedFunctions;
-
-//bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
-
-//OFUN getOverloadedFunction(FUID resolverName) {
-//	assert overloadingResolver[resolverName]? : "No overloading resolver defined for <resolverName>";
-//	return overloadingResolver[resolverName];
-//}
-
-//void addOverloadedFunctionAndResolver(FUID resolverName, OFUN ofun){
-//    overloadingResolver[resolverName] = ofun;
-//    overloadedFunctions += ofun;
-//}
 
 // Reset the above global variables, when compiling the next module.
 
@@ -162,9 +137,9 @@ public void resetScopeExtraction() {
     declaresMap = ();
     declaredIn = ();
     funInnerScopes = ();
-    overloadingResolver = ();
-    overloadedFunctions = [];
-    overloadedTypeResolver = ();
+    //overloadingResolver = ();
+    //overloadedFunctions = [];
+    //overloadedTypeResolver = ();
     scopes = ();
     module_scopes = {};
     facts = (); 
@@ -388,186 +363,6 @@ void extractScopes(TModel tm){
             }
         }
     }
-   
-   sorted_functions_and_constructors  = sort(functions+constructors);
-   //functions_and_constructors_to_int = (sorted_functions_and_constructors[i]: i | int i <- index(sorted_functions_and_constructors));
-   //functions_and_constructors_to_fuid =  (l : convert2fuid(l) | loc l <- sorted_functions_and_constructors);
-  
-//  // create overloading resolvers ...
-//   
-//   funNameAndDef = { <def.id, def> | cf <- functions+constructors, def := definitions[cf] };
-//   //iprintln(funNameAndDef);
-//   
-//   // ... all overloaded functions
-//  
-//    bool compatibleInOverlappingScope(Define l, Define r){
-//        return (l.scope in module_scopes && r.scope in module_scopes || isContainedIn(l.scope, r.scope) || isContainedIn(r.scope, l.scope)) && 
-//               outerComparable(getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(l.defined))), 
-//                               getFunctionOrConstructorArgumentTypes(unsetRec(getDefType(r.defined))));
-//    }
-//    
-//    //public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
-//    //  sinput = sort(input, bool (Define a, Define b) { return similar(a,b) ? false : getDefType(a.defined) < getDefType(b.defined) ; } );
-//    //  int i = 0;
-//    //  int n = size(sinput);
-//    //  
-//    //  lres = while (i < n) {
-//    //    h = sinput[0];
-//    //    j = i + 1;
-//    //    while(j < n && similar(h, sinput[j])){
-//    //        j += 1;
-//    //    }
-//    //    append toSet(sinput[i..j]);
-//    //    i = j;
-//    //  }
-//    //  return toSet(lres); 
-//    //}
-//    
-//     public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
-//      remaining = input;
-//      result = {};
-//      while(!isEmpty(remaining)){
-//        d = getFirstFrom(remaining);
-//        g = d + { e | e <- remaining, similar(e, d) };
-//        remaining -= g;
-//        result += {g};
-//      }
-//      return result;  
-//    }
-//    
-//    //bool compatibleInOverlappingScope(Define l, Define r){
-//    //    return l.scope == r.scope && outerComparable(getDefType(l.defined), getDefType(r.defined));
-//    //}
-//   
-//   for(fname <- domain(funNameAndDef)){
-//        // Separate functions defined at a module level (and may be overloaded) vs functions defined in inner scopes
-//        defs0 = funNameAndDef[fname];
-//       
-//        fdefs0 = { def | Define def <- defs0 };
-//        fdefs =  mygroup(fdefs0, compatibleInOverlappingScope);
-////        // Outer scopes, group by similar outer type
-////        globalDefs0 = {  def | Define def <- defs0, def.scope in module_scopes };
-////        globalDefs = mygroup(globalDefs0, compatibleInOverlappingScope);
-////
-////        // Inner scopes, group by similar outer type
-////        innerDefs0 = defs0 - globalDefs0;
-////        innerDefs = mygroup(innerDefs0,  compatibleInOverlappingScope);
-////        iprintln(innerDefs);
-//  
-//        for(defs <- fdefs /*{*globalDefs, *innerDefs}*/){
-//            types = { unsetRec(getDefType(def.defined)) | Define def <- defs };
-//            
-//            // filter out the largest types in the given set that subsume others
-//            if(size(types) > 1){
-//                types = {tp1 | tp1 <- types,
-//                               isConstructorType(tp1) 
-//                               || ( tp1Args := getFunctionOrConstructorArgumentTypes(tp1) &&
-//                                    !any(tp2 <- types, 
-//                                        tp1 != tp2, !isConstructorType(tp2),
-//                                        tp2Args := getFunctionOrConstructorArgumentTypes(tp2),   
-//                                        asubtype(tp1Args, tp2Args)))
-//                        };
-//            }
-//            
-//            // Create resolvers for the remaining types
-//            //iprintln(types);
-//            for(ftype <- types){
-//                ovl_non_defaults = [];
-//                ovl_defaults = [];
-//                ovl_constructors = [];
-//                reduced_overloads = {};
-//           
-//                resType = avoid();
-//                formalsType = avoid();
-//                
-//                for(def <- defs){
-//                    tp = unsetRec(getDefType(def.defined));
-//                    //if(asubtype(tp, ftype)){
-//                         reduced_overloads += <def.defined, def.idRole, tp>;
-//                         resType = alub(resType, getResult(tp));
-//                         formalsType = alub(formalsType, atypeList(getFormals(tp)));
-//                        if(def.idRole == constructorId()){
-//                            ovl_constructors += def.defined;
-//                        } else if(def.idRole == functionId()){
-//                            if(def.defined in defaultFunctions) 
-//                                ovl_defaults += def.defined;
-//                            else 
-//                                ovl_non_defaults += def.defined;
-//                        }
-//                   //} //else {
-//                   //     println("**** Skipping incompatible def: <def> ****");
-//                   //}
-//                }
-//                sorted_non_defaults = sortFunctions(ovl_non_defaults);
-//                sorted_defaults = sortFunctions(ovl_defaults);
-//                sorted_constructors = sortFunctions(ovl_constructors);
-//                
-//                funs = sorted_non_defaults+sorted_defaults;
-//                seenCannotFail = false;
-//                cannotFailFun = |unknown:///|;
-//                for(f <- funs){
-//                    if(seenCannotFail){ 
-//                        println ("****WARNING**** function <f> will never be called, overruled by <cannotFailFun>");
-//                    } else {
-//                        cf = definitions[f].defInfo.canFail;
-//                        if(!cf){
-//                            seenCannotFail = true;
-//                            cannotFailFun = f;
-//                        }
-//                    }
-//                }
-//                alts = sorted_non_defaults + sorted_defaults + sorted_constructors;
-//                scope_prefix = "";
-//               
-//                first_alt = definitions[alts[0]];
-//                if(first_alt.scope notin module_scopes && definitions[first_alt.scope]?){
-//                    scope_def = definitions[first_alt.scope];
-//                    scope_prefix = "<scope_def.id>_<scope_def.defined.begin.line>A<scope_def.defined.offset>L<scope_def.defined.length>_";
-//                }
-//                oname = "<scope_prefix><fname>_AT_<intercalate("_OR_",  abbreviate(alts))>";
-//                
-//                ftype2 =  afunc(resType, formalsType.atypes, []);
-//                ofun = <fname,  ftype2, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
-//                if(!overloadingResolver[oname]?){
-//                    overloadedFunctions += ofun;
-//                    overloadingResolver[oname] = ofun;
-//                    overloadedTypeResolver[<fname, ftype2, first_alt.scope>] = oname;
-//                }
-//            }
-//        }
-//   }
-//   
-//   // Create "umbrella" resolvers for overloaded functions that have different formal types
-//   //iprintln(funNameAndDef);
-//   
-//   bool isInScope(OFUN ovl, loc scope){
-//    return (isEmpty(ovl.ofunctions) || all(of <- ovl.ofunctions, definitions[of].scope == scope)) &&
-//           (isEmpty(ovl.oconstructors) || all(of <- ovl.oconstructors, definitions[of].scope == scope));
-//   }
-//   
-//   for(fname <- domain(funNameAndDef)){
-//        fname_scopes = {def. scope | def <- funNameAndDef[fname]};
-//        for(fname_scope <- fname_scopes){
-//            fname_types = { tp | <fname, AType tp, fname_scope> <- domain(overloadedTypeResolver) /*, OFUN ovl := overloadingResolver[overloadedTypeResolver[<fname, tp>]], isInScope(ovl, fname_scope)*/ };
-//            max_arity = (0 | max(it, getArity(tp)) | tp <- fname_types);
-//            for(int arity <- [0 .. max_arity+1]){
-//               ftypes_of_arity = { tp | tp <- fname_types, getArity(tp) == arity };
-//               if(size(ftypes_of_arity) > 1){
-//                    lub_ftype = (avoid() | alub(it, ftype) | ftype <- ftypes_of_arity);
-//                    oname = "umbrella_<intercalate("_OR_",  [ overloadedTypeResolver[<fname, ftype, fname_scope>] | ftype <- ftypes_of_arity ])>";
-//                    ofun = <fname,  lub_ftype, oname, [ *res.ofunctions | ftype <- ftypes_of_arity, OFUN res := overloadingResolver[overloadedTypeResolver[<fname, ftype, fname_scope>]]],
-//                                                      [ *res.oconstructors | ftype <- ftypes_of_arity, OFUN res := overloadingResolver[overloadedTypeResolver[<fname, ftype, fname_scope>]]]
-//                           >;
-//                    if(!overloadingResolver[oname]?){
-//                        overloadedFunctions += ofun;
-//                        overloadingResolver[oname] = ofun;
-//                        overloadedTypeResolver[<fname, lub_ftype, fname_scope>] = oname;
-//                    }
-//               }
-//            }
-//        }
-//   
-//   }
 }
 
 private list[str] abbreviate(list[loc] locs){
@@ -582,7 +377,7 @@ loc declareGeneratedFunction(str name, str fuid, AType rtype, loc src){
     uid = src;
     functions += {uid};
    
-    return  src; //-1; //overloadingResolver[fuid];
+    return src;
 }
 
 /********************************************************************/

@@ -370,34 +370,6 @@ JCode trans(MuFunction fun, JGenie jg){
                                     '    <nonConstantKwpDefaults>
                                     '    <body>
                                     '}";
-    //} else
-    //if(acons(AType adt, list[AType] fields, list[Keyword] kwFields) := ftype){
-    //    returnType = "IConstructor";
-    //    qname = getJavaName(ftype.label);
-    //    argTypes = intercalate(", ", [ "<atype2javatype(f)> <varName(fields[i], jg)>" | i <- index(fields)]);
-    //    kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-    //    kwpDefaults = fun.kwpDefaults;
-    //    constantKwpDefaults = "";
-    //    nonConstantKwpDefaults = "";
-    //    mapCode = "Maps.builder()<for(<str key, AType tp, MuExp defaultExp> <- kwpDefaults){>.key(\"<key>\").value(<trans(defaultExp,jg)>)<}>.build();\n";
-    //    if(!isEmpty(kwFields)){
-    //        uncheckedWarning = "@SuppressWarnings(\"unchecked\")";
-    //        argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
-    //        if(constantDefaults(kwpDefaults)){
-    //            kwpDefaultsName = "<qname>_$kwpDefaults";
-    //            jg.setKwpDefaults(kwpDefaultsName);
-    //            constantKwpDefaults = "final java.util.Map\<java.lang.String,IValue\> <kwpDefaultsName> = <mapCode>";
-    //         } else {
-    //            jg.setKwpDefaults("$kwpDefaults");
-    //            nonConstantKwpDefaults =  "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = <mapCode>";
-    //         }   
-    //    }
-    //    return "<constantKwpDefaults>
-    //           '<uncheckedWarning>
-    //           '<returnType> <qname>(<argTypes>){
-    //           '     <nonConstantKwpDefaults>
-    //           '     <trans(fun.body, jg)>
-    //           '}";
     } else
         throw "trans MuFunction: <ftype>";
 }
@@ -420,7 +392,6 @@ JCode transGetter(MuFunction fun, JGenie jg){
                                     '}";
      }
      throw "transGetter: <ftype>";
-
 }
 
 JCode call(MuFunction fun, list[str] actuals, JGenie jg){
@@ -701,18 +672,14 @@ JCode trans(muGuardedGetAnno(MuExp exp, AType resultType, str annoName), JGenie 
 
 JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs), JGenie jg){
 
-    argTypes = getFunctionOrConstructorArgumentTypes(ftype);
-    //actuals = getActuals(getFunctionOrConstructorArgumentTypes(ftype), largs, jg);
-    
+    argTypes = getFunctionOrConstructorArgumentTypes(ftype);    
     <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
     
     if(muConstr(AType ctype) := fun){
         <actuals, kwactuals> = getPositionalAndKeywordActuals(ctype, largs, kwargs, jg);
         return makeConstructorCall(ctype, actuals, kwactuals, jg);        
     }
-    //if(muConstrCompanion(str fname) := fun){
-    //    return call(muFunctions[fname], actuals, jg);
-    //}
+   
     if(muCon(str s) := fun){
         if(map[str,value] kwmap := actuals[-1]){
             actuals = getActuals(argTypes, largs, jg);
@@ -726,35 +693,6 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, 
     }
     
     <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
-    //kwActuals = "";
-    //
-    //if(!isEmpty(ftype.kwFormals)){
-    //    if(muKwpActuals(_) := largs[-1]){
-    //        kwActuals = trans(largs[-1], jg);
-    //        largs = largs[..-1];
-    //    }
-    //}
-    //varActuals = "";
-    //if(ftype.varArgs){
-    //    n = size(ftype.formals);
-    //    varElemType = getElementType(ftype.formals[-1]);
-    //    vargs = [ trans(e, jg) | e <- largs[n -1 .. ] ];
-    //    argTypes = argTypes[ .. n - 1];
-    //    if(isEmpty(vargs)){
-    //        varActuals = "$VF.list()";
-    //    } else {
-    //        lastArgIsList = size(largs) == n && isListType(getType(largs[-1]));
-    //        largs = largs[ .. n - 1];
-    //        varActuals = lastArgIsList ? intercalate(",", vargs) : "$VF.list(<intercalate(",", vargs)>)";
-    //    }
-    //}
-    //actuals = getActuals(argTypes, largs, jg);
-    //if(ftype.varArgs){
-    //    actuals += varActuals;
-    //}
-    //if(!isEmpty(kwActuals)){
-    //    actuals += kwActuals;
-    //}
     
     all_actuals = actuals + kwactuals;
     if(muFun(loc uid, _) := fun){
