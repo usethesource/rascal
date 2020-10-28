@@ -482,6 +482,10 @@ str trans(muTreeAppl(MuExp p, list[MuExp] args, loc src), JGenie jg)
 str trans(muTreeChar(int ch), JGenie jg) 
   = "$RVF.character(<ch>)";  
 
+str trans(muTreeGetProduction(MuExp t), JGenie jg) = "((org.rascalmpl.values.parsetrees.ITree) <trans(t,jg)>).getProduction()";
+
+str trans(muTreeGetArgs(MuExp t), JGenie jg) = "((org.rascalmpl.values.parsetrees.ITree) <trans(t, jg)>).getArgs()";
+
 str trans(c:muCompose(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType), JGenie jg){
     println(c);
 }

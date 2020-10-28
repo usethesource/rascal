@@ -165,7 +165,8 @@ default MuExp translatePat(p:(Pattern) `<Literal lit>`, AType subjectType, MuExp
 MuExp translatePat(Literal lit, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([]))
     = translateLitPat(lit, subjectType, subject, btscopes, trueCont, falseCont);
 
-MuExp translateLitPat(Literal lit, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) = muIfelse(muEqual(translate(lit), subject), trueCont, falseCont);
+MuExp translateLitPat(Literal lit, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) 
+  = muIfelse(muEqual(translate(lit), subject), trueCont, falseCont);
 
 // ==== regexp pattern ========================================================
 
@@ -336,49 +337,49 @@ tuple[MuExp var, list[MuExp] exps] extractNamedRegExp((RegExp) `\<<Name name>:<N
 }
 
 // ==== concrete syntax pattern ===============================================
-//TODO
-MuExp translatePat(p:(Pattern) `<Concrete concrete>`, AType subjectType, MuExp restore = muBlock([])) = translateConcretePattern(p);
 
-/*
-lexical Concrete 
-  = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
-
-lexical ConcretePart
-  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
-  | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
-  | @category="MetaVariable" hole : ConcreteHole hole
-  | @category="MetaSkipped" lt: "\\\<"
-  | @category="MetaSkipped" gt: "\\\>"
-  | @category="MetaSkipped" bq: "\\`"
-  | @category="MetaSkipped" bs: "\\\\"
-  ;
+MuExp translateConcrete(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete]), 
+                  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+  { 
+    return translateConcrete(concrete, subject, btscopes, trueCont, falseCont, restore=restore); 
+  }
   
-syntax ConcreteHole 
-  = \one: "\<" Sym symbol Name name "\>"
-  ;
-*/
+// this is left when a concrete pattern was not parsed correctly:  
+MuExp translatePat(e:appl(prod(Symbol::label("typed",Symbol::lex("Concrete")), [_],_),[Tree concrete]), 
+                   AType _, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+  = muValueBlock([muThrow(muCon("(compile-time) parse error in concrete syntax", e@\loc))]);   
 
-/*
- * The global implementation strategy for concrete patterns is as follows:
- * - parseFragment is applied to parse and translate all embedded concrete patterns in well-typed parse trees with holes
- * - next these parsed concrete patterns are compiled to RVM pattern matching code.
- * - a major part of concrete matching concerns list matching. We reuse MATCH_LIST but have added a number of library functions to handle
- *   aspects of concrete patterns:
- *   - MATCH_APPL_IN_LIST: match a list element of the form appl(prod(...), ...)
- *   - MATCH_LIT_IN_LIST: match a lsit element of the form appl(prod(lit(S),...)
- *   - MATCH_OPTIONAL_LAYOUT_IN_LIST: skips potential layout between list elements
- *   - MATCH_CONCRETE_MULTIVAR_IN_LIST
- *   - MATCH_LAST_CONCRETE_MULTIVAR_IN_LIST
- *   - SKIP_OPTIONAL_SEPARATOR: match a separator before or after a multivariable
- *   - MATCH_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST
- *   - MATCH_LAST_CONCRETE_MULTIVAR_WITH_SEPARATORS_IN_LIST
-*/
+MuExp translateConcrete(appl(prod(lit(_),_,_), _), MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+  = trueCont;
+  
+MuExp translateConcrete(appl(prod(cilit(_),_,_), _), MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+  = trueCont;   
 
-MuExp translateConcretePattern(p:(Pattern) `<Concrete concrete>`) { 
-  //println("translateConcretePattern:,<getType(p)>");
-  return translateParsedConcretePattern(parseConcrete(concrete), getType(p));
+MuExp translateConcrete(appl(prod(layouts(_),_,_), _), MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+  = trueCont;   
+
+MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol _))}), [ConcreteHole hole]),
+                        MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
+   var = mkVar(prettyPrintName(hole.name), hole.name@\loc);
+   return muBlock([muVarInit(var, subjectExp), trueCont]);
 }
 
+MuExp translateConcrete(t:char(int i),
+                        MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+ = muIfelse(muEqual(muCon(char(i)), subject), trueCont, falseCont);                            
+                               
+default MuExp translateConcrete(t:appl(Production prod, list[Tree] args),
+                               MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([]))  {
+   body = trueCont;
+   
+   for(int i <- reverse(index(args))) {
+       // TODO introduce temporaries voor muSubscripts
+       body = translateConcrete(args[i], muSubscript(muTreeGetArgs(subject), muCon(i)), btscopes, body, falseCont, restore=restore);
+   }                    
+                        
+   return muIfelse(muEqual(muCon(prod), muTreeGetProduction(subject)), body, falseCont);
+}
+    
 bool isConcreteHole(appl(Production prod, list[Tree] args)) = prod.def == Symbol::label("hole", lex("ConcretePart"));
 
 loc getConcreteHoleVarLoc(h: appl(Production prod, list[Tree] args)) {
@@ -1857,8 +1858,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
 }
 
 MuExp translatePat(p:(Pattern) `<Concrete con>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) {
-  // TODO implement concrete pattern matching
-  return falseCont;
+  return translateConcrete(con, subjectExp, btscopes, trueCont, falseCont, restore=restore);
 } 
 
 // -- default rule for pattern ---------------------------------------
@@ -1867,9 +1867,7 @@ default BTINFO getBTInfo(Pattern p, BTSCOPE btscope, BTSCOPES btscopes)
     = registerBTScope(p, btscope, btscopes);
 
 default MuExp translatePat(Pattern p, AType subjectType,  MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) { 
-    iprintln(p); 
-    println("Pattern <p> cannot be translated");
-    return falseCont; 
+    return muValueBlock([muThrow(muCon("could not translate pattern <p>: <p@\loc>"))]); 
 }
 
 
