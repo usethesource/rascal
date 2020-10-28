@@ -477,7 +477,7 @@ str atype2istype(str e, AType t)                           = atype2istype1(e, "g
 str atype2isElementType(str e, AType t)                    = atype2istype1(e, "getElementType()", t);
 str atype2isKeyType(str e, AType t)                        = atype2istype1(e, "getKeyType()", t);
 str atype2isValueType(str e, AType t)                      {
-    return  atype2istype1(e, "getValueType()", t);
+    return  atype2istype1(e, "getType().getValueType()", t);
 }
 str atype2isFieldType(str e, int i, AType t)               = atype2istype1(e, "getType().getFieldType(<i>)", t);
 str atype2isRelFieldType(str e, int i, AType t)            = atype2istype1("((ISet)<e>).asRelation()", "getElementType().getFieldType(<i>)", t);
