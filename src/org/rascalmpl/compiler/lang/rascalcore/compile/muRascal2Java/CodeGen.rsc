@@ -480,7 +480,7 @@ str trans(muTreeAppl(Production p, list[MuExp] args, loc src), JGenie jg)
   = "$RVF.appl(<value2IValue(p)>, $VF.list(<intercalate(",", [trans(a, jg) | a <- args])>))";
   
 str trans(muTreeChar(int ch), JGenie jg) 
-  = "$RVF.char(<ch>)";  
+  = "$RVF.character(<ch>)";  
 
 str trans(c:muCompose(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType), JGenie jg){
     println(c);

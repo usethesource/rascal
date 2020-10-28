@@ -37,7 +37,7 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
    }
 
    M = visit(M) {
-     case t:appl(p:prod(label("concrete",sort(/Expression|Pattern/)), _, _),[Tree concrete])
+     case Tree t:appl(p:prod(label("concrete",sort(/Expression|Pattern/)), _, _),[Tree concrete])
           => appl(p, [parseFragment(concrete)])[@\loc=t@\loc]
    }
    
@@ -78,9 +78,9 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    // use by the code generator)
    // TODO: move the source annotations on the tree according to shifts recorded earlier
    tree = visit (tree) {
-     case t:appl(prod(label("$MetaHole", vartype), _, _), [_,_,_,i,_],_) => 
-          appl(prod(label("$MetaHole", vartype),[sort("ConcreteHole")], {}), 
-               [holes[toInt("<i>")]])[@\loc=t@\loc] 
+     case Tree v:appl(prod(Symbol::label("$MetaHole", Symbol varType), _, {\tag("holeType"(Symbol ht))}), [char(0),_,_,Tree i,char(0)]) => 
+          appl(prod(label("$MetaHole", varType),[Symbol::sort("ConcreteHole")], {\tag("holeType"(ht))}), 
+               [holes[toInt("<i>")]])[@\loc=v@\loc]
    }
    
    return tree;
