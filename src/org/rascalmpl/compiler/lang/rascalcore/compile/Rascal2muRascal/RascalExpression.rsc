@@ -532,9 +532,9 @@ MuExp translate(e:appl(prod(label("parsed",lex("Concrete")), [_],_),[Tree concre
 MuExp translate(e:appl(prod(label("typed",lex("Concrete")), [_],_),_))
   = muThrow(muCon("(compile-time) parse error in concrete syntax", e@\loc));   
   
-private MuExp translateConcrete(t:appl(prod(label("$MetaHole", Symbol vartype),[sort("ConcreteHole")], {}), [ConcreteHole hole])) {
-    <fuid, pos> = getVariableScope("ConcreteVar", getConcreteHoleVarLoc(t));
-    return muVar("ConcreteVar", fuid, pos);    
+private MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol _))}), [ConcreteHole hole])) {
+    <fuid, pos> = getVariableScope("<hole.name>", getConcreteHoleVarLoc(t));
+    return muVar("<hole.name>", fuid, pos, getType(hole.symbol@\loc));    
 }
 
 //private MuExp translateConcrete(t:appl(p:regular(\iter-seps(elem, seps)), list[Tree] args)) 
@@ -545,7 +545,7 @@ private MuExp translateConcrete(t:appl(prod(label("$MetaHole", Symbol vartype),[
         
 // TODO add cases for lists (remove separators when empty is substituted)
 private default MuExp translateConcrete(t:appl(Production p, list[Tree] args)) 
-  = muTreeAppl(p, [translateConcrete(a) | a <- args], t@\loc);
+  = muTreeAppl(p, [translateConcrete(a) | a <- args], (t@\loc?) ? t@\loc : |unknown:///|);
 
 private MuExp translateConcrete(char(int i)) =  muTreeChar(i);
 
