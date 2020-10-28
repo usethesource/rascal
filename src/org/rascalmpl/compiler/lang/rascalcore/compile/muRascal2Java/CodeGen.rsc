@@ -476,8 +476,8 @@ str trans(muConstr(AType ctype), JGenie jg){
     return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, hasKeywordParameters(ctype) || jg.hasCommonKeywordFields(ctype) ? [kwpActuals] : [], jg)>; })";
 }
 
-str trans(muTreeAppl(Production p, list[MuExp] args, loc src), JGenie jg) 
-  = "$RVF.appl(<value2IValue(p)>, $VF.list(<intercalate(",", [trans(a, jg) | a <- args])>))";
+str trans(muTreeAppl(MuExp p, list[MuExp] args, loc src), JGenie jg) 
+  = "$RVF.appl(<trans(p, jg)>, $VF.list(<intercalate(",", [trans(a, jg) | a <- args])>))";
   
 str trans(muTreeChar(int ch), JGenie jg) 
   = "$RVF.character(<ch>)";  
