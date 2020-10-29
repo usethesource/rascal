@@ -32,8 +32,6 @@ data JGenie
         AType (loc src) getType,
         str(loc def) getImportedModuleName,
         str (list[loc] srcs) getAccessor,
-        //str (str oname, AType otype) getAccessorOverloaded,
-        //str (loc src) getAccessorInResolver,
         Define (loc src) getDefine,
         list[MuExp] (loc src) getExternalVars,
         void(str name) setKwpDefaults,
@@ -52,11 +50,6 @@ data JGenie
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
-        //void (rel[str,AType,str]) addMergedOverloads,
-        //str(str,AType) finalResolverName,
-        //void (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads, list[MuExp] externalVars) addResolver,
-        //bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) isResolved,
-        //list[MuExp] (str resolverName) getExternalVarsResolver,
         bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions
       )
     ;
@@ -367,31 +360,6 @@ JGenie makeJGenie(MuModule m,
     void _addMergedOverloads(rel[str,AType,str] merged){
         mergedOverloads += merged;
     }
-    //str _finalResolverName(str fname, AType funType){
-    //    funType = unsetRec(funType);
-    //    if( overloadedAType(rel[loc, IdRole, AType] overloads)  := funType){
-    //        funType = lubList(toList(overloads<2>));
-    //    }
-    //    if({finalName} := mergedOverloads[fname, unsetRec(funType)]) 
-    //        return finalName;
-    //    return fname;
-    //}
-    
-    //void _addResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads, list[MuExp] externalVars){
-    //    resolvers += overloads;
-    //    resolver2externalVars[overloads.scope] = externalVars;
-    //}
-    //bool _isResolved(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
-    //    return overloads in resolvers;
-    //}
-    
-    //list[MuExp] _getExternalVarsResolver(str resolverName){
-    //     if(resolver2externalVars[resolverName]?){
-    //        return resolver2externalVars[resolverName];
-    //     }
-    //     return [];
-    //     //throw "Unknown resolver <resolverName>";
-    //}
     
     bool _usesLocalFunctions(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
         return    any(of <- overloads.ofunctions, isContainedIn(currentTModel.definitions[of].defined, currentModuleScope))
@@ -414,8 +382,6 @@ JGenie makeJGenie(MuModule m,
                 _getType,
                 _getImportedModuleName,
                 _getAccessor,
-                //_getAccessorOverloaded,
-                //_getAccessorInResolver,
                 _getDefine,
                 _getExternalVars,
                 _setKwpDefaults,
@@ -434,11 +400,6 @@ JGenie makeJGenie(MuModule m,
                 _newTmp,
                 _addImportedLibrary,
                 _getImportedLibraries,
-                //_addMergedOverloads,
-                //_finalResolverName,
-                //_addResolver,
-               // _isResolved,
-               // _getExternalVarsResolver,
                 _usesLocalFunctions
             );
 }

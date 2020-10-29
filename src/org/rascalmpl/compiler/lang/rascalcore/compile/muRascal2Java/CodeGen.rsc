@@ -35,9 +35,6 @@ bool debug = false;
 
 map[str, MuFunction] muFunctions = ();
 map[loc, MuFunction] loc2muFunction = ();
-map[str,str] resolved2overloaded = ();
-map[str,AType] resolved2type = ();
-map[str, list[MuExp]] resolved2external = ();
 
 // ---- muModule --------------------------------------------------------------
 
@@ -57,14 +54,12 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"); }
     muFunctions = (f.uniqueName : f | f <- m.functions);
     loc2muFunction = (f.src : f | f <- m.functions);
+    jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
+    resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs, jg);
     
-    resolvers = generateResolvers(moduleName, loc2muFunction, imports, extends, tmodels, moduleLocs);
-    
-    resolved2overloaded = ();
-    //iprintln(m.overloaded_functions);
     moduleScopes = range(moduleLocs); //{ s |tm <- range(tmodels), s <- tm.scopes, tm.scopes[s] == |global-scope:///| };
     
-    jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
+  
     <typestore, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors);
     
     bool hasMainFunction = false;
@@ -775,7 +770,7 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
         if(hasKeywordParameters(ftype)){
             actuals += getKwpActuals(kwargs, jg);
         }
-        externalVars = {}; //jg.getExternalVarsResolver(fname);
+        externalVars = { *jg.getExternalVars(fsrc) | fsrc <- srcs };
         actuals += [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
         return "<jg.getAccessor(srcs)>(<intercalate(", ", actuals)>)";
     }
