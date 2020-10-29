@@ -521,43 +521,79 @@ MuExp translateBool(e:(Expression)  `<Literal s>`, BTSCOPES btscopes, MuExp true
 
 
 // -- concrete syntax expression  ------------------------------------
-//TODO
-//MuExp translate(e:(Expression) `<Concrete concrete>`) {
-//    return translateConcrete(concrete);
-//}
 
-
-// appl(prod(label("parsed",Symbol::lex("Concrete")), [sym], {})
+// this detects that the concrete string has been parsed correctly and we can 
+// switch to compiling the tree values to muRascal expressions:
 MuExp translate(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete]))
   = translateConcrete(concrete);
   
+// this detects that a parse error has occurred earlier and we generate an exception here:  
 MuExp translate(e:appl(prod(label("typed",lex("Concrete")), [_],_),_))
   = muValueBlock([muThrow(muCon("(compile-time) parse error in concrete syntax", e@\loc))]);   
 
+// these three constant parts of trees are directly mapped to constants:
 private MuExp translateConcrete(t:appl(prod(lit(_),_, _), _)) = muCon(t);
 private MuExp translateConcrete(t:appl(prod(cilit(_),_, _), _)) = muCon(t);
 private MuExp translateConcrete(t:appl(prod(layouts(_),_, _), _)) = muCon(t);
   
+// this is a pattern variable, which we substitute with a reference to a muVariable:  
 private MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol _))}), [ConcreteHole hole])) {
     <fuid, pos> = getVariableScope("<hole.name>", getConcreteHoleVarLoc(t));
     return muVar("<hole.name>", fuid, pos, getType(hole.symbol@\loc));    
 }
 
-//private MuExp translateConcrete(t:appl(p:regular(\iter-seps(elem, seps)), list[Tree] args)) 
-//  = muTreeAppl(p, muBlock(translateConcreteSeparatedList(elem, seps, args)), t@\loc);
-//  
-//private MuExp translateConcrete(t:appl(p:regular(\iter-star-seps(elem, seps)), list[Tree] args)) 
-//  = muTreeAppl(p, muBlock(translateConcreteSeparatedList(elem, seps, args)), t@\loc);  
-        
-// TODO add cases for lists (remove separators when empty is substituted)
-private default MuExp translateConcrete(t:appl(Production p, list[Tree] args)) 
-  = muTreeAppl(muCon(p), [translateConcrete(a) | a <- args], (t@\loc?) ? t@\loc : |unknown:///|);
+// Four cases of lists are detected to be able to implement splicing
+// splicing is different for separated lists from normal lists
+private MuExp translateConcrete(t:appl(regular(s:iter(Symbol elem)), list[Tree] args))
+  = translateConcreteList(elem, args);
+
+private MuExp translateConcrete(t:appl(regular(s:\iter-star(Symbol elem)), list[Tree] args))
+  = translateConcreteList(elem, args); 
+   
+private MuExp translateConcrete(t:appl(regular(s:\iter-seps(Symbol elem)), list[Tree] args))
+  = translateConcreteSeparatedList(elem, args);
+
+private MuExp translateConcrete(t:appl(regular(s:\iter-star-seps(Symbol elem)), list[Tree] args))
+  = translateConcreteSeparatedList(elem, args); 
 
 private MuExp translateConcrete(char(int i)) =  muTreeChar(i);
 
-bool isListStarVar(appl(prod(label("$MetaHole", \iter-star(_)),[sort("ConcreteHole")], {}), [_])) = true;
-bool isListStarVar(appl(prod(label("$MetaHole", \iter-seps-star(_)),[sort("ConcreteHole")], {}), [_])) = true;
+// this is a normal parse tree node:
+private default MuExp translateConcrete(t:appl(Production p, list[Tree] args)) 
+  = muTreeAppl(muCon(p), [translateConcrete(a) | a <- args], (t@\loc?) ? t@\loc : |unknown:///|);
+
+
+bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter(elem)))}), [_])) = true;
+bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-seps(elem,_)))}), [_])) = true;
+default bool isListPlusVar(Tree _) = false;
+bool isListStarVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-star(elem)))}), [_])) = true;
+bool isListStarVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-star-seps(elem,_)))}), [_])) = true;
 default bool isListStarVar(Tree _) = false;
+
+bool isListVar(Symbol elem, Tree x) = isListPlusVar(elem, x) || isListStarVar(elem, x);
+
+private MuExp translateConcreteList(Symbol eltType, list[Tree] elems) {
+    str fuid = topFunctionScope();
+       
+    writer = muTmpListWriter(nextTmp("writer"), fuid);   
+    
+    enterWriter(writer.name);
+    
+    code = for (Tree elem <- elems) {
+       if (isListVar(eltType, elem2)) {
+          append muCallPrim3("splice_list", avoid(), [avalue(), getType(elem).atype], [writer, muTreeGetArguments(translateConcrete(elem))], elem.argument@\loc);
+       }
+       else {
+          append muCallPrim3("add_list_writer", avoid(), [avalue(), getType(elem)], [writer, translateConcrete(elem)], elem@\loc);
+       }
+    }
+   
+    code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], e@\loc)), *code];
+    leaveWriter();
+   
+    <fuid, pos> = getVariableScope("ConcreteVar", getConcreteHoleVarLoc(t));
+    return muValueBlock(\alist(aadt("Tree",[], dataSyntax())), code);
+}
 
 private MuExp translateConcreteSeparatedList(Symbol elem, list[Symbol] seps, []) = muCon([]);
 private MuExp translateConcreteSeparatedList(Symbol elem, list[Symbol] seps, [Tree single]) 
@@ -595,59 +631,6 @@ private default MuExp translateConcreteSeparatedList(Symbol elem, list[Symbol] s
     return muValueBlock(\alist(aadt("Tree",[])), code);
 }
 
-//   if(t:appl(Production prod, list[Tree] args) := e){
-//       my_src = e@\loc ? src;
-//       //iprintln("translateConcreteParsed:"); iprintln(e);
-//       if(isConcreteHole(t)){
-//           varloc = getConcreteHoleVarLoc(t);
-//           //println("varloc = <getType(varloc)>");
-//           <fuid, pos> = getVariableScope("ConcreteVar", varloc);
-//           
-//           return muVar("ConcreteVar", fuid, pos);
-//        } 
-//        MuExp translated_elems;
-//        if(any(arg <- args, isConcreteListVar(arg))){ 
-//           //println("splice in concrete list");      
-//           str fuid = topFunctionScope();
-//           writer = nextTmp();
-//        
-//           translated_args = [ muCallPrim3(isConcreteListVar(arg) ? "listwriter_splice_concrete_list_var" : "listwriter_add", 
-//                                          [muTmpIValue(writer,fuid), translateConcreteParsed(arg, my_src)], my_src)
-//                             | Tree arg <- args
-//                             ];
-//           translated_elems = muValueBlock([ muConInit(muTmpListWriter(writer, fuid), muCallPrim3("listwriter_open", [], my_src)),
-//                                             *translated_args,
-//                                             muCallPrim3("listwriter_close", [muTmpIValue(writer,fuid)], my_src) 
-//                                           ]);
-//        } else {
-//           translated_args = [translateConcreteParsed(arg, my_src) | Tree arg <- args];
-//           if(allConstant(translated_args)){
-//        	  return muCon(appl(prod, [ce | muCon(Tree ce) <- translated_args])[@\loc=my_src]);
-//           }
-//           translated_elems = muCallPrim3("list_create", translated_args, my_src);
-//        }
-//        return muCallPrim3("annotation_set", [muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-//                                                    [muCon(prod), translated_elems, muCallMuPrim("make_mmap", []), muTypeCon(avoid())]),
-//        								     muCon("loc"), 
-//        								     muCon(my_src)], e@\loc);
-//        //return muCall(muConstr("ParseTree/adt(\"Tree\",[])::appl(adt(\"Production\",[]) prod;list(adt(\"Tree\",[])) args;)"), 
-//        //              [muCon(prod), translated_elems, muTypeCon(avoid())]);
-//    } else {
-//        return muCon(e);
-//    }
-//}
-
-private bool isConcreteListVar(e: appl(Production prod, list[Tree] args)){
-   if(isConcreteHole(e)){
-      varloc = getConcreteHoleVarLoc(e);
-      varType = getType(varloc);
-      typeName = getName(varType);
-      return typeName in {"iter", "iter-star", "iter-seps", "iter-star-seps"};
-   }
-   return false;
-}
-
-private default bool isConcreteListVar(Tree t) = false;
 
 // -- block expression ----------------------------------------------
 
