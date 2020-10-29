@@ -544,17 +544,17 @@ private MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _)
 
 // Four cases of lists are detected to be able to implement splicing
 // splicing is different for separated lists from normal lists
-private MuExp translateConcrete(t:appl(regular(s:iter(Symbol elem)), list[Tree] args))
-  = translateConcreteList(elem, args);
+private MuExp translateConcrete(t:appl(p:regular(s:iter(Symbol elem)), list[Tree] args))
+  = muTreeAppl(muCon(p), translateConcreteList(elem, args, t@\loc));
 
-private MuExp translateConcrete(t:appl(regular(s:\iter-star(Symbol elem)), list[Tree] args))
-  = translateConcreteList(elem, args); 
+private MuExp translateConcrete(t:appl(p:regular(s:\iter-star(Symbol elem)), list[Tree] args))
+  = muTreeAppl(muCon(p), translateConcreteList(elem, args, t@\loc)); 
    
-private MuExp translateConcrete(t:appl(regular(s:\iter-seps(Symbol elem)), list[Tree] args))
-  = translateConcreteSeparatedList(elem, args);
+private MuExp translateConcrete(t:appl(p:regular(s:\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
+  = muTreeAppl(muCon(p), translateConcreteSeparatedList(elem, seps, args, t@\loc));
 
-private MuExp translateConcrete(t:appl(regular(s:\iter-star-seps(Symbol elem)), list[Tree] args))
-  = translateConcreteSeparatedList(elem, args); 
+private MuExp translateConcrete(t:appl(p:regular(s:\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
+  = muTreeAppl(muCon(p), translateConcreteSeparatedList(elem, seps, args, t@\loc)); 
 
 private MuExp translateConcrete(char(int i)) =  muTreeChar(i);
 
@@ -565,14 +565,19 @@ private default MuExp translateConcrete(t:appl(Production p, list[Tree] args))
 
 bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter(elem)))}), [_])) = true;
 bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-seps(elem,_)))}), [_])) = true;
-default bool isListPlusVar(Tree _) = false;
+default bool isListPlusVar(Symbol _, Tree _) = false;
+
 bool isListStarVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-star(elem)))}), [_])) = true;
 bool isListStarVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-star-seps(elem,_)))}), [_])) = true;
-default bool isListStarVar(Tree _) = false;
+default bool isListStarVar(Symbol _,Tree _) = false;
 
 bool isListVar(Symbol elem, Tree x) = isListPlusVar(elem, x) || isListStarVar(elem, x);
 
-private MuExp translateConcreteList(Symbol eltType, list[Tree] elems) {
+private AType aTree = aTree;
+
+private MuExp translateConcreteList(Symbol eltType, []) = muCon([]);
+
+private MuExp translateConcreteList(Symbol eltType, list[Tree] elems:![], loc src) {
     str fuid = topFunctionScope();
        
     writer = muTmpListWriter(nextTmp("writer"), fuid);   
@@ -580,55 +585,97 @@ private MuExp translateConcreteList(Symbol eltType, list[Tree] elems) {
     enterWriter(writer.name);
     
     code = for (Tree elem <- elems) {
-       if (isListVar(eltType, elem2)) {
-          append muCallPrim3("splice_list", avoid(), [avalue(), getType(elem).atype], [writer, muTreeGetArguments(translateConcrete(elem))], elem.argument@\loc);
+       if (isListVar(eltType, elem)) {
+          append muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, muTreeGetArguments(translateConcrete(elem))], src);
        }
        else {
-          append muCallPrim3("add_list_writer", avoid(), [avalue(), getType(elem)], [writer, translateConcrete(elem)], elem@\loc);
+          append muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(elem)], src);
        }
     }
    
-    code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], e@\loc)), *code];
+    code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], src)), *code];
     leaveWriter();
    
-    <fuid, pos> = getVariableScope("ConcreteVar", getConcreteHoleVarLoc(t));
-    return muValueBlock(\alist(aadt("Tree",[], dataSyntax())), code);
+    return muValueBlock(\alist(aTree), [*code, muCallPrim3("close_list_writer", alist(aTree), [avalue()], [writer], src)]);
 }
 
-private MuExp translateConcreteSeparatedList(Symbol elem, list[Symbol] seps, []) = muCon([]);
-private MuExp translateConcreteSeparatedList(Symbol elem, list[Symbol] seps, [Tree single]) 
-  = muCallPrim3("create_list", getType(single), [elem], [translateConcrete(single)], single@\loc) when !isListStarVar(single);
-  
-private MuExp translateConcreteSeparatedList(Symbol elem, list[Symbol] seps, [Tree single]) 
-  = muCallPrim3("create_list", getType(single), [elem], [translateConcrete(single)], single@\loc) when isListStarVar(single); // TODO: splice
-   
+private MuExp translateConcreteSeparatedList(Symbol _, list[Symbol] _, [], loc _) = muCon([]);
 
-private default MuExp translateConcreteSeparatedList(Symbol elem, list[Symbol] seps, list[Tree] args) {
+private MuExp translateConcreteSeparatedList(Symbol _, list[Symbol] _, [Tree single], loc src) {
     str fuid = topFunctionScope();
        
     writer = muTmpListWriter(nextTmp("writer"), fuid);   
+    
     enterWriter(writer.name);
     
-    code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], e@\loc))];
-              //code += muCallPrim3("splice_<kind>", avoid(), [avalue(), getType(elem)], [writer, translate(elem.argument)], elem.argument@\loc);
-              //code += muCallPrim3("add_<kind>_writer", avoid(), [avalue(), elmType], [writer, translate(elem)], elem@\loc);
-       //return muValueBlock(getType(e), code);
+    code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], src))];
        
-       // TODO TODO
-   for ([*_, Tree elem1, *Tree sepTrees, Tree elem2, *_] := args, size(sepTrees) == size(seps)) {
-      if (isListStarVar(elem2)) {
-          ; // if elem2 is not empty, then add sepTrees and splice elem2          
-          ; // if elem2 is empty, then add nothing
-      }
-      else {
-         ; // add sepTrees and elem2, splice elem2 if necessary
-      }
-   }
+    if (isListVar(eltType, single)) {
+       varExp = muTreeGetArguments(translateConcrete(single));
+       code += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], src)];
+    }
+    else {
+       code += muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(elem)], src);
+    }
+    leaveWriter();
+        
+    return muValueBlock(\alist(aTree), [*code, muCallPrim3("close_list_writer", resultType, [avalue()], [writer], src)]);    
+}
+
+private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTypes, list[Tree] elems:[_,_,*_], loc src) {
+    str fuid = topFunctionScope();
+       
+    writer = muTmpListWriter(nextTmp("writer"), fuid);   
+    
+    enterWriter(writer.name);
+    
+    code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], src))];
+    
+    // first we compile all element except the final separators and the final element:
+    for ([*_, Tree first, *Tree sepTrees, *Tree more] := elems, size(sepTypes) == size(sepTrees), size(more) > 1) {
+       if (isListStarVar(eltType, first)) {
+          varExp = muTreeGetArguments(translateConcrete(elem));
+          spliceCode = [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], elem.argument@\loc)]
+                     + [muCallPrim3("add_list_writer", avoid(), [avalue, aTree], [writer, muCon(e)], e@\loc) | e <- sepTrees];
+          
+          // only if the list is non-empty its elements and the separators are added:
+          code += muIfExp(muEqual(varExp, muCon([])), muBlock([]), muBlock(spliceCode));
+       }
+       else if (isListPlusVar(eltType, first)) {
+          varExp = muTreeGetArguments(translateConcrete(elem));
+          code  += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], first@\loc)];
+          code  += [muCallPrim3("add_list_writer", avoid(), [avalue, aTree], [writer, muCon(e)], e@\loc) | e <- sepTrees];
+       }
+       else {
+          code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(first)], first@\loc)];
+          code += [muCallPrim3("add_list_writer", avoid(), [avalue, aTree], [writer, muCon(e)], e@\loc) | e <- sepTrees];
+       }
+    }
+    
+    // for the last variable the separators come first and then the (optionally spliced) sublist:
+    if ([*_, *Tree sepTrees, Tree last] := elems) {
+       if (isListStarVar(eltType, last)) {
+          varExp = muTreeGetArguments(translateConcrete(last));
+          spliceCode = [muCallPrim3("add_list_writer", avoid(), [avalue, aTree], [writer, muCon(e)], e@\loc) | e <- sepTrees]
+                     + [muCallPrim3("splice_list", avoid(), [avalue(), getType(last).atype], [writer, varExp], last@\loc)];
+          
+          // only if the list is non-empty its elements and the separators are added:
+          code += muIfExp(muEqual(varExp, muCon([])), muBlock([]), muBlock(spliceCode));
+       }
+       else if (isListPlusVar(eltType, last)) {
+          varExp = muTreeGetArguments(translateConcrete(elem));
+          code += [muCallPrim3("add_list_writer", avoid(), [avalue, aTree], [writer, muCon(e)], e@\loc) | e <- sepTrees];
+          code += [muCallPrim3("splice_list", avoid(), [avalue(), getType(last).atype], [writer, varExp], last@\loc)];
+       }
+       else {
+          code += [muCallPrim3("add_list_writer", avoid(), [avalue, aTree], [writer, muCon(e)], e@\loc) | e <- sepTrees];
+          code += muCallPrim3("add_list_writer", avoid(), [avalue(), getType(elem)], [writer, translateConcrete(last)], last@\loc);
+       }
+    }
    
-   leaveWriter();
+    leaveWriter();
    
-    <fuid, pos> = getVariableScope("ConcreteVar", getConcreteHoleVarLoc(t));
-    return muValueBlock(\alist(aadt("Tree",[])), code);
+    return muValueBlock(\alist(aTree), [*code, muCallPrim3("close_list_writer", resultType, [avalue()], [writer], src)]);
 }
 
 
