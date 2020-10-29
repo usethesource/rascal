@@ -4,14 +4,12 @@ import Node;
 import String;
 import Map;
 import Set;
-//import lang::rascalcore::check::AType;
-//import lang::rascalcore::check::ATypeUtils;
 
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
-import lang::rascalcore::compile::muRascal2Java::JGenie;
+//import lang::rascalcore::compile::muRascal2Java::JGenie;
 
 /*****************************************************************************/
 /*  Convert AType to a Java type                                             */
@@ -474,7 +472,7 @@ default str getOuter(AType t)         = "avalue";
 /*  Convert an AType to a test for that AType (represented as VType)         */
 /*****************************************************************************/
 
-str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
+//str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
 
 //str atype2istype(str e, AType t)                           = atype2istype1(e, "getType()", t);
 //
