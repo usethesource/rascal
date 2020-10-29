@@ -57,7 +57,7 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
     
 // Generate all resolvers for a given module
 
-str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc){    
+str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, JGenie jg){    
     module_scope = module2loc[moduleName];
    
     loc2module = invertUnique(module2loc);
@@ -78,24 +78,29 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
                                               });
         // ... and generate a resolver for each group
         for(sdefs <- defs_in_disjoint_scopes){
-            resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module);
+            resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module, jg);
         }
     }
     return resolvers;
 }
 
 list[MuExp] getExternalVars(Define fun_def, map[loc, MuFunction] loc2muFunction){
-    externalVars = loc2muFunction[fun_def.defined]? ? sort(loc2muFunction[fun_def.defined].externalVars) : [];
-    return [ ev | ev <- externalVars, ev.pos >= 0 ];
+    if(loc2muFunction[fun_def.defined]?){
+        fun = loc2muFunction[fun_def.defined];  
+        externalVars =  { ev | ev <- fun.externalVars, ev.pos >= 0, ev.fuid == fun.scopeIn };
+        return sort(externalVars);
+    } else { 
+        return [];
+    }
 }
 
 list[MuExp] getExternalVars(set[Define] relevant_fun_defs, map[loc, MuFunction] loc2muFunction){
-   return sort([ *getExternalVars(fun_def, loc2muFunction) | fun_def <- relevant_fun_defs]);
+   return sort({ *getExternalVars(fun_def, loc2muFunction) | fun_def <- relevant_fun_defs });
 }
 
 // Generate a resolver for a specific function
 
-str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module){
+str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module, JGenie jg){
     module_scopes = domain(loc2module);
     
     local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};
@@ -175,7 +180,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         call_actuals = [];
         for(int i <- index(resolverFormalsTypes)){
             if(i < arityFormalTypes && unsetRec(def_type.formals[i]) != resolverFormalsTypes[i]){
-                conds +=  atype2istype("$<i>", def_type.formals[i]);
+                conds +=  atype2istype("$<i>", def_type.formals[i], jg);
                 call_actuals += "(<atype2javatype(def_type.formals[i])>) $<i>";
             } else {
                 call_actuals += "$<i>";
@@ -229,7 +234,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         call_actuals = [];
         for(int i <- index(resolverFormalsTypes)){
             if(i < arityFormalTypes && unsetRec(consType.fields[i]) != resolverFormalsTypes[i]){
-                conds +=  atype2istype("$<i>", consType.fields[i]);
+                conds +=  atype2istype("$<i>", consType.fields[i], jg);
                 call_actuals += "(<atype2javatype(consType.fields[i])>) $<i>";
             } else {
                 call_actuals += "$<i>";
@@ -268,7 +273,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         }
         //localFormalsTypes = unsetRec(local_fun_type has formals ? local_fun_type.formals : local_fun_type.fields);
         if(unsetRec(local_args) != resolverFormalsTypes, !sameInJava(local_args, resolverFormalsTypes)){
-            resolvers += generateResolver(moduleName, functionName, local_fun_defs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module);
+            resolvers += generateResolver(moduleName, functionName, local_fun_defs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module, jg);
         }
     }
    
