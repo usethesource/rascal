@@ -339,10 +339,8 @@ tuple[MuExp var, list[MuExp] exps] extractNamedRegExp((RegExp) `\<<Name name>:<N
 // ==== concrete syntax pattern ===============================================
 
 MuExp translateConcrete(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete]), 
-                  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
-  { 
-    return translateConcrete(concrete, subject, btscopes, trueCont, falseCont, restore=restore); 
-  }
+                  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([]))
+  = translateConcrete(concrete, subject, btscopes, trueCont, falseCont, restore=restore); 
   
 // this is left when a concrete pattern was not parsed correctly:  
 MuExp translatePat(e:appl(prod(Symbol::label("typed",Symbol::lex("Concrete")), [_],_),[Tree concrete]), 
@@ -372,7 +370,7 @@ default MuExp translateConcrete(t:appl(Production prod, list[Tree] args),
                                MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([]))  {
    body = trueCont;
    
-   for(int i <- reverse(index(args))) {
+   for (int i <- reverse(index(args))) {
        // TODO introduce temporaries voor muSubscripts
        body = translateConcrete(args[i], muSubscript(muTreeGetArgs(subject), muCon(i)), btscopes, body, falseCont, restore=restore);
    }                    

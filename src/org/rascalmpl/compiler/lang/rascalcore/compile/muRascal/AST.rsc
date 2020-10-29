@@ -282,6 +282,7 @@ public data MuExp =
           
           // Parse Trees
           | muTreeAppl(MuExp prod, list[MuExp] args, loc src)
+          | muTreeAppl(MuExp prod, MuExp argList, loc src)
           | muTreeChar(int char)
           ;
           
@@ -1309,6 +1310,24 @@ MuExp muThrow(muValueBlock(AType t, list[MuExp] exps), loc src)
 
 //muTry
 
+MuExp muTreeAppl(MuExp prod, muValueBlock(AType t, [*MuExp pre, MuExp last]), loc src)
+   = muValueBlock(aadt("Tree",[],dataSyntax()), [*pre, muTreeAppl(prod, last, src)]);
+   
+MuExp muTreeAppl(MuExp prod, args:[*pre, muValueBlock(AType t, [*MuExp block, MuExp last]), *post], loc src) {
+   preWork = [];
+   results = for(a <- args) {
+      if (muValueBlock(AType t, [*MuExp block, MuExp last]) := a) {
+        preWork += block;
+        append last;
+      }
+      else {
+        append a;
+      }
+   }
+   
+   return muValueBlock(aadt("Tree",[],dataSyntax()), [*preWork, muTreeAppl(prod, results, src)]);
+}
+   
 MuExp muGetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), str fieldName)
     = muValueBlock(resultType, [*pre, muGetField(resultType, baseType, last, fieldName)]);
 
