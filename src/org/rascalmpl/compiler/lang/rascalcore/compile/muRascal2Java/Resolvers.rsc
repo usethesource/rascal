@@ -43,6 +43,12 @@ str varName(muVar(str name, str fuid, int pos, AType atype)){ // duplicate, see 
     return (name[0] != "$") ? "<getJavaName(name)><(pos >= 0 || name == "_") ? "_<abs(pos)>" : "">" : getJavaName(name);
 } 
 
+/*****************************************************************************/
+/*  Convert an AType to a test for that AType (represented as VType)         */
+/*****************************************************************************/
+
+str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
+
 public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
       remaining = input;
       result = {};
