@@ -537,7 +537,7 @@ private MuExp translateConcrete(t:appl(prod(cilit(_),_, _), _)) = muCon(t);
 private MuExp translateConcrete(t:appl(prod(layouts(_),_, _), _)) = muCon(t);
   
 // this is a pattern variable, which we substitute with a reference to a muVariable:  
-private MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol _))}), [ConcreteHole hole])) {
+private MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[_], _), [ConcreteHole hole])) {
     <fuid, pos> = getVariableScope("<hole.name>", getConcreteHoleVarLoc(t));
     return muVar("<hole.name>", fuid, pos, getType(hole.symbol@\loc));    
 }
