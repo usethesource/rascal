@@ -295,13 +295,31 @@ JGenie makeJGenie(MuModule m,
         return c;
     }
     
-    str _shareConstant(value v){
-        if(constants[v]?) return constants[v];
-        nconstants += 1;
-        c = "$C<nconstants>";
-        constants[v] = c;
-        constant2value[c] = v;
-        return c;
+    str _shareConstant(value v) {
+        if (constants[v]?) {
+          return constants[v];
+        }
+        
+        if (Symbol _ := v || Production _ := v || Tree _ := v) {
+            visit (v) {
+              case value e: 
+                if (!constants[e]?) {
+                  nconstants += 1;
+                  c = "$C<nconstants>";
+                  constants[e] = c;
+                  constant2value[c] = e;
+                }
+            }
+        }
+        
+        if (!constants[v]?) {
+          nconstants += 1;
+          c = "$C<nconstants>";
+          constants[v] = c;
+          constant2value[c] = v;
+        }
+        
+        return constants[v];
     }
     
     str _shareATypeConstant(Symbol t, map[Symbol, Production] definitions){
@@ -316,7 +334,7 @@ JGenie makeJGenie(MuModule m,
     
     str _getConstants(){
         return "<for(v <- constants){>
-               'private final <value2outertype(v)> <constants[v]> = <value2IValue(v)>;<}>
+               'private final <value2outertype(v)> <constants[v]> = <value2IValue(vt, constants)>;<}>
                '<for(t <- types){>private final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t)>;<}>
                '<for(t <- atype_constants){>
                'private final IConstructor <atype_constants[t]> = $RVF.reifiedType(<value2IValue(t)>, <value2IValue(atype_definitions[t])>);
