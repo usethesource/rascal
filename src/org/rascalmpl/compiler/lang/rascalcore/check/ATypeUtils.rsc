@@ -195,15 +195,15 @@ Symbol atype2symbol(\seq(list[AType] sequence)) = Symbol::\seq([atype2symbol(a) 
 Symbol atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = Symbol::\conditional(atype2symbol(symbol), { acond2cond(cond) | cond <- conditions });
 default Symbol atype2symbol(AType s)  { throw "could not convert <s> to Symbol?"; }
 
-private Condition acond2cond(ACondition::\follow(AType symbol)) = \follow(atype2symbol(symbol));
-private Condition acond2cond(ACondition::\not-follow(AType symbol)) = \not-follow(atype2symbol(symbol));
-private Condition acond2cond(ACondition::\precede(AType symbol)) = \precede(atype2symbol(symbol));
-private Condition acond2cond(ACondition::\not-precede(AType symbol)) = \not-precede(atype2symbol(symbol));
-private Condition acond2cond(ACondition::\delete(AType symbol)) = \delete(atype2symbol(symbol));
-private Condition acond2cond(ACondition::\at-column(int column)) = \at-column(column);
-private Condition acond2cond(ACondition::\begin-of-line()) = \begin-of-line();
-private Condition acond2cond(ACondition::\end-of-line()) = \end-of-line();
-private Condition acond2cond(ACondition::\except(str label)) = \except(label);
+private Condition acond2cond(ACondition::\follow(AType symbol)) = Condition::\follow(atype2symbol(symbol));
+private Condition acond2cond(ACondition::\not-follow(AType symbol)) = Condition::\not-follow(atype2symbol(symbol));
+private Condition acond2cond(ACondition::\precede(AType symbol)) = Condition::\precede(atype2symbol(symbol));
+private Condition acond2cond(ACondition::\not-precede(AType symbol)) = Condition::\not-precede(atype2symbol(symbol));
+private Condition acond2cond(ACondition::\delete(AType symbol)) = Condition::\delete(atype2symbol(symbol));
+private Condition acond2cond(ACondition::\at-column(int column)) = Condition::\at-column(column);
+private Condition acond2cond(ACondition::\begin-of-line()) = Condition::\begin-of-line();
+private Condition acond2cond(ACondition::\end-of-line()) = Condition::\end-of-line();
+private Condition acond2cond(ACondition::\except(str label)) = Condition::\except(label);
 
 Symbol atype2symbol(regular(AType def)) = \regular(atype2symbol(def));
 

@@ -1,5 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst1
-import Exception;
+//import Exception;
 value main(){ //test bool higherOrderFunctionCompatibility1() {
    // the parameter function is specific to int
    int parameter(int _) { return 0; }
