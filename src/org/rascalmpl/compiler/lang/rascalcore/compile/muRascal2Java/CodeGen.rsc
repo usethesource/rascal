@@ -319,7 +319,9 @@ tuple[int secondsTimeout, int maxSize] getMemoSettings(str memoString){
 bool ignoreCompiler(map[str,str] tagsMap)
     = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
 
-
+str getMemoCache(MuFunction fun)
+    = "$memo_<getJavaName(getUniqueFunctionName(fun))>";
+    
 JCode trans(MuFunction fun, JGenie jg){
     println("trans <fun.name>, <fun.ftype>");
     println("trans: <fun.src>, <jg.getModuleLoc()>");
@@ -341,7 +343,7 @@ JCode trans(MuFunction fun, JGenie jg){
         memoCache = "";
         if(fun.isMemo){
             <secondsTimeout, maxSize> = getMemoSettings(fun.tags["memo"] ? "");
-            memoCache = "private final ExpiringFunctionResultCache\<IValue\> $memo_<shortName> = new ExpiringFunctionResultCache\<IValue\>(<secondsTimeout>, <maxSize>);\n";
+            memoCache = "private final ExpiringFunctionResultCache\<IValue\> <getMemoCache(fun)> = new ExpiringFunctionResultCache\<IValue\>(<secondsTimeout>, <maxSize>);\n";
         }
         body = trans2Void(fun.body, jg);
         containsVisit = /muVisit(_,_,_,_,_) := fun.body;
@@ -1360,7 +1362,7 @@ JCode trans(muFailReturn(AType funType),  JGenie jg){
 // ---- muCheckMemo -----------------------------------------------------------
 
 JCode trans(muCheckMemo(AType funType, list[MuExp] args/*, map[str,value] kwargs*/, MuExp body), JGenie jg){
-    cache = "$memo_<jg.getFunctionName()>";
+    cache = getMemoCache(jg.getFunction());
     kwpActuals = isEmpty(funType.kwFormals) ? "Collections.emptyMap()" : "$kwpActuals";
     returnCode = funType.ret == avoid() ? "return" : "return (<atype2javatype(funType.ret)>) $memoVal";
     return "final IValue[] $actuals = new IValue[] {<intercalate(",", [trans(arg, jg) | arg <- args])>};
@@ -1372,7 +1374,7 @@ JCode trans(muCheckMemo(AType funType, list[MuExp] args/*, map[str,value] kwargs
 // ---- muMemoReturn ----------------------------------------------------------
 
 JCode trans(muMemoReturn0(AType funType, list[MuExp] args), JGenie jg){
-    cache = "$memo_<jg.getFunctionName()>";
+    cache = getMemoCache(jg.getFunction());
     kwpActuals = isEmpty(funType.kwFormals) ? "Collections.emptyMap()" : "$kwpActuals";
     return "$memoVal = $VF.bool(true);
            '<cache>.store($actuals, <kwpActuals>, $memoVal);
@@ -1380,7 +1382,7 @@ JCode trans(muMemoReturn0(AType funType, list[MuExp] args), JGenie jg){
 }
 
 JCode trans(muMemoReturn1(AType funType, list[MuExp] args, MuExp functionResult), JGenie jg){
-    cache = "$memo_<jg.getFunctionName()>";
+    cache = getMemoCache(jg.getFunction());
     kwpActuals = isEmpty(funType.kwFormals) ? "Collections.emptyMap()" : "$kwpActuals";
     return "$memoVal = <trans(functionResult, jg)>;
            '<cache>.store($actuals, <kwpActuals>, $memoVal);
