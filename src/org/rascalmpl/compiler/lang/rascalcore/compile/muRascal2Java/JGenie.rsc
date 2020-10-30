@@ -296,30 +296,31 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _shareConstant(value v) {
+        c = "?";
+        
         if (constants[v]?) {
           return constants[v];
         }
-        
-        if (Symbol _ := v || Production _ := v || Tree _ := v) {
-            visit (v) {
-              case value e: 
-                if (!constants[e]?) {
-                  nconstants += 1;
-                  c = "$C<nconstants>";
-                  constants[e] = c;
-                  constant2value[c] = e;
-                }
-            }
-        }
-        
-        if (!constants[v]?) {
+        else {
           nconstants += 1;
           c = "$C<nconstants>";
           constants[v] = c;
           constant2value[c] = v;
         }
         
-        return constants[v];
+        if (Symbol _ := v || Production _ := v || Tree _ := v) {
+            visit (v) {
+              case value e: 
+                if (!constants[e]?, Symbol _ := e || Production _ := e || Tree _ := e) {
+                  nconstants += 1;
+                  d = "$C<nconstants>";
+                  constants[e] = d;
+                  constant2value[d] = e;
+                }
+            }
+        }
+        
+        return c;
     }
     
     str _shareATypeConstant(Symbol t, map[Symbol, Production] definitions){
@@ -333,8 +334,23 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _getConstants(){
-        return "<for(v <- constants){>
-               'private final <value2outertype(v)> <constants[v]> = <value2IValue(vt, constants)>;<}>
+        str decls = "";
+        done = {};
+        
+        // this generates constants in the right declaration order, such that
+        // constants are always declared before they are used in the list if fields:
+        
+        bottom-up visit(constants<0>) {
+          case value s:
+            if (s notin done, s in constants) {
+              decls = "<decls>
+                      'private final <value2outertype(s)> <constants[s]> = <value2IValue(s, constants)>;
+                      ";
+              done += {s};
+            }
+        }
+         
+        return "<decls>
                '<for(t <- types){>private final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t)>;<}>
                '<for(t <- atype_constants){>
                'private final IConstructor <atype_constants[t]> = $RVF.reifiedType(<value2IValue(t)>, <value2IValue(atype_definitions[t])>);
