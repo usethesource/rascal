@@ -298,6 +298,8 @@ JGenie makeJGenie(MuModule m,
     str _shareConstant(value v) {
         c = "?";
         
+        v = unsetR(v, "src");
+        
         if (constants[v]?) {
           return constants[v];
         }
@@ -310,13 +312,15 @@ JGenie makeJGenie(MuModule m,
         
         if (Symbol _ := v || Production _ := v || Tree _ := v) {
             visit (v) {
-              case value e: 
+              case value e: {
+                e = unsetR(e, "src");
                 if (!constants[e]?, Symbol _ := e || Production _ := e || Tree _ := e) {
                   nconstants += 1;
                   d = "$C<nconstants>";
                   constants[e] = d;
                   constant2value[d] = e;
                 }
+              }
             }
         }
         
@@ -333,7 +337,7 @@ JGenie makeJGenie(MuModule m,
         return c;
     }
     
-    str _getConstants(){
+    str _getConstants() {
         str decls = "";
         done = {};
         
@@ -341,7 +345,7 @@ JGenie makeJGenie(MuModule m,
         // constants are always declared before they are used in the list if fields:
         
         bottom-up visit(constants<0>) {
-          case value s:
+          case value s:  
             if (s notin done, s in constants) {
               decls = "<decls>
                       'private final <value2outertype(s)> <constants[s]> = <value2IValue(s, constants)>;
@@ -442,3 +446,9 @@ JGenie makeJGenie(MuModule m,
 
 str castArg(AType t, str x) = startsWith(x, "((<atype2javatype(t)>)(") ? x : "((<atype2javatype(t)>)(<x>))";
 str cast(AType t, str x) = "(<castArg(t,x)>)";
+
+// --- removing src annos
+
+public &T  unsetR(&T x, str keywordParameter) = visit(x) { 
+  case node n => unset(n, keywordParameter)
+};
