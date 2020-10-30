@@ -1,42 +1,26 @@
 module lang::rascalcore::compile::Examples::Tst1
-
-import util::Memo;
-import Set;
-
-test bool memoExpire() {
-    int callCount2 = 0;
-
-    @memo=maximumSize(10)
-    int call2(int i) {
-        callCount2 += 1;
-        return callCount2;
-    }
-
-    for (i <- [0..5]) {
-        call2(i);
-    }
-    
-    for (i <- [0..5]) {
-        if (call2(i) != i + 1) {
-            return false;
-        }
-    }
-
-    for (i <- [10..10000]) {
-        // this should take long as to at least hit the cache limit cleanup
-        call2(i);
-    }
-
-    @javaClass{org.rascalmpl.library.Prelude}
-    java void sleep(int seconds);
-    
-    sleep(6);
-
-    for (i <- [0..5]) {
-        if (call2(i) == i + 1) {
-            // should be dropped from cache by now
-            return false;
-        }
-    }
-    return true;
+import Exception;
+value main(){ //test bool higherOrderFunctionCompatibility1() {
+   // the parameter function is specific to int
+   int parameter(int _) { return 0; }
+   
+   // the higher order function expects to call the
+   // parameter function with other things too
+   int hof(int (value) p, value i) { return p(i); }
+   
+   // still this is ok, since functions in Rascal
+   // are partial. This call should simply succeed:
+   if (hof(parameter, 1) != 0) {
+     return false;
+   }
+   
+   // but the next call produces a CallFailed, since
+   // the parameter function is not defined on strings:
+   try {
+     // statically allowed! but dynamically failing
+     hof(parameter, "string");
+     return false;
+   } 
+   catch CallFailed(_):
+     return true; 
 }

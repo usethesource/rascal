@@ -423,7 +423,7 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
     
-    funInstance = "new TypedFunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals])>\>";
+    funInstance = "new TypedFunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals] )>\>";
     
     bare_actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
     actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
@@ -435,7 +435,7 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     }
     reta = isVoidType(ftype.ret) ? "" : "return ";
     retb = isVoidType(ftype.ret) ? "return null;" : "";
-    return "<funInstance>((<bare_actuals>) -\> { <reta><jg.getAccessor([uid])>(<ext_actuals>);<retb> })";
+    return "<funInstance>((<bare_actuals>) -\> { <reta><jg.getAccessor([uid])>(<ext_actuals>);<retb> }, <jg.shareType(ftype)>)";
 }          
 // ---- muOFun ----------------------------------------------------------------
        
@@ -458,7 +458,7 @@ JCode trans(muOFun(list[loc] srcs, AType ftype), JGenie jg){
            formals = isEmpty(formals) ? ext_actuals : "<actuals>, <ext_actuals>";
         }
     }
-    return "<funInstance>((<bare_formals>) -\> { return <fname>(<formals>); })";
+    return "<funInstance>((<bare_formals>) -\> { return <fname>(<formals>); }, <jg.shareType(ftype)>)";
 }
 
 // ---- muConstr --------------------------------------------------------------
@@ -470,7 +470,7 @@ str trans(muConstr(AType ctype), JGenie jg){
     funInstance = "new TypedFunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- ctype.fields])>\>";
     
     bare_formals = ["$<i>" | i <- [0..nformals]];
-    return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, hasKeywordParameters(ctype) || jg.hasCommonKeywordFields(ctype) ? [kwpActuals] : [], jg)>; })";
+    return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, hasKeywordParameters(ctype) || jg.hasCommonKeywordFields(ctype) ? [kwpActuals] : [], jg)>; }, <jg.shareType(ctype)>)";
 }
 
 str trans(muTreeAppl(MuExp p, MuExp argList, loc src), JGenie jg) 

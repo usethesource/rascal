@@ -3,12 +3,14 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 import java.util.Map;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class TypedFunctionInstance1<R extends IValue,A> extends TypedFunctionInstance {
 	
 	private final TypedFunction1<R,A> function;
 
-	public TypedFunctionInstance1(TypedFunction1<R,A> function){
+	public TypedFunctionInstance1(TypedFunction1<R,A> function, Type ftype){
+		super(ftype);
 		this.function = function;
 	}
 	
