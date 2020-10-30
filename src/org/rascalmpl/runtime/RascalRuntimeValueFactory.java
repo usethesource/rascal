@@ -82,42 +82,42 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
                 public IValue typedCall() {
                     return func.apply(new IValue[0], Collections.emptyMap());
                 }
-            });
+            }, functionType);
         case 1:
             return new TypedFunctionInstance1<>(new TypedFunction1<IValue,IValue>() {
                 @Override
                 public IValue typedCall(IValue arg) {
                     return func.apply(new IValue[] { arg }, Collections.emptyMap());
                 }
-            });
+            }, functionType);
         case 2:
             return new TypedFunctionInstance2<>(new TypedFunction2<IValue,IValue,IValue>() {
                 @Override
                 public IValue typedCall(IValue arg, IValue arg2) {
                     return func.apply(new IValue[] { arg, arg2 }, Collections.emptyMap());
                 }
-            });
+            }, functionType);
         case 3:
             return new TypedFunctionInstance3<>(new TypedFunction3<IValue,IValue,IValue,IValue>() {
                 @Override
                 public IValue typedCall(IValue arg, IValue arg2, IValue arg3) {
                     return func.apply(new IValue[] { arg, arg2, arg3 }, Collections.emptyMap());
                 }
-            });
+            }, functionType);
         case 4:
             return new TypedFunctionInstance4<>(new TypedFunction4<IValue,IValue,IValue,IValue,IValue>() {
                 @Override
                 public IValue typedCall(IValue arg, IValue arg2, IValue arg3, IValue arg4) {
                     return func.apply(new IValue[] { arg, arg2, arg3, arg4 }, Collections.emptyMap());
                 }
-            });
+            }, functionType);
         case 5:
             return new TypedFunctionInstance5<>(new TypedFunction5<IValue,IValue,IValue,IValue,IValue,IValue>() {
                 @Override
                 public IValue typedCall(IValue arg, IValue arg2, IValue arg3, IValue arg4, IValue arg5) {
                     return func.apply(new IValue[] { arg, arg2, arg3, arg4, arg5 }, Collections.emptyMap());
                 }
-            });
+            }, functionType);
         }
         
         throw new UnsupportedOperationException("do not support functions with arity higher than 6 yet?");
