@@ -222,7 +222,7 @@ default Production aprod2prod(AType t) {
 }
 
 Production aprod2prod(prod(AType lhs, list[AType] atypes, attributes=set[Attr] as))
-  = Production::prod(atype2symbol(lhs), [atype2symbol(e) | e <- atypes], as); 
+  = Production::prod(atype2symbol(lhs), [atype2labeledSymbol(e) | e <- atypes], as); 
   
 Production aprod2prod(AProduction::choice(AType def, set[AProduction] alts)) 
   = Production::choice(atype2symbol(def), {aprod2prod(p) | p <- alts});  
