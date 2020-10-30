@@ -563,12 +563,12 @@ private default MuExp translateConcrete(t:appl(Production p, list[Tree] args))
   = muTreeAppl(muCon(p), [translateConcrete(a) | a <- args], (t@\loc?) ? t@\loc : |unknown:///|);
 
 
-bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter(elem)))}), [_])) = true;
-bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-seps(elem,_)))}), [_])) = true;
+bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(Symbol::\iter(elem)))}), [_])) = true;
+bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(Symbol::\iter-seps(elem,_)))}), [_])) = true;
 default bool isListPlusVar(Symbol _, Tree _) = false;
 
-bool isListStarVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-star(elem)))}), [_])) = true;
-bool isListStarVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(\iter-star-seps(elem,_)))}), [_])) = true;
+bool isListStarVar(Symbol elem, t:appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(Symbol::\iter-star(elem)))}), [_])) = true;
+bool isListStarVar(Symbol elem, t:appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(Symbol::\iter-star-seps(elem,_)))}), [_])) = true;
 default bool isListStarVar(Symbol _,Tree _) = false;
 
 bool isListVar(Symbol elem, Tree x) = isListPlusVar(elem, x) || isListStarVar(elem, x);
@@ -632,7 +632,7 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTyp
     code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], src))];
     
     // first we compile all element except the final separators and the final element:
-    for ([*_, Tree first, *Tree sepTrees, *Tree more] := elems, size(sepTypes) == size(sepTrees), size(more) > 1) {
+    while ([Tree first, *Tree sepTrees, *Tree more] := elems && size(sepTypes) == size(sepTrees)) {
        if (isListStarVar(eltType, first)) {
           varExp = muTreeGetArgs(translateConcrete(first));
           spliceCode = [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], first@\loc?|unknown:///|)]
@@ -650,6 +650,8 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTyp
           code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(first)], first@\loc?|unknown:///|)];
           code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
        }
+       
+       elems = more;
     }
     
     // for the last variable the separators come first and then the (optionally spliced) sublist:
@@ -663,7 +665,7 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTyp
           code += muIfExp(muEqual(varExp, muCon([])), muBlock([]), muValueBlock(alist(aTree), spliceCode));
        }
        else if (isListPlusVar(eltType, last)) {
-          varExp = muTreeGetArgs(translateConcrete(elem));
+          varExp = muTreeGetArgs(translateConcrete(last));
           code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
           code += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp],  last@\loc?|unknown:///|)];
        }
