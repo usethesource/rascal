@@ -1,25 +1,42 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-value m() { //test bool rascalRuntimeExceptionsPlusOverloading(){
-    str trace = "";
+import util::Memo;
+import Set;
 
-    void f(int _) {
-        trace = trace + "Bad function f; ";
+test bool memoExpire() {
+    int callCount2 = 0;
+
+    @memo=maximumSize(10)
+    int call2(int i) {
+        callCount2 += 1;
+        return callCount2;
+    }
+
+    for (i <- [0..5]) {
+        call2(i);
     }
     
-    void g(0) {
-        f(0);
-        trace = trace + "finally; ";
+    for (i <- [0..5]) {
+        if (call2(i) != i + 1) {
+            return false;
+        }
     }
-    
-    default void g(int i) {
-        trace = trace + "default void g(int);";
+
+    for (i <- [10..10000]) {
+        // this should take long as to at least hit the cache limit cleanup
+        call2(i);
     }
+
+    @javaClass{org.rascalmpl.library.Prelude}
+    java void sleep(int seconds);
     
-    trace = "";
-    g(0);
-    return trace;// == "Bad function f; map key: 3 (not found); finally; default void g(int);";
+    sleep(6);
+
+    for (i <- [0..5]) {
+        if (call2(i) == i + 1) {
+            // should be dropped from cache by now
+            return false;
+        }
+    }
+    return true;
 }
-
-value main() = 
-m();
