@@ -634,7 +634,7 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTyp
     // first we compile all element except the final separators and the final element:
     for ([*_, Tree first, *Tree sepTrees, *Tree more] := elems, size(sepTypes) == size(sepTrees), size(more) > 1) {
        if (isListStarVar(eltType, first)) {
-          varExp = muTreeGetArgs(translateConcrete(elem));
+          varExp = muTreeGetArgs(translateConcrete(first));
           spliceCode = [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], first@\loc?|unknown:///|)]
                      + [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
           
@@ -642,7 +642,7 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTyp
           code += muIfExp(muEqual(varExp, muCon([])), muBlock([]), muValueBlock(alist(aTree), spliceCode));
        }
        else if (isListPlusVar(eltType, first)) {
-          varExp = muTreeGetArgs(translateConcrete(elem));
+          varExp = muTreeGetArgs(translateConcrete(first));
           code  += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], first@\loc?|unknown:///|)];
           code  += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
        }

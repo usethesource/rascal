@@ -669,6 +669,8 @@ str escapeForJRegExp(str s){
 /*  Convert a Rascal value to the equivalent IValue                          */
 /*****************************************************************************/
 
+str value2IValue(value x) = value2IValue(x, ());
+
 str value2IValue(bool b) = "$VF.bool(<b>)";
 str value2IValue(int n) = "$VF.integer(\"<n>\")";
 str value2IValue(real r) = "$VF.real(<r>)";
