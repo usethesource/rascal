@@ -1288,7 +1288,8 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    //}
    op = getOuterType(expression);
    ufield = unescape("<field>");
-   if(op == "aadt"){
+  
+    if(op == "aadt"){
         <consType, isKwp> = getConstructorInfo(tp, fieldType, ufield);
           return isKwp ? muGetKwField(consType, tp, translate(expression), ufield)
                        : muGetField(getType(e), consType, translate(expression), ufield);
@@ -2174,7 +2175,7 @@ MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> 
 
 // -- concrete syntax
 
-MuExp translate((Expression) `<Concrete con>`) = translateConcrete(con);
+MuExp translate((Expression) `<Concrete con>`) = translateConcrete(con.args[0]);
 
 // -- any other expression that may require backtracking ------------
 
