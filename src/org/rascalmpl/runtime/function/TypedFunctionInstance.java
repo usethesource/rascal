@@ -12,10 +12,10 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class TypedFunctionInstance implements IFunction {
 	protected final TypeFactory $TF = TypeFactory.getInstance();
-//    private final FunctionType type;
+    private final Type type;
 	
-	public TypedFunctionInstance(/*TODO: FunctionType type*/) {
-//	    this.type = type;
+	public TypedFunctionInstance(Type type) {
+	    this.type = type;
     }
 	
 	@Override
@@ -36,8 +36,7 @@ public abstract class TypedFunctionInstance implements IFunction {
 
 	@Override
 	public Type getType() {
-//	    return type;
-	    return TF.voidType();
+	    return type;
 	}
 
     @Override
