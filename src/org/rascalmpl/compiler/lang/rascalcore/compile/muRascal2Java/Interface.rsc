@@ -75,6 +75,6 @@ println("generateInterfaceMethod: <fname>, <ftype>");
     
     ret = getResult(ftype);
     
-    return "IValue <method_name>(<method_formals>);";     
+    return "<isVoidType(ret) ? "void" : "IValue"> <method_name>(<method_formals>);";     
     //return "<atype2javatype(ret)> <method_name>(<method_formals>);";         
 }
