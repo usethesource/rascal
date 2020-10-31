@@ -423,8 +423,8 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     
     funInstance = "new TypedFunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals] )>\>";
     
-    actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
-    //actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
+    formals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
+    actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
     
     ext_actuals = actuals;
     if(!isEmpty(externalVars)){
@@ -433,7 +433,7 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     }
     reta = isVoidType(ftype.ret) ? "" : "return ";
     retb = isVoidType(ftype.ret) ? "return null;" : "";
-    return "<funInstance>((<actuals>) -\> { <reta><jg.getAccessor([uid])>(<ext_actuals>);<retb> }, <jg.shareType(ftype)>)";
+    return "<funInstance>((<formals>) -\> { <reta><jg.getAccessor([uid])>(<ext_actuals>);<retb> }, <jg.shareType(ftype)>)";
 }          
 // ---- muOFun ----------------------------------------------------------------
        
