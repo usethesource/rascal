@@ -345,7 +345,7 @@ JGenie makeJGenie(MuModule m,
         // they are always declared before they are used in the list of constant fields
         for(c <- constants){
             if(c == ""){
-                if (c notin done, c in constants) {
+                if (c notin done) {
                   decls = "<decls>
                           'private final <value2outertype(c)> <constants[c]> = <value2IValue(c, constants)>;
                           ";
