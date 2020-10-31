@@ -109,10 +109,11 @@ list[MuExp] getExternalVars(set[Define] relevant_fun_defs, map[loc, MuFunction] 
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module, JGenie jg){
     module_scopes = domain(loc2module);
     
-    local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};
-    //nonlocal_fun_defs = {def | def <- fun_defs, !isEmpty(extend_scopes) ==> any(ext <- extend_scopes, isContainedIn(def.defined, ext)),
-    //                                            !isEmpty(import_scopes) ==> any(imp <- import_scopes, isContainedIn(def.defined, imp)) 
-    //                    };   
+    if(functionName == "delete"){
+        println("delete");
+    }
+    
+    local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};  
     nonlocal_fun_defs0 = 
         for(def <- fun_defs){
             if(!isEmpty(extend_scopes) && any(ext <- extend_scopes, isContainedIn(def.defined, ext))) append def;
@@ -156,6 +157,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     resolverName = "<inner_scope><getJavaName(functionName)>";
   
     resolverFormalsTypes = unsetRec(resolver_fun_type has formals ? resolver_fun_type.formals : resolver_fun_type.fields);
+    resolverFormalsTypes = [ avalue() | tp <- resolverFormalsTypes ];
     arityFormalTypes = size(resolverFormalsTypes);
     returnType = resolver_fun_type has ret ? resolver_fun_type.ret : resolver_fun_type.adt;
     returns_void = isVoidType(returnType);
@@ -270,18 +272,18 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                 '}
                 '";
                 
-    if(!isEmpty(local_fun_defs) && !isEmpty(nonlocal_fun_defs)){
-        //local_fun_type = (avoid() | alub(it, tp) | fdef <- local_fun_defs, defType(tp) := fdef.defInfo);
-        local_args = [];
-        for(fdef <- local_fun_defs, defType(tp) := fdef.defInfo){
-            local_args = local_args == [] ? getFunctionOrConstructorArgumentTypes(tp) 
-                                          : alubList(local_args, getFunctionOrConstructorArgumentTypes(tp));
-        }
-        //localFormalsTypes = unsetRec(local_fun_type has formals ? local_fun_type.formals : local_fun_type.fields);
-        if(unsetRec(local_args) != resolverFormalsTypes, !sameInJava(local_args, resolverFormalsTypes)){
-            resolvers += generateResolver(moduleName, functionName, local_fun_defs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module, jg);
-        }
-    }
+    //if(!isEmpty(local_fun_defs) && !isEmpty(nonlocal_fun_defs)){
+    //    //local_fun_type = (avoid() | alub(it, tp) | fdef <- local_fun_defs, defType(tp) := fdef.defInfo);
+    //    local_args = [];
+    //    for(fdef <- local_fun_defs, defType(tp) := fdef.defInfo){
+    //        local_args = local_args == [] ? getFunctionOrConstructorArgumentTypes(tp) 
+    //                                      : alubList(local_args, getFunctionOrConstructorArgumentTypes(tp));
+    //    }
+    //    //localFormalsTypes = unsetRec(local_fun_type has formals ? local_fun_type.formals : local_fun_type.fields);
+    //    if(unsetRec(local_args) != resolverFormalsTypes, !sameInJava(local_args, resolverFormalsTypes)){
+    //        resolvers += generateResolver(moduleName, functionName, local_fun_defs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module, jg);
+    //    }
+    //}
    
     return resolvers;
 }

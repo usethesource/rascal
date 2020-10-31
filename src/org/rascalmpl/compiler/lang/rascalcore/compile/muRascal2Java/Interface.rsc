@@ -47,9 +47,6 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
 
     names_and_arities = signatures<0,1>;
     for(<name, arity> <- names_and_arities){
-        if(name == "PathNotFound"){
-            println("PathNotFound");
-        }
         overloads = signatures[name, arity];
         result += <name, lubList(toList(overloads))>;
     }
@@ -69,7 +66,8 @@ println("generateInterfaceMethod: <fname>, <ftype>");
     method_name = getJavaName(fname);
     
     formals = getFormals(ftype);
-    method_formals = intercalate(", ", ["<atype2javatype(formals[i])> $<i>" | i <- index(formals)]);
+    method_formals = intercalate(", ", ["IValue $<i>" | i <- index(formals)]);
+    //method_formals = intercalate(", ", ["<atype2javatype(formals[i])> $<i>" | i <- index(formals)]);
     if(hasKeywordParameters(ftype)){
         kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
         method_formals = isEmpty(method_formals) ? kwpActuals : "<method_formals>, <kwpActuals>";
@@ -77,5 +75,6 @@ println("generateInterfaceMethod: <fname>, <ftype>");
     
     ret = getResult(ftype);
     
-    return "<atype2javatype(ret)> <method_name>(<method_formals>);";         
+    return "IValue <method_name>(<method_formals>);";     
+    //return "<atype2javatype(ret)> <method_name>(<method_formals>);";         
 }
