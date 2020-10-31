@@ -413,9 +413,7 @@ JCode trans(muATypeCon(AType t, map[AType, set[AType]] definitions), JGenie jg) 
 JCode trans(muFun(loc uid, AType ftype), JGenie jg){
    
     fun = loc2muFunction[uid];
-    //ftype = fun.ftype;
     uid = fun.src;
-    //ftype = jg.getType(uid);
     externalVars = jg.getExternalVars(uid);
     currentFun = jg.getFunction();
     externalVarsCurrentFun = jg.getExternalVars(currentFun.src);
@@ -425,8 +423,8 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     
     funInstance = "new TypedFunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals] )>\>";
     
-    bare_actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
-    actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
+    actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
+    //actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
     
     ext_actuals = actuals;
     if(!isEmpty(externalVars)){
@@ -435,7 +433,7 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     }
     reta = isVoidType(ftype.ret) ? "" : "return ";
     retb = isVoidType(ftype.ret) ? "return null;" : "";
-    return "<funInstance>((<bare_actuals>) -\> { <reta><jg.getAccessor([uid])>(<ext_actuals>);<retb> }, <jg.shareType(ftype)>)";
+    return "<funInstance>((<actuals>) -\> { <reta><jg.getAccessor([uid])>(<ext_actuals>);<retb> }, <jg.shareType(ftype)>)";
 }          
 // ---- muOFun ----------------------------------------------------------------
        
@@ -448,8 +446,8 @@ JCode trans(muOFun(list[loc] srcs, AType ftype), JGenie jg){
     
     funInstance = "new TypedFunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- getFormals(ftype)])>\>";
     
-    bare_formals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
-    formals = intercalate(", ", ["(<atype2javatype(getFormals(ftype)[i])>)$<i>" | i <- [0..nformals]]);
+    formals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
+    //formals = intercalate(", ", ["(<atype2javatype(getFormals(ftype)[i])>)$<i>" | i <- [0..nformals]]);
     ext_formals = formals;
     if(size(srcs) == 1 && muFunctions[srcs[0]]?){
         fun = muFunctions[srcs[0]];
