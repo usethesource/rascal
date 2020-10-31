@@ -424,6 +424,8 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     funInstance = "new TypedFunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals] )>\>";
     
     formals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
+   
+    //actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
     actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
     
     ext_actuals = actuals;
@@ -768,6 +770,7 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AT
 JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
 println("muOCall3((<fun>, <ftype>, ..., <src>");
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
+    cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
     if(muOFun(list[loc] srcs, AType _) := fun){
         actuals = getActuals(argTypes, largs, jg);
         if(hasKeywordParameters(ftype)){
@@ -775,7 +778,7 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
         }
         externalVars = { *jg.getExternalVars(fsrc) | fsrc <- srcs };
         actuals += [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
-        return "<jg.getAccessor(srcs)>(<intercalate(", ", actuals)>)";
+        return "<cst><jg.getAccessor(srcs)>(<intercalate(", ", actuals)>)";
     }
     
     if(muFun(loc uid, _) := fun){
