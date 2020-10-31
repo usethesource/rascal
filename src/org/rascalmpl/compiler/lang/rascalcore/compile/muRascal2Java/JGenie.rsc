@@ -341,16 +341,26 @@ JGenie makeJGenie(MuModule m,
         str decls = "";
         done = {};
         
-        // this generates constants in the right declaration order, such that
-        // constants are always declared before they are used in the list if fields:
-        
-        bottom-up visit(constants<0>) {
-          case value s:  
-            if (s notin done, s in constants) {
-              decls = "<decls>
-                      'private final <value2outertype(s)> <constants[s]> = <value2IValue(s, constants)>;
-                      ";
-              done += {s};
+        // Generate constants in the right declaration order, such that
+        // they are always declared before they are used in the list of constant fields
+        for(c <- constants){
+            if(c == ""){
+                if (c notin done, c in constants) {
+                  decls = "<decls>
+                          'private final <value2outertype(c)> <constants[c]> = <value2IValue(c, constants)>;
+                          ";
+                  done += {c};
+                }
+            } else {
+                bottom-up visit(c) {
+                  case s:
+                        if (s notin done, s in constants) {
+                          decls = "<decls>
+                                  'private final <value2outertype(s)> <constants[s]> = <value2IValue(s, constants)>;
+                                  ";
+                          done += {s};
+                        }
+                    }
             }
         }
          
