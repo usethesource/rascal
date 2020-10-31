@@ -456,7 +456,7 @@ JCode trans(muOFun(list[loc] srcs, AType ftype), JGenie jg){
            formals = isEmpty(formals) ? ext_actuals : "<actuals>, <ext_actuals>";
         }
     }
-    return "<funInstance>((<bare_formals>) -\> { return <fname>(<formals>); }, <jg.shareType(ftype)>)";
+    return "<funInstance>((<formals>) -\> { return <fname>(<formals>); }, <jg.shareType(ftype)>)";
 }
 
 // ---- muConstr --------------------------------------------------------------
