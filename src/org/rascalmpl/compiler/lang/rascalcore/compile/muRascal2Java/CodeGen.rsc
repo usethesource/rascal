@@ -702,7 +702,7 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, 
         return "<trans(fun, jg)>(<intercalate(", ", actuals + kwactuals)>)";
     }
     
-    <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
+    //<actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
     
     all_actuals = actuals + kwactuals;
     if(muFun(loc uid, _) := fun){
@@ -778,7 +778,7 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
         }
         externalVars = { *jg.getExternalVars(fsrc) | fsrc <- srcs };
         actuals += [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
-        return "<cst><jg.getAccessor(srcs)>(<intercalate(", ", actuals)>)";
+        return "<jg.getAccessor(srcs)>(<intercalate(", ", actuals)>)";
     }
     
     if(muFun(loc uid, _) := fun){
