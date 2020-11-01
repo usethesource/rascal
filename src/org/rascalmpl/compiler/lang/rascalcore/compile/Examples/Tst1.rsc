@@ -1,6 +1,16 @@
 module lang::rascalcore::compile::Examples::Tst1
-import List;
-import util::Math;
+
+import lang::rascalcore::compile::Examples::Tst2;
+import lang::rascalcore::compile::Examples::Tst3;
+
+list[&T <: num] f(list[&T <: num] nums) = abs(nums);
+
+value main() = f([1, -1, 2.5]);
+
+
+
+//import List;
+//import util::Math;
 ////import analysis::statistics::Descriptive;
 //import lang::rascal::tests::library::analysis::statistics::RangeUtils;
 
@@ -26,13 +36,13 @@ import util::Math;
 //
 //real mean(list[num] nums:[_, *_]) = toReal(sum(nums)) / size(nums);
 
-test bool geometricLessThanArithmeticMean(list[num] nums) {
-    if (nums == []) return true;
-    nums = [ abs(n) | n <- nums ];
-    nums = [ assureRange(n, 0.1,30) | n <- nums ];
-    return leq(geometricMean(nums), mean(nums));
-    return true;
-}
+//test bool geometricLessThanArithmeticMean(list[num] nums) {
+//    if (nums == []) return true;
+//    nums = [ abs(n) | n <- nums ];
+//    nums = [ assureRange(n, 0.1,30) | n <- nums ];
+//    return leq(geometricMean(nums), mean(nums));
+//    return true;
+//}
 
 //test bool closures1() {
 //    int f(int (int i) g, int j) { return g(j);}

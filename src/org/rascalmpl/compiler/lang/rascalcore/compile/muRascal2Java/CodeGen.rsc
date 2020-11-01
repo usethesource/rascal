@@ -45,6 +45,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     moduleName = m.name;
     locsModule = invertUnique(moduleLocs);
     module_scope = moduleLocs[moduleName];
+    iprintln(tmodels[moduleName]);
     
     extends = { locsModule[m2loc] | <module_scope, extendPath(), m2loc> <- tmodels[moduleName].paths };
     
@@ -639,13 +640,14 @@ default str transWithCast(AType atype, MuExp exp, JGenie jg) {
         return code;
     }
       
-    exptype = getType(exp);
-    isequivalent = false;
-    try {
-         isequivalent = equivalent(exptype,atype);
-    } catch _ : /* ignore failure */;
-    
-    return isequivalent ? code : "((<atype2javatype(atype)>)<parens(code)>)";
+    //exptype = getType(exp);
+    //isequivalent = false;
+    //try {
+    //     isequivalent = equivalent(exptype,atype);
+    //} catch _ : /* ignore failure */;
+    //
+    //return isequivalent ? code : "((<atype2javatype(atype)>)<parens(code)>)";
+    return "((<atype2javatype(atype)>)<parens(code)>)";
 }
 
 bool producesFunctionInstance(str code)
