@@ -1,7 +1,6 @@
 module lang::rascalcore::compile::Examples::Tst3
 
-extend  lang::rascalcore::compile::Examples::Tst1;
-extend  lang::rascalcore::compile::Examples::Tst2;
+import lang::rascalcore::compile::Examples::Tst2;
 
-
-value main() = f(1);
+list[&T <: num] abs(list[&T <: num] nums) 
+    = [abs(n) | n <- nums]; 
