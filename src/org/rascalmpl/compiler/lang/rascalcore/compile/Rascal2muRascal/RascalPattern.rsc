@@ -1498,10 +1498,11 @@ str isLast(Lookahead lookahead) = lookahead.nMultiVar == 0 ? "LAST_" : "";
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([])) {
     if("<name>" == "_"){
-       return muIf(muLessNativeInt(cursor, sublen),
-                   muBlock([ muIncNativeInt(cursor, muCon(1)), 
-                             trueCont
-                           ]));
+       return muIfelse(muLessNativeInt(cursor, sublen),
+                       muBlock([ muIncNativeInt(cursor, muCon(1)), 
+                                 trueCont
+                               ]),
+                       falseCont);
     }
     var = mkVar(prettyPrintName(name), name@\loc);
     if(isDefinition(name@\loc)){
@@ -1599,7 +1600,8 @@ MuExp translateMultiVarAsListElem(MuExp var, bool isDefinition, Lookahead lookah
         code = muBlock([ muConInit(startcursor, cursor), 
                          muConInit(len, muSubNativeInt(muSubNativeInt(sublen, startcursor), muCon(lookahead.nElem))),         
                          muAssign(cursor, muAddNativeInt(startcursor, len)),
-                         muEnter(enter, trueCont)
+                         muEnter(enter, trueCont),
+                         falseCont
                        ]);
                        
     } else {
@@ -1686,7 +1688,6 @@ MuExp translatePat(p:(Pattern) `<Name name> : <Pattern pattern>`, AType subjectT
     if(subjectAssigned){
          return translatePat(pattern, subjectType, subjectExp, btscopes, trueCont, falseCont, subjectAssigned=false, restore=restore);
     } else {
-         //<fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
         var = mkVar(prettyPrintName(name), name@\loc);
         asg = isDefinition(name@\loc) ? muVarInit(var, subjectExp) : muAssign(var, subjectExp);
         return translatePat(pattern, subjectType, subjectExp, btscopes, muValueBlock(avalue(), [ asg, trueCont ]), falseCont, subjectAssigned=subjectAssigned, restore=restore);
