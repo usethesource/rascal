@@ -159,7 +159,7 @@ public &T delAnnotationsRec(&T x) = unsetRec(x);
 .Synopsis
 Recursively reset a specific keyword parameter of the node and its children back to its default.
 }
-public &T <: node unsetRec(&T <: node x, str keywordParameter) = visit(x) { 
+public &T unsetRec(&T x, str keywordParameter) = visit(x) { 
   case node n => unset(n, keywordParameter)
 };
 
