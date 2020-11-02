@@ -127,7 +127,7 @@ public class TraversalEvaluator {
 		IValue result = subject;
 		this.traversalContext.add(subject);
 		
-		if (/* casesOrRules.hasRegexp()  && */ subjectType.isString()) {
+		if (/*casesOrRules.hasRegexp()  && */ subjectType.isString()) {
 			result = traverseStringOnce(subject, casesOrRules, tr);
 			this.traversalContext.remove(this.traversalContext.size()-1);
 			return result;
@@ -697,9 +697,12 @@ public class TraversalEvaluator {
 		boolean hasMatched = false;
 		boolean hasChanged = false;
 
+		if (subjectString.length() == 0) {
+		    return traverseTop(subject, casesOrRules, tr);
+		}
+		
 		while (subjectCursor < len){
 			//System.err.println("cursor = " + cursor);
-		
 			
 			try {
 				IString substring = eval.getValueFactory().string(subjectString.substring(subjectCursor, len));
