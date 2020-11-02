@@ -7,6 +7,8 @@
 }
 module lang::rascal::tests::concrete::Terms
 
+import ParseTree;
+
 layout Whitespace = [\ ]*;
 lexical IntegerLiteral = [0-9]+; 
 lexical Identifier = [a-z]+;
@@ -38,4 +40,9 @@ test bool concreteTerm2() = s3.thenPart[0] == s1;
 test bool concreteTerm3() = s3.thenPart[1] == s2;
 
 test bool concreteTerm4() = s3.elsePart[0] == s1;
+
+test bool testAssociativity() = /amb(_) !:= parse(#Exp, "x + x + x", allowAmbiguity=true);
+
+test bool testPriority() = /amb(_) !:= parse(#Exp, "x + x * x", allowAmbiguity=true);
+
  
