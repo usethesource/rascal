@@ -33,7 +33,7 @@ data JGenie
         str(loc def) getImportedModuleName,
         str (list[loc] srcs) getAccessor,
         Define (loc src) getDefine,
-        list[MuExp] (loc src) getExternalVars,
+        list[MuExp] (loc src) getExternalRefs,
         void(str name) setKwpDefaults,
         str() getKwpDefaults,
         bool(AType) hasCommonKeywordFields,
@@ -42,8 +42,8 @@ data JGenie
         str(Symbol, map[Symbol,Production]) shareATypeConstant,
         str () getConstants,
         bool (str con) isWildCard,
-        void(set[MuExp] evars) addExternalVars,
-        bool (MuExp exp) isExternalVar,
+        void(set[MuExp] evars) addExternalRefs,
+        bool (MuExp exp) isExternalRef,
         void(set[MuExp] lvars) addLocalRefs,
         bool(MuExp lvar) isLocalRef,
         bool(MuExp var) isRef,
@@ -76,7 +76,7 @@ JGenie makeJGenie(MuModule m,
     map[str,ParseTree::Symbol] atype_constant2atype = ();
     int ntconstants = -1;
     
-    set[MuExp] externalVars = {};
+    set[MuExp] externalRefs = {};
     set[MuExp] localRefs = {};
     int ntmps = -1;
     set[str] importedLibraries = {};
@@ -84,11 +84,11 @@ JGenie makeJGenie(MuModule m,
     TModel currentTModel = tmodels[moduleName];
     loc currentModuleScope = moduleLocs[moduleName];
     //set[tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors]] resolvers = {};
-    map[str resolverName, list[MuExp] externalVars] resolver2externalVars = ();
+    //map[str resolverName, list[MuExp] externalRefs] resolver2externalRefs = ();
     str functionName = "$UNKNOWN";
     MuFunction function;
     
-    map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalVars  | fun <- range(muFunctions));
+    map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs  | fun <- range(muFunctions));
     map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
     rel[str,AType,str] mergedOverloads = {};
     
@@ -254,10 +254,10 @@ JGenie makeJGenie(MuModule m,
         throw "getDefine <src>";
     }
     
-    list[MuExp] _getExternalVars(loc src){
+    list[MuExp] _getExternalRefs(loc src){
         if(fun2externals[src]?){
             evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
-            return [var | var <- evars, var.pos >= 0 ];
+            return sort([var | var <- evars, var.pos >= 0 ]);
         }
         return [];
     }
@@ -378,11 +378,11 @@ JGenie makeJGenie(MuModule m,
         return false;
     }
     
-    void _addExternalVars(set[MuExp] vars){
-        externalVars += vars;
+    void _addExternalRefs(set[MuExp] vars){
+        externalRefs += vars;
     }
     
-    bool _isExternalVar(MuExp var) = var in externalVars && var.pos != -1;
+    bool _isExternalRef(MuExp var) = var in externalRefs && var.pos != -1;
     
     void _addLocalRefs(set[MuExp] vars){
         localRefs += vars;
@@ -390,7 +390,7 @@ JGenie makeJGenie(MuModule m,
     
     bool _isLocalRef(MuExp var) = var in localRefs;
     
-    bool _isRef(MuExp var) = _isExternalVar(var) || _isLocalRef(var);
+    bool _isRef(MuExp var) = _isExternalRef(var) || _isLocalRef(var);
     
     str _newTmp(str prefix){
         ntmps += 1;
@@ -431,7 +431,7 @@ JGenie makeJGenie(MuModule m,
                 _getImportedModuleName,
                 _getAccessor,
                 _getDefine,
-                _getExternalVars,
+                _getExternalRefs,
                 _setKwpDefaults,
                 _getKwpDefaults,
                 _hasCommonKeywordFields,
@@ -440,8 +440,8 @@ JGenie makeJGenie(MuModule m,
                 _shareATypeConstant,
                 _getConstants,
                 _isWildCard,
-                _addExternalVars,
-                _isExternalVar,
+                _addExternalRefs,
+                _isExternalRef,
                 _addLocalRefs,
                 _isLocalRef,
                 _isRef,

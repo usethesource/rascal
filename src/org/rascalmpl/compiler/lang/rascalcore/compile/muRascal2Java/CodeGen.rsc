@@ -45,7 +45,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     moduleName = m.name;
     locsModule = invertUnique(moduleLocs);
     module_scope = moduleLocs[moduleName];
-    iprintln(tmodels[moduleName]);
+    //iprintln(tmodels[moduleName]);
     
     extends = { locsModule[m2loc] | <module_scope, extendPath(), m2loc> <- tmodels[moduleName].paths };
     
@@ -74,7 +74,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
             mainType = f.ftype;
  //           mainName = f.qname;
         }
-        jg.addExternalVars(f.externalVars);
+        jg.addExternalRefs(f.externalRefs);
         jg.addLocalRefs(f.localRefs);
     }
  
@@ -141,8 +141,8 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '   <}>
                         '}";
     externalArgs = "";                 
-    if(hasMainFunction && !isEmpty(mainFunction.externalVars)){
-      externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<var.name>)" | var <- sort(mainFunction.externalVars), var.pos >= 0, jtype := atype2javatype(var.atype)]);
+    if(hasMainFunction && !isEmpty(mainFunction.externalRefs)){
+      externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<var.name>)" | var <- mainFunction.externalRefs, var.pos >= 0, jtype := atype2javatype(var.atype)]);
     }              
         
     main_method = "public static void main(String[] args) {
@@ -268,8 +268,8 @@ bool constantDefaults(lrel[str name, AType atype, MuExp defaultExp] kwpDefaults)
 tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgTypes(MuFunction fun, JGenie jg){   
     shortName = getJavaName(getUniqueFunctionName(fun)); 
     argTypes = intercalate(", ", [ "<atype2javatype(fun.ftype.formals[i])> <varName(fun.formals[i], jg)>" | i <- index(fun.formals) ]);          
-    if(!isEmpty(fun.externalVars)){
-        ext_actuals = intercalate(", ", ["ValueRef\<<atype2javatype(var.atype)>\> <varName(var, jg)>" | var <- fun.externalVars, var.pos >= 0]);
+    if(!isEmpty(fun.externalRefs)){
+        ext_actuals = intercalate(", ", ["ValueRef\<<atype2javatype(var.atype)>\> <varName(var, jg)>" | var <- sort(fun.externalRefs), var.pos >= 0]);
         argTypes = isEmpty(fun.formals) ? ext_actuals : (isEmpty(ext_actuals) ? argTypes : "<argTypes>, <ext_actuals>");
     }
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
@@ -415,9 +415,13 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
    
     fun = loc2muFunction[uid];
     uid = fun.src;
-    externalVars = jg.getExternalVars(uid);
-    currentFun = jg.getFunction();
-    externalVarsCurrentFun = jg.getExternalVars(currentFun.src);
+    externalRefs = jg.getExternalRefs(uid);
+    //currentFun = jg.getFunction();
+    //externalRefsCurrentFun = jg.getExternalRefs(currentFun.src);
+    
+    if(fun.name == "strongConnect"){
+        println("strongConnect");
+    }
     
     nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
@@ -430,8 +434,8 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
     
     ext_actuals = actuals;
-    if(!isEmpty(externalVars)){
-           ext_actuals = intercalate(", ", [ "new ValueRef\<<jtype>\>(<varName(var, jg)>)" | var <- externalVars, jtype := atype2javatype(var.atype)]);
+    if(!isEmpty(externalRefs)){
+           ext_actuals = intercalate(", ", [ "new ValueRef\<<jtype>\>(<varName(var, jg)>)" | var <- externalRefs, jtype := atype2javatype(var.atype)]);
            ext_actuals = isEmpty(actuals) ? ext_actuals : "<actuals>, <ext_actuals>";
     }
     reta = isVoidType(ftype.ret) ? "" : "return ";
@@ -454,8 +458,8 @@ JCode trans(muOFun(list[loc] srcs, AType ftype), JGenie jg){
     ext_formals = formals;
     if(size(srcs) == 1 && muFunctions[srcs[0]]?){
         fun = muFunctions[srcs[0]];
-        if(!isEmpty(fun.externalVars)){
-           ext_actuals = intercalate(", ", [varName(v, jg) | v <- fun.externalVars]);
+        if(!isEmpty(fun.externalRefs)){
+           ext_actuals = intercalate(", ", [varName(v, jg) | v <- fun.externalRefs]);
            formals = isEmpty(formals) ? ext_actuals : "<actuals>, <ext_actuals>";
         }
     }
@@ -708,9 +712,9 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, 
     
     all_actuals = actuals + kwactuals;
     if(muFun(loc uid, _) := fun){
-        externalVars = jg.getExternalVars(uid);
-        if(!isEmpty(externalVars)){
-           all_actuals += [ varName(var, jg)| var <- externalVars, var.pos >= 0 ];
+        externalRefs = jg.getExternalRefs(uid);
+        if(!isEmpty(externalRefs)){
+           all_actuals += [ varName(var, jg)| var <- externalRefs, var.pos >= 0 ];
         }
         
        if(isContainedIn(uid, jg.getModuleLoc())){
@@ -778,8 +782,8 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
         if(hasKeywordParameters(ftype)){
             actuals += getKwpActuals(kwargs, jg);
         }
-        externalVars = { *jg.getExternalVars(fsrc) | fsrc <- srcs };
-        actuals += [ varName(var, jg) | var <- sort(externalVars), jtype := atype2javatype(var.atype)];
+        externalRefs = { *jg.getExternalRefs(fsrc) | fsrc <- srcs };
+        actuals += [ varName(var, jg) | var <- sort(externalRefs), jtype := atype2javatype(var.atype)];
         return "<jg.getAccessor(srcs)>(<intercalate(", ", actuals)>)";
     }
     

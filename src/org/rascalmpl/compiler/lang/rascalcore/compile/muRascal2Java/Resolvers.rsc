@@ -90,28 +90,23 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     return resolvers;
 }
 
-list[MuExp] getExternalVars(Define fun_def, map[loc, MuFunction] loc2muFunction){
+list[MuExp] getExternalRefs(Define fun_def, map[loc, MuFunction] loc2muFunction){
     if(loc2muFunction[fun_def.defined]?){
         fun = loc2muFunction[fun_def.defined];  
-        externalVars =  { ev | ev <- fun.externalVars, ev.pos >= 0, ev.fuid == fun.scopeIn };
-        return sort(externalVars);
+        return sort({ ev | ev <- fun.externalRefs, ev.pos >= 0, ev.fuid == fun.scopeIn });
     } else { 
         return [];
     }
 }
 
-list[MuExp] getExternalVars(set[Define] relevant_fun_defs, map[loc, MuFunction] loc2muFunction){
-   return sort({ *getExternalVars(fun_def, loc2muFunction) | fun_def <- relevant_fun_defs });
+list[MuExp] getExternalRefs(set[Define] relevant_fun_defs, map[loc, MuFunction] loc2muFunction){
+   return sort({ *getExternalRefs(fun_def, loc2muFunction) | fun_def <- relevant_fun_defs });
 }
 
 // Generate a resolver for a specific function
 
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module, JGenie jg){
     module_scopes = domain(loc2module);
-    
-    if(functionName == "delete"){
-        println("delete");
-    }
     
     local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};  
     nonlocal_fun_defs0 = 
@@ -171,9 +166,9 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
     }
    
-    externalVars = getExternalVars(relevant_fun_defs, loc2muFunction);
-    if(!isEmpty(externalVars)){
-        argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalVars, jtype := atype2javatype(var.atype)]);
+    externalRefs = getExternalRefs(relevant_fun_defs, loc2muFunction);
+    if(!isEmpty(externalRefs)){
+        argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalRefs, jtype := atype2javatype(var.atype)]);
     }
           
     for(def <- sort(relevant_fun_defs, funBeforeDefaultBeforeConstructor)){
@@ -200,9 +195,9 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
             actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
         }
 
-        externalVars = getExternalVars(def, loc2muFunction);
-        if(!isEmpty(externalVars)){
-            actuals_text += (isEmpty(actuals_text) ? "" : ", ") +  intercalate(", ", [ varName(var) | var <- externalVars ]);
+        externalRefs = getExternalRefs(def, loc2muFunction);
+        if(!isEmpty(externalRefs)){
+            actuals_text += (isEmpty(actuals_text) ? "" : ", ") +  intercalate(", ", [ varName(var) | var <- externalRefs ]);
         }
         call_code = base_call = "";
         if(isContainedIn(def.defined, module_scope)){

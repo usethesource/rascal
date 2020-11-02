@@ -52,7 +52,7 @@ public data MuFunction =
                            bool isVarArgs,
                            bool isPublic,
                            bool isMemo,
-                           set[MuExp] externalVars,
+                           set[MuExp] externalRefs,
                            set[MuExp] localRefs,
                            set[MuExp] keywordParameterRefs,
                            loc src,

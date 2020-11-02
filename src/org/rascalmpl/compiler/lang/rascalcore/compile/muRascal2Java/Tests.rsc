@@ -69,8 +69,8 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
     fun_name = "$me.<getFunctionName(f)>";
     
     externalArgs = "";                 
-    if(!isEmpty(f.externalVars)){
-      externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<className>.<var.name>)" | var <- sort(f.externalVars), var.pos >= 0, jtype := atype2javatype(var.atype)]);
+    if(!isEmpty(f.externalRefs)){
+      externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<className>.<var.name>)" | var <- sort(f.externalRefs), var.pos >= 0, jtype := atype2javatype(var.atype)]);
     }  
     if(isEmpty(formals)){
         if(isEmpty(expected)){
