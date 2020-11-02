@@ -33,7 +33,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     for(f <- functions, isEmpty(f.scopeIn) , !("test" in f.modifiers || isSyntheticFunctionName(f.name) || isMainName(f.name))){
         signatures += <f.name, getArity(f.ftype), f.ftype>;
     }
-    iprintln(signatures);
+    //iprintln(signatures);
     
     for(ext <- extends){
         for(def <- tmodels[ext].defines, defType(tp) := def.defInfo, 
@@ -43,7 +43,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
             signatures += <def.id, getArity(tp), tp>;
         }
     }
-    iprintln(signatures);
+    //iprintln(signatures);
 
     names_and_arities = signatures<0,1>;
     for(<name, arity> <- names_and_arities){
@@ -62,7 +62,7 @@ str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str
 // Generate an interface method per function
 
 str generateInterfaceMethod(str fname, AType ftype){
-println("generateInterfaceMethod: <fname>, <ftype>");
+    //println("generateInterfaceMethod: <fname>, <ftype>");
     method_name = getJavaName(fname);
     
     formals = getFormals(ftype);
