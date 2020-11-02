@@ -71,7 +71,8 @@ set[set[&T]] stronglyConnectedComponents(Graph[&T] g){
  * - the topological sort of vertices even for cyclic graphs)
  * See https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
  */
-tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] g){
+tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] ag){
+    Graph[&T] g = ag;           // Make a copy, since compiler cannot yet handle parameters that are also externalRefs of an inner function
     int index = 0;              // depth-first search node number counter
     map[&T, int] low = ();      // smallest index of any node known to be reachable from v
     map[&T, int] indexOf = ();  // maps nodes to their index
