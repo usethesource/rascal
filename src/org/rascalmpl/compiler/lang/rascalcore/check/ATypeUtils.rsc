@@ -221,8 +221,8 @@ default Production aprod2prod(AType t) {
   throw "internal error: do not know how to translate a <t> to a production rule?!";
 }
 
-Production aprod2prod(prod(AType lhs, list[AType] atypes, attributes=set[Attr] as))
-  = Production::prod(atype2symbol(lhs), [atype2labeledSymbol(e) | e <- atypes], as); 
+Production aprod2prod(p:prod(AType lhs, list[AType] atypes, attributes=set[Attr] as))
+  = Production::prod((p.label?) ? Symbol::label(p.label, atype2symbol(lhs)) : atype2symbol(lhs), [atype2labeledSymbol(e) | e <- atypes], as); 
   
 Production aprod2prod(AProduction::choice(AType def, set[AProduction] alts)) 
   = Production::choice(atype2symbol(def), {aprod2prod(p) | p <- alts});  
@@ -238,7 +238,7 @@ Production aprod2prod(AProduction::reference(AType def, str cons))
   
 // TODO it is weird that we loose the kwFields here  
 Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] _/*kwFields*/)) 
- = Production::\cons(label(a.label, atype2symbol(adt)), [atype2labeledSymbol(f) | f <- fields], [atype2labeledSymbol(g) | <g,_> <- fields], {})
+ = Production::\cons(label(a.label, atype2symbol(adt)), [atype2labeledSymbol(f) | f <- fields], [atype2labeledSymbol(g) | g <- fields], {})
  ;
 
 // ---- Predicates, selectors and constructors --------------------------------
