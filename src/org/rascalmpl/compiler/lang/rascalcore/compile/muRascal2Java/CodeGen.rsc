@@ -324,9 +324,9 @@ str getMemoCache(MuFunction fun)
     = "$memo_<getJavaName(getUniqueFunctionName(fun))>";
     
 JCode trans(MuFunction fun, JGenie jg){
-    println("trans <fun.name>, <fun.ftype>");
-    println("trans: <fun.src>, <jg.getModuleLoc()>");
-    iprintln(fun.body);
+    //println("trans <fun.name>, <fun.ftype>");
+    //println("trans: <fun.src>, <jg.getModuleLoc()>");
+    //iprintln(fun.body);
     
     if(!isContainedIn(fun.src, jg.getModuleLoc()) )return "";
     
@@ -1140,7 +1140,7 @@ JCode trans(muWhileDo(str label, MuExp cond, MuExp body), JGenie jg){
             '    <btscope>: 
             '       do {
             '         <trans2Void(exp, jg)>
-            '          break <getJavaName(label)>;
+            '          break <getJavaName(label)>; //muWhileDo
             '       } while(false);\n
             '    }\n";
     }
@@ -1203,7 +1203,7 @@ default JCode trans(muEnter(btscope, MuExp exp), JGenie jg){
       '    } while(false);\n";
 }
 JCode trans(muSucceed(str label), JGenie jg)
-    = "break <getJavaName(label)>;";
+    = "break <getJavaName(label)>; // muSucceed";
 
 JCode trans(muFail(str label), JGenie jg){
     if(startsWith(jg.getFunctionName(), label)){    // TODO:this is brittle, solve in JGenie
@@ -1218,7 +1218,7 @@ JCode trans(muFail(str label), JGenie jg){
 }
     
 JCode trans(muBreak(str label), JGenie jg)
-    = "break <getJavaName(label)>;\n";
+    = "break <getJavaName(label)>; // muBreak\n";
     
 JCode trans(muContinue(str label), JGenie jg)
     = "continue <getJavaName(label)>;\n";
@@ -1349,10 +1349,10 @@ JCode trans(muDescendantMatchIterator(MuExp subject, DescendantDescriptor ddescr
       '    <genDescendantDescriptor(ddescriptor, jg)>)";
 
 JCode trans(muFailCase(str switchName), JGenie jg)
-    = "break <switchName>;\n";
+    = "break <switchName>;// switch\n";
     
 JCode trans(muSucceedSwitchCase(str switchName), JGenie jg)
-    = "break <switchName>;";
+    = "break <switchName>;// succeedSwitch";
     
 JCode trans(muSucceedVisitCase(str visitName), JGenie jg)
     = "$traversalState.setMatched(true); 

@@ -179,7 +179,7 @@ private MuExp translateAddFunction(Expression e){
   leaveFunctionScope();
   funType = afunc(resType, lhsFormals, []);
   fun = muFunction(add_name, add_name, funType, lactuals, [], scopeId, false, false, false, getExternalRefs(body, add_fuid), {}, {}, e@\loc, [], (), body);
-  iprintln(fun);
+  //iprintln(fun);
   loc uid = declareGeneratedFunction(add_name, add_fuid, funType, e@\loc);
   addFunctionToModule(fun);  
   addDefineAndType(<currentFunctionDeclaration(), add_name, functionId(), e@\loc, defType(funType)>, funType);
@@ -1908,12 +1908,15 @@ MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCon
     falseCont = normalize(falseCont);
     
     if(all(cond <- conds, backtrackFree(cond))){
+       
         for(cond <- reverse(conds)){
+            //print("cond: "); println(cond);
+            //print("trueCont: "); iprintln(trueCont);
             trueCont = muIfExp(translate(cond), trueCont, falseCont);
+            //println("trueCont:"); iprintln(trueCont);
         }
         return trueCont;
     }
-    firstCond = size(conds) - 1;
     for(i <- reverse(index(conds))){
         cont = i == 0 ? falseCont : muFail(getResume(conds[i-1], btscopes));   // <<<
         //iprintln(cont);
@@ -2185,7 +2188,7 @@ MuExp translate((Expression) `<Concrete con>`) = translateConcrete(con.args[0]);
 default MuExp translate(Expression e) {
 	btscopes = getBTScopes(e, nextTmp("EXP"));
 	return backtrackFree(e) ? translate(e, btscopes)
-	                        :  muEnter(getEnter(e, btscopes), translateBool(e, btscopes, muSucceed(getEnter(e,btscopes)), muFail(getFail(e, btscopes))));
+	                        : muEnter(getEnter(e, btscopes), translateBool(e, btscopes, muSucceed(getEnter(e,btscopes)), muFail(getFail(e, btscopes))));
   
     //return translateBool(e, btscopes, muSucceed(getFail(e, btscopes)), muFail(getResume(e, btscopes)));
     //return muEnter(getEnter(e, btscopes), translateBool(e, btscopes, muSucceed(getEnter(e,btscopes)), muFail(getResume(e, btscopes))));
