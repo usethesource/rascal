@@ -194,10 +194,8 @@ construct ordered and un-ordered compositions, and associativity groups.
     for extending priority chains and such.
 } 
 data AProduction 
-     = prod(AType def, list[AType] atypes, set[Attr] attributes={}, loc src=|unknown:///|) // <1>
+     = prod(AType def, list[AType] atypes, set[Attr] attributes={}, loc src=|unknown:///|, str label = "") // <1>
      | regular(AType def) // <2>
-     | error(AProduction prod, int dot) // <3>
-     | skipped() // <4>
      ;
      
 data AProduction 
