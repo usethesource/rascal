@@ -2172,9 +2172,8 @@ bool isConditional((Expression) `( <Expression exp> )`) = isConditional(exp);
 default bool isConditional(Expression e) = false;
 
 MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
-    res = translateBool(condition, btscopes, muBlock([translate(thenExp), trueCont]),  muBlock([translate(elseExp), falseCont]));
-    //iprintln(res);
-    return res;
+    return translateBool(condition, btscopes, translateBool(thenExp, btscopes, trueCont, translateBool(elseExp, btscopes, trueCont, falseCont)), 
+                                              translateBool(elseExp, btscopes, trueCont, falseCont));
 }
 
 // -- concrete syntax
