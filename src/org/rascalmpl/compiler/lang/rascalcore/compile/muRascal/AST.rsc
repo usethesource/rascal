@@ -591,11 +591,12 @@ MuExp muBlock([ *exps1, muBlock([*exps2]), *exps3 ])
 MuExp muBlock([ *exps1, exp0, *exps2])
     = muBlock([*exps1, exp0])
     when !isEmpty(exps2),
-         muReturn1(t, exp1) := exp0 ||
-         muInsert(t, exp1) := exp0 ||
-         muBreak(str label) := exp0 || 
-         muContinue(str label) := exp0 ||   
-         muFail(str label) := exp0;
+        noSequentialExit(exp0);
+         //muReturn1(t, exp1) := exp0 ||
+         //muInsert(t, exp1) := exp0 ||
+         //muBreak(str label) := exp0 || 
+         //muContinue(str label) := exp0 ||   
+         //muFail(str label) := exp0;
 
 MuExp muBlock([*MuExp pre, muValueBlock(AType t, list[MuExp] elems), *MuExp post])
     = muBlock([*pre, *elems, *post]);
