@@ -1281,15 +1281,17 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    tp = getType(expression);
    fieldType = getType(field);
+   ufield = unescape("<field>");
    
    if(isTupleType(tp) || isRelType(tp) || isListRelType(tp) || isMapType(tp)) {
        return translateProject(e, expression, [(Field)`<Name field>`], e@\loc, false);
    }
-   //if(isNonTerminalType(tp)){
-   //   return muGetField("nonterminal", getConstructorType(tp, fieldType), translate(expression), unescape("<field>"));
-   //}
+   
+   if(isNonTerminalType(tp)){
+      return muGetField(fieldType, tp, translate(expression), ufield);
+   }
+   
    op = getOuterType(expression);
-   ufield = unescape("<field>");
   
     if(op == "aadt"){
         <consType, isKwp> = getConstructorInfo(tp, fieldType, ufield);
