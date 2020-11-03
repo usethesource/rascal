@@ -825,8 +825,12 @@ JCode trans(muGetField(AType resultType, adatetime(), MuExp exp, str fieldName),
 JCode trans(muGetField(AType resultType, anode(_), MuExp exp, str fieldName), JGenie jg)
     = "$anode_get_field(<transWithCast(anode([]),exp,jg)>, \"<getJavaName(fieldName)>\")";
 
-JCode trans(muGetField(AType resultType, adt:aadt(_,_,_), MuExp exp, str fieldName), JGenie jg)
-    = "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")";
+JCode trans(muGetField(AType resultType, adt:aadt(_,_,!contextFreeSyntax()), MuExp exp, str fieldName), JGenie jg) 
+   = "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")";
+   
+JCode trans(muGetField(AType resultType, adt:aadt(_,_,contextFreeSyntax()), MuExp exp, str fieldName), JGenie jg) 
+   = "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(exp, jg)>, \"<fieldName>\")";   
+
             
 JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str fieldName), JGenie jg)
     = "$areified_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")";
@@ -836,13 +840,9 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
     qFieldName = "\"<fieldName>\"";
     println("muGetField: <resultType>, <consType>, <fieldName>");
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
-    if(isNonTerminalType(consType)){
-        return "null /*TODO: muGetField: <resultType>, <consType>, <fieldName>*/";
-    } else {
         isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
         return isConsKwField ? "$get_<consType.adt.adtName>_<getJavaName(consType.label)>_<getJavaName(fieldName)>(<base>)"
                              : "$get_<consType.adt.adtName>_<getJavaName(fieldName)>(<base>)";
-    }
 }
  
  // ---- muGuardedGetField -------------------------------------------------
