@@ -84,7 +84,7 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
 }
 
 AProduction computeProd(Tree current, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s){
-    args = [s.getType(sym) | sym <- symbols];   
+    args = [s.getType(sym) | sym <- symbols];  
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
     p = isEmpty(m2a) ? prod(adtType, args, src=src) : prod(adtType, args, attributes=m2a, src=src);
@@ -109,7 +109,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
             AType(Solver s){
-                return aprod(computeProd(current, s.getType(adt)[label=unescape("<name>")], modifiers, symbols, s));      
+                return aprod(computeProd(current, s.getType(adt), modifiers, symbols, s)[label=unescape("<name>")]);      
             });
             
         // Define the constructor (using a location annotated with "cons" to differentiate from the above)

@@ -840,9 +840,13 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
     qFieldName = "\"<fieldName>\"";
     println("muGetField: <resultType>, <consType>, <fieldName>");
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
+    if(isNonTerminalType(consType)){
+        return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\")";
+    } else {
         isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
         return isConsKwField ? "$get_<consType.adt.adtName>_<getJavaName(consType.label)>_<getJavaName(fieldName)>(<base>)"
                              : "$get_<consType.adt.adtName>_<getJavaName(fieldName)>(<base>)";
+    }
 }
  
  // ---- muGuardedGetField -------------------------------------------------
