@@ -519,8 +519,12 @@ bool noSequentialExit(muReturn0(), list[str] entered)
     = true;
 bool noSequentialExit(muReturn1(_, _), list[str] entered) 
     = true;
-bool noSequentialExit(muFail(_), list[str] entered) 
+//bool noSequentialExit(muFail(_), list[str] entered) 
+//    = true;
+
+bool noSequentialExit(muInsert(t, exp1), , list[str] entered)
     = true;
+ 
 bool noSequentialExit(muFailReturn(_), list[str] entered) 
     = true;
 bool noSequentialExit(muCheckMemo(_,_,_), list[str] entered) 
@@ -591,11 +595,11 @@ MuExp muBlock([ *exps1, muBlock([*exps2]), *exps3 ])
 MuExp muBlock([ *exps1, exp0, *exps2])
     = muBlock([*exps1, exp0])
     when !isEmpty(exps2),
-        muReturn1(t, exp1) := exp0 ||
-        muInsert(t, exp1) := exp0 ||
-        muBreak(str label) := exp0 || 
-        muContinue(str label) := exp0 ||   
-        muFail(str label) := exp0 ||
+        //muReturn1(t, exp1) := exp0 ||
+        //muInsert(t, exp1) := exp0 ||
+        //muBreak(str label) := exp0 || 
+        //muContinue(str label) := exp0 ||   
+        //muFail(str label) := exp0 ||
         noSequentialExit(exp0);
          
 MuExp muBlock([*MuExp pre, muValueBlock(AType t, list[MuExp] elems), *MuExp post])
