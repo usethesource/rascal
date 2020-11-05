@@ -166,6 +166,7 @@ AType invalidInstantiation(str pname, AType bound, AType actual){
     throw invalidInstantiation("Type parameter `<pname>` should be less than `<prettyAType(bound)>`, but is bound to `<prettyAType(actual)>`");  
 }
 
+// TODO: propagate labels over instantiated values, or rewrite this as a visit (JURGEN)
 AType instantiateRascalTypeParams(aset(AType et), Bindings bindings) 
     = makeSetType(instantiateRascalTypeParams(et,bindings));
 AType instantiateRascalTypeParams(arel(AType ets), Bindings bindings) 
