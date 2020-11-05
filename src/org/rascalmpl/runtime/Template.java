@@ -20,14 +20,18 @@ public class Template {
 		templates.add(vf.string(s));
 	}
 
-	public final void addVal(final IValue v) throws IOException {
+	public final void addVal(final IValue v) {
 	    if (v instanceof IString) {
 	        addStr(((IString)v).getValue());	
 	    } 
 	    else if (v instanceof ITree) {
-	        StringWriter sw = new StringWriter();
-	        TreeAdapter.unparse((ITree) v, sw);
-	        addStr(sw.toString());
+	        try {
+	            StringWriter sw = new StringWriter();
+	            TreeAdapter.unparse((ITree) v, sw);
+	            addStr(sw.toString());
+	        } catch (IOException e) {
+	            // this will not happen
+	        }
 	    }
 	    else {
 	        templates.set(0, templates.get(0).concat(VF.string(v.toString())));
