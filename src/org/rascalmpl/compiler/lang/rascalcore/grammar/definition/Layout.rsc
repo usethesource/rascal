@@ -67,12 +67,14 @@ list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
   return syms;
 }
 
+private AType inheritLabel(AType x, AType y) = (x.label?) ? y[label=x.label] : y;
+ 
 private AType regulars(AType s, AType l, set[AType] others) {
   return visit(s) {
-    case \iter(AType n) => \iter-seps(n, [l])
-    case \iter-star(AType n) => \iter-star-seps(n, [l]) 
-    case \iter-seps(AType n, [AType sep]) => \iter-seps(n,[l,sep,l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
-    case \iter-star-seps(AType n,[AType sep]) => \iter-star-seps(n, [l, sep, l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
-    case \seq(list[AType] elems) => \seq(intermix(elems, l, others))
+    case x:\iter(AType n) => inheritLabel(x, \iter-seps(n, [l]))
+    case x:\iter-star(AType n) => inheritLabel(x, \iter-star-seps(n, [l])) 
+    case x:\iter-seps(AType n, [AType sep]) => inheritLabel(x, \iter-seps(n,[l,sep,l])) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
+    case x:\iter-star-seps(AType n,[AType sep]) => inheritLabel(x, \iter-star-seps(n, [l, sep, l])) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
+    case x:\seq(list[AType] elems) => inheritLabel(x, \seq(intermix(elems, l, others)))
   }
 }
