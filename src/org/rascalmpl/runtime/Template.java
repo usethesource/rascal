@@ -1,6 +1,11 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
+
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -15,10 +20,16 @@ public class Template {
 		templates.add(vf.string(s));
 	}
 
-	public final void addVal(final IValue v) {
-	    if(v instanceof IString) {
+	public final void addVal(final IValue v) throws IOException {
+	    if (v instanceof IString) {
 	        addStr(((IString)v).getValue());	
-	    } else {
+	    } 
+	    else if (v instanceof ITree) {
+	        StringWriter sw = new StringWriter();
+	        TreeAdapter.unparse((ITree) v, sw);
+	        addStr(sw.toString());
+	    }
+	    else {
 	        templates.set(0, templates.get(0).concat(VF.string(v.toString())));
 	    }
 	}
