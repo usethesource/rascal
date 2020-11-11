@@ -30,8 +30,8 @@ Observe how we use the patterns `0`, `1` and `int n` in the definition of three 
 <2> _Pattern-directed invocation_ (see link:/Rascal#Declarations-Function[function declaration]) will determine at the call site which function will be called. The
 general case is labeled with `default` to indicate that if the case for 0 and 1 do not match, this alternative should handle the other cases. 
 
-<3> The main function is `sing` that iterates over the numbers 99 downto 1 (as described by the range `[99 .. 1]`)
-and prints appriopriate lyrics. Observe how the value  of the `bottles` function is interpolated several times in the string.
+<3> The main function is `sing` that iterates over the numbers 99 down to 1 (as described by the range `[99 .. 0]`)
+and prints appropriate lyrics. Observe how the value  of the `bottles` function is interpolated several times in the string.
 
 Here is the result:
 
