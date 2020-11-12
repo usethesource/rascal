@@ -615,7 +615,7 @@ private MuExp translateConcreteSeparatedList(Symbol _, list[Symbol] _, [Tree sin
        code += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], src)];
     }
     else {
-       code += muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(elem)], src);
+       code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(elem)], src)];
     }
     leaveWriter();
         
@@ -632,52 +632,63 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTyp
     code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], src))];
     
     // first we compile all element except the final separators and the final element:
-    while ([Tree first, *Tree sepTrees, *Tree more] := elems && size(sepTypes) == size(sepTrees)) {
-       if (isListStarVar(eltType, first)) {
-          varExp = muTreeGetArgs(translateConcrete(first));
-          spliceCode = [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], first@\loc?|unknown:///|)]
-                     + [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
-          
-          // only if the list is non-empty its elements and the separators are added:
-          code += muIfExp(muEqual(varExp, muCon([])), muBlock([]), muValueBlock(alist(aTree), spliceCode));
-       }
-       else if (isListPlusVar(eltType, first)) {
-          varExp = muTreeGetArgs(translateConcrete(first));
-          code  += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], first@\loc?|unknown:///|)];
-          code  += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
-       }
-       else {
-          code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(first)], first@\loc?|unknown:///|)];
-          code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
-       }
+    while ([Tree first, *Tree sepTrees, Tree second, *Tree more] := elems && size(sepTypes) == size(sepTrees)) {
+      varExp = translateConcrete(first);
+
+      // first we splice or add the first element:
+      if (isListVar(eltType, first)) {
+        code += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, muTreeGetArgs(varExp)], first@\loc?|unknown:///|)];
+      }
+      else {
+        code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, varExp], first@\loc?|unknown:///|)];
+      }
+      
+      sepCode    = [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
+      secondVarExp = translateConcrete(second);
        
-       elems = more;
+      // then separators are optionally added:  
+      if (isListStarVar(eltType, first) && isListStarVar(eltType, second)) {
+           
+            if (more == []) {
+              // if they are both star variables, and this is the last element then they both must be non-empty:
+              sepCode = [muIfExp(muNotNativeBool(muEqual(muTreeGetArgs(varExp), muCon([]))),
+                         muValueBlock(avoid(), sepCode),
+                         muBlock([]))];
+            
+              sepCode = [muIfExp(muNotNativeBool(muEqual(muTreeGetArgs(secondVarExp), muCon([]))),
+                          muValueBlock(avoid(), sepCode),
+                          muBlock([]))];
+            }
+            else {
+              // only print the separators if the first list is non-empty
+              sepCode = [muIfExp(muNotNativeBool(muEqual(muTreeGetArgs(varExp), muCon([]))),
+                         muValueBlock(avoid(), sepCode),
+                         muBlock([]))];
+            }
+              
+            code += sepCode;
+      }
+      else {
+        // one of first or second is not a star var, so we always need the separators
+        code += sepCode;
+      }    
+       
+      if (more == []) {
+        // the last element must be printed, or sliced now:
+        if (isListVar(eltType, second)) {
+          code += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, muTreeGetArgs(secondVarExp)], second@\loc?|unknown:///|)];
+        }
+        else {
+          code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, secondVarExp], second@\loc?|unknown:///|)];
+        }
+      }
+      elems = [second, *more];
     }
-    
-    // for the last variable the separators come first and then the (optionally spliced) sublist:
-    if ([*_, *Tree sepTrees, Tree last] := elems) {
-       if (isListStarVar(eltType, last)) {
-          varExp = muTreeGetArgs(translateConcrete(last));
-          spliceCode = [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees]
-                     + [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp],  last@\loc?|unknown:///|)];
-          
-          // only if the list is non-empty its elements and the separators are added:
-          code += muIfExp(muEqual(varExp, muCon([])), muBlock([]), muValueBlock(alist(aTree), spliceCode));
-       }
-       else if (isListPlusVar(eltType, last)) {
-          varExp = muTreeGetArgs(translateConcrete(last));
-          code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
-          code += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp],  last@\loc?|unknown:///|)];
-       }
-       else {
-          code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
-          code += muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(last)], last@\loc?|unknown:///|);
-       }
-    }
+     
    
     leaveWriter();
    
-    return muValueBlock(\alist(aTree), [*code, muCallPrim3("close_list_writer", \alist(aTree), [avalue()], [writer], src)]);
+    return muValueBlock(\alist(aTree), [*code, muCallPrim3("close_list_writer", alist(aTree), [avalue()], [writer], src)]);   
 }
 
 
