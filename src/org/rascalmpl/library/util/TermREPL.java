@@ -166,7 +166,7 @@ public class TermREPL {
                     output.put("text/plain", new ByteArrayInputStream(e.getMessage().getBytes()));
                 }
                 catch (Throwable e) {
-                    output.put("text/plain",  new ByteArrayInputStream(e.getMessage().getBytes()));
+                    output.put("text/plain",  new ByteArrayInputStream(e.getMessage() != null ? e.getMessage().getBytes() : e.getClass().getName().getBytes()));
                 }
             }
         }
