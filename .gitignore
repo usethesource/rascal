@@ -24,3 +24,4 @@ bootstrap/
 
 dependency-reduced-pom.xml
 .ipynb_checkpoints
+.vscode/settings.json
