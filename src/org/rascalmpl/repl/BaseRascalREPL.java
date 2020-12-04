@@ -203,7 +203,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             target = liftProviderFunction((IFunction) provider.get("callback"));
         }
         else {
-            id = "***static content***";
+            id = "*static content*";
             target = (r) -> provider.get("response");
         }
 
@@ -214,7 +214,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         String URL = "http://localhost:" + server.getListeningPort() + "/";
         
         metadata.put("url", URL);
-        getOutputWriter().println("Serving visual content at |" + URL + "|");
+        getOutputWriter().println("Serving \'" + id + "\' at |" + URL + "|");
         
         String iframe = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
         output.put("text/html", new ByteArrayInputStream(iframe.getBytes("UTF8")));
