@@ -17,6 +17,9 @@ import org.rascalmpl.uri.URIUtil;
 import jline.Terminal;
 
 public class REPLRunner extends BaseREPL  implements ShellRunner {
+    private static final boolean useSystemBrowser = "true".equals(System.getProperty("rascal.useSystemBrowser"))
+                                                    && Desktop.isDesktopSupported();
+
     private static File getHistoryFile() throws IOException {
         File home = new File(System.getProperty("user.home"));
         File rascal = new File(home, ".rascal");
@@ -51,7 +54,7 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
             super.handleInput(line, output, metadata);
             
             try {
-                if (Desktop.isDesktopSupported()) {
+                if (useSystemBrowser) {
                     for (String mimetype : output.keySet()) {
                         if (!mimetype.contains("html") && !mimetype.startsWith("image/")) {
                             continue;
