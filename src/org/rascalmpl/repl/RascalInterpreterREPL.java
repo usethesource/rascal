@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -29,11 +30,23 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
 
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     protected Evaluator eval;
