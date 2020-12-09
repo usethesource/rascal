@@ -23,15 +23,9 @@
  */
 package org.rascalmpl.repl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
-
-import org.rascalmpl.ast.Char;
-import org.rascalmpl.values.parsetrees.ITree;
-
-import io.usethesource.vallang.ISourceLocation;
 
 
 public interface ILanguageProtocol {
