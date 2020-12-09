@@ -416,7 +416,29 @@ public class PathConfig {
                 getDefaultJavaCompilerPathList(), 
                 classloaders.done());
 	}
-	
+    
+    /**
+	 * This will _add_ the configuration parameters found (srcs, libs, etc.) as found in the given manifest file.
+	 * 
+	 * @param a file or folder in a project that has a META-INF/RASCAL.MF file somewhere close.
+	 * @return
+	 */
+	public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember) throws IOException {
+        return fromSourceProjectRascalManifest(URIUtil.getChildLocation(inferProjectRoot(projectMember), "META-INF/RASCAL.MF"));
+    }
+
+    private static ISourceLocation inferProjectRoot(ISourceLocation member) {
+        ISourceLocation current = member;
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        while (current != null && reg.exists(current) && reg.isDirectory(current)) {
+            if (reg.exists(URIUtil.getChildLocation(member, "META-INF/RASCAL.MF"))) {
+                return current;
+            }
+            current = URIUtil.getParentLocation(current);
+        }
+
+        return current;
+    }
 	/**
 	 * This will _add_ the configuration parameters found (srcs, libs, etc.) as found in the given manifest file.
 	 * 
