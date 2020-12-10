@@ -300,6 +300,27 @@ public class JsonValueWriter {
           }
           out.endObject();
         }
+        else if (o.getKeyType().isSourceLocation() && !unpackedLocations) {
+          out.beginObject();
+          for (IValue key : o) {
+            ISourceLocation l = (ISourceLocation) key;
+            
+            if (!l.hasOffsetLength()) {
+              if ("file".equals(l.getScheme())) { 
+                out.name(l.getPath()); 
+              }
+              else {
+                out.name(l.getURI().toASCIIString());
+              }
+            }
+            else {
+              out.name(l.toString());
+            }
+
+            o.get(key).accept(this); 
+          }
+          out.endObject();
+        }
         else {
           out.beginArray();
           for (IValue key : o) {
