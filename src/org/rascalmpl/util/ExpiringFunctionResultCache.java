@@ -201,16 +201,19 @@ public class ExpiringFunctionResultCache<TResult> {
     }
 
     private void removeOverflowingEntires() {
-        int toRemove = entries.size() - maxEntries;
-        toRemove += toRemove / 4; // always cleanout 25% more than needed
-        if (toRemove > 0) {
-            // we have to clear some entries, since we don't keep a sorted tree based on the usage
-            // we'll just randomly clear
-            Iterator<Entry<Object, ResultRef<TResult>>> it = entries.entrySet().iterator();
-            while (toRemove > 0 && it.hasNext()) {
-                it.next();
-                it.remove();
-                toRemove--;
+        int currentSize = entries.size();
+        if (currentSize >= maxEntries) {
+            long toRemove = (long)currentSize - (long)maxEntries; // use long to avoid integer overflow in max
+            toRemove += toRemove / 4; // always cleanout 25% more than needed
+            if (toRemove > 0) {
+                // we have to clear some entries, since we don't keep a sorted tree based on the usage
+                // we'll just randomly clear
+                Iterator<Entry<Object, ResultRef<TResult>>> it = entries.entrySet().iterator();
+                while (toRemove > 0 && it.hasNext()) {
+                    it.next();
+                    it.remove();
+                    toRemove--;
+                }
             }
         }
         
