@@ -424,7 +424,7 @@ public class PathConfig {
 	 * @return
 	 */
 	public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember) throws IOException {
-        return fromSourceProjectRascalManifest(URIUtil.getChildLocation(inferProjectRoot(projectMember), "META-INF/RASCAL.MF"));
+        return fromSourceProjectRascalManifest(inferProjectRoot(projectMember));
     }
 
     private static ISourceLocation inferProjectRoot(ISourceLocation member) {
