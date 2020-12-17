@@ -677,6 +677,79 @@ public class TreeAdapter {
 	}
 
 	/**
+	 * Locate a lexical by line and column position
+	 * @param tree    is the haystack
+	 * @param line    line position of the lexical
+	 * @param column  column offset
+	 * @return
+	 */
+	public static IConstructor locateLexical(ITree tree, int line, int column) {
+		ISourceLocation l = TreeAdapter.getLocation(tree);
+
+		if (l == null) {
+			throw new IllegalArgumentException(NO_POSITION_INFORMATION_ERROR);
+		}
+
+		if (!l.hasLineColumn()) {
+			return null;
+		}
+
+		if (TreeAdapter.isLexical(tree)) {
+			if (l.getBeginLine() == line && l.getBeginColumn() <= column && column <= l.getEndColumn()) {
+				// found a lexical that has the cursor inside of it
+				return tree;
+			}
+
+			return null;
+		}
+
+		if (TreeAdapter.isAmb(tree)) {
+			return null;
+		}
+
+		if (TreeAdapter.isAppl(tree)) {
+			IList children = TreeAdapter.getASTArgs(tree);
+
+			for (IValue child : children) {
+				ISourceLocation childLoc = TreeAdapter.getLocation((ITree) child);
+
+				if (childLoc == null) {
+					continue;
+				}
+
+				// only go down in the right range, such that
+				// finding the lexical is in O(log filesize)
+				if (childLoc.getBeginLine() <= line && line <= childLoc.getEndLine()) {
+						if (childLoc.getBeginLine() == line && childLoc.getEndColumn() == line) {
+							// go down to the right column
+							if (childLoc.getBeginColumn() <= column && column <= childLoc.getEndColumn()) {
+								IConstructor result = locateLexical((ITree) child, line, column);	
+								if (result != null) {
+									return result;
+								}
+							}
+						}
+						else { // in the line range, but not on the exact line yet
+							IConstructor result = locateLexical((ITree) child, line, column);
+
+							if (result != null) {
+								return result;
+							}
+						}
+					}
+				}
+			}
+
+			if (l.getOffset() <= offset
+					&& l.getOffset() + l.getLength() >= offset) {
+				return tree;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * This finds the most specific (smallest) annotated tree which has its yield around the given offset.
 	 */
 	public static ITree locateAnnotatedTree(ITree tree, String label, int offset) {
@@ -723,6 +796,8 @@ public class TreeAdapter {
 
 		return null;
 	}
+
+	
 
 	public static void unparse(IConstructor tree, Writer stream) throws IOException {
 		unparse(tree, false, stream);
