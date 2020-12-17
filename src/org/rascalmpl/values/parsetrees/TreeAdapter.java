@@ -683,11 +683,11 @@ public class TreeAdapter {
 	 * @param column  column offset
 	 * @return
 	 */
-	public static IConstructor locateLexical(ITree tree, int line, int column) {
+	public static ITree locateLexical(ITree tree, int line, int column) {
 		ISourceLocation l = TreeAdapter.getLocation(tree);
 
 		if (l == null) {
-			throw new IllegalArgumentException(NO_POSITION_INFORMATION_ERROR);
+			throw new IllegalArgumentException("no position info");
 		}
 
 		if (!l.hasLineColumn()) {
@@ -720,29 +720,23 @@ public class TreeAdapter {
 				// only go down in the right range, such that
 				// finding the lexical is in O(log filesize)
 				if (childLoc.getBeginLine() <= line && line <= childLoc.getEndLine()) {
-						if (childLoc.getBeginLine() == line && childLoc.getEndColumn() == line) {
-							// go down to the right column
-							if (childLoc.getBeginColumn() <= column && column <= childLoc.getEndColumn()) {
-								IConstructor result = locateLexical((ITree) child, line, column);	
-								if (result != null) {
-									return result;
-								}
-							}
-						}
-						else { // in the line range, but not on the exact line yet
-							IConstructor result = locateLexical((ITree) child, line, column);
-
+					if (childLoc.getBeginLine() == line && childLoc.getEndColumn() == line) {
+						// go down to the right column
+						if (childLoc.getBeginColumn() <= column && column <= childLoc.getEndColumn()) {
+							ITree result = locateLexical((ITree) child, line, column);	
 							if (result != null) {
 								return result;
 							}
 						}
 					}
-				}
-			}
+					else { // in the line range, but not on the exact line yet
+						ITree result = locateLexical((ITree) child, line, column);
 
-			if (l.getOffset() <= offset
-					&& l.getOffset() + l.getLength() >= offset) {
-				return tree;
+						if (result != null) {
+							return result;
+						}
+					}
+				}
 			}
 		}
 
