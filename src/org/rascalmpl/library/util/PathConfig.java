@@ -424,6 +424,9 @@ public class PathConfig {
 	 * @return
 	 */
 	public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember) throws IOException {
+        if (!URIResolverRegistry.getInstance().isDirectory(projectMember)) {
+            projectMember = URIUtil.getParentLocation(projectMember);
+        }
         return fromSourceProjectRascalManifest(inferProjectRoot(projectMember));
     }
 
