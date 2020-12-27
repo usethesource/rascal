@@ -437,6 +437,12 @@ public class PathConfig {
             if (reg.exists(URIUtil.getChildLocation(member, "META-INF/RASCAL.MF"))) {
                 return current;
             }
+
+            if (URIUtil.getParentLocation(current).equals(current)) {
+                // we went all the way up to the root
+                return reg.isDirectory(member) ? member : URIUtil.getParentLocation(member);
+            }
+            
             current = URIUtil.getParentLocation(current);
         }
 
