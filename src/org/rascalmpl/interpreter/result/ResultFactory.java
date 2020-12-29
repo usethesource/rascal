@@ -1,19 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2009-2013 CWI All rights reserved. This program and the accompanying materials are
+ * made available under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
-*******************************************************************************/
+ * 
+ * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl *
+ * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen) * Paul Klint - Paul.Klint@cwi.nl - CWI * Mark
+ * Hills - Mark.Hills@cwi.nl (CWI) * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
 import org.rascalmpl.exceptions.ImplementationError;
@@ -199,11 +194,22 @@ public class ResultFactory {
 		public Result<? extends IValue> visitExternal(Type externalType) {
 			if (RascalType.isFunction(externalType)) {
 			    if (value instanceof AbstractFunction) {
-			        // the weird thing is, that value is also a result in that case.
-			        return (AbstractFunction) value;
+					// the weird thing is, that value is also a result in that case.
+
+					if (value.getType() != externalType) {
+						return new FunctionResultFacade(externalType, (AbstractFunction) value, ctx);
+					}
+					else {
+						return (AbstractFunction) value;
+					}
 			    }
 			    else if (value instanceof OverloadedFunction) {
-			        return (OverloadedFunction) value;
+					if (value.getType() != externalType) {
+						return new FunctionResultFacade(externalType, (OverloadedFunction) value, ctx);
+					}
+					else {
+						return (OverloadedFunction) value;
+					}
 			    }
 			    else {
 			        // otherwise this is an abstract ICalleableValue

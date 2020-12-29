@@ -269,3 +269,18 @@ test bool higherOrderVoidFunctionCompatibility() {
    catch CallFailed(_): 
      return false;
 }
+
+
+test bool returnOfAnInstantiatedGenericFunction() {
+    &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+      return f(t, u); 
+    };
+
+    int add(int i, int j) = i + j;
+
+    // issue #1467 would not allow this assignment because the 
+    // returned closure was not instantiated properly from `&S (&U)` to `int(int)`
+    int (int) f = curry(add, 1); 
+    
+    return f(1) == 2 && (f o f)(1) == 3;
+}
