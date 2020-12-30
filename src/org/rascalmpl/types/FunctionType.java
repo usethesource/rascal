@@ -400,11 +400,16 @@ public class FunctionType extends RascalType {
 	}
 	
 	@Override
+	public boolean isOpen() {
+		return returnType.isOpen() || argumentTypes.isOpen();
+	}
+
+	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings)
 			throws FactTypeUseException {
 //		super.match(matched, bindings); match calls isSubTypeOf which calls match, watch out for infinite recursion
 		if (matched.isBottom()) {
-			return returnType.match(matched, bindings);
+			return argumentTypes.match(matched, bindings) && returnType.match(matched, bindings);
 		} else {
 			// Fix for cases where we have aliases to function types, aliases to aliases to function types, etc
 			while (matched.isAliased()) {
@@ -418,10 +423,6 @@ public class FunctionType extends RascalType {
 				    return false;
 				}
 				
-//				if (!argumentTypes.match(matchedFunction.getArgumentTypes(), bindings)) {
-//				    return false;
-//				}
-//				
 				for (int i = 0; i < argumentTypes.getArity(); i++) {
 				    Type fieldType = argumentTypes.getFieldType(i);
                     Type otherFieldType = matchedFunction.getArgumentTypes().getFieldType(i);
