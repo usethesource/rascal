@@ -281,6 +281,16 @@ test bool returnOfAnInstantiatedGenericFunction() {
     // issue #1467 would not allow this assignment because the 
     // returned closure was not instantiated properly from `&S (&U)` to `int(int)`
     int (int) f = curry(add, 1); 
-    
+
     return f(1) == 2 && (f o f)(1) == 3;
+}
+
+test bool curryAConstructor() {
+    &S(&U) c(&S(&T, &U) f, &T t) = &S (&U u) { 
+      return f(t, u); 
+    };
+
+    B (B) f = c(and, t());
+
+    return f(t()) == and(t(), t());
 }
