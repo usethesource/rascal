@@ -349,7 +349,7 @@
             <dependency>
                 <groupId>io.usethesource</groupId>
                 <artifactId>vallang</artifactId>
-                <version>0.12.0</version>
+                <version>0.12.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
