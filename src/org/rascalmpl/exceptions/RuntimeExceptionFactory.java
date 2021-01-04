@@ -277,11 +277,11 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw illegalArgument(IValue v) {
-        return new Throw(VF.constructor(IllegalArgument));  
+        return new Throw(VF.constructor(IllegalArgument, v, VF.string("")));  
     }
 	
 	public static Throw illegalArgument(IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(IllegalArgument), ast != null ? ast.getLocation() : null, trace);	
+		return new Throw(VF.constructor(IllegalArgument, v, VF.string("")), ast != null ? ast.getLocation() : null, trace);	
 	}
 	
 	public static Throw illegalArgument(IValue v, IString message) {
