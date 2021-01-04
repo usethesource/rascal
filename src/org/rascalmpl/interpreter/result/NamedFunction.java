@@ -160,12 +160,12 @@ abstract public class NamedFunction extends AbstractFunction {
         return result;
     }
     
-    protected void checkReturnTypeIsNotVoid(List<Expression> formals, IValue[] actuals) {
+    protected void checkReturnTypeIsNotVoid(List<Expression> formals, IValue[] actuals, Map<Type,Type> renamings) {
         // this is a dynamic check of the formal type parameters
         Map<Type, Type> bindings = new HashMap<>();
         
         for (int i = 0; i < actuals.length; i++) {
-            formals.get(i).typeOf(declarationEnvironment, getEval(), false).match(actuals[i].getType(), bindings);
+            formals.get(i).typeOf(declarationEnvironment, getEval(), false).match(renameType(actuals[i].getType(), renamings), bindings);
         }
         
         if (!getReturnType().isBottom() && getReturnType().instantiate(bindings).isBottom()) {

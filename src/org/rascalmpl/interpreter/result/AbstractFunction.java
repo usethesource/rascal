@@ -351,18 +351,18 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 	
-	protected Type bindTypeParameters(Type actualTypes, IValue[] actuals, Type formals, Map<Type, Type> renamings, Environment env) {
+	protected Type bindTypeParameters(Type actualStaticTypes, IValue[] actuals, Type formals, Map<Type, Type> renamings, Environment env) {
 		try {
-		    if (actualTypes.isOpen()) {
+		    if (actualStaticTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
 			    // may have the same type variable names as the current scope
-			    actualTypes = renameType(actualTypes, renamings);
+			    actualStaticTypes = renameType(actualStaticTypes, renamings);
 			}
 			
 			Map<Type, Type> staticBindings = new HashMap<Type, Type>();
 			
 			try {
-			    if (formals.match(actualTypes, staticBindings)) {
+			    if (formals.match(actualStaticTypes, staticBindings)) {
 			        env.storeStaticTypeBindings(staticBindings);
 			        // formal parameters do not have to match the static types, they only have to match the dynamic types
 			        // so continue even if the static types do not match. 
@@ -374,17 +374,17 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
 			
 			for (int i = 0; i < formals.getArity(); i++) {
-			    if (!formals.getFieldType(i).match(actuals[i].getType(), dynamicBindings)) {
+			    if (!formals.getFieldType(i).match(renameType(actuals[i].getType(), renamings), dynamicBindings)) {
 			        throw new MatchFailed();
 			    }
 			}
 			env.storeDynamicTypeBindings(dynamicBindings);
 			
 			
-			return actualTypes;
+			return actualStaticTypes;
 		}
 		catch (FactTypeUseException e) {
-			throw new UnexpectedType(formals, actualTypes, ast);
+			throw new UnexpectedType(formals, actualStaticTypes, ast);
 		}
 	}
 
