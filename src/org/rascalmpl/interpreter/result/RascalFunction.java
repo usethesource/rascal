@@ -273,10 +273,10 @@ public class RascalFunction extends NamedFunction {
             ctx.setAccumulators(accumulators);
             ctx.pushEnv();
 
-            Type actualTypesTuple = TF.tupleType(actualStaticTypes);
+            Type actualStaticTypesTuple = TF.tupleType(actualStaticTypes);
             if (hasVarArgs) {
                 actuals = computeVarArgsActuals(actuals, getFormals());
-                actualTypesTuple = computeVarArgsActualTypes(actualStaticTypes, getFormals());
+                actualStaticTypesTuple = computeVarArgsActualTypes(actualStaticTypes, getFormals());
             }
          
             int size = actuals.length;
@@ -287,7 +287,7 @@ public class RascalFunction extends NamedFunction {
                 throw new MatchFailed();
             }
             
-            actualTypesTuple = bindTypeParameters(actualTypesTuple, actuals, getFormals(), renamings, environment);
+            actualStaticTypesTuple = bindTypeParameters(actualStaticTypesTuple, actuals, getFormals(), renamings, environment);
 
             if (size == 0) {
                 try {
@@ -301,14 +301,14 @@ public class RascalFunction extends NamedFunction {
                     return result;
                 }
                 catch (Return e) {
-                    checkReturnTypeIsNotVoid(formals, actuals);
+                    checkReturnTypeIsNotVoid(formals, actuals, renamings);
                     result = computeReturn(e, renamings);
                     storeMemoizedResult(actuals,keyArgValues, result);
                     return result;
                 }
             }
 
-            matchers[0].initMatch(makeResult(actualTypesTuple.getFieldType(0), actuals[0], ctx));
+            matchers[0].initMatch(makeResult(actualStaticTypesTuple.getFieldType(0), actuals[0], ctx));
             olds[0] = ctx.getCurrentEnvt();
             ctx.pushEnv();
 
@@ -342,7 +342,7 @@ public class RascalFunction extends NamedFunction {
                     }
                     else {
                         i++;
-                        matchers[i].initMatch(makeResult(actualTypesTuple.getFieldType(i), actuals[i], ctx));
+                        matchers[i].initMatch(makeResult(actualStaticTypesTuple.getFieldType(i), actuals[i], ctx));
                         olds[i] = ctx.getCurrentEnvt();
                         ctx.pushEnv();
                     }
@@ -357,7 +357,7 @@ public class RascalFunction extends NamedFunction {
             throw new MatchFailed();
         }
         catch (Return e) {
-            checkReturnTypeIsNotVoid(formals, actuals);
+            checkReturnTypeIsNotVoid(formals, actuals, renamings);
             
             result = computeReturn(e, renamings);
             storeMemoizedResult(actuals, keyArgValues, result);

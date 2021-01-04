@@ -242,6 +242,12 @@ public class FunctionType extends RascalType {
 	protected boolean intersects(RascalType type) {
 	    return type.intersectsWithFunction(this);
 	}
+
+	@Override
+    protected boolean intersectsWithExternal(Type type) {
+        assert type instanceof RascalType;
+        return intersects((RascalType) type);
+    }
 	
 	@Override
 	protected boolean intersectsWithFunction(RascalType other) {
