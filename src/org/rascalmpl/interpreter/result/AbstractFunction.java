@@ -348,16 +348,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 	
-	protected Type bindTypeParameters(Type actualStaticTypes, IValue[] actuals, Type formals, Map<Type, Type> staticRenamings, Map<Type, Type> dynamicRenamings, Environment env) {
+	protected Type bindTypeParameters(Type actualStaticTypes, IValue[] actuals, Type formals, Map<Type, Type> renamings, Environment env) {
 		try {
 		    if (actualStaticTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
 			    // may have the same type variable names as the current scope
-			    actualStaticTypes = renameType(actualStaticTypes, staticRenamings);
+			    actualStaticTypes = renameType(actualStaticTypes, renamings);
 			}
 			
-			Type actualDynamicTypes = renameType(TF.tupleType(actuals), dynamicRenamings);
-
 			Map<Type, Type> staticBindings = new HashMap<Type, Type>();
 			
 			try {
@@ -372,15 +370,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			
 			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
 			
-			if (!formals.match(actualDynamicTypes, dynamicRenamings)) {
-				throw new MatchFailed();
+			for (int i = 0; i < formals.getArity(); i++) {
+			    if (!formals.getFieldType(i).match(renameType(actuals[i].getType(), renamings), dynamicBindings)) {
+			        throw new MatchFailed();
+			    }
 			}
-			// for (int i = 0; i < formals.getArity(); i++) {
-			//     if (!formals.getFieldType(i).match(renameType(actuals[i].getType(), dynamicRenamings), dynamicBindings)) {
-			//         throw new MatchFailed();
-			//     }
-			// }
 			env.storeDynamicTypeBindings(dynamicBindings);
+			
 			
 			return actualStaticTypes;
 		}
@@ -410,8 +406,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
         for (Entry<Type,Type> entry : renamings.entrySet()) {
             Type key = entry.getKey();
             renamings.put(key, getTypeFactory().parameterType(key.getName() + ":" + UUID.randomUUID().toString(), key.getBound()));
-		}
-		
+        }
         actualTypes = actualTypes.instantiate(renamings);
         return actualTypes;
     }	
