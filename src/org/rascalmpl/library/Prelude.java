@@ -62,6 +62,11 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
+import com.ibm.icu.util.ULocale;
+
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -82,11 +87,6 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
-
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.TimeZone;
-import com.ibm.icu.util.ULocale;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -123,15 +123,13 @@ public class Prelude {
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
-    private final PrintWriter err;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, PrintWriter err){
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out) {
 		super();
 		
 		this.values = values;
 		this.rascalValues = rascalValues;
 		this.out = out;
-		this.err = err;
 		this.tr = new TypeReifier(values);
 		random = new Random();
 	}
@@ -3420,7 +3418,6 @@ public class Prelude {
 	}
 
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
-        // TODO: transient for boot
         if(trackIO) System.err.println("_writeBinaryValueFile: " + loc);
 		try (IValueOutputStream writer = constructValueWriter(loc, CompressionRate.Normal)) {
 		    writer.write(value);
