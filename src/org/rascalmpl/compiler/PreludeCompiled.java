@@ -4,10 +4,7 @@ import java.io.PrintWriter;
 
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.functions.IFunction;
 
-import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 /*
@@ -17,8 +14,8 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class PreludeCompiled extends Prelude {
 
-	public PreludeCompiled(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, PrintWriter err) {
-		super(values, rascalValues, out,  err);
+	public PreludeCompiled(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out) {
+		super(values, rascalValues, out);
 	}
 	
 }
