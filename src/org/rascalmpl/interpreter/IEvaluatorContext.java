@@ -33,9 +33,6 @@ import org.rascalmpl.interpreter.result.Result;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
-// TODO: this interface needs to be split into an external interface, for clients
-// which want to call Rascal from Java, and an internal interface for managing the global
-// state of the interpreter between its different components.
 public interface IEvaluatorContext extends IRascalMonitor {
 	/** for error messaging */
 	public AbstractAST getCurrentAST();

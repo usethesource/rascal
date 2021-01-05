@@ -84,7 +84,6 @@ public class ConcreteOptPattern extends AbstractMatchingResult {
 		
 		IConstructor prod = TreeAdapter.getProduction(tree);
 		
-		// TODO: max share prods?
 		if (!prod.equals(production)) {
 			hasNext = false;
 			return;

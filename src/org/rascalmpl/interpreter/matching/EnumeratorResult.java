@@ -31,7 +31,7 @@ public class EnumeratorResult extends BasicBooleanResult {
 	private Iterator<?> iterator;
 	private Expression expression;
 	private Type elementType;
-	private boolean firstTime;    // TODO: can probably be removed.
+	private boolean firstTime;
 
 	/*
 	 * Constructor for a standard enumerator
