@@ -39,9 +39,9 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.types.RascalTypeFactory;
-import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -57,7 +57,6 @@ import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue, IFunction {
@@ -71,8 +70,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected boolean hasKeyArgs;
 	protected final Map<String, Expression> keywordParameterDefaults = new HashMap<>();
 	
-	protected final static TypeStore hiddenStore = new TypeStore();
-
 	protected final AbstractAST ast;
 	protected final IValueFactory vf;
 	
