@@ -109,14 +109,15 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                     throw new MatchFailed();
                 }
                 
-                Map<Type, Type> renamings = new HashMap<>();
-                bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, functionType.getFieldTypes(), renamings, env); 
+                Map<Type, Type> staticRenamings = new HashMap<>();
+                Map<Type, Type> dynamicRenamings = new HashMap<>();
+                bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, functionType.getFieldTypes(), staticRenamings, dynamicRenamings, env); 
 
                
                 IValue returnValue = func.apply(argValues, keyArgValues);
 
                 Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
-                resultType = unrenameType(renamings, resultType);
+                resultType = unrenameType(staticRenamings, resultType);
                 
                 if (!getReturnType().isBottom() && getReturnType().instantiate(env.getStaticTypeBindings()).isBottom()) {
                     // type parameterized functions are not allowed to return void,

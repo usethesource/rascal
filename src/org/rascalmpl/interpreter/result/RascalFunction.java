@@ -257,7 +257,8 @@ public class RascalFunction extends NamedFunction {
         AbstractAST currentAST = ctx.getCurrentAST();
         AbstractAST oldAST = currentAST;
         Stack<Accumulator> oldAccus = ctx.getAccumulators();
-        Map<Type, Type> renamings = new HashMap<>();
+        Map<Type, Type> staticRenamings = new HashMap<>();
+        Map<Type, Type> dynamicRenamings = new HashMap<>();
 
         try {
             ctx.setCurrentAST(ast);
@@ -287,7 +288,7 @@ public class RascalFunction extends NamedFunction {
                 throw new MatchFailed();
             }
             
-            actualStaticTypesTuple = bindTypeParameters(actualStaticTypesTuple, actuals, getFormals(), renamings, environment);
+            actualStaticTypesTuple = bindTypeParameters(actualStaticTypesTuple, actuals, getFormals(), staticRenamings, dynamicRenamings, environment);
 
             if (size == 0) {
                 try {
@@ -301,8 +302,8 @@ public class RascalFunction extends NamedFunction {
                     return result;
                 }
                 catch (Return e) {
-                    checkReturnTypeIsNotVoid(formals, actuals, renamings);
-                    result = computeReturn(e, renamings);
+                    checkReturnTypeIsNotVoid(formals, actuals, staticRenamings);
+                    result = computeReturn(e, staticRenamings);
                     storeMemoizedResult(actuals,keyArgValues, result);
                     return result;
                 }
@@ -357,9 +358,9 @@ public class RascalFunction extends NamedFunction {
             throw new MatchFailed();
         }
         catch (Return e) {
-            checkReturnTypeIsNotVoid(formals, actuals, renamings);
+            checkReturnTypeIsNotVoid(formals, actuals, staticRenamings);
             
-            result = computeReturn(e, renamings);
+            result = computeReturn(e, staticRenamings);
             storeMemoizedResult(actuals, keyArgValues, result);
             if (callTracing) {
                 printEndTrace(result.getValue());
@@ -395,7 +396,7 @@ public class RascalFunction extends NamedFunction {
         return makeResult(TF.voidType(), null, eval);
     }
 
-    private Result<IValue> computeReturn(Return e, Map<Type, Type> renamings) {
+    private Result<IValue> computeReturn(Return e, Map<Type, Type> staticRenamings) {
         Result<IValue> result = e.getValue();
         Type returnType = getReturnType();
 
@@ -415,7 +416,7 @@ public class RascalFunction extends NamedFunction {
         Type instantiatedReturnType = returnType.instantiate(bindings);
 
         if (instantiatedReturnType.isOpen()) {
-            instantiatedReturnType = unrenameType(renamings, instantiatedReturnType);
+            instantiatedReturnType = unrenameType(staticRenamings, instantiatedReturnType);
         }
 
         return makeResult(instantiatedReturnType, result.getValue(), eval);
@@ -522,6 +523,4 @@ public class RascalFunction extends NamedFunction {
 
         return TF.tupleType(types);
     }
-
-
 }
