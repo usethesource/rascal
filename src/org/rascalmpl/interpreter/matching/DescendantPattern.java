@@ -42,7 +42,6 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	@Override
 	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
 		return TypeFactory.getInstance().valueType();
-		// TODO: return pat.getType(env) is too restrictive, reconsider this.
 	}
 	
 	@Override
@@ -94,7 +93,6 @@ public class DescendantPattern extends AbstractMatchingResult  {
 		while(iterator.hasNext()){
 			IValue v = (IValue) iterator.next();
 			
-			// TODO: extract the proper static element type that will be generated
 			pat.initMatch(ResultFactory.makeResult(v.getType(), v, ctx));
 			while(pat.hasNext()){
 				if(pat.next()){
