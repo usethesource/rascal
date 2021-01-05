@@ -149,13 +149,14 @@ public class JavaMethod extends NamedFunction {
 			ctx.pushEnv(getName());
 
 			Environment env = ctx.getCurrentEnvt();
-			Map<Type, Type> renamings = new HashMap<>();
-			bindTypeParameters(actualTypesTuple, actuals, formals, renamings, env); 
+			Map<Type, Type> staticRenamings = new HashMap<>();
+			Map<Type, Type> dynamicRenamings = new HashMap<>();
+			bindTypeParameters(actualTypesTuple, actuals, formals, staticRenamings, dynamicRenamings, env); 
 			
 			IValue result = invoke(oActuals);
 			
 			Type resultType = getReturnType().instantiate(env.getStaticTypeBindings());
-			resultType = unrenameType(renamings, resultType);
+			resultType = unrenameType(staticRenamings, resultType);
 			
 			resultValue = ResultFactory.makeResult(resultType, result, eval);
 			resultValue = storeMemoizedResult(actuals, keyArgValues, resultValue);
