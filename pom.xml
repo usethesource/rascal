@@ -141,6 +141,41 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.rascalmpl</groupId>
+                    <artifactId>rascal-maven-plugin</artifactId>
+                    <version>0.3.3</version>
+                    <configuration>
+                        <errorsAsWarnings>false</errorsAsWarnings>
+                        <bin>${project.build.outputDirectory}</bin>
+                        <srcs>
+                            <src>${project.basedir}/src/org/rascalmpl/library</src>
+                        </srcs>
+                        <sourceLookup>|std:///|</sourceLookup>
+                        <srcIgnores>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+                            <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
+                        </srcIgnores>
+                        <enableStandardLibrary>false</enableStandardLibrary>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>it-compile</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>it-package</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>package</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>1.4.0</version>
