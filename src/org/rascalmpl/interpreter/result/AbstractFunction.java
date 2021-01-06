@@ -573,7 +573,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	public FunctionType getFunctionType() {
-		return (FunctionType) getType();
+		return (FunctionType) getStaticType();
 	}
 	
 	/* test if a function is of type T(T) for a given T */
@@ -639,7 +639,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
 	  // this is not a data value
 	  throw new IllegalOperationException(
-        "Facade cannot be viewed as with keyword parameters.", getType());
+        "Facade cannot be viewed as with keyword parameters.", getStaticType());
 	}
 
 	protected void bindKeywordArgs(Map<String, IValue> keyArgValues) {

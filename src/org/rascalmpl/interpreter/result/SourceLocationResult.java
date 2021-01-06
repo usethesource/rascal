@@ -394,7 +394,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		String fragment = loc.hasFragment() ? loc.getFragment() : null;
 		
 
-		Type replType = repl.getType();
+		Type replType = repl.getStaticType();
 		IValue replValue = repl.getValue();
 
 		try {
@@ -624,7 +624,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			}
 			if (loc.hasLineColumn()) {
 				// was a complete loc, and thus will be now
-				return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+				return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
 			}
 			
 			if (loc.hasOffsetLength()) {
@@ -634,17 +634,17 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					//will be complete now.
 					iEndLine = iBeginLine;
 					iEndColumn = iBeginColumn;
-					return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+					return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
 				}
 				else if (iEndLine != -1 || iEndColumn != -1) {
 					// will be complete now.
 					iBeginLine = iEndLine;
 					iBeginColumn = iEndColumn;
-					return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
+					return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn), ctx);
 				}
 				else {
 					// remains a partial loc
-					return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength), ctx);
+					return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength), ctx);
 				}
 			}
 
@@ -671,11 +671,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			
 			if (iOffset != -1 || iLength != -1) {
 				// used not to no offset/length, but do now
-				return makeResult(getType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength), ctx);
+				return makeResult(getStaticType(), getValueFactory().sourceLocation(newLoc, iOffset, iLength), ctx);
 			}
 			
 			// no updates to offset/length or line/column, and did not used to have any either:
-			return makeResult(getType(), newLoc, ctx);
+			return makeResult(getStaticType(), newLoc, ctx);
 		} 
 		catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(getValue(), "can not update field " + name + ": " + e.getMessage(), ctx.getCurrentAST(), ctx.getStackTrace());

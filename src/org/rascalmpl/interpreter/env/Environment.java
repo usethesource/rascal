@@ -545,7 +545,7 @@ public class Environment implements IRascalFrame {
 	}
 
 	public void declareAndStoreInferredInnerScopeVariable(String name, Result<IValue> value) {
-		declareVariable(value.getType(), name);
+		declareVariable(value.getStaticType(), name);
 		// this is dangerous to do and should be rethought, it could lead to variabled being inferred while they should not be.
 		value.setInferredType(true);
 		variableEnvironment.put(name, value);

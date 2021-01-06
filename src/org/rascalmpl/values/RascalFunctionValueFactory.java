@@ -80,6 +80,12 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
 
         @Override
+        public Type getType() {
+            // TODO separate the dynamic type from the static type
+            return getStaticType();
+        }
+
+        @Override
         public boolean isStatic() {
           return false;
         }

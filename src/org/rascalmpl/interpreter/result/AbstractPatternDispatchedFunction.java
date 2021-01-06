@@ -131,7 +131,13 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	}
 
 	@Override
+	public Type getStaticType() {
+		return type;
+	}
+
+	@Override
 	public Type getType() {
+		// TODO: distinguish dynamic type from static type
 		return type;
 	}
 	
@@ -141,7 +147,7 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 	 */
 	@Override 
 	public FunctionType getFunctionType() {
-		return (FunctionType) super.getType();
+		return (FunctionType) super.getStaticType();
 	}
 
 	@Override

@@ -23,13 +23,13 @@ public final class FunctionResultFacade extends Result<IValue> {
     
     protected FunctionResultFacade(Type type, Result<IValue> result, IEvaluatorContext ctx) {
         super(TypeFactory.getInstance().valueType(), result.getValue(), ctx);
-		assert type.comparable(result.getType());
+		assert type.comparable(result.getStaticType());
 		assert result instanceof ICallableValue;
 		this.wrapped = result;
 		this.functionType = type;
     }
     
-    public Type getType() { 
+    public Type getStaticType() { 
 		return functionType;
 	}
 	

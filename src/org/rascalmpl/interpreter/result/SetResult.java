@@ -109,8 +109,8 @@ public class SetResult extends SetOrRelationResult<ISet> {
 	protected <U extends IValue> Result<U> joinRelation(RelationResult that) {
 		// Note the reverse of arguments, we need "that join this"
 		int arity1 = that.getValue().asRelation().arity();
-		Type eltType = getType().getElementType();
-		Type tupleType = that.getType().getElementType();
+		Type eltType = getStaticType().getElementType();
+		Type tupleType = that.getStaticType().getElementType();
 		Type fieldTypes[] = new Type[arity1 + 1];
 		for (int i = 0;  i < arity1; i++) {
 			fieldTypes[i] = tupleType.getFieldType(i);
@@ -136,8 +136,8 @@ public class SetResult extends SetOrRelationResult<ISet> {
 	protected <U extends IValue> Result<U> joinSet(SetResult that) {
 		// Note the reverse of arguments, we need "that join this"
 		// join between sets degenerates to product
-		Type tupleType = getTypeFactory().tupleType(that.getType().getElementType(), 
-				getType().getElementType());
+		Type tupleType = getTypeFactory().tupleType(that.getStaticType().getElementType(), 
+				getStaticType().getElementType());
 		return makeResult(getTypeFactory().relTypeFromTuple(tupleType),
 				that.getValue().product(getValue()), ctx);
 	}

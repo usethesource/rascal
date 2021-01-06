@@ -43,7 +43,7 @@ import io.usethesource.vallang.type.TypeFactory;
 public class IteratorFactory {
 	
 	public static Type elementType(IEvaluatorContext ctx, Result<IValue> subject) {
-		Type subjectType = subject.getType();
+		Type subjectType = subject.getStaticType();
 
 		if (subjectType.isList() || subjectType.isSet()) {
 			return subjectType.getElementType();
@@ -73,7 +73,7 @@ public class IteratorFactory {
 	public static Iterator<IValue> make(IEvaluatorContext ctx, IMatchingResult matchPattern, 
 			Result<IValue> subject, boolean shallow){
 
-		Type subjectType = subject.getType();
+		Type subjectType = subject.getStaticType();
 		IValue subjectValue = subject.getValue();
 		Type patType = matchPattern.getType(ctx.getCurrentEnvt(), null);
 

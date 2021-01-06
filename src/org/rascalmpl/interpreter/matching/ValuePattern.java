@@ -36,7 +36,7 @@ public class ValuePattern extends AbstractMatchingResult {
 
 	@Override
 	public Type getType(Environment env, HashMap<String,IVarPattern> patternVars) {
-		return val.getType();
+		return val.getStaticType();
 	}
 	
 	@Override

@@ -160,7 +160,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         }
         
         // or we have output wrapped in a content wrapper:
-        if (result.getType().isSubtypeOf(RascalValueFactory.Content)) {
+        if (result.getStaticType().isSubtypeOf(RascalValueFactory.Content)) {
             serveContent(result, output, metadata);
             output.put(mimeType, stringStream("ok\n"));
             return;
@@ -224,7 +224,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
 
     private void writeOutput(IRascalResult result, OutputWriter target) throws IOException {
         IValue value = result.getValue();
-        Type type = result.getType();
+        Type type = result.getStaticType();
         
         if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
             target.writeOutput(type, (StringWriter w) -> {

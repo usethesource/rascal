@@ -121,30 +121,30 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	@Override
 	protected <U extends IValue> Result<U> addRelation(RelationResult that) {
 		if (that.getValue().getElementType().isBottom()) {
-			return makeResult(getTypeFactory().setType(this.getType()), that.getValue().insert(this.getValue()), ctx);
+			return makeResult(getTypeFactory().setType(this.getStaticType()), that.getValue().insert(this.getValue()), ctx);
 		}
 		return super.addRelation(that);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult that) {
-		if(that.getType().getElementType().isBottom())
-			return makeResult(that.getType(), that.getValue(), ctx);
+		if(that.getStaticType().getElementType().isBottom())
+			return makeResult(that.getStaticType(), that.getValue(), ctx);
 		return super.subtractRelation(that);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> addListRelation(ListRelationResult that) {
 		if (that.getValue().getElementType().isBottom()) {
-			return makeResult(getTypeFactory().listType(this.getType()), that.getValue().append(this.getValue()), ctx);
+			return makeResult(getTypeFactory().listType(this.getStaticType()), that.getValue().append(this.getValue()), ctx);
 		}
 		return super.addListRelation(that);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult that) {
-		if(that.getType().getElementType().isBottom())
-			return makeResult(that.getType(), that.getValue(), ctx);
+		if(that.getStaticType().getElementType().isBottom())
+			return makeResult(that.getStaticType(), that.getValue(), ctx);
 		return super.subtractListRelation(that);
 	}
 
@@ -153,23 +153,23 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	    // TODO: simulating annotations still here
 	    Type annoType;
 	    
-	    if (RascalValueFactory.isLegacySourceLocationAnnotation(getType(), annoName)) {
+	    if (RascalValueFactory.isLegacySourceLocationAnnotation(getStaticType(), annoName)) {
             annoName = RascalValueFactory.Location;
             annoType = getTypeFactory().sourceLocationType();
         }
 	    else {
-	        annoType = env.getKeywordParameterTypes(getType()).get(annoName);
+	        annoType = env.getKeywordParameterTypes(getStaticType()).get(annoName);
 	    }
 
-		if (getType() != getTypeFactory().nodeType()) {
-			if (!anno.getType().isSubtypeOf(annoType)) {
-				throw new UnexpectedType(annoType, anno.getType(), ctx.getCurrentAST());
+		if (getStaticType() != getTypeFactory().nodeType()) {
+			if (!anno.getStaticType().isSubtypeOf(annoType)) {
+				throw new UnexpectedType(annoType, anno.getStaticType(), ctx.getCurrentAST());
 			}
 		}
 
 		IValue annotatedBase = ((INode)getValue()).asWithKeywordParameters().setParameter(annoName, anno.getValue());
 
-		return makeResult(getType(), annotatedBase, ctx);
+		return makeResult(getStaticType(), annotatedBase, ctx);
 	}
 
 	
@@ -214,8 +214,8 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	@SuppressWarnings("unchecked")
 	private int getInt(Result<?> x){
 		Result<IValue> key = (Result<IValue>) x;
-		if (!key.getType().isInteger()) {
-			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
+		if (!key.getStaticType().isInteger()) {
+			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		return ((IInteger)key.getValue()).intValue();
 	}

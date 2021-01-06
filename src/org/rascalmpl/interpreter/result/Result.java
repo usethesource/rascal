@@ -108,13 +108,19 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	/// The "result" interface
 	
+	@Override
 	public T getValue() {
 		return value;
 	}
-	
+
+	@Override
+	public Type getStaticType() { 
+		return type;
+	}
+
 	@Override
 	public String toString(){
-		return getType().toString() + ": " + value.toString();
+		return getStaticType().toString() + ": " + value.toString();
 	}
 	
 	public String toString(int length){
@@ -131,12 +137,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 			// This can never happen.
 		}
 		
-		return getType().toString() + ": " + lros.toString();
-	}
-	
-	
-	public Type getType() { 
-		return type;
+		return getStaticType().toString() + ": " + lros.toString();
 	}
 	
 	protected <U extends IValue> Result<U> makeIntegerResult(int i) {
@@ -178,17 +179,17 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	// Error aux methods
 	
 	protected <U extends IValue> Result<U> undefinedError(String operator) {
-		throw new UnsupportedOperation(operator, getType(), ctx.getCurrentAST());
+		throw new UnsupportedOperation(operator, getStaticType(), ctx.getCurrentAST());
 	}
 	
 	protected <U extends IValue> Result<U> undefinedError(String operator, Result<?> arg) {
-		throw new UnsupportedOperation(operator, getType(), arg.getType(), ctx.getCurrentAST());
+		throw new UnsupportedOperation(operator, getStaticType(), arg.getStaticType(), ctx.getCurrentAST());
 	}
 	
 	///////
 	
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) throws MatchFailed {
-    throw new UnsupportedOperation("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
+    throw new UnsupportedOperation("A value of type " + getStaticType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
   }
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {

@@ -441,13 +441,12 @@ public class BindingsResolver {
     return values.constructor(cons, decl);
   }
 
-  private IConstructor interfaceSymbol(ISourceLocation decl, IList typeParameters) {
+private IConstructor interfaceSymbol(ISourceLocation decl, IList typeParameters) {
     io.usethesource.vallang.type.Type cons = store.lookupConstructor(getTypeSymbol(), "interface", tf.tupleType(decl.getType(), typeParameters.getType()));
-    return values.constructor(cons, decl, typeParameters);
+	return values.constructor(cons, decl, typeParameters);
+}
 
-  }
-
-  private IConstructor classSymbol(ISourceLocation decl, IList typeParameters) {
+private IConstructor classSymbol(ISourceLocation decl, IList typeParameters) {
     if (decl.getPath().equals("/java/lang/Object")) {
       io.usethesource.vallang.type.Type obj = store.lookupConstructor(getTypeSymbol(), "object", tf.voidType());
       return values.constructor(obj);
@@ -458,10 +457,10 @@ public class BindingsResolver {
     }
 }
 
-  private IConstructor nullSymbol() {
+private IConstructor nullSymbol() {
     io.usethesource.vallang.type.Type cons = store.lookupConstructor(getTypeSymbol(), "null", tf.voidType());
     return values.constructor(cons);
-  }
+}
 
   private IConstructor primitiveSymbol(String name) {
     io.usethesource.vallang.type.Type cons = store.lookupConstructor(getTypeSymbol(), name, tf.voidType());

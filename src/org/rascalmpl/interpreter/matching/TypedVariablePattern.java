@@ -90,7 +90,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 		hasNext = false;
 		if(debug) {
 			System.err.println("Subject: " + subject + " name: " + name + " getType: ");
-			System.err.println("AbstractTypedVariable.next: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
+			System.err.println("AbstractTypedVariable.next: " + subject + "(type=" + subject.getStaticType() + ") with " + declaredType + " " + name);
 		}
 
 		// first test the static type (should match at the very least)
@@ -102,7 +102,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			        Map<Type, Type> staticBindings = new HashMap<>(ctx.getCurrentEnvt().getStaticTypeBindings());
 
 			        // collect the type bindings for later usage
-			        declaredType.match(subject.getType(), staticBindings);
+			        declaredType.match(subject.getStaticType(), staticBindings);
 			        ctx.getCurrentEnvt().storeStaticTypeBindings(staticBindings);
 			        
 			        // also check the dynamic type:

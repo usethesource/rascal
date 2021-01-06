@@ -24,8 +24,8 @@ public class MapComprehensionWriter extends ComprehensionWriter {
 	public void append() {
 		Result<IValue> r1 = this.resultExprs.get(0).interpret(this.ev);
 		Result<IValue> r2 = this.resultExprs.get(1).interpret(this.ev);
-		elementType1 = elementType1.lub(r1.getType());
-		elementType2 = elementType2.lub(r2.getType());
+		elementType1 = elementType1.lub(r1.getStaticType());
+		elementType2 = elementType2.lub(r2.getStaticType());
 		((IMapWriter) this.writer).put(r1.getValue(), r2.getValue());
 	}
 

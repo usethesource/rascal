@@ -163,7 +163,7 @@ public class Reflective {
 	    	return "";
 	    }
 	    
-	    Type type = result.getType();
+	    Type type = result.getStaticType();
 
 	    StandardTextWriter indentedPrettyPrinter = new StandardTextWriter();
 	      

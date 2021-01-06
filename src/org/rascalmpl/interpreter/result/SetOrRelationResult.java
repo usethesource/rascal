@@ -52,13 +52,13 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	@Override
 	protected <U extends IValue> Result<U> subtractSet(SetResult s) {
 		// note the reverse subtract
-		return makeResult(s.getType(), s.getValue().subtract(getValue()), ctx);
+		return makeResult(s.getStaticType(), s.getValue().subtract(getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult s) {
 		// note the reverse subtract
-		return makeResult(s.getType(), s.getValue().subtract(getValue()), ctx);
+		return makeResult(s.getStaticType(), s.getValue().subtract(getValue()), ctx);
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
 	protected <U extends IValue, V extends IValue> Result<U> addElement(
 			ElementResult<V> that) {
-		Type newType = getTypeFactory().setType(that.getType().lub(getType().getElementType()));
+		Type newType = getTypeFactory().setType(that.getStaticType().lub(getStaticType().getElementType()));
 		return makeResult(newType, getValue().insert(that.getValue()), ctx);
 	}
 

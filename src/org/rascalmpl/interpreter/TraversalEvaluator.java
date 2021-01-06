@@ -673,8 +673,8 @@ public class TraversalEvaluator {
 			tr.matched = true;
 			Result<IValue> toBeInserted = e.getValue();
 			
-			if (!toBeInserted.getType().isSubtypeOf(e.getStaticType())) {
-				throw new UnexpectedType(e.getStaticType(), toBeInserted.getType(), eval.getCurrentAST());
+			if (!toBeInserted.getStaticType().isSubtypeOf(e.getStaticType())) {
+				throw new UnexpectedType(e.getStaticType(), toBeInserted.getStaticType(), eval.getCurrentAST());
 			}
 			return e.getValue().getValue();
 		}

@@ -28,30 +28,31 @@ public class ParserTest extends TestCase{
 	private final static TypeFactory tf = TypeFactory.getInstance();
 	private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	public ParserTest(){
+	public ParserTest() {
 		super();
 	}
 	
 	public void executeParser(IParserTest parser){
-		try{
+		try {
 			IValue expectedResult = parser.getExpectedResult();
-			if(expectedResult.getType().equals(tf.stringType())){
-				try{
+			if (expectedResult.getType().equals(tf.stringType())){
+				try {
 					parser.executeParser();
 					Assert.fail("Expected a parse error to occur:\n"+expectedResult);
-				}catch(ParseError pe){
+				} 
+				catch (ParseError pe) {
 					IString message = vf.string(pe.getMessage());
 					if(!message.equals(expectedResult)){
 						Assert.fail("Expected a parse error to occur:\n"+expectedResult+"\nError was:\n"+message);
 					}
 				}
-			}else{
+			} else {
 				IConstructor result = parser.executeParser();
 				if(!result.equals(expectedResult)){
 					Assert.fail(parser.getClass().getName()+";\tGot: "+result+"\n\t expected: "+expectedResult);
 				}
 			}
-		}catch(IOException ioex){
+		} catch(IOException ioex) {
 			// Ignore, never happens.
 		}
 	}

@@ -497,8 +497,6 @@ public class IO {
         }
     }
 
-
-
     protected void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, Type paramType) {
         String sep = separator != null ? separator.getValue() : ",";
         Boolean head = header != null ? header.getValue() : true;
