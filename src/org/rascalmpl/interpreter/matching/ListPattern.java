@@ -128,8 +128,8 @@ public class ListPattern extends AbstractMatchingResult  {
     }
     listSubject = (IList) subject.getValue();
     listSubjectType = listSubject.getType(); 
-    staticListSubjectType = subject.getType();
-    staticListSubjectElementType = staticListSubjectType.isList() ? subject.getType().getElementType() : tf.valueType();
+    staticListSubjectType = subject.getStaticType();
+    staticListSubjectElementType = staticListSubjectType.isList() ? subject.getStaticType().getElementType() : tf.valueType();
 
     subjectCursor = 0;
     patternCursor = 0;
@@ -216,7 +216,7 @@ public class ListPattern extends AbstractMatchingResult  {
             isBindingVar[i] = true;
           } else {
             isBindingVar[i] = false;
-            Type varType = varRes.getType();
+            Type varType = varRes.getStaticType();
             if (isAnyListType(varType)){  
               if (!varType.comparable(listSubjectType)) {     
                 hasNext = false;
@@ -260,7 +260,7 @@ public class ListPattern extends AbstractMatchingResult  {
           if(varRes == null || qualName.bindingInstance()){ 
             // A completely new non-list variable, nothing to do
           } else {
-            Type varType = varRes.getType();
+            Type varType = varRes.getStaticType();
             if (isAnyListType(varType)){  
               /*
                * A variable declared in the current scope.
@@ -555,14 +555,14 @@ public class ListPattern extends AbstractMatchingResult  {
       } 
       else if(isListVar[patternCursor] && 
           !isBindingVar[patternCursor] && 
-          ctx.getCurrentEnvt().getFrameVariable(varName[patternCursor]).getType().isList()){
+          ctx.getCurrentEnvt().getFrameVariable(varName[patternCursor]).getStaticType().isList()){
         if(forward){
           listVarStart[patternCursor] = subjectCursor;
 
           Result<IValue> varRes = ctx.getCurrentEnvt().getFrameVariable(varName[patternCursor]);
           IValue varVal = varRes.getValue();
 
-          if(varRes.getType().isList()){
+          if(varRes.getStaticType().isList()){
             assert varVal != null && varVal.getType().isList();
 
             int varLength = ((IList)varVal).length();

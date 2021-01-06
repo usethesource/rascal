@@ -68,7 +68,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		if (!subject.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+		if (!subject.getStaticType().isSubtypeOf(RascalValueFactory.Tree)) {
 			hasNext = false;
 			return;
 		}
@@ -101,7 +101,6 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 			return false;
 		}
 		return pat.next();
-		
 	}
 
 	@Override

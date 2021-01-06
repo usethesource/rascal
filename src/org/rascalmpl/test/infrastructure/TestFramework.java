@@ -185,7 +185,7 @@ public class TestFramework {
 	private boolean execute(String command){
 		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootLocation("stdin"));
 
-		if (result.getType().isBottom()) {
+		if (result.getStaticType().isBottom()) {
 			return true;
 			
 		}
@@ -193,7 +193,7 @@ public class TestFramework {
 			return false;
 		}
 		
-		if (result.getType() == TypeFactory.getInstance().boolType()) {
+		if (result.getStaticType() == TypeFactory.getInstance().boolType()) {
 			return ((IBool) result.getValue()).getValue();
 		}
 		

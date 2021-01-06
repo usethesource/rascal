@@ -96,6 +96,12 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	@Override
+	public Type getType() {
+		// TODO separate dynamic type from static type
+		return getStaticType();
+	}
+	
+	@Override
 	public boolean isStatic() {
 		return true;
 	}

@@ -212,8 +212,7 @@ public class Cases  {
 		@Override
 		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
-			io.usethesource.vallang.type.Type subjectType = value
-					.getType();
+			io.usethesource.vallang.type.Type subjectType = value.getType();
 
 			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((org.rascalmpl.values.parsetrees.ITree) value)) {
 				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.parsetrees.ITree) value));
@@ -366,8 +365,7 @@ public class Cases  {
 		@Override
 		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
-			io.usethesource.vallang.type.Type subjectType = value
-					.getType();
+			io.usethesource.vallang.type.Type subjectType = value.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {
 				boolean isTree = subjectType.isSubtypeOf(RascalValueFactory.Tree) 

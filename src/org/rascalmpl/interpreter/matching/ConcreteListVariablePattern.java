@@ -91,8 +91,9 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 			System.err.println("AbstractConcreteSyntaxListVariable.next");
 		}
 		checkInitialized();
-		if (!hasNext)
+		if (!hasNext) {
 			return false;
+		}
 		hasNext = false;
 		
 		
@@ -101,7 +102,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 					+ " getType: ");
 			
 			System.err.println("AbstractConcreteSyntaxListVariable.next: " + subject
-					+ "(type=" + subject.getType() + ") with " + declaredType
+					+ "(type=" + subject.getStaticType() + ") with " + declaredType
 					+ " " + name);
 		}
 	
@@ -111,7 +112,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		
 		iDeclaredItMyself = true;
 		
-		if (subject.getType().isSubtypeOf(RascalValueFactory.Args)) {
+		if (subject.getStaticType().isSubtypeOf(RascalValueFactory.Args)) {
 			if (((IList)subject.getValue()).isEmpty()) {
 				IConstructor sym =declaredType.getSymbol();
 				if (SymbolAdapter.isIterPlus(sym) || SymbolAdapter.isIterPlusSeps(sym)) {

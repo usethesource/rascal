@@ -68,6 +68,46 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
         isStatic = checkStatic(primaryCandidates) && checkStatic(defaultCandidates);
     }
 
+    public OverloadedFunction(String name, List<AbstractFunction> funcs) {
+        super(lub(funcs), null, funcs.iterator().next().getEval());
+
+        this.name = name;
+
+        this.primaryCandidates = new ArrayList<AbstractFunction>(1);
+        this.defaultCandidates = new ArrayList<AbstractFunction>(1);
+
+        addAll(primaryCandidates, funcs, true);
+        addAll(defaultCandidates, funcs, false);
+
+        this.isStatic = checkStatic(funcs);
+    }
+
+    private OverloadedFunction(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, boolean isStatic, IEvaluatorContext ctx) {
+        super(type, null, ctx);
+        this.name = name;
+        this.primaryCandidates = candidates;
+        this.defaultCandidates = defaults;
+        this.isStatic = isStatic;
+    }
+
+    public OverloadedFunction(AbstractFunction function) {
+        super(function.getStaticType(), null, function.getEval());
+
+        this.name = function.getName();
+
+        this.primaryCandidates = new ArrayList<AbstractFunction>(1);
+        this.defaultCandidates = new ArrayList<AbstractFunction>(1);
+
+        if (function.isDefault()) {
+            defaultCandidates.add(function);
+        }
+        else {
+            primaryCandidates.add(function);
+        }
+
+        this.isStatic = function.isStatic();
+    }
+
     @Override
     public IConstructor encodeAsConstructor() {
         IListWriter alternatives = getValueFactory().listWriter();
@@ -82,6 +122,12 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
         return getValueFactory().constructor(RascalValueFactory.Function_Choice,
             alternatives.done(), otherwise.done());
+    }
+
+    @Override
+    public Type getType() {
+       // TODO: distringuish static type from dynamic type
+       return getStaticType();
     }
 
     public List<AbstractFunction> getPrimaryCandidates() {
@@ -123,47 +169,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
         return TF.tupleType(types.toArray(new Type[types.size()]), labels.toArray(new String[labels.size()])); 
     }
 
-    public OverloadedFunction(AbstractFunction function) {
-        super(function.getType(), null, function.getEval());
-
-        this.name = function.getName();
-
-        this.primaryCandidates = new ArrayList<AbstractFunction>(1);
-        this.defaultCandidates = new ArrayList<AbstractFunction>(1);
-
-        if (function.isDefault()) {
-            defaultCandidates.add(function);
-        }
-        else {
-            primaryCandidates.add(function);
-        }
-
-        this.isStatic = function.isStatic();
-    }
-
-    public OverloadedFunction(String name, List<AbstractFunction> funcs) {
-        super(lub(funcs), null, funcs.iterator().next().getEval());
-
-        this.name = name;
-
-        this.primaryCandidates = new ArrayList<AbstractFunction>(1);
-        this.defaultCandidates = new ArrayList<AbstractFunction>(1);
-
-        addAll(primaryCandidates, funcs, true);
-        addAll(defaultCandidates, funcs, false);
-
-        this.isStatic = checkStatic(funcs);
-    }
-
-    private OverloadedFunction(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, boolean isStatic, IEvaluatorContext ctx) {
-        super(type, null, ctx);
-        this.name = name;
-        this.primaryCandidates = candidates;
-        this.defaultCandidates = defaults;
-        this.isStatic = isStatic;
-    }
-
-
     @Override
     public OverloadedFunction cloneInto(Environment env) {
         List<AbstractFunction> newCandidates = new ArrayList<>();
@@ -175,7 +180,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
         for (AbstractFunction f: defaultCandidates) {
             newDefaultCandidates.add((AbstractFunction) f.cloneInto(env));
         }
-        OverloadedFunction of = new OverloadedFunction(name, getType(), newCandidates, newDefaultCandidates, isStatic, ctx);
+        OverloadedFunction of = new OverloadedFunction(name, getStaticType(), newCandidates, newDefaultCandidates, isStatic, ctx);
         of.setPublic(isPublic());
         return of;
     }
@@ -316,7 +321,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
     @Override
     public int getArity() {
-        return getType().getArity();
+        return getStaticType().getArity();
     }
 
     @Override
@@ -451,7 +456,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
         Type t = TF.voidType();
         
         for (AbstractFunction f : joined) {
-            t = t.lub(f.getType());
+            t = t.lub(f.getStaticType());
         }
         
         return t;

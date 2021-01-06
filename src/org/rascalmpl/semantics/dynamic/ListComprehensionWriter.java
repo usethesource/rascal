@@ -24,24 +24,24 @@ public class ListComprehensionWriter extends ComprehensionWriter {
 		for (Expression resExpr : this.resultExprs) {
 			if(resExpr.isSplice() || resExpr.isSplicePlus()){
 				Result<IValue> list = resExpr.getArgument().interpret(this.ev);
-				if (list.getType().isList() || list.getType().isSet()) {
-					elementType1 = elementType1.lub(list.getType().getElementType());
+				if (list.getStaticType().isList() || list.getStaticType().isSet()) {
+					elementType1 = elementType1.lub(list.getStaticType().getElementType());
 					((IListWriter)writer).appendAll((Iterable<IValue>)list.getValue());
 				}
 				else {
 					// original code supported slicing on no list?
-					elementType1 = elementType1.lub(list.getType());
+					elementType1 = elementType1.lub(list.getStaticType());
 					((IListWriter)writer).append(list.getValue());
 				}
 			}
 			else {
 				Result<IValue> res = resExpr.interpret(this.ev);
 				
-				if (res == null || res.getType().isBottom()) {
+				if (res == null || res.getStaticType().isBottom()) {
 				    throw new NonVoidTypeRequired(ev.getCurrentAST());
 				}
 				else {
-				    elementType1 = elementType1.lub(res.getType());
+				    elementType1 = elementType1.lub(res.getStaticType());
 				    ((IListWriter)writer).append(res.getValue());
 				}
 			}

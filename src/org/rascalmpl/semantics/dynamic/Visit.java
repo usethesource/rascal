@@ -56,13 +56,13 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 						blocks, DIRECTION.BottomUp,
 						PROGRESS.Continuing, FIXEDPOINT.No);
 				
-				if (!val.getType().isSubtypeOf(subject.getType())) {
+				if (!val.getType().isSubtypeOf(subject.getStaticType())) {
 				  // this is not a static error but an extra run-time sanity check
 				  throw new ImplementationError("this should really never happen",
-				      new UnexpectedType(subject.getType(), val.getType(), this));
+				      new UnexpectedType(subject.getStaticType(), val.getType(), this));
 				}
 				
-				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(subject.getType(),
+				return org.rascalmpl.interpreter.result.ResultFactory.makeResult(subject.getStaticType(),
 						val, __eval);
 			}
 			catch (UnexpectedType e) {
@@ -93,7 +93,7 @@ public abstract class Visit extends org.rascalmpl.ast.Visit {
 
 			// TODO: warning switched to static type here, but not sure if
 			// that's correct...
-			Type subjectType = subject.getType();
+			Type subjectType = subject.getStaticType();
 
 			if (subjectType.isConstructor()) {
 				subjectType = subjectType.getAbstractDataType();

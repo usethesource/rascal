@@ -113,6 +113,11 @@ public class RascalFunction extends NamedFunction {
         setPublic(isPublic);
     }
 
+    @Override
+    public Type getType() {
+        // TODO distinguish dynamic type from static type
+        return getStaticType();
+    }
 
     @Override
     public RascalFunction cloneInto(Environment env) {
@@ -400,12 +405,12 @@ public class RascalFunction extends NamedFunction {
         Type returnType = getReturnType();
 
         // only use static checks here
-        if(!result.getType().isSubtypeOf(getReturnType())){
-            throw new UnexpectedType(returnType, result.getType(), e.getLocation());
+        if(!result.getStaticType().isSubtypeOf(getReturnType())){
+            throw new UnexpectedType(returnType, result.getStaticType(), e.getLocation());
         }
 
-        if (!returnType.isBottom() && result.getType().isBottom()) {
-            throw new UnexpectedType(returnType, result.getType(), e.getLocation());
+        if (!returnType.isBottom() && result.getStaticType().isBottom()) {
+            throw new UnexpectedType(returnType, result.getStaticType(), e.getLocation());
         }
 
         // here we instantiate type parameters for computing a return value type.

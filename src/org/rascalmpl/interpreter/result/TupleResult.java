@@ -56,11 +56,11 @@ public class TupleResult extends ElementResult<ITuple> {
 	@SuppressWarnings("unchecked")
 	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
 		if (subscripts.length != 1) { 
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		} 
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isSubtypeOf(getTypeFactory().integerType())) {
-			throw new UnexpectedType(getTypeFactory().integerType(), key.getType(), ctx.getCurrentAST());
+		if (!key.getStaticType().isSubtypeOf(getTypeFactory().integerType())) {
+			throw new UnexpectedType(getTypeFactory().integerType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		int idx = ((IInteger) key.getValue()).intValue();
 		int len = getValue().arity();
@@ -79,14 +79,14 @@ public class TupleResult extends ElementResult<ITuple> {
 	    }
 	    
 	    // if it's not visible then this is statically wrong:
-	    throw new UndeclaredField(Names.name(name), getType(), ctx.getCurrentAST());
+	    throw new UndeclaredField(Names.name(name), getStaticType(), ctx.getCurrentAST());
 	}
 	
 	@Override
 	public Result<IValue> fieldSelect(Field[] selectedFields) {
 		int nFields = selectedFields.length;
 		int fieldIndices[] = new int[nFields];
-		Type baseType = this.getType();
+		Type baseType = this.getStaticType();
 		
 		for (int i = 0; i < nFields; i++) {
 			Field f = selectedFields[i];
@@ -116,44 +116,44 @@ public class TupleResult extends ElementResult<ITuple> {
 	
 	@Override
 	public Result<IBool> has(Name name) {
-		return ResultFactory.bool(getType().hasField(Names.name(name)), ctx);
+		return ResultFactory.bool(getStaticType().hasField(Names.name(name)), ctx);
 	}
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-			if (!getType().hasFieldNames()) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+			if (!getStaticType().hasFieldNames()) {
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 			
-			if (!getType().hasField(name, store)) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+			if (!getStaticType().hasField(name, store)) {
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 			
 			try {
-				int index = getType().getFieldIndex(name);
-				Type type = getType().getFieldType(index);
+				int index = getStaticType().getFieldIndex(name);
+				Type type = getStaticType().getFieldType(index);
 				return makeResult(type, getValue().get(index), ctx);
 			} 
 			catch (UndeclaredFieldException e){
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 	}
 		
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
-		if (!getType().hasFieldNames()) {
-			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+		if (!getStaticType().hasFieldNames()) {
+			throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 		}
 
 		try {
-			int index = getType().getFieldIndex(name);
-			Type type = getType().getFieldType(index);
-			if(!type.isSubtypeOf(repl.getType())){
-				throw new UnexpectedType(type, repl.getType(), ctx.getCurrentAST());
+			int index = getStaticType().getFieldIndex(name);
+			Type type = getStaticType().getFieldType(index);
+			if(!type.isSubtypeOf(repl.getStaticType())){
+				throw new UnexpectedType(type, repl.getStaticType(), ctx.getCurrentAST());
 			}
-			return makeResult(getType(), getValue().set(index, repl.getValue()), ctx);
+			return makeResult(getStaticType(), getValue().set(index, repl.getValue()), ctx);
 		} catch (UndeclaredFieldException e) {
-			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+			throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 		}
 	}
 	
@@ -161,7 +161,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length > 1) {
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> subsBase = (Result<IValue>)subscripts[0];
 		if(subsBase == null)
@@ -169,8 +169,8 @@ public class TupleResult extends ElementResult<ITuple> {
 			 * Wild card not allowed as tuple subscript
 			 */
 			throw new UnsupportedSubscript(type, null, ctx.getCurrentAST());
-		if (!subsBase.getType().isInteger()){
-			throw new UnsupportedSubscript(getTypeFactory().integerType(), subsBase.getType(), ctx.getCurrentAST());
+		if (!subsBase.getStaticType().isInteger()){
+			throw new UnsupportedSubscript(getTypeFactory().integerType(), subsBase.getStaticType(), ctx.getCurrentAST());
 		}
 		IInteger index = (IInteger)subsBase.getValue();
 		int idx = index.intValue();
@@ -181,7 +181,7 @@ public class TupleResult extends ElementResult<ITuple> {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		
-		Type elementType = getType().getFieldType(idx);
+		Type elementType = getStaticType().getFieldType(idx);
 		IValue element = getValue().get(idx);
 		return makeResult(elementType, element, ctx);
 	}
@@ -223,8 +223,8 @@ public class TupleResult extends ElementResult<ITuple> {
 		// Note reversed args
 		TupleResult left = that;
 		TupleResult right = this;
-		Type leftType = left.getType();
-		Type rightType = right.getType();
+		Type leftType = left.getStaticType();
+		Type rightType = right.getStaticType();
 		
 		int leftArity = leftType.getArity();
         int rightArity = rightType.getArity();
@@ -285,7 +285,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult that) {
-		if(that.getType().getElementType().getArity() == this.getType().getArity())
+		if(that.getStaticType().getElementType().getArity() == this.getStaticType().getArity())
 			return that.removeElement(this);
 		return super.subtractRelation(that);
 	}
@@ -297,7 +297,7 @@ public class TupleResult extends ElementResult<ITuple> {
 		
 	@Override
 	protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult that) {
-		if(that.getType().getElementType().getArity() == this.getType().getArity())
+		if(that.getStaticType().getElementType().getArity() == this.getStaticType().getArity())
 			return that.removeElement(this);
 		return super.subtractListRelation(that);
 	}

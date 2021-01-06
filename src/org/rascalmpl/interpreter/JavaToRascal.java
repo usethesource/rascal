@@ -158,15 +158,15 @@ public class JavaToRascal {
 
 	public Object eval(String command, String scheme) {
 		Result<IValue> result = evaluator.eval(null, command, URIUtil.rootLocation(scheme));
-		if (result.getType().isBool())
+		if (result.getStaticType().isBool())
 			return new Boolean(((IBool) (result.getValue())).getValue());
-		if (result.getType().isInteger())
+		if (result.getStaticType().isInteger())
 			return new Integer(((IInteger) (result.getValue())).intValue());
-		if (result.getType().isString())
+		if (result.getStaticType().isString())
 			return ((IString) (result.getValue())).getValue();
-		if (result.getType().isBottom())
+		if (result.getStaticType().isBottom())
 			return null;
-		if (result.getType().isList()) {
+		if (result.getStaticType().isList()) {
 			return _listValue((IList) (result.getValue()));
 		}
 		return result;
@@ -202,7 +202,7 @@ public class JavaToRascal {
 				Type tp = getType(env, vt);
 				if (tp == null)
 					continue;
-				if (simpleVariable.getType().equivalent(tp))
+				if (simpleVariable.getStaticType().equivalent(tp))
 					return true;
 			}
 			return false;

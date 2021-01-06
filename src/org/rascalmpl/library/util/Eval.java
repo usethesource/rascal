@@ -90,12 +90,12 @@ public class Eval {
 	public IValue eval (IValue typ, IString input, IInteger duration) {
 		Result<IValue> result = doEval(typ, ValueFactoryFactory.getValueFactory().list(input), duration, true);
 		
-		if(result.getType().isBottom()){
+		if(result.getStaticType().isBottom()){
 		  return values.constructor(Result_void);
 		}
 		else {
 			Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(param, result.getType());
+			bindings.put(param, result.getStaticType());
 			return values.constructor(Result_value.instantiate(bindings), result.getValue());
 		}
 	}
@@ -107,13 +107,13 @@ public class Eval {
 	public IValue eval (IValue typ, IList commands, IInteger duration) {
 		Result<IValue> result = doEval(typ, commands, duration, true);
 		
-		if(result.getType().isBottom()){
+		if(result.getStaticType().isBottom()){
 		//if (result.getType().isSubtypeOf(TypeFactory.getInstance().voidType())) {
 			return values.constructor(Result_void);
 		}
 		else {
 			Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(param, result.getType());
+			bindings.put(param, result.getStaticType());
 			return values.constructor(Result_value.instantiate(bindings), result.getValue());
 		}
 	}
@@ -125,7 +125,7 @@ public class Eval {
 	public IValue evalType (IString input, IInteger duration) {
 		Result<IValue> result =  doEval(null, values.list(input), duration, true);
 		// Make sure redundant spaces are removed from the type.
-		return values.string(result.getType().toString().replaceAll(" ", ""));
+		return values.string(result.getStaticType().toString().replaceAll(" ", ""));
 	}
 	
 	public IValue evalType (IString input) {
@@ -134,7 +134,7 @@ public class Eval {
 	
 	public IValue evalType (IList commands, IInteger duration) {
 		Result<IValue> result = doEval(null, commands, duration, true);
-		return values.string(result.getType().toString().replaceAll(" ", ""));
+		return values.string(result.getStaticType().toString().replaceAll(" ", ""));
 	}
 	
 	public IValue evalType (IList commands) {
@@ -165,8 +165,8 @@ public class Eval {
 				
 				if (expected != null) {
 					Type typ = tr.valueToType((IConstructor) expected);
-					if (!result.getType().isSubtypeOf(typ)) {
-						throw new UnexpectedType(typ, result.getType(), URIUtil.rootLocation("eval"));
+					if (!result.getStaticType().isSubtypeOf(typ)) {
+						throw new UnexpectedType(typ, result.getStaticType(), URIUtil.rootLocation("eval"));
 					}
 				}
 				return result;

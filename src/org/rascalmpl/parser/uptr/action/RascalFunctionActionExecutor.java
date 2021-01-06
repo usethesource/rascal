@@ -119,7 +119,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 						new Type[] {TF.setType(type)}, new IValue[] {alts}, null
 				);
 				
-				if (result.getType().isBottom()) {
+				if (result.getStaticType().isBottom()) {
 					return ambCluster;
 				}
 				ITree r = (ITree) result.getValue();
@@ -193,12 +193,12 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 						return tree;
 					}
 					
-					if (result.getType().isBottom()) {
+					if (result.getStaticType().isBottom()) {
 						return tree;
 					}
 					
-					if (!(result.getType() instanceof NonTerminalType 
-							&& SymbolAdapter.isEqual(((NonTerminalType) result.getType()).getSymbol(), TreeAdapter.getType(tree)))) {
+					if (!(result.getStaticType() instanceof NonTerminalType 
+							&& SymbolAdapter.isEqual(((NonTerminalType) result.getStaticType()).getSymbol(), TreeAdapter.getType(tree)))) {
 						// do not call the function if it does not return the right type
 						return tree;
 					}

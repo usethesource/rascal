@@ -92,8 +92,8 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		if (field != null) {
 		    Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
 		    
-		    if (!repl.getType().isSubtypeOf(symbolType)) {
-		        throw new UnexpectedType(symbolType, repl.getType(), ctx.getCurrentAST()); 
+		    if (!repl.getStaticType().isSubtypeOf(symbolType)) {
+		        throw new UnexpectedType(symbolType, repl.getStaticType(), ctx.getCurrentAST()); 
 		    }
 		    
 		    ITree result = TreeAdapter.putLabeledField(tree, name, (ITree) repl.getValue());
@@ -106,15 +106,15 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		if (TreeAdapter.isAppl(tree)) {
 			if (RascalValueFactory.Tree_Appl.hasField(name)) {
 				Type fieldType = RascalValueFactory.Tree_Appl.getFieldType(name);
-				if (repl.getType().isSubtypeOf(fieldType)) {
+				if (repl.getStaticType().isSubtypeOf(fieldType)) {
 					throw new UnsupportedOperation("changing " + name + " in concrete tree", ctx.getCurrentAST());
 				}
-				throw new UnexpectedType(fieldType, repl.getType(), ctx.getCurrentAST());
+				throw new UnexpectedType(fieldType, repl.getStaticType(), ctx.getCurrentAST());
 			}
 			
 			if (ctx.getCurrentEnvt().getStore().getKeywordParameterType(RascalValueFactory.Tree, name) != null) {
 			    if (getValue().mayHaveKeywordParameters()) {
-			        return makeResult(getType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
+			        return makeResult(getStaticType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
 			    }
 			    else {
 			        throw RuntimeExceptionFactory.illegalArgument(getValueFactory().string("Can not set a keyword parameter on a tree which already has annotations"), ctx.getCurrentAST(), ctx.getStackTrace());
@@ -257,7 +257,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult that) {
         // Note the reverse concat.
-	    return makeResult(that.getType(), that.getValue().concat(ctx.getValueFactory().string(TreeAdapter.yield(getValue()))), ctx);
+	    return makeResult(that.getStaticType(), that.getValue().concat(ctx.getValueFactory().string(TreeAdapter.yield(getValue()))), ctx);
 	}
 
 	@Override

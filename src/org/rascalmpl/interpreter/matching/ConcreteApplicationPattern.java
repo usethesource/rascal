@@ -67,14 +67,17 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	
 	private class TreeAsTuple implements ITuple {
 		
+		@Override
 		public int arity() {
 			return subjectArgs.length();
 		}
 
+		@Override
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			return subjectArgs.get(i);
 		}
 
+		@Override
 		public Type getType() {
 			Type[] fields = new Type[arity()];
 			for (int i = 0; i < fields.length; i++) {
@@ -83,6 +86,7 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			return tf.tupleType(fields);
 		}
 
+		@Override
 		public Iterator<IValue> iterator() {
 			return new Iterator<IValue>() {
 				int currentIndex = 0;
@@ -101,10 +105,12 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			};
 		}
 
+		@Override
 		public IValue get(String label) throws FactTypeUseException {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public IValue select(int... fields) throws IndexOutOfBoundsException {
 			throw new UnsupportedOperationException();
 		}
@@ -114,10 +120,12 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public ITuple set(int i, IValue arg) throws IndexOutOfBoundsException {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public ITuple set(String label, IValue arg) throws FactTypeUseException {
 			throw new UnsupportedOperationException();
 		}

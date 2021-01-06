@@ -44,7 +44,7 @@ public class ReadEvalPrintDialogMessages {
 		IValue value = result.getValue();
 		
 		if (value != null) {
-			Type type = result.getType();
+			Type type = result.getStaticType();
 			
 			if (type.isAbstractData() && type.isSubtypeOf(RascalValueFactory.Tree)) {
 				content = type.toString() + ": `" + TreeAdapter.yield((IConstructor) value, 1000) + "`\n";

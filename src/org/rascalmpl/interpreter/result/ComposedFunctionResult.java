@@ -63,7 +63,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			this.type = super.type;
 			try {
 				// trying to compute the composed type 
-				type = left.getType().compose(right.getType());
+				type = left.getStaticType().compose(right.getStaticType());
 			} catch(IllegalOperationException e) {
 				// if the type of one of the arguments is of the type 'value' (e.g., the type of an overloaded function can be of the type 'value')
 			}
@@ -105,7 +105,13 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	}
 	
 	@Override
+	public Type getStaticType() {
+		return this.type;
+	}
+
+	@Override
 	public Type getType() {
+		// TODO distinguish dynamic type from static type
 		return this.type;
 	}
 	
@@ -141,7 +147,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	@Override
   public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
     Result<IValue> rightResult = right.call(argTypes, argValues, null);
-    return left.call(new Type[] { rightResult.getType() }, new IValue[] { rightResult.getValue() }, keyArgValues);
+    return left.call(new Type[] { rightResult.getStaticType() }, new IValue[] { rightResult.getValue() }, keyArgValues);
   }
 	
 	@Override
@@ -224,7 +230,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 		public <T extends Result<IValue> & IExternalValue & ICallableValue, 
 				U extends Result<IValue> & IExternalValue & ICallableValue> 
 					NonDeterministic(T left, U right, IEvaluatorContext ctx) {	
-						super(left, right, TF.voidType().lub(left.getType()).lub(right.getType()), ctx);
+						super(left, right, TF.voidType().lub(left.getStaticType()).lub(right.getStaticType()), ctx);
 					}
 		
 		@Override
@@ -264,7 +270,7 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	@Override
 	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
 	  throw new IllegalOperationException(
-        "Cannot be viewed as with keyword parameters", getType());
+        "Cannot be viewed as with keyword parameters", getStaticType());
 	}
 	
 	@Override

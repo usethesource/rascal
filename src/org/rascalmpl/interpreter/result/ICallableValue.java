@@ -49,7 +49,7 @@ public interface ICallableValue extends IExternalValue, IFunction {
 	    try {
 	        Result<IValue> result = call(types, parameters, keywordParameters);
 
-	        if (result.getType().isBottom()) {
+	        if (result.getStaticType().isBottom()) {
 	            return null;
 	        }
 	        else {
@@ -71,7 +71,7 @@ public interface ICallableValue extends IExternalValue, IFunction {
         try {
             Result<IValue> result = call(monitor, types, parameters, keywordParameters);
 
-            if (result.getType().isBottom()) {
+            if (result.getStaticType().isBottom()) {
                 return null;
             }
             else {

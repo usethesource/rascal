@@ -51,7 +51,7 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
             // nothing to be done
         } else if (first <= end) {
             if (increment == 1) {
-                return makeResult(TypeFactory.getInstance().listType(getType().getElementType()), getValue().sublist(first, end - first), ctx);
+                return makeResult(TypeFactory.getInstance().listType(getStaticType().getElementType()), getValue().sublist(first, end - first), ctx);
             }
             else {
                 for (int i = first; i >= 0 && i < end; i += increment) {
@@ -63,7 +63,7 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
                 w.append(getValue().get(j));
             }
         }
-        return makeResult(TypeFactory.getInstance().listType(getType().getElementType()), w.done(), ctx);
+        return makeResult(TypeFactory.getInstance().listType(getStaticType().getElementType()), w.done(), ctx);
     }
 
     @Override
@@ -79,13 +79,13 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
     @Override
     protected <U extends IValue> Result<U> subtractList(ListResult s) {
         // note the reverse subtract
-        return makeResult(s.getType(), s.getValue().subtract(getValue()), ctx);
+        return makeResult(s.getStaticType(), s.getValue().subtract(getValue()), ctx);
     }
 
     @Override
     protected <U extends IValue> Result<U> subtractListRelation(ListRelationResult s) {
         // note the reverse subtract
-        return makeResult(s.getType(), s.getValue().subtract(getValue()), ctx);
+        return makeResult(s.getStaticType(), s.getValue().subtract(getValue()), ctx);
     }
 
     @Override
@@ -114,13 +114,13 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 
     @Override
     protected <U extends IValue, V extends IValue> Result<U> insertElement(Result<V> that) {
-        Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
+        Type newType = getTypeFactory().listType(that.getStaticType().lub(getStaticType().getElementType()));
         return makeResult(newType, value.insert(that.getValue()), ctx);
     }
 
     protected <U extends IValue, V extends IValue> Result<U> addElement(
         ElementResult<V> that) {
-        Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
+        Type newType = getTypeFactory().listType(that.getStaticType().lub(getStaticType().getElementType()));
         return makeResult(newType, getValue().append(that.getValue()), ctx);
     }
 

@@ -62,6 +62,12 @@ public class ConstructorFunction extends NamedFunction {
 	}
 
 	@Override
+	public Type getType() {
+		// TODO distinguish static type from dynamic type
+		return getStaticType();
+	}
+	
+	@Override
 	public ConstructorFunction cloneInto(Environment env) {
 		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
 		c.setPublic(isPublic());
@@ -111,9 +117,9 @@ public class ConstructorFunction extends NamedFunction {
 						return kwResult;
 					}
 					else {
-						env.declareVariable(kwResult.getType(), name);
+						env.declareVariable(kwResult.getStaticType(), name);
 						env.storeVariable(name, kwResult);
-						resultEnv.declareVariable(kwResult.getType(), name);
+						resultEnv.declareVariable(kwResult.getStaticType(), name);
 						resultEnv.storeVariable(name, kwResult);
 					}
 				}

@@ -42,11 +42,11 @@ public class ListResult extends ListOrRelationResult<IList> {
 	@SuppressWarnings("unchecked")
 	public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
 		if (subscripts.length != 1) { 
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		} 
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isSubtypeOf(getTypeFactory().integerType())) {
-			throw new UnexpectedType(getTypeFactory().integerType(), key.getType(), ctx.getCurrentAST());
+		if (!key.getStaticType().isSubtypeOf(getTypeFactory().integerType())) {
+			throw new UnexpectedType(getTypeFactory().integerType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		int idx = ((IInteger) key.getValue()).intValue();
 		int len = getValue().length();
@@ -128,11 +128,11 @@ public class ListResult extends ListOrRelationResult<IList> {
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 		if (subscripts.length != 1) {
-			throw new UnsupportedSubscriptArity(getType(), subscripts.length, ctx.getCurrentAST());
+			throw new UnsupportedSubscriptArity(getStaticType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isInteger()) {
-			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getType(), ctx.getCurrentAST());
+		if (!key.getStaticType().isInteger()) {
+			throw new UnexpectedType(TypeFactory.getInstance().integerType(), key.getStaticType(), ctx.getCurrentAST());
 		}
 		if (getValue().length() == 0) {
 			throw RuntimeExceptionFactory.emptyList(ctx.getCurrentAST(), ctx.getStackTrace());
@@ -146,7 +146,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 		if ( (idx >= getValue().length()) || (idx < 0) ) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
-		return makeResult(getType().getElementType(), getValue().get(idx), ctx);
+		return makeResult(getStaticType().getElementType(), getValue().get(idx), ctx);
 	}
 	
 	/////
@@ -154,7 +154,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 	@Override
 	protected <U extends IValue> Result<U> addList(ListResult l) {
 		// Note the reverse concat
-		return makeResult(getType().lub(l.getType()), l.getValue().concat(getValue()), ctx);
+		return makeResult(getStaticType().lub(l.getStaticType()), l.getValue().concat(getValue()), ctx);
 	}
 
 	@Override
@@ -166,7 +166,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 				list = list.delete(v);
 			}
 		}
-		return makeResult(l.getType(), list, ctx);
+		return makeResult(l.getStaticType(), list, ctx);
 	}
 
 	@Override
@@ -188,7 +188,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 	protected <U extends IValue> Result<U> intersectList(ListResult that) {
 		// Note the reversal of args
 		IListWriter w = this.getValueFactory().listWriter();
-		Type type = getType().lub(that.getType());
+		Type type = getStaticType().lub(that.getStaticType());
 		for(IValue v : that.getValue())
 			if(getValue().contains(v))
 				w.append(v);
@@ -197,13 +197,13 @@ public class ListResult extends ListOrRelationResult<IList> {
 	
 	<U extends IValue, V extends IValue> Result<U> appendElement(ElementResult<V> that) {
 		// this is called by addLists in element types.
-		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
+		Type newType = getTypeFactory().listType(that.getStaticType().lub(getStaticType().getElementType()));
 		return makeResult(newType, value.append(that.getValue()), ctx);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value) {
 		IList list = getValue();
-		return makeResult(getType(), list.delete(value.getValue()), ctx);
+		return makeResult(getStaticType(), list.delete(value.getValue()), ctx);
 	}
 
 	protected <V extends IValue> Result<IBool> elementOf(ElementResult<V> elementResult) {
@@ -288,8 +288,8 @@ public class ListResult extends ListOrRelationResult<IList> {
 	protected <U extends IValue> Result<U> joinListRelation(ListRelationResult that) {
 		// Note the reverse of arguments, we need "that join this"
 		int arity1 = that.getValue().asRelation().arity();
-		Type eltType = getType().getElementType();
-		Type tupleType = that.getType().getElementType();
+		Type eltType = getStaticType().getElementType();
+		Type tupleType = that.getStaticType().getElementType();
 		Type fieldTypes[] = new Type[arity1 + 1];
 		for (int i = 0;  i < arity1; i++) {
 			fieldTypes[i] = tupleType.getFieldType(i);
@@ -315,8 +315,8 @@ public class ListResult extends ListOrRelationResult<IList> {
 	protected <U extends IValue> Result<U> joinList(ListResult that) {
 		// Note the reverse of arguments, we need "that join this"
 		// join between sets degenerates to product
-		Type tupleType = getTypeFactory().tupleType(that.getType().getElementType(), 
-				getType().getElementType());
+		Type tupleType = getTypeFactory().tupleType(that.getStaticType().getElementType(), 
+				getStaticType().getElementType());
 		return makeResult(getTypeFactory().lrelTypeFromTuple(tupleType),
 				that.getValue().product(getValue()), ctx);
 	}

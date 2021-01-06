@@ -177,10 +177,10 @@ public class RationalResult extends ElementResult<IRational> {
 
 	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from) {
 		if (from.getValue().less(getValue()).getValue()) {
-			return makeStepRangeFromToWithSecond(from, this, makeResult(from.getType(),
+			return makeStepRangeFromToWithSecond(from, this, makeResult(from.getStaticType(),
 					from.getValue().add(getValueFactory().rational(1,1)), ctx), getValueFactory(), getTypeFactory(), ctx);
 		}
-		return makeStepRangeFromToWithSecond(from, this, makeResult(from.getType(),
+		return makeStepRangeFromToWithSecond(from, this, makeResult(from.getStaticType(),
 					from.getValue().subtract(getValueFactory().integer(1)), ctx), getValueFactory(), getTypeFactory(), ctx);
 	}
 	
@@ -228,8 +228,8 @@ public class RationalResult extends ElementResult<IRational> {
 		INumber iTo = to.getValue();
 		
 		// I still think it is ugly to do it here...
-		if (!second.getType().isSubtypeOf(tf.numberType())) {
-			throw new UnexpectedType(tf.numberType(), second.getType(), ctx.getCurrentAST());
+		if (!second.getStaticType().isSubtypeOf(tf.numberType())) {
+			throw new UnexpectedType(tf.numberType(), second.getStaticType(), ctx.getCurrentAST());
 		}
 		
 		INumber iSecond = (INumber) second.getValue();
@@ -238,7 +238,7 @@ public class RationalResult extends ElementResult<IRational> {
 		INumber zero = diff.subtract(diff); // zero in the type that we're dealing with.
 
 		// Use declared types here
-		Type resultType = second.getType().lub(from.getType().lub(to.getType()));
+		Type resultType = second.getStaticType().lub(from.getStaticType().lub(to.getStaticType()));
 		
 		IListWriter w = vf.listWriter();
 		if (iFrom.lessEqual(iTo).getValue() && diff.greater(zero).getValue()) {
@@ -393,7 +393,7 @@ public class RationalResult extends ElementResult<IRational> {
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
 		try {
 			// note the reverse division
-			return makeResult(n.getType(), n.getValue().divide(getValue(), getValueFactory().getPrecision()), ctx);
+			return makeResult(n.getStaticType(), n.getValue().divide(getValue(), getValueFactory().getPrecision()), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}
