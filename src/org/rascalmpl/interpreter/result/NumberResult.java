@@ -326,13 +326,13 @@ public class NumberResult extends ElementResult<INumber> {
 
 	@Override
 	protected <U extends IValue> Result<U> makeRangeFromNumber(NumberResult from) {
-		if (getType().lub(from.getType()).isInteger()) {
+		if (getStaticType().lub(from.getStaticType()).isInteger()) {
 			return makeRangeWithDefaultStep(from, getValueFactory().integer(1));
 		}
-		if (getType().lub(from.getType()).isReal()) {
+		if (getStaticType().lub(from.getStaticType()).isReal()) {
 			return makeRangeWithDefaultStep(from, getValueFactory().real(1.0));
 		}
-		if (getType().lub(from.getType()).isNumber()) {
+		if (getStaticType().lub(from.getStaticType()).isNumber()) {
 			return makeRangeWithDefaultStep(from, getValueFactory().integer(1));
 		}
 		throw new ImplementationError("Unknown number type in makeRangeFromNumber");
@@ -340,10 +340,10 @@ public class NumberResult extends ElementResult<INumber> {
 	
 	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from, INumber step) {
 		if (from.getValue().less(getValue()).getValue()) {
-			return makeStepRangeFromToWithSecond(from, this, makeResult(from.getType(),
+			return makeStepRangeFromToWithSecond(from, this, makeResult(from.getStaticType(),
 					from.getValue().add(step), ctx), getValueFactory(), getTypeFactory(), ctx);
 		}
-		return makeStepRangeFromToWithSecond(from, this, makeResult(from.getType(),
+		return makeStepRangeFromToWithSecond(from, this, makeResult(from.getStaticType(),
 				from.getValue().subtract(step), ctx), getValueFactory(), getTypeFactory(), ctx);
 	}
 	

@@ -19,7 +19,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import io.usethesource.vallang.IValue;
 
-
 public class BasicBooleanResult extends AbstractBooleanResult {
 	private org.rascalmpl.ast.Expression expr;
 	private boolean firstTime = true;
@@ -47,7 +46,7 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 			/* Evaluate expression only once */
 			firstTime = false;
 			Result<IValue> result = expr.interpret(ctx.getEvaluator());
-			if (result.getType().isBool() && result.getValue() != null) {
+			if (result.getStaticType().isBool() && result.getValue() != null) {
 				if (result.getValue().equals(ctx.getValueFactory().bool(true))) {
 					return true;
 				}
@@ -55,7 +54,7 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 				return false;
 			}
 
-			throw new UnexpectedType(tf.boolType(), result.getType(), expr);
+			throw new UnexpectedType(tf.boolType(), result.getStaticType(), expr);
 		}
 		
 		return false;

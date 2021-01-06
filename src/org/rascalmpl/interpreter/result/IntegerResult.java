@@ -227,10 +227,10 @@ public class IntegerResult extends ElementResult<IInteger> {
 
 	private <U extends IValue, V extends INumber> Result<U> makeRangeWithDefaultStep(Result<V> from) {
 		if (from.getValue().less(getValue()).getValue()) {
-			return makeStepRangeFromToWithSecond(from, this, makeResult(from.getType(),
+			return makeStepRangeFromToWithSecond(from, this, makeResult(from.getStaticType(),
 					from.getValue().add(getValueFactory().integer(1)), ctx), getValueFactory(), getTypeFactory(), ctx);
 		}
-		return makeStepRangeFromToWithSecond(from, this, makeResult(from.getType(),
+		return makeStepRangeFromToWithSecond(from, this, makeResult(from.getStaticType(),
 					from.getValue().subtract(getValueFactory().integer(1)), ctx), getValueFactory(), getTypeFactory(), ctx);
 	}
 	
@@ -273,8 +273,8 @@ public class IntegerResult extends ElementResult<IInteger> {
 		INumber iTo = to.getValue();
 		
 		// I still think it is ugly to do it here...
-		if (!second.getType().isSubtypeOf(tf.numberType())) {
-			throw new UnexpectedType(tf.numberType(), second.getType(), ctx.getCurrentAST());
+		if (!second.getStaticType().isSubtypeOf(tf.numberType())) {
+			throw new UnexpectedType(tf.numberType(), second.getStaticType(), ctx.getCurrentAST());
 		}
 		
 		INumber iSecond = (INumber) second.getValue();
@@ -283,7 +283,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 		INumber zero = diff.subtract(diff); // zero in the type that we're dealing with.
 
 		// Use declared types here
-		Type resultType = second.getType().lub(from.getType().lub(to.getType()));
+		Type resultType = second.getStaticType().lub(from.getStaticType().lub(to.getStaticType()));
 		
 		IListWriter w = vf.listWriter();
 		if (iFrom.lessEqual(iTo).getValue() && diff.greater(zero).getValue()) {
@@ -419,25 +419,25 @@ public class IntegerResult extends ElementResult<IInteger> {
 
 	@Override  
 	protected <U extends IValue> Result<U> addNumber(NumberResult n) {
-		return makeResult(n.getType(), getValue().add(n.getValue()), ctx);
+		return makeResult(n.getStaticType(), getValue().add(n.getValue()), ctx);
 	}
 	
 	@Override 
 	protected <U extends IValue> Result<U> subtractNumber(NumberResult n) {
 		// note the reverse subtraction.
-		return makeResult(n.getType(), n.getValue().subtract(getValue()), ctx);
+		return makeResult(n.getStaticType(), n.getValue().subtract(getValue()), ctx);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> multiplyNumber(NumberResult n) {
-		return makeResult(n.getType(), getValue().multiply(n.getValue()), ctx);
+		return makeResult(n.getStaticType(), getValue().multiply(n.getValue()), ctx);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> divideNumber(NumberResult n) {
 		try {
 			// note the reverse division
-			return makeResult(n.getType(), n.getValue().divide(getValue(), getValueFactory().getPrecision()), ctx);
+			return makeResult(n.getStaticType(), n.getValue().divide(getValue(), getValueFactory().getPrecision()), ctx);
 		} catch (ArithmeticException ae) {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), this.ctx.getCurrentAST(), null);
 		}

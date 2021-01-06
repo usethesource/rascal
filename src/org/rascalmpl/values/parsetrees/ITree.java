@@ -11,8 +11,6 @@ import io.usethesource.vallang.IValue;
 
 public interface ITree extends IConstructor {
     
- 
-    
 	default boolean isAppl() {
 		return false;
 	}

@@ -52,7 +52,7 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 		Result<IValue> varRes = ctx.getCurrentEnvt().getSimpleVariable(name);
 		if (varRes == null) {
 			// inferred declaration
-			declaredType = subject.getType();
+			declaredType = subject.getStaticType();
 			if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
 				throw new RedeclaredVariable(getName(), ctx.getCurrentAST());
 			}
@@ -61,7 +61,7 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 			return true;
 		}
 		else if (varRes.getValue() == null) {
-			declaredType = varRes.getType();
+			declaredType = varRes.getStaticType();
 			if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
 				throw new RedeclaredVariable(getName(), ctx.getCurrentAST());
 			}
@@ -71,8 +71,8 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 		}
 		else {
 			// equality check
-			if(debug)System.err.printf("subject.getTYpe() = %s, varRes.getType() = %s\n", subject.getValue().getType(), varRes.getType());
-			if (subject.getValue().getType().isSubtypeOf(varRes.getType())) {
+			if(debug)System.err.printf("subject.getTYpe() = %s, varRes.getType() = %s\n", subject.getValue().getType(), varRes.getStaticType());
+			if (subject.getValue().getType().isSubtypeOf(varRes.getStaticType())) {
 				if(debug) {
 					System.err.println("returns " + subject.equals(varRes));
 				}

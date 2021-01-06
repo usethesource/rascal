@@ -135,7 +135,7 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 				if (var.isInitialized()) {
 					Result<IValue> v = var.getInitial().interpret(eval);
 
-					if (v.getType().isBottom()) {
+					if (v.getStaticType().isBottom()) {
 					    throw new UnexpectedType(declaredType, TF.voidType(), this);
 					}
 					
@@ -143,16 +143,16 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 						throw new RedeclaredVariable(Names.name(var.getName()), var);
 					}
 
-					if (v.getType().isSubtypeOf(declaredType)) {
+					if (v.getStaticType().isSubtypeOf(declaredType)) {
 						// TODO: do we actually want to instantiate the locally
 						// bound type parameters?
 						Map<Type, Type> bindings = new HashMap<Type, Type>();
-						declaredType.match(v.getType(), bindings);
+						declaredType.match(v.getStaticType(), bindings);
 						declaredType = declaredType.instantiate(bindings);
 						r = ResultFactory.makeResult(declaredType, v.getValue(), eval);
 						eval.getCurrentModuleEnvironment().storeVariable(var.getName(), r);
 					} else {
-						throw new UnexpectedType(declaredType, v.getType(), var);
+						throw new UnexpectedType(declaredType, v.getStaticType(), var);
 					}
 				} else {
 					eval.getCurrentModuleEnvironment().storeVariable(var.getName(), ResultFactory.nothing(declaredType));

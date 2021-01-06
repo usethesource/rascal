@@ -57,11 +57,11 @@ public abstract class Declarator extends org.rascalmpl.ast.Declarator {
 						throw new RedeclaredVariable(varAsString, var);
 					}
 
-					if (v.getType().isSubtypeOf(declaredType)) {
+					if (v.getStaticType().isSubtypeOf(declaredType)) {
 						r = ResultFactory.makeResult(declaredType, v.getValue(), __eval);
 						__eval.getCurrentEnvt().storeVariable(var.getName(), r);
 					} else {
-						throw new UnexpectedType(declaredType, v.getType(), var);
+						throw new UnexpectedType(declaredType, v.getStaticType(), var);
 					}
 				} 
 				else {

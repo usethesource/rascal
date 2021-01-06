@@ -235,7 +235,7 @@ public abstract class Literal extends org.rascalmpl.ast.Literal {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> value = stat.interpret(__eval);
-			if (!value.getType().isList()) {
+			if (!value.getStaticType().isList()) {
 				throw new ImplementationError(
 						"template eval returns non-list");
 			}

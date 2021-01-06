@@ -105,10 +105,10 @@ public abstract class QualifiedName extends org.rascalmpl.ast.QualifiedName {
 				return TF.valueType();
 			} else {
 				Result<IValue> varRes = env.getVariable(this);
-				if (varRes == null || varRes.getType() == null) {
+				if (varRes == null || varRes.getStaticType() == null) {
 					return TF.valueType();
 				} else {
-					return varRes.getType();
+					return varRes.getStaticType();
 				}
 			}
 		}

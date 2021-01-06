@@ -189,7 +189,7 @@ public class SetPattern extends AbstractMatchingResult {
 		if(debug) System.err.println("\n*** begin initMatch for " + this + " := " + setSubject);
 		
 		setSubjectType = setSubject.getType(); // have to use static type here
-		staticSetSubjectType = subject.getType();
+		staticSetSubjectType = subject.getStaticType();
 		setSubjectElementType = setSubject.getElementType();
 		staticSubjectElementType = staticSetSubjectType.isSet() ? staticSetSubjectType.getElementType() : tf.valueType();
 		
@@ -344,7 +344,7 @@ public class SetPattern extends AbstractMatchingResult {
 						// env.declareVariable(staticSubjectElementType, name);
 					} else {
 					    if(varRes.getValue() != null){
-					        Type varType = varRes.getType();
+					        Type varType = varRes.getStaticType();
 					        if (varType.comparable(staticSetSubjectType)){
 					        	/*
 					        	 * A set variable declared in the current scope: add its elements
@@ -364,7 +364,7 @@ public class SetPattern extends AbstractMatchingResult {
 					    else {
 					    	// Support pre-declared set variables
 					    
-					    	if(varRes.getType().comparable(staticSetSubjectType) || varRes.getType().comparable(staticSubjectElementType)){
+					    	if(varRes.getStaticType().comparable(staticSetSubjectType) || varRes.getStaticType().comparable(staticSubjectElementType)){
 								/*
 								 * An explicitly declared set or element variable.
 								 */
@@ -374,7 +374,7 @@ public class SetPattern extends AbstractMatchingResult {
 								}
 								varName[nVar] = name;
 								varPat[nVar] = child;
-								isSetVar[nVar] = varRes.getType().isSet();
+								isSetVar[nVar] = varRes.getStaticType().isSet();
 								isBinding[nVar] = false;
 								isNested[nVar] = false;
 								nVar++;
@@ -646,7 +646,7 @@ public class SetPattern extends AbstractMatchingResult {
 							varVal[currentVar] = v;
 							ctx.getCurrentEnvt().storeVariable(varName[currentVar], r);
 							if(debug)System.err.println("Store in " + varName[currentVar] + ": " + r + " / " + v + " / " + v.getType() + " / " +
-							ctx.getCurrentEnvt().getFrameVariable(varName[currentVar]).getType());
+							ctx.getCurrentEnvt().getFrameVariable(varName[currentVar]).getStaticType());
 						}
 					}
 			} else if(isBinding[currentVar]){
@@ -660,7 +660,7 @@ public class SetPattern extends AbstractMatchingResult {
 						varVal[currentVar] = v;
 						ctx.getCurrentEnvt().storeVariable(varName[currentVar], r);
 						if(debug)System.err.println("Store in " + varName[currentVar] + ": " + r + " / " + v + " / " + v.getType() + " / " +
-								ctx.getCurrentEnvt().getFrameVariable(varName[currentVar]).getType());
+								ctx.getCurrentEnvt().getFrameVariable(varName[currentVar]).getStaticType());
 					}
 				}
 			} else 	if(varPat[currentVar] instanceof QualifiedNamePattern && ((QualifiedNamePattern)varPat[currentVar] ).isAnonymous()){

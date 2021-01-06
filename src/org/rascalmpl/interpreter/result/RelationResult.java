@@ -50,10 +50,10 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public Result<IBool> isKeyDefined(Result<?>[] subscripts) {
-			int len = getType().getElementType().getArity();
+			int len = getStaticType().getElementType().getArity();
 			
 			if (subscripts.length >= len){
-			    throw new UnsupportedSubscriptArity(getType(), len, ctx.getCurrentAST());
+			    throw new UnsupportedSubscriptArity(getStaticType(), len, ctx.getCurrentAST());
 			}
 			
 			return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
@@ -66,7 +66,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public Result<IBool> has(Name name) {
-			return ResultFactory.bool(getType().hasField(Names.name(name)), ctx);
+			return ResultFactory.bool(getStaticType().hasField(Names.name(name)), ctx);
 		}
 		
 		@Override
@@ -137,17 +137,17 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
-			if(getType().getElementType().isBottom()) {
+			if(getStaticType().getElementType().isBottom()) {
 //			    throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
-			    return ResultFactory.makeResult(getType(), ctx.getValueFactory().set(), ctx);
+			    return ResultFactory.makeResult(getStaticType(), ctx.getValueFactory().set(), ctx);
 			}
 			
 			// TODO: must go to vallang!
 			int nSubs = subscripts.length;
-			if (nSubs >= getType().getArity()) {
-				throw new UnsupportedSubscriptArity(getType(), nSubs, ctx.getCurrentAST());
+			if (nSubs >= getStaticType().getArity()) {
+				throw new UnsupportedSubscriptArity(getStaticType(), nSubs, ctx.getCurrentAST());
 			}
-			int relArity = getType().getArity();
+			int relArity = getStaticType().getArity();
 			
 			Type subscriptType[] = new Type[nSubs];
 			boolean subscriptIsSet[] = new boolean[nSubs];
@@ -156,13 +156,13 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			 * Subscripts will value null are interpreted as wildcards (_) that match any value.
 			 */
 			for (int i = 0; i < nSubs; i++){
-				subscriptType[i] = subscripts[i] == null ? valueType : subscripts[i].getType();
+				subscriptType[i] = subscripts[i] == null ? valueType : subscripts[i].getStaticType();
 			}
 			
 			boolean yieldSet = (relArity - nSubs) == 1;
 			Type resFieldType[] = new Type[relArity - nSubs];
 			for (int i = 0; i < relArity; i++) {
-				Type relFieldType = getType().getFieldType(i);
+				Type relFieldType = getStaticType().getFieldType(i);
 				if (i < nSubs) {
 					if (subscriptType[i].isSet() && 
 							relFieldType.comparable(subscriptType[i].getElementType())){
@@ -296,14 +296,14 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-			Type tupleType = getType().getFieldTypes();	
+			Type tupleType = getStaticType().getFieldTypes();	
 			
-			if (!getType().hasFieldNames()) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+			if (!getStaticType().hasFieldNames()) {
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 			
-			if (!getType().hasField(name, store)) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+			if (!getStaticType().hasField(name, store)) {
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 			
 			try {
@@ -315,7 +315,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			}
 			// TODO: why catch this exception here?
 			catch (UndeclaredFieldException e) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+				throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 			}
 		}
 		
@@ -326,8 +326,8 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		protected <U extends IValue> Result<U> composeRelation(RelationResult that) {
 			RelationResult left = that;
 			RelationResult right = this;
-			Type leftrelType = left.getType(); 
-			Type rightrelType = right.getType();
+			Type leftrelType = left.getStaticType(); 
+			Type rightrelType = right.getStaticType();
 			int leftArity = leftrelType.getArity();
 			int rightArity = rightrelType.getArity();
 				
@@ -344,7 +344,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 
 		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple) {
 			// TODO: check arity 
-			Type newType = getTypeFactory().setType(tuple.getType().lub(getType().getElementType()));
+			Type newType = getTypeFactory().setType(tuple.getStaticType().lub(getStaticType().getElementType()));
 			return makeResult(newType, /*(ISet)*/ getValue().insert(tuple.getValue()), ctx); // do not see a reason for the unsafe cast
 		}
 
@@ -353,8 +353,8 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 			// Note the reverse of arguments, we need "that join this"
 			int arity1 = that.getValue().asRelation().arity();
 			int arity2 = this.getValue().asRelation().arity();
-			Type tupleType1 = that.getType().getElementType();
-			Type tupleType2 = this.getType().getElementType();
+			Type tupleType1 = that.getStaticType().getElementType();
+			Type tupleType2 = this.getStaticType().getElementType();
 			Type fieldTypes[] = new Type[arity1 + arity2];
 			for (int i = 0; i < arity1; i++) {
 				fieldTypes[i] = tupleType1.getFieldType(i);
@@ -384,8 +384,8 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		protected <U extends IValue> Result<U> joinSet(SetResult that) {
 			// Note the reverse of arguments, we need "that join this"
 			int arity2 = this.getValue().asRelation().arity();
-			Type eltType = that.getType().getElementType();
-			Type tupleType = this.getType().getElementType();
+			Type eltType = that.getStaticType().getElementType();
+			Type tupleType = this.getStaticType().getElementType();
 			Type fieldTypes[] = new Type[1 + arity2];
 			fieldTypes[0] = eltType;
 			for (int i = 1;  i < 1 + arity2; i++) {
@@ -409,9 +409,9 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public Result<IValue> fieldSelect(int[] selectedFields) {
-			if (!getType().getElementType().isBottom()) {
+			if (!getStaticType().getElementType().isBottom()) {
 				for (int i : selectedFields) {
-					if (i < 0 || i >= getType().getArity()) {
+					if (i < 0 || i >= getStaticType().getArity()) {
 						throw RuntimeExceptionFactory.indexOutOfBounds(ctx.getValueFactory().integer(i), ctx.getCurrentAST(), ctx.getStackTrace());
 					}
 				}
@@ -423,7 +423,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		public Result<IValue> fieldSelect(Field[] selectedFields) {
 			int nFields = selectedFields.length;
 			int fieldIndices[] = new int[nFields];
-			Type baseType = this.getType();
+			Type baseType = this.getStaticType();
 			
 			for (int i = 0; i < nFields; i++) {
 				Field f = selectedFields[i];
@@ -441,7 +441,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 					}
 				}
 
-				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getType().getElementType().isBottom())) {
+				if (fieldIndices[i] < 0 || (fieldIndices[i] > baseType.getArity() && !getStaticType().getElementType().isBottom())) {
 					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(fieldIndices[i]),
 									ctx.getCurrentAST(), ctx.getStackTrace());

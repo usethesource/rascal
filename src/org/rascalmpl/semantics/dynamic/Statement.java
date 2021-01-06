@@ -133,11 +133,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.notifyAboutSuspension(this);
 			
 			Result<IValue> r = this.getExpression().interpret(__eval);
-			if (!r.getType().equals(
+			if (!r.getStaticType().equals(
 					org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
-								.boolType(), r.getType(), this);
+								.boolType(), r.getStaticType(), this);
 			}
 
 			if (r.getValue().equals(__eval.__getVf().bool(false))) {
@@ -166,11 +166,11 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> r = this.getExpression().interpret(__eval);
-			if (!r.getType().equals(
+			if (!r.getStaticType().equals(
 					org.rascalmpl.interpreter.Evaluator.__getTf().boolType())) {
 				throw new UnexpectedType(
 						org.rascalmpl.interpreter.Evaluator.__getTf()
-								.boolType(), r.getType(), this);
+								.boolType(), r.getStaticType(), this);
 			}
 			if (r.getValue().equals(__eval.__getVf().bool(false))) {
 				Result<IValue> msgValue = this.getMessage().interpret(__eval);
@@ -831,10 +831,10 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				if (bound.isDefault()) {
 					Result<IValue> res = bound.getExpression()
 							.interpret(__eval);
-					if (!res.getType().isInteger()) {
+					if (!res.getStaticType().isInteger()) {
 						throw new UnexpectedType(
 								org.rascalmpl.interpreter.Evaluator.__getTf()
-										.integerType(), res.getType(), this);
+										.integerType(), res.getStaticType(), this);
 					}
 					max = ((IInteger) res.getValue()).intValue();
 					if (max <= 0) {

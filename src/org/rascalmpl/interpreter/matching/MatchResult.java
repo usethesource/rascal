@@ -47,7 +47,7 @@ public class MatchResult extends AbstractBooleanResult {
     	// in the left-hand side, we first need to evaluate the expression
     	// before we construct a pattern.
 		Result<IValue> result = expression.interpret(ctx.getEvaluator());
-		Type subjectType = result.getType();
+		Type subjectType = result.getStaticType();
 
 		mp = pattern.getMatcher(ctx, false);
 		

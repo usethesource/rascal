@@ -99,8 +99,8 @@ public class AssignableEvaluator {
 	 * Given an old result and a right-hand side Result, compute a new result.
 	 */
 	public Result<IValue> newResult(Result<IValue> oldValue, Result<IValue> rhsValue) {
-	    if (rhsValue.getType().isBottom()) {
-	        throw new UnexpectedType(oldValue.getType(), tf.voidType(), getCurrentAST());
+	    if (rhsValue.getStaticType().isBottom()) {
+	        throw new UnexpectedType(oldValue.getStaticType(), tf.voidType(), getCurrentAST());
 	    }
 	    
 		Result<IValue> newValue;
@@ -124,13 +124,13 @@ public class AssignableEvaluator {
 				throw new ImplementationError("Unknown assignment operator");
 			}
 		
-			if (newValue.getValue().getType().isSubtypeOf(oldValue.getType())) {
-				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType(), newValue.getValue(), this.__getEval());
+			if (newValue.getValue().getType().isSubtypeOf(oldValue.getStaticType())) {
+				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getStaticType(), newValue.getValue(), this.__getEval());
 				return newValue;
 			} else 	if (oldValue.hasInferredType()) {
 				// Be liberal here: if the user has not declared a variable explicitly
 				// we use the lub type for the new value.
-				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType().lub(newValue.getType()), newValue.getValue(),this.__getEval());
+				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getStaticType().lub(newValue.getStaticType()), newValue.getValue(),this.__getEval());
 				newValue.setInferredType(true);
 				return newValue;
 			}
@@ -139,7 +139,7 @@ public class AssignableEvaluator {
 			// in which case the error is lost. Since we know that the left hand side of the addition
 			// is always the variable we are updating, the cause of the error must always be in the value
 			// on the right hand side
-			throw new UnexpectedType(oldValue.getType(), rhsValue.getType(), this.__getEval().getCurrentAST());
+			throw new UnexpectedType(oldValue.getStaticType(), rhsValue.getStaticType(), this.__getEval().getCurrentAST());
 		}
 		
 		switch(this.__getOperator()){
@@ -153,7 +153,7 @@ public class AssignableEvaluator {
 	
 	public Result<IValue> newResult(IValue oldValue, Result<IValue> rhsValue){
 		if (oldValue != null){
-			Result<IValue> res = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType().lub(rhsValue.getType()), oldValue, this.__getEval());
+			Result<IValue> res = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getType().lub(rhsValue.getStaticType()), oldValue, this.__getEval());
 			return this.newResult(res, rhsValue);
 		}
 		switch(this.__getOperator()){

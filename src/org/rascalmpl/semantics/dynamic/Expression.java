@@ -123,7 +123,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -496,7 +496,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Type[] types = new Type[args.size()];
 				for (int i = 0; i < args.size(); i++) {
 					Result<IValue> resultElem = args.get(i).interpret(eval);
-					types[i] = resultElem.getType();
+					types[i] = resultElem.getStaticType();
 					if (types[i].isBottom()) {
 						throw new UninitializedPatternMatch("The argument is of the type 'void'", args.get(i));
 					}
@@ -518,8 +518,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 				      if (kwFormals != null) {
 				        if (kwFormals.hasField(name)) {
-				          if (!val.getType().isSubtypeOf(kwFormals.getFieldType(name))) {
-				            throw new UnexpectedType(kwFormals.getFieldType(name), val.getType(), this);
+				          if (!val.getStaticType().isSubtypeOf(kwFormals.getFieldType(name))) {
+				            throw new UnexpectedType(kwFormals.getFieldType(name), val.getStaticType(), this);
 				          }
 				        }
 				        else {
@@ -578,7 +578,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -630,7 +630,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -663,7 +663,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -732,7 +732,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-			throw new UnexpectedType(TF.boolType(), interpret(eval.getEvaluator()).getType(), this);
+			throw new UnexpectedType(TF.boolType(), interpret(eval.getEvaluator()).getStaticType(), this);
 		}
 
 	
@@ -887,7 +887,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -920,7 +920,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -1073,8 +1073,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
 			
-			if (!result.getType().isSubtypeOf(TF.stringType()) && !result.getType().isSubtypeOf(TF.sourceLocationType())) {
-				throw new UnsupportedOperation("inline parsing", result.getType(), this);
+			if (!result.getStaticType().isSubtypeOf(TF.stringType()) && !result.getStaticType().isSubtypeOf(TF.sourceLocationType())) {
+				throw new UnsupportedOperation("inline parsing", result.getStaticType(), this);
 			}
 			
 			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
@@ -1089,12 +1089,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IMap gr = (IMap) __eval.getEvaluator().getGrammar(__eval.getCurrentEnvt()).get("rules");
 				IConstructor value = ((IRascalValueFactory) __eval.getValueFactory()).reifiedType(symbol, gr);
             
-				if (result.getType().isString()) {
+				if (result.getStaticType().isString()) {
 					tree = __eval.parseObject(value, VF.mapWriter().done(),
 						this.getLocation(),
 						((IString) result.getValue()).getValue().toCharArray(), true, false);
 				}
-				else if (result.getType().isSourceLocation()) {
+				else if (result.getStaticType().isSourceLocation()) {
 					tree = __eval.parseObject(__eval, value, VF.mapWriter().done(),
 							((ISourceLocation) result.getValue()), true, false);
 				}
@@ -1197,9 +1197,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			try {
 				Result<IValue> cval = this.getCondition().interpret(__eval);
 
-				if (!cval.getType().isBool()) {
+				if (!cval.getStaticType().isBool()) {
 					throw new UnexpectedType(TF.boolType(),
-							cval.getType(), this);
+							cval.getStaticType(), this);
 				}
 
 				if (cval.isTrue()) {
@@ -1281,7 +1281,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -1444,7 +1444,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = left.lessThanOrEqual(right);
-			return ResultFactory.makeResult(result.getType(), result.getValue(),__eval);
+			return ResultFactory.makeResult(result.getStaticType(), result.getValue(),__eval);
 		}
 
 	}
@@ -1459,7 +1459,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 		}
 
@@ -1487,7 +1487,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (!isSplicedElem) {
 					resultElem = expr.interpret(__eval);
 
-					if (resultElem.getType().isBottom()) {
+					if (resultElem.getStaticType().isBottom()) {
 						throw new NonVoidTypeRequired(expr);
 					}
 
@@ -1495,15 +1495,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			
 				if (isSplicedElem){
 				  resultElem = expr.getArgument().interpret(__eval);
-				  if (resultElem.getType().isBottom()) {
+				  if (resultElem.getStaticType().isBottom()) {
 				    throw new NonVoidTypeRequired(expr);
 				  }
 
-				  if(resultElem.getType().isList()|| resultElem.getType().isSet()){
+				  if(resultElem.getStaticType().isList()|| resultElem.getStaticType().isSet()){
 				    /*
 				     * Splice elements in list
 				     */
-					elementType = elementType.lub(resultElem.getType().getElementType());
+					elementType = elementType.lub(resultElem.getStaticType().getElementType());
 				    for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
 				      results.add(val);
 				    }
@@ -1511,7 +1511,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				  } 
 				}
 
-				elementType = elementType.lub(resultElem.getType());
+				elementType = elementType.lub(resultElem.getStaticType());
 				results.add(results.size(), resultElem.getValue());
 			}
 
@@ -1545,7 +1545,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (this.getLiteral().isBoolean()) {
 				return new BasicBooleanResult(eval, this);
 			}
-			throw new UnexpectedType(TF.boolType(), interpret(eval.getEvaluator()).getType(), this);
+			throw new UnexpectedType(TF.boolType(), interpret(eval.getEvaluator()).getStaticType(), this);
 		}
 
 		
@@ -1579,7 +1579,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 		}
 
@@ -1604,18 +1604,18 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Result<IValue> keyResult = mapping.getFrom().interpret(__eval);
 				Result<IValue> valueResult = mapping.getTo().interpret(__eval);
 				
-				if (keyResult.getType().isBottom()) {
+				if (keyResult.getStaticType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getFrom());
 				}
 
-				if (valueResult.getType().isBottom()) {
+				if (valueResult.getStaticType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getTo());
 				}
 				
 				IValue key = keyResult.getValue();
 
-				keyType = keyType.lub(keyResult.getType());
-				valueType = valueType.lub(valueResult.getType());
+				keyType = keyType.lub(keyResult.getStaticType());
+				valueType = valueType.lub(valueResult.getStaticType());
 
 				IValue keyValue = seen.get(key);
 				
@@ -1683,7 +1683,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 		}
 
@@ -1713,7 +1713,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -1880,7 +1880,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 		}
 		
@@ -1967,7 +1967,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = left.nonEquals(right);
-			return makeResult(result.getType(), result.getValue(), __eval);
+			return makeResult(result.getStaticType(), result.getValue(), __eval);
 		}
 
 	}
@@ -1995,7 +1995,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = right.notIn(left);
-			return makeResult(result.getType(), result.getValue(), __eval);
+			return makeResult(result.getStaticType(), result.getValue(), __eval);
 
 		}
 
@@ -2034,7 +2034,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -2079,7 +2079,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					return new QualifiedNamePattern(eval, this, name);
 				}
 
-				Type type = r.getType();
+				Type type = r.getStaticType();
 				if (type instanceof NonTerminalType) {
 					NonTerminalType cType = (NonTerminalType) type;
 					if (cType.isConcreteListType()) {
@@ -2165,7 +2165,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -2283,12 +2283,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> symbol = getSymbol().interpret(__eval);
 			Result<IValue> declarations = getDefinitions().interpret(__eval);
 			
-			if (!symbol.getType().isSubtypeOf(RascalValueFactory.Symbol)) {
-				throw new UnexpectedType(RascalValueFactory.Symbol, symbol.getType(), getSymbol());
+			if (!symbol.getStaticType().isSubtypeOf(RascalValueFactory.Symbol)) {
+				throw new UnexpectedType(RascalValueFactory.Symbol, symbol.getStaticType(), getSymbol());
 			}
 			
-			if (!declarations.getType().isSubtypeOf(defType)) {
-				throw new UnexpectedType(defType, declarations.getType(), getSymbol());
+			if (!declarations.getStaticType().isSubtypeOf(defType)) {
+				throw new UnexpectedType(defType, declarations.getStaticType(), getSymbol());
 			}
 			
 			
@@ -2359,7 +2359,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -2387,16 +2387,16 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				
 				if(expr.isSplice() || expr.isSplicePlus()){
 					resultElem = expr.getArgument().interpret(__eval);
-					if (resultElem.getType().isBottom()) {
+					if (resultElem.getStaticType().isBottom()) {
 						throw new NonVoidTypeRequired(expr.getArgument());
 					}
 
-					if (resultElem.getType().isSet() || resultElem.getType().isList()){
+					if (resultElem.getStaticType().isSet() || resultElem.getStaticType().isList()){
 						/*
 						 * Splice the elements in the set
 						 * __eval.
 						 */
-						elementType = elementType.lub(resultElem.getType().getElementType());
+						elementType = elementType.lub(resultElem.getStaticType().getElementType());
 						for (IValue val : (Iterable<IValue>) resultElem.getValue()) {
 							results.add(val);
 						}
@@ -2404,11 +2404,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					}
 				} else {
 					resultElem = expr.interpret(__eval);
-					if (resultElem.getType().isBottom()) {
+					if (resultElem.getStaticType().isBottom()) {
 						throw new NonVoidTypeRequired(expr);
 					}
 				}
-				elementType = elementType.lub(resultElem.getType());
+				elementType = elementType.lub(resultElem.getStaticType());
 				results.add(results.size(), resultElem.getValue());
 			}
 			
@@ -2452,7 +2452,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -2485,7 +2485,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -2634,7 +2634,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}
@@ -2667,7 +2667,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 		}
 
@@ -2695,7 +2695,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
-			throw new UnexpectedType(TF.boolType(), this.interpret(__eval.getEvaluator()).getType(), this);
+			throw new UnexpectedType(TF.boolType(), this.interpret(__eval.getEvaluator()).getStaticType(), this);
 		}
 
 		@Override
@@ -2718,7 +2718,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 		}
 
@@ -2742,11 +2742,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			for (int i = 0; i < elements.size(); i++) {
 				Result<IValue> resultElem = elements.get(i).interpret(__eval);
 				
-				if (resultElem.getType().isBottom()) {
+				if (resultElem.getStaticType().isBottom()) {
                     throw new UnexpectedType(TF.valueType(), TF.voidType(), this);
                 }
 				
-				types[i] = resultElem.getType();
+				types[i] = resultElem.getStaticType();
 				values[i] = resultElem.getValue();
 			}
 
@@ -2922,7 +2922,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult buildBacktracker(IEvaluatorContext __eval) {
 
 			throw new UnexpectedType(TF.boolType(), this
-					.interpret(__eval.getEvaluator()).getType(),
+					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 
 		}

@@ -92,7 +92,7 @@ public class ConstructorResult extends NodeResult {
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			Map<String, IValue> keyArgValues) {
 		throw new UnsupportedOperation("Can not call a constructed "
-				+ getType() + " node as a function", ctx.getCurrentAST());
+				+ getStaticType() + " node as a function", ctx.getCurrentAST());
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class ConstructorResult extends NodeResult {
 	    Type consType = getValue().getConstructorType();
 
 	    try {
-	        if (getType().hasField(name, store)) {
+	        if (getStaticType().hasField(name, store)) {
 	            return positionalFieldAccess(consType, name);
 	        }
 	        else if (getValue().getUninstantiatedConstructorType().hasKeywordField(name, store)) {
@@ -117,7 +117,7 @@ public class ConstructorResult extends NodeResult {
 	                }
 	            }
 
-	            throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+	            throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 	        }
 	    }
 	    catch (UndeclaredAbstractDataTypeException e) {
@@ -126,7 +126,7 @@ public class ConstructorResult extends NodeResult {
 	        // for example when "import" is used instead of "extend" and the programmer accidentally expected
 	        // names to be transitively imported.
 	        
-	        throw new UndeclaredType(getType().getName(), ctx.getCurrentAST());
+	        throw new UndeclaredType(getStaticType().getName(), ctx.getCurrentAST());
 	    }
 	}
 	
@@ -168,15 +168,15 @@ public class ConstructorResult extends NodeResult {
 	            }
 	        }  
 
-	        throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+	        throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 	        
 	    } catch (UndeclaredAbstractDataTypeException e) {
-	        throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
+	        throw new UndeclaredType(getStaticType().toString(), ctx.getCurrentAST());
 	    }
 	}
 
 	private Result<IValue> computeGenericDefaultKeywordParameter(String label) {
-	    Set<GenericKeywordParameters> kwps = ctx.getCurrentEnvt().lookupGenericKeywordParameters(getType());
+	    Set<GenericKeywordParameters> kwps = ctx.getCurrentEnvt().lookupGenericKeywordParameters(getStaticType());
 	    IWithKeywordParameters<? extends IConstructor> wkw = getValue().asWithKeywordParameters();
 	    Environment old = ctx.getCurrentEnvt();
 	    
@@ -216,7 +216,7 @@ public class ConstructorResult extends NodeResult {
                     }
                     else {
                         // we may need these in case they are used in the next definition
-                        env.declareVariable(kwResult.getType(), name);
+                        env.declareVariable(kwResult.getStaticType(), name);
                         env.storeVariable(name, kwResult);
                     }
                 }
@@ -226,7 +226,7 @@ public class ConstructorResult extends NodeResult {
             }
         }
         
-       throw new UndeclaredField(label, getType(), ctx.getCurrentAST());
+       throw new UndeclaredField(label, getStaticType(), ctx.getCurrentAST());
     }
 
     @Override
@@ -235,8 +235,8 @@ public class ConstructorResult extends NodeResult {
 				getValue().getConstructorType());
 		Type kwTypes = cons.getKeywordArgumentTypes(ctx.getCurrentEnvt());
 
-		if (!getType().hasField(name, store) && store.hasKeywordParameter(getType(), name)) {
-			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+		if (!getStaticType().hasField(name, store) && store.hasKeywordParameter(getStaticType(), name)) {
+			throw new UndeclaredField(name, getStaticType(), ctx.getCurrentAST());
 		}
 
 		Type nodeType = getValue().getConstructorType();
@@ -246,22 +246,22 @@ public class ConstructorResult extends NodeResult {
 
 		if (kwTypes.hasField(name)) {
 			Type fieldType = kwTypes.getFieldType(name);
-			if (!repl.getType().isSubtypeOf(fieldType)) {
-				throw new UnexpectedType(fieldType, repl.getType(),
+			if (!repl.getStaticType().isSubtypeOf(fieldType)) {
+				throw new UnexpectedType(fieldType, repl.getStaticType(),
 						ctx.getCurrentAST());
 			}
 
-			return makeResult(getType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
+			return makeResult(getStaticType(), getValue().asWithKeywordParameters().setParameter(name, repl.getValue()), ctx);
 		} else {
 		    // normal field
 			int index = nodeType.getFieldIndex(name);
 			Type fieldType = nodeType.getFieldType(index);
-			if (!repl.getType().isSubtypeOf(fieldType)) {
-				throw new UnexpectedType(fieldType, repl.getType(),
+			if (!repl.getStaticType().isSubtypeOf(fieldType)) {
+				throw new UnexpectedType(fieldType, repl.getStaticType(),
 						ctx.getCurrentAST());
 			}
 
-			return makeResult(getType(),
+			return makeResult(getStaticType(),
 					getValue().set(index, repl.getValue()), ctx);
 		}
 	}

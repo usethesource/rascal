@@ -170,7 +170,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(
 			String name, Result<V> repl, TypeStore store) {
 		
-		Type replType = repl.getType();
+		Type replType = repl.getStaticType();
 		IValue replValue = repl.getValue();
 		IDateTime dt = getValue();
 		
@@ -271,7 +271,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 				newdt = getValueFactory().datetime(year, month, day, hour, minute, second, milli, tzOffsetHour, tzOffsetMin);
 			}
 			
-			return makeResult(getType(), newdt, ctx);
+			return makeResult(getStaticType(), newdt, ctx);
 		} 
 		catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.illegalArgument(repl.getValue(),  "Cannot update field " + name + ", this would generate an invalid datetime value", ctx.getCurrentAST(), null);
