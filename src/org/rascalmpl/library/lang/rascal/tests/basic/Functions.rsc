@@ -270,7 +270,6 @@ test bool higherOrderVoidFunctionCompatibility() {
      return false;
 }
 
-
 test bool returnOfAnInstantiatedGenericFunction() {
     &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
       return f(t, u); 

@@ -60,7 +60,7 @@ public class TypeReachability {
             }
 
             @Override
-            public Boolean visitFunction(RascalType type)  {
+            public Boolean visitFunction(Type type)  {
                 return false;
             }
 

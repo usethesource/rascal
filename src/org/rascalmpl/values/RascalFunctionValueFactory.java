@@ -33,7 +33,6 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
-import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.ReifiedType;
@@ -68,21 +67,15 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     
     @Override
     public IFunction function(io.usethesource.vallang.type.Type functionType, BiFunction<IValue[], Map<String, IValue>, IValue> func) {
-        return new RascalFunctionValue((FunctionType) functionType, func, ctx.getEvaluator());
+        return new RascalFunctionValue(functionType, func, ctx.getEvaluator());
     }
     
     private static final class RascalFunctionValue extends AbstractFunction implements IFunction {
         private final BiFunction<IValue[], Map<String, IValue>, IValue> func;
 
-        public RascalFunctionValue(FunctionType functionType, BiFunction<IValue[], Map<String, IValue>, IValue> func, IEvaluator<Result<IValue>> eval) {
-            super(eval.getCurrentAST(), eval, functionType, Collections.emptyList(), false, eval.getCurrentEnvt());
+        public RascalFunctionValue(Type functionType, BiFunction<IValue[], Map<String, IValue>, IValue> func, IEvaluator<Result<IValue>> eval) {
+            super(eval.getCurrentAST(), eval, functionType, functionType, Collections.emptyList(), false, eval.getCurrentEnvt());
             this.func = func;
-        }
-
-        @Override
-        public Type getType() {
-            // TODO separate the dynamic type from the static type
-            return getStaticType();
         }
 
         @Override
@@ -116,7 +109,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 }
                 
                 Map<Type, Type> renamings = new HashMap<>();
-                bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, functionType.getFieldTypes(), renamings, env); 
+                bindTypeParameters(TypeFactory.getInstance().tupleType(argTypes), argValues, staticFunctionType.getFieldTypes(), renamings, env); 
 
                
                 IValue returnValue = func.apply(argValues, keyArgValues);
@@ -130,7 +123,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                     throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
                 }
 
-                if (functionType.isBottom()) {
+                if (staticFunctionType.isBottom()) {
                     return ResultFactory.nothing();
                 }
                 else if (returnValue == null) {
@@ -148,14 +141,13 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     
     @Override
     public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
-        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
         // the return type of the generated parse function is instantiated here to the start nonterminal of
         // the provided grammar:
-        Type functionType = rtf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+        Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
-            tf.voidType());
+            tf.tupleEmpty());
         
         return function(functionType, new ParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity));
     }
@@ -170,9 +162,9 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
         
-        Type functionType = rtf.functionType(parameterType,
+        Type functionType = tf.functionType(parameterType,
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
-            tf.voidType());
+            tf.tupleEmpty());
         
         return function(functionType, new ParametrizedParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity));
     }

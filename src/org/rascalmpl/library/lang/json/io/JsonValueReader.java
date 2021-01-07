@@ -181,6 +181,11 @@ public class JsonValueReader {
       public IValue visitVoid(Type type) throws IOException {
         throw new IOException("Can not read json values of type void: " + in.getPath());
       }
+
+      @Override
+      public IValue visitFunction(Type type) throws IOException {
+        throw new IOException("Can not read json values of function types: " + in.getPath());
+      }
       
       @Override
       public IValue visitSourceLocation(Type type) throws IOException {

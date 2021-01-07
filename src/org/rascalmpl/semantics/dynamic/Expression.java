@@ -86,7 +86,6 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
-import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
@@ -557,10 +556,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				return lambda;
 			}
 			
-			if (lambda.isExternalType()) {
-				if (lambda instanceof FunctionType) {
-					return ((FunctionType) lambda).getReturnType();
-				}
+			if (lambda.isFunction()) {
+				return lambda.getReturnType();
 			}
 
 			return TF.nodeType();
@@ -593,9 +590,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Parameters parameters = getParameters();
 			Type formals = parameters.typeOf(env, __eval, instantiateTypeParameters);
 			Type returnType = typeOf(env, __eval, instantiateTypeParameters);
-			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-
-			Type kwParams = TF.voidType();
+			Type kwParams = TF.tupleEmpty();
 
 			java.util.List<KeywordFormal> kwd = parameters.getKeywordFormals().hasKeywordFormalList() ? parameters.getKeywordFormals().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
 			
@@ -604,7 +599,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			}
 
 			return new RascalFunction(this, __eval, null,
-					(FunctionType) RTF.functionType(returnType, formals, kwParams),
+					TF.functionType(returnType, formals, kwParams).instantiate(__eval.getCurrentEnvt().getStaticTypeBindings()),
+					TF.functionType(returnType, formals, kwParams).instantiate(__eval.getCurrentEnvt().getDynamicTypeBindings()),
 					kwd,
 					this.getParameters()
 					.isVarArgs(), false, false, false, this.getStatements(), env, __eval.__getAccumulators());
@@ -2937,8 +2933,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			Parameters parameters = getParameters();
 			Type formals = parameters.typeOf(eval.getCurrentEnvt(), eval, instantiateTypeParameters);
-			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-
 			Type kwParams = TF.voidType();
 			java.util.List<KeywordFormal> kws = parameters.getKeywordFormals().hasKeywordFormalList() ? parameters.getKeywordFormals().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
 			
@@ -2946,10 +2940,20 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kws, eval);
 			}
 
-			return new RascalFunction(this, eval, null, (FunctionType) RTF
-					.functionType(TF.voidType(), formals, kwParams), kws, this.getParameters()
-					.isVarArgs(), false, false, false, this.getStatements0(), eval
-					.getCurrentEnvt(), eval.__getAccumulators());
+			return new RascalFunction(this, 
+				eval, 
+				null, 
+				TF.functionType(TF.voidType(), formals, kwParams), 
+				TF.functionType(TF.voidType(), formals, kwParams).instantiate(eval.getCurrentEnvt().getDynamicTypeBindings()),
+				kws, 
+				this.getParameters().isVarArgs(), 
+				false, 
+				false, 
+				false, 
+				this.getStatements0(), 
+				eval.getCurrentEnvt(), 
+				eval.__getAccumulators()
+			);
 		}
 	}
 

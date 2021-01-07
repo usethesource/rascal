@@ -16,11 +16,6 @@ public abstract class DefaultRascalTypeVisitor<T, E extends Throwable> extends D
   }
   
   @Override
-  public T visitFunction(RascalType type) throws E {
-    return def;
-  }
-
-  @Override
   public T visitReified(RascalType type) throws E {
     return def;
   }

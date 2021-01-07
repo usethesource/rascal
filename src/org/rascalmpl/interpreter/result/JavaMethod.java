@@ -36,7 +36,6 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -50,7 +49,16 @@ public class JavaMethod extends NamedFunction {
 	private final JavaBridge javaBridge;
 	
 	public JavaMethod(IEvaluator<Result<IValue>> eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge){
-		this(eval, (FunctionType) func.getSignature().typeOf(env, eval, false), func, hasTestMod(func.getSignature()), isDefault(func), varargs, env, javaBridge);
+		this(eval, 
+			func.getSignature().typeOf(env, eval, false), 
+			func.getSignature().typeOf(env, eval, false).instantiate(env.getDynamicTypeBindings()),
+			func, 
+			hasTestMod(func.getSignature()), 
+			isDefault(func), 
+			varargs, 
+			env, 
+			javaBridge
+		);
 	}
 	
 	@Override
@@ -62,7 +70,7 @@ public class JavaMethod extends NamedFunction {
 		int arity = formals.size();
 		Type[] types = new Type[arity];
 		String[] labels = new String[arity];
-		FunctionType ft = getFunctionType();
+		Type ft = getFunctionType();
 		
 		for (int i = 0; i < arity; i++) {
 			types[i] = ft.getFieldType(i);
@@ -80,8 +88,8 @@ public class JavaMethod extends NamedFunction {
 	 *  might not be finished yet, and hence not have all the
 	 *  require types.
 	 */
-	private JavaMethod(IEvaluator<Result<IValue>> eval, FunctionType type, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
-		super(func, eval, type , getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
+	private JavaMethod(IEvaluator<Result<IValue>> eval, Type staticType, Type dynamicType, FunctionDeclaration func, boolean varargs, boolean isTest, boolean isDefault, Environment env, JavaBridge javaBridge){
+		super(func, eval, staticType, dynamicType, getFormals(func), Names.name(func.getSignature().getName()), isDefault, isTest,  varargs, env);
 		this.javaBridge = javaBridge;
 		this.hasReflectiveAccess = hasReflectiveAccess(func);
 		this.instance = javaBridge.getJavaClassInstance(func, eval.getMonitor(), env.getStore(), eval.getOutPrinter(), eval.getErrorPrinter(), eval.getStdOut(), eval.getStdErr(), eval.getInput(), eval);
@@ -90,15 +98,9 @@ public class JavaMethod extends NamedFunction {
 
 	@Override
 	public JavaMethod cloneInto(Environment env) {
-		JavaMethod jm = new JavaMethod(getEval(), getFunctionType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
+		JavaMethod jm = new JavaMethod(getEval(), getFunctionType(), getType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
 		jm.setPublic(isPublic());
 		return jm;
-	}
-	
-	@Override
-	public Type getType() {
-		// TODO separate dynamic type from static type
-		return getStaticType();
 	}
 	
 	@Override

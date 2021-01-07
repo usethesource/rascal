@@ -34,7 +34,6 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.util.ExpiringFunctionResultCache;
 
 import io.usethesource.vallang.IConstructor;
@@ -59,9 +58,9 @@ abstract public class NamedFunction extends AbstractFunction {
     private final int memoizationTimeout;
     private final int memoizationMaxEntries;
 
-    public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, List<KeywordFormal> initializers, String name,
+    public NamedFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Type functionType, Type dynamicType, List<KeywordFormal> initializers, String name,
             boolean varargs, boolean isDefault, boolean isTest, Environment env) {
-        super(ast, eval, functionType, initializers, varargs, env);
+        super(ast, eval, functionType, dynamicType, initializers, varargs, env);
         this.name = name;
         this.isDefault = isDefault;
         this.isTest = isTest;
@@ -342,11 +341,11 @@ abstract public class NamedFunction extends AbstractFunction {
 
         String kwFormals = "";
 
-        if(keywordParameterDefaults != null){
+        if(keywordParameterDefaults != null && staticFunctionType.hasKeywordParameters()){
             sep = (strFormals.length() > 0) ? ", " : "";
 
             for(String kw : keywordParameterDefaults.keySet()){
-                kwFormals += sep + functionType.getKeywordParameterType(kw) + " " + kw + "= ...";
+                kwFormals += sep + staticFunctionType.getKeywordParameterType(kw) + " " + kw + "= ...";
                 sep = ", ";
             }
         }

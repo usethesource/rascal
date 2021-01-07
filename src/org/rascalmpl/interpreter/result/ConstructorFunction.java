@@ -34,8 +34,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.types.FunctionType;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 
@@ -52,7 +50,17 @@ public class ConstructorFunction extends NamedFunction {
 	private final List<KeywordFormal> initializers;
 
 	public ConstructorFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Environment env, Type constructorType, List<KeywordFormal> initializers) {
-		super(ast, eval, (FunctionType) RascalTypeFactory.getInstance().functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeDeclarationEvaluator.computeKeywordParametersType(initializers, eval)), initializers, constructorType.getName(), false, true, false, env);
+		super(ast, 
+			eval, 
+			TF.functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeDeclarationEvaluator.computeKeywordParametersType(initializers, eval)), 
+			TF.functionType(constructorType.getAbstractDataType(), constructorType.getFieldTypes(), TypeDeclarationEvaluator.computeKeywordParametersType(initializers, eval)), 
+			initializers, 
+			constructorType.getName(), 
+			false, 
+			true, 
+			false, 
+			env
+		);
 		this.constructorType = constructorType;
 		this.initializers = initializers;
 	}
@@ -61,12 +69,6 @@ public class ConstructorFunction extends NamedFunction {
 		return constructorType;
 	}
 
-	@Override
-	public Type getType() {
-		// TODO distinguish static type from dynamic type
-		return getStaticType();
-	}
-	
 	@Override
 	public ConstructorFunction cloneInto(Environment env) {
 		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
@@ -129,7 +131,7 @@ public class ConstructorFunction extends NamedFunction {
 			}
 		}
 		
-		Type formals = getFunctionType().getArgumentTypes();
+		Type formals = getFunctionType().getFieldTypes();
 		
 		try {
 			// we set up an environment to hold the positional parameter values
@@ -142,8 +144,8 @@ public class ConstructorFunction extends NamedFunction {
 				resultEnv.storeLocalVariable(fieldName, ResultFactory.makeResult(fieldType, value.get(fieldName), ctx));
 			}
 		
-			for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()) {
-	            Type kwType = functionType.getKeywordParameterType(kwparam);
+			for (String kwparam : staticFunctionType.getKeywordParameterTypes().getFieldNames()) {
+	            Type kwType = staticFunctionType.getKeywordParameterType(kwparam);
 	            Result<IValue> kwResult;
 	            
 	            if (wkw.hasParameter(kwparam)){
@@ -182,8 +184,8 @@ public class ConstructorFunction extends NamedFunction {
 	    if (kwTypes != null) {
 	        return kwTypes;
 	    }
-	    
-		Type kwTypes = functionType.getKeywordParameterTypes();
+		
+		Type kwTypes = staticFunctionType.getKeywordParameterTypes();
 		ArrayList<Type> types = new ArrayList<>();
 		ArrayList<String> labels = new ArrayList<>();
 		
