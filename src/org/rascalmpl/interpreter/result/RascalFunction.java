@@ -57,7 +57,6 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.semantics.dynamic.Tree.Appl;
-import org.rascalmpl.types.FunctionType;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -78,7 +77,8 @@ public class RascalFunction extends NamedFunction {
     public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, boolean isPublic, Environment env, Stack<Accumulator> accumulators) {
         this(func, eval,
             Names.name(func.getSignature().getName()),
-            (FunctionType) func.getSignature().typeOf(env, eval, false),
+            func.getSignature().typeOf(env, eval, false),
+            func.getSignature().typeOf(env, eval, false).instantiate(env.getDynamicTypeBindings()),
             getFormals(func),
             varargs, isDefault(func), hasTestMod(func.getSignature()), isPublic,
             func.getBody().getStatements(), env, accumulators);
@@ -88,7 +88,8 @@ public class RascalFunction extends NamedFunction {
         Stack<Accumulator> accumulators) {
         this(func, eval,
             Names.name(func.getSignature().getName()),
-            (FunctionType) func.getSignature().typeOf(env, eval, false), 
+            func.getSignature().typeOf(env, eval, false), 
+            func.getSignature().typeOf(env, eval, false).instantiate(env.getDynamicTypeBindings()),
             getFormals(func),
             varargs, isDefault(func), hasTestMod(func.getSignature()), isPublic, 
             Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
@@ -96,13 +97,13 @@ public class RascalFunction extends NamedFunction {
     }
 
     @SuppressWarnings("unchecked")
-    public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, FunctionType functionType,
+    public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, Type staticType, Type dynamicType,
         List<KeywordFormal> initializers,
         boolean varargs, boolean isDefault, boolean isTest, boolean isPublic, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
-        super(ast, eval, functionType, initializers, name, varargs, isDefault, isTest, env);
+        super(ast, eval, staticType, dynamicType, initializers, name, varargs, isDefault, isTest, env);
         this.body = body;
        
-        this.isVoidFunction = this.functionType.getReturnType().isSubtypeOf(TF.voidType());
+        this.isVoidFunction = this.staticFunctionType.getReturnType().isSubtypeOf(TF.voidType());
         this.accumulators = (Stack<Accumulator>) accumulators.clone();
         this.formals = cacheFormals();
         this.indexedPosition = computeIndexedPosition(ast);
@@ -114,17 +115,11 @@ public class RascalFunction extends NamedFunction {
     }
 
     @Override
-    public Type getType() {
-        // TODO distinguish dynamic type from static type
-        return getStaticType();
-    }
-
-    @Override
     public RascalFunction cloneInto(Environment env) {
         AbstractAST clone = cloneAst();
         List<Statement> clonedBody = cloneBody();
         // TODO: accumulators are not cloned? @tvdstorm check this out:
-        RascalFunction rf = new RascalFunction(clone, getEval(), getName(), getFunctionType(), initializers, hasVarArgs(), isDefault(), isTest(), isPublic(), clonedBody, env, accumulators);
+        RascalFunction rf = new RascalFunction(clone, getEval(), getName(), getFunctionType(), getType(), initializers, hasVarArgs(), isDefault(), isTest(), isPublic(), clonedBody, env, accumulators);
         rf.setPublic(isPublic()); // TODO: should be in constructors
         return rf;
     }

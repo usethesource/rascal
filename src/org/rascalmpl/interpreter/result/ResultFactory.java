@@ -181,6 +181,33 @@ public class ResultFactory {
 		}
 
 		@Override
+		public Result<?> visitFunction(Type type) {
+			if (value instanceof AbstractFunction) {
+				// the weird thing is, that value is also a result in that case.
+
+				if (value.getType() != type) {
+					return new FunctionResultFacade(type, (AbstractFunction) value, ctx);
+				}
+				else {
+					return (AbstractFunction) value;
+				}
+			}
+			else if (value instanceof OverloadedFunction) {
+				if (value.getType() != type) {
+					return new FunctionResultFacade(type, (OverloadedFunction) value, ctx);
+				}
+				else {
+					return (OverloadedFunction) value;
+				}
+			}
+			else {
+				// otherwise this is an abstract ICalleableValue
+				// for which no further operations are defined?
+				return new ValueResult(declaredType, value, ctx);
+			}
+		}
+
+		@Override
 		public ValueResult visitValue(Type type) {
 			return new ValueResult(declaredType, value, ctx);
 		}
@@ -193,29 +220,7 @@ public class ResultFactory {
 		@Override
 		public Result<? extends IValue> visitExternal(Type externalType) {
 			if (RascalType.isFunction(externalType)) {
-			    if (value instanceof AbstractFunction) {
-					// the weird thing is, that value is also a result in that case.
-
-					if (value.getType() != externalType) {
-						return new FunctionResultFacade(externalType, (AbstractFunction) value, ctx);
-					}
-					else {
-						return (AbstractFunction) value;
-					}
-			    }
-			    else if (value instanceof OverloadedFunction) {
-					if (value.getType() != externalType) {
-						return new FunctionResultFacade(externalType, (OverloadedFunction) value, ctx);
-					}
-					else {
-						return (OverloadedFunction) value;
-					}
-			    }
-			    else {
-			        // otherwise this is an abstract ICalleableValue
-			        // for which no further operations are defined?
-			        return new ValueResult(declaredType, value, ctx);
-			    }
+			    
 			}
 			else if (RascalType.isNonterminal(externalType)) {
 				return new ConcreteSyntaxResult(externalType, (IConstructor) value, ctx);
