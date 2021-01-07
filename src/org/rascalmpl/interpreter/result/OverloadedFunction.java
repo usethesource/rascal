@@ -250,14 +250,14 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 
         for (int i = 0; i < constructors.length; i++) {
             if (constructors[i] != null && !constructors[i].isEmpty()) {
-                container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), i, name, type, constructors[i]));
+                container.add(new AbstractPatternDispatchedFunction(ctx.getEvaluator(), i, name, constructors[i]));
             }
         }
 
 
         for (int i = 0; i < productions.length; i++) {
             if (productions[i] != null && !productions[i].isEmpty()) {
-                container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), i, name, type, productions[i]));
+                container.add(new ConcretePatternDispatchedFunction(ctx.getEvaluator(), i, name, productions[i]));
             }
         }
 

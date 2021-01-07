@@ -16,8 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import org.rascalmpl.types.FunctionType;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 
 import io.usethesource.vallang.IConstructor;
@@ -55,12 +53,12 @@ public class TypeReificationTest extends TestCase {
     
     public void testEmptyTupleReturnFunBidirectionality() {
         TypeFactory tf = TypeFactory.getInstance();
-        testOne(RascalTypeFactory.getInstance().functionType(tf.tupleEmpty(), tf.voidType(), tf.voidType()), new TypeStore());
-        testOne(RascalTypeFactory.getInstance().functionType(tf.tupleEmpty(), tf.voidType(), null), new TypeStore());
-        testOne(RascalTypeFactory.getInstance().functionType(tf.tupleEmpty(), tf.voidType(), tf.tupleEmpty()), new TypeStore());
-        testOne(RascalTypeFactory.getInstance().functionType(tf.tupleEmpty(), tf.tupleEmpty(), tf.voidType()), new TypeStore());
-        testOne(RascalTypeFactory.getInstance().functionType(tf.tupleEmpty(), tf.tupleEmpty(), null), new TypeStore());
-        testOne(RascalTypeFactory.getInstance().functionType(tf.tupleEmpty(), tf.tupleEmpty(), tf.tupleEmpty()), new TypeStore());
+        testOne(tf.functionType(tf.tupleEmpty(), tf.voidType(), tf.voidType()), new TypeStore());
+        testOne(tf.functionType(tf.tupleEmpty(), tf.voidType(), null), new TypeStore());
+        testOne(tf.functionType(tf.tupleEmpty(), tf.voidType(), tf.tupleEmpty()), new TypeStore());
+        testOne(tf.functionType(tf.tupleEmpty(), tf.tupleEmpty(), tf.voidType()), new TypeStore());
+        testOne(tf.functionType(tf.tupleEmpty(), tf.tupleEmpty(), null), new TypeStore());
+        testOne(tf.functionType(tf.tupleEmpty(), tf.tupleEmpty(), tf.tupleEmpty()), new TypeStore());
     }
 
     private void testOne(Type type, TypeStore store) {
@@ -88,13 +86,13 @@ public class TypeReificationTest extends TestCase {
     
     public void testFuncTypeKeywordParameter() {
         TypeFactory tf = TypeFactory.getInstance();
-        testOne(RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleType(new Type[] {tf.integerType(), tf.realType()}, new String[] {"a", "b"}), tf.tupleType(new Type[] {tf.integerType()},  new String[] {"a"})), new TypeStore());
+        testOne(tf.functionType(tf.voidType(), tf.tupleType(new Type[] {tf.integerType(), tf.realType()}, new String[] {"a", "b"}), tf.tupleType(new Type[] {tf.integerType()},  new String[] {"a"})), new TypeStore());
     }
     
     public void testFuncTypeParametersOrder() {
         TypeFactory tf = TypeFactory.getInstance();
-        testOne(RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleType(new Type[] {tf.integerType(), tf.realType()}, new String[] {"a", "b"}), null), new TypeStore());
-        testOne(RascalTypeFactory.getInstance().functionType(tf.voidType(), tf.tupleType(tf.integerType(), tf.realType()), null), new TypeStore());
+        testOne(tf.functionType(tf.voidType(), tf.tupleType(new Type[] {tf.integerType(), tf.realType()}, new String[] {"a", "b"}), null), new TypeStore());
+        testOne(tf.functionType(tf.voidType(), tf.tupleType(tf.integerType(), tf.realType()), null), new TypeStore());
     }
 
     public void testFuncTypeReificationBidirectionality() {
@@ -103,7 +101,7 @@ public class TypeReificationTest extends TestCase {
         
         for (int i = 0; i < 50; i++) {
             Type type = tf.randomType(store);
-            while (!(type instanceof FunctionType)) {
+            while (!type.isFunction()) {
                 type = tf.randomType(store);
             }
             

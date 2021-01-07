@@ -199,6 +199,11 @@ public class JSONReadingTypeVisitor implements
 	}
 
 	@Override
+	public IValue visitFunction(Type type) throws IOException {
+		throw new AssertionError("can not deserialize functions from JSON");
+	}
+
+	@Override
 	public IValue visitSet(Type type) throws IOException {
 		ISetWriter w = vf.setWriter();
 		List l = (List)stack.peek();

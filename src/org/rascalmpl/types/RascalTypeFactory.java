@@ -26,10 +26,6 @@ public class RascalTypeFactory {
 		return InstanceHolder.sInstance;
 	}
 	 
-	public Type functionType(Type returnType, Type argumentTypes, Type keywordParams) {
-		return tf.externalType(new FunctionType(returnType, argumentTypes, keywordParams));
-	}
-	
 	public Type nonTerminalType(IConstructor cons) {
 		return tf.externalType(new NonTerminalType(cons));
 	}

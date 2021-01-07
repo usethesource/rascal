@@ -117,7 +117,6 @@ public class RuntimeExceptionFactory {
 	}
 	
 	public static Throw ambiguity(ISourceLocation loc, IString type, IString string, AbstractAST ast, StackTrace trace) {
-	    
 	  return new Throw(VF.constructor(Ambiguity, loc, type, string), ast != null ? ast.getLocation() : null, trace);
 	}
 	

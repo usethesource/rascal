@@ -26,37 +26,32 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.types.FunctionType;
-import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-
-import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	private final Map<IConstructor, List<AbstractFunction>> alternatives;
-	private final Type type;
 	private final int arity;
 	private final boolean isStatic;
 	private final String name;
 	private final int index;
 
-	public ConcretePatternDispatchedFunction(IEvaluator<Result<IValue>> eval, int index,  String name, Type type, Map<IConstructor, List<AbstractFunction>> alternatives) {
+	public ConcretePatternDispatchedFunction(IEvaluator<Result<IValue>> eval, int index,  String name, Map<IConstructor, List<AbstractFunction>> alternatives) {
 		super(null
 				, eval
-				, (FunctionType) RascalTypeFactory.getInstance().functionType(TypeFactory.getInstance().voidType(), TypeFactory.getInstance().voidType(), TF.voidType())
+				, alternatives.values().stream().flatMap(l -> l.stream()).map(f -> f.getStaticType()).reduce(TF.voidType(), (it, n) -> it.lub(n))
+				, alternatives.values().stream().flatMap(l -> l.stream()).map(f -> f.getType()).reduce(TF.voidType(), (it, n) -> it.lub(n))
 				, Collections.<KeywordFormal>emptyList()
 				, checkVarArgs(alternatives)
 				, null); // ?? I don't know if this will work..
 		this.index = index;
-		this.type = type;
 		this.alternatives = alternatives;
 		this.arity = minArity(alternatives);
 		this.isStatic = checkStatic(alternatives);
@@ -78,7 +73,7 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 			}
 			newAlts.put(name, alts);
 		}
-		return new ConcretePatternDispatchedFunction(getEval(), index, name, type, newAlts);
+		return new ConcretePatternDispatchedFunction(getEval(), index, name, newAlts);
 	}
 	
 	public Map<IConstructor,List<AbstractFunction>> getMap() {
@@ -136,19 +131,9 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 		return type;
 	}
 
-	@Override
-	public Type getType() {
-		// TODO distinguish dynamic type from static type
-		return type;
-	}
-	
-	/* 
-	 * The super getFunctionType() uses unsafe downcast in its body: (FunctionType) getType();
-	 * @see org.rascalmpl.interpreter.result.AbstractFunction#getFunctionType()
-	 */
 	@Override 
-	public FunctionType getFunctionType() {
-		return (FunctionType) super.getStaticType();
+	public Type getFunctionType() {
+		return super.getStaticType();
 	}
 
 	@Override

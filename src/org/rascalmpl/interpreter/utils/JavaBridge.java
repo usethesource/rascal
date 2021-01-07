@@ -317,7 +317,7 @@ public class JavaBridge {
 		}
 		
 		@Override
-		public Class<?> visitFunction(RascalType type) throws RuntimeException {
+		public Class<?> visitFunction(Type type) throws RuntimeException {
 		    return IFunction.class;
 		}
 	}

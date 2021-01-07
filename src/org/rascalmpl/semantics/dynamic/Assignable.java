@@ -38,7 +38,6 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSlice;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscript;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.types.FunctionType;
 import org.rascalmpl.types.NonTerminalType;
 
 import io.usethesource.vallang.IBool;
@@ -581,7 +580,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 		
 		private void checkType(Type given, Type expected) {
-			if (expected instanceof FunctionType) {
+			if (expected.isFunction()) {
 				return;
 			}
 			if (!given.isSubtypeOf(expected)) {

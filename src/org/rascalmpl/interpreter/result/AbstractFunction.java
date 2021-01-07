@@ -40,8 +40,6 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.types.FunctionType;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -65,26 +63,30 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected final Environment declarationEnvironment;
 	protected final IEvaluator<Result<IValue>> eval;
     
-	protected final FunctionType functionType;
+	protected final Type staticFunctionType;
+	protected final Type dynamicFunctionType;
 	protected final boolean hasVarArgs;
 	protected boolean hasKeyArgs;
 	protected final Map<String, Expression> keywordParameterDefaults = new HashMap<>();
 	
 	protected final AbstractAST ast;
 	protected final IValueFactory vf;
+
+	
 	
 	protected static int callNesting = 0;
 	protected static boolean callTracing = false;
 	
 	// TODO: change arguments of these constructors to use EvaluatorContexts
-	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, FunctionType functionType, List<KeywordFormal> initializers, boolean varargs, Environment env) {
+	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Type functionType, Type dynamicFunctionType, List<KeywordFormal> initializers, boolean varargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
-		this.functionType = functionType;
+		this.staticFunctionType = functionType;
+		this.dynamicFunctionType = dynamicFunctionType;
 		this.eval = eval;
 		this.hasVarArgs = varargs;
 		this.hasKeyArgs = functionType.hasKeywordParameters();
-		this.declarationEnvironment = env;
+		this.declarationEnvironment = env; 
 		this.vf = eval.getValueFactory();
 		
 		for (KeywordFormal init : initializers) {
@@ -111,16 +113,16 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public Type getKeywordArgumentTypes(Environment env) {
-	  return functionType.getKeywordParameterTypes();
+	  return staticFunctionType.isFunction() ? staticFunctionType.getKeywordParameterTypes() : TF.voidType();
 	}
 
 	public boolean hasKeywordParameter(String label) {
-		return functionType.hasKeywordParameter(label);
+		return staticFunctionType.hasKeywordParameter(label);
 	}
 	
 	@Override
 	public int getArity() {
-		return functionType.getArgumentTypes().getArity();
+		return staticFunctionType.getArity();
 	}
 	
 	public static void setCallTracing(boolean value){
@@ -136,7 +138,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
     
 	public Type getFormals() {
-		return functionType.getArgumentTypes();
+		return staticFunctionType.getFieldTypes();
 	}
 
 	public AbstractAST getAst() {
@@ -371,7 +373,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
 			
 			for (int i = 0; i < formals.getArity(); i++) {
-			    if (!formals.getFieldType(i).match(renameType(actuals[i].getType(), renamings), dynamicBindings)) {
+			    if (!formals.getFieldType(i).match(actuals[i].getType(), dynamicBindings)) {
 			        throw new MatchFailed();
 			    }
 			}
@@ -572,14 +574,19 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		return getReturnType() + " " + name + "(" + strFormals + kwFormals + ")";
 	}
 	
-	public FunctionType getFunctionType() {
-		return (FunctionType) getStaticType();
+	@Override
+	final public Type getType() {
+		return dynamicFunctionType;
+	}
+
+	public Type getFunctionType() {
+		return getStaticType();
 	}
 	
 	/* test if a function is of type T(T) for a given T */
 	public boolean isTypePreserving() {
 		Type t = getReturnType();
-		return getFunctionType().equivalent(RascalTypeFactory.getInstance().functionType(t,t, TF.voidType()));
+		return getFunctionType().equivalent(TF.functionType(t,t, TF.tupleEmpty()));
 	}
 	
 	public String getName() {
@@ -587,7 +594,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
  
 	public Type getReturnType() {
-		return functionType.getReturnType();
+		return staticFunctionType.getReturnType();
 	}
 
 	@Override
@@ -645,9 +652,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected void bindKeywordArgs(Map<String, IValue> keyArgValues) {
 	    Environment env = ctx.getCurrentEnvt();
 
-	    if (functionType.hasKeywordParameters()) {
-	        for (String kwparam : functionType.getKeywordParameterTypes().getFieldNames()){
-	            Type kwType = functionType.getKeywordParameterType(kwparam);
+	    if (staticFunctionType.hasKeywordParameters()) {
+	        for (String kwparam : staticFunctionType.getKeywordParameterTypes().getFieldNames()){
+	            Type kwType = staticFunctionType.getKeywordParameterType(kwparam);
 	            String isSetName = makeIsSetKeywordParameterName(kwparam);
 	
 	            env.declareVariable(TF.boolType(), isSetName);

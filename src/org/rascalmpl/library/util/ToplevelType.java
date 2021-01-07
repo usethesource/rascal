@@ -174,7 +174,7 @@ public enum ToplevelType {
 			}
 			
 			@Override
-			public ToplevelType visitFunction(RascalType type)
+			public ToplevelType visitFunction(Type type)
 					throws RuntimeException {
 				// TODO: @paulk review
 				return VALUE;

@@ -440,7 +440,7 @@ public class Webserver {
             requestType = store.lookupAbstractDataType("Request");
 
             RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-            functionType = rtf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.voidType());
+            functionType = tf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.voidType());
 
             get = store.lookupConstructor(requestType, "get", tf.tupleType(tf.stringType()));
             put = store.lookupConstructor(requestType, "put",  tf.tupleType(tf.stringType(), functionType));

@@ -22,7 +22,6 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.types.RascalTypeFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -40,17 +39,15 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 
 		@Override
 		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			RascalTypeFactory RTF = org.rascalmpl.types.RascalTypeFactory
-					.getInstance();
 			Parameters parameters = getParameters();
-			Type kwParams = TF.voidType();
+			Type kwParams = TF.tupleEmpty();
 
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				List<KeywordFormal> kwd = parameters.getKeywordFormals().getKeywordFormalList();
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
 			}
 
-			return RTF.functionType(getType().typeOf(env, eval, instantiateTypeParameters), parameters.typeOf(env, eval, instantiateTypeParameters), kwParams);
+			return TF.functionType(getType().typeOf(env, eval, instantiateTypeParameters), parameters.typeOf(env, eval, instantiateTypeParameters), kwParams);
 		}
 	}
 
@@ -63,9 +60,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 
 		@Override
 		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			RascalTypeFactory RTF = RascalTypeFactory.getInstance();
-
-			Type kwParams = TF.voidType();
+			Type kwParams = TF.tupleEmpty();
 
 			Parameters parameters = getParameters();
 
@@ -74,7 +69,7 @@ public abstract class Signature extends org.rascalmpl.ast.Signature {
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, eval);
 			}
 
-			return RTF.functionType(getType().typeOf(env, eval, instantiateTypeParameters), getParameters()
+			return TF.functionType(getType().typeOf(env, eval, instantiateTypeParameters), getParameters()
 					.typeOf(env, eval, instantiateTypeParameters), kwParams);
 		}
 

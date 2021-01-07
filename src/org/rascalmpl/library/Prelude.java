@@ -1464,65 +1464,66 @@ public class Prelude {
 	}
 	
 	private class Sorting {
-	  private final IValue[] array;
-	  private final int size;
-    private final Less less;
+		private final IValue[] array;
+		private final int size;
+		private final Less less;
 
-	  private void swap(int i, int j) {
-	    IValue tmp = array[i];
-	    array[i] = array[j];
-	    array[j] = tmp;
-	  }
-	  
-    public Sorting(IValue[] array, Less less) {
-	    this.array = array;
-	    this.size = array.length;
-	    this.less = less;
-    }
-    
-    /**
-     * @throws IllegalArgument if comparator is illegal (i.e., if pivot equals pivot)
-     */
-    public Sorting sort() {
-      if (size == 0) {
-        return this;
-      }
-      if(less.less(array[0], array[0])) {
-    	  throw RuntimeExceptionFactory.illegalArgument(less.less, "Bad comparator: Did you use less-or-equals instead of less-than?");
-      }
-      sort(0, size - 1);
+		private void swap(int i, int j) {
+			IValue tmp = array[i];
+			array[i] = array[j];
+			array[j] = tmp;
+		}
 
-      return this;
-    }
-    
-    public Sorting shuffle() {
-      for (int i = 0; i < size; i++) {
-        swap(i, i + (int) (Math.random() * (size-i)));
-      }
-      return this;
-    }
-    
-    private void sort(int low, int high) {
-      IValue pivot = array[low + (high-low)/2];
-      int oldLow = low;
-      int oldHigh = high;
-      
-      while (low < high) {
-        for ( ; less.less(array[low], pivot); low++); 
-        for ( ; less.less(pivot, array[high]); high--); 
+		public Sorting(IValue[] array, Less less) {
+			this.array = array;
+			this.size = array.length;
+			this.less = less;
+		}
+ 
+		/**
+		 * @throws IllegalArgument if comparator is illegal (i.e., if pivot equals pivot)
+		 */
+		public Sorting sort() {
+			if (size == 0) {
+				return this;
+			}
+			if (less.less(array[0], array[0])) {
+				throw RuntimeExceptionFactory.illegalArgument(less.less,
+					"Bad comparator: Did you use less-or-equals instead of less-than?");
+			}
+			sort(0, size - 1);
 
-        if (low <= high) {
-          swap(low, high);
-          low++;
-          high--;
-        }
-      }
-      
-      if (oldLow < high)
-        sort(oldLow, high);
-      if (low < oldHigh)
-        sort(low, oldHigh);
-    }
+			return this;
+		}
+
+		public Sorting shuffle() {
+			for (int i = 0; i < size; i++) {
+				swap(i, i + (int) (Math.random() * (size - i)));
+			}
+			return this;
+		}
+
+		private void sort(int low, int high) {
+			IValue pivot = array[low + (high - low) / 2];
+			int oldLow = low;
+			int oldHigh = high;
+
+			while (low < high) {
+				for (; less.less(array[low], pivot); low++);
+				for (; less.less(pivot, array[high]); high--);
+
+				if (low <= high) {
+					swap(low, high);
+					low++;
+					high--;
+				}
+			}
+
+			if (oldLow < high)
+				sort(oldLow, high);
+			if (low < oldHigh)
+				sort(low, oldHigh);
+		}
 	}
 	
 	public IValue elementAt(IList lst, IInteger index) {
