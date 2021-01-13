@@ -151,6 +151,14 @@ public class ResultFactory {
 
 		@Override
 		public Result<? extends IValue> visitParameter(Type parameterType) {
+			if (ctx != null) {
+				Type instantiated = parameterType.instantiate(ctx.getEvaluator().getCurrentEnvt().getStaticTypeBindings());
+
+				if (parameterType != instantiated) {
+					return instantiated.accept(this);
+				}
+			}
+
 			return parameterType.getBound().accept(this);
 		}
 		
