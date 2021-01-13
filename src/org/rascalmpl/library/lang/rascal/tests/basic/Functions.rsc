@@ -293,3 +293,21 @@ test bool curryAConstructor() {
 
     return f(t()) == and(t(), t());
 }
+
+test bool selfApplyCurry() {
+    &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+      return f(t, u); 
+    };
+
+    int addition(int i, int j) = i + j;
+
+    func = curry(curry, addition);
+
+    assert int(int)(int) _ := func;
+
+    func2 = func(1);
+
+    assert int(int) _ := func2;
+
+    return func2(1) == 2;
+}
