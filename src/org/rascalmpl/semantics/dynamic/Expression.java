@@ -540,6 +540,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				return res;
 			}
 			catch (StackOverflowError e) {
+				e.printStackTrace();
 				throw RuntimeExceptionFactory.stackOverflow(this, eval.getStackTrace());
 			}
 		}
