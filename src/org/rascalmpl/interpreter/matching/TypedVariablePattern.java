@@ -23,6 +23,7 @@ import java.util.Map;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -95,7 +96,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 
 		// first test the static type (should match at the very least)
 		if (subject.getValue().getType().isSubtypeOf(declaredType)) {
-			if(debug)System.err.println("matches");
+			if (debug) { System.err.println("matches"); }
 			
 			if (bindTypeParameters) {
 			    try {
@@ -107,17 +108,37 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			        
 			        // also check the dynamic type:
 	                Map<Type, Type> dynBindings = new HashMap<>(ctx.getCurrentEnvt().getDynamicTypeBindings());
-	                // collect the type bindings for later usage
-	                declaredType.match(subject.getValue().getType(), dynBindings);
-	                ctx.getCurrentEnvt().storeDynamicTypeBindings(dynBindings);
+					// collect the type bindings for later usage
+					Type dynMatchType = subject.getValue().getType();
+					
+					if (dynMatchType.isOpen()) {
+						// type parameter hygiene required (consider self-application of a function like `&T id(&T v) = v`)
+						dynMatchType = AbstractFunction.renameType(dynMatchType, new HashMap<>());
+					}
+
+					if (!declaredType.match(dynMatchType, dynBindings)) {
+						return false;
+					}
+
+					ctx.getCurrentEnvt().storeDynamicTypeBindings(dynBindings);
+					
+					ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+					this.alreadyStored = true;
+					return true;
 			    }
 			    catch (FactTypeUseException e) {
 			        // however, in normal matching (not formal parameters) we allow the static type to be a strict super-type, as long as the dynamic type is a sub-type of the pattern we succeed!
 			    }
 			}
 			  
-			if (!subject.getValue().getType().isSubtypeOf(declaredType.instantiate(ctx.getCurrentEnvt().getDynamicTypeBindings()))) {
-			    return false;
+			Type dynType = subject.getValue().getType();
+			if (dynType.isOpen()) {
+				// type parameter hygiene required (consider self-application of a function like `&T id(&T v) = v`)
+				dynType = AbstractFunction.renameType(dynType, new HashMap<>());
+			}
+
+			if (!dynType.isSubtypeOf(declaredType.instantiate(ctx.getCurrentEnvt().getDynamicTypeBindings()))) {
+				return false;
 			}
 			
 			if (anonymous) {

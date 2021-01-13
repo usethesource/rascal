@@ -258,6 +258,7 @@ public class RascalFunction extends NamedFunction {
         AbstractAST oldAST = currentAST;
         Stack<Accumulator> oldAccus = ctx.getAccumulators();
         Map<Type, Type> renamings = new HashMap<>();
+        Map<Type, Type> dynamicRenamings = new HashMap<>();
 
         try {
             ctx.setCurrentAST(ast);
@@ -287,7 +288,7 @@ public class RascalFunction extends NamedFunction {
                 throw new MatchFailed();
             }
             
-            actualStaticTypesTuple = bindTypeParameters(actualStaticTypesTuple, actuals, getFormals(), renamings, environment);
+            actualStaticTypesTuple = bindTypeParameters(actualStaticTypesTuple, actuals, getFormals(), renamings, dynamicRenamings, environment);
 
             if (size == 0) {
                 try {
@@ -302,7 +303,7 @@ public class RascalFunction extends NamedFunction {
                 }
                 catch (Return e) {
                     checkReturnTypeIsNotVoid(formals, actuals, renamings);
-                    result = computeReturn(e, renamings);
+                    result = computeReturn(e, renamings, dynamicRenamings);
                     storeMemoizedResult(actuals,keyArgValues, result);
                     return result;
                 }
@@ -324,7 +325,6 @@ public class RascalFunction extends NamedFunction {
                         // formals are now bound by side effect of the pattern matcher
                         try {
                             bindKeywordArgs(keyArgValues);
-
 
                             result = runBody();
                             storeMemoizedResult(actuals, keyArgValues, result);
@@ -359,7 +359,7 @@ public class RascalFunction extends NamedFunction {
         catch (Return e) {
             checkReturnTypeIsNotVoid(formals, actuals, renamings);
             
-            result = computeReturn(e, renamings);
+            result = computeReturn(e, renamings, dynamicRenamings);
             storeMemoizedResult(actuals, keyArgValues, result);
             if (callTracing) {
                 printEndTrace(result.getValue());
@@ -395,7 +395,7 @@ public class RascalFunction extends NamedFunction {
         return makeResult(TF.voidType(), null, eval);
     }
 
-    private Result<IValue> computeReturn(Return e, Map<Type, Type> renamings) {
+    private Result<IValue> computeReturn(Return e, Map<Type, Type> renamings, Map<Type, Type> dynamicRenamings) {
         Result<IValue> result = e.getValue();
         Type returnType = getReturnType();
 
@@ -426,7 +426,7 @@ public class RascalFunction extends NamedFunction {
         IMatchingResult[] matchers = new IMatchingResult[size];
 
         for (int i = 0; i < size; i++) {
-            matchers[i] = formals.get(i).getMatcher(ctx, false);
+            matchers[i] = formals.get(i).getMatcher(ctx, true);
         }
 
         return matchers;

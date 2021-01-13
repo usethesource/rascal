@@ -160,7 +160,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         }
         
         // or we have output wrapped in a content wrapper:
-        if (result.getStaticType().isSubtypeOf(RascalValueFactory.Content)) {
+        if (result.getStaticType() == RascalValueFactory.Content) {
             serveContent(result, output, metadata);
             output.put(mimeType, stringStream("ok\n"));
             return;

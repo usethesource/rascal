@@ -158,7 +158,9 @@ public class JavaMethod extends NamedFunction {
 
 			Environment env = ctx.getCurrentEnvt();
 			Map<Type, Type> renamings = new HashMap<>();
-			bindTypeParameters(actualTypesTuple, actuals, formals, renamings, env); 
+			Map<Type, Type> dynamicRenamings = new HashMap<>();
+
+			bindTypeParameters(actualTypesTuple, actuals, formals, renamings, dynamicRenamings, env); 
 			
 			IValue result = invoke(oActuals);
 			

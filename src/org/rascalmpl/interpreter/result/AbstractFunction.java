@@ -350,7 +350,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 	
-	protected Type bindTypeParameters(Type actualStaticTypes, IValue[] actuals, Type formals, Map<Type, Type> renamings, Environment env) {
+	protected Type bindTypeParameters(Type actualStaticTypes, IValue[] actuals, Type formals, Map<Type, Type> renamings, Map<Type, Type> dynamicRenamings, Environment env) {
 		try {
 		    if (actualStaticTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
@@ -370,14 +370,15 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			    // this can happen if static types collide
 			}
 			
-			Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
+			// Map<Type, Type> dynamicBindings = new HashMap<Type, Type>();
 			
-			for (int i = 0; i < formals.getArity(); i++) {
-			    if (!formals.getFieldType(i).match(actuals[i].getType(), dynamicBindings)) {
-			        throw new MatchFailed();
-			    }
-			}
-			env.storeDynamicTypeBindings(dynamicBindings);
+			// for (int i = 0; i < formals.getArity(); i++) {
+			//     if (!formals.getFieldType(i).match(actuals[i].getType(), dynamicBindings)) {
+			//         throw new MatchFailed();
+			//     }
+			// }
+
+			// env.storeDynamicTypeBindings(dynamicBindings);
 			
 			
 			return actualStaticTypes;
@@ -387,7 +388,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		}
 	}
 
-	protected Type unrenameType(Map<Type, Type> renamings, Type resultType) {
+	protected static Type unrenameType(Map<Type, Type> renamings, Type resultType) {
 	    if (resultType.isOpen()) {
 	        // first reverse the renamings
 	        Map<Type, Type> unrenamings = new HashMap<>();
@@ -401,13 +402,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	    return resultType;
 	}
 	  
-    protected Type renameType(Type actualTypes, Map<Type, Type> renamings) {
-        actualTypes.match(getTypeFactory().voidType(), renamings);
+    public static Type renameType(Type actualTypes, Map<Type, Type> renamings) {
+        actualTypes.match(TypeFactory.getInstance().voidType(), renamings);
         
         // rename all the bound type parameters
         for (Entry<Type,Type> entry : renamings.entrySet()) {
             Type key = entry.getKey();
-            renamings.put(key, getTypeFactory().parameterType(key.getName() + ":" + UUID.randomUUID().toString(), key.getBound()));
+            renamings.put(key, TypeFactory.getInstance().parameterType(key.getName() + ":" + UUID.randomUUID().toString(), key.getBound()));
         }
         actualTypes = actualTypes.instantiate(renamings);
         return actualTypes;
