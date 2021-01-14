@@ -125,14 +125,13 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
     
     @Override
     public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity) {
-        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
         // the return type of the generated parse function is instantiated here to the start nonterminal of
         // the provided grammar:
-        Type functionType = rtf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+        Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
-            tf.voidType());
+            tf.tupleEmpty());
         
         return function(functionType, new ParseFunction(getParserGenerator(), module.$MONITOR, this, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity));
     }
@@ -147,9 +146,9 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         
         Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
         
-        Type functionType = rtf.functionType(parameterType,
+        Type functionType = tf.functionType(parameterType,
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
-            tf.voidType());
+            tf.tupleEmpty());
         
         return function(functionType, new ParametrizedParseFunction(getParserGenerator(), module.$MONITOR, this, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity));
     }
