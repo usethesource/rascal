@@ -366,31 +366,26 @@ public class BaseREPL {
             errorWriter.flush();
             throw e;
         }
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        try {
+        finally {
             reader.flush();
             originalStdOut.flush();
             if (historyFlusher != null) {
                 ShutdownHooks.remove(historyFlusher);
                 history.flush();
             }
-        } 
-        finally {
-            if (wrappedStream != null) {
-                if (!(wrappedStream instanceof NotifieableInputStream)) {
-
-                }
-                try {
-                    wrappedStream.close();
-                }
-                catch (IOException e) {
-                }
-            }
-            reader.close();
         }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        if (wrappedStream != null) {
+            try {
+                wrappedStream.close();
+            }
+            catch (IOException e) {
+            }
+        }
+        reader.close();
     }
 
     private void handleCommandQueue() throws IOException, InterruptedException {
