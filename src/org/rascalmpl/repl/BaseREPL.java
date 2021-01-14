@@ -378,6 +378,12 @@ public class BaseREPL {
 
     @Override
     protected void finalize() throws Throwable {
+        // We have to wait until finalize instead of the finally block in the run method
+        // because jline requires time to reset the terminal using PTY commands over
+        // the same stream. By delaying the close operation until the garbage collector
+        // kicks in, jline gets the opportunity to do that.
+        // BTW, closing the wrappedStream is essential for fixing a memory leak that
+        // would hold on to entire Evaluator instances after the REPL was closed.
         if (wrappedStream != null) {
             try {
                 wrappedStream.close();
