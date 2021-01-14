@@ -33,7 +33,6 @@ import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
