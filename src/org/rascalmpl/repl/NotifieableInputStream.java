@@ -124,5 +124,4 @@ public class NotifieableInputStream extends InputStream {
         closed = true;
         peekAt.close();
     }
-
 }
