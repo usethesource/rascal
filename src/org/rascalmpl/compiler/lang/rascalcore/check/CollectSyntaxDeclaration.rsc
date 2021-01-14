@@ -83,7 +83,7 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
     if(isLayoutType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
 }
 
-AProduction computeProd(Tree current, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s){
+AProduction computeProd(Tree current, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
     args = [s.getType(sym) | sym <- symbols];  
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
@@ -108,8 +108,8 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
     if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
-            AType(Solver s){
-                return aprod(computeProd(current, s.getType(adt), modifiers, symbols, s)[label=unescape("<name>")]);      
+            AType(Solver s) {
+                return aprod(computeProd(current, s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);      
             });
             
         // Define the constructor (using a location annotated with "cons" to differentiate from the above)
@@ -155,8 +155,8 @@ void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
     switch("<ass>"){
     case "assoc":       asc = Associativity::\left();
     case "left":        asc = Associativity::\left();
-    case "non-assoc":   asc = Associativity::\left();
-    case "right":       asc = Associativity::\left();
+    case "non-assoc":   asc = Associativity::\non-assoc();
+    case "right":       asc = Associativity::\right();
     }
     
     if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
