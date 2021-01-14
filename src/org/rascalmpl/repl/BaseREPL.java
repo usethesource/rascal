@@ -366,25 +366,30 @@ public class BaseREPL {
             errorWriter.flush();
             throw e;
         }
-        finally {
-            try {
-                reader.flush();
-                originalStdOut.flush();
-                if (historyFlusher != null) {
-                    ShutdownHooks.remove(historyFlusher);
-                    history.flush();
-                }
-            } 
-            finally {
-                if (wrappedStream != null) {
-                    try {
-                        wrappedStream.close();
-                    }
-                    catch (IOException e) {
-                    }
-                }
-                reader.close();
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            reader.flush();
+            originalStdOut.flush();
+            if (historyFlusher != null) {
+                ShutdownHooks.remove(historyFlusher);
+                history.flush();
             }
+        } 
+        finally {
+            if (wrappedStream != null) {
+                if (!(wrappedStream instanceof NotifieableInputStream)) {
+
+                }
+                try {
+                    wrappedStream.close();
+                }
+                catch (IOException e) {
+                }
+            }
+            reader.close();
         }
     }
 
