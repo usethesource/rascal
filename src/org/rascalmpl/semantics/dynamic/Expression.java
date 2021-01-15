@@ -2934,7 +2934,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			Parameters parameters = getParameters();
 			Type formals = parameters.typeOf(eval.getCurrentEnvt(), eval, instantiateTypeParameters);
-			Type kwParams = TF.voidType();
+			Type kwParams = TF.tupleEmpty();
 			java.util.List<KeywordFormal> kws = parameters.getKeywordFormals().hasKeywordFormalList() ? parameters.getKeywordFormals().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
 			
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
