@@ -851,7 +851,7 @@ str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)
                                   );
     vkwformals = isEmpty(kwFormals) ? "$TF.tupleEmpty()" 
                                     : "$TF.tupleType(<intercalate(", ", [ atype2vtype(t.fieldType) | t <- kwFormals])>)"; 
-    return "$RTF.functionType(<atype2vtype(ret)>, <vformals>, <vkwformals>)";
+    return "$TF.functionType(<atype2vtype(ret)>, <vformals>, <vkwformals>)";
 }
       
 str atype2vtype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = getADTName(adtName);
