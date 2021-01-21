@@ -39,7 +39,6 @@ public class BaseREPL {
     protected final OutputStream originalStdOut;
     protected final OutputStream stderr;
     protected final InputStream wrappedStream;
-
     
     protected final Writer errorWriter;
     
