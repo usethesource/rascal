@@ -153,45 +153,43 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     
     protected void printResult(IRascalResult result, Map<String, InputStream> output, Map<String, String> metadata) throws IOException {
         String mimeType = "text/" + (htmlOutput ? "html" : "plain");
-
+        
         if (result == null || result.getValue() == null) {
             output.put(mimeType, stringStream("ok\n"));
             return;
         }
-        
-        // or we have output wrapped in a content wrapper:
-        if (result.getStaticType() == RascalValueFactory.Content) {
+        else if (result.getStaticType() == RascalValueFactory.Content) {
+            // we have interactive output in HTML form to serve
             serveContent(result, output, metadata);
-
-            if (!htmlOutput) {
-                output.put(mimeType, stringStream("ok\n"));
-            }
+            output.put("text/plain", stringStream("ok\n"));
             return;
         }
-       
-        // otherwise we have simple output to print on the REPL in either text/html or text/plain format:
-        final StringWriter out = new StringWriter();
-        OutputWriter writer = new OutputWriter() {
-            @Override
-            public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
-                out.write(tp.toString());
-                out.write(": ");
-                contentsWriter.accept(out);
-            }
-
-            @Override
-            public void finishOutput() {
-                out.write('\n');
-            }
-        };
-       
-        writeOutput(result, writer);
-
-        if (out.getBuffer().length() == 0) {
-            output.put(mimeType, stringStream("ok\n"));
-        }
         else {
-            output.put(mimeType, stringStream(out.toString()));
+            // otherwise we have simple output to print on the REPL in either text/html or text/plain format:
+            
+            final StringWriter out = new StringWriter();
+            OutputWriter writer = new OutputWriter() {
+                @Override
+                public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
+                    out.write(tp.toString());
+                    out.write(": ");
+                    contentsWriter.accept(out);
+                }
+
+                @Override
+                public void finishOutput() {
+                    out.write('\n');
+                }
+            };
+
+            writeOutput(result, writer);
+
+            if (out.getBuffer().length() == 0) {
+                output.put(mimeType, stringStream("ok\n"));
+            }
+            else {
+                output.put(mimeType, stringStream(out.toString()));
+            }
         }
     }
 
