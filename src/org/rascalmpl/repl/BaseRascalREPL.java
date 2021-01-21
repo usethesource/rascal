@@ -221,7 +221,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             getOutputWriter().println("Serving \'" + id + "\' at |" + URL + "|");
         }
         
-        output.put("text/html", stringStream("<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>"));
+        output.put("text/html", stringStream("<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ URL +"\"></iframe>"));
     }            
         
     abstract protected Function<IValue, IValue> liftProviderFunction(IFunction callback);
