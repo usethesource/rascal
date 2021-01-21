@@ -162,7 +162,10 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         // or we have output wrapped in a content wrapper:
         if (result.getStaticType() == RascalValueFactory.Content) {
             serveContent(result, output, metadata);
-            output.put(mimeType, stringStream("ok\n"));
+
+            if (!htmlOutput) {
+                output.put(mimeType, stringStream("ok\n"));
+            }
             return;
         }
        
@@ -220,8 +223,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             getOutputWriter().println("Serving \'" + id + "\' at |" + URL + "|");
         }
         
-        String iframe = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
-        output.put("text/html", new ByteArrayInputStream(iframe.getBytes("UTF8")));
+        output.put("text/html", stringStream("<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>"));
     }            
         
     abstract protected Function<IValue, IValue> liftProviderFunction(IFunction callback);
