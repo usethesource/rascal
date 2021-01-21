@@ -214,7 +214,11 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         String URL = "http://localhost:" + server.getListeningPort() + "/";
         
         metadata.put("url", URL);
-        getOutputWriter().println("Serving \'" + id + "\' at |" + URL + "|");
+
+        if (!htmlOutput) {
+            // if there is HTML output we can see it inline
+            getOutputWriter().println("Serving \'" + id + "\' at |" + URL + "|");
+        }
         
         String iframe = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
         output.put("text/html", new ByteArrayInputStream(iframe.getBytes("UTF8")));
