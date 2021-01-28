@@ -80,7 +80,6 @@ public class TermREPL {
         private final IValueFactory vf;
         private final AbstractFunction stacktrace;
 
-
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
             IFunction handler, IFunction completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
             this.vf = vf;
@@ -98,7 +97,6 @@ public class TermREPL {
             this.stacktrace = (AbstractFunction) stacktrace;
             this.currentPrompt = prompt.getValue();
             this.quit = quit.getValue();
-
         }
 
         @Override
