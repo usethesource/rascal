@@ -62,13 +62,11 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     protected String currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
     private StringBuffer currentCommand;
     protected final StandardTextWriter indentedPrettyPrinter;
-    private final boolean htmlOutput;
     private final boolean allowColors;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
     protected final REPLContentServerManager contentManager = new REPLContentServerManager();
     
-    public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
-        this.htmlOutput = htmlOutput;
+    public BaseRascalREPL(boolean prettyPrompt, boolean allowColors) throws IOException, URISyntaxException {
         this.allowColors = allowColors;
         
         if (allowColors) {
@@ -152,13 +150,11 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     }
     
     protected void printResult(IRascalResult result, Map<String, InputStream> output, Map<String, String> metadata) throws IOException {
-        String mimeType = "text/" + (htmlOutput ? "html" : "plain");
-        
         if (result == null || result.getValue() == null) {
-            output.put(mimeType, stringStream("ok\n"));
+            output.put("text/plain", stringStream("ok\n"));
             return;
         }
-        else if (result.getStaticType() == RascalValueFactory.Content) {
+        else if (result.getStaticType().isSubtypeOf(RascalValueFactory.Content) && !result.getStaticType().isBottom()) {
             // we have interactive output in HTML form to serve
             serveContent(result, output, metadata);
             output.put("text/plain", stringStream("ok\n"));
@@ -185,10 +181,10 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             writeOutput(result, writer);
 
             if (out.getBuffer().length() == 0) {
-                output.put(mimeType, stringStream("ok\n"));
+                output.put("text/plain", stringStream("ok\n"));
             }
             else {
-                output.put(mimeType, stringStream(out.toString()));
+                output.put("text/plain", stringStream(out.toString()));
             }
         }
     }
@@ -216,11 +212,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         
         metadata.put("url", URL);
 
-        if (!htmlOutput) {
-            // if there is HTML output we can see it inline
-            getOutputWriter().println("Serving \'" + id + "\' at |" + URL + "|");
-        }
-        
+        output.put("text/plain", stringStream("Serving \'" + id + "\' at |" + URL + "|"));
         output.put("text/html", stringStream("<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ URL +"\"></iframe>"));
     }            
         

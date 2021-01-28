@@ -39,7 +39,7 @@ public class TutorCommandExecutor {
         shellHTMLOutput = new ByteArrayOutputStream();
         shellInputNotUsed = new ByteArrayInputStream("***this inputstream should not be used***".getBytes());
 
-        repl = new RascalInterpreterREPL(false, false, false, null) {
+        repl = new RascalInterpreterREPL(false, false, null) {
             @Override
             protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
                 Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);

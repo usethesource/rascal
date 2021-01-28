@@ -39,9 +39,9 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     protected Evaluator eval;
     private boolean measureCommandTime;
 
-    public RascalInterpreterREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory)
+    public RascalInterpreterREPL(boolean prettyPrompt, boolean allowColors, File persistentHistory)
                     throws IOException, URISyntaxException {
-        super(prettyPrompt, allowColors, htmlOutput);
+        super(prettyPrompt, allowColors);
     }
     
     public void cleanEnvironment() {
@@ -49,20 +49,15 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
     
     public RascalInterpreterREPL() throws IOException, URISyntaxException{
-        super(true, true, false);
+        super(true, true);
     }
     
-    public RascalInterpreterREPL(boolean htmlOutput) throws IOException, URISyntaxException{
-        super(true, true, htmlOutput);
-    }
-
     @Override
     protected Function<IValue, IValue> liftProviderFunction(IFunction callback) {
-        
         return (t) -> {
-          synchronized(eval) {
-              return callback.call(t);
-          }
+            synchronized(eval) {
+                return callback.call(t);
+            }
         };
     }
     
