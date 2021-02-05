@@ -34,8 +34,12 @@ data JGenie
         str (list[loc] srcs) getAccessor,
         Define (loc src) getDefine,
         list[MuExp] (loc src) getExternalRefs,
-        void(str name) setKwpDefaults,
-        str() getKwpDefaults,
+        lrel[str name, AType atype] (MuFunction fun) collectKwpFormals,
+        lrel[str name, AType atype, MuExp defaultExp] (MuFunction fun) collectKwpDefaults,
+        list[str] (MuFunction fun) collectRedeclaredKwps,
+        list[str] (MuFunction fun) collectDeclaredKwps,
+        void(str name) setKwpDefaultsName,
+        str() getKwpDefaultsName,
         bool(AType) hasCommonKeywordFields,
         str(AType atype) shareType,
         str(value con) shareConstant,
@@ -83,20 +87,16 @@ JGenie makeJGenie(MuModule m,
     
     TModel currentTModel = tmodels[moduleName];
     loc currentModuleScope = moduleLocs[moduleName];
-    //set[tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors]] resolvers = {};
-    //map[str resolverName, list[MuExp] externalRefs] resolver2externalRefs = ();
     str functionName = "$UNKNOWN";
     MuFunction function;
     
     map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs  | fun <- range(muFunctions));
     map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
-    rel[str,AType,str] mergedOverloads = {};
     
     extendScopes = { m2loc | <module_scope, extendPath(), m2loc> <- tmodels[moduleName].paths };
     importScopes = { m2loc | <module_scope, importPath(), m2loc> <- tmodels[moduleName].paths};
     importScopes += { m2loc | imp <- importScopes, <imp, extendPath(), m2loc> <- tmodels[moduleName].paths};
     importAndExtendScopes = importScopes + extendScopes;
-    
    
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
     sortedImportAndExtendScopes =
@@ -270,11 +270,64 @@ JGenie makeJGenie(MuModule m,
         return false;
     }
     
-    void _setKwpDefaults(str name){
+    lrel[str name, AType atype] _collectKwpFormals(MuFunction fun){
+        scopes = currentTModel.scopes;
+        kwpFormals = fun.kwpDefaults<0,1>;
+        outer = scopes[fun.src];
+        while (muFunctionsByLoc[outer]?){
+            fun1 = muFunctionsByLoc[outer];
+            kwpFormals += fun1.kwpDefaults<0,1>;
+            outer = scopes[fun1.src];
+        }
+        return kwpFormals;
+    }
+    
+    lrel[str name, AType atype, MuExp defaultExp] _collectKwpDefaults(MuFunction fun){
+        scopes = currentTModel.scopes;
+        defaults = fun.kwpDefaults;
+        funKwps =  fun.kwpDefaults<0>;
+        outer = scopes[fun.src];
+        while (muFunctionsByLoc[outer]?){
+            fun1 = muFunctionsByLoc[outer];
+            defaults = [<name, atype, defaultExp> | <str name, AType atype, MuExp defaultExp> <- fun1.kwpDefaults, name notin funKwps] + defaults; // remove outer definitions
+            outer = scopes[fun1.src];
+        }
+        return defaults;
+    }
+    
+    list[str] _collectRedeclaredKwps(MuFunction fun){
+        scopes = currentTModel.scopes;
+        funKwps = fun.kwpDefaults<0>;
+        redeclared = [];
+        outer = scopes[fun.src];
+        while (muFunctionsByLoc[outer]?){
+            fun1 = muFunctionsByLoc[outer];
+            outerKwps = fun1.kwpDefaults<0>;
+            redeclared += funKwps & outerKwps;
+            outer = scopes[fun1.src];
+        }
+        return redeclared;
+    }
+    
+     list[str] _collectDeclaredKwps(MuFunction fun){
+        scopes = currentTModel.scopes;
+        funKwps = fun.kwpDefaults<0>;
+        declared = funKwps;
+        outer = scopes[fun.src];
+        while (muFunctionsByLoc[outer]?){
+            fun1 = muFunctionsByLoc[outer];
+            outerKwps = fun1.kwpDefaults<0>;
+            declared += outerKwps;
+            outer = scopes[fun1.src];
+        }
+        return declared;
+    }
+    
+    void _setKwpDefaultsName(str name){
         kwpDefaults = name;
     }
     
-    str _getKwpDefaults() = kwpDefaults;
+    str _getKwpDefaultsName() = kwpDefaults;
     
     bool _hasCommonKeywordFields(AType ctype){
         switch(ctype){
@@ -405,10 +458,6 @@ JGenie makeJGenie(MuModule m,
         return toList(importedLibraries);
     }
     
-    void _addMergedOverloads(rel[str,AType,str] merged){
-        mergedOverloads += merged;
-    }
-    
     bool _usesLocalFunctions(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads){
         return    any(of <- overloads.ofunctions, isContainedIn(currentTModel.definitions[of].defined, currentModuleScope))
                || any(oc <- overloads.oconstructors, isContainedIn(currentTModel.definitions[oc].defined, currentModuleScope));
@@ -432,8 +481,12 @@ JGenie makeJGenie(MuModule m,
                 _getAccessor,
                 _getDefine,
                 _getExternalRefs,
-                _setKwpDefaults,
-                _getKwpDefaults,
+                _collectKwpFormals,
+                _collectKwpDefaults,
+                _collectRedeclaredKwps,
+                _collectDeclaredKwps,
+                _setKwpDefaultsName,
+                _getKwpDefaultsName,
                 _hasCommonKeywordFields,
                 _shareType,
                 _shareConstant,
