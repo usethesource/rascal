@@ -862,6 +862,17 @@ list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
     throw rascalCheckerInternalError("Cannot get function/constructor arguments from type, got <prettyAType(ft)>");
 }
 
+@doc{Get a list of keyword parameters for overloaded function/constructors}
+list[Keyword] getFunctionOrConstructorKeywords(AType ft) {
+    if (afunc(_, _, list[Keyword] kws) := unwrapType(ft)) return kws;
+    if (acons(_,_,list[Keyword] kws) := unwrapType(ft)) return kws;
+    if (overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := unwrapType(ft)){
+       kws = { *getFunctionOrConstructorKeywords(tp) | tp <- overloads<2> };
+       return toList(kws);
+    }
+    throw rascalCheckerInternalError("Cannot get function/constructor keyword arguments from type, got <prettyAType(ft)>");
+}
+
 @doc{Get the arguments for a function in the form of a tuple.}
 AType getFunctionArgumentTypesAsTuple(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return atuple(atypeList(ats));

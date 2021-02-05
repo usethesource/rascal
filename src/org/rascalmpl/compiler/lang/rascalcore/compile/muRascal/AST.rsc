@@ -30,10 +30,8 @@ public data MuModule =
                        list[MuFunction] functions, 
                        list[MuModuleVar] module_variables, 
                        list[MuExp] initialization,
-                       //lrel[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloaded_functions,
                        map[AType, map[str,AType]] commonKeywordFields,
                        AGrammar grammar,
-                       //rel[str,str] importGraph,
                        loc src)
             ;
             
@@ -519,8 +517,6 @@ bool noSequentialExit(muReturn0(), list[str] entered)
     = true;
 bool noSequentialExit(muReturn1(_, _), list[str] entered) 
     = true;
-//bool noSequentialExit(muFail(_), list[str] entered) 
-//    = true;
 
 bool noSequentialExit(muInsert(t, exp1), list[str] entered)
     = true;
@@ -595,11 +591,7 @@ MuExp muBlock([ *exps1, muBlock([*exps2]), *exps3 ])
 MuExp muBlock([ *exps1, exp0, *exps2])
     = muBlock([*exps1, exp0])
     when !isEmpty(exps2),
-        //muReturn1(t, exp1) := exp0 ||
         muInsert(t, exp1) := exp0 ||
-        //muBreak(str label) := exp0 || 
-        //muContinue(str label) := exp0 ||   
-        //muFail(str label) := exp0 ||
         noSequentialExit(exp0);
          
 MuExp muBlock([*MuExp pre, muValueBlock(AType t, list[MuExp] elems), *MuExp post])
