@@ -162,7 +162,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     body = returns_void ? "" : "<atype2javatype(returnType)> $result = null;\n";
     
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-    if(hasKeywordParameters(resolver_fun_type) || any(def <- relevant_fun_defs, def.scope != module_scope)){
+    if(hasKeywordParameters(resolver_fun_type) || any(def <- local_fun_defs, def.scope != module_scope)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
     }
    

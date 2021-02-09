@@ -297,7 +297,7 @@ tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgT
                 nonConstantKwpDefaults += "<trans(muConInit(muVar("$kwpDefault_<escapedName>","", 10, tp), defaultExp),jg)>$kwpDefaults.put(\"<escapedName>\", $kwpDefault_<escapedName>);";
             }
          }   
-    } else if(!isEmpty(fun.scopeIn)){
+    } else if(!isEmpty(fun.scopeIn) && !isClosureName(fun.name)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
         jg.setKwpDefaultsName("$kwpDefaults");
         nonConstantKwpDefaults = "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = Util.kwpMap();\n";
