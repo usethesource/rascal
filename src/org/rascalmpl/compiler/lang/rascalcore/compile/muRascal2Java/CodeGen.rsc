@@ -298,9 +298,11 @@ tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults] getArgT
             }
          }   
     } else if(!isEmpty(fun.scopeIn) && !isClosureName(fun.name)){
-        argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
-        jg.setKwpDefaultsName("$kwpDefaults");
-        nonConstantKwpDefaults = "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = Util.kwpMap();\n";
+        if(!isEmpty(jg.collectDeclaredKwps(fun))){
+            argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
+            jg.setKwpDefaultsName("$kwpDefaults");
+            nonConstantKwpDefaults = "java.util.Map\<java.lang.String,IValue\> $kwpDefaults = Util.kwpMap();\n";
+        }
     }
     return <argTypes, constantKwpDefaults, nonConstantKwpDefaults>;
 }
@@ -445,10 +447,6 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     externalRefs = jg.getExternalRefs(uid);
     //currentFun = jg.getFunction();
     //externalRefsCurrentFun = jg.getExternalRefs(currentFun.src);
-    
-    if(fun.name == "strongConnect"){
-        println("strongConnect");
-    }
     
     nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
