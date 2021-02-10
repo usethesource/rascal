@@ -1,7 +1,8 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-public list[&T] sort(list[&T] lst) =
-    sort(lst, bool (&T a, &T b) { return a < b; } );
-    
-@javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
+public list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];
+
+test bool tstMapper(list[int] L) {
+  int incr(int x) { return x + 1; };
+  return mapper(L, incr) == [x + 1 | x <- L];
+}

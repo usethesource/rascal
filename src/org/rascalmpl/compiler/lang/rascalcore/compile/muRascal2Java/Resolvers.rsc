@@ -162,7 +162,9 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     body = returns_void ? "" : "<atype2javatype(returnType)> $result = null;\n";
     
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-    if(hasKeywordParameters(resolver_fun_type) || any(def <- local_fun_defs, def.scope != module_scope)){
+    activeKwpFormals1 = { *jg.collectKwpFormals(fun) | def <- local_fun_defs,  def.defined in local_fun_defs, fun := loc2muFunction[def.defined] };
+   
+    if(hasKeywordParameters(resolver_fun_type) || !isEmpty(activeKwpFormals1)) { //any(def <- local_fun_defs, def.scope != module_scope)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
     }
    
@@ -190,8 +192,13 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
             }
         }
        
-        actuals_text = intercalate(", ", call_actuals);
-        if(hasKeywordParameters(def_type) || def.scope notin module_scopes){
+       actuals_text = intercalate(", ", call_actuals);
+       activeKwpFormals = [];
+       if(def.defined in local_fun_defs){
+          fun = loc2muFunction[def.defined];
+          activeKwpFormals = jg.collectKwpFormals(fun);
+        }
+        if(hasKeywordParameters(def_type) || (def.scope notin module_scopes && !isEmpty(activeKwpFormals))){
             actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
         }
 
@@ -266,19 +273,6 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                 '   <body> 
                 '}
                 '";
-                
-    //if(!isEmpty(local_fun_defs) && !isEmpty(nonlocal_fun_defs)){
-    //    //local_fun_type = (avoid() | alub(it, tp) | fdef <- local_fun_defs, defType(tp) := fdef.defInfo);
-    //    local_args = [];
-    //    for(fdef <- local_fun_defs, defType(tp) := fdef.defInfo){
-    //        local_args = local_args == [] ? getFunctionOrConstructorArgumentTypes(tp) 
-    //                                      : alubList(local_args, getFunctionOrConstructorArgumentTypes(tp));
-    //    }
-    //    //localFormalsTypes = unsetRec(local_fun_type has formals ? local_fun_type.formals : local_fun_type.fields);
-    //    if(unsetRec(local_args) != resolverFormalsTypes, !sameInJava(local_args, resolverFormalsTypes)){
-    //        resolvers += generateResolver(moduleName, functionName, local_fun_defs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module, jg);
-    //    }
-    //}
    
     return resolvers;
 }
