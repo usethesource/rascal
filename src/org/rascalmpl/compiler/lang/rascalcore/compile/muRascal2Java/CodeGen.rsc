@@ -832,7 +832,7 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(MuFunction fun, l
                 return <resulting_actuals, ["Util.kwpMap()"]>; //["$kwpDefaults_<fun.uniqueName>"]>;
             }
         } else if(isEmpty(jg.collectKwpDefaults(fun))){
-            return <resulting_actuals, ["$kwpActuals"]>;
+            return <resulting_actuals, isEmpty(kwFormals) ? [] : ["$kwpActuals"]>;
        } else {
             return <resulting_actuals, [getKwpActuals(kwFormals, kwpActuals, jg)]>;
        }
