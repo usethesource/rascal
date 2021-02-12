@@ -1,10 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-test bool exceptionHandling1(){
-    value f() { throw "Try to catch me!"; }
-    
-   
-    f();
-   
-    return true; //n == "0 1 2 8";
-}
+import  lang::rascalcore::compile::Examples::Tst2;
+import  lang::rascalcore::compile::Examples::Tst3;
+
+value main() = true;
+
+//value main() //test bool Cycle1() 
+//    = isDint(d(13)) == true;
