@@ -1,6 +1,8 @@
 module lang::rascalcore::compile::Examples::Tst3
 
-import lang::rascalcore::compile::Examples::Tst2;
+import  lang::rascalcore::compile::Examples::Tst2;
 
-list[&T <: num] abs(list[&T <: num] nums) 
-    = [abs(n) | n <- nums]; 
+//data D = d(str s);
+//
+//bool isDstr(d(str _)) = true;
+//default bool isDstr(D _) = false;
