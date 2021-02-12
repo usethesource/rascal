@@ -445,8 +445,11 @@ JCode trans(muATypeCon(AType t, map[AType, set[AType]] definitions), JGenie jg) 
                       
 JCode trans(muFun(loc uid, AType ftype), JGenie jg){
    
-    fun = loc2muFunction[uid];
-    uid = fun.src;
+   //if(!loc2muFunction[uid]?){
+   // return "";
+   //}
+   // fun = loc2muFunction[uid];
+   // uid = fun.src;
     externalRefs = jg.getExternalRefs(uid);
     //currentFun = jg.getFunction();
     //externalRefsCurrentFun = jg.getExternalRefs(currentFun.src);

@@ -45,7 +45,8 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
        
            '    public <className>Tests(){
            '        ModuleStore store = new ModuleStore();
-           '        $me = store.importModule(<className>.class, <className>::new);                       
+           '        store.importModule(<className>.class, <className>::new);   
+           '        $me = store.getModule(<className>.class);                     
            '    }
            '    <for(f <- functions){>
            '    <generateTestMethod(f, className, jg)><}>
