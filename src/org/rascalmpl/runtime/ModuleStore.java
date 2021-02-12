@@ -7,7 +7,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class ModuleStore {
-    
 	
     /**
      * The actual store of loaded (== imported or extended) modules
@@ -50,10 +49,16 @@ public final class ModuleStore {
      */
     @SuppressWarnings("unchecked")
 	public <T> T getModule(Class<T> module) {
-    	return (T)loadedModules.get(module);
+    	T newResult = (T)loadedModules.get(module);
+    	assert newResult != null;
+    	return newResult;
     }
 
     public <T1, T2> T1 extendModule(Class<T1> module, BiFunction<ModuleStore, T2, T1> builder, T2 extension) {
 		return builder.apply(this, extension);
     }
+
+	public <T> void put(Class<T> module, T c) {
+		loadedModules.put(module, c);
+	}
 }

@@ -131,6 +131,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '
                         'public <className>(ModuleStore store, $<className> extended){
                         '   this.$me = extended == null ? this : extended;
+                        '   store.put(<getClassRef(getQualClassName(moduleName), moduleName)>.class, this);
                         '   <for(imp <- imports, imp notin extends){>
                         '   store.importModule(<getClassRef(imp, moduleName)>.class, <getClassRef(imp, moduleName)>::new);
                         '   <}> 
