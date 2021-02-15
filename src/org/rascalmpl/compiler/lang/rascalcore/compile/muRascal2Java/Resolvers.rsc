@@ -47,7 +47,12 @@ str varName(muVar(str name, str fuid, int pos, AType atype)){ // duplicate, see 
 /*  Convert an AType to a test for that AType (represented as VType)         */
 /*****************************************************************************/
 
-str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
+//str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
+
+str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads), JGenie jg)
+    = intercalate(" || ", ["<e>).getConstructorType().equivalent(<atype2vtype(tp)>" | <_, _, tp> <- overloads]);
+ 
+default str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
 
 public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
       remaining = input;
