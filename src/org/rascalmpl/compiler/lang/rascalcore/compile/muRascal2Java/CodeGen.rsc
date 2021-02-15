@@ -1630,6 +1630,9 @@ JCode trans(muHasNameAndArity(AType atype, AType consType, MuExp name, int arity
         case acons(AType adt, list[AType] fields, list[Keyword] kwFields):
             //return "<v> instanceof IConstructor && ((IConstructor)<v>).arity() == <arity> && ((IConstructor)<v>).getName().equals(\"<name>\")";
             return "((IConstructor)<v>).getConstructorType().equivalent(<atype2idpart(consType)>)";
+        case overloadedAType(rel[loc, IdRole, AType] overloads):
+            return intercalate(" || ", ["((IConstructor)<v>).getType().equivalent(<atype2vtype(tp)>)" | <_, _, tp> <- overloads]);
+        
         //case anode(_):
         default:
             return "<v> instanceof INode && ((INode)<v>).arity() == <arity> && ((INode)<v>).getName().equals(<trans2NativeStr(name,jg)>)";
