@@ -6,12 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -19,12 +16,7 @@ import java.util.function.Function;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
@@ -32,6 +24,7 @@ import org.rascalmpl.repl.ILanguageProtocol;
 import org.rascalmpl.repl.REPLContentServer;
 import org.rascalmpl.repl.REPLContentServerManager;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
 import com.google.gson.stream.JsonWriter;
@@ -51,14 +44,14 @@ import io.usethesource.vallang.type.TypeFactory;
 import jline.TerminalFactory;
 
 public class TermREPL {
-    private final IValueFactory vf;
+    private final IRascalValueFactory vf;
     private ILanguageProtocol lang;
     private final OutputStream out;
     private final OutputStream err;
     private final InputStream in;
 
 
-    public TermREPL(IValueFactory vf, OutputStream out, OutputStream err, InputStream in) {
+    public TermREPL(IRascalValueFactory vf, OutputStream out, OutputStream err, InputStream in) {
         this.vf = vf;
         this.out = out;
         this.err = err;
@@ -77,66 +70,23 @@ public class TermREPL {
         }
 
         TypeFactory tf = TypeFactory.getInstance();
-        IFunction send = new AbstractFunction(null, eval.getEvaluator(),
-            tf.functionType(tf.voidType(), tf.tupleType(tf.stringType()), tf.tupleEmpty()), 
-            tf.functionType(tf.voidType(), tf.tupleType(tf.stringType()), tf.tupleEmpty()), 
-            Collections.emptyList(), false, eval.getEvaluator().getCurrentEnvt()) {
-
-            @Override
-            public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) throws MatchFailed {
-                baseRepl.queueCommand(((IString)argValues[0]).getValue());
-                return ResultFactory.nothing();
-            }
-
-            @Override
-            public ICallableValue cloneInto(Environment env) {
-                return this;
-            }
-
-            @Override
-            public boolean isStatic() {
-                return false;
-            }
-
-            @Override
-            public boolean isDefault() {
-                return false;
-            }
-        };
-        
-        IFunction run = new AbstractFunction(null, eval.getEvaluator(),
-            tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty()), 
-            tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty()), 
-            Collections.emptyList(), false, eval.getEvaluator().getCurrentEnvt()) {
-            
-            
-            @Override
-            public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) throws MatchFailed {
+        IFunction run = vf.function(tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty()), 
+            (args, kwargs) -> {
                 try {
                     baseRepl.run();
                 }
                 catch (IOException e) {
                     throw RuntimeExceptionFactory.io(e.getMessage());
                 }
-                return ResultFactory.nothing();
-            }
-            
-            @Override
-            public boolean isStatic() {
-                return false;
-            }
-            
-            @Override
-            public ICallableValue cloneInto(Environment env) {
-                return this;
-            }
-            
-            @Override
-            public boolean isDefault() {
-                return false;
-            }
-        };
+                return vf.tuple();
+            }); 
 
+        IFunction send = vf.function(tf.functionType(tf.voidType(), tf.tupleType(tf.stringType()), tf.tupleEmpty()), 
+            (args, kwargs) -> {
+                baseRepl.queueCommand(((IString)args[0]).getValue());
+                return vf.tuple();
+            });
+        
         return vf.tuple(run, send);
     }
 
