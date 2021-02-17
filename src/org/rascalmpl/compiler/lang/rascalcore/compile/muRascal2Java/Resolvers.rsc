@@ -52,6 +52,9 @@ str varName(muVar(str name, str fuid, int pos, AType atype)){ // duplicate, see 
 str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads), JGenie jg)
     = intercalate(" || ", ["<e>).getConstructorType().equivalent(<atype2vtype(tp)>" | <_, _, tp> <- overloads]);
  
+//str atype2istype(str e, t:acons(AType adt, list[AType] fields, list[Keyword] kwFields), JGenie jg) 
+//    = "<e>.getConstructorType().comparable(<jg.shareType(t)>)";
+
 default str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
 
 public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
