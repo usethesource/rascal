@@ -8,15 +8,23 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
@@ -57,14 +65,79 @@ public class TermREPL {
         this.in = in;
     }
 
-    public void startREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
-        ISourceLocation history, IFunction handler, IFunction completor, IFunction stacktrace) {
+    public ITuple newREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
+        ISourceLocation history, IFunction handler, IFunction completor, IFunction stacktrace, IEvaluatorContext eval) {
+        lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, in, err, out);
+        BaseREPL baseRepl;
         try {
-            lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, in, err, out);
-            new BaseREPL(lang, null, in, err, out, true, true, history, TerminalFactory.get(), null).run();
-        } catch (Throwable e) {
-            e.printStackTrace(new PrintWriter(err));
+            baseRepl = new BaseREPL(lang, null, in, err, out, true, true, history, TerminalFactory.get(), null);
         }
+        catch (Throwable e) {
+            throw RuntimeExceptionFactory.io(e.getMessage());
+        }
+
+        TypeFactory tf = TypeFactory.getInstance();
+        IFunction send = new AbstractFunction(null, eval.getEvaluator(),
+            tf.functionType(tf.voidType(), tf.tupleType(tf.stringType()), tf.tupleEmpty()), 
+            tf.functionType(tf.voidType(), tf.tupleType(tf.stringType()), tf.tupleEmpty()), 
+            Collections.emptyList(), false, eval.getEvaluator().getCurrentEnvt()) {
+
+            @Override
+            public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) throws MatchFailed {
+                baseRepl.queueCommand(((IString)argValues[0]).getValue());
+                return ResultFactory.nothing();
+            }
+
+            @Override
+            public ICallableValue cloneInto(Environment env) {
+                return this;
+            }
+
+            @Override
+            public boolean isStatic() {
+                return false;
+            }
+
+            @Override
+            public boolean isDefault() {
+                return false;
+            }
+        };
+        
+        IFunction run = new AbstractFunction(null, eval.getEvaluator(),
+            tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty()), 
+            tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty()), 
+            Collections.emptyList(), false, eval.getEvaluator().getCurrentEnvt()) {
+            
+            
+            @Override
+            public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) throws MatchFailed {
+                try {
+                    baseRepl.run();
+                }
+                catch (IOException e) {
+                    throw RuntimeExceptionFactory.io(e.getMessage());
+                }
+                return ResultFactory.nothing();
+            }
+            
+            @Override
+            public boolean isStatic() {
+                return false;
+            }
+            
+            @Override
+            public ICallableValue cloneInto(Environment env) {
+                return this;
+            }
+            
+            @Override
+            public boolean isDefault() {
+                return false;
+            }
+        };
+
+        return vf.tuple(run, send);
     }
 
     public static class TheREPL implements ILanguageProtocol {
