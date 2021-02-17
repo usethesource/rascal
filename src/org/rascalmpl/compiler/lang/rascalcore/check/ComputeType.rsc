@@ -1025,6 +1025,7 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
        <filteredOverloads, identicalFields> = filterOverloadedConstructors(overloads, bareArgTypes, subjectType, s);
        if({<key, idr, tp>} := filteredOverloads){
           texp = tp;
+          s.fact(expression, tp);
        } else {
           if(insideFormals(s) && (size(overloads) > 1)){
             if(any(tp <- bareArgTypes, !s.isFullyInstantiated(tp))){
@@ -1050,6 +1051,7 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
         }
         if({<key, idr, tp>} := validOverloads){
            texp = tp; 
+           s.fact(expression, tp);
             // TODO check identicalFields to see whether this can make sense
            // unique overload, fall through to non-overloaded case to potentially bind more type variables
         } else if(isEmpty(validReturnTypeOverloads)) s.report(error(current, "No pattern constructor found for %q of expected type %t", expression, subjectType));
