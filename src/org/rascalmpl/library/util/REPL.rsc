@@ -21,8 +21,11 @@ private Content echo(str line) = text(line);
    
 private Completion noSuggestions(str _, int _) = <0, []>;
 
+alias Terminal = tuple[void() run, void(str) send];
+
 @javaClass{org.rascalmpl.library.util.TermREPL}
-java void startREPL(REPL repl, 
+@reflect{Makes closures}
+java Terminal newREPL(REPL repl, 
   
   // filling in defaults from the repl constructor, for use in the Java code:
   str title = repl.title, 
@@ -33,3 +36,21 @@ java void startREPL(REPL repl,
   Content (str ) handler = repl.handler,
   Completion(str , int) completor = repl.completor,
   str () stacktrace = repl.stacktrace);
+
+void startREPL(REPL repl, 
+  
+  // filling in defaults from the repl constructor, for use in the Java code:
+  str title = repl.title, 
+  str welcome = repl.welcome, 
+  str prompt = repl.prompt, 
+  str quit = repl.quit,
+  loc history = repl.history,
+  Content (str ) handler = repl.handler,
+  Completion(str , int) completor = repl.completor,
+  str () stacktrace = repl.stacktrace) {
+  
+  Terminal tm = newREPL(repl, title=title, welcome=welcome,
+    prompt=prompt, quit=quit, history=history, 
+    handler=handler, completor=completor, stacktrace=stacktrace);
+  tm.run();  
+}
