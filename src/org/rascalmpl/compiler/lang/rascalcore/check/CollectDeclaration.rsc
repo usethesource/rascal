@@ -157,7 +157,10 @@ Expression makeKeywordDefaultExpression(Type annoType, Collector c){
     case (Type) `set[<TypeArg t>]`: res = (Expression) `{}`;
     case (Type) `map[<TypeArg k>,<TypeArg v>]`: res = (Expression) `()`;
     case (Type) `rel[<{TypeArg ","}+ arguments>]`: res = (Expression) `{}`;
-    case (Type) `lrel[<{TypeArg ","}+ arguments>]`: res= (Expression) `[]`;
+    case (Type) `lrel[<{TypeArg ","}+ arguments>]`: res = (Expression) `[]`;
+    case (Type) `Message`: {
+            ;//res = (Expression) `error("AUTOMATICALLY GENERATED DEFAULT MESSAGE", |error:///|)`;
+        }
     default: {
         println("WARNING: makeKeywordDefaultExpression: <annoType>");
         }

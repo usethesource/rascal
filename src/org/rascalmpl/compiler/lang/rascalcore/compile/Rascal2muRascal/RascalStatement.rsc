@@ -752,14 +752,14 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optF
      assignTo(receiver, "=", rhs_type, muCallPrim3("<getOuterType(receiver)>_slice_<getAssignOp(operator)>", getType(receiver), [getType(receiver)], [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs], a@\loc));
 
 MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, str operator,  AType rhs_type, MuExp rhs) {
-    //println("a: <getType(a)>");
-    //println("receiver: <getType(receiver)>");
-    //println("getValues(receiver)[0]: <getValues(receiver)[0]>");
+    println("a: <getType(a)>");
+    println("receiver: <getType(receiver)>");
+    println("getValues(receiver)[0]: <getValues(receiver)[0]>");
     res = 
      getOuterType(receiver) == "atuple" 
      ? assignTo(receiver,  "=", rhs_type, muCallPrim3("update", rhs_type, [getType(receiver)], [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), applyOperator(operator, a, rhs_type, rhs)], a@\loc) )
      : assignTo(receiver, "=", rhs_type, muSetField(getType(a), getType(receiver), getValues(receiver)[0], "<field>", applyOperator(operator, a, rhs_type, rhs)) );
-     //println("res:"); iprintln(res);
+     println("res:"); iprintln(res);
      return res;
 }
 MuExp assignTo(Assignable a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator,  AType rhs_type, MuExp rhs) = 
