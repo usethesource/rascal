@@ -723,7 +723,7 @@ AType addADTLabel(AType a1, AType a2, AType adt){
 
 //AType alub(acons(AType la, list[AType] _,  list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = alub(la,ra);
 AType alub(acons(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, list[AType] rp, list[Keyword] rkw)) {
-    if(lr == rr && size(lp) == size(rp)){
+    if(/*lr == rr && */size(lp) == size(rp)){
         return afunc(alub(lr,rr), alubList(lp, rp), lkw + (rkw - lkw)); // TODO do we want to propagate the keyword parameters?
     } else
         return avalue();
