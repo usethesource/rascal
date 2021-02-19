@@ -925,10 +925,15 @@ JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str f
 default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
     base = transWithCast(consType, cons, jg);
     qFieldName = "\"<fieldName>\"";
-    println("muGetField: <resultType>, <consType>, <fieldName>");
+    println("muGetField: resultType=<resultType>,
+            '            consType=<consType>,
+            '            fieldName= <fieldName>");
+    
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
     if(isNonTerminalType(consType)){
         return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\")";
+    } else if(isADTType(consType)){
+        return "$get_<getADTName(consType)>_<getJavaName(fieldName)>(<base>)";
     } else {
         isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
         return isConsKwField ? "$get_<consType.adt.adtName>_<getJavaName(consType.label)>_<getJavaName(fieldName)>(<base>)"
