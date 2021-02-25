@@ -434,7 +434,7 @@ public class PathConfig {
         ISourceLocation current = member;
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         while (current != null && reg.exists(current) && reg.isDirectory(current)) {
-            if (reg.exists(URIUtil.getChildLocation(member, "META-INF/RASCAL.MF"))) {
+            if (reg.exists(URIUtil.getChildLocation(current, "META-INF/RASCAL.MF"))) {
                 return current;
             }
 
