@@ -62,11 +62,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.TimeZone;
-import com.ibm.icu.util.ULocale;
-
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -79,6 +74,7 @@ import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.UnsupportedSchemeException;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -87,6 +83,11 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
+
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
+import com.ibm.icu.util.ULocale;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -1049,13 +1050,18 @@ public class Prelude {
 	public IValue listEntries(ISourceLocation sloc) {
 		try {
 			String [] entries = URIResolverRegistry.getInstance().listEntries(sloc);
+			if (entries == null) {
+			    throw RuntimeExceptionFactory.illegalArgument(sloc);
+			}
 			IListWriter w = values.listWriter();
 			for(String entry : entries) {
 				w.append(values.string(entry));
 			}
-			return w.done(); 
-		} catch(FileNotFoundException e){
+			return w.done();
+		} catch (FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
+		} catch (UnsupportedSchemeException e) {
+		    throw RuntimeExceptionFactory.schemeNotSupported(sloc);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		} 
