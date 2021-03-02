@@ -30,7 +30,12 @@ str generateInterface(str moduleName, str packageName, str className, list[MuFun
 lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str] extends, map[str,TModel] tmodels){
     result = [];
     signatures = {};
-    for(f <- functions, isEmpty(f.scopeIn) , !("test" in f.modifiers || isSyntheticFunctionName(f.name) || isMainName(f.name))){
+    mscope = tmodels[moduleName].moduleLocs[moduleName];
+    for(f <- functions, isEmpty(f.scopeIn), isContainedIn(f.src, mscope),
+                                            !("test" in f.modifiers 
+                                             || isSyntheticFunctionName(f.name) 
+                                             || isMainName(f.name))
+       ){
         signatures += <f.name, getArity(f.ftype), f.ftype>;
     }
     //iprintln(signatures);
@@ -38,6 +43,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     for(ext <- extends){
         for(def <- tmodels[ext].defines, defType(tp) := def.defInfo, 
             def.idRole == functionId() || def.idRole == constructorId(),
+            isContainedIn(def.defined, mscope),
             !(tp has isTest && tp.isTest),
             !(isSyntheticFunctionName(def.id) || isMainName(def.id))){
             signatures += <def.id, getArity(tp), tp>;

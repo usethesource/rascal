@@ -338,9 +338,9 @@ str getMemoCache(MuFunction fun)
     = "$memo_<getJavaName(getUniqueFunctionName(fun))>";
     
 JCode trans(MuFunction fun, JGenie jg){
-    println("trans <fun.name>, <fun.ftype>");
+    //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
-    iprintln(fun);
+    //iprintln(fun);
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return "";
     

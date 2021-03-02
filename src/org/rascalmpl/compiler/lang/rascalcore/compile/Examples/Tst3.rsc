@@ -1,6 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst3
 
-import  lang::rascalcore::compile::Examples::Tst2;
+extend  lang::rascalcore::compile::Examples::Tst1;
+extend  lang::rascalcore::compile::Examples::Tst2;
 
 //data D = d(str s);
 //
