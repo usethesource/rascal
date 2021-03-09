@@ -611,7 +611,11 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     s.report(error(current, "`char` requires 1 argument, found %v", nactuals));
                 }
                 s.requireEqual(actuals[0], aint(), error(actuals[0], "Argument should be of type `int`, found %t", actuals[0]));
-                return anyCharType;
+                if(actuals[0] is literal){
+                    c = toInt("<actuals[0]>");
+                    return \char-class([arange(c, c)]);
+                } else
+                    return anyCharType;
             }
              
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
