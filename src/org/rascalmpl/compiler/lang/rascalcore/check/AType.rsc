@@ -544,11 +544,17 @@ bool asubtype(areified(AType s), anode(_)) = true;
 
 bool asubtype(anode(list[AType] l), anode(list[AType] r)) = l <= r;
 
-// Character classes
+// Character classes and char
 bool asubtype(l:\char-class(_), r:\char-class(_)) {
     return  l.ranges == r.ranges || (difference(r, l) != \char-class([]));
 }
 bool asubtype(l:\char-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
+
+bool asubtype(\char(int c), \char-class(list[ACharRange] ranges)) {
+    res = difference(ranges, [arange(c,c)]) == [arange(c,c)];
+    return res;
+}
+bool asubtype(l:\char-class(list[ACharRange] ranges), \char(int c)) = l == \char-class([arange(c,c)]);
 
 // Utilities
 
