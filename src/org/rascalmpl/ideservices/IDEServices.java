@@ -36,4 +36,15 @@ public interface IDEServices extends IRascalMonitor {
    */
   void edit(ISourceLocation path);
 
+  /**
+   * Implements the project scheme by deferring to the IDEservices 
+   * @param input
+   * @return either the exact same loc in case nothing could be resolved, or a 
+   *         new location which with a new scheme which can be resolved without
+   *         communication with the IDE services
+   */
+  default ISourceLocation resolveProjectLocation(ISourceLocation input) {
+    return input;
+  }
+
 }
