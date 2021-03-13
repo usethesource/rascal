@@ -875,35 +875,3 @@ str atype2vtype(areified(AType atype)) {
 }
 
 default str atype2vtype(AType t) = "$TF.valueType()";
-
-///******************************************************************************/
-///*  Convert an AType to Java code that creates that type via the ATypeFactory */
-///*****************************************************************************/
-//
-//// TODO complete all cases
-//str atype2vtype(a: aint()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: abool()) = "AType_abool<a.label? "_lab" : "">";
-//str atype2vtype(a: areal()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: arat()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: astr()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: anum()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: anode(list[AType fieldType] fields)) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: avoid()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: avalue()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: aloc()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: adatetime()) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(a: alist(AType t)) = "AType_aint<a.label? "_lab" : "">";
-//str atype2vtype(aset(AType t)) = a.label? ? "aset_lab(<atype2vtype(t)>, <a.label>)" : "alist(<atype2vtype(t)>)";
-//str atype2vtype(atuple(AType ts)) = "$TF.tupleType(<atype2vtype(ts)>)";
-//str atype2vtype(amap(AType d, AType r)) = "$TF.mapType(<atype2vtype(d)>,<atype2vtype(r)>)";
-//str atype2vtype(arel(AType t)) = "$TF.setType($TF.tupleType(<atype2vtype(t)>))";
-//str atype2vtype(alrel(AType t)) = "$TF.listType($TF.tupleType(<atype2vtype(t)>))";
-//str atype2vtype(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = "getADTName(adtName);
-//str atype2vtype(acons(AType adt,
-//                list[AType fieldType] fields,
-//                lrel[AType fieldType, Expression defaultExp] kwFields))
-//                 = "IConstructor";
-//
-//str atype2vtype(atypeList(list[AType] atypes)) = intercalate(", ", [atype2vtype(t) | t <- atypes]);
-//str atype2vtype(areified(AType atype)) = "AType";
-//default str atype2vtype(AType t) = "$TF.valueType()";
