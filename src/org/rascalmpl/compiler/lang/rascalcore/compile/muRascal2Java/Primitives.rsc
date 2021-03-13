@@ -321,6 +321,10 @@ JCode transPrim("open_set_writer", AType r, [], [], JGenie jg)                  
 JCode transPrim("open_map_writer", AType r, [], [], JGenie jg)                           = "$VF.mapWriter()";  
 JCode transPrim("open_string_writer", AType r, [], [], JGenie jg)                        = "new StringWriter()";
 
+// ---- parse -----------------------------------------------------------------
+
+JCode transPrim("parse", AType r, [avalue(), astr(), aloc()], [str x, str y, str z], JGenie jg) = "$parse(<x>, <y>, <z>)";
+
 // ---- product ---------------------------------------------------------------
 
 JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "$<getOuter(a)>_product_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);

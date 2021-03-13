@@ -1586,11 +1586,14 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
 // -- asType expression ---------------------------------------------
 
 MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  {
-   throw "asType: TODO";
- //muCallPrim3("parse", [muCon(getModuleName()), 
- //  					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
- //  					    translate(argument)], 
- //  					    argument@\loc);
+    resultType = translateType(typ);  
+    return muCallPrim3("parse", resultType,
+                                [ avalue(), astr(), aloc()],
+                                [ muATypeCon(resultType, collectNeededDefs(resultType)),
+   					              translate(argument),
+   					              muCon(argument@\loc)
+   					            ], 
+   					            argument@\loc);
 }
 
 // -- composition expression ----------------------------------------

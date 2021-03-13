@@ -29,6 +29,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
@@ -2671,6 +2672,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	public final IBool $amap_lessequal_amap(final IMap left, final IMap right) {
 		return $VF.bool(left.isSubMap(right));
+	}
+	
+	// ---- parse -------------------------------------------------------------
+	
+	public final IValue $parse(final IValue reified, IString inputText, ISourceLocation inputLocation) {
+		IFunction parser = $RVF.parser(reified, $VF.bool(true),$VF.bool(false), $VF.bool(false));
+		return parser.call(inputText, inputLocation);
 	}
 
 	// ---- product -----------------------------------------------------------
