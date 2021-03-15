@@ -854,7 +854,15 @@ str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)
     return "$TF.functionType(<atype2vtype(ret)>, <vformals>, <vkwformals>)";
 }
       
-str atype2vtype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = getADTName(adtName);
+str atype2vtype(aadt(str adtName, list[AType] parameters, dataSyntax()))
+    = getADTName(adtName);
+str atype2vtype(aadt(str adtName, list[AType] parameters, contextFreeSyntax()))    
+    = "$TF.fromSymbol($RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
+str atype2vtype(aadt(str adtName, list[AType] parameters, lexicalSyntax()))    
+    = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"lex\", $VF.string(\"<adtName>\"))";
+str atype2vtype(aadt(str adtName, list[AType] parameters, layoutSyntax()))    
+    = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
+                                 
 str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
