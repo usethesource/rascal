@@ -69,7 +69,15 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 			return VF.amb(ambSublist.done());
 		}
 		else {
-			throw new Ambiguous(VF.amb(ambSublist.done()));
+			ITree result = VF.amb(ambSublist.done());
+
+			// singleton amb clusters may have been reduced.
+			if (result.isAmb()) {
+				throw new Ambiguous(result);
+			}
+			else {
+				return result;
+			}
 		}
 	}
 
