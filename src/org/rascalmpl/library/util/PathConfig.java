@@ -147,6 +147,12 @@ public class PathConfig {
         this.classloaders = initializeLocList(classloaders);
     }
 
+    public PathConfig parse(String pathConfigString) {
+        IConstructor cons = (IConstructor) new StandardTextReader().read(vf, store, PathConfigType, new StringReader(pathConfigString)));
+
+        return new PathConfig((IList) cons.get("srcs"), (IList) cons.get("libs"), (ISourceLocation) cons.get("bin"));
+    }
+
     private static List<ISourceLocation> initializeLocList(IList srcs) {
         return dedup(convertLocs(srcs));
     }
