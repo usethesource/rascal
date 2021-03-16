@@ -16,6 +16,7 @@ import java.net.URI;
 
 import org.rascalmpl.debug.IRascalMonitor;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -45,6 +46,14 @@ public interface IDEServices extends IRascalMonitor {
    */
   default ISourceLocation resolveProjectLocation(ISourceLocation input) {
     return input;
+  }
+
+  /**
+   * Registers a new language definition with the surrounding IDE
+   * @param language
+   */
+  default void registerLanguage(IConstructor language) {
+     // do nothing
   }
 
 }
