@@ -25,6 +25,7 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -147,10 +148,15 @@ public class PathConfig {
         this.classloaders = initializeLocList(classloaders);
     }
 
-    public PathConfig parse(String pathConfigString) {
-        IConstructor cons = (IConstructor) new StandardTextReader().read(vf, store, PathConfigType, new StringReader(pathConfigString)));
+    public PathConfig parse(String pathConfigString) throws IOException {
+        try {
+            IConstructor cons = (IConstructor) new StandardTextReader().read(vf, store, PathConfigType, new StringReader(pathConfigString));
 
-        return new PathConfig((IList) cons.get("srcs"), (IList) cons.get("libs"), (ISourceLocation) cons.get("bin"));
+            return new PathConfig((IList) cons.get("srcs"), (IList) cons.get("libs"), (ISourceLocation) cons.get("bin"));
+        } 
+        catch (FactTypeUseException e) {
+            throw new IOException(e);
+        }
     }
 
     private static List<ISourceLocation> initializeLocList(IList srcs) {
