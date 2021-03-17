@@ -153,7 +153,16 @@ public class PathConfig {
         try {
             IConstructor cons = (IConstructor) new StandardTextReader().read(vf, store, PathConfigType, new StringReader(pathConfigString));
             IWithKeywordParameters<?> kwp = cons.asWithKeywordParameters();
-            return new PathConfig((IList) kwp.getParameter("srcs"), (IList) kwp.getParameter("libs"), (ISourceLocation) kwp.getParameter("bin"));
+
+            IList srcs = (IList) kwp.getParameter("srcs");
+            IList libs =  (IList) kwp.getParameter("libs");
+            ISourceLocation bin = (ISourceLocation) kwp.getParameter("bin");
+
+            return new PathConfig(
+                srcs != null ? srcs : vf.list(), 
+                libs != null ? libs : vf.list(),
+                bin != null ? bin : URIUtil.rootLocation("cwd") 
+            );
         } 
         catch (FactTypeUseException e) {
             throw new IOException(e);
