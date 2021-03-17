@@ -42,6 +42,7 @@ import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -378,6 +379,14 @@ public class JavaBridge {
 					    else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
 					        args[i] = new RascalFunctionValueFactory(ctx);
 					    }
+						else if (formals[i].isAssignableFrom(IDEServices.class)) {
+							if (monitor instanceof IDEServices) {
+								args[i] = (IDEServices) monitor;
+							}
+							else {
+								args[i] = null;
+							}
+						}
 					    else {
 					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
 					    }

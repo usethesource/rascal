@@ -25,6 +25,7 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
@@ -151,8 +152,8 @@ public class PathConfig {
     public PathConfig parse(String pathConfigString) throws IOException {
         try {
             IConstructor cons = (IConstructor) new StandardTextReader().read(vf, store, PathConfigType, new StringReader(pathConfigString));
-
-            return new PathConfig((IList) cons.get("srcs"), (IList) cons.get("libs"), (ISourceLocation) cons.get("bin"));
+            IWithKeywordParameters<?> kwp = cons.asWithKeywordParameters();
+            return new PathConfig((IList) kwp.getParameter("srcs"), (IList) kwp.getParameter("libs"), (ISourceLocation) kwp.getParameter("bin"));
         } 
         catch (FactTypeUseException e) {
             throw new IOException(e);
