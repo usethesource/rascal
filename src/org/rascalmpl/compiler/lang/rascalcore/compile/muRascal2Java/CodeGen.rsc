@@ -61,7 +61,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     moduleScopes = range(moduleLocs); //{ s |tm <- range(tmodels), s <- tm.scopes, tm.scopes[s] == |global-scope:///| };
     
   
-    <typestore, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors);
+    <adtTypeDecls, consTypeDecls, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors, jg);
     
     bool hasMainFunction = false;
     str mainName = "main";
@@ -203,12 +203,14 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '    private $<className> $me;
                         '    private RascalExecutionContext rex = new RascalExecutionContext(new PrintWriter(System.out), new PrintWriter(System.err), null, null);
                         '    final Traverse $TRAVERSE = new Traverse($VF);
-                        '    <typestore>
+                        '    <adtTypeDecls>
+                        '    <jg.getConstants()>
+                        '    <consTypeDecls>
+                        '    <kwpDecls>
                         '    <library_inits>
                         '    <imp_ext_decls>
                         '    <module_variables>
                         '    <class_constructor>
-                        '    <jg.getConstants()>
                         '    <resolvers>
                         '    <functions>
                         '    <main_method>
@@ -223,7 +225,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
 
 // Generate a TypeStore and declarations for keyword parameters
 
-tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] constructors){
+tuple[str,str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] constructors, JGenie jg){
     adtTypeDecls = "";
     seenAdtNames = {};
     for(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) <- ADTs){
@@ -238,15 +240,14 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
     for(c: acons(AType adt, list[AType] fields, list[Keyword] kwpFields) <- constructors){
         adt_cons = atype2idpart(c);
         hasFieldNames = all(fld <- fields, !isEmpty(fld.label));
-        fieldDecls = hasFieldNames ? [ "<atype2vtype(fld)>, \"<fld.label>\"" | fld <- fields ] : [ "<atype2vtype(fld)>" | fld <- fields ];
+        fieldDecls = hasFieldNames ? [ "<atype2vtype(fld,jg)>, \"<fld.label>\"" | fld <- fields ] : [ "<atype2vtype(fld, jg)>" | fld <- fields ];
         consTypeDecls += "final io.usethesource.vallang.type.Type <adt_cons> = $TF.constructor($TS, <getADTName(adt.adtName)>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
         for(kwpField <- kwpFields){
-            kwpTypeDecls += "$TS.declareKeywordParameter(<adt_cons>,\"<kwpField.fieldType.label>\", <atype2vtype(kwpField.fieldType)>);\n";
+            kwpTypeDecls += "$TS.declareKeywordParameter(<adt_cons>,\"<kwpField.fieldType.label>\", <atype2vtype(kwpField.fieldType, jg)>);\n";
         }
     }    
-    return <"<adtTypeDecls>
-            '<consTypeDecls>
-            '",
+    return <adtTypeDecls,
+            consTypeDecls,
             kwpTypeDecls>;
 }
 
@@ -1406,7 +1407,7 @@ JCode genDescendantDescriptor(DescendantDescriptor descendant, JGenie jg){
     definitions = descendant.definitions;
     
     useConcreteFingerprint = "$VF.bool(<descendant.useConcreteFingerprint>)";
-    reachable_atypes = "new io.usethesource.vallang.type.Type[]{<intercalate(", ", [atype2vtype(t) | t <- descendant.reachable_atypes])>}";
+    reachable_atypes = "new io.usethesource.vallang.type.Type[]{<intercalate(", ", [atype2vtype(t, jg) | t <- descendant.reachable_atypes])>}";
     reachable_aprods = "new io.usethesource.vallang.IConstructor[]{<intercalate(", ", [jg.shareATypeConstant(t, definitions) | t <- descendant.reachable_aprods])>}";
     return "new DescendantDescriptor(<reachable_atypes>, 
            '                         <reachable_aprods>, 
@@ -1635,7 +1636,7 @@ JCode trans(muHasNameAndArity(AType atype, AType consType, MuExp name, int arity
         case acons(AType adt, list[AType] fields, list[Keyword] kwFields):
             return "((IConstructor)<v>).getConstructorType().equivalent(<atype2idpart(consType)>)";
         //case overloadedAType(rel[loc, IdRole, AType] overloads):
-        //    return intercalate(" || ", ["((IConstructor)<v>).getConstructorType().equivalent(<atype2vtype(tp)>)" | <_, _, tp> <- overloads]);
+        //    return intercalate(" || ", ["((IConstructor)<v>).getConstructorType().equivalent(<atype2vtype(tp, jg)>)" | <_, _, tp> <- overloads]);
         
         //case anode(_):
         default:

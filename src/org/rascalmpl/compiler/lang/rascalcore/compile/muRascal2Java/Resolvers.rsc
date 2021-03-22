@@ -50,7 +50,7 @@ str varName(muVar(str name, str fuid, int pos, AType atype)){ // duplicate, see 
 //str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
 
 str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads), JGenie jg)
-    = intercalate(" || ", ["<e>).getConstructorType().equivalent(<atype2vtype(tp)>" | <_, _, tp> <- overloads]);
+    = intercalate(" || ", ["<e>).getConstructorType().equivalent(<atype2vtype(tp, jg)>" | <_, _, tp> <- overloads]);
  
 //str atype2istype(str e, t:acons(AType adt, list[AType] fields, list[Keyword] kwFields), JGenie jg) 
 //    = "<e>.getConstructorType().comparable(<jg.shareType(t)>)";

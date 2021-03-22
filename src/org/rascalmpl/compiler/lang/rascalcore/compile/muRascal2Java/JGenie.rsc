@@ -104,6 +104,8 @@ JGenie makeJGenie(MuModule m,
             bool(loc a, loc b) { return <a, extendPath(), b> in allPaths; });
    
     extends = {<a, b> | <a, extendPath(), b> <- allPaths, a in importAndExtendScopes, b in importAndExtendScopes}+;
+    
+    JGenie thisJGenie;
    
     loc findDefiningModuleForDef(loc def){
         for(ms <- sortedImportAndExtendScopes){
@@ -341,11 +343,31 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _shareType(AType atype){
-        if(types[atype]?) return types[atype];
-        ntypes += 1;
-        c = "$T<ntypes>";
-        types[atype] = c;
-        return c;
+        atype = unsetR(atype, "label");
+        couter = "";
+        if(types[atype]?){
+            return types[atype];
+        } else if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := atype){
+            return "ADT_<adtName>";
+        } else {
+            ntypes += 1;
+            couter = "$T<ntypes>";
+            types[atype] = couter;
+        }
+        visit(atype){
+            case AType t: {
+                if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
+                        ;
+                } else if(atypeList(_) := t){
+                        ;
+                } else if(!types[t]?){
+                    ntypes += 1;
+                    c = "$T<ntypes>";
+                types[t] = c;
+                }
+            }
+        }
+        return couter;
     }
     
     str _shareConstant(value v) {
@@ -416,9 +438,34 @@ JGenie makeJGenie(MuModule m,
                     }
             }
         }
+        
+        str tdecls = "";
+        done = {};
+        // Generate type constants in the right declaration order, such that
+        // they are always declared before they are used in the list of type fields
+        for(t <- types){
+            if(t == ""){
+                if (c notin done) {
+                  decls = "<decls>
+                          'private final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t, thisJGenie)>;
+                          ";
+                  done += {t};
+                }
+            } else {
+                bottom-up visit(t) {
+                  case s:
+                        if (s notin done, s in types) {
+                          decls = "<decls>
+                                  'private final io.usethesource.vallang.type.Type <types[s]> = <atype2vtype(s, thisJGenie)>;\n
+                                  ";
+                          done += {s};
+                        }
+                    }
+            }
+        }
          
         return "<decls>
-               '<for(t <- types){>private final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t)>;<}>
+               '<tdecls>
                '<for(t <- atype_constants){>
                'private final IConstructor <atype_constants[t]> = $RVF.reifiedType(<value2IValue(t)>, <value2IValue(atype_definitions[t])>);
                '<}>";
@@ -469,7 +516,8 @@ JGenie makeJGenie(MuModule m,
         }
     }
     
-    return jgenie(
+    thisJGenie = 
+           jgenie(
                 _getModuleName,
                 _getModuleLoc,
                 _setFunction,
@@ -503,6 +551,7 @@ JGenie makeJGenie(MuModule m,
                 _getImportedLibraries,
                 _usesLocalFunctions
             );
+     return thisJGenie;
 }
 
 // ---- casting ---------------------------------------------------------------
