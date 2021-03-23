@@ -97,7 +97,8 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
                    '}\n";
         }
     }
-    types = "new io.usethesource.vallang.type.Type[] {<intercalate(", ", ["<isADTType(tp) ? "$me." : ""><atype2vtype(tp, jg)>" | tp <- formals])>}";
+    types = "new io.usethesource.vallang.type.Type[] {<intercalate(", ", ["<isADTType(tp) ? "" : "$me."><atype2vtype(tp, jg, inTest=true)>" | tp <- formals])>}";
+    //types = "new io.usethesource.vallang.type.Type[] {<intercalate(", ", ["<isADTType(tp) ? "$me." : ""><atype2vtype(tp, jg)>" | tp <- formals])>}";
     argTypes = f.ftype.formals;
     actuals = intercalate(", ", ["(<atype2javatype(argTypes[i])>)args[<i>]" | i <- index(formals)]);
     if(!isEmpty(externalArgs)){

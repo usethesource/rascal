@@ -822,66 +822,70 @@ default str value2outertype(AType t) = "IValue";
 /*******************************************************************************/
 /*  Convert an AType to an equivalent type ("VType") in the Vallang type store */
 /*******************************************************************************/
-str atype2vtype(aint(), JGenie jg) = "$TF.integerType()";
-str atype2vtype(abool(), JGenie jg) = "$TF.boolType()";
-str atype2vtype(areal(), JGenie jg) = "$TF.realType()";
-str atype2vtype(arat(), JGenie jg) = "$TF.rationalType()";
-str atype2vtype(astr(), JGenie jg) = "$TF.stringType()";
-str atype2vtype(anum(), JGenie jg) = "$TF.numberType()";
-str atype2vtype(anode(list[AType fieldType] fields), JGenie jg) = "$TF.nodeType()";
-str atype2vtype(avoid(), JGenie jg) = "$TF.voidType()";
-str atype2vtype(avalue(), JGenie jg) = "$TF.valueType()";
-str atype2vtype(aloc(), JGenie jg) = "$TF.sourceLocationType()";
-str atype2vtype(adatetime(), JGenie jg) = "$TF.dateTimeType()";
-str atype2vtype(alist(AType t), JGenie jg) = "$TF.listType(<jg.shareType(t)>)";
-str atype2vtype(aset(AType t), JGenie jg) = "$TF.setType(<jg.shareType(t)>)";
-str atype2vtype(atuple(AType ts), JGenie jg) = "$TF.tupleType(<atype2vtype(ts, jg)>)";
 
-str atype2vtype(amap(AType d, AType r), JGenie jg) {
+str refType(AType t, JGenie jg, bool inTest)
+    = inTest ? "$me.<jg.shareType(t)>" : jg.shareType(t);
+    
+str atype2vtype(aint(), JGenie jg, bool inTest=false) = "$TF.integerType()";
+str atype2vtype(abool(), JGenie jg, bool inTest=false) = "$TF.boolType()";
+str atype2vtype(areal(), JGenie jg, bool inTest=false) = "$TF.realType()";
+str atype2vtype(arat(), JGenie jg, bool inTest=false) = "$TF.rationalType()";
+str atype2vtype(astr(), JGenie jg, bool inTest=false) = "$TF.stringType()";
+str atype2vtype(anum(), JGenie jg, bool inTest=false) = "$TF.numberType()";
+str atype2vtype(anode(list[AType fieldType] fields), JGenie jg, bool inTest=false) = "$TF.nodeType()";
+str atype2vtype(avoid(), JGenie jg, bool inTest=false) = "$TF.voidType()";
+str atype2vtype(avalue(), JGenie jg, bool inTest=false) = "$TF.valueType()";
+str atype2vtype(aloc(), JGenie jg, bool inTest=false) = "$TF.sourceLocationType()";
+str atype2vtype(adatetime(), JGenie jg, bool inTest=false) = "$TF.dateTimeType()";
+str atype2vtype(alist(AType t), JGenie jg, bool inTest=false) = "$TF.listType(<refType(t, jg, inTest)>)";
+str atype2vtype(aset(AType t), JGenie jg, bool inTest=false) = "$TF.setType(<refType(t, jg, inTest)>)";
+str atype2vtype(atuple(AType ts), JGenie jg, bool inTest=false) = "$TF.tupleType(<atype2vtype(ts, jg, inTest=inTest)>)";
+
+str atype2vtype(amap(AType d, AType r), JGenie jg, bool inTest=false) {
     return (d.label? && d.label != "_")
-             ? "$TF.mapType(<jg.shareType(d)>, \"<d.label>\", <jg.shareType(r)>, \"<r.label>\")"
-             : "$TF.mapType(<jg.shareType(d)>,<jg.shareType(r)>)";
+             ? "$TF.mapType(<refType(d, jg, inTest)>, \"<d.label>\", <refType(r, jg, inTest)>, \"<r.label>\")"
+             : "$TF.mapType(<refType(d, jg, inTest)>,<refType(r, jg, inTest)>)";
 }
-str atype2vtype(arel(AType t), JGenie jg) = "$TF.setType($TF.tupleType(<atype2vtype(t, jg)>))";
-str atype2vtype(alrel(AType t), JGenie jg) = "$TF.listType($TF.tupleType(<atype2vtype(t, jg)>))";
+str atype2vtype(arel(AType t), JGenie jg, bool inTest=false) = "$TF.setType($TF.tupleType(<atype2vtype(t, jg,inTest=inTest)>))";
+str atype2vtype(alrel(AType t), JGenie jg, bool inTest=false) = "$TF.listType($TF.tupleType(<atype2vtype(t, jg, inTest=inTest)>))";
 
-str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), JGenie jg){
+str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), JGenie jg, bool inTest=false){
     vformals = isEmpty(formals) ? "$TF.tupleEmpty()" 
                                 : ( (!isEmpty(formals) && any(t <- formals, t.label?)) 
-                                        ? "$TF.tupleType(<intercalate(", ", [ *[jg.shareType(t), "\"<t.label>\""] | t <- formals])>)"
-                                        : "$TF.tupleType(<intercalate(", ", [ jg.shareType(t) | t <- formals])>)"
+                                        ? "$TF.tupleType(<intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.label>\""] | t <- formals])>)"
+                                        : "$TF.tupleType(<intercalate(", ", [ refType(t, jg, inTest) | t <- formals])>)"
                                   );
     vkwformals = isEmpty(kwFormals) ? "$TF.tupleEmpty()" 
-                                    : "$TF.tupleType(<intercalate(", ", [ jg.shareType(t.fieldType) | t <- kwFormals])>)"; 
+                                    : "$TF.tupleType(<intercalate(", ", [ refType(t.fieldType, jg, inTest) | t <- kwFormals])>)"; 
     return "$TF.functionType(<jg.shareType(ret)>, <vformals>, <vkwformals>)";
 }
       
-str atype2vtype(aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie jg)
+str atype2vtype(aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie jg, bool inTest=false)
     = getADTName(adtName);
-str atype2vtype(aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg)    
+str atype2vtype(aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.fromSymbol($RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
-str atype2vtype(aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg)    
+str atype2vtype(aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"lex\", $VF.string(\"<adtName>\"))";
-str atype2vtype(aadt(str adtName, list[AType] parameters, layoutSyntax()), JGenie jg)    
+str atype2vtype(aadt(str adtName, list[AType] parameters, layoutSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
                                  
 str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
-                lrel[AType fieldType, Expression defaultExp] kwFields), JGenie jg)
-                 = "$TF.constructor($TS, <jg.shareType(adt)>, \"<c.label>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[jg.shareType(t), "\"<t.label>\""] | t <- fields])>)";
-str atype2vtype(aparameter(str pname, AType bound), JGenie jg) = "$TF.parameterType(\"<pname>\", <jg.shareType(bound)>)";
+                lrel[AType fieldType, Expression defaultExp] kwFields), JGenie jg, bool inTest=false)
+                 = "$TF.constructor($TS, <jg.shareType(adt)>, \"<c.label>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.label>\""] | t <- fields])>)";
+str atype2vtype(aparameter(str pname, AType bound), JGenie jg, bool inTest=false) = "$TF.parameterType(\"<pname>\", <refType(bound, jg, inTest)>)";
 
 
-str atype2vtype(atypeList(list[AType] atypes), JGenie jg)
+str atype2vtype(atypeList(list[AType] atypes), JGenie jg, bool inTest=false)
     = (atypes[0].label? && atypes[0].label != "_")
-         ? intercalate(", ", [*[jg.shareType(t), "\"<t.label>\""] | t <- atypes])
-         : intercalate(", ", [jg.shareType(t) | t <- atypes]);
+         ? intercalate(", ", [*[refType(t, jg, inTest), "\"<t.label>\""] | t <- atypes])
+         : intercalate(", ", [refType(t, jg, inTest) | t <- atypes]);
                        
-str atype2vtype(areified(AType atype), JGenie jg) {
+str atype2vtype(areified(AType atype), JGenie jg, bool inTest=false) {
  //   dfs = collectNeededDefs(atype);
-    return "$RTF.reifiedType(<jg.shareType(atype)>)";
+    return "$RTF.reifiedType(<refType(atype, jg, inTest)>)";
   //return atype2IValue(atype, dfs);
    // return "$reifiedAType(<atype2IValue(atype, dfs)>, <value2IValue(dfs)>)";
 }
 
-default str atype2vtype(AType t, JGenie jg) = "$TF.valueType()";
+default str atype2vtype(AType t, JGenie jg, bool inTest=false) = "$TF.valueType()";
