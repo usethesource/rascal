@@ -11,6 +11,8 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 
+data JGenie; // hack ot break cycle?
+
 /*****************************************************************************/
 /*  Convert AType to a Java type                                             */
 /*****************************************************************************/
