@@ -206,7 +206,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '    <adtTypeDecls>
                         '    <jg.getConstants()>
                         '    <consTypeDecls>
-                        '    <kwpDecls>
+                        '   
                         '    <library_inits>
                         '    <imp_ext_decls>
                         '    <module_variables>
