@@ -447,7 +447,7 @@ JGenie makeJGenie(MuModule m,
             if(t == ""){
                 if (c notin done) {
                   decls = "<decls>
-                          'private final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t, thisJGenie)>;
+                          'final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t, thisJGenie)>;
                           ";
                   done += {t};
                 }
@@ -456,7 +456,7 @@ JGenie makeJGenie(MuModule m,
                   case s:
                         if (s notin done, s in types) {
                           decls = "<decls>
-                                  'private final io.usethesource.vallang.type.Type <types[s]> = <atype2vtype(s, thisJGenie)>;\n
+                                  'final io.usethesource.vallang.type.Type <types[s]> = <atype2vtype(s, thisJGenie)>;\n
                                   ";
                           done += {s};
                         }
@@ -467,7 +467,7 @@ JGenie makeJGenie(MuModule m,
         return "<decls>
                '<tdecls>
                '<for(t <- atype_constants){>
-               'private final IConstructor <atype_constants[t]> = $RVF.reifiedType(<value2IValue(t)>, <value2IValue(atype_definitions[t])>);
+               'final IConstructor <atype_constants[t]> = $RVF.reifiedType(<value2IValue(t)>, <value2IValue(atype_definitions[t])>);
                '<}>";
     }
     
