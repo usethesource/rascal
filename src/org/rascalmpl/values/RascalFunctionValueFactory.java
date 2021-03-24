@@ -203,7 +203,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             Environment current = ctx.getCurrentEnvt();
             Environment previous = current;
             
-            while (current != null && "parser".equals(current.getName())) {
+            while (current != null && "ParseTree".equals(current.getRoot().getName()) && "parser".equals(current.getName())) {
                 previous = current;
                 current = current.getCallerScope();
             }
