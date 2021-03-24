@@ -201,12 +201,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
          */
         private ModuleEnvironment retrieveCallingModuleEnvironment(IEvaluatorContext ctx) {
             Environment current = ctx.getCurrentEnvt();
+            Environment previous = current;
             
-            while (current.getName().equals("parser")) {
+            while (current != null && "parser".equals(current.getName())) {
+                previous = current;
                 current = current.getCallerScope();
             }
             
-            return (ModuleEnvironment) current.getRoot();
+            return (ModuleEnvironment) (current != null ?  current.getRoot() : previous.getRoot());
         }
 
         @Override
