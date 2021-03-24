@@ -147,6 +147,16 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
+	public boolean intersects(Type other) {
+		if (other instanceof RascalType) {
+			return ((RascalType) other).intersectsWithReified(this);
+		}
+		else {
+			return false;
+		}
+	}
+	
+	@Override
 	protected boolean intersects(RascalType type) {
 	    return type.intersectsWithReified(this);
 	}
