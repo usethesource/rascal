@@ -343,7 +343,7 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _shareType(AType atype){
-        atype = unsetR(atype, "label");
+        //atype = unsetR(atype, "label");
         couter = "";
         if(types[atype]?){
             return types[atype];

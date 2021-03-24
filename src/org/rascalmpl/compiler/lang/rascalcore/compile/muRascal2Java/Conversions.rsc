@@ -872,8 +872,10 @@ str atype2vtype(aadt(str adtName, list[AType] parameters, layoutSyntax()), JGeni
                                  
 str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
-                lrel[AType fieldType, Expression defaultExp] kwFields), JGenie jg, bool inTest=false)
-                 = "$TF.constructor($TS, <jg.shareType(adt)>, \"<c.label>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.label>\""] | t <- fields])>)";
+                lrel[AType fieldType, Expression defaultExp] kwFields), JGenie jg, bool inTest=false){
+    res = "$TF.constructor($TS, <jg.shareType(adt)>, \"<c.label>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.label>\""] | t <- fields])>)";
+    return res;
+}
 str atype2vtype(aparameter(str pname, AType bound), JGenie jg, bool inTest=false) = "$TF.parameterType(\"<pname>\", <refType(bound, jg, inTest)>)";
 
 
