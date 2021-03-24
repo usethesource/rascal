@@ -859,9 +859,10 @@ str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)
                                     : "$TF.tupleType(<intercalate(", ", [ refType(t.fieldType, jg, inTest) | t <- kwFormals])>)"; 
     return "$TF.functionType(<jg.shareType(ret)>, <vformals>, <vkwformals>)";
 }
-      
+
+
 str atype2vtype(aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie jg, bool inTest=false)
-    = getADTName(adtName);
+    = (inTest ? "$me." : "") + getADTName(adtName);
 str atype2vtype(aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.fromSymbol($RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
 str atype2vtype(aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg, bool inTest=false)    
