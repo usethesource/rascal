@@ -7,11 +7,13 @@ import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-public class JarURIResolver implements ISourceLocationInput {
+public class JarURIResolver implements ISourceLocationInput, IClassloaderLocationResolver {
 	private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	private final JarFileResolver file = new JarFileResolver();
 	private final JarFileResolver inputStream;
@@ -146,5 +148,10 @@ public class JarURIResolver implements ISourceLocationInput {
     @Override
     public boolean supportsHost() {
         return true; // someone we wrap might support host
+    }
+
+    @Override
+    public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
+        return registry.getClassLoader(getResolvedJarPath(loc), parent);
     }
 }

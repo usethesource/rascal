@@ -348,6 +348,20 @@ public class URIResolverRegistry {
 		}
 	}
 
+	private IClassloaderLocationResolver getClassloaderResolver(String scheme) {
+		synchronized (classloaderResolvers) {
+			IClassloaderLocationResolver result = classloaderResolvers.get(scheme);
+			if (result == null) {
+				Matcher m = splitScheme.matcher(scheme);
+				if (m.find()) {
+					String subScheme = m.group(1);
+					return classloaderResolvers.get(subScheme);
+				}
+			}
+			return result;
+		}
+	}
+
 	private ISourceLocationOutput getOutputResolver(String scheme) {
 		synchronized (outputResolvers) {
 			ISourceLocationOutput result = outputResolvers.get(scheme);
@@ -558,7 +572,7 @@ public class URIResolverRegistry {
 	}
 	
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
-	    IClassloaderLocationResolver resolver = classloaderResolvers.get(uri.getScheme());
+	    IClassloaderLocationResolver resolver = getClassloaderResolver(uri.getScheme());
 	    
 	    if (resolver == null) {
 	        throw new IOException("No classloader resolver registered for this URI scheme: " + uri);
