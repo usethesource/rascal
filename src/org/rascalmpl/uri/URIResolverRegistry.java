@@ -572,7 +572,7 @@ public class URIResolverRegistry {
 	}
 	
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
-	    IClassloaderLocationResolver resolver = getClassloaderResolver(uri.getScheme());
+	    IClassloaderLocationResolver resolver = getClassloaderResolver(safeResolve(uri).getScheme());
 	    
 	    if (resolver == null) {
 	        throw new IOException("No classloader resolver registered for this URI scheme: " + uri);
