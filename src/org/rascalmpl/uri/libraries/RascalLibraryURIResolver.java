@@ -25,6 +25,9 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
+import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -46,7 +49,7 @@ import io.usethesource.vallang.IValueFactory;
  * of ISourceLocation input for the plugin:// scheme. If it is not provided, this resolver only resolves to resources
  * which can be found via the System classloader.</p>
  */
-public class RascalLibraryURIResolver implements ISourceLocationInput {
+public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloaderLocationResolver {
     private final ConcurrentHashMap<String, ISourceLocation> classpathLibraries = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ISourceLocation> resolvedLibraries = new ConcurrentHashMap<>();
     private final URIResolverRegistry reg;
@@ -229,5 +232,10 @@ public class RascalLibraryURIResolver implements ISourceLocationInput {
     @Override
     public boolean supportsHost() {
         return false;
+    }
+
+    @Override
+    public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
+        return reg.getClassLoader(resolve(loc), parent);
     }
 }
