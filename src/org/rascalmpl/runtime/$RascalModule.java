@@ -102,7 +102,16 @@ public abstract class $RascalModule extends Type2ATypeReifier {
                 throw new IllegalArgumentException("Rascal JavaBridge can only deal with one constructor. This class has multiple: " + clazz);
             }
 
-            Constructor<?> constructor = clazz.getConstructors()[0];
+			Constructor<?>[] constructors = clazz.getConstructors();
+
+			if (constructors.length < 1) {
+				throw new JavaMethodLink(className, "no public constructors found", new IllegalArgumentException(className));
+			}
+			else if (constructors.length != 1) {
+				throw new JavaMethodLink(className, "more than one public constructor found", new IllegalArgumentException(className));
+			}
+
+            Constructor<?> constructor = constructors[0];
 
             Object[] args = new Object[constructor.getParameterCount()];
             Class<?>[] formals = constructor.getParameterTypes();
