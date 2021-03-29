@@ -33,7 +33,7 @@ import io.usethesource.vallang.IValue;
  */
 public class SourceLocationClassLoader extends ClassLoader {
     private final List<ClassLoader> path;
-    private final Stack<String> stack = new Stack<>();
+    private final Stack<SearchItem> stack = new Stack<>();
 
     public SourceLocationClassLoader(IList classpath, ClassLoader parent) {
         super(parent);
@@ -63,26 +63,31 @@ public class SourceLocationClassLoader extends ClassLoader {
     
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        if (stack.contains(name)) {
-            // we're already looking for this and could not find it apparently
-            return null;
-        }
-        
         for (ClassLoader l : path) {
+            SearchItem item = new SearchItem(l, name);
+
             try {
-                stack.push(name);
-                return l.loadClass(name);
+                if (stack.contains(item)) {
+                    // we fix an infinite recursion here; if we are already
+                    continue;
+                }
+                else {
+                    try {
+                        stack.push(item);
+                        return l.loadClass(name);
+                    }
+                    finally {
+                        stack.pop();
+                    }
+                }
             }
             catch (ClassNotFoundException e) {
                 // this is normal, try next loader
                 continue;
             }
-            finally {
-                stack.pop();
-            }
         }
         
-        return null;
+        throw new ClassNotFoundException(name);
     }
     
     @Override
@@ -138,5 +143,31 @@ public class SourceLocationClassLoader extends ClassLoader {
                 return it.next();
             }
         };
+    }
+
+    private static class SearchItem {
+        private final ClassLoader loader;
+        private final String className;
+
+        public SearchItem(ClassLoader loader, String className) {
+            this.loader = loader;
+            this.className = className;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj.getClass().equals(getClass())) {
+                SearchItem other = (SearchItem) obj;
+
+                return other.loader == loader && other.className.equals(className);
+            }
+
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return 17 + 7 * loader.hashCode() + 19 * className.hashCode();
+        }
     }
 }
