@@ -857,7 +857,7 @@ str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)
                                   );
     vkwformals = isEmpty(kwFormals) ? "$TF.tupleEmpty()" 
                                     : "$TF.tupleType(<intercalate(", ", [ refType(t.fieldType, jg, inTest) | t <- kwFormals])>)"; 
-    return "$RTF.functionType(<jg.shareType(ret)>, <vformals>, <vkwformals>)";
+    return "$TF.functionType(<jg.shareType(ret)>, <vformals>, <vkwformals>)";
 }
 
 
