@@ -51,6 +51,7 @@ public class BaseREPL {
     private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
     protected IDEServices ideServices;
     private final ILanguageProtocol language;
+    private final Terminal underlyingTerminal;
     
     private static byte CANCEL_RUNNING_COMMAND = (byte)ctrl('C'); 
     private static byte STOP_REPL = (byte)ctrl('D'); 
@@ -71,8 +72,13 @@ public class BaseREPL {
         this.language = language;
         
         if (!(stdin instanceof NotifieableInputStream) && !(stdin.getClass().getCanonicalName().contains("jline"))) {
-            stdin = new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b));
-            wrappedStream = stdin;
+            if (stdin == System.in) {
+                // before we wrap it with our own early detection of ctrl+c and friends, we need to see if jline has some specific
+                // wrappings that we need to do first
+                stdin = terminal.wrapInIfNeeded(stdin);
+            }
+            stdin = new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, this::handleEscape);
+            wrappedStream = null;
         }
         else {
             wrappedStream = null;
@@ -127,8 +133,9 @@ public class BaseREPL {
             if (reader.getCompletionHandler() instanceof CandidateListCompletionHandler) {
                 ((CandidateListCompletionHandler)reader.getCompletionHandler()).setPrintSpaceAfterFullCompletion(printSpaceAfterFullCompletion());
             }
-            reader.setHandleUserInterrupt(true);
         }
+        reader.setHandleUserInterrupt(true);
+        underlyingTerminal = terminal;
     }
 
 
@@ -168,7 +175,13 @@ public class BaseREPL {
     protected void handleInput(String line) throws InterruptedException {
         Map<String, InputStream> output = new HashMap<>();
         
-        language.handleInput(line, output, new HashMap<>());
+        underlyingTerminal.disableInterruptCharacter();
+        try {
+            language.handleInput(line, output, new HashMap<>());
+        }
+        finally {
+            underlyingTerminal.enableInterruptCharacter();
+        }
         
         // TODO: maybe we can do this cleaner, but this works for now
         InputStream out = output.get("text/plain");
