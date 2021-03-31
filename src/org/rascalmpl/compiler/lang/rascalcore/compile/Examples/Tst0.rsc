@@ -1,3 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst0
 
-bool isEmpty() = true;
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool arbBool();
