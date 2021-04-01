@@ -10,64 +10,57 @@
  */
 package org.rascalmpl.parser.uptr.action;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.control_exceptions.Failure;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.control_exceptions.Filtered;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
+import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.OverloadedFunction;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.types.NonTerminalType;
-import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.IConstructor;
 
 /**
- * This is the way of executing actions for Rascal syntax definitions. Each function
- * that returns a non-terminal type and is named one of the constructor names of one
- * of the alternatives and has the same argument types as the syntax production will
- * be called when a certain production is constructed, e.g:
- * 
- * Stat if(Exp e, Stat thenPart, Stat elsePart);
- * 
- * Also, on ambiguity clusters functions named 'amb' are called with a set[&T] argument
- * for the alternatives, e.g. Stat amb(set[Stat] alternatives);
- * 
- * Also, on entering a production the 'enter' function is called with a reifed type argument 
- * for the production type that is entered: void enter(type[Stat.If] prod);
- * 
- * Also on exiting a production the 'exit' function is called, similarly:
- * void exit(type[Stat.If] prod);
- * 
- * Note that RascalFunctionActionExecutors use functions visible from the call site of the parse
- * function.
+ * This is the way of executing filters for Rascal syntax definitions. 
+ * A set of "filter" functions is provided which are called at every
+ * level in the tree with as parameter the tree to be constructed.
+ * If the filter functions do nothing, nothing happens. If they 
+ * return a new tree, the old tree is substituted by the new tree.
+ * If they throw the `filter` exception, then the branch up to
+ * the first surrounding ambiguity cluster is filtered.
  */
 public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
-	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final IEvaluatorContext ctx;
 	private final boolean isPure;
+	private @Nullable OverloadedFunction filters;
 
-	public RascalFunctionActionExecutor(IEvaluatorContext ctx, boolean isPure) {
-		this.ctx = ctx;
+	public RascalFunctionActionExecutor(ISet functions, boolean isPure) {
 		this.isPure = isPure;
+		this.filters = !functions.isEmpty() ? constructFilterFunction(functions) : null;
 	}
 	
+	private OverloadedFunction constructFilterFunction(ISet functions) {
+		List<AbstractFunction> alts = functions.stream()
+			.map(v -> (AbstractFunction) v)
+			.collect(Collectors.toList());
+		
+		return new OverloadedFunction("filters", alts);
+	}
+
 	public void completed(Object environment, boolean filtered) {
 
 	}
 
 	public Object createRootEnvironment() {
-		return ctx.getCurrentEnvt();
+		return new Object();
 	}
 
 	public Object enteringListNode(Object production, int index, Object environment) {
@@ -101,49 +94,44 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	        // nothing to worry about. 
 	        return ambCluster;
 	    }
-		ISet alts = (ISet) ambCluster.get("alternatives");
 		
-		if (alts.size() == 0) {
+		if (TreeAdapter.getAlternatives(ambCluster).size() == 0) {
 			return null;
 		}
-		
-		Environment env = (Environment) environment;
-		
-		Result<IValue> var = env.getFrameVariable("amb");
-		
-		if (var != null && var instanceof ICallableValue) {
-			Type type = RascalTypeFactory.getInstance().nonTerminalType(ambCluster);
-			ICallableValue func = (ICallableValue) var;
-			try {
-				Result<IValue> result = func.call(
-						new Type[] {TF.setType(type)}, new IValue[] {alts}, null
-				);
-				
-				if (result.getStaticType().isBottom()) {
-					return ambCluster;
-				}
-				ITree r = (ITree) result.getValue();
-				if (TreeAdapter.isAmb(r)) {
-					ISet returnedAlts = TreeAdapter.getAlternatives(r);
-					if (returnedAlts.size() == 1) {
-						return (ITree) returnedAlts.iterator().next();
-					}
-					else if (returnedAlts.size() == 0) {
-						return null;
-					}
-					else {
-						return r;
-					}
-				}
-					
-				return (ITree) result.getValue();
+
+		if (filters == null) {
+			return ambCluster;
+		}
+
+		try {
+			ITree result = filters.call(ambCluster);
+
+			if (!TreeAdapter.isAmb(result)) {
+				return result;
 			}
-			catch (ArgumentMismatch e) {
+			else if (TreeAdapter.getAlternatives(result).size() == 1) {
+				return (ITree) TreeAdapter.getAlternatives(result).iterator().next();
+			}
+			else {
+				return result;
+			}
+		} 
+		catch (MatchFailed m) {
+			return ambCluster;
+		}
+		catch (Throw t) {
+			IValue exc = t.getException();
+
+			if (exc.getType().isAbstractData() && ((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.CallFailed) {
 				return ambCluster;
 			}
+			else {
+				throw t;
+			}
 		}
-		
-		return ambCluster;
+		catch (Filtered f) {
+			return null;
+		}
 	}
 
 	@Override
@@ -167,68 +155,41 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	}
 
 	@Override
-	public ITree filterProduction(ITree tree,
-			Object environment) {
-		String cons = TreeAdapter.getConstructorName(tree);
-		
-		if (cons != null) {
-			Environment env = (Environment) environment;
-			Result<IValue> var = env.getFunctionForReturnType(tree.getType(), cons);
-			
-			if (var != null && var instanceof ICallableValue) {
-				ICallableValue function = (ICallableValue) var;
-				
-				try{
-					Result<IValue> result = null;
-					if(TreeAdapter.isContextFree(tree)){
-						// For context free trees, try it without layout and literal arguments first.
-						result = call(function, TreeAdapter.getASTArgs(tree));
-					}
-					
-					if (result == null){
-						result = call(function, TreeAdapter.getArgs(tree));
-					}
-					
-					if (result == null) {
-						return tree;
-					}
-					
-					if (result.getStaticType().isBottom()) {
-						return tree;
-					}
-					
-					if (!(result.getStaticType() instanceof NonTerminalType 
-							&& SymbolAdapter.isEqual(((NonTerminalType) result.getStaticType()).getSymbol(), TreeAdapter.getType(tree)))) {
-						// do not call the function if it does not return the right type
-						return tree;
-					}
-					
-					return (ITree) result.getValue();
-				} catch(Filtered f){
-					return null;
-				}
+	public ITree filterProduction(ITree tree, Object environment) {
+		if (filters == null) {
+			return tree;
+		}
+
+		try {
+			ITree result = (ITree) filters.call(tree);
+
+			if (!TreeAdapter.isAmb(result)) {
+				return result;
+			}
+			else if (TreeAdapter.getAlternatives(result).size() == 1) {
+				return (ITree) TreeAdapter.getAlternatives(result).iterator().next();
+			}
+			else {
+				return result;
 			}
 		}
-		
-		return tree;
-	}
+		catch (MatchFailed m) {	
+			return tree;
+		}
+		catch (Throw t) {
+			IValue exc = t.getException();
 
-	private static Result<IValue> call(ICallableValue function, IList args) {
-		try{
-			int nrOfArgs = args.length();
-			Type[] types = new Type[nrOfArgs];
-			IValue[] actuals = new IValue[nrOfArgs];
-			
-			for(int i = nrOfArgs - 1; i >= 0; --i){
-				IValue arg = args.get(i);
-				types[i] = RascalTypeFactory.getInstance().nonTerminalType((IConstructor) arg);
-				actuals[i] = arg;
+			if (exc.getType().isAbstractData() && ((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.CallFailed) {
+				return tree;
 			}
-			
-			return function.call(types, actuals, null);
-		}catch(MatchFailed e){
-			return null;
-		}catch(Failure f){
+			else {
+				throw t;
+			}
+		}
+		catch (StaticError e) {
+			throw e;
+		}
+		catch(Filtered f){
 			return null;
 		}
 	}
@@ -236,5 +197,4 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	public boolean isImpure(Object rhs) {
 		return !isPure;
 	}
-
 }

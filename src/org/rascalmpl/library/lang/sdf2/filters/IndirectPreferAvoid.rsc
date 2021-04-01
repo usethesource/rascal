@@ -15,7 +15,7 @@ private bool isAvoided(appl(prod(Symbol _,[Symbol _],set[Attr] _), [Tree arg])) 
 Import his module if you want prefer/avoid filtering enabled for your grammar. Use @prefer and @avoid to
 label alternatives.
 }
-&T <:Tree amb(set[&T <:Tree] alternatives) {
+&T <:Tree indirectPreferAvoidFilter(amb(set[&T <:Tree] alternatives)) {
   prefers = { t | t <- alternatives, isPreferred(t)};
   
   if (prefers != {}, size(alternatives) != size(prefers)) {
