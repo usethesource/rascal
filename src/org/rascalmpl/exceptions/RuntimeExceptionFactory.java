@@ -180,11 +180,11 @@ public class RuntimeExceptionFactory {
 	// callFailed -- not in Exception, specific for interpreter
 	
 	public static Throw callFailed(ISourceLocation loc, IList arguments) {
-        return new Throw(VF.constructor(CallFailed, loc, arguments));
+        return new Throw(VF.constructor(CallFailed, arguments));
     }
     
     public static Throw callFailed(ISourceLocation loc, IList arguments, AbstractAST ast, StackTrace trace) {
-        return new Throw(VF.constructor(CallFailed, loc, arguments), ast != null ? ast.getLocation() : null, trace);
+        return new Throw(VF.constructor(CallFailed, arguments), ast != null ? ast.getLocation() : null, trace);
     }
     
     // dateTimeParsingError
