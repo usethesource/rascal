@@ -418,7 +418,8 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         try {
             String locCandidate = line.substring(locationStart + 1, locationEnd + 1);
             if (!locCandidate.contains("://")) {
-                return null;
+                // only complete scheme
+                return completeSchema(locCandidate, locationStart + 1);
             }
             ISourceLocation directory = VF.sourceLocation(new URI(locCandidate));
             String fileName = "";
@@ -443,13 +444,33 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                     result.add(currentDir.getURI().toString() + (isDirectory ? "/" : "|"));
                 }
             }
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
                 return new CompletionResult(locationStart + 1, result);
             }
             return null;
         }
         catch (URISyntaxException|IOException e) {
             return null;
+        }
+    }
+
+    private CompletionResult completeSchema(String locCandidate, int start) {
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        Set<String> result = new TreeSet<>(); 
+        filterCandidates(reg.getRegisteredInputSchemes(), result, locCandidate);
+        filterCandidates(reg.getRegisteredLogicalSchemes(), result, locCandidate);
+        filterCandidates(reg.getRegisteredOutputSchemes(), result, locCandidate);
+        if (result.isEmpty()) {
+            return null;
+        }
+        return new CompletionResult(start, result);
+    }
+
+    private static void filterCandidates(Set<String> src, Set<String> target, String prefix) {
+        for (String s : src) {
+            if (s.startsWith(prefix)) {
+                target.add(s);
+            }
         }
     }
 
