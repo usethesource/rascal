@@ -8,7 +8,7 @@ syntax Aas
   | aas: [a][a][a]*
   ;
   
-&T <:Tree amb(set[&T <:Tree] alternatives) {
+&T <:Tree ambFilter(amb(set[&T <:Tree] alternatives)) {
   result = {a | Aas a <- alternatives, !(a is nil)};
   if ({oneTree} := result) {
     return oneTree;
@@ -18,9 +18,9 @@ syntax Aas
 
 @IgnoreCompiler{TODO: these tests can only be made to work when the compiled parser generator is integrated
 and compiled Rascal functions can be called during parse tree construction}
-test bool resolveableAmbIsGone() = amb(_) !:= parse(#Aas, "a", allowAmbiguity=true);
+test bool resolveableAmbIsGone() = amb(_) !:= parse(#Aas, "a", allowAmbiguity=true, filters={ambFilter});
 
 // this test would throw an exception because the amb constructor would not _statically_ return
 // a tree of type Aas:
 @IgnoreCompiler{TODO: Not implemented}
-test bool twoAmbsLeft() = amb({_,_}) := parse(#Aas, "aa", allowAmbiguity=true);
+test bool twoAmbsLeft() = amb({_,_}) := parse(#Aas, "aa", allowAmbiguity=true, filters={ambFilter});

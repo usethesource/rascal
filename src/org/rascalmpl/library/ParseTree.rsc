@@ -434,14 +434,14 @@ catch ParseError(loc l): {
 }
 ----
 }
-public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false)
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, |unknown:///|);
+public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
-public &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false)
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, origin);
+public &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
   
-public &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false)
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects)(input, input);
+public &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, input);
 
 @doc{
 .Synopsis 
@@ -472,7 +472,7 @@ The parse function behaves differently depending of the given keyword parameters
      *                    parse forest to be constructed in polynomial time.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false); 
+public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
 
 @doc{
 .Synopsis
@@ -484,7 +484,7 @@ This parser generator behaves the same as the `parser` function, but it produces
 nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
  }
 @javaClass{org.rascalmpl.library.Prelude}
-public java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false); 
+public java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false,  set[Tree(Tree)] filters={}); 
 
 @doc{
 .Synopsis parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.
