@@ -37,7 +37,7 @@ import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -103,7 +103,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	
 	public void notifyConstructorDeclaredListeners();
 	
-	public IConstructor parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects);
+	
 	
 	public Environment pushEnv(Statement s);
 
@@ -144,14 +144,16 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 */
 	public IValue call(String adt, String name, IValue... args);
 
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			IMap robust, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects);
+	public IConstructor parseObject(IConstructor startSort, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects);
 
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			IMap robust, String input, boolean allowAmbiguity, boolean hasSideEffects);
+			ISet filters, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects);
 
 	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			IMap robust, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects);
+			ISet filters, String input, boolean allowAmbiguity, boolean hasSideEffects);
+
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
+			ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects);
 
 	/**
 	 *  Freeze the global state of this evaluator so that it can no longer be updated.

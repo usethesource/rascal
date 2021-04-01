@@ -7,7 +7,7 @@ import Set;
 Import his module if you want prefer/avoid filtering enabled for your grammar. Use @prefer and @avoid to
 label alternatives.
 }
-&T <:Tree amb(set[&T <:Tree] alternatives) {
+&T <:Tree preferAvoidFilter(amb(set[&T <:Tree] alternatives)) {
   prefers = { t | t:appl(prod(_,_,{\tag("prefer"()),*_}),_) <- alternatives};
   
   if (prefers != {}, size(alternatives) != size(prefers)) {

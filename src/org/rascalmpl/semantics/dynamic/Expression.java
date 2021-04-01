@@ -1087,12 +1087,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IConstructor value = ((IRascalValueFactory) __eval.getValueFactory()).reifiedType(symbol, gr);
             
 				if (result.getStaticType().isString()) {
-					tree = __eval.parseObject(value, VF.mapWriter().done(),
+					tree = __eval.parseObject(value, VF.set(),
 						this.getLocation(),
 						((IString) result.getValue()).getValue().toCharArray(), true, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
-					tree = __eval.parseObject(__eval, value, VF.mapWriter().done(),
+					tree = __eval.parseObject(__eval, value, VF.set(),
 							((ISourceLocation) result.getValue()), true, false);
 				}
 				

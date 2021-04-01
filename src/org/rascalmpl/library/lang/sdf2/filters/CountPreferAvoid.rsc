@@ -8,7 +8,7 @@ import List;
 Import his module if you want prefer/avoid filtering with counting enabled for your grammar. Use @prefer and @avoid to
 label alternatives.
 }
-&T <:Tree amb(set[&T <:Tree] alternatives) {
+&T <:Tree countPreferAvoidFilter(amb(set[&T <:Tree] alternatives)) {
   alts = [*alternatives];
   counts = [( 0 | it + 1 | /appl(prod(_,_,{\tag("prefer"()),*_}),_) := alt) | Tree alt <- alts];
   

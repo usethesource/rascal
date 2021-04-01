@@ -107,7 +107,6 @@ import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
@@ -134,7 +133,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      */
     private volatile boolean interrupt = false;
 
-    private JavaBridge javaBridge; // TODO: sharable if synchronized
+    private JavaBridge javaBridge; //  sharable if synchronized
 
     /**
      * Used in runtime error messages
@@ -185,9 +184,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      */
     private IRascalMonitor monitor;
 
-    private AbstractInterpreterEventTrigger eventTrigger; // TODO: can this be shared?	
+    private AbstractInterpreterEventTrigger eventTrigger; // can this be shared?	
 
-    private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	 // TODO: can this be shared?
+    private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	 //  can this be shared?
 
     private Stack<Accumulator> accumulators = new Stack<>(); // not sharable
     private final Stack<IString> indentStack = new Stack<>(); // not sharable
@@ -195,7 +194,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     private final URIResolverRegistry resolverRegistry; // sharable
 
-    private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // TODO: can this be shared?
+    private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // can this be shared?
     
     private static final Object dummy = new Object();	
 
@@ -249,13 +248,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.vf = source.vf;
         this.heap = source.heap;
         this.typeDeclarator = new TypeDeclarationEvaluator(this);
-        // TODO: this is probably not OK
+        // this is probably not OK
         this.currentEnvt = scope;
         this.rootScope = scope;
-        // TODO: this is probably not OK
+        // this is probably not OK
         heap.addModule(scope);
         this.classLoaders = source.classLoaders;
-        // TODO: the Java bridge is probably sharable if its methods are synchronized
+        // the Java bridge is probably sharable if its methods are synchronized
         this.javaBridge = new JavaBridge(classLoaders, vf, config);
         this.rascalPathResolver = source.rascalPathResolver;
         this.resolverRegistry = source.resolverRegistry;
@@ -738,7 +737,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public ITree parseObject(IConstructor grammar, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+    public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
         IConstructor startSort = (IConstructor) grammar.get("symbol");
         IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) grammar.get("definitions"));
         String name = "";
@@ -751,53 +750,21 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             name += SymbolAdapter.getName(startSort);
         }
 
-        int[][] lookaheads = new int[robust.size()][];
-        IConstructor[] robustProds = new IConstructor[robust.size()];
-        initializeRecovery(robust, lookaheads, robustProds);
-
         __setInterrupt(false);
-        IActionExecutor<ITree> exec = new RascalFunctionActionExecutor(this, !hasSideEffects);
+        IActionExecutor<ITree> exec = !filters.isEmpty() 
+            ? new RascalFunctionActionExecutor(filters, !hasSideEffects)
+            : new NoActionExecutor();
 
         return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
     }
 
-    /**
-     * This converts a map from productions to character classes to
-     * two pair-wise arrays, with char-classes unfolded as lists of ints.
-     */
-    private void initializeRecovery(IMap robust, int[][] lookaheads, IConstructor[] robustProds) {
-        int i = 0;
-
-        for (IValue prod : robust) {
-            robustProds[i] = (IConstructor) prod;
-            List<Integer> chars = new LinkedList<>();
-            IList ranges = (IList) robust.get(prod);
-
-            for (IValue range : ranges) {
-                int from = ((IInteger) ((IConstructor) range).get("begin")).intValue();
-                int to = ((IInteger) ((IConstructor) range).get("end")).intValue();
-
-                for (int j = from; j <= to; j++) {
-                    chars.add(j);
-                }
-            }
-
-            lookaheads[i] = new int[chars.size()];
-            for (int k = 0; k < chars.size(); k++) {
-                lookaheads[i][k] = chars.get(k);
-            }
-
-            i++;
-        }
-    }
-
     @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects){
+    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects){
         IRascalMonitor old = setMonitor(monitor);
 
         try {
             char[] input = getResourceContent(location);
-            return parseObject(startSort, robust, location, input, allowAmbiguity, hasSideEffects);
+            return parseObject(startSort, filters, location, input, allowAmbiguity, hasSideEffects);
         }
         catch(IOException ioex){
             throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
@@ -808,10 +775,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, boolean allowAmbiguity, boolean hasSideEffects) {
+    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, boolean allowAmbiguity, boolean hasSideEffects) {
         IRascalMonitor old = setMonitor(monitor);
         try {
-            return parseObject(startSort, robust, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity, hasSideEffects);
+            return parseObject(startSort, filters, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity, hasSideEffects);
         }
         finally {
             setMonitor(old);
@@ -819,10 +786,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects) {
+    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects) {
         IRascalMonitor old = setMonitor(monitor);
         try{
-            return parseObject(startSort, robust, loc, input.toCharArray(), allowAmbiguity, hasSideEffects);
+            return parseObject(startSort, filters, loc, input.toCharArray(), allowAmbiguity, hasSideEffects);
         }finally{
             setMonitor(old);
         }
@@ -1655,7 +1622,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     @Override
     public void freeze() {
-        // TODO Auto-generated method stub
+    
     }
 
     @Override
