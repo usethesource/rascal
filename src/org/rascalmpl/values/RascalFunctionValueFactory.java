@@ -25,7 +25,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
@@ -348,44 +347,36 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         @Override
         public IValue apply(IValue[] parameters, Map<String, IValue> keywordParameters) {
-            Environment old = ctx.getCurrentEnvt();
-            try {
-                ctx.setCurrentEnvt(callingModule);
-                
-                if (parameters.length != 3) {
+            if (parameters.length != 3) {
+                throw fail(parameters);
+            }
+
+            if (firstAmbiguity) {
+                if (parameters[1].getType().isString()) {
+                    return firstAmbiguity(parameters[0], (IString) parameters[1], ctx);
+                }
+                else if (parameters[1].getType().isSourceLocation()) {
+                    return firstAmbiguity(parameters[0], (ISourceLocation) parameters[1], ctx);
+                }
+            }
+            else {
+                if (!(parameters[0].getType() instanceof ReifiedType)) {
                     throw fail(parameters);
                 }
 
-                if (firstAmbiguity) {
-                    if (parameters[1].getType().isString()) {
-                        return firstAmbiguity(parameters[0], (IString) parameters[1], ctx);
-                    }
-                    else if (parameters[1].getType().isSourceLocation()) {
-                        return firstAmbiguity(parameters[0], (ISourceLocation) parameters[1], ctx);
-                    }
-                }
-                else {
-                    if (!(parameters[0].getType() instanceof ReifiedType)) {
-                        throw fail(parameters);
-                    }
-
-                    if (!parameters[2].getType().isSourceLocation()) {
-                        throw fail(parameters); 
-                    }
-
-                    if (parameters[1].getType().isString()) {
-                        return parse(parameters[0], filters, (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
-                    }
-                    else if (parameters[1].getType().isSourceLocation()) {
-                        return parse(parameters[0], filters, (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
-                    }
+                if (!parameters[2].getType().isSourceLocation()) {
+                    throw fail(parameters); 
                 }
 
-                throw fail(parameters);
+                if (parameters[1].getType().isString()) {
+                    return parse(parameters[0], filters, (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
+                }
+                else if (parameters[1].getType().isSourceLocation()) {
+                    return parse(parameters[0], filters, (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, ctx);
+                }
             }
-            finally {
-                ctx.setCurrentEnvt(old);
-            }
+
+            throw fail(parameters);
         } 
     }
 }
