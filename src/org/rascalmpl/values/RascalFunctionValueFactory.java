@@ -183,11 +183,9 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected final boolean allowAmbiguity;
         protected final boolean hasSideEffects;
         protected final boolean firstAmbiguity;
-        protected final ModuleEnvironment callingModule;
         
         public ParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
             this.ctx = ctx;
-            this.callingModule = retrieveCallingModuleEnvironment(ctx);
             this.vf = ctx.getValueFactory();
             this.grammar = grammar;
             this.filters = filters;
@@ -196,60 +194,34 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             this.firstAmbiguity = firstAmbiguity.getValue();
         }
         
-        /**
-         * This workaround retrieves the user module that called the parser functions such that
-         * the right normalizing overloads can be executed after parsing. 
-         * @return
-         */
-        private ModuleEnvironment retrieveCallingModuleEnvironment(IEvaluatorContext ctx) {
-            Environment current = ctx.getCurrentEnvt();
-            Environment previous = current;
-            
-            while (current != null && "parser".equals(current.getName())) {
-                previous = current;
-                current = current.getCallerScope();
-            }
-            
-            return (ModuleEnvironment) (current != null ?  current.getRoot() : previous.getRoot());
-        }
-
         @Override
         public IValue apply(IValue[] parameters, Map<String, IValue> keywordParameters) {
-            Environment old = ctx.getCurrentEnvt();
-            
-            try {
-                ctx.setCurrentEnvt(callingModule);
-                
-                if (parameters.length != 2) {
-                    throw fail(parameters);
-                }
-
-                if (firstAmbiguity) {
-                    if (parameters[0].getType().isString()) {
-                        return firstAmbiguity(grammar, (IString) parameters[0], ctx);
-                    }
-                    else if (parameters[0].getType().isSourceLocation()) {
-                        return firstAmbiguity(grammar, (ISourceLocation) parameters[0], ctx);
-                    }
-                }
-                else {
-                    if (!parameters[1].getType().isSourceLocation()) {
-                        throw fail(parameters); 
-                    }
-
-                    if (parameters[0].getType().isString()) {
-                        return parse(grammar, filters, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
-                    }
-                    else if (parameters[0].getType().isSourceLocation()) {
-                        return parse(grammar, filters, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
-                    }
-                }
-
+            if (parameters.length != 2) {
                 throw fail(parameters);
             }
-            finally {
-                ctx.setCurrentEnvt(old);
+
+            if (firstAmbiguity) {
+                if (parameters[0].getType().isString()) {
+                    return firstAmbiguity(grammar, (IString) parameters[0], ctx);
+                }
+                else if (parameters[0].getType().isSourceLocation()) {
+                    return firstAmbiguity(grammar, (ISourceLocation) parameters[0], ctx);
+                }
             }
+            else {
+                if (!parameters[1].getType().isSourceLocation()) {
+                    throw fail(parameters); 
+                }
+
+                if (parameters[0].getType().isString()) {
+                    return parse(grammar, filters, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
+                }
+                else if (parameters[0].getType().isSourceLocation()) {
+                    return parse(grammar, filters, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, ctx);
+                }
+            }
+
+            throw fail(parameters);
         }
 
         protected Throw fail(IValue... parameters) {
