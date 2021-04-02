@@ -19,7 +19,7 @@ label alternatives.
   result = {new[i] | int i <- index(new), counts[i] == min(counts)};
   
   if (result == alternatives) {
-    fail amb;
+    fail countPreferAvoidFilter;
   }
   else {
     return amb(result);

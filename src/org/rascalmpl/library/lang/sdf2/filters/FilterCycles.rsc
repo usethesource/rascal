@@ -6,7 +6,7 @@ import ParseTree;
   new = { a | a <- alts, /cycle(_,_) !:= a};
   
   if (new == alts) {
-    fail amb;
+    fail cycleFilter;
   }
   else {
     return amb(new);

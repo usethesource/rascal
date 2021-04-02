@@ -7,6 +7,6 @@ import ParseTree;
     throw "Cycle detected at <t@\loc>";
   }
   else {
-    fail amb;
+    fail cycleDetectionFilter;
   }
 }

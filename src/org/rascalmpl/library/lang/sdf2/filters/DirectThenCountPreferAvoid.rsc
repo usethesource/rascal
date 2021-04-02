@@ -10,7 +10,7 @@ label alternatives.
 }
 &T <:Tree directThenCountPreferAvoidFilter(amb(set[&T <:Tree] alternatives)) {
   if (size(alternatives) == 1) {
-    fail amb;
+    fail directThenCountPreferAvoidFilter;
   }
   // first check for direct prefers / avoids
   direct = { t | t:appl(prod(_,_,{\tag("prefer"()),*_}),_) <- alternatives};
@@ -45,7 +45,7 @@ label alternatives.
   result = {alts[indexes[i]] | i <- index(indexes), counts[i] == min(counts)};
   
   if (result == alternatives) {
-    fail amb;
+    fail directThenCountPreferAvoidFilter;
   }
   else {
   	return amb(result);
