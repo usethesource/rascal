@@ -11,7 +11,7 @@ private int count(appl(prod(Symbol _,[Symbol _],set[Attr] _), [Tree arg])) = 1 +
   new = {as[i] | i <- index(as), counts[i] == min(counts)};
   
   if (new == alts) {
-    fail amb;
+    fail injectionCountFilter;
   }
   else {
     return amb(new);

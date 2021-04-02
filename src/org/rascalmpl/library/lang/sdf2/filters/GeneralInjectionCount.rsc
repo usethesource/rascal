@@ -11,7 +11,7 @@ private bool injection(appl(prod(Symbol _,[Symbol _],set[Attr] _), [Tree _])) = 
   new = {as[i] | i <- index(as), counts[i] == min(counts)};
   
   if (new == alts) {
-    fail amb;
+    fail generalInjectionCountFilter;
   }
   else {
     return amb(new);
