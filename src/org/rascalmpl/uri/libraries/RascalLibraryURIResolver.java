@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -101,7 +102,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
     /**
      * Resolve a lib location to either a plugin or a local classpath location, in that order of precedence.
      */
-    private ISourceLocation resolve(ISourceLocation uri) {
+    private @Nullable ISourceLocation resolve(ISourceLocation uri) {
         String libName = uri.getAuthority();
         
         if (libName == null || libName.isEmpty()) {
@@ -236,6 +237,11 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
 
     @Override
     public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
-        return reg.getClassLoader(resolve(loc), parent);
+        ISourceLocation resolved = resolve(loc);
+        if (resolved != null) {
+            return reg.getClassLoader(resolved, parent);
+        }
+        
+        throw new IOException("Can not resolve classloader for " + loc);
     }
 }
