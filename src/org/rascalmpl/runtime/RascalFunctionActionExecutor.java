@@ -13,22 +13,18 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.control_exceptions.Filtered;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
-import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.OverloadedFunction;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IConstructor;
 
 /**
  * This is the way of executing filters for Rascal syntax definitions. 
@@ -117,12 +113,12 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
             catch (Throw t) {
                 IValue exc = t.getException();
 
-			if (exc.getType().isAbstractData() && ((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.CallFailed) {
-				return ambCluster;
-			}
-			else {
-				throw t;
-			}
+				if (exc.getType().isAbstractData() && ((IConstructor) exc).getConstructorType() == RuntimeExceptionFactory.CallFailed) {
+					return ambCluster;
+				}
+				else {
+					throw t;
+				}
             }
             catch (Filtered x) {
                 return null;
