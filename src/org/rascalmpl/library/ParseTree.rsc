@@ -197,26 +197,20 @@ construct ordered and un-ordered compositions, and associativity groups.
   
 <2> A `regular` is a regular expression, i.e. a repeated construct.
 
-<3> A `error` represents a parse error.
-
-<4> A `skipped` represents skipped input during error recovery.
-
-<5> `priority` means operator precedence, where the order of the list indicates the binding strength of each rule;
-<6> `assoc`  means all alternatives are acceptable, but nested on the declared side;
-<7> `reference` means a reference to another production rule which should be substituted there,
+<3> `priority` means operator precedence, where the order of the list indicates the binding strength of each rule;
+<4> `assoc`  means all alternatives are acceptable, but nested on the declared side;
+<5> `reference` means a reference to another production rule which should be substituted there,
     for extending priority chains and such.
 } 
 data Production 
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) // <1>
      | regular(Symbol def) // <2>
-     | error(Production prod, int dot) // <3>
-     | skipped() // <4>
      ;
      
 data Production 
-     = \priority(Symbol def, list[Production] choices) // <5>
-     | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives) // <6>
-     | \reference(Symbol def, str cons) // <7>
+     = \priority(Symbol def, list[Production] choices) // <3>
+     | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives) // <4>
+     | \reference(Symbol def, str cons) // <5>
      ;
 
 @doc{
@@ -229,7 +223,10 @@ An `Attr` (attribute) documents additional semantics of a production rule. Neith
 brackets are processed by the parser generator. Rather downstream processors are
 activated by these. Associativity is a parser generator feature though. 
 }
-data Attr = \bracket() | /*deprecated*/ \assoc(Associativity \assoc);
+data Attr 
+  = \bracket() 
+  | \assoc(Associativity \assoc)
+  ;
 
 @doc{
 .Synopsis
@@ -240,11 +237,11 @@ Associativity attribute.
 Associativity defines the various kinds of associativity of a specific production.
 }  
 data Associativity 
-     = \left()
-     | \right() 
-     | \assoc() 
-     | \non-assoc()
-     ;
+    = \left()
+    | \right() 
+    | \assoc() 
+    | \non-assoc()
+    ;
 
 @doc{
 .Synopsis
@@ -404,12 +401,30 @@ The parse either throws ParseError exceptions or returns parse trees of type `Tr
 
 The `allowAmbiguity` flag dictates the behavior of the parser in the case of ambiguity. When `allowAmbiguity=true` 
 the parser will construct ambiguity clusters (local sets of parse trees where the input string is ambiguous). If it is `false`
-the parser will throw an `Ambiguous` exception instead which is comparable to a ParseError exception. The latter option terminates faster.
+the parser will throw an `Ambiguous` exception instead. An `Ambiguous` exception is comparable to a ParseError exception then.
+The latter option terminates much faster, i.e. always in cubic time, and always linear in the size of the intermediate parse graph, 
+while constructing ambiguous parse forests may grow to O(n^p+1), where p is the length of the longest production rule and n 
+is the length of the input.
 
-The `hasSideEffects` flag is normally set to false. When a [[SyntaxDefinition]] uses side-effects to filter ambiguity, this 
-option must be set to `true` to ensure correct behavior. Otherwise the parser employs optimizations which assume the parse tree construction
-algorithm is context-free. When filter functions associated with syntax definitions exist that use global variables, for example to store type definitions 
-in a symbol table , then this option must be set to `true`. 
+The `filters` set contains functions which may be called optionally after the parse algorithm has finished and just before
+the Tree representation is built. The set of functions contain alternative functions, only on of them is successfully applied
+to each node in a tree. If such a function fails to apply, the other ones are tried. There is no fixed-point computation, so
+composed filters must be added to the set of filters programmatically. Post-parse filtering is best done at this stage and
+not later on the Tree representation for efficiency reasons. Namely, the size of the parse graph before Tree construction
+is still cubic due to "binarized" sharing of intermediate nodes, while after Tree construction the forest may obtain
+a size in O(n^p+1) where n is the length of the input and p is the length of the longest syntax rule. Filtering using
+the `filters` parameter, on the other hand, may very well cut the forest quickly down to even a linear size and result in 
+an efficient overall parsing algorithm.
+
+The `hasSideEffects` flag is normally set to false. When the `filters` functions have side-effects to
+remove ambiguity, this option must be set to `true` to ensure correct behavior. A side-effect of filter functions is
+typically the construction of a symbol table and the removal (see [[Statements/Filter]]) of syntax trees which refer to 
+undefined symbols. In such a case `hasSideEffects` must be set to `true` for correctness' sake. If its set to `false`
+then the algorithm assumes tree construction is context-free and it can memoize the results of shared intermediate graph nodes.
+The tree construction algorithm is effectively always worst case
+polynomial in O(n^p+1) --p being the length of the longest syntax rule-- when `hasSideEffects` is true, but may be linear when set 
+to false. So this is quite an important flag to consider. 
+
 
 .Examples
 [source,rascal-shell,error]
