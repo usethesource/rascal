@@ -764,6 +764,9 @@ default str doValue2IValue(node nd, map[value, str] constants) {
     return "$VF.node(<name><childrenContrib><kwparamsContrib>)";
 }
 
+str doValue2IValue(aadt(str adtName, list[AType] parameters, concreteSyntax()), map[value, str] constants) 
+    = "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\"))";
+
 str doValue2IValue(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[value, str] constants) = adtName;
 
 str doValue2IValue(acons(AType adt,
@@ -867,6 +870,8 @@ str atype2vtype(aadt(str adtName, list[AType] parameters, contextFreeSyntax()), 
     = "$TF.fromSymbol($RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
 str atype2vtype(aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"lex\", $VF.string(\"<adtName>\"))";
+str atype2vtype(aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg, bool inTest=false)    
+    = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"keywords\", $VF.string(\"<adtName>\"))";
 str atype2vtype(aadt(str adtName, list[AType] parameters, layoutSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
                                  
@@ -891,4 +896,6 @@ str atype2vtype(areified(AType atype), JGenie jg, bool inTest=false) {
    // return "$reifiedAType(<atype2IValue(atype, dfs)>, <value2IValue(dfs)>)";
 }
 
-default str atype2vtype(AType t, JGenie jg, bool inTest=false) = "$TF.valueType()";
+default str atype2vtype(AType t, JGenie jg, bool inTest=false) {
+    return "$TF.valueType()";
+}
