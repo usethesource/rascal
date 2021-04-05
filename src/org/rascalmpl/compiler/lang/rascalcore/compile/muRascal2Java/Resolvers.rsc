@@ -55,7 +55,21 @@ str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads), JGen
 //str atype2istype(str e, t:acons(AType adt, list[AType] fields, list[Keyword] kwFields), JGenie jg) 
 //    = "<e>.getConstructorType().comparable(<jg.shareType(t)>)";
 
-default str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
+str atype2istype(str e, aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg) {
+    return "<e>.getType() instanceof NonTerminalType && ((NonTerminalType) <e>.getType()).getSymbol().equals(<jg.shareConstant(sort(adtName))>)";
+}
+
+str atype2istype(str e, aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg) {
+    return "<e>.getType() instanceof NonTerminalType && ((NonTerminalType) <e>.getType()).getSymbol().equals(<jg.shareConstant(lex(adtName))>)";
+}
+
+str atype2istype(str e, aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg) {
+    return "<e>.getType() instanceof NonTerminalType && ((NonTerminalType) <e>.getType()).getSymbol().equals(<jg.shareConstant(keywords(adtName))>)";
+}
+
+default str atype2istype(str e, AType t, JGenie jg) {
+    return "<e>.getType().comparable(<jg.shareType(t)>)";
+}
 
 public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
       remaining = input;

@@ -343,7 +343,13 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _shareType(AType atype){
+        //println("%%%%% shareType: <atype>");
         //atype = unsetR(atype, "label");
+        if(acons(AType adt,
+                list[AType fieldType] fields,
+                list[Keyword] kwFields) := atype){
+                println("acons: <atype>");
+        }
         couter = "";
         if(types[atype]?){
             return types[atype];
@@ -357,6 +363,8 @@ JGenie makeJGenie(MuModule m,
         visit(atype){
             case AType t: {
                 if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
+                        ;
+                } else if(acons(AType adt, list[AType] fields, list[Keyword] kwFields) := t){
                         ;
                 } else if(atypeList(_) := t){
                         ;
