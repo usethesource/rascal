@@ -1,16 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009-2017 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2009-2017 CWI All rights reserved. This program and the accompanying materials are
+ * made available under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ * 
+ * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Paul Klint - Paul.Klint@cwi.nl - CWI * Mark Hills
+ * - Mark.Hills@cwi.nl (CWI) * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
 package org.rascalmpl.uri;
 
@@ -33,6 +29,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,10 +45,10 @@ public class URIResolverRegistry {
     private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/resolvers.config";
     private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
-	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<>();
-	private final Map<String, Map<String,ILogicalSourceLocationResolver>> logicalResolvers = new HashMap<>();
-    private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new HashMap<>();
+	private final Map<String,ISourceLocationInput> inputResolvers = new ConcurrentHashMap<>();
+	private final Map<String,ISourceLocationOutput> outputResolvers = new ConcurrentHashMap<>();
+	private final Map<String, Map<String,ILogicalSourceLocationResolver>> logicalResolvers = new ConcurrentHashMap<>();
+    private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new ConcurrentHashMap<>();
 	
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -212,68 +209,66 @@ public class URIResolverRegistry {
 	}
 	
 	private ISourceLocation physicalLocation(ISourceLocation loc) throws IOException {
-		synchronized (logicalResolvers) {
-			while (logicalResolvers.containsKey(loc.getScheme())) {
-				Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
-				String auth = loc.hasAuthority() ? loc.getAuthority() : "";
-				ILogicalSourceLocationResolver resolver = map.get(auth);
-				ISourceLocation prev = loc;
-				boolean removedOffset = false;
-				
-				if (resolver != null) {
-					loc = resolver.resolve(loc);
-				}
-				
-				if (loc == null && prev.hasOffsetLength()) {
-					loc = resolver.resolve(URIUtil.removeOffset(prev));
-					removedOffset = true; 
-				}
-				
-				if (loc == null || prev.equals(loc)) {
-					for (ILogicalSourceLocationResolver backup : map.values()) {
-						removedOffset = false;
-						loc = backup.resolve(prev);
-						
-						if (loc == null && prev.hasOffsetLength()) {
-							loc = backup.resolve(URIUtil.removeOffset(prev));
-							removedOffset = true;
-						}
-						
-						if (loc != null && !prev.equals(loc)) {
-							break; // continue to offset/length handling below with found location
-						}
+		while (logicalResolvers.containsKey(loc.getScheme())) {
+			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
+			String auth = loc.hasAuthority() ? loc.getAuthority() : "";
+			ILogicalSourceLocationResolver resolver = map.get(auth);
+			ISourceLocation prev = loc;
+			boolean removedOffset = false;
+			
+			if (resolver != null) {
+				loc = resolver.resolve(loc);
+			}
+			
+			if (loc == null && prev.hasOffsetLength()) {
+				loc = resolver.resolve(URIUtil.removeOffset(prev));
+				removedOffset = true; 
+			}
+			
+			if (loc == null || prev.equals(loc)) {
+				for (ILogicalSourceLocationResolver backup : map.values()) {
+					removedOffset = false;
+					loc = backup.resolve(prev);
+					
+					if (loc == null && prev.hasOffsetLength()) {
+						loc = backup.resolve(URIUtil.removeOffset(prev));
+						removedOffset = true;
+					}
+					
+					if (loc != null && !prev.equals(loc)) {
+						break; // continue to offset/length handling below with found location
 					}
 				}
-				
-				if (loc == null || prev.equals(loc)) {
-					return null;
+			}
+			
+			if (loc == null || prev.equals(loc)) {
+				return null;
+			}
+			
+			if (removedOffset || !loc.hasOffsetLength()) { // then copy the offset from the logical one
+				if (prev.hasLineColumn()) {
+					loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength(), prev.getBeginLine(), prev.getEndLine(), prev.getBeginColumn(), prev.getEndColumn());
 				}
-				
-				if (removedOffset || !loc.hasOffsetLength()) { // then copy the offset from the logical one
-					if (prev.hasLineColumn()) {
-						loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength(), prev.getBeginLine(), prev.getEndLine(), prev.getBeginColumn(), prev.getEndColumn());
+				else if (prev.hasOffsetLength()) {
+					if (loc.hasOffsetLength()) {
+						loc = vf.sourceLocation(loc, prev.getOffset() + loc.getOffset(), prev.getLength());
 					}
-					else if (prev.hasOffsetLength()) {
-						if (loc.hasOffsetLength()) {
-							loc = vf.sourceLocation(loc, prev.getOffset() + loc.getOffset(), prev.getLength());
-						}
-						else {
-							loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength());
-						}
-					}
-				}
-				else if (loc.hasLineColumn()) { // the logical location offsets relative to the physical offset, possibly including line numbers
-					if (prev.hasLineColumn()) {
-						loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength(), loc.getBeginLine() + prev.getBeginLine() - 1, loc.getEndLine() + prev.getEndLine() - 1, loc.getBeginColumn(), loc.getEndColumn());
-					}
-					else if (prev.hasOffsetLength()) {
-						loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+					else {
+						loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength());
 					}
 				}
-				else if (loc.hasOffsetLength()) { // the logical location offsets relative to the physical one
-					if (prev.hasOffsetLength()) {
-						loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
-					}
+			}
+			else if (loc.hasLineColumn()) { // the logical location offsets relative to the physical offset, possibly including line numbers
+				if (prev.hasLineColumn()) {
+					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength(), loc.getBeginLine() + prev.getBeginLine() - 1, loc.getEndLine() + prev.getEndLine() - 1, loc.getBeginColumn(), loc.getEndColumn());
+				}
+				else if (prev.hasOffsetLength()) {
+					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+				}
+			}
+			else if (loc.hasOffsetLength()) { // the logical location offsets relative to the physical one
+				if (prev.hasOffsetLength()) {
+					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
 				}
 			}
 		}
@@ -295,85 +290,67 @@ public class URIResolverRegistry {
 	}
 	
 	private void registerInput(ISourceLocationInput resolver) {
-		synchronized (inputResolvers) {
-			inputResolvers.put(resolver.scheme(), resolver);
-		}
+		inputResolvers.put(resolver.scheme(), resolver);
 	}
 
 	private void registerOutput(ISourceLocationOutput resolver) {
-		synchronized (outputResolvers) {
-			outputResolvers.put(resolver.scheme(), resolver);
-		}
+		outputResolvers.put(resolver.scheme(), resolver);
 	}
 
 	public void registerLogical(ILogicalSourceLocationResolver resolver) {
-		synchronized (logicalResolvers) {
-			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(resolver.scheme());
-			if (map == null) {
-				map = new HashMap<>();
-				logicalResolvers.put(resolver.scheme(), map);
-			}
-			map.put(resolver.authority(), resolver);
-		}
+		Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.computeIfAbsent(
+			resolver.scheme(),
+			k -> new ConcurrentHashMap<>());
+		map.put(resolver.authority(), resolver);
 	}
 	
 	private void registerClassloader(IClassloaderLocationResolver resolver) {
-	    synchronized (classloaderResolvers) {
-	        classloaderResolvers.put(resolver.scheme(), resolver);
-        }
+		classloaderResolvers.put(resolver.scheme(), resolver);
 	}
 
 	public void unregisterLogical(String scheme, String auth) {
-		synchronized (logicalResolvers) {
-			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(scheme);
-			if (map != null) {
-				map.remove(auth);
-			}
+		Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(scheme);
+		if (map != null) {
+			map.remove(auth);
 		}
 	}
 
 	private static final Pattern splitScheme = Pattern.compile("^([^\\+]*)\\+");
 
 	private ISourceLocationInput getInputResolver(String scheme) {
-		synchronized (inputResolvers) {
-			ISourceLocationInput result = inputResolvers.get(scheme);
-			if (result == null) {
-				Matcher m = splitScheme.matcher(scheme);
-				if (m.find()) {
-					String subScheme = m.group(1);
-					return inputResolvers.get(subScheme);
-				}
+		ISourceLocationInput result = inputResolvers.get(scheme);
+		if (result == null) {
+			Matcher m = splitScheme.matcher(scheme);
+			if (m.find()) {
+				String subScheme = m.group(1);
+				return inputResolvers.get(subScheme);
 			}
-			return result;
 		}
+		return result;
 	}
 
 	private IClassloaderLocationResolver getClassloaderResolver(String scheme) {
-		synchronized (classloaderResolvers) {
-			IClassloaderLocationResolver result = classloaderResolvers.get(scheme);
-			if (result == null) {
-				Matcher m = splitScheme.matcher(scheme);
-				if (m.find()) {
-					String subScheme = m.group(1);
-					return classloaderResolvers.get(subScheme);
-				}
+		IClassloaderLocationResolver result = classloaderResolvers.get(scheme);
+		if (result == null) {
+			Matcher m = splitScheme.matcher(scheme);
+			if (m.find()) {
+				String subScheme = m.group(1);
+				return classloaderResolvers.get(subScheme);
 			}
-			return result;
 		}
+		return result;
 	}
 
 	private ISourceLocationOutput getOutputResolver(String scheme) {
-		synchronized (outputResolvers) {
-			ISourceLocationOutput result = outputResolvers.get(scheme);
-			if (result == null) {
-				Matcher m = splitScheme.matcher(scheme);
-				if (m.find()) {
-					String subScheme = m.group(1);
-					return outputResolvers.get(subScheme);
-				}
+		ISourceLocationOutput result = outputResolvers.get(scheme);
+		if (result == null) {
+			Matcher m = splitScheme.matcher(scheme);
+			if (m.find()) {
+				String subScheme = m.group(1);
+				return outputResolvers.get(subScheme);
 			}
-			return result;
 		}
+		return result;
 	}
 
 	public boolean supportsInputScheme(String scheme) {
