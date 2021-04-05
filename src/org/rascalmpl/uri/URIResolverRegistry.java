@@ -513,8 +513,23 @@ public class URIResolverRegistry {
 		return result;
 	}
 
+	private boolean isRootLogical(ISourceLocation uri) {
+		return uri.getAuthority().isEmpty() 
+			&& uri.getPath().equals("/")
+			&& logicalResolvers.containsKey(uri.getScheme());
+	}
+
 	public String[] listEntries(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
+		if (isRootLogical(uri)) {
+			// if it's a location without any path and authority
+			// we want to list possible authorities if it's a logical one 
+			// (logical resolvers cannot handle this call themselves)
+			Map<String, ILogicalSourceLocationResolver> candidates = logicalResolvers.get(uri.getScheme());
+			if (candidates != null) {
+				return candidates.keySet().toArray(new String[0]);
+			}
+		}
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
