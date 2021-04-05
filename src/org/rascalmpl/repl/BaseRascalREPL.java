@@ -421,6 +421,13 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 // only complete scheme
                 return completeSchema(locCandidate, locationStart + 1);
             }
+
+            CompletionResult authorityResult = completeAuthorities(locCandidate, locationStart + 1);
+            if (authorityResult != null) {
+                return authorityResult;
+            }
+            
+
             ISourceLocation directory = VF.sourceLocation(new URI(locCandidate));
             String fileName = "";
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
@@ -452,6 +459,28 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         catch (URISyntaxException|IOException e) {
             return null;
         }
+    }
+
+    private CompletionResult completeAuthorities(String locCandidate, int locationStart) throws URISyntaxException,
+        IOException {
+        int lastSeparator = locCandidate.lastIndexOf('/');
+        if (lastSeparator > 3 && locCandidate.substring(lastSeparator - 2, lastSeparator + 1).equals("://")) {
+            URIResolverRegistry reg = URIResolverRegistry.getInstance();
+            // special case, we want to complete authorities (but URI's without a authority are not valid)
+            String scheme = locCandidate.substring(0, lastSeparator - 2);
+            String partialAuthority = locCandidate.substring(lastSeparator + 1);
+            ISourceLocation root = VF.sourceLocation(scheme, "", "");
+            Set<String> result = new TreeSet<>();
+            for (String candidate: reg.listEntries(root)) {
+                if (candidate.startsWith(partialAuthority)) {
+                    result.add(scheme + "://" + candidate);
+                }
+            }
+            if (!result.isEmpty()) {
+                return new CompletionResult(locationStart, result);
+            }
+        }
+        return null;
     }
 
     private CompletionResult completeSchema(String locCandidate, int start) {
