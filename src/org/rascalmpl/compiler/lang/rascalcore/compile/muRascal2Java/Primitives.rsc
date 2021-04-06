@@ -348,7 +348,26 @@ list[str] transPrimArgs("slice", AType r, [AType a], [MuExp x, MuExp first, MuEx
 JCode transPrim("slice", AType r, [astr()], [str x, str first, str second, str end], JGenie jg)   = "$astr_slice(<x>, <first>, <second>, <end>)";
 JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$alist_slice(<x>, <first>, <second>, <end>)" when isListLikeType(a);
 JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$anode_slice(<x>, <first>, <second>, <end>)" when isNodeType(a);
-// TODO: concrete cases
+JCode transPrim("slice", AType r, [\iter(aadt(_,[], lexicalSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_slice(<x>,<y>)";
+JCode transPrim("slice", AType r, [\iter(aadt(_,[], contextFreeSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$concrete_slice(<x>,<y>)";
+
+JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_slice_seps(<x>,<y>)";
+JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$concrete_slice_seps(<x>,<y>)";
+                                                                                                                                                                                                                                                                           
+JCode transPrim("slice", AType r, [\iter-star(aadt(_,[], lexicalSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_slice(<x>,<y>)";
+
+JCode transPrim("slice", AType r, [\iter-star(aadt(_,[], contextFreeSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$concrete_slice(<x>,<y>)";
+                                                                                         
+JCode transPrim("slice", AType r, [\iter-star-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_slice_seps(<x>,<y>)";
+JCode transPrim("slice", AType r, [\iter-star-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$concrete_slice_seps(<x>,<y>)";
 
 // ---- list slice operations -------------------------------------------------
 
@@ -424,8 +443,10 @@ JCode transPrim("str_escape_for_regexp", astr(), [AType a], [str x], JGenie jg) 
 list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg)  
                                                                                 = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
                                                                                   when isListOnlyType(a) || isStrType(a) || isTupleType(a) || 
-                                                                                       isNodeType(a) || isADTType(a);   
-
+                                                                                       isNodeType(a) || isADTType(a);
+list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg) 
+                                                                                = [ trans(x,jg), trans2NativeInt(y,jg) ] 
+                                                                                  when isNonTerminalType(a);
 
 JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "$astr_subscript_int(<x>,<y>)";
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$atuple_subscript_int(<x>,<y>)" when isTupleType(a);
@@ -434,6 +455,28 @@ JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie 
 
 JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$alist_subscript_int(<x>,<y>)" when isListOnlyType(a);
 JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$amap_subscript(<x>,<y>)" when isMapType(a);
+
+JCode transPrim("subscript", AType r, [\iter(aadt(_,[], lexicalSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_subscript(<x>,<y>)";
+JCode transPrim("subscript", AType r, [\iter(aadt(_,[], contextFreeSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$concrete_subscript(<x>,<y>)";
+
+JCode transPrim("subscript", AType r, [\iter-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_subscript_seps(<x>,<y>)";
+JCode transPrim("subscript", AType r, [\iter-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$concrete_subscript_seps(<x>,<y>)";
+                                                                                                                                                                                                                                                                           
+JCode transPrim("subscript", AType r, [\iter-star(aadt(_,[], lexicalSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_subscript(<x>,<y>)";
+
+JCode transPrim("subscript", AType r, [\iter-star(aadt(_,[], contextFreeSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$concrete_subscript(<x>,<y>)";
+                                                                                         
+JCode transPrim("subscript", AType r, [\iter-star-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_subscript_seps(<x>,<y>)";
+JCode transPrim("subscript", AType r, [\iter-star-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$concrete_subscript_seps(<x>,<y>)";
+                                                                                         
 
 default JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
     if(arel(atypeList(list[AType] elemTypes)) := a){

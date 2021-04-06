@@ -839,6 +839,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return ((INumber)left).equal((INumber)right);
 		} else if(leftType.isNode() && rightType.isNode()){
 			return ((INode) left).equals((INode) right) ? Rascal_TRUE : Rascal_FALSE;
+		} else if(left instanceof ITree && right instanceof ITree) {
+			return $VF.bool(left.match(right)); // ignore "src" keyword parameters in trees
 		} else {
 			return $VF.bool(left.equals(right));
 		}
@@ -3570,6 +3572,24 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return ((INode) subject).get(idx);
 		}
 		throw new RuntimeException("Unsupported subject of type " + subject.getType());
+	}
+	
+	public final IValue $lexical_subscript(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
+		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
+		try {
+			return args.get((idx >= 0) ? idx : (args.length() + idx));
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+		}
+	}
+	
+	public final IValue $lexical_subscript_seps(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
+		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
+		try {
+			return args.get((idx >= 0) ? 2 * idx : (args.length() + 2 * idx));
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+		}
 	}
 
 	// ---- subtract ----------------------------------------------------------
