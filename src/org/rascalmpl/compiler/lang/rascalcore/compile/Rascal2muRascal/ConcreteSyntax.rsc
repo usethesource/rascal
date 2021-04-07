@@ -69,7 +69,7 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    str input = "<for (p <- parts) {><cleanPart(p)><}>";
 
    // now parse the input to get a Tree (or a ParseError is thrown)
-   Tree tree = parse(type(sym, rules), input, |todo:///|);
+   Tree tree = ParseTree::parse(type(sym, rules), input, |todo:///|);
    
    // TODO: source annotations in the tree should be updated/shifted according to
    // the things cleanPart did to the input..
