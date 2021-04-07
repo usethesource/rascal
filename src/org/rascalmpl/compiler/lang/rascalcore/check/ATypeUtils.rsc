@@ -9,7 +9,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Anastasia Izmaylova - Anastasia.Izmaylova@cwi.nl (CWI)}
-// @bootstrapParser
+@bootstrapParser
 module lang::rascalcore::check::ATypeUtils
 
 extend lang::rascalcore::check::AType;
