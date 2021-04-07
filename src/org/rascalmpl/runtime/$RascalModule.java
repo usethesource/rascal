@@ -3591,6 +3591,24 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
 		}
 	}
+	
+	public final IValue $concrete_subscript(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
+		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
+		try {
+			return args.get((idx >= 0) ? 3 * idx : (args.length() + 3 * idx));
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+		}
+	}
+	
+	public final IValue $concrete_subscript_seps(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
+		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
+		try {
+			return args.get((idx >= 0) ? 4 * idx : (args.length() + 4 * idx));
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+		}
+	}
 
 	// ---- subtract ----------------------------------------------------------
 
