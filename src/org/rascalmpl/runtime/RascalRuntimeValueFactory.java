@@ -24,7 +24,6 @@ import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.Typed
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance3;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance4;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance5;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -68,12 +67,13 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
     private final $RascalModule module;
     private @MonotonicNonNull ParserGenerator generator;
     private LoadingCache<IMap, Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache = Caffeine.newBuilder()
+        .softValues()
         .maximumSize(100) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
         .expireAfterAccess(30, TimeUnit.MINUTES) // we clean up unused parsers after 30 minutes
         .build(grammar -> generateParser(grammar));
 
    
-        public RascalRuntimeValueFactory($RascalModule currentModule) {
+    public RascalRuntimeValueFactory($RascalModule currentModule) {
         this.module = currentModule;
     }
 
