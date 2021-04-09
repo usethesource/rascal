@@ -1,5 +1,8 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-syntax D = "d";
+layout Whitespace = [\ \t\n]*;
 
-value main() = (D) `d`;
+start syntax D = "d";
+start syntax DS = D+;
+
+value main() = (DS)`d d d`;
