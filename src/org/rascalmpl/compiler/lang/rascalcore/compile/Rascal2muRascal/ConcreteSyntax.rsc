@@ -31,8 +31,8 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
                 ])[@\loc=t@\loc];
       }
       catch ParseError(loc l) : {
-        tm.messages += error("parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", l);
-        return orig; 
+        tm.messages += [error("parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", l)];
+        return t; 
       }
    }
 
