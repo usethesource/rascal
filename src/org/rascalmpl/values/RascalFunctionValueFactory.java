@@ -94,12 +94,12 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         public <T extends IValue> T call(Map<String, IValue> keywordParameters, IValue... parameters) {
             // if we call this function from outside the interpreter, we might as well just
             // call it immediately without locking the evaluator. This is beneficial for
             // situations such as the LSP and the Eclipse IDE which use callbacks.
             // in particular generated parsers do not need locking per se.
-            @SuppressWarnings("unchecked")
             return (T) func.apply(parameters, keywordParameters);
         }
 
