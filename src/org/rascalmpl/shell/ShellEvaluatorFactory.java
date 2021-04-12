@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
@@ -20,6 +21,7 @@ import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -91,6 +93,13 @@ public class ShellEvaluatorFactory {
         }
     }
 
+    /**
+     * Searchers for META-INF/RASCAL.MF to infer the root of a Rascal source project.
+     * If cwd has a parent which contains this META-INF/RASCAL.MF file then the
+     * location of this parent is returned. If it is not found, this function returns null.
+     * @param cwd
+     * @return
+     */
     public static ISourceLocation inferProjectRoot(File cwd) {
         try {
             File current = cwd;
@@ -107,4 +116,5 @@ public class ShellEvaluatorFactory {
 
         return null;
     }
+
 }
