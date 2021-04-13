@@ -115,11 +115,17 @@ AGrammar addGrammar(loc scope, Solver s){
         seenNTsForKeywordCheck = {};
         //PM. maybe also generate prod(Symbol::empty(),[],{}) 
         for(AType adtType <- domain(usedProductions)){
+            if(\start(adtType2) := adtType){
+                allStarts += adtType2; 
+                definitions[adtType] = choice(adtType, { prod(adtType, [adtType2]) });
+                adtType = adtType2;
+            }
+            syntaxRole = adtType.syntaxRole;
             //println("getGrammar: <adtType>");
             productions = usedProductions[adtType];
             //println("getGrammar: <productions>");
             definitions[adtType] = choice(adtType, productions);
-            syntaxRole = (\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole;
+           
             if(syntaxRole == layoutSyntax()){
                 if(any(p <- productions, isManualLayout(p))){
                    allManualLayouts += adtType;
@@ -129,11 +135,6 @@ AGrammar addGrammar(loc scope, Solver s){
             } else if(syntaxRole == keywordSyntax()){
                 seenNTsForKeywordCheck = checkKeyword(adtType, productions, scope, {} /*seenNTsForKeywordCheck*/, s);
             }
-           
-            //if(s.isStart){
-            //    allStarts += adtType; 
-            //    definitions[\start(a)] = choice(\start(adtType), { prod(\start(adtType), [adtType]) });
-            //}
         }
         //println("allStarts: <allStarts>");
         //println("allLayouts: <allLayouts>");

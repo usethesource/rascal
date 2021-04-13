@@ -582,6 +582,8 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     map[AType, set[AType]] definitions = ();
     list[AType] tparams = [];
     base_t = t;
+    if(\start(AType t2) := base_t)
+        base_t = t2;
     
     if(isReifiedType(t)){
         base_t = getReifiedType(t);
