@@ -1,12 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-layout Whitespace = [\ \t\n]*;
+import ParseTree;
+import Exception;
+import IO;
+import lang::rascal::tests::concrete::OtherSyntax;
 
-start syntax D = "d";
-start syntax DS = D+;
+syntax A = "a";
+layout WS = [\ \t\n\r]*;
 
-<<<<<<< Upstream, based on branch 'master' of https://github.com/usethesource/rascal-core.git
-value main() = (DS)`d d d`;
-=======
-value main() = (DS)`d d d`;
->>>>>>> 213075d Test case
+value main() = (A) `a` := parse(#A,"a");
