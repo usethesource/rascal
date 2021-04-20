@@ -443,7 +443,7 @@ public class RuntimeExceptionFactory {
 	// Java
 	
 	private static Throw javaException(String clazz, String message, IValue cause, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(Java, VF.string(clazz), VF.string(message), cause), ast != null ? ast.getLocation() : null, trace);
+		return new Throw(VF.constructor(JavaWithCause, VF.string(clazz), VF.string(message), cause), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	private static Throw javaException(String clazz, String message, AbstractAST ast, StackTrace trace) {
