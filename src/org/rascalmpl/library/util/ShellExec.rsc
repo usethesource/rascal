@@ -31,6 +31,7 @@ Start a new external process.
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] envVars = ());
 
+
 @doc{
 .Synopsis
 start, run and kill an external process returning its output as a string.
@@ -42,12 +43,22 @@ public str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [
    return result;
 }
 
+public tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] env = ()) {
+    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
+    result = readEntireStream(pid);
+    code = exitCode(pid);
+    killProcess(pid);
+
+    return <result, exitCode(pid)>;
+}
+
+
 @doc{
 .Synopsis
 Kill a running process, or a zombie process (a process which is not alive yet not killed)
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public java void killProcess(PID processId, bool force=false);
+public java int killProcess(PID processId, bool force=false);
 
 @doc{
 .Synopsis
@@ -63,6 +74,8 @@ Check whether a process is still registered but not actually running anymore. A 
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java bool isZombie(PID processId);
 
+@javaClass{org.rascalmpl.library.util.ShellExec}
+java int exitCode(PID processId);
 
 @doc{
 .Synopsis
@@ -77,7 +90,6 @@ Read from an existing process's output stream with a given wait timeout. Some pr
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readWithWait(PID processId, int wait);
-
 
 @doc{
 .Synopsis
