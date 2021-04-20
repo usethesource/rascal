@@ -1,7 +1,9 @@
 package org.rascalmpl.library.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -509,16 +511,19 @@ public class PathConfig {
         
         ISourceLocation bin = URIUtil.getChildLocation(manifestRoot, "bin");
         ISourceLocation target = URIUtil.getChildLocation(manifestRoot, "target/classes");
-        
+       
+
         if (reg.exists(bin)) {
             classloaders.append(bin);
         }
         else if (reg.exists(target)) {
             classloaders.append(target);
         }
-      
+
         // for the Rascal run-time
         classloaders.append(URIUtil.correctLocation("system", "", ""));
+
+        classloaders.appendAll(getPomXmlCompilerClasspath(manifestRoot));
         
         return new PathConfig(
                 srcsWriter.done(), 
@@ -529,7 +534,54 @@ public class PathConfig {
                 classloaders.done());
 	}
 	
-	public ISourceLocation getBin() {
+    /**
+     * See if there is a pom.xml and extract the compile-time classpath from a mvn run
+     * if there is such a file.
+     * @param manifestRoot
+     * @return
+     */
+	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
+        ISourceLocation pomxml = URIUtil.getChildLocation(manifestRoot, "pom.xml");
+
+        if (!"file".equals(manifestRoot.getScheme())) {
+            return vf.list();
+        }
+
+        if (!URIResolverRegistry.getInstance().exists(pomxml)) {
+            return vf.list();
+        }
+
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("mvn", "-q", "-o", "exec:exec",
+                "-DExec.classpathScope=compile", "-Dexec.executable=echo", "-Dexec.args=%classpath");
+            processBuilder.directory(new File(manifestRoot.getPath()));
+
+            Process process = processBuilder.start();
+
+            try (BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+
+                process.waitFor();
+
+                return processOutputReader.lines()
+                    .flatMap(line -> Arrays.stream(line.split(File.pathSeparator)))
+                    .map(elem -> {
+                        try {
+                            return URIUtil.createFileLocation(elem);
+                        }
+                        catch (URISyntaxException e) {
+                            return null;
+                        }
+                    })
+                    .filter(e -> e != null)
+                    .collect(vf.listWriter());
+            }
+        }
+        catch (IOException | InterruptedException e) {
+            return vf.list();
+        }
+    }
+
+    public ISourceLocation getBin() {
         return bin;
     }
 	
