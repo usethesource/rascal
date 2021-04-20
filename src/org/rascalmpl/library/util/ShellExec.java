@@ -32,11 +32,10 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class ShellExec {
-	
-	private static HashMap<IInteger, Process> runningProcesses = new HashMap<IInteger, Process>();
-	private static HashMap<IInteger, InputStreamReader> processInputStreams = new HashMap<IInteger, InputStreamReader>();
-	private static HashMap<IInteger, BufferedReader> processErrorStreams = new HashMap<IInteger, BufferedReader>();
-	private static HashMap<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<IInteger, OutputStreamWriter>();
+	private static Map<IInteger, Process> runningProcesses = new HashMap<>();
+	private static Map<IInteger, InputStreamReader> processInputStreams = new HashMap<>();
+	private static Map<IInteger, BufferedReader> processErrorStreams = new HashMap<>();
+	private static Map<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<>();
 	private static IInteger processCounter = null;
 	
 	private final IValueFactory vf;
@@ -58,6 +57,30 @@ public class ShellExec {
         Process p = runningProcesses.get(pid);
         return vf.bool(p != null && !p.isAlive());
     }
+
+	public IInteger exitCode(IInteger pid) {
+		try {
+			Process p = runningProcesses.get(pid);
+
+			if (p == null) {
+				throw RuntimeExceptionFactory.illegalArgument(pid, "unknown process");
+			}
+
+			while (p.isAlive()) {
+				try {
+					Thread.sleep(100);
+				}
+				catch (InterruptedException e) {
+					// no problem
+				}
+			}
+
+			return vf.integer(p.exitValue());
+		}
+		catch (IllegalStateException e) {
+			throw RuntimeExceptionFactory.illegalArgument(pid, "process has not terminated");
+		}
+	}
 	
 	private synchronized IInteger createProcessInternal(IString processCommand, IList arguments, IMap envVars, ISourceLocation workingDir) {
 		try {
