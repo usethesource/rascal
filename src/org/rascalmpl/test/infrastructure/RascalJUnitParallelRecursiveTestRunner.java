@@ -43,7 +43,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
- * Rascal modules can be tested separatly from each other. This runner includes all modules and nested modules and runs them spread over a workpool
+ * Rascal modules can be tested separately from each other. This runner includes all modules and nested modules and runs them spread over a workpool
  * The size of the workppol is limited by to following:
  * - 1 worker per 300MB available memory (-Xmx)
  * - only as much workers as there are cpu's (-1 to keep room for the GC)
