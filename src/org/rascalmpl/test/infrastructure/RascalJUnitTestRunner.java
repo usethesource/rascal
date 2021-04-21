@@ -57,12 +57,18 @@ public class RascalJUnitTestRunner extends Runner {
     private final Class<?> clazz;
 
     static {
-        heap = new GlobalEnvironment();
-        root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
+        try {
+            heap = new GlobalEnvironment();
+            root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
 
-        evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap);
-        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-        evaluator.getConfiguration().setErrors(true);
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap);
+            evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+            evaluator.getConfiguration().setErrors(true);
+        } 
+        catch (AssertionError e) {
+            e.printStackTrace();
+            throw e;
+        }
     }  
 
     public RascalJUnitTestRunner(Class<?> clazz) {
