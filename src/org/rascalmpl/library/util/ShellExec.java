@@ -59,26 +59,19 @@ public class ShellExec {
     }
 
 	public IInteger exitCode(IInteger pid) {
-		try {
-			Process p = runningProcesses.get(pid);
+		Process p = runningProcesses.get(pid);
 
-			if (p == null) {
-				throw RuntimeExceptionFactory.illegalArgument(pid, "unknown process");
-			}
-
-			while (p.isAlive()) {
-				try {
-					Thread.sleep(100);
-				}
-				catch (InterruptedException e) {
-					// no problem
-				}
-			}
-
-			return vf.integer(p.exitValue());
+		if (p == null) {
+			throw RuntimeExceptionFactory.illegalArgument(pid, "unknown process");
 		}
-		catch (IllegalStateException e) {
-			throw RuntimeExceptionFactory.illegalArgument(pid, "process has not terminated");
+
+		while (true) {
+			try {
+				return vf.integer(p.waitFor());
+			}
+			catch (InterruptedException e) {
+				continue;
+			}
 		}
 	}
 	
@@ -192,15 +185,18 @@ public class ShellExec {
 		
 		new Thread("zombie process clean up") {
 		    public void run() {
-		        try {
-                    Thread.sleep(1000);
-                    if (!runningProcess.isAlive()) {
-                        runningProcesses.remove(processId);
-                    }
-                }
-                catch (InterruptedException e) {
-                    // may happen occasionally
-                }
+				while (true) {
+					try {
+						runningProcess.waitFor();
+						runningProcesses.remove(processId);
+						return;
+					}
+					catch (InterruptedException e) {
+						// may happen occasionally 
+						// and we should go back to waiting for
+						// the process to end
+					}
+				}
 		    };
 		}.start();
 		 
