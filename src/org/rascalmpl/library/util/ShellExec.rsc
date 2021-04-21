@@ -74,8 +74,12 @@ Check whether a process is still registered but not actually running anymore. A 
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java bool isZombie(PID processId);
 
+@doc{
+.Synopsis
+Waits for the process to exit and then returns its return code. This is a blocking operation.
+}
 @javaClass{org.rascalmpl.library.util.ShellExec}
-java int exitCode(PID processId);
+public java int exitCode(PID processId);
 
 @doc{
 .Synopsis
