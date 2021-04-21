@@ -93,7 +93,7 @@ public class PathConfig {
         this(srcs, libs, bin, courses, javaCompilerPath, defaultClassloaders);
     }
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders) throws IOException{
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders) throws IOException {
 		this.srcs = dedup(srcs);
 		this.courses = dedup(courses);
 		this.libs = dedup(libs);
