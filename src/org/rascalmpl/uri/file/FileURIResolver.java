@@ -61,7 +61,10 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	        path += "/"; // the URL class loader assumes directories end with a /
 	    }
 	    
-	    assert isDirectory(loc) || path.endsWith(".jar"); // dictated by URLClassLoader semantics
+	    if (!isDirectory(loc) && !path.endsWith(".jar")) {
+			// dictated by URLClassLoader semantics
+			throw new IOException("Can only provide classloaders for directories or jar files, not for " + loc);
+		} 
 	    
 	    return new URLClassLoader(new URL[] { new File(path).toURI().toURL() }, parent);
 	}
