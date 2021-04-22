@@ -563,7 +563,7 @@ public class PathConfig {
                 process.waitFor();
 
                 return processOutputReader.lines()
-                    .filter(line -> line.contains("-----"))
+                    .filter(line -> !line.contains("-----"))
                     .flatMap(line -> Arrays.stream(line.split(File.pathSeparator)))
                     .map(elem -> {
                         try {
