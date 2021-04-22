@@ -565,6 +565,7 @@ public class PathConfig {
                 return processOutputReader.lines()
                     .filter(line -> !line.contains("-----"))
                     .flatMap(line -> Arrays.stream(line.split(File.pathSeparator)))
+                    .filter(fileName -> new File(fileName).exists())
                     .map(elem -> {
                         try {
                             return URIUtil.createFileLocation(elem);
