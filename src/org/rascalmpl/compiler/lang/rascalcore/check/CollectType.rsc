@@ -348,19 +348,19 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
         collect(targ.\type, c);
         try {
             argType = c.getType(targ.\type);
-            if(targ has name) {
-                labelledArgType = argType[label="<targ.name>"];
-                resolvedArgTypes += labelledArgType;
-                c.define("<targ.name>", formalId(), targ.name, defType(labelledArgType));
-                c.fact(targ, argType);
-            } else {
+            //if(targ has name) {
+            //    labelledArgType = argType[label="<targ.name>"];
+            //    resolvedArgTypes += labelledArgType;
+            //    c.define("<targ.name>", formalId(), targ.name, defType(labelledArgType));
+            //    c.fact(targ, argType);
+            //} else {
                 resolvedArgTypes += argType;
-            }
+            //}
         } catch TypeUnavailable(): {
-            if(targ has name) {
-                c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
-                c.fact(targ, targ.name);
-             }
+            ;//if(targ has name) {
+            //    c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
+            //    c.fact(targ, targ.name);
+            // }
         }
     }
     collect(t, c);
