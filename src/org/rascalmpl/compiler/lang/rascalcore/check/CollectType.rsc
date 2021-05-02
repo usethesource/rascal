@@ -358,6 +358,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
                 resolvedArgTypes += argType;
             //}
         } catch TypeUnavailable(): {
+            c.fact(targ, targ.\type);
             ;//if(targ has name) {
             //    c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
             //    c.fact(targ, targ.name);
