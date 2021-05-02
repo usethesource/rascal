@@ -1,11 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import ParseTree;
-import Exception;
-import IO;
-import lang::rascal::tests::concrete::OtherSyntax;
+data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);
+TYPESET simp(TYPESET  ts) = ts;
+bool testSimp(TYPESET ats, TYPESET (TYPESET  ts) aSimp) = ats == aSimp(ats);
 
-syntax A = "a";
-layout WS = [\ \t\n\r]*;
-
-value main() = (A) `a` := parse(#A,"a");
+value main() = testSimp(SET("a"), simp);
