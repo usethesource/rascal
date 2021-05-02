@@ -348,6 +348,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
         collect(targ.\type, c);
         try {
             argType = c.getType(targ.\type);
+            c.fact(targ, argType);
             //if(targ has name) {
             //    labelledArgType = argType[label="<targ.name>"];
             //    resolvedArgTypes += labelledArgType;
