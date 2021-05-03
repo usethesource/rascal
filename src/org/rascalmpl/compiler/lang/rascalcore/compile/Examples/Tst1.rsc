@@ -1,7 +1,10 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-data TYPESET = SET(str name) | SUBTYPES(TYPESET tset) | INTERSECT(set[TYPESET] tsets);
-TYPESET simp(TYPESET  ts) = ts;
-bool testSimp(TYPESET ats, TYPESET (TYPESET  ts) aSimp) = ats == aSimp(ats);
+import ParseTree;
 
-value main() = testSimp(SET("a"), simp);
+layout Whitespace = [\ \t\n]*;
+
+start syntax D = "d";
+start syntax DS = D+;
+
+value main() = /*(DS)`d d d` :=*/ parse(#DS, "d d d") ;
