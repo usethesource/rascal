@@ -1,5 +1,6 @@
 module lang::rascal::tests::concrete::Syntax1
 
+import Exception;
 import ParseTree;
 
 layout Whitespace = [\ \t\n]*;
