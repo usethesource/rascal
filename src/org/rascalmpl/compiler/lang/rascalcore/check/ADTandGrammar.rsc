@@ -117,7 +117,7 @@ AGrammar addGrammar(loc scope, Solver s){
         for(AType adtType <- domain(usedProductions)){
             if(\start(adtType2) := adtType){
                 allStarts += adtType2; 
-                definitions[adtType] = choice(adtType, { prod(adtType, [adtType2]) });
+                definitions[adtType] = choice(adtType, { prod(adtType, [adtType2[label="top"]]) });
                 adtType = adtType2;
             }
             syntaxRole = adtType.syntaxRole;
@@ -136,9 +136,9 @@ AGrammar addGrammar(loc scope, Solver s){
                 seenNTsForKeywordCheck = checkKeyword(adtType, productions, scope, {} /*seenNTsForKeywordCheck*/, s);
             }
         }
-        //println("allStarts: <allStarts>");
-        //println("allLayouts: <allLayouts>");
-        //iprintln(definitions);
+        println("allStarts: <allStarts>");
+        println("allLayouts: <allLayouts>");
+        iprintln(definitions);
         g = grammar(allStarts, definitions);
         
         if(isEmpty(allLayouts)){
@@ -163,6 +163,7 @@ AGrammar addGrammar(loc scope, Solver s){
         }
         g = expandKeywords(g);
         s.push(key_grammar, g);
+        iprintln(g);
         return g;
     } catch TypeUnavailable(): {
         // protect against undefined entities in the grammar that have not yet been reported.
