@@ -5,6 +5,5 @@ import ParseTree;
 layout Whitespace = [\ \t\n]*;
 
 start syntax D = "d";
-start syntax DS = D+;
 
-value main() = /*(DS)`d d d` :=*/ parse(#DS, "d d d") ;
+value main() = parse(#D, "d");
