@@ -601,7 +601,7 @@ private MuExp translateConcreteList(Symbol eltType, list[Tree] elems:![], loc sr
 
 private MuExp translateConcreteSeparatedList(Symbol _, list[Symbol] _, [], loc _) = muCon([]);
 
-private MuExp translateConcreteSeparatedList(Symbol _, list[Symbol] _, [Tree single], loc src) {
+private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] _, [Tree single], loc src) {
     str fuid = topFunctionScope();
        
     writer = muTmpListWriter(nextTmp("writer"), fuid);   
@@ -615,7 +615,7 @@ private MuExp translateConcreteSeparatedList(Symbol _, list[Symbol] _, [Tree sin
        code += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], src)];
     }
     else {
-       code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(elem)], src)];
+       code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(single/*elem*/)], src)];
     }
     leaveWriter();
         
