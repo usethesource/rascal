@@ -16,6 +16,16 @@ start syntax DS = D+;
 start syntax E = "e";
 start syntax ES = {E ","}+ args;
 
+test bool parseD1() = (D)`d` := parse(#D, "d");
+
+@expected{ParseError}
+test bool parseD2() = (D)`d` := parse(#D, " d");
+@expected{ParseError}
+test bool parseD3() = (D)`d` := parse(#D, "d ");
+
+test bool parseD4() = (start[D])`d` := parse(#start[D], " d ");
+test bool parseD5() = (D)`d` := parse(#start[D], " d ").top;
+
 test bool parseDS() = (DS)`d d d` := parse(#DS, "d d d") ;
 
 test bool parseDSfromFile() =  (DS)`d d d` := parse(#DS, |testdata:///DS.trm|);
