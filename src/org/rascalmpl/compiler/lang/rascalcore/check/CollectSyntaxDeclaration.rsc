@@ -44,7 +44,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
             nonterminalType = nonterminalType[parameters=[ aparameter("<tp.nonterminal>", avalue())| tp <- typeParameters ]];
         }
         
-        dt = defType(isStart ? \start(nonterminalType) : nonterminalType);
+        dt = defType(nonterminalType);
         dt.vis = vis;        
         
         // Define the syntax symbol itself and all labelled alternatives as constructors
