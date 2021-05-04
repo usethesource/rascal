@@ -6,4 +6,4 @@ layout Whitespace = [\ \t\n]*;
 
 start syntax D = "d";
 
-value main() = parse(#D, "d");
+value main() = parse(#start[D], " d");
