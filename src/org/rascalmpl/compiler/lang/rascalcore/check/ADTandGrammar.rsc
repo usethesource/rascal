@@ -104,10 +104,9 @@ bool isManualLayout(AProduction p) = (p has attributes && \tag("manual"()) in p.
 AGrammar addGrammar(loc scope, Solver s){
     try {
         facts = s.getFacts();
-      
         usedProductions = {<p.def, p> | loc k <- facts, aprod(p) := facts[k] };
+        allStarts = { t | loc k <- facts, \start(t) := facts[k] };
         
-        allStarts = {};
         allLayouts = {};
         allManualLayouts = {};
         definitions = ();
@@ -115,11 +114,6 @@ AGrammar addGrammar(loc scope, Solver s){
         seenNTsForKeywordCheck = {};
         //PM. maybe also generate prod(Symbol::empty(),[],{}) 
         for(AType adtType <- domain(usedProductions)){
-            if(\start(adtType2) := adtType){
-                allStarts += adtType2; 
-                definitions[adtType] = choice(adtType, { prod(adtType, [adtType2[label="top"]]) });
-                adtType = adtType2;
-            }
             syntaxRole = adtType.syntaxRole;
             //println("getGrammar: <adtType>");
             productions = usedProductions[adtType];
@@ -136,20 +130,8 @@ AGrammar addGrammar(loc scope, Solver s){
                 seenNTsForKeywordCheck = checkKeyword(adtType, productions, scope, {} /*seenNTsForKeywordCheck*/, s);
             }
         }
-        println("allStarts: <allStarts>");
-        println("allLayouts: <allLayouts>");
-        iprintln(definitions);
-        g = grammar(allStarts, definitions);
-        
-        if(isEmpty(allLayouts)){
-            defaultLayout = aadt("$default$", [], layoutSyntax());
-            definitions += (defaultLayout : choice(defaultLayout, {prod(defaultLayout, [])}));
-            g = grammar(allStarts, definitions);
-            g = layouts(g, defaultLayout, allManualLayouts);
-       
-        } else if(size(allLayouts) == 1){
-            g = layouts(g, getOneFrom(allLayouts), allManualLayouts);
-        } else { // Warn for  multiple layout definitions
+    
+        if(size(allLayouts) > 1) { // Warn for  multiple layout definitions
             allLayoutNames = {ladt.adtName | ladt <- allLayouts};
             for(AType ladt <- allLayouts){
                 otherLayoutNames = {"`<lname>`" | str lname <- (allLayoutNames - ladt.adtName)};
@@ -161,9 +143,22 @@ AGrammar addGrammar(loc scope, Solver s){
                 }
             }
         }
+        
+        definedLayout = aadt("$default$", [], layoutSyntax());
+        if(isEmpty(allLayouts)){
+            definitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
+        } else if(size(allLayouts) >= 1){
+            definedLayout = getOneFrom(allLayouts);
+        } 
+        
+        for(adtType <- allStarts){
+            definitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[label="top"], definedLayout]) });
+        }
+        
+        g = grammar(allStarts, definitions);
+        g = layouts(g, definedLayout, allManualLayouts);
         g = expandKeywords(g);
         s.push(key_grammar, g);
-        iprintln(g);
         return g;
     } catch TypeUnavailable(): {
         // protect against undefined entities in the grammar that have not yet been reported.
