@@ -97,11 +97,12 @@ public class IO {
     }
     
 	
-	public IValue readJSON(IValue type, ISourceLocation loc, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat) {
+	public IValue readJSON(IValue type, ISourceLocation loc, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool lenient) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
       try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
+		in.setLenient(lenient.getValue());
         return new JsonValueReader(values, store)
             .setConstructorsAsObjects(implicitConstructors.getValue())
             .setNodesAsObjects(implicitNodes.getValue())
@@ -117,11 +118,12 @@ public class IO {
       }
     }
 	
-	public IValue parseJSON(IValue type, IString src, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat) {
+	public IValue parseJSON(IValue type, IString src, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool lenient) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
 	      
 	      try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
+			in.setLenient(lenient.getValue());
 	        return new JsonValueReader(values, store)
 	            .setConstructorsAsObjects(implicitConstructors.getValue())
 	            .setNodesAsObjects(implicitNodes.getValue())
