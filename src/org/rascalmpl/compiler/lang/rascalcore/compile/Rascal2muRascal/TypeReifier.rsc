@@ -308,7 +308,7 @@ private  tuple[set[AType], set[Production]] getReachableAbstractTypes(AType subj
 
 // Extract the reachable concrete types
 
-private  tuple[set[AType], set[Production]] getReachableConcreteTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
+tuple[set[AType], set[Production]] getReachableConcreteTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
 	desiredPatternTypes = { s | /AType s := patternTypes};
 	desiredSubjectTypes = { s | /AType s := subjectType};
 	desiredTypes = desiredPatternTypes;

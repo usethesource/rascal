@@ -114,6 +114,9 @@ AGrammar addGrammar(loc scope, Solver s){
         seenNTsForKeywordCheck = {};
         //PM. maybe also generate prod(Symbol::empty(),[],{}) 
         for(AType adtType <- domain(usedProductions)){
+            if(\start(adtType2) := adtType){
+                adtType = adtType2;
+            }
             syntaxRole = adtType.syntaxRole;
             //println("getGrammar: <adtType>");
             productions = usedProductions[adtType];

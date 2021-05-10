@@ -16,6 +16,7 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::util::Names;  // TODO: merge name utils
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
+import lang::rascalcore::compile::Rascal2muRascal::TypeReifier;
 
 import Location;
 
