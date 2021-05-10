@@ -11,6 +11,7 @@ syntax A = [abcABC];
 syntax AStar = A* as;
 syntax APlus = A+ as1;
 syntax AComma = {A ","}* acommas;
+syntax ACommaPlus = {A ","}+ acommas;
 layout L = [ ]*;
 
 @ignoreInterpreter{Incorrect/not implemented}
@@ -209,3 +210,7 @@ test bool cfgSliceSepNegStep1() = ([AComma] "a,b,c,A,B,C,a,b,c").acommas [8,6..]
 @ignoreInterpreter{Incorrect/not implemented}
 @expected{IllegalArgument}
 test bool cfgIllegalSlice() { ([APlus] "abc").as1[0 .. 0]; return false; }
+
+@ignoreInterpreter{Incorrect/not implemented}
+@expected{IllegalArgument}
+test bool cfgIllegalSliceSep() { ([ACommaPlus] "a,b,c").acommas[0 .. 0]; return false; }
