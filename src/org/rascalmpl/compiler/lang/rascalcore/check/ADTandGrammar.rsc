@@ -101,15 +101,20 @@ list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 
 bool isManualLayout(AProduction p) = (p has attributes && \tag("manual"()) in p.attributes);
 
-AGrammar addGrammar(loc scope, Solver s){
+TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,TModel] tmodels){
     try {
-        facts = s.getFacts();
-        usedProductions = {<p.def, p> | loc k <- facts, aprod(p) := facts[k] };
-        allStarts = { t | loc k <- facts, \start(t) := facts[k] };
+        usedProductions = {};
+        allStarts = {};
+        tm = tmodels[qualifiedModuleName];
+        for(m <- {qualifiedModuleName, *imports, *extends}){
+            facts = tmodels[m].facts;
+            usedProductions += {<p.def, p> | loc k <- facts, aprod(p) := facts[k] };
+            allStarts += { t | loc k <- facts, \start(t) := facts[k] };
+        }
         
         allLayouts = {};
         allManualLayouts = {};
-        definitions = ();
+        syntaxDefinitions = ();
         
         seenNTsForKeywordCheck = {};
         //PM. maybe also generate prod(Symbol::empty(),[],{}) 
@@ -121,7 +126,7 @@ AGrammar addGrammar(loc scope, Solver s){
             //println("getGrammar: <adtType>");
             productions = usedProductions[adtType];
             //println("getGrammar: <productions>");
-            definitions[adtType] = choice(adtType, productions);
+            syntaxDefinitions[adtType] = choice(adtType, productions);
            
             if(syntaxRole == layoutSyntax()){
                 if(any(p <- productions, isManualLayout(p))){
@@ -138,34 +143,33 @@ AGrammar addGrammar(loc scope, Solver s){
             allLayoutNames = {ladt.adtName | ladt <- allLayouts};
             for(AType ladt <- allLayouts){
                 otherLayoutNames = {"`<lname>`" | str lname <- (allLayoutNames - ladt.adtName)};
-                for(p <- definitions[ladt].alternatives){
-                    s.report(warning(p.src, 
-                                    size(otherLayoutNames) == 1 ? "Multiple layout definitions: layout %q can interfere with layout %v"
-                                                                : "Multiple layout definitions: layout %q can interfere with layouts %v"
-                                    , ladt.adtName, otherLayoutNames));
+                for(p <- syntaxDefinitions[ladt].alternatives){
+                    tm.messages += [warning(interpolate("Multiple layout definitions: layout %q can interfere with layout %v", AType(Tree t) { return tm.facts[getLoc(t)]; }, [ladt.adtName, otherLayoutNames]),
+                                            p.src)];
                 }
             }
         }
         
         definedLayout = aadt("$default$", [], layoutSyntax());
         if(isEmpty(allLayouts)){
-            definitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
+            syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
         } else if(size(allLayouts) >= 1){
             definedLayout = getOneFrom(allLayouts);
         } 
         
         for(adtType <- allStarts){
-            definitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[label="top"], definedLayout]) });
+            syntaxDefinitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[label="top"], definedLayout]) });
         }
         
-        g = grammar(allStarts, definitions);
+        g = grammar(allStarts, syntaxDefinitions);
         g = layouts(g, definedLayout, allManualLayouts);
         g = expandKeywords(g);
-        s.push(key_grammar, g);
-        return g;
+        tm.store[key_grammar] = [g];
+        iprintln(g);
+        return tm;
     } catch TypeUnavailable(): {
         // protect against undefined entities in the grammar that have not yet been reported.
-        return grammar({}, ());
+        return tmodels[qualifiedModuleName];
     }
 }
 // A keyword production may only contain:
@@ -204,3 +208,110 @@ AGrammar addGrammar(loc scope, Solver s){
     }
     return seenNTs;
  }
+
+//AGrammar addGrammar(loc scope, Solver s){
+//    try {
+//        X = s.getStack(key_productions);
+//        facts = s.getFacts();
+//              
+//        usedProductions = {<p.def, p> | loc k <- facts, aprod(p) := facts[k] };
+//        allStarts = { t | loc k <- facts, \start(t) := facts[k] };
+//        
+//        allLayouts = {};
+//        allManualLayouts = {};
+//        syntaxDefinitions = ();
+//        
+//        seenNTsForKeywordCheck = {};
+//        //PM. maybe also generate prod(Symbol::empty(),[],{}) 
+//        for(AType adtType <- domain(usedProductions)){
+//            if(\start(adtType2) := adtType){
+//                adtType = adtType2;
+//            }
+//            syntaxRole = adtType.syntaxRole;
+//            //println("getGrammar: <adtType>");
+//            productions = usedProductions[adtType];
+//            //println("getGrammar: <productions>");
+//            syntaxDefinitions[adtType] = choice(adtType, productions);
+//           
+//            if(syntaxRole == layoutSyntax()){
+//                if(any(p <- productions, isManualLayout(p))){
+//                   allManualLayouts += adtType;
+//                } else {
+//                    allLayouts = {*allLayouts, adtType};
+//                }
+//            } else if(syntaxRole == keywordSyntax()){
+//                seenNTsForKeywordCheck = checkKeyword(adtType, productions, scope, {} /*seenNTsForKeywordCheck*/, s);
+//            }
+//        }
+//    
+//        if(size(allLayouts) > 1) { // Warn for  multiple layout definitions
+//            allLayoutNames = {ladt.adtName | ladt <- allLayouts};
+//            for(AType ladt <- allLayouts){
+//                otherLayoutNames = {"`<lname>`" | str lname <- (allLayoutNames - ladt.adtName)};
+//                for(p <- syntaxDefinitions[ladt].alternatives){
+//                    s.report(warning(p.src, 
+//                                    size(otherLayoutNames) == 1 ? "Multiple layout definitions: layout %q can interfere with layout %v"
+//                                                                : "Multiple layout definitions: layout %q can interfere with layouts %v"
+//                                    , ladt.adtName, otherLayoutNames));
+//                }
+//            }
+//        }
+//        
+//        definedLayout = aadt("$default$", [], layoutSyntax());
+//        if(isEmpty(allLayouts)){
+//            syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
+//        } else if(size(allLayouts) >= 1){
+//            definedLayout = getOneFrom(allLayouts);
+//        } 
+//        
+//        for(adtType <- allStarts){
+//            syntaxDefinitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[label="top"], definedLayout]) });
+//        }
+//        
+//        g = grammar(allStarts, syntaxDefinitions);
+//        g = layouts(g, definedLayout, allManualLayouts);
+//        g = expandKeywords(g);
+//        s.push(key_grammar, g);
+//        iprintln(g);
+//        return g;
+//    } catch TypeUnavailable(): {
+//        // protect against undefined entities in the grammar that have not yet been reported.
+//        return grammar({}, ());
+//    }
+//}
+//// A keyword production may only contain:
+//// - literals
+//// - other nonterminals that satisfy this rule.
+//
+// set[AType] checkKeyword(AType adtType, set[AProduction] productions, loc scope, set[AType] seenNTs, Solver s){
+//    seenNTs += adtType;
+//    syntaxRole = (\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole;
+//    for(/p: prod(AType def, list[AType] asymbols) <- productions){
+//        if(syntaxRole == keywordSyntax() && size(asymbols) != 1){
+//            s.report(warning(p.src, size(asymbols) == 0 ? "One symbol needed in keyword declaration"
+//                                                        : "Keyword declaration should consist of one symbol"));
+//            continue;
+//        }
+//        for(AType sym <- asymbols){
+//            if(lit(_) := sym || aprod(prod(aadt(_,[],_),[lit(_)])) := sym){
+//                ; // good!
+//            } else if(isADTType(sym)){
+//                // also good, provided we have not already seen this same nonterminal (recursion guard)
+//                if(sym notin seenNTs){
+//                    seenNTs = checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxRoles)}, scope, seenNTs + sym, s);
+//                }
+//            } else if(aprod(prod(aadt(_,[],_),[sym2])) := sym && isADTType(sym2)){
+//                // also good, provided we have not already seen this same nonterminal (recursion guard)
+//                if(sym2 notin seenNTs){
+//                    seenNTs = checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxRoles)}, scope, seenNTs + sym2, s);
+//                }
+//            } else {
+//                syntaxRole = (\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole;
+//                if(syntaxRole == keywordSyntax()){
+//                    s.report(warning(p.src, "Only literals allowed in keyword declaration, found %t", sym));
+//                }
+//            }
+//        }
+//    }
+//    return seenNTs;
+// }

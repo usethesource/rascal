@@ -756,12 +756,21 @@ str doValue2IValue(Tree t:appl(Production prod, list[Tree] args), map[value, str
 
 default str doValue2IValue(node nd, map[value, str] constants) {
     name = getName(nd);
-    name = isEmpty(name) ? "\"\"" : (name[0] == "\"" ? name : "\"<name>\"");
+   
     children = getChildren(nd);
     childrenContrib = isEmpty(children) ? "" : ", <intercalate(", ", [ value2IValueRec(child, constants) | child <- getChildren(nd) ])>";
-    kwparams = getKeywordParameters(nd);
-    kwparamsContrib = isEmpty(kwparams) ? "" : ", keywordParameters=<kwparams>";
-    return "$VF.node(<name><childrenContrib><kwparamsContrib>)";
+   
+    if(name in {"follow", "not-follow", "precede", "not-precede", "delete", "at-column", "begin-of-line", "end-of-line", "except"}){
+         childrenContrib = intercalate(", ", [ value2IValueRec(child, constants) | child <- children ]);
+         return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Condition_<toRascalValueFactoryName(name)><if (children != []){>,<}><childrenContrib>)";
+       
+    } else {
+        childrenContrib = isEmpty(children) ? "" : ", <intercalate(", ", [ value2IValueRec(child, constants) | child <- children ])>";
+        kwparams = getKeywordParameters(nd);
+        kwparamsContrib = isEmpty(kwparams) ? "" : ", keywordParameters=<kwparams>";
+        name = isEmpty(name) ? "\"\"" : (name[0] == "\"" ? name : "\"<name>\"");
+        return "$VF.node(<name><childrenContrib><kwparamsContrib>)";
+    }
 }
 
 str doValue2IValue(aadt(str adtName, list[AType] parameters, concreteSyntax()), map[value, str] constants) 
@@ -868,8 +877,12 @@ str atype2vtype(aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie 
     = (inTest ? "$me." : "") + getADTName(adtName);
 str atype2vtype(aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.fromSymbol($RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
-str atype2vtype(aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg, bool inTest=false)    
-    = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"lex\", $VF.string(\"<adtName>\"))";
+    
+str atype2vtype(aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg, bool inTest=false){    
+    return (inTest ? "$me." : "") + getADTName(adtName);
+    //return "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"lex\", $VF.string(\"<adtName>\"))";
+}
+    
 str atype2vtype(aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"keywords\", $VF.string(\"<adtName>\"))";
 str atype2vtype(aadt(str adtName, list[AType] parameters, layoutSyntax()), JGenie jg, bool inTest=false)    

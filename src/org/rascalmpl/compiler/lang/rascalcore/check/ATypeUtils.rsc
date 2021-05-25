@@ -193,7 +193,9 @@ Symbol atype2symbol(\iter-star-seps(AType symbol, list[AType] separators)) = Sym
 Symbol atype2symbol(\alt(set[AType] alternatives)) = Symbol::\alt({ atype2symbol(a) | a <- alternatives });
 Symbol atype2symbol(\seq(list[AType] sequence)) = Symbol::\seq([atype2symbol(a) | a <- sequence ]);
 Symbol atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = Symbol::\conditional(atype2symbol(symbol), { acond2cond(cond) | cond <- conditions });
-default Symbol atype2symbol(AType s)  { throw "could not convert <s> to Symbol?"; }
+Symbol atype2symbol(aprod(prod(AType def, list[AType] atypes))) = atype2symbol(def);
+Symbol atype2symbol(regular(AType def)) = atype2symbol(def);
+default Symbol atype2symbol(AType s)  { throw "could not convert <s> to Symbol"; }
 
 private Condition acond2cond(ACondition::\follow(AType symbol)) = Condition::\follow(atype2symbol(symbol));
 private Condition acond2cond(ACondition::\not-follow(AType symbol)) = Condition::\not-follow(atype2symbol(symbol));

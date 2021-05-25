@@ -117,6 +117,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){
+                    s.fact(syms, ptype);
                     def = cprod.def;
                     fields = [ t | sym <- symbols, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t), t.label?];
                     def = \start(sdef) := def ? sdef : unset(def, "label");

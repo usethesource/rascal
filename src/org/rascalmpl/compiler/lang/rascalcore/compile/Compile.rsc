@@ -23,7 +23,7 @@ loc generatedDir = |project://rascal-codegen-ideas/generated|;
 
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=true){
     tm = tmodels[qualifiedModuleName];
-    //iprintln(tm, lineLimit=5000);
+    iprintln(tm, lineLimit=5000);
     targetDir = generatedDir + module2dir(qualifiedModuleName);
     className = getBaseClass(qualifiedModuleName);
    
@@ -52,7 +52,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         println("Written: <targetDir + "<className>.java">");
         writeFile(targetDir + "<className>Tests.java", the_test_class);
      
-        return errors; //tm.messages;
+        return tm.messages;
        
     } catch e: CompileTimeError(Message m): {
         return errors + [m];   
