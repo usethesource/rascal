@@ -17,9 +17,6 @@ import ValueIO;
 import analysis::graphs::Graph;
 import util::Reflective;
 
-//public str key_bom = "bill_of_materials";
-//public str key_current_module = "current_module";
-
 tuple[bool,loc] TPLReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
 
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
@@ -233,7 +230,15 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
     throw "No module scope found for <qualifiedModuleName>";
 }
 
-TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
+ModuleStructure saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStructure ms, map[str,loc] moduleScopes, PathConfig pcfg){
+    tm = addGrammar(qualifiedModuleName, imports, extends, ms.tmodels);
+    ms.tmodels[qualifiedModuleName] = tm;
+    ms.messages[qualifiedModuleName] = tm.messages;
+    ms.tmodels[qualifiedModuleName] = saveModule(qualifiedModuleName, imports, extends, moduleScopes, ms.tmodels, ms.moduleLastModified, pcfg, tm);
+    return ms;
+}
+
+TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, map[str,TModel] tmodels, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     try {
         mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
@@ -271,12 +276,19 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         
-        m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
+        m1.scopes
+            = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
         
-        m1.store = (key_bom : bom);
-        m1.store[key_grammar] = tm.store[key_grammar] ? grammar({}, ());
-        m1.store[key_ADTs]    = tm.store[key_ADTs] ? {};
-        m1.store[key_common_keyword_fields]    = tm.store[key_common_keyword_fields] ? [];
+        m1.store 
+            = (key_bom : bom);
+        m1.store[key_grammar] 
+            = tm.store[key_grammar] ? grammar({}, ());
+        
+        m1.store[key_ADTs]    
+            = tm.store[key_ADTs] ? {};
+        m1.store[key_common_keyword_fields]   
+            = tm.store[key_common_keyword_fields] ? [];
+        
         
         m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope };
         //m1.paths = domainR(tm.paths, {mscope});
@@ -290,14 +302,15 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         defs = for(tup: <loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
                    if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
                       scope in filteredModuleScopes || 
-                      (scope.path == mscope.path && idRole in saveModuleRoles)){
+                      (scope.path == mscope.path && idRole in saveModuleRoles)
+                      ){
                           
                       if(scope in extendedModuleScopes){
                          if(defType(_) !:= tup.defInfo){
                             throw "Suspicious define in TModel: <tup>";
                          }
                          //tup.scope = mscope;
-                      }                  
+                      }           
                     append tup;
                   }
                };

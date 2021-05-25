@@ -323,7 +323,10 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                     if(ms.messages[m]?){
                         tm.messages += ms.messages[m];
                     }
-                    ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
+                    ms.tmodels[m] = tm;
+                    ms =  saveModule(m, imports, extends, ms, moduleScopes, pcfg);
+                    
+                    //ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, ms.tmodels, ms.moduleLastModified, pcfg, tm);
                     //ms.modules = delete(ms.modules, m);
                 }
             }

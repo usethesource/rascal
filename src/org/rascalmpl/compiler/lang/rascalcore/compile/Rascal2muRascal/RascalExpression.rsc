@@ -575,7 +575,7 @@ bool isListVar(Symbol elem, Tree x) = isListPlusVar(elem, x) || isListStarVar(el
 
 private AType aTree = aadt("Tree", [], dataSyntax());
 
-private MuExp translateConcreteList(Symbol eltType, []) = muCon([]);
+private MuExp translateConcreteList(Symbol eltType, [], loc src) = muCon([]);
 
 private MuExp translateConcreteList(Symbol eltType, list[Tree] elems:![], loc src) {
     str fuid = topFunctionScope();

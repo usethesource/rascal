@@ -24,10 +24,12 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -297,7 +299,16 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	}
 	
 	public final boolean $isComparable(Type t1, Type t2) {
-		return t1.comparable(t2);
+		// TODO: needs improvement
+		if(t1.comparable(t2)) { 
+			return true;
+		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
+			return ((IString)((NonTerminalType)t1).getSymbol().get(0)).getValue() == t2.getName();
+		} if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
+			return t1.getName() == ((IString)((NonTerminalType)t2).getSymbol().get(0)).getValue();
+		} else {
+			return false;
+		}
 	}
 	
 	/*************************************************************************/
@@ -1721,24 +1732,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return cons.set(fieldName, repl);
 		}
 		
-		//if($TS.hasKeywordParameter(consType, fieldName)) {
+		// Does fieldName exist as keyword field?
+		if($TS.hasKeywordParameter(consType, fieldName)) {
 			return cons.asWithKeywordParameters().setParameter(fieldName, repl);
-		//}
-// TODO
-//		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-//			IConstructor prod = ((ITree) cons).getProduction();
-//
-//			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-//				IConstructor arg = (IConstructor) elem;
-//				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-//					return true;			        }
-//			}
-//		}
-//		if(cons.isAnnotatable()){
-//			return cons.asAnnotatable().setAnnotation(fieldName, repl);
-//		} else {
-//			throw RuntimeExceptionFactory.noSuchField(fieldName);
-//		}
+		}
+
+		// Does fieldName exist a fieldin a parse tree?
+		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			return TreeAdapter.setArg((ITree)cons, fieldName, (IConstructor) repl);
+		}
+		
+		throw RuntimeExceptionFactory.noSuchField(fieldName);
 	}
 	
 	// ---- has ---------------------------------------------------------------
@@ -1754,11 +1758,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 			return true;
 		} else {
-//			if(nd.isAnnotatable()){
-//				return nd.asAnnotatable().getAnnotation(fieldName) != null;
-//			} else {
-				return false;
-//			}
+			return false;
 		}
 	}
 	
@@ -1783,19 +1783,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-			IConstructor prod = ((ITree) cons).getProduction();
-
-			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-				IConstructor arg = (IConstructor) elem;
-				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-					return true;			        }
-			}
+			return TreeAdapter.getLabeledField((ITree) cons, fieldName) != null;
+//			IConstructor prod = ((ITree) cons).getProduction();
+//
+//			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+//				IConstructor arg = (IConstructor) elem;
+//				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+//					return true;			        }
+//			}
 		}
-//		if(cons.isAnnotatable()){
-//			return cons.asAnnotatable().getAnnotation(fieldName) != null;
-//		} else {
-			return false;
-//		}
+
+		return false;
 	}
 	
 	// TODO nonterminal

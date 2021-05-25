@@ -639,7 +639,7 @@ void collect(current:(Sym) `<Sym symbol>  \>\> <Sym match>`, Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
-   c.calculate("follow", current, [symbol, match], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); });
+   c.calculate("notFollow", current, [symbol, match], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); });
    collect(symbol, match, c);
 }
 
