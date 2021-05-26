@@ -934,7 +934,7 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
             '            fieldName= <fieldName>");
     
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
-    if(isNonTerminalType(consType)){
+    if(isNonTerminalType(consType) || asubtype(consType, treeType)){
         return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\")";
     } else if(isADTType(consType)){
         return "$get_<getADTName(consType)>_<getJavaName(fieldName)>(<base>)";
