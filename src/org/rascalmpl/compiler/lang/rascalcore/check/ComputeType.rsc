@@ -418,7 +418,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
                 }
             }
         } 
-     } else if(isAnyCharType(containerType)){
+     } else if(isAnyCharType(containerType) || asubtype(containerType, treeType)){
             return computeFieldTypeWithADT(treeType, field, scope, s);
     } else if (isTupleType(containerType)) {
         if(tupleHasFieldNames(containerType)){
