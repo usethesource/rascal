@@ -31,7 +31,7 @@ syntax Statement
    | whileStat: "while" Expression cond "do" {Statement ";"}* body "od"
   ;  
      
-syntax Expression 
+start syntax Expression 
    = id: Id name
    | strCon: String string
    | natCon: Natural natcon
