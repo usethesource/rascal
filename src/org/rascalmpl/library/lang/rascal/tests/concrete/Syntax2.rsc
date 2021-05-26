@@ -66,7 +66,6 @@ test bool PicoAssign5(){
    return ifStat1 := (Statement)`if x then a:=10;b:=20 else fi`;
 }
 
-@ignoreCompiler{FIX: A space is missing after substituted thenPart}
 test bool PicoAssign6(){
    Statement ifStat1 = (Statement)`if x then a:=1;b:=2 else fi`;
    Statement ifStat2 = (Statement)`if y then a:=10;b:=20 else fi`;
