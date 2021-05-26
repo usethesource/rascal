@@ -339,6 +339,42 @@ data ACondition
      | \except(str label)
      ;
 
+
+@doc{
+.Synopsis
+Nested priority is flattened.
+}
+public AProduction priority(AType s, [*AProduction a, priority(AType _, list[AProduction] b), *AProduction c])
+  = priority(s,a+b+c);
+   
+@doc{
+.Synopsis
+Normalization of associativity.
+
+.Description
+
+* Choice (see the `choice` constructor in <<Type-ParseTree>>) under associativity is flattened.
+* Nested (equal) associativity is flattened.
+* Priority under an associativity group defaults to choice.
+}
+AProduction associativity(AType s, Associativity as, {*AProduction a, choice(AType t, set[AProduction] b)}) 
+  = associativity(s, as, a+b); 
+            
+AProduction associativity(AType rhs, Associativity a, {associativity(rhs, Associativity b, set[AProduction] alts), *AProduction rest})  
+  = associativity(rhs, a, rest + alts); // the nested associativity, even if contradictory, is lost
+
+AProduction associativity(AType s, Associativity as, {AProduction a, priority(AType t, list[AProduction] b)}) 
+  = associativity(s, as, {*a, *b}); 
+
+// deprecated; remove after bootstrap
+AProduction associativity(AType rhs, Associativity a, set[AProduction] rest)
+  = associativity(rhs, a, withAssoc + withNewAssocs)
+  when  withoutAssoc := {p | AProduction p:prod(_,_) <- rest, !(\assoc(_) <- p.attributes)},
+        withoutAssoc != {},
+        withAssoc := rest - withoutAssoc,
+        withNewAssocs := {p[attributes = p.attributes + {\assoc(a)}] | AProduction p <- withoutAssoc}
+        ;
+        
 // ---- end ParseTree
 
 // ---- Grammar 
