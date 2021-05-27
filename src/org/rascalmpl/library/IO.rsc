@@ -714,3 +714,18 @@ bool copyDirectory(loc source, loc target) {
 @javaClass{org.rascalmpl.library.Prelude}
 java loc arbLoc();
 
+data LocationChangeEvent
+    = changeEvent(loc src, LocationChangeType changeType, LocationType \type);
+
+data LocationChangeType
+    = created() 
+	| deleted() 
+	| modified();
+
+data LocationType
+    = file() 
+	| directory();
+
+@javaClass{org.rascalmpl.library.Prelude}
+java void watch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
+
