@@ -114,7 +114,9 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 							}
 						}
 						
-						key.reset();
+						if (key.reset()) {
+							break; // we can go to the next key now
+						}
 					} catch (InterruptedException x) {
 						return;
 					}
