@@ -736,6 +736,12 @@ public class URIResolverRegistry {
 		throws IOException {
 		loc = safeResolve(loc);
 
+		if (!isDirectory(loc)) {
+			// so underlying implementations of ISourceLocationWatcher only have to support
+			// watching directories (the native NEO file watchers are like that)
+			loc = URIUtil.getParentLocation(loc);
+		}
+
 		ISourceLocationWatcher watcher = watchers.get(loc.getScheme());
 		if (watcher != null) {
 			watcher.watch(loc, callback);
