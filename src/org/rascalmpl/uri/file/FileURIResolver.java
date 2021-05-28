@@ -35,8 +35,6 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -44,13 +42,15 @@ import java.util.function.Consumer;
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.ISourceLocationWatcher;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public class FileURIResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver, ISourceLocationWatcher {
-	private final Map<Path, Consumer<ISourceLocationChanged>> watchers = new ConcurrentHashMap<>();
+	private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> watchers = new ConcurrentHashMap<>();
+	private final Map<WatchKey, ISourceLocation> watchKeys = new ConcurrentHashMap<>();
 	private final WatchService watcher;
 	
 	public FileURIResolver() throws IOException {
@@ -59,75 +59,6 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 		createFileWatchingThread();
 	}
 	
-	private void createFileWatchingThread() {
-		Thread thread = new Thread("file:/// watcher") {
-			public void run() {
-				while (true) {
-					
-					// wait for key to be signaled
-					WatchKey key;
-					try {
-						key = watcher.take();
-						
-						for (WatchEvent<?> event: key.pollEvents()) {
-							WatchEvent.Kind<?> kind = event.kind();
-							
-							if (kind == StandardWatchEventKinds.OVERFLOW) {
-								continue;
-							}
-							
-							@SuppressWarnings("unchecked")
-							WatchEvent<Path> ev = (WatchEvent<Path>) event;
-							Path filename = ev.context();
-							
-							Consumer<ISourceLocationChanged> callback = watchers.get(filename);
-
-							if (callback != null) {
-								ISourceLocation loc = constructFileURI(filename.toAbsolutePath().toString());
-								boolean isDirectory = filename.toFile().isDirectory();
-
-								switch (kind.name()) {
-									case "ENTRY_CREATE":
-										callback.accept(ISourceLocationWatcher.makeChange(
-											loc, 
-											ISourceLocationChangeType.CREATED, 
-											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
-										);
-										break;
-									case "ENTRY_DELETE":
-										callback.accept(ISourceLocationWatcher.makeChange(
-											loc, 
-											ISourceLocationChangeType.DELETED, 
-											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
-										);
-										break;
-									case "ENTRY_MODIFY":
-										callback.accept(ISourceLocationWatcher.makeChange(
-											loc, 
-											ISourceLocationChangeType.MODIFIED, 
-											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
-										);
-										break;
-									case "OVERFLOW":
-									// ignored?
-								}
-							}
-						}
-						
-						if (key.reset()) {
-							break; // we can go to the next key now
-						}
-					} catch (InterruptedException x) {
-						return;
-					}
-				}
-			};
-		};
-		
-		thread.setDaemon(true);
-		thread.setName("Watching files for the file:/// scheme");
-		thread.start();
-	}
 	
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		String path = getPath(uri);
@@ -271,11 +202,91 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	
 	@Override
 	public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> callback) throws IOException {
-		watchers.putIfAbsent(Paths.get(root.getURI()), callback);
+		watchers.putIfAbsent(root, callback);
 
-		Paths.get(root.getURI()).register(
+		WatchKey key = Paths.get(root.getURI()).register(
 			watcher, 
 			StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY
 		);
+
+		watchKeys.put(key, root);
+	}
+
+	private void createFileWatchingThread() {
+		Thread thread = new Thread("file:/// watcher") {
+			public void run() {
+				while (true) {
+					
+					// wait for key to be signaled
+					WatchKey key;
+					try {
+						key = watcher.take();
+						ISourceLocation root = watchKeys.get(key);
+						if (root == null) {
+							continue;
+						}
+
+						for (WatchEvent<?> event: key.pollEvents()) {
+							WatchEvent.Kind<?> kind = event.kind();
+							
+							if (kind == StandardWatchEventKinds.OVERFLOW) {
+								continue;
+							}
+							
+							@SuppressWarnings("unchecked")
+							WatchEvent<Path> ev = (WatchEvent<Path>) event;
+							Path filename = ev.context();
+
+							Consumer<ISourceLocationChanged> callback = watchers.get(root);
+							
+							if (callback != null) {
+								ISourceLocation subject = URIUtil.getChildLocation(root, filename.toString());
+								boolean isDirectory = URIResolverRegistry.getInstance().isDirectory(subject);
+
+								switch (kind.name()) {
+									case "ENTRY_CREATE":
+										callback.accept(ISourceLocationWatcher.makeChange(
+											subject, 
+											ISourceLocationChangeType.CREATED, 
+											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
+										);
+										break;
+									case "ENTRY_DELETE":
+										callback.accept(ISourceLocationWatcher.makeChange(
+											subject, 
+											ISourceLocationChangeType.DELETED, 
+											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
+										);
+
+										watchers.remove(subject);
+										if (root.equals(subject)) {
+											watchKeys.remove(key);
+										}
+										break;
+									case "ENTRY_MODIFY":
+										callback.accept(ISourceLocationWatcher.makeChange(
+											subject, 
+											ISourceLocationChangeType.MODIFIED, 
+											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
+										);
+										break;
+									case "OVERFLOW": 
+									// ignored?
+								}
+							}
+
+							if (key.reset()) {
+								break; // we can go to the next key now
+							}
+						}
+					} catch (InterruptedException x) {
+						// continue
+					}
+				}
+			};
+		};
+		
+		thread.setDaemon(true);
+		thread.start();
 	}
 }
