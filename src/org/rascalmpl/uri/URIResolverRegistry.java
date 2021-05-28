@@ -224,6 +224,8 @@ public class URIResolverRegistry {
 
 		public NotifyingOutputStream(OutputStream wrapped, ISourceLocation loc, ISourceLocationChanged event) {
 			super(wrapped);
+			assert loc != null && event != null;
+			this.loc = loc;
 			this.event = event;
 		}
 
