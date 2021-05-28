@@ -1,4 +1,5 @@
 /*******************************************************************************
+/*******************************************************************************
  * Copyright (c) 2009-2020 CWI, NWO-I CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -75,6 +76,9 @@ import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -115,6 +119,7 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
@@ -124,12 +129,14 @@ public class Prelude {
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
+	private final TypeStore store;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store) {
 		super();
 		
 		this.values = values;
 		this.rascalValues = rascalValues;
+		this.store = store;
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		random = new Random();
@@ -3563,6 +3570,57 @@ public class Prelude {
         }
         catch (InterruptedException e) {
         }
+	}
+
+	public void watch(ISourceLocation src, IBool recursive, IFunction callback) {
+		try {
+			URIResolverRegistry.getInstance().watch(src, recursive.getValue(), (e) -> callback.call(convertChangeEvent(e)));
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	private IValue convertChangeEvent(ISourceLocationChanged e) {
+		Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
+		
+		
+		return values.constructor(changeEvent, 
+			e.getLocation(),
+			convertChangeType(e.getChangeType()),
+			convertFileType(e.getType())
+		);
+	}
+
+	private IValue convertFileType(ISourceLocationType type) {
+		Type file = store.lookupConstructors("file").iterator().next();
+		Type directory = store.lookupConstructors("directory").iterator().next();
+		
+		switch (type) {
+			case FILE:
+				return values.constructor(file);
+			case DIRECTORY:
+				return values.constructor(directory);
+		}
+
+		throw RuntimeExceptionFactory.illegalArgument();
+	}
+
+	private IValue convertChangeType(ISourceLocationChangeType changeType) {
+		Type deleted = store.lookupConstructors("deleted").iterator().next();
+		Type created = store.lookupConstructors("created").iterator().next();
+		Type modified = store.lookupConstructors("modified").iterator().next();
+
+		switch (changeType) {
+			case DELETED:
+				return values.constructor(deleted);
+			case CREATED:
+				return values.constructor(created);
+			case MODIFIED:
+				return values.constructor(modified);
+		}
+
+		throw RuntimeExceptionFactory.illegalArgument();
 	}
 
 }
