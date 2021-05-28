@@ -1,5 +1,7 @@
 package org.rascalmpl.uri.libraries;
 
+import java.io.IOException;
+
 import org.rascalmpl.uri.AbstractSourceLocationInputOutputAdapter;
 import org.rascalmpl.uri.file.FileURIResolver;
 import io.usethesource.vallang.ISourceLocation;
@@ -8,7 +10,7 @@ public class CoursesURIResolver extends AbstractSourceLocationInputOutputAdapter
     private static final class WriteableCourseResolver extends FileURIResolver {
         private final String courseSrc;
 
-        private WriteableCourseResolver(String courseSrc) {
+        private WriteableCourseResolver(String courseSrc) throws IOException {
             this.courseSrc = courseSrc;
         }
 
@@ -30,7 +32,7 @@ public class CoursesURIResolver extends AbstractSourceLocationInputOutputAdapter
         }
     }
     
-    public CoursesURIResolver() {
+    public CoursesURIResolver() throws IOException {
         super(System.getProperty("rascal.courses") != null ? new WriteableCourseResolver(System.getProperty("rascal.courses")) : new ReadonlyCourseResolver());
     }
 }
