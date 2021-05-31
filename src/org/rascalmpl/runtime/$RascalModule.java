@@ -24,10 +24,12 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
+import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -297,7 +299,16 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	}
 	
 	public final boolean $isComparable(Type t1, Type t2) {
-		return t1.comparable(t2);
+		// TODO: needs improvement
+		if(t1.comparable(t2)) { 
+			return true;
+		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
+			return ((IString)((NonTerminalType)t1).getSymbol().get(0)).getValue() == t2.getName();
+		} if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
+			return t1.getName() == ((IString)((NonTerminalType)t2).getSymbol().get(0)).getValue();
+		} else {
+			return false;
+		}
 	}
 	
 	/*************************************************************************/
@@ -1721,24 +1732,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return cons.set(fieldName, repl);
 		}
 		
-		//if($TS.hasKeywordParameter(consType, fieldName)) {
+		// Does fieldName exist as keyword field?
+		if($TS.hasKeywordParameter(consType, fieldName)) {
 			return cons.asWithKeywordParameters().setParameter(fieldName, repl);
-		//}
-// TODO
-//		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-//			IConstructor prod = ((ITree) cons).getProduction();
-//
-//			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-//				IConstructor arg = (IConstructor) elem;
-//				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-//					return true;			        }
-//			}
-//		}
-//		if(cons.isAnnotatable()){
-//			return cons.asAnnotatable().setAnnotation(fieldName, repl);
-//		} else {
-//			throw RuntimeExceptionFactory.noSuchField(fieldName);
-//		}
+		}
+
+		// Does fieldName exist a fieldin a parse tree?
+		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			return TreeAdapter.setArg((ITree)cons, fieldName, (IConstructor) repl);
+		}
+		
+		throw RuntimeExceptionFactory.noSuchField(fieldName);
 	}
 	
 	// ---- has ---------------------------------------------------------------
@@ -1754,11 +1758,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 			return true;
 		} else {
-//			if(nd.isAnnotatable()){
-//				return nd.asAnnotatable().getAnnotation(fieldName) != null;
-//			} else {
-				return false;
-//			}
+			return false;
 		}
 	}
 	
@@ -1783,19 +1783,17 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-			IConstructor prod = ((ITree) cons).getProduction();
-
-			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-				IConstructor arg = (IConstructor) elem;
-				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-					return true;			        }
-			}
+			return TreeAdapter.getLabeledField((ITree) cons, fieldName) != null;
+//			IConstructor prod = ((ITree) cons).getProduction();
+//
+//			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+//				IConstructor arg = (IConstructor) elem;
+//				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+//					return true;			        }
+//			}
 		}
-//		if(cons.isAnnotatable()){
-//			return cons.asAnnotatable().getAnnotation(fieldName) != null;
-//		} else {
-			return false;
-//		}
+
+		return false;
 	}
 	
 	// TODO nonterminal
@@ -2909,7 +2907,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 		return w.done();
 	}
-
+	
 	public final IList $alist_slice(IList lst, Integer first, Integer second, Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
 		IListWriter w = $VF.listWriter();
@@ -2928,7 +2926,66 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			}
 		return w.done();
 	}
-
+	
+	public final ITree $lexical_slice(final ITree tree, final Integer first, final Integer second, final Integer end){
+		return $syntactic_slice(tree, first, second, end, 1);
+	}
+	
+	public final ITree $concrete_slice(final ITree tree, final Integer first, final Integer second, final Integer end){
+		return $syntactic_slice(tree, first, second, end, 2);
+	}
+	
+	public final ITree $lexical_slice_seps(final ITree tree, final Integer first, final Integer second, final Integer end){
+		return $syntactic_slice(tree, first, second, end, 2);
+	}
+	
+	public final ITree $concrete_slice_seps(final ITree tree, final Integer first, final Integer second, final Integer end){
+		return $syntactic_slice(tree, first, second, end, 4);
+	}
+	
+	private final ITree $syntactic_slice(final ITree tree, final Integer first, final Integer second, final Integer end, final int delta){
+		IList args = tree.getArgs();
+		int nargs = args.size();
+		SliceDescriptor sd = makeSliceDescriptor(first, second, end, nargs);
+		int sd_first = sd.first * delta;
+		int sd_second = sd.second * delta;
+		int sd_end = Math.min(sd.end * delta, nargs);
+		IListWriter w = $VF.listWriter();
+		int increment = (sd_second - sd_first);
+		if(sd_first == sd_end || increment == 0){
+			// nothing to be done
+		} else {
+			if(sd_first <= sd_end){
+				for(int i = sd_first; i >= 0 && i < sd_end; i += increment){
+					w.append(args.get(i));
+					if(i < (sd_end - increment)) {
+						for(int j = i + 1; j < i + delta; j++) {
+							w.append(args.get(j));
+						}
+					}
+				}
+			} else {
+				for(int i = sd_first; i >= 0 && i > sd_end && i < nargs; i += increment){
+					w.append(args.get(i));
+					if(i > 0) {
+						for(int j = i - 1; j > i - delta; j--) {
+							w.append(args.get(j));
+						}
+					}
+				}
+			}
+		}
+		
+		IList newArgs = w.done();
+		String opname = ((IConstructor)org.rascalmpl.values.parsetrees.TreeAdapter.getProduction(tree).get(0)).getName();
+		boolean isPlusIter = opname == "iter" || opname == "iter-seps";
+		if(isPlusIter && newArgs.size() == 0) {
+			throw RuntimeExceptionFactory.illegalArgument(newArgs, "Slice should not create empty list of elements for lexical or nonterminal with one or more repetitions");
+		}
+		
+		return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree,newArgs);
+	}
+	
 	public final IList $makeSlice(final INode node, final Integer first, final Integer second,final Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, node.arity());
 		IListWriter w = $VF.listWriter();
@@ -3574,6 +3631,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		throw new RuntimeException("Unsupported subject of type " + subject.getType());
 	}
 	
+	// lexcial subscript
+	
 	public final IValue $lexical_subscript(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
 		try {
@@ -3586,7 +3645,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public final IValue $lexical_subscript_seps(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
 		try {
-			return args.get((idx >= 0) ? 2 * idx : (args.length() + 2 * idx));
+			int n = args.length();
+			return args.get((idx >= 0) ? 2 * idx : (args.length() + 1 + 2 * idx));
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
 		}
@@ -3594,8 +3654,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final IValue $concrete_subscript(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
+		
 		try {
-			return args.get((idx >= 0) ? 3 * idx : (args.length() + 3 * idx));
+			return args.get((idx >= 0) ? 2 * idx : (args.length() + 1 + 2 * idx));
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
 		}
@@ -3603,11 +3664,12 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final IValue $concrete_subscript_seps(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
-		try {
-			return args.get((idx >= 0) ? 4 * idx : (args.length() + 4 * idx));
-		} catch(IndexOutOfBoundsException e) {
-			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+		
+		int n = (idx >= 0) ? (4 * idx) : (args.length() + 3 + 4 * idx);
+		if(n >= 0 && n < args.length()) {
+			return args.get(n);
 		}
+		throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
 	}
 
 	// ---- subtract ----------------------------------------------------------

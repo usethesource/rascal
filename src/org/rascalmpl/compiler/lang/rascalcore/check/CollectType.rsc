@@ -348,19 +348,21 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
         collect(targ.\type, c);
         try {
             argType = c.getType(targ.\type);
-            if(targ has name) {
-                labelledArgType = argType[label="<targ.name>"];
-                resolvedArgTypes += labelledArgType;
-                c.define("<targ.name>", formalId(), targ.name, defType(labelledArgType));
-                c.fact(targ, argType);
-            } else {
+            c.fact(targ, argType);
+            //if(targ has name) {
+            //    labelledArgType = argType[label="<targ.name>"];
+            //    resolvedArgTypes += labelledArgType;
+            //    c.define("<targ.name>", formalId(), targ.name, defType(labelledArgType));
+            //    c.fact(targ, argType);
+            //} else {
                 resolvedArgTypes += argType;
-            }
+            //}
         } catch TypeUnavailable(): {
-            if(targ has name) {
-                c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
-                c.fact(targ, targ.name);
-             }
+            c.fact(targ, targ.\type);
+            ;//if(targ has name) {
+            //    c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
+            //    c.fact(targ, targ.name);
+            // }
         }
     }
     collect(t, c);
@@ -637,7 +639,7 @@ void collect(current:(Sym) `<Sym symbol>  \>\> <Sym match>`, Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
-   c.calculate("follow", current, [symbol, match], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); });
+   c.calculate("notFollow", current, [symbol, match], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); });
    collect(symbol, match, c);
 }
 
