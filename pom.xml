@@ -11,29 +11,17 @@
       <tag>HEAD</tag>
   </scm>
 
-    <!-- deployment configuration (usethesource) -->
-    <distributionManagement>
-        <repository>
-            <id>usethesource-releases</id>
-            <url>https://nexus.usethesource.io/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>usethesource-snapshots</id>
-            <url>https://nexus.usethesource.io/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <!-- dependency resolution configuration (usethesource) -->
     <repositories>
         <repository>
             <id>usethesource</id>
-            <url>https://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://releases.usethesource.io/maven/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>usethesource</id>
-            <url>https://nexus.usethesource.io/content/repositories/public/</url>
+            <url>https://releases.usethesource.io/maven/</url>
         </pluginRepository>
     </pluginRepositories>
 
