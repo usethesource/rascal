@@ -35,16 +35,17 @@ jobs:
         run: mvn -B -Drascal.courses=--buildCourses compile
 
       - name: Run Tests
-        run: |
-          mvn -B -Drascal.test.memory=4 test
-          sh "curl https://codecov.io/bash | bash -s - -K -X gcov -t e8b4481a-d178-4148-a4ff-502906390512"
+        run: mvn -B -Drascal.test.memory=4 test
 
-      - name: Publish Test Report
+      - uses: codecov/codecov-action@v1
+        with:
+          token: e8b4481a-d178-4148-a4ff-502906390512
+
+      - name: Publish Test Report on github action
         if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
         uses: scacap/action-surefire-report@v1
         with:
           check_name: "Test Report"
-
 
       - name: Attach artifact
         id: build-artifact
