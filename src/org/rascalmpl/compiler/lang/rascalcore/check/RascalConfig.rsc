@@ -365,20 +365,20 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
        checkOverloading(namedTrees, s);
     
         for(mname <- namedTrees){
-            pt = namedTrees[mname];
-            g = addGrammar(getLoc(pt), s);
-            if(!isEmpty(g.rules)){ 
-                pname = "DefaultParser";
-                if(Module m := pt) { 
-                        moduleName = "<m.header.name>";
-                        pname = parserName(moduleName);
-                }
-                //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
-                //s.addMessages(msgs);
-                //TODO: generates too long file names
-                //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
-            //s.addMessages(msgs);
-            }
+            //pt = namedTrees[mname];
+            //g = addGrammar(getLoc(pt), s);
+            //if(!isEmpty(g.rules)){ 
+            //    pname = "DefaultParser";
+            //    if(Module m := pt) { 
+            //            moduleName = "<m.header.name>";
+            //            pname = parserName(moduleName);
+            //    }
+            //    //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+            //    //s.addMessages(msgs);
+            //    //TODO: generates too long file names
+            //    //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
+            ////s.addMessages(msgs);
+            //}
             addADTsAndCommonKeywordFields(s);
         }
    }

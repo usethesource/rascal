@@ -348,26 +348,26 @@ list[str] transPrimArgs("slice", AType r, [AType a], [MuExp x, MuExp first, MuEx
 JCode transPrim("slice", AType r, [astr()], [str x, str first, str second, str end], JGenie jg)   = "$astr_slice(<x>, <first>, <second>, <end>)";
 JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$alist_slice(<x>, <first>, <second>, <end>)" when isListLikeType(a);
 JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$anode_slice(<x>, <first>, <second>, <end>)" when isNodeType(a);
-JCode transPrim("slice", AType r, [\iter(aadt(_,[], lexicalSyntax())), aint()], [str x, str y], JGenie jg)  
-                                                                                         = "$lexical_slice(<x>,<y>)";
-JCode transPrim("slice", AType r, [\iter(aadt(_,[], contextFreeSyntax())), aint()], [str x, str y], JGenie jg)  
-                                                                                         = "$concrete_slice(<x>,<y>)";
+JCode transPrim("slice", AType r, [\iter(aadt(_,[], lexicalSyntax()))], [str x, str first, str second, str end], JGenie jg)  
+                                                                                         = "$lexical_slice(<x>,<first>, <second>, <end>)";
+JCode transPrim("slice", AType r, [\iter(aadt(_,[], contextFreeSyntax()))], [str x,  str first, str second, str end], JGenie jg)  
+                                                                                         = "$concrete_slice(<x>,<first>, <second>, <end>)";
 
-JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
-                                                                                         = "$lexical_slice_seps(<x>,<y>)";
-JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
-                                                                                         = "$concrete_slice_seps(<x>,<y>)";
+JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str first, str second, str end], JGenie jg)  
+                                                                                         = "$lexical_slice_seps(<x>,<first>, <second>, <end>)";
+JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators)], [str x, str first, str second, str end], JGenie jg)  
+                                                                                         = "$concrete_slice_seps(<x>,<first>, <second>, <end>)";
                                                                                                                                                                                                                                                                            
-JCode transPrim("slice", AType r, [\iter-star(aadt(_,[], lexicalSyntax())), aint()], [str x, str y], JGenie jg)  
-                                                                                         = "$lexical_slice(<x>,<y>)";
+JCode transPrim("slice", AType r, [\iter-star(aadt(_,[], lexicalSyntax()))], [str x, str first, str second, str end], JGenie jg)  
+                                                                                         = "$lexical_slice(<x>, <first>, <second>, <end>)";
 
-JCode transPrim("slice", AType r, [\iter-star(aadt(_,[], contextFreeSyntax())), aint()], [str x, str y], JGenie jg)  
-                                                                                         = "$concrete_slice(<x>,<y>)";
+JCode transPrim("slice", AType r, [\iter-star(aadt(_,[], contextFreeSyntax()))], [str x, str first, str second, str end], JGenie jg)  
+                                                                                         = "$concrete_slice(<x>, <first>, <second>, <end>)";
                                                                                          
-JCode transPrim("slice", AType r, [\iter-star-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
-                                                                                         = "$lexical_slice_seps(<x>,<y>)";
-JCode transPrim("slice", AType r, [\iter-star-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
-                                                                                         = "$concrete_slice_seps(<x>,<y>)";
+JCode transPrim("slice", AType r, [\iter-star-seps(aadt(_,[], lexicalSyntax()), list[AType] separators)], [str x, str first, str second, str end], JGenie jg)  
+                                                                                         = "$lexical_slice_seps(<x>,<first>, <second>, <end>)";
+JCode transPrim("slice", AType r, [\iter-star-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators)], [str x, str first, str second, str end], JGenie jg)  
+                                                                                         = "$concrete_slice_seps(<x>,<first>, <second>, <end>)";
 
 // ---- list slice operations -------------------------------------------------
 

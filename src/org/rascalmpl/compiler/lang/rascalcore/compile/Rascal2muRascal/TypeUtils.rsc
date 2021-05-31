@@ -16,6 +16,7 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::util::Names;  // TODO: merge name utils
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
+import lang::rascalcore::compile::Rascal2muRascal::TypeReifier;
 
 import Location;
 
@@ -576,14 +577,26 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) 
     return { <convert2fuid(declaredIn[decl]), position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
 }
 
+
+// Get the governing layout rule
+AType getLayouts(){
+    for(adt <- getADTs()){
+        if(isLayoutType(adt)) return layouts(getADTName(adt));
+    }
+    return layouts("$default$");
+}
+
 // Collect all types that are reachable from a given type
 
 map[AType,set[AType]] collectNeededDefs(AType t){
     map[AType, set[AType]] definitions = ();
     list[AType] tparams = [];
+    isStart = false;
     base_t = t;
-    if(\start(AType t2) := base_t)
+    if(\start(AType t2) := base_t){
+        isStart = true;
         base_t = t2;
+    }
     
     if(isReifiedType(t)){
         base_t = getReifiedType(t);
@@ -604,7 +617,10 @@ map[AType,set[AType]] collectNeededDefs(AType t){
                       | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t
                       );
     }
-    //iprintln(definitions);
+    if(isStart){
+        definedLayouts = getLayouts();
+        definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[label="top"], definedLayouts]) })) });
+    }
    
    solve(definitions){
     definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 

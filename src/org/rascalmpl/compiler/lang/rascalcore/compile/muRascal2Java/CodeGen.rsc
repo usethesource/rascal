@@ -45,7 +45,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     moduleName = m.name;
     locsModule = invertUnique(moduleLocs);
     module_scope = moduleLocs[moduleName];
-    //iprintln(tmodels[moduleName]);
+    iprintln(tmodels[moduleName]);
     
     extends = { locsModule[m2loc] | <module_scope, extendPath(), m2loc> <- tmodels[moduleName].paths };
     
@@ -239,9 +239,11 @@ tuple[str,str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] cons
     kwpTypeDecls = "";
     
     for(c: acons(AType adt, list[AType] fields, list[Keyword] kwpFields) <- constructors){
+        println(c);
         adt_cons = atype2idpart(c);
         hasFieldNames = all(fld <- fields, !isEmpty(fld.label));
         fieldDecls = hasFieldNames ? [ "<atype2vtype(fld,jg)>, \"<fld.label>\"" | fld <- fields ] : [ "<atype2vtype(fld, jg)>" | fld <- fields ];
+        println(fieldDecls);
         consTypeDecls += "final io.usethesource.vallang.type.Type <adt_cons> = $TF.constructor($TS, <getADTName(adt.adtName)>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
         for(kwpField <- kwpFields){
             kwpTypeDecls += "$TS.declareKeywordParameter(<adt_cons>,\"<kwpField.fieldType.label>\", <atype2vtype(kwpField.fieldType, jg)>);\n";
@@ -932,7 +934,7 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
             '            fieldName= <fieldName>");
     
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
-    if(isNonTerminalType(consType)){
+    if(isNonTerminalType(consType) || asubtype(consType, treeType)){
         return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\")";
     } else if(isADTType(consType)){
         return "$get_<getADTName(consType)>_<getJavaName(fieldName)>(<base>)";

@@ -358,7 +358,11 @@ MuExp translateConcrete(appl(prod(layouts(_),_,_), _), MuExp subjectExp, BTSCOPE
 
 MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol _))}), [ConcreteHole hole]),
                         MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
-   var = mkVar(prettyPrintName(hole.name), hole.name@\loc);
+   holeName = prettyPrintName(hole.name);
+   if(holeName == "_"){
+      return trueCont;
+   }             
+   var = mkVar(holeName, hole.name@\loc);
    return muBlock([muVarInit(var, subjectExp), trueCont]);
 }
 

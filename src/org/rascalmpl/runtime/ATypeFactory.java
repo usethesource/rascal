@@ -491,7 +491,9 @@ public class ATypeFactory {
 	// not_follow
 	public final Type ACondition_not_follow = $TF.constructor($TS, ACondition, "not_follow", AType, "atype");
 
-	public IConstructor not_follow(IConstructor atype) {  return $VF.constructor(ACondition_not_follow, atype); }
+	public IConstructor not_follow(IConstructor atype) {  
+		return $VF.constructor(ACondition_not_follow, atype); 
+	}
 
 	// precede
 	public final Type ACondition_precede = $TF.constructor($TS, ACondition, "precede", AType, "atype");
