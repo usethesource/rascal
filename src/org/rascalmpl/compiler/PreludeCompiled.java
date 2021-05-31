@@ -14,8 +14,8 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class PreludeCompiled extends Prelude {
 
-	public PreludeCompiled(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out) {
-		super(values, rascalValues, out);
+	public PreludeCompiled(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore storet) {
+		super(values, rascalValues, out, store);
 	}
 	
 }
