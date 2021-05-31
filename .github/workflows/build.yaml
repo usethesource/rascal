@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - move-to-actions
     tags:
       - 'v[0-9]+.*'
   pull_request:
@@ -11,7 +10,6 @@ on:
       - master
 env:
   MAVEN_OPTS: "-Xmx4G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
-  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=false"
 
 jobs:
   builds:
@@ -31,15 +29,21 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Compile & Bootstrap
-        run: mvn compile
+        run: mvn -B compile
 
       - name: Generate tutor
-        run: mvn -Drascal.courses=--buildCourses compile
+        run: mvn -B -Drascal.courses=--buildCourses compile
 
       - name: Run Tests
         run: |
-          mvn -Drascal.test.memory=4 test
+          mvn -B -Drascal.test.memory=4 test
           sh "curl https://codecov.io/bash | bash -s - -K -X gcov -t e8b4481a-d178-4148-a4ff-502906390512"
+
+      - name: Publish Test Report
+        if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
+        uses: scacap/action-surefire-report@v1
+        with:
+          check_name: "Test Report"
 
 
       - name: Attach artifact
