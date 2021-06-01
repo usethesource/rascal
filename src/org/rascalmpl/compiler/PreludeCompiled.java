@@ -6,6 +6,7 @@ import org.rascalmpl.library.Prelude;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 /*
  * This class overrides methods from Prelude that need to be handled differenty in compiled code.
@@ -14,7 +15,7 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class PreludeCompiled extends Prelude {
 
-	public PreludeCompiled(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore storet) {
+	public PreludeCompiled(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store) {
 		super(values, rascalValues, out, store);
 	}
 	
