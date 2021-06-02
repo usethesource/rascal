@@ -471,3 +471,15 @@ map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config
 
 // ---- Convenience check function during development -------------------------
 
+
+
+// -- calculate rename changes
+// a change request happens at a symbol location that points to the lexical the cursor position, not necessarily a full symbol present in the TModel
+// returns a list of changes (that can cross multiple files)
+// operations:
+//    - insert = loc start and end range should be the same (a zero length location)
+//    - replace = loc range defines replacement
+//    - delete = empty string value
+lrel[loc, str] rename(loc symbol, str newName) {
+    return [];
+}
