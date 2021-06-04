@@ -4,7 +4,7 @@ This module defines a generic validator function that can convert values of the 
 The intended use-case is to read structured data externally, say an XML or JSON or YAML file, as generic `node` values and then
 to use the `validate` function to map the untyped representation to a typed representation, if it can be validated accordingly.
 }
-module Validator
+module util::Validator
 
 import Type;
 import Node;
