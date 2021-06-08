@@ -929,6 +929,18 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
 		}
 	}
+
+	public IString iprintToString(IValue arg) {
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		StringWriter sw = new StringWriter();
+
+		try {
+			w.write(arg, sw);
+			return values.string(sw.toString());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
+		}
+	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintln(IValue arg, IInteger lineLimit){
