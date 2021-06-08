@@ -242,6 +242,9 @@ iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprintToFile(loc file, value arg); 
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java str iprintToString(value arg);
+
 @doc{
 .Synopsis
 Print an indented representation of a value and returns the value as result.
