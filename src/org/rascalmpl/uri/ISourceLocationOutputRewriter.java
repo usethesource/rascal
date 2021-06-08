@@ -43,7 +43,7 @@ public interface ISourceLocationOutputRewriter extends ISourceLocationOutput {
 
     @Override
     default void remove(ISourceLocation uri) throws IOException {
-        reg().remove(rewrite(uri));
+        reg().remove(rewrite(uri), false);
     }
     
     @Override
