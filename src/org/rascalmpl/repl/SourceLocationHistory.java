@@ -62,7 +62,7 @@ public class SourceLocationHistory extends MemoryHistory implements PersistentHi
     public void purge() throws IOException {
         Log.trace("Purging history");
         clear();
-        reg.remove(loc);
+        reg.remove(loc, true);
     }
 
 }

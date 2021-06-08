@@ -182,7 +182,7 @@ public class CourseCompiler {
 			if(!reg.exists(parent)){
 				reg.mkDirectory(parent);
 			}
-			reg.copy(src, dest);
+			reg.copy(src, dest, true, true);
 		}
 	}
 	
@@ -233,7 +233,7 @@ public class CourseCompiler {
 				reg.mkDirectory(parent);
 			}
 			//System.out.println("cp " + src + " " + dest);
-			reg.copy(src, target);
+			reg.copy(src, target, true, true);
 		}
 		
 		return false;
