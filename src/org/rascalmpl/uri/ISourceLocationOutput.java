@@ -33,6 +33,10 @@ public interface ISourceLocationOutput {
 	}
 	void mkDirectory(ISourceLocation uri) throws IOException;
 	void remove(ISourceLocation uri) throws IOException;
+	default void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
+		URIResolverRegistry.getInstance().copy(from, to, true, overwrite);
+		URIResolverRegistry.getInstance().remove(from, true);
+	}
 	default Charset getCharset(ISourceLocation uri) throws IOException {
 		return StandardCharsets.UTF_8;
 	}
