@@ -19,7 +19,7 @@ public java loc getSnakesAndLaddersPath();
 public loc unpackExampleProject(str name, loc projectZip) {
     targetRoot = |tmp:///<name>|;
     sourceRoot = projectZip[scheme = "jar+<projectZip.scheme>"][path = projectZip.path + "!/"];
-    if (copyDirectory(sourceRoot, targetRoot)) {
+    if (copy(sourceRoot, targetRoot, recursive=true, overwrite=true)) {
         return targetRoot;
     }
     throw IO("Could not copy contents of <projectZip> to <targetRoot>");
