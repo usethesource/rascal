@@ -27,6 +27,8 @@ import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,6 +37,8 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -105,6 +109,23 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	public void remove(ISourceLocation uri) throws IOException {
 		new File(getPath(uri)).delete();
 	} 
+
+	@Override
+	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
+		if (isFile(from) || (isDirectory(from) && list(from).length == 0)) {
+			if (exists(to) && !overwrite) {
+				throw new IOException("file exists " + to);
+			}
+
+			// fast path
+			if (!new File(getPath(from)).renameTo(new File(getPath(to)))) {
+				throw new IOException("rename failed: " + from + " to " + to);
+			}
+		}
+		else {
+			ISourceLocationInputOutput.super.rename(from, to, overwrite);
+		}
+	}
 	
 	public String scheme() {
 		return "file";
@@ -131,6 +152,13 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	
 	public long lastModified(ISourceLocation uri) {
 		return new File(getPath(uri)).lastModified();
+	}
+
+	@Override
+	public long created(ISourceLocation uri) throws IOException {
+		BasicFileAttributeView basicfile = Files.getFileAttributeView(Paths.get(getPath(uri)), BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+        BasicFileAttributes attr = basicfile.readAttributes() ;
+        return attr.creationTime().toMillis();
 	}
 	
 	@Override
