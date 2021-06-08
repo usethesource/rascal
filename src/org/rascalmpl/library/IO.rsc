@@ -340,6 +340,28 @@ public java datetime lastModified(loc file);
 
 @doc{
 .Synopsis
+Creation datetime of a location.
+
+.Description
+Returns the creation time of the file at location `file`.
+
+.Examples
+[source,rascal-shell]
+----
+import IO;
+----
+Determine the last modification date of the Rascal standard library:
+[source,rascal-shell,continue]
+----
+created(|std:///IO.rsc|);
+----
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java datetime created(loc file);
+
+
+@doc{
+.Synopsis
 Set the modification date of a file to `now` or create the file if it did not exist yet
  }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -628,7 +650,7 @@ throws PathNotFound, IO;
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java void remove(loc file) throws IO;
+public java void remove(loc file, bool recursive=true) throws IO;
 
 @doc{
 .Synopsis
@@ -695,21 +717,10 @@ public java str toBase64(loc file)
 throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
-java bool copyFile(loc source, loc target);
+java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
-bool copyDirectory(loc source, loc target) {
-	result = true;
-	for (e <- listEntries(source)) {
-		if (isDirectory(source + e)) {
-			result = result && copyDirectory(source + e, target + e);
-		}
-		else {
-			result = result && copyFile(source + e, target + e);
-		}
-	}
-	return result;
-}
-
+@javaClass{org.rascalmpl.library.Prelude}
+java bool rename(loc source, loc target, bool overwrite=true) throws IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java loc arbLoc();

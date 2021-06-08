@@ -63,6 +63,11 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
+import com.ibm.icu.util.ULocale;
+
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -72,13 +77,13 @@ import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -87,11 +92,6 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
-
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.TimeZone;
-import com.ibm.icu.util.ULocale;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -119,7 +119,6 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
@@ -1014,6 +1013,19 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
+
+	public IValue created(ISourceLocation sloc) {
+		try {
+		    IValue result = values.datetime(URIResolverRegistry.getInstance().created(sloc));
+		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
+			return result;
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
 	
 	public void setLastModified(ISourceLocation sloc, IDateTime timestamp) {
 	    setLastModified(sloc, timestamp.getInstant());
@@ -1028,20 +1040,20 @@ public class Prelude {
         }
     }
 	
-	public IValue isDirectory(ISourceLocation sloc) {
+	public IBool isDirectory(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
 	}
 	
-	public IValue isFile(ISourceLocation sloc) {
+	public IBool isFile(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isFile(sloc));
 	}
 	
-	public void remove(ISourceLocation sloc) {
+	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
-			URIResolverRegistry.getInstance().remove(sloc);
+			URIResolverRegistry.getInstance().remove(sloc, recursive.getValue());
 		}
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -1050,11 +1062,11 @@ public class Prelude {
 	    URIResolverRegistry.getInstance().mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
-	    RuntimeExceptionFactory.io(values.string(e.getMessage()));
+	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 	
-	public IValue listEntries(ISourceLocation sloc) {
+	public IList listEntries(ISourceLocation sloc) {
 		try {
 			String [] entries = URIResolverRegistry.getInstance().listEntries(sloc);
 			if (entries == null) {
@@ -1177,17 +1189,24 @@ public class Prelude {
 
 	}
 	
-	public IBool copyFile(ISourceLocation source, ISourceLocation target) {
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(source)) {
-			try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
-			  copy(in,out);
-				return values.bool(true);
-			}
-		} catch (IOException e) {
-			return values.bool(false);
+	public void copy(ISourceLocation source, ISourceLocation target, IBool recursive, IBool overwrite) {
+		try {
+			URIResolverRegistry.getInstance().copy(source, target, recursive.getValue(), overwrite.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
-	
+
+	public void rename(ISourceLocation source, ISourceLocation target, IBool overwrite) {
+		try {
+			URIResolverRegistry.getInstance().rename(source, target, overwrite.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
+
 	public void touch(ISourceLocation sloc) {
 	    if (URIResolverRegistry.getInstance().exists(sloc)) {
 	        setLastModified(sloc, System.currentTimeMillis());
