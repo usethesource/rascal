@@ -942,6 +942,18 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
 		}
 	}
+
+	public IString iprintToString(IValue arg) {
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		StringWriter sw = new StringWriter();
+
+		try {
+			w.write(arg, sw);
+			return values.string(sw.toString());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
+		}
+	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintln(IValue arg, IInteger lineLimit){
@@ -1026,6 +1038,19 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
+
+	public IValue created(ISourceLocation sloc) {
+		try {
+		    IValue result = values.datetime(URIResolverRegistry.getInstance().created(sloc));
+		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
+			return result;
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
 	
 	public void setLastModified(ISourceLocation sloc, IDateTime timestamp) {
 	    setLastModified(sloc, timestamp.getInstant());
@@ -1040,20 +1065,20 @@ public class Prelude {
         }
     }
 	
-	public IValue isDirectory(ISourceLocation sloc) {
+	public IBool isDirectory(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
 	}
 	
-	public IValue isFile(ISourceLocation sloc) {
+	public IBool isFile(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isFile(sloc));
 	}
 	
-	public void remove(ISourceLocation sloc) {
+	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
-			URIResolverRegistry.getInstance().remove(sloc);
+			URIResolverRegistry.getInstance().remove(sloc, recursive.getValue());
 		}
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -1062,11 +1087,11 @@ public class Prelude {
 	    URIResolverRegistry.getInstance().mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
-	    RuntimeExceptionFactory.io(values.string(e.getMessage()));
+	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 	
-	public IValue listEntries(ISourceLocation sloc) {
+	public IList listEntries(ISourceLocation sloc) {
 		try {
 			String [] entries = URIResolverRegistry.getInstance().listEntries(sloc);
 			if (entries == null) {
@@ -1189,17 +1214,24 @@ public class Prelude {
 
 	}
 	
-	public IBool copyFile(ISourceLocation source, ISourceLocation target) {
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(source)) {
-			try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
-			  copy(in,out);
-				return values.bool(true);
-			}
-		} catch (IOException e) {
-			return values.bool(false);
+	public void copy(ISourceLocation source, ISourceLocation target, IBool recursive, IBool overwrite) {
+		try {
+			URIResolverRegistry.getInstance().copy(source, target, recursive.getValue(), overwrite.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
-	
+
+	public void rename(ISourceLocation source, ISourceLocation target, IBool overwrite) {
+		try {
+			URIResolverRegistry.getInstance().rename(source, target, overwrite.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
+
 	public void touch(ISourceLocation sloc) {
 	    if (URIResolverRegistry.getInstance().exists(sloc)) {
 	        setLastModified(sloc, System.currentTimeMillis());

@@ -186,7 +186,7 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-	    registry.remove(getActualURI(uri));
+	    registry.remove(getActualURI(uri), false);
 	}
 	
 	@Override

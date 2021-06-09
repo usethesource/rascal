@@ -519,7 +519,7 @@ public class URIResolverRegistry {
 		}
 	}
 
-	public void remove(ISourceLocation uri) throws IOException {
+	public void remove(ISourceLocation uri, boolean recursive) throws IOException {
 		uri = safeResolve(uri);
 		ISourceLocationOutput out = getOutputResolver(uri.getScheme());
 
@@ -528,14 +528,44 @@ public class URIResolverRegistry {
 		}
 
 		if (isDirectory(uri)) {
-			for (ISourceLocation element : list(uri)) {
-				remove(element);
+			if (recursive) {
+				for (ISourceLocation element : list(uri)) {
+					remove(element, recursive);
+				}
+			}
+			else if (listEntries(uri).length != 0) {
+				throw new IOException("directory is not empty " + uri);
 			}
 		}
 
 		out.remove(uri);
 		notifyWatcher(uri,
 			isDirectory(uri) ? ISourceLocationWatcher.directoryDeleted(uri) : ISourceLocationWatcher.fileDeleted(uri));
+	}
+
+	/**
+	 * Moves a file from source name to target name. If the source is a folder, then it is moved recursively.
+	 * 
+	 * @param from       existing name of file or folder
+	 * @param to         new name of file or folder
+	 * @param overwrite  if `false` and the target folder or file already exists, throw an exception
+	 * @throws IOException when the source can not be read or the target can not be written, or when the target
+	 * exists and overwrite was `false`.
+	 */
+	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
+		if (from.getScheme().equals(to.getScheme())) {
+			ISourceLocationOutput out = getOutputResolver(from.getScheme());
+
+			if (out == null) {
+				throw new UnsupportedSchemeException(from.getScheme());
+			}
+
+			out.rename(from, to, overwrite);
+		}
+		else {
+			copy(from, to, true, overwrite);
+			remove(from, true);
+		}
 	}
 
 	public boolean isFile(ISourceLocation uri) {
@@ -557,6 +587,25 @@ public class URIResolverRegistry {
 		}
 
 		long result = resolver.lastModified(uri);
+
+		// implementations are allowed to return 0L or throw FileNotFound, but
+		// here we iron it out:
+		if (result == 0L) {
+			throw new FileNotFoundException(uri.toString());
+		}
+
+		return result;
+	}
+
+	public long created(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+
+		long result = resolver.created(uri);
 
 		// implementations are allowed to return 0L or throw FileNotFound, but
 		// here we iron it out:
@@ -591,7 +640,51 @@ public class URIResolverRegistry {
 		return resolver.list(uri);
 	}
 
-	public void copy(ISourceLocation source, ISourceLocation target) throws IOException {
+	/**
+	 * Copies a file or directory to another location
+	 * @param source     the source to read
+	 * @param target     the target to write
+	 * @param recursive  if `true` directories will be copied recursively
+	 * @param overwrite  if `false` an IOException will be thrown when a target file or folder already exists
+	 * @throws IOException when overwrite is false and the target already exists or when a file or folder can not be created or
+	 * when a source folder or file can not be read
+	 */
+	public void copy(ISourceLocation source, ISourceLocation target, boolean recursive, boolean overwrite) throws IOException {
+		if (isFile(source)) {
+			copyFile(source, target, overwrite);
+		}
+		else {
+			if (exists(target) && !isDirectory(target)) {
+				if (overwrite) {
+					remove(target, false);
+				}
+				else {
+					throw new IOException("can not make directory because file exists: " + target);
+				}
+			}
+			
+			mkDirectory(target);
+
+			for (String elem : URIResolverRegistry.getInstance().listEntries(source)) {
+				ISourceLocation srcChild = URIUtil.getChildLocation(source, elem);
+				ISourceLocation targetChild = URIUtil.getChildLocation(target, elem);
+
+				if (isFile(srcChild) || recursive) {
+					copy(srcChild, targetChild, recursive, overwrite);
+				}
+				else {
+					// make the directory but the recursion stops
+					mkDirectory(targetChild);
+				}
+			}
+		}
+	}
+
+	private void copyFile(ISourceLocation source, ISourceLocation target, boolean overwrite) throws IOException {
+		if (exists(target) && !overwrite) {
+			throw new IOException("file exists " + source);
+		}
+
 		try (InputStream from = URIResolverRegistry.getInstance().getInputStream(source)) {
 			try (OutputStream to = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
 				final byte[] buffer = new byte[FILE_BUFFER_SIZE];
