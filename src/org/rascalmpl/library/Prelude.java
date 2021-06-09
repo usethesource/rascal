@@ -48,6 +48,7 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.Period;
 import java.time.ZoneOffset;
@@ -270,7 +271,7 @@ public class Prelude {
 		else if (dt.isTime()) {
 			return temporalToTime(result);
 		}
-		return temporalToDateTime(result);
+		return temporalToDateTime((OffsetDateTime)result);
 	}
 
 	private IDateTime temporalToDate(Temporal t) {
@@ -292,21 +293,24 @@ public class Prelude {
 		);
 	}
 
-	private IDateTime temporalToDateTime(Temporal t) {
+	public static IDateTime temporalToDateTime(IValueFactory values, OffsetDateTime t) {
 		return values.datetime(
-			t.get(ChronoField.YEAR), 
-			t.get(ChronoField.MONTH_OF_YEAR), 
-			t.get(ChronoField.DAY_OF_MONTH),
-			t.get(ChronoField.HOUR_OF_DAY),
-			t.get(ChronoField.MINUTE_OF_HOUR), 
-			t.get(ChronoField.SECOND_OF_MINUTE),
+			t.getYear(),
+			t.getMonthValue(),
+			t.getDayOfMonth(),
+			t.getHour(),
+			t.getMinute(),
+			t.getSecond(),
 			t.get(ChronoField.MILLI_OF_SECOND),
-			(int)TimeUnit.HOURS.convert(t.get(ChronoField.OFFSET_SECONDS), TimeUnit.SECONDS),
-			(int)(TimeUnit.MINUTES.convert(t.get(ChronoField.OFFSET_SECONDS), TimeUnit.SECONDS) % 60)
+			(int)TimeUnit.HOURS.convert(t.getOffset().getTotalSeconds(), TimeUnit.SECONDS),
+			(int)(TimeUnit.MINUTES.convert(t.getOffset().getTotalSeconds(), TimeUnit.SECONDS) % 60)
 		);
 	}
+	private IDateTime temporalToDateTime(OffsetDateTime t) {
+		return temporalToDateTime(values, t);
+	}
 
-	private Temporal dateTimeToJava(IDateTime dt) {
+	public static Temporal dateTimeToJava(IDateTime dt) {
 		LocalDate datePart = null;
 		if (!dt.isTime()) {
 			datePart = LocalDate.of(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
