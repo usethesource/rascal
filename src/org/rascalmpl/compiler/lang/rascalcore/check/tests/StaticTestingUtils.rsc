@@ -21,7 +21,6 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::Checker;
 
 PathConfig testingConfig() { 
-  println("testing path config"); 
   return getDefaultPathConfig(); 
 }
 
