@@ -192,6 +192,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         'import org.rascalmpl.types.NonTerminalType;
                         'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
                         'import org.rascalmpl.util.ExpiringFunctionResultCache;
+                        'import org.rascalmpl.values.parsetrees.ITree;
                         '
                         '<module_imports>
                         '
@@ -344,7 +345,7 @@ str getMemoCache(MuFunction fun)
 JCode trans(MuFunction fun, JGenie jg){
     //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
-    //iprintln(fun);
+    iprintln(fun);
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return "";
     
@@ -672,14 +673,14 @@ default str transWithCast(AType atype, MuExp exp, JGenie jg) {
         return code;
     }
       
-    //exptype = getType(exp);
-    //isequivalent = false;
-    //try {
-    //     isequivalent = equivalent(exptype,atype);
-    //} catch _ : /* ignore failure */;
-    //
-    //return isequivalent ? code : "((<atype2javatype(atype)>)<parens(code)>)";
-    return "((<atype2javatype(atype)>)<parens(code)>)";
+    exptype = getType(exp);
+    isequivalent = false;
+    try {
+         isequivalent = equivalent(exptype,atype);
+    } catch _ : /* ignore failure */;
+    
+    return isequivalent ? code : "((<atype2javatype(atype)>)<parens(code)>)";
+    //return "((<atype2javatype(atype)>)<parens(code)>)";
 }
 
 bool producesFunctionInstance(str code)
@@ -908,23 +909,29 @@ JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType
 // ---- muGetField ---------------------------------------------------------
 
 JCode trans(muGetField(AType resultType, aloc(), MuExp exp, str fieldName), JGenie jg)
-    = "$aloc_get_field(<transWithCast(aloc(),exp,jg)>, \"<fieldName>\")";
+    = castArg(resultType, "$aloc_get_field(<transWithCast(aloc(),exp,jg)>, \"<fieldName>\")");
 
 JCode trans(muGetField(AType resultType, adatetime(), MuExp exp, str fieldName), JGenie jg)
-    = "$adatetime_get_field(<transWithCast(adatetime(),exp,jg)>, \"<fieldName>\")";
+    = castArg(resultType, "$adatetime_get_field(<transWithCast(adatetime(),exp,jg)>, \"<fieldName>\")");
  
 JCode trans(muGetField(AType resultType, anode(_), MuExp exp, str fieldName), JGenie jg)
-    = "$anode_get_field(<transWithCast(anode([]),exp,jg)>, \"<getJavaName(fieldName)>\")";
+    = castArg(resultType, "$anode_get_field(<transWithCast(anode([]),exp,jg)>, \"<getJavaName(fieldName)>\")");
 
-JCode trans(muGetField(AType resultType, adt:aadt(_,_,!contextFreeSyntax()), MuExp exp, str fieldName), JGenie jg) 
-   = "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")";
-   
-JCode trans(muGetField(AType resultType, adt:aadt(_,_,contextFreeSyntax()), MuExp exp, str fieldName), JGenie jg) 
-   = "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(exp, jg)>, \"<fieldName>\")";   
+JCode trans(muGetField(AType resultType, adt:aadt(adtName,_,_), MuExp exp, str fieldName), JGenie jg) {
+    return asubtype(adt, treeType) && !isNonTerminalType(adt) ? "$get_Tree_<getJavaName(fieldName)>(<transWithCast(adt,exp,jg)>)"
+                                                              : "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")";
+}
 
-            
+//JCode trans(muGetField(AType resultType, adt:aadt(_,_,!contextFreeSyntax()), MuExp exp, str fieldName), JGenie jg) {
+//   return  "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")";
+//}
+//   
+//JCode trans(muGetField(AType resultType, adt:aadt(_,_,contextFreeSyntax()), MuExp exp, str fieldName), JGenie jg) {
+//   return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(exp, jg)>, \"<fieldName>\")";   
+//
+//}            
 JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str fieldName), JGenie jg)
-    = "$areified_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")";
+    = castArg(resultType, "$areified_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
  
 default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
     base = transWithCast(consType, cons, jg);
@@ -934,9 +941,12 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
             '            fieldName= <fieldName>");
     
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
-    if(isNonTerminalType(consType) || asubtype(consType, treeType)){
+    if(isNonTerminalType(consType)){
         return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\")";
-    } else if(isADTType(consType)){
+    } else if(asubtype(consType, treeType)){
+        return "$get_Tree_<getJavaName(fieldName)>(<base>)";
+    } else 
+    if(isADTType(consType)){
         return "$get_<getADTName(consType)>_<getJavaName(fieldName)>(<base>)";
     } else {
         isConsKwField = fieldName in {kwf.fieldType.label | kwf <- consType.kwFields};
@@ -948,19 +958,19 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
  // ---- muGuardedGetField -------------------------------------------------
  
  JCode trans(muGuardedGetField(AType resultType, aloc(), MuExp exp, str fieldName), JGenie jg)
-    = "$guarded_aloc_get_field(<trans(exp,jg)>, \"<fieldName>\")";
+    = castArg(resultType, "$guarded_aloc_get_field(<trans(exp,jg)>, \"<fieldName>\")");
 
 JCode trans(muGuardedGetField(AType resultType, adatetime(), MuExp exp, str fieldName), JGenie jg)
-    = "$guarded_adatetime_get_field(<trans(exp,jg)>, \"<fieldName>\")";
+    = castArg(resultType, "$guarded_adatetime_get_field(<trans(exp,jg)>, \"<fieldName>\")");
     
 JCode trans(muGuardedGetField(AType resultType, anode(_), MuExp exp, str fieldName), JGenie jg)
-    = "$guarded_anode_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")";
+    = castArg(resultType, "$guarded_anode_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
     
 JCode trans(muGuardedGetField(AType resultType, atuple(_), MuExp exp, str fieldName), JGenie jg)
-    = "$guarded_atuple_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")";
+    = castArg(resultType, "$guarded_atuple_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
 
 JCode trans(muGuardedGetField(AType resultType, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), MuExp exp, str fieldName), JGenie jg)
-    = "$guarded_aadt_get_field(<trans(exp,jg)>,  \"<getJavaName(fieldName)>\")";
+    = castArg(resultType, "$guarded_aadt_get_field(<trans(exp,jg)>,  \"<getJavaName(fieldName)>\")");
  
 default JCode trans(muGuardedGetField(AType resultType, consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName), JGenie jg){
     base = trans(cons, jg);
@@ -975,9 +985,9 @@ default JCode trans(muGuardedGetField(AType resultType, consType:acons(AType adt
         if(fieldName == kwType.label){
             expCode = trans(exp, jg);
             if(muCon(_) := expCode){
-                return "<base>.asWithKeywordParameters().hasParameter(<qFieldName>) ? <base>.asWithKeywordParameters().getParameter(<qFieldName>) : <expCode>";
+                return "<base>.asWithKeywordParameters().hasParameter(<qFieldName>) ? <castArg(kwType, "<base>.asWithKeywordParameters().getParameter(<qFieldName>)")> : <expCode>";
             } else {
-                return "<base>.asWithKeywordParameters().getParameter(<qFieldName>)";
+                return castArg(kwType, "<base>.asWithKeywordParameters().getParameter(<qFieldName>)");
             }
         }
     }
@@ -996,16 +1006,16 @@ JCode trans(muSetField(AType resultType, adatetime(), MuExp baseExp, str fieldNa
 JCode trans(muSetField(AType resultType, anode(_), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "$anode_field_update(<transWithCast(anode([]), baseExp, jg)>, \"<getJavaName(fieldName)>\", <trans(repl, jg)>)";    
 
-default JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
-    = "<trans(baseExp, jg)>.set(\"<getJavaName(fieldName)>\", <trans(repl, jg)>)";
-    
 JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, int fieldIndex, MuExp repl), JGenie jg)
     = "$atuple_update(<trans(baseExp, jg)>, <fieldIndex>,  <trans(repl, jg)>)" when isTupleType(resultType);
     
 JCode trans(muSetField(AType resultType, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "$aadt_field_update(<trans(baseExp,jg)>,  \"<getJavaName(fieldName)>\", <trans(repl, jg)>)";
 
-    
+default JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
+    = asubtype(baseType, treeType) ? "$aadt_field_update(<trans(baseExp,jg)>,  \"<getJavaName(fieldName)>\", <trans(repl, jg)>)"
+                                   : "<trans(baseExp, jg)>.set(\"<getJavaName(fieldName)>\", <trans(repl, jg)>)";
+      
 //// ---- muCallPrim2 -----------------------------------------------------------
 //
 //JCode trans(muCallPrim2(str name, loc src), JGenie jg){
@@ -1168,13 +1178,13 @@ JCode trans(muGetKwp(MuExp exp, AType atype, str kwpName), JGenie jg){
 // ---- muGetKwFieldFromConstructor
 
 JCode trans(muGetKwFieldFromConstructor(AType resultType, MuExp exp, str kwpName), JGenie jg)
-    = "<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<getJavaName(kwpName)>\")";
+    = "((<atype2javatype(resultType)>)<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<getJavaName(kwpName)>\"))";
  
 // ---- muGetFieldFromConstructor
 
 JCode trans(muGetFieldFromConstructor(AType resultType, AType consType, MuExp exp, str fieldName), JGenie jg){
      i = indexOf([fld.label | fld <- consType.fields], fieldName);
-     return "<trans(exp, jg)>.get(<i>)";
+     return "((<atype2javatype(resultType)>)<trans(exp, jg)>.get(<i>))";
  }
 
 JCode trans(muInsert(AType atype, MuExp exp), JGenie jg)

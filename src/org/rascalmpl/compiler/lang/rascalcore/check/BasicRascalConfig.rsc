@@ -17,6 +17,7 @@ data IdRole
     | keywordFieldId()
     | labelId()
     | constructorId()
+    | productionId()
     | dataId()
     | aliasId()
     | annoId()

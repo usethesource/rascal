@@ -343,7 +343,7 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _shareType(AType atype){
-        println("%%%%% shareType: <atype>");
+        //println("%%%%% shareType: <atype>");
         //atype = unsetR(atype, "label");
         if(acons(AType adt,
                 list[AType fieldType] fields,

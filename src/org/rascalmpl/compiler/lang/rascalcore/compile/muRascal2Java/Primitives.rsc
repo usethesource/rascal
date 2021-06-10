@@ -323,7 +323,7 @@ JCode transPrim("open_string_writer", AType r, [], [], JGenie jg)               
 
 // ---- parse -----------------------------------------------------------------
 
-JCode transPrim("parse", AType r, [avalue(), astr(), aloc()], [str x, str y, str z], JGenie jg) = "$parse(<x>, <y>, <z>)";
+JCode transPrim("parse", AType r, [avalue(), astr(), aloc()], [str x, str y, str z], JGenie jg) = castArg(r, "$parse(<x>, <y>, <z>)");
 
 // ---- product ---------------------------------------------------------------
 
@@ -445,7 +445,7 @@ list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp
                                                                                   when isListOnlyType(a) || isStrType(a) || isTupleType(a) || 
                                                                                        isNodeType(a) || isADTType(a);
 list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg) 
-                                                                                = [ trans(x,jg), trans2NativeInt(y,jg) ] 
+                                                                                = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
                                                                                   when isNonTerminalType(a);
 
 JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "$astr_subscript_int(<x>,<y>)";

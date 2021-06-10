@@ -626,7 +626,8 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 
                                 | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions, 
                                   adt1 := unsetRec(adt),
-                                  !definitions[adt1]?
+                                  !definitions[adt1]?,
+                                  bprintln(adt1)
                                 );
    }
    return definitions;

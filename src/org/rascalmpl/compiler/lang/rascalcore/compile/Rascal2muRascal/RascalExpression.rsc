@@ -1330,8 +1330,10 @@ MuExp translate ((Expression) `<Expression expression> [ <Name key> = <Expressio
      	return muSetField(tp, getType(expression), translate(expression), unescape("<key>"), translate(replacement));
     } else if(isNodeType(tp)){
         return muSetField(tp, getType(expression), translate(expression), unescape("<key>"), translate(replacement));
+    } else if(asubtype(tp, aTree)){
+        return muSetField(aTree, getType(expression), translate(expression), unescape("<key>"), translate(replacement));
     }
-    if(tupleHasFieldNames(tp)){
+    if(isTupleType(tp) && tupleHasFieldNames(tp)){
     	  fieldNames = getTupleFieldNames(tp);
     }	
     //TODO

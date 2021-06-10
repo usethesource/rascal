@@ -589,21 +589,22 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(cons.asWithKeywordParameters().hasParameter(fieldName)) {
 			return new GuardedIValue(cons.asWithKeywordParameters().getParameter(fieldName));
 		}
-		return UNDEFINED;
 		
-		
+//		Type consType = cons.getType();
 //		Map<String, Type> kwps = $TS.getKeywordParameters(consType);
-//
-//		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-//			IConstructor prod = ((ITree) cons).getProduction();
-//
-//			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-//				IConstructor arg = (IConstructor) elem;
-//				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-//					return new GuardedIValue(arg);			        
-//				}
-//			}
-//		}
+
+		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			// TODO: keyword parameter of Tree
+			IConstructor prod = ((ITree) cons).getProduction();
+
+			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+				IConstructor arg = (IConstructor) elem;
+				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+					return new GuardedIValue(arg);			        
+				}
+			}
+		}
+		return UNDEFINED;
 	}
 	
 	public final GuardedIValue $guarded_annotation_get(final INode cons, final String fieldName) {
@@ -902,35 +903,32 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return cons.get(fieldName);
 		}
 		
+		if($TS.hasKeywordParameter(consType, fieldName)) {
+			return null; //cons.asWithKeywordParameters().setParameter(fieldName, repl);
+		}
+
 
 		IValue result = cons.asWithKeywordParameters().getParameter(fieldName);
-		if(result == null) {
-			throw RuntimeExceptionFactory.noSuchField(fieldName);
+		if(result != null) {
+			return result;
 		}
-		return result;
 
+		//Map<String, Type> kwps = $TS.getKeywordParameters(consType);
+
+		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			// TODO: keyword parameter of Tree
+			
+			IConstructor prod = ((ITree) cons).getProduction();
+
+			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+				IConstructor arg = (IConstructor) elem;
+				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+					return arg;			        
+				}
+			}
+		}
 		
-//		Map<String, Type> kwps = $TS.getKeywordParameters(consType);
-//
-//		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-//			IConstructor prod = ((ITree) cons).getProduction();
-//
-//			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-//				IConstructor arg = (IConstructor) elem;
-//				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-//					return arg;			        
-//				}
-//			}
-//		}
-//		if(cons.isAnnotatable()){
-//			IValue result = cons.asAnnotatable().getAnnotation(fieldName);
-//			if(result == null) {
-//				throw RuntimeExceptionFactory.noSuchField(fieldName);
-//			}
-//			return result;
-//		} else {
-//			throw RuntimeExceptionFactory.noSuchField(fieldName);
-//		}
+		throw RuntimeExceptionFactory.noSuchField(fieldName);
 	}
 	
 	public final GuardedIValue $guarded_aadt_get_field(final IConstructor cons, final String fieldName) {
@@ -1737,9 +1735,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return cons.asWithKeywordParameters().setParameter(fieldName, repl);
 		}
 
-		// Does fieldName exist a fieldin a parse tree?
-		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-			return TreeAdapter.setArg((ITree)cons, fieldName, (IConstructor) repl);
+		// Does fieldName exist as field in a parse tree?
+		if(TreeAdapter.isTree(cons)) {
+			if(TreeAdapter.isAppl((ITree) cons) && TreeAdapter.getLabeledField((ITree)cons, fieldName) != null) {
+				return TreeAdapter.setArg((ITree)cons, fieldName, (IConstructor) repl);
+			} else {
+				return cons.asWithKeywordParameters().setParameter(fieldName, repl);
+			}
 		}
 		
 		throw RuntimeExceptionFactory.noSuchField(fieldName);
@@ -1783,14 +1785,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			// TODO: keyword parameter of Tree
 			return TreeAdapter.getLabeledField((ITree) cons, fieldName) != null;
-//			IConstructor prod = ((ITree) cons).getProduction();
-//
-//			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-//				IConstructor arg = (IConstructor) elem;
-//				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-//					return true;			        }
-//			}
 		}
 
 		return false;
@@ -3651,6 +3647,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
 		}
 	}
+	
+	// concrete subscript
 	
 	public final IValue $concrete_subscript(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
