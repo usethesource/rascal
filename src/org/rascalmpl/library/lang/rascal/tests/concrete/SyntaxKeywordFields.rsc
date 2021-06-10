@@ -13,7 +13,7 @@ data Tree(str y = "y");
 
 // to be able to access the kw param feature, you have to remove the loc annotation first (until we remove annotations):
 
-@ignoreCompiler{FIX: type checker does not accept this}
+//@ignoreCompiler{FIX: type checker does not accept this}
 test bool assignKw() {
    a = get((A) `a`);
    a.y = "2";
@@ -22,17 +22,17 @@ test bool assignKw() {
 
 
 // due to src locations no two concrete syntax patterns are `==` equal
-@ignoreCompiler{FIX: type checker does not accept this}
+//@ignoreCompiler{FIX: type checker does not accept this}
 test bool eqTest0() = get((A)`a`) != get((A)`a`); 
-test bool eqTest() = (A)`a` := (A)`a`;
+test bool eqTest1() = (A)`a` := (A)`a`;
 
-@ignoreCompiler{FIX: type checker does not accept this}
-@ignore{interpreter fails this test somehow}
-test bool eqTest() = get((A)`a`) := get((A)`a`);
+//@ignoreCompiler{FIX: type checker does not accept this}
+//@ignore{interpreter fails this test somehow}
+//test bool eqTest2() = get((A)`a`) := get((A)`a`);
 
-test bool eqTest2() = get((A)`a`).y == get((A)`a`)[y="y"].y;
+test bool eqTest3() = get((A)`a`).y == get((A)`a`)[y="y"].y;
 
-test bool eqTest3() = get((A)`a`) != get((A)`a`)[y="y"] && eqTest2() /* superfluous for doc purposes */;
+test bool eqTest4() = get((A)`a`) != get((A)`a`)[y="y"] && eqTest3() /* superfluous for doc purposes */;
 
 test bool updateKw() = get((A)`a`)[y="z"].y == "z";
 
