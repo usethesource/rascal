@@ -24,7 +24,7 @@ loc generatedDir = |project://rascal-core/generated|;
 
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=true){
     tm = tmodels[qualifiedModuleName];
-    iprintln(tm, lineLimit=5000);
+    iprintln(tm, lineLimit=10);
     targetDir = generatedDir + module2dir(qualifiedModuleName);
     className = getBaseClass(qualifiedModuleName);
    
