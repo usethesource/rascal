@@ -409,6 +409,25 @@ AType getType(muCallPrim3(str name, AType result, list[AType] details, list[MuEx
 AType getType(muCallJava(str name, str class, AType funType, int reflect, list[MuExp] args, str enclosingFun)) =  getResultType(funType); 
 AType getType(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)) = alub(getType(thenPart), getType(elsePart));
 
+AType getType(muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)) = resultType;
+AType getType(muGetFieldFromConstructor(AType resultType, AType consType, MuExp var, str fieldName)) = resultType;
+
+AType getType(muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
+AType getType(muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
+AType getType(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)) = resultType;
+AType getType(muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)) = resultType;
+AType getType(muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)) = resultType;
+         
+
+AType getType(muTreeAppl(MuExp prod, list[MuExp] args, loc src)) = aadt("Tree", [], dataSyntax());
+AType getType(muTreeAppl(MuExp prod, MuExp argList, loc src)) = aadt("Tree", [], dataSyntax());
+AType getType(muTreeChar(int char)) = aadt("Tree", [], dataSyntax());
+          
+AType getType(muTreeGetProduction(MuExp tree)) = aadt("Tree", [], dataSyntax());
+AType getType(muTreeGetArgs(MuExp tree)) = alist(aadt("Tree", [], dataSyntax()));
+
+AType getType(muValueBlock(AType result, list[MuExp] exps)) = result;
+
 default AType getType(MuExp exp) = avalue();
          
 // ==== Simplification rules ==================================================

@@ -308,7 +308,7 @@ private  tuple[set[AType], set[Production]] getReachableAbstractTypes(AType subj
 
 // Extract the reachable concrete types
 
-tuple[set[AType], set[Production]] getReachableConcreteTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
+tuple[set[AType], set[AProduction]] getReachableConcreteTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
 	desiredPatternTypes = { s | /AType s := patternTypes};
 	desiredSubjectTypes = { s | /AType s := subjectType};
 	desiredTypes = desiredPatternTypes;
@@ -322,23 +322,23 @@ tuple[set[AType], set[Production]] getReachableConcreteTypes(AType subjectType, 
 		//println("removed from reachableConcreteTypes:"); for(x <- reachableConcreteTypes - prunedReachableConcreteTypes){println("\t<x>");}
 	}
 	
-	set [Production] descend_into = {};
+	set [AProduction] descend_into = {};
 	
 	// Find all concrete types that can lead to a desired type
     for(<AType sym, AType tp> <- (prunedReachableConcreteTypes+), tp in desiredPatternTypes){
 	   alts = instantiatedGrammar[sym];
-	   for(/Production p := alts){
+	   for(/AProduction p := alts){
 	       switch(p){
 	       case choice(_, choices): descend_into += choices;
-	       case associativity(_, _, set[Production] choices): descend_into += choices;
-	       case priority(_, list[Production] choices): descend_into += toSet(choices);
+	       case associativity(_, _, set[AProduction] choices): descend_into += choices;
+	       case priority(_, list[AProduction] choices): descend_into += toSet(choices);
 	       default:
 	    	descend_into += p;
 	       }
 	    }
 	} 
 	
-	set [Production] descend_into1 = {};
+	set [AProduction] descend_into1 = {};
 	
 	for(w <- descend_into){
 	  visit(w){

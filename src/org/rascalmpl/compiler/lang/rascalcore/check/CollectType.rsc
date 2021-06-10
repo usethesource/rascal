@@ -628,6 +628,7 @@ void collect(current:(Sym) `^ <Sym symbol>`, Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
+    // TODO: c.use(n, {productionId()});
     un = unescape("<n>");
     c.calculate("except", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\except(un) }); });
     collect(symbol, c);

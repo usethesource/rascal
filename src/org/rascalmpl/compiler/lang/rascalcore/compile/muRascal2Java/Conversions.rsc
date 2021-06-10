@@ -62,7 +62,7 @@ str atype2javatype(overloadedAType(rel[loc, IdRole, AType] overloads))
     = atype2javatype(lubList(toList(overloads<2>)));
 
 
-default str atype2javatype(AType t) = "IConstructor"; // This covers all parse tree related constructors
+default str atype2javatype(AType t) = "ITree"; //"IConstructor"; // This covers all parse tree related constructors
 
 /*****************************************************************************/
 /*  Convert AType to a descriptor that can be used in a Java identifier      */
@@ -886,7 +886,8 @@ str atype2vtype(aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGen
 str atype2vtype(aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg, bool inTest=false)    
     = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"keywords\", $VF.string(\"<adtName>\"))";
 str atype2vtype(aadt(str adtName, list[AType] parameters, layoutSyntax()), JGenie jg, bool inTest=false)    
-    = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
+    = (inTest ? "$me." : "") + getADTName(adtName);
+    //= "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
                                  
 str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
