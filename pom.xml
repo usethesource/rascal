@@ -440,11 +440,6 @@
                 <version>2.3.1</version>
             </dependency>
             <dependency>
-                <groupId>com.ibm.icu</groupId>
-                <artifactId>icu4j</artifactId>
-                <version>58.1</version>
-            </dependency>
-            <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj</artifactId>
                 <version>1.6.0-alpha.6</version>

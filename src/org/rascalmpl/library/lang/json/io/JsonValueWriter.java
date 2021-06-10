@@ -47,7 +47,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 import com.google.gson.stream.JsonWriter;
 
-import org.rascalmpl.library.Prelude;
+import org.rascalmpl.util.DateTimeConversions;
 
 /**
  * This class streams am IValue stream directly to an JSon stream. Useful to communicate IValues to browsers.
@@ -362,7 +362,7 @@ public class JsonValueWriter {
           return null;
         }
         else {
-          out.value(format.format(Prelude.dateTimeToJava(o)));
+          out.value(format.format(DateTimeConversions.dateTimeToJava(o)));
           return null;
         }
       }

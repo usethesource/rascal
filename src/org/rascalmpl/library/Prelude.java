@@ -43,12 +43,10 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.Period;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
@@ -90,6 +88,7 @@ import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
+import org.rascalmpl.util.DateTimeConversions;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -247,18 +246,9 @@ public class Prelude {
 		return incrementDate(dt, ChronoUnit.DAYS, "days", n);
 	}
 
-	private String getTZString(int hourOffset, int minuteOffset) {
-		String tzString = "GMT" + ((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+")
-			+ String.format("%02d", hourOffset >= 0 ? hourOffset : hourOffset * -1)
-			+ String.format("%02d", minuteOffset >= 0 ? minuteOffset : minuteOffset * -1);
-		return tzString;
-	}
-
-	private final int millisInAMinute = 1000 * 60;
-	private final int millisInAnHour = millisInAMinute * 60;
 
 	private IValue incrementDTField(IDateTime dt, ChronoUnit field, IInteger amount) {
-		Temporal actualDt = dateTimeToJava(dt);
+		Temporal actualDt = DateTimeConversions.dateTimeToJava(dt);
 		Temporal result = actualDt.plus(amount.longValue(), field);
 
 		if (dt.isDate()) {
@@ -270,86 +260,20 @@ public class Prelude {
 		return temporalToDateTime((OffsetDateTime) result);
 	}
 	private IDateTime temporalToDate(TemporalAccessor t) {
-		return temporalToDate(values, (LocalDate)t);
+		return DateTimeConversions.temporalToDate(values, (LocalDate)t);
 	}
 
-	private static IDateTime temporalToDate(IValueFactory values, LocalDate t) {
-		return values.date(t.getYear(), t.getMonthValue(), t.getDayOfMonth());
-	}
 
 	private IDateTime temporalToTime(TemporalAccessor t) {
 		if (t instanceof OffsetTime) {
-			return temporalToTime(values, (OffsetTime)t);
+			return DateTimeConversions.temporalToTime(values, (OffsetTime)t);
 		}
-		return temporalToTime(values, (LocalTime)t);
-	}
-	private static IDateTime temporalToTime(IValueFactory values, OffsetTime t) {
-		return values.time(t.getHour(), t.getMinute(), t.getSecond(), t.get(ChronoField.MILLI_OF_SECOND),
-			(int) TimeUnit.HOURS.convert(t.getOffset().getTotalSeconds(), TimeUnit.SECONDS),
-			(int) (TimeUnit.MINUTES.convert(t.getOffset().getTotalSeconds(), TimeUnit.SECONDS) % 60));
+		return DateTimeConversions.temporalToTime(values, (LocalTime)t);
 	}
 
-	private static IDateTime temporalToTime(IValueFactory values, LocalTime t) {
-		return values.time(t.getHour(), t.getMinute(), t.getSecond(), t.get(ChronoField.MILLI_OF_SECOND));
-	}
-
-	public static IDateTime temporalToDateTime(IValueFactory values, OffsetDateTime t) {
-		return values.datetime(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), t.getMinute(),
-			t.getSecond(), t.get(ChronoField.MILLI_OF_SECOND),
-			(int) TimeUnit.HOURS.convert(t.getOffset().getTotalSeconds(), TimeUnit.SECONDS),
-			(int) (TimeUnit.MINUTES.convert(t.getOffset().getTotalSeconds(), TimeUnit.SECONDS) % 60));
-	}
-
-	public static IDateTime temporalToDateTime(IValueFactory values, LocalDateTime t) {
-		return values.datetime(t.getYear(), t.getMonthValue(), t.getDayOfMonth(), t.getHour(), t.getMinute(),
-			t.getSecond(), t.get(ChronoField.MILLI_OF_SECOND)
-		);
-	}
-
-	public static IDateTime temporalToIValue(IValueFactory values, TemporalAccessor t) {
-		boolean hasDate = t.isSupported(ChronoField.YEAR);
-		boolean hasTime = t.isSupported(ChronoField.HOUR_OF_DAY);
-		boolean hasZoneOffset = t.isSupported(ChronoField.OFFSET_SECONDS);
-		if (hasDate) {
-			if (hasTime) {
-				if (hasZoneOffset) {
-					return temporalToDateTime(values, OffsetDateTime.from(t));
-				}
-				return temporalToDateTime(values, LocalDateTime.from(t));
-			}
-			return temporalToDate(values, LocalDate.from(t));
-		}
-		if (hasZoneOffset) {
-			return temporalToTime(values, OffsetTime.from(t));
-		}
-		return temporalToTime(values, LocalTime.from(t));
-	}
 
 	private IDateTime temporalToDateTime(OffsetDateTime t) {
-		return temporalToDateTime(values, t);
-	}
-
-	public static Temporal dateTimeToJava(IDateTime dt) {
-		LocalDate datePart = null;
-		if (!dt.isTime()) {
-			datePart = LocalDate.of(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
-		}
-
-		OffsetTime timePart = null;
-		if (!dt.isDate()) {
-			// vallang always has timezone offset in case it's not a date
-			timePart = OffsetTime.of(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(),
-				(int) TimeUnit.MILLISECONDS.toNanos(dt.getMillisecondsOfSecond()),
-				ZoneOffset.ofHoursMinutes(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
-		}
-		if (datePart == null && timePart != null) {
-			return timePart;
-		}
-		if (timePart == null && datePart != null) {
-			return datePart;
-		}
-		assert timePart != null && datePart != null;
-		return datePart.atTime(timePart);
+		return DateTimeConversions.temporalToDateTime(values, t);
 	}
 
 	private IValue incrementTime(IDateTime dt, ChronoUnit field, String fieldName, IInteger amount) {
@@ -436,8 +360,8 @@ public class Prelude {
 
 	public IValue createDurationInternal(IDateTime dStart, IDateTime dEnd) {
 		// dStart and dEnd both have to be dates, times, or datetimes
-		Temporal startTemp = dateTimeToJava(dStart);
-		Temporal endTemp = dateTimeToJava(dEnd);
+		Temporal startTemp = DateTimeConversions.dateTimeToJava(dStart);
+		Temporal endTemp = DateTimeConversions.dateTimeToJava(dEnd);
 
 		if (startTemp instanceof LocalDate) {
 			if (endTemp instanceof LocalDate) {
@@ -540,7 +464,7 @@ public class Prelude {
 
 	private static IValue parseDateTime(IValueFactory values, IString input, DateTimeFormatter format) {
 		try {
-			return temporalToIValue(values, format.parse(input.getValue()));
+			return DateTimeConversions.temporalToIValue(values, format.parse(input.getValue()));
 		} catch (IllegalArgumentException | DateTimeParseException e) {
 			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input: " + input.getValue() + " with formatter: " + format + " error: " + e.getMessage());
 		}
@@ -604,7 +528,7 @@ public class Prelude {
 	
 	private IString printDateTime(IDateTime input, DateTimeFormatter fmt) {
 		try {
-			return values.string(fmt.format(dateTimeToJava(input)));
+			return values.string(fmt.format(DateTimeConversions.dateTimeToJava(input)));
 		} catch (RuntimeException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + input + " using formatter: " + fmt);
 		}
@@ -645,8 +569,8 @@ public class Prelude {
     //@doc{Increment the years by a given amount.}
 	{
 		if (!(dtStart.isTime() || dtEnd.isTime())) {
-			Temporal start = dateTimeToJava(dtStart);
-			Temporal end = dateTimeToJava(dtEnd);
+			Temporal start = DateTimeConversions.dateTimeToJava(dtStart);
+			Temporal end = DateTimeConversions.dateTimeToJava(dtEnd);
 			return values.integer(ChronoUnit.DAYS.between(start, end));
 		}
 		throw RuntimeExceptionFactory.invalidUseOfTimeException("Both inputs must include dates.");

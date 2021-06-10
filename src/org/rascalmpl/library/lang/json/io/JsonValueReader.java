@@ -29,8 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.util.DateTimeConversions;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
@@ -604,7 +605,7 @@ public class JsonValueReader {
           switch (in.peek()) {
             case STRING:
               OffsetDateTime result = OffsetDateTime.parse(in.nextString(), format);
-              return Prelude.temporalToDateTime(vf, result);
+              return DateTimeConversions.temporalToDateTime(vf, result);
             case NUMBER:
               return vf.datetime(in.nextLong());
             default:
