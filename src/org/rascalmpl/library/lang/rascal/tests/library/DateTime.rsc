@@ -94,9 +94,10 @@ str formattedDate(datetime dt) =
     "<fill(dt.year, 4)>-<fill(dt.month)>-<fill(dt.day)>";
     
 str formattedTime(datetime dt) =
-    "<fill(dt.hour)>:<fill(dt.minute)>:<fill(dt.second)>.<fill(dt.millisecond,3)><negativeOffset(dt) ? "-" : "+"><fill(abs(dt.timezoneOffsetHours))><fill(abs(dt.timezoneOffsetMinutes))>";        
+    "<fill(dt.hour)>:<fill(dt.minute)>:<fill(dt.second)>.<fill(dt.millisecond,3)><isZulu(dt) ? "Z" : "<negativeOffset(dt) ? "-" : "+"><fill(abs(dt.timezoneOffsetHours))>:<fill(abs(dt.timezoneOffsetMinutes))>">";        
 
 bool negativeOffset(datetime dt) = dt.timezoneOffsetHours < 0 || dt.timezoneOffsetMinutes < 0;
+bool isZulu(datetime dt) = dt.timezoneOffsetHours == 0 && dt.timezoneOffsetMinutes == 0;
 private str fill(int val) = fill(val, 2);
 private str fill(int val, int n) = right("<val>", n, "0");
     
