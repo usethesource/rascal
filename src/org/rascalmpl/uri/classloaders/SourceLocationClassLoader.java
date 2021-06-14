@@ -41,24 +41,25 @@ public class SourceLocationClassLoader extends ClassLoader {
     }
     
     private List<ClassLoader> initialize(IList locs) {
-        try {
-            URIResolverRegistry reg = URIResolverRegistry.getInstance();
-            List<ClassLoader> result = new ArrayList<>(locs.length());
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        List<ClassLoader> result = new ArrayList<>(locs.length());
 
-            // TODO: group URLClassLoaders into a single instance 
-            // to enhance class loading performance
-            for (IValue loc : locs) {
-                // because they all get `this` as the parent, the classloaders will be able to refer to each
-                // other like in normal JVM classpath also works. The order of lookup is defined by the current 
-                // for-loop. 
+        // TODO: group URLClassLoaders into a single instance 
+        // to enhance class loading performance
+        for (IValue loc : locs) {
+            // because they all get `this` as the parent, the classloaders will be able to refer to each
+            // other like in normal JVM classpath also works. The order of lookup is defined by the current 
+            // for-loop. 
+            try {
                 result.add(reg.getClassLoader((ISourceLocation) loc, this));
             }
+            catch (IOException e) {
+                // this may happen and should have been reported earlier by the scheme registration code in {@see URIResolverRegistry}
+                // do nothing for now
+            }
+        }
 
-            return result;
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return result;
     }
     
     @Override

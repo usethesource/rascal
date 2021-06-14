@@ -20,6 +20,14 @@
         },
         {
             "type": "java",
+            "name": "Attach RascalShell",
+            "request": "attach",
+            "projectName": "rascal",
+            "hostName": "localhost",
+            "port": 9001
+        },
+        {
+            "type": "java",
             "name": "Attach RascalNotebook",
             "request": "attach",
             "hostName": "localhost",
