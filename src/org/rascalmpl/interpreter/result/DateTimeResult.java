@@ -66,8 +66,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	protected Result<IBool> equalToDateTime(DateTimeResult that) {
-		checkDateTimeComparison(that);
-		return bool(that.value.getInstant() == this.value.getInstant(), ctx);
+		return bool(that.value.equals(this.value), ctx);
 	}
 		
 	@Override
@@ -77,8 +76,7 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	protected Result<IBool> nonEqualToDateTime(DateTimeResult that) {
-		checkDateTimeComparison(that);
-		return bool(that.value.getInstant() != this.value.getInstant(), ctx);
+		return bool(!that.value.equals(this.value), ctx);
 	}
 
 	@Override
@@ -283,26 +281,18 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 		}
 	}
 
-	private void checkDateTimeComparison(DateTimeResult that) {
-		if (that.getValue().isDate()) {
-			if (this.getValue().isTime()) {
-				throw new InvalidDateTimeComparison("date","time",ctx.getCurrentAST());
-			} else if (this.getValue().isDateTime()) {
-				throw new InvalidDateTimeComparison("date","datetime",ctx.getCurrentAST());				
-			}
-		} else if (that.getValue().isTime()) {
-			if (this.getValue().isDate()) {
-				throw new InvalidDateTimeComparison("time","date",ctx.getCurrentAST());				
-			} else if (this.getValue().isDateTime()) {
-				throw new InvalidDateTimeComparison("time","datetime",ctx.getCurrentAST());				
-			}
-		} else {
-			if (this.getValue().isDate()) {
-				throw new InvalidDateTimeComparison("datetime","date",ctx.getCurrentAST());
-			} else if (this.getValue().isTime()) {
-				throw new InvalidDateTimeComparison("datetime","time",ctx.getCurrentAST());				
-			}
+	private static String getName(IDateTime val) {
+		if (val.isDate()) {
+			return "date";
 		}
+		if (val.isTime()) {
+			return "time";
+		}
+		return "datetime";
+	}
+
+	private UnsupportedOperation reportInvalidComparison(IDateTime thisValue, IDateTime thatValue) {
+		return new UnsupportedOperation("Cannot compare " + getName(thisValue) + " to " + getName(thatValue), ctx.getCurrentAST());
 	}
 
 	@Override
@@ -312,8 +302,12 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override 
 	protected Result<IBool> greaterThanDateTime(DateTimeResult that) {
-		checkDateTimeComparison(that);
-		return bool(that.value.getInstant() > this.value.getInstant(), ctx);
+		try {
+			return bool(that.value.compareTo(this.value) > 0, ctx);
+		} 
+		catch (UnsupportedOperationException e) {
+			throw reportInvalidComparison(this.value, that.value);
+		}
 	}
 
 	@Override
@@ -323,8 +317,12 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	protected Result<IBool> greaterThanOrEqualDateTime(DateTimeResult that) {
-		checkDateTimeComparison(that);
-		return bool(that.value.getInstant() >= this.value.getInstant(), ctx);
+		try {
+			return bool(that.value.compareTo(this.value) >= 0, ctx);
+		} 
+		catch (UnsupportedOperationException e) {
+			throw reportInvalidComparison(this.value, that.value);
+		}
 	}
 
 	@Override
@@ -334,8 +332,12 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	protected Result<IBool> lessThanDateTime(DateTimeResult that) {
-		checkDateTimeComparison(that);
-		return bool(that.value.getInstant() < this.value.getInstant(), ctx);
+		try {
+			return bool(that.value.compareTo(this.value) < 0, ctx);
+		} 
+		catch (UnsupportedOperationException e) {
+			throw reportInvalidComparison(this.value, that.value);
+		}
 	}
 
 	@Override
@@ -345,8 +347,13 @@ public class DateTimeResult extends ElementResult<IDateTime> {
 
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualDateTime(DateTimeResult that) {
-		checkDateTimeComparison(that);
-		return new LessThanOrEqualResult(that.value.getInstant() < this.value.getInstant(), that.value.getInstant() == this.value.getInstant(), ctx);
+		try {
+			int result = that.value.compareTo(this.value);
+			return new LessThanOrEqualResult(result < 0, result == 0, ctx);
+		} 
+		catch (UnsupportedOperationException e) {
+			throw reportInvalidComparison(this.value, that.value);
+		}
 	}
 
 	@Override
