@@ -13,6 +13,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
@@ -71,14 +72,12 @@ public class ShellEvaluatorFactory {
         reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 
         try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot);
+            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
 
             for (IValue path : pcfg.getSrcs()) {
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
 
-            // TODO the interpreter still needs to find the source files in the lib jars
-            // TODO remove after bootstrap
             for (IValue path : pcfg.getLibs()) {
                 evaluator.addRascalSearchPath((ISourceLocation) path);
             }

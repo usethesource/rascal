@@ -35,6 +35,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -95,18 +96,11 @@ public class RascalJUnitTestRunner extends Runner {
         reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
         
         try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot);
+            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
             
             for (IValue path : pcfg.getSrcs()) {
                 System.err.println("Adding evaluator search path: " + path);
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
-            }
-            
-            // TODO the interpreter still needs to find the source files in the lib jars
-            // TODO remove after bootstrap
-            for (IValue path : pcfg.getLibs()) {
-                System.err.println("Adding evaluator search path: " + path);
-                evaluator.addRascalSearchPath((ISourceLocation) path);
             }
             
             ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
