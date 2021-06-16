@@ -480,6 +480,6 @@ map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config
 //    - insert = loc start and end range should be the same (a zero length location)
 //    - replace = loc range defines replacement
 //    - delete = empty string value
-lrel[loc, str] rename(loc symbol, str newName) {
+lrel[loc, str] rename(loc symbol, str newName, PathConfig currentProject, rel[loc, PathConfig] otherProjects) {
     return [];
 }
