@@ -23,7 +23,7 @@ syntax X3 = ("x"  "y") x3;
 syntax X4 = [a-z] x4;
 syntax X5 = ("x" | "y") x5;
 syntax X6 = 'ax' x6;
-//syntax X7 = "x"? x7;
+syntax X7 = "x"? x7;
 
 test bool tX1() = "<([X1] "x").x1>" == "x";
 test bool tX2() = "<([X2] "").x2>" == "";
