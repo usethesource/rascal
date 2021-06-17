@@ -69,14 +69,14 @@ public void resetTypeReifier() {
 public void extractDeclarationInfo(TModel tm){
     resetTypeReifier();
 
-    if(AGrammar g := tm.store["grammar"]){
-        cachedGrammarRules = g.rules;
+    if([*AGrammar gs] := tm.store[key_grammar]){
+        cachedGrammarRules = gs[0].rules;
     } else {
-        throw "Cannot get grammar from tmodel";
+        throw "Cannot get grammar from TModel";
     }
     
-    if(set[AType] adts_in_store := tm.store[key_ADTs]){
-        adts = adts_in_store;
+    if([*set[AType] adts_in_store] := tm.store[key_ADTs]){
+        adts = adts_in_store[0];
     } else {
         throw "Cannot get ADTs from TModel";
     }

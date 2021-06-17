@@ -24,7 +24,7 @@ private AType _computeIsType(Tree current, AType t1, Solver s){               //
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
         }
-    } else if(isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return abool();
+    } else if(isNodeType(t1) || isADTType(t1) || isSyntaxType(t1)) return abool();
     s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
     return avalue();
 }
@@ -43,7 +43,7 @@ private AType _computeHasType(Tree current, AType t1, Solver s){
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
         }
-    } else if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return abool();
+    } else if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isSyntaxType(t1) || isNodeType(t1)) return abool();
     
     s.report(error(current, "Invalid type: expected relation, tuple, node or ADT types, found %t", t1));
     return avalue();
@@ -607,10 +607,10 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
                 patType = getMapDomainType(exprType);
             } else if (isADTType(exprType) || isTupleType(exprType) || isNodeType(exprType)) {
                 patType = avalue();
-            } else if (isNonTerminalIterType(exprType)) {
-                  patType = getNonTerminalIterElement(exprType);
-            } else if (isNonTerminalOptType(exprType)) {
-                  patType = getNonTerminalOptType(exprType);
+            } else if (isIterType(exprType)) {
+                  patType = getIterElementType(exprType);
+            } else if (isOptType(exprType)) {
+                  patType = getOptType(exprType);
             } else  
                 throw TypeUnavailable();
           
@@ -685,10 +685,10 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
         return getMapDomainType(etype);
     } else if (isADTType(etype) || isTupleType(etype) || isNodeType(etype)) {
         return avalue();
-    } else if (isNonTerminalIterType(etype)) {
-        return getNonTerminalIterElement(etype);
-    } else if (isNonTerminalOptType(etype)) {
-        return getNonTerminalOptType(etype);
+    } else if (isIterType(etype)) {
+        return getIterElementType(etype);
+    } else if (isOptType(etype)) {
+        return getOptType(etype);
     } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := etype){
         for(<key, role, tp> <- overloads, isEnumeratorType(tp)){
             try {

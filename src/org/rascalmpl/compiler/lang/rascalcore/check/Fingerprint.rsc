@@ -41,7 +41,7 @@ private int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arg
             //pr = getLabeledProduction(s, atype);
             //res = getFingerprintNode(pr);
        } else {                     // Abstract pattern druing abstract match
-            if(isNonTerminalType(atype)){
+            if(isSyntaxType(atype)){
             ;// an abstract pattern of a nonterminal type will use labels in a production
              // and requires an explicit match (as opposed to a selection by a fingerprint)
              // Therefore rely on the defaultFingerprint and force sequential matching during

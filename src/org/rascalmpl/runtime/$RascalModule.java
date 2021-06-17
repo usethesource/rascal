@@ -903,9 +903,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return cons.get(fieldName);
 		}
 		
-		if($TS.hasKeywordParameter(consType, fieldName)) {
-			return null; //cons.asWithKeywordParameters().setParameter(fieldName, repl);
-		}
+//		if($TS.hasKeywordParameter(consType, fieldName)) {
+//			return cons.asWithKeywordParameters().getParameter(fieldName);
+//		}
 
 
 		IValue result = cons.asWithKeywordParameters().getParameter(fieldName);
@@ -913,19 +913,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return result;
 		}
 
-		//Map<String, Type> kwps = $TS.getKeywordParameters(consType);
-
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-			// TODO: keyword parameter of Tree
-			
-			IConstructor prod = ((ITree) cons).getProduction();
-
-			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-				IConstructor arg = (IConstructor) elem;
-				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-					return arg;			        
-				}
-			}
+			return TreeAdapter.getLabeledField((ITree) cons, fieldName).tree;
 		}
 		
 		throw RuntimeExceptionFactory.noSuchField(fieldName);

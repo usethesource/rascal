@@ -524,8 +524,9 @@ MuExp translateBool(e:(Expression)  `<Literal s>`, BTSCOPES btscopes, MuExp true
 
 // this detects that the concrete string has been parsed correctly and we can 
 // switch to compiling the tree values to muRascal expressions:
-MuExp translate(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete]))
-  = translateConcrete(concrete);
+MuExp translate(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete])){
+  return translateConcrete(concrete);
+}  
   
 // this detects that a parse error has occurred earlier and we generate an exception here:  
 MuExp translate(e:appl(prod(label("typed",lex("Concrete")), [_],_),_))
@@ -1290,7 +1291,7 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
 // -- field access expression ---------------------------------------
 
 MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
-   tp = getType(expression);
+   tp = stripStart(getType(expression));
    fieldType = getType(field);
    ufield = unescape("<field>");
    
@@ -1298,16 +1299,10 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
        return translateProject(e, expression, [(Field)`<Name field>`], e@\loc, false);
    }
    
-   if(isNonTerminalType(tp)){
-      return muGetField(fieldType, tp, translate(expression), ufield);
-   }
-   
-   op = getOuterType(expression);
-  
-    if(op == "aadt"){
+   if(isADTType(tp)){
         <consType, isKwp> = getConstructorInfo(tp, fieldType, ufield);
-          return isKwp ? muGetKwField(consType, tp, translate(expression), ufield)
-                       : muGetField(getType(e), consType, translate(expression), ufield);
+        return isKwp ? muGetKwField(consType, tp, translate(expression), ufield)
+                     : muGetField(getType(e), consType, translate(expression), ufield);
     }
     
     return muGetField(getType(e), getType(expression), translate(expression), ufield);   
@@ -2197,7 +2192,9 @@ MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> 
 
 // -- concrete syntax
 
-MuExp translate((Expression) `<Concrete con>`) = translateConcrete(con.args[0]);
+MuExp translate((Expression) `<Concrete con>`) { 
+    return translateConcrete(con.args[0]);
+}
 
 // -- any other expression that may require backtracking ------------
 

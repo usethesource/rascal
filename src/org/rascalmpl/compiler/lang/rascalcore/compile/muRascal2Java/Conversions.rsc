@@ -122,7 +122,7 @@ str atype2idpart(\iter-star(AType atype)) = "iter_star_<atype2idpart(atype)>";
 str atype2idpart(\iter-seps(AType atype, list[AType] separators))
                                           = "iter_seps_<atype2idpart(atype)>"; 
 str atype2idpart(\iter-star-seps(AType atype, list[AType] separators))
-                                          = "iter_start_seps_<atype2idpart(atype)>"; 
+                                          = "iter_star_seps_<atype2idpart(atype)>"; 
 str atype2idpart(\alt(set[AType] alternatives))
                                           = "alt_"; //TODO
 str atype2idpart(\seq(list[AType] atypes))= "seq_";  //TODO
