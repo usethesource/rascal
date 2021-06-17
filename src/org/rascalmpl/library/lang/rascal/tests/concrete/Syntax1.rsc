@@ -17,6 +17,21 @@ start syntax DS = D+;
 start syntax E = "e";
 start syntax ES = {E ","}+ args;
 
+start syntax X1 = "x" x1;
+syntax X2 = () x2;
+syntax X3 = ("x"  "y") x3;
+syntax X4 = [a-z] x4;
+syntax X5 = ("x" | "y") x5;
+syntax X6 = 'ax' x6;
+//syntax X7 = "x"? x7;
+
+test bool tX1() = "<([X1] "x").x1>" == "x";
+test bool tX2() = "<([X2] "").x2>" == "";
+test bool tX3() = "<([X3] "xy").x3>" == "xy";
+test bool tX4() = "<([X4] "x").x4>" == "x";
+test bool tX5() = "<([X5] "x").x5>" == "x";
+test bool tX7b() ="<([X7] "").x7>" == "";
+
 test bool parseD1() = (D)`d` := parse(#D, "d");
 
 @expected{ParseError}
