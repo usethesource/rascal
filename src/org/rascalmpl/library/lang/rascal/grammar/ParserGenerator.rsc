@@ -481,7 +481,6 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     	filters += ", null";
     }
     
-    println("sym: <sym>");
     switch (sym) {
         case Symbol::\sort(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
