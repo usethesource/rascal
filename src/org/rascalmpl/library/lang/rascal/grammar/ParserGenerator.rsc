@@ -481,57 +481,58 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     	filters += ", null";
     }
     
+    println("sym: <sym>");
     switch (sym) {
-        case \sort(_) : 
+        case Symbol::\sort(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \empty() : 
+        case Symbol::\empty() : 
             return <"new EmptyStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <filters>)", itemId>;
-        case \lex(_) : 
+        case Symbol::\lex(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \keywords(_) : 
+        case Symbol::\keywords(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \layouts(_) :
+        case Symbol::\layouts(_) :
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameterized-sort(_,_): 
+        case Symbol::\parameterized-sort(_,_): 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameterized-lex(_,_): 
+        case Symbol::\parameterized-lex(_,_): 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameter(_, _) :
+        case Symbol::\parameter(_, _) :
             throw "All parameters should have been instantiated by now: <sym>";
-        case \start(_) : 
+        case Symbol::\start(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \lit(l) : 
+        case Symbol::\lit(l) : 
             if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "literal not found in grammar: <grammar>";
-        case \cilit(l) : 
+        case Symbol::\cilit(l) : 
             if (/p:prod(cilit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new CaseInsensitiveLiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
-        case \iter(s) : 
+        case Symbol::\iter(s) : 
             return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s,  0).new>, true, <filters>)",itemId>;
-        case \iter-star(s) :
+        case Symbol::\iter-star(s) :
             return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s,  0).new>, false, <filters>)", itemId>;
-        case \iter-seps(Symbol s,list[Symbol] seps) : {
+        case Symbol::\iter-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym);
             return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,seps)>}, true, <filters>)",itemId>;
         }
-        case \iter-star-seps(Symbol s,list[Symbol] seps) : {
+        case Symbol::\iter-star-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym);
             return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,seps)>}, false, <filters>)",itemId>;
         }
-        case \opt(s) : {
+        case Symbol::\opt(s) : {
             reg =  regular(sym);
             return <"new OptionalStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, <filters>)", itemId>;
         }
-        case \alt(as) : {
+        case Symbol::\alt(as) : {
             alts = [a | a <- as];
             return <"new AlternativeStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateAltExpects(grammar,  alts)>}, <filters>)", itemId>;
         }
-        case \seq(ss) : {
+        case Symbol::\seq(ss) : {
             return <"new SequenceStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSequenceExpects(grammar,  ss)>}, <filters>)", itemId>;
         }
-        case \char-class(list[CharRange] ranges) : 
+        case Symbol::\char-class(list[CharRange] ranges) : 
             return <"new CharStackNode\<IConstructor\>(<itemId>, <dot>, new int[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
         default: 
             throw "unexpected symbol <sym> while generating parser code";
