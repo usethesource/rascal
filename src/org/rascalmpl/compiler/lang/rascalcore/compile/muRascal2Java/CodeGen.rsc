@@ -446,6 +446,8 @@ JCode trans(muATypeCon(AType t, map[AType, set[AType]] definitions), JGenie jg) 
     // here we translate the types back to the old symbols, to be able
     // to bootstrap on the old parser generator, and also the client code
     // that use the definitions in the Type and ParseTree modules.
+    x = atype2symbol(t);
+    y = adefinitions2definitions(definitions);
     return jg.shareATypeConstant(atype2symbol(t), adefinitions2definitions(definitions));
 } 
                       
@@ -898,13 +900,15 @@ JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName
 // ---- muGetKwField ------------------------------------------------------
 
 JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str fieldName), JGenie jg){
-     return "$get_<adtType.adtName>_<getJavaName(fieldName)>(<transWithCast(adtType, cons, jg)>)";
+    adtName = asubtype(adtType, treeType) ? "Tree" : adtType.adtName;
+    return "$get_<adtName>_<getJavaName(fieldName)>(<transWithCast(adtType, cons, jg)>)";
 }
 
 JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName), JGenie jg){
-     isConsKwField = fieldName in {kwf.fieldType.label | kwf <- kwFields};
-     return isConsKwField ? "$get_<adt.adtName>_<consType.label>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)"
-                          : "$get_<adt.adtName>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)";
+    adtName = asubtype(adt, treeType) ? "Tree" : adt.adtName;
+    isConsKwField = fieldName in {kwf.fieldType.label | kwf <- kwFields};
+    return isConsKwField ? "$get_<adtName>_<consType.label>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)"
+                         : "$get_<adtName>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)";
 }
 // ---- muGetField ---------------------------------------------------------
 
@@ -916,23 +920,15 @@ JCode trans(muGetField(AType resultType, adatetime(), MuExp exp, str fieldName),
  
 JCode trans(muGetField(AType resultType, anode(_), MuExp exp, str fieldName), JGenie jg)
     = castArg(resultType, "$anode_get_field(<transWithCast(anode([]),exp,jg)>, \"<getJavaName(fieldName)>\")");
+    
+JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str fieldName), JGenie jg)
+    = castArg(resultType, "$areified_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
 
 JCode trans(muGetField(AType resultType, adt:aadt(adtName,_,_), MuExp exp, str fieldName), JGenie jg) {
     return asubtype(adt, treeType) && !isNonTerminalType(adt) ? "$get_Tree_<getJavaName(fieldName)>(<transWithCast(adt,exp,jg)>)"
-                                                              : "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")";
+                                                              : castArg(resultType, "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")");
 }
-
-//JCode trans(muGetField(AType resultType, adt:aadt(_,_,!contextFreeSyntax()), MuExp exp, str fieldName), JGenie jg) {
-//   return  "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")";
-//}
-//   
-//JCode trans(muGetField(AType resultType, adt:aadt(_,_,contextFreeSyntax()), MuExp exp, str fieldName), JGenie jg) {
-//   return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(exp, jg)>, \"<fieldName>\")";   
-//
-//}            
-JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str fieldName), JGenie jg)
-    = castArg(resultType, "$areified_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
- 
+          
 default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
     base = transWithCast(consType, cons, jg);
     qFieldName = "\"<fieldName>\"";
@@ -942,6 +938,8 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
     
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
     if(isNonTerminalType(consType)){
+        return "$get_<getADTName(consType)>_<getJavaName(fieldName)>(<transWithCast(consType,cons,jg)>)";
+    } else if(isTerminalType(consType) || isRegExpType(consType)){
         return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\")";
     } else if(asubtype(consType, treeType)){
         return "$get_Tree_<getJavaName(fieldName)>(<base>)";
@@ -1183,8 +1181,12 @@ JCode trans(muGetKwFieldFromConstructor(AType resultType, MuExp exp, str kwpName
 // ---- muGetFieldFromConstructor
 
 JCode trans(muGetFieldFromConstructor(AType resultType, AType consType, MuExp exp, str fieldName), JGenie jg){
-     i = indexOf([fld.label | fld <- consType.fields], fieldName);
-     return "((<atype2javatype(resultType)>)<trans(exp, jg)>.get(<i>))";
+    if(isSyntaxType(consType)){
+        return "((<atype2javatype(resultType)>) org.rascalmpl.values.parsetrees.TreeAdapter.getLabeledField((ITree)<trans(exp, jg)>, \"<fieldName>\").tree)";
+    } else {
+        i = indexOf([fld.label | fld <- consType.fields], fieldName);
+        return "((<atype2javatype(resultType)>)<trans(exp, jg)>.get(<i>))";
+     }
  }
 
 JCode trans(muInsert(AType atype, MuExp exp), JGenie jg)
@@ -1270,6 +1272,9 @@ JCode trans(mw: muForAll(str btscope, MuExp var, AType iterType, MuExp iterable,
     noInnerLoops = false; ///muForAll(_,_,_,_,_) := body;
     iterCode = (muCallPrim3("subsets", _, _, _, _) := iterable ||  muDescendantMatchIterator(_,_) := iterable) ? trans(iterable, jg) : transWithCast(iterType, iterable, jg);
 
+    if(isIterType(iterType)){
+        iterCode = "org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(<iterCode>)";
+    }
     return
         (muDescendantMatchIterator(_,_) := iterable) ? 
             ("<isEmpty(btscope) ? "" : "<btscope>:">

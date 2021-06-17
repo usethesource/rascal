@@ -58,7 +58,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  extractScopes(tmodel); 
    	  
    	  // Extract all declarations for the benefit of the type reifier
-      //extractDeclarationInfo(tmodel);
+      extractDeclarationInfo(tmodel);
    	 
    	  if (<Module newModule, TModel newModel> := parseConcreteFragments(M, tmodel, getGrammar())) {
    	    M = newModule;
@@ -67,7 +67,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  
    	  translateModule(M);
    	  
-   	  generateKeywordFieldGetters(getConstructorsMap(), getCommonKeywordFieldsMap());
+   	  generateAllFieldGetters();
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
                       

@@ -114,88 +114,97 @@ private str prettyPrintCond(ACondition::\end-of-line()) = "$";
 private str prettyPrintCond(ACondition::\except(str label)) = "!<label>";
 
 @doc{Rascal abstract types to classic Symbols}
-Symbol atype2symbol(aint()) = \int();
-Symbol atype2symbol(abool()) = \bool();
-Symbol atype2symbol(areal()) = \real();
-Symbol atype2symbol(arat()) = \rat();
-Symbol atype2symbol(astr()) = \str();
-Symbol atype2symbol(anum()) = \num();
-Symbol atype2symbol(anode( list[AType fieldType] fields)) = \node();
-Symbol atype2symbol(avoid()) = \void();
-Symbol atype2symbol(avalue()) = \value();
-Symbol atype2symbol(aloc()) = \loc();
-Symbol atype2symbol(adatetime()) = \datetime();
-Symbol atype2symbol(alist(AType t)) = \list(atype2symbol(t));
-Symbol atype2symbol(aset(AType t)) = \set(atype2symbol(t));
-Symbol atype2symbol(atuple(atypeList(list[AType] ts))) = \tuple([atype2labeledSymbol(t) | t <- ts]);
-Symbol atype2symbol(amap(AType d, AType r)) = \map(atype2labeledSymbol(d), atype2labeledSymbol(r));
-Symbol atype2symbol(arel(atypeList(list[AType] ts))) = \set(\tuple([atype2labeledSymbol(t) | t <- ts]));
-Symbol atype2symbol(alrel(atypeList(list[AType] ts))) = \list(\tuple([atype2labeledSymbol(t) | t <- ts]));
+Symbol atype2symbol(AType tp){
+    res = atype2symbol1(tp);
+    if(tp.label?){
+        println(tp);
+    }
+    //return res;
+    return tp.label? ? Symbol::\label(tp.label, res) : res;
+}
+
+Symbol atype2symbol1(aint()) = \int();
+Symbol atype2symbol1(abool()) = \bool();
+Symbol atype2symbol1(areal()) = \real();
+Symbol atype2symbol1(arat()) = \rat();
+Symbol atype2symbol1(astr()) = \str();
+Symbol atype2symbol1(anum()) = \num();
+Symbol atype2symbol1(anode( list[AType fieldType] fields)) = \node();
+Symbol atype2symbol1(avoid()) = \void();
+Symbol atype2symbol1(avalue()) = \value();
+Symbol atype2symbol1(aloc()) = \loc();
+Symbol atype2symbol1(adatetime()) = \datetime();
+Symbol atype2symbol1(alist(AType t)) = \list(atype2symbol(t));
+Symbol atype2symbol1(aset(AType t)) = \set(atype2symbol(t));
+Symbol atype2symbol1(atuple(atypeList(list[AType] ts))) = \tuple([atype2labeledSymbol(t) | t <- ts]);
+Symbol atype2symbol1(amap(AType d, AType r)) = \map(atype2labeledSymbol(d), atype2labeledSymbol(r));
+Symbol atype2symbol1(arel(atypeList(list[AType] ts))) = \set(\tuple([atype2labeledSymbol(t) | t <- ts]));
+Symbol atype2symbol1(alrel(atypeList(list[AType] ts))) = \list(\tuple([atype2labeledSymbol(t) | t <- ts]));
 
 // TODO: kwFormals are lost here because not supported by old run-time system
-Symbol atype2symbol(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
+Symbol atype2symbol1(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
   = \func(atype2symbol(ret), [atype2labeledSymbol(f) | f <- formals], [ atype2labeledSymbol(f) | <f, _> <- kwFormals]);
 
-Symbol atype2symbol(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
-Symbol atype2symbol(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
+Symbol atype2symbol1(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
+Symbol atype2symbol1(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
 
-Symbol atype2symbol(aanno(str aname, AType onType, AType annoType)) = \anno(aname,atype2symbol(annoType), atype2symbol(onType));
+Symbol atype2symbol1(aanno(str aname, AType onType, AType annoType)) = \anno(aname,atype2symbol(annoType), atype2symbol(onType));
 
-Symbol atype2symbol(aadt(str s, [], contextFreeSyntax()))  = Symbol::\sort(s);
-Symbol atype2symbol(aadt(str s, [], lexicalSyntax()))      = Symbol::\lex(s);
-Symbol atype2symbol(aadt(str s, [], keywordSyntax()))      = Symbol::\keywords(s);
-Symbol atype2symbol(aadt(str s, [], layoutSyntax()))       = Symbol::\layouts(s);
-Symbol atype2symbol(aadt(str s, list[AType] ps, dataSyntax())) = Symbol::adt(s, [atype2symbol(p) | p <- ps]);
+Symbol atype2symbol1(aadt(str s, [], contextFreeSyntax()))  = Symbol::\sort(s);
+Symbol atype2symbol1(aadt(str s, [], lexicalSyntax()))      = Symbol::\lex(s);
+Symbol atype2symbol1(aadt(str s, [], keywordSyntax()))      = Symbol::\keywords(s);
+Symbol atype2symbol1(aadt(str s, [], layoutSyntax()))       = Symbol::\layouts(s);
+Symbol atype2symbol1(aadt(str s, list[AType] ps, dataSyntax())) = Symbol::adt(s, [atype2symbol(p) | p <- ps]);
 
-Symbol atype2symbol(aadt(str s, ps, contextFreeSyntax())) = \parameterized-sort(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
-Symbol atype2symbol(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
+Symbol atype2symbol1(aadt(str s, ps, contextFreeSyntax())) = \parameterized-sort(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
+Symbol atype2symbol1(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
 
 Symbol atype2labeledSymbol(AType t) = t.label? ? label(t.label, atype2symbol(t)) : atype2symbol(t); 
 
-Symbol atype2symbol(t: acons(AType adt,
+Symbol atype2symbol1(t: acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
  = Symbol::cons(atype2symbol(adt), t.label, [atype2labeledSymbol(f) | f <- fields]);
 
-Symbol atype2symbol(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2symbol(t));
-Symbol atype2symbol(areified(AType t)) = Symbol::reified(atype2symbol(t));
+Symbol atype2symbol1(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2symbol(t));
+Symbol atype2symbol1(areified(AType t)) = Symbol::reified(atype2symbol(t));
 
 // utilities
 
 // overloaded types (union types) do not exist at the Rascal runtime level,
 // so we lub the alternatives here which is what happens at run-time as well.
-Symbol atype2symbol(overloadedAType(rel[loc, IdRole, AType] overloads))
+Symbol atype2symbol1(overloadedAType(rel[loc, IdRole, AType] overloads))
                 = atype2symbol((\avoid() | alub(it, alt) | <_, _, alt> <- overloads));
 
 list[Symbol] atypes2symbols(list[AType] atypes) = [atype2symbol(t) | t <- atypes];
 
-Symbol atype2symbol(Keyword kw) = atype2symbol(kw.fieldType);
+Symbol atype2symbol1(Keyword kw) = atype2symbol(kw.fieldType);
 
 // non-terminal symbols
 
 // prods can not be Symbols, so we reduce this to the non-terminal
-Symbol atype2symbol(\prod(AType s, list[AType] _)) = atype2symbol(s);
+Symbol atype2symbol1(\prod(AType s, list[AType] _)) = atype2symbol(s);
 
 // terminal symbols
-Symbol atype2symbol(AType::\lit(str string)) = Symbol::\lit(string);
-Symbol atype2symbol(AType::\cilit(str string)) = Symbol::\cilit(string);
-Symbol atype2symbol(\char-class(list[ACharRange] ranges)) = Symbol::\char-class([range(r.begin, r.end) | r <- ranges ]);
+Symbol atype2symbol1(AType::\lit(str string)) = Symbol::\lit(string);
+Symbol atype2symbol1(AType::\cilit(str string)) = Symbol::\cilit(string);
+Symbol atype2symbol1(\char-class(list[ACharRange] ranges)) = Symbol::\char-class([range(r.begin, r.end) | r <- ranges ]);
 
-Symbol atype2symbol(\start(AType symbol)) = Symbol::\start(atype2symbol(symbol));
+Symbol atype2symbol1(\start(AType symbol)) = Symbol::\start(atype2symbol(symbol));
 
 // regular symbols
-Symbol atype2symbol(AType::\empty()) = Symbol::\empty();
-Symbol atype2symbol(\opt(AType symbol)) = Symbol::\opt(atype2symbol(symbol));
-Symbol atype2symbol(\iter(AType symbol)) = Symbol::\iter(atype2symbol(symbol));
-Symbol atype2symbol(\iter-star(AType symbol)) = Symbol::\iter-star(atype2symbol(symbol));
-Symbol atype2symbol(\iter-seps(AType symbol, list[AType] separators)) = Symbol::\iter-seps(atype2symbol(symbol), [atype2symbol(sep) | sep <- separators ]);
-Symbol atype2symbol(\iter-star-seps(AType symbol, list[AType] separators)) = Symbol::\iter-star-seps(atype2symbol(symbol), [ atype2symbol(sep) | sep <- separators ]);
-Symbol atype2symbol(\alt(set[AType] alternatives)) = Symbol::\alt({ atype2symbol(a) | a <- alternatives });
-Symbol atype2symbol(\seq(list[AType] sequence)) = Symbol::\seq([atype2symbol(a) | a <- sequence ]);
-Symbol atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = Symbol::\conditional(atype2symbol(symbol), { acond2cond(cond) | cond <- conditions });
-Symbol atype2symbol(aprod(prod(AType def, list[AType] atypes))) = atype2symbol(def);
-Symbol atype2symbol(regular(AType def)) = atype2symbol(def);
-default Symbol atype2symbol(AType s)  { throw "could not convert <s> to Symbol"; }
+Symbol atype2symbol1(AType::\empty()) = Symbol::\empty();
+Symbol atype2symbol1(\opt(AType symbol)) = Symbol::\opt(atype2symbol(symbol));
+Symbol atype2symbol1(\iter(AType symbol)) = Symbol::\iter(atype2symbol(symbol));
+Symbol atype2symbol1(\iter-star(AType symbol)) = Symbol::\iter-star(atype2symbol(symbol));
+Symbol atype2symbol1(\iter-seps(AType symbol, list[AType] separators)) = Symbol::\iter-seps(atype2symbol(symbol), [atype2symbol(sep) | sep <- separators ]);
+Symbol atype2symbol1(\iter-star-seps(AType symbol, list[AType] separators)) = Symbol::\iter-star-seps(atype2symbol(symbol), [ atype2symbol(sep) | sep <- separators ]);
+Symbol atype2symbol1(\alt(set[AType] alternatives)) = Symbol::\alt({ atype2symbol(a) | a <- alternatives });
+Symbol atype2symbol1(\seq(list[AType] sequence)) = Symbol::\seq([atype2symbol(a) | a <- sequence ]);
+Symbol atype2symbol1(\conditional(AType symbol, set[ACondition] conditions)) = Symbol::\conditional(atype2symbol(symbol), { acond2cond(cond) | cond <- conditions });
+Symbol atype2symbol1(aprod(prod(AType def, list[AType] atypes))) = atype2symbol(def);
+Symbol atype2symbol1(regular(AType def)) = atype2symbol(def);
+default Symbol atype2symbol1(AType s)  { throw "could not convert <s> to Symbol"; }
 
 private Condition acond2cond(ACondition::\follow(AType symbol)) = Condition::\follow(atype2symbol(symbol));
 private Condition acond2cond(ACondition::\not-follow(AType symbol)) = Condition::\not-follow(atype2symbol(symbol));
@@ -207,7 +216,7 @@ private Condition acond2cond(ACondition::\begin-of-line()) = Condition::\begin-o
 private Condition acond2cond(ACondition::\end-of-line()) = Condition::\end-of-line();
 private Condition acond2cond(ACondition::\except(str label)) = Condition::\except(label);
 
-Symbol atype2symbol(regular(AType def)) = \regular(atype2symbol(def));
+Symbol atype2symbol1(regular(AType def)) = \regular(atype2symbol(def));
 
 map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def] defs) 
   { return (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs); }
@@ -1004,22 +1013,70 @@ bool isContainerType(AType t) =
     
 bool isEnumeratorType(AType t) =
     isSetType(t) || isListType(t) || isMapType(t) || isADTType(t) || isTupleType(t) || isNodeType(t) ||
-    isNonTerminalIterType(t) || isNonTerminalOptType(t);
+    isIterType(t) || isOptType(t);
     
 AType getEnumeratorElementType(AType t) = getListElementType(t) when isListType(t);
 AType getEnumeratorElementType(AType t) = getSetElementType(t) when isSetType(t);
 AType getEnumeratorElementType(AType t) = getMapDomainType(t) when isMapType(t);
 AType getEnumeratorElementType(AType t) = avalue() when isADTType(t) || isTupleType(t) || isNodeType(t);
-AType getEnumeratorElementType(AType t) = getNonTerminalIterElement(t) when isNonTerminalIterType(t);
-AType getEnumeratorElementType(AType t) = getNonTerminalOptType(t) when isNonTerminalOptType(t);
+AType getEnumeratorElementType(AType t) = getIterElementType(t) when isIterType(t);
+AType getEnumeratorElementType(AType t) = getOptType(t) when isOptType(t);
 default AType getEnumeratorElementType(AType t) = avalue();
 
-// ---- literal
-@doc{Synopsis: Determine if the given type is a literal.}
-bool isLiteralType(aparameter(_,AType tvb)) = isLiteralType(tvb);
-bool isLiteralType(lit(_)) = true;
-bool isLiteralType(cilit(_)) = true;
-default bool isLiteralType(AType _) = false;
+
+// All elements of a syntax rule (see Sym in Rascal grammar)
+
+// ---- named nonterminals
+
+@doc{Synopsis: Determine if the given type is a nonterminal.}
+bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
+bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
+bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr) || adtName == "Tree";
+bool isNonTerminalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isNonTerminalType(adt);
+bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
+
+//bool isNonTerminalType(AType::\iter(_)) = true;
+//bool isNonTerminalType(AType::\iter-star(_)) = true;
+//bool isNonTerminalType(AType::\iter-seps(_,_)) = true;
+//bool isNonTerminalType(AType::\iter-star-seps(_,_)) = true;
+//bool isNonTerminalType(AType::\empty()) = true;
+//bool isNonTerminalType(AType::\opt(_)) = true;
+//bool isNonTerminalType(AType::\alt(_)) = true;
+//bool isNonTerminalType(AType::\seq(_)) = true;
+default bool isNonTerminalType(AType _) = false;   
+
+bool isParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && t has parameters;
+
+bool isNonParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && (t has parameters ==> isEmpty(t.parameters));
+
+// start
+bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
+bool isStartNonTerminalType(AType::\start(_)) = true;
+default bool isStartNonTerminalType(AType s) = false;    
+
+AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
+AType getStartNonTerminalType(AType::\start(AType s)) = s;
+default AType getStartNonTerminalType(AType s) {
+    throw rascalCheckerInternalError("<prettyAType(s)> is not a start non-terminal type");
+}
+
+//TODO labelled
+
+// ---- literal/terminal
+@doc{Synopsis: Determine if the given type is a terminal symbol (a literal or character class).}
+bool isTerminalType(aparameter(_,AType tvb)) = isTerminalType(tvb);
+bool isTerminalType(lit(_)) = true;
+bool isTerminalType(cilit(_)) = true;
+bool isTerminalType(\char-class(_)) = true;
+default bool isTerminalType(AType _) = false;
+
+// char-class
+
+bool isCharClass(\char-class(list[ACharRange] ranges)) = true;
+default bool isCharClass(AType tp) = false;
+
+bool isAnyCharType(aparameter(_,AType tvb)) = isAnyCharType(tvb);
+default bool isAnyCharType(AType t) = t == anyCharType;
 
 // ---- layout
 @doc{Synopsis: Determine if the given type is a layout type.}
@@ -1043,99 +1100,80 @@ default bool isLayoutType(AType _) = false;
 bool isConcretePattern(Pattern p, AType tp) {
     return isNonTerminalType(tp) && !(p is callOrTree) /*&& Symbol::sort(_) := tp*/;
 } 
-// ---- nonterminal
 
-@doc{Synopsis: Determine if the given type is a nonterminal.}
-bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
-bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
-bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr) || adtName == "Tree";
-bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
-bool isNonTerminalType(AType::\iter(_)) = true;
-bool isNonTerminalType(AType::\iter-star(_)) = true;
-bool isNonTerminalType(AType::\iter-seps(_,_)) = true;
-bool isNonTerminalType(AType::\iter-star-seps(_,_)) = true;
-bool isNonTerminalType(AType::\empty()) = true;
-bool isNonTerminalType(AType::\opt(_)) = true;
-bool isNonTerminalType(AType::\alt(_)) = true;
-bool isNonTerminalType(AType::\seq(_)) = true;
-default bool isNonTerminalType(AType _) = false;   
+// -- isSyntaxType
 
-bool isParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && t has parameters;
+bool isSyntaxType(AType tp) 
+    = isTerminalType(tp) || isNonTerminalType(tp) || isRegExpType(tp);
 
-bool isNonParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && (t has parameters ==> isEmpty(t.parameters));
+// ---- Regular expressions 
 
-bool isNonTerminalIterType(aparameter(_,AType tvb)) = isNonTerminalIterType(tvb);
-bool isNonTerminalIterType(AType::\iter(_)) = true;
-bool isNonTerminalIterType(AType::\iter-star(_)) = true;
-bool isNonTerminalIterType(AType::\iter-seps(_,_)) = true;
-bool isNonTerminalIterType(AType::\iter-star-seps(_,_)) = true;
-default bool isNonTerminalIterType(AType _) = false;    
+bool isRegExpType(AType tp) 
+    = isEmpty(tp) || isIterType(tp) || isOptType(tp) || isAltType(tp) || isSeqType(tp);
 
-AType getNonTerminalIterElement(aparameter(_,AType tvb)) = getNonTerminalIterElement(tvb);
-AType getNonTerminalIterElement(AType::\iter(AType i)) = i;
-AType getNonTerminalIterElement(AType::\iter-star(AType i)) = i;
-AType getNonTerminalIterElement(AType::\iter-seps(AType i,_)) = i;
-AType getNonTerminalIterElement(AType::\iter-star-seps(AType i,_)) = i;
-default AType getNonTerminalIterElement(AType i) {
+bool isIterType(aparameter(_,AType tvb)) = isIterType(tvb);
+bool isIterType(AType::\iter(_)) = true;
+bool isIterType(AType::\iter-star(_)) = true;
+bool isIterType(AType::\iter-seps(_,_)) = true;
+bool isIterType(AType::\iter-star-seps(_,_)) = true;
+default bool isIterType(AType _) = false;    
+
+AType getIterElementType(aparameter(_,AType tvb)) = getIterElementType(tvb);
+AType getIterElementType(AType::\iter(AType i)) = i;
+AType getIterElementType(AType::\iter-star(AType i)) = i;
+AType getIterElementType(AType::\iter-seps(AType i,_)) = i;
+AType getIterElementType(AType::\iter-star-seps(AType i,_)) = i;
+default AType getIterElementType(AType i) {
     throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type");
 }   
 
-// opt
-bool isNonTerminalOptType(aparameter(_,AType tvb)) = isNonTerminalOptType(tvb);
-bool isNonTerminalOptType(AType::\opt(AType ot)) = true;
-default bool isNonTerminalOptType(AType _) = false;
+// empty
 
-AType getNonTerminalOptType(aparameter(_,AType tvb)) = getNonTerminalOptType(tvb);
-AType getNonTerminalOptType(AType::\opt(AType ot)) = ot;
-default AType getNonTerminalOptType(AType ot) {
+bool isEmpty(AType::empty()) = true;
+default bool isEmpty(AType tp) = false;
+
+// opt
+bool isOptType(aparameter(_,AType tvb)) = isOptType(tvb);
+bool isOptType(AType::\opt(AType ot)) = true;
+default bool isOptType(AType _) = false;
+
+AType getOptType(aparameter(_,AType tvb)) = getOptType(tvb);
+AType getOptType(AType::\opt(AType ot)) = ot;
+default AType getOptType(AType ot) {
     throw rascalCheckerInternalError("<prettyAType(ot)> is not an optional non-terminal type");
 }
 
 // alt
-bool isNonTerminalAltType(aparameter(_,AType tvb)) = isNonTerminalAltType(tvb);
-bool isNonTerminalAltType(AType:\alt(_)) = true;
-default bool isNonTerminalAltType(AType _) = false;
+bool isAltType(aparameter(_,AType tvb)) = isAltType(tvb);
+bool isAltType(AType:\alt(_)) = true;
+default bool isAltType(AType _) = false;
 
-set[AType] getNonTerminalAltTypes(aparameter(_,AType tvb)) = getNonTerminalAltTypes(tvb);
-set[AType] getNonTerminalAltTypes(alt(set[AType] atypes)) = atypes;
-default set[AType] getNonTerminalAltTypes(AType t){
+set[AType] getAltTypes(aparameter(_,AType tvb)) = getAltTypes(tvb);
+set[AType] getAltTypes(alt(set[AType] atypes)) = atypes;
+default set[AType] getAltTypes(AType t){
     throw rascalCheckerInternalError("<prettyAType(t)> is not a alt non-terminal type");
 }
 
 // seq
-bool isNonTerminalSeqType(aparameter(_,AType tvb)) = isNonTerminalSeqType(tvb);
-bool isNonTerminalSeqType(AType:\seq(_)) = true;
-default bool isNonTerminalSeqType(AType _) = false;
+bool isSeqType(aparameter(_,AType tvb)) = isSeqType(tvb);
+bool isSeqType(AType:\seq(_)) = true;
+default bool isSeqType(AType _) = false;
 
-list[AType] getNonTerminalSeqTypes(aparameter(_,AType tvb)) = getNonTerminalSeqTypes(tvb);
-list[AType] getNonTerminalSeqTypes(seq(list[AType] atypes)) = atypes;
-default list[AType] getNonTerminalSeqTypes(AType t){
+list[AType] getSeqTypes(aparameter(_,AType tvb)) = getSeqTypes(tvb);
+list[AType] getSeqTypes(seq(list[AType] atypes)) = atypes;
+default list[AType] getSeqTypes(AType t){
     throw rascalCheckerInternalError("<prettyAType(t)> is not a seq non-terminal type");
 }
 
-// char-class
 
-bool isAnyCharType(aparameter(_,AType tvb)) = isAnyCharType(tvb);
-default bool isAnyCharType(AType t) = t == anyCharType;
-
-// start
-bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
-bool isStartNonTerminalType(AType::\start(_)) = true;
-default bool isStartNonTerminalType(AType s) = false;    
-
-AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
-AType getStartNonTerminalType(AType::\start(AType s)) = s;
-default AType getStartNonTerminalType(AType s) {
-    throw rascalCheckerInternalError("<prettyAType(s)> is not a start non-terminal type");
-}
 
 AType getSyntaxType(AType t, Solver s) = stripStart(removeConditional(t));
 
 AType getSyntaxType(Tree tree, Solver s) = stripStart(removeConditional(s.getType(tree)));
 
-private AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
+AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
 
-private AType stripStart(aprod(AProduction production)) = production.def;
+AType stripStart(aprod(AProduction production)) = production.def;
 
 AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
 default AType removeConditional(AType s) = s;

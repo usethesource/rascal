@@ -122,25 +122,11 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ t | sym <- symbols, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t), t.label?];
+                    fields = [ t | sym <- symbols, tsym := s.getType(sym), t := removeConditional(tsym), isSyntaxType(t), t.label?];
                     def = \start(sdef) := def ? sdef : unset(def, "label");
                     return acons(def, fields, [], label=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
             }));
-        
-        //c.define(unescape("<name>"), productionId(), getLoc(current)[fragment="cons2"], defType([current],
-        //    AType(Solver s){
-        //        ptype = s.getType(current);
-        //        if(aprod(AProduction cprod) := ptype){
-        //            if(size([sym | sym <- symbols]) > 0){ // switch to size on concrete syntax
-        //                s.fact(syms, ptype);
-        //            }
-        //            def = cprod.def;
-        //            fields = [ t | sym <- symbols, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t), t.label?];
-        //            def = \start(sdef) := def ? sdef : unset(def, "label");
-        //            return acons(def, fields, [], label=unescape("<name>"));
-        //         } else throw "Unexpected type of production: <ptype>";
-        //    }));
         collect(symbols, c);
     } else {
         throw "collect Named Prod: currentAdt not found";

@@ -250,9 +250,9 @@ private loc findContainer(Define d){
     return cscope;
 }
     
-// extractScopes: extract and convert type information from the Configuration delivered by the type checker.
+// extractScopes: extract and convert type information from the TMOdel delivered by the type checker.
 void extractScopes(TModel tm){
-    //iprintln(tm);
+    iprintln(tm);
     current_tmodel = tm;
     scopes = tm.scopes;
     module_scopes = { s | s <- scopes, scopes[s] == |global-scope:///|};
@@ -458,15 +458,19 @@ map[AType, list[Keyword]] getCommonKeywordFieldsMap()
     = adt_common_keyword_fields;
 
 tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType, str fieldName){
+    println("getConstructorInfo: <adtType>, <fieldType>, <fieldName>");
     adtType = unsetRec(adtType);
     fieldType = fieldType[label=fieldName];
     if(adtType in domain(getBuiltinFieldMap())){
         return <aloc(), false>;
     }
     set[AType] constructors = {};
-    adt_arity = size(adtType.parameters);
+    //if(!adtType.parameter?){
+    //    println("XXX");
+    //}
+    adt_arity = size(adtType.parameters ? []);
     if(adt_arity == 0){
-        constructors = adt_constructors[adtType];
+        constructors = adt_constructors[adtType] ? {};
     } else { // a parameterized ADT, find it and substitute actual parameters (also in fieldType)
         for(adt <- adt_constructors){
             if(adt.adtName == adtType.adtName && size(adt.parameters) == adt_arity){
@@ -484,8 +488,8 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
         }
     }
     
+    // Positonal or kw field of constructor?
     for(AType consType <-  constructors){
-        //println(consType);
         for(declaredFieldType <- consType.fields){
             if(declaredFieldType.label == fieldName && asubtype(fieldType, declaredFieldType)){
                 return <consType,false>;
@@ -498,6 +502,7 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
          }      
     }
     
+    // Common kw field of the ADT?
     if(adt_common_keyword_fields_name_and_type[adtType]?){
         common_keywords = adt_common_keyword_fields_name_and_type[adtType];
         if(common_keywords[fieldName]?){
@@ -505,11 +510,32 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
         }
     }
     
-    if(adtType.adtName == "Tree" && fieldName == "loc"){
-        return <aloc(), true>;
+    // Field of nonterminal?
+    if(grammar.rules[adtType]?){
+        productions = grammar.rules[adtType].alternatives;
+        for(p:prod(AType def, list[AType] atypes) <- productions){
+            for(a <- atypes, a.label?, a.label == fieldName){
+                return <a, false>;
+            }
+        }
     }
     
-    throw "getConstructorInfo, no constructor found for <adtType>, <fieldType>, <fieldName>";
+    // Common kw field of concrete type?
+    if(asubtype(adtType, treeType)){
+        if(fieldName == "src"){
+            return <aloc(), true>;
+        }
+        if(adt_common_keyword_fields_name_and_type[treeType]?){
+            common_keywords = adt_common_keyword_fields_name_and_type[treeType];
+            if(common_keywords[fieldName]?){
+                return <common_keywords[fieldName], true>;
+            }
+        }
+    }
+    
+    return <adtType, false>;
+    
+    //throw "getConstructorInfo, no constructor found for <adtType>, <fieldType>, <fieldName>";
 }
 	
 alias KeywordParamMap = map[str kwName, AType kwType];
@@ -804,7 +830,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     desiredSubjectTypes = { unset(s, "label") | /AType s := subjectType};
     desiredTypes = desiredSubjectTypes + desiredPatternTypes;
     
-    if(any(t <- desiredTypes, isNonTerminalType(t) || /*isLexicalType(t) ||*/ asubtype(t, aadt("Tree",[], dataSyntax())))){
+    if(any(t <- desiredTypes, isSyntaxType(t) || /*isLexicalType(t) ||*/ asubtype(t, aadt("Tree",[], dataSyntax())))){
       // We just give up when abstract and concrete symbols occur together
       //println("descend_into (abstract) [1]: {value()}");
        return <{avalue()}, {}>;

@@ -284,16 +284,14 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 
 // For convenience in transition period
 
-//AType \sort(str sname)      = aadt(sname, [], contextFreeSyntax());
-//AType \lex(str sname)       = aadt(sname, [], lexicalSyntax());
+
 AType \layouts(str sname)   = aadt(sname, [], layoutSyntax());
-//AType \keywords(str sname)  = aadt(sname, [], keywordSyntax());
 AType \parameterized-sort(str sname, list[AType] parameters) 
                             = aadt(sname, parameters, contextFreeSyntax());
 AType \parameterized-lex(str sname, list[AType] parameters) 
                             = aadt(sname, parameters, lexicalSyntax());
 
-// These are the terminal symbols.
+// These are the terminal symbols (isTerminalType)
 data AType 
      = \lit(str string)   // <8>
      | \cilit(str string) // <9>

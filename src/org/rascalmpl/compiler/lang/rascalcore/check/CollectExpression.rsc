@@ -1163,34 +1163,8 @@ void collect(current:(Expression) `<Expression expression> [ @ <Name field> = <E
                  return s.getType(expression);
         });
     collect(expression, repl, c);
-    
-    //c.use(n, {annoId()});
-    //scope = c.getScope();
-    //c.calculate("set annotation", current, [e, n, er],
-    //    AType(Solver s){ 
-    //            t1 = s.getType(e); tn = s.getType(n); t2 = s.getType(er);
-    //            checkNonVoid(e, s, "Base expression of set annotation");
-    //            checkNonVoid(er, s, "Replacement expression of set annotation");
-    //            return computeSetAnnotationType(current, t1, tn, t2, s);
-    //           });
-    //collect(e, er, c);
 }
 
-//private AType computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s)
-//    = ternaryOp("set annotation", _computeSetAnnotationType, current, t1, tn, t2, s);
-//
-//private AType _computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s){
-//    if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
-//        if(aanno(_, onType, annoType) := tn){
-//          s.requireSubType(t2, annoType, error(current, "Cannot assign value of type %t to annotation of type %t", t2, annoType));
-//           return t1;
-//        } else
-//            s.report(error(current, "Invalid annotation type: %t", tn));
-//    } else {
-//        s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
-//    }
-//    return avalue();
-//}
 
 // ---- getAnnotation
 
@@ -1202,16 +1176,4 @@ void collect(current:(Expression) `<Expression expression>@<Name field>`, Collec
     c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of get annotation"));
     c.fact(current, field);
     collect(expression, c);
-    
-    
-   //c.use(field, {annoId()});
-   // scope = c.getScope();
-   // c.calculate("get annotation", current, [expression, field],
-   //     AType(Solver s){ 
-   //              t1 = s.getType(expression);
-   //              tn = s.getType(field);
-   //              checkNonVoid(expression, s, "Base expression of get annotation`");
-   //              return computeGetAnnotationType(current, t1, tn, s);
-   //              });
-   //collect(expression, c);
 }

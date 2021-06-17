@@ -398,21 +398,23 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
                s.report(error(field, "Field %q does not exist on type `type`  (non-classic reifier)", fieldName));
             }
          }
-    } else if(isNonTerminalType(containerType)){
+    } else if(isSyntaxType(containerType)){
         if(isStartNonTerminalType(containerType)){
            return computeFieldTypeWithADT(getStartNonTerminalType(containerType), field, scope, s);
-        } else if(isNonTerminalIterType(containerType)){
+        } else if(isNonTerminalType(containerType)){
+           return computeFieldTypeWithADT(containerType, field, scope, s);
+        } else if(isIterType(containerType)){
             if(containerType.label == fieldName){
-                return makeListType(getNonTerminalIterElement(containerType));
+                return makeListType(getIterElementType(containerType));
             }
-        } else if(isNonTerminalSeqType(containerType)){
-            for(tp <- getNonTerminalSeqTypes(containerType)){
+        } else if(isSeqType(containerType)){
+            for(tp <- getSeqTypes(containerType)){
                 if(tp.label == fieldName){
                     return tp;
                 }
             }
-        } else if(isNonTerminalAltType(containerType)){
-            for(tp <- getNonTerminalAltTypes(containerType)){
+        } else if(isAltType(containerType)){
+            for(tp <- getAltTypes(containerType)){
                 if(tp.label == fieldName){
                     return tp;
                 }
@@ -570,13 +572,13 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
             s.report(error(current, "Expected subscript of type `int`, found %t", tl[0]));
         else
             return astr();
-    } else if (isNonTerminalType(t1)) {
+    } else if (isSyntaxType(t1)) {
         if (size(tl) != 1)
             s.report(error(current, "Expected only 1 subscript for a nonterminal subscript expression, not %v", size(tl)));
         else if (!isIntType(tl[0]))
             s.report(error(current, "Expected subscript of type `int`, found %t", tl[0]));
-        else if (isNonTerminalIterType(t1))
-            return getNonTerminalIterElement(t1);
+        else if (isIterType(t1))
+            return getIterElementType(t1);
         else
             return makeADTType("Tree");    
     } else {
@@ -608,7 +610,7 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
     
     if(!isEmpty(failures)) throw s.reports(failures);
     
-    if (isListType(base) || isStrType(base) || isNonTerminalIterType(base)) {
+    if (isListType(base) || isStrType(base) || isIterType(base)) {
         return base;
     } else if (isNodeType(base)) {
         return makeListType(avalue());
@@ -617,21 +619,6 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
     s.reports(failures + error(current, "Slices can only be used on (concrete) lists, strings, and nodes, found %t", base));
     return avalue();
 }
-
-//AType computeGetAnnotationType(Tree current, AType t1, AType t2, Solver s)
-//    = binaryOp("get annotation", _computeGetAnnotationType, current, t1, t2, s);
-//    
-//private AType _computeGetAnnotationType(Tree current, AType t1, AType tn, Solver s){
-//    if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
-//        if(aanno(_, onType, annoType) := tn){
-//           return annoType;
-//        } else
-//            s.report(error(current, "Invalid annotation type: %t", tn));
-//    } else {
-//        s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
-//    }
-//    return avalue();
-//}
 
 @doc{Calculate the arith type for the numeric types, taking account of coercions.}
 public AType numericArithTypes(AType l, AType r) {
