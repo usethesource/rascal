@@ -352,14 +352,14 @@ str split(str x) {
 @doc{this function selects all symbols for which a parse method should be generated}
 bool isNonterminal(Symbol s) {
   switch (s) {
-    case \label(_,x) : return isNonterminal(x);
-    case \sort(_) : return true;
-    case \lex(_) : return true;
-    case \keywords(_) : return true;
-    case \parameterized-sort(_,_) : return true;
-    case \parameterized-lex(_,_) : return true;
-    case \start(_) : return true;
-    case \layouts(_) : return true;
+    case Symbol::\label(_,x) : return isNonterminal(x);
+    case Symbol::\sort(_) : return true;
+    case Symbol::\lex(_) : return true;
+    case Symbol::\keywords(_) : return true;
+    case Symbol::\parameterized-sort(_,_) : return true;
+    case Symbol::\parameterized-lex(_,_) : return true;
+    case Symbol::\start(_) : return true;
+    case Symbol::\layouts(_) : return true;
     default: return false;
   }
 }
@@ -437,8 +437,8 @@ public str ciliterals2ints(list[Symbol] _){
 }
 
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int dot){
-    if (sym is \label)  // ignore labels 
-      sym = sym.symbol;
+    if (Symbol::label(_,sym1) := sym)  // ignore labels 
+      sym = sym1;
       
     itemId = sym.id;
     assert itemId != 0;
@@ -447,7 +447,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     list[str] exits = [];
     filters = "";
     
-    if (conditional(_, conds) := sym) {
+    if (Symbol::conditional(_, conds) := sym) {
       conds = expandKeywords(grammar, conds);
       exits += ["new CharFollowRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRequirement(new int[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
@@ -464,8 +464,8 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
       enters += ["new AtStartOfLineRequirement()" | \begin-of-line() <- conds];
       
       sym = sym.symbol;
-      if (sym is label)
-        sym = sym.symbol; 
+      if (Symbol::label(_,sym1) := sym)
+        sym = sym1; 
     }
     
     filters = "";
