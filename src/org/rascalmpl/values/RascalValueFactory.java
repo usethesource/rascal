@@ -752,6 +752,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 				}
 			};
 		}
+		
+		@Override
+        public String toString() {
+            return StandardTextWriter.valueToString(this);
+        }
 
 		@Override
 		public INode replace(int first, int second, int end, IList repl)
