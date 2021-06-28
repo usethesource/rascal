@@ -14,6 +14,7 @@ package org.rascalmpl.uri.classloaders;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -42,21 +43,35 @@ public class SourceLocationClassLoader extends ClassLoader {
     
     private List<ClassLoader> initialize(IList locs) {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        ArrayList<URL> fileLocations = new ArrayList<>(locs.length());
         List<ClassLoader> result = new ArrayList<>(locs.length());
 
-        // TODO: group URLClassLoaders into a single instance 
-        // to enhance class loading performance
-        for (IValue loc : locs) {
-            // because they all get `this` as the parent, the classloaders will be able to refer to each
-            // other like in normal JVM classpath also works. The order of lookup is defined by the current 
-            // for-loop. 
+        // to enhance class loading performance we group file URL jars
+        // into a single URLClassLoader
+        for (IValue elem : locs) {
             try {
-                result.add(reg.getClassLoader((ISourceLocation) loc, this));
+                // for efficiency's sake, we try to resolve as many locations to the file:/// scheme
+                ISourceLocation loc = reg.logicalToPhysical((ISourceLocation) elem);
+
+                if (loc.getScheme().equals("file")) {
+                    fileLocations.add(loc.getURI().toURL());
+                }
+                else {
+                    // because they all get `this` as the parent, the classloaders will be able to refer to each
+                    // other like in normal JVM classpath also works. The order of lookup is defined by the current 
+                    // for-loop. 
+                    result.add(reg.getClassLoader((ISourceLocation) loc, this));
+                }
             }
             catch (IOException e) {
                 // this may happen and should have been reported earlier by the scheme registration code in {@see URIResolverRegistry}
                 // do nothing for now
             }
+        }
+
+        if (!fileLocations.isEmpty()) {
+            // important: `this` is the parent
+            result.add(new URLClassLoader(fileLocations.toArray(new URL[0]), this));
         }
 
         return result;
