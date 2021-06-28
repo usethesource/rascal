@@ -53,14 +53,19 @@ public class SourceLocationClassLoader extends ClassLoader {
                 // for efficiency's sake, we try to resolve as many locations to the file:/// scheme
                 ISourceLocation loc = reg.logicalToPhysical((ISourceLocation) elem);
 
-                if (loc.getScheme().equals("file")) {
-                    fileLocations.add(loc.getURI().toURL());
+                // because they all get `this` as the parent, the classloaders will be able to refer to each
+                // other like in normal JVM classpath also works. The order of lookup is defined by the current 
+                // for-loop. 
+                ClassLoader loader = reg.getClassLoader((ISourceLocation) loc, this);
+
+                if (loader instanceof URLClassLoader) {
+                    // we collect the URLs of URLClassloaders for later use.
+                    for (URL url : ((URLClassLoader) loader).getURLs()) {
+                        fileLocations.add(url);
+                    }
                 }
                 else {
-                    // because they all get `this` as the parent, the classloaders will be able to refer to each
-                    // other like in normal JVM classpath also works. The order of lookup is defined by the current 
-                    // for-loop. 
-                    result.add(reg.getClassLoader((ISourceLocation) loc, this));
+                    result.add(loader);
                 }
             }
             catch (IOException e) {
@@ -69,6 +74,7 @@ public class SourceLocationClassLoader extends ClassLoader {
             }
         }
 
+        // and here we group all URLs into a single URLClassLoader
         if (!fileLocations.isEmpty()) {
             // important: `this` is the parent
             result.add(new URLClassLoader(fileLocations.toArray(new URL[0]), this));
