@@ -1210,7 +1210,7 @@ public class Prelude {
 		}
 	}
 
-	public void rename(ISourceLocation source, ISourceLocation target, IBool overwrite) {
+	public void move(ISourceLocation source, ISourceLocation target, IBool overwrite) {
 		try {
 			URIResolverRegistry.getInstance().rename(source, target, overwrite.getValue());
 		}
