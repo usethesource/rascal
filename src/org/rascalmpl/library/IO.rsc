@@ -722,6 +722,16 @@ throws PathNotFound, IO;
 @javaClass{org.rascalmpl.library.Prelude}
 java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
+@deprecated{use the `copy` function instead}
+void copyFile(loc source, loc target) {
+  copy(source, target, recursive=false, overwrite=true);
+}
+
+@deprecated{use the `copy` function instead}
+void copyDirectory(loc source, loc target) {
+  copy(source, target, recursive=true, overwrite=true);
+}
+
 @javaClass{org.rascalmpl.library.Prelude}
 java bool rename(loc source, loc target, bool overwrite=true) throws IO;
 
