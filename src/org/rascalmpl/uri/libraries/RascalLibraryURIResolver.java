@@ -45,8 +45,7 @@ import io.usethesource.vallang.IValueFactory;
  * cease to exist. This might happen due to plugin unloading. To re-initialize an
  * already resolved |lib://&ltlibName&gt| path, either the JVM must be reloaded (restart the IDE) or the current class must be reloaded 
  * (restart the plugin which loaded the Rascal run-time). TODO FIXME by allowing re-initialization of this entire resolver by the URIResolverRegistry.</p>
- * <p>CAVEAT 2: this resolver drops the query and offset/length components of the incoming source locations. TODO FIXME</p>
- * <p>CAVEAT 3: it is up to the respective run-time environments (Eclipse, OSGI, MVN, Spring, etc.) to provide the respective implementations
+ * <p>CAVEAT 2: it is up to the respective run-time environments (Eclipse, OSGI, MVN, Spring, etc.) to provide the respective implementations
  * of ISourceLocation input for the plugin:// scheme. If it is not provided, this resolver only resolves to resources
  * which can be found via the System classloader.</p>
  */
@@ -112,7 +111,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
         // if we resolved this library before, we stick with that initial resolution for efficiency's sake
         ISourceLocation resolved = resolvedLibraries.get(libName);
         if (resolved != null) {
-            return URIUtil.getChildLocation(resolved, uri.getPath());
+            return inheritPositions(uri, URIUtil.getChildLocation(resolved, uri.getPath()));
         }
         
         // then we try plugin libraries, taking precedence over classpath libraries
@@ -164,7 +163,21 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
      */
     private ISourceLocation resolvedLocation(ISourceLocation uri, String libName, ISourceLocation deferredLoc) {
         registerLibrary("resolved", resolvedLibraries, libName, deferredLoc);
-        return URIUtil.getChildLocation(deferredLoc, uri.getPath());
+        return inheritPositions(uri, URIUtil.getChildLocation(deferredLoc, uri.getPath()));
+    }
+
+    private static ISourceLocation inheritPositions(ISourceLocation uri, ISourceLocation resolved) {
+        if (uri.hasOffsetLength()) {
+            if (uri.hasLineColumn()) {
+                return IRascalValueFactory.getInstance().sourceLocation(resolved, uri.getOffset(), uri.getLength(), uri.getBeginLine(), uri.getEndLine(), uri.getBeginColumn(), uri.getEndColumn());
+            }
+            else {
+                return IRascalValueFactory.getInstance().sourceLocation(resolved, uri.getOffset(), uri.getLength());
+            }
+        }
+        else {
+            return resolved;
+        }
     }
 
     /**
