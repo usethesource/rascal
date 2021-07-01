@@ -38,6 +38,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
@@ -1199,6 +1200,43 @@ public class Prelude {
         }
         return values.string(result.toString());
 
+	}
+
+	public IValue md5Hash(IValue value){
+		try {
+			final MessageDigest md = MessageDigest.getInstance("MD5");
+			final StandardTextWriter writer = new StandardTextWriter();
+			Charset UTF8 = Charset.forName("UTF-8");
+			writer.write(value, new Writer() {
+				@Override
+				public void write(char[] cbuf, int off, int len) throws IOException {
+					CharBuffer cb = CharBuffer.wrap(cbuf, off, len);
+					ByteBuffer bb = UTF8.encode(cb); 
+					md.update(bb);
+				}
+
+				@Override
+				public void flush() throws IOException { }
+
+				@Override
+				public void close() throws IOException { }
+			});
+
+			byte[] hash = md.digest();
+
+			StringBuffer result = new StringBuffer(hash.length * 2);
+        	for (int i = 0; i < hash.length; i++) {
+            	result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+        	}
+			
+        	return values.string(result.toString());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+		catch (NoSuchAlgorithmException e) {
+			throw RuntimeExceptionFactory.io(values.string("no such algorithm: " + e.getMessage()));
+		}
 	}
 	
 	public void copy(ISourceLocation source, ISourceLocation target, IBool recursive, IBool overwrite) {
