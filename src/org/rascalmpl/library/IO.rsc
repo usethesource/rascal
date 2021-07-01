@@ -712,6 +712,9 @@ public java str md5HashFile(loc file)
 throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
+public java str md5Hash(value v);
+
+@javaClass{org.rascalmpl.library.Prelude}
 public java str createLink(str title, str target);
 
 
