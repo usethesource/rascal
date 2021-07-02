@@ -1019,7 +1019,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
 				    protected IConstructor wrap(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
-				      return new ConstructorWithKeywordParametersFacade(content, parameters);
+				      	return new CycleWithKeywordParametersFacade(content, parameters);
 				    }
 			 }; 
 		}
