@@ -86,8 +86,9 @@ str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyATyp
 // terminal symbols
 str prettyAType(AType::\lit(str string)) = string;
 str prettyAType(AType::\cilit(str string)) = string;
-str prettyAType(cc: \char-class(list[ACharRange] ranges)) = 
-    cc == anyCharType ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
+str prettyAType(cc: \char-class(list[ACharRange] ranges)) { 
+    return cc == anyCharType ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
+}
 
 str prettyAType(\start(AType symbol)) = "start[<prettyAType(symbol)>]";
 
@@ -116,10 +117,6 @@ private str prettyPrintCond(ACondition::\except(str label)) = "!<label>";
 @doc{Rascal abstract types to classic Symbols}
 Symbol atype2symbol(AType tp){
     res = atype2symbol1(tp);
-    if(tp.label?){
-        println(tp);
-    }
-    //return res;
     return tp.label? ? Symbol::\label(tp.label, res) : res;
 }
 
@@ -136,14 +133,14 @@ Symbol atype2symbol1(aloc()) = \loc();
 Symbol atype2symbol1(adatetime()) = \datetime();
 Symbol atype2symbol1(alist(AType t)) = \list(atype2symbol(t));
 Symbol atype2symbol1(aset(AType t)) = \set(atype2symbol(t));
-Symbol atype2symbol1(atuple(atypeList(list[AType] ts))) = \tuple([atype2labeledSymbol(t) | t <- ts]);
-Symbol atype2symbol1(amap(AType d, AType r)) = \map(atype2labeledSymbol(d), atype2labeledSymbol(r));
-Symbol atype2symbol1(arel(atypeList(list[AType] ts))) = \set(\tuple([atype2labeledSymbol(t) | t <- ts]));
-Symbol atype2symbol1(alrel(atypeList(list[AType] ts))) = \list(\tuple([atype2labeledSymbol(t) | t <- ts]));
+Symbol atype2symbol1(atuple(atypeList(list[AType] ts))) = \tuple([atype2symbol(t) | t <- ts]);
+Symbol atype2symbol1(amap(AType d, AType r)) = \map(atype2symbol(d), atype2symbol(r));
+Symbol atype2symbol1(arel(atypeList(list[AType] ts))) = \set(\tuple([atype2symbol(t) | t <- ts]));
+Symbol atype2symbol1(alrel(atypeList(list[AType] ts))) = \list(\tuple([atype2symbol(t) | t <- ts]));
 
 // TODO: kwFormals are lost here because not supported by old run-time system
 Symbol atype2symbol1(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
-  = \func(atype2symbol(ret), [atype2labeledSymbol(f) | f <- formals], [ atype2labeledSymbol(f) | <f, _> <- kwFormals]);
+  = \func(atype2symbol(ret), [atype2symbol(f) | f <- formals], [ atype2symbol(f) | <f, _> <- kwFormals]);
 
 Symbol atype2symbol1(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
 Symbol atype2symbol1(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
@@ -157,14 +154,12 @@ Symbol atype2symbol1(aadt(str s, [], layoutSyntax()))       = Symbol::\layouts(s
 Symbol atype2symbol1(aadt(str s, list[AType] ps, dataSyntax())) = Symbol::adt(s, [atype2symbol(p) | p <- ps]);
 
 Symbol atype2symbol1(aadt(str s, ps, contextFreeSyntax())) = \parameterized-sort(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
-Symbol atype2symbol1(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
-
-Symbol atype2labeledSymbol(AType t) = t.label? ? label(t.label, atype2symbol(t)) : atype2symbol(t); 
+Symbol atype2symbol1(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0; 
 
 Symbol atype2symbol1(t: acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
- = Symbol::cons(atype2symbol(adt), t.label, [atype2labeledSymbol(f) | f <- fields]);
+ = Symbol::cons(atype2symbol(adt), t.label, [atype2symbol(f) | f <- fields]);
 
 Symbol atype2symbol1(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2symbol(t));
 Symbol atype2symbol1(areified(AType t)) = Symbol::reified(atype2symbol(t));
@@ -218,8 +213,12 @@ private Condition acond2cond(ACondition::\except(str label)) = Condition::\excep
 
 Symbol atype2symbol1(regular(AType def)) = \regular(atype2symbol(def));
 
-map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def] defs) 
-  { return (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs); }
+map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def] defs) { 
+    res = (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs);
+    iprintln(defs);
+    iprintln(res);
+    return res;
+}
 
 map[Symbol, Production] adefinitions2definitions(map[AType, set[AType]] defs) 
   = (atype2symbol(k) : Production::choice(atype2symbol(k), aprods2prods(defs[k])) | k <- defs);
@@ -233,7 +232,7 @@ default Production aprod2prod(AType t) {
 }
 
 Production aprod2prod(p:prod(AType lhs, list[AType] atypes, attributes=set[Attr] as))
-  = Production::prod((p.label?) ? Symbol::label(p.label, atype2symbol(lhs)) : atype2symbol(lhs), [atype2labeledSymbol(e) | e <- atypes], as); 
+  = Production::prod((p.label?) ? Symbol::label(p.label, atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], as); 
   
 Production aprod2prod(AProduction::choice(AType def, set[AProduction] alts)) 
   = Production::choice(atype2symbol(def), {aprod2prod(p) | p <- alts});  
@@ -249,7 +248,7 @@ Production aprod2prod(AProduction::reference(AType def, str cons))
   
 // TODO it is weird that we loose the kwFields here  
 Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] _/*kwFields*/)) 
- = Production::\cons(label(a.label, atype2symbol(adt)), [atype2labeledSymbol(f) | f <- fields], [atype2labeledSymbol(g) | g <- fields], {})
+ = Production::\cons(atype2symbol(adt), [atype2symbol(f) | f <- fields], [atype2symbol(g) | g <- fields], {})
  ;
 
 // ---- Predicates, selectors and constructors --------------------------------
@@ -1103,8 +1102,10 @@ bool isConcretePattern(Pattern p, AType tp) {
 
 // -- isSyntaxType
 
-bool isSyntaxType(AType tp) 
-    = isTerminalType(tp) || isNonTerminalType(tp) || isRegExpType(tp);
+bool isSyntaxType(AType tp) {
+    res = isTerminalType(tp) || isNonTerminalType(tp) || isRegExpType(tp);
+    return res;
+}
 
 // ---- Regular expressions 
 

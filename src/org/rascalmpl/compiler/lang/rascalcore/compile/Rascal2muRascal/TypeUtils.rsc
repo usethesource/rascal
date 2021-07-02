@@ -294,7 +294,7 @@ void extractScopes(TModel tm){
                 functions += def.defined;
                 if(def.defInfo has modifiers && "default" in def.defInfo.modifiers) defaultFunctions += def.defined;
             }  
-            case constructorId(): {;
+            case constructorId(): {
                  constructors += def.defined;
                  consType = getDefType(def.defined);
                  consName = consType.label;
@@ -634,13 +634,18 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     
     if(!isEmpty(tparams)){
        for(/adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
-          found_cons = {*(adt_constructors[some_adt] ? {aprod(grammar.rules[some_adt])}) | some_adt <- adt_constructors, some_adt.adtName == adtName, size(some_adt.parameters) == size(parameters)};
+          found_cons = { *(adt_constructors[some_adt1] ? {aprod(grammar.rules[some_adt1])}) 
+                       | some_adt <- adt_constructors, 
+                         some_adt.adtName == adtName, 
+                         size(some_adt.parameters) == size(parameters),
+                         some_adt1 := unset(some_adt, "label")
+                       };
           //TODO: properly instantiate constructors
           definitions[base_t] = found_cons;   
         }
     } else {
-        definitions = (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])}
-                      | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t
+        definitions = (adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : {aprod(grammar.rules[adt1])}
+                      | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t, adt1 := unset(adt, "label")
                       );
     }
     if(isStart){

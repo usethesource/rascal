@@ -836,7 +836,7 @@ private AType computeSliceAssignableType(Statement current, AType receiverType, 
     } else if(isStrType(receiverType)){ 
         s.requireSubType(rhs, astr(), error(current, "Expected `str` in slice assignment, found %t", rhs));
         return receiverType;
-    } else if(isSyntaxIterElement(receiverType)) {
+    } else if(isIterType(receiverType)) {
         throw rascalCheckerInternalError(getLoc(current), "Not yet implemented"); // TODO
     } else if (isNodeType(receiverType)) {
         return makeListType(avalue());

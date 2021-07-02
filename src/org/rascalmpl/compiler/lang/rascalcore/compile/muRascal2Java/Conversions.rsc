@@ -107,6 +107,11 @@ str atype2idpart(overloadedAType(rel[loc, IdRole, AType] overloads)){
     return atype2idpart(ftype);
 }
 
+str atype2idpart(aprod(AProduction production)){
+    return "aprod";
+
+}
+
 str atype2idpart(atypeList(list[AType] ts)) 
                                           = intercalate("_", [atype2idpart(t) | t <- ts]);
 

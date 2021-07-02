@@ -939,8 +939,10 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
     if(isNonTerminalType(consType)){
         return "$get_<getADTName(consType)>_<getJavaName(fieldName)>(<transWithCast(consType,cons,jg)>)";
+    } else if(isIterType(consType)){
+     return "org.rascalmpl.values.parsetrees.TreeAdapter.getLabeledField((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\").tree";
     } else if(isTerminalType(consType) || isRegExpType(consType)){
-        return "org.rascalmpl.values.parsetrees.TreeAdapter.getArg((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\")";
+        return "org.rascalmpl.values.parsetrees.TreeAdapter.getLabeledField((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\").tree";
     } else if(asubtype(consType, treeType)){
         return "$get_Tree_<getJavaName(fieldName)>(<base>)";
     } else 
@@ -956,19 +958,19 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
  // ---- muGuardedGetField -------------------------------------------------
  
  JCode trans(muGuardedGetField(AType resultType, aloc(), MuExp exp, str fieldName), JGenie jg)
-    = castArg(resultType, "$guarded_aloc_get_field(<trans(exp,jg)>, \"<fieldName>\")");
+    = "$guarded_aloc_get_field(<trans(exp,jg)>, \"<fieldName>\")";
 
 JCode trans(muGuardedGetField(AType resultType, adatetime(), MuExp exp, str fieldName), JGenie jg)
-    = castArg(resultType, "$guarded_adatetime_get_field(<trans(exp,jg)>, \"<fieldName>\")");
+    = "$guarded_adatetime_get_field(<trans(exp,jg)>, \"<fieldName>\")";
     
 JCode trans(muGuardedGetField(AType resultType, anode(_), MuExp exp, str fieldName), JGenie jg)
-    = castArg(resultType, "$guarded_anode_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
+    = "$guarded_anode_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")";
     
 JCode trans(muGuardedGetField(AType resultType, atuple(_), MuExp exp, str fieldName), JGenie jg)
-    = castArg(resultType, "$guarded_atuple_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
+    = "$guarded_atuple_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")";
 
 JCode trans(muGuardedGetField(AType resultType, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), MuExp exp, str fieldName), JGenie jg)
-    = castArg(resultType, "$guarded_aadt_get_field(<trans(exp,jg)>,  \"<getJavaName(fieldName)>\")");
+    = "$guarded_aadt_get_field(<trans(exp,jg)>,  \"<getJavaName(fieldName)>\")";
  
 default JCode trans(muGuardedGetField(AType resultType, consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName), JGenie jg){
     base = trans(cons, jg);
