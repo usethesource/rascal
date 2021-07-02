@@ -5,6 +5,7 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;
 
+import DateTime;
 import Exception;
 import IO;
 import List;
@@ -131,7 +132,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                    if(m != qualifiedModuleName){
                         localImportsAndExtends += <m, pathRole>;
                    }
-                   if(getLastModified(m, ms.moduleLastModified, pcfg) > timestampInBom) {
+                   if(decrementMilliseconds(getLastModified(m, ms.moduleLastModified, pcfg), 500) > timestampInBom) {
                         allImportsAndExtendsValid = false;
                         if(m notin ms.invalid){
                             println("--- <m> is no longer valid (latest <getLastModified(m, ms.moduleLastModified, pcfg)>, previous check used <timestampInBom>)");

@@ -83,11 +83,14 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
     if(isLayoutType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
 }
 
-AProduction computeProd(Tree current, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
+AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
     args = [s.getType(sym) | sym <- symbols];  
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
     p = isEmpty(m2a) ? prod(adtType, args, src=src) : prod(adtType, args, attributes=m2a, src=src);
+    if(name != ""){
+        p.label = name;
+    }
     
     forbidConsecutiveLayout(current, args, s);
     if(!isEmpty(args)){
@@ -109,12 +112,13 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
             AType(Solver s) {
-                return aprod(computeProd(current, s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);      
+                return aprod(computeProd(current, unescape("<name>"), s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);      
             });
+        //qualName = unescape("<name>"); // 
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<unescape("<name>")>";
         
         // Define the constructor (using a location annotated with "cons" to differentiate from the above)
-        c.defineInScope(adtParentScope, qualName, constructorId(), getLoc(current)[fragment="cons"], defType([current], 
+        c.defineInScope(adtParentScope, unescape("<name>") /*qualName*/, constructorId(), getLoc(current)[fragment="cons"], defType([current], 
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){
@@ -122,8 +126,9 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ t | sym <- symbols, tsym := s.getType(sym), t := removeConditional(tsym), isSyntaxType(t), t.label?];
-                    def = \start(sdef) := def ? sdef : unset(def, "label");
+                    fields = [ t | sym <- symbols, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t), t.label?];
+                    def = \start(sdef) := def ? sdef : def;
+                    //def = \start(sdef) := def ? sdef : unset(def, "label");
                     return acons(def, fields, [], label=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
             }));
@@ -143,7 +148,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector 
     if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
             AType(Solver s){
-                return aprod(computeProd(current, s.getType(adt), modifiers, symbols, s));
+                return aprod(computeProd(current, "", s.getType(adt), modifiers, symbols, s));
             });
         collect(symbols, c);
     } else {

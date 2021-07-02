@@ -176,6 +176,8 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     resolverFormalsTypes = unsetRec(resolver_fun_type has formals ? resolver_fun_type.formals : resolver_fun_type.fields);
     resolverFormalsTypes = [ avalue() | tp <- resolverFormalsTypes ];
     arityFormalTypes = size(resolverFormalsTypes);
+    if(arityFormalTypes == 0 && size(relevant_fun_defs + cons_defs) > 1) 
+        return "";
     returnType = resolver_fun_type has ret ? resolver_fun_type.ret : resolver_fun_type.adt;
     returns_void = isVoidType(returnType);
     argTypes = intercalate(", ", ["<atype2javatype(f)> $<i>" | i <- index(resolverFormalsTypes), f := resolverFormalsTypes[i]]);

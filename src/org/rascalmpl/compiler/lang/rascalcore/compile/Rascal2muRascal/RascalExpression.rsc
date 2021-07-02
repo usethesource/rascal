@@ -540,7 +540,9 @@ private MuExp translateConcrete(t:appl(prod(layouts(_),_, _), _)) = muCon(t);
 // this is a pattern variable, which we substitute with a reference to a muVariable:  
 private MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[_], _), [ConcreteHole hole])) {
     <fuid, pos> = getVariableScope("<hole.name>", getConcreteHoleVarLoc(t));
-    return muVar("<hole.name>", fuid, pos, getType(hole.symbol@\loc));    
+    
+    return mkVar(unescape("<hole.name>"), hole.name@\loc);
+    //return muVar("<hole.name>", fuid, pos, getType(hole.symbol@\loc));    
 }
 
 // Four cases of lists are detected to be able to implement splicing
@@ -1303,7 +1305,13 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
         <consType, isKwp> = getConstructorInfo(tp, fieldType, ufield);
         return isKwp ? muGetKwField(consType, tp, translate(expression), ufield)
                      : muGetField(getType(e), consType, translate(expression), ufield);
+    } else 
+    if(asubtype(tp, treeType)){
+        <consType, isKwp> = getConstructorInfo(treeType, fieldType, ufield);
+        return isKwp ? muGetKwField(consType, treeType, translate(expression), ufield)
+                     : muGetField(getType(e), treeType, translate(expression), ufield); // Can this ever happen?
     }
+    
     
     return muGetField(getType(e), getType(expression), translate(expression), ufield);   
 }
@@ -1440,12 +1448,10 @@ MuExp translateBool(e:(Expression) `<Expression expression> is <Name name>`, BTS
 
 MuExp translate ((Expression) `<Expression expression> has <Name name>`) {
     uname = unescape("<name>");
-    outer = getOuterType(expression);
     tp = getType(expression);
-    if(outer == "anode"){
-      // Always compute existence of field at run time
-      return muHasField(translate(expression), tp, uname, {}); 
-    } else if (outer == "aadt"){
+    if(isSyntaxType(tp)){
+        return muHasField(translate(expression), tp, uname, {}); 
+    } else if (isADTType(tp)){
         commonKwFields = getCommonKeywordFieldsNameAndType()[tp] ? ();  
         if(commonKwFields[uname]?){
             return muCon(true); // If desired field is a common keyword field, all constructors have it
@@ -1463,6 +1469,10 @@ MuExp translate ((Expression) `<Expression expression> has <Name name>`) {
 
         // Compute result at runtime, guided by the set of constructors that do have the desired field
         return muHasField(translate(expression), tp, uname, consesWithField); 
+        
+     } else if(isNodeType(tp)){
+      // Always compute existence of field at run time
+      return muHasField(translate(expression), tp, uname, {}); 
     } else { // all other cases: compute result statically
         return muCon(hasField(tp, uname));
     }		    

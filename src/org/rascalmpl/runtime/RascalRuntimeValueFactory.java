@@ -298,6 +298,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
+                System.err.println(grammar);
                 throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (Ambiguous e) {

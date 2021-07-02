@@ -349,11 +349,9 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1.defined != d2.defined, 
                                 t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
                                 t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-                                t1.adt.syntaxRole == dataSyntax(),
-                                t2.adt.syntaxRole == dataSyntax(),
-                                d1.scope in moduleScopes && d2.scope in moduleScopes && t1.adt == t2.adt, size(t1.fields) == size(t2.fields), comparable(t1.fields, t2.fields)
+                                d1.scope in moduleScopes && d2.scope in moduleScopes && comparable(t1.fields, t2.fields)
                                 )){
-            msgs = [ error("Constructor `<id>` clashes with other declaration with comparable fields", d.defined) | d <- defs ];
+            msgs = [ warning("Constructor `<id>` clashes with other declaration with comparable fields", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }      
     }

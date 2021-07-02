@@ -1,18 +1,17 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 
-import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class Template {
-	final ArrayList<IString> templates = new ArrayList<IString>();
+	final ArrayList<IString> templates = new ArrayList<IString>(); // TODO: replace by StringBuilders
 	final IValueFactory VF;
 
 	public Template(final IValueFactory vf, final String s){
@@ -20,22 +19,22 @@ public class Template {
 		templates.add(vf.string(s));
 	}
 
-	public final void addVal(final IValue v) {
-	    if (v instanceof IString) {
-	        addStr(((IString)v).getValue());	
-	    } 
-	    else if (v instanceof ITree) {
-	        try {
-	            StringWriter sw = new StringWriter();
-	            TreeAdapter.unparse((ITree) v, sw);
-	            addStr(sw.toString());
-	        } catch (IOException e) {
-	            // this will not happen
-	        }
-	    }
-	    else {
-	        templates.set(0, templates.get(0).concat(VF.string(v.toString())));
-	    }
+	public final void addVal(IValue v) {
+		StringBuilder b = new StringBuilder();
+		if (v.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+		    // TODO: could this be replaced by a lazy IString::ITree.asString?
+			b.append(org.rascalmpl.values.parsetrees.TreeAdapter.yield((IConstructor) v));
+		}
+		else if (v.getType().isSubtypeOf(RascalValueFactory.Type)) {
+			b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) v).get("symbol"), false));
+		}
+		else if (v.getType().isString()) {
+			b.append((IString) v);
+		} 
+		else {
+			b.append(v.toString());
+		}
+		templates.set(0, templates.get(0).concat(VF.string(b.toString())));
 	}
 
 	public final void addStr(final String s) {
