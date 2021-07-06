@@ -176,6 +176,15 @@ void collect(current: (PathTail) `<MidPathChars mid> <Expression expression> <Pa
 
  void collect(current: (PathTail) `<PostPathChars post>`, Collector c){
  }
+ 
+ void checkSupportedByParserGenerator(Tree t, Collector c){
+    c.require("implemented by parsergenerator", t, [t], void(Solver s){
+        tp = s.getType(t);
+        if(!(isParameterizedNonTerminalType(tp) || isIterType(tp))){
+            s.report(warning(t, "%t is not yet supported by parsergenerator", tp));
+        }
+    });
+ }
 
 // ---- Concrete literals
 
@@ -185,12 +194,14 @@ void collect((Expression) `<Concrete concrete>`, Collector c){
     collect(concrete.symbol, c);
     collect(concrete.parts, c);
     c.pop(inConcreteLiteral);
+    checkSupportedByParserGenerator(concrete.symbol, c);
 }
 
 void collect((Pattern) `<Concrete concrete>`, Collector c){
     c.fact(concrete, concrete.symbol);
     collect(concrete.symbol, c);
     collect(concrete.parts, c);
+    checkSupportedByParserGenerator(concrete.symbol, c);
 }
 
 void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector c){
@@ -213,29 +224,6 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
     c.fact(current, symbol);
     collect(symbol, c);
 }
-
-//void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector c){
-//    varType = symbol;
-//    uname = prettyPrintName(name);
-//    if(size(c.getStack(patternContainer)) == 1){    // An expression        
-//       c.useLub(name, {formalOrPatternFormal(c), variableId()});
-//       //c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
-//    } else {                                        //A pattern
-//        //println("ConcreteHole pat: <current>");
-//      
-//        if(uname != "_"){
-//           if(uname in c.getStack(patternNames)){
-//              c.useLub(name, {formalOrPatternFormal(c)});
-//           } else {
-//               c.push(patternNames, uname);
-//               c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
-//           }
-//        }
-//    }
-//   // c.calculate("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
-//    c.fact(current, symbol);
-//    collect(symbol, c);
-//}
 
 // Rascal expressions
 
