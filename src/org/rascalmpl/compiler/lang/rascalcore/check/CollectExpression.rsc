@@ -180,9 +180,8 @@ void collect(current: (PathTail) `<MidPathChars mid> <Expression expression> <Pa
  void checkSupportedByParserGenerator(Tree t, Collector c){
     c.require("implemented by parsergenerator", t, [t], void(Solver s){
         tp = s.getType(t);
-        if(!(isParameterizedNonTerminalType(tp) || isIterType(tp))){
-            s.report(warning(t, "%t is not yet supported by parsergenerator", tp));
-        }
+        if(isNonParameterizedNonTerminalType(tp)) return;
+        s.report(warning(t, "%t is not yet supported by parsergenerator", tp));
     });
  }
 
