@@ -337,15 +337,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         private ITree parseObject(IConstructor grammar,  ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects,  ISet filters) {
             IConstructor startSort = (IConstructor) grammar.get("symbol");
             IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) grammar.get("definitions"));
-            String name = "";
-            if (SymbolAdapter.isStartSort(startSort)) {
-                name = "start__";
-                startSort = SymbolAdapter.getStart(startSort);
-            }
-
-            if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
-                name += SymbolAdapter.getName(startSort);
-            }
+            String name = getParserGenerator().getParserMethodName(startSort);
 
             IActionExecutor<ITree> exec = filters.isEmpty() ?  new NoActionExecutor() : new RascalFunctionActionExecutor(filters, !hasSideEffects);
 
