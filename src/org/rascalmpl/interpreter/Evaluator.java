@@ -740,15 +740,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
         IConstructor startSort = (IConstructor) grammar.get("symbol");
         IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) grammar.get("definitions"));
-        String name = "";
-        if (SymbolAdapter.isStartSort(startSort)) {
-            name = "start__";
-            startSort = SymbolAdapter.getStart(startSort);
-        }
-
-        if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
-            name += SymbolAdapter.getName(startSort);
-        }
+        String name = getParserGenerator().getParserMethodName(startSort);
 
         __setInterrupt(false);
         IActionExecutor<ITree> exec = !filters.isEmpty() 
