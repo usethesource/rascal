@@ -27,6 +27,8 @@ import Type;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
+import lang::rascalcore::check::ATypeInstantiation;
+
 
 
 /*
@@ -138,9 +140,6 @@ public void resetScopeExtraction() {
     declaresMap = ();
     declaredIn = ();
     funInnerScopes = ();
-    //overloadingResolver = ();
-    //overloadedFunctions = [];
-    //overloadedTypeResolver = ();
     scopes = ();
     module_scopes = {};
     facts = (); 
@@ -250,7 +249,7 @@ private loc findContainer(Define d){
     return cscope;
 }
     
-// extractScopes: extract and convert type information from the TMOdel delivered by the type checker.
+// extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
     iprintln(tm);
     current_tmodel = tm;
@@ -632,33 +631,39 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         tparams = getADTTypeParameters(base_t);
     }
     
-    if(!isEmpty(tparams)){
-       for(/adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
-          found_cons = { *(adt_constructors[some_adt1] ? {aprod(grammar.rules[some_adt1])}) 
-                       | some_adt <- adt_constructors, 
-                         some_adt.adtName == adtName, 
-                         size(some_adt.parameters) == size(parameters),
-                         some_adt1 := unset(some_adt, "label")
-                       };
-          //TODO: properly instantiate constructors
-          definitions[base_t] = found_cons;   
-        }
-    } else {
+    
+    //if(!isEmpty(tparams)){
+    //   for(/adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
+    //      found_cons = { *(syntaxRole == dataSyntax() ? adt_constructors[some_adt1] : {aprod(grammar.rules[some_adt1])})
+    //                   | some_adt <- adt_constructors, 
+    //                     some_adt.adtName == adtName, 
+    //                     size(some_adt.parameters) == size(parameters),
+    //                     some_adt1 := unset(some_adt, "label")
+    //                   };
+    //      //TODO: properly instantiate constructors
+    //      definitions[base_t] = found_cons;   
+    //    }
+    //} else {
         definitions = (adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : {aprod(grammar.rules[adt1])}
-                      | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t, adt1 := unset(adt, "label")
+                      | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t, adt1 := unset(adt, "label"), bprintln(adt)
                       );
-    }
-    if(isStart){
-        definedLayouts = getLayouts();
+    //}
+    
+    definedLayouts = getLayouts();
+    xxx = grammar.rules[definedLayouts];
+    
+    definitions[definedLayouts] = { aprod(grammar.rules[definedLayouts]) };
+    //if(isStart){
         definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[label="top"], definedLayouts]) })) });
-    }
+    //}
    
    solve(definitions){
     definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 
                                 | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions, 
                                   adt1 := unsetRec(adt),
                                   !definitions[adt1]?,
-                                  bprintln(adt1)
+                                  bprintln(adt1),
+                                  bprintln(grammar.rules[adt1]?)
                                 );
    }
    return definitions;
