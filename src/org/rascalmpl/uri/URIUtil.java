@@ -11,15 +11,20 @@
 package org.rascalmpl.uri;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
+
+import org.apache.commons.compress.compressors.FileNameUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIUtil {
@@ -333,7 +338,50 @@ public class URIUtil {
 		File file = new File(uri.getPath());
 		return file.getName();
 	}
+
+	public static boolean isParentOf(ISourceLocation parent, ISourceLocation child) {
+		if (!parent.getScheme().equals(child.getScheme())) {
+			return false;
+		}
+
+		if (!parent.getAuthority().equals(child.getAuthority())) {
+			return false;
+		}
+
+		if (child.getPath().startsWith(parent.getPath())) {
+			return child.getPath().charAt(parent.getPath().length()) == '/';
+		}
+		else {
+			return false;
+		}
+	}
+
+	public static ISourceLocation removeExtension(ISourceLocation file) {
+		if (file.getPath().indexOf(".") != -1) {
+			try {
+				return changePath(file, file.getPath().substring(0, file.getPath().lastIndexOf(".")));
+			}
+			catch (URISyntaxException e) {
+				// this can not happen
+			}
+		}
+
+		return file;
+	}
+
+	public static ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
+		if (!isParentOf(outside, inside)) {
+			return inside;
+		}
+
+		Path outsidePath = Paths.get(outside.getURI());
+		Path insidePath = Paths.get(inside.getURI());
+
+		Path relPath = outsidePath.relativize(insidePath);
 	
+		return URIUtil.correctLocation("relative", "", relPath.toString());
+	}
+
 	public static ISourceLocation removeAuthority(ISourceLocation loc) {
 		try {
 		 ISourceLocation res = vf.sourceLocation(loc.getScheme(),"", loc.getPath(), loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment()? loc.getFragment() : null);
