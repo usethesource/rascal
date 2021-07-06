@@ -348,8 +348,19 @@ public class URIUtil {
 			return false;
 		}
 
-		if (child.getPath().startsWith(parent.getPath())) {
-			return child.getPath().charAt(parent.getPath().length()) == '/';
+		String childPath = child.getPath();
+		String parentPath = parent.getPath();
+
+		if (childPath.endsWith("/")) {
+			childPath = childPath.substring(0, childPath.length());
+		}
+
+		if (parentPath.endsWith("/")) {
+			parentPath = parentPath.substring(0, parentPath.length());
+		}
+
+		if (childPath.startsWith(parentPath)) {
+			return childPath.length() > parentPath.length() && childPath.charAt(parentPath.length()) == '/';
 		}
 		else {
 			return false;
