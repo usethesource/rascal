@@ -1,12 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-layout Whitespace = [\ \t\n]*;
-syntax A = "a";
+lexical Id  = [a-z];
 
-syntax P[&T] = "{" &T ppar "}";
-
-syntax PA = P[A] papar;
-    
-value main() //test bool PA7() 
-    //= (P[A]) `{a}`;
-    = [P[A]] "{a}";
+value main() = (Id) `<Id _>` := (Id) `x`;

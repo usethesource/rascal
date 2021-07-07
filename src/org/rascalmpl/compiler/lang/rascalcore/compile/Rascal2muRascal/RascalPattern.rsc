@@ -45,6 +45,7 @@ default MuExp translateMatch(Pattern pat, Expression exp, BTSCOPES btscopes, MuE
     } else {
         str fuid = topFunctionScope();
         exp_val = muTmpIValue(nextTmp("exp_val"), fuid, getType(exp));
+        iprintln(pat);
         res = muValueBlock(abool(), [ muConInit(exp_val, expTrans), 
                                        translatePat(pat, expType, exp_val, btscopes, trueCont, falseCont) 
                                      ]);
