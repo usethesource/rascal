@@ -258,38 +258,4 @@ AGrammar expandParameterizedNonTerminals(AGrammar grammar, TModel tm){
   }
   grammar.rules = (r.def : choice(r.def, r.alternatives) | r <- result, bprintln(r));
   return grammar;
-    
-    
-    //parameterized_adts = { unset(adt, "label") | adt <- ADTs + domain(grammar.rules), params := getADTTypeParameters(adt), !isEmpty(params), all(p<-params, isRascalTypeParam(p)) };
-    //instantiated_adts  = { unset(adt, "label") | adt <- ADTs + domain(grammar.rules), params := getADTTypeParameters(adt), !isEmpty(params)/*, all(p<-params, !isRascalTypeParam(p))*/ };
-    //
-    //// Extend the grammar with all instantiated nonterminals that occur inside or outside the grammar
-    //map[AType sort, AProduction def] extended_rules = grammar.rules;
-    //
-    //for(adt <- instantiated_adts){
-    //    if(\start(t) := adt) adt = t;
-    //    if(adt.adtName == "KeywordArgument"){
-    //        println("reached KeywordArgument");
-    //    }
-    //    if(adt.syntaxRole != dataSyntax()){
-    //        for(padt <- parameterized_adts){
-    //            if(adt.adtName == padt.adtName && size(padt.parameters) == size(adt.parameters)){
-    //                Bindings bindings = (padt.parameters[i].pname : adt.parameters[i] | i <- index(padt.parameters) );
-    //                for(nt <- grammar.rules){
-    //                    if(\start(t) := nt) nt = t;
-    //                    if(nt.adtName == padt.adtName){
-    //                        extended_rules += (adt : (visit(grammar.rules[nt]){
-    //                                                    case AType t => instantiateRascalTypeParams(t, bindings)
-    //                                                 }));
-    //                        break;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-    //// uninstantiated parameterized nonterminals are no longer needed
-    ////extended_rules = (adt : extended_rules[adt] | adt <- extended_rules, adt notin parameterized_adts); 
-    //grammar.rules = extended_rules;
-    //return grammar;
 }

@@ -181,7 +181,7 @@ void collect(current: (PathTail) `<MidPathChars mid> <Expression expression> <Pa
     c.require("implemented by parsergenerator", t, [t], void(Solver s){
         tp = s.getType(t);
         if(isNonParameterizedNonTerminalType(tp)) return;
-        s.report(warning(t, "%t is not yet supported by parsergenerator", tp));
+        s.report(warning(t, "%t is possibly not yet supported by parsergenerator", tp));
     });
  }
 
