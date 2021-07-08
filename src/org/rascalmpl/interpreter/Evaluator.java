@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +63,7 @@ import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.StackTrace;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
@@ -1771,7 +1773,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
 
-    private static final class SaveWarningsMonitor implements IRascalMonitor {
+    private static final class SaveWarningsMonitor implements IDEServices {
 
         private final List<String> warnings;
         private final IRascalMonitor monitor;
@@ -1840,5 +1842,44 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return warnings;
         }
 
+        @Override
+        public void registerLanguage(IConstructor language) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerLanguage(language);
+            }
+            else {
+                IDEServices.super.registerLanguage(language);
+            }
+        }
+
+        @Override
+        public ISourceLocation resolveProjectLocation(ISourceLocation input) {
+            if (monitor instanceof IDEServices) {
+                return ((IDEServices) monitor).resolveProjectLocation(input);
+            }
+            else {
+                return IDEServices.super.resolveProjectLocation(input);
+            }
+        }
+
+        @Override
+        public void browse(URI uri) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).browse(uri);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void edit(ISourceLocation path) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).edit(path);
+            }
+            else {
+                return;
+            }
+        }
     }
 }
