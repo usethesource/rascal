@@ -28,6 +28,14 @@
         },
         {
             "type": "java",
+            "name": "Attach Rascal LSP Terminal",
+            "request": "attach",
+            "projectName": "rascal-lsp",
+            "hostName": "localhost",
+            "port": 9001
+        },
+        {
+            "type": "java",
             "name": "Attach RascalNotebook",
             "request": "attach",
             "hostName": "localhost",
