@@ -1,6 +1,7 @@
 module lang::rascalcore::compile::Rascal2muRascal::ConcreteSyntax
 
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
+import lang::rascalcore::compile::CompileTimeError;
 
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::AType;
@@ -31,8 +32,7 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
                 ])[@\loc=t@\loc];
       }
       catch ParseError(loc l) : {
-        tm.messages += [error("parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", l)];
-        return t; 
+        throw CompileTimeError(error("Parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", l)); 
       }
    }
 
@@ -69,9 +69,6 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    str input = "<for (p <- parts) {><cleanPart(p)><}>";
 
    // now parse the input to get a Tree (or a ParseError is thrown)
-   println("type(sym,rules):");
-   println(sym);
-   iprintln(rules);
    Tree tree = ParseTree::parse(type(sym, rules), input, |todo:///|);
    
    // TODO: source annotations in the tree should be updated/shifted according to

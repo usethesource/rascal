@@ -99,6 +99,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
         return <tmodel, errorMuModule(getModuleName(), {error("Parse error in concrete syntax fragment", l)}, M@\loc)>;
    }
    catch CompileTimeError(Message m): {
+        tmodel.messages += [m];
         return <tmodel, errorMuModule(getModuleName(), {m}, M@\loc)>;
    }
    //catch value e: {

@@ -81,7 +81,7 @@ void generateAllFieldGetters(){
     map[AType, set[AType]] adt_constructors = getConstructorsMap();
     map[AType, list[Keyword]] adt_common_keyword_fields = getCommonKeywordFieldsMap();
     
-    for(adtType <- getADTs()){
+    for(adtType <- getADTs(), !isSyntaxType(adtType)){
         generateGettersForAdt(adtType, adt_constructors[adtType] ? {}, adt_common_keyword_fields[adtType] ? []);
     }
 }
