@@ -925,8 +925,10 @@ JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str f
     = castArg(resultType, "$areified_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
 
 JCode trans(muGetField(AType resultType, adt:aadt(adtName,_,_), MuExp exp, str fieldName), JGenie jg) {
-    return asubtype(adt, treeType) && !isNonTerminalType(adt) ? "$get_Tree_<getJavaName(fieldName)>(<transWithCast(adt,exp,jg)>)"
-                                                              : castArg(resultType, "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")");
+    return asubtype(adt, treeType) && !isNonTerminalType(adt) 
+            ? "$get_Tree_<getJavaName(fieldName)>(<transWithCast(adt,exp,jg)>)"
+            : "org.rascalmpl.values.parsetrees.TreeAdapter.getLabeledField((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\").tree";
+            //: castArg(resultType, "$aadt_get_field(<transWithCast(adt,exp,jg)>, \"<getJavaName(fieldName)>\")");
 }
           
 default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
@@ -938,7 +940,8 @@ default JCode trans(muGetField(AType resultType, AType consType, MuExp cons, str
     
     consType = isStartNonTerminalType(consType) ? getStartNonTerminalType(consType) : consType;
     if(isNonTerminalType(consType)){
-        return "$get_<getADTName(consType)>_<getJavaName(fieldName)>(<transWithCast(consType,cons,jg)>)";
+        return "org.rascalmpl.values.parsetrees.TreeAdapter.getLabeledField((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\").tree";;
+        //return "$get_<getADTName(consType)>_<getJavaName(fieldName)>(<transWithCast(consType,cons,jg)>)";
     } else if(isIterType(consType)){
      return "org.rascalmpl.values.parsetrees.TreeAdapter.getLabeledField((org.rascalmpl.values.parsetrees.ITree) <trans(cons, jg)>, \"<fieldName>\").tree";
     } else if(isTerminalType(consType) || isRegExpType(consType)){
