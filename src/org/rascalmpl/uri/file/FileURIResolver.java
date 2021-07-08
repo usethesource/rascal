@@ -40,7 +40,12 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
 import org.rascalmpl.uri.BadURIException;
@@ -51,9 +56,10 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 
 import io.usethesource.vallang.ISourceLocation;
+import jnr.ffi.annotations.Synchronized;
 
 public class FileURIResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver, ISourceLocationWatcher {
-	private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> watchers = new ConcurrentHashMap<>();
+	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watchers = new ConcurrentHashMap<>();
 	private final Map<WatchKey, ISourceLocation> watchKeys = new ConcurrentHashMap<>();
 	private final WatchService watcher;
 	
@@ -230,30 +236,65 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	
 	@Override
 	public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> callback) throws IOException {
-		watchers.putIfAbsent(root, callback);
+		watchers.computeIfAbsent(root, k -> ConcurrentHashMap.newKeySet()).add(callback);
 
-		WatchKey key = Paths.get(root.getURI()).register(
-			watcher, 
+		WatchKey key = Paths.get(root.getURI()).register(watcher,
 			StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY
 		);
 
-		watchKeys.put(key, root);
+		synchronized(watchKeys) {
+			// to avoid races with an unwatch, we lock here
+			watchKeys.put(key, root);
+		}
+	}
+
+	@Override
+	public void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> callback) throws IOException {
+		Set<Consumer<ISourceLocationChanged>> registered = watchers.get(root);
+		if (registered == null || !registered.remove(callback)) {
+			return;
+		}
+		if (registered.isEmpty()) {
+			// we have to try and clear the relavant watchkey
+			// but sadly this is a full loop
+			for (Entry<WatchKey, ISourceLocation> e: watchKeys.entrySet()) {
+				if (e.getValue().equals(root)) {
+					synchronized(watchKeys) {
+						// avoiding races with watch, we lock on the map remove
+						if (registered.isEmpty()) {// check again if we truly aren't replacing a key that should still be active
+							WatchKey k = e.getKey();
+							k.cancel();
+							watchKeys.remove(k);
+						}
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	private void createFileWatchingThread() {
-		Thread thread = new Thread("file:/// watcher") {
-			public void run() {
-				while (true) {
-					
-					// wait for key to be signaled
-					WatchKey key;
+		// make a threadpool of daemon threads, to avoid this pool keeping the process running
+		ExecutorService exec = Executors.newCachedThreadPool(new ThreadFactory() {
+			public Thread newThread(Runnable r) {
+            	SecurityManager s = System.getSecurityManager();
+            	ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+				Thread t = new Thread(group, r, "file:/// watcher thread-pool");
+				t.setDaemon(true);
+				return t;
+			}
+		});
+
+		exec.execute(() -> {
+			while (true) {
+				// wait for key to be signaled
+				try {
+					WatchKey key = watcher.take();
 					try {
-						key = watcher.take();
 						ISourceLocation root = watchKeys.get(key);
 						if (root == null) {
-							continue;
+							continue; // key not in the map anymore/yet?
 						}
-
 						for (WatchEvent<?> event: key.pollEvents()) {
 							WatchEvent.Kind<?> kind = event.kind();
 							
@@ -261,60 +302,69 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 								continue;
 							}
 							
-							@SuppressWarnings("unchecked")
-							WatchEvent<Path> ev = (WatchEvent<Path>) event;
-							Path filename = ev.context();
-
-							Consumer<ISourceLocationChanged> callback = watchers.get(root);
-							
-							if (callback != null) {
+							Set<Consumer<ISourceLocationChanged>> callbacks = watchers.get(root);
+							if (callbacks != null) {
+								@SuppressWarnings("unchecked")
+								Path filename = ((WatchEvent<Path>)event).context();
 								ISourceLocation subject = URIUtil.getChildLocation(root, filename.toString());
-								boolean isDirectory = URIResolverRegistry.getInstance().isDirectory(subject);
 
-								switch (kind.name()) {
-									case "ENTRY_CREATE":
-										callback.accept(ISourceLocationWatcher.makeChange(
-											subject, 
-											ISourceLocationChangeType.CREATED, 
-											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
-										);
-										break;
-									case "ENTRY_DELETE":
-										callback.accept(ISourceLocationWatcher.makeChange(
-											subject, 
-											ISourceLocationChangeType.DELETED, 
-											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
-										);
-
-										watchers.remove(subject);
-										if (root.equals(subject)) {
-											watchKeys.remove(key);
-										}
-										break;
-									case "ENTRY_MODIFY":
-										callback.accept(ISourceLocationWatcher.makeChange(
-											subject, 
-											ISourceLocationChangeType.MODIFIED, 
-											isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
-										);
-										break;
-									case "OVERFLOW": 
-									// ignored?
+								ISourceLocationChanged change = calculateChange(key, root, kind, subject);
+								if (change != null) {
+									for (Consumer<ISourceLocationChanged> c: callbacks) {
+										exec.execute(() -> c.accept(change));
+									}
 								}
 							}
-
-							if (key.reset()) {
-								break; // we can go to the next key now
-							}
 						}
-					} catch (InterruptedException x) {
-						// continue
+
+					} finally {
+						if (!key.reset()) {
+							watchKeys.remove(key);
+						}
 					}
+
+				} catch (InterruptedException e ){
+					return;
+				} catch (Throwable x) {
+					System.err.println("Error handling callback in FileURIResolver: " + x.getMessage());
+					x.printStackTrace(System.err);
+					continue;
 				}
-			};
-		};
-		
-		thread.setDaemon(true);
-		thread.start();
+			}
+		});
+	}
+
+
+	private ISourceLocationChanged calculateChange(WatchKey key, ISourceLocation root, WatchEvent.Kind<?> kind,
+		ISourceLocation subject) {
+		boolean isDirectory = URIResolverRegistry.getInstance().isDirectory(subject);
+		switch (kind.name()) {
+			case "ENTRY_CREATE":
+				return ISourceLocationWatcher.makeChange(
+					subject, 
+					ISourceLocationChangeType.CREATED, 
+					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE);
+			case "ENTRY_DELETE":
+
+				watchers.remove(subject);
+				if (root.equals(subject)) {
+					watchKeys.remove(key);
+				}
+
+				return ISourceLocationWatcher.makeChange(
+					subject, 
+					ISourceLocationChangeType.DELETED, 
+					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE);
+
+			case "ENTRY_MODIFY":
+				return ISourceLocationWatcher.makeChange(
+					subject, 
+					ISourceLocationChangeType.MODIFIED, 
+					isDirectory ? ISourceLocationType.DIRECTORY : ISourceLocationType.FILE)
+				;
+			case "OVERFLOW": //ignored
+			default:
+				return null;
+		}
 	}
 }
