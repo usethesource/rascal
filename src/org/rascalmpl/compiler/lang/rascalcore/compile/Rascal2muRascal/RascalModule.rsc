@@ -71,7 +71,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
                       
-   	  return < getTModel(),
+   	  return < getTModel()[messages=tmodel.messages],
    	            /*relocMuModule(*/
    	            muModule(modName,
    	  				  getModuleTags(),
