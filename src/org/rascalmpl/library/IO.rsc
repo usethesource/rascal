@@ -736,7 +736,7 @@ void copyDirectory(loc source, loc target) {
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
-java bool move(loc source, loc target, bool overwrite=true) throws IO;
+java void move(loc source, loc target, bool overwrite=true) throws IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java loc arbLoc();
