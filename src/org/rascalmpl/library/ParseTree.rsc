@@ -159,7 +159,7 @@ module ParseTree
 
 extend Type;
 extend Message;
-extend List;
+//extend List;
 
 @doc{
 .Synopsis
