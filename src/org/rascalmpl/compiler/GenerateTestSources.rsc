@@ -61,8 +61,8 @@ void generateTestSources(PathConfig pcfg) {
    testFolder = |std:///lang/rascal/tests|;
    
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
-                 | loc file <- find(testFolder, "rsc"),     // all Rascal source files
-                 /\/concrete\// !:= file.path ];            // excluding all concrete tests (not yet implemented in compiler)
+                 | loc file <- find(testFolder, "rsc")     // all Rascal source files
+                 ];           
    
    //testModules = [ "lang::rascal::tests::basic::Equality"];
    
