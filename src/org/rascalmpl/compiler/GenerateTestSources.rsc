@@ -3,6 +3,7 @@ module GenerateTestSources
 import IO;
 import String;
 import Set;
+import List;
 import util::Reflective;
 import lang::rascalcore::compile::Compile;
 import util::FileSystem;
@@ -62,18 +63,20 @@ void generateTestSources(PathConfig pcfg) {
    
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
-                 ];           
+                 ];    
+                 
+    testModules -= "lang::rascal::tests::concrete::ParameterizedNonTerminals";     
    
    //testModules = [ "lang::rascal::tests::basic::Equality"];
    
-   exceptions = [];
-   n = size(testModules);
+   list[str] exceptions = [];
+   int n = size(testModules);
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Compiling test module <m> [<i>/<n>]");
       e = safeCompile(m, testConfig, (int d) { durations[m] = d; });
       if(!isEmpty(e)){
-        exceptions= e;
+        exceptions += e;
       }
    }
    println("Compiled <n> test modules");
