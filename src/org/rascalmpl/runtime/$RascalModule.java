@@ -902,11 +902,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(consType.hasField(fieldName)){
 			return cons.get(fieldName);
 		}
-		
-//		if($TS.hasKeywordParameter(consType, fieldName)) {
-//			return cons.asWithKeywordParameters().getParameter(fieldName);
-//		}
-
 
 		IValue result = cons.asWithKeywordParameters().getParameter(fieldName);
 		if(result != null) {
@@ -1718,11 +1713,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(consType.hasField(fieldName)){
 			return cons.set(fieldName, repl);
 		}
-		
-		// Does fieldName exist as keyword field?
-		if($TS.hasKeywordParameter(consType, fieldName)) {
-			return cons.asWithKeywordParameters().setParameter(fieldName, repl);
-		}
 
 		// Does fieldName exist as field in a parse tree?
 		if(TreeAdapter.isTree(cons)) {
@@ -1733,7 +1723,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			}
 		}
 		
-		throw RuntimeExceptionFactory.noSuchField(fieldName);
+		// fieldName must be a keyword field
+		return cons.asWithKeywordParameters().setParameter(fieldName, repl);
 	}
 	
 	// ---- has ---------------------------------------------------------------

@@ -1,5 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst2
 
-import lang::rascal::\syntax::Rascal;
+lexical Id = [a-z];
 
-value main() = [Expression] "{x=1;}";
+syntax A = a:"{" Id x "}";
+
+syntax B = b:"[" A x "]";
+
+//data D = d1(int n) | d2(str s, str n);
+
+int twice(int n) = 2 * n;

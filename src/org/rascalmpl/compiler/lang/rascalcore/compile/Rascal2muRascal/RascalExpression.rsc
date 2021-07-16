@@ -1409,8 +1409,13 @@ MuExp translate (e:(Expression) `<Expression expression> [ @ <Name name> = <Expr
 
 // -- get annotation expression -------------------------------------
 //Deprecated
-MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) =
-    muGetAnno(translate(expression), getType(e), unescape("<name>"));
+MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) {
+    uname = unescape("<name>");
+    if(asubtype(getType(expression), treeType) && uname == "loc"){ //TODO: remove when loc anno has been removed
+        uname = "src"; // rename loc to src
+    }
+    return muGetAnno(translate(expression), getType(e), uname);
+}
 
 //// Deprecated
 //MuExp translate (e:(Expression) `<Expression expression>@<Name name>`) {

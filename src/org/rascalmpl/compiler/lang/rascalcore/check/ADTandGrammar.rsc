@@ -219,10 +219,16 @@ TModel checkKeywords(rel[AType, AProduction] usedProductions, TModel tm){
 
 AGrammar expandParameterizedNonTerminals(AGrammar grammar, TModel tm){
     ADTs = {};
-    if([*set[AType] adts] := tm.store[key_ADTs]){
-        ADTs = adts[0];
-    } else {
-        throw "`ADTs` has incorrect format in store";
+    try {
+        if([*set[AType] adts] := tm.store[key_ADTs]){
+            ADTs = adts[0];
+        } else {
+            throw "`ADTs` has incorrect format in store";
+        }
+    } catch e: {
+        println("<key_ADTs> not present in store");
+        iprintln(tm);
+        //throw "<key_ADTs> not present in store";
     }
     
     prods = {grammar.rules[nt] | nt <- grammar.rules};

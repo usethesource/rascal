@@ -297,17 +297,15 @@ void extractScopes(TModel tm){
                  constructors += def.defined;
                  consType = getDefType(def.defined);
                  consName = consType.label;
-                 adtType = consType.adt;
-                 adt_uses_type += { <consName, adtType, unsetRec(fieldType)> | /AType fieldType := consType.fields }
-                                  + { <consName, adtType, unsetRec(kwFieldType)> | /AType kwFieldType := consType.kwFields };
-                 if(adt_constructors[adtType]?){
-                    adt_constructors[adtType] = adt_constructors[adtType] + consType;
+                 consAdtType = consType.adt;
+                 adt_uses_type += { <consName, consAdtType, unsetRec(fieldType)> | /AType fieldType := consType.fields }
+                                  + { <consName, consAdtType, unsetRec(kwFieldType)> | /AType kwFieldType := consType.kwFields };
+                 if(adt_constructors[consAdtType]?){
+                    adt_constructors[consAdtType] = adt_constructors[consAdtType] + consType;
                  } else {
-                    adt_constructors[adtType] = {consType};
+                    adt_constructors[consAdtType] = {consType};
                  }
                  }
-            //case keywordFormalId():
-            //     keywordFormals += def.defined;
             case moduleId():
                  modules += def.defined;
             case variableId():
@@ -322,6 +320,33 @@ void extractScopes(TModel tm){
                 vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
        }
     }
+    
+    instantiatedADTs = { adt | adt <- ADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, !isTypeParameter(p)) };
+    uninstantiatedADTs = ADTs - instantiatedADTs;
+    
+    //for(iadt <- instantiatedADTs){
+    //    iadtParams = getADTTypeParameters(iadt);
+    //    if(!isEmpty(iadtParams)){
+    //        for(uadt <- uninstantiatedADTs){
+    //            uadtParams = getADTTypeParameters(uadt);
+    //            if(iadt.adtName == uadt.adtName && size(iadtParams) == size(uadtParams)){
+    //                bindings = (unset(uadtParams[i], "label") : iadtParams[i] | i <- index(uadtParams));
+    //                conses = adt_constructors[uadt] ? {};
+    //                
+    //                
+    //                v= bottom-up visit(conses) {
+    //                                            case p:aparameter(str name, AType bound) => p.label? ? bindings[unset(p, "label")][label=p.label] 
+    //                                                                                                 : bindings[unset(p, "label")] ? p
+    //                                         };
+    //                                         
+    //                adt_constructors[iadt]  = v;
+    //                ADTs -= uadt;
+    //                adt_constructors = delete(adt_constructors, uadt);
+    //                break;                   
+    //            }
+    //        }
+    //    }
+    //}
    
     reachableTypes = (adt_uses_type<1,2>)+;
     
@@ -461,7 +486,7 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
     adtType = unsetRec(adtType);
     fieldType = fieldType[label=fieldName];
     if(adtType in domain(getBuiltinFieldMap())){
-        return <aloc(), false>;
+        return <getBuiltinFieldMap()[adtType][fieldName], false>;
     }
     set[AType] constructors = {};
     //if(!adtType.parameter?){
@@ -578,8 +603,8 @@ int getPositionInScope(str name, loc l){
 // Create unique symbolic names for functions, constructors and productions
 
 str getGetterNameForKwpField(AType tp, str fieldName)
-    =  unescapeAndStandardize(tp is acons ? "$get_<tp.adt.adtName>_<tp.label>_<fieldName>"
-                                          : "$get_<tp.adtName>_<fieldName>");
+    =  unescapeAndStandardize(tp is acons ? "$getkw_<tp.adt.adtName>_<tp.label>_<fieldName>"
+                                          : "$getkw_<tp.adtName>_<fieldName>");
 
 str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)
@@ -631,26 +656,36 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         tparams = getADTTypeParameters(base_t);
     }
     
+    instantiated_adt_constructors = adt_constructors;
     
-    //if(!isEmpty(tparams)){
-    //   for(/adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
-    //      found_cons = { *(syntaxRole == dataSyntax() ? adt_constructors[some_adt1] : {aprod(grammar.rules[some_adt1])})
-    //                   | some_adt <- adt_constructors, 
-    //                     some_adt.adtName == adtName, 
-    //                     size(some_adt.parameters) == size(parameters),
-    //                     some_adt1 := unset(some_adt, "label")
-    //                   };
-    //      //TODO: properly instantiate constructors
-    //      definitions[base_t] = found_cons;   
-    //    }
-    //} else {
-        definitions = (adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : {aprod(grammar.rules[adt1])}
-                      | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t, adt1 := unset(adt, "label"), bprintln(adt)
-                      );
-    //}
+    if(!isEmpty(tparams), all(p <- tparams, !isTypeParameter(p))){
+        instantiatedADTs = { adt | adt <- ADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, !isTypeParameter(p)) };
+        uninstantiatedADTs = ADTs - instantiatedADTs;
+        for(uadt <- uninstantiatedADTs){
+            uadtParams = getADTTypeParameters(uadt);
+            if(base_t.adtName == uadt.adtName && size(tparams) == size(uadtParams)){
+                bindings = (unset(uadtParams[i], "label") : tparams[i] | i <- index(uadtParams));
+                conses = adt_constructors[uadt] ? {};
+                
+                v = bottom-up visit(conses) { case p:aparameter(_, _) => p.label? ? bindings[unset(p, "label")][label=p.label] 
+                                                                                  : bindings[unset(p, "label")] ? p
+                                            };
+                                         
+                instantiated_adt_constructors[base_t]  = v;
+               
+                instantiated_adt_constructors = delete(instantiated_adt_constructors, base_t);
+                break;                   
+            }
+        }
+    }
+    
+    
+   
+    definitions = (adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : {aprod(grammar.rules[adt1])}
+                  | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t, adt1 := unset(adt, "label"), bprintln(adt)
+                  );
     
     definedLayouts = getLayouts();
-    xxx = grammar.rules[definedLayouts];
     
     definitions[definedLayouts] = { aprod(grammar.rules[definedLayouts]) };
     //if(isStart){
@@ -658,7 +693,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     //}
    
    solve(definitions){
-    definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 
+    definitions = definitions + (adt1 : instantiated_adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 
                                 | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions, 
                                   adt1 := unsetRec(adt),
                                   !definitions[adt1]?,
