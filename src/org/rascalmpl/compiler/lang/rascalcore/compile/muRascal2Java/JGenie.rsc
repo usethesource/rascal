@@ -31,6 +31,7 @@ data JGenie
         bool (MuExp) isDefinedInCurrentFunction,
         AType (loc src) getType,
         str(loc def) getImportedModuleName,
+        str (AType t) getATypeAccessor,
         str (list[loc] srcs) getAccessor,
         Define (loc src) getDefine,
         list[MuExp] (loc src) getExternalRefs,
@@ -43,8 +44,8 @@ data JGenie
         bool(AType) hasCommonKeywordFields,
         str(AType atype) shareType,
         str(value con) shareConstant,
-        str(Symbol, map[Symbol,Production]) shareATypeConstant,
-        str () getConstants,
+        str(Symbol, map[Symbol,Production]) shareReifiedConstant,
+        tuple[str,str] () getConstants,
         bool (str con) isWildCard,
         void(set[MuExp] evars) addExternalRefs,
         bool (MuExp exp) isExternalRef,
@@ -75,10 +76,9 @@ JGenie makeJGenie(MuModule m,
     int nconstants = -1;
     int ntypes = -1;
     
-    map[ParseTree::Symbol,str] atype_constants = ();
-    map[ParseTree::Symbol,map[ParseTree::Symbol,ParseTree::Production]] atype_definitions = ();
-    map[str,ParseTree::Symbol] atype_constant2atype = ();
-    int ntconstants = -1;
+    map[ParseTree::Symbol,str] reified_constants = ();
+    map[ParseTree::Symbol,map[ParseTree::Symbol,ParseTree::Production]] reified_definitions = ();
+    int nreified = -1;
     
     set[MuExp] externalRefs = {};
     set[MuExp] localRefs = {};
@@ -154,6 +154,17 @@ JGenie makeJGenie(MuModule m,
         
     str _getImportedModuleName(loc def){
         return module2field(allLocs2Module[findImportForDef(def)]);
+    }
+    
+    str _getATypeAccessor(AType t){   
+        t = unsetR(t, "label");
+        for(def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId()), t := def.defInfo.atype){
+            for(ms <- allLocs2Module, isContainedIn(def.scope, ms)){
+                defMod = allLocs2Module[ms];
+                return defMod == moduleName ? "" : "<module2field(defMod)>.";
+            }
+        }
+        return ""; //throw "No accessor found for <t>";
     }
         
     str _getAccessor(list[loc] srcs){
@@ -345,16 +356,11 @@ JGenie makeJGenie(MuModule m,
     str _shareType(AType atype){
         //println("%%%%% shareType: <atype>");
         //atype = unsetR(atype, "label");
-        if(acons(AType adt,
-                list[AType fieldType] fields,
-                list[Keyword] kwFields) := atype){
-                println("acons: <atype>");
-        }
         couter = "";
         if(types[atype]?){
             return types[atype];
         } else if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := atype){
-            return "ADT_<adtName>";
+            return "<_getATypeAccessor(atype)>ADT_<adtName>";
         } else {
             ntypes += 1;
             couter = "$T<ntypes>";
@@ -393,7 +399,7 @@ JGenie makeJGenie(MuModule m,
           constant2value[c] = v;
         }
         
-        if (Symbol _ := v || Production _ := v || Tree _ := v) {
+        if (Symbol _ := v || Production _ := v || Tree _ := v || map[&X,&Y] _ := v) {
             visit (v) {
               case value e: {
                 e = unsetR(e, "src");
@@ -410,18 +416,20 @@ JGenie makeJGenie(MuModule m,
         return c;
     }
     
-    str _shareATypeConstant(Symbol t, map[Symbol, Production] definitions){
-        if(atype_constants[t]?) return atype_constants[t];
-        ntconstants += 1;
-        c = "$R<ntconstants>";
-        atype_constants[t] = c;
-        atype_definitions[t] = definitions;
-        atype_constant2atype[c] = t;
+    str _shareReifiedConstant(Symbol t, map[Symbol, Production] definitions){
+        if(reified_constants[t]?) return reified_constants[t];
+        nreified += 1;
+        c = "$R<nreified>";
+        reified_constants[t] = c;
+        _shareConstant(t);
+        _shareConstant(definitions);
+        reified_definitions[t] = definitions;
         return c;
     }
     
-    str _getConstants() {
-        str decls = "";
+    tuple[str,str] _getConstants() {
+        str cdecls = "";
+        str cinits = "";
         done = {};
         
         // Generate constants in the right declaration order, such that
@@ -429,18 +437,16 @@ JGenie makeJGenie(MuModule m,
         for(c <- constants){
             if(c == ""){
                 if (c notin done) {
-                  decls = "<decls>
-                          'private final <value2outertype(c)> <constants[c]> = <value2IValue(c, constants)>;
-                          ";
+                  cdecls += "<value2outertype(c)> <constants[c]>;\n";
+                  cinits += "<constants[c]> = <value2IValue(c, constants)>;\n";
                   done += {c};
                 }
             } else {
                 bottom-up visit(c) {
                   case s:
                         if (s notin done, s in constants) {
-                          decls = "<decls>
-                                  'private final <value2outertype(s)> <constants[s]> = <value2IValue(s, constants)>;
-                                  ";
+                          cdecls += "<value2outertype(s)> <constants[s]>;\n";
+                          cinits += "<constants[s]> = <value2IValue(s, constants)>;\n";
                           done += {s};
                         }
                     }
@@ -448,35 +454,37 @@ JGenie makeJGenie(MuModule m,
         }
         
         str tdecls = "";
+        str tinits = "";
         done = {};
         // Generate type constants in the right declaration order, such that
         // they are always declared before they are used in the list of type fields
         for(t <- types){
             if(t == ""){
                 if (c notin done) {
-                  decls = "<decls>
-                          'final io.usethesource.vallang.type.Type <types[t]> = <atype2vtype(t, thisJGenie)>;
-                          ";
+                  tdecls += "io.usethesource.vallang.type.Type <types[t]>;\n";
+                  tinits += "<types[t]> = <atype2vtype(t, thisJGenie)>;\n";
                   done += {t};
                 }
             } else {
                 bottom-up visit(t) {
                   case s:
                         if (s notin done, s in types) {
-                          decls = "<decls>
-                                  'final io.usethesource.vallang.type.Type <types[s]> = <atype2vtype(s, thisJGenie)>;\n
-                                  ";
+                          tdecls += "io.usethesource.vallang.type.Type <types[s]>;\n";
+                          tinits += "<types[s]> = <atype2vtype(s, thisJGenie)>;\n";
                           done += {s};
                         }
                     }
             }
         }
-         
-        return "<decls>
-               '<tdecls>
-               '<for(t <- atype_constants){>
-               'final IConstructor <atype_constants[t]> = $RVF.reifiedType(<value2IValue(t)>, <value2IValue(atype_definitions[t])>);
-               '<}>";
+        rdecls = "";
+        rinits = "";
+        for(t <- reified_constants){
+               rdecls += "IConstructor <reified_constants[t]>;\n";
+               rinits += "<reified_constants[t]> = $RVF.reifiedType(<value2IValue(t, constants)>, <value2IValue(reified_definitions[t], constants)>);\n";
+        }       
+        return <"<cdecls><tdecls><rdecls>",
+                "<cinits><tinits><rinits>"
+               >;
     }
     
     bool _isWildCard(str con){
@@ -534,6 +542,7 @@ JGenie makeJGenie(MuModule m,
                 _isDefinedInCurrentFunction,
                 _getType,
                 _getImportedModuleName,
+                _getATypeAccessor,
                 _getAccessor,
                 _getDefine,
                 _getExternalRefs,
@@ -546,7 +555,7 @@ JGenie makeJGenie(MuModule m,
                 _hasCommonKeywordFields,
                 _shareType,
                 _shareConstant,
-                _shareATypeConstant,
+                _shareReifiedConstant,
                 _getConstants,
                 _isWildCard,
                 _addExternalRefs,
@@ -564,7 +573,7 @@ JGenie makeJGenie(MuModule m,
 
 // ---- casting ---------------------------------------------------------------
 
-str castArg(AType t, str x) = startsWith(x, "((<atype2javatype(t)>)(") ? x : "((<atype2javatype(t)>)(<x>))";
+str castArg(AType t, str x) = isValueType(t) ? x : (startsWith(x, "((<atype2javatype(t)>)(") ? x : "((<atype2javatype(t)>)(<x>))");
 str cast(AType t, str x) = "(<castArg(t,x)>)";
 
 // --- removing src annos

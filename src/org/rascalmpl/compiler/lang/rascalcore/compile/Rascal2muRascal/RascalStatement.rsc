@@ -822,10 +822,11 @@ list[MuExp] getValues(Assignable a:(Assignable) `<Assignable receiver> . <Name f
     receiverType = getType(receiver);
     //println(receiverType);
     //println(getType(field));
+    resultType = getType(a);
     ufield = unescape("<field>");
     <consType, isKwp> =  getConstructorInfo(receiverType, getType(field), ufield);
-    return isKwp ? [ muGetKwField(consType, receiverType, getValues(receiver)[0], ufield) ]
-                 : [ muGetField(consType, receiverType, getValues(receiver)[0], ufield) ];
+    return isKwp ? [ muGetKwField(resultType, consType, getValues(receiver)[0], ufield) ]
+                 : [ muGetField(resultType, consType, getValues(receiver)[0], ufield) ];
     //return isKwp ? [ muGetKwField(getType(a), consType, getValues(receiver)[0], ufield) ]
     //             : [ muGetField(getType(a), consType, getValues(receiver)[0], ufield) ];
 }    

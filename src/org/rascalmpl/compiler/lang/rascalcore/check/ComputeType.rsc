@@ -399,6 +399,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
             }
          }
     } else if(isSyntaxType(containerType)){
+       
         if(isStartNonTerminalType(containerType)){
            return computeFieldTypeWithADT(getStartNonTerminalType(containerType), field, scope, s);
         } else if(isNonTerminalType(containerType)){
@@ -419,9 +420,8 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
                     return tp;
                 }
             }
-        } else {
-            return computeFieldTypeWithADT(treeType, field, scope, s);
         } 
+        return computeFieldTypeWithADT(treeType, field, scope, s);
      } else if(asubtype(containerType, treeType)){
             return computeFieldTypeWithADT(treeType, field, scope, s);
     } else if (isTupleType(containerType)) {

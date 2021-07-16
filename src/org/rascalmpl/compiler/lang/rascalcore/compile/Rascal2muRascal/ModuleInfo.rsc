@@ -1,5 +1,6 @@
 module lang::rascalcore::compile::Rascal2muRascal::ModuleInfo
 
+import IO;
 import List;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
@@ -74,7 +75,7 @@ public list[str] getExtendsInModule(){
 }
 
 public list[MuFunction] getFunctionsInModule() {
-  	//println("getFunctionsInModule:");for(fun <- functions_in_module){ println("\t<fun.qname>, <fun.scopeIn>"); }
+  	//println("getFunctionsInModule:");for(fun <- functions_in_module){ println("\t<fun.uniqueName>, <fun.scopeIn>"); }
 	return functions_in_module;
 }
 

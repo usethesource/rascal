@@ -247,9 +247,9 @@ Production aprod2prod(AProduction::reference(AType def, str cons))
   = Production::reference(atype2symbol(def), cons);    
   
 // TODO it is weird that we loose the kwFields here  
-Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] _/*kwFields*/)) 
- = Production::\cons(atype2symbol(adt), [atype2symbol(f) | f <- fields], [atype2symbol(g) | g <- fields], {})
- ;
+Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] _/*kwFields*/)) {
+    return Production::\cons((a.label?) ? Symbol::label(a.label, atype2symbol(adt)) : atype2symbol(adt), [atype2symbol(f) | f <- fields], [atype2symbol(g) | g <- fields], {});
+}
 
 // ---- Predicates, selectors and constructors --------------------------------
 
@@ -804,6 +804,9 @@ list[AType] getADTTypeParameters(AType t) {
     throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyAType(t)>");
 }
 
+bool isTypeParameter(aparameter(_,_)) = true;
+default bool isTypeParameter(AType t) = false;
+
 @doc{Return whether the ADT has type parameters.}
 bool adtHasTypeParameters(AType t) = size(getADTTypeParameters(t)) > 0;
 
@@ -1030,7 +1033,7 @@ default AType getEnumeratorElementType(AType t) = avalue();
 @doc{Synopsis: Determine if the given type is a nonterminal.}
 bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
 bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
-bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr) || adtName == "Tree";
+bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr); // || adtName == "Tree";
 bool isNonTerminalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isNonTerminalType(adt);
 bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
 

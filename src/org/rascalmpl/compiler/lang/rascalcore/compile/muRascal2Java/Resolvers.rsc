@@ -22,12 +22,12 @@ alias Name_Arity = tuple[str name, int arity];
 
 // Get all functions and constructors from a given tmodel
 
-rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel){
+rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
+    used = {}; //range(tmodel.useDef);
     return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> | def <- tmodel.defines, defType(tp) := def.defInfo, 
-        def.idRole == functionId() || def.idRole == constructorId()
+        (def.idRole == functionId() || def.idRole == constructorId), any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))// || def in used
        //, !(tp has isTest && tp.isTest)
         };
-    //isFunctionType(tp) || isConstructorType(tp)};
 }
 
 bool funBeforeDefaultBeforeConstructor(Define a, Define b){
@@ -93,11 +93,16 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     extend_scopes = { module2loc[ext] | ext <- extends };
     import_scopes = { module2loc[imp] | imp <- imports };
     
-    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname]) | mname <- tmodels };
+    module_and_extend_scopes = module_scope + extend_scopes;
+    
+    rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes) | mname <- tmodels };
                           
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isMainName(fname), !isClosureName(fname)){
         // Group all functions of same name and arity by scope
+        if(fname == "unparse"){
+            println("unparse");
+        }
         set[Define] defs = functions_and_constructors[<fname, farity>];
         defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
                                                     return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
@@ -278,9 +283,9 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         actuals_text = intercalate(", ", call_actuals);
        
         if(hasKeywordParameters(consType)){
-            base_call = "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<actuals_text>}, $kwpActuals);";
+            base_call = "return $VF.constructor(<atype2idpart(consType, jg)>, new IValue[]{<actuals_text>}, $kwpActuals);";
         } else {
-            base_call = "return $VF.constructor(<atype2idpart(consType)>, new IValue[]{<actuals_text>});";
+            base_call = "return $VF.constructor(<atype2idpart(consType, jg)>, new IValue[]{<actuals_text>});";
         }
         if(isEmpty(conds)){
             body += base_call;

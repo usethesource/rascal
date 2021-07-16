@@ -82,12 +82,9 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  				  getConstructors(),
    	  				  getFunctionsInModule(), 
    	  				  getVariablesInModule(), 
-   	  				  getVariableInitializationsInModule(), 
-   	  				  //getModuleVarInitLocals(modName), 
-   	  				  //getOverloadedFunctions(), 
+   	  				  getVariableInitializationsInModule(),   
    	  				  getCommonKeywordFieldsNameAndType(),
    	  				  getGrammar(),
-   	  				  //{}, //{<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
    	  				  M@\loc) /*,   
    	  				  reloc,
    	  				  pcfg.srcs)*/

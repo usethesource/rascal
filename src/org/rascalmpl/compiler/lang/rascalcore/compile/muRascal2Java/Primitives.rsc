@@ -542,7 +542,7 @@ JCode transPrim("transitive_reflexive_closure", AType r, [AType a], [str x], JGe
 
 list[str] transPrimArgs("update", AType r, [AType a], [MuExp x, MuExp y, MuExp z], JGenie jg)  
                                                                                          = [ trans(x,jg), trans2NativeInt(y,jg), trans(z, jg) ] 
-                                                                                           when isListLikeType(a) || (a == astr()) || isTupleType(a) || isNodeType(a);
+                                                                                           when isListLikeType(a) || (a == astr()) || isTupleType(a) || isNodeType(a) || isLocType(a);
 list[str] transPrimArgs("update", AType r, [AType a], [MuExp x, MuExp y, MuExp z], JGenie jg)  
                                                                                          = [ trans(x,jg), trans2NativeStr(y,jg), trans(z, jg) ]
                                                                                            when isADTType(a);
