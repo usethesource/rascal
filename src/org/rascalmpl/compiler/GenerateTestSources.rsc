@@ -66,11 +66,20 @@ void generateTestSources(PathConfig pcfg) {
    
    //testModules = [ "lang::rascal::tests::basic::Equality"];
    
-   for (m <- testModules) {
-      safeCompile(m, testConfig, (int d) { durations[m] = d; });
+   exceptions = [];
+   n = size(testModules);
+   for (i <- index(testModules)) {
+      m = testModules[i];
+      println("Compiling test module <m> [<i>/<n>]");
+      e = safeCompile(m, testConfig, (int d) { durations[m] = d; });
+      if(!isEmpty(e)){
+        exceptions= e;
+      }
    }
+   println("Compiled <n> test modules");
+   println("<size(exceptions)> failed to compile: <exceptions>");
    
-   //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
+   iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
 void testCompile(str \module) {
@@ -79,14 +88,16 @@ void testCompile(str \module) {
   println("compile of <\module> lasted <duration / (1000*1000*1000.0)> seconds");
 }
 
-void safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
+str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
    try {
      measure(cpuTime(() {    
        compile(\module, pcfg);
      }));
+     return "";
    }
    catch value exception: {
      println("Something unexpected went wrong during test source generation for <\module>:
-             '    <exception>");  
+             '    <exception>"); 
+     return \module; 
    }
 }
