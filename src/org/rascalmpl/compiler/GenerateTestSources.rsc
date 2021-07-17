@@ -65,7 +65,7 @@ void generateTestSources(PathConfig pcfg) {
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
                  ];    
                  
-    //testModules -= "lang::rascal::tests::concrete::ParameterizedNonTerminals";     
+   //testModules -= "lang::rascal::tests::concrete::ParameterizedNonTerminals";     
    
    //testModules = [ "lang::rascal::tests::basic::Equality"];
    
