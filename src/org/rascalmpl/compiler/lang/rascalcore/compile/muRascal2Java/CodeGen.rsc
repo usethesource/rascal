@@ -695,10 +695,10 @@ default str transWithCast(AType atype, MuExp exp, JGenie jg) {
         return code;
     }
       
-    exptype = getType(exp);
+    expType = getType(exp);
     isequivalent = false;
     try {
-         isequivalent = equivalent(exptype,atype);
+         isequivalent = equivalent(expType,atype) && isEmpty(collectRascalTypeParams(expType));
     } catch _ : /* ignore failure */;
     
     return isequivalent ? code : "((<atype2javatype(atype)>)<parens(code)>)";
