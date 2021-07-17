@@ -107,7 +107,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         usedProductions = {};
         allStarts = {};
         tm = tmodels[qualifiedModuleName];
-        for(m <- {qualifiedModuleName, *imports, *extends}){
+        for(m <- {qualifiedModuleName, *imports, *extends}, tmodels[m]?){
             facts = tmodels[m].facts;
             prodLocs1 = { k | loc k <- facts, aprod(p) := facts[k] };
             

@@ -1,27 +1,20 @@
 module lang::rascalcore::compile::Examples::Tst1
-
-import Node;
-import List;
-
-test bool tstNode2(str name, list[value] children) = arity(makeNode(name, children)) == size(children) &&
-                                                               getName(makeNode(name, children)) == name &&
-                                                               getChildren(makeNode(name, children)) == children;
-//import Type;
 //
-////value main() = \label("xxx", \int());
-//test bool subtype_tuple1(Symbol s, Symbol t) = subtype(\tuple([s,t]), \void);
-
-//test bool sub_type_label(Symbol s, str lbl) = subtype(s, \label(lbl, s));
-
+//data D = d(tuple[int i, str s] t);
 //
-//import ParseTree;
-//
-////data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f() | axiom(P mine = t());
-//data D[&T] = d1(&T fld);
-//
-//value main() //test bool reifyReified3() 
-//    = #type[D[int]].symbol;// == \reified(\adt("D", [\int()]));
+//value main()
+//{   x = d(<3, "a">);
+//    x.t.s = "b";
+//    return x.t.s;
+//   // return x;
+//}
 
+value main() //test bool testLocationFieldUpdate4() 
+{ loc l = |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);
+  l.end.line = 14; 
+  return l;//.end.line;
+  //return l.end.line == 14;
+}
 
 //import ValueIO;
 //import IO;

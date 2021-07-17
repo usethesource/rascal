@@ -530,7 +530,8 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
     if(adt_common_keyword_fields_name_and_type[adtType]?){
         common_keywords = adt_common_keyword_fields_name_and_type[adtType];
         if(common_keywords[fieldName]?){
-            return <common_keywords[fieldName], true>;
+            return <adtType, true>;
+            //return <common_keywords[fieldName], true>;
         }
     }
     
@@ -672,16 +673,12 @@ map[AType,set[AType]] collectNeededDefs(AType t){
                                             };
                                          
                 instantiated_adt_constructors[base_t]  = v;
-               
-                instantiated_adt_constructors = delete(instantiated_adt_constructors, base_t);
                 break;                   
             }
         }
     }
-    
-    
    
-    definitions = (adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : {aprod(grammar.rules[adt1])}
+    definitions = (adt1 : syntaxRole == dataSyntax() ? instantiated_adt_constructors[adt1] : {aprod(grammar.rules[adt1])}
                   | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t, adt1 := unset(adt, "label"), bprintln(adt)
                   );
     
