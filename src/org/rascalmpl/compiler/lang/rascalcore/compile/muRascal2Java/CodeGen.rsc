@@ -53,7 +53,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     imports = { locsModule[m2loc] | <module_scope, importPath(), m2loc> <- tmodels[moduleName].paths };
     imports += { locsModule[m2loc] | imp <- imports, impLoc := moduleLocs[imp], <impLoc, extendPath(), m2loc> <- tmodels[moduleName].paths};
     
-    //for(f <- m.functions){println("<f.name>, <f.uniqueName>, <f.ftype>, <f.scopeIn>"); }
+    for(f <- m.functions){ iprintln(f); }
     muFunctions = (f.uniqueName : f | f <- m.functions);
     loc2muFunction = (f.src : f | f <- m.functions);
     jg = makeJGenie(m, tmodels, moduleLocs, muFunctions);
@@ -941,6 +941,9 @@ JCode trans(muGetField(AType resultType, adatetime(), MuExp exp, str fieldName),
 JCode trans(muGetField(AType resultType, anode(_), MuExp exp, str fieldName), JGenie jg)
     = castArg(resultType, "$anode_get_field(<transWithCast(anode([]),exp,jg)>, \"<getJavaName(fieldName)>\")");
     
+JCode trans(muGetField(AType resultType, tup:atuple(_), MuExp exp, str fieldName), JGenie jg)
+    = castArg(resultType, "$atuple_get_field(<transWithCast(tup,exp,jg)>, \"<getJavaName(fieldName)>\")");
+    
 JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str fieldName), JGenie jg)
     = castArg(resultType, "$areified_get_field(<trans(exp,jg)>, \"<getJavaName(fieldName)>\")");
 
@@ -1029,8 +1032,8 @@ JCode trans(muSetField(AType resultType, adatetime(), MuExp baseExp, str fieldNa
 JCode trans(muSetField(AType resultType, anode(_), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "$anode_field_update(<transWithCast(anode([]), baseExp, jg)>, \"<getJavaName(fieldName)>\", <trans(repl, jg)>)";    
 
-JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, int fieldIndex, MuExp repl), JGenie jg)
-    = "$atuple_update(<trans(baseExp, jg)>, <fieldIndex>,  <trans(repl, jg)>)" when isTupleType(resultType);
+JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, int fieldIdentity, MuExp repl), JGenie jg)
+    = "$atuple_update(<trans(baseExp, jg)>, <fieldIdentity>,  <trans(repl, jg)>)" when isTupleType(resultType);
     
 JCode trans(muSetField(AType resultType, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "$aadt_field_update(<trans(baseExp,jg)>,  \"<getJavaName(fieldName)>\", <trans(repl, jg)>)";
