@@ -1302,13 +1302,13 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
    }
    
    if(isADTType(tp)){
-        <consType, isKwp> = getConstructorInfo(tp, fieldType, ufield);
-        return isKwp ? muGetKwField(consType, tp, translate(expression), ufield)
+        <definingModule, consType, isKwp> = getConstructorInfo(tp, fieldType, ufield);
+        return isKwp ? muGetKwField(consType, tp, translate(expression), ufield, definingModule)
                      : muGetField(getType(e), consType, translate(expression), ufield);
     } else 
     if(asubtype(tp, treeType)){
-        <consType, isKwp> = getConstructorInfo(treeType, fieldType, ufield);
-        return isKwp ? muGetKwField(consType, treeType, translate(expression), ufield)
+        <definingModule, consType, isKwp> = getConstructorInfo(treeType, fieldType, ufield);
+        return isKwp ? muGetKwField(consType, treeType, translate(expression), ufield, definingModule)
                      : muGetField(getType(e), treeType, translate(expression), ufield); // Can this ever happen?
     }
     
@@ -1546,8 +1546,8 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
     if( muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName) := muLHS){
         muLHS = muGuardedGetField(resultType, baseType, baseExp, fieldName);
         lshType = resultType;
-    } else if(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName) := muLHS){
-        muLHS = muGuardedGetField(resultType, consType has adt ? consType.adt : consType, exp, fieldName);
+    } else if(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName) := muLHS){
+        muLHS = muGuardedGetField(resultType, consType has adt ? consType.adt : consType, exp, fieldName, moduleName);
         lshType = resultType;
     } else if(muCallPrim3("subscript", AType result, list[AType] details, list[MuExp] exps, loc src) := muLHS){
         muLHS = muCallPrim3("guarded_subscript", result, details, exps, src);

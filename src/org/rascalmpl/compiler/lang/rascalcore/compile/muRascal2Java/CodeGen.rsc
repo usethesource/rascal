@@ -241,7 +241,7 @@ tuple[str,str,str,str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[ATy
     seenAdtNames = {};
     for(a:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) <- ADTs){
         if(adtName notin seenAdtNames, isEmpty(jg.getATypeAccessor(a))){
-            adtTypeDecls += "public io.usethesource.vallang.type.Type <getADTName(adtName)>;\n";
+            adtTypeDecls += "public io.usethesource.vallang.type.Type <jg.getATypeAccessor(a)><getADTName(adtName)>;\n";
             adtTypeInits += "<getADTName(adtName)> = $TF.abstractDataType($TS, \"<adtName>\");\n";
             seenAdtNames += adtName;
         }
@@ -251,13 +251,13 @@ tuple[str,str,str,str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[ATy
     kwpTypeDecls = "";
     
     for(c: acons(AType adt, list[AType] fields, list[Keyword] kwpFields) <- constructors, isEmpty(jg.getATypeAccessor(c))){
-        //println(c);
+        println(c);
         adt_cons = atype2idpart(c, jg);
         hasFieldNames = all(fld <- fields, !isEmpty(fld.label));
         fieldDecls = hasFieldNames ? [ "<atype2vtype(fld,jg)>, \"<fld.label>\"" | fld <- fields ] : [ "<atype2vtype(fld, jg)>" | fld <- fields ];
         //println(fieldDecls);
-        consTypeDecls += "public io.usethesource.vallang.type.Type <adt_cons>;\n";
-        consTypeInits += "<adt_cons> = $TF.constructor($TS, <getADTName(adt.adtName)>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
+        consTypeDecls += "public io.usethesource.vallang.type.Type <jg.getATypeAccessor(c)><adt_cons>;\n";
+        consTypeInits += "<adt_cons> = $TF.constructor($TS, <jg.getATypeAccessor(c)><getADTName(adt.adtName)>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
         
         for(kwpField <- kwpFields){
             kwpTypeDecls += "$TS.declareKeywordParameter(<adt_cons>,\"<kwpField.fieldType.label>\", <atype2vtype(kwpField.fieldType, jg)>);\n";
@@ -372,7 +372,7 @@ JCode trans(MuFunction fun, JGenie jg){
     jg.setFunction(fun);
     shortName = getJavaName(getUniqueFunctionName(fun));
     
-    visibility = isSyntheticFunctionName(shortName) ? "private " : "public ";
+    visibility = "public "; // isSyntheticFunctionName(shortName) ? "private " : "public "; $getkw_ should be prublic
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
         returnType = atype2javatype(ftype.ret);
@@ -919,16 +919,19 @@ JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName
 
 // ---- muGetKwField ------------------------------------------------------
 
-JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str fieldName), JGenie jg){
+str prefix(str moduleName, JGenie jg){
+    return isEmpty(moduleName) || moduleName == jg.getModuleName ? "" : module2field(moduleName) + ".";
+}
+JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str fieldName, str moduleName), JGenie jg){
     adtName = asubtype(adtType, treeType) ? "Tree" : adtType.adtName;
-    return "$getkw_<adtName>_<getJavaName(fieldName)>(<transWithCast(adtType, cons, jg)>)";
+    return "<prefix(moduleName,jg)>$getkw_<adtName>_<getJavaName(fieldName)>(<transWithCast(adtType, cons, jg)>)";
 }
 
-JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName), JGenie jg){
+JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName, str moduleName), JGenie jg){
     adtName = asubtype(adt, treeType) ? "Tree" : adt.adtName;
     isConsKwField = fieldName in {kwf.fieldType.label | kwf <- kwFields};
-    return isConsKwField ? "$getkw_<adtName>_<consType.label>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)"
-                         : "$getkw_<adtName>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)";
+    return isConsKwField ? "<prefix(moduleName,jg)>$getkw_<adtName>_<consType.label>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)"
+                         : "<prefix(moduleName,jg)>$getkw_<adtName>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)";
 }
 // ---- muGetField ---------------------------------------------------------
 

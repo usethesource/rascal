@@ -43,7 +43,8 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=true){
    try {
       resetModuleInfo(optimize, enableAsserts);
-      setModuleScope(M@\loc);
+      module_scope = M@\loc;
+      setModuleScope(module_scope);
       module_name = "<M.header.name>";
       setModuleName(module_name);
       mtags = translateTags(M.header.tags);
@@ -67,7 +68,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  
    	  translateModule(M);
    	  
-   	  generateAllFieldGetters();
+   	  generateAllFieldGetters(module_scope);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
                       

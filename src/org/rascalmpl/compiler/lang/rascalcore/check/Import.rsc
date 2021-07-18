@@ -295,9 +295,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //m1.paths = domainR(tm.paths, {mscope});
         
         //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
-        m1.useDef = { <u, d> | <u, d> <- tm.useDef, isContainedIn(u, mscope) };
+        m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in saveModuleRoles || isContainedIn(u, mscope) };
         
-        //roles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), annoId()} + anyVariableRoles;
+        //roles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), keywordDormal() + annoId()} + anyVariableRoles;
         // Filter model for current module and replace functions in defType by their defined type
         
         defs = for(tup: <loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
