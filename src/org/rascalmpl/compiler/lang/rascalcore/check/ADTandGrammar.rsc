@@ -175,7 +175,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         g = expandKeywords(g);
         g.rules += (AType::empty():choice(AType::empty(), {prod(AType::empty(),[])}));
         tm.store[key_grammar] = [g];
-        iprintln(g);
+        //iprintln(g);
         return tm;
     } catch TypeUnavailable(): {
         // protect against undefined entities in the grammar that have not yet been reported.
@@ -202,7 +202,7 @@ TModel checkKeywords(rel[AType, AProduction] usedProductions, TModel tm){
             }
         }
     }
-    for(AType adtType <- domain(usedProductions), bprintln(adtType), ((\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
+    for(AType adtType <- domain(usedProductions), ((\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
         for(p:prod(AType def, list[AType] asymbols) <- usedProductions[adtType]){
             if(size(asymbols) != 1){
                 tm.messages += [warning(size(asymbols) == 0 ? "One symbol needed in keyword declaration" : "Keyword declaration should consist of one symbol", p.src)];
@@ -234,7 +234,7 @@ AGrammar expandParameterizedNonTerminals(AGrammar grammar, TModel tm){
     prods = {grammar.rules[nt] | nt <- grammar.rules};
     
     // First we collect all the parametrized definitions
-    defs = { p | p <- prods, bprintln(p), AType adt := unset(p.def, "label"), params := getADTTypeParameters(adt), !isEmpty(params)};
+    defs = { p | p <- prods, AType adt := unset(p.def, "label"), params := getADTTypeParameters(adt), !isEmpty(params)};
     result = prods - defs;
   
     // Then we collect all the uses of parameterized sorts in the other productions
@@ -246,7 +246,7 @@ AGrammar expandParameterizedNonTerminals(AGrammar grammar, TModel tm){
     instantiated = {};
     while (uses != {}) {
         instances = {};
-        for (u <- uses, def <- defs, bprintln(def), bprintln(u), def.def.adtName == u.adtName) {
+        for (u <- uses, def <- defs, def.def.adtName == u.adtName) {
            name = u.adtName;
            actuals = u.parameters;
            formals = def.def.parameters;
@@ -262,6 +262,6 @@ AGrammar expandParameterizedNonTerminals(AGrammar grammar, TModel tm){
         uses = { s | /AType s <- instances, isADTType(s), params := getADTTypeParameters(s), !isEmpty(params), s notin instantiated};
         result += instances;
   }
-  grammar.rules = (r.def : choice(r.def, r.alternatives) | r <- result, bprintln(r));
+  grammar.rules = (r.def : choice(r.def, r.alternatives) | r <- result);
   return grammar;
 }

@@ -1,4 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst1
+
+import lang::rascalcore::compile::Examples::Tst2;
+
+
+value main() = x().right;
 //
 //data D = d(tuple[int i, str s] t);
 //
@@ -9,12 +14,12 @@ module lang::rascalcore::compile::Examples::Tst1
 //   // return x;
 //}
 
-value main() //test bool testLocationFieldUpdate4() 
-{ loc l = |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);
-  l.end.line = 14; 
-  return l;//.end.line;
-  //return l.end.line == 14;
-}
+//value main() //test bool testLocationFieldUpdate4() 
+//{ loc l = |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>);
+//  l.end.line = 14; 
+//  return l;//.end.line;
+//  //return l.end.line == 14;
+//}
 
 //import ValueIO;
 //import IO;

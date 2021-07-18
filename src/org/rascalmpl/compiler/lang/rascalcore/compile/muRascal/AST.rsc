@@ -175,8 +175,8 @@ public data MuExp =
           // Fields of data constructors
           | muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
           | muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
-          | muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)
-          | muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)
+          | muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)
+          | muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)
 
           | muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)
           
@@ -414,7 +414,7 @@ AType getType(muGetFieldFromConstructor(AType resultType, AType consType, MuExp 
 
 AType getType(muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
 AType getType(muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
-AType getType(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)) = resultType;
+AType getType(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)) = resultType;
 AType getType(muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)) = resultType;
 AType getType(muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)) = resultType;
          
@@ -1348,8 +1348,8 @@ MuExp muGetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp
     = muValueBlock(resultType, [*pre, muGetField(resultType, baseType, last, fieldName)]);
 
 
-MuExp muGetKwField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), str fieldName)
-   = muValueBlock(resultType, [*pre, muGetKwField(resultType, baseType, last, fieldName)]);
+MuExp muGetKwField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), str fieldName, str moduleName)
+   = muValueBlock(resultType, [*pre, muGetKwField(resultType, baseType, last, fieldName, moduleName)]);
 
 MuExp muSetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), value fieldIdentity, MuExp repl)
    = muValueBlock(resultType, [*pre, muSetField(resultType, baseType, last, fieldIdentity, repl)]);

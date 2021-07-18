@@ -22,7 +22,7 @@ str generateInterface(str moduleName, str packageName, str className, list[MuFun
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
            '
            '@SuppressWarnings(\"unused\")
-           'interface $<className>  {
+           'public interface $<className>  {
            '    <generateInterfaceMethods(moduleName, functions, extends, tmodels)>
            '}";
 }

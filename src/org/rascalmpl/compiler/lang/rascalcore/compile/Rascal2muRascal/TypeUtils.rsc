@@ -196,29 +196,9 @@ AType getTypeFromDef(Define def){ // Move to Solver
     throw "getTypeFromDef: <def>";
 }
 
-private int getFormals(UID fuid) {
-    tp = getDefType(fuid);
-    kwmap = size(tp.kwFormals) > 0 ? 1 : 0;
-    return size(tp.formals) + kwmap;
-}
 
 private str getScope(UID uid){
     return convert2fuid(declaredIn[uid]);
-}
-    
-// Compute the scope size, excluding declared nested functions, closures and keyword parameters   
-// r2mu translation of functions introduces variables in place of formal parameter patterns and uses patterns to match these variables  
-private int getScopeSize(UID uid){
-    vars = [];
-    if(definitions[uid]?){
-        def = definitions[uid];
-        assert def.idRole == functionId();
-        vars = [ v | v <- declares[uid], is_non_keyword_variable(definitions[v]) ];
-    } else {
-        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[uid] }; //TODO declaredIn[sc] == fun
-        vars = [v | v <- locally_defined, is_non_keyword_variable(v)];
-    }
-       return size(vars) + 2; // '+ 2' accounts for keyword arguments and default values of keyword parameters  
 }
  
 bool is_formal(Define d) = d.idRole in formalRoles;
@@ -247,6 +227,13 @@ private loc findContainer(Define d){
         cscope = scopes[cscope];
     }
     return cscope;
+}
+
+str findDefiningModule(loc l){
+    for(ms <- module_scopes,isContainedIn(l, ms)){
+        return definitions[ms].id;
+    }
+    throw "No module found for <l>";
 }
     
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
@@ -320,34 +307,7 @@ void extractScopes(TModel tm){
                 vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
        }
     }
-    
-    instantiatedADTs = { adt | adt <- ADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, !isTypeParameter(p)) };
-    uninstantiatedADTs = ADTs - instantiatedADTs;
-    
-    //for(iadt <- instantiatedADTs){
-    //    iadtParams = getADTTypeParameters(iadt);
-    //    if(!isEmpty(iadtParams)){
-    //        for(uadt <- uninstantiatedADTs){
-    //            uadtParams = getADTTypeParameters(uadt);
-    //            if(iadt.adtName == uadt.adtName && size(iadtParams) == size(uadtParams)){
-    //                bindings = (unset(uadtParams[i], "label") : iadtParams[i] | i <- index(uadtParams));
-    //                conses = adt_constructors[uadt] ? {};
-    //                
-    //                
-    //                v= bottom-up visit(conses) {
-    //                                            case p:aparameter(str name, AType bound) => p.label? ? bindings[unset(p, "label")][label=p.label] 
-    //                                                                                                 : bindings[unset(p, "label")] ? p
-    //                                         };
-    //                                         
-    //                adt_constructors[iadt]  = v;
-    //                ADTs -= uadt;
-    //                adt_constructors = delete(adt_constructors, uadt);
-    //                break;                   
-    //            }
-    //        }
-    //    }
-    //}
-   
+       
     reachableTypes = (adt_uses_type<1,2>)+;
     
     // Determine position of module variables
@@ -481,17 +441,15 @@ AType getClosureType(UID uid) {
 map[AType, list[Keyword]] getCommonKeywordFieldsMap()
     = adt_common_keyword_fields;
 
-tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType, str fieldName){
+tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType, str fieldName){
     println("getConstructorInfo: <adtType>, <fieldType>, <fieldName>");
     adtType = unsetRec(adtType);
     fieldType = fieldType[label=fieldName];
     if(adtType in domain(getBuiltinFieldMap())){
-        return <getBuiltinFieldMap()[adtType][fieldName], false>;
+        return <"", getBuiltinFieldMap()[adtType][fieldName], false>;
     }
     set[AType] constructors = {};
-    //if(!adtType.parameter?){
-    //    println("XXX");
-    //}
+   
     adt_arity = size(adtType.parameters ? []);
     if(adt_arity == 0){
         constructors = adt_constructors[adtType] ? {};
@@ -516,31 +474,39 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
     for(AType consType <-  constructors){
         for(declaredFieldType <- consType.fields){
             if(declaredFieldType.label == fieldName && asubtype(fieldType, declaredFieldType)){
-                return <consType,false>;
+                return <"", consType,false>;
             }
         }
         for(<AType kwType, Expression defaultExp> <- consType.kwFields){
             if(kwType == fieldType){
-                return <consType, true>;
+                return <findDefiningModule(getLoc(defaultExp)), consType, true>;
             }
          }      
     }
     
     // Common kw field of the ADT?
-    if(adt_common_keyword_fields_name_and_type[adtType]?){
-        common_keywords = adt_common_keyword_fields_name_and_type[adtType];
-        if(common_keywords[fieldName]?){
-            return <adtType, true>;
-            //return <common_keywords[fieldName], true>;
+    
+    for(Keyword kw <- adt_common_keyword_fields[adtType] ? []){
+        if("<kw.fieldType.label>" == fieldName){
+            return <findDefiningModule(getLoc(kw.defaultExp)), adtType, true>;
         }
     }
+    
+    //if(adt_common_keyword_fields_name_and_type[adtType]?){
+    //    common_keywords = adt_common_keyword_fields_name_and_type[adtType];
+    //    if(common_keywords[fieldName]?){
+    //        adt_common_keyword[adtType]
+    //        return <adtType, true>;
+    //        //return <common_keywords[fieldName], true>;
+    //    }
+    //}
     
     // Field of nonterminal?
     if(grammar.rules[adtType]?){
         productions = grammar.rules[adtType].alternatives;
         for(p:prod(AType def, list[AType] atypes) <- productions){
             for(a <- atypes, a.label?, a.label == fieldName){
-                return <a, false>;
+                return <"", a, false>;
             }
         }
     }
@@ -548,17 +514,22 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
     // Common kw field of concrete type?
     if(asubtype(adtType, treeType)){
         if(fieldName == "src"){
-            return <aloc(), true>;
+            return <"", aloc(), true>;
         }
-        if(adt_common_keyword_fields_name_and_type[treeType]?){
-            common_keywords = adt_common_keyword_fields_name_and_type[treeType];
-            if(common_keywords[fieldName]?){
-                return <common_keywords[fieldName], true>;
+        for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
+            if("<kw.fieldType.label>" == fieldName){
+                return <findDefiningModule(getLoc(kw.defaultExp)), adtType, true>;
             }
         }
+        //if(adt_common_keyword_fields_name_and_type[treeType]?){
+        //    common_keywords = adt_common_keyword_fields_name_and_type[treeType];
+        //    if(common_keywords[fieldName]?){
+        //        return <common_keywords[fieldName], true>;
+        //    }
+        //}
     }
     
-    return <adtType, false>;
+    return <"", adtType, false>;
     
     //throw "getConstructorInfo, no constructor found for <adtType>, <fieldType>, <fieldName>";
 }
@@ -772,6 +743,7 @@ MuExp mkVar(str name, loc l) {
   Define def;
   UID uid = l;
   if(isEmpty(defs)){
+    println("mkvar: <name>, <l>");
     if(definitions[l]?){
         uid = l;
         def = definitions[l];
@@ -893,10 +865,10 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
             descend_into += {from, to};
         } else if(any(AType t <- desiredTypes, asubtype(t, to))){
             descend_into += {from, to};
-        } else if(c:acons(AType \adtsym, list[AType] parameters, SyntaxRole sr) := from  && // TODO: check
+        } else if(c:acons(AType \adtsym, list[AType] parameters, list[Keyword] kwFields, SyntaxRole sr) := from  && // TODO: check
                             (\adtsym in patternTypes || name in consNames)){
                   descend_into += {from, to};   
-        } else if(c:acons(AType \adtsym, str name, list[AType] parameters, SyntaxRole sr) := to  && 
+        } else if(c:acons(AType \adtsym, str name, list[AType] parameters, list[Keyword] kwFields, SyntaxRole sr) := to  && 
                             (\adtsym in patternTypes || name in consNames)){
                   descend_into += {from, to};        
         }
