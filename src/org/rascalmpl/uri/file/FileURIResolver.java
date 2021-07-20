@@ -56,7 +56,6 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 
 import io.usethesource.vallang.ISourceLocation;
-import jnr.ffi.annotations.Synchronized;
 
 public class FileURIResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver, ISourceLocationWatcher {
 	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watchers = new ConcurrentHashMap<>();
