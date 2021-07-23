@@ -684,9 +684,21 @@ public class URIResolverRegistry {
 		if (exists(target) && !overwrite) {
 			throw new IOException("file exists " + source);
 		}
+		
+		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
+			try (FileChannel from = getReadableFileChannel(source)) {
+				try (FileChannel to = getWriteableFileChannel(target, false)) {
+					long transferred = 0;
+					while (transferred < from.size()) {
+						transferred += from.transferTo(transferred, from.size() - transferred, to);
+					}
+				}
+			}
+			return;
+		}
 
-		try (InputStream from = URIResolverRegistry.getInstance().getInputStream(source)) {
-			try (OutputStream to = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
+		try (InputStream from = getInputStream(source)) {
+			try (OutputStream to = getOutputStream(target, false)) {
 				final byte[] buffer = new byte[FILE_BUFFER_SIZE];
 				int read;
 				while ((read = from.read(buffer, 0, buffer.length)) != -1) {
