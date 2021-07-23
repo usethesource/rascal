@@ -30,6 +30,9 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,7 +55,7 @@ public class URIResolverRegistry {
 	private final Map<String, Map<String, ILogicalSourceLocationResolver>> logicalResolvers = new ConcurrentHashMap<>();
 	private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new ConcurrentHashMap<>();
 	private final Map<String, ISourceLocationWatcher> watchers = new ConcurrentHashMap<>();
-	private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> watching = new ConcurrentHashMap<>();
+	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watching = new ConcurrentHashMap<>();
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -505,17 +508,26 @@ public class URIResolverRegistry {
 		notifyWatcher(URIUtil.getParentLocation(uri), ISourceLocationWatcher.directoryCreated(uri));
 	}
 
-	private void notifyWatcher(ISourceLocation key, ISourceLocationChanged event) {
-		ISourceLocationWatcher watcher = watchers.get(key.getScheme());
-		if (watcher == null) {
-			Consumer<ISourceLocationChanged> callback = watching.get(key);
-
-			if (callback != null) {
-				callback.accept(event);
+	private final ExecutorService exec = Executors.newCachedThreadPool(new ThreadFactory() {
+			public Thread newThread(Runnable r) {
+            	SecurityManager s = System.getSecurityManager();
+            	ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+				Thread t = new Thread(group, r, "Generic watcher thread-pool");
+				t.setDaemon(true);
+				return t;
 			}
-		}
-		else {
+		});
+	private void notifyWatcher(ISourceLocation key, ISourceLocationChanged event) {
+		if (watchers.containsKey(key.getScheme())) {
 			// the registered watcher will do the callback itself
+			return;
+		}
+		Set<Consumer<ISourceLocationChanged>> callbacks = watching.get(key);
+		if (callbacks != null) {
+			// we schedule the call in the background
+			for (Consumer<ISourceLocationChanged> c : callbacks) {
+				exec.submit(() -> c.accept(event));
+			}
 		}
 	}
 
@@ -852,7 +864,7 @@ public class URIResolverRegistry {
 			watcher.watch(loc, callback);
 		}
 		else {
-			watching.put(loc, callback);
+			watching.computeIfAbsent(loc, k -> ConcurrentHashMap.newKeySet()).add(callback);
 		}
 
 		if (isDirectory(loc) && recursive) {
@@ -869,4 +881,36 @@ public class URIResolverRegistry {
 			}
 		}
 	}
+
+	public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
+		throws IOException {
+		loc = safeResolve(loc);
+		if (!isDirectory(loc)) {
+			// so underlying implementations of ISourceLocationWatcher only have to support
+			// watching directories (the native NEO file watchers are like that)
+			loc = URIUtil.getParentLocation(loc);
+		}
+		ISourceLocationWatcher watcher = watchers.get(loc.getScheme());
+		if (watcher != null) {
+			watcher.unwatch(loc, callback);
+		}
+		else {
+			watching.computeIfAbsent(loc, k -> ConcurrentHashMap.newKeySet()).remove(callback);
+		}
+		if (isDirectory(loc) && recursive) {
+			for (ISourceLocation elem : list(loc)) {
+				if (isDirectory(elem)) {
+					try {
+						unwatch(elem, recursive, callback);
+					}
+					catch (IOException e) {
+						// we swallow recursive IO errors which can be caused by file permissions.
+						// it is acceptable that inaccessible files are not watched
+					}
+				}
+			}
+		}
+
+	}
+
 }
