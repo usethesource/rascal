@@ -3,22 +3,15 @@ module lang::rascalcore::check::RascalConfig
 
 extend lang::rascalcore::check::CheckerCommon;
 
-//extend analysis::typepal::TypePal;
-//extend lang::rascalcore::check::BasicRascalConfig;
  
 extend lang::rascalcore::check::ADTandGrammar;
-//extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeUtils;
-//import lang::rascalcore::check::NameUtils;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
-//extend lang::rascalcore::check::ComputeType;
-
 import Location;
 
-extend lang::rascalcore::grammar::ParserGenerator;
+//extend lang::rascalcore::grammar::ParserGenerator;
 
 import List;
 import Map;
@@ -336,17 +329,17 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d.defined].ret == avoid() ? "non-`void`" : "`void`"> result type", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }
-        if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1 != d2,  t1 := facts[d1.defined]?afunc(avoid(),[],[]), t2 := facts[d2.defined]?afunc(avoid(),[],[]), d1.scope == d2.scope, (t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest))){
+        if(size(defs) > 0 && any(d1 <- defs, d2 <- defs, d1 != d2,  t1 := facts[d1.defined]?afunc(avoid(),[],[]), t2 := facts[d2.defined]?afunc(avoid(),[],[]), d1.scope == d2.scope, (t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest))){
             msgs = [ error("Test name `<id>` should not be overloaded", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }        
     }
     
-    consDefs = {<define.id, define> | define <- defines, define.idRole == constructorId() };
-    consIds = domain(consDefs);
+    consNameDef = {<define.id, define> | define <- defines, define.idRole == constructorId() };
+    consIds = domain(consNameDef);
     for(id <- consIds){
-        defs = consDefs[id];
-        if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1.defined != d2.defined, 
+        defs = consNameDef[id];
+        if(size(defs) > 0 && any(d1 <- defs, d2 <- defs, d1.defined != d2.defined, 
                                 t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
                                 t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
                                 d1.scope in moduleScopes && d2.scope in moduleScopes && comparable(t1.fields, t2.fields)
@@ -354,6 +347,16 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             msgs = [ warning("Constructor `<id>` clashes with other declaration with comparable fields", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }      
+    }
+    
+    consDef = range(consNameDef);
+    for(d1 <- consDef, d2 <- consDef, d1.defined != d2.defined, t1 := s.getType(d1), t2 := s.getType(d2), t1.adt == t2.adt,
+        d1.scope in moduleScopes && d2.scope in moduleScopes){
+        for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.label == fld2.label, !comparable(fld1, fld2)){
+            msgs = [ warning("Field `<fld1.label>` is declared with different types in constructors `<d1.id>` and `<d2.id>` for `<t1.adt.adtName>`", d1.defined)
+                   ];
+            s.addMessages(msgs);
+        }
     }
 }
 
@@ -363,20 +366,6 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
        checkOverloading(namedTrees, s);
     
         for(mname <- namedTrees){
-            //pt = namedTrees[mname];
-            //g = addGrammar(getLoc(pt), s);
-            //if(!isEmpty(g.rules)){ 
-            //    pname = "DefaultParser";
-            //    if(Module m := pt) { 
-            //            moduleName = "<m.header.name>";
-            //            pname = parserName(moduleName);
-            //    }
-            //    //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
-            //    //s.addMessages(msgs);
-            //    //TODO: generates too long file names
-            //    //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
-            ////s.addMessages(msgs);
-            //}
             addADTsAndCommonKeywordFields(s);
         }
    }

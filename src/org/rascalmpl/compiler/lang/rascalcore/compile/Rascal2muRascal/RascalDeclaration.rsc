@@ -120,7 +120,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         */
        consName = consType.label;
        
-       for(<kwType, defaultExp> <- consType.kwFields){
+       for(<kwType, defaultExp> <- consType.kwFields, isContainedIn(defaultExp@\loc, module_scope)){
             str kwFieldName = kwType.label;
             kwfield2cons += <kwFieldName, kwType, consType>;
             str fuid = getGetterNameForKwpField(consType, kwFieldName);
@@ -149,7 +149,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         adtVar = muVar(adtName, fuid, 0, adtType);
         body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(consType.label), size(consType.fields), adtVar),
                               muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName, findDefiningModule(getLoc(consType.kwFields[0].defaultExp)))))
-                       | <kwType, consType> <- conses
+                       | <kwType, consType> <- conses, isContainedIn(getLoc(consType.kwFields[0].defaultExp), module_scope)
                        ]
                        + muFailReturn(returnType)
                       );

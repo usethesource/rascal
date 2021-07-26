@@ -31,8 +31,8 @@ import lang::rascalcore::compile::util::Names;
 
 /*
  * Translate Rascal statements to muRascal using the functions:
- * - MuExp translateStats(Statement* statements)
- * - MuExp translate(Statement s).
+ * - MuExp translateStats(Statement* statements, ...)
+ * - MuExp translate(Statement s, ...).
  */
 
 /********************************************************************/

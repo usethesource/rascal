@@ -175,7 +175,6 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         g = expandKeywords(g);
         g.rules += (AType::empty():choice(AType::empty(), {prod(AType::empty(),[])}));
         tm.store[key_grammar] = [g];
-        //iprintln(g);
         return tm;
     } catch TypeUnavailable(): {
         // protect against undefined entities in the grammar that have not yet been reported.

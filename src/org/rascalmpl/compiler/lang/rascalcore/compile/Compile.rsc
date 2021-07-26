@@ -74,6 +74,7 @@ list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|norel
     errors = [];
     start_comp = cpuTime();
     for(mname <- modules){
+    
        errors += compile1(mname, modules[mname], tmodels, moduleLocs, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
     }
     
