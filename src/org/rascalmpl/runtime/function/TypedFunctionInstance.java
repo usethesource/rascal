@@ -12,7 +12,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class TypedFunctionInstance implements IFunction {
 	protected final TypeFactory $TF = TypeFactory.getInstance();
-    private final Type type;
+    protected final Type type;
 	
 	public TypedFunctionInstance(Type type) {
 	    this.type = type;
