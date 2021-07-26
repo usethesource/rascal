@@ -307,10 +307,10 @@ private MuExp translateStringLiteral(s: (StringLiteral)`<StringConstant constant
 
 private list[MuExp] translateExpInStringLiteral(MuExp template, str indent, Expression expression){   
     if(indent == ""){
-    	return [ muTemplateAdd(template, translate(expression)) ];
+    	return [ muTemplateAdd(template, getType(expression), translate(expression)) ];
     }	
 	return [ muTemplateBeginIndent(template, indent),
-    	     muTemplateAdd(template, translate(expression)),
+    	     muTemplateAdd(template, getType(expression), translate(expression)),
     		 muTemplateEndIndent(template, indent)
     	   ];
 }
@@ -347,7 +347,7 @@ private str translatePreChars(PreStringChars pre) {
 
 private list[MuExp] translateMidChars(MuExp template, MidStringChars mid) {
   smid = removeMargins("<mid>"[1..-1]);
-  return "<mid>" == "" ? [] : [ muTemplateAdd(template, deescape(smid)) ];	//?
+  return "<mid>" == "" ? [] : [ muTemplateAdd(template, astr(), deescape(smid)) ];	//?
 }
                      
 /* Recap of relevant rules from Rascal grammar:
@@ -374,7 +374,7 @@ private list[MuExp] translateMidChars(MuExp template, MidStringChars mid) {
 
 public list[MuExp] translateMiddle(MuExp template, str indent, (StringMiddle) `<MidStringChars mid>`) {
 	mids = removeMargins("<mid>"[1..-1]);
-	return mids == "" ? [] : [ muTemplateAdd(template, deescape(mids)) ];	// ?
+	return mids == "" ? [] : [ muTemplateAdd(template, astr(), deescape(mids)) ];	// ?
 }
 
 public list[MuExp] translateMiddle(MuExp template, str indent, s: (StringMiddle) `<MidStringChars mid> <StringTemplate stemplate> <StringMiddle tail>`) {
@@ -406,7 +406,7 @@ private list[MuExp] translateTail(MuExp template, str indent, s: (StringTail) `<
 	
 private list[MuExp] translateTail(MuExp template, str indent, (StringTail) `<PostStringChars post>`) {
   content = removeMargins("<post>"[1..-1]);
-  return size(content) == 0 ? [] : [muTemplateAdd(template, deescape(content))];
+  return size(content) == 0 ? [] : [muTemplateAdd(template, astr(), deescape(content))];
 }
 
 private list[MuExp] translateTail(MuExp template, str indent, s: (StringTail) `<MidStringChars mid> <StringTemplate stemplate> <StringTail tail>`) {
@@ -525,7 +525,7 @@ MuExp translateBool(e:(Expression)  `<Literal s>`, BTSCOPES btscopes, MuExp true
 // this detects that the concrete string has been parsed correctly and we can 
 // switch to compiling the tree values to muRascal expressions:
 MuExp translate(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete])){
-  return translateConcrete(concrete);
+  return translateConcreteExpression(concrete);
 }  
   
 // this detects that a parse error has occurred earlier and we generate an exception here:  
@@ -533,12 +533,12 @@ MuExp translate(e:appl(prod(label("typed",lex("Concrete")), [_],_),_))
   = muValueBlock([muThrow(muCon("(compile-time) parse error in concrete syntax", e@\loc))]);   
 
 // these three constant parts of trees are directly mapped to constants:
-private MuExp translateConcrete(t:appl(prod(lit(_),_, _), _)) = muCon(t);
-private MuExp translateConcrete(t:appl(prod(cilit(_),_, _), _)) = muCon(t);
-private MuExp translateConcrete(t:appl(prod(layouts(_),_, _), _)) = muCon(t);
+private MuExp translateConcreteExpression(t:appl(prod(lit(_),_, _), _)) = muCon(t);
+private MuExp translateConcreteExpression(t:appl(prod(cilit(_),_, _), _)) = muCon(t);
+private MuExp translateConcreteExpression(t:appl(prod(layouts(_),_, _), _)) = muCon(t);
   
 // this is a pattern variable, which we substitute with a reference to a muVariable:  
-private MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[_], _), [ConcreteHole hole])) {
+private MuExp translateConcreteExpression(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[_], _), [ConcreteHole hole])) {
     <fuid, pos> = getVariableScope("<hole.name>", getConcreteHoleVarLoc(t));
     
     return mkVar(unescape("<hole.name>"), hole.name@\loc);
@@ -547,23 +547,23 @@ private MuExp translateConcrete(t:appl(prod(Symbol::label("$MetaHole", Symbol _)
 
 // Four cases of lists are detected to be able to implement splicing
 // splicing is different for separated lists from normal lists
-private MuExp translateConcrete(t:appl(p:regular(s:iter(Symbol elem)), list[Tree] args))
-  = muTreeAppl(muCon(p), translateConcreteList(elem, args, t@\loc), t@\loc);
+private MuExp translateConcreteExpression(t:appl(p:regular(s:iter(Symbol elem)), list[Tree] args))
+  = muTreeAppl(muCon(p), translateConcreteExpressionList(elem, args, t@\loc), t@\loc);
 
-private MuExp translateConcrete(t:appl(p:regular(s:\iter-star(Symbol elem)), list[Tree] args))
-  = muTreeAppl(muCon(p), translateConcreteList(elem, args, t@\loc), t@\loc); 
+private MuExp translateConcreteExpression(t:appl(p:regular(s:\iter-star(Symbol elem)), list[Tree] args))
+  = muTreeAppl(muCon(p), translateConcreteExpressionList(elem, args, t@\loc), t@\loc); 
    
-private MuExp translateConcrete(t:appl(p:regular(s:\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
-  = muTreeAppl(muCon(p), translateConcreteSeparatedList(elem, seps, args, t@\loc), t@\loc);
+private MuExp translateConcreteExpression(t:appl(p:regular(s:\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
+  = muTreeAppl(muCon(p), translateConcreteExpressionSeparatedList(elem, seps, args, t@\loc), t@\loc);
 
-private MuExp translateConcrete(t:appl(p:regular(s:\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
-  = muTreeAppl(muCon(p), translateConcreteSeparatedList(elem, seps, args, t@\loc), t@\loc); 
+private MuExp translateConcreteExpression(t:appl(p:regular(s:\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
+  = muTreeAppl(muCon(p), translateConcreteExpressionSeparatedList(elem, seps, args, t@\loc), t@\loc); 
 
-private MuExp translateConcrete(char(int i)) =  muTreeChar(i);
+private MuExp translateConcreteExpression(char(int i)) =  muTreeChar(i);
 
 // this is a normal parse tree node:
-private default MuExp translateConcrete(t:appl(Production p, list[Tree] args)) 
-  = muTreeAppl(muCon(p), [translateConcrete(a) | a <- args], (t@\loc?) ? t@\loc : |unknown:///|);
+private default MuExp translateConcreteExpression(t:appl(Production p, list[Tree] args)) 
+  = muTreeAppl(muCon(p), [translateConcreteExpression(a) | a <- args], (t@\loc?) ? t@\loc : |unknown:///|);
 
 
 bool isListPlusVar(Symbol elem, appl(prod(label("$MetaHole", _),[sort("ConcreteHole")], {\tag("holeType"(Symbol::\iter(elem)))}), [_])) = true;
@@ -578,9 +578,9 @@ bool isListVar(Symbol elem, Tree x) = isListPlusVar(elem, x) || isListStarVar(el
 
 private AType aTree = aadt("Tree", [], dataSyntax());
 
-private MuExp translateConcreteList(Symbol eltType, [], loc src) = muCon([]);
+private MuExp translateConcreteExpressionList(Symbol eltType, [], loc src) = muCon([]);
 
-private MuExp translateConcreteList(Symbol eltType, list[Tree] elems:![], loc src) {
+private MuExp translateConcreteExpressionList(Symbol eltType, list[Tree] elems:![], loc src) {
     str fuid = topFunctionScope();
        
     writer = muTmpListWriter(nextTmp("writer"), fuid);   
@@ -589,10 +589,10 @@ private MuExp translateConcreteList(Symbol eltType, list[Tree] elems:![], loc sr
     
     code = for (Tree elem <- elems) {
        if (isListVar(eltType, elem)) {
-          append muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, muTreeGetArgs(translateConcrete(elem))], src);
+          append muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, muTreeGetArgs(translateConcreteExpression(elem))], src);
        }
        else {
-          append muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(elem)], src);
+          append muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcreteExpression(elem)], src);
        }
     }
    
@@ -602,9 +602,9 @@ private MuExp translateConcreteList(Symbol eltType, list[Tree] elems:![], loc sr
     return muValueBlock(\alist(aTree), [*code, muCallPrim3("close_list_writer", alist(aTree), [avalue()], [writer], src)]);
 }
 
-private MuExp translateConcreteSeparatedList(Symbol _, list[Symbol] _, [], loc _) = muCon([]);
+private MuExp translateConcreteExpressionSeparatedList(Symbol _, list[Symbol] _, [], loc _) = muCon([]);
 
-private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] _, [Tree single], loc src) {
+private MuExp translateConcreteExpressionSeparatedList(Symbol eltType, list[Symbol] _, [Tree single], loc src) {
     str fuid = topFunctionScope();
        
     writer = muTmpListWriter(nextTmp("writer"), fuid);   
@@ -614,18 +614,18 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] _, [Tr
     code = [muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], src))];
        
     if (isListVar(eltType, single)) {
-       varExp = muTreeGetArgs(translateConcrete(single));
+       varExp = muTreeGetArgs(translateConcreteExpression(single));
        code += [muCallPrim3("splice_list", avoid(), [avalue(), aTree], [writer, varExp], src)];
     }
     else {
-       code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcrete(single/*elem*/)], src)];
+       code += [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, translateConcreteExpression(single/*elem*/)], src)];
     }
     leaveWriter();
         
     return muValueBlock(\alist(aTree), [*code, muCallPrim3("close_list_writer", alist(aTree), [avalue()], [writer], src)]);    
 }
 
-private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTypes, list[Tree] elems:[_,_,*_], loc src) {
+private MuExp translateConcreteExpressionSeparatedList(Symbol eltType, list[Symbol] sepTypes, list[Tree] elems:[_,_,*_], loc src) {
     str fuid = topFunctionScope();
        
     writer = muTmpListWriter(nextTmp("writer"), fuid);   
@@ -636,7 +636,7 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTyp
     
     // first we compile all element except the final separators and the final element:
     while ([Tree first, *Tree sepTrees, Tree second, *Tree more] := elems && size(sepTypes) == size(sepTrees)) {
-      varExp = translateConcrete(first);
+      varExp = translateConcreteExpression(first);
 
       // first we splice or add the first element:
       if (isListVar(eltType, first)) {
@@ -647,7 +647,7 @@ private MuExp translateConcreteSeparatedList(Symbol eltType, list[Symbol] sepTyp
       }
       
       sepCode    = [muCallPrim3("add_list_writer", avoid(), [avalue(), aTree], [writer, muCon(e)], e@\loc?|unknown:///|) | e <- sepTrees];
-      secondVarExp = translateConcrete(second);
+      secondVarExp = translateConcreteExpression(second);
        
       // then separators are optionally added:  
       if (isListStarVar(eltType, first) && isListStarVar(eltType, second)) {
@@ -1261,7 +1261,7 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
 
 private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`, bool isGuarded){
    op = isGuarded ? "guarded_subscript" : "subscript";
-   access = muCallPrim3(op, avalue()/*getType(e)*/, getType(exp) + [getType(s) | s <- subscripts],
+   access = muCallPrim3(op, avalue() /*getType(e)*/, getType(exp) + [getType(s) | s <- subscripts],
                        translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | Expression s <- subscripts], e@\loc);
    
    return access;
@@ -1547,7 +1547,7 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
         muLHS = muGuardedGetField(resultType, baseType, baseExp, fieldName);
         lshType = resultType;
     } else if(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName) := muLHS){
-        muLHS = muGuardedGetField(resultType, consType has adt ? consType.adt : consType, exp, fieldName, moduleName);
+        muLHS = muGuardedGetKwField(resultType, consType has adt ? consType.adt : consType, exp, fieldName, moduleName);
         lshType = resultType;
     } else if(muCallPrim3("subscript", AType result, list[AType] details, list[MuExp] exps, loc src) := muLHS){
         muLHS = muCallPrim3("guarded_subscript", result, details, exps, src);
@@ -2208,7 +2208,7 @@ MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> 
 // -- concrete syntax
 
 MuExp translate((Expression) `<Concrete con>`) { 
-    return translateConcrete(con.args[0]);
+    return translateConcreteExpression(con.args[0]);
 }
 
 // -- any other expression that may require backtracking ------------

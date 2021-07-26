@@ -275,13 +275,14 @@ public data MuExp =
           | muTemplate(str initial)
           | muTemplateBeginIndent(MuExp template, str indent)
           | muTemplateEndIndent(MuExp template, str unindent)
-          | muTemplateAdd(MuExp template, value val)
+          | muTemplateAdd(MuExp template, AType atype, value val)
           | muTemplateClose(MuExp template)
           
           // Parse Trees
           | muTreeAppl(MuExp prod, list[MuExp] args, loc src)
           | muTreeAppl(MuExp prod, MuExp argList, loc src)
           | muTreeChar(int char)
+          | muTreeUnparse(MuExp tree)
           ;
           
  data VisitDescriptor
@@ -322,7 +323,7 @@ MuExp muVarKwp(str name, str fuid, AType atype) {
 // ==== Utilities =============================================================
 
 bool isSyntheticFunctionName(str name)
-    = name[0] == "$";
+    = contains(name, "$");
     
 bool isClosureName(str name)
     = findFirst(name, "$CLOSURE") >= 0;
@@ -378,6 +379,12 @@ bool producesNativeInt(muTmpNative(_,_,nativeInt()))
                      
 default bool producesNativeInt(MuExp exp)
     = getName(exp) in {"muSize", "muAddNativeInt", "muSubNativeInt", "muToNativeInt", "muRegExpBegin", "muRegExpEnd"};
+    
+// Produces nativeStr
+
+default bool producesNativeStr(MuExp exp)
+    = getName(exp) in {"muTreeUnparse"};
+
 
 // Produces NativeGuardedIValue
 
@@ -388,7 +395,7 @@ bool producesNativeGuardedIValue(muTmpNative(_,_,nativeGuardedIValue))
     = name in { "guarded_subscript", "guarded_field_project"};
     
 default bool producesNativeGuardedIValue(MuExp exp)
-   = getName(exp) in {"muGuardedGetAnno", "muGuardedGetField"};
+   = getName(exp) in {"muGuardedGetAnno", "muGuardedGetField", "muGuardedGetKwField"};
     
 // Get the result type of a MuExp
 AType getType(muCon(bool b)) = abool();
@@ -415,7 +422,7 @@ AType getType(muGetFieldFromConstructor(AType resultType, AType consType, MuExp 
 AType getType(muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
 AType getType(muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
 AType getType(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)) = resultType;
-AType getType(muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName)) = resultType;
+AType getType(muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)) = resultType;
 AType getType(muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)) = resultType;
          
 
@@ -425,6 +432,7 @@ AType getType(muTreeChar(int char)) = aadt("Tree", [], dataSyntax());
           
 AType getType(muTreeGetProduction(MuExp tree)) = aadt("Tree", [], dataSyntax());
 AType getType(muTreeGetArgs(MuExp tree)) = alist(aadt("Tree", [], dataSyntax()));
+AType getType(muTreeUnparse(MuExp tree)) = astr();
 
 AType getType(muValueBlock(AType result, list[MuExp] exps)) = result;
 
@@ -1357,8 +1365,8 @@ MuExp muSetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp
 MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;
 MuExp muValueIsComparable(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;
 
-MuExp muTemplateAdd(MuExp template, MuExp exp)
-   = muValueBlock(astr(), auxVars + pre + muTemplateAdd(template, flatArgs[0]))
+MuExp muTemplateAdd(MuExp template, AType atype, MuExp exp)
+   = muValueBlock(astr(), auxVars + pre + muTemplateAdd(template, atype, flatArgs[0]))
    when <true, auxVars, pre, flatArgs> := flattenArgs([exp]) && !isEmpty(pre);
 
 //============== constant folding rules =======================================

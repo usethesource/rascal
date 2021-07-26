@@ -24,8 +24,8 @@ alias Name_Arity = tuple[str name, int arity];
 
 rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
     used = {}; //range(tmodel.useDef);
-    return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> | def <- tmodel.defines, defType(tp) := def.defInfo, 
-        (def.idRole == functionId() || def.idRole == constructorId), any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))// || def in used
+    return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> | def <- tmodel.defines, defType(tp) := def.defInfo, bprintln(tp),
+        (def.idRole == functionId() && any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))) || def.idRole == constructorId()// || def in used
        //, !(tp has isTest && tp.isTest)
         };
 }
@@ -100,9 +100,6 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     resolvers = "";
     for(<fname, farity> <- domain(functions_and_constructors), !isMainName(fname), !isClosureName(fname)){
         // Group all functions of same name and arity by scope
-        if(fname == "unparse"){
-            println("unparse");
-        }
         set[Define] defs = functions_and_constructors[<fname, farity>];
         defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
                                                     return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
@@ -170,9 +167,6 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     inner_scope = "";
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
         def = getOneFrom(relevant_fun_defs);
-        if(!loc2muFunction[def.defined]?){
-            println("HELP");
-        }
         fun = loc2muFunction[def.defined];
         inner_scope = "<fun.scopeIn>_";
     }
@@ -201,7 +195,10 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     if(!isEmpty(externalRefs)){
         argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalRefs, jtype := atype2javatype(var.atype)]);
     }
-          
+    
+    all_conds = [];
+    all_calls = [];
+
     for(def <- sort(relevant_fun_defs, funBeforeDefaultBeforeConstructor)){
         inner_scope = "";
         if(def.scope notin module_scopes, def in local_fun_defs){
@@ -258,13 +255,16 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                          'if($result != null) return $result;
                          '";
         }
-        if(isEmpty(conds)){
-            body += base_call;
-        } else {
-            body += "if(<intercalate(" && ", conds)>){
-                    '    <base_call>}\n";
-        }
+        all_conds += intercalate(" && ", conds);
+        all_calls += base_call;
+        //if(isEmpty(conds)){
+        //    body += base_call;
+        //} else {
+        //    body += "if(<intercalate(" && ", conds)>){
+        //            '    <base_call>}\n";
+        //}
     }
+
     nconds = 0;
     for(cdef <- cons_defs){
         base_call = ""; 
@@ -287,14 +287,37 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         } else {
             base_call = "return $VF.constructor(<atype2idpart(consType, jg)>, new IValue[]{<actuals_text>});";
         }
+        all_conds += intercalate(" && ", conds);
+        all_calls += base_call;
+        if(!isEmpty(conds)) {
+             nconds += 1;
+        }
+        //if(isEmpty(conds)){
+        //    body += base_call;
+        //} else {
+        //    nconds += 1;
+        //    body += "if(<intercalate(" && ", conds)>){
+        //            '    <base_call>}\n";
+        //}
+    }
+    
+    int i = -1;
+    while (i < size(all_conds) - 1){
+        i += 1;
+        conds = all_conds[i];
+        calls = all_calls[i];
+        while(i < size(all_conds) -1 && conds == all_conds[i+1]){
+            calls += all_calls[i+1];
+            i += 1;
+        }
         if(isEmpty(conds)){
-            body += base_call;
+            body += calls;
         } else {
-            nconds += 1;
-            body += "if(<intercalate(" && ", conds)>){
-                    '    <base_call>}\n";
+            body += "if(<conds>){
+                    '    <calls>}\n";
         }
     }
+    
     if(isEmpty(cons_defs) || size(cons_defs) == nconds){
         body += "throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$<i>" | int i <- index(resolverFormalsTypes), formal := resolverFormalsTypes[i] ])>));";
     }

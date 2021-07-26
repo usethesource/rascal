@@ -56,6 +56,7 @@ data JGenie
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
         bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions
+        //void (bool on) generatingTests
       )
     ;
     
@@ -106,6 +107,7 @@ JGenie makeJGenie(MuModule m,
     extends = {<a, b> | <a, extendPath(), b> <- allPaths, a in importAndExtendScopes, b in importAndExtendScopes}+;
     
     JGenie thisJGenie;
+    //bool generatingTests = true;
    
     loc findDefiningModuleForDef(loc def){
         for(ms <- sortedImportAndExtendScopes){
@@ -156,9 +158,9 @@ JGenie makeJGenie(MuModule m,
         return module2field(allLocs2Module[findImportForDef(def)]);
     }
     
-    str _getATypeAccessor(AType t){   
-        t = unsetR(t, "label");
-        for(def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId()), t := def.defInfo.atype){
+    str _getATypeAccessor(AType t){
+        t1 = unsetR(t, "label");
+        for(def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId()), t1 := def.defInfo.atype, !isConstructorType(t1) || def.defInfo.atype.label == t.label){
             for(ms <- allLocs2Module, isContainedIn(def.scope, ms)){
                 defMod = allLocs2Module[ms];
                 return defMod == moduleName ? "" : "<module2field(defMod)>.";
@@ -296,6 +298,7 @@ JGenie makeJGenie(MuModule m,
     }
     
     lrel[str name, AType atype, MuExp defaultExp] _collectKwpDefaults(MuFunction fun){
+        if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
         scopes = currentTModel.scopes;
         defaults = fun.kwpDefaults;
         funKwps =  fun.kwpDefaults<0>;
@@ -309,6 +312,7 @@ JGenie makeJGenie(MuModule m,
     }
     
     list[str] _collectRedeclaredKwps(MuFunction fun){
+        if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
         scopes = currentTModel.scopes;
         funKwps = fun.kwpDefaults<0>;
         redeclared = [];
@@ -323,6 +327,7 @@ JGenie makeJGenie(MuModule m,
     }
     
      list[str] _collectDeclaredKwps(MuFunction fun){
+        if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
         scopes = currentTModel.scopes;
         funKwps = fun.kwpDefaults<0>;
         declared = funKwps;
@@ -532,6 +537,10 @@ JGenie makeJGenie(MuModule m,
         }
     }
     
+    //void _generatingTests(bool status){
+    //    generatingTests = status;
+    //}
+    
     thisJGenie = 
            jgenie(
                 _getModuleName,
@@ -567,6 +576,7 @@ JGenie makeJGenie(MuModule m,
                 _addImportedLibrary,
                 _getImportedLibraries,
                 _usesLocalFunctions
+               // _generatingTests
             );
      return thisJGenie;
 }

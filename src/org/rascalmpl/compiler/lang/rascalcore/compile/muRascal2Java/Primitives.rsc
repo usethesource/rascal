@@ -443,10 +443,10 @@ JCode transPrim("str_escape_for_regexp", astr(), [AType a], [str x], JGenie jg) 
 list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg)  
                                                                                 = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
                                                                                   when isListOnlyType(a) || isStrType(a) || isTupleType(a) || 
-                                                                                       isNodeType(a) || isADTType(a);
-list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg) 
-                                                                                = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
-                                                                                  when isSyntaxType(a);
+                                                                                       isNodeType(a) || isADTType(a) || isSyntaxType(a);
+//list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg) 
+//                                                                                = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
+//                                                                                  when isSyntaxType(a);
 
 JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "$astr_subscript_int(<x>,<y>)";
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$atuple_subscript_int(<x>,<y>)" when isTupleType(a);

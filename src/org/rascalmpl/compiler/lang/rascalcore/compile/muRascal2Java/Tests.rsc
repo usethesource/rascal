@@ -19,7 +19,8 @@ import String;
 // Generate a test class for a Rascal module
 
 str generateTestClass(str packageName, str className, list[MuFunction] functions, JGenie jg){
-    return "<if(!isEmpty(packageName)){>package <packageName>;<}>
+    //jg.generatingTests(true);
+    res  = "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import java.util.*;
            'import java.util.stream.Stream;
            'import io.usethesource.vallang.*;
@@ -51,6 +52,8 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            '    <for(f <- functions){>
            '    <generateTestMethod(f, className, jg)><}>
            '}\n";
+    //jg.generatingTests(false);
+    return res;
 }
 
 // Generate a test method per function with "test" modifier
