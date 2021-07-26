@@ -347,18 +347,8 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 		tr.setMatchedAndChanged(hasMatched, hasChanged);
 
 		if(hasChanged){
-			INode n = null;
-			if (kwParams != null) {
-				n = vf.node(node.getName(), args, kwParams);
-			}
-			else {
-				n = vf.node(node.getName(), args);
-
-//				if (!node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
-//					n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
-//				}
-			}
-			result = n;
+			result = (kwParams == null) ? vf.node(node.getName(), args)
+										: vf.node(node.getName(), args, kwParams);
 		}
 		return result;
 	}
@@ -425,21 +415,21 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 		return vf.string(replacementString.toString());
 	}
 	
-	private INode rebuild(IValue subject, IValue[] args, Map<String,IValue> kwargs) {
-		Map<String, IValue> kwParameters = subject.mayHaveKeywordParameters() ? subject.asWithKeywordParameters().getParameters() : emptyAnnotationsMap;
+	private INode rebuild(IValue subject, IValue[] args, Map<String,IValue> changedKwParams) {
+		Map<String, IValue> givenKwParams = subject.mayHaveKeywordParameters() ? subject.asWithKeywordParameters().getParameters() : emptyAnnotationsMap;
 		// TODO: jurgen can be optimized for the ITree case
 		if(subject.getType().isAbstractData()){
 			IConstructor cons1 = (IConstructor) subject;
-			IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, kwargs);
-			if(kwParameters.size() > 0){
-				cons2 = cons2.asWithKeywordParameters().setParameters(kwParameters);
+			IConstructor cons2 = vf.constructor(cons1.getConstructorType(), args, givenKwParams);
+			if(changedKwParams.size() > 0){
+				cons2 = cons2.asWithKeywordParameters().setParameters(changedKwParams);
 			}
 			return cons2;
 		} else {
 			INode node1 = (INode) subject;
-			INode node2 = vf.node(node1.getName(), args, kwargs);
-			if(kwParameters.size() > 0){
-				node2 = node2.asWithKeywordParameters().setParameters(kwParameters);
+			INode node2 = vf.node(node1.getName(), args, givenKwParams);
+			if(changedKwParams.size() > 0){
+				node2 = node2.asWithKeywordParameters().setParameters(changedKwParams);
 			}
 			return node2;
 		}
