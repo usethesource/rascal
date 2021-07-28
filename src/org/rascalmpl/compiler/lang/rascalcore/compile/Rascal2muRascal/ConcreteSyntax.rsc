@@ -90,7 +90,7 @@ RestoreState restoreHoles(t:char(60) /*<*/, map[int, Tree] _, loc _, int offset,
 RestoreState restoreHoles(t:char(62) /*>*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
 RestoreState restoreHoles(t:char(47) /*/*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
 
-default RestoreState restoreHoles(char(int _), map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+1, line, column+1>;
+default RestoreState restoreHoles(t:char(int _), map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+1, line, column+1>;
 
 // discover an artificial hole and find the original parse tree to replace it
 RestoreState restoreHoles(Tree v:appl(prod(Symbol::label("$MetaHole", Symbol varType), _, {\tag("holeType"(Symbol ht))}), [char(0),_,_,Tree i,char(0)]),
