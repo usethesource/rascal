@@ -49,7 +49,6 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    int index = 0;
    map[int, Tree] holes = ();
    
-   // TODO: record shifts in source locations to relocate the locs of the resulting parse tree later
    str cleanPart(appl(prod(label("text",lex("ConcretePart")), _, _),[Tree stuff])) = "<stuff>";
    str cleanPart(appl(prod(label("lt",lex("ConcretePart")), _, _),_)) = "\<";
    str cleanPart(appl(prod(label("gt",lex("ConcretePart")), _, _),_)) = "\>";
@@ -71,17 +70,49 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    // now parse the input to get a Tree (or a ParseError is thrown)
    Tree tree = ParseTree::parse(type(sym, rules), input, |todo:///|);
    
-   // TODO: source annotations in the tree should be updated/shifted according to
-   // the things cleanPart did to the input..
-   
-   // replace the indexed woven sub-strings back with the original holes (wrapped in an easily labeled appl ($MetaHole) for
-   // use by the code generator)
-   // TODO: move the source annotations on the tree according to shifts recorded earlier
-   tree = visit (tree) {
-     case Tree v:appl(prod(Symbol::label("$MetaHole", Symbol varType), _, {\tag("holeType"(Symbol ht))}), [char(0),_,_,Tree i,char(0)]) => 
-          appl(prod(label("$MetaHole", varType),[Symbol::sort("ConcreteHole")], {\tag("holeType"(ht))}), 
-               [holes[toInt("<i>")]])[@\loc=v@\loc]
-   }
-   
-   return tree;
+   return restoreHoles(tree, holes, parts[0]@\loc);
 }
+
+@doc{restores the parse trees for the typed holes and also recovers all location information}
+Tree restoreHoles(Tree t, map[int, Tree] holes, loc begin) {
+   <t, _, _, _> = restoreHoles(t, holes, begin.top, begin.offset, begin.begin.line, begin.begin.column);
+   return t;
+}
+
+alias RestoreState = tuple[Tree tree, int offset, int line, int column];
+
+RestoreState restoreHoles(t:char(10) /*nl*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+1, line+1, 0>;
+
+// in the original source text of the concrete pattern these chars would have been escaped and thus they take
+// 2 character positions instead of 1:
+RestoreState restoreHoles(t:char(96) /*`*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
+RestoreState restoreHoles(t:char(60) /*<*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
+RestoreState restoreHoles(t:char(62) /*>*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
+RestoreState restoreHoles(t:char(47) /*/*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
+
+// discover an artificial hole and find the original parse tree to replace it
+RestoreState restoreHoles(Tree v:appl(prod(Symbol::label("$MetaHole", Symbol varType), _, {\tag("holeType"(Symbol ht))}), [char(0),_,_,Tree i,char(0)]),
+                           map[int, Tree] holes, loc _, int _, int _, int _) { 
+   Tree typedVar = holes[toInt("<i>")];
+   return <appl(prod(label("$MetaHole", varType),[Symbol::sort("ConcreteHole")], {\tag("holeType"(ht))}), [typedVar])[@\loc=typedVar@\loc],
+            typedVar@\loc.offset + typedVar@\loc.length,
+            typedVar@\loc.end.line,
+            typedVar@\loc.end.column
+            >;
+}
+
+// recursion through the tree and add the position information
+default RestoreState restoreHoles(Tree v:appl(Production p, list[Tree] args), map[int, Tree] holes, loc file, int offset, int line, int column) {
+   curOffset = offset;
+   curLine = line;
+   curColumn = column;
+
+   newArgs = for (a <- args) {
+      <a, curOffset, curLine, curColumn> = restoreHoles(a, holes, file, curOffset, curLine, curColumn);
+      append a;
+   }
+
+   return <appl(p, newArgs)[@\loc=file(offset, curOffset - offset, <line, column>, <curLine, curColumn>)],
+            curOffset, curLine, curColumn>;
+}
+
