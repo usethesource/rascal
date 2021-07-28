@@ -19,6 +19,7 @@ public class TypedFunctionInstance2<R extends IValue,A,B> extends TypedFunctionI
 		super(ftype);
 		this.function = function;
 		if(ftype.isFunction()) {
+			assert type.getArity() == 2;
 			type_arg_0 = type.getFieldType(0);
 			type_arg_1 = type.getFieldType(1);
 		} else {

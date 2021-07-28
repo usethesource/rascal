@@ -350,6 +350,18 @@ void collect(current: (Expression) `<Label label> <Visit vst>`, Collector c){
                 return s.getType(vst.subject); 
             });
         collect(vst, c);
+        
+        //TODO: experiment
+        //casePatterns = [ cs.patternWithAction.pattern | cs <- vst.cases, cs is patternWithAction ];
+        //c.require("cases from specific to general", current, casePatterns, void(Solver s){
+        //    caseType = [ s.getType(cpat) | cpat <- casePatterns ];
+        //    for(int i <- index(casePatterns), int j <- index(casePatterns)){
+        //        if(i < j && asubtype(caseType[j], caseType[i])){
+        //            s.report(warning(casePatterns[j], "Case pattern has more specific type %t than previous case with type %t", caseType[j], caseType[i]));
+        //        }
+        //    }
+        //
+        //});
     c.leaveScope(current);
 }
 

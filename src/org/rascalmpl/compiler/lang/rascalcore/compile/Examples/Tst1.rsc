@@ -1,12 +1,60 @@
 module lang::rascalcore::compile::Examples::Tst1
+ 
+ data Y = weird2(list[int] y);
+ 
+ value main() = //test bool visit22() = 
+    visit (weird2([])) { case list[int] _ => [1] };// == weird2([1]);
+ 
+//data LIST = lst(list[int] elems);
 
-int triple (int n) = 3 * n;
-int dup (int n) = n + n;
-str dup (str s) = s + s;
+//@ignoreInterpreter{Interpreter crashes on this test}
+//value main(){ //test bool visit19() {
+//    return [ visit(lst([1])) {
+//                // list[str] <: list[value]; typeOf(subject) <: list[value] 
+//                // '+' list[str] <: typeOf(subject)
+//                case list[value] _: insert [ "666" ];
+//                case list[int] l: { insert l + [ 666 ]; l = l + [ 777 ]; }
+//                case int _: insert 999;
+//             } ]
+//             ;//== 
+//             // [lst([999,666])];
+//}
 
-value main() { //test bool tripleDup1(){
-    return (triple o dup)(5);// == triple(dup(5));
-}
+//value main(){ //test bool visit20() {
+//    return 
+//           [ visit(lst([1])) {
+//           case list[value] z => [ "666" ]
+//                case list[int] l => l + [ 666 ]
+//                
+//                
+//                case int _ => 999
+//             } ]
+//           ;//==
+//           //[ lst([999,666]) ];
+//}
+//
+
+
+
+// &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+//      return f(t, u); 
+// };
+//
+//int addition(int i, int j) = i + j;
+//
+//value main(){ //test bool selfApplyCurry() {
+//   func = curry(curry, addition);
+//
+//    assert int(int)(int) _ := func;
+//
+//    func2 = func(1);
+//
+//    assert int(int) _ := func2;
+//
+//    assert func2(1) == 2;
+//    
+//    return true;
+//}
 
 //import Grammar;
 //import ParseTree;
