@@ -255,7 +255,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
         }
     }
     
-    if (isFunctionType(t1) && isFunctionType(t2) || isOverloadedAType(t1) && isOverloadedAType(t2)) {
+    if ((isFunctionType(t1) || isOverloadedAType(t1)) && (isFunctionType(t2) || isOverloadedAType(t2))) {
         compositeArgs = getFunctionOrConstructorArgumentTypes(t2);
         compositeRet = getFunctionReturnType(t1);
         linkingArgs = getFunctionOrConstructorArgumentTypes(t1);

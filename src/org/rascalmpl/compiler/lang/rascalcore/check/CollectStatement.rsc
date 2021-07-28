@@ -55,6 +55,19 @@ void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
         c.require("non-void", vst.subject, [], makeNonVoidRequirement(vst.subject, "Subject of visit"));
         c.fact(current, vst.subject);
         collect(vst, c);
+       
+        // TODO: experiment
+        //casePatterns = [ cs.patternWithAction.pattern | cs <- vst.cases, cs is patternWithAction ];
+        //c.require("cases from specific to general", current, casePatterns, void(Solver s){
+        //    caseType = [ s.getType(cpat) | cpat <- casePatterns ];
+        //    for(int i <- index(casePatterns), int j <- index(casePatterns)){
+        //        if(i < j && asubtype(caseType[j], caseType[i])){
+        //            s.report(warning(casePatterns[j], "Case pattern has more specific type %t than previous case with type %t", caseType[j], caseType[i]));
+        //        }
+        //    }
+        //
+        //});
+        
     c.leaveScope(current);
 }
 
@@ -147,7 +160,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern>: <Statement stateme
            } else {
               c.enterScope(current);
                     // force type calculation of pattern
-                    c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, s.getType(expression), scope, s); });
+                    c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), scope, s); });
                     beginPatternScope("pattern-with-action", c);
                         collect(pattern, c);
                     endPatternScope(c);
@@ -407,6 +420,17 @@ void collect(current: (Statement) `<Label label> switch ( <Expression e> ) { <Ca
         c.fact(current, avoid());
         c.require("non-void", e, [], void(Solver s){ checkNonVoid(e, s, "Switch expression"); });
         collect(e, cases, c);
+        // TODO: experiment (gives missing constraint for case [1]: ...
+        //casePatterns = [ cs.patternWithAction.pattern | cs <- cases, cs is patternWithAction ];
+        //c.require("cases from specific to general", current, casePatterns, void(Solver s){
+        //    caseType = [ s.getType(cpat) | cpat <- casePatterns ];
+        //    for(int i <- index(casePatterns), int j <- index(casePatterns)){
+        //        if(i < j && asubtype(caseType[j], caseType[i])){
+        //            s.report(warning(casePatterns[j], "Case pattern has more specific type %t than previous case with type %t", caseType[j], caseType[i]));
+        //        }
+        //    }
+        //
+        //});
     c.leaveScope(current);
 }
 

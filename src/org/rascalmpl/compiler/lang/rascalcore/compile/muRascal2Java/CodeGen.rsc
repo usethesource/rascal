@@ -482,10 +482,10 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     
     nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
-    uniq = abs(uuidi());
+    uniq = uid.offset;
     
-    funInstance = "new TypedFunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals] )>\>";
-    
+    //funInstance = "new TypedFunctionInstance<nformals>\<IValue<sep><intercalate(",", ["IValue" | ft <- ftype.formals] )>\>";
+    //
     formals = intercalate(", ", ["$<uniq>_<i>" | i <- [0..nformals]]);
    
     //actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
@@ -496,6 +496,12 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
            ext_actuals = intercalate(", ", [ "new ValueRef\<<jtype>\>(<varName(var, jg)>)" | var <- externalRefs, jtype := atype2javatype(var.atype)]);
            ext_actuals = isEmpty(actuals) ? ext_actuals : "<actuals>, <ext_actuals>";
     }
+    
+    nexternals = size(externalRefs);
+    
+    funInstance = "new TypedFunctionInstance<nformals/*+nexternals*/>\<IValue<sep><intercalate(",", ["IValue" | int i <- [0..nformals/*+nexternals*/]] )>\>";
+    
+    
     reta = isVoidType(ftype.ret) ? "" : "return ";
     retb = isVoidType(ftype.ret) ? "return null;" : "";
     return "<funInstance>((<formals>) -\> { <reta><jg.getAccessor([uid])>(<ext_actuals>);<retb> }, <jg.shareType(ftype)>)";
@@ -510,18 +516,21 @@ JCode trans(muOFun(list[loc] srcs, AType ftype), JGenie jg){
     sep = nformals > 0 ? "," : "";
     uniq = abs(uuidi());
     
-    funInstance = "new TypedFunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- getFormals(ftype)])>\>";
+    //funInstance = "new TypedFunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | ft <- getFormals(ftype)])>\>";
     
     formals = intercalate(", ", ["$<uniq>_<i>" | i <- [0..nformals]]);
     formalsWithCast = intercalate(", ", ["(<atype2javatype(getFormals(ftype)[i])>)$<uniq>_<i>" | i <- [0..nformals]]);
-    ext_formals = formals;
+    nexternals = 0;
     if(size(srcs) == 1 && !isSyntheticFunctionName(fname) && muFunctions[srcs[0]]?){
         fun = muFunctions[srcs[0]];
         if(!isEmpty(fun.externalRefs)){
+           nexternals = size(fun.externalRefs);
            ext_actuals = intercalate(", ", [varName(v, jg) | v <- fun.externalRefs]);
            formals = isEmpty(formals) ? ext_actuals : "<actuals>, <ext_actuals>";
         }
     }
+    funInstance = "new TypedFunctionInstance<nformals/*+nexternals*/>\<<"IValue"><sep><intercalate(",", ["IValue" | int i <- [0 ..nformals/*+nexternals*/]])>\>";
+    
     return "<funInstance>((<formals>) -\> { return <fname>(<formalsWithCast>); }, <jg.shareType(ftype)>)";
 }
 
@@ -940,15 +949,24 @@ JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName
     
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
     if(muComposedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType) := fun){
-        rightCall = "<cst><trans(right, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
+        rightCall = "<trans(right, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
         return "<cst><trans(left, jg)>.typedCall(<rightCall>)";
     }
 
     return "<cst><trans(fun, jg)>.typedCall(<intercalate(", ", getActuals(argTypes, largs, jg))>)";
 }
 
-
-
+JCode trans(muReturnFirstSucceeds(list[str] formals, list[MuExp] exps), JGenie jg){
+    return 
+    "<for(exp <- exps){>
+    'try {
+    '   <trans(exp, jg)>
+    '} catch (Throw e) {
+    '   if(!((IConstructor)e.getException()).getName().equals(\"CallFailed\")) throw e;
+    '}<}>
+    'throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", formals)>));
+    ";
+}
 
 // ---- muGetKwField ------------------------------------------------------
 

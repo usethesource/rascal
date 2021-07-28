@@ -70,72 +70,23 @@ private MuExp translateComposeFunction(Expression e){
   lhsType = getType(e.lhs);
   rhsType = getType(e.rhs);
   resType = getType(e);
+  //if(overloadedAType(rel[loc, IdRole, AType] lhsOverloads) := lhsType){
+  //  if(overloadedAType(rel[loc, IdRole, AType] rhsOverloads) := rhsType){
+  //      lhsType = overloadedAType({ltup | ltup:<loc ll, IdRole lidr, AType latype> <- lhsOverloads, 
+  //                                        any(rtup:<loc rl, IdRole ridr, AType ratype> <- rhsOverloads, 
+  //                                            comparable(getFunctionArgumentTypes(latype)[0], getResult(ratype)))}); 
+  //  } else {
+  //      rhsResult = getResult(lhsType);
+  //      lhsType = overloadedAType({ltup | ltup:<loc ll, IdRole lidr, AType latype> <- lhsOverloads, 
+  //                                        comparable(getFunctionArgumentTypes(latype)[0], rhsResult)}); 
+  //  }
+  //} else if(overloadedAType(rel[loc, IdRole, AType] overloads) := rhsType){
+  //  leftArgType = getFunctionArgumentTypes(lhsType)[0];
+  //  rhsType = overloadedAType({tup | tup:<loc l, IdRole idr, AType atype> <- overloads, comparable(leftArgType, getResult(atype))}); 
+  //}
   
   return muComposedFun(translate(e.lhs), translate(e.rhs), lhsType, rhsType, resType);
 }
-
-//private MuExp translateComposeFunction(Expression e){
-//  lhsType = getType(e.lhs);
-//  rhsType = getType(e.rhs);
-//  resType = getType(e);
-//  
-//  MuExp lhsReceiver = visit(translate(e.lhs)) { case str s => replaceAll(s, "::" , "_") };
-//  MuExp rhsReceiver = visit(translate(e.rhs)) { case str s => replaceAll(s, "::" , "_") };
-//  
-//  //println("rhsReceiver: <rhsReceiver>");
-//  str compResolverName = "$<getFunctionName(lhsType)>_COMP_<getFunctionName(rhsType)>_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>"; // name of compositiosition
-//    
-//  // Generate and add a function COMPOSE_<...>
-//  str scopeId = topFunctionScope();
-//  str comp_name = "$COMPOSE_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";
-//  str comp_fuid = scopeId + "_" + comp_name;
-//  
-//  AType comp_ftype = avoid(); 
-//  int nargs = 0;
-//  if(isFunctionType(resType)) {
-//      nargs = size(resType.formals);
-//      comp_ftype = resType;
-//  } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := resType){
-//      comp_ftype = getFirstFrom(overloads)[2];
-//      nargs = getArity(comp_ftype);
-//      for(<l, role, tp> <- overloads){
-//        if(getArity(tp) != nargs){
-//            throw "cannot handle composition/overloading for different arities";
-//        }
-//        comp_ftype = alub(comp_ftype, tp);
-//     }
-//  } else {
-//    throw "cannot handle result type <resType>";
-//  }
-//  
-//  if(hasOverloadingResolver(compResolverName)){
-//    return muOFun(compResolverName, comp_ftype);
-//  }
-//    
-//  enterFunctionScope(comp_fuid);
-//  //TODO kwargs
-//  formals = [muVar("$<j>" /*resType.formals[j].label*/, comp_fuid, j, comp_ftype.formals[j]) | int j <- [0 .. nargs]];
-//  rhsCall = muOCall3(rhsReceiver, rhsType, formals, [], e.rhs@\loc);
-//  
-//  body_exps =  [muReturn1(comp_ftype.ret, muOCall3(lhsReceiver, lhsType, [rhsCall], [], e.lhs@\loc))];
-//  //body_exps =  [muReturn1(lhsType.ret, muOCall3(lhsReceiver, atuple(atypeList([lhsType])), [rhsCall], [], e.lhs@\loc))];
-//  
-//  
-//  //kwargs = muCallMuPrim("copy_and_update_keyword_mmap", [muCon(nargs)]);
-//  //rhsCall = muOCall4(rhsReceiver, atuple(atypeList([rhsType])), [muVar("parameter_<comp_name>", comp_fuid, j) | int j <- [0 .. nargs]] + [ kwargs ], e.rhs@\loc);
-//  //body_exps =  [muReturn1(muOCall4(lhsReceiver, atuple(atypeList([lhsType])), [rhsCall, kwargs ], e.lhs@\loc))];
-//   
-//  leaveFunctionScope();
-//  body_code = muBlock(body_exps);
-//  fun = muFunction(compResolverName, compResolverName, comp_ftype, formals, [], scopeId, false, false, false, getExternalRefs(body_code, comp_fuid), {}, {}, e@\loc, [], (), body_code);
-//  //iprintln(e@\loc);
-//  loc uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
-//  addFunctionToModule(fun);  
-//  addDefineAndType(<currentFunctionDeclaration(), comp_name, functionId(), e@\loc, defType(comp_ftype)>, comp_ftype);
-//  addOverloadedFunctionAndResolver(compResolverName, <compResolverName, comp_ftype, compResolverName/*getModuleName()*/, [e@\loc], []>);
-// 
-//  return muOFun(compResolverName, comp_ftype);
-//}
 
 // ----------- addition: exp + exp ----------------
 
@@ -168,13 +119,14 @@ private MuExp translateAddFunction(Expression e){
   nargs = size(rhsFormals);
   ractuals = [muVar("$<j>" , add_fuid, j, rhsFormals[j]) | int j <- [0 .. nargs]];
   rhsCall = muOCall3(rhsReceiver, rhsType, ractuals, [], e.rhs@\loc);
-  result = muTmpIValue(nextTmp("$result"), add_fuid, resType);
   
-  body = muBlock([
-            muConInit(result, lhsCall),
-            muIf(muIsInitialized(result), muReturn1(resType, result)),
-            muReturn1(resType, rhsCall)
-            ]);
+  body = muReturnFirstSucceeds(["$<i>" | int i <- [0 .. nargs]], [muReturn1(resType, lhsCall), muReturn1(resType, rhsCall)]);
+               
+  //body = muBlock([
+  //          muConInit(result, lhsCall),
+  //          muIf(muIsInitialized(result), muReturn1(resType, result)),
+  //          muReturn1(resType, rhsCall)
+  //          ]);
  
   leaveFunctionScope();
   funType = afunc(resType, lhsFormals, []);
@@ -933,11 +885,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    //println("receiver: <receiver>");
    list[MuExp] args = [ translate(a) | Expression a <- arguments ];
    
-   // TODO: JURGEN removed this because we have Type::typeOf to implement this.
-   //if("<expression>" == "typeOf"){
-   //     return muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], args, e@\loc);
-   //}
-   
    if(getOuterType(expression) == "astr"){
    		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- arguments ], [receiver, *args, muKwpActuals(kwargs)], e@\loc);
    }
@@ -948,11 +895,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    if(muFun(_,_) := receiver || muConstr(AType _) := receiver) {
         return muCall(receiver, ftype, args, kwargs);
    }
-   
-   // Now overloading resolution...
- 
-                                     // and a version with type parameters uniquely renamed
-   //println("ftype : <ftype>");
        
    if(!isOverloadedAType(ftype) && (isEmpty(args) || all(muCon(_) <- args))){
    		str fname = unescape("<expression>");

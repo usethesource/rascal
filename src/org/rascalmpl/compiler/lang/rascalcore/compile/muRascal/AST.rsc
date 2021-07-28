@@ -104,13 +104,12 @@ public data MuExp =
           | muFun(loc uid, AType atype)                         // *muRascal* function constant: functions at the root
            
           //| muOFun(str name, AType atype)  
-          | muOFun(list[loc] uids, AType atype)                         // *Rascal* function, i.e., overloaded function at the root
+          | muOFun(list[loc] uids, AType atype)                 // *Rascal* function, i.e., overloaded function at the root
           
           | muConstr(AType ctype) 					        	// Constructor
           
           | muComposedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType)
           | muAddedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType)
-          //| muConstrCompanion(str fuid)                       // Companion function for constructor with keyword parameters
           
           	// Variables and temporaries
           | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)
@@ -227,8 +226,10 @@ public data MuExp =
           
           // Auxiliary operations used in generated code
           
+          | muReturnFirstSucceeds(list[str] formals, list[MuExp] exps) // return first exp that does not generate CallFailed
+          
           // Various tests
-          | muRequireNonNegativeBound(MuExp bnd)              // Abort if exp is false
+          | muRequireNonNegativeBound(MuExp bnd)                // Abort if exp is false
           | muEqual(MuExp exp1, MuExp exp2)    
           | muMatch(MuExp exp1, MuExp exp2)                     // equal that ignores keyword parameters
           

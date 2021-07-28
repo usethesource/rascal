@@ -33,10 +33,10 @@ str atype2javatype(atuple(AType ts))        = "ITuple";
 str atype2javatype(amap(AType d, AType r))  = "IMap";
 
 str atype2javatype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-                                            = "TypedFunctionInstance0\<<"IValue"/*atype2javatype(ret)*/>\>"
+                                            = "TypedFunctionInstance0\<IValue\>"
                                               when isEmpty(formals);
 str atype2javatype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-                                            = "TypedFunctionInstance<size(formals)>\<<"IValue"/*<atype2javatype(ret)*/>, <intercalate(", ", ["IValue"/*atype2javatype(f)*/ | f <- formals])>\>"
+                                            = "TypedFunctionInstance<size(formals)>\<IValue, <intercalate(", ", ["IValue" | f <- formals])>\>"
                                               when !isEmpty(formals);
  
 str atype2javatype(anode(list[AType fieldType] fields)) 
