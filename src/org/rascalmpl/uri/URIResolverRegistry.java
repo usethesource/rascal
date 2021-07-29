@@ -895,7 +895,7 @@ public class URIResolverRegistry {
 			watcher.unwatch(loc, callback);
 		}
 		else {
-			watching.computeIfAbsent(loc, k -> ConcurrentHashMap.newKeySet()).remove(callback);
+			watching.getOrDefault(loc, Collections.emptySet()).remove(callback);
 		}
 		if (isDirectory(loc) && recursive) {
 			for (ISourceLocation elem : list(loc)) {
