@@ -1,10 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst1
- 
- data Y = weird2(list[int] y);
- 
- value main() = //test bool visit22() = 
-    visit (weird2([])) { case list[int] _ => [1] };// == weird2([1]);
- 
+
+import ParseTree;
+syntax A = "a"; 
+
+value main() //test bool concreteExpressionsHaveSourceLocationsLegacy1() 
+  = (A) `a`.src; 
+  
+
 //data LIST = lst(list[int] elems);
 
 //@ignoreInterpreter{Interpreter crashes on this test}

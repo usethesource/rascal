@@ -575,10 +575,10 @@ str trans(muConstr(AType ctype), JGenie jg){
 }
 
 str trans(muTreeAppl(MuExp p, MuExp argList, loc src), JGenie jg) 
-  = "$RVF.appl(<trans(p, jg)>, <trans(argList, jg)>)";
+  = "$RVF.appl(<trans(p, jg)>, <trans(argList, jg)>).asWithKeywordParameters().setParameter(\"src\", <jg.shareConstant(src)>)";
 
 str trans(muTreeAppl(MuExp p, list[MuExp] args, loc src), JGenie jg) 
-  = "$RVF.appl(<trans(p, jg)>, $VF.list(<intercalate(",", [trans(a, jg) | a <- args])>))";
+  = "$RVF.appl(<trans(p, jg)>, $VF.list(<intercalate(",", [trans(a, jg) | a <- args])>)).asWithKeywordParameters().setParameter(\"src\", <jg.shareConstant(src)>)";
   
 str trans(muTreeChar(int ch), JGenie jg) 
   = "$RVF.character(<ch>)";  
@@ -1269,7 +1269,7 @@ JCode trans(muGetKwp(MuExp exp, AType atype, str kwpName), JGenie jg){
    if(acons(AType adt, list[AType] fields, list[Keyword] kwFields) := atype){
         return "$getkw_<atype.adtName>_<getJavaName(kwpName)>(<trans(exp, jg)>)";
    } else if(anode(_) := atype){
-       return "<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<kwpName>\")";
+       return "<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<unescape(kwpName)>\")";
    } else if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := atype){
        return "$getkw_<adtName>_<getJavaName(kwpName)>(<trans(exp, jg)>)";
    }
@@ -1278,7 +1278,7 @@ JCode trans(muGetKwp(MuExp exp, AType atype, str kwpName), JGenie jg){
 // ---- muGetKwFieldFromConstructor
 
 JCode trans(muGetKwFieldFromConstructor(AType resultType, MuExp exp, str kwpName), JGenie jg)
-    = "((<atype2javatype(resultType)>)<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<kwpName>\"))";
+    = "((<atype2javatype(resultType)>)<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<unescape(kwpName)>\"))";
  
 // ---- muGetFieldFromConstructor
 
