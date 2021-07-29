@@ -756,3 +756,5 @@ data LocationType
 @javaClass{org.rascalmpl.library.Prelude}
 java void watch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
 
+@javaClass{org.rascalmpl.library.Prelude}
+java void unwatch(loc src, bool recursive, void (LocationChangeEvent event) watcher);

@@ -56,12 +56,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import com.ibm.icu.text.SimpleDateFormat;
@@ -3641,56 +3644,136 @@ public class Prelude {
         }
 	}
 
+	private final Map<ISourceLocation, Set<ReleasableCallback>> registeredWatchers = new ConcurrentHashMap<>();
+
+	private static final class ReleasableCallback implements Consumer<ISourceLocationChanged> {
+		private final WeakReference<IFunction> target;
+		private final ISourceLocation src;
+		private final boolean recursive;
+		private final int hash;
+
+		private final IValueFactory values;
+		private final TypeStore store;
+
+		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
+			this.src = src;
+			this.recursive = recursive;
+			this.target = new WeakReference<>(target);
+			this.hash = src.hashCode() + 7 * target.hashCode();
+			this.values = values;
+			this.store = store;
+		}
+
+		@Override
+		public void accept(ISourceLocationChanged e) {
+			IFunction callback = target.get();
+			if (callback == null) {
+				try {
+					URIResolverRegistry.getInstance().unwatch(src, recursive, this);
+				}
+				catch (IOException ex) {
+					// swallow our own unregister
+				}
+				return;
+			}
+			// TODO: make sure not to have a pointer to the prelude module here!
+			callback.call(convertChangeEvent(e));
+			
+		}
+
+		private IValue convertChangeEvent(ISourceLocationChanged e) {
+			Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
+			
+			
+			return values.constructor(changeEvent, 
+				e.getLocation(),
+				convertChangeType(e.getChangeType()),
+				convertFileType(e.getType())
+			);
+		}
+
+		private IValue convertFileType(ISourceLocationType type) {
+			Type file = store.lookupConstructors("file").iterator().next();
+			Type directory = store.lookupConstructors("directory").iterator().next();
+			
+			switch (type) {
+				case FILE:
+					return values.constructor(file);
+				case DIRECTORY:
+					return values.constructor(directory);
+			}
+
+			throw RuntimeExceptionFactory.illegalArgument();
+		}
+
+		private IValue convertChangeType(ISourceLocationChangeType changeType) {
+			Type deleted = store.lookupConstructors("deleted").iterator().next();
+			Type created = store.lookupConstructors("created").iterator().next();
+			Type modified = store.lookupConstructors("modified").iterator().next();
+
+			switch (changeType) {
+				case DELETED:
+					return values.constructor(deleted);
+				case CREATED:
+					return values.constructor(created);
+				case MODIFIED:
+					return values.constructor(modified);
+			}
+
+			throw RuntimeExceptionFactory.illegalArgument();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof ReleasableCallback) {
+				ReleasableCallback other = (ReleasableCallback)obj;
+				IFunction actualTarget = target.get();
+				return actualTarget != null 
+					&& src.equals(other.src) 
+					&& recursive == other.recursive 
+					&& actualTarget.equals(other.target.get());
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return hash;
+		}
+	}
+
 	public void watch(ISourceLocation src, IBool recursive, IFunction callback) {
 		try {
-			URIResolverRegistry.getInstance().watch(src, recursive.getValue(), (e) -> callback.call(convertChangeEvent(e)));
+			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values, store);
+			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
+			if (registered.add(wrappedCallback)) {
+				// it wasn't registered before, so let's register it
+				URIResolverRegistry.getInstance().watch(src, recursive.getValue(), wrappedCallback);
+			}
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	private IValue convertChangeEvent(ISourceLocationChanged e) {
-		Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
-		
-		
-		return values.constructor(changeEvent, 
-			e.getLocation(),
-			convertChangeType(e.getChangeType()),
-			convertFileType(e.getType())
-		);
-	}
-
-	private IValue convertFileType(ISourceLocationType type) {
-		Type file = store.lookupConstructors("file").iterator().next();
-		Type directory = store.lookupConstructors("directory").iterator().next();
-		
-		switch (type) {
-			case FILE:
-				return values.constructor(file);
-			case DIRECTORY:
-				return values.constructor(directory);
+	public void unwatch(ISourceLocation src, IBool recursive, IFunction callback) {
+		try {
+			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
+			boolean isRecursive = recursive.getValue();
+			for (ReleasableCallback rc: registered) {
+				// we do a linear scan, as we cannot do a lookup since we want to get the original reference
+				if (rc.recursive == isRecursive && callback.equals(rc.target.get())) {
+					URIResolverRegistry.getInstance().unwatch(src, isRecursive, rc);
+					registered.remove(rc);
+					return;
+				}
+			}
 		}
-
-		throw RuntimeExceptionFactory.illegalArgument();
-	}
-
-	private IValue convertChangeType(ISourceLocationChangeType changeType) {
-		Type deleted = store.lookupConstructors("deleted").iterator().next();
-		Type created = store.lookupConstructors("created").iterator().next();
-		Type modified = store.lookupConstructors("modified").iterator().next();
-
-		switch (changeType) {
-			case DELETED:
-				return values.constructor(deleted);
-			case CREATED:
-				return values.constructor(created);
-			case MODIFIED:
-				return values.constructor(modified);
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
-
-		throw RuntimeExceptionFactory.illegalArgument();
 	}
+
 
 }
 
