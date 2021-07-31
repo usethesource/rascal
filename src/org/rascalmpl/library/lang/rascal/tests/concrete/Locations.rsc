@@ -1,7 +1,7 @@
 module lang::rascal::tests::concrete::Locations
 
 import ParseTree;
-//import IO;
+import IO;
 
 syntax A = "a";
 syntax E =  A | "(" E "+" E ")" | "(" E "*" E ")";
@@ -83,14 +83,14 @@ test bool parsedExpressionsSourceLocationsLength2a()
 test bool concreteExpressionsSourceLocationsLength2b() 
   = (E) `(a+(a*a))`.src.length == 9;  
 
-//test bool concreteExpressionsSourceLocationsCorrect1() 
-//  = readFile((A) `a`.src) == "a";
-//
-//test bool concreteExpressionsSourceLocationsCorrect2() 
-//  = readFile((E) `(a+a)`.src) == "(a+a)";
-//  
-//test bool concreteExpressionsSourceLocationsCorrect3() 
-//  = readFile((E) `(a+(a*a))`.src) == "(a+(a*a))";
+test bool concreteExpressionsSourceLocationsCorrect1() 
+  = readFile((A) `a`.src) == "a";
+
+test bool concreteExpressionsSourceLocationsCorrect2() 
+  = readFile((E) `(a+a)`.src) == "(a+a)";
+  
+test bool concreteExpressionsSourceLocationsCorrect3() 
+  = readFile((E) `(a+(a*a))`.src) == "(a+(a*a))";
 
     
 test bool concreteExpressionsHaveSourceLocationsAfterVisitWithMatch()  {
