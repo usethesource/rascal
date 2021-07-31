@@ -1,9 +1,12 @@
 module lang::rascal::tests::concrete::Locations
 
 import ParseTree;
+//import IO;
 
 syntax A = "a";
 syntax E =  A | "(" E "+" E ")" | "(" E "*" E ")";
+
+value main() = [A] "a";
 
 test bool concreteExpressionsHaveSourceLocations1a() 
   = (A) `a`.src?;
@@ -21,8 +24,7 @@ test bool concreteExpressionsHaveSourceLocations1c()
   = (E) `(a+(a*a))`.src?;
 
 test bool parsedExpressionsHaveSourceLocations1c() 
-  = ([E] "(a+(a*a))").src?;  
-
+  = ([E] "(a+(a*a))").src?;
 
 test bool concreteExpressionsHaveSourceLocations2a() 
   = (A) `a`.src.length == 1;
@@ -60,23 +62,36 @@ test bool concreteExpressionsHaveSourceLocationsLegacy1c()
 test bool parsedExpressionsHaveSourceLocationsLegacy1c() 
   = ([E] "(a+(a*a))")@\loc?;    
 
-test bool concreteExpressionsHaveSourceLocationsLegacy2a() 
+test bool concreteExpressionsSourceLocationsLengthLegacy1a() 
   = (A) `a`@\loc.length == 1;  
 
-test bool parsedExpressionsHaveSourceLocationsLegacy2a() 
+test bool parsedExpressionsSourceLocationsLengthLegacy1a() 
   = ([A] "a")@\loc.length == 1;  
   
-test bool concreteExpressionsHaveSourceLocationsLegacy2b() 
+test bool concreteExpressionsSourceLocationsLength2b() 
   = (E) `(a+a)`.src.length == 5;
 
-test bool parsedExpressionsHaveSourceLocationsLegacy2b() 
+test bool parsedExpressionsSourceLocationsLength1a() 
   = ([E] "(a+a)").src.length == 5;
   
-test bool concreteExpressionsHaveSourceLocationsLegacy2c() 
+test bool concreteExpressionsSourceLocationsLength1a() 
   = (E) `(a+(a*a))`.src.length == 9;  
 
-test bool parsedExpressionsHaveSourceLocationsLegacy2c() 
+test bool parsedExpressionsSourceLocationsLength2a() 
   = ([E] "(a+(a*a))").src.length == 9; 
+
+test bool concreteExpressionsSourceLocationsLength2b() 
+  = (E) `(a+(a*a))`.src.length == 9;  
+
+//test bool concreteExpressionsSourceLocationsCorrect1() 
+//  = readFile((A) `a`.src) == "a";
+//
+//test bool concreteExpressionsSourceLocationsCorrect2() 
+//  = readFile((E) `(a+a)`.src) == "(a+a)";
+//  
+//test bool concreteExpressionsSourceLocationsCorrect3() 
+//  = readFile((E) `(a+(a*a))`.src) == "(a+(a*a))";
+
     
 test bool concreteExpressionsHaveSourceLocationsAfterVisitWithMatch()  {
    // assert /int _ := (A) `a`; // Removed assert since not relevant for the test itself
