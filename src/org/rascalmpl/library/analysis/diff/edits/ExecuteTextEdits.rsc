@@ -3,6 +3,7 @@ module analysis::diff::edits::ExecuteTextEdits
 extend analysis::diff::edits::TextEdits;
 import IO;
 import String;
+import List;
 
 void executeDocumentEdits(list[DocumentEdit] edits) {
     for (e <- edits) {
@@ -23,10 +24,16 @@ void executeDocumentEdit(renamed(loc from, loc to)) {
 }
 
 void executeDocumentEdit(changed(loc file, list[TextEdit] edits)) {
+    assert isSorted(edits, less=bool (TextEdit e1, TextEdit e2) { 
+        return e1.range.offset < e2.range.offset; 
+    });
+
     content = readFile(file);
     shift = 0;
 
     for (replace(loc range, str repl) <- edits) {
+        assert range.top == file.top;
+        
         content[(shift + range.offset) .. (shift + range.offset + range.length)] = repl;
         shift += size(repl) - range.length;
     }
