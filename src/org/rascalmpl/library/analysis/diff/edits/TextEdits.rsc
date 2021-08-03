@@ -12,3 +12,4 @@ data TextEdit
     ;
 
 TextEdit delete(loc range) = replace(range, "");
+
