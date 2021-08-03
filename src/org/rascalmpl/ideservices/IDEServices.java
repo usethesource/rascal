@@ -17,6 +17,7 @@ import java.net.URI;
 import org.rascalmpl.debug.IRascalMonitor;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -56,4 +57,18 @@ public interface IDEServices extends IRascalMonitor {
      // do nothing
   }
 
+  /**
+   * Asks the IDE to apply document edits as defined in the standard library module
+   * analysis::diff::edits::TextEdits, according to the semantics defined in
+   * analysis::diff::edits::ExecuteTextEdits. However, the IDE can take care of these
+   * changes in order to provide important UI experience features such as "preview"
+   * and "undo". 
+   * 
+   * Typically a call to this IDE service method is included in the implementation
+   * of refactoring and quick-fix features of the language service protocol. 
+   * @param edits list of DocumentEdits
+   */
+  default void applyDocumentsEdits(IList edits) {
+     throw new UnsupportedOperationException("applyDocumentEdits is not implemented in this environment.");
+  }
 }
