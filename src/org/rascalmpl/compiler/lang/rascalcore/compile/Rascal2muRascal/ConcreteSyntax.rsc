@@ -69,8 +69,7 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
 
    // now parse the input to get a Tree (or a ParseError is thrown)
    Tree tree = ParseTree::parse(type(sym, rules), input, |todo:///|);
-   
-   return restoreHoles(tree, holes, parts[0]@\loc);
+   return isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0]@\loc);
 }
 
 @doc{restores the parse trees for the typed holes and also recovers all location information}
