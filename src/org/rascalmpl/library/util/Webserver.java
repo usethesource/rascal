@@ -343,7 +343,7 @@ public class Webserver {
             if (!asDeamon.getValue()) {
                 out.println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
                 out.flush();
-                while (!monitor.isCanceled()) {
+                while (!monitor.jobIsCanceled()) {
                     try {
                         Runnable job;
                         if ((job = mainThreadExecutor.poll(10, TimeUnit.MILLISECONDS)) != null) {
