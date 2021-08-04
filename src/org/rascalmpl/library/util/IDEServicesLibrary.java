@@ -39,46 +39,5 @@ public class IDEServicesLibrary {
         services.applyDocumentsEdits(edits);
     }
 
-	public void startJob(IString name) {
-        services.startJob(name.getValue());
-    }
 	
-	public void startJob(IString name, IInteger totalWork) {
-        services.startJob(name.getValue(), totalWork.intValue());
-    }
-
-	public void startJob(IString name, IInteger workShare, IInteger totalWork) {
-        services.startJob(name.getValue(), workShare.intValue(), totalWork.intValue());
-    }
-	
-	public void event(IString name) {
-        services.event(name.getValue());
-    }
-	
-	public void event(IString name, IInteger inc) {
-        services.event(name.getValue(), inc.intValue());
-    }
-	
-	public void event(IInteger inc) {
-        services.event(inc.intValue());
-    }
-	
-	public IInteger endJob(IBool succeeded) {
-        return values.integer(services.endJob(succeeded.getValue()));
-    }
-	
-	/**
-	 * @return True if cancellation has been requested for this job
-	 */
-	public IBool isCanceled() {
-        return values.bool(services.isCanceled());
-    }
-	
-	public void todo(IInteger work) {
-        services.todo(work.intValue());
-    }
-	
-	public void warning(IString message, ISourceLocation src) {
-        services.warning(message.getValue(), src);
-    }
 }

@@ -374,13 +374,13 @@ private static boolean isDeprecated(Module preModule){
   
   private static Module buildModule(ISourceLocation uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
       try {
-          eval.startJob("Loading module " + uri, 10);
+          eval.jobStart("Loading module " + uri, 10);
           ITree tree = eval.parseModuleAndFragments(eval, uri);
 
           return getBuilder().buildModule(tree);
       }
       finally {
-          eval.endJob(true);
+          eval.jobEnd(true);
       }
   }
   
