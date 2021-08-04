@@ -110,7 +110,7 @@ public class EclipseJavaCompiler {
     }
     
     private void checkInterrupted(IRascalMonitor eval) {
-        if (eval.isCanceled()) {
+        if (eval.jobIsCanceled()) {
           throw new InterruptException("Java compiler interrupted", URIUtil.rootLocation("java"));
         }
     }
