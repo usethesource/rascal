@@ -1819,16 +1819,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void showInteractiveContent(IConstructor content) {
-            if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).showInteractiveContent(content);
-            }
-            else {
-                IDEServices.super.showInteractiveContent(content);
-            }
-        }
-
-        @Override
         public void applyDocumentsEdits(IList edits) {
             if (monitor instanceof IDEServices) {
                 ((IDEServices) monitor).applyDocumentsEdits(edits);
