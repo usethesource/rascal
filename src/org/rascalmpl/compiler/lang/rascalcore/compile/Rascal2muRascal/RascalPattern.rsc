@@ -376,23 +376,23 @@ MuExp translateParsedConcretePattern(t:char(int i),
 
 private MuExp translateParsedConcretePattern(t:appl(p:regular(s:iter(Symbol elem)), list[Tree] args),       
                         AType patType, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
-{ throw "todo"; }
+{ return trueCont; } /* TODO */
 
 private MuExp translateParsedConcretePattern(t:appl(p:regular(s:\iter-star(Symbol elem)), list[Tree] args),
                         AType patType, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
-{ throw "todo"; }
+{ return trueCont; } /* TODO */
    
 private MuExp translateParsedConcretePattern(t:appl(p:regular(s:\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args),
-                        AType patType, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
-  return trueCont;          
+                        AType patType, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {         
   println(getLoc(args[0]));
-  //if((Pattern) `[<{Pattern ","}* elements0> ]` := tree2pat(t))
-    return translateListPat(args, patType, subjectType, subject, btscopes, trueCont, falseCont, restore=restore, delta=2);
+  iprintln(args[0]);
+  if((Pattern) `[<{Pattern ","}* pats>]` := tree2pat(t))
+    return translateListPat(pats, patType, subjectType, subject, btscopes, trueCont, falseCont, restore=restore, delta=2);
 }
 
 private MuExp translateParsedConcretePattern(t:appl(p:regular(s:\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args),
                        AType patType, AType subjectType,  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
- { throw "todo"; }
+{ return trueCont; } /* TODO */
 
                                
 default MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args),
@@ -1971,39 +1971,39 @@ bool backtrackFree((Pattern) `<RegExpLiteral r>`) = false;
 default bool backtrackFree(Pattern p) = !isMultiVar(p);
 
 Pattern tree2pat(Tree t){
-    return [Pattern] "<t>";
-    //t1 = visit(t){
-    //    case "Expression" => "Pattern"
-    //};
-    //iprintln(t1);
-    //if(Pattern p := t1) return p;
+    //return [Pattern] "<t>";
+    t1 = visit(t){
+        case "Expression" => "Pattern"
+    };
+    iprintln(t1);
+    if(Pattern p := t1) return p;
 }
 
-//Pattern tree2pat(appl(Production prod, list[Tree] args)){
-//    e = tree2pat(prod);
-//    args = [ tree2pat(a) | a <- arguments ];
-//    return callOrTree(e, args);
-//}
-//
-//Pattern tree2pat(prod(Symbol def, list[Symbol] symbols, set[Attr] attributes)){
-//    args = [ tree2pat(a) | a <- symbols ];
-//    return (Pattern) `<Pattern def>(<{Pattern ","}* arguments>)`;
-//}
-//
-//Pattern tree2pat(node tree){
-//    e = getName(tree);
-//    arguments = getChildren(tree);
-//    args = [ tree2pat(a) | a <- arguments ];
-//    arg = args[0];
-//    return (Pattern) `<QualifiedName e>(<Pattern arg>)`;
-//}
-//
-//Pattern tree2pat(value v){
-//    return (Pattern)`<Literal v>`;
-//}
-//
-//default Pattern tree2pat(value v){
-//    iprintln(v);
-//    throw "tree2pat failed on <v>";
-//
-//}
+Pattern tree2pat(appl(Production prod, list[Tree] args)){
+    e = tree2pat(prod);
+    args = [ tree2pat(a) | a <- args ];
+    return callOrTree(e, args);
+}
+
+Pattern tree2pat(prod(Symbol def, list[Symbol] symbols, set[Attr] attributes)){
+    {Pattern ","}* args = [ tree2pat(a) | a <- symbols ];
+    return (Pattern) `<Pattern def>(<{Pattern ","}* args>)`;
+}
+
+Pattern tree2pat(node tree){
+    e = getName(tree);
+    arguments = getChildren(tree);
+    args = [ tree2pat(a) | a <- arguments ];
+    arg = args[0];
+    return (Pattern) `<QualifiedName e>(<Pattern arg>)`;
+}
+
+Pattern tree2pat(value v){
+    return (Pattern)`<Literal v>`;
+}
+
+default Pattern tree2pat(value v){
+    iprintln(v);
+    throw "tree2pat failed on <v>";
+
+}

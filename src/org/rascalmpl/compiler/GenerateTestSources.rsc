@@ -30,7 +30,7 @@ void generateTestSources(PathConfig pcfg) {
    libraryModules = ["Boolean", 
                      "DateTime", 
                      "Exception", 
-                     /*"Grammar",*/ 
+                     "Grammar", 
                      "IO", 
                      "List", 
                      "ListRelation", 
@@ -46,9 +46,20 @@ void generateTestSources(PathConfig pcfg) {
                      "Type", 
                      "ValueIO",
                      "analysis::graphs::Graph", 
+                     "lang::json::IO",
+                     "lang::manifest::IO",
+                     "lang::rascal::Syntax",
+                     "lan::xml::DOM",
+                     "lang::xml::IO",
                      "util::FileSystem", 
+                     "util::Math",
+                     "util::Maybe",
+                     "util::Memo",
+                     "util::PriorityQueue",
                      "util::Reflective",
+                     "util::SemVer",
                      "util::UUID",
+                    
                      "analysis::m3::AST", 
                      "analysis::m3::Core", 
                      "analysis::m3::FlowGraph", 
@@ -64,8 +75,11 @@ void generateTestSources(PathConfig pcfg) {
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
                  ];    
-                 
-   testModules -= "lang::rascal::tests::concrete::ParameterizedNonTerminals";     
+   ignored = ["lang::rascal::tests::concrete::Syntax4",
+             "lang::rascal::tests::concrete::Syntax5",
+             "lang::rascal::tests::concrete::Patterns3"
+             ];           
+   testModules -= ignored;    
    
    //testModules = [ "lang::rascal::tests::basic::Equality"];
    
@@ -81,8 +95,9 @@ void generateTestSources(PathConfig pcfg) {
    }
    println("Compiled <n> test modules");
    println("<size(exceptions)> failed to compile: <exceptions>");
+   if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
    
-   iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
+   //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
 void testCompile(str \module) {

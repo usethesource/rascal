@@ -41,7 +41,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
        
         typeParameters = getTypeParameters(defined);
         if(!isEmpty(typeParameters)){
-            nonterminalType = nonterminalType[parameters=[ aparameter("<tp.nonterminal>", avalue())| tp <- typeParameters ]];
+            nonterminalType = nonterminalType[parameters=[ aparameter("<tp.nonterminal>", treeType)| tp <- typeParameters ]];
         }
         
         dt = defType(nonterminalType);
@@ -53,7 +53,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         adtParentScope = c.getScope();
         c.enterScope(current);
             for(tp <- typeParameters){
-                c.define("<tp.nonterminal>", typeVarId(), tp.nonterminal, defType(aparameter("<tp.nonterminal>", avalue())));
+                c.define("<tp.nonterminal>", typeVarId(), tp.nonterminal, defType(aparameter("<tp.nonterminal>", treeType)));
             }
             
             // visit all the productions in the parent scope of the syntax declaration
@@ -84,6 +84,11 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
 }
 
 AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
+    //try {   
+    //    if(ap: aprod(p) := s.getType(current)){
+    //        return aprod(ap);
+    //    }     
+    //} catch e:;
     args = [s.getType(sym) | sym <- symbols];  
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
@@ -112,12 +117,14 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
             AType(Solver s) {
-                return aprod(computeProd(current, unescape("<name>"), s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);      
+                try return s.getType(current); catch e: /*not yet known*/;
+                res = aprod(computeProd(current, unescape("<name>"), s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
+                return res;
             });
         //qualName = unescape("<name>"); // 
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<unescape("<name>")>";
         
-        // Define the constructor (using a location annotated with "cons" to differentiate from the above)
+         // Define the constructor (using a location annotated with "cons" to differentiate from the above)
         c.defineInScope(adtParentScope, unescape("<name>") /*qualName*/, constructorId(), getLoc(current)[fragment="cons"], defType([current], 
             AType(Solver s){
                 ptype = s.getType(current);
@@ -148,11 +155,12 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector 
     if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
             AType(Solver s){
-                return aprod(computeProd(current, "", s.getType(adt), modifiers, symbols, s));
+                res = aprod(computeProd(current, "", s.getType(adt), modifiers, symbols, s));
+                return res;
             });
         collect(symbols, c);
     } else {
-        throw "collect Named Prod: currentAdt not found";
+        throw "collect Unnamed Prod: currentAdt not found";
     }
 }
 

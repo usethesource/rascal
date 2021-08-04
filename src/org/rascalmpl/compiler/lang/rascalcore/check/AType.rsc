@@ -502,6 +502,7 @@ bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), anode(_)) = true;
 bool asubtype(acons(a,list[AType] ap, list[Keyword] _), afunc(AType b, list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
 bool asubtype(afunc(AType a, list[AType] ap, list[Keyword] _), acons(b,list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
 
+bool asubtype(aprod(AProduction p), AType t) = asubtype(p.def, t);
 
 bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
 bool asubtype(adt: aadt(str _, list[AType] _, _), acons(AType a, list[AType] ap, list[Keyword] _)) = asubtype(adt, a);

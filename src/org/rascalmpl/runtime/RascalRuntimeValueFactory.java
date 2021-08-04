@@ -68,7 +68,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
     private @MonotonicNonNull ParserGenerator generator;
     private LoadingCache<IMap, Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache = Caffeine.newBuilder()
         .softValues()
-        .maximumSize(100) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
+        .maximumSize(1/*100*/) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
         .expireAfterAccess(30, TimeUnit.MINUTES) // we clean up unused parsers after 30 minutes
         .build(grammar -> generateParser(grammar));
 
@@ -288,7 +288,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         protected IValue parse(IValue start, IString input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, ISet filters, ParserGenerator generator) {
             Type reified = start.getType();
             IConstructor grammar = checkPreconditions(start, reified);
-            
+            System.err.println("parse uses grammar:"); System.err.println(grammar);
             if (origin == null) {
                 origin = URIUtil.rootLocation("unknown");
             }
@@ -298,7 +298,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                System.err.println(grammar);
+                //System.err.println(grammar);
                 throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (Ambiguous e) {
