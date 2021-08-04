@@ -117,7 +117,8 @@ private str prettyPrintCond(ACondition::\except(str label)) = "!<label>";
 @doc{Rascal abstract types to classic Symbols}
 Symbol atype2symbol(AType tp){
     res = atype2symbol1(tp);
-    return tp.label? ? Symbol::\label(tp.label, res) : res;
+    a = tp.label?;
+    return a ? Symbol::\label(tp.label, res) : res;
 }
 
 Symbol atype2symbol1(aint()) = \int();
@@ -197,8 +198,18 @@ Symbol atype2symbol1(\iter-star-seps(AType symbol, list[AType] separators)) = Sy
 Symbol atype2symbol1(\alt(set[AType] alternatives)) = Symbol::\alt({ atype2symbol(a) | a <- alternatives });
 Symbol atype2symbol1(\seq(list[AType] sequence)) = Symbol::\seq([atype2symbol(a) | a <- sequence ]);
 Symbol atype2symbol1(\conditional(AType symbol, set[ACondition] conditions)) = Symbol::\conditional(atype2symbol(symbol), { acond2cond(cond) | cond <- conditions });
-Symbol atype2symbol1(aprod(prod(AType def, list[AType] atypes))) = atype2symbol(def);
-Symbol atype2symbol1(regular(AType def)) = atype2symbol(def);
+
+Symbol atype2symbol1(aprod(p:prod(AType def, list[AType] atypes))) {
+    return atype2symbol(def);
+    t0 = atypes[0];
+    s0 = atype2symbol(t0);
+    res = Symbol::cons(atype2symbol(def), p.label, [s0]);
+    return res;
+    res = prod(atype2symbol(def), [ atype2symbol(t) | t <- atypes, bprintln(t) ]);   //atype2symbol(def);
+}
+Symbol atype2symbol1(regular(AType def)) = \regular(atype2symbol(def));
+
+//Symbol atype2symbol1(regular(AType def)) = atype2symbol(def);
 default Symbol atype2symbol1(AType s)  { throw "could not convert <s> to Symbol"; }
 
 private Condition acond2cond(ACondition::\follow(AType symbol)) = Condition::\follow(atype2symbol(symbol));
@@ -211,7 +222,6 @@ private Condition acond2cond(ACondition::\begin-of-line()) = Condition::\begin-o
 private Condition acond2cond(ACondition::\end-of-line()) = Condition::\end-of-line();
 private Condition acond2cond(ACondition::\except(str label)) = Condition::\except(label);
 
-Symbol atype2symbol1(regular(AType def)) = \regular(atype2symbol(def));
 
 map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def] defs) { 
     res = (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs);
@@ -220,10 +230,12 @@ map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def
     return res;
 }
 
-map[Symbol, Production] adefinitions2definitions(map[AType, set[AType]] defs) 
-  = (atype2symbol(k) : Production::choice(atype2symbol(k), aprods2prods(defs[k])) | k <- defs);
+map[Symbol, Production] adefinitions2definitions(map[AType, set[AType]] defs) {
+ res = (atype2symbol(k) : Production::choice(atype2symbol(k), aprods2prods(defs[k])) | k <- defs);
+ return res;
+}
 
-set[Production] aprods2prods(set[AType] alts) = {aprod2prod(p) | p <- alts}; 
+set[Production] aprods2prods(set[AType] alts) = {aprod2prod(p) | p <- alts/*, acons(AType adt, list[AType] fields, list[Keyword] kwFields) !:= p*/}; // TODO test added???
  
 Production aprod2prod(AType::aprod(AProduction prod)) = aprod2prod(prod);
 
@@ -231,7 +243,7 @@ default Production aprod2prod(AType t) {
   throw "internal error: do not know how to translate a <t> to a production rule?!";
 }
 
-Production aprod2prod(p:prod(AType lhs, list[AType] atypes, attributes=set[Attr] as))
+Production aprod2prod(p:AProduction::prod(AType lhs, list[AType] atypes, attributes=set[Attr] as))
   = Production::prod((p.label?) ? Symbol::label(p.label, atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], as); 
   
 Production aprod2prod(AProduction::choice(AType def, set[AProduction] alts)) 

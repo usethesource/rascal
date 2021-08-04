@@ -504,8 +504,8 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     
     // Common kw field of concrete type?
     if(asubtype(adtType, treeType)){
-        if(fieldName == "src"){
-            return <"", aloc(), true>;
+        if(fieldName == "src"){         // TODO: remove when @\loc is gone
+            return <"ParseTree", aloc(), true>;
         }
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.label>" == fieldName){
@@ -597,6 +597,7 @@ AType getLayouts(){
 
 map[AType,set[AType]] collectNeededDefs(AType t){
     map[AType, set[AType]] definitions = ();
+    my_grammar_rules = grammar.rules;
     list[AType] tparams = [];
     is_start = false;
     syntax_type = false;
@@ -614,42 +615,55 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         tparams = getADTTypeParameters(base_t);
         syntax_type = base_t.syntaxRole != dataSyntax();
     }
+    allADTs = { unsetRec(adt) | adt <- ADTs };
+    if(syntax_type){
+        allADTs = { adt | adt <- allADTs, adt.syntaxRole != dataSyntax() };
+        allADTs += { unsetRec(adt) |  /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := my_grammar_rules };
+    }
+  
+    instantiatedADTs = { adt | adt <- allADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, !isTypeParameter(p)) };
     
-    instantiatedADTs = { adt | adt <- ADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, !isTypeParameter(p)) };
-    instantiated_adt_constructors = adt_constructors;
-    uninstantiatedADTs = ADTs - instantiatedADTs;
+    parameterized_uninstantiated_ADTs = { adt | adt <- allADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, isTypeParameter(p)) };
     
     AType uninstantiate(AType t){
         if(t in instantiatedADTs){
-            for(uadt <- uninstantiatedADTs){
+            iparams = getADTTypeParameters(t);
+            for(uadt <- parameterized_uninstantiated_ADTs){
                 uadtParams = getADTTypeParameters(uadt);
-                if(base_t.adtName == uadt.adtName && size(tparams) == size(uadtParams)){
+                if(t.adtName == uadt.adtName && size(iparams) == size(uadtParams)){
                     return uadt;                  
                 }
             }
         }
         return t;
     }
-   
-    definitions = (adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : {aprod(grammar.rules[adt1])}
+      
+    definitions = ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : {aprod(my_grammar_rules[adt1])} ? {}
                   | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t, adt1 := unset(uninstantiate(adt), "label")
                   );
-    definedLayouts = getLayouts();
+    
+   
+                  
+    
     if(syntax_type){
-        definitions[definedLayouts] = { aprod(grammar.rules[definedLayouts]) };
-    }
-    if(is_start){
-        definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[label="top"], definedLayouts]) })) });
+     // Auxiliary rules for uses of instantiated parameterized nonterminals are never used, add them explcitly              
+        definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, adt.adtName[0] == "$" );
+        definedLayouts = getLayouts();         
+        definitions[definedLayouts] = { aprod(my_grammar_rules[definedLayouts]) };
+        if(is_start){
+            definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[label="top"], definedLayouts]) })) });
+        }
     }
    
-   solve(definitions){
-    definitions = definitions + (adt1 : instantiated_adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} 
-                                | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions, 
-                                  adt1 := unsetRec(adt),
-                                  !definitions[adt1]?
+    solve(definitions){
+        definitions = definitions + ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])} : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
+                                    | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions,
+                                      adt1 := uninstantiate(unsetRec(adt)),
+                                      syntax_type ? syntaxRole != dataSyntax() : true,
+                                      !definitions[adt1]?
                                 );
-   }
-   return definitions;
+    }
+    return definitions;
 }
 
 /********************************************************************/

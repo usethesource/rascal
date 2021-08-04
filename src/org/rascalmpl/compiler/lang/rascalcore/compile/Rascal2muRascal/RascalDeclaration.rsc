@@ -96,7 +96,10 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
     seen = {};
     for(<kwType, defaultExp> <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp@\loc, module_scope)){
         seen += kwType;
-        str kwFieldName = kwType.label;
+        str kwFieldName = unescape(kwType.label);
+        if(asubtype(adtType, treeType)){
+            if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when @\loc is gone
+        }
         str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
        

@@ -67,7 +67,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
             c.define("Tree", dataId(), treeScope, defType(TreeType));
             c.enterScope(treeScope);
                 c.define("top", fieldId(), mkTree(2), defType(TreeType));
-                c.define("src", fieldId(), mkTree(3), defType(aloc()));
+                c.define("src", keywordFieldId(), mkTree(3), defType(aloc())); // TODO: remove when @\loc is gone
             c.leaveScope(treeScope); 
                
             // Reified type
@@ -82,12 +82,12 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
                 // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
             } else {
                 //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
-                typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+                //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
                 SymbolType = aadt("AType", [], dataSyntax());
                 AProductionType = aadt("AProduction", [], dataSyntax());
                 atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
                 definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
-                c.define("atype", constructorId(), mkTree(3), defType(acons(typeType, [atypeField, definitionsField], [], label="type")));
+                //c.define("atype", constructorId(), mkTree(3), defType(acons(typeType, [atypeField, definitionsField], [], label="type")));
                 // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
             }
         c.leaveScope(tree);

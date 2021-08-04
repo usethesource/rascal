@@ -124,7 +124,9 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     module_ext_inits  = "<for(ext <- extends){>
                         '<module2field(ext)> = <module2class(ext)>.extend<getBaseClass(ext)>(this);
                         '<}>";
-    //iprintln(m.initialization);
+    module_var_inits =  "<for(exp <- m.initialization){><trans(exp, jg)><}>";
+    <constant_decls, constant_inits> = jg.getConstants();
+  
     class_constructor = "public <className>(){
                         '    this(new ModuleStore(), null);
                         '}
@@ -144,16 +146,12 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '   <module2field(ext)> = store.extendModule(<getClassRef(ext, moduleName)>.class, <getClassRef(ext, moduleName)>::new, this);<}>
                         '   <for(imp <- imports+extends){>
                         '   $TS.importStore(<module2field(imp)>.$TS);<}>
-                        '   initialize_constants();
-                        '   <kwpDecls><for(exp <- m.initialization){><trans(exp, jg)><}>
+                        '   <adtTypeInits>
+                        '   <constant_inits>
+                        '   <consTypeInits> 
+                        '   <kwpDecls><module_var_inits>
                         '}";
-    <constant_decls, constant_inits> = jg.getConstants();
-    constant_initializer = 
-                        "private void initialize_constants(){
-                        '    <adtTypeInits>
-                        '    <constant_inits>
-                        '    <consTypeInits>                       
-                        '}";
+    
     externalArgs = "";                 
     if(hasMainFunction && !isEmpty(mainFunction.externalRefs)){
       externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<var.name>)" | var <- mainFunction.externalRefs, var.pos >= 0, jtype := atype2javatype(var.atype)]);
@@ -201,6 +199,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         'import org.rascalmpl.types.NonTerminalType;
                         'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
                         'import org.rascalmpl.util.ExpiringFunctionResultCache;
+                        'import org.rascalmpl.values.RascalValueFactory;
                         'import org.rascalmpl.values.parsetrees.ITree;
                         '
                         '<module_imports>
@@ -220,7 +219,6 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '    <constant_decls>
                         '    <adtTypeDecls>
                         '    <consTypeDecls>
-                        '    <constant_initializer>
                         '    <class_constructor>
                         '    <resolvers>
                         '    <functions>
@@ -371,8 +369,10 @@ JCode trans(MuFunction fun, JGenie jg){
     ftype = fun.ftype;
     jg.setFunction(fun);
     shortName = getJavaName(getUniqueFunctionName(fun));
-    
-    visibility = "public "; // isSyntheticFunctionName(shortName) ? "private " : "public "; $getkw_ should be prublic
+    if(shortName == "$getkw_Tree_src"){
+        println("$getkw_Tree_src");
+    }
+    visibility = "public "; // isSyntheticFunctionName(shortName) ? "private " : "public "; $getkw_ should be public
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
         returnType = atype2javatype(ftype.ret);
@@ -763,11 +763,13 @@ JCode trans(muAssign(v:muTmpNative(str name, str fuid, NativeKind nkind), MuExp 
                   : "<name> = <trans2Native(exp, nkind, jg)>;\n";
 
 // muGetAnno
-JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg)
-    = "$annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
-
+JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg){
+    if(annoName == "loc") annoName = "src";// TODO: remove when @\loc is gone
+    return "$annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
+}
 // muGuardedGetAnno
 JCode trans(muGuardedGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg){
+    if(annoName == "loc") annoName = "src";// TODO: remove when @\loc is gone
     return "$guarded_annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
 }    
 //// muSetAnno
@@ -975,12 +977,20 @@ str prefix(str moduleName, JGenie jg){
     return res;
 }
 JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str fieldName, str moduleName), JGenie jg){
-    adtName = asubtype(adtType, treeType) ? "Tree" : adtType.adtName;
+    adtName = adtType.adtName;
+    if(asubtype(adtType, treeType)){
+        if(fieldName == "loc") fieldName = "src"; // TODO: remove when @\loc is gone
+        adtName = "Tree";
+    }
     return "<prefix(moduleName,jg)>$getkw_<adtName>_<getJavaName(fieldName)>(<transWithCast(adtType, cons, jg)>)";
 }
 
 JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName, str moduleName), JGenie jg){
-    adtName = asubtype(adt, treeType) ? "Tree" : adt.adtName;
+    adtName = adt.adtName;
+    if(asubtype(adt, treeType)){
+        if(fieldName == "loc") fieldName = "src";   // TODO: remove when @\loc is gone
+        adtName = "Tree";
+    }
     isConsKwField = fieldName in {kwf.fieldType.label | kwf <- kwFields};
     return isConsKwField ? "<prefix(moduleName,jg)>$getkw_<adtName>_<consType.label>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)"
                          : "<prefix(moduleName,jg)>$getkw_<adtName>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)";
@@ -1058,6 +1068,7 @@ default JCode trans(muGuardedGetField(AType resultType, consType:acons(AType adt
     qFieldName = "\"<getJavaName(fieldName)>\"";
     for(field <- fields){
         if(fieldName == field.label){
+        
             return "((<atype2javatype(field)>)<base>.get(<qFieldName>))";
         }
     }

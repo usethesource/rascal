@@ -367,6 +367,10 @@ JGenie makeJGenie(MuModule m,
         } else if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := atype){
             return "<_getATypeAccessor(atype)>ADT_<adtName>";
         } else {
+            ac = _getATypeAccessor(atype);
+            if(ac != ""){
+                return atype2idpart(atype, thisJGenie);
+            }
             ntypes += 1;
             couter = "$T<ntypes>";
             types[atype] = couter;
@@ -442,7 +446,7 @@ JGenie makeJGenie(MuModule m,
         for(c <- constants){
             if(c == ""){
                 if (c notin done) {
-                  cdecls += "<value2outertype(c)> <constants[c]>;\n";
+                  cdecls += "private final <value2outertype(c)> <constants[c]>;\n";
                   cinits += "<constants[c]> = <value2IValue(c, constants)>;\n";
                   done += {c};
                 }
@@ -450,7 +454,7 @@ JGenie makeJGenie(MuModule m,
                 bottom-up visit(c) {
                   case s:
                         if (s notin done, s in constants) {
-                          cdecls += "<value2outertype(s)> <constants[s]>;\n";
+                          cdecls += "private final <value2outertype(s)> <constants[s]>;\n";
                           cinits += "<constants[s]> = <value2IValue(s, constants)>;\n";
                           done += {s};
                         }
@@ -465,8 +469,8 @@ JGenie makeJGenie(MuModule m,
         // they are always declared before they are used in the list of type fields
         for(t <- types){
             if(t == ""){
-                if (c notin done) {
-                  tdecls += "io.usethesource.vallang.type.Type <types[t]>;\n";
+                if (t notin done) {
+                  tdecls += "final io.usethesource.vallang.type.Type <types[t]>;\n";
                   tinits += "<types[t]> = <atype2vtype(t, thisJGenie)>;\n";
                   done += {t};
                 }
@@ -474,7 +478,7 @@ JGenie makeJGenie(MuModule m,
                 bottom-up visit(t) {
                   case s:
                         if (s notin done, s in types) {
-                          tdecls += "io.usethesource.vallang.type.Type <types[s]>;\n";
+                          tdecls += "final io.usethesource.vallang.type.Type <types[s]>;\n";
                           tinits += "<types[s]> = <atype2vtype(s, thisJGenie)>;\n";
                           done += {s};
                         }
@@ -484,7 +488,7 @@ JGenie makeJGenie(MuModule m,
         rdecls = "";
         rinits = "";
         for(t <- reified_constants){
-               rdecls += "IConstructor <reified_constants[t]>;\n";
+               rdecls += "private final IConstructor <reified_constants[t]>;\n";
                rinits += "<reified_constants[t]> = $RVF.reifiedType(<value2IValue(t, constants)>, <value2IValue(reified_definitions[t], constants)>);\n";
         }       
         return <"<cdecls><tdecls><rdecls>",

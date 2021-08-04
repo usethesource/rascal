@@ -733,27 +733,27 @@ str doValue2IValue(type[&T] typeValue, map[value, str] constants) {
 // the builtin reified type representations (Symbol, Production) are not necessarily declared in the current scope, so
 // we lookup their constructors in the RascalValueFactory hand-written fields:
 str doValue2IValue(Symbol sym, map[value, str] constants) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(RascalValueFactory.Symbol_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
 str doValue2IValue(Production sym, map[value, str] constants) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
 str doValue2IValue(Attr sym, map[value, str] constants) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Attr_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(RascalValueFactory.Attr_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
 str doValue2IValue(Associativity sym, map[value, str] constants) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Associativity_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(RascalValueFactory.Associativity_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
 str doValue2IValue(CharRange sym, map[value, str] constants) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.CharRange_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(RascalValueFactory.CharRange_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
 str doValue2IValue(Production sym, map[value, str] constants) {
-   return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
+   return "$RVF.constructor(RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
 str toRascalValueFactoryName(str consName) = capitalize(visit(consName) {
@@ -775,7 +775,7 @@ default str doValue2IValue(node nd, map[value, str] constants) {
    
     if(name in {"follow", "not-follow", "precede", "not-precede", "delete", "at-column", "begin-of-line", "end-of-line", "except"}){
          childrenContrib = intercalate(", ", [ value2IValueRec(child, constants) | child <- children ]);
-         return "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Condition_<toRascalValueFactoryName(name)><if (children != []){>,<}><childrenContrib>)";
+         return "$RVF.constructor(RascalValueFactory.Condition_<toRascalValueFactoryName(name)><if (children != []){>,<}><childrenContrib>)";
        
     } else {
         childrenContrib = isEmpty(children) ? "" : ", <intercalate(", ", [ value2IValueRec(child, constants) | child <- children ])>";
@@ -787,7 +787,7 @@ default str doValue2IValue(node nd, map[value, str] constants) {
 }
 
 str doValue2IValue(aadt(str adtName, list[AType] parameters, concreteSyntax()), map[value, str] constants) 
-    = "$RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\"))";
+    = "$RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\"))";
 
 str doValue2IValue(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[value, str] constants) = adtName;
 
@@ -890,18 +890,18 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, dataSyntax()), JGeni
     = (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>";
     
 str atype2vtype(aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg, bool inTest=false)    
-    = "$TF.fromSymbol($RVF.constructor(org.rascalmpl.values.RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
+    = "$TF.fromSymbol($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")), $TS, p -\> Collections.emptySet())";
     
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg, bool inTest=false){    
     return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>";
-    //return "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"lex\", $VF.string(\"<adtName>\"))";
+    //return "$TF.constructor($TS, RascalValueFactory.Symbol, \"lex\", $VF.string(\"<adtName>\"))";
 }
     
 str atype2vtype(aadt(str adtName, list[AType] parameters, keywordSyntax()), JGenie jg, bool inTest=false)    
-    = "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"keywords\", $VF.string(\"<adtName>\"))";
+    = "$TF.constructor($TS, RascalValueFactory.Symbol, \"keywords\", $VF.string(\"<adtName>\"))";
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, layoutSyntax()), JGenie jg, bool inTest=false)    
     = (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>";
-    //= "$TF.constructor($TS, org.rascalmpl.values.RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
+    //= "$TF.constructor($TS, RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
                                  
 str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
