@@ -393,11 +393,11 @@ public class JavaBridge {
 								args[i] = (IDEServices) monitor;
 							}
 							else {
-								args[i] = null;
+								throw new IllegalArgumentException("no IDE services are available in this environment");
 							}
 						}
 					    else {
-					        throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore and TypeFactory are supported");
+					        throw new IllegalArgumentException(constructor + " has unknown kinds of arguments.");
 					    }
 					}
 
