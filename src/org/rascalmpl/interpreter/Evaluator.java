@@ -291,60 +291,36 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public int endJob(boolean succeeded) {
+    public int jobEnd(boolean succeeded) {
         if (monitor != null)
-            return monitor.endJob(succeeded);
+            return monitor.jobEnd(succeeded);
         return 0;
     }
 
     @Override	
-    public void event(int inc) {
+    public void jobStep(String name, int inc) {
         if (monitor != null)
-            monitor.event(inc);
+            monitor.jobStep(name, inc);
     }
 
     @Override	
-    public void event(String name, int inc) {
+    public void jobStart(String name, int workShare, int totalWork) {
         if (monitor != null)
-            monitor.event(name, inc);
+            monitor.jobStart(name, workShare, totalWork);
     }
 
     @Override	
-    public void event(String name) {
+    public void jobTodo(int work) {
         if (monitor != null)
-            monitor.event(name);
+            monitor.jobTodo(work);
     }
 
     @Override	
-    public void startJob(String name, int workShare, int totalWork) {
-        if (monitor != null)
-            monitor.startJob(name, workShare, totalWork);
-    }
-
-    @Override	
-    public void startJob(String name, int totalWork) {
-        if (monitor != null)
-            monitor.startJob(name, totalWork);
-    }
-
-    @Override	
-    public void startJob(String name) {
-        if (monitor != null)
-            monitor.startJob(name);
-    }
-
-    @Override	
-    public void todo(int work) {
-        if (monitor != null)
-            monitor.todo(work);
-    }
-
-    @Override	
-    public boolean isCanceled() {
+    public boolean jobIsCanceled() {
         if(monitor == null)
             return false;
         else
-            return monitor.isCanceled();
+            return monitor.jobIsCanceled();
     }
 
     @Override
@@ -435,7 +411,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     @Override	
     public boolean isInterrupted() {
-        return interrupt || isCanceled();
+        return interrupt || jobIsCanceled();
     }
 
     @Override	
@@ -817,11 +793,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ParserGenerator pgen = getParserGenerator();
             String main = uri.getAuthority();
             ModuleEnvironment env = getHeap().getModule(main);
-            monitor.startJob("Expanding Grammar");
+            monitor.jobStart("Expanding Grammar");
             return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
         }
         finally {
-            monitor.endJob(true);
+            monitor.jobEnd(true);
             setMonitor(old);
         }
     }
@@ -845,9 +821,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             if (isBootstrapper()) {
                 throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
             }
-            startJob("Loading parser generator", 40);
+            jobStart("Loading parser generator", 40);
             parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
-            endJob(true);
+            jobEnd(true);
         }
 
         return parserGenerator;
@@ -1177,7 +1153,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             PrintWriter errStream = getErrorPrinter();
 
             try {
-                monitor.startJob("Cleaning modules", names.size());
+                monitor.jobStart("Cleaning modules", names.size());
                 for (String mod : names) {
                     if (heap.existsModule(mod)) {
                         onHeap.add(mod);
@@ -1186,15 +1162,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         }
                         heap.removeModule(heap.getModule(mod));
                     }
-                    monitor.event("Processed " + mod, 1);
+                    monitor.jobStep("Processed " + mod, 1);
                 }
                 extendingModules.removeAll(names);
             } finally {
-                monitor.endJob(true);
+                monitor.jobEnd(true);
             }
 
             try {
-                monitor.startJob("Reloading modules", onHeap.size());
+                monitor.jobStart("Reloading modules", onHeap.size());
                 for (String mod : onHeap) {
                     wrapped.clear();
                     if (!heap.existsModule(mod)) {
@@ -1210,10 +1186,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                             errStream.println("*** if the error persists, start a new console session.");
                         }
                     }
-                    monitor.event("loaded " + mod, 1);
+                    monitor.jobStep("loaded " + mod, 1);
                 }
             } finally {
-                monitor.endJob(true);
+                monitor.jobEnd(true);
             }
 
             Set<String> dependingImports = new HashSet<>();
@@ -1222,7 +1198,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             dependingExtends.addAll(getExtendingModules(names));
 
             try {
-                monitor.startJob("Reconnecting importers of affected modules");
+                monitor.jobStart("Reconnecting importers of affected modules");
                 for (String mod : dependingImports) {
                     ModuleEnvironment env = heap.getModule(mod);
                     Set<String> todo = new HashSet<>(env.getImports());
@@ -1241,15 +1217,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         }
 
                     }
-                    monitor.event("Reconnected " + mod, 1);
+                    monitor.jobStep("Reconnected " + mod, 1);
                 }
             }
             finally {
-                monitor.endJob(true);
+                monitor.jobEnd(true);
             }
 
             try {
-                monitor.startJob("Reconnecting extenders of affected modules");
+                monitor.jobStart("Reconnecting extenders of affected modules");
                 for (String mod : dependingExtends) {
                     ModuleEnvironment env = heap.getModule(mod);
                     Set<String> todo = new HashSet<>(env.getExtends());
@@ -1266,11 +1242,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                             }
                         }
                     }
-                    monitor.event("Reconnected " + mod, 1);
+                    monitor.jobStep("Reconnected " + mod, 1);
                 }
             }
             finally {
-                monitor.endJob(true);
+                monitor.jobEnd(true);
             }
 
             if (recurseToExtending && !extendingModules.isEmpty()) {
@@ -1784,48 +1760,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void startJob(String name) {
-            monitor.startJob(name);
+        public void jobStart(String name, int workShare, int totalWork) {
+            monitor.jobStart(name, workShare, totalWork);
         }
 
         @Override
-        public void startJob(String name, int totalWork) {
-            monitor.startJob(name, totalWork);
+        public void jobStep(String name, int inc) {
+            monitor.jobStep(name, inc);
         }
 
         @Override
-        public void startJob(String name, int workShare, int totalWork) {
-            monitor.startJob(name, workShare, totalWork);
+        public int jobEnd(boolean succeeded) {
+            return monitor.jobEnd(succeeded);
         }
 
         @Override
-        public void event(String name) {
-            monitor.event(name);
+        public boolean jobIsCanceled() {
+            return monitor.jobIsCanceled();
         }
 
         @Override
-        public void event(String name, int inc) {
-            monitor.event(name, inc);
-        }
-
-        @Override
-        public void event(int inc) {
-            monitor.event(inc);
-        }
-
-        @Override
-        public int endJob(boolean succeeded) {
-            return monitor.endJob(succeeded);
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return monitor.isCanceled();
-        }
-
-        @Override
-        public void todo(int work) {
-            monitor.todo(work);
+        public void jobTodo(int work) {
+            monitor.jobTodo(work);
         }
 
         @Override
@@ -1859,6 +1815,26 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
             else {
                 return IDEServices.super.resolveProjectLocation(input);
+            }
+        }
+
+        @Override
+        public void showInteractiveContent(IConstructor content) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).showInteractiveContent(content);
+            }
+            else {
+                IDEServices.super.showInteractiveContent(content);
+            }
+        }
+
+        @Override
+        public void applyDocumentsEdits(IList edits) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).applyDocumentsEdits(edits);
+            }
+            else {
+                IDEServices.super.applyDocumentsEdits(edits);
             }
         }
 

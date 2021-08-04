@@ -32,51 +32,28 @@ public class ConsoleRascalMonitor implements IRascalMonitor {
 	}
 
 	@Override
-	public int endJob(boolean succeeded) {
+	public int jobEnd(boolean succeeded) {
 		return 0;
 	}
 
 	@Override
-	public void event(String name) {
+	public void jobStep(String name, int inc) {
 		//out.println(name);
 		//out.flush();
 	}
 
 	@Override
-	public void event(String name, int inc) {
-		//out.println(name);
-		//out.flush();
-	}
-
-	@Override
-	public void event(int inc) {
-	}
-
-	@Override
-	public void startJob(String name, int totalWork) {
-		// System.err.println("Starting: " + name);
+	public void jobStart(String name, int workShare, int totalWork) {
 		out.println(name);
 		out.flush();
 	}
 
 	@Override
-	public void startJob(String name) {
-		out.println(name);
-		out.flush();
+	public void jobTodo(int work) {
 	}
 
 	@Override
-	public void startJob(String name, int workShare, int totalWork) {
-		out.println(name);
-		out.flush();
-	}
-
-	@Override
-	public void todo(int work) {
-	}
-
-	@Override
-	public boolean isCanceled() {
+	public boolean jobIsCanceled() {
 		return false;
 	}
 
