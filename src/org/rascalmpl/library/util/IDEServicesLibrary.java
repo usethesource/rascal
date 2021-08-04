@@ -1,22 +1,27 @@
+/*******************************************************************************
+ * Copyright (c) 2021 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
+ */
 package org.rascalmpl.library.util;
 
 import org.rascalmpl.ideservices.IDEServices;
 
-import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValueFactory;
 
 public class IDEServicesLibrary {
     private final IDEServices services;
-    private final IValueFactory values;
 
-    public IDEServicesLibrary(IDEServices services, IValueFactory vf) {
+    public IDEServicesLibrary(IDEServices services) {
         this.services = services;
-        this.values = vf;
     }
 
     public void browse(ISourceLocation uri) {
@@ -39,5 +44,7 @@ public class IDEServicesLibrary {
         services.applyDocumentsEdits(edits);
     }
 
-	
+	public void showInteractiveContent(IConstructor content) {
+        services.showInteractiveContent(content);
+    }
 }
