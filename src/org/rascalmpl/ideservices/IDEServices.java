@@ -71,19 +71,4 @@ public interface IDEServices extends IRascalMonitor {
   default void applyDocumentsEdits(IList edits) {
      throw new UnsupportedOperationException("applyDocumentEdits is not implemented in this environment.");
   }
-
-  /**
-   * Asks the IDE to show a "browser window" with the given interactive content, as modeled by this 
-   * data-type from the Content standard library module
-   * 
-   * data Content 
-   * = content(str id, Response (Request) callback) // interactive content
-   * | content(Response response) // static content
-   * ;
-   * 
-   * @param content a static or interactive content wrapper
-   */
-  default void showInteractiveContent(IConstructor content) {
-    throw new UnsupportedOperationException("showInteractiveContent is not implemented in this environment.");
-  }
 }
