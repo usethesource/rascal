@@ -11,13 +11,24 @@
  */
 package org.rascalmpl.library.util;
 
+import java.io.IOException;
+import java.util.function.Function;
+
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.repl.REPLContentServer;
+import org.rascalmpl.repl.REPLContentServerManager;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 
 public class IDEServicesLibrary {
+    private final REPLContentServerManager contentManager = new REPLContentServerManager();
     private final IDEServices services;
 
     public IDEServicesLibrary(IDEServices services) {
@@ -44,7 +55,26 @@ public class IDEServicesLibrary {
         services.applyDocumentsEdits(edits);
     }
 
-	public void showInteractiveContent(IConstructor content) {
-        services.showInteractiveContent(content);
+	public void showInteractiveContent(IConstructor provider) {
+        try {
+            String id;
+            Function<IValue, IValue> target;
+
+            if (provider.has("id")) {
+                id = ((IString) provider.get("id")).getValue();
+                target = (r) -> ((IFunction) provider.get("callback")).call(r);
+            } else {
+                id = "*static content*";
+                target = (r) -> provider.get("response");
+            }
+
+            // this installs the provider such that subsequent requests are handled.
+            REPLContentServer contentServer = contentManager.addServer(id, target);
+
+            browse(URIUtil.correctLocation("http", "localhost:" + contentServer.getListeningPort(), "/"));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e.getMessage());
+        }
     }
 }
