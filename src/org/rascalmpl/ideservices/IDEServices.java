@@ -22,7 +22,7 @@ import io.usethesource.vallang.ISourceLocation;
 
 /**
  * IDEServices provides external services that can be called by the
- * Rascal compiler and compiled REPL.
+ * Rascal compiler and compiled REPL, but also by implementors of IDE (LSP) features.
  */
 public interface IDEServices extends IRascalMonitor {
 
