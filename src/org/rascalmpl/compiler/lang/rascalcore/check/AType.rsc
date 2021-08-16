@@ -137,7 +137,7 @@ data Tree
      = appl(AProduction aprod, list[Tree] args, loc src=|unknown:///|) // <1>
      | cycle(AType atype, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
-     | char(int character) // <4>
+     | achar(int character) // <4>
      ;
      
 public /*const*/ AType treeType = aadt("Tree", [], dataSyntax());
@@ -585,11 +585,11 @@ bool asubtype(l:\char-class(_), r:\char-class(_)) {
 }
 bool asubtype(l:\char-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
 
-bool asubtype(\char(int c), \char-class(list[ACharRange] ranges)) {
+bool asubtype(\achar(int c), \char-class(list[ACharRange] ranges)) {
     res = difference(ranges, [arange(c,c)]) == [arange(c,c)];
     return res;
 }
-bool asubtype(l:\char-class(list[ACharRange] ranges), \char(int c)) = l == \char-class([arange(c,c)]);
+bool asubtype(l:\char-class(list[ACharRange] ranges), \achar(int c)) = l == \char-class([arange(c,c)]);
 
 // Utilities
 

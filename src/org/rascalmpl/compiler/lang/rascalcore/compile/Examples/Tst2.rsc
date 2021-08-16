@@ -1,16 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst2
  
- 
-syntax IdType = idtype: Id id ":" Type t;
+import lang::rascalcore::compile::muRascal::AST;
+import ParseTree;
+import lang::rascalcore::check::AType;
 
-syntax Type 
-  = natural:"natural" 
-   ;
-     
-lexical Id  = [a-z][a-z0-9]* !>> [a-z0-9];
-
-layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
-
-lexical WhitespaceAndComment 
-   = [\ \t\n\r]
-   ;
+value main(){
+    return containsEnter("EXP_0", muValueBlock(abool(),[muConInit(muTmpIValue("subject_val_1","main_75A1461",aadt("Mies",[],lexicalSyntax())),muTreeAppl(muCon(prod(lex("Mies"),[seq([\char-class([range(97,98)]),\char-class([range(99,100)])])],{})),[muTreeAppl(muCon(regular(seq([\char-class([range(97,98)]),\char-class([range(99,100)])]))),[muTreeChar(97),muTreeChar(100)],|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/compile/Examples/Tst1.rsc|(1540,2,<76,30>,<76,32>))],|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/compile/Examples/Tst1.rsc|(1540,2,<76,30>,<76,32>))),muIfelse(muEqual(muCon(prod(lex("Mies"),[seq([\char-class([range(97,98)]),\char-class([range(99,100)])])],{})),muTreeGetProduction(muTmpIValue("subject_val_1","main_75A1461",aadt("Mies",[],lexicalSyntax())))),muBlock([muConInit(muTmpIValue("subject_arg0_2","main_75A1461",seq([\char-class([arange(97,98)]),\char-class([arange(99,100)])])),muSubscript(muTreeGetArgs(muTmpIValue("subject_val_1","main_75A1461",aadt("Mies",[],lexicalSyntax()))),muCon(0))),muIfelse(muEqual(muCon(regular(seq([\char-class([range(97,98)]),\char-class([range(99,100)])]))),muTreeGetProduction(muTmpIValue("subject_arg0_2","main_75A1461",seq([\char-class([arange(97,98)]),\char-class([arange(99,100)])])))),muBlock([muConInit(muTmpIValue("subject_arg0_4","main_75A1461",aint()),muSubscript(muTreeGetArgs(muTmpIValue("subject_arg0_2","main_75A1461",seq([\char-class([arange(97,98)]),\char-class([arange(99,100)])]))),muCon(0))),muIfelse(muEqual(muCon(achar(97)),muTmpIValue("subject_arg0_4","main_75A1461",aint())),muBlock([muConInit(muTmpIValue("subject_arg1_3","main_75A1461",aint()),muSubscript(muTreeGetArgs(muTmpIValue("subject_arg0_2","main_75A1461",seq([\char-class([arange(97,98)]),\char-class([arange(99,100)])]))),muCon(1))),muIfelse(muEqual(muCon(achar(99)),muTmpIValue("subject_arg1_3","main_75A1461",aint())),muSucceed("EXP_0"),muFail("EXP_0"))]),muFail("EXP_0"))]),muFail("EXP_0"))]),muFail("EXP_0"))]));
+}

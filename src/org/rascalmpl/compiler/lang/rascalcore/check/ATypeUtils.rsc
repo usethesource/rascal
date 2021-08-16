@@ -222,7 +222,6 @@ private Condition acond2cond(ACondition::\begin-of-line()) = Condition::\begin-o
 private Condition acond2cond(ACondition::\end-of-line()) = Condition::\end-of-line();
 private Condition acond2cond(ACondition::\except(str label)) = Condition::\except(label);
 
-
 map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def] defs) { 
     res = (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs);
     iprintln(defs);
@@ -266,6 +265,186 @@ Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] kwFie
                             [Symbol::label(g.fieldType.label, atype2symbol(g.fieldType)) | g <- kwFields], {});
     return res;
 }
+
+
+
+
+
+
+
+
+    
+//////////////////////////////////////////////////////////////////////////////////    
+ 
+ /*****************************************************************************/
+/*  Convert a Symbol to an AType                                              */
+/*****************************************************************************/
+
+AType symbol2atype(Symbol symbol){
+    return symbol2atype1(symbol);
+}
+
+AType symbol2atype1(Symbol::label(str label, symbol)){
+    return symbol2atype(symbol)[label=label];
+}
+
+AType symbol2atype1(Symbol::sort(str name)) = aadt(name, [], contextFreeSyntax());
+AType symbol2atype1(Symbol::lex(str name)) = aadt(name, [], lexicalSyntax());
+AType symbol2atype1(Symbol::keywords(str name)) = aadt(name, [], keywordSyntax());
+AType symbol2atype1(Symbol::layouts(str name)) = AType::layouts(name);
+
+// ---- Associativity ---------------------------------------------------------
+
+AType symbol2atype1(\left(), map[AType, set[AType]] defs) = Associativity::\left();
+AType symbol2atype1(\right(), map[AType, set[AType]] defs) = Associativity::\right();
+AType symbol2atype1(\assoc(), map[AType, set[AType]] defs) = Associativity::\assoc();
+AType symbol2atype1(\non-assoc(), map[AType, set[AType]] defs) = Associativity::\non-assoc();
+
+// ---- Attr ------------------------------------------------------------------
+
+//str symbol2atype1(\tag(value v),  map[AType, set[AType]] defs) 
+//    = "tag(<value2IValue(v)>)";
+//str symbol2atype1(\assoc(Associativity \assoc),  map[AType, set[AType]] defs) 
+//    = "assoc(<symbol2atype(\assoc, defs)>)";
+//str symbol2atype1(\bracket(),  map[AType, set[AType]] defs)
+//    = "bracket())";
+
+// ---- Tree ------------------------------------------------------------------
+
+//str symbol2atype1(tr:appl(AProduction aprod, list[Tree] args), map[AType, set[AType]] defs)
+//    = tr.src? ? "appl(<symbol2atype(aprod, defs)>, <symbol2atype(args, defs)>, <value2IValue(tr.src)>)"
+//              : "appl(<symbol2atype(aprod, defs)>, <symbol2atype(args, defs)>)";
+//
+//str symbol2atype1(cycle(AType asymbol, int cycleLength), map[AType, set[AType]] defs)
+//    = "cycle(<atype2IValue(asymbol, defs)>, <value2IValue(cycleLength)>)";
+//
+//str symbol2atype1(amb(set[Tree] alternatives), map[AType, set[AType]] defs)
+//    = "amb(<symbol2atype(alternatives,defs)>)";
+ 
+AType symbol2atype1(char(int character))
+    = achar(character);
+    
+// ---- SyntaxRole ------------------------------------------------------------
+
+//str symbol2atype1(SyntaxRole sr, map[AType, set[AType]] defs) = "<sr>";
+   
+// ---- AProduction -----------------------------------------------------------
+
+//str symbol2atype1(\choice(AType def, set[AProduction] alternatives), map[AType, set[AType]] defs)
+//    = "choice(<atype2IValue(def, defs)>, <symbol2atype(alternatives, defs)>)";
+//
+//str symbol2atype1(tr:prod(AType def, list[AType] asymbols), map[AType, set[AType]] defs){
+//    base = "prod(<atype2IValue(def, defs)>, <atype2IValue(asymbols, defs)>";
+//    kwds = tr.attributes? ? ", <symbol2atype(tr.attributes, defs)>" : "";
+//    if(tr.src?) kwds += ", <value2IValue(tr.src)>";
+//    return base + kwds + ")";
+//}
+
+AType symbol2atype1(Production::regular(Symbol def))
+    = AType::regular(symbol2atype(def));
+
+//str symbol2atype1(error(AProduction prod, int dot), map[AType, set[AType]] defs)
+//    = "error(<symbol2atype(prod, defs)>, <value2IValue(dot)>)";
+//
+//str symbol2atype1(skipped(), map[AType, set[AType]] defs)
+//    = "skipped()";
+//    
+//str symbol2atype1(\priority(AType def, list[AProduction] choices), map[AType, set[AType]] defs)
+//    = "priority(<atype2IValue(def, defs)>, <symbol2atype(choices, defs)>)";
+//    
+//str symbol2atype1(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives), map[AType, set[AType]] defs)
+//    = "associativity(<atype2IValue(def, defs)>, <symbol2atype(\assoc, defs)>, <symbol2atype(alternatives, defs)>)";
+//
+//str symbol2atype1(\others(AType def) , map[AType, set[AType]] defs)
+//    = "others(<atype2IValue(def, defs)>)";
+//
+//str symbol2atype1(\reference(AType def, str cons), map[AType, set[AType]] defs)
+//    = "reference(<atype2IValue(def, defs)>, <value2IValue(cons)>)";
+    
+// ---- ACharRange ------------------------------------------------------------
+//str symbol2atype1(range(int begin, int end), map[AType, set[AType]] defs)
+//    = "range(<value2IValue(begin)>, <value2IValue(end)>)";
+    
+// ---- AType to Symbol for parse trees ----------------------------------------
+
+AType symbol2atype1(Symbol::lit(str string))
+    = AType::lit(string);
+
+AType symbol2atype1(Symbol::cilit(str string))
+    = AType::cilit(string);
+
+AType symbol2atype1(Symbol::\char-class(list[CharRange] ranges))
+    = AType::\char-class([ charrange2acharrange(r) | r <- ranges ]);    
+ 
+AType symbol2atype1(Symbol::\empty())
+    = AType::empty();     
+
+AType symbol2atype1(Symbol::\opt(Symbol symbol))
+    = AType::opt(symbol2atype(symbol, defs));     
+
+AType symbol2atype1(Symbol::\iter(Symbol symbol))
+    = AType::iter(symbol2atype(symbol));     
+
+AType symbol2atype1(Symbol::\iter-star(Symbol symbol))
+    = AType::\iter-star(symbol2atype(symbol));   
+
+AType symbol2atype1(Symbol::\iter-seps(Symbol symbol, list[Symbol] separators))
+    = AType::\iter-seps(symbol2atype(symbol), symbol2atype(separators));
+    
+AType symbol2atype1(Symbol::\iter-star-seps(Symbol symbol, list[Symbol] separators))
+    = AType::\iter-star-seps(symbol2atype(symbol), symbol2atype(separators));   
+    
+AType symbol2atype1(Symbol::\alt(set[Symbol] alternatives))
+    = AType::alt(symbol2atype(alternatives));     
+
+AType symbol2atype1(Symbol::\seq(list[Symbol] symbols))
+    = AType::seq(symbol2atype(symbols));     
+ 
+AType symbol2atype1(Symbol::\start(Symbol symbol))
+    = AType::\start(symbol2atype1(symbol));  
+    
+list[AType] symbol2atype(list[Symbol] symbols) = [symbol2atype(s) | s <- symbols]; 
+
+ACharRange charrange2acharrange(CharRange::range(int begin, int end))
+    = ACharRange::arange(begin, end);
+    
+
+//str atype2IValue1(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
+//    = "conditional(<atype2IValue(symbol, defs)>, <symbol2atype(conditions, defs)>)";   
+    
+//// ---- ACondition ------------------------------------------------------------
+//
+//str symbol2atype1(\follow(AType atype), map[AType, set[AType]] defs)
+//    = "follow(<atype2IValue(atype, defs)>)";   
+//
+//str symbol2atype1(\not-follow(AType atype), map[AType, set[AType]] defs)
+//    = "not_follow(<atype2IValue(atype, defs)>)";
+//    
+//str symbol2atype1(\precede(AType atype), map[AType, set[AType]] defs)
+//    = "precede(<atype2IValue(atype, defs)>)";  
+//
+//str symbol2atype1(\not-precede(AType atype), map[AType, set[AType]] defs)
+//    = "not_precede(<atype2IValue(atype, defs)>)"; 
+//    
+//str symbol2atype1(\delete(AType atype), map[AType, set[AType]] defs)
+//    = "delete(<atype2IValue(atype, defs)>)"; 
+//    
+//str symbol2atype1(\at-column(int column), map[AType, set[AType]] defs)
+//    = "at_column(<value2IValue(column)>)";  
+//    
+//str symbol2atype1(\begin-of-line(), map[AType, set[AType]] defs)
+//    = "begin_of_line()";
+//    
+//str symbol2atype1(\end-of-line(), map[AType, set[AType]] defs)
+//    = "end_of_line()"; 
+//    
+//str symbol2atype1(\except(str label), map[AType, set[AType]] defs)
+//    = "except(<value2IValue(label)>)";    
+    
+    
+    
+    
+    
 
 // ---- Predicates, selectors and constructors --------------------------------
 

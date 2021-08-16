@@ -11,7 +11,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 
-data JGenie; // hack ot break cycle?
+data JGenie; // hack to break cycle?
 
 /*****************************************************************************/
 /*  Convert AType to a Java type                                             */
@@ -451,6 +451,12 @@ str tree2IValue(set[ACondition] conds, map[AType, set[AType]] defs)
     
 str tree2IValue(list[ACharRange] ranges, map[AType, set[AType]] defs)
     = "$VF.list(<intercalate(", ", [ tree2IValue(r, defs) | r <- ranges ])>)"; 
+ 
+
+
+    
+    
+    
 
 /*****************************************************************************/
 /*  Get the outermost type of an AType (used for names of primitives)        */
@@ -482,120 +488,6 @@ str getOuter(aparameter(str pname, AType bound))
                                       = getOuter(bound);
 str getOuter(avalue())                = "avalue";
 default str getOuter(AType t)         = "avalue";
-
-/*****************************************************************************/
-/*  Convert an AType to a test for that AType (represented as VType)         */
-/*****************************************************************************/
-
-//str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
-
-//str atype2istype(str e, AType t)                           = atype2istype1(e, "getType()", t);
-//
-//
-//
-//str atype2isElementType(str e, AType t)                    = atype2istype1(e, "getElementType()", t);
-//str atype2isKeyType(str e, AType t)                        = atype2istype1(e, "getKeyType()", t);
-//str atype2isValueType(str e, AType t)                      {
-//    return  atype2istype1(e, "getType().getValueType()", t);
-//}
-//str atype2isFieldType(str e, int i, AType t)               = atype2istype1(e, "getType().getFieldType(<i>)", t);
-//str atype2isRelFieldType(str e, int i, AType t)            = atype2istype1("((ISet)<e>).asRelation()", "getElementType().getFieldType(<i>)", t);
-//str atype2isLRelFieldType(str e, int i, AType t)           = atype2istype1("((IList)<e>).asRelation()", "getElementType().getFieldType(<i>)", t);
-//
-//
-//str atype2istype1(str e, str get, avoid())                 = "<e>.<get>.isBottom()";
-//str atype2istype1(str e, str get, abool())                 = "<e>.<get>.isBool()";
-//str atype2istype1(str e, str get, aint())                  = "<e>.<get>.isInteger()";
-//str atype2istype1(str e, str get, areal())                 = "<e>.<get>.isReal()";
-//str atype2istype1(str e, str get, arat())                  = "<e>.<get>.isRational()";
-//str atype2istype1(str e, str get, anum())                  = "<e>.<get>.isNumber()";
-//str atype2istype1(str e, str get, astr())                  = "<e>.<get>.isString()";
-//str atype2istype1(str e, str get, aloc())                  = "<e>.<get>.isSourceLocation()";
-//str atype2istype1(str e, str get, adatetime())             = "<e>.<get>.isDateTime()";
-//
-////str atype2istype1(str e, str get, alist(AType t))          = "<e>.<get>.isList()<elem_check>"
-////                                                           when tp := atype2isElementType("((IList)<e>)", t),
-////                                                                elem_check := (tp == "true" ? "" : " && <tp>");
-//
-//str atype2istype1(str e, str get, tp:alist(AType t))          = "<e>.<get>.comparable(<atype2vtype(tp)>)";
-//                                   
-//
-////str atype2istype1(str e, str get, alist(AType t))          = "<e>.<get>.isList()<elem_check>"
-////                                                           when tp := "(<atype2isElementType("((IList)<e>)", avoid())> || <atype2isElementType("((IList)<e>)", t)>)",
-////                                                                elem_check := (tp == "true" ? "" : " && <tp>");
-//       
-//str atype2istype1(str e, str get, tp:aset(AType t))          = "<e>.<get>.comparable(<atype2vtype(tp)>)";
-//                
-//                                                                                                                         
-////str atype2istype1(str e, str get, aset(AType t))          = "<e>.<get>.isSet()<elem_check>"
-////                                                           when tp := "(<atype2isElementType("((ISet)<e>)", avoid())> || <atype2isElementType("((ISet)<e>)", t)>)",
-////                                                                elem_check := (tp == "true" ? "" : " && <tp>");
-//                                                           
-//
-////str atype2istype1(str e, str get, aset(AType t))           = "<e>.<get>.isSet()<elem_check>"
-////                                                           when tp := atype2isElementType("((ISet)<e>)", t),
-////                                                                elem_check := (tp == "true" ? "" : " && <tp>");
-//
-////str atype2istype1(str e, str get, aset(AType t))           = "<e>.<get>.isSet()<elem_check>"
-////                                                           when tp := "(((ISet)<e>).isEmpty() || <atype2isElementType("((ISet)<e>)", t)>)",
-////                                                                elem_check := (tp == "true" ? "" : " && <tp>");
-//
-//
-//str atype2istype1(str e, str get, tp:amap(AType d, AType r))   = "<e>.<get>.comparable(<atype2vtype(tp)>)";
-//                                                           
-//                                                                
-////str atype2istype1(str e, str get, amap(AType d, AType r))   = "<e>.<get>.isMap()<key_check><val_check>"
-////                                                            when tpk := atype2isKeyType("(<e>)", d),
-////                                                                 key_check := (tpk == "true" ? "" : " && <tpk>"),
-////                                                                 tpv := atype2isValueType("(<e>)", r),
-////                                                                 val_check := (tpv == "true" ? "" : " && <tpv>")
-////                                                                ;
-//                                                                
-//str atype2istype1(str e, str get, arel(atypeList(list[AType] ts)))         
-//                                                           = "<e>.<get>.isRelation() && (((ISet)<e>).isEmpty() || ((ISet)<e>).asRelation().arity() == <size(ts)>)<field_checks>"
-//                                                           when field_checks0 := intercalate(" && ", [*(tp == "true" ? [] : tp) | i <- index(ts), tp := atype2isRelFieldType(e, i, ts[i])]),
-//                                                                field_checks := (isEmpty(field_checks0) ? "" : " && <field_checks0>");
-//
-//str atype2istype1(str e, str get, alrel(atypeList(list[AType] ts)))
-//                                                           = "<e>.<get>.isListRelation() && (((IList)<e>).isEmpty() || ((IList)<e>).asRelation().arity() == <size(ts)>)<field_checks>"
-//                                                           when field_checks0 := intercalate(" && ", [*(tp == "true" ? [] : tp) | i <- index(ts), tp := atype2isLRelFieldType(e, i, ts[i])]),
-//                                                                field_checks := (isEmpty(field_checks0) ? "" : " && <field_checks0>");
-//
-//str atype2istype1(str e, str get, atuple(atypeList(list[AType] ts)))        
-//                                                            = "<e>.<get>.isTuple() && ((ITuple)<e>).arity() == <size(ts)><field_checks>"
-//                                                            when field_checks0 := intercalate(" && ", [*(tp == "true" ? [] : tp)| i <- index(ts), tp := atype2isFieldType("((ITuple)<e>)", i, ts[i])]),
-//                                                                 field_checks  := (isEmpty(field_checks0) ? "" : " && <field_checks0>");
-//
-//
-//
-//str atype2istype1(str e, str get, afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-//                                          = "<e>.<get>.isExternalType()";
-//str atype2istype1(str e, str get, anode(list[AType fieldType] fields)) 
-//                                          = "<e>.<get>.isNode()";
-//str atype2istype1(str e, str get, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
-//                                          = "<e>.<get>.isAbstractData()";
-//str atype2istype1(str e, str get, t: acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
-//                                          = "<e>.<get>.isConstructor()";
-//str atype2istype1(str e, str get, overloadedAType(rel[loc, IdRole, AType] overloads))
-//                                          = "<e>.<get>.isOverloaded()";
-//str atype2istype1(str e, str get, aparameter(str pname, AType bound)) = atype2istype(e, bound);
-//str atype2istype1(str e, str get, areified(AType atype))   = "$isReified(<e>)";    // TODO
-//str atype2istype1(str e, str get, avalue())                = "true"; // "<e>.<get>.isTop()";
-
-
-// TODO complete cases and generate right code
-
-//str atype2istype1(str e, str get, AType::\iter(AType symbol)) = "isTree(<e>)";
-//
-//str atype2istype1(str e, str get, AType::\iter-star(AType symbol)) = "isTree(<e>)";
-//
-//str atype2istype1(str e, str get, AType::\iter-seps(AType symbol, list[AType] separators)) = "isTree(<e>)";  
-// 
-//str atype2istype1(str e, str get, AType::\iter-star-seps(AType symbol, list[AType] separators)) = "isTree(<e>)";  
-//
-//str atype2istype1(str e, str get, AType::\iter-seps(AType symbol, list[AType] separators)) = "isTree(<e>)";
-//
-//default str atype2istype1(str e, str get, AType t)         { throw "atype2istype1: cannot handle <t>"; }
 
 // ----
 

@@ -279,7 +279,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
             } catch (FactTypeUseException e) {
                 $usage(module, "expected " + expected + " but got " + option + " (" + e.getMessage() + ")", kwTypes);
             } catch (IOException e) {
-                $usage(module, "unxped problem while parsing commandline:" + e.getMessage(), kwTypes);
+                $usage(module, "unexpected problem while parsing commandline:" + e.getMessage(), kwTypes);
             }
             
             throw new IllegalArgumentException();
@@ -302,9 +302,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if(t1.comparable(t2)) { 
 			return true;
 		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
-			return ((IString)((NonTerminalType)t1).getSymbol().get(0)).getValue() == t2.getName();
+			IValue arg0 = ((NonTerminalType)t1).getSymbol().get(0);
+			String t1name = arg0 instanceof IString ? ((IString) arg0).getValue() : t1.getName();
+			return t1name == t2.getName();
 		} if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
-			return t1.getName() == ((IString)((NonTerminalType)t2).getSymbol().get(0)).getValue();
+			IValue arg0 = ((NonTerminalType)t2).getSymbol().get(0);
+			String t2name = arg0 instanceof IString ? ((IString) arg0).getValue() : t2.getName();
+			return t1.getName() == t2name;
 		} else {
 			return false;
 		}
@@ -3598,6 +3602,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return ((IString) subject).substring(idx, 1);
 		}
 		if(subject.getType().isAbstractData()) {
+			if(subject instanceof ITree){
+				IValue res = ((ITree) subject).getArgs().get(idx);
+				return res;
+			}
 			return ((IConstructor) subject).get(idx);
 		}
 		if(subject.getType().isNode()) {
@@ -3647,6 +3655,23 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return args.get(n);
 		}
 		throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+	}
+	
+	// ---- concreteSubList ---------------------------------------------------
+	
+	public final ITree $concreteSubList(final ITree tree, final int from, final int len, final int delta){
+		if(org.rascalmpl.values.parsetrees.TreeAdapter.isList(tree)) {
+			int adjusted_len = len;
+			if(len > 0) {
+				adjusted_len = len - delta + 1;
+			}
+			int actual_len = tree.getArgs().length();
+			if(from >= actual_len) {
+				return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, $VF.list());
+			}
+			return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree).sublist(from, adjusted_len));
+		}
+		throw RuntimeExceptionFactory.illegalArgument(tree);
 	}
 
 	// ---- subtract ----------------------------------------------------------
