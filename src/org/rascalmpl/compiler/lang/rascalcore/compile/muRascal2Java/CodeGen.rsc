@@ -456,6 +456,9 @@ default JCode trans(MuExp exp, JGenie jg){
     throw "Cannot translate <exp>";
 }
 
+JCode trans(muComment(str text), JGenie jg)
+    = "/* <text> */";
+
 // ---- muCon -----------------------------------------------------------------                                       
 
 JCode trans(muCon(value v), JGenie jg) = jg.shareConstant(v);
@@ -678,7 +681,8 @@ map[NativeKind, tuple[str,str]] native2ref =
                             : <"DescendantMatchIterator", "DescendantMatchIteratorRef">,
      nativeTemplate()       : <"Template", "TemplateRef">,
      nativeException()      : <"Exception", "ExceptionRef">,
-     nativeGuardedIValue()  : <"GuardedIValue", "GuardedIValueRef">
+     nativeGuardedIValue()  : <"GuardedIValue", "GuardedIValueRef">,
+     nativeITree()          : <"ITree", "ITreeRef">
      );
 
 JCode trans(muVarInit(var: muTmpNative(str name, str fuid, NativeKind nkind), MuExp exp), JGenie jg){
@@ -711,7 +715,7 @@ JCode trans(muConInit(var:muTmpNative(str name, str fuid, NativeKind nkind), MuE
     rhs = muCon(value v) := exp ? "<v>" : trans(exp, jg);
     <base, ref> = native2ref[nkind];
     return jg.isRef(var) ? "final <ref> <varName(var, jg)> = new <ref>(<rhs>);\n"
-                         : "final <base> <name> = <rhs>;\n";
+                         : "final <base> <name> = (<base>)<rhs>;\n";
 }
 
 str transWithCast(AType atype, con:muCon(c), JGenie jg) = trans(con, jg);
@@ -1792,7 +1796,16 @@ JCode trans(muGetDefinedValue(MuExp exp, AType atype), JGenie jg)
 
 JCode trans(muSize(MuExp exp, atype:aset(_)), JGenie jg)
     = "<transWithCast(atype, exp, jg)>.size()";
-    
+
+JCode trans(muSize(MuExp exp, atype:\iter-seps(_,_)), JGenie jg)
+    = "<transWithCast(atype, exp, jg)>.getArgs().length()";
+
+JCode trans(muSize(MuExp exp, atype:\iter-star-seps(_,_)), JGenie jg)
+    = "<transWithCast(atype, exp, jg)>.getArgs().length()";
+
+JCode trans(muSize(MuExp exp, atype:\iter(_)), JGenie jg)
+    = "<transWithCast(atype, exp, jg)>.getArgs().length()";
+        
 default JCode trans(muSize(MuExp exp, AType atype), JGenie jg){
     return "<transWithCast(atype, exp, jg)>.length()";
 }
@@ -1820,6 +1833,12 @@ JCode trans(muSubNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
 JCode trans(muAddNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans2NativeInt(exp1, jg)> + <trans2NativeInt(exp2, jg)>";
     
+JCode trans(muMulNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
+    = "(<trans2NativeInt(exp1, jg)>) * (<trans2NativeInt(exp2, jg)>)"; 
+
+JCode trans(muAbsNativeInt(MuExp exp), JGenie jg)
+    = "Math.abs(<trans2NativeInt(exp, jg)>)";
+    
 JCode trans(muGreaterEqNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans2NativeInt(exp1, jg)> \>= <trans2NativeInt(exp2, jg)>";
 
@@ -1844,6 +1863,9 @@ JCode trans(muNotNativeBool(MuExp exp), JGenie jg){
 JCode trans(muSubList(MuExp lst, MuExp from, MuExp len), JGenie jg)
     = "<trans(lst, jg)>.sublist(<trans(from, jg)>, <trans(len, jg)>)";
 
+JCode trans(muConcreteSubList(MuExp lst, MuExp from, MuExp len, MuExp delta), JGenie jg)
+    = "$concreteSubList(<trans(lst, jg)>, <trans2NativeInt(from, jg)>, <trans2NativeInt(len, jg)>, <trans2NativeInt(delta, jg)>)";
+    
 // Regular expressions
 
 JCode trans(muRegExpCompile(MuExp regExp, MuExp subject), JGenie jg){

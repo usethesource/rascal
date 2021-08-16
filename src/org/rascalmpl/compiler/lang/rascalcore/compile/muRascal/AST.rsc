@@ -4,7 +4,7 @@ import Message;
 import List;
 import Set;
 import String;
-import Node;   
+import Node;
 import ParseTree;
 import IO;
 
@@ -79,6 +79,7 @@ data NativeKind
     | nativeTemplate()
     | nativeException()
     | nativeGuardedIValue()
+    | nativeITree()
     ;
     
 MuExp muTmpInt(str name, str fuid)                  = muTmpNative(name, fuid, nativeInt());
@@ -92,6 +93,7 @@ MuExp muTmpDescendantIterator(str name, str fuid)   = muTmpNative(name, fuid, na
 MuExp muTmpTemplate(str name, str fuid)             = muTmpNative(name, fuid, nativeTemplate());
 MuExp muTmpException(str name, str fuid)            = muTmpNative(name, fuid, nativeException());
 MuExp muTmpGuardedIValue(str name, str fuid)        = muTmpNative(name, fuid, nativeGuardedIValue());
+MuExp muTmpITree(str name, str fuid)                = muTmpNative(name, fuid, nativeITree());
 
     
 // All executable Rascal code is tranlated to the following muExps.
@@ -101,6 +103,7 @@ public data MuExp =
           | muNoValue()                                         // Absent value in optional construct
           | muATypeCon(AType atype, map[AType,set[AType]] defs) // AType as constant
           
+          | muComment(str text)                                // Add comment to code
           | muFun(loc uid, AType atype)                         // *muRascal* function constant: functions at the root
            
           //| muOFun(str name, AType atype)  
@@ -249,6 +252,8 @@ public data MuExp =
           | muIncNativeInt(MuExp var, MuExp inc)
           | muSubNativeInt(MuExp exp1, MuExp exp2)
           | muAddNativeInt(MuExp exp1, MuExp exp2)
+          | muMulNativeInt(MuExp exp1, MuExp exp2)
+          | muAbsNativeInt(MuExp exp)
           | muSize(MuExp exp, AType atype)
           | muEqualNativeInt(MuExp exp1, MuExp exp2)
           | muLessNativeInt(MuExp exp1, MuExp exp2)
@@ -259,7 +264,10 @@ public data MuExp =
           | muAndNativeBool(MuExp exp1, MuExp exp2)
           | muNotNativeBool(MuExp exp)
         //  | muNotNegativeNativeInt(MuExp exp)
+        
+        
           | muSubList(MuExp lst, MuExp from, MuExp len)
+          | muConcreteSubList(MuExp lst, MuExp from, MuExp len, MuExp delta)
           
           // Regular expressions
           | muRegExpCompile(MuExp regExp, MuExp subject)
@@ -379,7 +387,7 @@ bool producesNativeInt(muTmpNative(_,_,nativeInt()))
     = true;
                      
 default bool producesNativeInt(MuExp exp)
-    = getName(exp) in {"muSize", "muAddNativeInt", "muSubNativeInt", "muToNativeInt", "muRegExpBegin", "muRegExpEnd"};
+    = getName(exp) in {"muSize", "muAddNativeInt", "muMulNativeInt", "muAbsNativeInt", "muSubNativeInt", "muToNativeInt", "muRegExpBegin", "muRegExpEnd"};
     
 // Produces nativeStr
 
@@ -389,7 +397,7 @@ default bool producesNativeStr(MuExp exp)
 
 // Produces NativeGuardedIValue
 
-bool producesNativeGuardedIValue(muTmpNative(_,_,nativeGuardedIValue))
+bool producesNativeGuardedIValue(muTmpNative(_,_,nativeGuardedIValue()))
     = true;   
  
  bool producesNativeGuardedIValue(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src))
@@ -397,6 +405,16 @@ bool producesNativeGuardedIValue(muTmpNative(_,_,nativeGuardedIValue))
     
 default bool producesNativeGuardedIValue(MuExp exp)
    = getName(exp) in {"muGuardedGetAnno", "muGuardedGetField", "muGuardedGetKwField"};
+   
+
+// Produces NativeITree
+
+bool producesNativeGuardedIValue(muTmpNative(_,_,nativeITree()))
+    = true;
+
+
+default bool producesNativeGuardedIValue(MuExp exp)
+    = false;
     
 // Get the result type of a MuExp
 AType getType(muCon(bool b)) = abool();
@@ -419,6 +437,8 @@ AType getType(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)) = alub(getTyp
 
 AType getType(muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)) = resultType;
 AType getType(muGetFieldFromConstructor(AType resultType, AType consType, MuExp var, str fieldName)) = resultType;
+AType getType(muSubList(MuExp lst, MuExp from, MuExp len)) = getType(lst);
+AType getType(muConcreteSubList(MuExp lst, MuExp from, MuExp len)) = getType(lst);
 
 AType getType(muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
 AType getType(muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
@@ -1118,12 +1138,15 @@ MuExp muEnter(str btscope, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
 MuExp muEnter(str enter, MuExp exp) = exp when containsEnter(enter, exp);
 
 bool containsEnter(str enter, MuExp exp){
+//return false;
+println("containsEnter(\"<enter>\", <exp>)");
     visit(exp){
         case muEnter(enter, MuExp exp1): return true;
         case muForAll(enter, MuExp var, AType iterType, MuExp iterable, MuExp body): return true;
         case muForRange(enter, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp1): return true;
         case muForRangeInt(enter, MuExp var, int ifirst, int istep, MuExp last, MuExp exp1): return true;
     }
+   
     return false;
 }
     
