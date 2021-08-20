@@ -58,15 +58,14 @@ test bool DvarsTypedInsert4() = (DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs2>`
 
 test bool DvarsTypedInsert5() = (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs2>` := (DS)`d d d` && Xs := Xs2;
 
-test bool sortsInGrammar() =
-  A _ := [A] "a"
-  && B _ := [B] "b"
-  && C _ := [C] "ab"
-  && D _ := [D] "d" 
-  && DS _ := [DS] "ddd"
-  && E _ := [E] "e"
-  && ES _ := [ES] "e,e,e"
-  && {E ","}+ _ := ([ES] "e,e,e").args;
+test bool sortA()   = A _ := [A] "a";
+test bool sortB()   = B _ := [B] "b";
+test bool sortC()   = C _ := [C] "ab";
+test bool sortD()   = D _ := [D] "d";
+test bool sortDS()  = DS _ := [DS] "ddd";
+test bool sortE()   = E _ := [E] "e";
+test bool sortES1() = ES _ := [ES] "e,e,e";
+test bool sortES2() = {E ","}+ _ := ([ES] "e,e,e").args;
 
 test bool asType1() = < (As) `aaaa`, (Bs) `bbb` > := < [As] "aaaa", [Bs] "bbb" >;
 
