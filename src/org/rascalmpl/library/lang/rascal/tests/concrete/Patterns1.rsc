@@ -157,10 +157,15 @@ test bool lexicalListEnum1() = ["<x>" | E x <- ((Es) `e,e,e,e,e,e,e`).es] == ["e
 test bool lexicalListEnum2() = ["<x>" | F x <- ((Fs) `ffffff`).fs] == ["f", "f", "f", "f", "f", "f"];
 
 test bool lexicalSequenceMatch1() = (Mies) `ac` := (Mies) `ac`;
-test bool lexicalSequenceMatch2() = (Mies) `ac` !:= (Mies) `ad`;
+test bool lexicalSequenceMatch2() = (Mies) `ac` := [Mies] "ac";
+test bool lexicalSequenceMatch3() = (Mies) `ac` !:= (Mies) `ad`;
+test bool lexicalSequenceMatch4() = (Mies) `ac` !:= [Mies] "ad";
+
 
 test bool syntaxSequenceMatch1() = (Noot) `ac` := (Noot) `ac`;
-test bool syntaxSequenceMatch2() = (Noot) `ac` !:= (Noot) `ad`;
+test bool syntaxSequenceMatch2() = (Noot) `ac` := [Noot] "ac";
+test bool syntaxSequenceMatch3() = (Noot) `ac` !:= (Noot) `ad`;
+test bool syntaxSequenceMatch4() = (Noot) `ac` !:= [Noot] "ad";
 
 test bool lexicalTokenMatch1() = (MyName) `location` := (MyName) `location`;
 test bool lexicalTokenMatch2() = (MyName) `location` := [MyName] "location";
