@@ -114,47 +114,20 @@ test bool PicoAssign8(){
    return ifStat := (Statement)`if x then a:=10;b:=20 else a:=1;b:=2 fi`;
 }
 
+test bool descendPicoStatement1(){
+    S = (Statement) `a:=1`;
+    L = [ X | /Statement X :=  S]; 
+    return L == [ S ];
+}
+
+test bool descendPicoStatement2(){
+    S = (Statement)`if x then a:=10;b:=20 else a:=1;b:=2 fi`;
+    L = [X | /Statement X := S]; 
+    return size(L) == 5;
+}
+
   /*   
-    @Test
-    @Ignore("Functionality subject to future/current change")
-    public void PicoUnQuoted2(){
-        prepareModule("M", UQmoduleM + "public bool match2() { return Program program := t1; }\n");
-        prepareMore("import ParseTree;");
-        prepareMore("import M;");
-        assertTrue(runTestInSameEvaluator("match2();"));
-    }
-    
-    @Test @Ignore
-    public void PicoUnQuoted3(){
-        prepareModule("M", UQmoduleM + "public bool match3() { return begin <decls> <stats> end := t1; }\n");
-        prepareMore("import ParseTree;");
-        prepareMore("import M;");
-        assertTrue(runTestInSameEvaluator("match3();"));
-    }
-    
-    @Test @Ignore
-    public void PicoUnQuoted4(){
-        prepareModule("M", UQmoduleM + "public bool match4() { return begin <Declarations decls> <stats> end := t1; }");
-        prepareMore("import ParseTree;");
-        prepareMore("import M;");
-        assertTrue(runTestInSameEvaluator("match4();"));
-    }
-    
-    @Test @Ignore
-    public void PicoUnQuoted5(){
-        prepareModule("M", UQmoduleM + "public bool match5() { return begin <decls> <{Statement \";\"}* stats> end := t1; }");
-        prepareMore("import ParseTree;");
-        prepareMore("import M;");
-        assertTrue(runTestInSameEvaluator("match5();"));
-    }
-    
-    @Test @Ignore
-    public void PicoUnQuoted6(){
-        prepareModule("M", UQmoduleM + "public bool match6() { return begin <Declarations decls> <{Statement \";\"}* stats> end := t1; }");
-        prepareMore("import ParseTree;");
-        prepareMore("import M;");
-        assertTrue(runTestInSameEvaluator("match6();"));
-    }
+  
     
     @Test
     @Ignore("Functionality subject to future/current change")
