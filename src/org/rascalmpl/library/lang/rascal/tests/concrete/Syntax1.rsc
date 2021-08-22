@@ -13,7 +13,7 @@ start syntax B = "B";
 start syntax Bs = B+;
 start syntax C = A B;
 start syntax D = "d";
-start syntax DS = D+;
+start syntax DS = D+ ds;
 start syntax E = "e";
 start syntax ES = {E ","}+ args;
 
@@ -70,6 +70,20 @@ test bool sortES2() = {E ","}+ _ := ([ES] "e,e,e").args;
 test bool asType1() = < (As) `aaaa`, (Bs) `bbb` > := < [As] "aaaa", [Bs] "bbb" >;
 
 test bool asType2() = < (As) `aaAA`, (Bs) `bbBB` > := < [As] "aaAA", [Bs] "bbBB" >;
+
+int cntDS(D+ ds) = size([d | d <- ds ]);
+
+test bool cntDS1() = cntDS(((DS) `d`).ds) == 1;
+test bool cntDS2() = cntDS(((DS) `dd`).ds) == 2;
+test bool cntDS3() = cntDS(((DS) `d d`).ds) == 2;
+
+int cntES({E ","}+ es) = size([e | e <- es ]);
+
+test bool cntES1() = cntES(((ES) `e`).args) == 1;
+test bool cntES2() = cntES(((ES) `e,e`).args) == 2;
+test bool cntES3() = cntES(((ES) `e ,e`).args) == 2;
+test bool cntES4() = cntES(((ES) `e, e`).args) == 2;
+test bool cntES5() = cntES(((ES) `e , e`).args) == 2;
 
 /*
 
