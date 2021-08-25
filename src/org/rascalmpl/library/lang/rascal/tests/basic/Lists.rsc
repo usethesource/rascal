@@ -550,8 +550,11 @@ test bool dtstDifference(list[&T] lst) {
 	for(&T elem <- lst) {
 		bool deleted = false;
 		lhs = lst - [elem];
-		rhs = [ *( (eq(elem,el) && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
-		
+		// TODO: the following expression cannot be coorectly translated by the compiler
+		//rhs = [ *( (eq(elem,el) && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
+		rhs = for(&T el <- lst){
+		          if(eq(elem,el) && !deleted) { deleted = true; } else { append el; }
+		}
 		if (!eq(lhs,rhs) || typeOf(lhs) != typeOf(rhs)) {
 		  throw "Removed <elem> from <lst> resulted in <lhs> instead of <rhs>";
 		  
