@@ -319,7 +319,7 @@ public class IO {
                                 result[i] = values.bool(true);
                             }
                             else if (field.equalsIgnoreCase("false")) {
-                                result[i] = values.bool(true);
+                                result[i] = values.bool(false);
                             }
                             else {
                                 // it is an actual string
