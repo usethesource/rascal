@@ -68,7 +68,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
     private @MonotonicNonNull ParserGenerator generator;
     private LoadingCache<IMap, Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache = Caffeine.newBuilder()
         .softValues()
-        .maximumSize(1/*100*/) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
+        .maximumSize(100) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
         .expireAfterAccess(30, TimeUnit.MINUTES) // we clean up unused parsers after 30 minutes
         .build(grammar -> generateParser(grammar));
 

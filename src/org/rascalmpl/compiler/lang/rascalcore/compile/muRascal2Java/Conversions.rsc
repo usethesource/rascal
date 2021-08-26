@@ -571,30 +571,35 @@ str escapeForJRegExp(str s){
    }
    return res;
 }
+
+str inlineComment(value v){
+    s = "<v>";
+    return "/*<replaceAll(s, "*/", "*\\/")>*/";
+}
     
 /*****************************************************************************/
 /*  Convert a Rascal value to the equivalent IValue                          */
 /*****************************************************************************/
 
 str value2IValue(value x) = value2IValue(x, ());
-str value2IValue(value x, map[value, str] constants) = doValue2IValue(x, constants);
+str value2IValue(value x, map[value, int] constants) = doValue2IValue(x, constants);
 
-str value2IValueRec(value x, map[value, str] constants) = constants[x] when constants[x]?;
-default str value2IValueRec(value x, map[value, str] constants) = doValue2IValue(x, constants);
+str value2IValueRec(value x, map[value, int] constants) = "((<value2outertype(x)>)$constants.get(<constants[x]>)<inlineComment(x)>)" when constants[x]?;
+default str value2IValueRec(value x, map[value, int] constants) = doValue2IValue(x, constants);
 
-str doValue2IValue(bool b, map[value, str] constants) = "$VF.bool(<b>)";
-str doValue2IValue(int n, map[value, str] constants) = "$VF.integer(\"<n>\")";
-str doValue2IValue(real r, map[value, str] constants) = "$VF.real(<r>)";
-str doValue2IValue(rat rt, map[value, str] constants) = "$VF.rational(\"<rt>\")";
-str doValue2IValue(str s, map[value, str] constants) = "$VF.string(\"<escapeForJ(s)>\")";
+str doValue2IValue(bool b, map[value, int] constants) = "$VF.bool(<b>)";
+str doValue2IValue(int n, map[value, int] constants) = "$VF.integer(\"<n>\")";
+str doValue2IValue(real r, map[value, int] constants) = "$VF.real(<r>)";
+str doValue2IValue(rat rt, map[value, int] constants) = "$VF.rational(\"<rt>\")";
+str doValue2IValue(str s, map[value, int] constants) = "$VF.string(\"<escapeForJ(s)>\")";
 
-str doValue2IValue(loc l, map[value, str] constants) {
+str doValue2IValue(loc l, map[value, int] constants) {
     base = "$create_aloc($VF.string(\"<l.uri>\"))";
     return l.offset? ? "$VF.sourceLocation(<base>, <l.offset>, <l.length>, <l.begin.line>, <l.end.line>, <l.begin.column>, <l.end.column>)"
                       : base;
 }
 
-str doValue2IValue(datetime dt, map[value, str] constants) {
+str doValue2IValue(datetime dt, map[value, int] constants) {
     if(dt.isDateTime)
         return "$VF.datetime(<dt.year>, <dt.month>, <dt.day>, <dt.hour>, <dt.minute>, <dt.second>, <dt.millisecond>, <dt.timezoneOffsetHours>, <dt.timezoneOffsetMinutes>)";
     if(dt.isDate)
@@ -602,49 +607,49 @@ str doValue2IValue(datetime dt, map[value, str] constants) {
     return "$VF.time(<dt.hour>, <dt.minute>, <dt.second>, <dt.millisecond>)";
 }
 
-str doValue2IValue(list[&T] lst, map[value, str] constants) = "$VF.list(<intercalate(", ", [value2IValueRec(elem, constants) | elem <- lst ])>)";
-str doValue2IValue(set[&T] st, map[value, str] constants) = "$VF.set(<intercalate(", ", [value2IValueRec(elem, constants) | elem <- st ])>)";
+str doValue2IValue(list[&T] lst, map[value, int] constants) = "$VF.list(<intercalate(", ", [value2IValueRec(elem, constants) | elem <- lst ])>)";
+str doValue2IValue(set[&T] st, map[value, int] constants) = "$VF.set(<intercalate(", ", [value2IValueRec(elem, constants) | elem <- st ])>)";
 
-str doValue2IValue(tuple[&A] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>)";
-str doValue2IValue(tuple[&A,&B] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6, constants])>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>)";
-str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup, map[value, str] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>, <value2IValueRec(tup[9], constants)>)";
+str doValue2IValue(tuple[&A] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>)";
+str doValue2IValue(tuple[&A,&B] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6, constants])>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>)";
+str doValue2IValue(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup, map[value, int] constants) = "$VF.tuple(<value2IValueRec(tup[0], constants)>, <value2IValueRec(tup[1], constants)>, <value2IValueRec(tup[2], constants)>, <value2IValueRec(tup[3], constants)>, <value2IValueRec(tup[4], constants)>, <value2IValueRec(tup[5], constants)>, <value2IValueRec(tup[6], constants)>, <value2IValueRec(tup[7], constants)>, <value2IValueRec(tup[8], constants)>, <value2IValueRec(tup[9], constants)>)";
 
-str doValue2IValue(map[&K,&V] mp, map[value, str] constants) = "$buildMap(<intercalate(", ", ["<value2IValueRec(k, constants)>, <value2IValueRec(mp[k], constants)>" | k <- mp ])>)";
+str doValue2IValue(map[&K,&V] mp, map[value, int] constants) = "$buildMap(<intercalate(", ", ["<value2IValueRec(k, constants)>, <value2IValueRec(mp[k], constants)>" | k <- mp ])>)";
 
-str doValue2IValue(type[&T] typeValue, map[value, str] constants) {
+str doValue2IValue(type[&T] typeValue, map[value, int] constants) {
    return "$RVF.reifiedType(<value2IValueRec(typeValue.symbol, constants)>,<value2IValueRec(typeValue.definitions, constants)>)";
 }
 
 // the builtin reified type representations (Symbol, Production) are not necessarily declared in the current scope, so
 // we lookup their constructors in the RascalValueFactory hand-written fields:
-str doValue2IValue(Symbol sym, map[value, str] constants) {
+str doValue2IValue(Symbol sym, map[value, int] constants) {
    return "$RVF.constructor(RascalValueFactory.Symbol_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
-str doValue2IValue(Production sym, map[value, str] constants) {
+str doValue2IValue(Production sym, map[value, int] constants) {
    return "$RVF.constructor(RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
-str doValue2IValue(Attr sym, map[value, str] constants) {
+str doValue2IValue(Attr sym, map[value, int] constants) {
    return "$RVF.constructor(RascalValueFactory.Attr_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
-str doValue2IValue(Associativity sym, map[value, str] constants) {
+str doValue2IValue(Associativity sym, map[value, int] constants) {
    return "$RVF.constructor(RascalValueFactory.Associativity_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
-str doValue2IValue(CharRange sym, map[value, str] constants) {
+str doValue2IValue(CharRange sym, map[value, int] constants) {
    return "$RVF.constructor(RascalValueFactory.CharRange_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
-str doValue2IValue(Production sym, map[value, str] constants) {
+str doValue2IValue(Production sym, map[value, int] constants) {
    return "$RVF.constructor(RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
@@ -652,14 +657,14 @@ str toRascalValueFactoryName(str consName) = capitalize(visit(consName) {
     case /\-<l:[a-z]>/ => capitalize(l) 
 });
 
-str doValue2IValue(char(int i), map[value, str] constants)  = "$RVF.character(<i>)";
+str doValue2IValue(char(int i), map[value, int] constants)  = "$RVF.character(<i>)";
 
-str doValue2IValue(Tree t:appl(Production prod, list[Tree] args), map[value, str] constants) {
+str doValue2IValue(Tree t:appl(Production prod, list[Tree] args), map[value, int] constants) {
     childrenContrib = isEmpty(args) ? "" : ", <intercalate(", ", [ value2IValueRec(child, constants) | child <- args ])>";
     return "$RVF.appl(<value2IValueRec(prod, constants)> <childrenContrib>)";
 }
 
-default str doValue2IValue(node nd, map[value, str] constants) {
+default str doValue2IValue(node nd, map[value, int] constants) {
     name = getName(nd);
    
     children = getChildren(nd);
@@ -678,19 +683,19 @@ default str doValue2IValue(node nd, map[value, str] constants) {
     }
 }
 
-str doValue2IValue(aadt(str adtName, list[AType] parameters, concreteSyntax()), map[value, str] constants) 
+str doValue2IValue(aadt(str adtName, list[AType] parameters, concreteSyntax()), map[value, int] constants) 
     = "$RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\"))";
 
-str doValue2IValue(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[value, str] constants) = adtName;
+str doValue2IValue(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[value, int] constants) = adtName;
 
 str doValue2IValue(acons(AType adt,
                 list[AType fieldType] fields,
-                lrel[AType fieldType, Expression defaultExp] kwFields), map[value, str] constants)
+                lrel[AType fieldType, Expression defaultExp] kwFields), map[value, int] constants)
                  = "IConstructor";
 
-str doValue2IValue(t:avoid(), map[value, str] constants) { throw "value2IValue: cannot handle <t>"; }
-str doValue2IValue(t:areified(AType atype), map[value, str] constants) { throw "value2IValue: cannot handle <t>"; }
-default str doValue2IValue(value v, map[value, str] constants) { throw "value2IValue: cannot handle <v>"; }
+str doValue2IValue(t:avoid(), map[value, int] constants) { throw "value2IValue: cannot handle <t>"; }
+str doValue2IValue(t:areified(AType atype), map[value, int] constants) { throw "value2IValue: cannot handle <t>"; }
+default str doValue2IValue(value v, map[value, int] constants) { throw "value2IValue: cannot handle <v>"; }
 
 /*****************************************************************************/
 /*  Convert a Rascal value to Java equivalent of its outer type              */

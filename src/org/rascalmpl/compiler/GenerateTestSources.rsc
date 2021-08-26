@@ -46,9 +46,14 @@ void generateTestSources(PathConfig pcfg) {
                      "Type", 
                      "ValueIO",
                      "analysis::graphs::Graph", 
+                     "analysis::statistics::Correlation",
+                     "analysis::statistics::Descriptive",
+                     "analysis::statistics::Frequency",
+                     "analysis::statistics::Inference",
+                     "analysis::statistics::SimpleRegression",
                      "lang::json::IO",
                      "lang::manifest::IO",
-                     "lang::rascal::Syntax",
+                     "lang::rascal::syntax",
                      "lan::xml::DOM",
                      "lang::xml::IO",
                      "util::FileSystem", 
@@ -75,9 +80,7 @@ void generateTestSources(PathConfig pcfg) {
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
                  ];    
-   ignored = ["lang::rascal::tests::concrete::Syntax4",
-             "lang::rascal::tests::concrete::Syntax5",
-             "lang::rascal::tests::concrete::Patterns3"
+   ignored = ["lang::rascal::tests::concrete::Patterns3"
              ];           
    testModules -= ignored;    
    

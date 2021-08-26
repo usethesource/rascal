@@ -238,7 +238,7 @@ str findDefiningModule(loc l){
     
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
-    iprintln(tm);
+    //iprintln(tm);
     current_tmodel = tm;
     scopes = tm.scopes;
     module_scopes = { s | s <- scopes, scopes[s] == |global-scope:///|};
@@ -442,11 +442,17 @@ map[AType, list[Keyword]] getCommonKeywordFieldsMap()
     = adt_common_keyword_fields;
 
 tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType, str fieldName){
-    println("getConstructorInfo: <adtType>, <fieldType>, <fieldName>");
+    //println("getConstructorInfo: <adtType>, <fieldType>, <fieldName>");
     adtType = unsetRec(adtType);
+    is_start = false;
+    if(isStartNonTerminalType(adtType)){
+        adtType = getStartNonTerminalType(adtType);
+        is_start = true;
+    }
     fieldType = fieldType[label=fieldName];
     if(adtType in domain(getBuiltinFieldMap())){
-        return <"", getBuiltinFieldMap()[adtType][fieldName], false>;
+        res = <"", adtType /*getBuiltinFieldMap()[adtType][fieldName]*/, false>;
+        return res;
     }
     set[AType] constructors = {};
    
@@ -497,7 +503,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         productions = grammar.rules[adtType].alternatives;
         for(p:prod(AType def, list[AType] atypes) <- productions){
             for(a <- atypes, a.label?, a.label == fieldName){
-                return <"", a, false>;
+                return <"", is_start ? \start(a) : a, false>;
             }
         }
     }
@@ -509,12 +515,12 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         }
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.label>" == fieldName){
-                return <findDefiningModule(getLoc(kw.defaultExp)), adtType, true>;
+                return <findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType) : adtType, true>;
             }
         }
     }
     
-    return <"", adtType, false>;
+    return <"", is_start ? \start(adtType) : adtType, false>;
     
     //throw "getConstructorInfo, no constructor found for <adtType>, <fieldType>, <fieldName>";
 }
@@ -670,16 +676,6 @@ map[AType,set[AType]] collectNeededDefs(AType t){
 /*     Part III: Type-related code generation functions             */
 /********************************************************************/
 
-@doc{Generate a MuExp that calls a library function given its name, module's name and number of formal parameters}
-/*
- * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
- *       on the number of formal parameters has been removed 
- */
-//public MuExp mkCallToLibFun(str modName, str fname)
-//	= muFun1("<modName>/<fname>");
-
-
-
 // Sort available overloading alternatives as follows (trying to maintain good compatibility with the interpreter):
 // - inner scope first, most recent last
 // - then default functions (also most inner scope first, then most recent last).
@@ -737,7 +733,7 @@ MuExp mkVar(str name, loc l) {
   Define def;
   UID uid = l;
   if(isEmpty(defs)){
-    println("mkvar: <name>, <l>");
+    //println("mkvar: <name>, <l>");
     if(definitions[l]?){
         uid = l;
         def = definitions[l];

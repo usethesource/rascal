@@ -1,5 +1,7 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
+import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +12,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,6 +32,7 @@ import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -58,6 +62,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.InvalidDateTimeException;
 import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -304,15 +309,49 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
 			IValue arg0 = ((NonTerminalType)t1).getSymbol().get(0);
 			String t1name = arg0 instanceof IString ? ((IString) arg0).getValue() : t1.getName();
-			return t1name == t2.getName();
+			return t1name.equals(t2.getName());
 		} if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
 			IValue arg0 = ((NonTerminalType)t2).getSymbol().get(0);
 			String t2name = arg0 instanceof IString ? ((IString) arg0).getValue() : t2.getName();
-			return t1.getName() == t2name;
+			return t1.getName().equals(t2name);
 		} else {
 			return false;
 		}
 	}
+	
+	public IList readBinaryConstantsFile(String path) {
+		Type start = $TF.listType($TF.valueType());
+		
+		ISourceLocation loc;
+		loc = $VF.sourceLocation("/Users/paulklint/git/rascal-core/generated/" + path);
+		try (IValueInputStream in = constructValueReader(loc)) {
+			IValue val = in.read();;
+			if(val.getType().isSubtypeOf(start)){
+				return (IList) val;
+			} else {
+			throw RuntimeExceptionFactory.io($VF.string("Requested type " + start + ", but found " + val.getType()));
+			}
+		}
+		catch (IOException e) {
+			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
+			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+		}
+		catch (Exception e) {
+			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
+			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
+		}
+	}
+
+    private IValueInputStream constructValueReader(ISourceLocation loc) throws IOException {
+        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+        if (registry.supportsReadableFileChannel(loc)) {
+            FileChannel channel = registry.getReadableFileChannel(loc);
+            if (channel != null) {
+                return new IValueInputStream(channel, $VF, TYPE_STORE_SUPPLIER);
+            }
+        }
+        return new IValueInputStream(registry.getInputStream(loc), $VF, TYPE_STORE_SUPPLIER);
+    }
 	
 	/*************************************************************************/
 	/*		Rascal primitives called by generated code						 */
@@ -1775,7 +1814,27 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return false;
 	}
 	
-	// TODO nonterminal
+	// ---- has_name_and_arity
+	
+	public final boolean $nonterminal_has_name_and_arity(final ITree tree, final String name, final int arity) {
+		// Count the non-literal symbols in the argument list
+		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
+		int prod_arity = 0;
+		for(IValue varg : args) {
+			if(org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg)) {
+				prod_arity++;
+			}
+		}
+		if(prod_arity != arity)
+				return false;
+        IConstructor prod = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction(tree);
+        IValue def = prod.get("def");
+        if(def == null) return false;
+        if(((IConstructor)def).has("name")) {
+        	return ((IString)((IConstructor)def).get("name")).getValue().equals(name);
+        }
+        return false;
+	}
 
 	// ---- intersect ---------------------------------------------------------
 

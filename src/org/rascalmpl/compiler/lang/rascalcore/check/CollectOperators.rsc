@@ -818,6 +818,12 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
 
 // ---- if expression
 
+void checkNoAssignable(Expression e, Solver s, str msg){
+    if(/Assignable asg := e){
+        s.report(error(e, msg + " should not contain assignment"));
+    }
+}
+
 void collect(current: (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, Collector c){
     c.enterCompositeScope([condition, thenExp]);   // thenExp may refer to variables defined in conditions; elseExp may not
         
@@ -826,6 +832,8 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
                 s.requireComparable(abool(), condition, error(condition, "Condition should be `bool`, found %t", condition));
                 checkNonVoid(thenExp, s, "Then part in conditional expression");
                 checkNonVoid(elseExp, s, "Else part in conditional expression");
+                checkNoAssignable(thenExp, s, "Then part in conditional expression");
+                checkNoAssignable(elseExp, s, "Else part in conditional expression");
                 //clearBindings();
                 //checkConditions([condition]);
                 return s.lub(thenExp, elseExp);
