@@ -45,7 +45,7 @@ data JGenie
         str(AType atype) shareType,
         str(value con) shareConstant,
         str(Symbol, map[Symbol,Production]) shareReifiedConstant,
-        tuple[str,str] () getConstants,
+        tuple[str,str,list[value]] () getConstants,
         bool (str con) isWildCard,
         void(set[MuExp] evars) addExternalRefs,
         bool (MuExp exp) isExternalRef,
@@ -71,8 +71,9 @@ JGenie makeJGenie(MuModule m,
     str moduleName = m.name;
     map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
     str kwpDefaults = "$kwpDefaults";
-    map[value,str] constants = ();
-    map[str,value] constant2value = ();
+    map[value,int] constant2idx = ();
+    map[int,value] idx2constant = ();
+    list[value] constantlist = [];
     map[AType,str] types = ();
     int nconstants = -1;
     int ntypes = -1;
@@ -248,7 +249,6 @@ JGenie makeJGenie(MuModule m,
             if(isContainedIn(d, currentModuleScope)){
                 if(muFunctionsByLoc[d]?){
                     fun = muFunctionsByLoc[d];
-                    iprintln(fun.scopeIn);
                     if(fun.scopeIn == "") return "";
                     scopeIn = fun.scopeIn;
                 }
@@ -394,35 +394,38 @@ JGenie makeJGenie(MuModule m,
     }
     
     str _shareConstant(value v) {
-        c = "?";
+        c = -1;
         
         v = unsetR(v, "src");
         
-        if (constants[v]?) {
-          return constants[v];
+        if (constant2idx[v]?) {
+            idx = constant2idx[v];
+          return "((<value2outertype(v)>)$constants.get(<idx>)<inlineComment(v)>)";
         }
         else {
           nconstants += 1;
-          c = "$C<nconstants>";
-          constants[v] = c;
-          constant2value[c] = v;
+          c = nconstants; //"$C<nconstants>";
+          constant2idx[v] =  c; //"((<value2outertype(v)>)$constants[<c>])";
+          constantlist += v;
+          idx2constant[c] = v;
         }
         
         if (Symbol _ := v || Production _ := v || Tree _ := v || map[&X,&Y] _ := v) {
             visit (v) {
               case value e: {
                 e = unsetR(e, "src");
-                if (!constants[e]?, Symbol _ := e || Production _ := e || Tree _ := e) {
+                if (!constant2idx[e]?, Symbol _ := e || Production _ := e || Tree _ := e) {
                   nconstants += 1;
-                  d = "$C<nconstants>";
-                  constants[e] = d;
-                  constant2value[d] = e;
+                  d = nconstants; //"$C<nconstants>";
+                  constant2idx[e] = d; //"((<value2outertype(v)>)$constants[<d>])";
+                  constantlist += e;
+                  idx2constant[d] = e;
                 }
               }
             }
         }
         
-        return c;
+        return "((<value2outertype(v)>)$constants.get(<c>)<inlineComment(v)>)";
     }
     
     str _shareReifiedConstant(Symbol t, map[Symbol, Production] definitions){
@@ -436,26 +439,26 @@ JGenie makeJGenie(MuModule m,
         return c;
     }
     
-    tuple[str,str] _getConstants() {
+    tuple[str,str, list[value]] _getConstants() {
         str cdecls = "";
         str cinits = "";
         done = {};
         
         // Generate constants in the right declaration order, such that
         // they are always declared before they are used in the list of constant fields
-        for(c <- constants){
+        for(c <- constant2idx){
             if(c == ""){
                 if (c notin done) {
-                  cdecls += "private final <value2outertype(c)> <constants[c]>;\n";
-                  cinits += "<constants[c]> = <value2IValue(c, constants)>;\n";
+                  //cdecls += "private final <value2outertype(c)> <constant2idx[c]>;\n";
+                  //cinits += "<constants[c]> = <value2IValue(c, constants2idx)>;\n";
                   done += {c};
                 }
             } else {
                 bottom-up visit(c) {
                   case s:
-                        if (s notin done, s in constants) {
-                          cdecls += "private final <value2outertype(s)> <constants[s]>;\n";
-                          cinits += "<constants[s]> = <value2IValue(s, constants)>;\n";
+                        if (s notin done, s in constant2idx) {
+                          //cdecls += "private final <value2outertype(s)> <constant2idx[s]>;\n";
+                          //cinits += "<constants[s]> = <value2IValue(s, constant2idx)>;\n";
                           done += {s};
                         }
                     }
@@ -489,18 +492,24 @@ JGenie makeJGenie(MuModule m,
         rinits = "";
         for(t <- reified_constants){
                rdecls += "private final IConstructor <reified_constants[t]>;\n";
-               rinits += "<reified_constants[t]> = $RVF.reifiedType(<value2IValue(t, constants)>, <value2IValue(reified_definitions[t], constants)>);\n";
+               rinits += "<reified_constants[t]> = $RVF.reifiedType(<value2IValue(t, constant2idx)>, <value2IValue(reified_definitions[t], constant2idx)>);\n";
         }       
         return <"<cdecls><tdecls><rdecls>",
-                "<cinits><tinits><rinits>"
+                "<cinits><tinits><rinits>",
+                constantlist
                >;
     }
     
     bool _isWildCard(str con){
-        if(constant2value[con]?){
-            return constant2value[con] == "_";
+        if(/.*get\(<idx:[0-9]+>\)/ := con){
+            i = toInt(idx);
+            if(idx2constant[i]?){
+                return idx2constant[i] == "_";
+            }
+            return false;
+        } else {
+            return false;
         }
-        return false;
     }
     
     void _addExternalRefs(set[MuExp] vars){

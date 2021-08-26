@@ -185,9 +185,11 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         }
         
         definedLayout = aadt("$default$", [], layoutSyntax());
-        if(isEmpty(allLayouts)){
-            syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
-        } else if(size(allLayouts) >= 1){
+        syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
+        //if(isEmpty(allLayouts)){
+        //    syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
+        //} else 
+        if(size(allLayouts) >= 1){
             definedLayout = getOneFrom(allLayouts);
         } 
         

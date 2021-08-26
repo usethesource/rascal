@@ -224,8 +224,6 @@ private Condition acond2cond(ACondition::\except(str label)) = Condition::\excep
 
 map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def] defs) { 
     res = (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs);
-    iprintln(defs);
-    iprintln(res);
     return res;
 }
 
@@ -267,26 +265,48 @@ Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] kwFie
 }
 
 
-
-
-
-
-
-
     
 //////////////////////////////////////////////////////////////////////////////////    
  
  /*****************************************************************************/
 /*  Convert a Symbol to an AType                                              */
 /*****************************************************************************/
-
+            
 AType symbol2atype(Symbol symbol){
     return symbol2atype1(symbol);
 }
 
+AType symbol2atype1(\int()) = aint();
+AType symbol2atype1(\bool()) = abool();
+AType symbol2atype1(\real()) = areal();
+AType symbol2atype1(\rat()) = arat();
+AType symbol2atype1(\str()) = astr();
+AType symbol2atype1(\num()) = anum();
+AType symbol2atype1(\node()) = anode();
+AType symbol2atype1(\void()) = avoid();
+AType symbol2atype1(\value()) = avalue();
+AType symbol2atype1(\loc()) = aloc();
+AType symbol2atype1(\datetime()) = adatetime();
+
 AType symbol2atype1(Symbol::label(str label, symbol)){
     return symbol2atype(symbol)[label=label];
 }
+
+AType symbol2atype1(\set(Symbol symbol)) = aset(symbol2atype(symbol));
+AType symbol2atype1(\rel(list[Symbol] symbols)) = arel(symbol2atype(symbols));
+AType symbol2atype1(\lrel(list[Symbol] symbols)) = alrel(symbol2atype(symbols));
+AType symbol2atype1(\tuple(list[Symbol] symbols)) = atuple(atypeList(symbol2atype(symbols)));  
+AType symbol2atype1(\list(Symbol symbol)) = alist(symbol2atype(symbol));
+AType symbol2atype1(\map(Symbol from, Symbol to)) = amap(symbol2atype(from), symbol2atype(to));
+AType symbol2atype1(\bag(Symbol from, Symbol to)) = abag(symbol2atype(from), symbol2atype(to));
+AType symbol2atype1(\adt(str name, list[Symbol] parameters)) = aadt(name, symbol2atype(parameters), dataSyntax());
+AType symbol2atype1(\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbolk2atype(\adt), symbol2atype(parameters))[label=name];
+
+     //| \alias(str name, list[Symbol] parameters, Symbol aliased)
+     //| \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
+     //| \overloaded(set[Symbol] alternatives)
+     //| \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
+     //| \reified(Symbol symbol)
 
 AType symbol2atype1(Symbol::sort(str name)) = aadt(name, [], contextFreeSyntax());
 AType symbol2atype1(Symbol::lex(str name)) = aadt(name, [], lexicalSyntax());
@@ -322,7 +342,7 @@ AType symbol2atype1(\non-assoc(), map[AType, set[AType]] defs) = Associativity::
 //    = "amb(<symbol2atype(alternatives,defs)>)";
  
 AType symbol2atype1(char(int character))
-    = achar(character);
+    = char(character);
     
 // ---- SyntaxRole ------------------------------------------------------------
 
@@ -394,8 +414,9 @@ AType symbol2atype1(Symbol::\iter-seps(Symbol symbol, list[Symbol] separators))
 AType symbol2atype1(Symbol::\iter-star-seps(Symbol symbol, list[Symbol] separators))
     = AType::\iter-star-seps(symbol2atype(symbol), symbol2atype(separators));   
     
-AType symbol2atype1(Symbol::\alt(set[Symbol] alternatives))
-    = AType::alt(symbol2atype(alternatives));     
+AType symbol2atype1(Symbol::\alt(set[Symbol] alternatives)){
+    return  AType::alt(symbol2atype(alternatives));  
+}   
 
 AType symbol2atype1(Symbol::\seq(list[Symbol] symbols))
     = AType::seq(symbol2atype(symbols));     
@@ -403,47 +424,48 @@ AType symbol2atype1(Symbol::\seq(list[Symbol] symbols))
 AType symbol2atype1(Symbol::\start(Symbol symbol))
     = AType::\start(symbol2atype1(symbol));  
     
-list[AType] symbol2atype(list[Symbol] symbols) = [symbol2atype(s) | s <- symbols]; 
+list[AType] symbol2atype(list[Symbol] symbols) = [ symbol2atype(s) | s <- symbols ]; 
+
+set[AType] symbol2atype(set[Symbol] symbols) = { symbol2atype(s) | s <- symbols }; 
 
 ACharRange charrange2acharrange(CharRange::range(int begin, int end))
     = ACharRange::arange(begin, end);
     
 
-//str atype2IValue1(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
-//    = "conditional(<atype2IValue(symbol, defs)>, <symbol2atype(conditions, defs)>)";   
+AType symbol2atype1(Symbol::\conditional(Symbol symbol, set[Condition] conditions))
+    = AType::conditional(symbol2atype(symbol), condition2acondition(conditions));   
     
-//// ---- ACondition ------------------------------------------------------------
-//
-//str symbol2atype1(\follow(AType atype), map[AType, set[AType]] defs)
-//    = "follow(<atype2IValue(atype, defs)>)";   
-//
-//str symbol2atype1(\not-follow(AType atype), map[AType, set[AType]] defs)
-//    = "not_follow(<atype2IValue(atype, defs)>)";
-//    
-//str symbol2atype1(\precede(AType atype), map[AType, set[AType]] defs)
-//    = "precede(<atype2IValue(atype, defs)>)";  
-//
-//str symbol2atype1(\not-precede(AType atype), map[AType, set[AType]] defs)
-//    = "not_precede(<atype2IValue(atype, defs)>)"; 
-//    
-//str symbol2atype1(\delete(AType atype), map[AType, set[AType]] defs)
-//    = "delete(<atype2IValue(atype, defs)>)"; 
-//    
-//str symbol2atype1(\at-column(int column), map[AType, set[AType]] defs)
-//    = "at_column(<value2IValue(column)>)";  
-//    
-//str symbol2atype1(\begin-of-line(), map[AType, set[AType]] defs)
-//    = "begin_of_line()";
-//    
-//str symbol2atype1(\end-of-line(), map[AType, set[AType]] defs)
-//    = "end_of_line()"; 
-//    
-//str symbol2atype1(\except(str label), map[AType, set[AType]] defs)
-//    = "except(<value2IValue(label)>)";    
+// ---- ACondition ------------------------------------------------------------
+
+ACondition condition2acondition(Condition::\follow(Symbol symbol))
+    = ACondition::follow(symbol2atype(symbol, defs));   
+
+ACondition condition2acondition(Condition::\not-follow(Symbol symbol))
+    = ACondition::\not-follow(symbol2atype(symbol));
     
+ACondition condition2acondition(Condition::\precede(Symbol symbol))
+    = ACondition::precede(symbol2atype(symbol));  
+
+ACondition condition2acondition(Condition::\not-precede(Symbol symbol))
+    = ACondition::\not-precede(symbol2atype(symbol)); 
     
+ACondition condition2acondition(Condition::\delete(Symbol symbol))
+    = ACondition::delete(symbol2atype(symbol)); 
     
+ACondition condition2acondition(Condition::\at-column(int column))
+    = ACondition::\at-column(column);  
     
+ACondition condition2acondition(Condition::\begin-of-line())
+    = ACondition::\begin-of-line();
+    
+ACondition condition2acondition(Condition::\end-of-line())
+    = ACondition::\end-of-line(); 
+    
+ACondition condition2acondition(Condition::\except(str label))
+    = ACondition::except(label); 
+    
+set[ACondition] condition2acondition(set[Condition] conditions)
+    = { condition2acondition(cond) | Condition cond <- conditions };
     
 
 // ---- Predicates, selectors and constructors --------------------------------
@@ -1259,6 +1281,25 @@ default AType getStartNonTerminalType(AType s) {
 
 //TODO labelled
 
+bool isLexicalType(aparameter(_,AType tvb)) = isLexicalType(tvb);
+bool isLexicalType(AType::\conditional(AType ss,_)) = isLexicalType(ss);
+bool isLexicalType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax(); // || adtName == "Tree";
+bool isLexicalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isLexicalType(adt);
+bool isLexicalType(AType::\start(AType ss)) = isLexicalType(ss);
+
+bool isLexicalType(AType:\lit(str string)) = true;
+bool isLexicalType(AType:\cilit(str string)) = true;
+bool isLexicalType(AType:\char-class(list[ACharRange] ranges)) = true;
+   
+bool isLexicalType(AType::\iter(AType s)) = isLexicalType(s);
+bool isLexicalType(AType::\iter-star(AType s)) = isLexicalType(s);
+bool isLexicalType(AType::\iter-seps(AType s,_)) = isLexicalType(s);
+bool isLexicalType(AType::\iter-star-seps(AType s,_)) = isLexicalType(s);
+
+bool isLexicalType(seq(list[AType] symbols)) = all(s <- symbols, isLexicalType(s));
+bool isLexicalType(alt(set[AType] alternatives)) = any(s <- alternatives, isLexicalType(s));
+bool isLexicalType(AType t) = false;
+
 // ---- literal/terminal
 @doc{Synopsis: Determine if the given type is a terminal symbol (a literal or character class).}
 bool isTerminalType(aparameter(_,AType tvb)) = isTerminalType(tvb);
@@ -1324,7 +1365,16 @@ AType getIterElementType(AType::\iter-seps(AType i,_)) = i;
 AType getIterElementType(AType::\iter-star-seps(AType i,_)) = i;
 default AType getIterElementType(AType i) {
     throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type");
-}   
+}
+ 
+int getIterDelta(aparameter(_,AType tvb)) = getIterDelta(tvb);
+int getIterDelta(AType::\iter(AType i)) = isLexicalType(i) ? 1 : 2;
+int getIterDelta(AType::\iter-star(AType i)) = isLexicalType(i) ? 1 : 2;
+int getIterDelta(AType::\iter-seps(AType i,_)) = isLexicalType(i) ? 2 : 4;
+int getIterDelta(AType::\iter-star-seps(AType i,_)) = isLexicalType(i) ? 2 : 4;
+default int getIterDelta(AType i) {
+    throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type");
+}
 
 // empty
 

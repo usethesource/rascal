@@ -9,6 +9,7 @@ import ParseTree;
 import IO;
 
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
 //import lang::rascalcore::grammar::definition::Grammar;
 
 /*
@@ -106,7 +107,6 @@ public data MuExp =
           | muComment(str text)                                // Add comment to code
           | muFun(loc uid, AType atype)                         // *muRascal* function constant: functions at the root
            
-          //| muOFun(str name, AType atype)  
           | muOFun(list[loc] uids, AType atype)                 // *Rascal* function, i.e., overloaded function at the root
           
           | muConstr(AType ctype) 					        	// Constructor
@@ -115,7 +115,6 @@ public data MuExp =
           | muAddedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType)
           
           	// Variables and temporaries
-          | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)
           | muVar(str name, str fuid, int pos, AType atype)		// Variable: retrieve its value
           | muTmpIValue(str name, str fuid, AType atype)	    // Temporary variable introduced by compiler
           | muTmpNative(str name, str fuid, NativeKind nkind)   // Temporary variable introduced by compiler
@@ -125,10 +124,10 @@ public data MuExp =
           // Call and return    		
           | muCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs)     // Call a function
           
-          | muOCall3(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)       
+          | muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)       
                                                                 // Call an overloaded declared *Rascal function 
                                                                 // Compose fun1 o fun2, i.e., compute fun1(fun2(args))
-          | muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive
+          | muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive
            
           | muCallJava(str name, str class, AType funType,
           			   int reflect,
@@ -365,7 +364,7 @@ bool isVarOrTmp(MuExp exp)
 
 // Produces NativeBool
    
-bool producesNativeBool(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] args, loc src)){
+bool producesNativeBool(muPrim(str name, AType result, list[AType] details, list[MuExp] args, loc src)){
     if(name in {/*"equal", "notequal",*/"is", "subset"}) return true;
     fail producesNativeBool;
 }
@@ -400,7 +399,7 @@ default bool producesNativeStr(MuExp exp)
 bool producesNativeGuardedIValue(muTmpNative(_,_,nativeGuardedIValue()))
     = true;   
  
- bool producesNativeGuardedIValue(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src))
+ bool producesNativeGuardedIValue(muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src))
     = name in { "guarded_subscript", "guarded_field_project"};
     
 default bool producesNativeGuardedIValue(MuExp exp)
@@ -417,20 +416,22 @@ default bool producesNativeGuardedIValue(MuExp exp)
     = false;
     
 // Get the result type of a MuExp
-AType getType(muCon(bool b)) = abool();
-AType getType(muCon(int n)) = aint();
-AType getType(muCon(real r)) = areal();
-AType getType(muCon(rat q)) = arat();
-AType getType(muCon(loc l)) = aloc();
-AType getType(muCon(str s)) = astr();
-AType getType(muCon(datetime dt)) = adatetime();
+//AType getType(muCon(bool b)) = abool();
+//AType getType(muCon(int n)) = aint();
+//AType getType(muCon(real r)) = areal();
+//AType getType(muCon(rat q)) = arat();
+//AType getType(muCon(loc l)) = aloc();
+//AType getType(muCon(str s)) = astr();
+//AType getType(muCon(datetime dt)) = adatetime();
+
+AType getType(muCon(value v)) = symbol2atype(typeOf(v));
 AType getType(muVar(str name, str fuid, int pos, AType atype)) = atype;
 AType getType(muTmpIValue(str name, str fuid, AType atype)) = atype;
 AType getType(muVarKwp(str name, str fuid, AType atype)) = atype;
 AType getType(muCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs)) = getResultType(atype);   
-AType getType(muOCall3(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
+AType getType(muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
     = getResultType(atype);                                                               
-AType getType(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) 
+AType getType(muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) 
     = result;
 AType getType(muCallJava(str name, str class, AType funType, int reflect, list[MuExp] args, str enclosingFun)) =  getResultType(funType); 
 AType getType(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)) = alub(getType(thenPart), getType(elsePart));
@@ -438,7 +439,7 @@ AType getType(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)) = alub(getTyp
 AType getType(muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)) = resultType;
 AType getType(muGetFieldFromConstructor(AType resultType, AType consType, MuExp var, str fieldName)) = resultType;
 AType getType(muSubList(MuExp lst, MuExp from, MuExp len)) = getType(lst);
-AType getType(muConcreteSubList(MuExp lst, MuExp from, MuExp len)) = getType(lst);
+AType getType(muConcreteSubList(MuExp lst, MuExp from, MuExp len, MuExp delta)) = getType(lst);
 
 AType getType(muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
 AType getType(muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)) = resultType;
@@ -545,7 +546,7 @@ bool noSequentialExit(MuExp exp)
 bool noSequentialExit(muFail(str label), list[str] entered) 
     = true; //label notin entered;
 
-bool noSequentialExit(muFailCase(_,_), list[str] entered)
+bool noSequentialExit(muFailCase(_), list[str] entered)
     = false;
 
 bool noSequentialExit(muSucceedSwitchCase(str switchName), list[str] entered)
@@ -1129,7 +1130,7 @@ MuExp muIfelse(muForRangeInt(str label, MuExp var2, int ifirst, int istep, MuExp
 
 // ---- muEnter ---------------------------------------------------------------
 
-MuExp muEnter(str btscope, MuExp exp=false)
+MuExp muEnter(str btscope, MuExp exp=muCon(false))
     = muEnter(btscope, exp);
 
 MuExp muEnter(str btscope, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
@@ -1139,7 +1140,7 @@ MuExp muEnter(str enter, MuExp exp) = exp when containsEnter(enter, exp);
 
 bool containsEnter(str enter, MuExp exp){
 //return false;
-println("containsEnter(\"<enter>\", <exp>)");
+//println("containsEnter(\"<enter>\", <exp>)");
     visit(exp){
         case muEnter(enter, MuExp exp1): return true;
         case muForAll(enter, MuExp var, AType iterType, MuExp iterable, MuExp body): return true;
@@ -1298,12 +1299,12 @@ AType getResultType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)
 AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = lubList(toList(overloads<2>));
 default AType getResultType(AType t) = t;
      
-MuExp muOCall3(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
-    = muValueBlock(getResultType(atype), auxVars + pre + muOCall3(fun, atype, flatArgs, kwargs, src))
+MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
+    = muValueBlock(getResultType(atype), auxVars + pre + muOCall(fun, atype, flatArgs, kwargs, src))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args), !isEmpty(pre);
 
-MuExp muCallPrim3(str op, AType result, list[AType] details, list[MuExp] args, loc src)
-    = muValueBlock(result, auxVars + pre + muCallPrim3(op, result, details, flatArgs, src))
+MuExp muPrim(str op, AType result, list[AType] details, list[MuExp] args, loc src)
+    = muValueBlock(result, auxVars + pre + muPrim(op, result, details, flatArgs, src))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args) && !isEmpty(pre);
 
 MuExp muCallJava(str name, str class, AType funType, int reflect, list[MuExp] args, str enclosingFun)
@@ -1402,67 +1403,68 @@ bool allConstant(list[MuExp] args) { b = isEmpty(args) || all(a <- args, muCon(_
 
 // Integer addition
 
-MuExp muCallPrim3("add", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 + n2);
+MuExp muPrim("add", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 + n2);
 
-MuExp muCallPrim3("add", aint(), [aint(), aint()], [muCallPrim3("add", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
-      muCallPrim3("add", aint(), [aint(), aint()], [e, muCon(n1 + n2)], src2);
+MuExp muPrim("add", aint(), [aint(), aint()], [muPrim("add", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muPrim("add", aint(), [aint(), aint()], [e, muCon(n1 + n2)], src2);
 
-MuExp muCallPrim3("add", aint(), [aint(), aint()], [muCon(int n1), muCallPrim3("add", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
-      muCallPrim3("add", aint(), [aint(), aint()], [muCon(n1 + n2), e], src2);
+MuExp muPrim("add", aint(), [aint(), aint()], [muCon(int n1), muPrim("add", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muPrim("add", aint(), [aint(), aint()], [muCon(n1 + n2), e], src2);
 
 // Integer subtraction
  
-MuExp muCallPrim3("subtract", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 - n2);
+MuExp muPrim("subtract", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 - n2);
 
-MuExp muCallPrim3("subtract", aint(), [aint(), aint()], [muCallPrim3("subtract", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
-      muCallPrim3("subtract", aint(), [aint(), aint()], [e, muCon(n1 - n2)], src2);
+MuExp muPrim("subtract", aint(), [aint(), aint()], [muPrim("subtract", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muPrim("subtract", aint(), [aint(), aint()], [e, muCon(n1 - n2)], src2);
 
-MuExp muCallPrim3("subtract", aint(), [aint(), aint()], [muCon(int n1), muCallPrim3("subtract", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
-      muCallPrim3("subtract", aint(), [aint(), aint()], [muCon(n1 - n2), e], src2);      
+MuExp muPrim("subtract", aint(), [aint(), aint()], [muCon(int n1), muPrim("subtract", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muPrim("subtract", aint(), [aint(), aint()], [muCon(n1 - n2), e], src2);      
 
 // Integer multiplication
 
-MuExp muCallPrim3("product", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 * n2);
+MuExp muPrim("product", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 * n2);
 
-MuExp muCallPrim3("product",aint(), [aint(), aint()], [muCallPrim3("product", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
-      muCallPrim3("product", aint(), [aint(), aint()], [e, muCon(n1 * n2)], src2);
+MuExp muPrim("product",aint(), [aint(), aint()], [muPrim("product", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+      muPrim("product", aint(), [aint(), aint()], [e, muCon(n1 * n2)], src2);
 
-MuExp muCallPrim3("product", aint(), [aint(), aint()], [muCon(int n1), muCallPrim3("product", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
-      muCallPrim3("product",aint(),  [aint(), aint()], [muCon(n1 * n2), e], src2);
+MuExp muPrim("product", aint(), [aint(), aint()], [muCon(int n1), muPrim("product", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
+      muPrim("product",aint(),  [aint(), aint()], [muCon(n1 * n2), e], src2);
 
 // String concatenation
 
-MuExp muCallPrim3("add", astr(), [astr(), astr()], [muCon(str s1), muCon(str s2)], loc src) = muCon(s1 + s2);
+MuExp muPrim("add", astr(), [astr(), astr()], [muCon(str s1), muCon(str s2)], loc src) = muCon(s1 + s2);
 
-MuExp muCallPrim3("add",astr(), [astr(), astr()], [muCallPrim3("add", astr(), [astr(), astr()], [MuExp e, muCon(str s1)], loc src1), muCon(str s2)], loc src2) =
-      muCallPrim3("add", astr(),[astr(), astr()], [e, muCon(s1 + s2)], src2);
+MuExp muPrim("add",astr(), [astr(), astr()], [muPrim("add", astr(), [astr(), astr()], [MuExp e, muCon(str s1)], loc src1), muCon(str s2)], loc src2) =
+      muPrim("add", astr(),[astr(), astr()], [e, muCon(s1 + s2)], src2);
 
-MuExp muCallPrim3("add", astr(), [astr(), astr()], [muCon(str s1), muCallPrim3("add", astr(), [astr(), astr()], [muCon(str s2), MuExp e], loc src1)], loc src2)  =
-      muCallPrim3("add", astr(), [astr(), astr()], [muCon(s1 + s2), e], src2);
+MuExp muPrim("add", astr(), [astr(), astr()], [muCon(str s1), muPrim("add", astr(), [astr(), astr()], [muCon(str s2), MuExp e], loc src1)], loc src2)  =
+      muPrim("add", astr(), [astr(), astr()], [muCon(s1 + s2), e], src2);
 
 // Create composite datatypes
 
-MuExp muCallPrim3("create_list", AType r, [AType lst, AType elm], list[MuExp] args, loc src) = muCon([a | muCon(a) <- args]) 
+MuExp muPrim("create_list", AType r, [AType elm], list[MuExp] args, loc src) = muCon([a | muCon(a) <- args]) 
       when allConstant(args);
 
-MuExp muCallPrim3("create_set", AType r, [AType s, AType e], list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
+MuExp muPrim("create_set", AType r, [AType e], list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
       when allConstant(args);
  
 // TODO: do not generate constant in case of multiple keys     
-MuExp muCallPrim3("create_map", AType r, [AType k, AType v], list[MuExp] args, loc src) = muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]))
+MuExp muPrim("create_map", AType r, [AType k, AType v], list[MuExp] args, loc src) = muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]))
       when allConstant(args);
- 
- // TODO chanto type args     
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1)], loc src) = muCon(<v1>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2)], loc src) = muCon(<v1, v2>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3)], loc src) = muCon(<v1, v2, v3>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3), muCon(v4)], loc src) = muCon(<v1, v2, v3, v4>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5)], loc src) = muCon(<v1, v2, v3, v4, v5>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6)], loc src) = muCon(<v1, v2, v3, v4, v5, v6>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9>);
-MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9),  muCon(v10) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9, v10>);
+     
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1)], loc src) = muCon(<v1>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2)], loc src) = muCon(<v1, v2>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3)], loc src) = muCon(<v1, v2, v3>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4)], loc src) = muCon(<v1, v2, v3, v4>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5)], loc src) = muCon(<v1, v2, v3, v4, v5>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6)], loc src) = muCon(<v1, v2, v3, v4, v5, v6>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9>);
+MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9),  muCon(v10) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9, v10>);
 
-//MuExp muCallPrim3("anode_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
-//      when allConstant(args);
+//MuExp muPrim("create_node", AType r, [*AType _], [muCon(str name), *MuExp args, muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)], loc src) 
+//    = isEmpty(kwpActuals) ? muCon(makeNode(name, [a | muCon(a) <- args])) 
+//                          : muCon(makeNode(name, [a | muCon(a) <- args], (kwpName: exp | <kwpName, muCon(exp)> <- kwpActuals)))  
+//      when allConstant(args), allConstant(kwpActuals<1>);

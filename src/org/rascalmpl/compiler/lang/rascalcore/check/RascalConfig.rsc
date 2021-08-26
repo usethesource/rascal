@@ -320,13 +320,22 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     funIds = domain(funDefs);
     for(id <- funIds){
         defs = funDefs[id];
-        if(size(defs) > 0 && any(d1 <-defs, d2 <- defs, d1.defined != d2.defined, 
+        if(size(defs) > 0 && any(d1 <- defs, d2 <- defs, d1.defined != d2.defined, 
                                  t1 := facts[d1.defined]?afunc(avoid(),[],[]),
                                  t2 := facts[d2.defined]?afunc(avoid(),[],[]),
                                 (d1.scope in moduleScopes && d2.scope in moduleScopes && size(t1.formals) == size(t2.formals) && t1.ret == avoid() && t2.ret != avoid())
                                 //|| (d1.scope notin moduleScopes && d2.scope notin moduleScopes)
                                 )){
             msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d.defined].ret == avoid() ? "non-`void`" : "`void`"> result type", d.defined) | d <- defs ];
+            s.addMessages(msgs);
+        }
+        if(size(defs) > 0 && any(d1 <- defs, d2 <- defs, d1 != d2, 
+                                 t1 := facts[d1.defined]?afunc(avoid(),[],[]), 
+                                 t2 := facts[d2.defined]?afunc(avoid(),[],[]), 
+                                 (d1.scope in moduleScopes && d2.scope in moduleScopes && comparable(t1.formals, t2.formals)),
+                                 t1.kwFormals<0> != t2.kwFormals<0>)){
+                                 
+            msgs = [ error("Declaration clashes with other declaration of function `<id>` with different keyword parameters", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }
         if(size(defs) > 0 && any(d1 <- defs, d2 <- defs, d1 != d2,  t1 := facts[d1.defined]?afunc(avoid(),[],[]), t2 := facts[d2.defined]?afunc(avoid(),[],[]), d1.scope == d2.scope, (t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest))){

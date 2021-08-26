@@ -24,7 +24,7 @@ loc generatedDir = |project://rascal-core/generated|;
 
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=true){
     tm = tmodels[qualifiedModuleName];
-    iprintln(tm, lineLimit=10);
+    //iprintln(tm, lineLimit=10);
     targetDir = generatedDir + module2dir(qualifiedModuleName);
     className = getBaseClass(qualifiedModuleName);
    
@@ -46,12 +46,13 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
        	<tm, muMod> = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
         tmodels[qualifiedModuleName] = tm;
         
-        <the_interface, the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
+        <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, moduleLocs);
      
         writeFile(targetDir + "$<className>.java", the_interface);
         writeFile(targetDir + "<className>.java", the_class);
         println("Written: <targetDir + "<className>.java">");
         writeFile(targetDir + "<className>Tests.java", the_test_class);
+        writeBinaryValueFile(targetDir + "<className>.constants", constants);
      
         return tm.messages;
        

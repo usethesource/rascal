@@ -22,9 +22,6 @@ import Relation;
 
 import IO;
 
-private TModel the_tmodel = tmodel();
-private rel[str,AType] typeRel = {};
-private set[AType] types = {};
 private rel[AType,AProduction] constructors = {};
 private rel[AType,AType] productions = {};
 private map[AType,AProduction] grammar = ();
@@ -33,33 +30,21 @@ private map[AType,AProduction] cachedGrammarRules = ();
 private set[AType] adts = {};
 
 private map[AType,AProduction] instantiatedGrammar = ();
-private set[AType] starts = {};
-private AType activeLayout = layouts("$default$");
 private rel[value,value] reachableTypes = {};
 private rel[AType,AType] reachableConcreteTypes = {};
 private bool reachableInfoAvailable = false;
 
-map[tuple[AType symbol, map[AType,AProduction] definitions], map[AType,AProduction]] collectDefsCache = ();
-
-private map[AType symbol, type[value] resType] atypeToValueCache = ();
 
 public void resetTypeReifier() {
-    the_tmodel = tmodel();
-    typeRel = {};
-    types = {};
     constructors = {};
     productions = {};
     grammar = ();
     cachedGrammarRules = ();
     adts = {};
     instantiatedGrammar = ();
-    starts = {};
-    activeLayout = layouts("$default$");
     reachableTypes = {};
     reachableConcreteTypes = {};
     reachableInfoAvailable = false;
-    collectDefsCache = ();
-    atypeToValueCache = ();
 }
 
 // Extract common declaration info and save it for later use by
@@ -88,29 +73,6 @@ private bool hasManualTag(\choice(AType def, set[Production] alternatives)) =
 
 private bool hasManualTag(Production p) =
     p has attributes && \tag("manual"()) in p.attributes;
-
-
-// Extract all declared symbols from a type checker tmodel
-
-public map[AType,AProduction] getDefinitions() {
-    return (); // TODO
-  // 	// Collect all symbols
-  // 	set[AType] symbols = types + domain(constructors) + carrier(productions) + domain(grammar);
-  // 	
-  // 	map[AType,Production] definitions  = (() | collectDefs(symbol, it) | AType symbol <- symbols);
- 	//
- 	//return definitions;
-}
-
-public Production getLabeledProduction(str name, AType symbol){
-	//println("getLabeledProduction: <getGrammar()[symbol]>");
-	name = unescape(name);
-	visit(cachedGrammarRules[symbol]){
-		case p:prod(\label(name, symbol), _, _): return p;
-		case p:regular(\label(name, symbol)): return p;
-	};
-	throw "No LabeledProduction for <name>, <symbol>";
-}
 
 // Type reachability functions
 
@@ -373,79 +335,3 @@ tuple[set[AType], set[AProduction]] getReachableConcreteTypes(AType subjectType,
 }
 
 private bool isAltOrSeq(AType s) = alt(_) := s || seq(_) := s;	  
-
-// ---------------- instantiate --------------------
-
-//AType instantiate(AType s, map[str, AType] bindings){
-//
-//    top-down-break visit(s){
-//        case \alias(str name, list[AType] parameters, AType aliased): {
-//              bound = getBoundParaneters(parameters);
-//              if(isEmpty(bound)){
-//                    fail;
-//              } else {
-//                insert instantiate(aliased, bound + bindings);
-//              }
-//          }
-//          
-//        case \parameter(name, bnd): {
-//              if(bindings[name]?){
-//                 insert bindings[name];
-//              } else {
-//                fail;
-//              }
-//        }
-//    }
-//}      
-//
-//map[str, AType] getBoundParameters(list[AType] parameters){
-//
-//    (p.name, pp <- parameters, p !:= \parameter(_, _)
-//
-//}                                
-
-// ---------------- symbolToValue ------------------
-// TODO: rewrite the following code using
-// - exisiting code in lang::rascal::grammar (e.d. striprec, delabel etc.
-// - remove duplication of 'layouts', 'regular' and 'intermix', 'sym2prod'
-// - descent operator rather than inductive definition.
-// Attention points:
-// - Introduce a GrammarDefinition as soon as possible, then existing tools can work on it.
-// - The type checker introduces a second form of productionL of the form:
-//   prod(AType def, str cons, list[AType] symbols, set[Attr] attributes)
-//   to record the constructor name. Remove these as soon as possible.
-// - Consistent introduction of layout.
-
-// symbolToValue1 is a caching wrapper around symbolToValue
-
-//public AType symbolToValue(AType symbol) {
-//    if(atypeToValueCache[symbol]?){
-//        return atypeToValueCache[symbol];
-//    }
-//    res = symbolToValue1(symbol);
-//    atypeToValueCache[symbol] = res;
-//    return res;
-//}
-
-//public AType symbolToValue(AType symbol) {
-//   	
-//	// Recursively collect all the type definitions associated with a given symbol
-//	
-// 	map[AType,AProduction] definitions = collectDefs(symbol, ());
-// 	
-// 	return symbol; //type(symbol, definitions); 
-//}
-
-//@memo
-//set[AType] layoutDefs(map[AType,AProduction] prod) = {s | AType s <- prod, (layouts(_) := s || label(_,layouts(_)) := s)};
-
-//public map[AType,AProduction] collectDefs(AType symbol, map[AType,AProduction] definitions){
-//    tuple[AType symbol, map[AType,AProduction] definitions] tup = <symbol, definitions>;
-//    
-//    if(collectDefsCache[tup]?){
-//       return collectDefsCache[tup];
-//    }
-//    map[AType, AProduction] result = collectDefs1(symbol, definitions);
-//    collectDefsCache[tup] = result;
-//    return result;
-//}

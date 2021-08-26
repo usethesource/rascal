@@ -271,8 +271,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
          
          // JURGEN: TODO remove commented out code; I removed the special treatment of typeOf here
          //if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-        	//mubody = muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], params, fd@\loc);
-        	////mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
+        	//mubody = muPrim("typeOf", aadt("AType", [], dataSyntax()), [avalue()], params, fd@\loc);
+        	////mubody = muPrim("type2symbol", [ muPrim("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
          //} else {
             mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid));
         //}

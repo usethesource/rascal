@@ -89,7 +89,7 @@ set[str] javaKeywords = {
     "catch",    "extends",  "int",        "short",     "try",
     "char",     "final",    "interface",  "static",    "void",
     "class",    "finally",  "long",       "strictfp",  "volatile",
-    "const",    "float",    "native",     "super",     "while",  "null"};
+    "const",    "float",    "native",     "super",     "while",  "true", "false", "null"};
     
 
 str getJavaName(str fname, bool completeId = true){
