@@ -1,5 +1,9 @@
 module lang::rascal::tests::functionality::Accumulating
 	
+test bool testForWithNoAppend(){
+    return { for(x <- [1,2,3]) { ; } } == [];
+}
+
 test bool testForWithAppend() {
 	return {for (x <- [1,2,3]) append x; } == [1,2,3];
 }
@@ -43,12 +47,4 @@ test bool testDoWhileWithNoAppend() {
 	
 test bool testDoWhileWithAppend() {
 	return {x = 3; do { append x; x -= 1; } while (x > 0);} == [3,2,1];
-}
-
-test bool testForWithNoAppend(){
-    return { for(x <- [1,2,3]) { ; } } == [];
-}
-
-test bool testForWithAppend(){
-    return { for(x <- [1,2,3]) { append x * x; } } == [1, 4, 9];
 }
