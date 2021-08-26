@@ -28,16 +28,6 @@ test bool testNestedAppend() {
 test bool testSimpleNestedFor() {
 	return {for (_ <- [1,2,3]) append for (y <- [1,2,3]) append y; } == [[1,2,3],[1,2,3],[1,2,3]];
 }
-
-// We no longer allow dynamically scoped appends
-//test bool escapingClosureAppendToDevNull() {
-//	int() f() { for (x <- [1,2,3]) { int g() { append x; return 4; } return g; }}
-//	return f()() == 4;
-//}
-//
-//test bool testClosuresHaveAccessToLexicalScopeForAppend() {
-//	return {for (x <- [1,2,3]) { f = () { append x; }; f();}} == [1,2,3];
-//}
 		
 test bool testWhileWithNoAppend() {
 	return  {x = 3; while (x > 0) {x -= 1; }} == [];
@@ -53,4 +43,12 @@ test bool testDoWhileWithNoAppend() {
 	
 test bool testDoWhileWithAppend() {
 	return {x = 3; do { append x; x -= 1; } while (x > 0);} == [3,2,1];
+}
+
+test bool testForWithNoAppend(){
+    return { for(x <- [1,2,3]) { ; } } == [];
+}
+
+test bool testForWithAppend(){
+    return { for(x <- [1,2,3]) { append x * x; } } == [1, 4, 9];
 }
