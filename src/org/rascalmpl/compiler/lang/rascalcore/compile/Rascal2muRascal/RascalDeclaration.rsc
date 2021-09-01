@@ -19,6 +19,7 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::compile::util::Names;
+import lang::rascalcore::check::SyntaxGetters;
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
@@ -29,6 +30,8 @@ import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 import lang::rascalcore::compile::Rascal2muRascal::RascalPattern;
 import lang::rascalcore::compile::Rascal2muRascal::RascalStatement;
+
+
 
 
 /********************************************************************/
@@ -215,12 +218,24 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
   translateFunctionDeclaration(fd, [stat | stat <- body.statements], []);
 }
 
+set[TypeVar] getTypeVarsinStatements(Tree t){
+    res = {};
+    top-down-break visit(t){
+        case (Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`:
+                /* ignore type vars in closures. This is not water tight since a type parameter of the surrounding
+                  function may be used in the body of this closure */;
+        case TypeVar tv: res += tv;
+    }
+    return res;
+}
+
 private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, list[Expression] when_conditions, bool addReturn = false){
   println("r2mu: Compiling \uE007[<fd.signature.name>](<fd@\loc>)");
   
   inScope = topFunctionScope();
   funsrc = fd@\loc;
-  enterFunctionDeclaration(funsrc);
+  useTypeParams = fd has expression ? getTypeVarsinStatements(fd.expression) : (fd has body ? getTypeVarsinStatements(fd.body) : {});
+  enterFunctionDeclaration(funsrc, isEmpty(useTypeParams));
 
   try {
       ttags =  translateTags(fd.tags);
@@ -245,12 +260,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                                          muReturn1(abool(), muCon(false))));
           	return;
       }
-     
+      fname = prettyPrintName(fd.signature.name);
       ftype = getFunctionType(funsrc);
       resultType = ftype.ret;
       nformals = size(ftype.formals);
       fuid = convert2fuid(funsrc);
-           
+    
       enterFunctionScope(fuid);
       
       bool isVarArgs = ftype.varArgs;
@@ -260,39 +275,31 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       
       mubody = muBlock([]);
       if(ttags["javaClass"]?){
-         paramTypes = atuple(atypeList([param | param <- ftype.formals]));
          params = [ muVar(ftype.formals[i].label, fuid, i, ftype.formals[i]) | i <- [ 0 .. nformals] ];
-         keywordTypes = avoid();
-         
-         //TODO
-         //if(kwfs is \default) {
-         // 	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
-         //}
-         
-         // JURGEN: TODO remove commented out code; I removed the special treatment of typeOf here
-         //if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-        	//mubody = muPrim("typeOf", aadt("AType", [], dataSyntax()), [avalue()], params, fd@\loc);
-        	////mubody = muPrim("type2symbol", [ muPrim("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
-         //} else {
-            mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid));
-        //}
+         mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, params, fuid));
       } else if(!isEmpty(body)){
+            my_btscopes = getBTScopesParams([ft | ft <- fd.signature.parameters.formals.formals], fname);
             if(size(body) == 1 && addReturn){
-                mubody = translateReturn(body[0], ());
+                mubody = translateReturn(body[0], my_btscopes);
              } else {
-                mubody = muBlock([ translate(stat, ()) | stat <- body ]);
+                mubody = muBlock([ translate(stat, my_btscopes) | stat <- body ]);
              }
       }
+      
+     
+      
+      enterSignatureSection();
      
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
-      <formalVars, tbody> = translateFunction(prettyPrintName(fd.signature.name), fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
-      //if(resultType != avoid() && !ttags["javaClass"]?){
-      //  tbody = muReturn1(resultType, tbody);
-      //}
+      <formalVars, tbody> = translateFunction(fname, fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
       
-      //iprintln(tbody);
+      typeVarsInParams = getFunctionTypeParameters(ftype);
+      if(!isEmpty(useTypeParams)){
+        tbody = muBlock([muTypeParameterMap(typeVarsInParams), tbody]);
+      }
       
+      leaveSignatureSection();
       addFunctionToModule(muFunction(prettyPrintName(fd.signature.name), 
                                      fuid, 
       								 ftype,
@@ -419,20 +426,15 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      
      list[Pattern] formalsList = [f | f <- formals];
      str fuid = topFunctionScope();
-     bt = nextTmp("FUNCTION_<fname>");
      my_btscopes = getBTScopesParams(formalsList, fname);
-    // iprintln(body);
-   
-    
      
      formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), getType(formalsList[i]))
                                                                                     : muVar(pname, fuid, -i, getType(formalsList[i]))   
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];
-     
-     //iprintln(body);
+    
      when_body = returnFromFunction(body, ftype, formalVars, isMemo, addReturn=addReturn);
-     //iprintln(when_body);
+     
      if(!isEmpty(when_conditions)){
         when_body = translateAndConds((), when_conditions, when_body, muFailReturn(ftype));
      }
@@ -445,15 +447,11 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      
      funCode = removeDeadCode(funCode);
     
-     //iprintln(funCode);
      alwaysReturns = ftype.returnsViaAllPath || isVoidType(getResult(ftype));
      formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
      if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){
         funCode = muBlock([muEnter(fname, funCode), muFailReturn(ftype)]);
      }
-     //if(!isVoidType(getResult(ftype))){
-     //   funCode = muBlock([funCode, muFailReturn(ftype)]);
-     //}
       
      funCode = removeDeadCode(funCode);
 

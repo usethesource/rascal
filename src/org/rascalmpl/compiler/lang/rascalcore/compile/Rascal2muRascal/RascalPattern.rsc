@@ -821,18 +821,6 @@ MuExp translatePatAsConcreteListElem(cc: char(int c), Lookahead lookahead, AType
                    falseCont);
 }
 
-default MuExp translatePatAsConcreteListElem(Tree c, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([]), int delta=1) {
-    throw "Not implemented";
-  //return muApply(mkCallToLibFun("Library","MATCH_PAT_IN_LIST"), [translateParsedConcretePattern(c, getType(c))]);
-}
-
-// Translate an appl as element of a concrete list pattern
-
-MuExp translateApplAsConcreteListElem(p: prod(lit(str S), _, _), Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([]), int delta=1) {
-    throw "Not implemented";
- 	//return muApply(mkCallToLibFun("Library","MATCH_LIT_IN_LIST"), [muCon(p)]);
-}
- 
 default MuExp translateApplAsConcreteListElem(t:appl(Production prod, list[Tree] args), Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([]), int delta=1) {
    str fuid = topFunctionScope();
    lengthCheck = muLessNativeInt(cursor, sublen);
@@ -864,23 +852,50 @@ MuExp translatePat(p:(Pattern) `<QualifiedName name>`, AType subjectType, MuExp 
      
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])){
    trType = translateType(tp);
-   if(asubtype(subjectType, trType)){
-	   if("<name>" == "_"|| subjectAssigned){
-	      return trueCont;
-	   }
-	   ppname = prettyPrintName(name);
-	   <fuid, pos> = getVariableScope(ppname, name@\loc);
-	   var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
-	   return var == subjectExp ? trueCont : muBlock([muVarInit(var, subjectExp), trueCont]);
-   }
-   if("<name>" == "_" || subjectAssigned){
-      return muIfelse(muValueIsComparable(subjectExp, trType), trueCont, falseCont);
-   }
-   ppname = prettyPrintName(name);
-   <fuid, pos> = getVariableScope(ppname, name@\loc);
-   var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
-   return var == subjectExp ? muIfelse(muValueIsComparable(subjectExp, trType), trueCont, falseCont)
-                            : muIfelse(muValueIsComparable(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+
+   if(usingTypeParams()){
+       if(asubtype(subjectType, trType)){
+    	   if("<name>" == "_" || subjectAssigned){
+    	      return trueCont;
+    	   }
+    	   ppname = prettyPrintName(name);
+    	   <fuid, pos> = getVariableScope(ppname, name@\loc);
+    	   var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+    	   return var == subjectExp ? trueCont : muBlock([muVarInit(var, subjectExp), trueCont]);
+       }
+       if("<name>" == "_" || subjectAssigned){
+          return muIfelse(muValueIsComparable(subjectExp, trType), trueCont, falseCont);
+       }
+       ppname = prettyPrintName(name);
+       <fuid, pos> = getVariableScope(ppname, name@\loc);
+       var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+       return var == subjectExp ? muIfelse(muValueIsComparable(subjectExp, trType), trueCont, falseCont)
+                                : muIfelse(muValueIsComparable(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+    } else {
+    
+        if(inSignatureSection()){
+            if("<name>" == "_" || subjectAssigned){
+                return muIfelse(muMatchAndBind(subjectExp, trType), trueCont, falseCont);
+            }
+            ppname = prettyPrintName(name);
+            <fuid, pos> = getVariableScope(ppname, name@\loc);
+            var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+            return var == subjectExp ? muIfelse(muMatchAndBind(subjectExp, trType), trueCont, falseCont)
+                                     : muIfelse(muMatchAndBind(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+        
+        } else {
+            if("<name>" == "_" || subjectAssigned){
+                return muIfelse(muValueIsComparableWithInstantiatedType(subjectExp, trType), trueCont, falseCont);
+            }
+            ppname = prettyPrintName(name);
+            <fuid, pos> = getVariableScope(ppname, name@\loc);
+            var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+            return var == subjectExp ? muIfelse(muValueIsComparableWithInstantiatedType(subjectExp, trType), trueCont, falseCont)
+                                     : muIfelse(muValueIsComparableWithInstantiatedType(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+        }
+        
+    
+    }
 }  
 
 // ==== reified type pattern ==================================================
@@ -1634,7 +1649,7 @@ MuExp translateListPat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType,
     //iprintln(pats);
     //iprintln(btscopes);
     lpats = [pat | Pattern pat <- pats];   //TODO: should be unnnecessary
-    lookahead = computeLookahead(p);  
+    lookahead = computeLookahead(lpats);  
    
     npats = size(lpats);
     elmType = avalue();
@@ -1711,22 +1726,12 @@ default int nIter(Pattern p) { throw "Cannot determine iteration count: <p>"; }
 
 alias Lookahead = tuple[int nElem, int nMultiVar];
 
-list[Lookahead] computeLookahead((Pattern) `[<{Pattern ","}* pats>]`){
+list[Lookahead] computeLookahead(list[Pattern] pats){
     nElem = 0;
     nMultiVar = 0;
     rprops = for(Pattern p <- reverse([p | Pattern p <- pats])){
                  append <nElem, nMultiVar>;
                  if(isMultiVar(p)) nMultiVar += 1; else nElem += 1;
-             };
-    return reverse(rprops);
-}
-
-list[Lookahead] computeConcreteLookahead((Pattern) `[<{Tree ","}* pats>]`){
-    nElem = 0;
-    nMultiVar = 0;
-    rprops = for(Tree p <- reverse([p | Tree p <- pats])){
-                 append <nElem, nMultiVar>;
-                 if(isConcreteMultiVar(p)) nMultiVar += 1; else nElem += 1;
              };
     return reverse(rprops);
 }
@@ -2163,9 +2168,7 @@ value translateConcretePatternAsConstant(p:appl(prod(sort(str A), [lit(str Alit)
 value translateConcretePatternAsConstant(p:appl(regular(\iter-seps(sort(str A),[layouts(str Alayout)])), [arg])){
     translateConcretePatternAsConstant(arg);
     return p;
- }
-      
-    
+}
 
 default value translateConcretePatternAsConstant(Pattern p){
     throw "Not a constant pattern: <p>";

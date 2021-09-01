@@ -8,7 +8,7 @@ import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal2Java::Conversions;
 import lang::rascalcore::compile::util::Names;
 
-import lang::rascalcore::compile::muRascal2Java::SameJavaType;
+//import lang::rascalcore::compile::muRascal2Java::SameJavaType;
 
 import IO;
 import List;
@@ -23,11 +23,11 @@ alias Name_Arity = tuple[str name, int arity];
 // Get all functions and constructors from a given tmodel
 
 rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
-    used = {}; //range(tmodel.useDef);
-    return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> | def <- tmodel.defines, defType(tp) := def.defInfo,
-        (def.idRole == functionId() && any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))) || def.idRole == constructorId()// || def in used
-       //, !(tp has isTest && tp.isTest)
-        };
+    return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> 
+           | def <- tmodel.defines, defType(tp) := def.defInfo,
+             (def.idRole == functionId() && any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))) || def.idRole == constructorId(),
+             !(acons(AType adt, list[AType] fields, list[Keyword] kwFields) := tp && isNonTerminalType(adt))
+           };
 }
 
 bool funBeforeDefaultBeforeConstructor(Define a, Define b){

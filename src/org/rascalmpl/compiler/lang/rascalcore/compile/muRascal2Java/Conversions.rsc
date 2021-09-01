@@ -574,7 +574,8 @@ str escapeForJRegExp(str s){
 
 str inlineComment(value v){
     s = "<v>";
-    return "/*<replaceAll(s, "*/", "*\\/")>*/";
+    q = str _ := v ? "\"" : "";
+    return "/*<q><replaceAll(s, "*/", "*\\/")><q>*/";
 }
     
 /*****************************************************************************/
@@ -815,10 +816,7 @@ str atype2vtype(atypeList(list[AType] atypes), JGenie jg, bool inTest=false)
          : intercalate(", ", [refType(t, jg, inTest) | t <- atypes]);
                        
 str atype2vtype(areified(AType atype), JGenie jg, bool inTest=false) {
- //   dfs = collectNeededDefs(atype);
     return "$RTF.reifiedType(<refType(atype, jg, inTest)>)";
-  //return atype2IValue(atype, dfs);
-   // return "$reifiedAType(<atype2IValue(atype, dfs)>, <value2IValue(dfs)>)";
 }
 
 default str atype2vtype(AType t, JGenie jg, bool inTest=false) {

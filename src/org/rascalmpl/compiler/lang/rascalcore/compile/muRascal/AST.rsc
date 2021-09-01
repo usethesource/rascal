@@ -130,7 +130,6 @@ public data MuExp =
           | muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive
            
           | muCallJava(str name, str class, AType funType,
-          			   int reflect,
           			   list[MuExp] args, str enclosingFun)		// Call a Java method in given class
  
           | muReturn0()											// Return from a function without value
@@ -234,6 +233,8 @@ public data MuExp =
           | muRequireNonNegativeBound(MuExp bnd)                // Abort if exp is false
           | muEqual(MuExp exp1, MuExp exp2)    
           | muMatch(MuExp exp1, MuExp exp2)                     // equal that ignores keyword parameters
+          | muMatchAndBind(MuExp exp, AType tp)                 // match and bind type parameters
+          | muValueIsComparableWithInstantiatedType(MuExp exp, AType tp)
           
           | muHasTypeAndArity(AType atype, int arity, MuExp exp)
           | muHasNameAndArity(AType atype, AType consType, MuExp nameExp, int arity, MuExp exp)
@@ -291,6 +292,9 @@ public data MuExp =
           | muTreeAppl(MuExp prod, MuExp argList, loc src)
           | muTreeChar(int char)
           | muTreeUnparse(MuExp tree)
+          
+          // Type parameters
+          | muTypeParameterMap(set[AType] parameters)
           ;
           
  data VisitDescriptor
@@ -376,8 +380,8 @@ bool producesNativeBool(muIfExp(MuExp cond, MuExp thenExp, MuExp elseExp))
     = producesNativeBool(thenExp) && producesNativeBool(elseExp);
     
 default bool producesNativeBool(MuExp exp)
-    = getName(exp) in {"muEqual", "muMatch", "muEqualNativeInt", /*"muNotNegativeNativeInt",*/ "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
-                  "muHasNameAndArity", "muValueIsSubType", "muValueIsComparable", "muValueIsSubTypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
+    = getName(exp) in {"muEqual", "muMatch", "muMatchAndBind", "muEqualNativeInt", /*"muNotNegativeNativeInt",*/ "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
+                  "muHasNameAndArity", "muValueIsSubType", "muValueIsComparable", "muValueIsComparableWithInstantiatedType", "muValueIsSubTypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
                   "muRegExpFind",  "muIsDefinedValue", "muIsInitialized", "muHasField"};
 
 // Produces NativeInt
@@ -433,7 +437,7 @@ AType getType(muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName
     = getResultType(atype);                                                               
 AType getType(muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) 
     = result;
-AType getType(muCallJava(str name, str class, AType funType, int reflect, list[MuExp] args, str enclosingFun)) =  getResultType(funType); 
+AType getType(muCallJava(str name, str class, AType funType, list[MuExp] args, str enclosingFun)) =  getResultType(funType); 
 AType getType(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)) = alub(getType(thenPart), getType(elsePart));
 
 AType getType(muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)) = resultType;
@@ -457,6 +461,10 @@ AType getType(muTreeGetArgs(MuExp tree)) = alist(aadt("Tree", [], dataSyntax()))
 AType getType(muTreeUnparse(MuExp tree)) = astr();
 
 AType getType(muValueBlock(AType result, list[MuExp] exps)) = result;
+
+AType getType(muMatch(MuExp exp1, MuExp exp2)) = abool();
+AType getType(muMatchAndBind(MuExp exp, AType tp)) = abool();
+AType getType(muValueIsComparableWithInstantiatedType(MuExp exp, AType tp)) = abool();
 
 default AType getType(MuExp exp) = avalue();
          
@@ -1238,11 +1246,6 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                  newArgs += muInsert(tp, size(post1) == 1 ? post1[0] : muValueBlock(avalue(), post1));
             //} else if (muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor) := arg){
             //   ;  
-            //} else if(muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg){
-            //     <fl1, aux1, pre1, post1> = flattenArgs([repl]);
-            //     auxVars += aux1;
-            //     pre += pre1;
-            //     newArgs += muSetAnno(exp, resultType, annoName, size(post1) == 1? post1[0] : muValueBlock(avalue(), post1));
             } else if(muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl) := arg){
                  <fl1, aux1, pre1, post1> = flattenArgs([repl]);
                  auxVars += aux1;
@@ -1307,8 +1310,8 @@ MuExp muPrim(str op, AType result, list[AType] details, list[MuExp] args, loc sr
     = muValueBlock(result, auxVars + pre + muPrim(op, result, details, flatArgs, src))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args) && !isEmpty(pre);
 
-MuExp muCallJava(str name, str class, AType funType, int reflect, list[MuExp] args, str enclosingFun)
-    = muValueBlock(funType.ret, auxVars + pre + muCallJava(name, class, funType, reflect, flatArgs, enclosingFun))
+MuExp muCallJava(str name, str class, AType funType, list[MuExp] args, str enclosingFun)
+    = muValueBlock(funType.ret, auxVars + pre + muCallJava(name, class, funType, flatArgs, enclosingFun))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args) && !isEmpty(pre);
 
 MuExp muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)

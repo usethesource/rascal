@@ -265,7 +265,6 @@ void extractScopes(TModel tm){
     } else {
         throw "`ADTs` has incorrect format in store";
     }
-    
    
     if([lrel[AType,KeywordFormal] common] := tm.store[key_common_keyword_fields]){
         //println("Common keyword parameters");
@@ -325,13 +324,24 @@ void extractScopes(TModel tm){
     declaredIn = (d.defined : findContainer(d) | d <- defines, d.id != "type");
     declares = invert(toRel(declaredIn));
     
+    
+    // Identify "dummy" vars in function types that are to be ignored
+    set[AType] dummyVars(af: afunc(returnType, formalsList, kwformalsList)){
+        return {*formalsList1 | /af2:afunc(ret1, formalsList1, kwformalsList1) := af, af2 != af };
+    }
+    
     // Determine position of variables inside functions
-   //iprintln(functions);
+    
+    //iprintln(functions);
     for(fun <- functions){   
         fundef = definitions[fun];
+        ftype = defType(AType atype) := fundef.defInfo ? atype : avalue();
+        dummies = dummyVars(ftype);
         //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
         //println("vars_per_scope:"); iprintln(vars_per_scope);
         locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], facts[sc]? ? isFunctionType(getType(sc)) ==> sc == fun : true};
+        locally_defined = {v | v <- locally_defined, v.defInfo.atype notin dummies };
+        
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
         formals = [v | v <- vars, is_formal(v)];
         //outer_formals = [v | v <- formals, is_outer_formal(v) ];

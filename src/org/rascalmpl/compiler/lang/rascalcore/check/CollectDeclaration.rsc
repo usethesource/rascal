@@ -401,6 +401,11 @@ void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c)
     collect(statements, c);
 }
 
+//AType anonymizeFunctionTypes(AType t){
+//    res = visit (t){ case afunc(ret, formalsList, kwformalsList) => afunc(unsetRec(ret, "label"), formalsList, kwformalsList) }
+//    return res;
+//}
+
 void collect(Signature signature, Collector c){
     returnType  = signature.\type;
     parameters  = signature.parameters;

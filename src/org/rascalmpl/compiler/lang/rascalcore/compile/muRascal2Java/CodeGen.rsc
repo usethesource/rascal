@@ -26,7 +26,7 @@ import lang::rascalcore::compile::muRascal2Java::Conversions;
 import lang::rascalcore::compile::muRascal2Java::Tests;
 import lang::rascalcore::compile::muRascal2Java::Interface;
 import lang::rascalcore::compile::muRascal2Java::Resolvers;
-import lang::rascalcore::compile::muRascal2Java::SameJavaType;
+//import lang::rascalcore::compile::muRascal2Java::SameJavaType;
 
 import lang::rascalcore::compile::util::Names;
 
@@ -565,6 +565,8 @@ str trans(muConstr(AType ctype), JGenie jg){
     return "<funInstance>((<intercalate(", ", bare_formals)>) -\> { return <makeConstructorCall(ctype,  bare_formals, hasKeywordParameters(ctype) || jg.hasCommonKeywordFields(ctype) ? [kwpActuals] : [], jg)>; }, <jg.shareType(ctype)>)";
 }
 
+// ---- Tree operations -------------------------------------------------------
+
 str trans(muTreeAppl(MuExp p, MuExp argList, loc src), JGenie jg) 
   = "$RVF.appl(<trans(p, jg)>, <trans(argList, jg)>).asWithKeywordParameters().setParameter(\"src\", <jg.shareConstant(src)>)";
 
@@ -579,6 +581,15 @@ str trans(muTreeGetProduction(MuExp t), JGenie jg) = "((org.rascalmpl.values.par
 str trans(muTreeGetArgs(MuExp t), JGenie jg) = "((org.rascalmpl.values.parsetrees.ITree) <trans(t, jg)>).getArgs()";
 
 str trans(muTreeUnparse(MuExp t), JGenie jg) = "$VF.string(org.rascalmpl.values.parsetrees.TreeAdapter.yield(<trans(t, jg)>))";
+
+// ---- Type parameters ---------------------------------------------------------
+
+str trans(muTypeParameterMap(set[AType] parameters), JGenie jg){
+    return "HashMap\<io.usethesource.vallang.type.Type,io.usethesource.vallang.type.Type\> $typeBindings = new HashMap\<\>();
+           '<for(p <- parameters){>
+           '$typeBindings.put(<atype2vtype(p, jg)>, $TF.voidType());
+           '<}>";
+}
 
 str trans(c:muCompose(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType), JGenie jg){
     println(c);
@@ -776,18 +787,6 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, 
         <actuals, kwactuals> = getPositionalAndKeywordActuals(ctype, largs, kwargs, jg);
         return makeConstructorCall(ctype, actuals, kwactuals, jg);        
     }
-   
-    //if(muCon(str s) := fun){
-    //    if(map[str,value] kwmap := actuals[-1]){
-    //        actuals = getActuals(argTypes, largs, jg);
-    //        return makeNode(s, actuals[0..-1], keywordParameters = kwmap);
-    //    }
-    //    throw "muCall: kwmap, <actuals>";
-    //}
-    //if(muVar(str name, str fuid, int pos, AType atype) := fun){
-    //    <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
-    //    return "<trans(fun, jg)>(<intercalate(", ", actuals + kwactuals)>)";
-    //}
     
     all_actuals = actuals + kwactuals;
     externals = [];
@@ -1128,7 +1127,7 @@ JCode trans(muPrim(str name, AType result, list[AType] details, list[MuExp] exps
     return transPrim(name, result, details, actuals, jg);
 }
 
-JCode trans(muCallJava(str name, str class, AType funType, int reflect, list[MuExp] largs, str enclosingFun), JGenie jg){
+JCode trans(muCallJava(str name, str class, AType funType, list[MuExp] largs, str enclosingFun), JGenie jg){
     jg.addImportedLibrary(class);
   
     actuals = [ trans(arg, jg) | arg <- largs ];
@@ -1141,9 +1140,7 @@ JCode trans(muCallJava(str name, str class, AType funType, int reflect, list[MuE
             actuals += "(<atype2javatype(kwFormal.fieldType)>)(<kwpActuals>.containsKey(\"<escapedKwName>\") ? <kwpActuals>.get(\"<escapedKwName>\") : <kwpDefaultsName>.get(\"<escapedKwName>\"))";
         }
     }
-    if(reflect == 1){
-        actuals += "rex";
-    }
+    
     code = "<getClassName(class)>.<name>(<intercalate(", ", actuals)>)";
     return funType.ret == avoid() ? code : "(<atype2javatype(funType.ret)>)<code>";
 }
@@ -1722,6 +1719,10 @@ JCode trans(muEqual(MuExp exp1, MuExp exp2), JGenie jg){
     
 JCode trans(muMatch(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans(exp1, jg)>.match(<trans(exp2, jg)>)";
+    
+    
+JCode trans(muMatchAndBind(MuExp exp1, AType tp), JGenie jg)
+    = "<atype2vtype(tp, jg)>.match(<trans(exp1, jg)>.getType(), $typeBindings)";
       
 JCode trans(muEqualNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans2NativeInt(exp1, jg)> == <trans2NativeInt(exp2, jg)>";
@@ -1736,6 +1737,11 @@ JCode trans(muValueIsSubTypeOfValue(MuExp exp1, MuExp exp2), JGenie jg)
 JCode trans(muValueIsComparable(MuExp exp, AType tp), JGenie jg){
     return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
                       : "$isComparable(<trans(exp, jg)>.getType(), <jg.shareType(tp)>)";   
+} 
+
+JCode trans(muValueIsComparableWithInstantiatedType(MuExp exp, AType tp), JGenie jg){
+    return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
+                      : "$isComparable(<trans(exp, jg)>.getType(), <jg.shareType(tp)>.instantiate($typeBindings))";   
 } 
 
 JCode trans(muHasTypeAndArity(AType atype, int arity, MuExp exp), JGenie jg){
