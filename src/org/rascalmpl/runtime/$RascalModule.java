@@ -304,8 +304,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final boolean $isComparable(Type t1, Type t2) {
 		// TODO: needs improvement
-		if(t1.comparable(t2)) { 
-			return true;
+		if(t1 instanceof NonTerminalType && t1 instanceof NonTerminalType){
+			return ((NonTerminalType)t1).comparable((NonTerminalType) t2);
 		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
 			IValue arg0 = ((NonTerminalType)t1).getSymbol().get(0);
 			String t1name = arg0 instanceof IString ? ((IString) arg0).getValue() : t1.getName();
@@ -315,7 +315,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			String t2name = arg0 instanceof IString ? ((IString) arg0).getValue() : t2.getName();
 			return t1.getName().equals(t2name);
 		} else {
-			return false;
+			return t1.comparable(t2);
 		}
 	}
 	
@@ -894,7 +894,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		} else if(leftType.isNode() && rightType.isNode()){
 			return ((INode) left).equals((INode) right) ? Rascal_TRUE : Rascal_FALSE;
 		} else if(left instanceof ITree && right instanceof ITree) {
-			return $VF.bool(left.match(right)); // ignore "src" keyword parameters in trees
+			return $VF.bool(left.equals(right)); // use match to ignore "src" keyword parameters in trees
 		} else {
 			return $VF.bool(left.equals(right));
 		}

@@ -110,27 +110,6 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         definedProductions = {};
         allStarts = {};
         tm = tmodels[qualifiedModuleName];
-//        for(m <- {qualifiedModuleName, *imports, *extends}, tmodels[m]?){
-//            definitions = tmodels[m].definitions;
-//            prodLocs1 = { k | loc k <- definitions, bprintln(definitions[k]), aprod(p) := definitions[k].defInfo.atype };
-//            
-//            // filter out productions contained in priority/associativity declarations
-//            prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, isStrictlyContainedIn(k, l)) };
-//
-//            definedProductions += {<p.def, p> | loc k <- prodLocs2, aprod(p) := definitions[k].defInfo.atype };
-//            allStarts += { t | loc k <- definitions, \start(t) := definitions[k].defInfo.atype };
-//            
-//            facts = tmodels[m].facts;
-//            prodLocs1 = { k | loc k <- facts, aprod(p) := facts[k] };
-//            
-//            // filter out productions contained in priority/associativity declarations
-//            prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, isStrictlyContainedIn(k, l)) };
-//
-//            usedProductions += {<p.def, p> | loc k <- prodLocs2, aprod(p) := facts[k] };
-//            allStarts += { t | loc k <- facts, \start(t) := facts[k] };
-//        }
-//        
-//        allProductions = definedProductions + usedProductions;
         definedProductions = {};
         allStarts = {};
         tm = tmodels[qualifiedModuleName];
@@ -238,7 +217,6 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         // Construct the grammar
         
         g = grammar(allStarts, syntaxDefinitions);
-//        g = expandParameterizedNonTerminals(g, tm);
         g = layouts(g, definedLayout, allManualLayouts);
         g = expandKeywords(g);
         g.rules += (AType::empty():choice(AType::empty(), {prod(AType::empty(),[])}));
@@ -283,52 +261,3 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
     }
     return tm;
 }
-
-//AGrammar expandParameterizedNonTerminals(AGrammar grammar, TModel tm){
-//    ADTs = {};
-//    try {
-//        if([*set[AType] adts] := tm.store[key_ADTs]){
-//            ADTs = adts[0];
-//        } else {
-//            throw "`ADTs` has incorrect format in store";
-//        }
-//    } catch e: {
-//        println("<key_ADTs> not present in store");
-//        iprintln(tm);
-//        //throw "<key_ADTs> not present in store";
-//    }
-//    
-//    prods = {grammar.rules[nt] | nt <- grammar.rules};
-//    
-//    // First we collect all the parametrized definitions
-//    defs = { p | p <- prods, AType adt := unset(p.def, "label"), params := getADTTypeParameters(adt), !isEmpty(params)};
-//    result = prods - defs;
-//  
-//    // Then we collect all the uses of parameterized sorts in the other productions
-//    uses = { unset(u, "label") | /u:aadt(str name, list[AType] parameters, sr) <- result, sr != dataSyntax(), !isEmpty(parameters)};
-//    
-//    instantiated_adts  = { unset(adt, "label") | adt <- ADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p<-params, !isRascalTypeParam(p)) };
-//    
-//    uses += instantiated_adts;
-//    instantiated = {};
-//    while (uses != {}) {
-//        instances = {};
-//        for (u <- uses, def <- defs, def.def.adtName == u.adtName) {
-//           name = u.adtName;
-//           actuals = u.parameters;
-//           formals = def.def.parameters;
-//           instantiated += {u};
-//           substs = (formals[i]:actuals[i] | int i <- index(actuals) & index(formals));
-//           instances = {*instances, visit (def) {
-//                                        case AType par:\aparameter(_,_) : if(par.label?) insert substs[unset(par, "label")][label=par.label]?par;
-//                                                                          else insert substs[par]?par;
-//                                    }}; 
-//        }
-//  
-//        // now, we may have created more uses of parameterized symbols, by instantiating nested parameterized symbols
-//        uses = { s | /AType s <- instances, isADTType(s), params := getADTTypeParameters(s), !isEmpty(params), s notin instantiated};
-//        result += instances;
-//  }
-//  grammar.rules = (r.def : choice(r.def, r.alternatives) | r <- result);
-//  return grammar;
-//}

@@ -690,9 +690,15 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   	// Keyword parameters
      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(parameters);
     
+    enterSignatureSection();
     // TODO: we plan to introduce keyword patterns as formal parameters
     <formalVars, funBody> = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat, ()) | stat <- cbody]), false, []);
-    
+    typeVarsInParams = getFunctionTypeParameters(ftype);
+    if(!isEmpty(typeVarsInParams)){
+        funBody = muBlock([muTypeParameterMap(typeVarsInParams), funBody]);
+    }
+      
+    leaveSignatureSection();
     addFunctionToModule(muFunction("$CLOSURE_<uid.begin.line>A<uid.offset>", 
                                    "$CLOSURE_<uid.begin.line>A<uid.offset>", 
                                    ftype, 
@@ -871,7 +877,7 @@ private MuExp translateReducer(Expression e){
 }
 
 // -- reified type expression ---------------------------------------
-//TODO
+
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) {
     return muPrim("create_reifiedType", avalue(), [avalue(), avalue()], [translate(symbol), translate(definitions)], e@\loc);   
 }

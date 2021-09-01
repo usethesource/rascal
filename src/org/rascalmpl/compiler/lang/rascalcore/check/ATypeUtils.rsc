@@ -160,7 +160,7 @@ Symbol atype2symbol1(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [
 Symbol atype2symbol1(t: acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
- = Symbol::cons(atype2symbol(adt), t.label, [atype2symbol(f) | f <- fields]);
+ = Symbol::cons(atype2symbol(adt), t.label, [atype2symbol(f) | f <- fields]); // we loose kw fields here
 
 Symbol atype2symbol1(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2symbol(t));
 Symbol atype2symbol1(areified(AType t)) = Symbol::reified(atype2symbol(t));
@@ -1069,6 +1069,17 @@ list[AType] getFunctionArgumentTypes(AType ft) {
     throw rascalCheckerInternalError("Cannot get function arguments from non-function type, got <prettyAType(ft)>");
 }
 
+set[AType] getFunctionTypeParameters(AType ft){
+    if (af: afunc(ret, formals, kwFormals) := unwrapType(ft)){
+       return {p | /p:aparameter(_,_) := af };
+    }
+    throw rascalCheckerInternalError("Cannot get Type parameters from non-function type, got <prettyAType(ft)>");
+}
+
+set[AType] getTypeParameters(AType t){
+    return {p | /p:aparameter(_,_) := t };
+}
+
 @doc{Get a list of arguments for overloaded function/constructors}
 list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return ats;
@@ -1253,6 +1264,7 @@ bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
 bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr); // || adtName == "Tree";
 bool isNonTerminalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isNonTerminalType(adt);
 bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
+bool isNonTerminalType(AType::aprod(AProduction p)) = isNonTerminalType(p.def);
 
 //bool isNonTerminalType(AType::\iter(_)) = true;
 //bool isNonTerminalType(AType::\iter-star(_)) = true;
@@ -1262,7 +1274,7 @@ bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
 //bool isNonTerminalType(AType::\opt(_)) = true;
 //bool isNonTerminalType(AType::\alt(_)) = true;
 //bool isNonTerminalType(AType::\seq(_)) = true;
-default bool isNonTerminalType(AType _) = false;   
+default bool isNonTerminalType(AType t) = false;   
 
 bool isParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && t has parameters;
 
