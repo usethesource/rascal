@@ -13,6 +13,7 @@ env:
 
 jobs:
   builds:
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -33,19 +34,6 @@ jobs:
 
       - name: Generate tutor
         run: mvn -B -Drascal.courses=--buildCourses compile
-
-      - name: Run Tests
-        run: mvn -B -Drascal.test.memory=4 test
-
-      - uses: codecov/codecov-action@v1
-        with:
-          token: e8b4481a-d178-4148-a4ff-502906390512
-
-      - name: Publish Test Report on github action
-        if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
-        uses: scacap/action-surefire-report@v1
-        with:
-          check_name: "Test Report"
 
       - name: Attach artifact
         id: build-artifact
@@ -71,3 +59,35 @@ jobs:
           ssh-known-host: ${{ secrets.RELEASE_SSH_KNOWN_HOSTS }}
           ssh-username: ${{ secrets.RELEASE_SSH_USERNAME }}
           ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
+
+  tests:
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps: 
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run Tests
+        run: mvn -B -Drascal.compile.skip -Drascal.test.memory=4 test
+
+      - uses: codecov/codecov-action@v1
+        with:
+          token: e8b4481a-d178-4148-a4ff-502906390512
+
+      - name: Publish Test Report on github action
+        if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
+        uses: scacap/action-surefire-report@v1
+        with:
+          check_name: "Test Report - ${{ runner.os }}"
