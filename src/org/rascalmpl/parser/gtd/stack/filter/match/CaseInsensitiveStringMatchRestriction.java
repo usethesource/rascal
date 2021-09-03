@@ -47,7 +47,7 @@ public class CaseInsensitiveStringMatchRestriction implements ICompletionFilter{
 		return true;
 	}
 	
-	public boolean isEqual(ICompletionFilter otherCompletionFilter){
+	public boolean isEqual(ICompletionFilter otherCompletionFilter) {
 		if(!(otherCompletionFilter instanceof CaseInsensitiveStringMatchRestriction)) return false;
 		
 		CaseInsensitiveStringMatchRestriction otherStringMatchFilter = (CaseInsensitiveStringMatchRestriction) otherCompletionFilter;
@@ -57,10 +57,11 @@ public class CaseInsensitiveStringMatchRestriction implements ICompletionFilter{
 			return false;
 		}
 		
-		for(int i = string.length - 1; i >= 0; --i){
-			if(string[i][0] != otherString[i][0]
-			|| string[i][1] != otherString[i][1]) {
+		for (int i = string.length - 1; i >= 0; --i) {
+			if (string[i][0] != otherString[i][0] || 
+			    string[i][1] != otherString[i][1]) {
 				return false;
+			}
 		}
 		
 		return true;

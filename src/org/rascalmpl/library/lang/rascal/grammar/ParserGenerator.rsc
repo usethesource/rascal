@@ -431,9 +431,23 @@ public str literals2ints(list[Symbol] chars){
     return result;
 }
 
-// TODO
-public str ciliterals2ints(list[Symbol] _){
-    throw "case insensitive literals not yet implemented by parser generator";
+public str ciliterals2ints(list[Symbol] chars){
+    if (chars == []) { 
+      return "";
+    }
+
+    result = "";
+
+    for (\char-class(ranges) <- chars) {
+      switch (ranges) {
+        case [range(i, j)]: // can be i,i or two adjacent characters
+          result += "{<i>, <j>},";
+        case [range(int i, i), range(int j, j)]:
+          result += "{<i>, <j>},";      
+      }
+    }
+    
+    return result[..-1]; // remove final comma
 }
 
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int dot){
@@ -454,6 +468,7 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
       exits += ["new CharFollowRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRestriction(new int[] {<literals2ints(str2syms(s))>})" | \not-follow(lit(s)) <- conds];
       exits += ["new CharMatchRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
+      exits += ["new CaseInsensitiveStringMatchRestriction(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | \delete(cilit(s)) <- conds];
       exits += ["new StringMatchRestriction(new int[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
       exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
       enters += ["new CharPrecedeRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
