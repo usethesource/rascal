@@ -80,7 +80,8 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run Tests
-        run: mvn -B -Drascal.compile.skip -Drascal.test.memory=4 test
+        # single quotes to help windows deal with argument splitting
+        run: mvn -B '-Drascal.compile.skip' '-Drascal.test.memory=4' test
 
       - uses: codecov/codecov-action@v1
         with:
