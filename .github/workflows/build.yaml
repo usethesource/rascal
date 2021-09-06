@@ -64,6 +64,15 @@ jobs:
           ssh-username: ${{ secrets.RELEASE_SSH_USERNAME }}
           ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
 
+      - name: Report Failure
+        if: failure()
+        uses: act10ns/slack@v1
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+        env:
+          RASCAL_SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+
   tests:
     runs-on: ${{matrix.os}}
     strategy:
@@ -96,3 +105,12 @@ jobs:
         uses: scacap/action-surefire-report@v1
         with:
           check_name: "Test Report - ${{ runner.os }}"
+
+      - name: Report Failure
+        if: failure()
+        uses: act10ns/slack@v1
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+        env:
+          RASCAL_SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
