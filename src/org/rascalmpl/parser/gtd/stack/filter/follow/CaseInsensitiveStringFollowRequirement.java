@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2021 NWO-I CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Jurgen Vinju - Jurgen.Vinju@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.filter.follow;
 

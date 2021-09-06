@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2015 CWI
+  Copyright (c) 2009-2021 NWO-I CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -465,16 +465,20 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
       conds = expandKeywords(grammar, conds);
       exits += ["new CharFollowRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRequirement(new int[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
+      exits += ["new CaseInsensitiveStringFollowRequirement(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | follow(cilit(s)) <- conds]; 
       exits += ["new CharFollowRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRestriction(new int[] {<literals2ints(str2syms(s))>})" | \not-follow(lit(s)) <- conds];
+      exits += ["new CaseInsensitiveStringFollowRestriction(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | \not-follow(cilit(s)) <- conds]; 
       exits += ["new CharMatchRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
-      exits += ["new CaseInsensitiveStringMatchRestriction(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | \delete(cilit(s)) <- conds];
       exits += ["new StringMatchRestriction(new int[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
+      exits += ["new CaseInsensitiveStringMatchRestriction(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | \delete(cilit(s)) <- conds];
       exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
       enters += ["new CharPrecedeRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRequirement(new int[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
+      enters += ["new CaseInsensitiveStringPrecedeRequirement(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | precede(cilit(s)) <- conds]; 
       enters += ["new CharPrecedeRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRestriction(new int[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
+      enters += ["new CaseInsensitiveStringPrecedeRestriction(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | \not-precede(cilit(s)) <- conds]; 
       enters += ["new AtColumnRequirement(<i>)" | \at-column(int i) <- conds];
       enters += ["new AtStartOfLineRequirement()" | \begin-of-line() <- conds];
       
