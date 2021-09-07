@@ -10,6 +10,11 @@ import Node;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
+/*
+ *  Translate selected calls with constant arguments at compile time
+ *  See lang::rascalcore::compile::muRascal::Primitives for constant folding of muPrimitives
+ */
+
 MuExp translateConstantCall(str name, list[MuExp] args) {
 	return tcc(name, args);
 }

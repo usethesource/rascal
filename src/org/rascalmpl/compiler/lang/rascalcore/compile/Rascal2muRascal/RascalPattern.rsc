@@ -164,7 +164,7 @@ MuExp translatePat(Literal lit, AType subjectType, MuExp subject, BTSCOPES btsco
     = translateLitPat(lit, subjectType, subject, btscopes, trueCont, falseCont);
 
 MuExp translateLitPat(Literal lit, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) 
-  = muIfelse(muEqual(translate(lit), subject), trueCont, falseCont);
+  = muIfElse(muEqual(translate(lit), subject), trueCont, falseCont);
 
 // ==== regexp pattern ========================================================
 
@@ -214,7 +214,7 @@ MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* rexps>/<RegExpModifi
             muVarInit(found, muCon(true)),
             muWhileDo("", found,
                       muBlock([ muAssign(found, muRegExpFind(matcher)),
-                                muIfelse(found,
+                                muIfElse(found,
                                     muBlock([ *[ muVarInit(vars[i], muRegExpGroup(matcher, i+1)) | i <- index(vars) ],
                                               *( inStringVisit() ? [ muRegExpSetMatchedInVisit(matcher) ]
                                                                  : [] ),
@@ -411,7 +411,7 @@ BTINFO getBTInfoConcrete(t:appl(Production prod, list[Tree] args),  BTSCOPE btsc
         }
         return getBTInfo(t, btscope, btscopes);
     }
-    enterAppl = "<btscope.enter>_APPL";
+    enterAppl = /*btscope.enter; */ "<btscope.enter>_APPL";
     BTSCOPE btscopeLast = <enterAppl, btscope.resume, btscope.resume>;
     for(arg <- args){
       <btscopeLast, btscopes> = getBTInfoConcrete(arg, btscopeLast, btscopes);
@@ -440,7 +440,7 @@ MuExp translateConcretePattern(e:appl(prod(Symbol::label("typed",Symbol::lex("Co
 // ---- lit, cilit
 
 MuExp translateParsedConcretePattern(appl(prod(lit(str s),_,_), _), AType patType, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
-  = muIfelse(muEqual(muTreeUnparse(subjectExp), muCon(s)), trueCont, falseCont);
+  = muIfElse(muEqual(muTreeUnparse(subjectExp), muCon(s)), trueCont, falseCont);
   
 MuExp translateParsedConcretePattern(appl(prod(cilit(_),_,_), _), AType patType, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
 { throw "todo cilit"; }   
@@ -462,7 +462,7 @@ MuExp translateParsedConcretePattern(t:appl(prod(Symbol::label("$MetaHole", Symb
 
 MuExp translateParsedConcretePattern(t:char(int i),
                         AType patType, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
- = muIfelse(muEqual(muCon(char(i)), subject), trueCont, falseCont);                            
+ = muIfElse(muEqual(muCon(char(i)), subject), trueCont, falseCont);                            
 
 // ---- concrete lists
 
@@ -505,7 +505,7 @@ private MuExp translateParsedConcretePattern(t:appl(prod:regular(\seq(list[Symbo
                             translateParsedConcretePattern(args[i], symbol2atype(symbols[i]), getType(subject_arg), subject_arg, btscopes, body, falseCont, restore=restore)
                        ]);
    }   
-   return muIfelse(muEqual(muCon(prod), muTreeGetProduction(subject)), body, falseCont);         
+   return muIfElse(muEqual(muCon(prod), muTreeGetProduction(subject)), body, falseCont);         
 
 }
                        
@@ -528,7 +528,7 @@ default MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] 
        }
    }                    
                         
-   return muIfelse(muEqual(muCon(prod), muTreeGetProduction(subject)), body, falseCont);
+   return muIfElse(muEqual(muCon(prod), muTreeGetProduction(subject)), body, falseCont);
 }
 
 bool isConcreteHole(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole])) = true;
@@ -693,7 +693,7 @@ MuExp translateConcreteListPat(p:appl(Production prod, list[Tree] lpats), AType 
     typecheckNeeded = !asubtype(patType, subjectType);
 
     my_fail = getFail(p, btscopes);
-    trueCont = muIfelse(muGreaterEqNativeInt(cursor, sublen), trueCont, muFail((npats == 0 || char(_) := lpats[-1]) ? my_fail : getResume(lpats[-1], btscopes)));
+    trueCont = muIfElse(muGreaterEqNativeInt(cursor, sublen), trueCont, muFail((npats == 0 || char(_) := lpats[-1]) ? my_fail : getResume(lpats[-1], btscopes)));
     int i = size(lpats) - 1;
     while(i >= 0){
         trueCont = translatePatAsConcreteListElem(lpats[i], lookahead[i], subjectType, subject, sublen, cursor, i, btscopes, 
@@ -708,7 +708,7 @@ MuExp translateConcreteListPat(p:appl(Production prod, list[Tree] lpats), AType 
     size_test = precise ? muEqualNativeInt(sublen, muCon(minSize)) : muGreaterEqNativeInt(sublen, muCon(minSize));
     
     block = muBlock([ muConInit(sublen, muSize(subject, subjectType)),
-                      muIfelse(size_test, 
+                      muIfElse(size_test, 
                                trueCont,
                                falseCont
                               )
@@ -716,7 +716,7 @@ MuExp translateConcreteListPat(p:appl(Production prod, list[Tree] lpats), AType 
 
     code = muBlock([ *(subjectAssigned ? [muVarInit(subject, subjectExp)] : [muConInit(subject, subjectExp)]),   
                      muVarInit(cursor, muCon(0)), 
-                     *(typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
+                     *(typecheckNeeded ? [muIfElse( muValueIsSubtypeOf(subject, subjectType),
                                                     block
                                                     , falseCont
                                                     )]                                                  
@@ -762,7 +762,7 @@ MuExp translateMultiVarAsConcreteListElem(MuExp var, bool isDefinition, Lookahea
         minLen = nIter(atype2symbol(subjectType))*delta;
         code = muBlock([ muComment("_ case"), muConInit(startcursor, cursor), 
                          muConInit(len, muMulNativeInt(muSubNativeInt(muSubNativeInt(sublen, startcursor), muCon(lookahead.nElem)), muCon(delta))), 
-                         muIfelse(muGreaterEqNativeInt(len, muCon(minLen)),
+                         muIfElse(muGreaterEqNativeInt(len, muCon(minLen)),
                                   muBlock([ muAssign(cursor, muAddNativeInt(startcursor, len)),
                                             muEnter(enter, trueCont)
                                           ]),
@@ -776,7 +776,7 @@ MuExp translateMultiVarAsConcreteListElem(MuExp var, bool isDefinition, Lookahea
            }
            asgCursor = muBlock([ muAssign(cursor, muAddNativeInt(startcursor, len)), trueCont ]);
            if(needsCheck){
-                asgCursor =  muIf(muValueIsSubType(var, var.atype), asgCursor);
+                asgCursor =  muIf(muValueIsSubtypeOf(var, var.atype), asgCursor);
            }
            code = muBlock([ muConInit(startcursor, cursor),
                             
@@ -791,8 +791,8 @@ MuExp translateMultiVarAsConcreteListElem(MuExp var, bool isDefinition, Lookahea
            code = muBlock([ muConInit(startcursor, cursor),
                             muConInit(len, muSubNativeInt(muSubNativeInt(sublen, startcursor), muCon(lookahead.nElem))),   
                             muConInit(prevlen, muSize(var, subjectType)),
-                            muIfelse(muGreaterEqNativeInt(len, prevlen), 
-                                 muIfelse(muIsInitialized(var),
+                            muIfElse(muGreaterEqNativeInt(len, prevlen), 
+                                 muIfElse(muIsInitialized(var),
                                           muIf(muEqual(var, muSubList(subject, startcursor, prevlen)),
                                                muBlock([ muAssign(cursor, muAddNativeInt(startcursor, prevlen)),
                                                          trueCont
@@ -808,7 +808,7 @@ MuExp translateMultiVarAsConcreteListElem(MuExp var, bool isDefinition, Lookahea
         }
    }
     if(needsCheck){
-        code = muIf(muValueIsComparable(subject, var.atype), code);
+        code = muIf(muValueIsSubtypeOf(subject, var.atype), code);
     }
     return muEnter(enter, code); 
 }
@@ -816,7 +816,7 @@ MuExp translateMultiVarAsConcreteListElem(MuExp var, bool isDefinition, Lookahea
 
 MuExp translatePatAsConcreteListElem(cc: char(int c), Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([]), int delta=1) {
    //lengthCheck = muLessNativeInt(cursor, sublen);            
-   return muIfelse(muEqual(muCon(cc), muSubscript(subject, cursor)),
+   return muIfElse(muEqual(muCon(cc), muSubscript(subject, cursor)),
                    muBlock([muIncNativeInt(cursor, muCon(delta)), trueCont ]),
                    falseCont);
 }
@@ -826,7 +826,7 @@ default MuExp translateApplAsConcreteListElem(t:appl(Production prod, list[Tree]
    lengthCheck = muLessNativeInt(cursor, sublen);
    subject_elm = muTmpITree(nextTmp("subject_elm"), fuid);
    body = translateParsedConcretePattern(t, symbol2atype(prod.def), getIterElementType(subjectType), subject_elm, btscopes, trueCont, falseCont, restore=restore);                 
-   return muIfelse(lengthCheck,
+   return muIfElse(lengthCheck,
                    //muAndNativeBool(lengthCheck, muEqual(muCon(prod), muTreeGetProduction(muSubscript(subject, muCon(posInPat))))),
                    muBlock([muConInit(subject_elm, muSubscript(subject, cursor)), muIncNativeInt(cursor, muCon(delta)), body ]),
                    falseCont);
@@ -843,7 +843,7 @@ MuExp translatePat(p:(Pattern) `<QualifiedName name>`, AType subjectType, MuExp 
    if(isDefinition(name@\loc) && !subjectAssigned){
     return muBlock([muVarInit(var, subjectExp), trueCont]);
    } else {
-    return muIfelse(muIsInitialized(var), muIfelse(muMatch(var, subjectExp), trueCont, falseCont),
+    return muIfElse(muIsInitialized(var), muIfElse(muMatch(var, subjectExp), trueCont, falseCont),
                                           muBlock([ muAssign(var, subjectExp), trueCont ]));
    }
 } 
@@ -853,7 +853,7 @@ MuExp translatePat(p:(Pattern) `<QualifiedName name>`, AType subjectType, MuExp 
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])){
    trType = translateType(tp);
 
-   if(usingTypeParams()){
+   if(!usingTypeParams()){
        if(asubtype(subjectType, trType)){
     	   if("<name>" == "_" || subjectAssigned){
     	      return trueCont;
@@ -863,35 +863,36 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
     	   var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
     	   return var == subjectExp ? trueCont : muBlock([muVarInit(var, subjectExp), trueCont]);
        }
+       check = inSignatureSection() ? muValueIsComparable(subjectExp, trType) : muValueIsSubtypeOf(subjectExp, trType);
        if("<name>" == "_" || subjectAssigned){
-          return muIfelse(muValueIsComparable(subjectExp, trType), trueCont, falseCont);
+          return muIfElse(check, trueCont, falseCont);
        }
        ppname = prettyPrintName(name);
        <fuid, pos> = getVariableScope(ppname, name@\loc);
        var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
-       return var == subjectExp ? muIfelse(muValueIsComparable(subjectExp, trType), trueCont, falseCont)
-                                : muIfelse(muValueIsComparable(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+       return var == subjectExp ? muIfElse(check, trueCont, falseCont)
+                                : muIfElse(check, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
     } else {
     
         if(inSignatureSection()){
             if("<name>" == "_" || subjectAssigned){
-                return muIfelse(muMatchAndBind(subjectExp, trType), trueCont, falseCont);
+                return muIfElse(muMatchAndBind(subjectExp, trType), trueCont, falseCont);
             }
             ppname = prettyPrintName(name);
             <fuid, pos> = getVariableScope(ppname, name@\loc);
             var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
-            return var == subjectExp ? muIfelse(muMatchAndBind(subjectExp, trType), trueCont, falseCont)
-                                     : muIfelse(muMatchAndBind(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+            return var == subjectExp ? muIfElse(muMatchAndBind(subjectExp, trType), trueCont, falseCont)
+                                     : muIfElse(muMatchAndBind(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
         
         } else {
             if("<name>" == "_" || subjectAssigned){
-                return muIfelse(muValueIsComparableWithInstantiatedType(subjectExp, trType), trueCont, falseCont);
+                return muIfElse(muValueIsSubtypeOfInstantiatedType(subjectExp, trType), trueCont, falseCont);
             }
             ppname = prettyPrintName(name);
             <fuid, pos> = getVariableScope(ppname, name@\loc);
             var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
-            return var == subjectExp ? muIfelse(muValueIsComparableWithInstantiatedType(subjectExp, trType), trueCont, falseCont)
-                                     : muIfelse(muValueIsComparableWithInstantiatedType(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+            return var == subjectExp ? muIfElse(muValueIsSubtypeOfInstantiatedType(subjectExp, trType), trueCont, falseCont)
+                                     : muIfElse(muValueIsSubtypeOfInstantiatedType(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
         }
         
     
@@ -967,17 +968,17 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
         throw "Cannot get name in call pattern: <expType>";
       }
       fun_name = getUnqualifiedName(prettyPrintName(qname));
-      code = muBlock([subjectInit, muIfelse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
+      code = muBlock([subjectInit, muIfElse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
    } else if(expression is literal){ // StringConstant
       fun_name = prettyPrintName("<expression>"[1..-1]); //TODO escapes in string
-      code = muBlock([subjectInit, muIfelse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
+      code = muBlock([subjectInit, muIfElse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
     } else {
      fun_name_subject = muTmpIValue(nextTmp("fun_name_subject"), fuid, expType);
      code = muBlock([subjectInit,
-                     muIfelse(muValueIsComparable(subject, anode([])),
+                     muIfElse(muValueIsSubtypeOf(subject, anode([])),
                               muBlock([ muConInit(fun_name_subject, muPrim("get_anode_name", astr(), [anode([])], [subject], getLoc(expression))),
                                         translatePat(expression, expType, fun_name_subject, btscopes, 
-                                                     muIfelse(muHasNameAndArity(subjectType, expType, fun_name_subject, size(lpats), subject), body, falseCont),  
+                                                     muIfElse(muHasNameAndArity(subjectType, expType, fun_name_subject, size(lpats), subject), body, falseCont),  
                                                      falseCont,
                                                      subjectAssigned=false,
                                                      restore=restore)
@@ -997,8 +998,8 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
     for(kwarg <- keywordArgumentList){
         kwtype = getType(kwarg.expression);
         kwfield = "<kwarg.name>";
-        code = muIfelse(muHasKwp(subjectExp, kwfield),
-                        muIfelse(muEqual(muGetKwp(subjectExp, kwtype, kwfield), translate(kwarg.expression)), code, falseCont),
+        code = muIfElse(muHasKwp(subjectExp, kwfield),
+                        muIfElse(muEqual(muGetKwp(subjectExp, kwtype, kwfield), translate(kwarg.expression)), code, falseCont),
                         falseCont);
    }
    return code;
@@ -1121,21 +1122,21 @@ MuExp translateVarAsSetElem(MuExp var, bool isDefinition, loc patloc, bool last,
                             trueBlock
                           ]);
 	       if(needsCheck){
-    	      body = muIf(muValueIsSubType(elem, var.atype), body);
+    	      body = muIf(muValueIsSubtypeOf(elem, var.atype), body);
     	   }     
     	   code = muForAll(my_btscope.enter, elem, aset(elmType), prevSubject, body);                           
 	   } else {
 	       code = muForAll(my_btscope.enter, elem, aset(elmType), prevSubject,
-	                       muIfelse(muIsInitialized(var), muIf(muEqual(elem, var), trueBlock),
+	                       muIfElse(muIsInitialized(var), muIf(muEqual(elem, var), trueBlock),
 	                                                      muBlock([ muAssign(var, elem), trueBlock ])));
 	   }
    }
    
    //if(needsCheck){
-   //     code = muIfelse(muValueIsComparable(prevSubject, aset(var.atype)), code, muFail(getFail(patloc, btscopes)));
+   //     code = muIfElse(muValueIsSubtypeOf(prevSubject, aset(var.atype)), code, muFail(getFail(patloc, btscopes)));
   // }
    
-   return muIfelse(//last ? muEqualNativeInt(muSize(prevSubject, aset(elmType)), muCon(1)) 
+   return muIfElse(//last ? muEqualNativeInt(muSize(prevSubject, aset(elmType)), muCon(1)) 
                             muGreaterEqNativeInt(muSize(prevSubject, aset(elmType)), muCon(1)), 
                    muBlock([ code, falseCont ])
                    , falseCont
@@ -1194,7 +1195,7 @@ MuExp translateMultiVarAsSetElem(MuExp var, bool isDefinition, loc patsrc, bool 
                                   ]);
            
             if(needsCheck){
-                asgSubject =  muIf(muValueIsSubType(var, var.atype), asgSubject);
+                asgSubject =  muIf(muValueIsSubtypeOf(var, var.atype), asgSubject);
            }
             code = muBlock([ muForAll(my_btscope.enter, elem, aset(elmType), muPrim("subsets", aset(elmType), [aset(elmType)], [prevSubject], patsrc),
                                       muBlock([ muVarInit(var, elem),
@@ -1210,11 +1211,11 @@ MuExp translateMultiVarAsSetElem(MuExp var, bool isDefinition, loc patsrc, bool 
                  
             asgVar = muBlock([ muAssign(var, elem), trueBlock]);
             if(needsCheck){
-                asgVar =  muIf(muValueIsSubType(var, var.atype), asgVar);
+                asgVar =  muIf(muValueIsSubtypeOf(var, var.atype), asgVar);
             }
             code = muBlock([ muConInit(initialized, muIsInitialized(var)),
                              muForAll(my_btscope.enter, elem, aset(elmType), muPrim("subsets", aset(elmType), [aset(elmType)], [prevSubject], patsrc),
-                                      muBlock([ muIfelse(initialized, muIf(muEqual(elem, var),  trueBlock),
+                                      muBlock([ muIfElse(initialized, muIf(muEqual(elem, var),  trueBlock),
                                                                            asgVar)
                                               ])),
                              falseCont
@@ -1223,7 +1224,7 @@ MuExp translateMultiVarAsSetElem(MuExp var, bool isDefinition, loc patsrc, bool 
     }
     
     //if(needsCheck){
-    //    code = muIfelse(muValueIsComparable(prevSubject, aset(elmType)), 
+    //    code = muIfElse(muValueIsSubtypeOf(prevSubject, aset(elmType)), 
     //                    code
     //                    , falseCont//, muFail(getFail(my_btscope))
     //                );
@@ -1241,7 +1242,7 @@ default MuExp translatePatAsSetElem(Pattern p, bool last, AType elmType, MuExp s
 //TODO: take last element into account
   try {
         pcon = muCon(translatePatternAsConstant(p));
-        return muIfelse(muPrim("in", abool(), [elmType, aset(elmType)], [pcon, prevSubject], p@\loc),
+        return muIfElse(muPrim("in", abool(), [elmType, aset(elmType)], [pcon, prevSubject], p@\loc),
                         muBlock([ muConInit(subject, muPrim("delete", aset(elmType), [aset(elmType), elmType], [prevSubject, pcon], p@\loc)),
                                   trueCont ]),
                         falseCont);                            
@@ -1475,7 +1476,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
         block = setPatTrueCont;
    } else {
         block = muBlock([ muConInit(fixed, fixedParts),
-                          muIfelse(muPrim("subset", aset(elmType), [aset(elmType), aset(elmType)], [fixed, subject], p@\loc),
+                          muIfElse(muPrim("subset", aset(elmType), [aset(elmType), aset(elmType)], [fixed, subject], p@\loc),
                                    muBlock([ *(leftMostVar <= 0 ? [muAssign(subject, subject_minus_fixed)] : [muConInit(subjects[leftMostVar-1], subject)]),
                                              setPatTrueCont]),
                                    muFail(getFail(my_btscope)))
@@ -1483,7 +1484,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
    }
    //iprintln(block);
    code = muBlock([ muVarInit(subject, subjectExp),
-                    *( typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
+                    *( typecheckNeeded ? [muIfElse( muValueIsSubtypeOf(subject, subjectType),
                                                     block
                                                     , falseCont
                                                     )
@@ -1530,7 +1531,7 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType subjectType, M
         body = translatePat(lpats[i], elmTypes[i], muSubscript(subject, muCon(i)), btscopes, body, computeFail(p, lpats, i-1, btscopes, falseCont));
     }
     body = muEnter(getEnter(p, btscopes), body);
-    code = [ muConInit(subject, subjectExp), muIfelse(muHasTypeAndArity(patType, size(lpats), subject), body, falseCont)];
+    code = [ muConInit(subject, subjectExp), muIfElse(muHasTypeAndArity(patType, size(lpats), subject), body, falseCont)];
     return muBlock(code);
 }
 
@@ -1669,7 +1670,7 @@ MuExp translateListPat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType,
     typecheckNeeded = asubtype(getType(p), subjectType);
   
     //iprintln(trueCont);
-    trueCont = muIfelse(muEqualNativeInt(cursor, sublen), trueCont, muFail(getResume(lpats[-1], btscopes)));
+    trueCont = muIfElse(muEqualNativeInt(cursor, sublen), trueCont, muFail(getResume(lpats[-1], btscopes)));
     for(i <- reverse(index(lpats))){
         trueCont = translatePatAsListElem(lpats[i], lookahead[i], subjectType, subject, sublen, cursor, i, btscopes, 
                                                     trueCont, 
@@ -1683,14 +1684,14 @@ MuExp translateListPat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType,
     size_test = precise ? muEqualNativeInt(sublen, muCon(minSize)) : muGreaterEqNativeInt(sublen, muCon(minSize));
     
     block = muBlock([ muConInit(sublen, muSize(subject, alist(elmType))),
-                      muIfelse(size_test, 
+                      muIfElse(size_test, 
                                body,
                                falseCont
                               )
                     ]);
     code = muBlock([ *(subjectAssigned ? [muVarInit(subject, subjectExp)] : [muConInit(subject, subjectExp)]),   
                      muVarInit(cursor, muCon(0)), 
-                     *(typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
+                     *(typecheckNeeded ? [muIfElse( muValueIsSubtypeOf(subject, subjectType),
                                                     block
                                                     , falseCont
                                                     )]                                                  
@@ -1740,7 +1741,7 @@ str isLast(Lookahead lookahead) = lookahead.nMultiVar == 0 ? "LAST_" : "";
 
 MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([])) {
     if("<name>" == "_"){
-       return muIfelse(muLessNativeInt(cursor, sublen),
+       return muIfElse(muLessNativeInt(cursor, sublen),
                        muBlock([ muIncNativeInt(cursor, muCon(1)), 
                                  trueCont
                                ]),
@@ -1748,7 +1749,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
     }
     var = mkVar(prettyPrintName(name), name@\loc);
     if(isDefinition(name@\loc)){
-        return muIfelse(muLessNativeInt(cursor, sublen),
+        return muIfElse(muLessNativeInt(cursor, sublen),
                         muBlock([ muVarInit(var, muSubscript(subject, cursor)),
                                   muIncNativeInt(cursor, muCon(1)), 
                                   trueCont
@@ -1756,9 +1757,9 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
                        falseCont);
                   
     } else {
-        return muIfelse(muLessNativeInt(cursor, sublen),
-                        muIfelse(muIsInitialized(var), 
-                                 muIfelse(muEqual(var, muSubscript(subject, cursor)),
+        return muIfElse(muLessNativeInt(cursor, sublen),
+                        muIfElse(muIsInitialized(var), 
+                                 muIfElse(muEqual(var, muSubscript(subject, cursor)),
                                           muBlock([ muIncNativeInt(cursor, muCon(1)), 
                                                     trueCont
                                                   ]),
@@ -1779,13 +1780,13 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
         check = muAndNativeBool(lengthCheck, muValueIsComparable(muSubscript(subject, cursor), trType));
    }
    if("<name>" == "_"){
-      return muIfelse(check, muBlock([ muIncNativeInt(cursor, muCon(1)), trueCont ]),
+      return muIfElse(check, muBlock([ muIncNativeInt(cursor, muCon(1)), trueCont ]),
                              falseCont);
    } else {
        var = mkVar(prettyPrintName(name), name@\loc);
        var.atype = getType(tp);
        
-       return muIfelse(check, muBlock([ muVarInit(var, muSubscript(subject, cursor)), muIncNativeInt(cursor, muCon(1)), trueCont ]),
+       return muIfElse(check, muBlock([ muVarInit(var, muSubscript(subject, cursor)), muIncNativeInt(cursor, muCon(1)), trueCont ]),
                               falseCont);
    }
  } 
@@ -1793,7 +1794,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
 MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([])) {
     if(lit is regExp) fail;
  
-    return muIfelse(muAndNativeBool(muLessNativeInt(cursor, sublen), muEqual(translate(lit), muSubscript(subject, cursor))), 
+    return muIfElse(muAndNativeBool(muLessNativeInt(cursor, sublen), muEqual(translate(lit), muSubscript(subject, cursor))), 
                     muBlock([ muIncNativeInt(cursor, muCon(1)), 
                               trueCont
                             ]),
@@ -1853,7 +1854,7 @@ MuExp translateMultiVarAsListElem(MuExp var, bool isDefinition, Lookahead lookah
            }
            asgCursor = muBlock([ muAssign(cursor, muAddNativeInt(startcursor, len)), trueCont ]);
            if(needsCheck){
-                asgCursor =  muIf(muValueIsSubType(var, var.atype), asgCursor);
+                asgCursor =  muIf(muValueIsSubtypeOf(var, var.atype), asgCursor);
            }
            code = muBlock([ muConInit(startcursor, cursor),
                             
@@ -1868,8 +1869,8 @@ MuExp translateMultiVarAsListElem(MuExp var, bool isDefinition, Lookahead lookah
            code = muBlock([ muConInit(startcursor, cursor),
                             muConInit(len, muSubNativeInt(muSubNativeInt(sublen, startcursor), muCon(lookahead.nElem))),   
                             muConInit(prevlen, muSize(var, subjectType)),
-                            muIfelse(muGreaterEqNativeInt(len, prevlen), 
-                                 muIfelse(muIsInitialized(var),
+                            muIfElse(muGreaterEqNativeInt(len, prevlen), 
+                                 muIfElse(muIsInitialized(var),
                                           muIf(muEqual(var, muSubList(subject, startcursor, prevlen)),
                                                muBlock([ muAssign(cursor, muAddNativeInt(startcursor, prevlen)),
                                                          trueCont
@@ -1893,7 +1894,7 @@ MuExp translateMultiVarAsListElem(MuExp var, bool isDefinition, Lookahead lookah
 default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([])) {
     try {
         pcon = muCon(translatePatternAsConstant(p));
-        return muIfelse(muAndNativeBool(muLessNativeInt(cursor, sublen), muEqual(muSubscript(subject, cursor), pcon)),         
+        return muIfElse(muAndNativeBool(muLessNativeInt(cursor, sublen), muEqual(muSubscript(subject, cursor), pcon)),         
                         muBlock([ muAssign(cursor, muAddNativeInt(cursor, muCon(1))),
                                   trueCont ])
                         , falseCont // <<<<
@@ -1945,7 +1946,7 @@ BTINFO getBTInfo(p:(Pattern) `[ <Type tp> ] <Pattern argument>`,  BTSCOPE btscop
 }
 
 MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) =
-    muIfelse(muValueIsSubType(subjectExp, translateType(tp)), 
+    muIfElse(muValueIsSubtypeOf(subjectExp, translateType(tp)), 
              translatePat(argument, subjectType, subjectExp, btscopes, trueCont, falseCont, subjectAssigned=subjectAssigned, restore=restore),
              falseCont);
 
@@ -1985,7 +1986,7 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`,  AType subjectType, MuExp 
     body = translatePat(pattern, avalue(), elem, btscopes, capturedTrueCont, muFail(desc_btscope.resume), restore=restore);
 
     if(!isValueType(patType)){
-        body =  muIfelse(muValueIsComparable(elem, patType), body,  muFail(desc_btscope.resume));
+        body =  muIfElse(muValueIsSubtypeOf(elem, patType), body,  muFail(desc_btscope.resume));
     }
     
     code = muBlock([ muForAll( desc_btscope.enter, elem, aset(elmType), muDescendantMatchIterator(subjectExp, descriptor),
@@ -2085,7 +2086,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
          trPat = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont, falseCont, subjectAssigned=subjectAssigned, restore=restore);
          // TODO JURGEN: this static subtype test is not correct, the static subjecttype may be \value, but still this code should check
          // whether or not the value is accidentally the right trType!
-         return asubtype(subjectType, trType) ? trPat : muIfelse(muValueIsSubType(subjectExp, trType), trPat, falseCont);
+         return asubtype(subjectType, trType) ? trPat : muIfElse(muValueIsSubtypeOf(subjectExp, trType), trPat, falseCont);
     }
     str fuid = ""; int pos=0;           // TODO: this keeps type checker happy, why?
     <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
@@ -2096,7 +2097,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
         trueCont2 =  muValueBlock(avalue(), [ /*subjectAssigned ? muAssign(var, subjectExp) :*/ muVarInit(var, subjectExp), trueCont ]);
     } 
     trPat = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont2, falseCont, subjectAssigned=subjectAssigned, restore=restore);
-    return asubtype(subjectType, trType) ? trPat :  muIfelse(muValueIsSubType(subjectExp, trType), trPat, falseCont);
+    return asubtype(subjectType, trType) ? trPat :  muIfElse(muValueIsSubtypeOf(subjectExp, trType), trPat, falseCont);
 }
 
 MuExp translatePat(p:(Pattern) `<Concrete con>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) {

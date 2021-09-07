@@ -362,7 +362,7 @@ str getMemoCache(MuFunction fun)
 JCode trans(MuFunction fun, JGenie jg){
     //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
-    //iprintln(fun);
+    iprintln(fun);
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return "";
     
@@ -778,42 +778,42 @@ JCode trans(muGuardedGetAnno(MuExp exp, AType resultType, str annoName), JGenie 
 
 // Call/Apply/return      
 
-JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs), JGenie jg){
-
-    argTypes = getFunctionOrConstructorArgumentTypes(ftype);    
-    <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
-    
-    if(muConstr(AType ctype) := fun){
-        <actuals, kwactuals> = getPositionalAndKeywordActuals(ctype, largs, kwargs, jg);
-        return makeConstructorCall(ctype, actuals, kwactuals, jg);        
-    }
-    
-    all_actuals = actuals + kwactuals;
-    externals = [];
-    if(muFun(loc uid, _) := fun){
-        externalRefs = jg.getExternalRefs(uid);
-        if(!isEmpty(externalRefs)){
-           externals = [ varName(var, jg)| var <- externalRefs, var.pos >= 0 ];
-        }
-        
-       if(isContainedIn(uid, jg.getModuleLoc())){
-         fn = loc2muFunction[uid];
-         <actuals, kwactuals> = getPositionalAndKeywordActuals(fn, largs, kwargs, jg);
-         //if(!isEmpty(fn.scopeIn) && kwactuals == ["Util.kwpMap()"]){
-         //    all_actuals = actuals + "$kwpActuals" + externals;
-         //} else {
-            all_actuals = actuals + kwactuals + externals;
-         //}
-         return "<getJavaName(getUniqueFunctionName(fn))>(<intercalate(", ", all_actuals)>)"; // Unique or not ~ match fail checking
-       } else { 
-            all_actuals = actuals + kwactuals + externals;
-            call_code = "<jg.getAccessor([uid])>(<intercalate(", ", all_actuals)>)";
-            return call_code;
-       }
-    }
-    
-    throw "muCall: <fun>";
-}
+//JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs), JGenie jg){
+//
+//    argTypes = getFunctionOrConstructorArgumentTypes(ftype);    
+//    <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
+//    
+//    if(muConstr(AType ctype) := fun){
+//        <actuals, kwactuals> = getPositionalAndKeywordActuals(ctype, largs, kwargs, jg);
+//        return makeConstructorCall(ctype, actuals, kwactuals, jg);        
+//    }
+//    
+//    all_actuals = actuals + kwactuals;
+//    externals = [];
+//    if(muFun(loc uid, _) := fun){
+//        externalRefs = jg.getExternalRefs(uid);
+//        if(!isEmpty(externalRefs)){
+//           externals = [ varName(var, jg)| var <- externalRefs, var.pos >= 0 ];
+//        }
+//        
+//       if(isContainedIn(uid, jg.getModuleLoc())){
+//         fn = loc2muFunction[uid];
+//         <actuals, kwactuals> = getPositionalAndKeywordActuals(fn, largs, kwargs, jg);
+//         //if(!isEmpty(fn.scopeIn) && kwactuals == ["Util.kwpMap()"]){
+//         //    all_actuals = actuals + "$kwpActuals" + externals;
+//         //} else {
+//            all_actuals = actuals + kwactuals + externals;
+//         //}
+//         return "<getJavaName(getUniqueFunctionName(fn))>(<intercalate(", ", all_actuals)>)"; // Unique or not ~ match fail checking
+//       } else { 
+//            all_actuals = actuals + kwactuals + externals;
+//            call_code = "<jg.getAccessor([uid])>(<intercalate(", ", all_actuals)>)";
+//            return call_code;
+//       }
+//    }
+//    
+//    throw "muCall: <fun>";
+//}
 
 // ---- muOCall --------------------------------------------------------------
 
@@ -918,21 +918,34 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
 //println("muOCall((<fun>, <ftype>, ..., <src>");
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     actuals = getActuals(argTypes, largs, jg);
-    if(muOFun(list[loc] srcs, AType _) := fun){
-        if(hasKeywordParameters(ftype)){
-            actuals += getKwpActuals(ftype has kwFields ? ftype.kwFields : getFunctionOrConstructorKeywords(ftype), kwargs, jg);
-        }
+    if(muOFun(list[loc] srcs, AType _) := fun){   
+        kwactuals = hasKeywordParameters(ftype) ? getKwpActuals(ftype has kwFields ? ftype.kwFields : getFunctionOrConstructorKeywords(ftype), kwargs, jg) : [];
         externalRefs = { *jg.getExternalRefs(fsrc) | fsrc <- srcs };
-        actuals += [ varName(var, jg) | var <- sort(externalRefs), jtype := atype2javatype(var.atype)];
-        return "<jg.getAccessor(srcs)>(<intercalate(", ", actuals)>)";
+        externals = [ varName(var, jg) | var <- sort(externalRefs), jtype := atype2javatype(var.atype)];
+        return "<jg.getAccessor(srcs)>(<intercalate(", ", actuals + kwactuals + externals)>)";
     }
     
     if(muFun(loc uid, _) := fun){
-        return "<jg.getAccessor([uid])>(<intercalate(", ", actuals)>)";
+        <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
+        externalRefs = jg.getExternalRefs(uid);
+        externals = [ varName(var, jg) | var <- sort(externalRefs), jtype := atype2javatype(var.atype)];
+        
+        if(isContainedIn(uid, jg.getModuleLoc())){
+            fn = loc2muFunction[uid];
+            <actuals, kwactuals> = getPositionalAndKeywordActuals(fn, largs, kwargs, jg);
+            return "<getJavaName(isEmpty(fn.scopeIn) ? getFunctionName(fn) : getUniqueFunctionName(fn))>(<intercalate(", ", actuals + kwactuals + externals)>)"; // Unique or not ~ match fail checking
+       } else {
+            return "<jg.getAccessor([uid])>(<intercalate(", ", actuals + kwactuals + externals)>)";
+       }
     }
-    if(muCon(str s) := fun){
-        return "$VF.node(<intercalate(", ", actuals)>)";
+    
+    if(muConstr(AType ctype) := fun){
+        <actuals, kwactuals> = getPositionalAndKeywordActuals(ctype, largs, kwargs, jg);
+        return makeConstructorCall(ctype, actuals, kwactuals, jg);        
     }
+    //if(muCon(str s) := fun){
+    //    return "$VF.node(<intercalate(", ", actuals)>)";
+    //}
     
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
     if(muComposedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType) := fun){
@@ -1293,7 +1306,7 @@ JCode trans(muInsert(AType atype, MuExp exp), JGenie jg)
 
 // Assignment, If and While
 
-JCode trans(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
+JCode trans(muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
     return "if(<trans2NativeBool(cond, jg)>){
            '   <trans2Void(thenPart, jg)>
            '} else {
@@ -1326,17 +1339,17 @@ JCode trans(muIf(MuExp cond, MuExp thenPart), JGenie jg){
             '}\n";
 }
 
-JCode trans(muIfEqualOrAssign(MuExp var, MuExp other, MuExp body), JGenie jg){
-    return "if(<trans(var, jg)> == null){
-           '    <trans(muAssign(var, other), jg)>
-           '    <trans(body, jg)>
-           '} else {
-           '    <trans(muAssign(var, other), jg)>
-           '    if(<trans(var, jg)>.equals(<trans(other, jg)>)){
-           '       <trans(body, jg)>
-           '    }
-           '}\n";
-}
+//JCode trans(muIfEqualOrAssign(MuExp var, MuExp other, MuExp body), JGenie jg){
+//    return "if(<trans(var, jg)> == null){
+//           '    <trans(muAssign(var, other), jg)>
+//           '    <trans(body, jg)>
+//           '} else {
+//           '    <trans(muAssign(var, other), jg)>
+//           '    if(<trans(var, jg)>.equals(<trans(other, jg)>)){
+//           '       <trans(body, jg)>
+//           '    }
+//           '}\n";
+//}
 
 JCode trans(muWhileDo(str label, MuExp cond, MuExp body), JGenie jg){
     cond_code = trans2NativeBool(cond, jg);
@@ -1631,9 +1644,9 @@ JCode trans(muThrow(muTmpNative(str name, str fuid, nativeException()), loc src)
     return "throw <name>;";
 }
 
-JCode trans(muBuiltinRuntimeExceptionThrow(str exceptionName, list[MuExp] args), JGenie jg){
-    return "throw RuntimeExceptionFactory.<exceptionName>(<intercalate(",", [trans(arg, jg) | arg <- args])>);";
-}
+//JCode trans(muBuiltinRuntimeExceptionThrow(str exceptionName, list[MuExp] args), JGenie jg){
+//    return "throw RuntimeExceptionFactory.<exceptionName>(<intercalate(",", [trans(arg, jg) | arg <- args])>);";
+//}
 
 default JCode trans(muThrow(MuExp exp, loc src), JGenie jg){
     return "throw new Throw(<trans(exp, jg)>);";
@@ -1727,19 +1740,24 @@ JCode trans(muMatchAndBind(MuExp exp1, AType tp), JGenie jg)
 JCode trans(muEqualNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans2NativeInt(exp1, jg)> == <trans2NativeInt(exp2, jg)>";
     
-JCode trans(muValueIsSubType(MuExp exp, AType tp), JGenie jg){
+JCode trans(muValueIsSubtypeOf(MuExp exp, AType tp), JGenie jg){
     return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
-                      : "<trans(exp, jg)>.getType().isSubtypeOf(<jg.shareType(tp)>)";
+                      : "$isSubtypeOf(<trans(exp, jg)>.getType(),<jg.shareType(tp)>)";
 }
-JCode trans(muValueIsSubTypeOfValue(MuExp exp1, MuExp exp2), JGenie jg)
-    ="<trans(exp1, jg)>.getType().isSubtypeOf(<trans(exp2, jg)>.getType())";
+JCode trans(muValueIsSubtypeOfValue(MuExp exp1, MuExp exp2), JGenie jg)
+    ="$isSubtypeOf(<trans(exp1, jg)>.getType(),<trans(exp2, jg)>.getType())";
 
-JCode trans(muValueIsComparable(MuExp exp, AType tp), JGenie jg){
+JCode trans(muValueIsSubtypeOfInstantiatedType(MuExp exp, AType tp), JGenie jg){ 
+    return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
+                      : "$isSubtypeOf(<trans(exp, jg)>.getType(),<jg.shareType(tp)>.instantiate($typeBindings))";   
+} 
+
+JCode trans(m:muValueIsComparable(MuExp exp, AType tp), JGenie jg){
     return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
                       : "$isComparable(<trans(exp, jg)>.getType(), <jg.shareType(tp)>)";   
 } 
 
-JCode trans(muValueIsComparableWithInstantiatedType(MuExp exp, AType tp), JGenie jg){
+JCode trans(muValueIsComparableWithInstantiatedType(MuExp exp, AType tp), JGenie jg){ 
     return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
                       : "$isComparable(<trans(exp, jg)>.getType(), <jg.shareType(tp)>.instantiate($typeBindings))";   
 } 
@@ -1798,6 +1816,9 @@ JCode trans(muSize(MuExp exp, atype:\iter-star(_)), JGenie jg)
     = "<transWithCast(atype, exp, jg)>.getArgs().length()";
     
 JCode trans(muSize(MuExp exp, atype:\iter-star-seps(_,_)), JGenie jg)
+    = "<transWithCast(atype, exp, jg)>.getArgs().length()";
+    
+JCode trans(muSize(MuExp exp, atype:\opt(_)), JGenie jg)
     = "<transWithCast(atype, exp, jg)>.getArgs().length()";
  
 default JCode trans(muSize(MuExp exp, AType atype), JGenie jg){

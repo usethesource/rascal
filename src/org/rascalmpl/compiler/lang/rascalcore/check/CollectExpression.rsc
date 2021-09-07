@@ -854,26 +854,6 @@ private AType computeReturnType(Expression current, loc scope, AType retType, li
     return anode(computeExpressionKwArgs(keywordArgumentsExp, scope, s));
 }
 
-//private AType computeExpressionNodeTypeWithKwArgs(Tree current, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, list[AType] fields, loc scope, Solver s){
-//    if(keywordArgumentsExp is none) return anode([]);
-//                       
-//    nodeFieldTypes = [];
-//    nextKW:
-//       for(ft <- fields){
-//           fn = ft.label;
-//           for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
-//               kwName = prettyPrintName(kwa.name);
-//               if(kwName == fn){
-//                  kwType = s.getType(kwa.expression); //getPatternType(kwa.expression,ft, scope, s);
-//                  s.requireUnify(ft, kwType, error(current, "Cannot determine type of field %q", fn));
-//                  nodeFieldTypes += ft;
-//                  continue nextKW;
-//               }
-//           }    
-//       }
-//       return anode(nodeFieldTypes); 
-//}
-
 private list[AType] computeExpressionKwArgs((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, loc scope, Solver s){
     if(keywordArgumentsExp is none) return [];
  
@@ -883,16 +863,6 @@ private list[AType] computeExpressionKwArgs((KeywordArguments[Expression]) `<Key
                 append kwType[label=kwName];
             }  
 }
-
-//private list[AType] computePatternKwArgs((KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, loc scope, Solver s){
-//    if(keywordArgumentsPat is none) return [];
-// 
-//    return for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
-//                kwName = prettyPrintName(kwa.name);
-//                kwType = getPatternType(kwa.expression, avalue(), scope, s);
-//                append kwType[label=kwName];
-//            }
-//}
 
 // ---- tuple
 
