@@ -28,9 +28,9 @@ public class Template {
 		else if (v.getType().isSubtypeOf(RascalValueFactory.Type)) {
 			b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) v).get("symbol"), false));
 		}
-//		else if (v.getType().isString()) {
-//			b.append((IString) v);
-//		} 
+		else if (v.getType().isString()) {
+			b.append(((IString) v).getValue());
+		} 
 		else {
 			b.append(v.toString());
 		}

@@ -28,6 +28,8 @@ import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -302,21 +304,289 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return w.done();
 	}
 	
+//	public final boolean $isComparable(Type t1, Type t2) {
+//		// TODO: needs improvement
+//		if(t1.comparable(t2)) {
+//			return true;
+//		} else if(t1 instanceof NonTerminalType && t2 instanceof NonTerminalType) {
+//			return ((NonTerminalType)t1).comparable(t2);
+//		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
+//			IValue arg0 = ((NonTerminalType)t1).getSymbol().get(0);
+//			String t1name = arg0 instanceof IString ? ((IString) arg0).getValue() : t1.getName();
+//			return t1name.equals(t2.getName());
+//		} else if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
+//			IValue arg0 = ((NonTerminalType)t2).getSymbol().get(0);
+//			String t2name = arg0 instanceof IString ? ((IString) arg0).getValue() : t2.getName();
+//			return t1.getName().equals(t2name);
+//		} else {
+//			return false;
+//		}
+//	}
+//	
+//	public final boolean $isSubtypeOf(Type t1, Type t2) {
+//		// TODO: needs improvement
+//		if( t1.isSubtypeOf(t2)) {
+//			return true;
+//		} else if(t1 instanceof NonTerminalType && t2 instanceof NonTerminalType) {
+//			return ((NonTerminalType)t1).isSubtypeOf(t2);
+//		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
+//			IValue arg0 = ((NonTerminalType)t1).getSymbol().get(0);
+//			String t1name = arg0 instanceof IString ? ((IString) arg0).getValue() : t1.getName();
+//			return t1name.equals(t2.getName());
+//		} else if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
+//			IValue arg0 = ((NonTerminalType)t2).getSymbol().get(0);
+//			String t2name = arg0 instanceof IString ? ((IString) arg0).getValue() : t2.getName();
+//			return t1.getName().equals(t2name);
+//		} else {
+//			return false;
+//		}
+//	}
+	
 	public final boolean $isComparable(Type t1, Type t2) {
-		// TODO: needs improvement
-		if(t1 instanceof NonTerminalType && t1 instanceof NonTerminalType){
-			return ((NonTerminalType)t1).comparable((NonTerminalType) t2);
-		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
-			IValue arg0 = ((NonTerminalType)t1).getSymbol().get(0);
-			String t1name = arg0 instanceof IString ? ((IString) arg0).getValue() : t1.getName();
-			return t1name.equals(t2.getName());
-		} if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
-			IValue arg0 = ((NonTerminalType)t2).getSymbol().get(0);
-			String t2name = arg0 instanceof IString ? ((IString) arg0).getValue() : t2.getName();
-			return t1.getName().equals(t2name);
-		} else {
-			return t1.comparable(t2);
+		return $isSubtypeOf(t1, t2) || $isSubtypeOf(t2, t1);
+	}
+	
+	private final boolean checkRightValueOrParam(Type left, Type right) {
+		if(right.isTop()) {
+			return true;
 		}
+		if(right.isParameter()) {
+			return $isSubtypeOf(left, right.getBound());
+		}
+		return false;
+	}
+	
+	//TODO: consider caching this method
+	
+	public final boolean $isSubtypeOf(Type left, Type right) {
+		
+		boolean res = left.accept(new DefaultRascalTypeVisitor<IBool,RuntimeException>(Rascal_FALSE) {
+			
+			@Override
+			public IBool visitInteger(Type type) throws RuntimeException {
+				if(right.isInteger() || (right.isNumber() && !(right.isReal() || right.isRational()))) {
+					return Rascal_TRUE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+			
+			@Override
+			public IBool visitReal(Type type) throws RuntimeException {
+				if(right.isReal()|| (right.isNumber() && !(right.isInteger() || right.isRational()))) {
+					return Rascal_TRUE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+			
+			@Override
+			public IBool visitRational(Type type) throws RuntimeException {
+				if(right.isRational() || (right.isNumber() && !(right.isInteger() || right.isReal()))) {
+					return Rascal_TRUE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+			
+			@Override
+			public IBool visitNumber(Type type) throws RuntimeException {
+				if(right.isNumber()) {
+					return Rascal_TRUE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+			
+			@Override
+			public IBool visitList(Type type) throws RuntimeException {
+				if(right.isList()) {
+					return $isSubtypeOf(left.getElementType(), right.getElementType()) || right.isTop() ? Rascal_TRUE : Rascal_FALSE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+
+			@Override
+			public IBool visitMap(Type type) throws RuntimeException {
+				if(right.isMap()) {
+					return $isSubtypeOf(type.getKeyType(), right.getKeyType()) && $isSubtypeOf(type.getValueType(), right.getValueType()) ? Rascal_TRUE : Rascal_FALSE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+
+			@Override
+			public IBool visitSet(Type type) throws RuntimeException {
+				if(right.isSet()) {
+					return $isSubtypeOf(left.getElementType(), right.getElementType()) ? Rascal_TRUE : Rascal_FALSE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+
+			@Override
+			public IBool visitSourceLocation(Type type) throws RuntimeException {
+				if(right.isSourceLocation()) {
+					return Rascal_TRUE;		
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+
+			@Override
+			public IBool visitString(Type type) throws RuntimeException {
+				if(type.isBottom()) {
+					return Rascal_TRUE;
+				}
+				if(right.isString()) {
+					return Rascal_TRUE;	
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+			
+			@Override
+			public IBool visitVoid(Type type) throws RuntimeException {
+				return Rascal_TRUE;
+			}
+			
+			@Override
+			public IBool visitValue(Type type) throws RuntimeException {
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+
+			@Override
+			public IBool visitNode(Type type) throws RuntimeException {
+				if(right.isNode()){
+					return Rascal_TRUE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+
+			@Override
+			public IBool visitConstructor(Type type) throws RuntimeException {
+				if(right.isNode()) {
+					return Rascal_TRUE;
+				}
+				if(right.isConstructor()) {
+					if(type.getAbstractDataType() == right.getAbstractDataType() && type.getName() == right.getName()) {
+						int left_arity = type.getArity();
+						if(left_arity == right.getArity()) {
+							for(int i = 0; i < left_arity; i++) {
+								if(!$isSubtypeOf(type.getFieldType(i), right.getFieldType(i))) {
+									return Rascal_FALSE;
+								}
+							}
+							return Rascal_TRUE;
+						}
+					}
+				}
+				if(right.isAbstractData()) {
+					return type.getAbstractDataType() == right ? Rascal_TRUE : Rascal_FALSE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+
+			@Override
+			public IBool visitAbstractData(Type type) throws RuntimeException {
+				//TODO: parameters
+				if(right instanceof NonTerminalType) {
+					IConstructor symbol = ((NonTerminalType)right).getSymbol();
+					boolean named_sym = SymbolAdapter.isSort(symbol) || SymbolAdapter.isLex(symbol) || SymbolAdapter.isLayouts(symbol) || SymbolAdapter.isKeyword(symbol);
+					return named_sym && type.getName().equals(((IString)symbol.get(0)).getValue()) ? Rascal_TRUE : Rascal_FALSE;
+				}
+				if(right.isAbstractData()) {
+					return type.getName().equals(right.getName()) ? Rascal_TRUE : Rascal_FALSE;
+				}
+				if(right.isNode()){
+					return Rascal_TRUE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+			
+			@Override
+			public IBool visitTuple(Type type) throws RuntimeException {
+				if(right.isTuple()) {
+					int left_arity = type.getArity();
+					if(left_arity == right.getArity()) {
+						for(int i = 0; i < left_arity; i++) {
+							if(!$isSubtypeOf(type.getFieldType(i), right.getFieldType(i))) {
+								return Rascal_FALSE;
+							}
+						}
+						return Rascal_TRUE;
+					}
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+
+			@Override
+			public IBool visitBool(Type type) throws RuntimeException {
+				if(right.isBool()) {
+					return Rascal_TRUE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+		
+			@Override
+			public IBool visitDateTime(Type type) throws RuntimeException {
+				if(right.isDateTime()) {
+					return Rascal_TRUE;
+				}
+				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			}
+			
+			 @Override
+			  public IBool visitParameter(Type type) throws RuntimeException {
+				 if(right.isParameter()) {
+					 return $isSubtypeOf(type.getBound(), right.getBound())? Rascal_TRUE : Rascal_FALSE;
+				 }
+				 return $isSubtypeOf(type.getBound(), right)? Rascal_TRUE : Rascal_FALSE;
+			  }
+			
+			@Override
+			  public IBool visitExternal(Type type) throws RuntimeException {
+			    assert type instanceof RascalType;
+			    return ((RascalType) type).accept(this);
+			  }
+			  
+			  @Override
+			  public IBool visitReified(RascalType type) throws RuntimeException {
+			    if(right instanceof ReifiedType) {
+			    	//TODO
+			    	return Rascal_TRUE;
+			    }
+			    return right.isTop() ? Rascal_TRUE : Rascal_FALSE;
+			  }
+
+			  @Override
+			  public IBool visitNonTerminal(RascalType type) throws RuntimeException {
+				  //TODO: parameters
+				  if(right instanceof NonTerminalType) {
+					  return ((NonTerminalType)type).isSubtypeOfNonTerminal((NonTerminalType) right)? Rascal_TRUE : Rascal_FALSE;
+					  //return ((NonTerminalType)type).getSymbol().equals(((NonTerminalType) right).getSymbol()) ? Rascal_TRUE : Rascal_FALSE;
+				  }
+				  if(right.isAbstractData()) {
+					  if(right.getName().equals("Tree")) {
+						  return Rascal_TRUE;
+					  }
+					  IConstructor symbol = ((NonTerminalType)type).getSymbol();
+					  boolean named_sym = SymbolAdapter.isSort(symbol) || SymbolAdapter.isLex(symbol) || SymbolAdapter.isLayouts(symbol) || SymbolAdapter.isKeyword(symbol);
+					  return named_sym && (((IString)symbol.get(0)).getValue().equals(right.getName())) ? Rascal_TRUE : Rascal_FALSE;
+				  }
+				  if(right.isNode()) {
+					  return Rascal_TRUE;
+				  }
+				  return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			  }
+			  
+			  @Override
+			  public IBool visitFunction(Type type) throws RuntimeException {
+				  if(right.isFunction()) {
+					  Type left_return = type.getReturnType();
+					  Type right_return = right.getReturnType();
+					  Type left_arg_types = type.getFieldTypes();
+					  Type right_arg_types = right.getFieldTypes();
+					  return $isSubtypeOf(left_return, right_return) && $isSubtypeOf(left_arg_types, right_arg_types) ? Rascal_TRUE : Rascal_FALSE;
+				  }
+				  return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
+			  }
+			  
+			}).getValue();
+		System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
+		return res;
 	}
 	
 	public IList readBinaryConstantsFile(String path) {
@@ -951,7 +1221,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-			return TreeAdapter.getLabeledField((ITree) cons, fieldName).tree;
+			ITree res = TreeAdapter.getLabeledField((ITree) cons, fieldName).tree;
+			return res;
 		}
 		
 		throw RuntimeExceptionFactory.noSuchField(fieldName);

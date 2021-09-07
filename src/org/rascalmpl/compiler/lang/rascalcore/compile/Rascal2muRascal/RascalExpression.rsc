@@ -121,58 +121,16 @@ private MuExp translateAddFunction(Expression e){
   rhsCall = muOCall(rhsReceiver, rhsType, ractuals, [], e.rhs@\loc);
   
   body = muReturnFirstSucceeds(["$<i>" | int i <- [0 .. nargs]], [muReturn1(resType, lhsCall), muReturn1(resType, rhsCall)]);
-               
-  //body = muBlock([
-  //          muConInit(result, lhsCall),
-  //          muIf(muIsInitialized(result), muReturn1(resType, result)),
-  //          muReturn1(resType, rhsCall)
-  //          ]);
  
   leaveFunctionScope();
   funType = afunc(resType, lhsFormals, []);
   fun = muFunction(add_name, add_name, funType, lactuals, [], scopeId, false, false, false, getExternalRefs(body, add_fuid), {}, {}, e@\loc, [], (), body);
-  //iprintln(fun);
   loc uid = declareGeneratedFunction(add_name, add_fuid, funType, e@\loc);
   addFunctionToModule(fun);  
   addDefineAndType(<currentFunctionDeclaration(), add_name, functionId(), e@\loc, defType(funType)>, funType);
  
   return muOFun([uid], funType);
 }
-
-//private MuExp translateAddFunction(Expression e){
-//  lhsType = getType(e.lhs);
-//  rhsType = getType(e.rhs);
-//  resType = getType(e);
-//
-//  MuExp lhsReceiver = translate(e.lhs);
-//  
-//  lhsOFunctions = lhsOConstructors = [];
-//  if(muFun(loc src, AType tp) := lhsReceiver){
-//    lhsOFunctions = [src];
-//  } else if(muOFun(str resolverName, AType tp) := lhsReceiver){
-//    lhsOf = getOverloadedFunction(resolverName);
-//    lhsOFunctions = lhsOf.ofunctions;
-//    lhsOConstructors = lhsOf.oconstructors;
-//  }
-// 
-//  MuExp rhsReceiver = translate(e.rhs);
-//  
-//  rhsOFunctions = rhsOConstructors = [];
-//  if(muFun(loc src, AType tp) := rhsReceiver){
-//    rhsOFunctions = [src];
-//  } else if(muOFun(str resolverName, AType tp) := rhsReceiver){
-//    rhsOf = getOverloadedFunction(resolverName);
-//    rhsOFunctions = rhsOf.ofunctions;
-//    rhsOConstructors = rhsOf.oconstructors;
-//  }
-// 
-//  str addResolverName = "$<getFunctionName(lhsType)>_ADD_<getFunctionName(rhsType)>_<e@\loc.begin.line>A<e@\loc.offset>L<e@\loc.length>";  // name of addition
-// 
-//  OFUN addOFun = <addResolverName, lhsType, addResolverName, lhsOFunctions + rhsOFunctions, lhsOConstructors + rhsOConstructors>; // add all alternatives
-// 
-//  addOverloadedFunctionAndResolver(addResolverName, addOFun); 
-//  return muOFun(addResolverName, resType);
-//}
 
 
 MuExp comparison(str op, Expression e)
@@ -888,32 +846,22 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    lrel[str,MuExp] kwargs = translateKeywordArguments(keywordArguments);
    ftype = getType(expression); // Get the type of a receiver
    MuExp receiver = translate(expression);
-   //println("receiver: <receiver>");
    list[MuExp] args = [ translate(a) | Expression a <- arguments ];
-   
-   if(getOuterType(expression) == "astr"){
+   exp_type = getOuterType(expression);
+   if(exp_type == "astr"){
    		return muPrim("create_node", getType(e), [ getType(arg) | arg <- arguments ], [receiver, *args, muKwpActuals(kwargs)], e@\loc);
    }
   
-   if(getOuterType(expression) == "aloc"){
+   if(exp_type == "aloc"){
        return muPrim(size(args) == 2 ? "create_loc_with_offset" : "create_loc_with_offset_and_begin_end", aloc(), [aloc()], [receiver, *args], e@\loc);
-   }
-   if(muFun(_,_) := receiver || muConstr(AType _) := receiver) {
-        str fname = unescape("<expression>");
-        try {
-            return translateConstantCall(fname, args);
-        } 
-        catch "NotConstant":  /* pass */;
-   
-        return muCall(receiver, ftype, args, kwargs);
    }
        
    if(!isOverloadedAType(ftype)){
    		str fname = unescape("<expression>");
    		try {
-   			return translateConstantCall(fname, args);
+   			return translateConstantCall(fname, args); //TODO: kwargs?
    		} 
-   		catch "NotConstant":  /* pass */;
+   		catch "NotConstant":  /* not a constant, generate an ordinary call instead */;
    }
    return muOCall(receiver, ftype, args, kwargs, e@\loc);
 }
@@ -1736,7 +1684,7 @@ MuExp translateBool(e:(Expression) `<Pattern pat> !:= <Expression exp>`, BTSCOPE
 
 BTINFO getBTInfo(e:(Expression) `<Pattern pat> \<- <Expression exp>`, BTSCOPE btscope, BTSCOPES btscopes){
     <btscope_exp, btscopes> = getBTInfo(exp, btscope, btscopes);
-    <btscope_pat, btscopes> = getBTInfo(pat, "<btscope.enter>_GEN", btscopes);
+    <btscope_pat, btscopes> = getBTInfo(pat, isOptType(getType(exp)) ? btscope.enter : "<btscope.enter>_GEN", btscopes);
     return registerBTScope(e, btscope_pat, btscopes);
 }
     
@@ -1773,6 +1721,24 @@ MuExp translateGenerator(Pattern pat, Expression exp, BTSCOPES btscopes, MuExp t
                          muConInit(lastVar, muSubNativeInt(muSize(expVar, expType), muCon(1))),
                          muForRangeInt(enterGen, ivar, 0, delta, lastVar, body)
                        ]);
+    } else
+    if(isOptType(expType)){
+        delta = 1;
+        expVar = muTmpIValue(nextTmp("exp"), fuid, expType);
+        lastVar = muTmpInt(nextTmp("last"), fuid);
+        ivar = muTmpInt(nextTmp("i"), fuid);
+        body = muBlock([ muConInit(elem, muSubscript(expVar, ivar)),
+                         translatePat(pat, elemType, elem, btscopes, trueCont, muFail(resumeGen))
+                       ]);
+        code = muBlock([ muConInit(expVar, translate(exp)),
+                         muConInit(lastVar, muSubNativeInt(muSize(expVar, expType), muCon(1))),
+                         muForRangeInt(enterGen, ivar, 0, delta, lastVar, body)
+                       ]);
+        //expVar = muTmpIValue(nextTmp("exp"), fuid, expType);
+        //code = muBlock([ muConInit(expVar, translate(exp)),
+        //                 muIfElse(muEqualNativeInt(muSize(expVar, expType), muCon(1)), translatePat(pat, elemType,  muSubscript(expVar, muCon(0)), btscopes, trueCont, falseCont), falseCont)
+        //               ]);
+                       
     } else {
     // generic enumerator
         code = muForAll(enterGen, elem, getType(exp), translate(exp), translatePat(pat, elemType,  elem, btscopes, trueCont, muFail(resumeGen)) );

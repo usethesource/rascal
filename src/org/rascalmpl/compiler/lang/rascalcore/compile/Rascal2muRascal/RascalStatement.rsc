@@ -43,7 +43,7 @@ MuExp translateStats(Statement* statements, BTSCOPES btscopes) = muBlock([ trans
 
 // Normalize expression to statement
 
-MuExp toStat(muIfExp(c, t, f)) = muIfelse(c, toStat(t), toStat(f));
+MuExp toStat(muIfExp(c, t, f)) = muIfElse(c, toStat(t), toStat(f));
 default MuExp toStat(MuExp exp) = exp;
 
 /********************************************************************/
@@ -470,14 +470,14 @@ map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, 
         for(cond <- conditions){
             btscopes1 = getBTScopes(cond, caseLabel, btscopes1);
         }
-        replcond = muValueIsSubTypeOfValue(replacement, switchVal);
+        replcond = muValueIsSubtypeOfValue(replacement, switchVal);
         
         table[key] += [ muEnter(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes1,
                                             translateAndConds(btscopes1,
                                                     conditions, 
                                                     muBlock([ *stringVisitUpdate,
                                                               muVarInit(replacement, replacementCode), 
-                                                              muIfelse( replcond, muInsert(replacement.atype, replacement), muFailCase(switchName))
+                                                              muIfElse( replcond, muInsert(replacement.atype, replacement), muFailCase(switchName))
                                                             ]),
                                                     muBlock([]), //muFailCase(switchName),
                                                     normalize=toStat), 
@@ -646,17 +646,17 @@ MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catc
           //enterBacktrackingScope(ifname);
           patType = getType(c.pattern);
           if(c.pattern is literal) {
-              exp = muIfelse(muEqual(thrown, translate(c.pattern.literal)), trBody, catch_code);
+              exp = muIfElse(muEqual(thrown, translate(c.pattern.literal)), trBody, catch_code);
           } else if(c.pattern is typedVariable) {
               varType = translateType(c.pattern.\type);
               if("<c.pattern.name>" == "_"){
-                   exp = muIfelse(muValueIsSubType(thrown, varType), 
+                   exp = muIfElse(muValueIsSubtypeOf(thrown, varType), 
                                   trBody,
                                   catch_code);
               } else {
                   <fuid, pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
                   patVar = muVar("<c.pattern.name>", fuid, pos, varType);
-                  exp = muIfelse(muValueIsSubType(thrown, varType), 
+                  exp = muIfElse(muValueIsSubtypeOf(thrown, varType), 
                                        muBlock([ muVarInit(patVar, thrown), trBody ]),
                                        catch_code);
               }
@@ -675,7 +675,7 @@ MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catc
               btscopes = getBTScopes(c.pattern, ifname, btscopes);
               exp = translatePat(c.pattern, patType, thrown, btscopes, trBody, catch_code);
           }
-          catch_code = muIfelse(muValueIsSubType(thrown, patType), exp, catch_code);
+          catch_code = muIfElse(muValueIsSubtypeOf(thrown, patType), exp, catch_code);
           //leaveBacktrackingScope(ifname);
       } else {
         catch_code = muBlock([trBody, catch_code]);
@@ -861,22 +861,23 @@ MuExp translate((Statement) `;`, BTSCOPES btscopes) =
 //MuExp translate(s: (Statement) `global <Type \type> <{QualifiedName ","}+ names> ;`) { throw("globalDirective"); }
 
 // -- return statement -----------------------------------------------
-MuExp translate((Statement) `return <Statement statement>`, BTSCOPES btscopes) 
-    = translateReturn(statement, btscopes);
+MuExp translate(s:(Statement) `return <Statement statement>`, BTSCOPES btscopes) {
+    return translateReturn(getType(s), statement, btscopes);
+}
 
-MuExp  translateReturn((Statement) `;`, BTSCOPES btscopes)
+MuExp  translateReturn(AType resultType, (Statement) `;`, BTSCOPES btscopes)
     = muReturn0();
 
-MuExp translateReturn((Statement) `return <Statement statement>`, BTSCOPES btscopes)
-    = translateReturn(statement, btscopes);
+//MuExp translateReturn(s:(Statement) `return <Statement statement>`, BTSCOPES btscopes)
+//    = translateReturn(getType(s), statement, btscopes);
    
-MuExp translateReturn(exp:(Statement) `<Expression expression>;`, BTSCOPES btscopes) {
+MuExp translateReturn(AType resultType, Expression expression, BTSCOPES btscopes) {
 	// If the 'return' is used in the scope of a try-catch-finally block,
 	// the respective 'finally' block must be executed before the function returns
 	if((Expression) `{ <Statement+ statements> }` := expression){
-	   return translateReturn(statements, btscopes);
+	   return translateReturn(resultType, statements, btscopes);
 	}
-	resultType = getType(expression);
+	//resultType = getType(expression);
 	if(hasFinally()) { // TODO adapt
 	    str fuid = topFunctionScope();
 		str varname = asTmp(nextLabel());
@@ -913,9 +914,13 @@ MuExp translateReturn(Statement+ statements, BTSCOPES btscopes){
     return muBlock([translate(stat, btscopes) | Statement stat <- stats[0..-1]] + translateReturn(stats[-1], btscopes));
 }
 
-default MuExp translateReturn(Statement statement, BTSCOPES btscopes){
-    return muReturn1(getType(statement), translate(statement, btscopes));
-    }
+MuExp translateReturn(AType resultType, Expression expression){
+    return muReturn1(resultType, translate(expression));
+}
+    
+default MuExp translateReturn(AType resultType, Statement statement, BTSCOPES btscopes){
+    return muReturn1(resultType, translate(statement, btscopes));
+}
 
 // -- throw statement ------------------------------------------------
 
