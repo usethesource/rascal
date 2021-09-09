@@ -1,21 +1,32 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+
+lexical LOOPKW = WHILE || DO;
+lexical WHILE = 'while';
+lexical DO = "do";
+lexical BEGINEND = BEGIN || END;
+lexical BEGIN = 'begin';
+lexical END = "END";
+
+keyword KW = LOOPKW || BEGINEND;
+
+
 //syntax D = "d";
 //syntax Ds = {D ","}* ds;
 // 
 // value main()//test bool concreteMatchDs10() 
 //    = (Ds) `<{D ","}* ds1>,d,<{D ","}* ds2>` := [Ds] "d" && "<ds1>" == "" && "<ds2>" == "";
  
+ public value main() = 13;
     
-    
-    
-syntax OptTestGrammar = A? a B b;
-syntax A = "a";
-syntax B = "b";
-
-value main() //test bool optionalPresentIsTrue() 
-    = (A)`a` <- ([OptTestGrammar] "b").a;
-    
+//    
+//syntax OptTestGrammar = A? a B b;
+//syntax A = "a";
+//syntax B = "b";
+//
+//value main() //test bool optionalPresentIsTrue() 
+//    = (A)`a` <- ([OptTestGrammar] "b").a;
+//    
     
 //value main(){ //test bool exceptionHandling3(){
 //
