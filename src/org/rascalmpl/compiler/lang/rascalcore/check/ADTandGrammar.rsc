@@ -229,7 +229,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
 }
 
 // A keyword production may only contain:
-// - literals
+// - literals or ciliterals
 // - other nonterminals that satisfy this rule.
 
 TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
@@ -239,7 +239,7 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
         for(AType adtType <- domain(allProductions), adtType notin allLiteral){
             for(prod(AType def, list[AType] asymbols) <- allProductions[adtType]){
                 for(sym <- asymbols){
-                    if(!(lit(_) := sym || aprod(prod(aadt(_,[],_),[lit(_)])) := sym || (aprod(prod(a:aadt(_,[],_),_)) := sym && a in allLiteral))){
+                    if(!(lit(_) := sym || cilit(_) := sym || aprod(prod(aadt(_,[],_),[lit(_)])) := sym || aprod(prod(aadt(_,[],_),[cilit(_)])) := sym || (aprod(prod(a:aadt(_,[],_),_)) := sym && a in allLiteral))){
                         continue forADT;
                     }
                 }
@@ -250,9 +250,10 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
     for(AType adtType <- domain(allProductions), ((\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
         for(p:prod(AType def, list[AType] asymbols) <- allProductions[adtType]){
             if(size(asymbols) != 1){
-                tm.messages += [warning(size(asymbols) == 0 ? "One symbol needed in keyword declaration" : "Keyword declaration should consist of one symbol", p.src)];
+                tm.messages += [warning(size(asymbols) == 0 ? "One symbol needed in keyword declaration, found none" : "Keyword declaration should consist of one symbol", p.src)];
             }
             for(sym <- asymbols){
+                if(lit(_) := sym || cilit(_) := sym) continue;
                 if(!isADTType(sym) || isADTType(sym) && sym notin allLiteral){
                     tm.messages += [warning(interpolate("Only literals allowed in keyword declaration, found %t", AType(Tree t) { return tm.facts[getLoc(t)]; }, [sym]), p.src) ];
                 }
