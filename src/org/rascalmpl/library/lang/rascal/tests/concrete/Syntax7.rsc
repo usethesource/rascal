@@ -10,6 +10,15 @@ syntax C = [a-zA-Z]+ 'if' << ":";
 syntax D = [a-zA-Z]+ 'if' !<< ":";
 syntax E = [a-zA-Z]+ \ 'if';
 
+lexical LOOPKW = WHILE || DO;
+lexical WHILE = 'while';
+lexical DO = "do";
+lexical BEGINEND = BEGIN || END;
+lexical BEGIN = 'begin';
+lexical END = "END";
+
+keyword KW = LOOPKW || BEGINEND;
+
 bool expectParseError(type[Tree] grammar, str input) {
    try {
      parse(grammar, input);
