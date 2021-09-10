@@ -42,26 +42,27 @@ str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
 default str getParserMethodName(Symbol s) = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {	
-    jobStart(label="Generating parser <package>.<name>");
+    JOB = "Generating parser <package>.<name>";
+    jobStart("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
   
-    jobStep(label="expanding parameterized symbols");
+    jobStep(JOB, "expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
     
-    jobStep(label="generating stubs for regular");
+    jobStep(JOB, "generating stubs for regular");
     gr = makeRegularStubs(gr);
     
-    jobStep(label="generating syntax for holes");
+    jobStep(JOB, "generating syntax for holes");
     gr = addHoles(gr);
  
-    jobStep(label="generating literals");
+    jobStep(JOB, "generating literals");
     gr = literals(gr);
     
-    jobStep(label="establishing production set");
+    jobStep(JOB, "establishing production set");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
-    jobStep(label="assigning unique ids to symbols");
+    jobStep(JOB, "assigning unique ids to symbols");
     Production rewrite(Production p) = 
       visit (p) { 
         case Symbol s => s[id=newItem()] 
@@ -69,10 +70,10 @@ public str newGenerate(str package, str name, Grammar gr) {
     beforeUniqueGr = gr;   
     gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
         
-    jobStep(label="generating item allocations");
+    jobStep(JOB, "generating item allocations");
     newItems = generateNewItems(gr);
     
-    jobStep(label="computing priority and associativity filter");
+    jobStep(JOB, "computing priority and associativity filter");
     rel[int parent, int child] dontNest = computeDontNests(newItems, beforeUniqueGr, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
@@ -84,7 +85,7 @@ public str newGenerate(str package, str name, Grammar gr) {
     //println("optimizing lookahead automaton");
     //gr = compileLookaheads(gr);
    
-    jobStep(label="printing the source code of the parser class");
+    jobStep(JOB, "printing the source code of the parser class");
     
     src =  "package <package>;
            '
@@ -237,7 +238,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
            '}";
-   jobEnd();
+   jobEnd(JOB);
    return src;
 }  
 

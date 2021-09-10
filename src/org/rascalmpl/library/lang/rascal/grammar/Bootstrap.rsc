@@ -17,17 +17,13 @@ private str package = "org.rascalmpl.library.lang.rascal.syntax";
 private str rootName = "RascalParser";
 
 public Grammar getRascalGrammar(loc grammarFile) {
-  jobStep(label="parsing the rascal definition of rascal");
   Module \module = parse(#start[Module], grammarFile).top;
-  jobStep(label="imploding the syntax definition and normalizing and desugaring it");
   return modules2grammar("lang::rascal::syntax::Rascal", {\module});
 }
 
 public void bootstrapRascalParser(list[loc] srcs) {
   rascalLib = srcs[0];
-  println("bootstrapRascalParser2: generating from <rascalLib>");
   gr = getRascalGrammar(rascalLib + "lang/rascal/syntax/Rascal.rsc");
-  jobStep(label="bootstrapRascalParser2: generating new Rascal parser");
   source = newGenerate(package, rootName, gr);
   writeFile(rascalLib + "lang/rascal/syntax/<rootName>.java", source);
 }
@@ -48,7 +44,6 @@ public void bootstrapAst(loc rascalHome) {
 
 
 public void bootParser(Grammar gr, loc rascalHome) {
-  jobStep(label="generating new Rascal parser");
   source = newGenerate(package, rootName, gr);
   writeFile(rascalHome + "lang/rascal/syntax/<rootName>.java", source);
 }
