@@ -340,10 +340,11 @@ public class Webserver {
         try {
             server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDeamon.getValue());
             servers.put(url, server);
+            monitor.jobStart("Server: " + server);
             if (!asDeamon.getValue()) {
                 out.println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
                 out.flush();
-                while (!monitor.jobIsCanceled()) {
+                while (!monitor.jobIsCanceled("Server: " + server)) {
                     try {
                         Runnable job;
                         if ((job = mainThreadExecutor.poll(10, TimeUnit.MILLISECONDS)) != null) {
@@ -356,6 +357,7 @@ public class Webserver {
                 }
                 server.stop();
                 servers.remove(url);
+                monitor.jobEnd("Server: " + server, true);
             }
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);

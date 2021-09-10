@@ -380,7 +380,7 @@ private static boolean isDeprecated(Module preModule){
           return getBuilder().buildModule(tree);
       }
       finally {
-          eval.jobEnd(true);
+          eval.jobEnd("Loading module " + uri, true);
       }
   }
   

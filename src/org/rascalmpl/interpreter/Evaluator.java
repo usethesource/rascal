@@ -291,16 +291,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public int jobEnd(boolean succeeded) {
+    public int jobEnd(String name, boolean succeeded) {
         if (monitor != null)
-            return monitor.jobEnd(succeeded);
+            return monitor.jobEnd(name, succeeded);
         return 0;
     }
 
     @Override	
-    public void jobStep(String name, int inc) {
+    public void jobStep(String name, String msg, int inc) {
         if (monitor != null)
-            monitor.jobStep(name, inc);
+            monitor.jobStep(name, msg, inc);
     }
 
     @Override	
@@ -310,17 +310,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public void jobTodo(int work) {
+    public void jobTodo(String name, int work) {
         if (monitor != null)
-            monitor.jobTodo(work);
+            monitor.jobTodo(name, work);
     }
 
     @Override	
-    public boolean jobIsCanceled() {
+    public boolean jobIsCanceled(String name) {
         if(monitor == null)
             return false;
         else
-            return monitor.jobIsCanceled();
+            return monitor.jobIsCanceled(name);
     }
 
     @Override
@@ -411,7 +411,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     @Override	
     public boolean isInterrupted() {
-        return interrupt || jobIsCanceled();
+        return interrupt;
     }
 
     @Override	
@@ -797,7 +797,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
         }
         finally {
-            monitor.jobEnd(true);
+            monitor.jobEnd("Expanding Grammar", true);
             setMonitor(old);
         }
     }
@@ -821,9 +821,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             if (isBootstrapper()) {
                 throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
             }
-            jobStart("Loading parser generator", 40);
-            parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
-            jobEnd(true);
+
+            job("Loading parser generator", () -> {
+                parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
+                return true;
+            });
         }
 
         return parserGenerator;
@@ -1162,11 +1164,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         }
                         heap.removeModule(heap.getModule(mod));
                     }
-                    monitor.jobStep("Processed " + mod, 1);
+                    monitor.jobStep("Cleaning modules", "Processed " + mod, 1);
                 }
                 extendingModules.removeAll(names);
             } finally {
-                monitor.jobEnd(true);
+                monitor.jobEnd("Cleaning modules", true);
             }
 
             try {
@@ -1186,10 +1188,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                             errStream.println("*** if the error persists, start a new console session.");
                         }
                     }
-                    monitor.jobStep("loaded " + mod, 1);
+                    monitor.jobStep("Reloading modules", "loaded " + mod, 1);
                 }
             } finally {
-                monitor.jobEnd(true);
+                monitor.jobEnd("Reloading modules", true);
             }
 
             Set<String> dependingImports = new HashSet<>();
@@ -1217,11 +1219,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         }
 
                     }
-                    monitor.jobStep("Reconnected " + mod, 1);
+                    monitor.jobStep("Reconnecting importers of affected modules", "Reconnected " + mod, 1);
                 }
             }
             finally {
-                monitor.jobEnd(true);
+                monitor.jobEnd("Reconnecting importers of affected modules", true);
             }
 
             try {
@@ -1242,11 +1244,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                             }
                         }
                     }
-                    monitor.jobStep("Reconnected " + mod, 1);
+                    monitor.jobStep("Reconnecting extenders of affected modules", "Reconnected " + mod, 1);
                 }
             }
             finally {
-                monitor.jobEnd(true);
+                monitor.jobEnd("Reconnecting extenders of affected modules", true);
             }
 
             if (recurseToExtending && !extendingModules.isEmpty()) {
@@ -1765,23 +1767,23 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void jobStep(String name, int inc) {
-            monitor.jobStep(name, inc);
+        public void jobStep(String name, String msg, int inc) {
+            monitor.jobStep(name, msg, inc);
         }
 
         @Override
-        public int jobEnd(boolean succeeded) {
-            return monitor.jobEnd(succeeded);
+        public int jobEnd(String name, boolean succeeded) {
+            return monitor.jobEnd(name, succeeded);
         }
 
         @Override
-        public boolean jobIsCanceled() {
-            return monitor.jobIsCanceled();
+        public boolean jobIsCanceled(String name) {
+            return monitor.jobIsCanceled(name);
         }
 
         @Override
-        public void jobTodo(int work) {
-            monitor.jobTodo(work);
+        public void jobTodo(String name, int work) {
+            monitor.jobTodo(name, work);
         }
 
         @Override
