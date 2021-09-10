@@ -32,20 +32,20 @@ public class Monitor {
         services.jobStart(name.getValue(), work.intValue(), totalWork.intValue());
     }
 	
-	public void jobStep(IString name, IInteger inc) {
-        services.jobStep(name.getValue(), inc.intValue());
+	public void jobStep(IString name, IString message, IInteger inc) {
+        services.jobStep(name.getValue(), message.getValue(), inc.intValue());
     }
 	
-	public IInteger jobEnd(IBool succeeded) {
-        return values.integer(services.jobEnd(succeeded.getValue()));
+	public IInteger jobEnd(IString name, IBool succeeded) {
+        return values.integer(services.jobEnd(name.getValue(), succeeded.getValue()));
     }
 	
-	public IBool jobIsCancelled() {
-        return values.bool(services.jobIsCanceled());
+	public IBool jobIsCancelled(IString name) {
+        return values.bool(services.jobIsCanceled(name.getValue()));
     }
 	
-	public void jobTodo(IInteger work) {
-        services.jobTodo(work.intValue());
+	public void jobTodo(IString name, IInteger work) {
+        services.jobTodo(name.getValue(), work.intValue());
     }
 
 	public void jobWarning(IString message, ISourceLocation src) {

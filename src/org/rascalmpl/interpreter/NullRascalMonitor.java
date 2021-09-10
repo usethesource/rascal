@@ -16,12 +16,12 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class NullRascalMonitor implements IRascalMonitor {
 	@Override
-	public int jobEnd(boolean succeeded) {
+	public int jobEnd(String name, boolean succeeded) {
 		return 0;
 	}
 
 	@Override
-	public void jobStep(String name, int inc) {
+	public void jobStep(String name, String msg, int inc) {
 	}
 
 	@Override
@@ -29,11 +29,11 @@ public class NullRascalMonitor implements IRascalMonitor {
 	}
 
 	@Override
-	public void jobTodo(int work) {
+	public void jobTodo(String name, int work) {
 	}
 
 	@Override
-	public boolean jobIsCanceled() {
+	public boolean jobIsCanceled(String name) {
 		return false;
 	}
 

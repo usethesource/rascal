@@ -12,6 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
+import java.util.function.Supplier;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public interface IRascalMonitor {
@@ -29,36 +31,49 @@ public interface IRascalMonitor {
 		jobStart(name, 1, totalWork);
 	}
 
+	default void job(String name, Supplier<Boolean> block) {
+		boolean result = false;
+		try {
+			jobStart(name);
+			result = block.get();
+		}
+		finally {
+			jobEnd(name, result);
+		}
+	}
+
 	/**
 	 * Log the start of an event with the amount of work that will be done when it's finished.
 	 * An event is finished when the next event is logged, or when endJob() is called.
 	 */
-	public void jobStep(String name, int workShare);
+	public void jobStep(String name, String message, int workShare);
 	
-	default void jobStep(String name) {
-		jobStep(name, 1);
+	default void jobStep(String name, String message) {
+		jobStep(name, message, 1);
 	}
 	
 	/**
 	 * This should always be called once for every startJob, unless an exception is thrown.
 	 * @return The amount of work completed for this job (to help in future estimates)
 	 */
-	public int jobEnd(boolean succeeded);
+	public int jobEnd(String name, boolean succeeded);
 	
 	/**
+	 * @param label
 	 * @return True if cancellation has been requested for this job
 	 */
-	public boolean jobIsCanceled();
+	public boolean jobIsCanceled(String name);
 	
 	/**
 	 * Set the estimated remaining work for the current (sub)job.
+	 * @param string
 	 * 
 	 * @param work Amount of work remaining to be done, or 0 for unknown.
 	 */
-	public void jobTodo(int work);
+	public void jobTodo(String name, int work);
 	
 	/**
-	 * Inform about a warning
+	 * Inform (about a warning
 	 */
 	public void warning(String message, ISourceLocation src);
 }

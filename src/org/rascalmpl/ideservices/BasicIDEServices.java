@@ -95,23 +95,23 @@ public class BasicIDEServices implements IDEServices {
   }
   
   @Override
-  public void jobStep(String name, int inc) {
-    monitor.jobStep(name,inc);
+  public void jobStep(String name, String message, int inc) {
+    monitor.jobStep(name, message, inc);
   }
 
   @Override
-  public int jobEnd(boolean succeeded) {
-    return monitor.jobEnd(succeeded);
+  public int jobEnd(String name, boolean succeeded) {
+    return monitor.jobEnd(name, succeeded);
   }
   
   @Override
-  public boolean jobIsCanceled() {
-      return monitor.jobIsCanceled();
+  public boolean jobIsCanceled(String name) {
+      return monitor.jobIsCanceled(name);
   }
   
   @Override
-  public void jobTodo(int work) {
-    monitor.jobTodo(work);
+  public void jobTodo(String name, int work) {
+    monitor.jobTodo(name, work);
   }
 
   @Override

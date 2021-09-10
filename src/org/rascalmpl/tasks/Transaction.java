@@ -147,10 +147,11 @@ IExpirationListener<IValue> {
 						return value;
 					}
 				}
-				monitor.jobStart("Producing fact " + formatKey(key, name));
+				String JOB = "Producing fact " + formatKey(key, name);
+				monitor.jobStart(JOB);
 				Transaction tr = new Transaction(this, stderr, true);
 				status = registry.produce(monitor, tr, key, name);
-				monitor.jobEnd(true);
+				monitor.jobEnd(JOB, true);
 				fact = tr.map.get(k);
 				if (fact != null) {
 					tr.commit();

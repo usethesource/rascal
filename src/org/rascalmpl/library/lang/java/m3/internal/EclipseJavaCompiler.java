@@ -110,9 +110,9 @@ public class EclipseJavaCompiler {
     }
     
     private void checkInterrupted(IRascalMonitor eval) {
-        if (eval.jobIsCanceled()) {
-          throw new InterruptException("Java compiler interrupted", URIUtil.rootLocation("java"));
-        }
+        // if (eval.jobIsCanceled(name)) {
+        //   throw new InterruptException("Java compiler interrupted", URIUtil.rootLocation("java"));
+        // }
     }
     public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
         return createM3sAndAstsFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));
