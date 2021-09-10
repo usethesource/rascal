@@ -1,33 +1,30 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-
-lexical LOOPKW = WHILE || DO;
-lexical WHILE = 'while';
-lexical DO = "do";
-lexical BEGINEND = BEGIN || END;
-lexical BEGIN = 'begin';
-lexical END = "END";
-
-keyword KW = LOOPKW || BEGINEND;
-
-
-//syntax D = "d";
-//syntax Ds = {D ","}* ds;
-// 
-// value main()//test bool concreteMatchDs10() 
-//    = (Ds) `<{D ","}* ds1>,d,<{D ","}* ds2>` := [Ds] "d" && "<ds1>" == "" && "<ds2>" == "";
  
- public value main() = 13;
-    
-//    
-//syntax OptTestGrammar = A? a B b;
-//syntax A = "a";
-//syntax B = "b";
+//test bool not1() = !(1 == 2);
+//test bool not2() = !!(1 == 1);
+//test bool not3() = !(1 != 1);
 //
-//value main() //test bool optionalPresentIsTrue() 
-//    = (A)`a` <- ([OptTestGrammar] "b").a;
-//    
+//test bool list1() = !([] !:= []);
+//test bool list2() = !([1, *_, 5] := [1,2,4]);
+//test bool list3() = !([1, *_, 5] !:= [1,2,5]);
+//
+//
+//test bool set1() = !({} !:= {});
+//test bool set2() = !({1, *_, 5} := {1,2,4});
+//test bool set3() = !({1, *_, 5} !:= {1,2,5});
+//
+//test bool enum1() = !(int n <- []);
+//test bool enum2() = !(bool b <- ["a", 1]);
+
+
+
+value main() =  !(bool b <- ["a", 1]);
     
+ //value main () {
+ //   L = [<1,10>, <2,20>];
+ //   return <[a | <a,_> <- L], [b | <_,b> <- L]>;
+//}
 //value main(){ //test bool exceptionHandling3(){
 //
 //    value f() { throw "Try to catch me!"; }
