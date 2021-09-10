@@ -584,7 +584,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			  }
 			  
 			}).getValue();
-		System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
+		//System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
 		return res;
 	}
 	

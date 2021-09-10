@@ -42,7 +42,6 @@ default MuExp translateMatch(Pattern pat, Expression exp, BTSCOPES btscopes, MuE
     } else {
         str fuid = topFunctionScope();
         subject_val = muTmpIValue(nextTmp("subject_val"), fuid, getType(exp));
-        //iprintln(pat);
         res = muValueBlock(abool(), [ muConInit(subject_val, expTrans), 
                                       translatePat(pat, expType, subject_val, btscopes, trueCont, falseCont) 
                                     ]);
@@ -51,22 +50,13 @@ default MuExp translateMatch(Pattern pat, Expression exp, BTSCOPES btscopes, MuE
     }
 }
 
-//MuExp translateMatch((Expression) `<Pattern pat> := <Expression exp>`, str btscope, MuExp trueCont, MuExp falseCont) 
-//    = translateMatch(pat, exp, btscope, trueCont, falseCont);
-//
-//MuExp translateMatch(e: (Expression) `<Pattern pat> !:= <Expression exp>`, str btscope, MuExp trueCont, MuExp falseCont)
-//    = translateMatch(pat, exp, btscope, falseCont, trueCont);
-//    
-//default MuExp translateMatch(Pattern pat, Expression exp, str btscope, MuExp trueCont, MuExp falseCont) =
-//    translatePat(pat, getType(exp), translate(exp), btscope, trueCont, falseCont);
-
 /*********************************************************************/
 /*                  Get Backtracking Scopes for a Pattern            */
 /*********************************************************************/
 
 alias BTSCOPE = tuple[str enter, str resume, str \fail];  // The enter/resume/fail labels of one backtracking scope
 alias BTSCOPES = map[loc,BTSCOPE];                        // Map from program fragments to backtracking scopes
-alias BTINFO = tuple[BTSCOPE btscope, BTSCOPES btscopes]; // Complete backtracking information
+alias BTINFO = tuple[BTSCOPE btscope, BTSCOPES btscopes]; // Complete backtracking information: current bt scope + bt scope mapping
 
 // Getters on backtracking scopes
 
