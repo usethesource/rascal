@@ -11,7 +11,6 @@
 package org.rascalmpl.uri;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,11 +20,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-
-import org.apache.commons.compress.compressors.FileNameUtil;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIUtil {
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
