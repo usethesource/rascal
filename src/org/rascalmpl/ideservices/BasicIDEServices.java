@@ -21,10 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
-import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
 
 /**
  * IDEServices for a Desktop environment that rely on the
@@ -34,13 +32,11 @@ import io.usethesource.vallang.IValueFactory;
 public class BasicIDEServices implements IDEServices {
   
   private static ConsoleRascalMonitor monitor = new ConsoleRascalMonitor();
-  private IValueFactory vf;
   private PrintWriter stderr;
 
   public BasicIDEServices(PrintWriter stderr){
     this.stderr = stderr;
     monitor = new ConsoleRascalMonitor();
-    vf = IRascalValueFactory.getInstance();
   }
   
   public void browse(ISourceLocation loc){
