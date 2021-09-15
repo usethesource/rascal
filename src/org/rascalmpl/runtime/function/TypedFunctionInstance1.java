@@ -1,11 +1,8 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
