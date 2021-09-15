@@ -1,7 +1,6 @@
 module lang::rascalcore::package::Packager
 
 import util::FileSystem;
-import util::Monitor;
 import IO;
 import ValueIO;
 import ParseTree;
@@ -13,14 +12,12 @@ public void package(list[loc] srcs, loc bin, loc sourceLookup) {
 
 void packageSourceFiles(list[loc] srcs, loc bin) {
   for (folder <- srcs, file <- find(folder, "rsc")) {
-    event("Copying <file>");
     copyFile(file, bin + relativize(folder, file));
   }
 }
 
 void rewriteTypeFiles(list[loc] srcs, loc bin, loc sourceLookup) {
   for (file <- find(bin, "tpl")) {
-     event("Relocating source references in <file>");
      model = readBinaryValueFile(file);
      model = rewriteTypeModel(model, paths(srcs), sourceLookup);
      writeBinaryValueFile(file, model);
