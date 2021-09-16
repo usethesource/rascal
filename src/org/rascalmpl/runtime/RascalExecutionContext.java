@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.PathConfig;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -31,8 +30,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.ideServices = ideServices == null ? new BasicIDEServices(stderr) : ideServices;
 		this.stdout = stdout;
 		this.stderr = stderr;
-
-//		parsingTools = new ParsingTools(vf);
 	}
 
 	public PrintWriter getStdErr() { return stderr; }
@@ -48,50 +45,34 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public void setFullModuleName(String moduleName) { currentModuleName = moduleName; }
 	
 
-	public int endJob(boolean succeeded) {
-		return ideServices.endJob(succeeded);
-	}
-
-	public void event(int inc) {
-		ideServices.event(inc);
-	}
-
-	public void event(String name, int inc) {
-		ideServices.event(name, inc);
-	}
-
-	public void event(String name) {
-		ideServices.event(name);
-	}
-
-	public void startJob(String name, int workShare, int totalWork) {
-		ideServices.startJob(name, workShare, totalWork);
-	}
-
-	public void startJob(String name, int totalWork) {
-		ideServices.startJob(name, totalWork);
-	}
-
-	public void startJob(String name) {
-		ideServices.startJob(name);
-	}
-
-	public void todo(int work) {
-		ideServices.todo(work);
+	@Override
+	public int jobEnd(String name, boolean succeeded) {
+		return ideServices.jobEnd(name, succeeded);
 	}
 
 	@Override
-	public boolean isCanceled() {
-		return ideServices.isCanceled();
+	public void jobStep(String name, String message, int worked) {
+		ideServices.jobStep(name, message, worked);
+	}
+
+	@Override
+	public void jobStart(String name, int workShare, int totalWork) {
+		ideServices.jobStart(name, workShare, totalWork);
+	}
+
+
+	@Override
+	public void jobTodo(String name, int work) {
+		ideServices.jobTodo(name, work);
+	}
+
+	@Override
+	public boolean jobIsCanceled(String name) {
+		return ideServices.jobIsCanceled(name);
 	}
 
 	@Override
 	public void warning(String message, ISourceLocation src) {
 		ideServices.warning(message,  src);;
-	}
-
-	public Prelude getParsingTools() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
