@@ -2,6 +2,7 @@ module util::IDEServices
 
 extend analysis::diff::edits::TextEdits;
 extend Content;
+extend Message;
 
 @doc{
 .Synopsis
@@ -41,3 +42,15 @@ Asks the IDE to show a "browser window" with the given interactive Content.
 }
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
 public java void showInteractiveContent(Content content);
+
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void showMessage(Message message);
+
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void logMessage(Message message);
+
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void registerDiagnostics(list[Message] messages);
+
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void unregisterDiagnostics(list[loc] resources);

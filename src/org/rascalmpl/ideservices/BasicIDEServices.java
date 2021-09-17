@@ -15,6 +15,7 @@ package org.rascalmpl.ideservices;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.Path;
@@ -37,6 +38,11 @@ public class BasicIDEServices implements IDEServices {
   public BasicIDEServices(PrintWriter stderr){
     this.stderr = stderr;
     monitor = new ConsoleRascalMonitor();
+  }
+  
+  @Override
+  public PrintWriter stderr() {
+    return stderr;
   }
   
   public void browse(ISourceLocation loc){

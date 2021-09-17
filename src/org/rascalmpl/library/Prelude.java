@@ -72,8 +72,10 @@ import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
 import org.apache.commons.lang.CharSetUtils;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
@@ -132,8 +134,9 @@ public class Prelude {
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
 	private final TypeStore store;
+	private final IRascalMonitor monitor;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor) {
 		super();
 		
 		this.values = values;
@@ -141,6 +144,7 @@ public class Prelude {
 		this.store = store;
 		this.out = out;
 		this.tr = new TypeReifier(values);
+		this.monitor = monitor;
 		random = new Random();
 	}
 
@@ -3396,11 +3400,21 @@ public class Prelude {
 	}
 	
 	public void registerLocations(IString scheme, IString auth, IMap map) {
-		URIResolverRegistry.getInstance().registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
+		if (monitor instanceof IDEServices) {
+			((IDEServices) monitor).registerLocations(scheme, auth, map);
+		}
+		else {
+			URIResolverRegistry.getInstance().registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
+		}
 	}
 	
 	public void unregisterLocations(IString scheme, IString auth) {
-		URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
+		if (monitor instanceof IDEServices) {
+			((IDEServices) monitor).unregisterLocations(scheme, auth);
+		}
+		else {
+			URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
+		}
 	}
 	
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
