@@ -77,4 +77,21 @@ public class IDEServicesLibrary {
             throw RuntimeExceptionFactory.io(e.getMessage());
         }
     }
+
+    public void showMessage(IConstructor message) {
+        services.showMessage(message);
+    }
+
+    public void logMessage(IConstructor message) {
+        services.logMessage(message);
+    }
+
+
+    public void registerDiagnostics(IList messages) {
+        services.registerDiagnostics(messages);
+    }
+
+    public void unregisterDiagnostics(IList resources) {
+        services.unregisterDiagnostics(resources);
+    }
 }
