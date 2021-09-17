@@ -12,13 +12,19 @@
  */ 
 package org.rascalmpl.ideservices;
 
+import java.io.PrintWriter;
 import java.net.URI;
 
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.uri.LogicalMapResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 
 /**
  * IDEServices provides external services that can be called by the
@@ -26,6 +32,8 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public interface IDEServices extends IRascalMonitor {
 
+  PrintWriter stderr();
+  
   /**
    * Open a browser for the give uri.
    * @param uri
@@ -54,7 +62,7 @@ public interface IDEServices extends IRascalMonitor {
    * @param language
    */
   default void registerLanguage(IConstructor language) {
-     // do nothing
+    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
   }
 
   /**
@@ -71,4 +79,94 @@ public interface IDEServices extends IRascalMonitor {
   default void applyDocumentsEdits(IList edits) {
      throw new UnsupportedOperationException("applyDocumentEdits is not implemented in this environment.");
   }
+
+  /**
+   * Read the standard library module `Message`
+   * for how errors, warnings and info messages look.
+   * 
+   * This method would typically pop-up the message somewhere in the IDE
+   */
+  default void showMessage(IConstructor message) {
+    logMessage(message);
+  }
+
+  /**
+   * Read the standard library module `Message`
+   * for how errors, warnings and info messages look.
+   * 
+   * This method would stream the message to a log view in the IDE
+   */
+  default void logMessage(IConstructor msg) {
+      stderr().println(messageToString(msg));
+  }
+
+  default String messageToString(IConstructor msg) {
+    String type = msg.getName();
+    boolean isError = type.equals("error");
+    boolean isWarning = type.equals("warning");
+
+    ISourceLocation loc = (ISourceLocation) msg.get("at");
+    int col = 0;
+    int line = 0;
+    if(loc.hasLineColumn()) {
+      col = loc.getBeginColumn();
+      line = loc.getBeginLine();
+    }
+
+    String output
+    = loc
+    + ":"
+    + String.format("%04d", line)
+    + ":"
+    + String.format("%04d", col)
+    + ": "
+    + ((IString) msg.get("msg")).getValue();
+
+    if (isError) {
+      return "[ERROR]  " + output;
+    }
+    else if (isWarning) {
+      return "[WARNING]" + output;
+    }
+    else {
+      return "[INFO]   " + output;
+    }
+  }
+
+  /**
+   * Read the standard library module `Message`
+   * for how errors, warnings and info messages look.
+   * @param messages
+   * 
+   * This method would register the messages with a "problems view" in the IDE
+   */
+  default void registerDiagnostics(IList messages) {
+     for (IValue m : messages) {
+       logMessage((IConstructor) m);
+     }
+  }
+
+  /**
+   * Clears all registered diagnostics for the given resources/documents/files
+   */
+  default void unregisterDiagnostics(IList resources) { 
+    
+  }
+
+  /**
+   * This registers a map of logical URI to their physical counter-part in the IDE.
+   * It makes logical URIs "editable" and "clickable" when clients can register new
+   * mappings with the IDE.
+   * 
+   * @param scheme
+   * @param auth
+   * @param map
+   */
+  default void registerLocations(IString scheme, IString auth, IMap map) {
+	  URIResolverRegistry.getInstance().registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
+	}
+
+  default void unregisterLocations(IString scheme, IString auth) {
+    URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
+	}
 }

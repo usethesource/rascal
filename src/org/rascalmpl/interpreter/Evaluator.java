@@ -1146,7 +1146,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
-        SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor);
+        SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getErrorPrinter());
         IRascalMonitor old = setMonitor(wrapped);
         try {
             Set<String> onHeap = new HashSet<>();
@@ -1754,10 +1754,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         private final List<String> warnings;
         private final IRascalMonitor monitor;
-
-        public SaveWarningsMonitor(IRascalMonitor monitor) {
+        private final PrintWriter stderr;
+        
+        public SaveWarningsMonitor(IRascalMonitor monitor, PrintWriter stderr) {
             this.monitor = monitor;
             this.warnings = new ArrayList<>();
+            this.stderr = stderr;
+        }
+
+        @Override
+        public PrintWriter stderr() {
+            return stderr;
         }
 
         @Override
@@ -1843,6 +1850,66 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         public void edit(ISourceLocation path) {
             if (monitor instanceof IDEServices) {
                 ((IDEServices) monitor).edit(path);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void registerLocations(IString scheme, IString auth, IMap map) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerLocations(scheme, auth, map);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void unregisterLocations(IString scheme, IString auth) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).unregisterLocations(scheme, auth);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void registerDiagnostics(IList messages) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerDiagnostics(messages);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void unregisterDiagnostics(IList resources) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerDiagnostics(resources);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void logMessage(IConstructor msg) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).logMessage(msg);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void showMessage(IConstructor message) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).showMessage(message);
             }
             else {
                 return;
