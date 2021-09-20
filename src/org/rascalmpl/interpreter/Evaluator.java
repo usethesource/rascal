@@ -1889,7 +1889,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         @Override
         public void unregisterDiagnostics(IList resources) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).registerDiagnostics(resources);
+                ((IDEServices) monitor).unregisterDiagnostics(resources);
             }
             else {
                 return;
