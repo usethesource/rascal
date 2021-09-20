@@ -15,7 +15,6 @@ package org.rascalmpl.ideservices;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.Path;
