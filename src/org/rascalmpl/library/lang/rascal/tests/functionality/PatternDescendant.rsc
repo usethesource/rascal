@@ -11,12 +11,25 @@ test bool descendant3() = !(/int _ := []);
 test bool descendant4() = /int N := [1] && N == 1;
   
 test bool descendant5() = /int N := [1,2,3,2] && N > 2;
-test bool descendant6() = !/4 := [1,2,3,2];
-test bool descendant7() = /!4 := [1,2,3,2];
+
+test bool descendant6a() = /4 := 4;
+test bool descendant6b() = /4 !:= 3;
+test bool descendant6c() = !/4 := 3;
+test bool descendant6d() = !(/4 := 3);
+test bool descendant6e() = !/4 !:= 4;
+test bool descendant6f() = !(/4 !:= 4);
+test bool descendant6g() = /!4 := 3;
+test bool descendant6h() = /!4 !:= 4;
+test bool descendant6i() = !/!4 !:= 3;
+test bool descendant6j() = !(/!4 !:= 3);
+
+test bool descendant7a() = !/4 := [1,2,3,2];
+test bool descendant7b() = /!4 := [1,2,3,2];
 @ignoreInterpreter{TBD}
-test bool descendant8() = /!4 !:= [1,2,3,4];
+test bool descendant7c() = /!4 !:= [1,2,3,4];
 @ignoreInterpreter{TBD}
-test bool descendant9() = !/!4 := [1,2,3,4];
+test bool descendant7d() = !/!4 := [1,2,3,4];
+
 test bool descendant10() = /int N := (1 : 10) && (N == 1 || N == 10);
     
 test bool descendant11() = !(/int _ := {});
