@@ -70,8 +70,9 @@ test bool csvBoolean() {
 }
 
 test bool csvDateTime() {
-    writeFile(targetFile, "col1,col2\n2012-06-24T00:59:56Z,<createDateTime(2012, 6, 24, 0, 59, 56, 0)>");
+    writeFile(targetFile, "col1,col2\n2012-06-24T00:59:56+02:00,<createDateTime(2012, 6, 24, 0, 59, 56, 0, 2, 00)>");
     r = readCSV(#lrel[datetime a, datetime b], targetFile)[0];
+	println(r);
     return r.a == r.b;
 }
 
