@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,7 +61,7 @@ public class JsonValueReader {
   public JsonValueReader(IValueFactory vf, TypeStore store) {
     this.vf = vf;
     this.store = store;
-    setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
   }
   
   public JsonValueReader(IValueFactory vf) {
@@ -592,7 +593,8 @@ public class JsonValueReader {
         try {
           switch (in.peek()) {
             case STRING:
-              return vf.datetime(format.get().parse(in.nextString()).toInstant().toEpochMilli());
+              Date parsedDate = format.get().parse(in.nextString());
+              return vf.datetime(parsedDate.toInstant().toEpochMilli());
             case NUMBER:
               return vf.datetime(in.nextLong());
             default:
