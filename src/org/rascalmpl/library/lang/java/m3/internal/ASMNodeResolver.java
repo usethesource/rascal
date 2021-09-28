@@ -691,7 +691,7 @@ public class ASMNodeResolver implements NodeResolver {
         try {
             return new ClassReader(className);
         }
-        catch (IOException e) {
+        catch (IOException | IllegalArgumentException e) {
             return buildClassReaderFromStream(className);
         }
     }
