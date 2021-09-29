@@ -28,8 +28,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
         <lucence-version>7.5.0</lucence-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
@@ -126,6 +124,7 @@
                     <version>3.8.0</version>
                     <configuration>
                         <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
+                        <release>11</release>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -377,12 +376,17 @@
             <dependency>
                 <groupId>io.usethesource</groupId>
                 <artifactId>vallang</artifactId>
-                <version>0.13.0</version>
+                <version>0.14.2</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-all</artifactId>
-                <version>5.0.4</version>
+                <artifactId>asm</artifactId>
+                <version>9.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-tree</artifactId>
+                <version>9.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -442,7 +446,7 @@
             <dependency>
                 <groupId>com.ibm.icu</groupId>
                 <artifactId>icu4j</artifactId>
-                <version>58.1</version>
+                <version>69.1</version>
             </dependency>
             <dependency>
                 <groupId>org.asciidoctor</groupId>
