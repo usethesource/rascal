@@ -6,7 +6,6 @@ import List;
 import Message;
 import IO;
 import util::FileSystem;
-import Exception;
 import ValueIO;
 import Node;
 import String;
