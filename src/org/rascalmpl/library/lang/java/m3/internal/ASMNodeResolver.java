@@ -119,7 +119,7 @@ public class ASMNodeResolver implements NodeResolver {
         this.typeStore = typeStore;
         this.uri = uri;
         this.registry = URIResolverRegistry.getInstance();
-        this.loader = new SourceLocationClassLoader(initializeClassPath(classPath), getClass().getClassLoader());
+        this.loader = new SourceLocationClassLoader(initializeClassPath(classPath), Object.class.getClassLoader());
         this.typeSchemes = new HashMap<String, String>();
         initializePrimitiveTypes();
     }
