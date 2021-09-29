@@ -40,11 +40,16 @@ public class SourceLocationClassLoader extends ClassLoader {
         super(parent);
         this.path = initialize(classpath);
     }
+
+    public SourceLocationClassLoader(List<ISourceLocation> classpath, ClassLoader parent) {
+        super(parent);
+        this.path = initialize(classpath);
+    }
     
-    private List<ClassLoader> initialize(IList locs) {
+    private List<ClassLoader> initialize(Iterable<? extends IValue> locs) {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
-        ArrayList<URL> fileLocations = new ArrayList<>(locs.length());
-        List<ClassLoader> result = new ArrayList<>(locs.length());
+        ArrayList<URL> fileLocations = new ArrayList<>(10);
+        List<ClassLoader> result = new ArrayList<>(10);
 
         // to enhance class loading performance we group file URL jars
         // into a single URLClassLoader
