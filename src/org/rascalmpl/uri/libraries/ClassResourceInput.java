@@ -23,6 +23,7 @@ import java.nio.charset.Charset;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -33,7 +34,7 @@ import io.usethesource.vallang.ISourceLocation;
  * super() method in the sub-class' constructor with static values, e.g:
  * {@see StandardLibraryURIResolver}
  */
-public abstract class ClassResourceInput implements ISourceLocationInput {
+public abstract class ClassResourceInput implements ISourceLocationInput, IClassloaderLocationResolver {
 	protected final Class<?> clazz;
 	protected final String scheme;
 	protected final String prefix;
@@ -65,10 +66,12 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 		return prefix + (prefix.endsWith("/") ? "" : "/") + path;
 	}
 	
+	@Override
 	public boolean exists(ISourceLocation uri) {
 		return clazz.getResource(getPath(uri)) != null;
 	}
 
+	@Override
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		InputStream resourceAsStream = clazz.getResourceAsStream(getPath(uri));
 		if (resourceAsStream != null) {
@@ -77,10 +80,12 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 		throw new FileNotFoundException(uri.toString());
 	}
 
+	@Override
 	public String scheme() {
 		return scheme;
 	}
 
+	@Override
 	public boolean isDirectory(ISourceLocation uri) {
 	  try {
 	    return URIResolverRegistry.getInstance().isDirectory(resolve(uri));
@@ -89,6 +94,7 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 	  }
 	}
 
+	@Override
 	public boolean isFile(ISourceLocation uri) {
 		try {
 			return URIResolverRegistry.getInstance().isFile(resolve(uri));
@@ -112,7 +118,8 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 			throw new IOException(e);
 		}
 	}
-	
+
+	@Override
 	public long lastModified(ISourceLocation uri) throws IOException {
 		return URIResolverRegistry.getInstance().lastModified(resolve(uri));
 	}
@@ -122,6 +129,7 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 		return URIResolverRegistry.getInstance().listEntries(resolve(uri)); 
 	}
 	
+	@Override
 	public boolean supportsHost() {
 		return false;
 	}
@@ -129,5 +137,11 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return URIResolverRegistry.getInstance().getCharset(resolve(uri));
+	}
+
+	@Override
+	public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
+		assert loc.getScheme().equals(scheme());
+		return clazz.getClassLoader();
 	}
 }
