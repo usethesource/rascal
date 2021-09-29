@@ -47,6 +47,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ParameterNode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -101,10 +102,9 @@ public class ASMNodeResolver implements NodeResolver {
     private ISourceLocation uri;
     
     /**
-     * List of locations pointing to the classpath of the 
-     * main JAR (only JAR files supported).
+     * Optimized classloader for the combined list of classpath elements
      */
-    private List<ISourceLocation> classPath;
+    private final SourceLocationClassLoader loader;
     
     
     //---------------------------------------------
@@ -119,7 +119,7 @@ public class ASMNodeResolver implements NodeResolver {
         this.typeStore = typeStore;
         this.uri = uri;
         this.registry = URIResolverRegistry.getInstance();
-        this.classPath = initializeClassPath(classPath);
+        this.loader = new SourceLocationClassLoader(initializeClassPath(classPath), getClass().getClassLoader());
         this.typeSchemes = new HashMap<String, String>();
         initializePrimitiveTypes();
     }
@@ -147,7 +147,8 @@ public class ASMNodeResolver implements NodeResolver {
      */
     private List<ISourceLocation> initializeClassPath(IList classPath) {
         List<ISourceLocation> cp = new ArrayList<ISourceLocation>();
-        
+        ISourceLocation SYSTEMLOC = URIUtil.rootLocation("system");
+
         try {
             ISourceLocation mainJar = toJarSrcLocation(uri);
             cp.add(mainJar);
@@ -162,6 +163,10 @@ public class ASMNodeResolver implements NodeResolver {
                     throw new RuntimeException("Cannot gather nested JARs.", e);
                 }
             });
+
+            if (!cp.contains(SYSTEMLOC)) {
+                cp.add(SYSTEMLOC);
+            }
         }
         catch (IOException | URISyntaxException e) {
             throw new RuntimeException("Cannot gather nested JARs.", e);
@@ -700,25 +705,19 @@ public class ASMNodeResolver implements NodeResolver {
      * Returns an ASM ClassReader from a compilation unit location 
      * or name. It creates a stream from one of the JARs in the classpath.
      * If the class definition is not found, it returns null.
-     * @param className - class/comilation unit name/path (<pkg>/<name>)
+     * @param className - class/compilation unit name/path (<pkg>/<name>)
      * @return ASM ClassReader, null if the compilation unit is not found
      */
     private ClassReader buildClassReaderFromStream(String className) { 
         try {
-            for (ISourceLocation entry : classPath) {
-                ISourceLocation loc = URIUtil.getChildLocation(entry, className + ".class");
-                if (registry.exists(loc)) {
-                    InputStream stream = registry.getInputStream(loc);
-                    return buildClassReader(stream);
-                }
-            }
+            InputStream stream = loader.getResourceAsStream(className + ".class");
+            return stream != null ?  buildClassReader(stream) : null;
         }
         catch (IOException e) {
-            // Nothing to do
+            return null;
         }
-        return null;
     }
-    
+        
     @Override
     public ClassReader buildClassReader(InputStream classStream) throws IOException {
         return new ClassReader(classStream);
