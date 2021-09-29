@@ -147,7 +147,6 @@ public class ASMNodeResolver implements NodeResolver {
      */
     private List<ISourceLocation> initializeClassPath(IList classPath) {
         List<ISourceLocation> cp = new ArrayList<ISourceLocation>();
-        ISourceLocation SYSTEMLOC = URIUtil.rootLocation("system");
 
         try {
             ISourceLocation mainJar = toJarSrcLocation(uri);
@@ -163,10 +162,6 @@ public class ASMNodeResolver implements NodeResolver {
                     throw new RuntimeException("Cannot gather nested JARs.", e);
                 }
             });
-
-            if (!cp.contains(SYSTEMLOC)) {
-                cp.add(SYSTEMLOC);
-            }
         }
         catch (IOException | URISyntaxException e) {
             throw new RuntimeException("Cannot gather nested JARs.", e);
