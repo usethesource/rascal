@@ -85,7 +85,7 @@ public class TreeAsNode implements INode {
 
     @Override
     public boolean mayHaveKeywordParameters() {
-        return false;
+        return tree.mayHaveKeywordParameters();
     }
 
     @Override
