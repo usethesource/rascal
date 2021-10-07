@@ -346,23 +346,13 @@ public class URIUtil {
 			return false;
 		}
 
-		String childPath = child.getPath();
 		String parentPath = parent.getPath();
-
-		if (childPath.endsWith("/")) {
-			childPath = childPath.substring(0, childPath.length());
+		if (!parentPath.endsWith("/")) {
+			parentPath += "/"; 
 		}
 
-		if (parentPath.endsWith("/")) {
-			parentPath = parentPath.substring(0, parentPath.length());
-		}
-
-		if (childPath.startsWith(parentPath)) {
-			return childPath.length() > parentPath.length() && childPath.charAt(parentPath.length()) == '/';
-		}
-		else {
-			return false;
-		}
+		String childPath = child.getPath();
+		return childPath.length() > parentPath.length() && childPath.startsWith(parentPath);
 	}
 
 	public static ISourceLocation removeExtension(ISourceLocation file) {
