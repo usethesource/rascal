@@ -47,7 +47,10 @@ public interface ICallableValue extends IExternalValue, IFunction {
 	    Type[] types = Arrays.stream(parameters).map(v -> v.getType()).toArray(Type[]::new);
 
 	    try {
-	        Result<IValue> result = call(types, parameters, keywordParameters);
+			Result<IValue> result;
+			synchronized (getEval()) {
+				result = call(types, parameters, keywordParameters);
+			}
 
 	        if (result.getStaticType().isBottom()) {
 	            return null;
@@ -69,7 +72,10 @@ public interface ICallableValue extends IExternalValue, IFunction {
 	    Type[] types = Arrays.stream(parameters).map(v -> v.getType()).toArray(Type[]::new);
 
         try {
-            Result<IValue> result = call(monitor, types, parameters, keywordParameters);
+			Result<IValue> result;
+			synchronized (getEval()) {
+				result = call(monitor, types, parameters, keywordParameters);
+			}
 
             if (result.getStaticType().isBottom()) {
                 return null;
