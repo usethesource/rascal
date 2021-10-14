@@ -12,6 +12,8 @@
  */ 
 package org.rascalmpl.values;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,9 +34,11 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
+import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.ReifiedType;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -245,7 +249,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 }
                 
                 IConstructor grammar = checkPreconditions(start, reified);
-                return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, filters, input.getValue(), origin, allowAmbiguity, hasSideEffects);
+                return ctx.getEvaluator().parseObject(grammar, filters, origin, input.getValue().toCharArray(), allowAmbiguity, hasSideEffects);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -265,7 +269,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             IConstructor grammar = checkPreconditions(start, reified);
             
             try {
-                return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, vf.set(), input.getValue(), false, false);
+                return ctx.getEvaluator().parseObject(grammar, vf.set(), URIUtil.invalidLocation(), input.getValue().toCharArray(), false, false);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -284,17 +288,26 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             IConstructor grammar = checkPreconditions(start, reified);
             
             try {
-                return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, vf.set(), input, false, false);
+                return ctx.getEvaluator().parseObject(grammar, vf.set(), input, readAll(input), false, false);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
                 throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+            }
+            catch (IOException e) {
+                throw RuntimeExceptionFactory.io("IO error: " + e);
             }
             catch (Ambiguous e) {
                 return e.getTree();
             }
             catch (UndeclaredNonTerminalException e){
                 throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+            }
+        }
+
+        private static char[] readAll(ISourceLocation loc) throws IOException {
+            try (Reader chars = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
+                return InputConverter.toChar(chars);
             }
         }
         
@@ -311,11 +324,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
             
             try {
-                return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, vf.set(), input, allowAmbiguity, hasSideEffects);
+                return ctx.getEvaluator().parseObject(grammar, vf.set(), input, readAll(input), allowAmbiguity, hasSideEffects);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
                 throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+            }
+            catch (IOException e) {
+                throw RuntimeExceptionFactory.io("IO error: " + e);
             }
             catch (Ambiguous e) {
                 ITree tree = e.getTree();
