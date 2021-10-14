@@ -812,7 +812,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
     }
 
-    private ParserGenerator parserGenerator;
+    private volatile ParserGenerator parserGenerator;
 
 
     public ParserGenerator getParserGenerator() {
@@ -821,9 +821,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
             }
 
+
+            Evaluator self = this;
             job("Loading parser generator", () -> {
-                parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
-                return true;
+                synchronized (self) {
+                    if (parserGenerator == null) {
+                        parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
+                    }
+                    return true;
+                }
             });
         }
 
