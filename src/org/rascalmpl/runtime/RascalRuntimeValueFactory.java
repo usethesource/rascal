@@ -373,20 +373,9 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         }
         
         private char[] getResourceContent(ISourceLocation location) throws IOException{
-            char[] data;
-            Reader textStream = null;
-
-            try {
-                textStream = URIResolverRegistry.getInstance().getCharacterReader(location);
-                data = InputConverter.toChar(textStream);
+            try (Reader textStream = URIResolverRegistry.getInstance().getCharacterReader(location)) {
+                return InputConverter.toChar(textStream);
             }
-            finally{
-                if(textStream != null){
-                    textStream.close();
-                }
-            }
-
-            return data;
         }
     }
     
