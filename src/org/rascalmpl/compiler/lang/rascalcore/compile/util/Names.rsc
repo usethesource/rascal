@@ -59,9 +59,15 @@ str getClassRef(str qname, str inModule){
 }
 
 str getPackageName(str qname){
-    className = normalizeQName(qname); // replaceColonAndDash(qname);
+    className = normalizeQName(qname);
     n = findLast(className, ".");
     return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>" : compiled_rascal_package;
+}
+
+str getPackagePath(str qname){
+    className = normalizeQName(qname);
+    n = findLast(className, ".");
+    return n >= 0 ? "<className[0 .. n]>" : "";
 }
 
 str getClass(str qname){
