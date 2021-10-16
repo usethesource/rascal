@@ -10,9 +10,12 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -588,11 +591,22 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return res;
 	}
 	
-	public IList readBinaryConstantsFile(String path) {
+	public IList readBinaryConstantsFile(String path, String name) {
 		Type start = $TF.listType($TF.valueType());
 		
-		ISourceLocation loc;
-		loc = $VF.sourceLocation("/Users/paulklint/git/rascal-core/generated/" + path);
+		ISourceLocation loc = null; 
+// In preparation of a permanent location for the constants file
+//		try {
+//			URL url1 = this.getClass().getClassLoader().getResource("lang/rascalcore/compile/Examples");
+//			URL url2 = new URL(url1.getProtocol(), url1.getHost(), url1.getPort(), url1.getPath() + "/" + name, null);
+//			loc = $VF.sourceLocation(url2.toURI());
+//		} catch (MalformedURLException e) {
+//			System.err.println("readBinaryConstantsFile: " + path + "/" + name + " throws " + e.getMessage());
+//		} catch (URISyntaxException e) {
+//			System.err.println("readBinaryConstantsFile: " + path + "/" + name + " throws " + e.getMessage());
+//		}
+
+		loc = $VF.sourceLocation("/Users/paulklint/git/rascal-core/generated/compiled_rascal/" + path + "/" + name);
 		try (IValueInputStream in = constructValueReader(loc)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){

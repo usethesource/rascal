@@ -2,6 +2,7 @@ package org.rascalmpl.core.library;
 
 import java.io.PrintWriter;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.values.IRascalValueFactory;
 
@@ -15,8 +16,8 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class PreludeCompiled extends Prelude {
 
-	public PreludeCompiled(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store) {
-		super(values, rascalValues, out, store);
+	public PreludeCompiled(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor) {
+		super(values, rascalValues, out, store, monitor);
 	}
 	
 }
