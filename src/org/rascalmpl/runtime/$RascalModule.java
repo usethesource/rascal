@@ -592,7 +592,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		Type start = $TF.listType($TF.valueType());
 		
 		ISourceLocation loc;
-		loc = $VF.sourceLocation("/Users/paulklint/git/rascal-core/generated/" + path);
+		loc = $VF.sourceLocation("/Users/jurgenv/git/rascal-core/generated/" + path);
 		try (IValueInputStream in = constructValueReader(loc)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
