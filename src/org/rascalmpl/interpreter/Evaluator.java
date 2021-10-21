@@ -716,8 +716,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override	
     public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
         IConstructor startSort = (IConstructor) grammar.get("symbol");
-        IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) grammar.get("definitions"));
-        String name = getParserGenerator().getParserMethodName(startSort);
+        IGTD<IConstructor, ITree, ISourceLocation> parser;
+        String name;
+        synchronized(this) {
+            parser = getObjectParser((IMap) grammar.get("definitions"));
+            name = getParserGenerator().getParserMethodName(startSort);
+        }
 
         __setInterrupt(false);
         IActionExecutor<ITree> exec = !filters.isEmpty() 
