@@ -83,7 +83,9 @@ public class ParserGenerator {
 	}
 	
 	public IValue diagnoseAmbiguity(IConstructor parseForest) {
-		return evaluator.call("diagnose", parseForest);
+		synchronized(evaluator) {
+			return evaluator.call("diagnose", parseForest);
+		}
 	}
 	
 	/**
@@ -105,7 +107,11 @@ public class ParserGenerator {
 			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			String normName = name.replaceAll("::", "_");
 			monitor.jobStep(JOB, "Generating java source code for parser: " + name,30);
-			IString classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
+
+			IString classString;
+			synchronized(evaluator) {
+				classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
+			}
 			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
 			monitor.jobStep(JOB, "Compiling generated java code: " + name, 30);
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
@@ -144,24 +150,28 @@ public class ParserGenerator {
 	}
 	
 	public IConstructor getGrammarFromModules(IRascalMonitor monitor, String main, IMap modules) {
-		return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), modules);
+		synchronized(evaluator) {
+			return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), modules);
+		}
 	}
 	
 	public IConstructor getExpandedGrammar(IRascalMonitor monitor, String main, IMap definition) {
-		IConstructor g = getGrammarFromModules(monitor, main, definition);
-		String JOB = "Expanding Grammar";
+		synchronized(evaluator) {
+			IConstructor g = getGrammarFromModules(monitor, main, definition);
+			String JOB = "Expanding Grammar";
 
-		monitor.jobStep(JOB, "Expanding keywords", 10);
-		g = (IConstructor) evaluator.call(monitor, "expandKeywords", g);
-		monitor.jobStep(JOB, "Adding regular productions",10);
-		g = (IConstructor) evaluator.call(monitor, "makeRegularStubs", g);
-		monitor.jobStep(JOB, "Expanding regulars", 10);
-		g = (IConstructor) evaluator.call(monitor, "expandRegularSymbols", g);
-		monitor.jobStep(JOB, "Expanding parametrized symbols");
-		g = (IConstructor) evaluator.call(monitor, "expandParameterizedSymbols", g);
-		monitor.jobStep(JOB, "Defining literals");
-		g = (IConstructor) evaluator.call(monitor, "literals", g);
-		return g;
+			monitor.jobStep(JOB, "Expanding keywords", 10);
+			g = (IConstructor) evaluator.call(monitor, "expandKeywords", g);
+			monitor.jobStep(JOB, "Adding regular productions",10);
+			g = (IConstructor) evaluator.call(monitor, "makeRegularStubs", g);
+			monitor.jobStep(JOB, "Expanding regulars", 10);
+			g = (IConstructor) evaluator.call(monitor, "expandRegularSymbols", g);
+			monitor.jobStep(JOB, "Expanding parametrized symbols");
+			g = (IConstructor) evaluator.call(monitor, "expandParameterizedSymbols", g);
+			monitor.jobStep(JOB, "Defining literals");
+			g = (IConstructor) evaluator.call(monitor, "literals", g);
+			return g;
+		}
 	}
 
 	public ISet getNestingRestrictions(IRascalMonitor monitor,
@@ -242,7 +252,10 @@ public class ParserGenerator {
 		try {
 			String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
 			monitor.jobStep(JOB, "Generating java source code for parser: " + name,30);
-			IString classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
+			IString classString;
+			synchronized (evaluator) {
+				classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
+			}
 			debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
 			monitor.jobStep(JOB,"Compiling generated java code: " + name, 30);
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
@@ -256,6 +269,8 @@ public class ParserGenerator {
 	}
 
 	public String createHole(IConstructor part, int size) {
-	    return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
+		synchronized (evaluator) {
+			return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
+		}
 	}
 }
