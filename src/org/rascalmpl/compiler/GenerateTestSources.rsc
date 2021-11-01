@@ -10,7 +10,7 @@ import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
 
-PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/generated/compiled_rascal|);
+PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target|);
 
 void main(list[str] args) = generateTestSources(manualTestConfig);
 

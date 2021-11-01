@@ -3,8 +3,9 @@ module lang::rascalcore::compile::util::Names
 import String;
 import IO;
 import List;
+import util::Reflective;
 
-str compiled_rascal_package = "compiled_rascal";
+str compiled_rascal_package = "rascal";
 
 str removeEmptyLines(str s){
     return visit(s) { case /^\n[ ]*\n/ => "\n" };
@@ -52,15 +53,15 @@ str getClassName(str qname){
 str getClassRef(str qname, str inModule){
     qname = normalizeQName(qname); // replaceColonAndDash(qname);
     n = findLast(qname, ".");
-    //if(getPackageName(inModule) != compiled_rascal_package){
-        qname = "<compiled_rascal_package>.<qname>";
-   // }
-   return qname;
+   
+    qname = "<compiled_rascal_package>.<qname>";
+    return qname;
 }
 
 str getPackageName(str qname){
     className = normalizeQName(qname);
     n = findLast(className, ".");
+    //return n >= 0 ? className[0 .. n] : "";
     return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>" : compiled_rascal_package;
 }
 
@@ -70,9 +71,22 @@ str getPackagePath(str qname){
     return n >= 0 ? "<className[0 .. n]>" : "";
 }
 
+loc getDerivedClassesDir(str qualifiedModuleName, PathConfig pcfg){
+    return pcfg.bin + "classes/<compiled_rascal_package>" + makeDirName(qualifiedModuleName);
+}
+
+loc getDerivedSrcsDir(str qualifiedModuleName, PathConfig pcfg){
+    return pcfg.bin + "generated-sources/<compiled_rascal_package>" + makeDirName(qualifiedModuleName);
+}
+str makeDirName(str qualifiedModuleName){
+    parts = split("::", qualifiedModuleName);
+    return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
+}
+
 str getClass(str qname){
     qname = normalizeQName(qname); // replaceColonAndDash(qname);
     n = findLast(qname, ".");
+    //return n >= 0 ? qname[n+1 ..] : qname;
     return n >= 0 ? "<compiled_rascal_package>.<qname[n+1 ..]>" : "<compiled_rascal_package>.<qname>";
 }
 
@@ -102,28 +116,11 @@ str getJavaName(str fname, bool completeId = true){
     res = completeId && fname in javaKeywords ? "$<fname>" : replaceAll(replaceAll(fname, "-", "_"), "\\", "");
     return res;
 }
-    
-str  module2uqclass(str qname, str inModule){
-    qname = normalizeQName(qname); // replaceAll(qname, "::", ".");
-    n = findLast(qname, ".");
-    uqname = n >= 0 ? qname[n+1 ..] : qname;
-   //if(getPackageName(inModule) != compiled_rascal_package){
-        uqname = "<compiled_rascal_package>.<uqname>";
-    //}
-    return uqname;
-}
 
 str module2class(str qname){
     return getBaseClass(qname); //replaceAll(qname, "::", ".");
 }
 
-str module2dir(str qname){
-
-    pieces = split("::", qname);
-    pieces = [getJavaName(x) | x <- pieces];
-    
-    return size(pieces) > 1 ? "<compiled_rascal_package>/<intercalate("/", pieces[..-1])>": compiled_rascal_package;
-}
 
 str module2field(str qname){
     return "M_" + replaceAll(normalizeQName(qname) /*replaceColonAndDash(qname)*/, ".", "_");
@@ -134,6 +131,7 @@ str colon2ul(str s) = replaceAll(replaceAll(s, "::", "_"), "$", ".");
 str module2interface(str qname){
     className = normalizeQName(qname);
     n = findLast(className, ".");
+    //return n >= 0 ? "<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
     return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
 }
 
@@ -161,6 +159,3 @@ str unescapeAndStandardize(str s){
 str unescapeName(str s){
     return s[0] ==  "\\" ? s[1..] : s;
 }
-
-    
-

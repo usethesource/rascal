@@ -91,22 +91,9 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     functions         = "<for(f <- m.functions){>
                         '<trans(f, jg)>
                         '<}>";
-                        
-                        
-    str compilerVersionOfLibrary(str qname){
-        libpref = "org.rascalmpl.library";
-        if(contains(qname, libpref)){
-            libpost = qname[findFirst(qname, libpref) + size(libpref) + 1 ..];
-            tmp = |project://rascal-core/src/org/rascalmpl/core/library/<replaceAll(libpost, ".", "/")>Compiled.java|;
-            if(exists(tmp)){
-                return "org.rascalmpl.core.library.<libpost>Compiled";
-            }
-        }
-        return qname;
-    }
                
     library_inits     = "<for(class <- jg.getImportedLibraries()){
-                           libclass = compilerVersionOfLibrary(getQualClassName(class));>
+                           libclass = getQualClassName(class);>
                         '    // TODO: getBaseClass will generate name collisions if there are more of the same name in different packages\n
                         'final <libclass> <getBaseClass(class)> = $initLibrary(\"<libclass>\"); 
                         '<}>";
@@ -126,6 +113,8 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         '<}>";
     module_var_inits =  "<for(exp <- m.initialization){><trans(exp, jg)><}>";
     <constant_decls, constant_inits, constants> = jg.getConstants();
+    
+    constantsFile = "rascal/" + replaceAll(getPackagePath(moduleName),".","/") + "/<className>.constants";
   
     class_constructor = "public <className>(){
                         '    this(new ModuleStore(), null);
@@ -146,7 +135,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         '   <module2field(ext)> = store.extendModule(<getClassRef(ext, moduleName)>.class, <getClassRef(ext, moduleName)>::new, this);<}>
                         '   <for(imp <- imports+extends){>
                         '   $TS.importStore(<module2field(imp)>.$TS);<}>
-                        '   $constants = readBinaryConstantsFile(\"<replaceAll(getPackagePath(moduleName),".","/")>\",\"<className>.constants\");
+                        '   $constants = readBinaryConstantsFile(this.getClass(), \"<constantsFile>\");
                         '   <adtTypeInits>
                         '   <constant_inits>
                         '   <consTypeInits> 
@@ -362,7 +351,7 @@ str getMemoCache(MuFunction fun)
 JCode trans(MuFunction fun, JGenie jg){
     //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
-    iprintln(fun);
+    //iprintln(fun);
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return "";
     

@@ -18,14 +18,13 @@ import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
 //import lang::rascalcore::compile::util::ConcreteSyntax;
 
-// TODO: remove this hard constant. The compiler only works for this project now because of this constant
-loc generatedDir = |project://rascal-core/generated|;
-
-
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=true){
     tm = tmodels[qualifiedModuleName];
     //iprintln(tm, lineLimit=10);
-    targetDir = generatedDir + module2dir(qualifiedModuleName);
+    
+    genSourcesDir = getDerivedSrcsDir(qualifiedModuleName, pcfg);
+    classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
+    
     className = getBaseClass(qualifiedModuleName);
    
     list[Message] errors = [ e | e:error(_,_) <- tm.messages];
@@ -48,11 +47,12 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         
         <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, moduleLocs);
      
-        writeFile(targetDir + "$<className>.java", the_interface);
-        writeFile(targetDir + "<className>.java", the_class);
-        println("Written: <targetDir + "<className>.java">");
-        writeFile(targetDir + "<className>Tests.java", the_test_class);
-        writeBinaryValueFile(targetDir + "<className>.constants", constants);
+        writeFile(genSourcesDir + "$<className>.java", the_interface);
+        writeFile(genSourcesDir + "<className>.java", the_class);
+        println("Written: <genSourcesDir + "<className>.java">");
+        writeFile(genSourcesDir + "<className>Tests.java", the_test_class);
+        writeBinaryValueFile(classesDir + "<className>.constants", constants);
+        println("Written: <classesDir + "<className>.constants">");
      
         return tm.messages;
        

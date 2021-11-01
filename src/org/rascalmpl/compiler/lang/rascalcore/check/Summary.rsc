@@ -74,7 +74,7 @@ ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
 Make a ModuleSummary.
 }
 ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
-    if(<true, tplLoc> := getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg)){
+    if(<true, tplLoc> := getTPLReadLoc(qualifiedModuleName, pcfg)){
         try {
             return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
         } catch IO(_): {

@@ -18,7 +18,11 @@ import ValueIO;
 import analysis::graphs::Graph;
 import util::Reflective;
 
-tuple[bool,loc] TPLReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
+tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
+    classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
+    tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
+    return <exists(tplLoc), tplLoc>;
+}
 
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
@@ -120,7 +124,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
     if(ms.modules[qualifiedModuleName]? || ms.tmodels[qualifiedModuleName]?){
         return ms;
     }
-    <found, tplLoc> = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
+    <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, pcfg);
     if(found){
         try {
             allImportsAndExtendsValid = true;
@@ -243,7 +247,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     try {
         mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
-        tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
+       classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
+       tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
+        //tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
         
         bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
             + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
@@ -328,6 +334,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
         try {
             writeBinaryValueFile(tplLoc, m1);
+            println("Written: <tplLoc>");
         } catch exep: {
             throw "Corrupt TPL file <tplLoc>";
         }
