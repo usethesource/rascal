@@ -79,7 +79,7 @@ loc getDerivedSrcsDir(str qualifiedModuleName, PathConfig pcfg){
     return pcfg.bin + "generated-sources/<compiled_rascal_package>" + makeDirName(qualifiedModuleName);
 }
 str makeDirName(str qualifiedModuleName){
-    parts = split("::", qualifiedModuleName);
+    parts =  escapeJavaKeywords(normalize(split(qualifiedModuleName)));
     return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
 }
 
