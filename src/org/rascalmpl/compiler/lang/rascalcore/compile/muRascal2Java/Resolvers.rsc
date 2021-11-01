@@ -132,10 +132,6 @@ list[MuExp] getExternalRefs(set[Define] relevant_fun_defs, map[loc, MuFunction] 
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module, JGenie jg){
     module_scopes = domain(loc2module);
     
-    if(functionName == "isSorted"){
-        println("isSorted");
-    }
-    
     local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};  
     nonlocal_fun_defs0 = 
         for(def <- fun_defs){

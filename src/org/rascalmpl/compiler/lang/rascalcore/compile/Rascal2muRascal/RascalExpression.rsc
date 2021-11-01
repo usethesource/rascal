@@ -1711,7 +1711,7 @@ MuExp translateGenerator(Pattern pat, Expression exp, BTSCOPES btscopes, MuExp t
                          muConInit(lastVar, muSubNativeInt(muSize(expVar, expType), muCon(1))),
                          muForRangeInt(enterGen, ivar, 0, delta, lastVar, body, falseCont)
                        ]);
-        iprintln(code);
+        //iprintln(code);
     } else {
     // generic enumerator
         code = muForAll(enterGen, elem, getType(exp), translate(exp), translatePat(pat, elemType,  elem, btscopes, trueCont, muFail(resumeGen)), falseCont);
@@ -2000,7 +2000,7 @@ MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`, BTSCOPE
     if(backtrackFree(lhs)){
         return muIfExp(translate(lhs), translate(rhs), muCon(true));
     }
-    iprintln(btscopes);
+    //iprintln(btscopes);
     trueCont1 = muBlock([muComment("trueCont1"), muSucceed(getEnter(lhs, btscopes))]);
     trueCont2 = muBlock([muComment("trueCont2"), muFail(getResume(rhs, btscopes))]);
     enterLhs = getEnter(lhs, "IMPLIES", btscopes);

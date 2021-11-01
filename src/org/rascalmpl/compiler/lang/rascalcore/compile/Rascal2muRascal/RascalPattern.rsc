@@ -2059,9 +2059,9 @@ BTINFO getBTInfo(p:(Pattern) `! <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES b
 MuExp translatePat(p:(Pattern) `! <Pattern pattern>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])){
     my_btscope = btscopes[getLoc(p)];
     patCode = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont, falseCont, restore=restore);
-    iprintln(patCode);
+    //iprintln(patCode);
     code = muNot(patCode);
-    iprintln(code);
+    //iprintln(code);
 
     //my_btscope = btscopes[getLoc(p)];
     //code = muEnter(my_btscope.enter, translatePat(pattern, subjectType, subjectExp, btscopes, falseCont, trueCont, restore=restore));

@@ -2,6 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,12 +11,10 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -591,30 +590,52 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return res;
 	}
 	
-	public IList readBinaryConstantsFile(String path, String name) {
-		Type start = $TF.listType($TF.valueType());
-		
-		ISourceLocation loc = null; 
-// In preparation of a permanent location for the constants file
-//		try {
-//			URL url1 = this.getClass().getClassLoader().getResource("lang/rascalcore/compile/Examples");
-//			URL url2 = new URL(url1.getProtocol(), url1.getHost(), url1.getPort(), url1.getPath() + "/" + name, null);
-//			loc = $VF.sourceLocation(url2.toURI());
-//		} catch (MalformedURLException e) {
-//			System.err.println("readBinaryConstantsFile: " + path + "/" + name + " throws " + e.getMessage());
-//		} catch (URISyntaxException e) {
-//			System.err.println("readBinaryConstantsFile: " + path + "/" + name + " throws " + e.getMessage());
-//		}
+	 /**
+     * Searchers for META-INF/RASCAL.MF to infer the root of a Rascal source project.
+     * If cwd has a parent which contains this META-INF/RASCAL.MF file then the
+     * location of this parent is returned. If it is not found, this function returns null.
+     * @param cwd
+     * @return
+     */
+    private static ISourceLocation inferProjectRoot(File cwd) {
+        try {
+            File current = cwd;
+            while (current != null && current.exists() && current.isDirectory()) {
+                if (new File(current, "META-INF/RASCAL.MF").exists()) {
+                    return URIUtil.createFileLocation(current.getAbsolutePath());
+                }
+                current = current.getParentFile();
+            }
+        }
+        catch (URISyntaxException e) {
+            return null;
+        }
 
-		loc = $VF.sourceLocation("/Users/paulklint/git/rascal-core/generated/compiled_rascal/" + path + "/" + name);
-		try (IValueInputStream in = constructValueReader(loc)) {
-			IValue val = in.read();;
-			if(val.getType().isSubtypeOf(start)){
-				return (IList) val;
-			} else {
-			throw RuntimeExceptionFactory.io($VF.string("Requested type " + start + ", but found " + val.getType()));
+        return null;
+    }
+	
+    public IList readBinaryConstantsFile(Class<?> c, String path) {
+    	Type start = $TF.listType($TF.valueType());
+    	
+		ISourceLocation loc = null; 
+		try {
+			URL url = c.getClassLoader().getResource(path);
+			if(url == null) {
+				throw RuntimeExceptionFactory.io($VF.string("Cannot find resource " + path));
 			}
+			loc = $VF.sourceLocation(url.toURI());
+		} catch (URISyntaxException e) {
+			System.err.println("readBinaryConstantsFile: " + path + " throws " + e.getMessage());
 		}
+
+    	try (IValueInputStream in = constructValueReader(loc)) {
+    		IValue val = in.read();;
+    		if(val.getType().isSubtypeOf(start)){
+    			return (IList) val;
+    		} else {
+    			throw RuntimeExceptionFactory.io($VF.string("Requested type " + start + ", but found " + val.getType()));
+    		}
+    	}
 		catch (IOException e) {
 			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
 			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));

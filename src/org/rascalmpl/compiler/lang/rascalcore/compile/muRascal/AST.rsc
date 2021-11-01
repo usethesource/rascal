@@ -853,7 +853,7 @@ private default MuExp addReturn(AType t, bool result, MuExp exp) {
 }
 
 MuExp insertReturn(MuExp exp, lrel[str,str] entered, bool asBool, bool exhaustedVal){
-iprintln(exp);
+//iprintln(exp);
     return
           top-down visit(exp) { 
                 case muSucceed(enter): {    //if(endsWith(enter, "_DESC")) insert muReturn1(abool(), muCon(true));

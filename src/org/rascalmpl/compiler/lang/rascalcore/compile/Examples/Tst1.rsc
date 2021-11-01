@@ -1,22 +1,38 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-//value main(){
-//    x = 10;
-//    delta = 2;
-//    res = 0;
-//    if(x > 10){
-//        int i = 0;
-//        while(i < 10 && i > 0) { res += 1; i += delta; };
-//    
-//    } else {
-//        int j = 0;
-//        while(j < 10  && j > 0) { res += 1; j += delta; };
-//    
-//    }
-//    return 11;
+
+start syntax D = "d";
+start syntax DS = D+ ds;
+
+value main() = //test bool parseD1() = 
+    (D)`d` := parse(#D, "d");
+
+
+public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
+
 //
+//start syntax D = "d";
+//start syntax DS = D+ ds;
+//
+//value main() = //test bool parseD1() = 
+//    (D)`d` := parse(#D, "d");
+
+// value main() { //test bool voidMaybeShouldShouldThrowException() {
+//
+//  &T testFunction(Maybe[&A] m) = m.val; 
+//   // 
+//   //try {
+//   //   Maybe[value] m = nothing();
+//   //   value x = testFunction(m);
+//   //   return x != 123; // this comparison never happens
+//   //}
+//   //catch NoSuchField(_) :
+//   //  return true;
 //}
- 
  
 //@javaClass{org.rascalmpl.library.Prelude}
 //public java bool isEmpty(list[&T] lst);
@@ -29,16 +45,6 @@ module lang::rascalcore::compile::Examples::Tst1
 
 
 
-public int makeSlice(){
-  int i = 0;
- 
-  if(i <= 100){
-     while(i >= 0){
-        ;//i += 1;
-     }
-  }
-  return 0;
-}
 
 
 
