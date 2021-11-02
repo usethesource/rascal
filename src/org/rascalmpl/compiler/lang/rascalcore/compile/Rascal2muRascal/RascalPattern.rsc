@@ -1703,7 +1703,7 @@ MuExp translateListPat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType,
                                        : [ block ])
                      ]);
     //code = muEnter(getEnter(p, btscopes), code); // <<
-    iprintln(code);
+    //iprintln(code);
     return code;
 }
 
