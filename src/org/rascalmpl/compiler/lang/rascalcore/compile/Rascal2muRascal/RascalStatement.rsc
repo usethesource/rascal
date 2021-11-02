@@ -16,6 +16,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::AType;
 //import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::Fingerprint;
+import lang::rascalcore::check::BacktrackFree;
 
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
@@ -125,8 +126,8 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
                          muPrim("close_list_writer", avalue(), [avalue()], [writer], s@\loc)
                        ]);
     } else {
-        code = loopBody;
-        //code = muValueBlock(getType(s), [ loopBody, muCon([]) ]);
+        //code = loopBody;
+        code = muValueBlock(getType(s), [ loopBody, muCon([]) ]);
     }
    
     leaveLoop();
@@ -187,8 +188,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
                               muPrim("close_list_writer", avalue(), [avalue()], [writer], s@\loc)
                             ]);
     } else {
-        code = loopBody;
-        //code = muValueBlock(getType(s), [ loopBody, muCon([]) ]);
+        code = muValueBlock(getType(s), [ loopBody, muCon([]) ]);
     }
                           
     leaveLoop();
@@ -234,8 +234,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
                               muPrim("close_list_writer", avalue(), [avalue()], [writer], s@\loc)
                             ]);
     } else {
-        code = loopBody;
-        //code = muValueBlock(avoid(), [ loopBody, muCon([]) ]);
+        code = muValueBlock(avoid(), [ loopBody, muCon([]) ]);
     }
     
     leaveLoop();
@@ -915,11 +914,25 @@ MuExp translateReturn(Statement+ statements, BTSCOPES btscopes){
 }
 
 MuExp translateReturn(AType resultType, Expression expression){
-    return muReturn1(resultType, translate(expression));
+    code = translate(expression);
+    if(isBoolType(resultType)){
+        switch(code){
+            case muSucceed(enter): return muReturn1(resultType, muCon(true));
+            case muFail(enter): return muReturn1(resultType, muCon(false));   
+        }
+    }
+    return muReturn1(resultType, code);
 }
     
 default MuExp translateReturn(AType resultType, Statement statement, BTSCOPES btscopes){
-    return muReturn1(resultType, translate(statement, btscopes));
+    code = translate(statement, btscopes);
+    if(isBoolType(resultType)){
+        switch(code){
+            case muSucceed(enter): return muReturn1(resultType, muCon(true));
+            case muFail(enter): return muReturn1(resultType, muCon(false));   
+        }
+    }
+    return muReturn1(resultType, code);
 }
 
 // -- throw statement ------------------------------------------------

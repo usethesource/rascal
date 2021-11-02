@@ -1,33 +1,170 @@
 module lang::rascalcore::compile::Examples::Tst1
 
 
-lexical LOOPKW = WHILE || DO;
-lexical WHILE = 'while';
-lexical DO = "do";
-lexical BEGINEND = BEGIN || END;
-lexical BEGIN = 'begin';
-lexical END = "END";
+public &T head([&T h, *&T _]) = h; 
 
-keyword KW = LOOPKW || BEGINEND;
+//start syntax D = "d";
+//start syntax DS = D+ ds;
+//
+//value main() = //test bool parseD1() = 
+//    (D)`d` := parse(#D, "d");
+//
+//
+//public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+//  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
+//
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
 
+//
+//start syntax D = "d";
+//start syntax DS = D+ ds;
+//
+//value main() = //test bool parseD1() = 
+//    (D)`d` := parse(#D, "d");
 
-//syntax D = "d";
-//syntax Ds = {D ","}* ds;
-// 
-// value main()//test bool concreteMatchDs10() 
-//    = (Ds) `<{D ","}* ds1>,d,<{D ","}* ds2>` := [Ds] "d" && "<ds1>" == "" && "<ds2>" == "";
+// value main() { //test bool voidMaybeShouldShouldThrowException() {
+//
+//  &T testFunction(Maybe[&A] m) = m.val; 
+//   // 
+//   //try {
+//   //   Maybe[value] m = nothing();
+//   //   value x = testFunction(m);
+//   //   return x != 123; // this comparison never happens
+//   //}
+//   //catch NoSuchField(_) :
+//   //  return true;
+//}
  
- public value main() = 13;
-    
-//    
-//syntax OptTestGrammar = A? a B b;
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java bool isEmpty(list[&T] lst);
+//
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java &T elementAt(list[&T] lst, int index);
+//
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java int size(list[&T] lst);
+
+
+
+
+
+
+
+//layout Whitespace = [\ \t\n]*;
 //syntax A = "a";
 //syntax B = "b";
 //
-//value main() //test bool optionalPresentIsTrue() 
-//    = (A)`a` <- ([OptTestGrammar] "b").a;
-//    
+//syntax P[&T] = "{" &T ppar "}";
+//syntax PA = P[A] papar;
+//
+//value main() //test bool PA9() 
+//    = "<(P[A]) `{a}`>" == "<[P[A]] "{a}">";
+   
+//value main(){ //test bool returnOfAnInstantiatedGenericFunction() {
+//    &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+//      return f(t, u); 
+//    };
+//
+//    int add(int i, int j) = i + j;
+//
+//    // issue #1467 would not allow this assignment because the 
+//    // returned closure was not instantiated properly from `&S (&U)` to `int(int)`
+//    int (int) f = curry(add, 1); 
+//
+//    return f(1) == 2 && (f o f)(1) == 3;
+//}
+
+
+//value main()  
+    // /!4 := [1,2,3,2];
+    // /!4 := 3;
+    // /!4 !:= 4; 
+    // /!4 := 3; 
+    // /int N := 1 && N == 1;
+       ///!4 := [1,2,3,4];
+       //({e(int _)} !:= {a()});
+  
     
+//data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
+// 
+//test bool not1() = !(1 == 2);
+//test bool not2() = !!(1 == 1);
+//test bool not3() = !(1 != 1);
+//
+//test bool list0() = ([int N, 2, N] := [1,2,1]) && (N == 1);
+//test bool list1() = !([] !:= []);
+//test bool list2() = !([1, *_, 5] := [1,2,4]);
+//test bool list3() = !([1, *_, 5] !:= [1,2,5]);
+//
+//public bool isDuo3(list[int] L)
+//{
+//    return [*int L1, *L1] := L;
+//}
+//
+//test bool list4() = isDuo3([1]) == false;
+//
+//
+//test bool set1() = !({} !:= {});
+//test bool set2() = !({1, *_, 5} := {1,2,4});
+//test bool set3() = !({1, *_, 5} !:= {1,2,5});
+//test bool set4() = {*str _, int _} !:= {"a", true};
+//test bool set5() = ({e(int _)} !:= {a()});
+//
+//test bool enum1() = !(int n <- []);
+//test bool enum2() = !(bool b <- ["a", 1]);
+//test bool enum3() = !(int n <- [1,2,3,4,5,6,7,8,9,10] && n > 11);
+//
+//test bool range1() = !(int n <- [1..10] && n > 11);
+//test bool range2() = !(int n <- [1,3..10] && n > 11); 
+//
+//test bool descendant1() = /!4 := 3; 
+//test bool descendant2() = /!4 !:= 4; 
+//test bool descendant3() = /!4 := 3;
+//test bool descendant4() = /!4 := [1,2,3,2];
+//test bool descendant5() = /!4 !:= [1,2,3,4];
+//test bool descendant6() = !/!4 := [1,2,3,4];
+//test bool descendant7() = /int N := 1 && N == 1;
+//test bool descendant8() = /[int _, *int _] := [[], [1, 1]];
+//
+//public (&T <:num) sum(set[(&T <:num)] _:{}) {
+//    throw "ArithmeticException"(
+//        "For the emtpy set it is not possible to decide the correct precision to return.\n
+//        'If you want to call sum on empty set, use sum({0.000}+st) or sum({0r} +st) or sum({0}+st) 
+//        'to make the set non-empty and indicate the required precision for the sum of the empty set 
+//        ");
+//}
+//
+//public default (&T <:num) sum({(&T <: num) e, *(&T <: num) r})
+//    = (e | it + i | i <- r);
+//    
+//test bool sum1()  = sum({0}) == 0;
+
+
+
+//value main(){ //test bool compositeImplCntBTLast2() {
+//    n = 0;
+//    ten = 10;
+//    if( ten > 9 ==> [*int _, int  _, *int _] := [1,2,3] )  {
+//        n = n + 1;
+//        fail;
+//    }
+//    return n == 3;
+//}
+
+
+//!({*int _, int N} := {1,2,3,4}) && (N == 1);
+
+//!(bool b <- ["a", 1]);
+
+//int i <- [1,4] && i >= 4;
+
+//!(bool b <- ["a", 1]);
+    
+ //value main () {
+ //   L = [<1,10>, <2,20>];
+ //   return <[a | <a,_> <- L], [b | <_,b> <- L]>;
+//}
 //value main(){ //test bool exceptionHandling3(){
 //
 //    value f() { throw "Try to catch me!"; }

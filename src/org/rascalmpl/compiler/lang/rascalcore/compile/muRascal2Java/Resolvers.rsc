@@ -98,7 +98,7 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes) | mname <- tmodels };
                           
     resolvers = "";
-    for(<fname, farity> <- domain(functions_and_constructors), !isMainName(fname), !isClosureName(fname)){
+    for(<fname, farity> <- domain(functions_and_constructors), !isClosureName(fname)){
         // Group all functions of same name and arity by scope
         set[Define] defs = functions_and_constructors[<fname, farity>];
         defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
@@ -157,6 +157,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     }
     
    acons_fun_type = afunc(acons_adt, acons_fields, acons_kwfields);
+   
    resolver_fun_type = (avoid() | alub(it, tp) | fdef <- relevant_fun_defs, defType(tp) := fdef.defInfo);
    resolver_fun_type = isEmpty(relevant_fun_defs) ? acons_fun_type
                                                   : (isEmpty(cons_defs) ? resolver_fun_type
@@ -165,13 +166,25 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     if(!isFunctionType(resolver_fun_type)) return "";
     
     inner_scope = "";
+   
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
         def = getOneFrom(relevant_fun_defs);
         fun = loc2muFunction[def.defined];
         inner_scope = "<fun.scopeIn>_";
     }
     resolverName = "<inner_scope><getJavaName(functionName)>";
-  
+    
+    fun_kwFormals = [];
+    for(def <- relevant_fun_defs /*local_fun_defs*/, def notin cons_defs, defType(tp) := def.defInfo){
+        if(loc2muFunction[def.defined]?){
+            fun = loc2muFunction[def.defined];
+            fun_kwFormals += jg.collectKwpFormals(fun);
+        } else {
+            fun_kwFormals += tp.kwFormals;
+        }
+    }
+    resolver_fun_type = resolver_fun_type[kwFormals=fun_kwFormals];
+    
     resolverFormalsTypes = unsetRec(resolver_fun_type has formals ? resolver_fun_type.formals : resolver_fun_type.fields);
     resolverFormalsTypes = [ avalue() | tp <- resolverFormalsTypes ];
     arityFormalTypes = size(resolverFormalsTypes);
@@ -185,7 +198,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     body = returns_void ? "" : "<atype2javatype(returnType)> $result = null;\n";
     
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-    activeKwpFormals1 = { *jg.collectKwpFormals(fun) | def <- local_fun_defs,  def.defined in local_fun_defs, fun := loc2muFunction[def.defined] };
+    activeKwpFormals1 = { *jg.collectKwpFormals(fun) | def <- local_fun_defs, def.defined in local_fun_defs, fun := loc2muFunction[def.defined]};
    
     if(hasKeywordParameters(resolver_fun_type) || !isEmpty(activeKwpFormals1)) { //any(def <- local_fun_defs, def.scope != module_scope)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
@@ -220,9 +233,13 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
        
        actuals_text = intercalate(", ", call_actuals);
        activeKwpFormals = [];
-       if(def.defined in local_fun_defs){
-          fun = loc2muFunction[def.defined];
-          activeKwpFormals = jg.collectKwpFormals(fun);
+       if(def in relevant_fun_defs /*local_fun_defs*/){
+          if(loc2muFunction[def.defined]?){
+            fun = loc2muFunction[def.defined];
+            activeKwpFormals += jg.collectKwpFormals(fun);
+          } else if(defType(tp) := def.defInfo){
+            activeKwpFormals += tp.kwFormals;
+          }
         }
         if(hasKeywordParameters(def_type) || (def.scope notin module_scopes && !isEmpty(activeKwpFormals))){
             actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";

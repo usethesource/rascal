@@ -2,6 +2,7 @@
 module lang::rascalcore::check::CollectOperators
  
 extend lang::rascalcore::check::CheckerCommon;
+import lang::rascalcore::check::BacktrackFree;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -710,11 +711,12 @@ void collect(current: (Expression) `<Expression lhs> ==\> <Expression rhs>`, Col
     c.fact(current, abool());
    
     c.require("implication", current, [lhs, rhs],
-        void (Solver s){ s.requireUnify(abool(), s.getType(lhs), error(lhs, "Argument of ==\> should be `bool`, found %t", lhs));
-            //clearBindings();
+        void (Solver s){ 
+            s.requireUnify(abool(), s.getType(lhs), error(lhs, "Argument of ==\> should be `bool`, found %t", lhs));
             s.requireUnify(abool(), rhs, error(rhs, "Argument of ==\> should be `bool`, found %t", rhs));
-            //clearBindings();
-          });
+            s.requireTrue(backtrackFree(lhs) && backtrackFree(rhs), error(current, "No backtracking allowed in arguments of ==\>"));
+            //s.requireTrue(backtrackFree(rhs), error(rhs, "No backtracking allowed in argument of ==\>"));
+        });
     collect(lhs, rhs, c);
 }
 
@@ -724,12 +726,13 @@ void collect(current: (Expression) `<Expression lhs> \<==\> <Expression rhs>`, C
     //c.fact(current, abool());
    
     c.calculate("equivalence", current, [lhs, rhs],
-        AType(Solver s){ s.requireUnify(abool(), lhs, error(lhs, "Argument of \<==\> should be `bool`, found %t", lhs));
-                  //clearBindings();
-                  s.requireUnify(abool(), rhs, error(rhs, "Argument of \<==\> should be `bool`, found %t", rhs));
-                  //clearBindings();
-                  return abool();
-                });
+        AType(Solver s){ 
+            s.requireUnify(abool(), lhs, error(lhs, "Argument of \<==\> should be `bool`, found %t", lhs));
+            s.requireUnify(abool(), rhs, error(rhs, "Argument of \<==\> should be `bool`, found %t", rhs));
+            s.requireTrue(backtrackFree(lhs) && backtrackFree(rhs), error(current, "No backtracking allowed in arguments of \<==\>"));
+            //s.requireTrue(backtrackFree(rhs), error(rhs, "No backtracking allowed in argument of \<==\>"));
+            return abool();
+        });
     collect(lhs, rhs, c);
 }
 
@@ -834,8 +837,6 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
                 checkNonVoid(elseExp, s, "Else part in conditional expression");
                 checkNoAssignable(thenExp, s, "Then part in conditional expression");
                 checkNoAssignable(elseExp, s, "Else part in conditional expression");
-                //clearBindings();
-                //checkConditions([condition]);
                 return s.lub(thenExp, elseExp);
             });
         beginPatternScope("conditions", c);
