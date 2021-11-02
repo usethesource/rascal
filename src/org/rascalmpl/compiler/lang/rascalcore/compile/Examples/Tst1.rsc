@@ -1,18 +1,20 @@
 module lang::rascalcore::compile::Examples::Tst1
 
 
-start syntax D = "d";
-start syntax DS = D+ ds;
+public &T head([&T h, *&T _]) = h; 
 
-value main() = //test bool parseD1() = 
-    (D)`d` := parse(#D, "d");
-
-
-public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
-
-@javaClass{org.rascalmpl.library.Prelude}
-public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
+//start syntax D = "d";
+//start syntax DS = D+ ds;
+//
+//value main() = //test bool parseD1() = 
+//    (D)`d` := parse(#D, "d");
+//
+//
+//public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+//  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
+//
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
 
 //
 //start syntax D = "d";

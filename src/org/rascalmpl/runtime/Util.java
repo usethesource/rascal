@@ -11,8 +11,6 @@ import io.usethesource.vallang.IValue;
 
 public class Util {
 
-	private static Object object;
-
 	public static int getFingerprint(IValue val, boolean concretePatterns){
 		return ToplevelType.getFingerprint(val, concretePatterns);
 	}

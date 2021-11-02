@@ -590,31 +590,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return res;
 	}
 	
-	 /**
-     * Searchers for META-INF/RASCAL.MF to infer the root of a Rascal source project.
-     * If cwd has a parent which contains this META-INF/RASCAL.MF file then the
-     * location of this parent is returned. If it is not found, this function returns null.
-     * @param cwd
-     * @return
-     */
-    private static ISourceLocation inferProjectRoot(File cwd) {
-        try {
-            File current = cwd;
-            while (current != null && current.exists() && current.isDirectory()) {
-                if (new File(current, "META-INF/RASCAL.MF").exists()) {
-                    return URIUtil.createFileLocation(current.getAbsolutePath());
-                }
-                current = current.getParentFile();
-            }
-        }
-        catch (URISyntaxException e) {
-            return null;
-        }
-
-        return null;
-    }
-	
-    public IList readBinaryConstantsFile(Class<?> c, String path) {
+	 public IList readBinaryConstantsFile(Class<?> c, String path) {
     	Type start = $TF.listType($TF.valueType());
     	
 		ISourceLocation loc = null; 
@@ -3992,7 +3968,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public final IValue $lexical_subscript_seps(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
 		try {
-			int n = args.length();
 			return args.get((idx >= 0) ? 2 * idx : (args.length() + 1 + 2 * idx));
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
