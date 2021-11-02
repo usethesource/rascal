@@ -875,7 +875,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
         ;
     }
     if(avalue() in descend_into){
-        println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
+        //println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
       descend_into = {avalue()};
     }
     tuples = { atuple(symbols) | sym <- descend_into, arel(symbols) := sym || alrel(symbols) := sym };

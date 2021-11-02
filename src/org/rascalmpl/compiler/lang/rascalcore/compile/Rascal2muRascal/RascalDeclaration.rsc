@@ -17,6 +17,7 @@ import lang::rascalcore::compile::muRascal::AST;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::BacktrackFree;
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::check::SyntaxGetters;

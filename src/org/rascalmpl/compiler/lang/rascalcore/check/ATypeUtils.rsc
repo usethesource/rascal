@@ -1379,13 +1379,14 @@ default AType getIterElementType(AType i) {
     throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type");
 }
  
-int getIterDelta(aparameter(_,AType tvb)) = getIterDelta(tvb);
-int getIterDelta(AType::\iter(AType i)) = isLexicalType(i) ? 1 : 2;
-int getIterDelta(AType::\iter-star(AType i)) = isLexicalType(i) ? 1 : 2;
-int getIterDelta(AType::\iter-seps(AType i,_)) = isLexicalType(i) ? 2 : 4;
-int getIterDelta(AType::\iter-star-seps(AType i,_)) = isLexicalType(i) ? 2 : 4;
-default int getIterDelta(AType i) {
-    throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type");
+int getIterOrOptDelta(aparameter(_,AType tvb)) = getIterOrOptDelta(tvb);
+int getIterOrOptDelta(AType::\iter(AType i)) = isLexicalType(i) ? 1 : 2;
+int getIterOrOptDelta(AType::\iter-star(AType i)) = isLexicalType(i) ? 1 : 2;
+int getIterOrOptDelta(AType::\iter-seps(AType i,_)) = isLexicalType(i) ? 2 : 4;
+int getIterOrOptDelta(AType::\iter-star-seps(AType i,_)) = isLexicalType(i) ? 2 : 4;
+int getIterOrOptDelta(AType::\opt(AType i)) = 1;
+default int getIterOrOptDelta(AType i) {
+    throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type or optional");
 }
 
 // empty

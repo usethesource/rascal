@@ -48,9 +48,6 @@ import util::Benchmark;
 import util::Reflective;
 import util::FileSystem;
 import analysis::graphs::Graph;
-    
-//str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
-//str parserPackage = "org.rascalmpl.core.java.parser.object";
 
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
@@ -154,17 +151,15 @@ public PathConfig getDefaultPathConfig() {
     a module in rascal-core which depends on typepal.
 }
 public PathConfig getRascalCorePathConfig() {
-   npc += 1;
-   snpc = "<npc>";
    return pathConfig(   
         srcs = [|project://rascal/src/org/rascalmpl/library|, 
-                |project://rascal-core/src/org/rascalmpl/core/library|,
-                |project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
-                |project://typepal/src|,
-                |project://salix/src|
+                |project://rascal-core/src/org/rascalmpl/core/library|
+                //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
+                //|project://typepal/src|,
+                //|project://salix/src|
                ], 
-        bin = |test-modules:///rascal-core-bin-<snpc>|, 
-        libs = [|lib://rascal/|, |lib://typepal/|]
+         bin = |project://rascal-core/target|
+        //libs = [|lib://rascal/|, |lib://typepal/|]
     );
 }
     
@@ -272,7 +267,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                        
                     }
                 } else if(!ms.tmodels[m]?){
-                    <found, tplLoc> = getDerivedReadLoc(m, "tpl", pcfg);
+                    <found, tplLoc> = getTPLReadLoc(m, pcfg);
                     if(found){   
                         try {
                             //if(config.verbose) println("*** reading <m> from <tplLoc>");  

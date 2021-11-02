@@ -2,6 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,6 +13,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -584,23 +586,32 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			  }
 			  
 			}).getValue();
-		System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
+		//System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
 		return res;
 	}
 	
-	public IList readBinaryConstantsFile(String path) {
-		Type start = $TF.listType($TF.valueType());
-		
-		ISourceLocation loc;
-		loc = $VF.sourceLocation("/Users/jurgenv/git/rascal-core/generated/" + path);
-		try (IValueInputStream in = constructValueReader(loc)) {
-			IValue val = in.read();;
-			if(val.getType().isSubtypeOf(start)){
-				return (IList) val;
-			} else {
-			throw RuntimeExceptionFactory.io($VF.string("Requested type " + start + ", but found " + val.getType()));
+	 public IList readBinaryConstantsFile(Class<?> c, String path) {
+    	Type start = $TF.listType($TF.valueType());
+    	
+		ISourceLocation loc = null; 
+		try {
+			URL url = c.getClassLoader().getResource(path);
+			if(url == null) {
+				throw RuntimeExceptionFactory.io($VF.string("Cannot find resource " + path));
 			}
+			loc = $VF.sourceLocation(url.toURI());
+		} catch (URISyntaxException e) {
+			System.err.println("readBinaryConstantsFile: " + path + " throws " + e.getMessage());
 		}
+
+    	try (IValueInputStream in = constructValueReader(loc)) {
+    		IValue val = in.read();;
+    		if(val.getType().isSubtypeOf(start)){
+    			return (IList) val;
+    		} else {
+    			throw RuntimeExceptionFactory.io($VF.string("Requested type " + start + ", but found " + val.getType()));
+    		}
+    	}
 		catch (IOException e) {
 			System.err.println("readBinaryConstantsFile: " + loc + " throws " + e.getMessage());
 			throw RuntimeExceptionFactory.io($VF.string(e.getMessage()));
@@ -3957,7 +3968,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public final IValue $lexical_subscript_seps(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
 		try {
-			int n = args.length();
 			return args.get((idx >= 0) ? 2 * idx : (args.length() + 1 + 2 * idx));
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
