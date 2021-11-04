@@ -214,14 +214,6 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
-			if (ProductionAdapter.isLiteral(production) || ProductionAdapter.isCILiteral(production)) {
-				// This is faster, since literals can only appear where they appear under their parent,
-				// if their parent matched they must match too and we do not need an additional pattern check.
-				// Furthermore if this was a case-insensitive literal, we want the pattern to 
-				// match even though the literals have different capitalization
-				return new QualifiedNamePattern(eval, this, Names.toQualifiedName("_", getLocation()));
-			}
-
 			java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 			for (Expression kid : args) { 
 				if (!((Tree) kid).isLayout()) {

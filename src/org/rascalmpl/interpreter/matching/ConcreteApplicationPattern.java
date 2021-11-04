@@ -153,7 +153,8 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 			
-			if (!SymbolAdapter.isLiteral(ProductionAdapter.getType(production))) {
+			IConstructor symbol = ProductionAdapter.getType(production);
+			if (!(SymbolAdapter.isLiteral(symbol) || SymbolAdapter.isCILiteral(symbol))) {
 				this.subjectArgs = TreeAdapter.getNonLayoutArgs(treeSubject);
 				tupleMatcher.initMatch(ResultFactory.makeResult(tupleSubject.getType(), tupleSubject, ctx));
 			
