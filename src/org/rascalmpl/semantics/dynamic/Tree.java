@@ -27,11 +27,13 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.NodePattern;
+import org.rascalmpl.interpreter.matching.QualifiedNamePattern;
 import org.rascalmpl.interpreter.matching.SetPattern;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
+import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 
@@ -212,6 +214,14 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
+			if (ProductionAdapter.isLiteral(production) || ProductionAdapter.isCILiteral(production)) {
+				// This is faster, since literals can only appear where they appear under their parent,
+				// if their parent matched they must match too and we do not need an additional pattern check.
+				// Furthermore if this was a case-insensitive literal, we want the pattern to 
+				// match even though the literals have different capitalization
+				return new QualifiedNamePattern(eval, this, Names.toQualifiedName("_", getLocation()));
+			}
+
 			java.util.List<IMatchingResult> kids = new java.util.ArrayList<IMatchingResult>(args.size());
 			for (Expression kid : args) { 
 				if (!((Tree) kid).isLayout()) {
