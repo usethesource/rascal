@@ -53,7 +53,7 @@ str prettyAType(arel(AType ts)) = "rel[<prettyAType(ts)>]";
 str prettyAType(alrel(AType ts)) = "lrel[<prettyAType(ts)>]";
 
 str prettyAType(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
-                = "<prettyAType(ret)>(<intercalate(",", [prettyAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, de> <- kwFormals])>)";
+                = "<prettyAType(ret)>(<intercalate(",", [prettyAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, _> <- kwFormals])>)";
 
 str prettyAType(aalias(str aname, [], AType aliased)) = "alias <aname> = <prettyAType(aliased)>";
 str prettyAType(aalias(str aname, ps, AType aliased)) = "alias <aname>[<prettyAType(ps)>] = <prettyAType(aliased)>" when size(ps) > 0;
@@ -66,7 +66,7 @@ str prettyAType(aadt(str s, ps, SyntaxRole _)) = "<s>[<prettyAType(ps)>]" when s
 str prettyAType(t: acons(AType adt, /*str consName,*/ 
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
-                 = "<prettyAType(adt)>::<t.label>(<intercalate(", ", ["<prettyAType(ft)><ft.label? ? " <ft.label>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
+                 = "<prettyAType(adt)>::<t.label>(<intercalate(", ", ["<prettyAType(ft)><ft.label? ? " <ft.label>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, _> <- kwFields])>)";
 
 str prettyAType(amodule(str mname)) = "module <mname>";         
 str prettyAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyAType(t)>";
@@ -74,7 +74,7 @@ str prettyAType(areified(AType t)) = "type[<prettyAType(t)>]";
 
 // utilities
 str prettyAType(overloadedAType(rel[loc, IdRole, AType] overloads))
-                = intercalateOr([prettyAType(t1) | t1 <- {t | <k, idr, t> <- overloads} ]);
+                = intercalateOr([prettyAType(t1) | t1 <- {t | <_, _, t> <- overloads} ]);
 
 str prettyAType(list[AType] atypes) = intercalate(", ", [prettyAType(t) | t <- atypes]);
 
@@ -146,7 +146,7 @@ Symbol atype2symbol1(afunc(AType ret, list[AType] formals, lrel[AType fieldType,
 Symbol atype2symbol1(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
 Symbol atype2symbol1(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
 
-Symbol atype2symbol1(aanno(str aname, AType onType, AType annoType)) = \anno(aname,atype2symbol(annoType), atype2symbol(onType));
+//Symbol atype2symbol1(aanno(str aname, AType onType, AType annoType)) = \anno(aname,atype2symbol(annoType), atype2symbol(onType));
 
 Symbol atype2symbol1(aadt(str s, [], contextFreeSyntax()))  = Symbol::\sort(s);
 Symbol atype2symbol1(aadt(str s, [], lexicalSyntax()))      = Symbol::\lex(s);
@@ -201,13 +201,13 @@ Symbol atype2symbol1(\conditional(AType symbol, set[ACondition] conditions)) = S
 
 Symbol atype2symbol1(aprod(p:prod(AType def, list[AType] atypes))) {
     return atype2symbol(def);
-    t0 = atypes[0];
-    s0 = atype2symbol(t0);
-    res = Symbol::cons(atype2symbol(def), p.label, [s0]);
-    return res;
-    res = prod(atype2symbol(def), [ atype2symbol(t) | t <- atypes, bprintln(t) ]);   //atype2symbol(def);
+//    t0 = atypes[0];
+//    s0 = atype2symbol(t0);
+//    res = Symbol::cons(atype2symbol(def), p.label, [s0]);
+//    return res;
+////    res = Production::prod(atype2symbol(def), [ atype2symbol(t) | t <- atypes, bprintln(t) ]);   //atype2symbol(def);
 }
-Symbol atype2symbol1(regular(AType def)) = \regular(atype2symbol(def));
+Production atype2symbol1(regular(AType def)) = \regular(atype2symbol(def));
 
 //Symbol atype2symbol1(regular(AType def)) = atype2symbol(def);
 default Symbol atype2symbol1(AType s)  { throw "could not convert <s> to Symbol"; }
@@ -282,7 +282,7 @@ AType symbol2atype1(\real()) = areal();
 AType symbol2atype1(\rat()) = arat();
 AType symbol2atype1(\str()) = astr();
 AType symbol2atype1(\num()) = anum();
-AType symbol2atype1(\node()) = anode();
+AType symbol2atype1(\node()) = anode([]);
 AType symbol2atype1(\void()) = avoid();
 AType symbol2atype1(\value()) = avalue();
 AType symbol2atype1(\loc()) = aloc();
@@ -293,14 +293,14 @@ AType symbol2atype1(Symbol::label(str label, symbol)){
 }
 
 AType symbol2atype1(\set(Symbol symbol)) = aset(symbol2atype(symbol));
-AType symbol2atype1(\rel(list[Symbol] symbols)) = arel(symbol2atype(symbols));
-AType symbol2atype1(\lrel(list[Symbol] symbols)) = alrel(symbol2atype(symbols));
+AType symbol2atype1(\rel(list[Symbol] symbols)) = arel(atypeList(symbol2atype(symbols)));
+AType symbol2atype1(\lrel(list[Symbol] symbols)) = alrel(atypeList(symbol2atype(symbols)));
 AType symbol2atype1(\tuple(list[Symbol] symbols)) = atuple(atypeList(symbol2atype(symbols)));  
 AType symbol2atype1(\list(Symbol symbol)) = alist(symbol2atype(symbol));
 AType symbol2atype1(\map(Symbol from, Symbol to)) = amap(symbol2atype(from), symbol2atype(to));
-AType symbol2atype1(\bag(Symbol from, Symbol to)) = abag(symbol2atype(from), symbol2atype(to));
+AType symbol2atype1(\bag(Symbol symbol)) = abag(symbol2atype(symbol));
 AType symbol2atype1(\adt(str name, list[Symbol] parameters)) = aadt(name, symbol2atype(parameters), dataSyntax());
-AType symbol2atype1(\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbolk2atype(\adt), symbol2atype(parameters))[label=name];
+AType symbol2atype1(\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbol2atype(\adt), symbol2atype(parameters), [])[label=name];
 
      //| \alias(str name, list[Symbol] parameters, Symbol aliased)
      //| \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
@@ -315,10 +315,10 @@ AType symbol2atype1(Symbol::layouts(str name)) = AType::layouts(name);
 
 // ---- Associativity ---------------------------------------------------------
 
-AType symbol2atype1(\left(), map[AType, set[AType]] defs) = Associativity::\left();
-AType symbol2atype1(\right(), map[AType, set[AType]] defs) = Associativity::\right();
-AType symbol2atype1(\assoc(), map[AType, set[AType]] defs) = Associativity::\assoc();
-AType symbol2atype1(\non-assoc(), map[AType, set[AType]] defs) = Associativity::\non-assoc();
+//Associativity symbol2atype1(\left(), map[AType, set[AType]] defs) = Associativity::\left();
+//Associativity symbol2atype1(\right(), map[AType, set[AType]] defs) = Associativity::\right();
+//Associativity symbol2atype1(\assoc(), map[AType, set[AType]] defs) = Associativity::\assoc();
+//Associativity symbol2atype1(\non-assoc(), map[AType, set[AType]] defs) = Associativity::\non-assoc();
 
 // ---- Attr ------------------------------------------------------------------
 
@@ -341,8 +341,8 @@ AType symbol2atype1(\non-assoc(), map[AType, set[AType]] defs) = Associativity::
 //str symbol2atype1(amb(set[Tree] alternatives), map[AType, set[AType]] defs)
 //    = "amb(<symbol2atype(alternatives,defs)>)";
  
-AType symbol2atype1(char(int character))
-    = char(character);
+//AType symbol2atype1(char(int character))
+//    = char(character);
     
 // ---- SyntaxRole ------------------------------------------------------------
 
@@ -360,7 +360,7 @@ AType symbol2atype1(char(int character))
 //    return base + kwds + ")";
 //}
 
-AType symbol2atype1(Production::regular(Symbol def))
+AProduction symbol2atype1(Production::regular(Symbol def))
     = AType::regular(symbol2atype(def));
 
 //str symbol2atype1(error(AProduction prod, int dot), map[AType, set[AType]] defs)
@@ -400,7 +400,7 @@ AType symbol2atype1(Symbol::\empty())
     = AType::empty();     
 
 AType symbol2atype1(Symbol::\opt(Symbol symbol))
-    = AType::opt(symbol2atype(symbol, defs));     
+    = AType::opt(symbol2atype(symbol));     
 
 AType symbol2atype1(Symbol::\iter(Symbol symbol))
     = AType::iter(symbol2atype(symbol));     
@@ -438,7 +438,7 @@ AType symbol2atype1(Symbol::\conditional(Symbol symbol, set[Condition] condition
 // ---- ACondition ------------------------------------------------------------
 
 ACondition condition2acondition(Condition::\follow(Symbol symbol))
-    = ACondition::follow(symbol2atype(symbol, defs));   
+    = ACondition::follow(symbol2atype(symbol));   
 
 ACondition condition2acondition(Condition::\not-follow(Symbol symbol))
     = ACondition::\not-follow(symbol2atype(symbol));
@@ -589,7 +589,7 @@ bool hasKeywordParameters(acons(AType adt, list[AType] fields, list[Keyword] kwF
     = !isEmpty(kwFields);
     
 bool hasKeywordParameters(overloadedAType(overloads))
-    = any(<loc k, IdRole idr, AType t> <- overloads, hasKeywordParameters(t));
+    = any(<loc _, IdRole _, AType t> <- overloads, hasKeywordParameters(t));
 
 default bool hasKeywordParameters(AType t) = false;
 
@@ -857,7 +857,7 @@ int getTupleFieldCount(AType t) = size(getTupleFields(t));
 
 @doc{Does this tuple have field names?}
 bool tupleHasFieldNames(AType t) {
-    if (tup: atuple(atypeList(tas)) := unwrapType(t)) return size(tas) == size([tp | tp <- tas, !isEmpty(tp.label)]);
+    if (atuple(atypeList(tas)) := unwrapType(t)) return size(tas) == size([tp | tp <- tas, !isEmpty(tp.label)]);
     throw rascalCheckerInternalError("tupleHasFieldNames given non-Tuple type <prettyAType(t)>");
 }
 
@@ -1014,7 +1014,7 @@ str getADTName(AType t) {
 
 @doc{Get the type parameters of an ADT.}
 list[AType] getADTTypeParameters(AType t) {
-    if (aadt(n,ps,_) := unwrapType(t)) return ps;
+    if (aadt(_,ps,_) := unwrapType(t)) return ps;
     if (acons(a,_,_) := unwrapType(t)) return getADTTypeParameters(a);
     if (\start(ss) := unwrapType(t)) return getADTTypeParameters(ss);
     if (areified(_) := unwrapType(t)) return [];
@@ -1028,7 +1028,7 @@ default bool isTypeParameter(AType t) = false;
 bool adtHasTypeParameters(AType t) = size(getADTTypeParameters(t)) > 0;
 
 bool isOverloadedAType(overloadedAType(rel[loc, IdRole, AType] overloads)) = true;
-default bool isOverloadedType(AType t) = false;
+default bool isOverloadedType(AType _) = false;
 
 @doc{
 .Synopsis
@@ -1070,7 +1070,7 @@ list[AType] getFunctionArgumentTypes(AType ft) {
 }
 
 set[AType] getFunctionTypeParameters(AType ft){
-    if (af: afunc(ret, formals, kwFormals) := unwrapType(ft)){
+    if (af: afunc(_, _, _) := unwrapType(ft)){
        return {p | /p:aparameter(_,_) := af };
     }
     throw rascalCheckerInternalError("Cannot get Type parameters from non-function type, got <prettyAType(ft)>");
@@ -1089,7 +1089,7 @@ list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
        assert size(arities) == 1;
        ar = getFirstFrom(arities);
        resType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>);
-       formalsTypes = [avoid() | i <- [0 .. ar]];
+       formalsTypes = [avoid() | _ <- [0 .. ar]];
        
        formalsTypes = (formalsTypes | alubList(it, getFormals(tp)) | tp <- overloads<2>);
        return formalsTypes;
@@ -1123,7 +1123,7 @@ AType getFunctionArgumentTypesAsTuple(AType ft) {
 @doc{Get the return type for a function.}
 AType getFunctionReturnType(AType ft) {
     if (afunc(rt, _, _) := unwrapType(ft)) return rt;
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := unwrapType(ft)) {
+    if(overloadedAType(rel[loc, IdRole, AType] _) := unwrapType(ft)) {
         return getResult( unwrapType(ft));
     }
     throw rascalCheckerInternalError("Cannot get function return type from non-function type, got <prettyAType(ft)>");
@@ -1429,7 +1429,7 @@ default list[AType] getSeqTypes(AType t){
 
 
 
-AType getSyntaxType(AType t, Solver s) = stripStart(removeConditional(t));
+AType getSyntaxType(AType t, Solver _) = stripStart(removeConditional(t));
 
 AType getSyntaxType(Tree tree, Solver s) = stripStart(removeConditional(s.getType(tree)));
 
@@ -1447,9 +1447,9 @@ int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args)
 int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
 int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
 
-int size(appl(prod(Symbol symbol, list[Symbol] symbols), list[Tree] args)) = 
-    \label(str label, Symbol symbol1) := symbol && [Symbol itersym] := symbols
-    ? size(appl(prod(symbol1, symbols), args))
+int size(appl(prod(Symbol symbol, list[Symbol] symbols, set[Attr] attributes), list[Tree] args)) = 
+    \label(str _, Symbol symbol1) := symbol && [Symbol _] := symbols
+    ? size(appl(Production::prod(symbol1, symbols, {}), args))
     : size(args[0]);
 
 default int size(Tree t) {

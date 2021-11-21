@@ -5,6 +5,8 @@ extend lang::rascalcore::check::CollectDataDeclaration;
 extend lang::rascalcore::check::CollectSyntaxDeclaration;
 extend lang::rascalcore::check::Fingerprint;
 
+import lang::rascalcore::check::PathAnalysis;
+
 import lang::rascalcore::check::CollectVarArgs;
 
 import lang::rascal::\syntax::Rascal;
@@ -19,7 +21,7 @@ import Node;
 import Set;
 import String;
 
-import util::Maybe;
+//import util::Maybe;
 import util::Reflective;
 
 // ---- Utilities -------------------------------------------------------------
@@ -60,7 +62,7 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
             if(mloc.scheme != mloc1.scheme || mloc.authority != mloc1.authority || mloc.path != mloc1.path){
                 c.report(error(qualifiedModuleName, "Module name %v is incompatible with its file location", mname));
             }
-        } catch value e: {
+        } catch _: {
             c.report(error(qualifiedModuleName, "Module name %v is not consistent with its file location", mname));
         }
     } else if(isEmpty(pcfgVal)){
@@ -153,11 +155,11 @@ Expression makeKeywordDefaultExpression(Type annoType, Collector c){
     case (Type) `datetime`: res = (Expression) `$2020-09-10T11:17:10.760+00:00$`;
     case (Type) `loc`: res = (Expression) `|project://rascal/src/org/rascalmpl/library/Node.rsc|`;
     case (Type) `value`: res = (Expression) `true`;
-    case (Type) `list[<TypeArg t>]`: res = (Expression) `[]`;
-    case (Type) `set[<TypeArg t>]`: res = (Expression) `{}`;
-    case (Type) `map[<TypeArg k>,<TypeArg v>]`: res = (Expression) `()`;
-    case (Type) `rel[<{TypeArg ","}+ arguments>]`: res = (Expression) `{}`;
-    case (Type) `lrel[<{TypeArg ","}+ arguments>]`: res = (Expression) `[]`;
+    case (Type) `list[<TypeArg _>]`: res = (Expression) `[]`;
+    case (Type) `set[<TypeArg _>]`: res = (Expression) `{}`;
+    case (Type) `map[<TypeArg _>,<TypeArg _>]`: res = (Expression) `()`;
+    case (Type) `rel[<{TypeArg ","}+ _>]`: res = (Expression) `{}`;
+    case (Type) `lrel[<{TypeArg ","}+ _>]`: res = (Expression) `[]`;
     case (Type) `Message`: {
             ;//res = (Expression) `error("AUTOMATICALLY GENERATED DEFAULT MESSAGE", |error:///|)`;
         }
@@ -171,8 +173,8 @@ Expression makeKeywordDefaultExpression(Type annoType, Collector c){
 KeywordFormal makeKeywordFormal(Type annoType, Name name, Collector c){
     Expression dflt = makeKeywordDefaultExpression(annoType, c);
     res = (KeywordFormal) `<Type annoType> <Name name> = <Expression dflt>`;
-    res.\type@\loc = getLoc(annoType);  // set back locations in synthetic keywordFormal
-    res.expression@\loc = getLoc(annoType);
+    res.\type.src = getLoc(annoType);  // set back locations in synthetic keywordFormal
+    res.expression.src = getLoc(annoType);
     c.fact(res.\type, annoType);
     c.fact(res.expression, dflt);
     return res;
@@ -333,7 +335,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         }
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-        alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target target>;` := decl.body);
+        alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target _>;` := decl.body);
         if(!alwaysSucceeds) dt.canFail = true;
        
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
@@ -662,7 +664,7 @@ void returnRequirement(Tree returnExpr, AType theDeclaredReturnType, Solver s){
 void collect(current: (Statement) `return <Statement statement>`, Collector c){  
     functionScopes = c.getScopeInfo(functionScope());
 
-    for(<scope, scopeInfo> <- functionScopes){
+    for(<_, scopeInfo> <- functionScopes){
         if(returnInfo(Type returnType) := scopeInfo){
            c.require("check return type", current, [returnType], makeReturnRequirement(statement, returnType));
            c.fact(current, returnType); // Note that type of the return statement as a whole is the function's return type

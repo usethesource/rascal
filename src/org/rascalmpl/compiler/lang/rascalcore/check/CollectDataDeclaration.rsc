@@ -111,7 +111,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             for(tvName <- usedTVNames){
                 c.use(tvName, {typeVarId()});
             }
-             
+           
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
                 AType(Solver s){
                     adtType = s.getType(adt);

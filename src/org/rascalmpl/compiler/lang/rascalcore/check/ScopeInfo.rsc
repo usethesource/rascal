@@ -1,4 +1,4 @@
-@bootstrapParser
+//@bootstrapParser
 module lang::rascalcore::check::ScopeInfo
 
 import lang::rascalcore::check::BasicRascalConfig;
@@ -18,7 +18,7 @@ public /*const*/ str inFormals = "inFormals";
 // Some utilities on patterns
 
 set[str] getAllNames(Pattern p)
-    = { "<name>" | /(Pattern) `<Type tp> <Name name>` := p } + { "<name>" | /QualifiedName name := p } - {"_"};
+    = { "<name>" | /(Pattern) `<Type _><Name name>` := p } + { "<name>" | /QualifiedName name := p } - {"_"};
     
 void beginPatternScope(str name, Collector c){
     c.clearStack(patternNames);
@@ -31,7 +31,7 @@ void endPatternScope(Collector c){
 }
 
 bool inPatternNames(str name, Collector c){
-    for(lrel[str,loc] pnames :=  c.getStack(patternNames), <str n, loc l> <-pnames) if(n == name) return true;
+    for(lrel[str,loc] pnames :=  c.getStack(patternNames), <str n, loc _> <-pnames) if(n == name) return true;
     return false;
 }
 

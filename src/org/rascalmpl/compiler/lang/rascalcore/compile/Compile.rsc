@@ -5,6 +5,7 @@ import Message;
 import util::Reflective;
 import util::Benchmark;
 import IO;
+import ValueIO;
 
 import lang::rascal::\syntax::Rascal;
  
@@ -56,7 +57,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
      
         return tm.messages;
        
-    } catch e: CompileTimeError(Message m): {
+    } catch _: CompileTimeError(Message m): {
         return errors + [m];   
     }
 }
