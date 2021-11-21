@@ -49,7 +49,7 @@ import util::Reflective;
 import util::FileSystem;
 import analysis::graphs::Graph;
 
-Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
+Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int _ <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 
@@ -153,9 +153,9 @@ public PathConfig getDefaultPathConfig() {
 public PathConfig getRascalCorePathConfig() {
    return pathConfig(   
         srcs = [|project://rascal/src/org/rascalmpl/library|, 
-                |project://rascal-core/src/org/rascalmpl/core/library|
+                |project://rascal-core/src/org/rascalmpl/core/library|,
                 //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
-                //|project://typepal/src|,
+                |project://typepal/src|
                 //|project://salix/src|
                ], 
          bin = |project://rascal-core/target|
@@ -197,7 +197,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
         topModuleNames = { getModuleName(mloc, pcfg) | mloc <- mlocs };
         
         before = cpuTime();
-        ms = getImportAndExtendGraph(topModuleNames, pcfg, config.logImports);
+        ModuleStructure ms = getImportAndExtendGraph(topModuleNames, pcfg, config.logImports);
         
         //println("rascalTModelForLocs: <size(mlocs)> mlocs, <size(ms.tmodels)> tmodels, <size(ms.modules)> modules, <size(ms.moduleLocs)> moduleLocs, <size(ms.moduleLastModified)> lastModified, <size(ms.valid)> valid, <size(ms.invalid)> invalid");
         
@@ -259,7 +259,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         try {
                             Module pt = parseModuleWithSpaces(mloc).top;
                             ms.modules[m] = pt;
-                            ms.moduleLocs[m] = pt@\loc; 
+                            ms.moduleLocs[m] = pt.src; 
                         } catch Java("ParseError","Parse error"): {
                             ms.tmodels[m] = tmodel()[messages = [ error("Parse error in module `<m>`", getModuleLocation(m, pcfg)) ]];
                             ms.valid += {m};
@@ -307,9 +307,9 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                                 continue;
                                }
                                if(imod is \default){
-                                 msgs += warning("Unused import of `<iname>`", imod@\loc);
+                                 msgs += warning("Unused import of `<iname>`", imod.src);
                                } else {
-                                 msgs += info("Extended module `<iname>` is unused in the current module", imod@\loc);
+                                 msgs += info("Extended module `<iname>` is unused in the current module", imod.src);
                                }
                             }
                         }
@@ -365,10 +365,10 @@ bool implicitlyUsesLayoutOrLexical(str modulePath, str importPath, TModel tm){
 }
 
 bool usesOrExtendsADT(str modulePath, str importPath, TModel tm){
-    usedADTs = { tm.facts[l] | loc l <- tm.facts, l.path == modulePath, aadt(_,_,sr) := tm.facts[l] };
+    usedADTs = { tm.facts[l] | loc l <- tm.facts, l.path == modulePath, aadt(_,_,_) := tm.facts[l] };
     definedADTs = { the_adt | Define d <- tm.defines, d.defined.path == modulePath, defType(the_adt:aadt(_,_,_)) := d.defInfo };
     usedOrDefinedADTs = usedADTs + definedADTs;
-    return any(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,sr) := tm.facts[l], the_adt in usedOrDefinedADTs);
+    return any(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,_) := tm.facts[l], the_adt in usedOrDefinedADTs);
 }
 
 set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] added){
@@ -475,6 +475,6 @@ map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config
 //    - insert = loc start and end range should be the same (a zero length location)
 //    - replace = loc range defines replacement
 //    - delete = empty string value
-lrel[loc, str] rename(loc symbol, str newName, PathConfig currentProject, rel[loc, PathConfig] otherProjects) {
+lrel[loc, str] rename(loc _symbol, str _newName, PathConfig _currentProject, rel[loc, PathConfig] _otherProjects) {
     return [];
 }

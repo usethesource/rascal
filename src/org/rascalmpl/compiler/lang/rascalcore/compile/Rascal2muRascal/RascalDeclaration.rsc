@@ -76,7 +76,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
  MuExp promoteVarsToFieldReferences(MuExp exp, AType consType, MuExp consVar)
     = visit(exp){
         case muVar(str fieldName, _, -1, AType tp)        => muGetField(tp, consType, consVar, fieldName)
-        case muVarKwp(str fieldName, str scope, AType tp) => muGetKwField(tp, consType, consVar, fieldName, getModuleName())
+        case muVarKwp(str fieldName, str _, AType tp) => muGetKwField(tp, consType, consVar, fieldName, getModuleName())
      };
     
 void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
@@ -98,11 +98,11 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
      * Create getters for common keyword fields of this data type
      */
     seen = {};
-    for(<kwType, defaultExp> <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp@\loc, module_scope)){
+    for(<kwType, defaultExp> <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp.src, module_scope)){
         seen += kwType;
         str kwFieldName = unescape(kwType.label);
         if(asubtype(adtType, treeType)){
-            if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when @\loc is gone
+            if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when .src is gone
         }
         str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
@@ -127,7 +127,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         */
        consName = consType.label;
        
-       for(<kwType, defaultExp> <- consType.kwFields, isContainedIn(defaultExp@\loc, module_scope)){
+       for(<kwType, defaultExp> <- consType.kwFields, isContainedIn(defaultExp.src, module_scope)){
             str kwFieldName = kwType.label;
             kwfield2cons += <kwFieldName, kwType, consType>;
             str fuid = getGetterNameForKwpField(consType, kwFieldName);
@@ -199,7 +199,7 @@ set[TypeVar] getTypeVarsinFunction(FunctionDeclaration fd){
     }
     res = {};
     top-down-break visit(trees){
-        case (Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`:
+        case (Expression) `<Type _> <Parameters _> { <Statement+ _> }`:
                 /* ignore type vars in closures. This is not water tight since a type parameter of the surrounding
                   function may be used in the body of this closure */;
         case TypeVar tv: res += tv;
@@ -208,10 +208,10 @@ set[TypeVar] getTypeVarsinFunction(FunctionDeclaration fd){
 }
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, Expression body_expression, list[Expression] when_conditions, bool addReturn = false){
-  println("r2mu: Compiling \uE007[<fd.signature.name>](<fd@\loc>)");
+  println("r2mu: Compiling \uE007[<fd.signature.name>](<fd.src>)");
   
   inScope = topFunctionScope();
-  funsrc = fd@\loc;
+  funsrc = fd.src;
   useTypeParams = getTypeVarsinFunction(fd);
   enterFunctionDeclaration(funsrc, !isEmpty(useTypeParams));
 
@@ -220,7 +220,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       tmods = translateModifiers(fd.signature.modifiers);
       if(ignoreTest(ttags)){
           // The type checker does not generate type information for ignored functions
-           addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd@\loc.offset>", 
+           addFunctionToModule(muFunction("$ignored_<prettyPrintName(fd.signature.name)>_<fd.src.offset>", 
                                          prettyPrintName(fd.signature.name), 
                                          afunc(abool(),[],[]),
                                          [],
@@ -232,7 +232,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                                          {},
                                          {},
                                          {},
-                                         fd@\loc, 
+                                         fd.src, 
                                          tmods, 
                                          ttags,
                                          muReturn1(abool(), muCon(false))));
@@ -293,16 +293,16 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       								 getExternalRefs(tbody, fuid),
       								 getLocalRefs(tbody),
       								 getKeywordParameterRefs(tbody, fuid),
-      								 fd@\loc, 
+      								 fd.src, 
       								 tmods, 
       								 ttags,
       								 tbody));
       
       leaveFunctionScope();
       leaveFunctionDeclaration();
-  } catch e: CompileTimeError(m): {
+  } catch e: CompileTimeError(_): {
       throw e;  
-  } catch Ambiguity(loc src, str stype, str string): {
+  } catch Ambiguity(loc src, str _, str _): {
       throw CompileTimeError(error("Ambiguous code", src));
   }
   //catch e: {
@@ -342,16 +342,16 @@ bool hasParameterName((Pattern) `<Type tp> <Name name> : <Pattern pattern>`, int
 default bool hasParameterName(Pattern p, int i) = false;
 
 set[MuExp] getAssignedInVisit(list[MuCase] cases, MuExp def)
-    = { v | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str name, str fuid2, int pos, AType atype), MuExp _) := exp};
+    = { v | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str _, str _, int _, AType _), MuExp _) := exp};
     
 set[MuExp] getLocalRefs(MuExp exp)
   = { *getAssignedInVisit(cases, defaultExp) | /muVisit(str _, MuExp _, list[MuCase] cases, MuExp defaultExp, VisitDescriptor _) := exp };
 
 set[MuExp] getExternalRefs(MuExp exp, str fuid)
-    = { v | /v:muVar(str name, str fuid2, int pos, AType atype) := exp, fuid2 != fuid, fuid2 != "" };
+    = { v | /v:muVar(str _, str fuid2, int _, AType _) := exp, fuid2 != fuid, fuid2 != "" };
 
 set[MuExp] getKeywordParameterRefs(MuExp exp, str fuid)
-    = { v | /v:muVarKwp(str name, str fuid2, AType atype) := exp, fuid2 != fuid };
+    = { v | /v:muVarKwp(str _, str fuid2, AType _) := exp, fuid2 != fuid };
     
 /********************************************************************/
 /*                  Translate keyword parameters                    */
@@ -385,7 +385,7 @@ MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool i
       res = addReturn ? muReturn1(ftype.ret, body) : body;
       if(isMemo){
          res = visit(res){
-            case muReturn1(t, e) => muMemoReturn1(ftype, formalVars, e)
+            case muReturn1(_, e) => muMemoReturn1(ftype, formalVars, e)
          }
       }
       return res;   
@@ -409,7 +409,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      str fuid = topFunctionScope();
      my_btscopes = getBTScopesParams(formalsList, fname);
      
-     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), getType(formalsList[i]))
+     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i].src) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i).src), getType(formalsList[i]))
                                                                                     : muVar(pname, fuid, -i, getType(formalsList[i]))   
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];

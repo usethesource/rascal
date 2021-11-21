@@ -17,6 +17,7 @@ import ValueIO;
 
 import analysis::graphs::Graph;
 import util::Reflective;
+import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
 tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
     classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
@@ -139,7 +140,8 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                    if(decrementMilliseconds(getLastModified(m, ms.moduleLastModified, pcfg), 500) > timestampInBom) {
                         allImportsAndExtendsValid = false;
                         if(m notin ms.invalid){
-                            println("--- <m> is no longer valid (latest <getLastModified(m, ms.moduleLastModified, pcfg)>, previous check used <timestampInBom>)");
+                            println("--- using <getLastModified(m, ms.moduleLastModified, pcfg)> (most recent) version of <m>, 
+                                    '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
                             ms.invalid = ms.invalid + {m};
                         }
                    }

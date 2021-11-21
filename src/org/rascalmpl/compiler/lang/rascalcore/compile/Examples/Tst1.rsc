@@ -1,7 +1,32 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeExceptions;
+//extend lang::rascalcore::check::BasicRascalConfig;
+//
+//extend ParseTree;
+//
+//import analysis::typepal::Messenger;
+int f(int _n) = 13;
 
-public &T head([&T h, *&T _]) = h; 
+value main() = f(3);
+//
+//import IO;
+//import List;
+//import Node;
+//import Set;
+//import String;
+
+//import lang::rascal::\syntax::Rascal;
+//
+//value getAllNames(Pattern p) =
+//    (Pattern) `<Type tp> <Name name>` := p;
+//    
+//test bool lexicalMatch3() = (QualifiedName) `a` := [QualifiedName] "a";
+//
+//test bool matchTP() = (Pattern) `<Type tp><Name name>` := [Pattern] "int x";
+
+//value main() { switch(0) {case Tree tree:  return tree@\loc;} return false;}
 
 //start syntax D = "d";
 //start syntax DS = D+ ds;

@@ -2,10 +2,11 @@ module lang::rascalcore::check::ComputeType
 
 extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::BuiltinFields;
+extend lang::rascalcore::check::ScopeInfo;
 
 import lang::rascal::\syntax::Rascal;
 
-import IO;
+//import IO;
 import Map;
 import Set;
 import String;
@@ -43,8 +44,8 @@ void checkNonVoid(Tree e, AType t, Solver s, str msg){
     if(isVoidType(t)) s.report(error(e, msg + " should not have type `void`"));
 }
 
-AType(Solver) makeGetSyntaxType(Tree varType)
-    = AType(Solver s) { return getSyntaxType(varType, s); };
+AType(Solver) makeGetSyntaxType(Type varType)
+    = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
     
 void(Solver) makeVarInitRequirement(Variable var)
     = void(Solver s){
@@ -78,7 +79,7 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += <key, idr, unaryOp(op, computeType, current, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+             } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
 //>>           catch e:  /* continue with next overload */;
         }
@@ -98,7 +99,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += <key, idr, binaryOp(op, computeType, current, tp, t2, s)>;
-            } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+            } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
               catch NoBinding(): /* continue with next overload */;
 //>>          catch e: /* continue with next overload */;
         }
@@ -111,7 +112,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += < key, idr, binaryOp(op, computeType, current, t1, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
+             } catch checkFailed(list[FailMessage] _):/* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
 //>>           catch e: /* continue with next overload */;
         }
@@ -131,9 +132,9 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += <key, idr, ternaryOp(op, computeType, current, tp, t2, t3, s)>;
-             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+             } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
-               catch e: /* continue with next overload */;
+               catch _: /* continue with next overload */;
         }
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
@@ -144,7 +145,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, tp, t3, s)>;
-             } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
+             } catch checkFailed(list[FailMessage] _):/* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
  //>>          catch e:/* continue with next overload */;
         }
@@ -157,7 +158,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, t2, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+             } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
  //>>          catch e: /* continue with next overload */;
         }
@@ -183,7 +184,7 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
     bool isExpression = true;
     switch(actuals){
         case list[Expression] expList: {
-                dontCare = [ false | i <- index(expList) ];
+                dontCare = [ false | _ <- index(expList) ];
                 actualTypes = [ s.getType(expList[i]) | i <- index(expList) ];
                 //print("expList: [ "); for(i <- index(expList)) print("<expList[i]> "); println(" ]");
             }
@@ -202,12 +203,12 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
             //println("computeADTType: <current>");
             //iprintln(overloads);
             returnTypeForOverloadedActuals = {};
-            for(ovl: <key, idr, tp> <- overloads){   
+            for(<key, idr, tp> <- overloads){   
                 try {
                     actualTypes[i] = tp;
-                    returnTypeForOverloadedActuals += <key, idr, computeADTReturnType(current, adtName, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s)>;
+                    returnTypeForOverloadedActuals += <key, idr, computeADTReturnType(current, adtName, scope, formalTypes, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s)>;
                     //println("succeeds: <ovl>");
-                } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+                } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
                   catch NoBinding(): /* continue with next overload */;
              }
              if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Constructor for %q with arguments %v cannot be resolved", adtName, actuals));}
@@ -215,10 +216,10 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
         }
     }
     
-    return computeADTReturnType(current, adtName, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s);
+    return computeADTReturnType(current, adtName, scope, formalTypes, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s);
 }
 
-AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, list[AType] formalTypes, actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, list[bool] dontCare, bool isExpression, Solver s){
+AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] formalTypes, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, list[bool] dontCare, bool isExpression, Solver s){
     Bindings bindings = ();
     index_formals = index(formalTypes);
     for(int i <- index_formals, !dontCare[i]){
@@ -251,8 +252,8 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
     
     switch(keywordArguments){
     case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`:
-        checkExpressionKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArgumentsExp, bindings, scope, s);
-    case (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`:
+        checkExpressionKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArgumentsExp, bindings, s);
+    case (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] _>`:
         checkPatternKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArguments, bindings, scope, s);
     case []: ;
     default:
@@ -262,7 +263,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
     list[AType] parameters = [];
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := adtType){
        params = {};
-       for(<key, idr, tp> <- overloads){  
+       for(<_, _, tp> <- overloads){  
         if(isADTType(tp)) params += toSet(getADTTypeParameters(tp));
        }
        parameters = toList(params);
@@ -281,14 +282,14 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
     return adtType;
 }
 
-void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Bindings bindings, loc scope, Solver s){
+void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Bindings bindings, Solver s){
     if(keywordArgumentsExp is none) return;
  
     next_arg:
     for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
         kwName = prettyPrintName(kwa.name);
         
-        for(<ft, de> <- kwFormals){
+        for(<ft, _> <- kwFormals){
            fn = ft.label;
            if(kwName == fn){
               ift = ft;
@@ -302,7 +303,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            } 
         }
-        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.label>`" | < AType ft, Expression de> <- kwFormals]);
+        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.label>`" | < AType ft, Expression _> <- kwFormals]);
         switch(size(kwFormals)){
         case 0: availableKws ="; no other keyword parameters available";
         case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -320,7 +321,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
     for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
         kwName = prettyPrintName(kwa.name);
         
-        for(<ft, de> <- kwFormals){
+        for(<ft, _> <- kwFormals){
            fn = ft.label;
            if(kwName == fn){
               ift = ft;
@@ -334,7 +335,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
               continue next_arg;
            } 
         }
-        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.label>`" | </*str fn,*/ AType ft, Expression de> <- kwFormals]);
+        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.label>`" | <AType ft, Expression _> <- kwFormals]);
         switch(size(kwFormals)){
         case 0: availableKws ="; no other keyword parameters available";
         case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -353,7 +354,7 @@ list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) =
      [ <s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
      
-list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <def, idr, adt> <- overloads ];
+list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <_, _, adt> <- overloads ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
     
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
@@ -485,7 +486,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         for(<key, role, tp> <- overloads){
             try {
                 subscript_overloads += <key, role, computeSubscriptionType(current, tp, tl, indexList, s)>;
-            } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
+            } catch checkFailed(list[FailMessage] _):/* continue with next overload */;
               catch NoBinding(): /* continue with next overload */;
  //>>>        catch e: /* continue with next overload */;
         }
@@ -597,7 +598,7 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
         for(<key, role, tp> <- overloads){
             try {
                 slice_overloads += <key, role, computeSliceType(current, tp, first, step, last, s)>;
-            } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+            } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
               catch NoBinding(): /* continue with next overload */;
  //>>         catch e: /* continue with next overload */; 
         }
@@ -982,7 +983,7 @@ private AType getPatternType0(current: (Pattern) `\< <{Pattern ","}* elements1> 
     return atuple(atypeList([getPatternType(pats[i], avalue(), scope, s) | int i <- index(pats)]));
 }
 
-private AType getPatternType0(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern expression>`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0((KeywordArgument[Pattern]) `<Name _> = <Pattern expression>`, AType subjectType, loc scope, Solver s){
     return getPatternType(expression, subjectType, scope, s);
 }
 
@@ -1012,7 +1013,7 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
                             append avalue();
                       };
        <filteredOverloads, identicalFields> = filterOverloadedConstructors(overloads, bareArgTypes, subjectType, s);
-       if({<key, idr, tp>} := filteredOverloads){
+       if({<_, _, tp>} := filteredOverloads){
           texp = tp;
           s.fact(expression, tp);
        } else {
@@ -1028,17 +1029,17 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
          validOverloads = {};
          next_cons:
          for(ovl: <key, idr, tp> <- overloads){
-            if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := tp){
+            if(acons(adtType:aadt(adtName, list[AType] _, _), list[AType] fields, list[Keyword] kwFields) := tp){
                try {
                      validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, identicalFields, s)>;
                      validOverloads += ovl;
-                    } catch checkFailed(list[FailMessage] fms):
+                    } catch checkFailed(list[FailMessage] _):
                             continue next_cons;
                       catch NoBinding():
                             continue next_cons;
              }
         }
-        if({<key, idr, tp>} := validOverloads){
+        if({<_, _, tp>} := validOverloads){
            texp = tp; 
            s.fact(expression, tp);
             // TODO check identicalFields to see whether this can make sense
@@ -1048,8 +1049,8 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
       }
     }
 
-    if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := texp){
-       return computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, [true | int i <- index(fields)], s);
+    if(acons(adtType:aadt(adtName, list[AType] _, _), list[AType] fields, list[Keyword] kwFields) := texp){
+       return computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, [true | int _ <- index(fields)], s);
     }
     s.report(error(current, "No pattern constructor found for %q of expected type %t", expression, subjectType));
     return avalue();
@@ -1058,13 +1059,13 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, list[AType] argTypes, AType subjectType, Solver s){
     int arity = size(argTypes);
     filteredOverloads = {};
-    identicalFields = [true | int i <- [0 .. arity]];
+    identicalFields = [true | int _ <- [0 .. arity]];
     
     uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
     bool acceptable(int i, AType a, AType b)
         = uninstantiated[i] || comparable(a, b);
     
-    for(ovl:<key, idr, tp> <- overloads){                       
+    for(ovl:<_, _, tp> <- overloads){                       
         if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
            if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i])))){
             filteredOverloads += ovl;
@@ -1078,12 +1079,12 @@ AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (Ke
     dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
     actualType = [ dontCare[i] ? avalue() : getPatternType(patList[i], avalue(), scope, s) | i <- index(patList) ];
     
-    if(adtType:aadt(adtName, list[AType] parameters,_) := subjectType){
+    if(adtType:aadt(adtName, list[AType] _,_) := subjectType){
        declaredInfo = s.getDefinitions(adtName, scope, dataOrSyntaxRoles);
        declaredType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
        checkPatternKwArgs(getCommonKeywords(adtType, scope, s), keywordArgumentsPat, (), scope, s);
        return subjectType;
-    } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := subjectType){
+    } else if(acons(adtType:aadt(_, list[AType] _, _), list[AType] _, list[Keyword] kwFields) := subjectType){
        kwFormals = kwFields;
        checkPatternKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArgumentsPat, (), scope, s);
        return anode([]);

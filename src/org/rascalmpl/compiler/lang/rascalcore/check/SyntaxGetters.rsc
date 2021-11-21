@@ -75,12 +75,17 @@ set[Name] getTypeVarNames(Tree t){
 tuple[set[TypeVar], set[Name]] getDeclaredAndUsedTypeVars(Tree t){
     declared = {};
     used = {};
+    
     top-down-break visit(t){
-        case tv: (TypeVar) `& <Name name>`: declared += tv;
-        case tv: (TypeVar) `& <Name name> \<: <Type bound>`: { declared += tv; used += getTypeVarNames(bound); }
+        case TypeVar tv: if(tv is free){ declared += tv; } else { declared += tv; used += getTypeVarNames(tv.bound); }
     }
+    
+    //top-down-break visit(t){
+    //    case tv: (TypeVar) `& <Name name>`: declared += tv;
+    //    case tv: (TypeVar) `& <Name name> \<: <Type bound>`: { declared += tv; used += getTypeVarNames(bound); }
+    //}
     
     return <declared, used>;
 }
 
-bool containsReturn(Tree t) = /(Statement) `return <Statement statement>` := t;
+bool containsReturn(Tree t) = /(Statement) `return <Statement _>` := t;

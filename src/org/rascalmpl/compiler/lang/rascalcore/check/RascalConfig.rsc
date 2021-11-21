@@ -13,6 +13,7 @@ import Location;
 
 //extend lang::rascalcore::grammar::ParserGenerator;
 
+import IO;
 import List;
 import Map;
 import Set;
@@ -99,13 +100,13 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
         
     // Qualifier is a ADT name?
         
-    if(acons(ret:aadt(adtName, _, _), list[AType] fields, list[Keyword] kwFields) := atype){
+    if(acons(aadt(adtName, _, _), list[AType] _fields, list[Keyword] _kwFields) := atype){
        return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
     
     // Qualifier is a Production?
    
-    if(aprod(prod(aadt(adtName, _, _), list[AType] atypes)) := atype){
+    if(aprod(prod(aadt(adtName, _, _), list[AType] _atypes)) := atype){
        return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
      
@@ -120,7 +121,7 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     return ignoreContinue();
 }
 
-Accept rascalIsAcceptablePath(loc defScope, loc def, Use use, PathRole pathRole, Solver s) {
+Accept rascalIsAcceptablePath(loc _defScope, loc def, Use _use, PathRole pathRole, Solver s) {
     //println("rascalIsAcceptablePath <use.id>, candidate <def>, <pathRole>, <use>");
     //iprintln(tm.definitions[def]);
     res = acceptBinding();
@@ -225,7 +226,7 @@ AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope,
 
 bool rascalIsInferrable(IdRole idRole) = idRole in inferrableRoles;
 
-loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] scope){
+loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] _scope){
     sc = definitions[def].scope;
     while(definitions[sc]? ? definitions[sc].idRole notin {functionId(), moduleId(), dataId(), constructorId()} : true){
         sc = definitions[sc].scope;
@@ -253,7 +254,7 @@ bool rascalReportUnused(loc def, TModel tm){
     facts = tm.facts;
     
     bool reportFormal(Define define){
-       if(!config.warnUnusedFormals || define.id == "_") return false;
+       if(!config.warnUnusedFormals || define.id[0] == "_") return false;
        container = tm.definitions[findContainer(def, definitions, scopes)];
        if(container.idRole == functionId()){
           if(isOverloadedFunction(container.defined, definitions, facts)) return false;
@@ -281,13 +282,13 @@ bool rascalReportUnused(loc def, TModel tm){
             case keywordFormalId():     return reportFormal(define); 
                                         
             case patternVariableId():   { if(!config.warnUnusedVariables) return false;
-                                          return define.id notin {"_"};
+                                          return define.id[0] != "_";
                                         }
             case typeVarId():           return false;
             case variableId():          { if(!config.warnUnusedVariables) return false;
                                           container = definitions[findContainer(def, definitions, scopes)];
                                           if(container.idRole == moduleId() && define.defInfo.vis == publicVis()) return false;
-                                          return define.id notin {"_", "it"};
+                                          return define.id[0] == "_" || define.id == "it";
                                         }
             case annoId():              return false;
             case aliasId():             return false;
@@ -302,7 +303,7 @@ bool rascalReportUnused(loc def, TModel tm){
 }
 
 // Enhance TModel before running Solver by adding transitive edges for extend
-TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
+TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
     m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
@@ -314,7 +315,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     
     set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
-    moduleScopes = { t@\loc | t <- range(namedTrees) };
+    moduleScopes = { t.src | t <- range(namedTrees) };
     
     funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
     funIds = domain(funDefs);
@@ -363,7 +364,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             s.addMessages(msgs);
         }      
     }
-    
+    try {
     consDef = range(consNameDef);
     for(d1 <- consDef, d2 <- consDef, d1.defined != d2.defined, t1 := s.getType(d1), t2 := s.getType(d2), t1.adt == t2.adt,
         d1.scope in moduleScopes && d2.scope in moduleScopes){
@@ -373,6 +374,10 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             s.addMessages(msgs);
         }
     }
+    } catch _: {
+        // Guard against type incorrect defines, but record for now
+        println("Skipping (type-incorrect) defines while checking duplicate labels in constructors");
+    }
 }
 
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
@@ -380,7 +385,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
     if(!s.reportedErrors()){
        checkOverloading(namedTrees, s);
     
-        for(mname <- namedTrees){
+        for(_mname <- namedTrees){
             addADTsAndCommonKeywordFields(s);
         }
    }

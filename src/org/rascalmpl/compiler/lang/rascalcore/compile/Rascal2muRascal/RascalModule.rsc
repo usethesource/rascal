@@ -2,11 +2,11 @@
 module lang::rascalcore::compile::Rascal2muRascal::RascalModule
 
 import IO;
-import Map;
+//import Map;
 import String;
 import Set;
 import List;
-import Relation;
+//import Relation;
 import util::Reflective;
 
 import ParseTree;
@@ -43,14 +43,14 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=true){
    try {
       resetModuleInfo(optimize, enableAsserts);
-      module_scope = M@\loc;
+      module_scope = M.src;
       setModuleScope(module_scope);
       module_name = "<M.header.name>";
       setModuleName(module_name);
       mtags = translateTags(M.header.tags);
       setModuleTags(mtags);
       if(ignoreTest(mtags)){
-            return <tmodel, errorMuModule(getModuleName(), {info("Ignore tag suppressed compilation", M@\loc)}, M@\loc)>;
+            return <tmodel, errorMuModule(getModuleName(), {info("Ignore tag suppressed compilation", M.src)}, M.src)>;
       }
      
       if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
@@ -86,7 +86,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
    	  				  getVariableInitializationsInModule(),   
    	  				  getCommonKeywordFieldsNameAndType(),
    	  				  getGrammar(),
-   	  				  M@\loc) /*,   
+   	  				  M.src) /*,   
    	  				  reloc,
    	  				  pcfg.srcs)*/
    	  	      >;
@@ -96,14 +96,14 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
         if (verbose) println("Parse error in concrete syntax <l>; returning error module");
         msg = error("Parse error in concrete syntax fragment", l);
         tmodel.messages += [msg];
-        return <tmodel, errorMuModule(getModuleName(), {msg}, M@\loc)>;
+        return <tmodel, errorMuModule(getModuleName(), {msg}, M.src)>;
    }
    catch CompileTimeError(Message m): {
         tmodel.messages += [m];
-        return <tmodel, errorMuModule(getModuleName(), {m}, M@\loc)>;
+        return <tmodel, errorMuModule(getModuleName(), {m}, M.src)>;
    }
    //catch value e: {
-   //     return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
+   //     return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M.src)}, M.src);
    //}
    finally {
    	   resetModuleInfo(optimize, enableAsserts);

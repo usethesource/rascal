@@ -834,7 +834,7 @@ private AType computeReturnType(Expression current, loc scope, AType retType, li
         s.requireComparable(ai, iformalTypes[i], error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, iformalTypes[i], ai));       
     }
     
-    checkExpressionKwArgs(kwFormals, keywordArguments, bindings, scope, s);
+    checkExpressionKwArgs(kwFormals, keywordArguments, bindings, s);
     
     //// Artificially bind unbound type parameters in the return type
     //for(rparam <- collectAndUnlabelRascalTypeParams(retType)){

@@ -14,10 +14,11 @@
 module lang::rascalcore::check::ATypeInstantiation
 
 extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::NameUtils;
 
 import Map;
 import Set;
-import IO;
+//import IO;
 import Node;
 
 public alias Bindings = map[str varName, AType varType];
@@ -78,7 +79,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     // able to be matched to one another
     if ( isSetType(r) && isSetType(s) ) {
         if ( isRelType(r) && isVoidType(getSetElementType(s)) ) {
-            return matchRascalTypeParams0(getSetElementType(r), atuple(atypeList([avoid() | idx <- index(getRelFields(r))])), b);
+            return matchRascalTypeParams0(getSetElementType(r), atuple(atypeList([avoid() | _ <- index(getRelFields(r))])), b);
         } else if ( isVoidType(getSetElementType(s)) ) {
             return b;
         } else {    
@@ -90,7 +91,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     // able to be matched to one another
     if ( isListType(r) && isListType(s) ) {
         if ( isListRelType(r) && isVoidType(getListElementType(s)) ) {
-            return matchRascalTypeParams0(getListElementType(r), atuple(atypeList([avoid() | idx <- index(getListRelFields(r))])), b);
+            return matchRascalTypeParams0(getListElementType(r), atuple(atypeList([avoid() | _ <- index(getListRelFields(r))])), b);
         } else if ( isVoidType(getListElementType(s)) ) {
             return b;
         } else {

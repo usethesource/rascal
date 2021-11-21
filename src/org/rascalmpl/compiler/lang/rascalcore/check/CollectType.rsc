@@ -18,7 +18,7 @@ import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
 
-import IO;
+//import IO;
 import List;
 import Node;
 import Set;
@@ -387,7 +387,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
 // ---- user defined type -----------------------------------------------------
 
 tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType baseType){  
-    if(aadt(adtName, _, sr) := baseType){
+    if(aadt(adtName, _, _) := baseType){
         nformals = size(baseType.parameters);
         if(nformals > 0) return <[error(n, "Expected %v type parameter(s) for %q, found 0", nformals, adtName)], baseType>;
         return <[], baseType>;
