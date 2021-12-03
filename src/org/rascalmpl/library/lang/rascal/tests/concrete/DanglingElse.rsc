@@ -26,7 +26,7 @@ test bool noElse2() = expectSuccess("if (x) if (x) {}");
 
 test bool noElse3() = expectSuccess("if (x) if (x) if (x) {}");
 
-test bool noElse1Trailing() = expectSuccess("if (x) {}" );
+test bool noElse1Trailing() = expectSuccess("if (x) {} ");
 
 test bool noElse2Trailing() = expectSuccess("if (x) if (x) {} ");
 
