@@ -149,4 +149,8 @@ public class ParserTest extends TestCase{
 	public void testListSharing(){
 		executeParser(new ListOverlap());
 	}
+
+	public void testDoubleLeftNullable() {
+		executeParser(new DoubleLeftNullable());
+	}
 }
