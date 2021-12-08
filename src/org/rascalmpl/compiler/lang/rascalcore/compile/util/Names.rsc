@@ -50,7 +50,7 @@ str getClassName(str qname){
     return n >= 0 ? qname[n+1 ..] : qname;
 }
 
-str getClassRef(str qname, str inModule){
+str getClassRef(str qname, str _inModule){
     qname = normalizeQName(qname); // replaceColonAndDash(qname);
     n = findLast(qname, ".");
    

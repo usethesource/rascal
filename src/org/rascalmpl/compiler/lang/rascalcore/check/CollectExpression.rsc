@@ -31,7 +31,7 @@ void collect(DateTimeLiteral current, Collector c){
     c.fact(current, adatetime());
     try {
         readTextValueString("<current>");   // ensure that the datetime literal is valid
-    } catch IO(msg): {
+    } catch IO(_): {
         c.report(error(current, "Malformed datetime literal %q", current));
     }
 }
@@ -95,9 +95,9 @@ void collect(current: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Sta
 
 void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> } else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, Collector c){
     compScope = [conditions] 
-                + (size(preStatsThen) > 0 ? [preStatsThen] : [])
+                + (size([s | s <- preStatsThen]) > 0 ? [preStatsThen] : [])
                 + thenString
-                + (size(postStatsThen) > 0 ? [postStatsThen] : []);
+                + (size([s | s <- postStatsThen]) > 0 ? [postStatsThen] : []);
     c.enterCompositeScope(compScope);   // thenPart may refer to variables defined in conditions; elsePart may not
     
         condList = [cond | Expression cond <- conditions];
@@ -376,14 +376,16 @@ void collect(current: (Expression) `# <Type tp>`, Collector c){
 
 void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`, Collector c) {
     // TODO: Is there anything we can do statically to make the result type more accurate?
-    c.fact(current, areified(avalue()));
+    c.calculate("reified type", current, [es], AType(Solver s) { return areified(s.getType(es)); });
+    //c.fact(current, areified(aadt("Symbol",[], dataSyntax())));
+    //c.fact(current, areified(avalue()));
     c.require("reified type", current, [es, ed],
         void (Solver s){
             checkNonVoid(es, s, "First element of reified type");
-            s.requireSubType(es, aadt("Symbol",[], dataSyntax()), error(es, "Expected subtype of Symbol, instead found %t", es));
+            s.requireSubType(es, aadt("Symbol",[], contextFreeSyntax()), error(es, "Expected subtype of Symbol, instead found %t", es));
             
             checkNonVoid(ed, s, "Second element of reified type");
-            s.requireSubType(ed, amap(aadt("Symbol",[],dataSyntax()),aadt("Production",[],dataSyntax())), 
+            s.requireSubType(ed, amap(aadt("Symbol",[],contextFreeSyntax()),aadt("Production",[],dataSyntax())), 
                 error(ed, "Expected subtype of map[Symbol,Production], instead found %t", ed));
           });
     collect(es, ed, c);
@@ -611,15 +613,15 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 }
                 s.requireEqual(actuals[0], aint(), error(actuals[0], "Argument should be of type `int`, found %t", actuals[0]));
                 if(actuals[0] is literal){
-                    c = toInt("<actuals[0]>");
-                    return \char-class([arange(c, c)]);
+                    chr = toInt("<actuals[0]>");
+                    return \char-class([arange(chr, chr)]);
                 } else
                     return anyCharType;
             }
              
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
               <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));
-              if({<key, idr, tp>} := filteredOverloads){
+              if({<_, _, tp>} := filteredOverloads){
                 texp = tp;
                 s.specializedFact(expression, tp);
               } else {
@@ -627,7 +629,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 validReturnTypeOverloads = {};
                 validOverloads = {};
                 next_fun:
-                for(ovl: <key, idr, tp> <- overloads){                       
+                for(ovl: <key, _, tp> <- overloads){                       
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
@@ -639,25 +641,25 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             }
                             validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
-                       } catch checkFailed(list[FailMessage] fms):
+                       } catch checkFailed(list[FailMessage] _):
                             continue next_fun;
                          catch NoBinding():
                             continue next_fun;
                     }
                  }
                  next_cons:
-                 for(ovl: <key, idr, tp> <- overloads){
-                    if(acons(ret:aadt(adtName, list[AType] parameters, _),  list[AType] fields, list[Keyword] kwFields) := tp){
+                 for(ovl: <key, _, tp> <- overloads){
+                    if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
                        try {
                             validReturnTypeOverloads += <key, dataId(), computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
-                       } catch checkFailed(list[FailMessage] fms):
+                       } catch checkFailed(list[FailMessage] _):
                              continue next_cons;
                          catch NoBinding():
                              continue next_cons;
                     }
                  }
-                 if({<key, idr, tp>} := validOverloads){
+                 if({<_, _, tp>} := validOverloads){
                     texp = tp;  
                     s.specializedFact(expression, tp);
                     // TODO check identicalFields to see whether this can make sense
@@ -679,10 +681,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                if(texp.deprecationMessage? && c.getConfig().warnDeprecated){
                     s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
                }
-                return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)], s);
+                return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
             }
-            if(acons(ret:aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               return computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
+            if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
+               return computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
             }
             reportCallError(current, expression, actuals, keywordArguments, s);
             return avalue();
@@ -693,14 +695,14 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
 void reportCallError(Expression current, Expression callee, list[Expression] actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`, Solver s){
     kwactuals = keywordArguments is \default ? [ kwa.expression | kwa <- keywordArguments.keywordArgumentList] : [];
     
-    arguments = size(actuals) > 1 ? "arguments" : "argument";
+    arguments = size(actuals) > 1 ? "arguments of types" : "argument of type";
     kwarguments = size(kwactuals) > 1 ? "keyword arguments" : "keyword argument";
     if(isEmpty(kwactuals)){
-        s.report(error(current, "%q is defined as %t and cannot be applied to %v of type %v",  "<callee>", callee, arguments, actuals));
+        s.report(error(current, "%q is defined as %t and cannot be applied to %v %v",  "<callee>", callee, arguments, actuals));
     } else {
         kwargs = keywordArguments is \default ? [ kwa | kwa <- keywordArguments.keywordArgumentList] : [];
         kws = [ "`<kwa.name>` of type `<prettyAType(s.getType(kwa.expression))>`" | kwa <- kwargs ];
-        s.report(error(current, "%q is defined as %t and cannot be applied to %v of type `%v` and %v %v", 
+        s.report(error(current, "%q is defined as %t and cannot be applied to %v `%v` and %v %v", 
                                 "<callee>", callee, arguments, actuals, kwarguments, 
                                 kws));
     }
@@ -716,10 +718,10 @@ private void checkOverloadedSyntaxConstructors(Expression current, rel[loc defin
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
     filteredOverloads = {};
     prevFormals = [];
-    identicalFormals = [true | int i <- [0 .. arity]];
+    identicalFormals = [true | int _ <- [0 .. arity]];
     
-    for(ovl:<key, idr, tp> <- overloads){                       
-        if(ft:afunc(AType ret, formalTypes: list[AType] formals, list[Keyword] kwFormals) := tp){
+    for(ovl:<_, _, tp> <- overloads){                       
+        if(ft:afunc(AType _, list[AType] formals, list[Keyword] _) := tp){
            if(ft.varArgs ? (arity >= size(formals) - 1) : (arity == size(formals))) {
               filteredOverloads += ovl;
               if(isEmpty(prevFormals)){
@@ -733,7 +735,7 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
               }
            }
         } 
-        else if(acons(aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := tp){
+        else if(acons(aadt(_, list[AType] _,_), list[AType] fields, list[Keyword] _) := tp){
            if(size(fields) == arity){
               filteredOverloads += ovl;
               if(isEmpty(prevFormals)){
@@ -782,12 +784,12 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
             //println("checkArgsAndComputeReturnType: <current>");
             //iprintln(overloads);
             returnTypeForOverloadedActuals = {};
-            for(ovl: <key, idr, tp> <- overloads){   
+            for(<key, idr, tp> <- overloads){   
                 try {
                     actualTypes[i] = tp;
                     returnTypeForOverloadedActuals += <key, idr, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s)>;
                     //println("succeeds: <ovl>");
-                } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+                } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
                   catch NoBinding():/* continue with next overload */;
              }
              if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Call with %v arguments cannot be resolved", size(actuals)));}
@@ -798,7 +800,7 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
     return computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s);
 }
 
-private AType computeReturnType(Expression current, loc scope, AType retType, list[AType] formalTypes, list[Expression] actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, Solver s){
+private AType computeReturnType(Expression current, loc _, AType retType, list[AType] formalTypes, list[Expression] actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, Solver s){
     //println("computeReturnType: retType=<retType>, formalTypes=<formalTypes>, actualTypes=<actualTypes>");
     index_formals = index(formalTypes);
     Bindings bindings = ();
@@ -849,12 +851,12 @@ private AType computeReturnType(Expression current, loc scope, AType retType, li
     return avalue();
 }
  
- private AType computeExpressionNodeType(loc scope, list[Expression]  actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Solver s, AType subjectType=avalue()){                     
+ private AType computeExpressionNodeType(loc scope, list[Expression]  actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Solver s){                     
     actualType = [ s.getType(actuals[i]) | i <- index(actuals) ];
     return anode(computeExpressionKwArgs(keywordArgumentsExp, scope, s));
 }
 
-private list[AType] computeExpressionKwArgs((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, loc scope, Solver s){
+private list[AType] computeExpressionKwArgs((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, loc _, Solver s){
     if(keywordArgumentsExp is none) return [];
  
     return for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
@@ -1048,7 +1050,7 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
         for(<key, role, tp> <- overloads){
             try {
                 projection_overloads += <key, role, computeFieldProjectionType(current, tp, fields, s)>;
-            } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+            } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
               catch NoBinding(): /* continue with next overload */;
 //>>>         catch e: /* continue with next overload */;
         }
@@ -1127,7 +1129,7 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
 // ---- setAnnotation
 // Deprecated
 void collect(current:(Expression) `<Expression expression> [ @ <Name field> = <Expression repl> ]`, Collector c) {
-    c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+     // TODO: disabled: c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     
      scope = c.getScope();
    
@@ -1148,7 +1150,7 @@ void collect(current:(Expression) `<Expression expression> [ @ <Name field> = <E
 
 // Deprecated
 void collect(current:(Expression) `<Expression expression>@<Name field>`, Collector c) {
-    c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+     // TODO: disabled: c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     
     c.useViaType(expression, field, {keywordFieldId(), annoId()});
     c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of get annotation"));

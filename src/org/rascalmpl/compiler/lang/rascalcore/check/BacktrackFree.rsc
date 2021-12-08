@@ -12,19 +12,19 @@ import ParseTree;
 bool backtrackFree(Expression e){
     top-down visit(e){
     
-    case (Expression) `all ( <{Expression ","}+ generators> )`: 
+    case (Expression) `all ( <{Expression ","}+ _> )`: 
         return true;
-    case (Expression) `any ( <{Expression ","}+ generators> )`: 
+    case (Expression) `any ( <{Expression ","}+ _> )`: 
         return true;
-    case Comprehension comprehension:
+    case Comprehension _:
         return true;
-    case (Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`:
+    case (Expression) `( <Expression _> | <Expression _> | <{Expression ","}+ _> )`:
         return true; 
-    case (Expression) `<Pattern pat> \<- <Expression exp>`: 
+    case (Expression) `<Pattern _> \<- <Expression _>`: 
         return false;
-    case (Expression) `<Pattern pat> := <Expression exp>`:
+    case (Expression) `<Pattern pat> := <Expression _>`:
         return backtrackFree(pat);
-    case (Expression) `<Pattern pat> !:= <Expression exp>`:
+    case (Expression) `<Pattern pat> !:= <Expression _>`:
         return backtrackFree(pat);
     case (Expression) `!<Expression exp>`:
         return backtrackFree(exp);
@@ -58,7 +58,7 @@ bool backtrackFree(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
     = backtrackFree(expression) && (isEmpty(argumentList) || all(arg <- argumentList, backtrackFree(arg)))
                                 && (isEmpty(keywordArgumentList) || all(kwa <- keywordArgumentList, backtrackFree(kwa.expression)))
     when argumentList := [arg | arg <- arguments], 
-         keywordArgumentList := (((KeywordArguments[Pattern]) `<OptionalComma optionalComma> <{KeywordArgument[Pattern] ","}+ kwaList>` := keywordArguments)
+         keywordArgumentList := (((KeywordArguments[Pattern]) `<OptionalComma _> <{KeywordArgument[Pattern] ","}+ kwaList>` := keywordArguments)
                                 ? [kwa | kwa <- kwaList]
                                 : []);
 bool backtrackFree((Pattern) `/ <Pattern pattern>`) = false;
@@ -71,9 +71,9 @@ default bool backtrackFree(Pattern p) = !isMultiVar(p);
 /*                  BacktrackFree for Concrete Patterns   == Tree    */
 /*********************************************************************/
 
-bool backtrackFreeConcrete(appl(prod(label("concrete",sort("Pattern")),[label("concrete",lex("Concrete"))], {}),[Tree concrete1])){
-    if(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete2]) := concrete1){
-        for(/t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole]) := concrete2){
+bool backtrackFreeConcrete(Tree::appl(prod(label("concrete",sort("Pattern")),[label("concrete",lex("Concrete"))], {}),[Tree concrete1])){
+    if(appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete2]) := concrete1){
+        for(/appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole _]) := concrete2){
             //println("hole: <hole>, type: <holeType>");
             if(isIterSymbol(holeType)) return false;
         }
@@ -81,32 +81,32 @@ bool backtrackFreeConcrete(appl(prod(label("concrete",sort("Pattern")),[label("c
     return true;
 } 
 
-bool backtrackFreeConcrete(appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole])){
+bool backtrackFreeConcrete(Tree::appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole])){
     return !isIterSymbol(holeType);
 }
 
-bool backtrackFreeConcrete(p: appl(prod(_, [lit(_)],{}), [Tree_])) {
+bool backtrackFreeConcrete(Tree::appl(prod(_, [lit(_)],{}), [Tree_])) {
     return true;   
 }
 
-bool backtrackFreeConcrete(p: appl(prod(_, [cilit(_)],{}), [Tree_])) {
+bool backtrackFreeConcrete(Tree::appl(prod(_, [cilit(_)],{}), [Tree_])) {
     return true;   
 }
 
-bool backtrackFreeConcrete(p: appl(prod(_, [\char-class(_)],{}), [Tree_])) {
+bool backtrackFreeConcrete(Tree::appl(prod(_, [\char-class(_)],{}), [Tree_])) {
     return true;   
 }
 
-bool backtrackFreeConcrete(p: char(_)) {
+bool backtrackFreeConcrete(Tree::char(_)) {
     return true;   
 }
 
-bool backtrackFreeConcrete(p: appl(prod(layouts(_), [_],{}), [Tree_])) {
+bool backtrackFreeConcrete(Tree::appl(prod(layouts(_), [_],{}), [Tree_])) {
     return true;   
 }
 
-bool backtrackFreeConcrete(p: appl(prod(Symbol def, list[Symbol] symbols, {}), list[Tree] args)) {
-    for(/t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole]) := symbols){
+bool backtrackFreeConcrete(Tree::appl(prod(Symbol def, list[Symbol] symbols, {}), list[Tree] args)) {
+    for(/appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole _hole]) := symbols){
             //println("hole: <hole>, type: <holeType>");
             if(isIterSymbol(holeType)) return false;
         } 

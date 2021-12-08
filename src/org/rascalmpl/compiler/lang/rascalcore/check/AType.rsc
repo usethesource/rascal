@@ -5,15 +5,13 @@ extend analysis::typepal::AType;
 import analysis::typepal::Exception;
 
 import lang::rascal::\syntax::Rascal;
+//import lang::rascal::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Characters;
 
 import List;
 import Set;
 import Node;
 import String;
-import IO;
-
-import util::Memo;
 
 //extend ParseTree;
 
@@ -64,12 +62,12 @@ data AType (str label = "")
      
 @memo{expireAfter(minutes=15)}
 AType overloadedAType(rel[loc, IdRole, AType] overloads){
-    if(all(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName, params, syntaxRole) := t)){
+    if(all(<loc _, IdRole _, AType t> <- overloads, aadt(_, _, _) := t)){
       str adtName = "";
       list[AType] adtParams = [];
       synRoles = {};
       nformals = -1;
-      for(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
+      for(<loc _, IdRole _, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
         if(!isEmpty(adtName) && adtName != adtName1) fail overloadedAType; // overloading of different ADTs.
         if(nformals >= 0 && size(params1) != nformals) fail overloadedAType; else nformals = size(params1);  // different type parameter arities
         
@@ -110,7 +108,7 @@ Nested choice is flattened.
 }
 public AProduction choice(AType s, set[AProduction] choices){
     //if(size(choices) == 1) return getFirstFrom(choices);
-    if(!any(choice(AType t, set[AProduction] b)  <- choices)){
+    if(!any(choice(AType _, set[AProduction] _)  <- choices)){
        fail;
     } else {   
         // TODO: this does not work in interpreter and typechecker crashes on it (both related to the splicing)
@@ -118,7 +116,7 @@ public AProduction choice(AType s, set[AProduction] choices){
         changed = false;
         new_choices = {};
         for(ch <- choices){
-            if(choice(AType t, set[AProduction] b) := ch){
+            if(choice(AType _, set[AProduction] b) := ch){
                 changed = true;
                 new_choices += b;
             } else {
@@ -135,12 +133,12 @@ public AProduction choice(AType s, set[AProduction] choices){
 
 // ---- Parse Tree
 
-//data Tree 
-//     //= appl(AProduction aprod, list[Tree] args, loc src=|unknown:///|) // <1>
-//     //| cycle(AType atype, int cycleLength)  // <2>
-//     //| amb(set[Tree] alternatives) // <3> 
-//     //| char(int character) // <4>
-//     ;
+data Tree 
+     = appl(AProduction aprod, list[Tree] args, loc src=|unknown:///|) // <1>
+     | cycle(AType atype, int cycleLength)  // <2>
+     | amb(set[Tree] alternatives) // <3> 
+     | char(int character) // <4>
+     ;
      
 public /*const*/ AType treeType = aadt("Tree", [], dataSyntax());
 
@@ -364,7 +362,7 @@ AProduction associativity(AType rhs, Associativity a, {associativity(rhs, Associ
   = associativity(rhs, a, rest + alts); // the nested associativity, even if contradictory, is lost
 
 AProduction associativity(AType s, Associativity as, {AProduction a, priority(AType t, list[AProduction] b)}) 
-  = associativity(s, as, {*a, *b}); 
+  = associativity(s, as, {a, *b}); 
 
 // deprecated; remove after bootstrap
 AProduction associativity(AType rhs, Associativity a, set[AProduction] rest)
@@ -394,11 +392,11 @@ data AGrammar
   ;
  
 public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
-  rules = ();
+  map[AType sort, AProduction def]rules = ();
 
   for (p <- prods) {
-    t = (p.def is label) ? p.def.symbol : p.def;
-    rules[t] = t in rules ? choice(t, {p, *rules[t]}) : choice(t, {p});
+    t = /*(p.def is label) ? p.def.symbol : */ p.def;
+    rules[t] = t in rules ? choice(t, {p, rules[t]}) : choice(t, {p});
   } 
   return grammar(starts, rules);
 } 
@@ -474,7 +472,14 @@ This function documents and implements the subtype relation of Rascal's type sys
 
 bool asubtype(AType s, s) = true;
 
-default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unset(s, "label") , unset(t, "label")) : s == t;
+//default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unset(s, "label") , unset(t, "label")) : s == t;
+
+default bool asubtype(AType s, AType t) {
+    if(s.label? || t.label?) 
+        return asubtype(unset(s, "label") , unset(t, "label")); 
+    else 
+        return s == t;
+}
 
 bool asubtype(tvar(s), AType r) { 
     //println("asubtype(tvar(<s>), <r>)");
@@ -486,9 +491,9 @@ bool asubtype(AType l, tvar(s)) {
 }
 
 
-bool asubtype(overloadedAType(overloads), AType r) = !isEmpty(overloads) && any(<k, idr, tp> <- overloads, asubtype(tp, r));
+bool asubtype(overloadedAType(overloads), AType r) = !isEmpty(overloads) && any(<_, _, tp> <- overloads, asubtype(tp, r));
 
-bool asubtype(AType l, overloadedAType(overloads)) = !isEmpty(overloads) && any(<k, idr, tp> <- overloads, asubtype(l, tp));
+bool asubtype(AType l, overloadedAType(overloads)) = !isEmpty(overloads) && any(<_, _, tp> <- overloads, asubtype(l, tp));
 
 bool asubtype(AType _, avalue()) = true;
 
@@ -504,7 +509,13 @@ bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), anode(_)) = true;
 bool asubtype(acons(a,list[AType] ap, list[Keyword] _), afunc(AType b, list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
 bool asubtype(afunc(AType a, list[AType] ap, list[Keyword] _), acons(b,list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
 
-bool asubtype(aprod(AProduction p), AType t) = asubtype(p.def, t);
+bool asubtype(aprod(AProduction p), aprod(AProduction q)) {
+    return asubtype(p.def, q.def);
+}
+
+//bool asubtype(aprod(AProduction p), AType t) {
+//    return asubtype(p.def, t);
+//}
 
 bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
 bool asubtype(adt: aadt(str _, list[AType] _, _), acons(AType a, list[AType] ap, list[Keyword] _)) = asubtype(adt, a);
@@ -591,7 +602,7 @@ bool asubtype(\char(int c), \char-class(list[ACharRange] ranges)) {
     res = difference(ranges, [arange(c,c)]) == [arange(c,c)];
     return res;
 }
-bool asubtype(l:\char-class(list[ACharRange] ranges), \char(int c)) = l == \char-class([arange(c,c)]);
+bool asubtype(l:\char-class(list[ACharRange] _), \char(int c)) = l == \char-class([arange(c,c)]);
 
 // Utilities
 

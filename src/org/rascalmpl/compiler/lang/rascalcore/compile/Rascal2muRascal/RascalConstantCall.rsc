@@ -43,7 +43,7 @@ private MuExp tcc("getChildren", [muCon(node nd)]) = muCon(getChildren(nd));
 // Type		
 private MuExp tcc("subtype", [muCon(AType lhs), muCon(AType rhs)]) = muCon(asubtype(lhs, rhs));
 private MuExp tcc("lub", [muCon(AType lhs), muCon(AType rhs)]) = muCon(alub(lhs, rhs));
-private MuExp tcc("glb", [muCon(AType lhs), muCon(AType rhs)]) = muCon(aglb(lhs, rhs));
+//private MuExp tcc("glb", [muCon(AType lhs), muCon(AType rhs)]) = muCon(aglb(lhs, rhs));
  
 // Tree
 

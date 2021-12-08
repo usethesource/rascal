@@ -2,6 +2,7 @@
 module lang::rascalcore::check::CollectStatement
 
 extend lang::rascalcore::check::CheckerCommon;
+import lang::rascal::\syntax::Rascal;
 
 import List;
 import Set;
@@ -88,7 +89,7 @@ data replacementInfo = replacementInfo(Pattern pattern);
 void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement replacement>`,  Collector c){
     visitOrSwitchScopes = c.getScopeInfo(visitOrSwitchScope());
     for(<scope, scopeInfo> <- visitOrSwitchScopes){
-        if(visitOrSwitchInfo(Expression expression, bool isVisit) := scopeInfo){
+        if(visitOrSwitchInfo(Expression _, bool isVisit) := scopeInfo){
             if(isVisit){
                 c.enterScope(current);
                 beginPatternScope("pattern-with-action", c);
@@ -144,7 +145,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
 void collect(current: (PatternWithAction) `<Pattern pattern>: <Statement statement>`,  Collector c){
     visitOrSwitchScopes = c.getScopeInfo(visitOrSwitchScope());
     for(<scope, scopeInfo> <- visitOrSwitchScopes){
-        if(visitOrSwitchInfo(Expression expression, bool isVisit) := scopeInfo){
+        if(visitOrSwitchInfo(Expression _, bool isVisit) := scopeInfo){
             if(isVisit){
                c.enterScope(current);
                     scope = c.getScope();
@@ -230,7 +231,7 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
 private void computeLoopType(str loopKind, str loopName1, Statement current, Collector c){
     loopScopes = c.getScopeInfo(loopScope());
     
-    for(<scope, scopeInfo> <- loopScopes){
+    for(<_, scopeInfo> <- loopScopes){
         if(loopInfo(loopName2, list[Statement] appends) := scopeInfo){
            if(loopName1 == "" || loopName1 == loopName2){
               if(isEmpty(appends)){
@@ -330,8 +331,8 @@ void collect(current:(Statement) `break <Target target>;`, Collector c){
         c.use(target.name, {labelId()});
     }
  
-    for(<scope, scopeInfo> <- c.getScopeInfo(loopScope())){
-        if(loopInfo(loopName1, list[Statement] appends) := scopeInfo){
+    for(<_, scopeInfo> <- c.getScopeInfo(loopScope())){
+        if(loopInfo(loopName1, list[Statement] _) := scopeInfo){
             if(loopName == "" || loopName == loopName1){
                 collect(target, c);
                 return;
@@ -353,8 +354,8 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
         c.use(target.name, {labelId()});
     }
     
-    for(<scope, scopeInfo> <- c.getScopeInfo(loopScope())){
-        if(loopInfo(loopName1, list[Statement] appends) := scopeInfo){
+    for(<_, scopeInfo> <- c.getScopeInfo(loopScope())){
+        if(loopInfo(loopName1, list[Statement] _) := scopeInfo){
             if(loopName == "" || loopName == loopName1){
                  collect(target, c);
                  return;
@@ -483,7 +484,7 @@ void collect(Bound current, Collector c){
  
  void collect(current: (Statement) `try <Statement body> <Catch+ handlers>`, Collector c){
     lhandlers = [ h | h <- handlers ];
-    c.calculate("try", current, body + lhandlers, AType(Solver s) { return avoid(); } );
+    c.calculate("try", current, body + lhandlers, AType(Solver _) { return avoid(); } );
     collect(body, handlers, c);
  }
  
@@ -491,7 +492,7 @@ void collect(Bound current, Collector c){
 
 void collect(current: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`, Collector c){
     lhandlers = [h | h <- handlers];
-    c.calculate("try finally", current, body + lhandlers + finallyBody, AType(Solver s) { return avoid(); } );
+    c.calculate("try finally", current, body + lhandlers + finallyBody, AType(Solver _) { return avoid(); } );
     collect(body, handlers, finallyBody, c);
 }
 
@@ -748,7 +749,7 @@ private AType computeSubscriptAssignableType(Statement current, AType receiverTy
         for(<key, idr, tp> <- overloads){ 
             try {
                sub_overloads += <key, idr, computeSubscriptAssignableType(current, tp, subscript, operator, rhs, s)>;
-           } catch checkFailed(list[FailMessage] fms): /* do nothing and try next overload */;
+           } catch checkFailed(list[FailMessage] _): /* do nothing and try next overload */;
              catch NoBinding(): /* do nothing and try next overload */;
  //>>        catch e: /* do nothing and try next overload */;
         }
@@ -902,14 +903,14 @@ private void checkAssignment(Statement current, asg: (Assignable) `<Assignable r
    
    c.calculate("assignable with default expression", current, [defaultExpression, rhs], 
       AType(Solver s){ 
-           res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope, s), s.getType(defaultExpression), operator, s.getType(rhs), scope, s);
+           res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope, s), s.getType(defaultExpression), operator, s.getType(rhs), s);
            s.fact(asg, s.getType(rhs));
            return res;
          });
    //collect(receiver, defaultExpression, c);
 }
 
-private AType computeDefaultAssignableType(Statement current, AType receiverType, AType defaultType, str operator, AType rhs, loc scope, Solver s){
+private AType computeDefaultAssignableType(Statement current, AType receiverType, AType defaultType, str operator, AType rhs, Solver s){
 //println("computeDefaultAssignableType: <receiverType>, <defaultType>, <rhs>");
     finalReceiverType = computeAssignmentRhsType(current, alub(receiverType, defaultType), operator, rhs, s);
     finalDefaultType = computeAssignmentRhsType(current, defaultType, operator, rhs, s);
@@ -924,9 +925,9 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
     // Note we will use a list `taus` of type variables that is accessible in `makeDef` and `checkTupleElemAssignment` in order to make
     // new bindings to `taus` (e.g. changed list elements) visible inside those functions
 
-    AType(Solver s) makeDef(int i) = AType(Solver s) { return taus[i]; };
+    AType(Solver _) makeDef(int i) = AType(Solver _) { return taus[i]; };
     
-    AType(Solver s) checkTupleElemAssignment(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[Assignable] elms, int i, str operator, Statement rhs, loc scope, Collector c){
+    AType(Solver _) checkTupleElemAssignment(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[Assignable] elms, int i, str operator, Statement rhs, loc scope){
     return
         AType(Solver s){
             //println("checkTupleElemAssignment: <current>");
@@ -938,7 +939,7 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
             //println("#name: <size(names)>, #rhsFields: <size(rhsFields)>");
             if(size(names) != size(rhsFields)) s.report(error(current, "Tuple type required of arity %v, found arity %v", size(names), size(rhsFields))); 
             //println("checkTupleElemAssignment: taus[<i>] : <taus[i]>, rhsFields[<i>]: <rhsFields[i]>");
-            if(s.isFullyInstantiated(taus[i]) && tvar(l) !:= taus[i]){
+            if(s.isFullyInstantiated(taus[i]) && tvar(_) !:= taus[i]){
                //println("checkTupleElemAssignment: fullyInstantiated");
                recTypeI  = computeReceiverType(current, elms[i],  scope, s);
                rhsTypeI  = computeAssignmentRhsType(current, recTypeI, operator, rhsFields[i], s);
@@ -973,7 +974,7 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
    scope = c.getScope();
    
    for(int i <- index(names)){
-     c.calculate("assignable <i> of tuple", names[i], [rhs], checkTupleElemAssignment(current, names, flatNames, namesInRhs, elms, i, operator, rhs, scope, c));
+     c.calculate("assignable <i> of tuple", names[i], [rhs], checkTupleElemAssignment(current, names, flatNames, namesInRhs, elms, i, operator, rhs, scope));
    }
    c.calculate("assignable tuple", current, [rhs], AType(Solver s) { 
     s.fact(receiver, s.getType(rhs));
@@ -983,7 +984,7 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
 }
 
 private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
-   c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+    // TODO: disabled: c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
    
    names = getReceiver(receiver, c);
    c.use(names[0], variableRoles);
@@ -1069,7 +1070,7 @@ private default list[QualifiedName] getReceiver(Assignable asg, Collector c) { t
 // ---- throw -----------------------------------------------------------------
 
 void collect(current:(Statement) `throw <Statement statement>`, Collector c){
-    c.calculate("throw", current, [statement], AType(Solver s) { return abool(); });
+    c.calculate("throw", current, [statement], AType(Solver _) { return abool(); });
     collect(statement, c);
 }
 

@@ -20,7 +20,7 @@ void collect(current: (Expression) `<Expression e> is <Name n>`, Collector c){
 
 private AType _computeIsType(Tree current, AType t1, Solver s){               // TODO: check that name exists
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        for(<key, idrole, tp> <- overloads){
+        for(<_, _, tp> <- overloads){
            try return _computeIsType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
@@ -39,7 +39,7 @@ void collect(current: (Expression) `<Expression e> has <Name n>`, Collector c){
 
 private AType _computeHasType(Tree current, AType t1, Solver s){
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        for(<key, idrole, tp> <- overloads){
+        for(<_, _, tp> <- overloads){
            try return _computeHasType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
@@ -169,6 +169,7 @@ private AType _computeSpliceType(Tree current, AType t1, Solver s){
     if (isRelType(t1)) return getRelElementType(t1);
     if (isListRelType(t1)) return getListRelElementType(t1);
     s.report(error(current, "Splice not defined on expression of type %t", t1));
+    return avalue();
 }
 
 // ---- asType
@@ -646,7 +647,7 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
                     s.fact(pat, patType);
              }
              if(overloadedAType(rel[loc, IdRole, AType] overloads) := elmType){
-                for(<key, role, tp> <- overloads){
+                for(<_, _, tp> <- overloads){
                     if(comparable(patType, tp)) return abool();
                 }
                 s.report(error(pat, "Pattern of type %t cannot be used to enumerate over %t", patType, exprType));
@@ -693,10 +694,10 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
     } else if (isOptType(etype)) {
         return getOptType(etype);
     } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := etype){
-        for(<key, role, tp> <- overloads, isEnumeratorType(tp)){
+        for(<_, _, tp> <- overloads, isEnumeratorType(tp)){
             try {
                 return computeEnumeratorElementType(current, tp, s);
-            } catch checkFailed(list[FailMessage] fms): /* do nothing and try next overload*/;
+            } catch checkFailed(list[FailMessage] _): /* do nothing and try next overload*/;
               catch NoBinding():  /* do nothing and try next overload*/;
         }
     } 
@@ -760,20 +761,20 @@ private set[str] introducedVars(Pattern e){
     top-down-break visit(e){
         case (Pattern) `<QualifiedName qualifiedName>`: {
              nm = "<qualifiedName>"; 
-             if(nm != "_") vars += nm;
+             if(nm[0] != "_") vars += nm;
         }
         case (Pattern) `<Type _> <Name name>` : { 
              nm = "<name>"; 
-             if(nm != "_") vars += nm;
+             if(nm[0] != "_") vars += nm;
         }
         case (Pattern) `<Name name> : <Pattern pattern>`: {
              nm = "<name>"; 
-             if(nm != "_") vars += nm;
+             if(nm[0] != "_") vars += nm;
              vars += introducedVars(pattern);
         }
         case (Pattern) `<Type _> <Name name> : <Pattern pattern>`: {
              nm = "<name>"; 
-             if(nm != "_") vars += nm;
+             if(nm[0] != "_") vars += nm;
              vars += introducedVars(pattern);
         }
         case (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`: {
@@ -822,7 +823,7 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
 // ---- if expression
 
 void checkNoAssignable(Expression e, Solver s, str msg){
-    if(/Assignable asg := e){
+    if(/Assignable _ := e){
         s.report(error(e, msg + " should not contain assignment"));
     }
 }

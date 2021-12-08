@@ -63,7 +63,7 @@ public default AType  intersection(AType s, AType t) {
 }
 
 public bool lessThan(ACharRange r1, ACharRange r2) {
-  if (ACharRange::arange(s1,e1) := r1, ACharRange::arange(s2,e2) := r2) {
+  if (ACharRange::arange(_,e1) := r1, ACharRange::arange(s2,_) := r2) {
     return e1 < s2;
   }
   throw "unexpected ranges <r1> and <r2>";
@@ -106,7 +106,7 @@ public ACharRange difference(ACharRange l, ACharRange r) {
     // -------------<---left---->
     // <----right------->--------
     if (ls > rs)
-      return range(re+1,le);
+      return arange(re+1,le);
 
   }
   
@@ -342,12 +342,12 @@ public list[ACharRange] difference(list[ACharRange] l, list[ACharRange] r) {
 
 public AType cc2ranges(Class cc) {
    switch(cc) {
-     case \simpleCharclass(Range* ranges) : return \new-char-class([range(r) | r <- ranges]);
-     case \bracket(Class c): return cc2ranges(c);
-     case \complement(Class c) : return complement(cc2ranges(c));
-     case \intersection(Class l, Class r) : return intersection(cc2ranges(l), cc2ranges(r));
-     case \union(Class l, Class r): return union(cc2ranges(l), cc2ranges(r));
-     case \difference(Class l, Class r): return difference(cc2ranges(l), cc2ranges(r));
+     case Class::\simpleCharclass(Range* ranges) : return \new-char-class([range(r) | r <- ranges]);
+     case Class::\bracket(Class c): return cc2ranges(c);
+     case Class::\complement(Class c) : return complement(cc2ranges(c));
+     case Class::\intersection(Class l, Class r) : return intersection(cc2ranges(l), cc2ranges(r));
+     case Class::\union(Class l, Class r): return union(cc2ranges(l), cc2ranges(r));
+     case Class::\difference(Class l, Class r): return difference(cc2ranges(l), cc2ranges(r));
      default: throw "cc2ranges, missed a case <cc>";
    }
 }

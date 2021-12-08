@@ -2,7 +2,7 @@ module lang::rascalcore::compile::muRascal2Java::JGenie
 
 import lang::rascal::\syntax::Rascal;
 
-import IO;
+//import IO;
 import List;
 import Location;
 import Map;
@@ -95,8 +95,8 @@ JGenie makeJGenie(MuModule m,
     map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs  | fun <- range(muFunctions));
     map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
     
-    extendScopes = { m2loc | <module_scope, extendPath(), m2loc> <- tmodels[moduleName].paths };
-    importScopes = { m2loc | <module_scope, importPath(), m2loc> <- tmodels[moduleName].paths};
+    extendScopes = { m2loc | <_, extendPath(), m2loc> <- tmodels[moduleName].paths };
+    importScopes = { m2loc | <_, importPath(), m2loc> <- tmodels[moduleName].paths};
     importScopes += { m2loc | imp <- importScopes, <imp, extendPath(), m2loc> <- tmodels[moduleName].paths};
     importAndExtendScopes = importScopes + extendScopes;
    
@@ -137,9 +137,9 @@ JGenie makeJGenie(MuModule m,
     loc _getModuleLoc()
         = currentModuleScope;
         
-    private bool isIgnored(MuFunction muFun){
-        return !isEmpty(domain(muFun.tags) & {"ignore", "Ignore", "ignoreInterpreter", "IgnoreInterpreter"});
-    }
+    //private bool isIgnored(MuFunction muFun){
+    //    return !isEmpty(domain(muFun.tags) & {"ignore", "Ignore", "ignoreInterpreter", "IgnoreInterpreter"});
+    //}
         
     void _setFunction(MuFunction fun){
         function = fun;
@@ -176,7 +176,7 @@ JGenie makeJGenie(MuModule m,
             src = srcs[0];
             if(currentTModel.definitions[src]?){
                 def = currentTModel.definitions[src];
-                if(defType(AType tp) := def.defInfo){
+                if(defType(AType _) := def.defInfo){
                         baseName = getJavaName(def.id);
                         if(isContainedIn(def.defined, currentModuleScope)){
                             if(def.scope != currentModuleScope){    // inner function
@@ -193,7 +193,7 @@ JGenie makeJGenie(MuModule m,
                 if(tmodels[mname].definitions[src]?){
                     def = tmodels[mname].definitions[src];
                     if(defType(AType tp) := def.defInfo){
-                        descriptor = atype2idpart(tp);
+                        descriptor = atype2idpart(tp, thisJGenie);
                         baseName = getJavaName(def.id);
                       
                         if(isContainedIn(def.defined, currentModuleScope)){
@@ -240,7 +240,7 @@ JGenie makeJGenie(MuModule m,
             return "<module2field(allLocs2Module[ms])>.<name>";
         }
        }
-       throw "_getAccessor: <name>, <srcrs>";
+       throw "_getAccessor: <name>, <srcs>";
     }
     
     str definedInInnerScope(list[loc] srcs){
@@ -364,7 +364,7 @@ JGenie makeJGenie(MuModule m,
         couter = "";
         if(types[atype]?){
             return types[atype];
-        } else if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := atype){
+        } else if(aadt(str adtName, list[AType] _, SyntaxRole _) := atype){
             return "<_getATypeAccessor(atype)>ADT_<adtName>";
         } else {
             ac = _getATypeAccessor(atype);
@@ -377,9 +377,9 @@ JGenie makeJGenie(MuModule m,
         }
         visit(atype){
             case AType t: {
-                if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t){
+                if(aadt(str _, list[AType] _, SyntaxRole _) := t){
                         ;
-                } else if(acons(AType adt, list[AType] fields, list[Keyword] kwFields) := t){
+                } else if(acons(AType _, list[AType] _, list[Keyword] _) := t){
                         ;
                 } else if(atypeList(_) := t){
                         ;
@@ -447,13 +447,13 @@ JGenie makeJGenie(MuModule m,
         // Generate constants in the right declaration order, such that
         // they are always declared before they are used in the list of constant fields
         for(c <- constant2idx){
-            if(c == ""){
-                if (c notin done) {
-                  //cdecls += "private final <value2outertype(c)> <constant2idx[c]>;\n";
-                  //cinits += "<constants[c]> = <value2IValue(c, constants2idx)>;\n";
-                  done += {c};
-                }
-            } else {
+            //if(c == ""){
+            //    if (c notin done) {
+            //      //cdecls += "private final <value2outertype(c)> <constant2idx[c]>;\n";
+            //      //cinits += "<constants[c]> = <value2IValue(c, constants2idx)>;\n";
+            //      done += {c};
+            //    }
+            //} else {
                 bottom-up visit(c) {
                   case s:
                         if (s notin done, s in constant2idx) {
@@ -462,7 +462,7 @@ JGenie makeJGenie(MuModule m,
                           done += {s};
                         }
                     }
-            }
+            //}
         }
         
         str tdecls = "";
@@ -471,13 +471,13 @@ JGenie makeJGenie(MuModule m,
         // Generate type constants in the right declaration order, such that
         // they are always declared before they are used in the list of type fields
         for(t <- types){
-            if(t == ""){
-                if (t notin done) {
-                  tdecls += "final io.usethesource.vallang.type.Type <types[t]>;\n";
-                  tinits += "<types[t]> = <atype2vtype(t, thisJGenie)>;\n";
-                  done += {t};
-                }
-            } else {
+            //if(t == ""){
+            //    if (t notin done) {
+            //      tdecls += "final io.usethesource.vallang.type.Type <types[t]>;\n";
+            //      tinits += "<types[t]> = <atype2vtype(t, thisJGenie)>;\n";
+            //      done += {t};
+            //    }
+            //} else {
                 bottom-up visit(t) {
                   case s:
                         if (s notin done, s in types) {
@@ -486,7 +486,7 @@ JGenie makeJGenie(MuModule m,
                           done += {s};
                         }
                     }
-            }
+            //}
         }
         rdecls = "";
         rinits = "";
@@ -544,11 +544,11 @@ JGenie makeJGenie(MuModule m,
                || any(oc <- overloads.oconstructors, isContainedIn(currentTModel.definitions[oc].defined, currentModuleScope));
     }
     
-    tuple[str name, list[str] argTypes] getElements(str signature){
-        if(/<name:[a-z A-Z 0-9 _]+>(<args:.*>)/ := signature){
-           return <name, [tps[0] | str arg <- split(",", args), tps := split(" ", arg)]>;
-        }
-    }
+    //tuple[str name, list[str] argTypes] getElements(str signature){
+    //    if(/<name:[a-z A-Z 0-9 _]+>(<args:.*>)/ := signature){
+    //       return <name, [tps[0] | str arg <- split(",", args), tps := split(" ", arg)]>;
+    //    }
+    //}
     
     //void _generatingTests(bool status){
     //    generatingTests = status;

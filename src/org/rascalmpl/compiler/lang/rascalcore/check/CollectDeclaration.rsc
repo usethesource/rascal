@@ -173,8 +173,8 @@ Expression makeKeywordDefaultExpression(Type annoType, Collector c){
 KeywordFormal makeKeywordFormal(Type annoType, Name name, Collector c){
     Expression dflt = makeKeywordDefaultExpression(annoType, c);
     res = (KeywordFormal) `<Type annoType> <Name name> = <Expression dflt>`;
-    res.\type.src = getLoc(annoType);  // set back locations in synthetic keywordFormal
-    res.expression.src = getLoc(annoType);
+    res.\type@\loc = getLoc(annoType);  // set back locations in synthetic keywordFormal
+    res.expression@\loc = getLoc(annoType);
     c.fact(res.\type, annoType);
     c.fact(res.expression, dflt);
     return res;

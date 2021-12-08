@@ -126,7 +126,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
        if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
        if(isTopLevelParameter(c)){
           c.fact(current, avalue(label=unescape("<name>")));  
-          c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(label=unescape("<name>")); }));
+          c.define(base, formalId(), name, defLub([], AType(Solver _) { return avalue(label=unescape("<name>")); }));
        } else {
           if(c.isAlreadyDefined("<name>", name)){
             c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
@@ -154,7 +154,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
        
        if(isTopLevelParameter(c)){
           c.fact(current, alist(avalue()));
-          c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(); }));
+          c.define(base, formalId(), name, defLub([], AType(Solver _) { return avalue(); }));
        } else {
           if(c.isAlreadyDefined("<name>", name)) {
             c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
@@ -235,7 +235,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
               c.fact(current, avalue());
               if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
               //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-              c.define(base, formalId(), argName, defLub([], AType(Solver s) { return avalue(); }));
+              c.define(base, formalId(), argName, defLub([], AType(Solver _) { return avalue(); }));
            } else {
               if(c.isAlreadyDefined("<argName>", argName)) {
                   c.use(argName, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
@@ -285,7 +285,7 @@ void collect(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern express
 
 void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, Collector c){
     c.push(patternContainer, "constructor");
-    if(namePat: (Pattern) `<QualifiedName name>` := expression){
+    if((Pattern) `<QualifiedName name>` := expression){
         <qualifier, base> = splitQualifiedName(name);
         if(!isEmpty(qualifier)){     
            c.useQualified([qualifier, base], name, {constructorId()}, dataOrSyntaxRoles + {moduleId()} );

@@ -13,7 +13,6 @@ import lang::rascal::\syntax::Rascal;
 //import ParseTree;
 import lang::rascalcore::check::AType;
 import String;
-import IO;
 
 public AGrammar literals(AGrammar g) {
     lts = {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g};

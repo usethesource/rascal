@@ -10,10 +10,13 @@ import lang::rascalcore::compile::util::Names;
 
 //import lang::rascalcore::compile::muRascal2Java::SameJavaType;
 
-import IO;
+//import IO;
 import List;
+import Location;
 import ListRelation;
 import Map;
+import Node;
+import Relation;
 import Set;
 import String;
 import util::Math;
@@ -24,14 +27,14 @@ alias Name_Arity = tuple[str name, int arity];
 
 rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
     return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> 
-           | def <- tmodel.defines, defType(tp) := def.defInfo,
+           | def <- tmodel.defines, defType(AType tp) := def.defInfo,
              (def.idRole == functionId() && any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))) || def.idRole == constructorId(),
-             !(acons(AType adt, list[AType] fields, list[Keyword] kwFields) := tp && isNonTerminalType(adt))
+             !(acons(AType adt, list[AType] _, list[Keyword] _) := tp && isNonTerminalType(adt))
            };
 }
 
 bool funBeforeDefaultBeforeConstructor(Define a, Define b){
-    return defType(ta) := a.defInfo && defType(tb) := b.defInfo && 
+    return defType(AType ta) := a.defInfo && defType(AType tb) := b.defInfo && 
                                        isFunctionType(ta) && (isConstructorType(tb) || !ta.isDefault && tb.isDefault);
 }
     
@@ -39,7 +42,7 @@ bool sameInJava(list[AType] ts1, list[AType] ts2){
     return [atype2javatype(t1) | t1 <- ts1 ] == [atype2javatype(t2) | t2 <- ts2 ];
 }
     
-str varName(muVar(str name, str fuid, int pos, AType atype)){ // duplicate, see CodeGen
+str varName(muVar(str name, str _fuid, int pos, AType _)){ // duplicate, see CodeGen
     return (name[0] != "$") ? "<getJavaName(name)><(pos >= 0 || name == "_") ? "_<abs(pos)>" : "">" : getJavaName(name);
 } 
 
@@ -129,10 +132,10 @@ list[MuExp] getExternalRefs(set[Define] relevant_fun_defs, map[loc, MuFunction] 
 
 // Generate a resolver for a specific function
 
-str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module, JGenie jg){
+str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module, JGenie jg){
     module_scopes = domain(loc2module);
     
-    local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};  
+    set[Define] local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};  
     nonlocal_fun_defs0 = 
         for(def <- fun_defs){
             if(!isEmpty(extend_scopes) && any(ext <- extend_scopes, isContainedIn(def.defined, ext))) append def;
@@ -140,7 +143,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         };
     nonlocal_fun_defs = toSet(nonlocal_fun_defs0);                     
     set[Define] relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
-    cons_defs = { cdef | cdef <- relevant_fun_defs, defType(tp) := cdef.defInfo, isConstructorType(tp) };
+    cons_defs = { cdef | cdef <- relevant_fun_defs, defType(AType tp) := cdef.defInfo, isConstructorType(tp) };
     
     if(isEmpty(relevant_fun_defs)) return "";
     
@@ -150,7 +153,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     acons_fields = [];
     acons_kwfields = [];
     
-    for(cdef <- cons_defs, defType(ctp) := cdef.defInfo){
+    for(cdef <- cons_defs, defType(AType ctp) := cdef.defInfo){
         acons_adt = alub(acons_adt, ctp.adt);
         acons_fields = acons_fields == [] ? ctp.fields : alubList(acons_fields, ctp.fields);
         acons_kwfields += ctp.kwFields;
@@ -158,7 +161,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     
    acons_fun_type = afunc(acons_adt, acons_fields, acons_kwfields);
    
-   resolver_fun_type = (avoid() | alub(it, tp) | fdef <- relevant_fun_defs, defType(tp) := fdef.defInfo);
+   resolver_fun_type = (avoid() | alub(it, tp) | fdef <- relevant_fun_defs, defType(AType tp) := fdef.defInfo);
    resolver_fun_type = isEmpty(relevant_fun_defs) ? acons_fun_type
                                                   : (isEmpty(cons_defs) ? resolver_fun_type
                                                                         : alub(acons_fun_type, resolver_fun_type));
@@ -175,7 +178,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     resolverName = "<inner_scope><getJavaName(functionName)>";
     
     fun_kwFormals = [];
-    for(def <- relevant_fun_defs /*local_fun_defs*/, def notin cons_defs, defType(tp) := def.defInfo){
+    for(def <- relevant_fun_defs /*local_fun_defs*/, def notin cons_defs, defType(AType tp) := def.defInfo){
         if(loc2muFunction[def.defined]?){
             fun = loc2muFunction[def.defined];
             fun_kwFormals += jg.collectKwpFormals(fun);
@@ -186,7 +189,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     resolver_fun_type = resolver_fun_type[kwFormals=fun_kwFormals];
     
     resolverFormalsTypes = unsetRec(resolver_fun_type has formals ? resolver_fun_type.formals : resolver_fun_type.fields);
-    resolverFormalsTypes = [ avalue() | tp <- resolverFormalsTypes ];
+    resolverFormalsTypes = [ avalue() | _ <- resolverFormalsTypes ];
     arityFormalTypes = size(resolverFormalsTypes);
     if(arityFormalTypes == 0 && size(relevant_fun_defs + cons_defs) > 1) 
         return "";
@@ -198,7 +201,12 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     body = returns_void ? "" : "<atype2javatype(returnType)> $result = null;\n";
     
     kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
-    activeKwpFormals1 = { *jg.collectKwpFormals(fun) | def <- local_fun_defs, def.defined in local_fun_defs, fun := loc2muFunction[def.defined]};
+    activeKwpFormals1 = { *jg.collectKwpFormals(fun) 
+                        | def <- local_fun_defs,                                 
+                          //def.defined in local_fun_defs, //.defined, 
+                          //def notin cons_defs, 
+                          loc2muFunction[def.defined]?,
+                          fun := loc2muFunction[def.defined]};
    
     if(hasKeywordParameters(resolver_fun_type) || !isEmpty(activeKwpFormals1)) { //any(def <- local_fun_defs, def.scope != module_scope)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
@@ -209,8 +217,8 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalRefs, jtype := atype2javatype(var.atype)]);
     }
     
-    all_conds = [];
-    all_calls = [];
+    list[str] all_conds = [];
+    list[str] all_calls = [];
 
     for(def <- sort(relevant_fun_defs, funBeforeDefaultBeforeConstructor)){
         inner_scope = "";
@@ -237,7 +245,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
           if(loc2muFunction[def.defined]?){
             fun = loc2muFunction[def.defined];
             activeKwpFormals += jg.collectKwpFormals(fun);
-          } else if(defType(tp) := def.defInfo){
+          } else if(defType(AType tp) := def.defInfo){
             activeKwpFormals += tp.kwFormals;
           }
         }
@@ -336,7 +344,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     }
     
     if(isEmpty(cons_defs) || size(cons_defs) == nconds){
-        body += "throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$<i>" | int i <- index(resolverFormalsTypes), formal := resolverFormalsTypes[i] ])>));";
+        body += "throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", ["$<i>" | int i <- index(resolverFormalsTypes)/*, formal := resolverFormalsTypes[i]*/ ])>));";
     }
     resolvers = "public <atype2javatype(returnType)> <resolverName>(<argTypes>){ // Generated by Resolver
                 '   <body> 

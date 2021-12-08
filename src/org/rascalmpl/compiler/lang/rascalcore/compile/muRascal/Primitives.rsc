@@ -1,6 +1,7 @@
 module lang::rascalcore::compile::muRascal::Primitives
 
 import lang::rascalcore::check::AType;
+import List;
 
 data MuExp = 
       muCon(value c)      

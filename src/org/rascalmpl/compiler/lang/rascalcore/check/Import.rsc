@@ -4,6 +4,7 @@ module lang::rascalcore::check::Import
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::ADTandGrammar;
 
 import DateTime;
 import Exception;
@@ -33,7 +34,7 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
         try {
             mloc = getModuleLocation(qualifiedModuleName, pcfg);
             return lastModified(mloc);
-        } catch value e: {
+        } catch value _: {
             return $2000-01-01T00:00:00.000+00:00$;
         }
     }
@@ -57,7 +58,7 @@ void printModuleStructure(ModuleStructure ms){
     println("moduleLocs for: <domain(ms.moduleLocs)>");
     println("modules for: <domain(ms.modules)>");
     println("valid: <ms.valid>");
-     println("visited: <ms.visited>");
+    println("visited: <ms.visited>");
 }
 
 ModuleStructure newModuleStructure() = <{}, {}, (), (), (), (), {}, {}, (), {}>;
@@ -74,7 +75,7 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
   
     paths += { <from, extendPath(), to> | <from, to> <- extendPlus };
     
-    pathsPlus = {<from, to> | <from, r, to> <- paths}+;
+    pathsPlus = {<from, to> | <from, _, to> <- paths}+;
     
     //cyclicExtend = {mloc1, mloc2 | <mloc1, mloc2> <- extendPlus, mloc1 != mloc2,
     //                                  <mloc2, extendPath(), mloc1> in paths
@@ -152,7 +153,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
             if(!allImportsAndExtendsValid){
                 try {
                     mloc = getModuleLocation(qualifiedModuleName, pcfg);
-                } catch value e:{
+                } catch value _:{
                     allImportsAndExtendsValid = true;
                     println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
                 }
@@ -192,7 +193,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
         for(imp <- imports_and_extends<2>){
             ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
       }
-    } catch value e: {
+    } catch value _: {
         ms.tmodels[qualifiedModuleName] = tmodel()[messages = [ error("Parse error in module `<qualifiedModuleName>`", getModuleLocation(qualifiedModuleName, pcfg)) ]];
     }
     return ms;
@@ -201,7 +202,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
 ModuleStructure getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
     ms = newModuleStructure();
     visit(pt){
-        case  m: (Module) `<Header header> <Body body>`: {
+        case  m: (Module) `<Header header> <Body _>`: {
             qualifiedModuleName = prettyPrintName(header.name);
             ms.modules[qualifiedModuleName] = m;
             ms.moduleLocs[qualifiedModuleName] = getLoc(m);
@@ -223,7 +224,7 @@ set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined | <loc scope, str id, moduleId(), loc defined, DefInfo defInfo> <- tm.defines);
+    = (id: defined | <loc _, str id, moduleId(), loc defined, DefInfo _> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConfig pcfg){
     if(moduleScopes[qualifiedModuleName]?){
@@ -241,11 +242,11 @@ ModuleStructure saveModule(str qualifiedModuleName, set[str] imports, set[str] e
     tm = addGrammar(qualifiedModuleName, imports, extends, ms.tmodels);
     ms.tmodels[qualifiedModuleName] = tm;
     ms.messages[qualifiedModuleName] = tm.messages;
-    ms.tmodels[qualifiedModuleName] = saveModule(qualifiedModuleName, imports, extends, moduleScopes, ms.tmodels, ms.moduleLastModified, pcfg, tm);
+    ms.tmodels[qualifiedModuleName] = saveModule(qualifiedModuleName, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
     return ms;
 }
 
-TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, map[str,TModel] tmodels, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
+private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     try {
         mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
@@ -308,14 +309,15 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //roles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), keywordDormal() + annoId()} + anyVariableRoles;
         // Filter model for current module and replace functions in defType by their defined type
         
-        defs = for(tup: <loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
+        defs = for(tup: <loc scope, str _, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
                    if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
                       scope in filteredModuleScopes || 
                       (scope.path == mscope.path && idRole in saveModuleRoles)
+                      //(idRole == functionId() && isContainedIn(scope.path == mscope.path))
                       ){
                           
                       if(scope in extendedModuleScopes){
-                         if(defType(_) !:= tup.defInfo){
+                         if(defType(_) !:= defInfo){
                             throw "Suspicious define in TModel: <tup>";
                          }
                          //tup.scope = mscope;
@@ -331,13 +333,13 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         //calcs = (key : tm.calculators[key] | loc key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
         //
-        //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
+        //reqs  = {r | r <- tm.openReqs, r@\loc.path == mscope.path, bprintln(r)};
         //
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
         try {
             writeBinaryValueFile(tplLoc, m1);
             println("Written: <tplLoc>");
-        } catch exep: {
+        } catch _: {
             throw "Corrupt TPL file <tplLoc>";
         }
         if(tm.config.logImports) {

@@ -335,7 +335,7 @@ void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
 AType(Solver _) makeGetTypeArg(TypeArg targ)
     = AType(Solver s) { return s.getType(targ.\type)[label="<targ.name>"]; };
     
-tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* tas, AType returnType, list[AType] argTypes){  
+tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* _, AType returnType, list[AType] argTypes){  
     return <[], afunc(returnType, argTypes, [])>;
 }
 

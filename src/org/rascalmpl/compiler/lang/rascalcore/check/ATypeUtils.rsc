@@ -332,7 +332,7 @@ AType symbol2atype1(Symbol::layouts(str name)) = AType::layouts(name);
 // ---- Tree ------------------------------------------------------------------
 
 //str symbol2atype1(tr:appl(AProduction aprod, list[Tree] args), map[AType, set[AType]] defs)
-//    = tr.src? ? "appl(<symbol2atype(aprod, defs)>, <symbol2atype(args, defs)>, <value2IValue(tr.src)>)"
+//    = tr@\loc? ? "appl(<symbol2atype(aprod, defs)>, <symbol2atype(args, defs)>, <value2IValue(tr@\loc)>)"
 //              : "appl(<symbol2atype(aprod, defs)>, <symbol2atype(args, defs)>)";
 //
 //str symbol2atype1(cycle(AType asymbol, int cycleLength), map[AType, set[AType]] defs)
@@ -356,7 +356,7 @@ AType symbol2atype1(Symbol::layouts(str name)) = AType::layouts(name);
 //str symbol2atype1(tr:prod(AType def, list[AType] asymbols), map[AType, set[AType]] defs){
 //    base = "prod(<atype2IValue(def, defs)>, <atype2IValue(asymbols, defs)>";
 //    kwds = tr.attributes? ? ", <symbol2atype(tr.attributes, defs)>" : "";
-//    if(tr.src?) kwds += ", <value2IValue(tr.src)>";
+//    if(tr@\loc?) kwds += ", <value2IValue(tr@\loc)>";
 //    return base + kwds + ")";
 //}
 
@@ -1266,14 +1266,14 @@ bool isNonTerminalType(acons(AType adt, list[AType] fields, list[Keyword] kwFiel
 bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
 bool isNonTerminalType(AType::aprod(AProduction p)) = isNonTerminalType(p.def);
 
-//bool isNonTerminalType(AType::\iter(_)) = true;
-//bool isNonTerminalType(AType::\iter-star(_)) = true;
-//bool isNonTerminalType(AType::\iter-seps(_,_)) = true;
-//bool isNonTerminalType(AType::\iter-star-seps(_,_)) = true;
-//bool isNonTerminalType(AType::\empty()) = true;
-//bool isNonTerminalType(AType::\opt(_)) = true;
-//bool isNonTerminalType(AType::\alt(_)) = true;
-//bool isNonTerminalType(AType::\seq(_)) = true;
+bool isNonTerminalType(AType::\iter(AType t)) = isNonTerminalType(t);
+bool isNonTerminalType(AType::\iter-star(AType t)) = isNonTerminalType(t);
+bool isNonTerminalType(AType::\iter-seps(AType t,_)) = isNonTerminalType(t);
+bool isNonTerminalType(AType::\iter-star-seps(AType t,_)) = isNonTerminalType(t);
+bool isNonTerminalType(AType::\empty()) = false;
+bool isNonTerminalType(AType::\opt(AType t)) = isNonTerminalType(t);
+//bool isNonTerminalType(AType::\alt(set[AType] alternatives)) = any(a <- alternatives, isNonTerminalType(a));
+//bool isNonTerminalType(AType::\seq(list[AType] atypes)) = any(t <- atypes, isNonTerminalType(t));
 default bool isNonTerminalType(AType t) = false;   
 
 bool isParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && t has parameters;
@@ -1440,21 +1440,21 @@ AType stripStart(aprod(AProduction production)) = production.def;
 AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
 default AType removeConditional(AType s) = s;
 
-@doc{Determine the size of a concrete list}
-int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);
-int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args);
-
-int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
-int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
-
-int size(appl(prod(Symbol symbol, list[Symbol] symbols, set[Attr] attributes), list[Tree] args)) = 
-    \label(str _, Symbol symbol1) := symbol && [Symbol _] := symbols
-    ? size(appl(Production::prod(symbol1, symbols, {}), args))
-    : size(args[0]);
-
-default int size(Tree t) {
-    iprintln(t);
-    throw "Size of tree not defined for \"<t>\"";
-}
-
-private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
+//@doc{Determine the size of a concrete list}
+//int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);
+//int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args);
+//
+//int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+//int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+//
+//int size(appl(prod(Symbol symbol, list[Symbol] symbols, set[Attr] attributes), list[Tree] args)) = 
+//    \label(str _, Symbol symbol1) := symbol && [Symbol _] := symbols
+//    ? size(appl(Production::prod(symbol1, symbols, {}), args))
+//    : size(args[0]);
+//
+//default int size(Tree t) {
+//    iprintln(t);
+//    throw "Size of tree not defined for \"<t>\"";
+//}
+//
+//private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));

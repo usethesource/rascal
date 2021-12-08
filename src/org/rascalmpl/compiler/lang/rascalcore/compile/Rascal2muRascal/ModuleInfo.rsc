@@ -1,6 +1,6 @@
 module lang::rascalcore::compile::Rascal2muRascal::ModuleInfo
 
-import IO;
+//import IO;
 import List;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;

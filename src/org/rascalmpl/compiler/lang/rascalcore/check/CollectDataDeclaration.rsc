@@ -10,7 +10,7 @@ import IO;
 // ---- data declaration ------------------------------------------------------
 
 bool inADTdeclaration(Collector c){
-    return <Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt);
+    return <Tree _, list[KeywordFormal] _, loc _> := c.top(currentAdt);
 }
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters>;`, Collector c){
