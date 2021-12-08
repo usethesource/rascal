@@ -9,6 +9,7 @@ import lang::rascalcore::compile::muRascal2Java::Conversions;
 import lang::rascalcore::compile::util::Names;
 
 import List;
+import Location;
 import ListRelation;
 import Map;
 import Set;
@@ -16,7 +17,7 @@ import String;
 
 // Generate an interface for a Rascal module
 
-str generateInterface(str moduleName, str packageName, str className, list[MuFunction] functions, set[str] extends, map[str,TModel] tmodels, JGenie jg){
+str generateInterface(str moduleName, str packageName, str className, list[MuFunction] functions, set[str] extends, map[str,TModel] tmodels, JGenie _jg){
     return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import io.usethesource.vallang.*;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
@@ -29,7 +30,7 @@ str generateInterface(str moduleName, str packageName, str className, list[MuFun
 
 lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str] extends, map[str,TModel] tmodels){
     result = [];
-    signatures = {};
+    rel[str, int, AType] signatures = {};
     mscope = tmodels[moduleName].moduleLocs[moduleName];
     for(f <- functions, isEmpty(f.scopeIn), isContainedIn(f.src, mscope),
                                             !("test" in f.modifiers 
@@ -41,7 +42,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     //iprintln(signatures);
     
     for(ext <- extends){
-        for(def <- tmodels[ext].defines, defType(tp) := def.defInfo, 
+        for(def <- tmodels[ext].defines, defType(AType tp) := def.defInfo, 
             def.idRole == functionId() || def.idRole == constructorId(),
             isContainedIn(def.defined, mscope),
             !(tp has isTest && tp.isTest),

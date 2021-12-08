@@ -43,7 +43,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
    	
    	try {
         //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
-       	<tm, muMod> = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+       	<tm, muMod> = r2mu(M, tm, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
         tmodels[qualifiedModuleName] = tm;
         
         <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, moduleLocs);

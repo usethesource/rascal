@@ -25,7 +25,6 @@ import lang::rascalcore::check::SyntaxGetters;
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
-import lang::rascalcore::compile::Rascal2muRascal::TypeReifier;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 
 import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
@@ -98,7 +97,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
      * Create getters for common keyword fields of this data type
      */
     seen = {};
-    for(<kwType, defaultExp> <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp.src, module_scope)){
+    for(<kwType, defaultExp> <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp@\loc, module_scope)){
         seen += kwType;
         str kwFieldName = unescape(kwType.label);
         if(asubtype(adtType, treeType)){
@@ -127,7 +126,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         */
        consName = consType.label;
        
-       for(<kwType, defaultExp> <- consType.kwFields, isContainedIn(defaultExp.src, module_scope)){
+       for(<kwType, defaultExp> <- consType.kwFields, isContainedIn(defaultExp@\loc, module_scope)){
             str kwFieldName = kwType.label;
             kwfield2cons += <kwFieldName, kwType, consType>;
             str fuid = getGetterNameForKwpField(consType, kwFieldName);
@@ -409,7 +408,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      str fuid = topFunctionScope();
      my_btscopes = getBTScopesParams(formalsList, fname);
      
-     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i].src) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i).src), getType(formalsList[i]))
+     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), getType(formalsList[i]))
                                                                                     : muVar(pname, fuid, -i, getType(formalsList[i]))   
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];

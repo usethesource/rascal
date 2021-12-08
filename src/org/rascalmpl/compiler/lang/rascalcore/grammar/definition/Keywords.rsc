@@ -9,7 +9,7 @@ module lang::rascalcore::grammar::definition::Keywords
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::grammar::definition::Symbols;
-import IO;
+//import IO;
 import Node;
 
 public AGrammar expandKeywords(AGrammar g) {

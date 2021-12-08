@@ -259,7 +259,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         try {
                             Module pt = parseModuleWithSpaces(mloc).top;
                             ms.modules[m] = pt;
-                            ms.moduleLocs[m] = pt.src; 
+                            ms.moduleLocs[m] = pt@\loc; 
                         } catch Java("ParseError","Parse error"): {
                             ms.tmodels[m] = tmodel()[messages = [ error("Parse error in module `<m>`", getModuleLocation(m, pcfg)) ]];
                             ms.valid += {m};
@@ -307,9 +307,9 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                                 continue;
                                }
                                if(imod is \default){
-                                 msgs += warning("Unused import of `<iname>`", imod.src);
+                                 msgs += warning("Unused import of `<iname>`", imod@\loc);
                                } else {
-                                 msgs += info("Extended module `<iname>` is unused in the current module", imod.src);
+                                 msgs += info("Extended module `<iname>` is unused in the current module", imod@\loc);
                                }
                             }
                         }

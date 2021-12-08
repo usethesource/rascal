@@ -4,7 +4,7 @@ module lang::rascalcore::check::CollectSyntaxDeclaration
 extend lang::rascalcore::check::CheckerCommon;
 
 import Set;
-import Node;
+//import Node;
 import util::Maybe;
 
 import lang::rascalcore::grammar::definition::Symbols;
@@ -27,10 +27,10 @@ void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod product
 } 
 
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, Collector c){
-    declareSyntax(current, contextFreeSyntax(), nonterminalId(), c, isStart=strt is present);
+    declareSyntax(current, contextFreeSyntax(), nonterminalId(), c/*, isStart=strt is present*/);
 }
 
-void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, bool isStart=false, Vis vis=publicVis()){
+void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, /*bool isStart=false,*/ Vis vis=publicVis()){
    //println("declareSyntax: <current>");
     Sym defined = current.defined;
     Prod production = current.production;
@@ -105,6 +105,8 @@ AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* mod
     return associativity(adtType, \mods2assoc(modifiers), p);
 }
 
+private bool isTerminal(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
+
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];
     
@@ -113,11 +115,11 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         c.use(tv.nonterminal, {typeVarId()});
     }
     
-    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+    if(<Tree adt, list[KeywordFormal] _, loc adtParentScope> := c.top(currentAdt)){
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
             AType(Solver s) {
-                try return s.getType(current); catch e: /*not yet known*/;
+                try return s.getType(current); catch _: /*not yet known*/;
                 res = aprod(computeProd(current, unescape("<name>"), s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
                 return res;
             });
@@ -133,8 +135,10 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = cprod has atypes ? [ t | sym <- cprod.atypes, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)]
-                                              : [];          
+                    fields = [ t | sym <- symbols, !isTerminal(sym), tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)];
+                                                
+                    //fields = cprod has atypes ? [ t | sym <- cprod.atypes, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)]
+                    //                          : [];          
                     def = \start(sdef) := def ? sdef : def;
                     //def = \start(sdef) := def ? sdef : unset(def, "label");
                     return acons(def, fields, [], label=unescape("<name>"));
@@ -153,7 +157,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector 
         c.use(tv.nonterminal, {typeVarId()});
     }
  
-    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+    if(<Tree adt, list[KeywordFormal] _, loc _> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
             AType(Solver s){
                 res = aprod(computeProd(current, "", s.getType(adt), modifiers, symbols, s));
@@ -177,7 +181,7 @@ void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
     case "right":       asc = Associativity::\right();
     }
     
-    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+    if(<Tree adt, list[KeywordFormal] _, loc _> := c.top(currentAdt)){
         c.calculate("assoc", current, [adt, group],
             AType(Solver s){
                 adtType = s.getType(adt);
@@ -190,7 +194,7 @@ void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
 }
 
 void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
-    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+    if(<Tree adt, list[KeywordFormal] _, loc _> := c.top(currentAdt)){
         c.calculate("alt production", current, [adt, lhs, rhs],
             AType(Solver s){
                 adtType = s.getType(adt);
@@ -208,7 +212,7 @@ void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
 }
  
 void collect(current: (Prod) `<Prod lhs> \> <Prod rhs>`,  Collector c){
-    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+    if(<Tree adt, list[KeywordFormal] _, loc _> := c.top(currentAdt)){
         c.calculate("first production", current, [adt, lhs, rhs],
             AType(Solver s){
                 adtType = s.getType(adt);

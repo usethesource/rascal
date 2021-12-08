@@ -83,18 +83,18 @@ public tuple[list[Message],DoNotNest] doNotNest(AGrammar g) {
     // TODO extract checking into separate function
     for (<f, c> <- (lefts & rights)) {
       if (f == c)
-        msgs += warning("Not syntax-safe: <prod2rascal(f)> is both left and right associative.", f.src);
+        msgs += warning("Not syntax-safe: <prod2rascal(f)> is both left and right associative.", f@\loc);
       else 
-        msgs += warning("Not syntax-safe: <prod2rascal(f)> and <prod2rascal(c)> are both left and right associative to eachother.", f.src);
+        msgs += warning("Not syntax-safe: <prod2rascal(f)> and <prod2rascal(c)> are both left and right associative to eachother.", f@\loc);
     }
     
     // here we test for accidental priority contradictions, remove them and warn about the removal.
     // TODO extract checking into separate function
     for (<f, c> <- (prios & prios<1,0>)) {
       if (f == c)
-        msgs += warning("Not syntax-safe: <prod2rascal(f)> \> <prod2rascal(c)>, has a priority with itself.", f.src); 
+        msgs += warning("Not syntax-safe: <prod2rascal(f)> \> <prod2rascal(c)>, has a priority with itself.", f@\loc); 
       else 
-        msgs += warning("Not syntax-safe: <prod2rascal(f)> {\<,\>} <prod2rascal(c)>, reflexive priority.", f.src); 
+        msgs += warning("Not syntax-safe: <prod2rascal(f)> {\<,\>} <prod2rascal(c)>, reflexive priority.", f@\loc); 
     }
      
     // and now we generated the filters, but only if 
@@ -128,9 +128,9 @@ public tuple[list[Message],DoNotNest] doNotNest(AGrammar g) {
     // TODO extract checking into separate function
     for (<p,q> <- ambiguous) {
          if (p == q) 
-           msgs += warning("Ambiguity predicted: <prod2rascal(p)> lacks left or right associativity", p.src);
+           msgs += warning("Ambiguity predicted: <prod2rascal(p)> lacks left or right associativity", p@\loc);
          else   
-           msgs += warning("Ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)", p.src);    
+           msgs += warning("Ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)", p@\loc);    
     }
   }
     

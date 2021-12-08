@@ -1017,13 +1017,14 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
           texp = tp;
           s.fact(expression, tp);
        } else {
-          if(insideFormals(s) && (size(overloads) > 1)){
-            if(any(tp <- bareArgTypes, !s.isFullyInstantiated(tp))){
-                defs = itemizeLocs(filteredOverloads<0>);
-                s.report(error(expression, "Constructor `%v` in formal parameter should be unique, found %t, defined at %v", "<expression>", expression, defs));
-                return avalue();
-            }
-          }
+        // TODO: assess whether this is needed
+          //if(insideFormals(s) && (size(overloads) > 1)){
+          //  if(any(tp <- bareArgTypes, !s.isFullyInstantiated(tp))){
+          //      defs = itemizeLocs(filteredOverloads<0>);
+          //      s.report(error(expression, "Constructor `%v` in formal parameter should be unique, found %t, defined at %v", "<expression>", expression, defs));
+          //      return avalue();
+          //  }
+          //}
          overloads = filteredOverloads;
          validReturnTypeOverloads = {};
          validOverloads = {};
@@ -1056,18 +1057,21 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
     return avalue();
 }
 
+private bool acceptable(int i, AType a, AType b, list[bool] uninstantiated)
+        = uninstantiated[i] || comparable(a, b);
+        
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, list[AType] argTypes, AType subjectType, Solver s){
     int arity = size(argTypes);
     filteredOverloads = {};
     identicalFields = [true | int _ <- [0 .. arity]];
     
     uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
-    bool acceptable(int i, AType a, AType b)
-        = uninstantiated[i] || comparable(a, b);
+    //bool acceptable(int i, AType a, AType b)
+    //    = uninstantiated[i] || comparable(a, b);
     
     for(ovl:<_, _, tp> <- overloads){                       
         if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
-           if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i])))){
+           if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
             filteredOverloads += ovl;
            }
         }

@@ -16,7 +16,6 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::util::Names;  // TODO: merge name utils
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
-import lang::rascalcore::compile::Rascal2muRascal::TypeReifier;
 
 import Location;
 
@@ -326,8 +325,8 @@ void extractScopes(TModel tm){
     
     
     // Identify "dummy" vars in function types that are to be ignored
-    set[AType] dummyVars(af: afunc(returnType, formalsList, kwformalsList)){
-        return {*formalsList1 | /af2:afunc(ret1, formalsList1, kwformalsList1) := af, af2 != af };
+    set[AType] dummyVars(af: afunc(_, _, _)){
+        return {*formalsList1 | /af2:afunc(_, formalsList1, _) := af, af2 != af };
     }
     
     // Determine position of variables inside functions
@@ -360,14 +359,14 @@ void extractScopes(TModel tm){
     }
 }
 
-private list[str] abbreviate(list[loc] locs){
-    return for(l <- locs){
-               k = findLast(l.path, "/");
-               append "<l.path[k+1 .. -4]>_<l.begin.line>A<l.offset>";
-           };
-}
+//private list[str] abbreviate(list[loc] locs){
+//    return for(l <- locs){
+//               k = findLast(l.path, "/");
+//               append "<l.path[k+1 .. -4]>_<l.begin.line>A<l.offset>";
+//           };
+//}
 
-loc declareGeneratedFunction(str name, str fuid, AType rtype, loc src){
+loc declareGeneratedFunction(str _name, str _fuid, AType _rtype, loc src){
 	//println("declareGeneratedFunction: <name>, <rtype>, <src>");
     uid = src;
     functions += {uid};
@@ -432,7 +431,7 @@ str getOuterType(Tree e) {
  */
 AType getFunctionType(loc l) {  
    tp = getDefType(l);
-   if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp) {
+   if(afunc(AType _, list[AType] _, list[Keyword] _) := tp) {
        return tp;
    } else {
        throw "Looked up a function, but got: <tp> instead";
@@ -476,7 +475,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
                 constructors = adt_constructors[adt];
                 <constructors, fieldType> = 
                     visit(<constructors, fieldType>) { 
-                        case p:aparameter(pname, pbound): { repl = adtType.parameters[pnames[pname]];
+                        case p:aparameter(pname, _): { repl = adtType.parameters[pnames[pname]];
                                                             if(p.label?) repl = repl[label=p.label];
                                                             insert repl;
                                                           }
@@ -511,7 +510,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     // Field of nonterminal?
     if(grammar.rules[adtType]?){
         productions = grammar.rules[adtType].alternatives;
-        for(p:prod(AType def, list[AType] atypes) <- productions){
+        for(prod(AType _, list[AType] atypes) <- productions){
             for(a <- atypes, a.label?, a.label == fieldName){
                 return <"", is_start ? \start(a) : a, false>;
             }
@@ -566,7 +565,7 @@ tuple[str fuid, int pos] getVariableScope(str name, loc l) {
   throw "getVariableScope fails for <name>, <l>";
 }
 
-int getPositionInScope(str name, loc l){
+int getPositionInScope(str _name, loc l){
     //println("getPositionInScope:<name>, <l>");
     //iprintln(position_in_container);
     uid = l in definitions ? l : getFirstFrom(useDef[l]); 
@@ -634,7 +633,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     allADTs = { unsetRec(adt) | adt <- ADTs };
     if(syntax_type){
         allADTs = { adt | adt <- allADTs, adt.syntaxRole != dataSyntax() };
-        allADTs += { unsetRec(adt) |  /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := my_grammar_rules };
+        allADTs += { unsetRec(adt) |  /adt:aadt(str _, list[AType] _, SyntaxRole _) := my_grammar_rules };
     }
   
     instantiatedADTs = { adt | adt <- allADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, !isTypeParameter(p)) };
@@ -654,8 +653,8 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         return t;
     }
       
-    definitions = ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : {aprod(my_grammar_rules[adt1])} ? {}
-                  | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := base_t, adt1 := unset(uninstantiate(adt), "label")
+    definitions = ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
+                  | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, adt1 := unset(uninstantiate(adt), "label")
                   );
     
    
@@ -673,7 +672,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
    
     solve(definitions){
         definitions = definitions + ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])} : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
-                                    | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions,
+                                    | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := definitions,
                                       adt1 := uninstantiate(unsetRec(adt)),
                                       syntax_type ? syntaxRole != dataSyntax() : true,
                                       !definitions[adt1]?
@@ -695,18 +694,18 @@ bool occursBefore(loc before, loc after){
     return before.path == after.path && before.offset + before.length < after.offset;
 }
 
-private bool funFirst(UID n, UID m) {
-    if(n == m) return false;
-    if(n.path != m.path) return n.path < m.path;
-    if(isContainedIn(n, m)) return true;
-    return occursBefore(n, m);
-}
+//private bool funFirst(UID n, UID m) {
+//    if(n == m) return false;
+//    if(n.path != m.path) return n.path < m.path;
+//    if(isContainedIn(n, m)) return true;
+//    return occursBefore(n, m);
+//}
 
-private list[loc] sortFunctions(list[UID] items){
-  res = sort(items, funFirst);
-  //println("sortOverloadedFunctions: <items> =\> <res>");
-  return res;
-}
+//private list[loc] sortFunctions(list[UID] items){
+//  res = sort(items, funFirst);
+//  //println("sortOverloadedFunctions: <items> =\> <res>");
+//  return res;
+//}
 
 //public UID declaredScope(UID uid) {
 //    return declaredIn[uid];
@@ -865,11 +864,11 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
             descend_into += {from, to};
         } else if(any(AType t <- desiredTypes, asubtype(t, to))){
             descend_into += {from, to};
-        } else if(c:acons(AType \adtsym, list[AType] parameters, list[Keyword] kwFields, SyntaxRole sr) := from  && // TODO: check
-                            (\adtsym in patternTypes || name in consNames)){
+        } else if(c:acons(AType \adtsym, list[AType] _, list[Keyword] _) := from  && // TODO: check
+                            (\adtsym in patternTypes || c.label in consNames)){
                   descend_into += {from, to};   
-        } else if(c:acons(AType \adtsym, str name, list[AType] parameters, list[Keyword] kwFields, SyntaxRole sr) := to  && 
-                            (\adtsym in patternTypes || name in consNames)){
+        } else if(c:acons(AType \adtsym, list[AType] _, list[Keyword] _) := to  && 
+                            (\adtsym in patternTypes || c.label in consNames)){
                   descend_into += {from, to};        
         }
         ;
@@ -880,8 +879,76 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     }
     tuples = { atuple(symbols) | sym <- descend_into, arel(symbols) := sym || alrel(symbols) := sym };
     descend_into += tuples;
-    descend_into = {sym | sym <- descend_into, label(_,_) !:= sym };
+    descend_into = {sym | sym <- descend_into/*, label(_,_) !:= sym*/ };
     //println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
     
     return <descend_into, {}>;
 }
+
+// Extract the reachable concrete types
+
+tuple[set[AType], set[AProduction]] getReachableConcreteTypes(AType subjectType, set[str] _consNames, set[AType] patternTypes){
+    desiredPatternTypes = { s | /AType s := patternTypes};
+    desiredSubjectTypes = { s | /AType s := subjectType};
+    desiredTypes = desiredPatternTypes;
+    
+    //println("desiredPatternTypes = <desiredPatternTypes>");
+    
+    prunedReachableConcreteTypes = reachableTypes;  //reachableConcreteTypes;
+    if(avalue() notin desiredSubjectTypes){
+        // if specific subject types are given, the reachability relation can be further pruned
+        prunedReachableConcreteTypes = carrierR(reachableTypes, (reachableTypes)[desiredSubjectTypes] + desiredSubjectTypes);
+        //println("removed from reachableConcreteTypes:"); for(x <- reachableConcreteTypes - prunedReachableConcreteTypes){println("\t<x>");}
+    }
+    
+    set [AProduction] descend_into = {};
+    
+    // Find all concrete types that can lead to a desired type
+    for(<AType sym, AType tp> <- (prunedReachableConcreteTypes+), tp in desiredPatternTypes){
+       alts = grammar.rules[sym];
+       for(/AProduction p := alts){
+           switch(p){
+           case choice(_, choices): descend_into += choices;
+           case associativity(_, _, set[AProduction] choices): descend_into += choices;
+           case priority(_, list[AProduction] choices): descend_into += toSet(choices);
+           default:
+            descend_into += p;
+           }
+        }
+    } 
+    
+    set [AProduction] descend_into1 = {};
+    
+    for(w <- descend_into){
+      visit(w){
+      
+      case itr:\iter(AType s): {
+           descend_into1 += regular(itr);
+           if(isAltOrSeq(s)) descend_into1 += regular(s);
+      }
+      
+      case itr:\iter-star(AType s):{
+           descend_into1 += regular(itr);
+           if(isAltOrSeq(s)) descend_into1 += regular(s);
+      }
+      
+      case itr:\iter-seps(AType s,_):{
+           descend_into1 += regular(itr);
+           if(isAltOrSeq(s)) descend_into1 += regular(s);
+      }
+      
+      case itr:\iter-star-seps(AType s,_):{
+           descend_into1 += regular(itr);
+           if(isAltOrSeq(s)) descend_into1 += regular(s);
+      }
+     
+      }
+      descend_into1 += w;
+    
+    }
+    //println("descend_into (concrete) [<size(descend_into)>]: "); for(s <- descend_into) println("\t<s>"); 
+    //println("descend_into1 (concrete) [<size(descend_into1)>]: "); for(s <- descend_into1) println("\t<s>");
+    return <{}, descend_into + descend_into1>;
+}
+
+private bool isAltOrSeq(AType s) = alt(_) := s || seq(_) := s;    

@@ -1,15 +1,48 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-//extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeExceptions;
-//extend lang::rascalcore::check::BasicRascalConfig;
-//
-//extend ParseTree;
-//
-//import analysis::typepal::Messenger;
-int f(int _n) = 13;
+import ParseTree;
 
-value main() = f(3);
+syntax A = a: "a";
+
+syntax As = as: A+ alist;
+
+test bool testAs(){
+    pt = parse(#As, "aaa");
+    return as(demo::common::LiftTest) := pt; // && pt is as && pt.alist == al;
+}
+
+//syntax Class
+//    = simpleCharclass: "["  "]" 
+//    > left intersection: Class lhs "&&" Class rhs 
+//    ;
+//    
+//public int cc2ranges(Class cc) {
+//   switch(cc) {
+//     case Class::\intersection(Class _, Class _) : return 0;
+//     }
+//   return 1;
+//}
+
+//import List;
+//layout Whitespace = [\ \t\n]*;
+//start syntax E = "e";
+//start syntax ES = {E ","}+ args;
+//
+////int cntES({E ","}+ es) = size([e | e <- es ]);
+//
+//value main() { //test bool cntES1() = 
+//    return ((ES) `e`).args;
+//}
+
+//import ParseTree;
+//value main(){
+//    Symbol sym;
+//    map[Symbol, Production] rules = ();
+//    str input = "";
+//    tree = parse(type(sym, rules), input, |todo:///|);
+//    return tree;
+//}
+
 //
 //import IO;
 //import List;

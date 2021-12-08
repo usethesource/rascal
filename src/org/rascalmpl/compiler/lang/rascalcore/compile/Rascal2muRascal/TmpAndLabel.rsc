@@ -1,7 +1,7 @@
 @bootstrapParser
 module lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel
 
-import IO;
+//import IO;
 import List;
 import ListRelation;
 import String;
@@ -133,7 +133,9 @@ void enterLabelled(Label label, str alt){
 }
 
 void leaveLabelled(){
-    labelledStats = tail(labelledStats);
+    if(!isEmpty(labelledStats)){
+        labelledStats = tail(labelledStats);
+    }
 }
 
 tuple[bool,str] inLabelled(str label){

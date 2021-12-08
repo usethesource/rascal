@@ -9,7 +9,7 @@ import lang::rascalcore::grammar::definition::Keywords;
   
 import lang::rascal::\syntax::Rascal;
 
-import IO;
+//import IO;
 import Node;
 import Set;
 import ListRelation;
@@ -26,7 +26,7 @@ void addADTs(Solver s){
     //defines = s.getAllDefines();
     //definedADTs = { t | Define def <- defines, /AType t:aadt(str name, list[AType] parameters, sr) := def.defInfo.atype };
     facts = s.getFacts();
-    usedADTs = { t | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k] };
+    usedADTs = { t | loc k <- facts, /AType t:aadt(str _, list[AType] _, _) := facts[k] };
     s.push(key_ADTs, /*definedADTs + */usedADTs);
 }
 
@@ -106,16 +106,12 @@ bool isManualLayout(AProduction p) = (p has attributes && \tag("manual"()) in p.
 
 TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,TModel] tmodels){
     try {
-        usedProductions = {};
-        definedProductions = {};
-        allStarts = {};
-        tm = tmodels[qualifiedModuleName];
-        definedProductions = {};
+        rel[AType,AProduction] definedProductions = {};
         allStarts = {};
         tm = tmodels[qualifiedModuleName];
         for(m <- {qualifiedModuleName, *imports, *extends}, tmodels[m]?){
             facts = tmodels[m].facts;
-            prodLocs1 = { k | loc k <- facts, aprod(p) := facts[k] };
+            prodLocs1 = { k | loc k <- facts, aprod(_) := facts[k] };
             
             // filter out productions contained in priority/associativity declarations
             prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, isStrictlyContainedIn(k, l)) };
@@ -124,11 +120,11 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
             allStarts += { t | loc k <- facts, \start(t) := facts[k] };
         }
         
-        allProductions = definedProductions;
+        rel[AType,AProduction] allProductions = definedProductions;
         
         allLayouts = {};
         allManualLayouts = {};
-        syntaxDefinitions = ();
+        map[AType,AProduction] syntaxDefinitions = ();
         
         for(AType adtType <- domain(allProductions)){
             if(\start(adtType2) := adtType){
@@ -153,7 +149,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         // Check layout
     
         if(size(allLayouts) > 1) { // Warn for  multiple layout definitions
-            allLayoutNames = {ladt.adtName | ladt <- allLayouts};
+            allLayoutNames = {ladt.adtName | AType ladt <- allLayouts};
             for(AType ladt <- allLayouts){
                 otherLayoutNames = {"`<lname>`" | str lname <- (allLayoutNames - ladt.adtName)};
                 for(p <- syntaxDefinitions[ladt].alternatives){
@@ -174,15 +170,15 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         // Add start symbols
         
-        for(adtType <- allStarts){
+        for(AType adtType <- allStarts){
             syntaxDefinitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[label="top"], definedLayout]) });
         }
         
         // Add auxiliary rules for instantiated syntactic ADTs outside the grammar rules
         facts = tm.facts;
-        allADTs = { unset(adt, "label") | loc k <- facts, /AType adt:aadt(str name, list[AType] parameters, sr) := facts[k] }; 
+        allADTs = { unset(adt, "label") | loc k <- facts, /AType adt:aadt(str _, list[AType] _, _) := facts[k] }; 
         
-        instantiated_in_grammar = { unset(adt, "label") | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := syntaxDefinitions,
+        instantiated_in_grammar = { unset(adt, "label") | /adt:aadt(str _, list[AType] parameters, SyntaxRole _) := syntaxDefinitions,
                                           !isEmpty(parameters), all(p <- parameters, !isTypeParameter(p)) 
                                   };
         
@@ -237,7 +233,7 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
     solve(allLiteral){
         forADT:
         for(AType adtType <- domain(allProductions), adtType notin allLiteral){
-            for(prod(AType def, list[AType] asymbols) <- allProductions[adtType]){
+            for(prod(AType _, list[AType] asymbols) <- allProductions[adtType]){
                 for(sym <- asymbols){
                     if(!(lit(_) := sym || cilit(_) := sym || aprod(prod(aadt(_,[],_),[lit(_)])) := sym || aprod(prod(aadt(_,[],_),[cilit(_)])) := sym || (aprod(prod(a:aadt(_,[],_),_)) := sym && a in allLiteral))){
                         continue forADT;
@@ -248,7 +244,7 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
         }
     }
     for(AType adtType <- domain(allProductions), ((\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
-        for(p:prod(AType def, list[AType] asymbols) <- allProductions[adtType]){
+        for(p:prod(AType _, list[AType] asymbols) <- allProductions[adtType]){
             if(size(asymbols) != 1){
                 tm.messages += [warning(size(asymbols) == 0 ? "One symbol needed in keyword declaration, found none" : "Keyword declaration should consist of one symbol", p.src)];
             }

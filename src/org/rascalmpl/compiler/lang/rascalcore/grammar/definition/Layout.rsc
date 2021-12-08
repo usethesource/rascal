@@ -11,7 +11,7 @@ module lang::rascalcore::grammar::definition::Layout
 //import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-import IO;
+//import IO;
 
 
 // TODO: The following two functions were defined local to activeLayout
@@ -46,8 +46,8 @@ import IO;
 public AGrammar layouts(AGrammar g, AType l, set[AType] others) {
   
   return top-down-break visit (g) {
-    case p: prod(\start(a: aadt(s, list[AType] parameters, contextFreeSyntax())), [x]) => p[atypes=[l, x, l]]
-    case p: prod(aadt(s, list[AType] parameters, contextFreeSyntax()), list[AType] lhs) => p[atypes=intermix(lhs, l, others)]
+    case p: prod(\start(aadt(_, list[AType] _, contextFreeSyntax())), [x]) => p[atypes=[l, x, l]]
+    case p: prod(aadt(_, list[AType] _, contextFreeSyntax()), list[AType] lhs) => p[atypes=intermix(lhs, l, others)]
   }
 } 
 
