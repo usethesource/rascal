@@ -59,21 +59,8 @@ public class DoubleLeftNullable extends org.rascalmpl.parser.gtd.SGTDBF<IConstru
     }
   }
 	
-  protected static java.lang.String _concat(java.lang.String ...args) {
-    int length = 0;
-    for (java.lang.String s :args) {
-      length += s.length();
-    }
-    java.lang.StringBuilder b = new java.lang.StringBuilder(length);
-    for (java.lang.String s : args) {
-      b.append(s);
-    }
-    return b.toString();
-  }
   protected static final TypeFactory _tf = TypeFactory.getInstance();
  
-  // Production declarations
-	
   // Production declarations
 	
   private static final IConstructor layoutsWS = (IConstructor) _read("prod(layouts(\"WS\"),[\\iter-star(\\char-class([range(9,10),range(13,13),range(32,32)]))],{})", RascalValueFactory.Production);
