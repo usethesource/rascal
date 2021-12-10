@@ -1,15 +1,10 @@
 module lang::rascalcore::compile::Examples::Tst1
+  
+import lang::rascalcore::compile::Examples::Tst2;
+   
+int G = 10; 
+value main() = G;
 
-import ParseTree;
-
-syntax A = a: "a";
-
-syntax As = as: A+ alist;
-
-test bool testAs(){
-    pt = parse(#As, "aaa");
-    return as(demo::common::LiftTest) := pt; // && pt is as && pt.alist == al;
-}
 
 //syntax Class
 //    = simpleCharclass: "["  "]" 
