@@ -446,8 +446,8 @@ MuExp translateConcretePattern(e:appl(prod(Symbol::label("typed",Symbol::lex("Co
 MuExp translateParsedConcretePattern(appl(prod(Symbol::lit(str s),_,_), _), AType patType, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
   = muIfElse(muEqual(muTreeUnparse(subjectExp), muCon(s)), trueCont, falseCont);
   
-MuExp translateParsedConcretePattern(appl(prod(Symbol::cilit(_),_,_), _), AType patType, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
-{ throw "todo cilit"; }   
+MuExp translateParsedConcretePattern(appl(prod(Symbol::cilit(str s),_,_), _), AType patType, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+    = muIfElse(muEqual(muTreeUnparseToLowerCase(subjectExp), muCon(toLowerCase(s))), trueCont, falseCont);
 
 // ---- layouts
 
