@@ -294,6 +294,7 @@ public data MuExp =
           | muTreeAppl(MuExp prod, MuExp argList, loc src)
           | muTreeChar(int char)
           | muTreeUnparse(MuExp tree)
+          | muTreeUnparseToLowerCase(MuExp tree)
           
           // Type parameters
           | muTypeParameterMap(set[AType] parameters)

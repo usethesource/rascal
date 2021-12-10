@@ -575,6 +575,7 @@ str trans(muTreeGetProduction(MuExp t), JGenie jg) = "((org.rascalmpl.values.par
 str trans(muTreeGetArgs(MuExp t), JGenie jg) = "((org.rascalmpl.values.parsetrees.ITree) <trans(t, jg)>).getArgs()";
 
 str trans(muTreeUnparse(MuExp t), JGenie jg) = "$VF.string(org.rascalmpl.values.parsetrees.TreeAdapter.yield(<trans(t, jg)>))";
+str trans(muTreeUnparseToLowerCase(MuExp t), JGenie jg) = "$VF.string(org.rascalmpl.values.parsetrees.TreeAdapter.yield(<trans(t, jg)>).toLowerCase())";
 
 // ---- Type parameters ---------------------------------------------------------
 
