@@ -1,9 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst1
   
-import lang::rascalcore::compile::Examples::Tst2;
-   
-int G = 10; 
-value main() = G;
+syntax A = B << "a" ;
+syntax B = "b";
 
 
 //syntax Class
