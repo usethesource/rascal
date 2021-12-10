@@ -122,29 +122,16 @@ Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
 }
 
 Accept rascalIsAcceptablePath(loc _defScope, loc def, Use _use, PathRole pathRole, Solver s) {
-    //println("rascalIsAcceptablePath <use.id>, candidate <def>, <pathRole>, <use>");
-    //iprintln(tm.definitions[def]);
-    res = acceptBinding();
-    the_define = s.getDefine(def);
-    vis = the_define.defInfo.vis;
-    //println("vis: <vis>");
     if(pathRole == importPath()){
+        the_define = s.getDefine(def);
         defIdRole = the_define.idRole;
-        //println("defIfRole: <defIdRole>");
-        //iprintln(tm.paths);
-        //println("TEST: <<use.scope, importPath(), defScope> in tm.paths>");
-        res = (defIdRole == dataId() || defIdRole == constructorId()) // data declarations and constructors are globally visible
-              || //(<use.scope, importPath(), defScope> in tm.paths // one step import only
-                  //&& 
-                  vis == publicVis()
-              ? acceptBinding() 
-              : ignoreContinue();
-    } else
-    if(pathRole == extendPath()){
-        res = acceptBinding();
+        // Only data declarations, constructors and visible entities are visible
+        if(!(defIdRole == dataId() || defIdRole == constructorId() || the_define.defInfo.vis == publicVis())){
+            return ignoreContinue();   
+        }
     }
-    //println("rascalIsAcceptablePath =\> <res>");
-    return res;
+    
+    return acceptBinding();
 }
 
 //alias Bindings = map[str varName, AType varType];
