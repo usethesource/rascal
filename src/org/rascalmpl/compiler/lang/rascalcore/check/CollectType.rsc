@@ -634,23 +634,42 @@ void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
     collect(symbol, c);
 }
 
+bool isTerminal(Sym s)
+    = s is literal || s is caseInsensitiveLiteral || s is characterClass;
+
 void collect(current:(Sym) `<Sym symbol>  \>\> <Sym match>`, Collector c){
-   c.calculate("follow", current, [symbol, match], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\follow(s.getType(match)) }); });
+   c.calculate("follow", current, [symbol, match], 
+        AType(Solver s) { 
+            s.requireTrue(isTerminal(match), warning(match, "Followed By (`\>\>`) requires literal or character class, found %v", match));
+            return AType::conditional(s.getType(symbol), {ACondition::\follow(s.getType(match)) }); 
+        });
    collect(symbol, match, c);
 }
 
 void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
-   c.calculate("notFollow", current, [symbol, match], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); });
+   c.calculate("notFollow", current, [symbol, match], 
+        AType(Solver s) { 
+            s.requireTrue(isTerminal(match), warning(match, "Not Followed By (`!\>\>`) requires literal or character class, found %v", match));
+            return AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); 
+        });
    collect(symbol, match, c);
 }
 
 void collect(current:(Sym) `<Sym match>  \<\< <Sym symbol>`, Collector c){
-   c.calculate("precede", current, [match, symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\precede(s.getType(match)) }); });
+   c.calculate("precede", current, [match, symbol], 
+        AType(Solver s) { 
+            s.requireTrue(isTerminal(match), warning(match, "Preceded By (`\<\<`) requires literal or character class, found %v", match));
+            return AType::conditional(s.getType(symbol), {ACondition::\precede(s.getType(match)) }); 
+        });
    collect(match, symbol, c);
 }
 
 void collect(current:(Sym) `<Sym match>  !\<\< <Sym symbol>`, Collector c){
-   c.calculate("notPrecede", current, [match, symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\not-precede(s.getType(match)) }); });
+   c.calculate("notPrecede", current, [match, symbol], 
+        AType(Solver s) { 
+            s.requireTrue(isTerminal(match), warning(match, "Not Preceded By (`!\<\<`) requires literal or character class, found %v", match));
+            return AType::conditional(s.getType(symbol), {ACondition::\not-precede(s.getType(match)) }); 
+        });
    collect(match, symbol, c);
 }
 
@@ -659,7 +678,7 @@ void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
         AType(Solver s) { 
             t = s.getType(match);
             if(lit(_) !:= t && (t has syntaxRole && t.syntaxRole != keywordSyntax())){
-                s.report(error(match, "Exclude `\\` requires keywords as right argument, found %t", match));
+                s.report(error(match, "Exclude (`\\`) requires keywords as right argument, found %t", match));
             }
             return AType::conditional(s.getType(symbol), {ACondition::\delete(s.getType(match)) });
         });
