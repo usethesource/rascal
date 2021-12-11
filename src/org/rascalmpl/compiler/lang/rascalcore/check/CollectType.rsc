@@ -633,8 +633,13 @@ void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
     c.calculate("except", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\except(un) }); });
     collect(symbol, c);
 }
+    
+bool isTerminal((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = isTerminal(symbol);
+bool isTerminal((Sym) `<Sym symbol> $`) = isTerminal(symbol);
+bool isTerminal((Sym) `^ <Sym symbol>`) = isTerminal(symbol);
+bool isTerminal((Sym) `<Sym symbol> ! <NonterminalLabel _>`) = isTerminal(symbol);
 
-bool isTerminal(Sym s)
+default bool isTerminal(Sym s)
     = s is literal || s is caseInsensitiveLiteral || s is characterClass;
 
 void collect(current:(Sym) `<Sym symbol>  \>\> <Sym match>`, Collector c){
