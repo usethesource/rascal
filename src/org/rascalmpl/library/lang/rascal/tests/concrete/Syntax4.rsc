@@ -18,3 +18,5 @@ int cntStats(Statement* stats) = size([s | s <- stats ]);
 test bool cntStats1() = cntStats(((Expression) `{x=1;}`).statements) == 1;
 test bool cntStats2() = cntStats(((Expression) `{x=1;x=2;}`).statements) == 2;
 
+test bool matchPat1() = (Pattern) `<Type _> <Name _>` := [Pattern] "int x";
+
