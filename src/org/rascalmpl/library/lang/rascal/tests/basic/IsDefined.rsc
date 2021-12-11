@@ -364,6 +364,18 @@ test bool definedVariable() {
   return defined?;
 }
 
+// Keyword parameters
+
+bool fWithKwN1(int n = 1) = n?;
+
+test bool unsetKwParameterIsUndefined1() = !fWithKwN1();
+test bool setKwParameterIsDefined1() = fWithKwN1(n=2);
+
+int fWithKwN2(int n = 1) = n? ? 10 : -10;
+
+test bool unsetKwParameterIsUndefined2() = fWithKwN2() == -10;
+test bool setKwParameterIsDefined2() = fWithKwN2(n=2) == 10;
+
 // Potential generic rules to check:
 // e has f => e.f is well defined
 // !(e has f) => e.f. gives error
