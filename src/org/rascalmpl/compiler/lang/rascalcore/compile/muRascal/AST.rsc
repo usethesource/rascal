@@ -123,7 +123,6 @@ public data MuExp =
           | muVarKwp(str name, str fuid, AType atype)           // Keyword parameter
           
           // Call and return    		
-          //| muCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs)     // Call a function
           
           | muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)       
                                                                 // Call an overloaded declared *Rascal function 
@@ -151,7 +150,8 @@ public data MuExp =
                                                                 // Build map of actual keyword parameters
           | muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] defaults)  
           
-          | muIsKwpDefined(MuExp var, str kwpName)
+          | muIsVarKwpDefined(MuExp var)
+          | muIsKwpConstructorDefined(MuExp var, str kwpName)
           
           | muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)
           | muGetFieldFromConstructor(AType resultType, AType consType, MuExp var, str fieldName)
@@ -383,7 +383,7 @@ bool producesNativeBool(muIfExp(MuExp cond, MuExp thenExp, MuExp elseExp))
     = producesNativeBool(thenExp) && producesNativeBool(elseExp);
     
 default bool producesNativeBool(MuExp exp)
-    = getName(exp) in {"muEqual", "muMatch", "muMatchAndBind", "muEqualNativeInt", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", "muHasTypeAndArity",
+    = getName(exp) in {"muEqual", "muMatch", "muMatchAndBind", "muEqualNativeInt", "muIsVarKwpDefined", "muIsKwpConstructorDefined", "muHasKwp", "muHasKwpWithValue", "muHasTypeAndArity",
                   "muHasNameAndArity", "muValueIsSubtypeOf", "muValueIsComparable", "muValueIsComparableWithInstantiatedType", 
                   "muValueIsSubtypeOfInstantiatedType", "muValueIsSubtypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
                   "muRegExpFind",  "muIsDefinedValue", "muIsInitialized", "muHasField"};
@@ -1452,6 +1452,14 @@ MuExp muConInit(MuExp var, MuExp exp)
 //MuExp muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
 //    = muValueBlock(resultType, auxVars + pre + muSetAnno(exp, resultType, annoName, flatArgs[0]))
 //    when <true, auxVars, pre, flatArgs> := flattenArgs([repl]) && !isEmpty(pre);      
+
+
+//MuExp muInsert(AType t, MuExp arg) {
+//    if(<true, auxVars, pre, flatArgs> := flattenArgs([arg])){
+//        return  muValueBlock(t, auxVars + pre + muInsert(t, flatArgs[0]));
+//    }
+//    fail;
+//}
 
 MuExp muInsert(AType t, MuExp arg)
     = muValueBlock(t, auxVars + pre + muInsert(t, flatArgs[0]))

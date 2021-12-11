@@ -1236,10 +1236,14 @@ JCode trans(muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] kwpDefaults
 JCode trans(var:muVarKwp(str name, str fuid, AType atype),  JGenie jg)
     = "((<atype2javatype(atype)>) ($kwpActuals.containsKey(\"<unescape(name)>\") ? $kwpActuals.get(\"<unescape(name)>\") : <jg.getKwpDefaultsName()>.get(\"<unescape(name)>\")))";
 
+
+JCode trans(muIsVarKwpDefined(muVarKwp(str name, str fuid, AType atype)),  JGenie jg)
+    = "$kwpActuals.containsKey(\"<unescape(name)>\"";
+    
 JCode trans(muAssign(muVarKwp(str name, str fuid, AType atype), MuExp exp), JGenie jg)
     = "$kwpActuals.put(\"<unescape(name)>\", <trans(exp, jg)>);\n";
 
-JCode trans(muIsKwpDefined(MuExp exp, str kwpName), JGenie jg)
+JCode trans(muIsKwpConstructorDefined(MuExp exp, str kwpName), JGenie jg)
     = "<trans(exp, jg)>.asWithKeywordParameters().hasParameter(\"<unescape(kwpName)>\")";
 
 JCode trans(muHasKwp(MuExp exp, str kwName), JGenie jg)
