@@ -1387,9 +1387,10 @@ MuExp translate((Expression) `<Expression argument> ?`) =
 MuExp translateBool((Expression) `<Expression argument> ?`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
     = muIfExp(translateIsDefined(argument), trueCont, falseCont);
 	
-private MuExp translateIsDefined(Expression exp)
-    = muIsDefinedValue(translateGuarded(exp));
-	
+private MuExp translateIsDefined(Expression exp){
+    return muIsDefinedValue(translateGuarded(exp));  
+}
+
 MuExp translateGuarded((Expression) `( <Expression exp1> )`)
     = translateGuarded(exp1);
  
@@ -1405,8 +1406,12 @@ MuExp translateGuarded(exp: (Expression) `<Expression expression>@<Name name>`)
 
 MuExp translateGuarded(exp: (Expression) `<Expression expression> . <Name field>`)
     = translateProject(exp, expression, [(Field)`<Name field>`], exp@\loc, true);
-  //  = muGuardedGetField(getType(exp), getType(expression), translate(expression),  unescape("<field>"));
+    //= muGuardedGetField(getType(exp), getType(expression), translate(expression),  unescape("<field>"));
 
+MuExp translateGuarded(exp: (Expression) `<Name name>`)
+    = muIsVarKwpDefined(mkVar("<name>", name@\loc));
+
+    
 // -- isDefinedOtherwise expression ---------------------------------
 
 MuExp translate(e: (Expression) `<Expression lhs> ? <Expression rhs>`) {

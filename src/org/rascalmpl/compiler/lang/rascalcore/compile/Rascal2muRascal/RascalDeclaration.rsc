@@ -110,7 +110,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         adtVar = muVar(getterName, fuid, 0, adtType);
         
         defExprCode = promoteVarsToFieldReferences(translate(defaultExp), adtType, adtVar);
-        body = muReturn1(kwType, muIfElse(muIsKwpDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
+        body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
         addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
@@ -136,7 +136,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
             consVar = muVar(consName, fuid, 0, consType);
             
             defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar);
-            body = muReturn1(kwType, muIfElse(muIsKwpDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
+            body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
             addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
        }
     }

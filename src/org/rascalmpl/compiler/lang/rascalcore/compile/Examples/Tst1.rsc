@@ -1,8 +1,13 @@
 module lang::rascalcore::compile::Examples::Tst1
   
-syntax A = B << "a" ;
-syntax B = "b";
+data D(bool b = true) = d1(int n) | d2(str s);
 
+bool f(D d) { x = visit(d) { case d1(int n) => d1(n+1) } . b; return x;}
+
+value main(){
+
+    return f(d1(0));
+}
 
 //syntax Class
 //    = simpleCharclass: "["  "]" 
