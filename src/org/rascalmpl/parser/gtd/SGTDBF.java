@@ -428,7 +428,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 								if(debugListener != null) debugListener.propagated(next, nextResult, nextNextAltAlternative);
 							}
 						}else{
-							EdgesSet<P> nextAlternativeEdgesSet = nextNextAlternative.getIncomingEdges();
+							EdgesSet<P> nextAlternativeEdgesSet = nextNextAltAlternative.getIncomingEdges();
 							int resultStoreId = getResultStoreId(nextNextAltAlternative.getId());
 							if(nextAlternativeEdgesSet != null && nextAlternativeEdgesSet.getLastVisitedLevel(resultStoreId) == location){
 								propagateAlternativeEdgesAndPrefixes(next, nextResult, nextNextAltAlternative, nextAlternativeEdgesSet.getLastResult(resultStoreId), nrOfAddedEdges, nextNextEdgesMap, nextNextPrefixesMap);
