@@ -48,8 +48,8 @@ test bool matchTypedVarPat2() = (Pattern) `<Type _t> <Name _n>` := [Pattern] "in
 test bool matchTypedVarPat3() = (Pattern) `<Type _t> x` := [Pattern] "int x";
 test bool matchTypedVarPat4() = (Pattern) `int <Name _n>` := [Pattern] "int x";
 
-@ignore{Not yet implemented}
-test bool matchMapPat() = (Pattern) `(1:10,2:11)` := [Pattern] "(1:10,2:11)";
+//@Ignore{Not yet implemented}
+//test bool matchMapPat() = (Pattern) `(1:10,2:11)` := [Pattern] "(1:10,2:11)";
 
 test bool matchCallPat() = (Pattern) `f(10,11)` := [Pattern] "f(10,11)";
 
