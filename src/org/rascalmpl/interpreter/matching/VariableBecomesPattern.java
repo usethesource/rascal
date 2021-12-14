@@ -17,10 +17,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.utils.TreeAsNode;
+import org.rascalmpl.values.parsetrees.ITree;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -40,6 +45,13 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	@Override
 	public void initMatch(Result<IValue> subject){
 		super.initMatch(subject);
+
+		if (subject.getValue() instanceof TreeAsNode) {
+			// TreeAsNode wrappers can only escape here, in variable becomes patterns.
+			ITree tree = ((TreeAsNode) subject.getValue()).getTree();
+			subject = ResultFactory.makeResult(tree.getType(), tree, ctx);
+		}
+
 		var.initMatch(subject);
 		if (var.hasNext()) { 
 			pat.initMatch(subject);

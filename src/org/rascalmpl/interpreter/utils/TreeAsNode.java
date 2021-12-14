@@ -93,4 +93,7 @@ public class TreeAsNode implements INode {
         return tree.asWithKeywordParameters();
     }
 
+    public ITree getTree() {
+        return tree;
+    }
 }
