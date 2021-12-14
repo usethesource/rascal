@@ -13,8 +13,10 @@ package org.rascalmpl.interpreter.result;
 
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.utils.TreeAsNode;
 import org.rascalmpl.types.RascalType;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -146,6 +148,7 @@ public class ResultFactory {
 			if (type.isSubtypeOf(RascalValueFactory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
 			}
+
 			return new NodeResult(declaredType, (INode)value, ctx);
 		}
 
