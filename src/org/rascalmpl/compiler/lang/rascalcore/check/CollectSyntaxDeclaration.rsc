@@ -105,7 +105,16 @@ AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* mod
     return associativity(adtType, \mods2assoc(modifiers), p);
 }
 
-private bool isTerminal(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
+private bool isTerminalSym((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym symbol> $`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `^ <Sym symbol>`) = isTerminalSym(symbol);
+private bool isTerminalSym((Sym) `<Sym symbol> ! <NonterminalLabel _>`) = isTerminalSym(symbol);
+ 
+private default bool isTerminalSym(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
+
+private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when isNonTerminalType(adt2);
+private default AType removeChainRule(AType t) = t;
+
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];
@@ -135,8 +144,10 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ t | sym <- symbols, !isTerminal(sym), tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)];
-                                                
+                    if("<name>" == "literal"){
+                        println("literal");
+                    }
+                    fields = [ removeChainRule(t) | sym <- symbols, !isTerminalSym(sym), tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)];                                                
                     //fields = cprod has atypes ? [ t | sym <- cprod.atypes, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)]
                     //                          : [];          
                     def = \start(sdef) := def ? sdef : def;
