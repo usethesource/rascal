@@ -152,5 +152,9 @@ public class ParserTest extends TestCase{
 
 	public void testDoubleLeftNullable() {
 		executeParser(new DoubleLeftNullable());
-	}
+        }
+
+        public void testDoubleRightNullable() {
+            executeParser(new DoubleRightNullableWithPrefixSharing());
+        }
 }
