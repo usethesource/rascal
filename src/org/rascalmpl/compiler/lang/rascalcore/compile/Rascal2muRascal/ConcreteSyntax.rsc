@@ -64,7 +64,8 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
       
       // here we weave in a unique and indexed sub-string for which a special rule
       // was added by the parser generator: 
-      return "\u0000<atype2symbol(getType(hole.args[2]@\loc))>:<index>\u0000";
+      holeType = atype2symbol(getType(hole.args[2]@\loc));
+      return "\u0000<denormalize(holeType)>:<index>\u0000";
    }
    
    // first replace holes by indexed sub-strings
@@ -74,6 +75,21 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    Tree tree = ParseTree::parse(type(sym, rules), input, |todo:///|);
    return isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0]@\loc);
 }
+
+// TODO: this is a copy of denormalize in lang::rascal::grammar::ConcreteSyntax
+@doc{
+  In Rascal programs with type literals, it's hard to see easily if it is a lex or sort, so we "denormalize" here.
+  The same goes for the introduction of layout non-terminals in lists. We do not know which non-terminal is introduced,
+  so we remove this here to create a canonical 'source-level' type.
+}
+private Symbol denormalize(Symbol s) = visit (s) { 
+  case \lex(n) => \sort(n)
+  case \iter-seps(u,[layouts(_),t,layouts(_)]) => \iter-seps(u,[t])
+  case \iter-star-seps(u,[layouts(_),t,layouts(_)]) => \iter-star-seps(u,[t])
+  case \iter-seps(u,[layouts(_)]) => \iter(u)
+  case \iter-star-seps(u,[layouts(_)]) => \iter-star(u)
+  // TODO: add rule for seq
+};
 
 @doc{restores the parse trees for the typed holes and also recovers all location information}
 Tree restoreHoles(Tree t, map[int, Tree] holes, loc begin) {
