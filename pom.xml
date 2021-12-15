@@ -130,7 +130,7 @@
                 <plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
-                    <version>0.6.0</version>
+                    <version>0.4.5-RC5</version>
                     <configuration>
                         <errorsAsWarnings>false</errorsAsWarnings>
                         <bin>${project.build.outputDirectory}</bin>
