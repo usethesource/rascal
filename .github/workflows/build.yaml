@@ -13,6 +13,7 @@ env:
 
 jobs:
   builds:
+    if: ${{ !(github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     needs: [tests]
     runs-on: ubuntu-latest
     steps:
@@ -74,6 +75,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.RASCAL_SLACK_WEBHOOK }}
 
   tests:
+    if: ${{ !(github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
