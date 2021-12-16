@@ -10,13 +10,14 @@ import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
 
-PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target|);
+PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/classes|);
 
 void main(list[str] args) = generateTestSources(manualTestConfig);
 
 void generateTestSources(PathConfig pcfg) {
    testConfig = pathConfig(
      bin=pcfg.bin,
+     genSrcs=|project://rascal-core/target/generated-sources|,
      srcs=[
        |std:///|
      ]);
@@ -84,7 +85,7 @@ void generateTestSources(PathConfig pcfg) {
              ];           
    testModules -= ignored;    
    
-   //testModules = [ "lang::rascal::tests::basic::Equality"];
+   testModules = ["Exception", "lang::rascal::tests::basic::Equality"];
    
    list[str] exceptions = [];
    int n = size(testModules);
