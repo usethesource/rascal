@@ -21,9 +21,7 @@ import util::Reflective;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
 tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
-    classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
-    tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
-    return <exists(tplLoc), tplLoc>;
+    return getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
 }
 
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
