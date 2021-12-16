@@ -50,7 +50,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
      
         writeFile(genSourcesDir + "$<className>.java", the_interface);
         writeFile(genSourcesDir + "<className>.java", the_class);
-        println("Written: <genSourcesDir + "<className>.java">");
+        println("Wrtten: <genSourcesDir + "<className>.java">");
         writeFile(genSourcesDir + "<className>Tests.java", the_test_class);
         writeBinaryValueFile(classesDir + "<className>.constants", constants);
         println("Written: <classesDir + "<className>.constants">");
