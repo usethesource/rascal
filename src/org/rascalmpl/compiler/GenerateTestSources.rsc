@@ -85,7 +85,7 @@ void generateTestSources(PathConfig pcfg) {
              ];           
    testModules -= ignored;    
    
-   testModules = ["Exception", "lang::rascal::tests::basic::Equality"];
+   // testModules = ["Exception", "lang::rascal::tests::basic::Equality"];
    
    list[str] exceptions = [];
    int n = size(testModules);
