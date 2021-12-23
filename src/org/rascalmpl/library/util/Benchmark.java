@@ -20,6 +20,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.util.HeapDumper;
 
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -33,6 +34,18 @@ public class Benchmark {
 		this.values = values;
 	}
 
+	public IInteger getFreeMemory() {
+		return values.integer(Runtime.getRuntime().freeMemory());
+	}
+
+	public IInteger getTotalMemory() {
+		return values.integer(Runtime.getRuntime().totalMemory());
+	}
+
+	public IInteger getMaxMemory() {
+		return values.integer(Runtime.getRuntime().maxMemory());
+	}
+	
 	public void heapDump(ISourceLocation loc, IBool live) {
 	    try {
 	        loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
