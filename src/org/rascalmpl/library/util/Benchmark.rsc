@@ -34,6 +34,38 @@ Write a JVM heap dump to a file.
 java void heapDump(loc file, bool live=true);
 
 @doc{
+.Synopsis returns the free memory of the current JVM
+
+.Description
+This returns the number of bytes that can be allocated
+still agains the current result of `getTotalMemory`.
+}
+@javaClass{org.rascalmpl.library.util.Benchmark}
+java int getFreeMemory();
+
+@doc{
+.Synopsis returns the current total memory allocated by the current JVM
+
+.Description
+This returns the number of bytes currently allocated for use by the JVM.
+The number can change over time but it's never higher than `getMaxMemory()`
+}
+@javaClass{org.rascalmpl.library.util.Benchmark}
+java int getTotalMemory();
+
+@doc{
+.Synopsis returns the maximum amount of memory that is available to the current JVM
+.Description
+This returns the number of bytes configured as maximum heap size of the current JVM.
+}
+@javaClass{org.rascalmpl.library.util.Benchmark}
+java int getMaxMemory();
+
+int getUsedMemory() = getTotalMemory() - getFreeMemory();
+
+int getMaxFreeMemory() = getMaxMemory() - getUsedMemory();
+
+@doc{
 .Synopsis
 CPU time in nanoseconds (10^-9^ sec).
 
