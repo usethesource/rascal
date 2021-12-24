@@ -1,60 +1,56 @@
 module util::IDEServices
 
+extend analysis::diff::edits::TextEdits;
+extend Content;
+extend Message;
+
 @doc{
 .Synopsis
 Open a browser for a given location.
 }
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices}
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
 java void browse(loc uri);
 
 @doc{
 .Synopsis
 Open an editor for file at a given location.
 }
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices}
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
 java void edit(loc uri);
 
 @doc{
 .Synopsis
-Log the __start__ of a job.
+Let the IDE apply a list of document edits.
 
 .Description
 
-The various forms of `startJob` do the following:
+Asks the IDE to apply document edits as defined in the standard library module
+analysis::diff::edits::TextEdits, according to the semantics defined in
+analysis::diff::edits::ExecuteTextEdits. However, the IDE can take care of these
+changes in order to provide important UI experience features such as "preview"
+and "undo". 
 
-* Register a job with a name, a default amount of work contributed to the overall task,
-  and an unknown amount of steps to do.
-* Register a job with a name and a total amount of steps to do (this will also be the amount
-  of work contributed to the parent job, if any
-* Register a job with a name, the amount this will contribute to the overall task,
-  and a total amount of steps to do.
+Typically a call to this IDE service method is included in the implementation
+of refactoring and quick-fix features of the language service protocol.
 }
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices}
-public java void startJob(str name);
-
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices}
-public java void startJob(str name, int totalWork);
-
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices}
-public java void startJob(str name, int workShare, int totalWork);
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void applyDocumentsEdits(list[DocumentEdit] edits);
 
 @doc{
+.Synopsis
+Asks the IDE to show a "browser window" with the given interactive Content.
 }
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices}
-public java void event(str name);
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void showInteractiveContent(Content content);
 
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices}
-public java void event(str name, int inc);
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void showMessage(Message message);
 
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices}
-public java void event(int inc);
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void logMessage(Message message);
 
-@doc{
-}
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices} 
-public java int endJob(bool succeeded);
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void registerDiagnostics(list[Message] messages);
 
-@doc{
-}
-@javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices} 
-public java void todo(int work);
+@javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
+public java void unregisterDiagnostics(list[loc] resources);

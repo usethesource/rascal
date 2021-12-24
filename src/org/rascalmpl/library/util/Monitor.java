@@ -12,51 +12,43 @@
 package org.rascalmpl.library.util;
 
 import org.rascalmpl.debug.IRascalMonitor;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class Monitor {
-	private final IValueFactory vf;
-    private final IRascalMonitor monitor;
+	private final IValueFactory values;
+    private final IRascalMonitor services;
 
 	public Monitor(IValueFactory vf, IRascalMonitor monitor) {
-		this.vf = vf;
-		this.monitor = monitor;
+		this.values = vf;
+		this.services = monitor;
 	}
 
-	public void startJob(IString name) {
-		monitor.startJob(name.getValue());
-	}
+	public void jobStart(IString name, IInteger work, IInteger totalWork) {
+        services.jobStart(name.getValue(), work.intValue(), totalWork.intValue());
+    }
+	
+	public void jobStep(IString name, IString message, IInteger inc) {
+        services.jobStep(name.getValue(), message.getValue(), inc.intValue());
+    }
+	
+	public IInteger jobEnd(IString name, IBool succeeded) {
+        return values.integer(services.jobEnd(name.getValue(), succeeded.getValue()));
+    }
+	
+	public IBool jobIsCancelled(IString name) {
+        return values.bool(services.jobIsCanceled(name.getValue()));
+    }
+	
+	public void jobTodo(IString name, IInteger work) {
+        services.jobTodo(name.getValue(), work.intValue());
+    }
 
-	public void startJob(IString name, IInteger totalWork) {
-		monitor.startJob(name.getValue(), totalWork.intValue());
-	}
-
-	public void startJob(IString name, IInteger workShare, IInteger totalWork) {
-		monitor.startJob(name.getValue(), workShare.intValue(),
-				totalWork.intValue());
-	}
-
-	public void event(IString name) {
-		monitor.event(name.getValue());
-	}
-
-	public void event(IString name, IInteger inc) {
-		monitor.event(name.getValue(), inc.intValue());
-	}
-
-	public void event(IInteger inc) {
-		monitor.event(inc.intValue());
-	}
-
-	public IValue endJob(IBool succeeded) {
-		return vf.integer(monitor.endJob(succeeded.getValue()));
-	}
-
-	public void todo(IInteger work) {
-		monitor.todo(work.intValue());
-	}
+	public void jobWarning(IString message, ISourceLocation src) {
+        services.warning(message.getValue(), src);
+    }
 }

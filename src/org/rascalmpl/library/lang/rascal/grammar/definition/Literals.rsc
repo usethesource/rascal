@@ -27,10 +27,10 @@ public list[Symbol] str2syms(str x) {
 
 list[Symbol] cistr2syms(str x) {
   return for (i <- [0..size(x)], int c:= charAt(x,i)) {
-     if (c >= 101 && c <= 132) // A-Z
-        append \char-class([range(c,c),range(c+40,c+40)]);
-     else if (c >= 141 && c <= 172) // a-z
-        append \char-class([range(c,c),range(c-40,c-40)]);
+     if (c >= 65 && c <= 90) // A-Z
+        append \char-class([range(c,c),range(c+32,c+32)]);
+     else if (c >= 97 && c <= 122) // a-z
+        append \char-class([range(c,c),range(c-32,c-32)]);
      else 
         append \char-class([range(c,c)]);
   } 

@@ -319,7 +319,7 @@ public class IO {
                                 result[i] = values.bool(true);
                             }
                             else if (field.equalsIgnoreCase("false")) {
-                                result[i] = values.bool(true);
+                                result[i] = values.bool(false);
                             }
                             else {
                                 // it is an actual string
@@ -330,7 +330,7 @@ public class IO {
                             try {
                                 // lets be a bit more flexible than rascal's string reader is.
                                 // 2012-06-24T00:59:56Z
-                                result[i] = Prelude.parseDateTime(values, values.string(field), values.string("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+                                result[i] = Prelude.parseDateTime(values, values.string(field), values.string("yyyy-MM-dd'T'HH:mm:ssX"));
                             }
                             catch (Throwable th) {
                                 throw RuntimeExceptionFactory.illegalTypeArgument("Invalid datetime: \"" + field + "\" (" + th.getMessage() + ")", null, null);

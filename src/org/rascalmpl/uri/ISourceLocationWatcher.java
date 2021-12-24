@@ -29,6 +29,14 @@ public interface ISourceLocationWatcher {
 	 */
 	void watch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher) throws IOException;
 
+	/**
+	 * Unregister a watcher callback for a specific uri (note, there can be multiple watchers per resource, this only clears this specific watcher)
+	 * @param root the resource to unwatch
+	 * @param watcher the specific callback to unregister
+	 * @throws IOException
+	 */
+	void unwatch(ISourceLocation root, Consumer<ISourceLocationChanged> watcher) throws IOException;
+
 	public interface ISourceLocationChanged {
 		ISourceLocation getLocation();
 		ISourceLocationChangeType getChangeType();

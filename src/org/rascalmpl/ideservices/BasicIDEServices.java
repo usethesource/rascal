@@ -21,13 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
-import org.rascalmpl.values.IRascalValueFactory;
 
-import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValueFactory;
 
 /**
  * IDEServices for a Desktop environment that rely on the
@@ -37,13 +32,16 @@ import io.usethesource.vallang.IValueFactory;
 public class BasicIDEServices implements IDEServices {
   
   private static ConsoleRascalMonitor monitor = new ConsoleRascalMonitor();
-  private IValueFactory vf;
   private PrintWriter stderr;
 
   public BasicIDEServices(PrintWriter stderr){
     this.stderr = stderr;
     monitor = new ConsoleRascalMonitor();
-    vf = IRascalValueFactory.getInstance();
+  }
+  
+  @Override
+  public PrintWriter stderr() {
+    return stderr;
   }
   
   public void browse(ISourceLocation loc){
@@ -66,6 +64,7 @@ public class BasicIDEServices implements IDEServices {
     }
   }
   
+  @Override
   public void edit(ISourceLocation loc){
       if(loc.getScheme() != "file"){
          stderr.println("Can only edit files using the \"file\" scheme");
@@ -91,119 +90,33 @@ public class BasicIDEServices implements IDEServices {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#startJob(java.lang.String)
-   */
   @Override
-  public void startJob(String name) {
-    monitor.startJob(name);
+  public void jobStart(String name, int workShare, int totalWork) {
+    monitor.jobStart(name, workShare, totalWork);
   }
   
-  public void startJob(IString name) {
-      startJob(name.getValue());
+  @Override
+  public void jobStep(String name, String message, int inc) {
+    monitor.jobStep(name, message, inc);
   }
 
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#startJob(java.lang.String, int)
-   */
   @Override
-  public void startJob(String name, int totalWork) {
-    monitor.startJob(name, totalWork);
+  public int jobEnd(String name, boolean succeeded) {
+    return monitor.jobEnd(name, succeeded);
   }
   
-  public void startJob(IString name, IInteger totalWork){
-      startJob(name.getValue(), totalWork.intValue());
+  @Override
+  public boolean jobIsCanceled(String name) {
+      return monitor.jobIsCanceled(name);
+  }
+  
+  @Override
+  public void jobTodo(String name, int work) {
+    monitor.jobTodo(name, work);
   }
 
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#startJob(java.lang.String, int, int)
-   */
-  @Override
-  public void startJob(String name, int workShare, int totalWork) {
-    monitor.startJob(name, workShare, totalWork);
-  }
-  
-  public void startJob(IString name, IInteger workShare, IInteger totalWork) {
-      startJob(name.getValue(), workShare.intValue(), totalWork.intValue());
-  }
-
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#event(java.lang.String)
-   */
-  @Override
-  public void event(String name) {
-    monitor.event(name);
-  }
-  
-  public void event(IString name){
-      event(name.getValue());
-  }
-
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#event(java.lang.String, int)
-   */
-  @Override
-  public void event(String name, int inc) {
-    monitor.event(name,inc);
-  }
-  
-  public void event(IString name, IInteger inc){
-      event(name.getValue(), inc.intValue());
-  }
-
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#event(int)
-   */
-  @Override
-  public void event(int inc) {
-    monitor.event(inc);
-  }
-  
-  public void event(IInteger inc){
-      event(inc.intValue());
-  }
-
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#endJob(boolean)
-   */
-  @Override
-  public int endJob(boolean succeeded) {
-    return monitor.endJob(succeeded);
-  }
-  
-  public IInteger endJob(IBool succeeded){
-      return vf.integer(endJob(succeeded.getValue()));
-  }
-
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#isCanceled()
-   */
-  @Override
-  public boolean isCanceled() {
-      return monitor.isCanceled();
-  }
-  
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#todo(int)
-   */
-  @Override
-  public void todo(int work) {
-    monitor.todo(work);
-  }
-  
-  public void todo(IInteger work){
-      todo(work.intValue());
-  }
-
-  /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#warning(java.lang.String, io.usethesource.vallang.ISourceLocation)
-   */
   @Override
   public void warning(String message, ISourceLocation src) {
     monitor.warning(message,  src);
-  }
-  
-  public void warning(IString message, ISourceLocation src){
-      warning(message.getValue(), src);
   }
 }

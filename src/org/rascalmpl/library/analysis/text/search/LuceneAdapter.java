@@ -913,7 +913,7 @@ public class LuceneAdapter {
 
         @Override
         public void deleteFile(String name) throws IOException {
-            reg.remove(location(name)); 
+            reg.remove(location(name), true); 
         }
 
         @Override
@@ -963,8 +963,7 @@ public class LuceneAdapter {
 
         @Override
         public void rename(String source, String dest) throws IOException {
-            reg.copy(location(source), location(dest));
-            reg.remove(location(source));
+            reg.rename(location(source), location(dest), true);
         }
 
         @Override

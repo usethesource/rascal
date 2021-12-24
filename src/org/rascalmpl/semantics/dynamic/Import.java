@@ -374,13 +374,13 @@ private static boolean isDeprecated(Module preModule){
   
   private static Module buildModule(ISourceLocation uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
       try {
-          eval.startJob("Loading module " + uri, 10);
+          eval.jobStart("Loading module " + uri, 10);
           ITree tree = eval.parseModuleAndFragments(eval, uri);
 
           return getBuilder().buildModule(tree);
       }
       finally {
-          eval.endJob(true);
+          eval.jobEnd("Loading module " + uri, true);
       }
   }
   
@@ -575,9 +575,14 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(parserName, definitions);
 
     if (parser == null || force) {
-        // TODO: this hashCode is not good enough!
-      parser = pg.getNewParser(eval, caller, parserName, definitions);
-      eval.getHeap().storeObjectParser(parserName, definitions, parser);
+        synchronized (eval) {
+          parser = eval.getHeap().getObjectParser(parserName, definitions);
+          if (parser == null || force) {
+            // TODO: this hashCode is not good enough!
+            parser = pg.getNewParser(eval, caller, parserName, definitions);
+            eval.getHeap().storeObjectParser(parserName, definitions, parser);
+          }
+        }
     }
 
     try {

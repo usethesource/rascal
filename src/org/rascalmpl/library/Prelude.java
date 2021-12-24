@@ -38,6 +38,7 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
@@ -60,25 +61,34 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
+import com.ibm.icu.util.ULocale;
+
 import org.apache.commons.lang.CharSetUtils;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
+import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.UnsupportedSchemeException;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
-import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -87,11 +97,6 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
-
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.TimeZone;
-import com.ibm.icu.util.ULocale;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -119,7 +124,6 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
@@ -130,8 +134,9 @@ public class Prelude {
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
 	private final TypeStore store;
+	private final IRascalMonitor monitor;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor) {
 		super();
 		
 		this.values = values;
@@ -139,6 +144,7 @@ public class Prelude {
 		this.store = store;
 		this.out = out;
 		this.tr = new TypeReifier(values);
+		this.monitor = monitor;
 		random = new Random();
 	}
 
@@ -930,6 +936,18 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
 		}
 	}
+
+	public IString iprintToString(IValue arg) {
+		StandardTextWriter w = new StandardTextWriter(true, 2);
+		StringWriter sw = new StringWriter();
+
+		try {
+			w.write(arg, sw);
+			return values.string(sw.toString());
+		} catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
+		}
+	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintln(IValue arg, IInteger lineLimit){
@@ -1014,6 +1032,19 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
+
+	public IValue created(ISourceLocation sloc) {
+		try {
+		    IValue result = values.datetime(URIResolverRegistry.getInstance().created(sloc));
+		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
+			return result;
+		} catch(FileNotFoundException e){
+			throw RuntimeExceptionFactory.pathNotFound(sloc);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
 	
 	public void setLastModified(ISourceLocation sloc, IDateTime timestamp) {
 	    setLastModified(sloc, timestamp.getInstant());
@@ -1028,20 +1059,20 @@ public class Prelude {
         }
     }
 	
-	public IValue isDirectory(ISourceLocation sloc) {
+	public IBool isDirectory(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
 	}
 	
-	public IValue isFile(ISourceLocation sloc) {
+	public IBool isFile(ISourceLocation sloc) {
 		return values.bool(URIResolverRegistry.getInstance().isFile(sloc));
 	}
 	
-	public void remove(ISourceLocation sloc) {
+	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
-			URIResolverRegistry.getInstance().remove(sloc);
+			URIResolverRegistry.getInstance().remove(sloc, recursive.getValue());
 		}
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
 	
@@ -1050,11 +1081,11 @@ public class Prelude {
 	    URIResolverRegistry.getInstance().mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
-	    RuntimeExceptionFactory.io(values.string(e.getMessage()));
+	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 	
-	public IValue listEntries(ISourceLocation sloc) {
+	public IList listEntries(ISourceLocation sloc) {
 		try {
 			String [] entries = URIResolverRegistry.getInstance().listEntries(sloc);
 			if (entries == null) {
@@ -1176,18 +1207,62 @@ public class Prelude {
         return values.string(result.toString());
 
 	}
-	
-	public IBool copyFile(ISourceLocation source, ISourceLocation target) {
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(source)) {
-			try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
-			  copy(in,out);
-				return values.bool(true);
-			}
-		} catch (IOException e) {
-			return values.bool(false);
+
+	public IValue md5Hash(IValue value){
+		try {
+			final MessageDigest md = MessageDigest.getInstance("MD5");
+			final StandardTextWriter writer = new StandardTextWriter();
+			Charset UTF8 = Charset.forName("UTF-8");
+			writer.write(value, new Writer() {
+				@Override
+				public void write(char[] cbuf, int off, int len) throws IOException {
+					CharBuffer cb = CharBuffer.wrap(cbuf, off, len);
+					ByteBuffer bb = UTF8.encode(cb); 
+					md.update(bb);
+				}
+
+				@Override
+				public void flush() throws IOException { }
+
+				@Override
+				public void close() throws IOException { }
+			});
+
+			byte[] hash = md.digest();
+
+			StringBuffer result = new StringBuffer(hash.length * 2);
+        	for (int i = 0; i < hash.length; i++) {
+            	result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+        	}
+			
+        	return values.string(result.toString());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+		catch (NoSuchAlgorithmException e) {
+			throw RuntimeExceptionFactory.io(values.string("no such algorithm: " + e.getMessage()));
 		}
 	}
 	
+	public void copy(ISourceLocation source, ISourceLocation target, IBool recursive, IBool overwrite) {
+		try {
+			URIResolverRegistry.getInstance().copy(source, target, recursive.getValue(), overwrite.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
+
+	public void move(ISourceLocation source, ISourceLocation target, IBool overwrite) {
+		try {
+			URIResolverRegistry.getInstance().rename(source, target, overwrite.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+	}
+
 	public void touch(ISourceLocation sloc) {
 	    if (URIResolverRegistry.getInstance().exists(sloc)) {
 	        setLastModified(sloc, System.currentTimeMillis());
@@ -3325,11 +3400,21 @@ public class Prelude {
 	}
 	
 	public void registerLocations(IString scheme, IString auth, IMap map) {
-		URIResolverRegistry.getInstance().registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
+		if (monitor instanceof IDEServices) {
+			((IDEServices) monitor).registerLocations(scheme, auth, map);
+		}
+		else {
+			URIResolverRegistry.getInstance().registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
+		}
 	}
 	
 	public void unregisterLocations(IString scheme, IString auth) {
-		URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
+		if (monitor instanceof IDEServices) {
+			((IDEServices) monitor).unregisterLocations(scheme, auth);
+		}
+		else {
+			URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
+		}
 	}
 	
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
@@ -3572,56 +3657,136 @@ public class Prelude {
         }
 	}
 
+	private final Map<ISourceLocation, Set<ReleasableCallback>> registeredWatchers = new ConcurrentHashMap<>();
+
+	private static final class ReleasableCallback implements Consumer<ISourceLocationChanged> {
+		private final WeakReference<IFunction> target;
+		private final ISourceLocation src;
+		private final boolean recursive;
+		private final int hash;
+
+		private final IValueFactory values;
+		private final TypeStore store;
+
+		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
+			this.src = src;
+			this.recursive = recursive;
+			this.target = new WeakReference<>(target);
+			this.hash = src.hashCode() + 7 * target.hashCode();
+			this.values = values;
+			this.store = store;
+		}
+
+		@Override
+		public void accept(ISourceLocationChanged e) {
+			IFunction callback = target.get();
+			if (callback == null) {
+				try {
+					URIResolverRegistry.getInstance().unwatch(src, recursive, this);
+				}
+				catch (IOException ex) {
+					// swallow our own unregister
+				}
+				return;
+			}
+			// TODO: make sure not to have a pointer to the prelude module here!
+			callback.call(convertChangeEvent(e));
+			
+		}
+
+		private IValue convertChangeEvent(ISourceLocationChanged e) {
+			Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
+			
+			
+			return values.constructor(changeEvent, 
+				e.getLocation(),
+				convertChangeType(e.getChangeType()),
+				convertFileType(e.getType())
+			);
+		}
+
+		private IValue convertFileType(ISourceLocationType type) {
+			Type file = store.lookupConstructors("file").iterator().next();
+			Type directory = store.lookupConstructors("directory").iterator().next();
+			
+			switch (type) {
+				case FILE:
+					return values.constructor(file);
+				case DIRECTORY:
+					return values.constructor(directory);
+			}
+
+			throw RuntimeExceptionFactory.illegalArgument();
+		}
+
+		private IValue convertChangeType(ISourceLocationChangeType changeType) {
+			Type deleted = store.lookupConstructors("deleted").iterator().next();
+			Type created = store.lookupConstructors("created").iterator().next();
+			Type modified = store.lookupConstructors("modified").iterator().next();
+
+			switch (changeType) {
+				case DELETED:
+					return values.constructor(deleted);
+				case CREATED:
+					return values.constructor(created);
+				case MODIFIED:
+					return values.constructor(modified);
+			}
+
+			throw RuntimeExceptionFactory.illegalArgument();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof ReleasableCallback) {
+				ReleasableCallback other = (ReleasableCallback)obj;
+				IFunction actualTarget = target.get();
+				return actualTarget != null 
+					&& src.equals(other.src) 
+					&& recursive == other.recursive 
+					&& actualTarget.equals(other.target.get());
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return hash;
+		}
+	}
+
 	public void watch(ISourceLocation src, IBool recursive, IFunction callback) {
 		try {
-			URIResolverRegistry.getInstance().watch(src, recursive.getValue(), (e) -> callback.call(convertChangeEvent(e)));
+			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values, store);
+			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
+			if (registered.add(wrappedCallback)) {
+				// it wasn't registered before, so let's register it
+				URIResolverRegistry.getInstance().watch(src, recursive.getValue(), wrappedCallback);
+			}
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	private IValue convertChangeEvent(ISourceLocationChanged e) {
-		Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
-		
-		
-		return values.constructor(changeEvent, 
-			e.getLocation(),
-			convertChangeType(e.getChangeType()),
-			convertFileType(e.getType())
-		);
-	}
-
-	private IValue convertFileType(ISourceLocationType type) {
-		Type file = store.lookupConstructors("file").iterator().next();
-		Type directory = store.lookupConstructors("directory").iterator().next();
-		
-		switch (type) {
-			case FILE:
-				return values.constructor(file);
-			case DIRECTORY:
-				return values.constructor(directory);
+	public void unwatch(ISourceLocation src, IBool recursive, IFunction callback) {
+		try {
+			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
+			boolean isRecursive = recursive.getValue();
+			for (ReleasableCallback rc: registered) {
+				// we do a linear scan, as we cannot do a lookup since we want to get the original reference
+				if (rc.recursive == isRecursive && callback.equals(rc.target.get())) {
+					URIResolverRegistry.getInstance().unwatch(src, isRecursive, rc);
+					registered.remove(rc);
+					return;
+				}
+			}
 		}
-
-		throw RuntimeExceptionFactory.illegalArgument();
-	}
-
-	private IValue convertChangeType(ISourceLocationChangeType changeType) {
-		Type deleted = store.lookupConstructors("deleted").iterator().next();
-		Type created = store.lookupConstructors("created").iterator().next();
-		Type modified = store.lookupConstructors("modified").iterator().next();
-
-		switch (changeType) {
-			case DELETED:
-				return values.constructor(deleted);
-			case CREATED:
-				return values.constructor(created);
-			case MODIFIED:
-				return values.constructor(modified);
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
-
-		throw RuntimeExceptionFactory.illegalArgument();
 	}
+
 
 }
 

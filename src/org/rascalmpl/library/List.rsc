@@ -24,6 +24,7 @@ module List
 
 import Exception;
 import Map;
+import IO;
 
 @doc{
 .Synopsis
@@ -678,6 +679,20 @@ public list[&T] sort(list[&T] lst) =
 	
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
+
+@doc{
+.Synopsis 
+Check whether a list is sorted or not.
+
+.Description
+
+Checks whether or not a list is sorted by searching for any out-of-order elements.
+The empty list is defined to be "sorted" and what sorted means is defined the
+higher-order parameter "less" which should implement a partial-order relation
+between the two parameters.
+}
+public bool isSorted(list[&T] l, bool (&T a, &T b) less = bool (&T a, &T b) { return a < b; })
+ = !any([*_, &T a, &T b, *_] := l, less(b, a));
 
 @doc{
 .Synopsis

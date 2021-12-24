@@ -2,6 +2,7 @@
 module lang::rascal::tests::concrete::Patterns3
 
 import ParseTree;
+import Type;
 import lang::rascal::\syntax::Rascal;
 import Set;
 

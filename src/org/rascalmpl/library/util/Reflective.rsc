@@ -32,6 +32,11 @@ public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseMo
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 
+data RascalConfigMode
+    = compiler()
+    | interpreter()
+    ;
+
 data PathConfig 
     // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
@@ -255,7 +260,7 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
 }
 
 @javaClass{org.rascalmpl.library.util.Reflective}
-public java PathConfig getProjectPathConfig(loc projectRoot);
+public java PathConfig getProjectPathConfig(loc projectRoot, RascalConfigMode mode = compiler());
 
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
 @javaClass{org.rascalmpl.library.util.Reflective}

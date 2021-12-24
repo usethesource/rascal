@@ -920,3 +920,13 @@ test bool matchTypedListVarBecomes1() = list[int] L1 : [int N, *int L2, int M] :
 test bool matchTypedListVarBecomes2() = [1, list[int] L: [int _], 2] := [1,[2],2] && L == [2];
 test bool matchTypedListVarBecomes3() = [1, list[int] L1: [*int L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2 == [2,3] && N == 4;
 test bool matchTypedListVarBecomes4() = [1, list[int] L1: [*int L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2 == [2,3] && N == 4;
+
+data D = d(int n);
+
+test bool listNamedElem1() = [n:d(1)] := [d(1)] && n == d(1);
+test bool listNamedElem2() = [_:d(1)] := [d(1)];
+test bool listNamedElem3() = [_n:d(2)] !:= [d(1)];
+
+test bool listTypeNamedElem1() = [D n:d(1)] := [d(1)] && n == d(1);
+test bool listTypeNamedElem2() = [D _:d(1)] := [d(1)];
+test bool listTypeNamedElem3() = [D _n:d(2)] !:= [d(1)];

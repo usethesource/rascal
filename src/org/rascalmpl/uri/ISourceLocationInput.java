@@ -27,6 +27,9 @@ public interface ISourceLocationInput {
 	Charset getCharset(ISourceLocation uri) throws IOException;
 	boolean exists(ISourceLocation uri);
 	long lastModified(ISourceLocation uri)  throws IOException; 
+	default long created(ISourceLocation uri) throws IOException {
+		return lastModified(uri);
+	}
 	boolean isDirectory(ISourceLocation uri);  
 	boolean isFile(ISourceLocation uri) ;
 	String[] list(ISourceLocation uri)  throws IOException;
