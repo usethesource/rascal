@@ -342,7 +342,7 @@ public class JarConverter extends M3Converter {
                     addToNames(fieldLogical, fieldName);
                     addToModifiers(fieldLogical, fieldNode.access);
                     addToAnnotations(fieldLogical, annotations);
-                    addToTypeDependency(fieldLogical, fieldNode.desc);
+                    addToTypeDependency(fieldLogical, Type.getType(fieldNode.desc));
                     addToTypes(fieldLogical, cons);
                 }
             }
@@ -376,7 +376,7 @@ public class JarConverter extends M3Converter {
                 addToNames(methodLogical, methodName);
                 addToModifiers(methodLogical, methodNode.access);
                 addToAnnotations(methodLogical, annotations);
-                addToTypeDependency(methodLogical, methodType.getDescriptor());
+                addToTypeDependency(methodLogical, methodType);
                 addToMethodOverrides(classNode, methodNode, methodLogical);
                 addToTypes(methodLogical, cons);
 
@@ -454,7 +454,7 @@ public class JarConverter extends M3Converter {
             addToContainment(methodLogical, parameterLogical);
             addToDeclarations(parameterLogical, parameterPhysical);
             addToNames(parameterLogical, parameterName);
-            addToTypeDependency(parameterLogical, parameters[i].getDescriptor());
+            addToTypeDependency(parameterLogical, parameters[i]);
             addToTypes(parameterLogical, cons);
         }
     }
@@ -500,7 +500,7 @@ public class JarConverter extends M3Converter {
         ISourceLocation methodInvocationLogical = resolver.resolveBinding(instructionNode, methodLogical);
         addToMethodInvocation(methodLogical, methodInvocationLogical);
         // The class of the current method may also have a dependency on the same type.
-        addToTypeDependency(methodLogical, instructionNode.owner);
+        addToTypeDependency(methodLogical, Type.getObjectType(instructionNode.owner));
     }
 
     /**
@@ -514,7 +514,7 @@ public class JarConverter extends M3Converter {
     private void setInstructionRelations(MethodNode methodName, ISourceLocation methodLogical, FieldInsnNode instructionNode) {
         ISourceLocation fieldLogical = resolver.resolveBinding(instructionNode, methodLogical);
         addToFieldAccess(methodLogical, fieldLogical);
-        addToTypeDependency(methodLogical, instructionNode.owner);
+        addToTypeDependency(methodLogical, Type.getObjectType(instructionNode.owner));
     }
 
     /**
@@ -524,7 +524,7 @@ public class JarConverter extends M3Converter {
      * @param instructionNode - type instruction node
      */
     private void setInstructionRelations(MethodNode methodNode, ISourceLocation methodLogical, TypeInsnNode instructionNode) {
-        addToTypeDependency(methodLogical, instructionNode.desc);
+        addToTypeDependency(methodLogical, Type.getObjectType(instructionNode.desc));
     }
 
     /**
@@ -594,7 +594,6 @@ public class JarConverter extends M3Converter {
      * @param classLogical - class logical location
      */
     private void addToImplements(ISourceLocation classLogical, ClassNode classNode) {
-        @SuppressWarnings("unchecked")
         List<String> interfaces = classNode.interfaces;
         
         if (interfaces != null) {
@@ -628,7 +627,6 @@ public class JarConverter extends M3Converter {
             setMethodOverridesRelation(classNode.superName, methodNode, methodLogical);
         }
         
-        @SuppressWarnings("unchecked")
         List<String> interfaces = classNode.interfaces;
         if (interfaces != null) {
             for (String interfac :interfaces) {
@@ -677,9 +675,9 @@ public class JarConverter extends M3Converter {
      * @param logical - element logical location
      * @param descriptor - type descriptor identified by ASM
      */
-    private void addToTypeDependency(ISourceLocation logical, String descriptor) {
-        if (!descriptor.equals(Type.VOID_TYPE.getDescriptor())) {
-            ISourceLocation typeLogical = resolver.resolveBinding(Type.getType(descriptor), null);
+    private void addToTypeDependency(ISourceLocation logical, Type type) {
+        if (!type.equals(Type.VOID_TYPE)) {
+            ISourceLocation typeLogical = resolver.resolveBinding(type, null);
             addToTypeDependency(logical, typeLogical);
         }
     }

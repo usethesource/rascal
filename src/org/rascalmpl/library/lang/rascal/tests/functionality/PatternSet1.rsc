@@ -686,3 +686,13 @@ test bool matchListSetVariableScopes12() = [pair(PAIR L1, b1()), L1] !:= [pair(a
   
 // S is uninitialized on purpose  
 test bool matchSetExternalVar1() {set[int] S; return ({1, *S, 2} := {1,2,3} && S == {3});}
+
+data D = d(int n);
+
+test bool setNamedElem1() = {n:d(1)} := {d(1)} && n == d(1);
+test bool setNamedElem2() = {_:d(1)} := {d(1)};
+test bool setNamedElem3() = {_n:d(2)} !:= {d(1)};
+
+test bool setTypeNamedElem1() = {D n:d(1)} := {d(1)} && n == d(1);
+test bool setTypeNamedElem2() = {D _:d(1)} := {d(1)};
+test bool setTypetNamedElem3() = {D _n:d(2)} !:= {d(1)};

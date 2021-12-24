@@ -18,64 +18,27 @@ Log the __start__ of a job.
 
 .Description
 
-The various forms of `startJob` do the following:
-
-* Register a job with a name, a default amount of work contributed to the overall task,
-  and an unknown amount of steps to do.
-* Register a job with a name and a total amount of steps to do (this will also be the amount
-  of work contributed to the parent job, if any
-* Register a job with a name, the amount this will contribute to the overall task,
-  and a total amount of steps to do.
+jobStart registers a new current job on the job stack with an amount of
+steps todo and how much work it contributes (when it ends) to its parent job (if any).
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-public java void startJob(str name);
-
-@javaClass{org.rascalmpl.library.util.Monitor}
-public java void startJob(str name, int totalWork);
-
-@javaClass{org.rascalmpl.library.util.Monitor}
-public java void startJob(str name, int workShare, int totalWork);
+public java void jobStart(str label, int work=1, int totalWork=100);
 
 @doc{
-.Synopsis
-Log the __start__ of an event (it is ended by another `event` or by `endJob`).
-
-.Description
-The various forms of `event` behave as follows:
-
-* Log the start of an event.
-* Log the start of an event with the amount of work that will be done when it's finished.
-  An event is finished when the next event is logged, or when <<endJob>> is called.
-* Log the start of an event with the amount of work that will be done when it's finished.
-  An event is finished when the next event is logged, or when <<endJob>> is called.
+  Log to the user that a certain event has happened under
+  the currently registered Job.
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-public java void event(str name);
+public java void jobStep(str label, str message, int work = 1);
 
-@javaClass{org.rascalmpl.library.util.Monitor}
-public java void event(str name, int inc);
+@javaClass{org.rascalmpl.library.util.Monitor} 
+public java int jobEnd(str label, bool success=true);
 
-@javaClass{org.rascalmpl.library.util.Monitor}
-public java void event(int inc);
+@javaClass{org.rascalmpl.library.util.Monitor} 
+public java void jobTodo(str label, int work=100);
 
-@doc{
-.Synopsis
-Log the __end__ of a job.
+@javaClass{org.rascalmpl.library.util.Monitor} 
+public java void jobIsCancelled(str label);
 
-.Description
-This should always be called once for every startJob, unless an exception is thrown.
-Returns the amount of work completed for this job (to help in future estimates)
-}
-@javaClass{org.rascalmpl.library.util.Monitor}
-public java int endJob(bool succeeded);
-
-@doc{
-.Synopsis
-Set the estimated remaining work for the current (sub)job.
-
-.Description
-Set the estimated remaining work for the current (sub)job. 
-The argument `work` is the amount of work remaining to be done, or 0 for unknown.
-}
-@javaClass{org.rascalmpl.library.util.Monitor}
-public java void todo(int work);
+@javaClass{org.rascalmpl.library.util.Monitor} 
+public java void jobWarning(str message, loc src);

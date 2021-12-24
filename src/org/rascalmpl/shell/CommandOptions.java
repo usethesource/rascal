@@ -558,11 +558,11 @@ public class CommandOptions {
         return URIUtil.correctLocation("noproject", "", "");
   }
 	
-	public PathConfig getPathConfig() throws IOException {
+	public PathConfig getPathConfig(PathConfig.RascalConfigMode mode) throws IOException {
         ISourceLocation project = getCommandLocOption(PROJECT_PATH_CONFIG_OPTION);
         
         if (!project.equals(getDefaultProjectLocation())) {
-	        return PathConfig.fromSourceProjectRascalManifest(project);
+	        return PathConfig.fromSourceProjectRascalManifest(project, mode);
 	    }
         else {
             return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),

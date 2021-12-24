@@ -22,6 +22,7 @@ test bool singleB() = check(#[B], char(66));
 test bool notSingleB() = !check(#[A], char(66));
 test bool singleAB1() = check(#[A-B], char(65));
 test bool singleAB2() = check(#[A-B], char(66));
+test bool notSingleAB() = !check(#[A-B], char(67));
 
 test bool charclassLUB() = set[[A-D]] _ := {char(65), char(66), char(67), char(68)};
 test bool charclassLUB2() = set[[a-z]] _ := {char(i) | i <- [97..122]};

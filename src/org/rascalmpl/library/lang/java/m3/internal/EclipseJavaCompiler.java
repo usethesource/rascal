@@ -34,11 +34,9 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
@@ -110,9 +108,9 @@ public class EclipseJavaCompiler {
     }
     
     private void checkInterrupted(IRascalMonitor eval) {
-        if (eval.isCanceled()) {
-          throw new InterruptException("Java compiler interrupted", URIUtil.rootLocation("java"));
-        }
+        // if (eval.jobIsCanceled(name)) {
+        //   throw new InterruptException("Java compiler interrupted", URIUtil.rootLocation("java"));
+        // }
     }
     public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
         return createM3sAndAstsFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));

@@ -1,6 +1,7 @@
 module lang::sdf2::filters::GeneralInjectionCount
 
 import ParseTree;
+import List;
 
 private default bool injection(Tree _) = false;
 private bool injection(appl(prod(Symbol _,[Symbol _],set[Attr] _), [Tree _])) = true;
