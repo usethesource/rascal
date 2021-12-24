@@ -12,74 +12,68 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
+import java.util.function.Supplier;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public interface IRascalMonitor {
 	/**
-	 * Used to indicate an unknown amount of work to be done.
-	 */
-	public final int TODO_UNKNOWN = 0;
-	
-	/**
-	 * The standard size of a unit of work. 
-	 */
-	public final int TODO_DEFAULT = 10;
-	
-	/**
-	 * Register a job with a name, a default amount of work contributed to the overall task,
-	 * and an unknown amount of steps to do.
-	 */
-	public void startJob(String name);
-	
-	/**
-	 * Register a job with a name and a total amount of steps to do (this will also be the amount
-	 * of work contributed to the parent job, if any).
-	 */
-	public void startJob(String name, int totalWork);
-
-	/**
 	 * Register a job with a name, the amount this will contribute to the overall task,
 	 * and a total amount of steps to do.
 	 */
-	public void startJob(String name, int workShare, int totalWork);
+	public void jobStart(String name, int workShare, int totalWork);
 	
-	/**
-	 * Log the <bold>start</bold> of an event. 
-	 */
-	public void event(String name);
-	
+	default void jobStart(String name) {
+		jobStart(name, 1, 100);
+	} 
+
+	default void jobStart(String name, int totalWork) {
+		jobStart(name, 1, totalWork);
+	}
+
+	default void job(String name, Supplier<Boolean> block) {
+		boolean result = false;
+		try {
+			jobStart(name);
+			result = block.get();
+		}
+		finally {
+			jobEnd(name, result);
+		}
+	}
+
 	/**
 	 * Log the start of an event with the amount of work that will be done when it's finished.
 	 * An event is finished when the next event is logged, or when endJob() is called.
 	 */
-	public void event(String name, int inc);
+	public void jobStep(String name, String message, int workShare);
 	
-	/**
-	 * Log the start of an event with the amount of work that will be done when it's finished.
-	 * An event is finished when the next event is logged, or when endJob() is called.
-	 */
-	public void event(int inc);
+	default void jobStep(String name, String message) {
+		jobStep(name, message, 1);
+	}
 	
 	/**
 	 * This should always be called once for every startJob, unless an exception is thrown.
 	 * @return The amount of work completed for this job (to help in future estimates)
 	 */
-	public int endJob(boolean succeeded);
+	public int jobEnd(String name, boolean succeeded);
 	
 	/**
+	 * @param label
 	 * @return True if cancellation has been requested for this job
 	 */
-	public boolean isCanceled();
+	public boolean jobIsCanceled(String name);
 	
 	/**
 	 * Set the estimated remaining work for the current (sub)job.
+	 * @param string
 	 * 
 	 * @param work Amount of work remaining to be done, or 0 for unknown.
 	 */
-	public void todo(int work);
+	public void jobTodo(String name, int work);
 	
 	/**
-	 * Inform about a warning
+	 * Inform (about a warning
 	 */
 	public void warning(String message, ISourceLocation src);
 }

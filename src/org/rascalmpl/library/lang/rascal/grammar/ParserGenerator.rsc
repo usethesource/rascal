@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2015 CWI
+  Copyright (c) 2009-2021 NWO-I CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -42,26 +42,27 @@ str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
 default str getParserMethodName(Symbol s) = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {	
-    startJob("Generating parser <package>.<name>");
+    JOB = "Generating parser <package>.<name>";
+    jobStart("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
   
-    event("expanding parameterized symbols");
+    jobStep(JOB, "expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
     
-    event("generating stubs for regular");
+    jobStep(JOB, "generating stubs for regular");
     gr = makeRegularStubs(gr);
     
-    event("generating syntax for holes");
+    jobStep(JOB, "generating syntax for holes");
     gr = addHoles(gr);
  
-    event("generating literals");
+    jobStep(JOB, "generating literals");
     gr = literals(gr);
     
-    event("establishing production set");
+    jobStep(JOB, "establishing production set");
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
-    event("assigning unique ids to symbols");
+    jobStep(JOB, "assigning unique ids to symbols");
     Production rewrite(Production p) = 
       visit (p) { 
         case Symbol s => s[id=newItem()] 
@@ -69,10 +70,10 @@ public str newGenerate(str package, str name, Grammar gr) {
     beforeUniqueGr = gr;   
     gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
         
-    event("generating item allocations");
+    jobStep(JOB, "generating item allocations");
     newItems = generateNewItems(gr);
     
-    event("computing priority and associativity filter");
+    jobStep(JOB, "computing priority and associativity filter");
     rel[int parent, int child] dontNest = computeDontNests(newItems, beforeUniqueGr, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
@@ -84,7 +85,7 @@ public str newGenerate(str package, str name, Grammar gr) {
     //println("optimizing lookahead automaton");
     //gr = compileLookaheads(gr);
    
-    event("printing the source code of the parser class");
+    jobStep(JOB, "printing the source code of the parser class");
     
     src =  "package <package>;
            '
@@ -237,7 +238,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
            '}";
-   endJob(true);
+   jobEnd(JOB);
    return src;
 }  
 
@@ -352,14 +353,14 @@ str split(str x) {
 @doc{this function selects all symbols for which a parse method should be generated}
 bool isNonterminal(Symbol s) {
   switch (s) {
-    case \label(_,x) : return isNonterminal(x);
-    case \sort(_) : return true;
-    case \lex(_) : return true;
-    case \keywords(_) : return true;
-    case \parameterized-sort(_,_) : return true;
-    case \parameterized-lex(_,_) : return true;
-    case \start(_) : return true;
-    case \layouts(_) : return true;
+    case Symbol::\label(_,x) : return isNonterminal(x);
+    case Symbol::\sort(_) : return true;
+    case Symbol::\lex(_) : return true;
+    case Symbol::\keywords(_) : return true;
+    case Symbol::\parameterized-sort(_,_) : return true;
+    case Symbol::\parameterized-lex(_,_) : return true;
+    case Symbol::\start(_) : return true;
+    case Symbol::\layouts(_) : return true;
     default: return false;
   }
 }
@@ -431,14 +432,28 @@ public str literals2ints(list[Symbol] chars){
     return result;
 }
 
-// TODO
-public str ciliterals2ints(list[Symbol] _){
-    throw "case insensitive literals not yet implemented by parser generator";
+public str ciliterals2ints(list[Symbol] chars){
+    if (chars == []) { 
+      return "";
+    }
+
+    result = "";
+
+    for (\char-class(ranges) <- chars) {
+      switch (ranges) {
+        case [range(i, j)]: // can be i,i or two adjacent characters
+          result += "{<i>, <j>},";
+        case [range(int i, i), range(int j, j)]:
+          result += "{<i>, <j>},";      
+      }
+    }
+    
+    return result[..-1]; // remove final comma
 }
 
 public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int dot){
-    if (sym is \label)  // ignore labels 
-      sym = sym.symbol;
+    if (Symbol::label(_,sym1) := sym)  // ignore labels 
+      sym = sym1;
       
     itemId = sym.id;
     assert itemId != 0;
@@ -447,25 +462,30 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     list[str] exits = [];
     filters = "";
     
-    if (conditional(_, conds) := sym) {
+    if (Symbol::conditional(_, conds) := sym) {
       conds = expandKeywords(grammar, conds);
       exits += ["new CharFollowRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRequirement(new int[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
+      exits += ["new CaseInsensitiveStringFollowRequirement(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | follow(cilit(s)) <- conds]; 
       exits += ["new CharFollowRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRestriction(new int[] {<literals2ints(str2syms(s))>})" | \not-follow(lit(s)) <- conds];
+      exits += ["new CaseInsensitiveStringFollowRestriction(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | \not-follow(cilit(s)) <- conds]; 
       exits += ["new CharMatchRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \delete(\char-class(ranges)) <- conds];
       exits += ["new StringMatchRestriction(new int[] {<literals2ints(str2syms(s))>})" | \delete(lit(s)) <- conds];
+      exits += ["new CaseInsensitiveStringMatchRestriction(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | \delete(cilit(s)) <- conds];
       exits += ["new AtEndOfLineRequirement()" | \end-of-line() <- conds]; 
       enters += ["new CharPrecedeRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRequirement(new int[] {<literals2ints(str2syms(s))>})" | precede(lit(s)) <- conds]; 
+      enters += ["new CaseInsensitiveStringPrecedeRequirement(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | precede(cilit(s)) <- conds]; 
       enters += ["new CharPrecedeRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-precede(\char-class(ranges)) <- conds];
       enters += ["new StringPrecedeRestriction(new int[] {<literals2ints(str2syms(s))>})" | \not-precede(lit(s)) <- conds];
+      enters += ["new CaseInsensitiveStringPrecedeRestriction(new int[][]{<ciliterals2ints(cistr2syms(s))>})" | \not-precede(cilit(s)) <- conds]; 
       enters += ["new AtColumnRequirement(<i>)" | \at-column(int i) <- conds];
       enters += ["new AtStartOfLineRequirement()" | \begin-of-line() <- conds];
       
       sym = sym.symbol;
-      if (sym is label)
-        sym = sym.symbol; 
+      if (Symbol::label(_,sym1) := sym)
+        sym = sym1; 
     }
     
     filters = "";
@@ -482,56 +502,56 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     }
     
     switch (sym) {
-        case \sort(_) : 
+        case Symbol::\sort(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \empty() : 
+        case Symbol::\empty() : 
             return <"new EmptyStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <filters>)", itemId>;
-        case \lex(_) : 
+        case Symbol::\lex(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \keywords(_) : 
+        case Symbol::\keywords(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \layouts(_) :
+        case Symbol::\layouts(_) :
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameterized-sort(_,_): 
+        case Symbol::\parameterized-sort(_,_): 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameterized-lex(_,_): 
+        case Symbol::\parameterized-lex(_,_): 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \parameter(_, _) :
+        case Symbol::\parameter(_, _) :
             throw "All parameters should have been instantiated by now: <sym>";
-        case \start(_) : 
+        case Symbol::\start(_) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \lit(l) : 
+        case Symbol::\lit(l) : 
             if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "literal not found in grammar: <grammar>";
-        case \cilit(l) : 
+        case Symbol::\cilit(l) : 
             if (/p:prod(cilit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new CaseInsensitiveLiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
-        case \iter(s) : 
+        case Symbol::\iter(s) : 
             return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s,  0).new>, true, <filters>)",itemId>;
-        case \iter-star(s) :
+        case Symbol::\iter-star(s) :
             return <"new ListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, <sym2newitem(grammar, s,  0).new>, false, <filters>)", itemId>;
-        case \iter-seps(Symbol s,list[Symbol] seps) : {
+        case Symbol::\iter-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym);
             return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,seps)>}, true, <filters>)",itemId>;
         }
-        case \iter-star-seps(Symbol s,list[Symbol] seps) : {
+        case Symbol::\iter-star-seps(Symbol s,list[Symbol] seps) : {
             reg = regular(sym);
             return <"new SeparatedListStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSeparatorExpects(grammar,seps)>}, false, <filters>)",itemId>;
         }
-        case \opt(s) : {
+        case Symbol::\opt(s) : {
             reg =  regular(sym);
             return <"new OptionalStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(reg)>, <sym2newitem(grammar, s,  0).new>, <filters>)", itemId>;
         }
-        case \alt(as) : {
+        case Symbol::\alt(as) : {
             alts = [a | a <- as];
             return <"new AlternativeStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateAltExpects(grammar,  alts)>}, <filters>)", itemId>;
         }
-        case \seq(ss) : {
+        case Symbol::\seq(ss) : {
             return <"new SequenceStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(regular(sym))>, (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[]{<generateSequenceExpects(grammar,  ss)>}, <filters>)", itemId>;
         }
-        case \char-class(list[CharRange] ranges) : 
+        case Symbol::\char-class(list[CharRange] ranges) : 
             return <"new CharStackNode\<IConstructor\>(<itemId>, <dot>, new int[][]{<generateCharClassArrays(ranges)>}, <filters>)", itemId>;
         default: 
             throw "unexpected symbol <sym> while generating parser code";

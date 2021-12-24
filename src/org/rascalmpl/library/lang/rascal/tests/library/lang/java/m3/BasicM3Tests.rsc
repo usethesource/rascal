@@ -6,7 +6,6 @@ import List;
 import Message;
 import IO;
 import util::FileSystem;
-import Exception;
 import ValueIO;
 import Node;
 import String;
@@ -19,10 +18,9 @@ public java loc getSnakesAndLaddersPath();
 public loc unpackExampleProject(str name, loc projectZip) {
     targetRoot = |tmp:///<name>|;
     sourceRoot = projectZip[scheme = "jar+<projectZip.scheme>"][path = projectZip.path + "!/"];
-    if (copyDirectory(sourceRoot, targetRoot)) {
-        return targetRoot;
-    }
-    throw IO("Could not copy contents of <projectZip> to <targetRoot>");
+    copy(sourceRoot, targetRoot, recursive=true, overwrite=true);
+
+	return targetRoot;
 }
 
 private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)

@@ -61,9 +61,6 @@ test bool notEqual2(list[&T] A, list[&T] B) = (A != B) ? !isEqual(A,B) : isEqual
 // x in L?
 bool isIn(&T x, list[&T] L) = (false | it || eq(x,e) | e <- L);
 
-// Is L sorted?
-public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && elementAt(L,i) > elementAt(L,j));
-
 // Frequency of x in L
 int freq(&T x, list[&T] L) = (0 | eq(e, x) ? it + 1 : it | e <- L);
 
@@ -553,8 +550,11 @@ test bool dtstDifference(list[&T] lst) {
 	for(&T elem <- lst) {
 		bool deleted = false;
 		lhs = lst - [elem];
-		rhs = [ *( (eq(elem,el) && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
-		
+		// TODO: the following expression cannot be coorectly translated by the compiler
+		//rhs = [ *( (eq(elem,el) && !deleted) ? { deleted = true; []; } : [ el ]) | &T el <- lst ];
+		rhs = for(&T el <- lst){
+		          if(eq(elem,el) && !deleted) { deleted = true; } else { append el; }
+		}
 		if (!eq(lhs,rhs) || typeOf(lhs) != typeOf(rhs)) {
 		  throw "Removed <elem> from <lst> resulted in <lhs> instead of <rhs>";
 		  

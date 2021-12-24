@@ -85,7 +85,7 @@ public class TestFramework {
 
 		for (ISourceLocation mod : generatedModules) {
 		    try {
-                URIResolverRegistry.getInstance().remove(mod);
+                URIResolverRegistry.getInstance().remove(mod, true);
             }
             catch (IOException e) {
             }

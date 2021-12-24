@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +63,7 @@ import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.StackTrace;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
@@ -104,7 +106,6 @@ import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -289,60 +290,36 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public int endJob(boolean succeeded) {
+    public int jobEnd(String name, boolean succeeded) {
         if (monitor != null)
-            return monitor.endJob(succeeded);
+            return monitor.jobEnd(name, succeeded);
         return 0;
     }
 
     @Override	
-    public void event(int inc) {
+    public void jobStep(String name, String msg, int inc) {
         if (monitor != null)
-            monitor.event(inc);
+            monitor.jobStep(name, msg, inc);
     }
 
     @Override	
-    public void event(String name, int inc) {
+    public void jobStart(String name, int workShare, int totalWork) {
         if (monitor != null)
-            monitor.event(name, inc);
+            monitor.jobStart(name, workShare, totalWork);
     }
 
     @Override	
-    public void event(String name) {
+    public void jobTodo(String name, int work) {
         if (monitor != null)
-            monitor.event(name);
+            monitor.jobTodo(name, work);
     }
 
     @Override	
-    public void startJob(String name, int workShare, int totalWork) {
-        if (monitor != null)
-            monitor.startJob(name, workShare, totalWork);
-    }
-
-    @Override	
-    public void startJob(String name, int totalWork) {
-        if (monitor != null)
-            monitor.startJob(name, totalWork);
-    }
-
-    @Override	
-    public void startJob(String name) {
-        if (monitor != null)
-            monitor.startJob(name);
-    }
-
-    @Override	
-    public void todo(int work) {
-        if (monitor != null)
-            monitor.todo(work);
-    }
-
-    @Override	
-    public boolean isCanceled() {
+    public boolean jobIsCanceled(String name) {
         if(monitor == null)
             return false;
         else
-            return monitor.isCanceled();
+            return monitor.jobIsCanceled(name);
     }
 
     @Override
@@ -433,7 +410,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     @Override	
     public boolean isInterrupted() {
-        return interrupt || isCanceled();
+        return interrupt;
     }
 
     @Override	
@@ -739,15 +716,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override	
     public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
         IConstructor startSort = (IConstructor) grammar.get("symbol");
-        IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) grammar.get("definitions"));
-        String name = "";
-        if (SymbolAdapter.isStartSort(startSort)) {
-            name = "start__";
-            startSort = SymbolAdapter.getStart(startSort);
-        }
-
-        if (SymbolAdapter.isSort(startSort) || SymbolAdapter.isLex(startSort) || SymbolAdapter.isLayouts(startSort)) {
-            name += SymbolAdapter.getName(startSort);
+        IGTD<IConstructor, ITree, ISourceLocation> parser;
+        String name;
+        synchronized(this) {
+            parser = getObjectParser((IMap) grammar.get("definitions"));
+            name = getParserGenerator().getParserMethodName(startSort);
         }
 
         __setInterrupt(false);
@@ -823,11 +796,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ParserGenerator pgen = getParserGenerator();
             String main = uri.getAuthority();
             ModuleEnvironment env = getHeap().getModule(main);
-            monitor.startJob("Expanding Grammar");
+            monitor.jobStart("Expanding Grammar");
             return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
         }
         finally {
-            monitor.endJob(true);
+            monitor.jobEnd("Expanding Grammar", true);
             setMonitor(old);
         }
     }
@@ -843,7 +816,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
     }
 
-    private ParserGenerator parserGenerator;
+    private volatile ParserGenerator parserGenerator;
 
 
     public ParserGenerator getParserGenerator() {
@@ -851,9 +824,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             if (isBootstrapper()) {
                 throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
             }
-            startJob("Loading parser generator", 40);
-            parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
-            endJob(true);
+
+
+            Evaluator self = this;
+            job("Loading parser generator", () -> {
+                synchronized (self) {
+                    if (parserGenerator == null) {
+                        parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
+                    }
+                    return true;
+                }
+            });
         }
 
         return parserGenerator;
@@ -1175,7 +1156,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
-        SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor);
+        SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getErrorPrinter());
         IRascalMonitor old = setMonitor(wrapped);
         try {
             Set<String> onHeap = new HashSet<>();
@@ -1183,7 +1164,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             PrintWriter errStream = getErrorPrinter();
 
             try {
-                monitor.startJob("Cleaning modules", names.size());
+                monitor.jobStart("Cleaning modules", names.size());
                 for (String mod : names) {
                     if (heap.existsModule(mod)) {
                         onHeap.add(mod);
@@ -1192,15 +1173,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         }
                         heap.removeModule(heap.getModule(mod));
                     }
-                    monitor.event("Processed " + mod, 1);
+                    monitor.jobStep("Cleaning modules", "Processed " + mod, 1);
                 }
                 extendingModules.removeAll(names);
             } finally {
-                monitor.endJob(true);
+                monitor.jobEnd("Cleaning modules", true);
             }
 
             try {
-                monitor.startJob("Reloading modules", onHeap.size());
+                monitor.jobStart("Reloading modules", onHeap.size());
                 for (String mod : onHeap) {
                     wrapped.clear();
                     if (!heap.existsModule(mod)) {
@@ -1216,10 +1197,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                             errStream.println("*** if the error persists, start a new console session.");
                         }
                     }
-                    monitor.event("loaded " + mod, 1);
+                    monitor.jobStep("Reloading modules", "loaded " + mod, 1);
                 }
             } finally {
-                monitor.endJob(true);
+                monitor.jobEnd("Reloading modules", true);
             }
 
             Set<String> dependingImports = new HashSet<>();
@@ -1228,7 +1209,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             dependingExtends.addAll(getExtendingModules(names));
 
             try {
-                monitor.startJob("Reconnecting importers of affected modules");
+                monitor.jobStart("Reconnecting importers of affected modules");
                 for (String mod : dependingImports) {
                     ModuleEnvironment env = heap.getModule(mod);
                     Set<String> todo = new HashSet<>(env.getImports());
@@ -1247,15 +1228,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         }
 
                     }
-                    monitor.event("Reconnected " + mod, 1);
+                    monitor.jobStep("Reconnecting importers of affected modules", "Reconnected " + mod, 1);
                 }
             }
             finally {
-                monitor.endJob(true);
+                monitor.jobEnd("Reconnecting importers of affected modules", true);
             }
 
             try {
-                monitor.startJob("Reconnecting extenders of affected modules");
+                monitor.jobStart("Reconnecting extenders of affected modules");
                 for (String mod : dependingExtends) {
                     ModuleEnvironment env = heap.getModule(mod);
                     Set<String> todo = new HashSet<>(env.getExtends());
@@ -1272,11 +1253,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                             }
                         }
                     }
-                    monitor.event("Reconnected " + mod, 1);
+                    monitor.jobStep("Reconnecting extenders of affected modules", "Reconnected " + mod, 1);
                 }
             }
             finally {
-                monitor.endJob(true);
+                monitor.jobEnd("Reconnecting extenders of affected modules", true);
             }
 
             if (recurseToExtending && !extendingModules.isEmpty()) {
@@ -1779,59 +1760,46 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
 
-    private static final class SaveWarningsMonitor implements IRascalMonitor {
+    private static final class SaveWarningsMonitor implements IDEServices {
 
         private final List<String> warnings;
         private final IRascalMonitor monitor;
-
-        public SaveWarningsMonitor(IRascalMonitor monitor) {
+        private final PrintWriter stderr;
+        
+        public SaveWarningsMonitor(IRascalMonitor monitor, PrintWriter stderr) {
             this.monitor = monitor;
             this.warnings = new ArrayList<>();
+            this.stderr = stderr;
         }
 
         @Override
-        public void startJob(String name) {
-            monitor.startJob(name);
+        public PrintWriter stderr() {
+            return stderr;
         }
 
         @Override
-        public void startJob(String name, int totalWork) {
-            monitor.startJob(name, totalWork);
+        public void jobStart(String name, int workShare, int totalWork) {
+            monitor.jobStart(name, workShare, totalWork);
         }
 
         @Override
-        public void startJob(String name, int workShare, int totalWork) {
-            monitor.startJob(name, workShare, totalWork);
+        public void jobStep(String name, String msg, int inc) {
+            monitor.jobStep(name, msg, inc);
         }
 
         @Override
-        public void event(String name) {
-            monitor.event(name);
+        public int jobEnd(String name, boolean succeeded) {
+            return monitor.jobEnd(name, succeeded);
         }
 
         @Override
-        public void event(String name, int inc) {
-            monitor.event(name, inc);
+        public boolean jobIsCanceled(String name) {
+            return monitor.jobIsCanceled(name);
         }
 
         @Override
-        public void event(int inc) {
-            monitor.event(inc);
-        }
-
-        @Override
-        public int endJob(boolean succeeded) {
-            return monitor.endJob(succeeded);
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return monitor.isCanceled();
-        }
-
-        @Override
-        public void todo(int work) {
-            monitor.todo(work);
+        public void jobTodo(String name, int work) {
+            monitor.jobTodo(name, work);
         }
 
         @Override
@@ -1848,5 +1816,114 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return warnings;
         }
 
+        @Override
+        public void registerLanguage(IConstructor language) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerLanguage(language);
+            }
+            else {
+                IDEServices.super.registerLanguage(language);
+            }
+        }
+
+        @Override
+        public ISourceLocation resolveProjectLocation(ISourceLocation input) {
+            if (monitor instanceof IDEServices) {
+                return ((IDEServices) monitor).resolveProjectLocation(input);
+            }
+            else {
+                return IDEServices.super.resolveProjectLocation(input);
+            }
+        }
+
+        @Override
+        public void applyDocumentsEdits(IList edits) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).applyDocumentsEdits(edits);
+            }
+            else {
+                IDEServices.super.applyDocumentsEdits(edits);
+            }
+        }
+
+        @Override
+        public void browse(URI uri) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).browse(uri);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void edit(ISourceLocation path) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).edit(path);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void registerLocations(IString scheme, IString auth, IMap map) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerLocations(scheme, auth, map);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void unregisterLocations(IString scheme, IString auth) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).unregisterLocations(scheme, auth);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void registerDiagnostics(IList messages) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).registerDiagnostics(messages);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void unregisterDiagnostics(IList resources) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).unregisterDiagnostics(resources);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void logMessage(IConstructor msg) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).logMessage(msg);
+            }
+            else {
+                return;
+            }
+        }
+
+        @Override
+        public void showMessage(IConstructor message) {
+            if (monitor instanceof IDEServices) {
+                ((IDEServices) monitor).showMessage(message);
+            }
+            else {
+                return;
+            }
+        }
     }
 }

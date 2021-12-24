@@ -14,6 +14,12 @@ module lang::rascal::tests::functionality::Backtracking
   	
 test bool testSimple1() = int i <- [1,4] && int k := i && k >= 4;
 test bool testSimple2() = int i <- [1,4] && int j <- [2,1] && int k := i + j && k >= 5;
+
+// testRange
+test bool testRange1() = int i <- [1..10] && int k := i && k >= 4;
+test bool testRange2() = int i <- [1..10] && int j <- [2,1] && int k := i + j && k >= 5;
+test bool testRange3() = int i <- [1,3..10] && int k := i && k >= 4;
+test bool testRange4() = int i <- [1,3..10] && int j <- [2,1] && int k := i + j && k >= 5;
   	
 // testList
   		

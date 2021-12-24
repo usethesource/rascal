@@ -13,9 +13,24 @@ start syntax B = "B";
 start syntax Bs = B+;
 start syntax C = A B;
 start syntax D = "d";
-start syntax DS = D+;
+start syntax DS = D+ ds;
 start syntax E = "e";
 start syntax ES = {E ","}+ args;
+
+start syntax X1 = "x" x1;
+syntax X2 = () x2;
+syntax X3 = ("x"  "y") x3;
+syntax X4 = [a-z] x4;
+syntax X5 = ("x" | "y") x5;
+syntax X6 = 'ax' x6;
+syntax X7 = "x"? x7;
+
+test bool tX1() = "<([X1] "x").x1>" == "x";
+test bool tX2() = "<([X2] "").x2>" == "";
+test bool tX3() = "<([X3] "xy").x3>" == "xy";
+test bool tX4() = "<([X4] "x").x4>" == "x";
+test bool tX5() = "<([X5] "x").x5>" == "x";
+test bool tX7b() ="<([X7] "").x7>" == "";
 
 test bool parseD1() = (D)`d` := parse(#D, "d");
 
@@ -43,19 +58,32 @@ test bool DvarsTypedInsert4() = (DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs2>`
 
 test bool DvarsTypedInsert5() = (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs2>` := (DS)`d d d` && Xs := Xs2;
 
-test bool sortsInGrammar() =
-  A _ := [A] "a"
-  && B _ := [B] "b"
-  && C _ := [C] "ab"
-  && D _ := [D] "d" 
-  && DS _ := [DS] "ddd"
-  && E _ := [E] "e"
-  && ES _ := [ES] "e,e,e"
-  && {E ","}+ _ := ([ES] "e,e,e").args;
+test bool sortA()   = A _ := [A] "a";
+test bool sortB()   = B _ := [B] "b";
+test bool sortC()   = C _ := [C] "ab";
+test bool sortD()   = D _ := [D] "d";
+test bool sortDS()  = DS _ := [DS] "ddd";
+test bool sortE()   = E _ := [E] "e";
+test bool sortES1() = ES _ := [ES] "e,e,e";
+test bool sortES2() = {E ","}+ _ := ([ES] "e,e,e").args;
 
 test bool asType1() = < (As) `aaaa`, (Bs) `bbb` > := < [As] "aaaa", [Bs] "bbb" >;
 
 test bool asType2() = < (As) `aaAA`, (Bs) `bbBB` > := < [As] "aaAA", [Bs] "bbBB" >;
+
+int cntDS(D+ ds) = size([d | d <- ds ]);
+
+test bool cntDS1() = cntDS(((DS) `d`).ds) == 1;
+test bool cntDS2() = cntDS(((DS) `dd`).ds) == 2;
+test bool cntDS3() = cntDS(((DS) `d d`).ds) == 2;
+
+int cntES({E ","}+ es) = size([e | e <- es ]);
+
+test bool cntES1() = cntES(((ES) `e`).args) == 1;
+test bool cntES2() = cntES(((ES) `e,e`).args) == 2;
+test bool cntES3() = cntES(((ES) `e ,e`).args) == 2;
+test bool cntES4() = cntES(((ES) `e, e`).args) == 2;
+test bool cntES5() = cntES(((ES) `e , e`).args) == 2;
 
 /*
 

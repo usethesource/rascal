@@ -592,8 +592,7 @@ public abstract class AbstractStackNode<P>{
 			edgesMap.add(predecessor.getStartLocation(), edgesMapToAdd.getValue(0));
 			nrOfAddedEdges = 1;
 		}else{ // The predecessor has prefixes.
-			int fromIndex = edgesMapToAdd.size() - edgesMapSize;
-			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
+			for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
 				int locationStart = edgesMapToAdd.getKey(i);
 				
 				// Prefix not present, add it.
@@ -663,8 +662,7 @@ public abstract class AbstractStackNode<P>{
 			edgesMap.add(predecessor.getStartLocation(), edgesMapToAdd.getValue(0));
 			nrOfAddedEdges = 1;
 		}else{ // The predecessor has prefixes.
-			int fromIndex = edgesMapToAdd.size() - potentialNewEdges;
-			for(int i = edgesMapToAdd.size() - 1; i >= fromIndex; --i){
+			for(int i = edgesMapToAdd.size() - 1; i >= 0; --i){
 				int locationStart = edgesMapToAdd.getKey(i);
 				
 				// Prefix not present, add it.

@@ -69,6 +69,8 @@ test bool escapedkeywordField2d() = g2(\n=3).\n == 3;
 
 test bool escapedkeywordField3() = g3(\a-n=3).\a-n == 3;
 
+test bool escapedkeywordFieldNode() = "f"(\a-n=3).\a-n == 3;
+
 data H1[&T] = h1(&T n);
 data H2[&\T] = h2(&T n);
 data H3[&\T] = h3(&\T n);

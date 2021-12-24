@@ -30,6 +30,9 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,7 +55,7 @@ public class URIResolverRegistry {
 	private final Map<String, Map<String, ILogicalSourceLocationResolver>> logicalResolvers = new ConcurrentHashMap<>();
 	private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new ConcurrentHashMap<>();
 	private final Map<String, ISourceLocationWatcher> watchers = new ConcurrentHashMap<>();
-	private final Map<ISourceLocation, Consumer<ISourceLocationChanged>> watching = new ConcurrentHashMap<>();
+	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watching = new ConcurrentHashMap<>();
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -505,21 +508,30 @@ public class URIResolverRegistry {
 		notifyWatcher(URIUtil.getParentLocation(uri), ISourceLocationWatcher.directoryCreated(uri));
 	}
 
-	private void notifyWatcher(ISourceLocation key, ISourceLocationChanged event) {
-		ISourceLocationWatcher watcher = watchers.get(key.getScheme());
-		if (watcher == null) {
-			Consumer<ISourceLocationChanged> callback = watching.get(key);
-
-			if (callback != null) {
-				callback.accept(event);
+	private final ExecutorService exec = Executors.newCachedThreadPool(new ThreadFactory() {
+			public Thread newThread(Runnable r) {
+            	SecurityManager s = System.getSecurityManager();
+            	ThreadGroup group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+				Thread t = new Thread(group, r, "Generic watcher thread-pool");
+				t.setDaemon(true);
+				return t;
 			}
-		}
-		else {
+		});
+	private void notifyWatcher(ISourceLocation key, ISourceLocationChanged event) {
+		if (watchers.containsKey(key.getScheme())) {
 			// the registered watcher will do the callback itself
+			return;
+		}
+		Set<Consumer<ISourceLocationChanged>> callbacks = watching.get(key);
+		if (callbacks != null) {
+			// we schedule the call in the background
+			for (Consumer<ISourceLocationChanged> c : callbacks) {
+				exec.submit(() -> c.accept(event));
+			}
 		}
 	}
 
-	public void remove(ISourceLocation uri) throws IOException {
+	public void remove(ISourceLocation uri, boolean recursive) throws IOException {
 		uri = safeResolve(uri);
 		ISourceLocationOutput out = getOutputResolver(uri.getScheme());
 
@@ -528,14 +540,44 @@ public class URIResolverRegistry {
 		}
 
 		if (isDirectory(uri)) {
-			for (ISourceLocation element : list(uri)) {
-				remove(element);
+			if (recursive) {
+				for (ISourceLocation element : list(uri)) {
+					remove(element, recursive);
+				}
+			}
+			else if (listEntries(uri).length != 0) {
+				throw new IOException("directory is not empty " + uri);
 			}
 		}
 
 		out.remove(uri);
 		notifyWatcher(uri,
 			isDirectory(uri) ? ISourceLocationWatcher.directoryDeleted(uri) : ISourceLocationWatcher.fileDeleted(uri));
+	}
+
+	/**
+	 * Moves a file from source name to target name. If the source is a folder, then it is moved recursively.
+	 * 
+	 * @param from       existing name of file or folder
+	 * @param to         new name of file or folder
+	 * @param overwrite  if `false` and the target folder or file already exists, throw an exception
+	 * @throws IOException when the source can not be read or the target can not be written, or when the target
+	 * exists and overwrite was `false`.
+	 */
+	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
+		if (from.getScheme().equals(to.getScheme())) {
+			ISourceLocationOutput out = getOutputResolver(from.getScheme());
+
+			if (out == null) {
+				throw new UnsupportedSchemeException(from.getScheme());
+			}
+
+			out.rename(from, to, overwrite);
+		}
+		else {
+			copy(from, to, true, overwrite);
+			remove(from, true);
+		}
 	}
 
 	public boolean isFile(ISourceLocation uri) {
@@ -557,6 +599,25 @@ public class URIResolverRegistry {
 		}
 
 		long result = resolver.lastModified(uri);
+
+		// implementations are allowed to return 0L or throw FileNotFound, but
+		// here we iron it out:
+		if (result == 0L) {
+			throw new FileNotFoundException(uri.toString());
+		}
+
+		return result;
+	}
+
+	public long created(ISourceLocation uri) throws IOException {
+		uri = safeResolve(uri);
+		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+
+		if (resolver == null) {
+			throw new UnsupportedSchemeException(uri.getScheme());
+		}
+
+		long result = resolver.created(uri);
 
 		// implementations are allowed to return 0L or throw FileNotFound, but
 		// here we iron it out:
@@ -591,9 +652,65 @@ public class URIResolverRegistry {
 		return resolver.list(uri);
 	}
 
-	public void copy(ISourceLocation source, ISourceLocation target) throws IOException {
-		try (InputStream from = URIResolverRegistry.getInstance().getInputStream(source)) {
-			try (OutputStream to = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
+	/**
+	 * Copies a file or directory to another location
+	 * @param source     the source to read
+	 * @param target     the target to write
+	 * @param recursive  if `true` directories will be copied recursively
+	 * @param overwrite  if `false` an IOException will be thrown when a target file or folder already exists
+	 * @throws IOException when overwrite is false and the target already exists or when a file or folder can not be created or
+	 * when a source folder or file can not be read
+	 */
+	public void copy(ISourceLocation source, ISourceLocation target, boolean recursive, boolean overwrite) throws IOException {
+		if (isFile(source)) {
+			copyFile(source, target, overwrite);
+		}
+		else {
+			if (exists(target) && !isDirectory(target)) {
+				if (overwrite) {
+					remove(target, false);
+				}
+				else {
+					throw new IOException("can not make directory because file exists: " + target);
+				}
+			}
+			
+			mkDirectory(target);
+
+			for (String elem : URIResolverRegistry.getInstance().listEntries(source)) {
+				ISourceLocation srcChild = URIUtil.getChildLocation(source, elem);
+				ISourceLocation targetChild = URIUtil.getChildLocation(target, elem);
+
+				if (isFile(srcChild) || recursive) {
+					copy(srcChild, targetChild, recursive, overwrite);
+				}
+				else {
+					// make the directory but the recursion stops
+					mkDirectory(targetChild);
+				}
+			}
+		}
+	}
+
+	private void copyFile(ISourceLocation source, ISourceLocation target, boolean overwrite) throws IOException {
+		if (exists(target) && !overwrite) {
+			throw new IOException("file exists " + source);
+		}
+		
+		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
+			try (FileChannel from = getReadableFileChannel(source)) {
+				try (FileChannel to = getWriteableFileChannel(target, false)) {
+					long transferred = 0;
+					while (transferred < from.size()) {
+						transferred += from.transferTo(transferred, from.size() - transferred, to);
+					}
+				}
+			}
+			return;
+		}
+
+		try (InputStream from = getInputStream(source)) {
+			try (OutputStream to = getOutputStream(target, false)) {
 				final byte[] buffer = new byte[FILE_BUFFER_SIZE];
 				int read;
 				while ((read = from.read(buffer, 0, buffer.length)) != -1) {
@@ -747,7 +864,7 @@ public class URIResolverRegistry {
 			watcher.watch(loc, callback);
 		}
 		else {
-			watching.put(loc, callback);
+			watching.computeIfAbsent(loc, k -> ConcurrentHashMap.newKeySet()).add(callback);
 		}
 
 		if (isDirectory(loc) && recursive) {
@@ -764,4 +881,36 @@ public class URIResolverRegistry {
 			}
 		}
 	}
+
+	public void unwatch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
+		throws IOException {
+		loc = safeResolve(loc);
+		if (!isDirectory(loc)) {
+			// so underlying implementations of ISourceLocationWatcher only have to support
+			// watching directories (the native NEO file watchers are like that)
+			loc = URIUtil.getParentLocation(loc);
+		}
+		ISourceLocationWatcher watcher = watchers.get(loc.getScheme());
+		if (watcher != null) {
+			watcher.unwatch(loc, callback);
+		}
+		else {
+			watching.getOrDefault(loc, Collections.emptySet()).remove(callback);
+		}
+		if (isDirectory(loc) && recursive) {
+			for (ISourceLocation elem : list(loc)) {
+				if (isDirectory(elem)) {
+					try {
+						unwatch(elem, recursive, callback);
+					}
+					catch (IOException e) {
+						// we swallow recursive IO errors which can be caused by file permissions.
+						// it is acceptable that inaccessible files are not watched
+					}
+				}
+			}
+		}
+
+	}
+
 }

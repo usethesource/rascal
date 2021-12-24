@@ -41,11 +41,28 @@ test bool rangeReals6() = [1.0, -2.0 .. -10.0] == [1.0, -2.0, -5.0, -8.0];
   	
 // rangeMixed
   
-test bool rangeMixed1() = [1 .. .1] == [1.]; 
-test bool rangeMixed2() = [1 .. 1.0] == []; 
-test bool rangeMixed3() = [1 .. 5.0] ==  [1.,2.0,3.0,4.0]; 
-test bool rangeMixed4() = [1 .. 5.5] == [1.,2.0,3.0,4.0,5.0]; 
-test bool rangeMixed5() = [1 ,1.5 .. 2.0] == [1., 1.5]; 
+test bool rangeMixed1() = [1 .. 1.0] == []; 
+
+@ignoreCompiler{Different behaviour}
+test bool rangeMixed2a() = [1 .. .1] == [1.]; 
+@ignoreInterpreter{Different behaviour}
+test bool rangeMixed2b() = [1 .. .1] == [1.0]; 
+
+@ignoreCompiler{Different behaviour}
+test bool rangeMixed3a() = [1 .. 5.0] ==  [1.,2.0,3.0,4.0]; 
+@ignoreInterpreter{Different behaviour}
+test bool rangeMixed3b() = [1 .. 5.0] ==  [1.0,2.0,3.0,4.0]; 
+
+@ignoreCompiler{Different behaviour}
+test bool rangeMixed4a() = [1 .. 5.5] == [1.,2.0,3.0,4.0,5.0];
+@ignoreInterpreter{Different behaviour} 
+test bool rangeMixed4b() = [1 .. 5.5] == [1.0,2.0,3.0,4.0,5.0]; 
+
+@ignoreCompiler{Different behaviour}
+test bool rangeMixed5a() = [1 ,1.5 .. 2.0] == [1., 1.5]; 
+@ignoreInterpreter{Different behaviour} 
+test bool rangeMixed5b() = [1 ,1.5 .. 2.0] == [1.0, 1.5]; 
+
 test bool rangeMixed6() = [1 ,1.5 .. 3] == [1, 1.5, 2.0, 2.5]; 
 test bool rangeMixed7() = [1.0, -2 .. -10.0] == [1.0, -2.0, -5.0, -8.0]; 
   	

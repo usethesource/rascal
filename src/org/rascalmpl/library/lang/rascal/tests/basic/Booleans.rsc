@@ -258,36 +258,42 @@ test bool compositeAndOrCnt() {
 
 // implies ==>
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplTrue(){
   ten = 10;
   b = [*int _, int  _, *int _] := [1,2,3] ==> ten > 9;
   return b;
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplFalse(){
   ten = 10;
   b = [*int _, int  _, *int _] := [1,2,3] ==> 9 > ten;
   return !b;
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplBTLast1(){
   ten = 10;
   b = 9 > ten ==> [*int _, int  _, *int _] := [1,2,3];
   return b;
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplBTLast2(){
   ten = 10;
   b = ten > 9 ==> [*int _, int  _, *int _] := [1,2,3];
   return b;
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplVarBothBT(){
   ten = 10;
   b = [*int _, int  _, *int _] := [1,2,3] ==> ([*int _, *int _] := [4,5,6] && int _ := 4);
   return b;
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplCnt() {
     n = 0;
     ten = 10;
@@ -298,11 +304,13 @@ test bool compositeImplCnt() {
     return n == 1;
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplCntBTLast1() {
     ten = 10;
     return ten > 9 ==> [*int _, int  _, *int _] := [1,2,3];
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplCntBTLast2() {
     n = 0;
     ten = 10;
@@ -313,10 +321,12 @@ test bool compositeImplCntBTLast2() {
     return n == 3;
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplReturnBothBT() {
     return [*int _, int  _, *int _] := [1,2,3] ==> [*int _, int  _, *int _] := [4, 5, 6];
 }
 
+@ignoreCompiler{Backtracking in arguments of ==>}
 test bool compositeImplBothBTCnt() {
     n = 0;
     if( [*int _, int  _, *int _] := [1,2,3] ==> [*int _, int  _, *int _] := [4, 5, 6] )  {
@@ -329,36 +339,42 @@ test bool compositeImplBothBTCnt() {
 
 // equivalent <==>
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivTrue(){
   ten = 10;
   b = [*int _, int  _, *int _] := [1,2,3] <==> ten > 9;
   return b;
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivFalse(){
   ten = 10;
   b = [*int _, int  _, *int _] := [1,2,3]<==> 9 > ten;
   return !b;
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivBTLast1(){
   ten = 10;
   b = 9 > ten <==> [*int _, int  _, *int _] := [1,2,3];
   return !b;
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivBTLast2(){
   ten = 10;
   b = ten > 9 <==> [*int _, int  _, *int _] := [1,2,3];
   return b;
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivVarBothBT(){
   ten = 10;
   b = [*int _, int  _, *int _] := [1,2,3] <==> ([*int _, *int _] := [4,5,6] && int _ := 4);
   return b;
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivCnt() {
     n = 0;
     ten = 10;
@@ -369,11 +385,13 @@ test bool compositeEquivCnt() {
     return n == 3;
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivCntBTLast1() {
     ten = 10;
     return ten > 9 <==> [*int _, int  _, *int _] := [1,2,3];
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivCntBTLast2() {
     n = 0;
     ten = 10;
@@ -384,10 +402,12 @@ test bool compositeEquivCntBTLast2() {
     return n == 3;
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivReturnBothBT() {
     return [*int _, int  _, *int _] := [1,2,3] <==> [*int _, int  _, *int _] := [4, 5, 6];
 }
 
+@ignoreCompiler{Backtracking in arguments of <==>}
 test bool compositeEquivBothBTCnt() {
     n = 0;
     if( [*int _, int  _, *int _] := [1,2,3] <==> [*int _, int  _, *int _] := [4, 5, 6] )  {

@@ -111,9 +111,6 @@ test bool tst_min(set[int] S) = isEmpty(S) || all(x <- S, x >= min(S));
 
 test bool tst_size(set[int] S) = size(S) == (0 | it + 1 | _ <- S);
 
-// Is L sorted?
-public bool isSorted(list[int] L) = !any(int i <- index(L), int j <- index(L), i < j && L[i] > L[j]);
-
 test bool tst_sort(set[int] S) = isEmpty(S) || all(x <- sort(S), x in S) && size(S) == size(sort(S)) && isSorted(sort(S));
 
 test bool tst_sum(set[int] S) = isEmpty(S) || sum(S) == (0 | it + x | x <- S);

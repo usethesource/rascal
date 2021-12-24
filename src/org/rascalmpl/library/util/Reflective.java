@@ -36,6 +36,7 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -82,10 +83,10 @@ public class Reflective {
         return values.string(System.lineSeparator());
     }
 	
-	public IConstructor getProjectPathConfig(ISourceLocation projectRoot) {
+	public IConstructor getProjectPathConfig(ISourceLocation projectRoot, IConstructor mode) {
 	    try {
 	        if (URIResolverRegistry.getInstance().exists(projectRoot)) {
-	            return PathConfig.fromSourceProjectRascalManifest(projectRoot).asConstructor();
+	            return PathConfig.fromSourceProjectRascalManifest(projectRoot, mode.getName().equals("compiler") ? RascalConfigMode.COMPILER :  RascalConfigMode.INTERPETER).asConstructor();
 	        }
 	        else {
 	            throw new FileNotFoundException(projectRoot.toString());
