@@ -8,6 +8,7 @@ extend lang::rascalcore::check::CheckerCommon;
 //extend analysis::typepal::TypePal;
 
 import lang::rascalcore::check::Import;
+import analysis::typepal::TModel;
 
 import util::Reflective;
 
