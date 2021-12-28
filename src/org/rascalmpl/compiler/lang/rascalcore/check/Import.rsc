@@ -20,8 +20,30 @@ import analysis::graphs::Graph;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
+bool traceTPL = true;
+
 tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
-    return getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
+    fileName = makeFileName(qualifiedModuleName, extension="tpl");
+    dirName = makeDirName(qualifiedModuleName);
+    
+    for(loc dir <- pcfg.bin + pcfg.libs){   // In a bin or lib directory?     
+        fileLoc = dir + "classes/<compiled_rascal_package>" + fileName;
+        if(exists(fileLoc)){
+           if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
+           return <true, fileLoc>;
+        } else {
+           if(traceTPL) println("getTPLReadLoc: DOES NOT EXIST: <fileLoc>");
+        }
+    }
+    //println("getDerivedReadLoc: <qualifiedModuleName> =\> |error:///|");
+    return <false, |error:///|>;
+}
+
+tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
+    classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
+    tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
+    if(traceTPL) println("getTPLWriteLoc: <qualifiedModuleName> =\> \<<exists(tplLoc)>, <tplLoc>\>");
+    return <exists(tplLoc), tplLoc>;
 }
 
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
@@ -248,8 +270,10 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     try {
         mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
-       classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
-       tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
+        <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
+        //classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
+        //tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
+        println("saveModule(<qualifiedModuleName>) =\> <tplLoc>");
         //tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
         
         bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
