@@ -158,7 +158,7 @@ public PathConfig getRascalCorePathConfig() {
                 |project://typepal/src|
                 //|project://salix/src|
                 ],
-        bin = |project://rascal-core/target|,
+        bin = |project://rascal-core/target/classes|,
         genSrcs = |project://rascal-core/target/generated-sources|
     );
 }
@@ -171,7 +171,7 @@ public PathConfig getDevPathConfig() {
                 |file:///Users/paulklint/git/typepal/src|
                 //|project://salix/src|
                ], 
-         bin = |file:///Users/paulklint/git/rascal-core/target|
+         bin = |file:///Users/paulklint/git/rascal-core/target/classes|
         //libs = [|lib://rascal/|, |lib://typepal/|]
     );
 }

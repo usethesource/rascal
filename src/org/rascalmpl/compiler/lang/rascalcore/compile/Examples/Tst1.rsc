@@ -1,40 +1,13 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-@javaClass{org.rascalmpl.library.Prelude}
-public java bool arbBool();
+bool main(){
 
-@javaClass{org.rascalmpl.library.Prelude}
-public java bool isEmpty(list[&T] lst);
-
-@javaClass{org.rascalmpl.library.Prelude}
-public java int size(list[&T] lst);
-
-@javaClass{org.rascalmpl.library.Prelude}
-public java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
-
-
-public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
-   res = [];
-   while(!(isEmpty(A) && isEmpty(B))){
-            if(arbBool() && size(A) > 0){
-               <x, A> = takeOneFrom(A);
-               res = res + [x];
-            } else if(size(B) > 0){
-               <x, B> = takeOneFrom(B);
-               res = res + [x];
-            };
-           }
-    return res;
+    x = 2;
+    for(1 := x){
+        x = 1;
+    }
+    return true;
 }
-
-//bool main(){
-//
-//    x = 2;
-//    while(1 := x){
-//        x = 1;
-//    }
-//    return true;
-//}
 
 //data D = d1(int) | d1(str s);
 //
