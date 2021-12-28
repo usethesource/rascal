@@ -1849,6 +1849,7 @@ MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCon
         }
         return trueCont;
     }
+    //iprintln(btscopes);
     for(i <- reverse(index(conds))){
         cont = i == 0 ? falseCont : muFail(getResume(conds[i-1], btscopes));   // <<<
         trueCont = normalize(translateBool(conds[i], btscopes, trueCont, cont));
@@ -2135,43 +2136,6 @@ default MuExp translateBool(Expression e, str _btscope, MuExp _trueCont, MuExp _
     println(e);
     throw "TRANSLATEBOOL, MISSING CASE FOR EXPRESSION: <e>";
 }
-
-//// Is an expression free of backtracking? 
-//
-//// TODO: add more cases?
-//
-//bool backtrackFree(Expression e){
-//    top-down visit(e){
-//    
-//    case (Expression) `all ( <{Expression ","}+ generators> )`: 
-//        return true;
-//    case (Expression) `any ( <{Expression ","}+ generators> )`: 
-//        return true;
-//    case Comprehension comprehension:
-//        return true;
-//    case (Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`:
-//        return true; 
-//    case (Expression) `<Pattern pat> \<- <Expression exp>`: 
-//        return false;
-//    case (Expression) `<Pattern pat> := <Expression exp>`:
-//        return backtrackFree(pat);
-//    case (Expression) `<Pattern pat> !:= <Expression exp>`:
-//        return backtrackFree(pat);
-//    case (Expression) `!<Expression exp>`:
-//        return backtrackFree(exp);
-//    case (Expression) `<Expression e1> || <Expression e2>`:
-//        return backtrackFree(e1) && backtrackFree(e2);
-//    case (Expression) `<Expression e1> && <Expression e2>`:
-//        return backtrackFree(e1) && backtrackFree(e2);  
-//    case (Expression) `<Expression e1> \<==\> <Expression e2>`:
-//        return backtrackFree(e1) && backtrackFree(e2);  
-//    case (Expression) `<Expression e1> ==\> <Expression e2>`:
-//        return backtrackFree(e1) && backtrackFree(e2);  
-//    case (Expression) `<Expression cond> ? <Expression thenExp> : <Expression elseExp>`:
-//        return backtrackFree(cond) && backtrackFree(thenExp) && backtrackFree(elseExp);
-//    }
-//    return true;
-//}
 
 /*********************************************************************/
 /*                  End of Expessions                                */

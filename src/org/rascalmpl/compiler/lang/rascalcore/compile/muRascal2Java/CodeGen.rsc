@@ -352,7 +352,7 @@ str getMemoCache(MuFunction fun)
 JCode trans(MuFunction fun, JGenie jg){
     //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
-    //iprintln(fun);
+    //iprintln(fun); // print function
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return "";
     
@@ -389,7 +389,7 @@ JCode trans(MuFunction fun, JGenie jg){
             body = "try {
                    '    <body>
                    '} catch (ReturnFromTraversalException e) {
-                   '    return (<returnType>) e.getValue();
+                   '    return <returnType == "void" ? "" : "(<returnType>) e.getValue()">;
                    '}\n";
         }
         kwpActuals = "";
@@ -754,7 +754,7 @@ JCode trans(muAssign(v:muVar(str name, str fuid, int pos, AType atype), MuExp ex
     
 JCode trans(muAssign(v:muTmpIValue(str name, str fuid, AType atype), MuExp exp), JGenie jg)
     = jg.isRef(v) ? "<name>.setValue(<trans(exp, jg)>);\n"
-                  : "<name> = <trans(exp, jg)>;\n";
+                  : "<name> = <transWithCast(atype, exp, jg)>;\n";
 
 JCode trans(muAssign(v:muTmpNative(str name, str fuid, NativeKind nkind), MuExp exp), JGenie jg)
     = jg.isRef(v) ? "<name>.setValue(<trans2Native(exp, nkind, jg)>);\n"
@@ -1084,11 +1084,11 @@ JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, int fiel
     = "$atuple_update(<trans(baseExp, jg)>, <fieldIdentity>,  <trans(repl, jg)>)" when isTupleType(resultType);
     
 JCode trans(muSetField(AType resultType, a:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
-    = castArg(a, "$aadt_field_update(<trans(baseExp,jg)>,  \"<getJavaName(fieldName)>\", <trans(repl, jg)>)");
+    = castArg(a, "$aadt_field_update(<transWithCast(a, baseExp,jg)>,  \"<getJavaName(fieldName)>\", <trans(repl, jg)>)");
 
 default JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg){
     return asubtype(baseType, treeType) ? castArg(baseType, "$aadt_field_update(<trans(baseExp,jg)>,  \"<getJavaName(fieldName)>\", <trans(repl, jg)>)")
-                                        : "<trans(baseExp, jg)>.set(\"<getJavaName(fieldName)>\", <trans(repl, jg)>)";
+                                        : "<transWithCast(baseType, baseExp, jg)>.set(\"<getJavaName(fieldName)>\", <trans(repl, jg)>)";
 }      
 
 // ---- muPrim -----------------------------------------------------------
@@ -1194,7 +1194,7 @@ JCode trans(r: muReturn1(AType t, muBlock([])), JGenie jg){
 }
 
 JCode trans(muReturn1(AType result, v:muVisit(_,_,_,_,_)), JGenie jg){
-    return "IValue $visitResult = <trans(v, jg)>
+    return "IValue $visitResult = <trans(v, jg)>;
            'return (<atype2javatype(result)>)$visitResult;";
 }
 
@@ -1425,7 +1425,7 @@ default JCode trans(muEnter(btscope, MuExp exp), JGenie jg){
 JCode trans(muSucceed(str label), JGenie jg)
     = "break <getJavaName(label)>; // muSucceed";
 
-JCode trans(muFail(str label), JGenie jg){
+JCode trans(mf: muFail(str label), JGenie jg){
     if(startsWith(jg.getFunctionName(), label)){    // TODO:this is brittle, solve in JGenie
        // println(jg.getFunction().ftype);
         return jg.getFunction().ftype.ret == avoid() ? "throw new FailReturnFromVoidException();"
@@ -1434,7 +1434,7 @@ JCode trans(muFail(str label), JGenie jg){
     //if(/^CASE[0-9]+$/ := label){
     //    return "break <label>;";
     //}
-    return "continue <getJavaName(label)>;";   
+    return "continue <getJavaName(label)>;" + (mf.comment? ? "/*<mf.comment>*/" : "");   
 }
     
 JCode trans(muBreak(str label), JGenie jg)
@@ -1519,15 +1519,29 @@ JCode trans(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp las
 }
          
 JCode trans(muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint), JGenie jg){
-    return "<getJavaName(label)>: switch(Util.getFingerprint(<exp.name>, <useConcreteFingerprint>)){
+    noCaseMatched = "noCaseMatched_<exp.name>";
+    return "boolean <noCaseMatched> = true;
+           '<getJavaName(label)>: switch(Util.getFingerprint(<exp.name>, <useConcreteFingerprint>)){
            '<for(muCase(int fingerprint, MuExp exp1) <- cases){>
            '    case <fingerprint>:
-           '        <trans(exp1, jg)>
-           '        <trans(defaultExp, jg)>
+           '        if(<noCaseMatched>){
+           '            <noCaseMatched> = false;
+           '            <trans(exp1, jg)>
+           '        }
+           '        
            '<}>
            '    default: <defaultExp == muBlock([]) ? "" : trans(defaultExp, jg)>
            '}\n
            ";
+    //return "<getJavaName(label)>: switch(Util.getFingerprint(<exp.name>, <useConcreteFingerprint>)){
+    //       '<for(muCase(int fingerprint, MuExp exp1) <- cases){>
+    //       '    case <fingerprint>:
+    //       '        <trans(exp1, jg)>
+    //       '        <trans(defaultExp, jg)>
+    //       '<}>
+    //       '    default: <defaultExp == muBlock([]) ? "" : trans(defaultExp, jg)>
+    //       '}\n
+    //       ";
 }
 
 JCode genDescendantDescriptor(DescendantDescriptor descendant, JGenie jg){
@@ -1563,7 +1577,7 @@ JCode trans(muVisit(str visitName, MuExp exp, list[MuCase] cases, MuExp defaultE
       '         <defaultCode>
       '         }
       '         return <exp.var.name>;
-      '     });\n";
+      '     })";
 }  
 
 JCode trans(muDescendantMatchIterator(MuExp subject, DescendantDescriptor ddescriptor), JGenie jg)
@@ -1704,6 +1718,11 @@ JCode trans2IBool(MuExp exp, JGenie jg)
 
 JCode trans2NativeStr(muCon(str s), JGenie jg)
     = "\"" + escapeForJ(s) + "\"";
+    
+JCode trans2NativeStr(MuExp exp, JGenie jg)
+    = "org.rascalmpl.values.parsetrees.TreeAdapter.yield(<trans(exp, jg)>)"
+    when isSyntaxType(getType(exp));
+    
 default JCode trans2NativeStr(MuExp exp, JGenie jg)
     = "<transWithCast(astr(), exp, jg)>.getValue()";
         

@@ -495,7 +495,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchName, MuExp switchVal,
     }
   }
   default_table = (getFingerprintDefault() : []);
-  for(int i <- index(cases), c := cases[i], c is patternWithAction, isSpoiler(c.patternWithAction.pattern, fingerprint(c.patternWithAction.pattern, getType(c.patternWithAction.pattern), useConcreteFingerprint))){
+  for(int i <- index(cases), c := cases[i], !(c is \default), c is patternWithAction, isSpoiler(c.patternWithAction.pattern, fingerprint(c.patternWithAction.pattern, getType(c.patternWithAction.pattern), useConcreteFingerprint))){
       caseLabel = "CASE_< getFingerprintDefault()>_<i>";
       btscopes = getBTScopes(c.patternWithAction.pattern, caseLabel, btscopes);
       default_table = addPatternWithActionCode(switchName, switchVal, fuid, c.patternWithAction, default_table, getFingerprintDefault(), caseLabel, succeedCase, btscopes);
@@ -505,7 +505,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(str switchName, MuExp switchVal,
   for(int i <- index(cases)){ //c <- reverse(cases)){
       c = cases[i];
      
-	  if(c is patternWithAction){
+	  if(!(c is \default), c is patternWithAction){
 	    pwa = c.patternWithAction;
 	    key = fingerprint(pwa.pattern, getType(pwa.pattern), useConcreteFingerprint);
 	    if(!table[key]?) table[key] = [];

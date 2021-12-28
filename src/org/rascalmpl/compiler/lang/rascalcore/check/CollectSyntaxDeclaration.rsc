@@ -109,12 +109,21 @@ private bool isTerminalSym((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = isTermin
 private bool isTerminalSym((Sym) `<Sym symbol> $`) = isTerminalSym(symbol);
 private bool isTerminalSym((Sym) `^ <Sym symbol>`) = isTerminalSym(symbol);
 private bool isTerminalSym((Sym) `<Sym symbol> ! <NonterminalLabel _>`) = isTerminalSym(symbol);
- 
-private default bool isTerminalSym(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
+ private default bool isTerminalSym(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
 
 private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when isNonTerminalType(adt2);
 private default AType removeChainRule(AType t) = t;
 
+private Sym removeConditions((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = removeConditions(symbol);
+private Sym removeConditions((Sym) `<Sym symbol> $`) = removeConditions(symbol);
+private Sym removeConditions((Sym) `^ <Sym symbol>`) = removeConditions(symbol);
+private Sym removeConditions((Sym) `<Sym symbol> ! <NonterminalLabel _>`) = removeConditions(symbol);
+private Sym removeConditions((Sym) `<Sym symbol> \>\> <Sym _>`) = removeConditions(symbol);
+private Sym removeConditions((Sym) `<Sym symbol> !\>\> <Sym _>`) = removeConditions(symbol);
+private Sym removeConditions((Sym) `<Sym _> \<\< <Sym symbol>`) = removeConditions(symbol);
+private Sym removeConditions((Sym) `<Sym _> !\<\< <Sym symbol>`) = removeConditions(symbol);
+
+private default Sym removeConditions(Sym symbol) = symbol;
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];
@@ -144,10 +153,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    if("<name>" == "literal"){
-                        println("literal");
-                    }
-                    fields = [ removeChainRule(t) | sym <- symbols, !isTerminalSym(sym), tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)];                                                
+                    fields = [ removeChainRule(t) | sym <- symbols, ssym := removeConditions(sym), !isTerminalSym(ssym), tsym := s.getType(ssym), t := removeConditional(tsym), isNonTerminalType(t)];                                                
                     //fields = cprod has atypes ? [ t | sym <- cprod.atypes, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)]
                     //                          : [];          
                     def = \start(sdef) := def ? sdef : def;

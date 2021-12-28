@@ -313,6 +313,11 @@ AType symbol2atype1(Symbol::lex(str name)) = aadt(name, [], lexicalSyntax());
 AType symbol2atype1(Symbol::keywords(str name)) = aadt(name, [], keywordSyntax());
 AType symbol2atype1(Symbol::layouts(str name)) = AType::layouts(name);
 
+AType symbol2atype1(Symbol::\parameterized-sort(str name, list[Symbol] parameters)) =
+    aadt(name, symbol2atype(parameters), contextFreeSyntax());
+AType symbol2atype1(Symbol::\parameterized-lex(str name, list[Symbol] parameters)) =
+    aadt(name, symbol2atype(parameters), lexicalSyntax());
+
 // ---- Associativity ---------------------------------------------------------
 
 //Associativity symbol2atype1(\left(), map[AType, set[AType]] defs) = Associativity::\left();
@@ -1315,6 +1320,7 @@ bool isLexicalType(AType t) = false;
 // ---- literal/terminal
 @doc{Synopsis: Determine if the given type is a terminal symbol (a literal or character class).}
 bool isTerminalType(aparameter(_,AType tvb)) = isTerminalType(tvb);
+bool isTerminalType(AType::\conditional(AType ss,_)) = isTerminalType(ss);
 bool isTerminalType(lit(_)) = true;
 bool isTerminalType(cilit(_)) = true;
 bool isTerminalType(\char-class(_)) = true;

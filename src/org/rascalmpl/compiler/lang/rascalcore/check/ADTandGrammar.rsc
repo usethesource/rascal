@@ -16,6 +16,7 @@ import ListRelation;
 import Location;
 import Relation;
 import Message;
+import Map;
 
 void addADTsAndCommonKeywordFields(Solver s){
     addADTs(s);
@@ -32,7 +33,7 @@ void addADTs(Solver s){
 
 void addCommonKeywordFields(Solver s){
     set[Define] definitions = s.getAllDefines();
-    commonKeywordFields = [];
+    lrel[AType, KeywordFormal] commonKeywordFields = [];
     
     // Collect common keywords and check double declarations
   
@@ -61,12 +62,12 @@ void addCommonKeywordFields(Solver s){
     
     // Warn for overlapping declarations of common keyword fields and ordinary fields
       
-    adt_common_keyword_fields_name_and_kwf = ( adtType : ( "<kwf.name>" : kwf | kwf <- commonKeywordFields[adtType] ? []) | adtType <- domain(commonKeywordFields) );
+    map[AType, map[str, KeywordFormal]] adt_common_keyword_fields_name_and_kwf = ( adtType : ( "<kwf.name>" : kwf | kwf <- commonKeywordFields[adtType] ? []) | adtType <- domain(commonKeywordFields) );
     
     for(Define def <- definitions, def.idRole == constructorId()){
         try {
             consType = s.getType(def);
-            commonFieldNames = domain(adt_common_keyword_fields_name_and_kwf[consType.adt] ? []);
+            set[str] commonFieldNames = domain(adt_common_keyword_fields_name_and_kwf[consType.adt] ? ());
             for(fld <- consType.fields){
                if(fld.label in commonFieldNames){
                     kwf = adt_common_keyword_fields_name_and_kwf[consType.adt][fld.label];

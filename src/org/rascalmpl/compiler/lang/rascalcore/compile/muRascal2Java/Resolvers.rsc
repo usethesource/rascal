@@ -71,7 +71,8 @@ str atype2istype(str e, aadt(str adtName, list[AType] parameters, keywordSyntax(
 }
 
 default str atype2istype(str e, AType t, JGenie jg) {
-    return "$isComparable(<e>.getType(),<jg.shareType(t)>)";
+    res = "$isComparable(<e>.getType(),<jg.shareType(t)>)";
+    return res;
 }
 
 public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {

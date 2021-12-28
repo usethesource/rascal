@@ -125,6 +125,7 @@ str atype2idpart(AType t, JGenie jg) {
     str convert(areified(AType atype), bool useAccessor = true)   = "reified_<convert(atype)>";
     str convert(avalue())                = "value";
     
+    str convert(\lit(str s), bool useAccessor = true)             = "lit(\"<s>\")";
     str convert(\empty(), bool useAccessor = true)                = "empty";
     str convert(\opt(AType atype), bool useAccessor = true)       = "opt_<convert(atype)>";
     str convert(\iter(AType atype), bool useAccessor = true)      = "iter_<convert(atype)>"; 
@@ -137,6 +138,8 @@ str atype2idpart(AType t, JGenie jg) {
                                               = "alt_"; //TODO
     str convert(\seq(list[AType] atypes), bool useAccessor = true)= "seq_";  //TODO
     str convert(\start(AType atype), bool useAccessor = true)        = "start_<convert(atype)>";
+    str convert(\conditional(AType atype, set[ACondition] conditions), bool useAccessor = true)
+        = convert(atype);
     
     default str convert(AType t, bool useAccessor = true) { throw "convert: cannot handle <t>"; }
     
