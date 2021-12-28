@@ -1,25 +1,65 @@
 module lang::rascalcore::compile::Examples::Tst1
-  
-data D(bool b = true) = d1(int n) | d2(str s);
 
-bool f(D d) { x = visit(d) { case d1(int n) => d1(n+1) } . b; return x;}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool arbBool();
 
-value main(){
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isEmpty(list[&T] lst);
 
-    return f(d1(0));
+@javaClass{org.rascalmpl.library.Prelude}
+public java int size(list[&T] lst);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
+
+
+public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
+   res = [];
+   while(!(isEmpty(A) && isEmpty(B))){
+            if(arbBool() && size(A) > 0){
+               <x, A> = takeOneFrom(A);
+               res = res + [x];
+            } else if(size(B) > 0){
+               <x, B> = takeOneFrom(B);
+               res = res + [x];
+            };
+           }
+    return res;
 }
 
-//syntax Class
-//    = simpleCharclass: "["  "]" 
-//    > left intersection: Class lhs "&&" Class rhs 
-//    ;
-//    
-//public int cc2ranges(Class cc) {
-//   switch(cc) {
-//     case Class::\intersection(Class _, Class _) : return 0;
-//     }
-//   return 1;
+//bool main(){
+//
+//    x = 2;
+//    while(1 := x){
+//        x = 1;
+//    }
+//    return true;
 //}
+
+//data D = d1(int) | d1(str s);
+//
+//public bool intersect(set[D] u1, set[D] u2) {
+//  if ({d1(_)} := u1 
+//      && 
+//      {d1(_)} := u2) {
+//    return true;
+//  }
+//  return false;
+//}
+
+//public str unescape(str name) {
+//  if (/\\<rest:.*>/ := name) return rest; 
+//  return name;
+//}
+
+
+//data Symbol     // <2>
+//     = \label(str name, Symbol symbol);
+     
+//import ParseTree;
+////
+////bool isManual(set[Attr] as) = (\tag("manual"()) in as);
+
 
 //import List;
 //layout Whitespace = [\ \t\n]*;

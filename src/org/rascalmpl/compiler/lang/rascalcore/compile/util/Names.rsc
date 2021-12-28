@@ -7,7 +7,7 @@ import util::Reflective;
 
 data PathConfig(loc genSrcs=|unknown:///|);
 
-str compiled_rascal_package = "rascal";
+public /*const*/ str compiled_rascal_package = "rascal";
 
 str removeEmptyLines(str s){
     return visit(s) { case /^\n[ ]*\n/ => "\n" };
@@ -134,7 +134,7 @@ str module2interface(str qname){
     className = normalizeQName(qname);
     n = findLast(className, ".");
     //return n >= 0 ? "<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
-    return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
+    return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>.$<className[n+1..]>" : "<compiled_rascal_package>.$<className>";
 }
 
 str escapeAsJavaString(str s){

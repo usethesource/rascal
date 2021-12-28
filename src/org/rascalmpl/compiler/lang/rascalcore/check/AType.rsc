@@ -513,9 +513,9 @@ bool asubtype(aprod(AProduction p), aprod(AProduction q)) {
     return asubtype(p.def, q.def);
 }
 
-//bool asubtype(aprod(AProduction p), AType t) {
-//    return asubtype(p.def, t);
-//}
+bool asubtype(aprod(AProduction p), AType t) {
+    return asubtype(p.def, t);
+}
 
 bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
 bool asubtype(adt: aadt(str _, list[AType] _, _), acons(AType a, list[AType] ap, list[Keyword] _)) = asubtype(adt, a);

@@ -157,9 +157,21 @@ public PathConfig getRascalCorePathConfig() {
                 //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
                 |project://typepal/src|
                 //|project://salix/src|
-               ], 
+                ],
         bin = |project://rascal-core/target/classes|,
         genSrcs = |project://rascal-core/target/generated-sources|
+    );
+}
+
+public PathConfig getDevPathConfig() {
+   return pathConfig(   
+        srcs = [|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|, 
+                |file:///Users/paulklint/git/rascal-core/src/org/rascalmpl/core/library|,
+                //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
+                |file:///Users/paulklint/git/typepal/src|
+                //|project://salix/src|
+               ], 
+         bin = |file:///Users/paulklint/git/rascal-core/target|
         //libs = [|lib://rascal/|, |lib://typepal/|]
     );
 }

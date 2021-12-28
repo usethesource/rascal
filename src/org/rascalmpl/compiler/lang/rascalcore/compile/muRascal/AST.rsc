@@ -205,7 +205,7 @@ public data MuExp =
           | muEnter(str btscope, MuExp exp, bool yieldWhenExhausted = false)
                                                                 // Enter a backtracking scope
           | muSucceed(str btscope)                              // Succeed in current backtracking scope
-          | muFail(str label)                                   // Fail in current backtracking scope                      
+          | muFail(str label, str comment="")                                   // Fail in current backtracking scope                      
           
           //  Visit
           | muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
@@ -964,6 +964,14 @@ MuExp muReturn1(AType t, muTry(MuExp exp, MuCatch \catch, MuExp \finally)){
 MuExp muReturn1(AType t, muThrow(MuExp exp, loc src)){
     return muThrow(exp, src);
 }    
+
+// ---- muFail ----------------------------------------------------------------
+MuExp muFail(str label){
+    if(label == "IF0_SET_CONS_d1"){
+        println("IF0_SET_CONS_d1");
+    }
+    fail;
+}
     
 // ---- muFailReturn ----------------------------------------------------------
 
@@ -1193,6 +1201,19 @@ MuExp muNot(fr: muForRange(str label, MuExp var, MuExp first, MuExp second, MuEx
     
 MuExp muNot(fr: muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont))
     = muForRangeInt(label, var, ifirst, istep, last, muNot(body), muNot(falseCont)/*, yieldWhenExhausted = !fr.yieldWhenExhausted*/);
+    
+//MuExp muNot(mt:muTemplateAdd(MuExp template, AType atype, value val))
+//    = mt;
+//    
+//MuExp muNot(ma: muAssign(MuExp var, MuExp exp))
+//    = ma;
+//    
+//MuExp muNot(mc:muContinue(str label))
+//    = mc;
+//MuExp muNot(ms:muSucceed(str label))
+//    = ms;
+//MuExp muNot(mf:muFail(str label))
+//    = mf;
     
 MuExp muNot(muReturn1(AType t, MuExp exp)){
     return muReturn1(t, muNot(exp));

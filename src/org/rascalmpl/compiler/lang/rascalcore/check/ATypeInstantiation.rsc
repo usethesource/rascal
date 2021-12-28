@@ -228,7 +228,8 @@ AType xxInstantiateRascalTypeParameters(Tree selector, AType t, Bindings binding
         return visit(t) { case param:aparameter(str pname, AType bound): {
                                 if(bindings[pname]?){
                                     if(asubtype(bindings[pname], bound)){
-                                        insert param.label? ? bindings[pname][label=param.label] :  bindings[pname];
+                                        repl = param.label? ? bindings[pname][label=param.label] :  bindings[pname]; //TODO simplified for compiler
+                                        insert repl;
                                     }
                                     else {
                                         s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));

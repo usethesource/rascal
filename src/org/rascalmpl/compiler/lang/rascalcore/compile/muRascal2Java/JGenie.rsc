@@ -161,12 +161,21 @@ JGenie makeJGenie(MuModule m,
     
     str _getATypeAccessor(AType t){
         t1 = unsetR(t, "label");
-        for(def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId()), t1 := def.defInfo.atype, !isConstructorType(t1) || def.defInfo.atype.label == t.label){
-            for(ms <- allLocs2Module, isContainedIn(def.scope, ms)){
-                defMod = allLocs2Module[ms];
-                return defMod == moduleName ? "" : "<module2field(defMod)>.";
+        tlabel = t.label? ? getUnqualifiedName(t.label) : "";
+        
+        for(Define def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId())){
+            //!isConstructorType(t1) || def.defInfo.atype.label == t.label
+            if((isConstructorType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.label == tlabel) ||
+               (aadt(adtName,ps1,_) := t1 && aadt(adtName,ps2,_) := def.defInfo.atype && asubtype(ps1, ps2))){
+	            for(ms <- allLocs2Module, isContainedIn(def.scope, ms)){
+	                defMod = allLocs2Module[ms];
+	                res = defMod == moduleName ? "" : "<module2field(defMod)>.";
+	                //if(b)println("getTypeAccessor(<t>) =\> <res>)");
+	                return res;
+	            }
             }
         }
+        //if(b)println("getTypeAccessor(<t>) =\> \"\"");
         return ""; //throw "No accessor found for <t>";
     }
         
@@ -361,16 +370,13 @@ JGenie makeJGenie(MuModule m,
     str _shareType(AType atype){
         //println("%%%%% shareType: <atype>");
         //atype = unsetR(atype, "label");
+
         couter = "";
         if(types[atype]?){
             return types[atype];
         } else if(aadt(str adtName, list[AType] _, SyntaxRole _) := atype){
             return "<_getATypeAccessor(atype)>ADT_<adtName>";
         } else {
-            ac = _getATypeAccessor(atype);
-            if(ac != ""){
-                return atype2idpart(atype, thisJGenie);
-            }
             ntypes += 1;
             couter = "$T<ntypes>";
             types[atype] = couter;
