@@ -196,13 +196,13 @@ This function is useful for type checking and compilation tasks, when derived in
 from locations in different, configurable, directories.
 }
 
-tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}){
+tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}, str rootDir = ""){
     fileName = makeFileName(qualifiedModuleName, extension=extension);
     //println("getDerivedReadLoc: <fileName>");
    
     if(extension in srcExtensions){
        for(loc dir <- pcfg.srcs){        // In a source directory?
-           fileLoc = dir + fileName;
+           fileLoc = dir + rootDir + fileName;
            if(exists(fileLoc)){
              //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc");
              return <true, fileLoc>;
@@ -211,7 +211,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     } else {
       for(loc dir <- pcfg.bin + pcfg.libs){   // In a bin or lib directory?
        
-        fileLoc = dir + fileName;
+        fileLoc = dir + rootDir + fileName;
         if(exists(fileLoc)){
            //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc>");
            return <true, fileLoc>;
@@ -246,7 +246,7 @@ getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathCon
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be written
 to locations in separate, configurable, directories.
 }
-loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}){
+loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}, str rootDir = ""){
     if(extension in srcExtensions){
         throw "Cannot derive writable location for module <qualifiedModuleName> with extension <extension>";
     }
@@ -254,7 +254,7 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     fileNameBin = makeFileName(qualifiedModuleName, extension=extension);
     
     bin = pcfg.bin;
-    fileLocBin = bin + fileNameBin;
+    fileLocBin = bin + rootDir + fileNameBin;
     //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }
