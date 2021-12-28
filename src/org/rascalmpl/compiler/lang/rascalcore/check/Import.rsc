@@ -27,7 +27,7 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
     dirName = makeDirName(qualifiedModuleName);
     
     for(loc dir <- pcfg.bin + pcfg.libs){   // In a bin or lib directory?     
-        fileLoc = dir + "classes/<compiled_rascal_package>" + fileName;
+        fileLoc = dir + "<compiled_rascal_package>" + fileName;
         if(exists(fileLoc)){
            if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
            return <true, fileLoc>;
