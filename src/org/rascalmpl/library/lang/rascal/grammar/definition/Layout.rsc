@@ -86,12 +86,15 @@ list[Symbol] intermix(list[Symbol] syms, Symbol l, set[Symbol] others) {
   return syms;
 }
 
+private bool sepInOthers(Symbol sep, set[Symbol] others)    // TODO: factored out due to compiler issue
+    = sep in others || (seq([a,_,b]) := sep && (a in others || b in others));
+
 private Symbol regulars(Symbol s, Symbol l, set[Symbol] others) {
   return visit(s) {
     case \iter(Symbol n) => \iter-seps(n, [l])
     case \iter-star(Symbol n) => \iter-star-seps(n, [l]) 
-    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
-    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
+    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) when !sepInOthers(sep, others)
+    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l]) when !sepInOthers(sep, others)
     case \seq(list[Symbol] elems) => \seq(intermix(elems, l, others))
   }
 }

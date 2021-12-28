@@ -112,11 +112,13 @@ str layoutname(Symbol s) {
   throw "unexpected <s>";
 }
 
-//TODO: remove unused argument def
-private str alt2r(Symbol _/*def*/, Production p, str sep = "=") = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> <sep> <prod2rascal(p)>";
+private str alt2r(Symbol _def, Production p, str sep = "=") = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> <sep> <prod2rascal(p)>";
 public str alt2rascal(Production p:prod(def,_,_)) = alt2r(def, p);
 public str alt2rascal(Production p:priority(def,_)) = alt2r(def, p, sep = "\>");
-public str alt2rascal(Production p:\associativity(def,a,_)) = alt2r(def, p, sep = "= <associativity(a)>");
+public str alt2rascal(Production p:\associativity(def,a,_)) {
+    sepVal = "= <associativity(a)>";    // Compiler does not yet support string interpolation as keyword parameter expression
+    return alt2r(def, p, sep = sepVal);
+}
 
 public str alt2rascal(Production p:regular(_)) = symbol2rascal(p.def);
 public default str alt2rascal(Production p) { throw "forgot <p>"; }
@@ -130,28 +132,28 @@ public str prod2rascal(Production p) {
 			       '| <prod2rascal(pr)><}><for (pr <- rest, prod(_,_,_) !:= pr) {>
 			       '| <prod2rascal(pr)><}>";
 		}
-    case priority(_, alts) :
-        return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
-               '\> <prod2rascal(pr)><}>"; 
-    case associativity(_, a, alts) : {  
-    		<fst, rest> = takeOneFrom(alts);
-    		return "<associativity(a)> 
-    		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
-    		       '  | <prod2rascal(pr)><}>
-    		       '  )";
- 		}
-
-    case prod(label(str n,Symbol _),list[Symbol] lhs,set[Attr] as) :
-        return "<for (a <- as) {><attr2mod(a)> <}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
+//    case priority(_, alts) :
+//        return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
+//               '\> <prod2rascal(pr)><}>"; 
+//    case associativity(_, a, alts) : {  
+//    		<fst, rest> = takeOneFrom(alts);
+//    		return "<associativity(a)> 
+//    		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
+//    		       '  | <prod2rascal(pr)><}>
+//    		       '  )";
+// 		}
+//
+    //case prod(label(str n,Symbol _),list[Symbol] lhs,set[Attr] as) :
+    //    return "<for (a <- as) {><attr2mod(a)> <}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
-    case prod(Symbol _,list[Symbol] lhs,{}) :
-      	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
+    //case prod(Symbol _,list[Symbol] lhs,{}) :
+    //  	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
  
-    case prod(Symbol _,list[Symbol] lhs, set[Attr] as) :
-      	return "<for (a <- as) {><attr2mod(a)> <}><for(s <- lhs){><symbol2rascal(s)> <}>";
- 
-    case regular(_) :
-    	    return "";
+//    case prod(Symbol _,list[Symbol] lhs, set[Attr] as) :
+//      	return "<for (a <- as) {><attr2mod(a)> <}><for(s <- lhs){><symbol2rascal(s)> <}>";
+// 
+//    case regular(_) :
+//    	    return "";
     
     default: throw "missed a case <p>";
   }
