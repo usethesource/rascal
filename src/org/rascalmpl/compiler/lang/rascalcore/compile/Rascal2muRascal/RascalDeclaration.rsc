@@ -207,7 +207,7 @@ set[TypeVar] getTypeVarsinFunction(FunctionDeclaration fd){
 }
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, Expression body_expression, list[Expression] when_conditions, bool addReturn = false){
-  println("r2mu: Compiling \uE007[<fd.signature.name>](<fd.src>)");
+  //println("r2mu: Compiling \uE007[<fd.signature.name>](<fd.src>)");
   
   inScope = topFunctionScope();
   funsrc = fd.src;

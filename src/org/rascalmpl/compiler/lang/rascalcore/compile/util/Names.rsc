@@ -74,7 +74,7 @@ str getPackagePath(str qname){
 }
 
 loc getDerivedClassesDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.bin + "<compiled_rascal_package>" + makeDirName(qualifiedModuleName);
+    return pcfg.bin + "classes/<compiled_rascal_package>" + makeDirName(qualifiedModuleName);
 }
 
 loc getDerivedSrcsDir(str qualifiedModuleName, PathConfig pcfg){
