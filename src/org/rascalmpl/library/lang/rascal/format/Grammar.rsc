@@ -132,28 +132,28 @@ public str prod2rascal(Production p) {
 			       '| <prod2rascal(pr)><}><for (pr <- rest, prod(_,_,_) !:= pr) {>
 			       '| <prod2rascal(pr)><}>";
 		}
-//    case priority(_, alts) :
-//        return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
-//               '\> <prod2rascal(pr)><}>"; 
-//    case associativity(_, a, alts) : {  
-//    		<fst, rest> = takeOneFrom(alts);
-//    		return "<associativity(a)> 
-//    		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
-//    		       '  | <prod2rascal(pr)><}>
-//    		       '  )";
-// 		}
-//
-    //case prod(label(str n,Symbol _),list[Symbol] lhs,set[Attr] as) :
-    //    return "<for (a <- as) {><attr2mod(a)> <}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
+    case priority(_, alts) :
+        return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
+               '\> <prod2rascal(pr)><}>"; 
+    case associativity(_, a, alts) : {  
+    		<fst, rest> = takeOneFrom(alts);
+    		return "<associativity(a)> 
+    		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
+    		       '  | <prod2rascal(pr)><}>
+    		       '  )";
+ 		}
+
+    case prod(label(str n,Symbol _),list[Symbol] lhs,set[Attr] as) :
+        return "<for (a <- as) {><attr2mod(a)> <}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
-    //case prod(Symbol _,list[Symbol] lhs,{}) :
-    //  	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
+    case prod(Symbol _,list[Symbol] lhs,{}) :
+      	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
  
-//    case prod(Symbol _,list[Symbol] lhs, set[Attr] as) :
-//      	return "<for (a <- as) {><attr2mod(a)> <}><for(s <- lhs){><symbol2rascal(s)> <}>";
-// 
-//    case regular(_) :
-//    	    return "";
+    case prod(Symbol _,list[Symbol] lhs, set[Attr] as) :
+      	return "<for (a <- as) {><attr2mod(a)> <}><for(s <- lhs){><symbol2rascal(s)> <}>";
+ 
+    case regular(_) :
+    	    return "";
     
     default: throw "missed a case <p>";
   }
