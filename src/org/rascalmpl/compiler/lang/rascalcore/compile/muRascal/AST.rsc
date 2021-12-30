@@ -1295,6 +1295,9 @@ MuExp muEnter(str label, muForAll(label, MuExp var, AType iterType, MuExp iterab
 MuExp muEnter(str label, muForAny(label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont, yieldWhenExhausted = exhaustedVal))
     = muForAny(label, var, iterType, iterable, body, falseCont, yieldWhenExhausted = exhaustedVal);
     
+MuExp muEnter(str label, muIfElse(MuExp cond, muSucceed(label), muFail(label))) = cond;
+MuExp muEnter(str label, muIfElse(MuExp cond, muFail(label), muSucceed(label))) = muNot(cond);   
+    
 // ---- muForAll --------------------------------------------------------------
 
 MuExp muForAll(str label, MuExp var, AType iterType, muValueBlock(AType _, [*MuExp exps, MuExp iterable]), MuExp body, MuExp falseCont, bool yieldWhenExhausted = false)
