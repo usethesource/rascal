@@ -1356,7 +1356,7 @@ default MuExp translatePatAsSetElem(Pattern p, bool last, AType elmType, MuExp s
                         translatePat(p, elmType, elem, btscopes, 
                             muBlock([ muConInit(subject, muPrim("delete", aset(elmType), [aset(elmType), elmType], [prevSubject, elem], p@\loc)),
                                       trueCont ]),            
-                            muFail(forAll_scope)
+                            muFail(forAll_scope, comment="default set elem")
                             ),
                         muBlock([]));
         return code;
@@ -1539,7 +1539,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* _>}`, AType subjectType, MuE
    elmType = (aset(tp) := subjectType && tp != avoid()) ? tp : avalue();
    typecheckNeeded = !asubtype(getType(p), subjectType);
    my_btscope = btscopes[getLoc(p)];
-   btscope = my_btscope.enter;
+   //btscope = my_btscope.enter;
    
    fixedLiterals = [];                  // constant elements in the set pattern
    list[Pattern] toBeMatchedPats = [];  // the list of patterns that will ultimately be matched
@@ -1571,10 +1571,10 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* _>}`, AType subjectType, MuE
    
    MuExp setPatTrueCont =
         isEmpty(subjects) ? ( ( isEmpty(fixedLiterals) && isEmpty(fixedVars) && isEmpty(fixedMultiVars) )
-                            ? muIfExp(muEqualNativeInt(muSize(subject, aset(avalue())), muCon(0)), trueCont,  muFail(getFail(my_btscope)))
-                            : muIfExp(muEqualNativeInt(muSize(subject_minus_fixed, aset(avalue())), muCon(0)), trueCont, muFail(getFail(my_btscope)))
+                            ? muIfExp(muEqualNativeInt(muSize(subject, aset(avalue())), muCon(0)), trueCont,  muFail(getFail(my_btscope), comment="set pat1"))
+                            : muIfExp(muEqualNativeInt(muSize(subject_minus_fixed, aset(avalue())), muCon(0)), trueCont, muFail(getFail(my_btscope), comment="set pat2"))
                             )
-                          : muIfExp(muEqualNativeInt(muSize(subjects[-1], aset(avalue())), muCon(0)), trueCont,  muFail(getResume(my_btscope)))
+                          : muIfExp(muEqualNativeInt(muSize(subjects[-1], aset(avalue())), muCon(0)), trueCont,  muFail(getResume(my_btscope), comment="set pat3"))
                           ;
    //iprintln(setPatTrueCont);
    for(int i <- reverse(index(toBeMatchedPats))){
@@ -1582,7 +1582,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* _>}`, AType subjectType, MuE
       isRightMostPat = (i == rightMostPat);
       currentSubject = subjects[i];
       previousSubject = (i == 0) ? subject : subjects[i-1];
-      resumePrevious = (i == 0) ? falseCont : muFail(getResume(toBeMatchedPats[i-1], btscopes));
+      resumePrevious = (i == 0) ? falseCont : muFail(getResume(toBeMatchedPats[i-1], btscopes), comment="set pat4");
       setPatTrueCont = translatePatAsSetElem(pat, isRightMostPat, elmType, currentSubject, previousSubject, btscopes, setPatTrueCont, resumePrevious);
    }
    
@@ -1594,7 +1594,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* _>}`, AType subjectType, MuE
                           muIfElse(muPrim("subset", aset(elmType), [aset(elmType), aset(elmType)], [fixed, subject], p@\loc),
                                    muBlock([ *(leftMostVar <= 0 ? [muAssign(subject, subject_minus_fixed)] : [muConInit(subjects[leftMostVar-1], subject)]),
                                              setPatTrueCont]),
-                                   muFail(getFail(my_btscope)))
+                                   muFail(getFail(my_btscope), comment="set pat5"))
                         ]);
    }
    //iprintln(block);

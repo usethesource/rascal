@@ -1,24 +1,30 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-bool main(){
 
-    x = 2;
-    for(1 := x){
-        x = 1;
-    }
+//value main() //test bool escapedPatternName8a() 
+//    = {*\x} := {3, 4} && x == {3, 4};
+//
+//
+//bool main(){
+//
+//    x = 2;
+//    while(1 := x){
+//        x = 1;
+//    }
+//    return true;
+//}
+
+data D = d1(int) | d1(str s);
+
+public bool intersect(set[D] u1, set[D] u2) {
+  if ({d1(_)} := u1 
+      && 
+      {d1(_)} := u2) {
     return true;
+  }
+  return false;
 }
 
-//data D = d1(int) | d1(str s);
-//
-//public bool intersect(set[D] u1, set[D] u2) {
-//  if ({d1(_)} := u1 
-//      && 
-//      {d1(_)} := u2) {
-//    return true;
-//  }
-//  return false;
-//}
 
 //public str unescape(str name) {
 //  if (/\\<rest:.*>/ := name) return rest; 
