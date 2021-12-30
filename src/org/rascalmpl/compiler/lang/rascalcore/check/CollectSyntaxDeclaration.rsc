@@ -210,15 +210,21 @@ void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
     }
 }
 
+list[Prod] normalizeAlt((Prod) `<Prod lhs> | <Prod rhs>`)
+    = [*normalizeAlt(lhs), *normalizeAlt(rhs)];
+
+default list[Prod] normalizeAlt(Prod p) = [p];
+
 void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
     if(<Tree adt, list[KeywordFormal] _, loc _> := c.top(currentAdt)){
-        c.calculate("alt production", current, [adt, lhs, rhs],
+        alts = normalizeAlt(current);
+        c.calculate("alt production", current, [adt, *alts],
             AType(Solver s){
                 adtType = s.getType(adt);
-                return aprod(choice(adtType, {getProd(adtType, lhs, s), getProd(adtType, rhs, s)}));
+                return aprod(choice(adtType, {getProd(adtType, p, s) | p <- alts}));
             });
         c.push(inAlternative, true);
-            collect(lhs, rhs, c);
+            collect(alts, c);
         c.pop(inAlternative);
         if(isEmpty(c.getStack(inAlternative))){
               c.define("production", nonterminalId(), current, defType(current));
