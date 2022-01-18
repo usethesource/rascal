@@ -439,8 +439,9 @@ public class PathConfig {
 	 * 
 	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
 	 * @return
+	 * @throws URISyntaxException
 	 */
-	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode) throws IOException {
+	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode) throws IOException, URISyntaxException {
         RascalManifest manifest = new RascalManifest();
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         Set<String> loaderSchemes = reg.getRegisteredClassloaderSchemes();
@@ -467,10 +468,16 @@ public class PathConfig {
 
                     PathConfig childConfig = fromSourceProjectRascalManifest(projectLoc, mode);
 
-                    if (mode == RascalConfigMode.INTERPETER) {
-                        srcsWriter.appendAll(childConfig.getSrcs());
+                    switch (mode) {
+                        case INTERPETER:
+                            srcsWriter.appendAll(childConfig.getSrcs());
+                            break;
+                        case COMPILER:
+                            libsWriter.append(URIUtil.changeScheme(projectLoc, "target"));
+                            break;
                     }
 
+                    // TODO: do we really want to expose all transitive libraries to the type-checker?
                     libsWriter.appendAll(childConfig.getLibs());
                     classloaders.appendAll(childConfig.getClassloaders());
                 }
