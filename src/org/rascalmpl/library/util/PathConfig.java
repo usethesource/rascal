@@ -401,6 +401,7 @@ public class PathConfig {
 	 * 
 	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
 	 * @return
+     * @throws URISyntaxException
 	 */
 	public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember, RascalConfigMode mode) throws IOException {
         if (!URIResolverRegistry.getInstance().isDirectory(projectMember)) {
@@ -441,7 +442,7 @@ public class PathConfig {
 	 * @return
 	 * @throws URISyntaxException
 	 */
-	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode) throws IOException, URISyntaxException {
+	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode) throws IOException {
         RascalManifest manifest = new RascalManifest();
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         Set<String> loaderSchemes = reg.getRegisteredClassloaderSchemes();
@@ -473,7 +474,7 @@ public class PathConfig {
                             srcsWriter.appendAll(childConfig.getSrcs());
                             break;
                         case COMPILER:
-                            libsWriter.append(URIUtil.changeScheme(projectLoc, "target"));
+                            libsWriter.append(setTargetScheme(projectLoc));
                             break;
                     }
 
@@ -546,6 +547,16 @@ public class PathConfig {
                 getDefaultJavaCompilerPathList(), 
                 classloaders.done());
 	}
+
+    private static ISourceLocation setTargetScheme(ISourceLocation projectLoc) {
+        try {
+            return URIUtil.changeScheme(projectLoc, "target");
+        }
+        catch (URISyntaxException e) {
+            // this never happens because "target" is valid
+            return projectLoc;
+        }
+    }
 	
     /**
      * See if there is a pom.xml and extract the compile-time classpath from a mvn run
