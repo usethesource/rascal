@@ -195,15 +195,9 @@ str removeComments(Intro? intro){
    return res;
 }
 
-public str compileQuestions(str qmodule, PathConfig pcfg) {
+public str compileQuestions(loc qloc, PathConfig pcfg) {
     pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin,courses=pcfg.courses);
-    bn = split("/", qmodule)[-1];
-    qloc = pcfg.courses[0] + ("/" + qmodule + "/" + bn + ".questions");
-    return compileQuestions(qloc, pcfg);
-}
-
-public str compileQuestions(loc qloc, PathConfig pcfg){
-   return process(qloc, pcfg);
+    return process(qloc, pcfg);
 }
 
 str process(loc qloc, PathConfig pcfg){

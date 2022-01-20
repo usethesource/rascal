@@ -35,6 +35,7 @@ import org.joda.time.DateTime;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -276,7 +277,9 @@ public class Onthology {
                 //			      Files.createDirectories(questionsDestPath);
                 //			    }
                 //			  }
-                String qtext = makeQuestionCompiler().compileQuestions(vf.string(questionsName.toString()), pcfg).getValue();
+                String childPath = "/" + questionsName.toString() + "/" + questionsName.getFileName() + ".questions";
+                ISourceLocation qloc = URIUtil.getChildLocation((ISourceLocation) pcfg.getCourses().get(0), childPath);
+                String qtext = makeQuestionCompiler().compileQuestions(qloc, pcfg).getValue();
                 long fakeTimeStamp = DateTime.now().toInstant().getMillis();
                 Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath, fakeTimeStamp /*TODO*/);
                 questionsConcept.setQuestions();
