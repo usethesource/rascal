@@ -45,7 +45,7 @@ public class QuestionCompiler {
     /**
      * Compile a .questions file to .adoc
      */
-    public IString compileQuestions(IString qmodule, PathConfig pcfg) {
+    public IString compileQuestions(ISourceLocation qmodule, PathConfig pcfg) {
         if (!eval.getHeap().existsModule("lang::rascal::tutor::QuestionCompiler")) {
             eval.doImport(null, "lang::rascal::tutor::QuestionCompiler");
         }
