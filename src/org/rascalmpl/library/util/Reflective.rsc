@@ -22,6 +22,10 @@ import lang::manifest::IO;
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java str getLineSeparator();
 
+@doc{Returns the system-dependent path separator string}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java str getPathSeparator();
+
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
