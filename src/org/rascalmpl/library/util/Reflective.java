@@ -14,7 +14,6 @@
 package org.rascalmpl.library.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -82,10 +81,6 @@ public class Reflective {
 	
 	public IString getLineSeparator() {
         return values.string(System.lineSeparator());
-    }
-	
-	public IString getPathSeparator() {
-        return values.string(File.separator);
     }
 	
 	public IConstructor getProjectPathConfig(ISourceLocation projectRoot, IConstructor mode) {
