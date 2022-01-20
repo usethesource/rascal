@@ -197,7 +197,7 @@ str removeComments(Intro? intro){
 
 public str compileQuestions(str qmodule, PathConfig pcfg) {
     pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin,courses=pcfg.courses);
-    bn = split("/", qmodule)[-1];
+    bn = split(getPathSeparator(), qmodule)[-1];
     qloc = pcfg.courses[0] + ("/" + qmodule + "/" + bn + ".questions");
     return compileQuestions(qloc, pcfg);
 }
