@@ -352,7 +352,7 @@ str getMemoCache(MuFunction fun)
 JCode trans(MuFunction fun, JGenie jg){
     //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
-    //iprintln(fun); // print function
+    iprintln(fun); // print function
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return "";
     
@@ -556,7 +556,7 @@ str trans(muConstr(AType ctype), JGenie jg){
     if(needKwps) pos_formals += "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
     all_formals = needKwps ? (pos_formals + "java.util.Map\<java.lang.String,IValue\> $kwpActuals") :  pos_formals;
     //TODO: was: kwpActual, fix it
-    return "<funInstance>(s(<intercalate(", ", all_formals)>) -\> { return <makeConstructorCall(ctype,  pos_formals, needKwps ? ["$kwpActuals"] : [], jg)>; }, <jg.shareType(ctype)>)";
+    return "<funInstance>((<intercalate(", ", all_formals)>) -\> { return <makeConstructorCall(ctype,  pos_formals, needKwps ? ["$kwpActuals"] : [], jg)>; }, <jg.shareType(ctype)>)";
 }
 
 // ---- Tree operations -------------------------------------------------------
@@ -1127,9 +1127,15 @@ JCode trans(muReturn0FromVisit(), JGenie jg)
       'return;\n";
 
 str semi(str code){
-    return /\)$/ := code ? "<code>;" 
-                         : /[;}][\ \t]*(\/\/.*$)?[\ \t \n]*/ := code ? code 
-                                                                     : "<code>;";
+    if(/\)$/ := code) return "<code>;" ;
+    if(/[;}][\ \t]*(\/\/.*$)?[\ \t \n]*/ := code) return code;
+    if(/\/\*.*\*\// := code) return code;
+    return "<code>;";
+    
+    
+    //return /\)$/ := code ? "<code>;" 
+    //                     : /[;}][\ \t]*(\/\/.*$)?[\ \t \n]*/ := code ? code 
+    //                                                                 : "<code>;";
 }
 
 str semi_nl(str code)
@@ -1238,7 +1244,7 @@ JCode trans(var:muVarKwp(str name, str fuid, AType atype),  JGenie jg)
 
 
 JCode trans(muIsVarKwpDefined(muVarKwp(str name, str fuid, AType atype)),  JGenie jg)
-    = "$kwpActuals.containsKey(\"<unescape(name)>\"";
+    = "$kwpActuals.containsKey(\"<unescape(name)>\")";
     
 JCode trans(muAssign(muVarKwp(str name, str fuid, AType atype), MuExp exp), JGenie jg)
     = "$kwpActuals.put(\"<unescape(name)>\", <trans(exp, jg)>);\n";
@@ -1642,6 +1648,10 @@ JCode trans(muMemoReturn1(AType funType, list[MuExp] args, MuExp functionResult)
 // Lists of expressions
 
 JCode trans(muBlock(list[MuExp] exps), JGenie jg){
+    return "<for(exp <- exps){><trans2Void(exp, jg)><}>";
+}
+
+JCode trans(muAltBlock(list[MuExp] exps), JGenie jg){
     return "<for(exp <- exps){><trans2Void(exp, jg)><}>";
 }
    

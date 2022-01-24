@@ -204,8 +204,8 @@ public data MuExp =
           
           | muEnter(str btscope, MuExp exp, bool yieldWhenExhausted = false)
                                                                 // Enter a backtracking scope
-          | muSucceed(str btscope)                              // Succeed in current backtracking scope
-          | muFail(str label, str comment="")                                   // Fail in current backtracking scope                      
+          | muSucceed(str btscope, str comment="")              // Succeed in current backtracking scope
+          | muFail(str label, str comment="")                   // Fail in current backtracking scope                      
           
           //  Visit
           | muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
@@ -555,9 +555,6 @@ bool exitViaReturn1(muTry(MuExp exp, MuCatch \catch, MuExp \finally))
 bool exitViaReturn1(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) 
     = exitViaReturn(body);
     
-bool exitViaReturn1(muEnter(str label, MuExp exp))
-    = exitViaReturn(exp);
-    
 default bool exitViaReturn1(MuExp exp) {
    //println("default exitViaReturn1: <exp>");
    return false;
@@ -570,10 +567,10 @@ bool hasSequentialExit(MuExp exp) = !noSequentialExit(exp);
 
 // There is no sequential exit from this expression
 
-bool trace = false;
+bool trace = true;
 
 bool reportResult(MuExp exp, bool res){
-    if(trace) { iprintln(exp); println(" ===\> <res>"); }
+    if(trace) { iprintln(exp); println(" noSequentialExit ===\> <res>"); }
     return res;
 }
 
@@ -735,6 +732,13 @@ bool noFailOrSucceed(str enter, MuExp exp){
     return true;
 }
 
+bool noSucceed(str enter, MuExp exp){
+    visit(exp){
+        case muSucceed(enter): return false;
+    }
+    return true;
+}
+
 // ---- block -----------------------------------------------------------------
 
 MuExp muBlock([MuExp exp]) = exp;
@@ -826,17 +830,17 @@ MuExp muReturn1(AType t, muWhileDo(str label, MuExp cond, MuExp body)){
 //    }
          
 MuExp muReturn1(AType t, muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont, yieldWhenExhausted = exhaustedVal))
-    = muForRange(label, var, first, second, last, insertReturn(body, [<"range", label>], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont, [<"range", label>], (t == abool() || t == avalue()), exhaustedVal));
+    = muForRange(label, var, first, second, last, insertReturn(body, [label], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont, [label], (t == abool() || t == avalue()), exhaustedVal));
               
 MuExp muReturn1(AType t, muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont, yieldWhenExhausted = exhaustedVal)){
-    return muForRangeInt(label, var, ifirst, istep, last, insertReturn(body, [<"range", label>], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont, [<"range", label>], (t == abool() || t == avalue()), exhaustedVal));
+    return muForRangeInt(label, var, ifirst, istep, last, insertReturn(body, [label], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont, [label], (t == abool() || t == avalue()), exhaustedVal));
 }    
 MuExp muReturn1(AType t, fo: muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont, yieldWhenExhausted = exhaustedVal)){
-    return muForAll(label, var, iterType, iterable, insertReturn(body, [<"all", label>] , (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont,  [<"all", label>] , (t == abool() || t == avalue()), exhaustedVal));
+    return muForAll(label, var, iterType, iterable, insertReturn(body, [label] , (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont,  [label] , (t == abool() || t == avalue()), exhaustedVal));
 } 
 
 MuExp muReturn1(AType t, fo: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont, yieldWhenExhausted = exhaustedVal)){
-    return muForAny(label, var, iterType, iterable, insertReturn(body, [<"any", label>], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont,  [<"any", label>], (t == abool() || t == avalue()), exhaustedVal));
+    return muForAny(label, var, iterType, iterable, insertReturn(body, [label], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont,  [label], (t == abool() || t == avalue()), exhaustedVal));
 } 
  
 MuExp muReturn1(AType t, muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)){
@@ -853,25 +857,39 @@ private default MuExp addReturn(AType t, bool result, MuExp exp) {
     return muBlock([exp, (t == abool() || t == avalue()) ? muReturn1(abool(), muCon(result)) : muFailReturn(t)]);
 }
 
-MuExp insertReturn(MuExp exp, lrel[str,str] entered, bool asBool, bool _exhaustedVal){
+MuExp insertReturn(MuExp exp, list[str] entered, bool asBool, bool _exhaustedVal){
+//println("insertReturn: exitViaReturn = <exitViaReturn(exp)>, noSequentialExit: <noSequentialExit(exp)>");
+
 //iprintln(exp);
     return
           top-down visit(exp) { 
-                case muSucceed(enter): {    //if(endsWith(enter, "_DESC")) insert muReturn1(abool(), muCon(true));
-                                            //if(entered[0] == <"all", enter>) fail;
-                                            //if(entered[0] == <"any", enter>) insert muReturn1(abool(), muCon(true));
-                                            if(enter == entered<1>[-1] /*&& !endsWith(enter, "_DESC")*/) insert muBlock([ muComment("insertReturn: muSucceed"), muReturn1(abool(), muCon(true))]);
-                                            
-                                            //if(!(enter in entered)) insert muReturn1(abool(), muCon(true));
-                                            //if(!(enter == entered[0] || endsWith(enter, "_DESC"))) fail;
-                                            //insert muReturn1(abool(), muCon(true));
+                //case muBlock([*MuExp exps1, muSucceed(enter), *MuExp exps2]):
+                //                       {    if(enter == entered[-1] && !noSequentialExit(muBlock(exps1))){
+                //                                insert muBlock([ *exps1, muComment("insertReturn: muBlock/muSucceed"), muReturn1(abool(), muCon(true))]);
+                //                            }
+                //                       }
+                //case muValueBlock(AType t, [*MuExp exps1, muSucceed(enter), *MuExp exps2]):
+                //                       {    if(enter == entered[-1] && !noSequentialExit(muBlock(exps1))){
+                //                                insert muValueBlock(t, [ *exps1, muComment("insertReturn: muBlock/muSucceed"), muReturn1(abool(), muCon(true))]);
+                //                            }
+                //                       }
+                //case muBlock([*MuExp exps, muFail(enter)]):
+                //                       {    if(enter == entered[-1] && !noSequentialExit(muBlock(exps))){
+                //                                insert muBlock([ *exps, muComment("insertReturn: muBlock/mufail"), asBool ? muReturn1(abool(), muCon(false)) : muFailReturn(abool())]);
+                //                            } 
+                //                       }   
+                //case muValueBlock([*MuExp exps, muFail(enter)]):
+                //                       {    if(enter == entered[-1] && !noSequentialExit(muBlock(exps))){
+                //                                insert muValueBlock(t, [ *exps, muComment("insertReturn: muBlock/mufail"), asBool ? muReturn1(abool(), muCon(false)) : muFailReturn(abool())]);
+                //                            } 
+                //                       }                       
+                
+                case muSucceed(enter): {  
+                                            if(enter == entered[-1]) insert muBlock([ muComment("insertReturn: muSucceed(<enter>)"), muReturn1(abool(), _exhaustedVal ? muCon(false) : muCon(true))]);
                                        }
-                case muFail(enter):    {    ;
-                                            //if(entered[0] == <"all", enter>) fail;
-                                            //if(entered[0] == <"any", enter>) fail; //insert muReturn1(abool(), muCon(true));
-                                            
-                                            if(enter == entered<1>[-1])   //enter == entered[-1] //<<<
-                                                insert muBlock([ muComment("insert return mufail"), asBool ? muReturn1(abool(), muCon(false)) : muFailReturn(abool())]);
+                case muFail(enter):    { 
+                                            if(enter == entered[-1])
+                                                insert muBlock([ muComment("insertReturn mufail(<enter>)"), asBool ? muReturn1(abool(), _exhaustedVal ?muCon(true) : muCon(false)) : muFailReturn(abool())]);
                                        }
                
                 //case muEnter(str enter1, MuExp exp1, yieldWhenExhausted=exhaustedVal1): {
@@ -902,9 +920,10 @@ MuExp removeDeadCode(MuExp exp)
 MuExp removeDeadCode(MuExp exp, list[str] entered){
     //println("Before removeDeadCode:"); iprintln(exp);
     res =  top-down-break visit(exp){
-        case muBlock([*MuExp pre, MuExp exp2, *MuExp post]) => muBlock([*pre, exp2]) 
+        case mb: muBlock([*MuExp pre, MuExp exp2, *MuExp post]) => muBlock([*pre, exp2]) 
              when !isEmpty(post), 
-                  muSucceedSwitchCase(_) := post[-1] ? noSequentialExit(exp2) : exitViaReturn(exp2), bprintln("muBlock removes: <post>")
+                  noSequentialExit(exp2)
+                  //muSucceedSwitchCase(_) := post[-1] ? noSequentialExit(exp2) : exitViaReturn(exp2), bprintln("muBlock removes: <post> from <mb>")
         //case muValueBlock(AType t, [*MuExp pre, MuExp exp2, *MuExp post]) => muValueBlock(t, [*pre, exp2]) when !isEmpty(post), noSequentialExit(exp2, entered)
         case muEnter(str enter1, MuExp exp1, yieldWhenExhausted = exhaustedVal) => muEnter(enter1, removeDeadCode(exp1, enter1 + entered), yieldWhenExhausted = exhaustedVal)
         case muWhileDo(str enter1, MuExp cond, MuExp body) => muWhileDo(enter1, cond, removeDeadCode(body, enter1 + entered))
@@ -927,7 +946,9 @@ MuExp removeDeadCode(MuExp exp, list[str] entered){
 }
 
 MuExp muReturn1(AType t, me:muEnter(str btscope, MuExp exp, yieldWhenExhausted=exhaustedVal)){
-    ires = insertReturn(exp, [<"enter", btscope>], t == abool() || t == avalue(), exhaustedVal);
+println("me:"); iprintln(me);
+    ires = insertReturn(exp, [btscope], t == abool() || t == avalue(), exhaustedVal);
+println("ires:"); iprintln(ires);
     res = muEnter(btscope, ires, yieldWhenExhausted=exhaustedVal);
     nos = noSequentialExit(res);
     return noSequentialExit(res) ? res : muBlock([muComment("muReturn1/muEnter"), addReturn(t, exhaustedVal, res)]);
@@ -1017,6 +1038,7 @@ MuExp muAssign(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
 
 MuExp insertAssignBool(MuExp var, MuExp exp, set[str] entered){
     return top-down-break visit(exp) { 
+                case muIfExp(cond, thenExp, elseExp) => muIfExp(cond, insertAssignBool(var, thenExp, entered), insertAssignBool(var, thenExp, entered))
                 case muSucceed(enter) => muBlock([muAssign(var, muCon(true)), muSucceed(enter)]) when enter in entered
                 case muFail(enter) => muBlock([muAssign(var, muCon(false)), muFail(enter)])
                 case muEnter(str enter1, MuExp exp1, yieldWhenExhausted = exhaustedVal) => muEnter(enter1, insertAssignBool(var, exp1, entered + enter1), yieldWhenExhausted = exhaustedVal)
@@ -1088,7 +1110,11 @@ MuExp muVarInit(MuExp var, muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart))
     =  muBlock([muVarDecl(var), muIfElse(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);
     
 MuExp muAssign(MuExp var, muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart))
-    =  muIfElse(cond, muAssign(var, thenPart), muAssign(var, elsePart));   
+    =  muIfElse(cond, muAssign(var, thenPart), muAssign(var, elsePart));  
+    
+MuExp muAssign(MuExp var, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
+    =  muIfElse(cond, muAssign(var, thenPart), muAssign(var, elsePart));  
+     
     
 // ----
 MuExp muConInit(MuExp var, muIf(MuExp cond, MuExp thenPart))
@@ -1157,9 +1183,9 @@ MuExp muIfExp(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, M
 //    = muValueBlock(t, cond, thenPart, muValueBlock([*exps, muIfExp(cond, thenPart, exp), elsePart));
     
     
-//MuExp muIfExp(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
+default MuExp muIfExp(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 
-MuExp muIfExp(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
+default MuExp muIfExp(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
 MuExp muIfExp(muIfExp(MuExp cond, MuExp thenPart1, MuExp elsePart1), MuExp thenPart2, MuExp elsePart2)
     = muIfExp(cond, muIfExp(thenPart1, thenPart2, elsePart2), muIfExp(elsePart1, thenPart2, elsePart2));
@@ -1202,18 +1228,17 @@ MuExp muNot(fr: muForRange(str label, MuExp var, MuExp first, MuExp second, MuEx
 MuExp muNot(fr: muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont))
     = muForRangeInt(label, var, ifirst, istep, last, muNot(body), muNot(falseCont)/*, yieldWhenExhausted = !fr.yieldWhenExhausted*/);
     
-//MuExp muNot(mt:muTemplateAdd(MuExp template, AType atype, value val))
-//    = mt;
-//    
+MuExp muNot(mt:muTemplateAdd(MuExp template, AType atype, value val))
+    = mt;
+    
+MuExp muNot(mt:muTemplateEndIndent(MuExp template, str unindent))
+    = mt;
+    
 //MuExp muNot(ma: muAssign(MuExp var, MuExp exp))
 //    = ma;
 //    
 //MuExp muNot(mc:muContinue(str label))
 //    = mc;
-//MuExp muNot(ms:muSucceed(str label))
-//    = ms;
-//MuExp muNot(mf:muFail(str label))
-//    = mf;
     
 MuExp muNot(muReturn1(AType t, MuExp exp)){
     return muReturn1(t, muNot(exp));
@@ -1239,8 +1264,8 @@ MuExp insertThenPart(MuExp exp, MuExp thenPart, set[str] entered){
 }
 
 //MuExp muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart) = thenPart when thenPart == elsePart;
-//MuExp muIfElse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart
-//    when /muFail(_) !:= thenPart;
+MuExp muIfElse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart
+    when /muFail(_) !:= thenPart;
 //MuExp muIfElse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
 //MuExp muIfElse(MuExp cond, muCon(_), muCon(_)) = muBlock([]);
@@ -1295,8 +1320,8 @@ MuExp muEnter(str label, muForAll(label, MuExp var, AType iterType, MuExp iterab
 MuExp muEnter(str label, muForAny(label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont, yieldWhenExhausted = exhaustedVal))
     = muForAny(label, var, iterType, iterable, body, falseCont, yieldWhenExhausted = exhaustedVal);
     
-MuExp muEnter(str label, muIfElse(MuExp cond, muSucceed(label), muFail(label))) = cond;
-MuExp muEnter(str label, muIfElse(MuExp cond, muFail(label), muSucceed(label))) = muNot(cond);   
+//MuExp muEnter(str label, muIfElse(MuExp cond, muSucceed(label), muFail(label))) = cond;
+//MuExp muEnter(str label, muIfElse(MuExp cond, muFail(label), muSucceed(label))) = muNot(cond);   
     
 // ---- muForAll --------------------------------------------------------------
 
@@ -1400,6 +1425,7 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                 <flElse, auxElse, preElse, postElse> = flattenArgs([elsePart]);
                 if(preCond != preThen && preCond != preElse) pre += preCond;
                 pre += preThen + preElse;
+                auxVars += auxCond + auxThen + auxElse;  // <<<<<<<
                 //pre += preCond + preThen + preElse;
                 newArgs += muIfExp(size(postCond) == 1 ? postCond[0] : muValueBlock(avalue(), postCond), 
                                    size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
@@ -1415,6 +1441,7 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                 <flThen, auxThen, preThen, postThen> = flattenArgs([thenPart]);
                 <flElse, auxElse, preElse, postElse> = flattenArgs([elsePart]);
                 pre += preThen + preElse;
+                auxVars += auxThen + auxElse;  // <<<<<<<
                 newArgs += muIfExp(cond, size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
                                          size(postElse) == 1 ? postElse[0] : muValueBlock(avalue(), postElse));
             } else {

@@ -1,29 +1,215 @@
 module lang::rascalcore::compile::Examples::Tst1
 
+data S =  a()
+        | b()
+        | c()
+        | d()
+        | par() 
+        | \pl(list[S] parameters)
+        ;
+    
+bool abcpl1(S x) { 
+   return (  a() := x 
+          || b() := x
+          || c() := x 
+          || pl([par(), *_]) := x
+          );
+}  
+
+bool not_abcpl1(S x) { 
+   return !(  a() := x 
+           || 
+           b() := x
+           || 
+           c() := x 
+           || 
+           pl([par(), *_]) := x
+           );
+} 
+
+test bool abcpl1_1() = abcpl1(a());
+test bool abcpl1_2() = abcpl1(b());
+test bool abcpl1_3() = abcpl1(c());
+test bool abcpl1_4() = !abcpl1(d());
+test bool abcpl1_5() = abcpl1(pl([par()]));
+test bool abcpl1_6() = abcpl1(pl([par(), a()]));
+test bool abcpl1_7() = !abcpl1(pl([a(), b()]));
+
+test bool not_abcpl1_1() = !not_abcpl1(a());
+test bool not_abcpl1_2() = !not_abcpl1(b());
+test bool not_abcpl1_3() = !not_abcpl1(c());
+test bool not_abcpl1_4() = not_abcpl1(d());
+/**/test bool not_abcpl1_5() = !not_abcpl1(pl([par()]));
+/**/test bool not_abcpl1_6() = !not_abcpl1(pl([par(), a()]));
+
+
+value main() = not_abcpl1(pl([par()]));
+
+
+//test bool not_abcpl1_7() = not_abcpl1(pl([a(), b()]));  
+//
+//bool abcpl2(S x) { 
+//   y = (  a() := x 
+//          || b() := x
+//          || c() := x 
+//          || pl([par(), *_]) := x
+//         );
+//   return y;
+//} 
+//
+//bool not_abcpl2(S x) { 
+//   y = !(  a() := x 
+//          || b() := x
+//          || c() := x 
+//          || pl([par(), *_]) := x
+//         );
+//   return y;
+//}
+//
+///**/test bool abcpl2_1() = abcpl2(a());
+///**/test bool abcpl2_2() = abcpl2(b());
+///**/test bool abcpl2_3() = abcpl2(c());
+//test bool abcpl2_4() = !abcpl2(d());
+//test bool abcpl2_5() = abcpl2(pl([par()]));
+//test bool abcpl2_6() = abcpl2(pl([par(), a()]));
+//test bool abcpl2_7() = !abcpl2(pl([a(), b()]));
+//
+///**/test bool not_abcpl2_1() = !not_abcpl2(a());
+///**/test bool not_abcpl2_2() = !not_abcpl2(b());
+///**/test bool not_abcpl2_3() = !not_abcpl2(c());
+//test bool not_abcpl2_4() = not_abcpl2(d());
+///**/test bool not_abcpl2_5() = !not_abcpl2(pl([par()]));
+///**/test bool not_abcpl2_6() = !not_abcpl2(pl([par(), a()]));
+//test bool not_abcpl2_7() = not_abcpl2(pl([a(), b()]));  
+//
+//bool abcpl3(S x) { 
+//   if (   a() := x 
+//       || b() := x
+//       || c() := x 
+//       || pl([par(), *_]) := x
+//      )
+//      return true;
+//   else
+//      return false;
+//} 
+//
+//bool not_abcpl3(S x) { 
+//   if (!(  a() := x 
+//        || b() := x
+//        || c() := x 
+//        || pl([par(), *_]) := x
+//        )
+//      )
+//      return true;
+//   else
+//      return false;
+//} 
+//
+//test bool abcpl3_1() = abcpl3(a());
+//test bool abcpl3_2() = abcpl3(b());
+//test bool abcpl3_3() = abcpl3(c());
+//test bool abcpl3_4() = !abcpl3(d());
+//test bool abcpl3_5() = abcpl3(pl([par()]));
+//test bool abcpl3_6() = abcpl3(pl([par(), a()]));
+//test bool abcpl3_7() = !abcpl3(pl([a(), b()]));
+//
+///**/test bool not_abcpl3_1() = !not_abcpl3(a());
+///**/test bool not_abcpl3_2() = !not_abcpl3(b());
+///**/test bool not_abcpl3_3() = !not_abcpl3(c());
+//test bool not_abcpl3_4() = not_abcpl3(d());
+///**/test bool not_abcpl3_5() = !not_abcpl3(pl([par()]));
+///**/test bool not_abcpl3_6() = !not_abcpl3(pl([par(), a()]));
+//test bool not_abcpl3_7() = not_abcpl3(pl([a(), b()])); 
+//
+//bool abcpl4(S x) { 
+//   return  (  a() := x 
+//           || b() := x
+//           || c() := x 
+//           || pl([par(), *_]) := x
+//           );
+//}
+//
+//bool not_abcpl4(S x) { 
+//   return  !(  a() := x 
+//            || b() := x
+//            || c() := x 
+//            || pl([par(), *_]) := x
+//            );
+//}
+//
+//test bool abcpl4_1() = abcpl4(a());
+//test bool abcpl4_2() = abcpl4(b());
+//test bool abcpl4_3() = abcpl4(c());
+//test bool abcpl4_4() = !abcpl4(d());
+//test bool abcpl4_5() = abcpl4(pl([par()]));
+//test bool abcpl4_6() = abcpl4(pl([par(), a()]));
+//test bool abcpl4_7() = !abcpl4(pl([a(), b()]));
+//
+//test bool not_abcpl4_1() = !not_abcpl4(a());
+//test bool not_abcpl4_2() = !not_abcpl4(b());
+//test bool not_abcpl4_3() = !not_abcpl4(c());
+//test bool not_abcpl4_4() = not_abcpl4(d());
+///**/test bool not_abcpl4_5() = !not_abcpl4(pl([par()]));
+///**/test bool not_abcpl4_6() = !not_abcpl4(pl([par(), a()]));
+//test bool not_abcpl4_7() = not_abcpl4(pl([a(), b()])); 
+//
+//bool not_abcpl5(S x) { 
+//   return      a() !:= x 
+//            && b() !:= x
+//            && c() !:= x 
+//            && pl([par(), *_]) !:= x
+//            ;
+//}
+//
+///**/test bool not_abcpl5_1() = !not_abcpl5(a());
+///**/test bool not_abcpl5_2() = !not_abcpl5(b());
+///**/test bool not_abcpl5_3() = !not_abcpl5(c());
+///**/test bool not_abcpl5_4() = not_abcpl5(d());
+///**/test bool not_abcpl5_5() = !not_abcpl5(pl([par()]));
+///**/test bool not_abcpl5_6() = !not_abcpl5(pl([par(), a()]));
+///**/test bool not_abcpl5_7() = not_abcpl5(pl([a(), b()])); 
+//
+///**/test bool abcpl12_equiv(S s) = abcpl1(s) == abcpl2(s);
+///**/test bool abcpl23_equiv(S s) = abcpl2(s) == abcpl3(s);
+//test bool abcpl34_equiv(S s) = abcpl3(s) == abcpl4(s);
+//
+//test bool not_abcpl12_equiv(S s) = not_abcpl2(s) == not_abcpl3(s);
+///**/test bool not_abcpl34_equiv(S s) = not_abcpl3(s) == not_abcpl4(s);
+            
+//import lang::rascal::\syntax::Rascal;
+//import Grammar;
+//import ParseTree;
+//     
+//bool isManual(set[Attr] as) = (Attr::\tag("manual"()) in as);
+//
+//value main() = ProdModifier::\tag("manual"());
+
 
 //value main() //test bool escapedPatternName8a() 
 //    = {*\x} := {3, 4} && x == {3, 4};
+
+
+//data D = d() | d1(int) | d1(str s);
 //
-//
-//bool main(){
-//
-//    x = 2;
-//    while(1 := x){
-//        x = 1;
-//    }
+//public bool intersect(set[D] u1, set[D] u2) {
+//  if ({d1(_)} := u1 
+//      && 
+//      {d1(_)} := u2) {
 //    return true;
+//  }
+//  return false;
 //}
 
-data D = d1(int) | d1(str s);
-
-public bool intersect(set[D] u1, set[D] u2) {
-  if ({d1(_)} := u1 
-      && 
-      {d1(_)} := u2) {
-    return true;
-  }
-  return false;
-}
+//public bool intersect(set[D] u1, set[D] u2) {
+//  if ({d()} := u1 
+//      && 
+//      {d()} := u2) {
+//    return true;
+//  }
+//  return false;
+//}
+//
+//value main() = intersect({d()} , {d()});
 
 
 //public str unescape(str name) {
