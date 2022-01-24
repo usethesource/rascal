@@ -284,7 +284,7 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
         resume = getResume(normalizeAnd(conds)[-1], btscopes);
         enterLabelled(label, ifName, resume);
         thenCode = translate(thenStatement, btscopes);
-        if(hasSequentialExit(thenCode)){
+        if(hasSequentialExit(thenCode)){            // TODO: when is this needed?
             thenCode = muBlock([thenCode, muFail(ifName)]);
         }
         code = muEnter(ifName, 

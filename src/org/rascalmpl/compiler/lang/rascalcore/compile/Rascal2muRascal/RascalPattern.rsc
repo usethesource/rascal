@@ -108,6 +108,12 @@ str getFail(Tree t, str parent, BTSCOPES btscopes) = getParent(btscopes[getLoc(t
 str getFail(loc l, str parent, BTSCOPES btscopes)  = getParent(btscopes[l].\fail, parent);
 
 BTINFO registerBTScope(Tree t, BTSCOPE btscope, BTSCOPES btscopes){
+    l = getLoc(t);
+    if(btscopes[l]? && btscopes[l] != btscope){
+        println("btscope: <l> is being redefined:
+                '<btscopes[l]> =\> 
+                '<btscope>");
+    }
     btscopes[getLoc(t)] = btscope;
     return <btscope, btscopes>;
 }
@@ -1027,73 +1033,6 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
 
 // ==== set pattern ===========================================================
 
-BTINFO getBTInfoSet(p:(Pattern) `<QualifiedName name>`, BTSCOPE btscope, BTSCOPES btscopes){
-    enter1 = btscope.enter + nameSuffix("VAR", name);
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
-}  
-  
-BTINFO getBTInfoSet(p:(Pattern) `<Type tp> <Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter + nameSuffix("VAR", name);
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
-}
-
-BTINFO getBTInfoSet(p:(Pattern) `<QualifiedName name>*`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter + nameSuffix("MVAR", name);
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
-}
-
-BTINFO getBTInfoSet(p:(Pattern) `*<Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter + nameSuffix("MVAR", name);
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
-}
-
-BTINFO getBTInfoSet(p:(Pattern) `*<Type tp> <Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter + nameSuffix("MVAR", name);
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
-}
-
-BTINFO getBTInfoSet(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, BTSCOPE btscope, BTSCOPES btscopes){ 
-    //return getBTInfo(p, btscope, btscopes);
-    enter1 = btscope.enter;
-    return getBTInfo(p, <enter1, enter1 + "_CONS_<consLabel(expression)>", enter1>, btscopes);
-}
-
-BTINFO getBTInfoSet(p:(Pattern) `[<{Pattern ","}* pats>]`, BTSCOPE btscope, BTSCOPES btscopes)
-    = getBTInfo(p, btscope, btscopes);
-    
-BTINFO getBTInfoSet(p:(Pattern) `{<{Pattern ","}* pats>}`, BTSCOPE btscope, BTSCOPES btscopes)
-    = getBTInfo(p, btscope, btscopes);
-    
-BTINFO getBTInfoSet(p:(Pattern) `\<<{Pattern ","}* pats>\>`, BTSCOPE btscope, BTSCOPES btscopes)
-    = getBTInfo(p, btscope, btscopes);
-    
-BTINFO getBTInfoSet(p:(Pattern) `<Name name> : <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES btscopes){
-    <btscope, btscopes> = getBTInfo(pattern, btscope, btscopes);
-    return registerBTScope(p, btscope, btscopes);
-}
-    
-BTINFO getBTInfoSet(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES btscopes){
-    <btscope, btscopes> = getBTInfo(pattern, btscope, btscopes);
-    return registerBTScope(p, btscope, btscopes);
-}
-
-default BTINFO getBTInfoSet(Pattern p, BTSCOPE btscope, BTSCOPES btscopes) {
-    enter1 = btscope.enter + nextTmp("_DFLT");
-    resume1 = enter1;
-    fail1 = btscope.resume;
-    return registerBTScope(p, <enter1, resume1, resume1>, btscopes);
-}
-
 // ---- getBTInfo
     
 BTINFO getBTInfo(p:(Pattern) `{<{Pattern ","}* pats>}`,  BTSCOPE btscope, BTSCOPES btscopes){
@@ -1116,8 +1055,22 @@ MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, MuE
 
 str isLast(bool b) = b ? "LAST_" : "";
 
+BTINFO getBTInfoSet(p:(Pattern) `<QualifiedName name>`, BTSCOPE btscope, BTSCOPES btscopes){
+    enter1 = btscope.enter + nameSuffix("VAR", name);
+    resume1 = enter1;
+    fail1 = btscope.resume;
+    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
+}  
+
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont/*, MuExp restore=muBlock([])*/) {
     return translateVarAsSetElem(mkVar(p), isDefinition(p), p@\loc, last, elmType, subject, prevSubject, btscopes, trueCont, falseCont/*, restore=restore*/);
+}
+
+BTINFO getBTInfoSet(p:(Pattern) `<Type tp> <Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
+    enter1 = btscope.enter + nameSuffix("VAR", name);
+    resume1 = enter1;
+    fail1 = btscope.resume;
+    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
 }
 
 MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont/*, MuExp restore=muBlock([])*/) {
@@ -1175,8 +1128,22 @@ MuExp translateVarAsSetElem(MuExp var, bool isDefinition, loc patloc, bool last,
                    );
 } 
 
+BTINFO getBTInfoSet(p:(Pattern) `<QualifiedName name>*`, BTSCOPE btscope, BTSCOPES btscopes) {
+    enter1 = btscope.enter + nameSuffix("MVAR", name);
+    resume1 = enter1;
+    fail1 = btscope.resume;
+    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
+}
+
 MuExp translatePatAsSetElem(p:(Pattern) `_*`, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
     return translateMultiVarAsSetElem(mkVar(p), false, p@\loc, last, elmType, subject, prevSubject, btscopes, trueCont, falseCont);
+}
+
+BTINFO getBTInfoSet(p:(Pattern) `*<Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
+    enter1 = btscope.enter + nameSuffix("MVAR", name);
+    resume1 = enter1;
+    fail1 = btscope.resume;
+    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
 }
 
 MuExp translatePatAsSetElem(p:(Pattern) `*_`, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
@@ -1189,7 +1156,14 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last, ATyp
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
     return translateMultiVarAsSetElem(mkVar(p), isDefinition(name@\loc), p@\loc, last, elmType, subject, prevSubject, btscopes, trueCont, falseCont); 
- }
+}
+ 
+BTINFO getBTInfoSet(p:(Pattern) `*<Type tp> <Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
+    enter1 = btscope.enter + nameSuffix("MVAR", name);
+    resume1 = enter1;
+    fail1 = btscope.resume;
+    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
+} 
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp>  _`, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
    return translateMultiVarAsSetElem(mkVar(p), false, p@\loc, last, elmType, subject, prevSubject, btscopes, trueCont, falseCont);
@@ -1268,6 +1242,10 @@ MuExp translatePatAsSetElem(p:(Pattern) `+<Pattern argument>`, bool last, AType 
   throw "splicePlus pattern <p>";
 }   
 
+BTINFO getBTInfoSet(p:(Pattern) `<Name name> : <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES btscopes){
+    <btscope, btscopes> = getBTInfo(pattern, btscope, btscopes);
+    return registerBTScope(p, btscope, btscopes);
+}
 MuExp translatePatAsSetElem(p:(Pattern) `<Name name> : <Pattern pattern>`, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) { 
     str fuid = topFunctionScope();
     elem = muTmpIValue(nextTmp("elem"), fuid, elmType);
@@ -1296,8 +1274,14 @@ MuExp translatePatAsSetElem(p:(Pattern) `<Name name> : <Pattern pattern>`, bool 
                         muFail(forAll_scope)
                         ),
                     muBlock([]));
-    return code;
+    //return code;
+    return redirect(code, my_btscope.enter, forAll_scope);
 } 
+
+BTINFO getBTInfoSet(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES btscopes){
+    <btscope, btscopes> = getBTInfo(pattern, btscope, btscopes);
+    return registerBTScope(p, btscope, btscopes);
+}
 
 MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
     str fuid = topFunctionScope();
@@ -1324,7 +1308,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name> : <Pattern patter
         }
     }
     // TODO length check?
-    forAll_scope = my_btscope.enter+ "_NAMED_SET_ELM";
+    forAll_scope = my_btscope.enter + "_NAMED_SET_ELM";
     code = muForAll(forAll_scope, elem, aset(elmType), prevSubject,
                     translatePat(p, elmType, elem, btscopes, 
                         muBlock([ muConInit(subject, muPrim("delete", aset(elmType), [aset(elmType), elmType], [prevSubject, elem], p@\loc)),
@@ -1333,9 +1317,31 @@ MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name> : <Pattern patter
                         muFail(forAll_scope)
                         ),
                     muBlock([]));
-    return code;
-}   
+    //return code;
+    return redirect(code, my_btscope.enter, forAll_scope);
+}  
 
+BTINFO getBTInfoSet(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, BTSCOPE btscope, BTSCOPES btscopes){ 
+    //return getBTInfo(p, btscope, btscopes);
+    enter1 = btscope.enter;
+    return getBTInfo(p, <enter1, enter1 + "_CONS_<consLabel(expression)>", enter1>, btscopes);
+}
+
+BTINFO getBTInfoSet(p:(Pattern) `[<{Pattern ","}* pats>]`, BTSCOPE btscope, BTSCOPES btscopes)
+    = getBTInfo(p, btscope, btscopes);
+    
+BTINFO getBTInfoSet(p:(Pattern) `{<{Pattern ","}* pats>}`, BTSCOPE btscope, BTSCOPES btscopes)
+    = getBTInfo(p, btscope, btscopes);
+    
+BTINFO getBTInfoSet(p:(Pattern) `\<<{Pattern ","}* pats>\>`, BTSCOPE btscope, BTSCOPES btscopes)
+    = getBTInfo(p, btscope, btscopes);
+
+default BTINFO getBTInfoSet(Pattern p, BTSCOPE btscope, BTSCOPES btscopes) {
+    enter1 = btscope.enter + nextTmp("_DFLT"); // nextTmp("_DFLT_SET_ELM");
+    resume1 = enter1;
+    fail1 = btscope.resume;
+    return registerBTScope(p, <enter1, resume1, resume1>, btscopes);
+} 
 
 default MuExp translatePatAsSetElem(Pattern p, bool last, AType elmType, MuExp subject, MuExp prevSubject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
 
@@ -1359,7 +1365,8 @@ default MuExp translatePatAsSetElem(Pattern p, bool last, AType elmType, MuExp s
                             muFail(forAll_scope, comment="default set elem")
                             ),
                         muBlock([]));
-        return code;
+        //return code;
+        return redirect(code, my_btscope.enter, forAll_scope);
   }
 }
 
@@ -1747,7 +1754,7 @@ MuExp computeFail(Pattern p, list[Pattern] lpats, int i, btscopes, MuExp falseCo
     if(i < 0) return falseCont;
     resume_elm = getResume(lpats[i], btscopes);
     fail_p = getFail(p, btscopes);
-    return resume_elm == fail_p ? falseCont : muFail(resume_elm, comment="1");
+    return resume_elm == fail_p ? falseCont : muFail(resume_elm, comment="computeFail");
 }
 
 MuExp computeFail(Tree p, list[Tree] lpats, int i, btscopes, MuExp falseCont){
@@ -1785,7 +1792,7 @@ MuExp translateListPat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType,
     typecheckNeeded = asubtype(getType(p), subjectType);
   
     //iprintln(trueCont);
-    trueCont = muIfElse(muEqualNativeInt(cursor, sublen), trueCont, muFail(getResume(lpats[-1], btscopes)));
+    trueCont = muIfElse(muEqualNativeInt(cursor, sublen), trueCont, muFail(getResume(lpats[-1], btscopes), comment="list match1"));
     for(i <- reverse(index(lpats))){
         trueCont = translatePatAsListElem(lpats[i], lookahead[i], subjectType, subject, sublen, cursor, i, btscopes, 
                                                     trueCont, 

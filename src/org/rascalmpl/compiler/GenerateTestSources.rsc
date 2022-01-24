@@ -28,53 +28,55 @@ void generateTestSources(PathConfig pcfg) {
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
 
-   //libraryModules = ["Boolean", 
-   //                  "DateTime", 
-   //                  "Exception", 
-   //                  "Grammar", 
-   //                  "IO", 
-   //                  "List", 
-   //                  "ListRelation", 
-   //                  "Location", 
-   //                  "Map", 
-   //                  "Message", 
-   //                  "Node", 
-   //                  "ParseTree", 
-   //                  "Prelude", 
-   //                  "Relation", 
-   //                  "Set", "String", 
-   //                  /*"Traversal",*/
-   //                  "Type", 
-   //                  "ValueIO",
-   //                  "analysis::graphs::Graph", 
-   //                  "analysis::statistics::Correlation",
-   //                  "analysis::statistics::Descriptive",
-   //                  "analysis::statistics::Frequency",
-   //                  "analysis::statistics::Inference",
-   //                  "analysis::statistics::SimpleRegression",
-   //                  "lang::json::IO",
-   //                  "lang::manifest::IO",
-   //                  "lang::rascal::syntax",
-   //                  "lan::xml::DOM",
-   //                  "lang::xml::IO",
-   //                  "util::FileSystem", 
-   //                  "util::Math",
-   //                  "util::Maybe",
-   //                  "util::Memo",
-   //                  "util::PriorityQueue",
-   //                  "util::Reflective",
-   //                  "util::SemVer",
-   //                  "util::UUID",
-   //                 
-   //                  "analysis::m3::AST", 
-   //                  "analysis::m3::Core", 
-   //                  "analysis::m3::FlowGraph", 
-   //                  "analysis::m3::Registry",
-   //                  "analysis::m3::TypeSymbol"];  
-   //
-   //for (m <- libraryModules) {
-   //  safeCompile(m, testConfig, (int d) { durations[m] = d; });
-   //}
+   libraryModules = ["Boolean", 
+                     "DateTime", 
+                     "Exception", 
+                     "Grammar", 
+                     "IO", 
+                     "List", 
+                     "ListRelation", 
+                     "Location", 
+                     "Map", 
+                     "Message", 
+                     "Node", 
+                     "ParseTree", 
+                     "Prelude", 
+                     "Relation", 
+                     "Set", "String", 
+                     /*"Traversal",*/
+                     "Type", 
+                     "ValueIO",
+                     "analysis::graphs::Graph", 
+                     "analysis::statistics::Correlation",
+                     "analysis::statistics::Descriptive",
+                     "analysis::statistics::Frequency",
+                     "analysis::statistics::Inference",
+                     "analysis::statistics::SimpleRegression",
+                     "lang::json::IO",
+                     "lang::manifest::IO",
+                     "lang::rascal::syntax::Rascal",
+                     "lan::xml::DOM",
+                     "lang::xml::IO",
+                     "util::FileSystem", 
+                     "util::Math",
+                     "util::Maybe",
+                     "util::Memo",
+                     "util::PriorityQueue",
+                     "util::Reflective",
+                     "util::SemVer",
+                     "util::UUID",
+                     
+                     "demo::lang::Pico::Syntax",
+                    
+                     "analysis::m3::AST", 
+                     "analysis::m3::Core", 
+                     "analysis::m3::FlowGraph", 
+                     "analysis::m3::Registry",
+                     "analysis::m3::TypeSymbol"];  
+   
+   for (m <- libraryModules) {
+     safeCompile(m, testConfig, (int d) { durations[m] = d; });
+   }
      
    testFolder = |std:///lang/rascal/tests|;
    
