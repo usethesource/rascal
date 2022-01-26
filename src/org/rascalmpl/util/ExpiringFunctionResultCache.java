@@ -32,6 +32,7 @@ import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.util.SecondsTicker;
 
 /**
  * Cache of Rascal function results. <br/>
