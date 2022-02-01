@@ -23,6 +23,7 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -335,56 +336,39 @@ public class ExpiringFunctionResultCache<TResult> {
     private static enum Cleanup {
         Instance;
 
-        private final CleanupThread thread;
+        private final ConcurrentLinkedQueue<WeakReference<ExpiringFunctionResultCache<?>>> caches = new ConcurrentLinkedQueue<>();
 
         private Cleanup() {
-            thread = new CleanupThread();
-            thread.start();
+            // start the cleanup loop
+            doCleanup();
         }
 
-        public void register(@UnknownInitialization ExpiringFunctionResultCache<?> cache) {
-            thread.register(cache);
-        }
-
-    }
-
-    private static class CleanupThread extends Thread {
-        private final ConcurrentLinkedQueue<WeakReference<ExpiringFunctionResultCache<?>>> caches = new ConcurrentLinkedQueue<>();
-        
-        public CleanupThread() {
-            super("Cleanup Thread for " + ExpiringFunctionResultCache.class.getName());
-            setDaemon(true);
+        private void doCleanup() {
+            CompletableFuture
+                .delayedExecutor(5, TimeUnit.SECONDS)
+                .execute(this::doCleanup);
+            try {
+                Iterator<WeakReference<ExpiringFunctionResultCache<?>>> it = caches.iterator();
+                while (it.hasNext()) {
+                    ExpiringFunctionResultCache<?> cur = it.next().get();
+                    if (cur == null) {
+                        it.remove();
+                    }
+                    else {
+                        cur.cleanup();
+                    }
+                }
+            }
+            catch (Throwable e) {
+                System.err.println("Cleanup job failed with: " + e.getMessage());
+                e.printStackTrace(System.err);
+            }
         }
 
         public void register(@UnknownInitialization ExpiringFunctionResultCache<?> cache) {
             caches.add(new WeakReference<>(cache));
         }
-        
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    TimeUnit.SECONDS.sleep(5);
-                } catch (InterruptedException e) {
-                    return;
-                }
-                try {
-                    Iterator<WeakReference<ExpiringFunctionResultCache<?>>> it = caches.iterator();
-                    while (it.hasNext()) {
-                        ExpiringFunctionResultCache<?> cur = it.next().get();
-                        if (cur == null) {
-                            it.remove();
-                        }
-                        else {
-                            cur.cleanup();
-                        }
-                    }
-                }
-                catch (Throwable e) {
-                    System.err.println("Cleanup thread failed with: " + e.getMessage());
-                    e.printStackTrace(System.err);
-                }
-            }
-        }
+
     }
+
 }
