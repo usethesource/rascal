@@ -61,7 +61,7 @@ public class ExpiringFunctionResultCache<TResult> {
             .softValues()
             .build();
         this.cleared =  new ReferenceQueue<>();
-        Cleanup.Instance.register(this);
+        ExpiringFunctionResultCache.scheduleCleanup(this);
     }
 
     private static Caffeine<Object, Object> configure(int secondsTimeout, int maxEntries) {
@@ -111,18 +111,28 @@ public class ExpiringFunctionResultCache<TResult> {
         entries.invalidateAll();
     }
 
-    /**
-     * Internal method only, used by cleanup thread
-     */
-    private void cleanup() {
-        synchronized (cleared) {
+    private static void scheduleCleanup(@UnknownInitialization ExpiringFunctionResultCache<?> cache) {
+        doCleanup(new WeakReference<>(cache));
+    }
+
+    private static void doCleanup(WeakReference<ExpiringFunctionResultCache<?>> cache) {
+        var actualCache = cache.get();
+        if (actualCache == null) {
+            return;
+        }
+        // we schedule the next run
+        CompletableFuture
+            .delayedExecutor(5, TimeUnit.SECONDS)
+            .execute(() -> doCleanup(cache));
+
+        // then we do the actual cleanup
+        synchronized (actualCache.cleared) {
             Reference<?> gced;
-            while ((gced = cleared.poll()) != null) {
-                entries.invalidate(gced);
+            while ((gced = actualCache.cleared.poll()) != null) {
+                actualCache.entries.invalidate(gced);
             }
         }
     }
-
 
 
 
@@ -208,47 +218,6 @@ public class ExpiringFunctionResultCache<TResult> {
         }
 
         
-    }
-
-    /**
-     * Cleanup singleton that wraps {@linkplain CleanupThread}
-     */
-    private static enum Cleanup {
-        Instance;
-
-        private final ConcurrentLinkedQueue<WeakReference<ExpiringFunctionResultCache<?>>> caches = new ConcurrentLinkedQueue<>();
-
-        private Cleanup() {
-            // start the cleanup loop
-            doCleanup();
-        }
-
-        private void doCleanup() {
-            CompletableFuture
-                .delayedExecutor(5, TimeUnit.SECONDS)
-                .execute(this::doCleanup);
-            try {
-                Iterator<WeakReference<ExpiringFunctionResultCache<?>>> it = caches.iterator();
-                while (it.hasNext()) {
-                    ExpiringFunctionResultCache<?> cur = it.next().get();
-                    if (cur == null) {
-                        it.remove();
-                    }
-                    else {
-                        cur.cleanup();
-                    }
-                }
-            }
-            catch (Throwable e) {
-                System.err.println("Cleanup job failed with: " + e.getMessage());
-                e.printStackTrace(System.err);
-            }
-        }
-
-        public void register(@UnknownInitialization ExpiringFunctionResultCache<?> cache) {
-            caches.add(new WeakReference<>(cache));
-        }
-
     }
 
 }
