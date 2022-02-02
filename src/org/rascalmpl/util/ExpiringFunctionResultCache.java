@@ -48,9 +48,21 @@ import io.usethesource.vallang.util.SecondsTicker;
  */
 public class ExpiringFunctionResultCache<TResult> {
 
-    private final Cache<Parameters, TResult> hotEntries;
-    private final Cache<Object, TResult> coldEntries;
+    private final Cache<Object, TResult> entries;
     private final ReferenceQueue<Parameters> cleared;
+
+    /**
+     * Construct a cache of function results that expire after (optional) certain thresholds
+     * @param secondsTimeout clear entries that haven't been used for this amount of seconds, <= 0 disables this expiration behavoir
+     * @param maxEntries starts clearing out entries after the table gets "full". <= 0 disables this threshold
+     */
+    public ExpiringFunctionResultCache(int secondsTimeout, int maxEntries) {
+        entries = configure(secondsTimeout, maxEntries)
+            .softValues()
+            .build();
+        this.cleared =  new ReferenceQueue<>();
+        Cleanup.Instance.register(this);
+    }
 
     private static Caffeine<Object, Object> configure(int secondsTimeout, int maxEntries) {
         var result = Caffeine.newBuilder();
@@ -64,23 +76,6 @@ public class ExpiringFunctionResultCache<TResult> {
         return result.scheduler(Scheduler.systemScheduler());
     }
 
-    /**
-     * Construct a cache of function results that expire after (optional) certain thresholds
-     * @param secondsTimeout clear entries that haven't been used for this amount of seconds, <= 0 disables this expiration behavoir
-     * @param maxEntries starts clearing out entries after the table gets "full". <= 0 disables this threshold
-     */
-    public ExpiringFunctionResultCache(int secondsTimeout, int maxEntries) {
-        hotEntries = configure(secondsTimeout > 0 ? Math.max(secondsTimeout / 10, 1) : 120, maxEntries > 0 ? Math.max(maxEntries / 10, 10) : 10_000)
-            .softValues()
-            .build();
-
-        coldEntries = configure(secondsTimeout, maxEntries)
-            .softValues()
-            .build();
-        this.cleared =  new ReferenceQueue<>();
-        Cleanup.Instance.register(this);
-    }
-
     private static long simulateNanoTicks() {
         return TimeUnit.SECONDS.toNanos(SecondsTicker.current());
     }
@@ -92,16 +87,7 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return either cached result or null in case of no entry
      */
     public @Nullable TResult lookup(IValue[] args, @Nullable Map<String, IValue> kwParameters) {
-        Parameters key = new Parameters(args, kwParameters);
-        var result = hotEntries.getIfPresent(key);
-        if (result != null) {
-            return result;
-        }
-        result = coldEntries.getIfPresent(key);
-        if (result != null) {
-            hotEntries.put(key, result); // promote it back to the hot entries
-        }
-        return result;
+        return entries.getIfPresent(Parameters.forLookup(args, kwParameters));
     }
     
     /**
@@ -112,23 +98,17 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return
      */
     public TResult store(IValue[] args, @Nullable Map<String, IValue> kwParameters, TResult result) {
-        final Parameters key = new Parameters(args, kwParameters);
-
-        var stored = hotEntries.get(key, k -> result);
-        if (stored == result) {
-            // new entry so we won the race
-            // so we also update the cold storage
-            coldEntries.put(new ParametersRef(key, cleared), stored);
-        }
-        return stored;
+        return entries.get(
+            new ParametersRef(Parameters.forStorage(args, kwParameters), cleared), 
+            k -> result
+        );
     }
     
     /**
      * Clear entries and try to help GC with cleaning up memory
      */
     public void clear() {
-        hotEntries.invalidateAll();
-        coldEntries.invalidateAll();
+        entries.invalidateAll();
     }
 
     /**
@@ -138,9 +118,7 @@ public class ExpiringFunctionResultCache<TResult> {
         synchronized (cleared) {
             Reference<?> gced;
             while ((gced = cleared.poll()) != null) {
-                if (gced instanceof ParametersRef) {
-                    coldEntries.invalidate(gced);
-                }
+                entries.invalidate(gced);
             }
         }
     }
@@ -154,14 +132,26 @@ public class ExpiringFunctionResultCache<TResult> {
         private final Map<String, IValue> keyArgs;
 
         
-        public Parameters(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
+        private Parameters(IValue[] params, Map<String, IValue> keyArgs) {
+            this.params = params;
+            this.keyArgs = keyArgs;
+            this.storedHash = (1 + (31 * Arrays.hashCode(this.params))) + keyArgs.hashCode();
+        }
+
+        public static Parameters forLookup(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
             if (keyArgs == null || keyArgs.isEmpty()) {
                 keyArgs = Collections.emptyMap();
             }
-            this.params = new IValue[params.length];
-            System.arraycopy(params, 0, this.params, 0, params.length);
-            this.keyArgs = keyArgs;
-            this.storedHash = (1 + (31 * Arrays.hashCode(this.params))) + keyArgs.hashCode();
+            return new Parameters(params, keyArgs);
+        }
+
+        public static Parameters forStorage(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
+            if (keyArgs == null || keyArgs.isEmpty()) {
+                keyArgs = Collections.emptyMap();
+            }
+            var newParams = new IValue[params.length];
+            System.arraycopy(params, 0, newParams, 0, params.length);
+            return new Parameters(newParams, keyArgs);
         }
         
         @Override
