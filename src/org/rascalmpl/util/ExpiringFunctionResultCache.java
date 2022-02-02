@@ -19,10 +19,8 @@ import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -135,7 +133,11 @@ public class ExpiringFunctionResultCache<TResult> {
     }
 
 
-
+    /**
+     * Main class that joins both the positional and keyword parameters
+     * 
+     * It has two modes, one for lookup, and one for storage, only for storage do we copy the array
+     */
     private static class Parameters {
         private final int storedHash;
         private final IValue[] params;
@@ -189,6 +191,9 @@ public class ExpiringFunctionResultCache<TResult> {
         }
     }
 
+    /** 
+     * Small SoftReference wrapper that adds equality, and supports comparing with the raw Parameters object so that both can be used in a get
+    */
     private static class ParametersRef extends SoftReference<Parameters> {
         private final int hashCode;
 
