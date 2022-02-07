@@ -42,8 +42,8 @@ Some comments:
 <3> Import the `Parse` module defined above.
 <4> The top level `load` function that converts a string to an abstract syntax tree.
 <5> The conversion from parse tree to abstract syntax tree start here. Note that we
-    explicitly use `demo::lang::Exp::Concrete::WithLayout::Syntax::Exp` in these
-    rules to distinguish from `demo::lang::Exp::Abstract::Syntax::Exp`.
+    explicitly use `demo::lang::Exp::Abstract::Syntax::Exp` in these
+    rules to distinguish from `demo::lang::Exp::Concrete::WithLayout::Syntax::Exp`.
 
 
 Let's try it:

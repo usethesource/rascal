@@ -20,7 +20,7 @@ Func is a functional language with the following features:
   **  an integer constant.
   **  a variable.
   **  arithmetic operators `+`, `-`, `*` and `/`.
-  **  comparison operators `<`, `<=`, `>` and `>=`.
+  **  comparison operators `<`, `\<=`, `>` and `>=`.
   **  a call of a function.
   **  an `if` expression.
   **  a sequence of expressions (`;`).

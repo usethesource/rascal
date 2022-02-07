@@ -36,7 +36,7 @@ include::{LibDir}demo/lang/Pico/Uninit.rsc[tags=module]
     **  `reachX` determines the reachability in a graph while excluding certain nodes, see [Rascal:Graph/reachX]. Here
         `reachX(CFG.graph, CFG.entry, rangeR(D, {occ.item}))` determines the nodes in the graph that can be reached from the
          entry point of the program without passing a definition of the current variable.
-    **  `any(CFNode N <- reachX( ... ), N has location && occ.location <= N.location)` yields true if there is such a reachable node
+    **  `any(CFNode N <- reachX( ... ), N has location && occ.location \<= N.location)` yields true if there is such a reachable node
         that covers the location of the current variable.
 <4> The complete comprehension returns the set of occurrences of uninitialized variables.
 
