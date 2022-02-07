@@ -38,7 +38,7 @@ include::{LibDir}demo/common/Derivative.rsc[tags=module]
 <4> Define simplification rules. 
 <5> A default rule is give for the case that no simplification applies.
 <6> Define the actual simplication function `simplify` that performs a bottom up traversal of the expression, application simplification
-rules on the the up.
+rules on the up.
 
                 
 Let's differentiate the example expression `E`:

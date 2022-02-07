@@ -23,9 +23,9 @@ calling `fact(1000)` at the command line.  Let's use this definition of factoria
 ----
 public int fact (int n) {
     if (n <= 1) {
-	return 1;
+	    return 1;
     } else {
-	return n * fact (n-1);
+	    return n * fact (n-1);
     }
 }
 ----
@@ -55,11 +55,11 @@ So let's define a few helper functions and see where that leads us:
 ----
 public int countZeros (int n) {
     if (n < 10) {
-	return 0;
+	    return 0;
     } else if (n % 10 == 0) {
         return 1 + countZeros (n / 10);
     } else {
-	return countZeros (n / 10);
+	    return countZeros (n / 10);
     }   
 }
 rascal> int i = fact(1000);
@@ -76,11 +76,11 @@ What did I do wrong?  Oh, right, _trailing_ zeros, and the above function counts
 ----
 public int countTrailingZeros (int n) {
     if (n < 10) {
-	return 0;
+	    return 0;
     } else if (n % 10 == 0) {
         return 1 + countTrailingZeros (n / 10);
     } else {
-	return 0 ;
+	    return 0 ;
     }   
 }
 
@@ -267,16 +267,16 @@ We can write this in Rascal as:
 public int predictZeros (int N) {
     int k = floorLogBase(N, 5);  // I wrote this
     int nz = 0;
-    for (int i <- [1..N+1] ){
-	int p5 = 1;
+    for (int i <- [1..N+1] ) {
+	    int p5 = 1;
         for (int j <- [1..k+1]) {
-    	    p5 *= 5;
+            p5 *= 5;
     	    if (i % p5 == 0) {
-		nz += 1;
-	    } else {
-    	    	break;
+		        nz += 1;
+	        } else {
+                break;
+	        }
 	    }
-	}
     }
     return nz; 
 }
@@ -294,17 +294,17 @@ public void verifyTheory (int N) {
     	int p = predictZeros(i);
     	int c = countTrailingZeros(ifact);
     	if (p != c) {
-	    failed = true;
-	    println ("Found a counter example at i=<i>");
-	    break;
+	        failed = true;
+	        println ("Found a counter example at i=<i>");
+	        break;
     	} else {
-	    if (i % checkInterval == 0) {
-		println ("<i>! has <p> trailing zeros");
+	        if (i % checkInterval == 0) {
+		        println ("<i>! has <p> trailing zeros");
+	        }
 	    }
-	}
     }
     if (!failed) {
-	println ("The theory works for i: 1..<N>");
+	    println ("The theory works for i: 1..<N>");
     }
 }
 
@@ -373,8 +373,8 @@ public int floorLogBase2 (int a, int b) {
     int remaining = a;
     int ans = 0;
     while (remaining >= b) {
-	ans += 1;
-	remaining /= b;
+	    ans += 1;
+	    remaining /= b;
     }
     return ans;		
 }
