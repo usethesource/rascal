@@ -26,7 +26,7 @@ The pattern `/^\W*\w+<rest:.*$>/` can be understood as follows:
 *  The `^` makes it _anchored_, only matches at the begin of the substring `S`.
 *  `\W*` matches zero or more non-word characters.
 *  `\w+` matches one or more word characters.
-*  `<rest:.*$>` matches the remaining part of `S`.
+*  `<rest:.*$>` matches the remaining part of `S` and assigns the result to the variable `rest`.
 
 
 Inside the loop `count` is incremented and the new value of `S` becomes
