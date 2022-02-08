@@ -64,7 +64,9 @@ in the following alternative `wordCount2` function:
 int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line <- lines);
 wordCount2(Jabberwocky);
 ----
-Explain what is going on in this function.
+The function body contains two nested link:/Rascal#Expressions-Reducer[reducers].
+The inner reducer counts the number of words in a line, the outer reducer accumulates all line word counts.
+
 [source,rascal-shell,continue]
 ----
 ----

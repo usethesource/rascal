@@ -1,7 +1,7 @@
 # Typecheck
 
 .Synopsis
-Typechecker a Pico program.
+Typechecker for Pico programs.
 
 .Syntax
 

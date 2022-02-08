@@ -28,7 +28,7 @@ The following example extends the grammar for `Exp` in <<No Layout>> with a layo
 include::{LibDir}demo/lang/Exp/Concrete/WithLayout/Syntax.rsc[tags=module]
 ----
 
-<1> Using the `layout` definition, we defcoine that the `Whitespace` non-terminal is used _in between every symbol_ of the `syntax` productions in the current module.
+<1> Using the `layout` definition, we define that the `Whitespace` non-terminal is used _in between every symbol_ of the `syntax` productions in the current module.
 
 And now we can use spaces in our definition of the eval function as well:
 [source,rascal]
