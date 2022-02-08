@@ -1,6 +1,7 @@
 # Eval1
 
 .Synopsis
+Like Eval0 but with support for let-expressions.
 
 
 .Syntax

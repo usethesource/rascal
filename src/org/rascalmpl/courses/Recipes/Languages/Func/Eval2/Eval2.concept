@@ -1,6 +1,7 @@
 # Eval2
 
 .Synopsis
+Like Eval1 but with support for sequences and assignments.
 
 
 .Syntax
