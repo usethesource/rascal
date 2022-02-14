@@ -49,13 +49,17 @@ test bool memoExpire() {
     for (i <- [0..5]) {
         call2(i);
     }
-    
-    for (i <- [0..5]) {
-        if (call2(i) != i + 1) {
-            return false;
-        }
+
+    if (call2(0) != 1) {
+        return false;
     }
 
+    for (i <- [10..10000]) {
+        // this should take long as to at least hit the cache limit cleanup
+        call2(i);
+    }
+
+    // run it a second time to really help the memo cache to clear
     for (i <- [10..10000]) {
         // this should take long as to at least hit the cache limit cleanup
         call2(i);
@@ -64,11 +68,13 @@ test bool memoExpire() {
     @javaClass{org.rascalmpl.library.Prelude}
     java void sleep(int seconds);
     
-    sleep(6);
+    // sleep a bit more
+    sleep(10);
 
-    for (i <- [0..5]) {
+    for (i <- [1..5]) {
         if (call2(i) == i + 1) {
             // should be dropped from cache by now
+            // note w do not hit the call(0) as that one might be considered hot
             return false;
         }
     }
