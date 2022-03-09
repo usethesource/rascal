@@ -31,11 +31,11 @@ set[Symbol] allLayouts(set[str] defs, GrammarDefinition def)
   + {sort(l) | m <- defs, def.modules[m]?, /prod(label(_,layouts(str l)),_,_) := def.modules[m]} 
   ;
 
-// TODO: The following two functions were defined local to activeLayout
+// TODO, REMOVE THIS: The following two functions were defined local to activeLayout
 // but this gives an not yet explained validation error  for the
 // function ids in the corresponding overloaded function
-bool isManual(set[Attr] as) = (\tag("manual"()) in as);
-bool isDefault(Symbol s) = (s == layouts("$default$"));
+//bool isManual(set[Attr] as) = (Attr::\tag("manual"()) in as);
+//bool isDefault(Symbol s) = (s == layouts("$default$"));
    
 @doc{computes which layout definitions are visible in a certain given module.
      if a module contains a layout definition, this overrides any imported layout definition
@@ -45,7 +45,8 @@ bool isDefault(Symbol s) = (s == layouts("$default$"));
      will just produce an arbitrary one if there are multiple definitions
 }
 Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
-
+    bool isManual(set[Attr] as) = (Attr::\tag("manual"()) in as);
+    bool isDefault(Symbol s) = (s == layouts("$default$"));
   
   if (/prod(l:layouts(_),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
     return l;
