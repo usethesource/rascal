@@ -1631,7 +1631,7 @@ MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`, BTSCOPES bts
     //if(backtrackFree(pat))
     //    return translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail));
     //else 
-        return muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter, comment="match operator"), muFail(my_btscope.\fail, comment="match operator")));
+        return muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter, comment="match operator"), muFail(my_btscope.\fail, comment="match operator")));
 }
     
 MuExp translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
@@ -1655,15 +1655,15 @@ MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression exp>`,  BTSCOPES b
     my_btscope = btscopes[getLoc(e)];
    //iprintln(btscopes);
     //println("my_btscope = <my_btscope>");
-   //return muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muFail(my_btscope.\fail), muSucceed(my_btscope.enter)));
+   //return muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muFail(my_btscope.\fail), muSucceed(my_btscope.enter)));
    //return muPrim("not", abool(), [abool()], [translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))], e@\loc);
    
    
-   //code = muBlock([muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muFail(my_btscope.\resume), muSucceed(my_btscope.enter))), muCon(true)]);
+   //code = muBlock([muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muFail(my_btscope.\resume), muSucceed(my_btscope.enter))), muCon(true)]);
    
-    code = muNot(muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
+    code = muNot(muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
     
-    //code = muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail)));
+    //code = muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail)));
     //code = negate(code, []);
     return code;
 }
@@ -1671,11 +1671,11 @@ MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression exp>`,  BTSCOPES b
 MuExp translateBool(e:(Expression) `<Pattern pat> !:= <Expression exp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
     my_btscope = btscopes[getLoc(e)];
     
-    return muNot(muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, trueCont, falseCont)));
+    return muNot(muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, trueCont, falseCont)));
     
-    //return muBlock([muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, falseCont, trueCont)), muCon(true)]);
+    //return muBlock([muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, falseCont, trueCont)), muCon(true)]);
     
-    //return muNot(muEnter(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
+    //return muNot(muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
 }
     
 // -- generator expression ----------------------------------------------------
@@ -1820,7 +1820,7 @@ MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`
     enterLhs = getEnter(e, btscopes);
     failRhs = getFail(rhs, btscopes);
   
-    code = muEnter(enterLhs, translateAndConds(btscopes, [lhs, rhs], muSucceed(enterLhs), muFail(enterLhs)));// <<<<
+    code = muExists(enterLhs, translateAndConds(btscopes, [lhs, rhs], muSucceed(enterLhs), muFail(enterLhs)));// <<<<
     //iprintln(code);
     return code;    
 }
@@ -1859,7 +1859,7 @@ MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCon
         trueCont = normalize(translateBool(conds[i], btscopes, trueCont, cont));
     }
     
-    return muEnter(getEnter(conds[0], btscopes), trueCont);
+    return muExists(getEnter(conds[0], btscopes), trueCont);
 }
 
 // ==== or expression =========================================================
@@ -1978,7 +1978,7 @@ MuExp translate(Expression e:(Expression) `<Expression lhs> || <Expression rhs>`
    if(backtrackFree(lhs)){
         return muIfExp(translate(lhs), muCon(true), translate(rhs));
    }
-   code = muEnter(getEnter(e, btscopes), translateOrConds(btscopes, [lhs, rhs], muSucceed(getResume(lhs, btscopes)), muFail(getFail(rhs, btscopes))));                                                                 
+   code = muExists(getEnter(e, btscopes), translateOrConds(btscopes, [lhs, rhs], muSucceed(getResume(lhs, btscopes)), muFail(getFail(rhs, btscopes))));                                                                 
    return code;                                                                               
 }
     
@@ -1998,17 +1998,6 @@ default list[Expression] normalizeOr(Expression e) = [e];
 
 list[Expression] normalizeOr(list[Expression] exps)
     = [ *normalizeOr(e) | e <- exps ];
-
-tuple[list[Expression] btfrees, list[Expression] bts] separate(list[Expression] conds){
-    bts = btfrees = [];
-    for(cond <- conds){
-        if(backtrackFree(cond))
-            btfrees += cond;
-        else
-            bts += cond;
-    }
-    return <btfrees, bts>;
-}
     
 MuExp translateOrConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCont, MuExp falseCont, MuExp(MuExp) normalize = identity){
 iprintln(btscopes);
@@ -2051,7 +2040,7 @@ iprintln(btscopes);
 str getFailScope(MuExp exp){
     seen_scopes = {};
     top-down visit(exp){
-           case muEnter(str label, MuExp body): { seen_scopes += label; }
+           case muExists(str label, MuExp body): { seen_scopes += label; }
            case muFail(label): if(label notin seen_scopes) return label;
     };
     return "";
@@ -2071,8 +2060,8 @@ str getFailScope(MuExp exp){
 //     
 //    enter_lhs = getEnter(lhs, btscopes);
 //    enter_rhs = getEnter(rhs, btscopes);
-//    lhs_code = muEnter(enter_lhs, translateBool(lhs, btscopes, trueCont1, muBlock([]))); 
-//    rhs_code = muEnter(enter_rhs, translateBool(rhs, btscopes, trueCont2, falseCont2));
+//    lhs_code = muExists(enter_lhs, translateBool(lhs, btscopes, trueCont1, muBlock([]))); 
+//    rhs_code = muExists(enter_rhs, translateBool(rhs, btscopes, trueCont2, falseCont2));
 //    
 //    iprintln(btscopes);
 //    
@@ -2148,7 +2137,7 @@ MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`, BTSCOPE
                                                            muBlock([muComment("falseCont lhs"), muFail(getResume(rhs, btscopes))])); 
  
  
-    //code = muEnter(enterLhs, translateBool(lhs, btscopes, translateBool(rhs, btscopes, muSucceed(enterLhs), muFail(getResume(e, "IMPLIES", btscopes))),
+    //code = muExists(enterLhs, translateBool(lhs, btscopes, translateBool(rhs, btscopes, muSucceed(enterLhs), muFail(getResume(e, "IMPLIES", btscopes))),
     //                                                                      muSucceed(enterLhs))); 
     
     
@@ -2158,7 +2147,7 @@ MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`, BTSCOPE
 MuExp translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
     trueCont2 = redirect(trueCont, getResume(lhs, btscopes), getResume(rhs, btscopes));
     falseCont2 = redirect(falseCont, getResume(rhs, btscopes), getResume(e, btscopes));
-    return muEnter(getEnter(e, btscopes), translateBool(lhs, btscopes, translateBool(rhs, btscopes, trueCont2, falseCont2), trueCont));
+    return muExists(getEnter(e, btscopes), translateBool(lhs, btscopes, translateBool(rhs, btscopes, trueCont2, falseCont2), trueCont));
 }
 
 // ==== equivalent expression =================================================
@@ -2215,7 +2204,7 @@ MuExp translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`, BTSCO
    }  
    
    enterLhs = getEnter(lhs, "EQUIV", btscopes);
-   code = muEnter(enterLhs, translateBool(lhs, btscopes, translateBool(rhs, btscopes, muSucceed(getResume(rhs, btscopes)), muFail(getFail(rhs, btscopes))),
+   code = muExists(enterLhs, translateBool(lhs, btscopes, translateBool(rhs, btscopes, muSucceed(getResume(rhs, btscopes)), muFail(getFail(rhs, btscopes))),
                                                          translateBool(rhs, btscopes, muFail(enterLhs), muSucceed(enterLhs)))); 
                                                          
    return code;
@@ -2259,10 +2248,10 @@ MuExp translate((Expression) `<Concrete con>`) {
 default MuExp translate(Expression e) {
 	btscopes = getBTScopes(e, nextTmp("EXP"));
 	return backtrackFree(e) ? translate(e, btscopes)
-	                        : muEnter(getEnter(e, btscopes), translateBool(e, btscopes, muSucceed(getEnter(e,btscopes)), muFail(getFail(e, btscopes))), yieldWhenExhausted = false);
+	                        : muExists(getEnter(e, btscopes), translateBool(e, btscopes, muSucceed(getEnter(e,btscopes)), muFail(getFail(e, btscopes))));
 
     //return translateBool(e, btscopes, muSucceed(getFail(e, btscopes)), muFail(getResume(e, btscopes)));
-    //return muEnter(getEnter(e, btscopes), translateBool(e, btscopes, muSucceed(getEnter(e,btscopes)), muFail(getResume(e, btscopes))));
+    //return muExists(getEnter(e, btscopes), translateBool(e, btscopes, muSucceed(getEnter(e,btscopes)), muFail(getResume(e, btscopes))));
 }
 
 default MuExp translateBool(Expression e, str _btscope, MuExp _trueCont, MuExp _falseCont) {

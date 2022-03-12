@@ -102,10 +102,10 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
             loopBody = i == 0 ? muWhileDo(whileName, translate(cond), loopBody)
                               : muIfExp(translate(cond), loopBody, falseCont);
         }
-        loopBody = muEnter(whileBT, loopBody);
+        loopBody = muExists(whileBT, loopBody);
     } else {
         enterLabelled(label, whileName, getResume(conds[-1], btscopes));
-        loopBody = muEnter(whileBT, 
+        loopBody = muExists(whileBT, 
                        muWhileDo(whileName, muCon(true), 
                                  translateAndConds(btscopes, 
                                                    conds, 
@@ -148,7 +148,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <E
     conds = [ condition ];
     btscopes = getBTScopesAnd(conds, whileBT, ());
     
-    code = muEnter(whileBT, muWhileDo(whileName, 
+    code = muExists(whileBT, muWhileDo(whileName, 
                      muCon(true), 
                      //muBlock([ 
                                translateAndConds(btscopes,
@@ -223,7 +223,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     conds = [c | Expression c <- generators];
     btscopes = getBTScopesAnd(conds, forName, btscopes);
    // iprintln(btscopes);
-    loopBody = muEnter(forName, translateAndConds(btscopes, conds, translateLoopBody(body, btscopes), muFail(forName)));
+    loopBody = muExists(forName, translateAndConds(btscopes, conds, translateLoopBody(body, btscopes), muFail(forName)));
     code = muBlock([]);
     if(containsAppend(body)){ 
         writer = muTmpListWriter("listwriter_<forName>", fuid);                         
@@ -252,7 +252,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Ex
     conds = [c | Expression c <- generators];
     btscopes = getBTScopesAnd(conds, forName, ());
     
-    code = muEnter(forName, 
+    code = muExists(forName, 
                    translateAndConds(btscopes, 
                                   conds,
                                   muBlock([ translateStats(preStats, btscopes),  
@@ -287,7 +287,7 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
         if(hasSequentialExit(thenCode)){            // TODO: when is this needed?
             thenCode = muBlock([thenCode, muFail(ifName)]);
         }
-        code = muEnter(ifName, 
+        code = muExists(ifName, 
                        translateAndConds(btscopes, 
                                          conds, 
                                          thenCode,
@@ -341,7 +341,7 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
             thenCode = muBlock([thenCode, muFail(ifName)]);
         }
     
-        code = muBlock([muEnter(ifName, 
+        code = muBlock([muExists(ifName, 
                                 translateAndConds(btscopes, 
                                                   conds, 
                                                   thenCode, 
@@ -443,7 +443,7 @@ map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, 
                 statCode = muBlock([statCode, succeedCase]);
             }
             table[key] += [ muIf(muValueIsComparable(switchVal, getType(pwa.pattern)),
-                                        muEnter(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes,
+                                        muExists(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes,
                                                                         muBlock([*stringVisitUpdate, statCode]),
                                                                         muBlock([]))))
                           ];                    
@@ -454,7 +454,7 @@ map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, 
                 statCode = muBlock([statCode, succeedCase]);
             }                                   
             table[key] += [ muIf(muValueIsComparable(switchVal, getType(pwa.pattern)), 
-                                        muEnter(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes1,
+                                        muExists(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes1,
                                                statCode,
                                                muBlock([]))))
                           ];  
@@ -470,7 +470,7 @@ map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, 
         }
         replcond = muValueIsSubtypeOfValue(replacement, switchVal);
         
-        table[key] += [ muEnter(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes1,
+        table[key] += [ muExists(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes1,
                                             translateAndConds(btscopes1,
                                                     conditions, 
                                                     muBlock([ *stringVisitUpdate,
@@ -891,7 +891,7 @@ MuExp translateReturn(AType resultType, Expression expression, BTSCOPES btscopes
     } else
     if(isConditional(expression) && !backtrackFree(expression)){
         btscopes1 = getBTScopes(expression, nextTmp("RET"));
-        res = muBlock([ muEnter(getEnter(expression, btscopes1), 
+        res = muBlock([ muExists(getEnter(expression, btscopes1), 
                                 translateBool(expression.condition, btscopes1, muReturn1(resultType, translate(expression.thenExp)), muBlock([]))),
                         muReturn1(resultType, translate(expression.elseExp))
                       ]);

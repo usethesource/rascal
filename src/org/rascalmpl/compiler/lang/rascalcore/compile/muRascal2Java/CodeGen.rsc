@@ -1334,7 +1334,7 @@ JCode trans(muIf(MuExp cond, MuExp thenPart), JGenie jg){
 
 JCode trans(muWhileDo(str label, MuExp cond, MuExp body), JGenie jg){
     cond_code = trans2NativeBool(cond, jg);
-    if(muEnter(btscope, MuExp exp) := body){
+    if(muExists(btscope, MuExp exp) := body){
        return
             "<isEmpty(label) ? "" : "<getJavaName(label)>:">
             '//<btscope>:
@@ -1409,25 +1409,44 @@ JCode trans(mw: muForAny(str btscope, MuExp var, AType iterType, MuExp iterable,
    
 }
 
-//JCode trans(muEnter(btscope, muBlock([*exps, muSucceed(btscope)])), JGenie jg)
-//    = "<trans(muBlock(exps), jg)>";
+// muExists
     
-JCode trans(e:muEnter(btscope, muFail(btscope)), JGenie jg)
-    = "/*<e>*/";
+JCode trans(e:muExists(btscope, muFail(btscope)), JGenie jg)
+    = "/*muExists <e>*/";
     
-JCode trans(muEnter(btscope, asg:muAssign(_,_)), JGenie jg)
+JCode trans(muExists(btscope, asg:muAssign(_,_)), JGenie jg)
     = trans(asg, jg);
     
-JCode trans(muEnter(btscope,ret: muReturn1(_,_)), JGenie jg)
+JCode trans(muExists(btscope,ret: muReturn1(_,_)), JGenie jg)
     = trans(ret, jg);
 
-default JCode trans(muEnter(btscope, MuExp exp), JGenie jg){
+default JCode trans(muExists(btscope, MuExp exp), JGenie jg){
     return
-      "<isEmpty(btscope) ? "" : "<getJavaName(btscope)>:"> 
+      "/*muExists*/<isEmpty(btscope) ? "" : "<getJavaName(btscope)>:"> 
       '    do {
       '        <trans2Void(exp, jg)>
       '    } while(false);\n";
 }
+
+// muAll
+    
+JCode trans(e:muAll(btscope, muFail(btscope)), JGenie jg)
+    = "/*muAll <e>*/";
+    
+JCode trans(muAll(btscope, asg:muAssign(_,_)), JGenie jg)
+    = trans(asg, jg);
+    
+JCode trans(muAll(btscope,ret: muReturn1(_,_)), JGenie jg)
+    = trans(ret, jg);
+
+default JCode trans(muAll(btscope, MuExp exp), JGenie jg){
+    return
+      "/*muAll*/<isEmpty(btscope) ? "" : "<getJavaName(btscope)>:"> 
+      '    do {
+      '        <trans2Void(exp, jg)>
+      '    } while(false);\n";
+}
+
 JCode trans(muSucceed(str label), JGenie jg)
     = "break <getJavaName(label)>; // muSucceed";
 

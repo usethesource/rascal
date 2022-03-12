@@ -17,15 +17,19 @@ bool abcpl1(S x) {
 }  
 
 bool not_abcpl1(S x) { 
-   return !(  a() := x 
+   return !( a() := x 
            || 
-           b() := x
+             b() := x
            || 
-           c() := x 
+             c() := x 
            || 
-           pl([par(), *_]) := x
+             pl([par(), *_]) := x
            );
 } 
+
+//value main() = not_abcpl1(pl([par()]));
+//not_abcpl1(pl([par()]));
+
 
 test bool abcpl1_1() = abcpl1(a());
 test bool abcpl1_2() = abcpl1(b());
@@ -42,8 +46,6 @@ test bool not_abcpl1_4() = not_abcpl1(d());
 /**/test bool not_abcpl1_5() = !not_abcpl1(pl([par()]));
 /**/test bool not_abcpl1_6() = !not_abcpl1(pl([par(), a()]));
 
-
-value main() = not_abcpl1(pl([par()]));
 
 
 //test bool not_abcpl1_7() = not_abcpl1(pl([a(), b()]));  
