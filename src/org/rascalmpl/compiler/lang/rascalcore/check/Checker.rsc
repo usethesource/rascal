@@ -58,7 +58,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
     
     for(tree <- range(namedTrees)){
         c.enterScope(tree);      
-            // Tree type, field "top"
+            // Tree type, fields "top" and "src"
             TreeType = aadt("Tree", [], dataSyntax());
             treeScope = mkTree(1);
             c.define("Tree", dataId(), treeScope, defType(TreeType));
