@@ -14,6 +14,7 @@ package org.rascalmpl.test.infrastructure;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.test.RunAllRascalTests;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -66,11 +68,26 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     
     private final ISourceLocation projectRoot;
 
-
-    public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) {
+     /**
+     * This is for when a class is annotated with a @RunWith annotation pointing to the
+     * current runner
+     * @param clazz is the annotated class that carries a @RunWith annotation
+     * @throws URISyntaxException
+     */
+    public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) throws URISyntaxException {
         System.err.println("Rascal JUnit uses Rascal version " + RascalManifest.getRascalVersionNumber());
         
-        this.projectRoot = RascalJUnitTestRunner.inferProjectRoot(clazz);
+        if (clazz.getSimpleName().equals("RunAllRascalTests"))  { 
+            String root = System.getProperty("rascal.project.root");
+            if (root == null) {
+                throw new RuntimeException("No -Drascal.project.root provided to identify location of RASCAL.MF");
+            }
+            this.projectRoot = URIUtil.createFileLocation(root);
+        }
+        else {
+            this.projectRoot = RascalJUnitTestRunner.inferProjectRoot(clazz);
+        }
+        
         System.err.println("Rascal JUnit Project root: " + projectRoot);
         
         int numberOfWorkers = Math.min(4, Runtime.getRuntime().availableProcessors() - 1);
@@ -90,7 +107,6 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         System.out.flush();
         this.prefixes = clazz.getAnnotation(RecursiveRascalParallelTest.class).value();
     }
-
 
     @Override
     public Description getDescription() {
@@ -144,7 +160,6 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             }
         }
     }
-
 
     private void startModuleTesters() {
         for (int i = 0; i < numberOfWorkers; i++) {
@@ -223,6 +238,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                         long start = System.nanoTime();
                         TestEvaluator runner = new TestEvaluator(evaluator, trl);
                         runner.test(mod.getDisplayName());
+                        
                         long stop = System.nanoTime();
                         long duration = (stop - start) / 1000_000;
                         if (duration > 10_000) {

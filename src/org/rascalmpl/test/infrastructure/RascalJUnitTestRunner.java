@@ -72,15 +72,26 @@ public class RascalJUnitTestRunner extends Runner {
         }
     }  
 
-    public RascalJUnitTestRunner(Class<?> clazz) {
-        this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
-        this.projectRoot = inferProjectRoot(clazz);
+    public RascalJUnitTestRunner(Class<?> clazz) throws URISyntaxException {
+        System.err.println("HALLO " + clazz);
+        if (clazz.getSimpleName().equals("RunAllRascalTests"))  { 
+            String root = System.getProperty("rascal.project.root");
+            if (root == null) {
+                throw new RuntimeException("No -Drascal.project.root provided to identify location of RASCAL.MF");
+            }
+            this.projectRoot = URIUtil.createFileLocation(root);
+            this.prefix="";
+        }
+        else {
+            this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value();
+            this.projectRoot = RascalJUnitTestRunner.inferProjectRoot(clazz);
+        }
+
         this.clazz = clazz;
         
         System.err.println("Rascal Junit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
         System.err.println("Rascal JUnit Project root: " + projectRoot);
         
-
         if (projectRoot != null) {
             configureProjectEvaluator(evaluator, projectRoot);
         }
@@ -161,8 +172,17 @@ public class RascalJUnitTestRunner extends Runner {
         todo.add(root);
         while (!todo.isEmpty()) {
             ISourceLocation currentDir = todo.poll();
-            String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
+            System.err.println("root: " + root);
+            System.err.println("current: " + currentDir);
+            System.err.println("cut:" + currentDir.getPath().replaceFirst(root.getPath(), ""));
+            String prefix = currentDir.getPath().replaceFirst(root.getPath(), "");
+            if (prefix.startsWith("/")) {
+                prefix = prefix.substring(1);
+            }
+            prefix = prefix.replaceAll("/", "::");
+            System.err.println("prefix: " + prefix);
             for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
+                System.err.println("ent:" + ent);
                 if (ent.getPath().endsWith(".rsc")) {
                     if (prefix.isEmpty()) {
                         result.add(URIUtil.getLocationName(ent).replace(".rsc", ""));
@@ -183,7 +203,7 @@ public class RascalJUnitTestRunner extends Runner {
     }
     @Override
     public Description getDescription() {		
-        Description desc = Description.createSuiteDescription(prefix);
+        Description desc = Description.createSuiteDescription(prefix.equals("") ? "Rascal tests" : prefix);
         this.desc = desc;
 
         try {
@@ -195,7 +215,8 @@ public class RascalJUnitTestRunner extends Runner {
             Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
 
             for (String module : modules) {
-                String name = prefix + "::" + module;
+                System.err.println("Loading " + module);
+                String name = (prefix.isEmpty() ? "" : (prefix + "::")) + module;
                 Description modDesc = Description.createSuiteDescription(name);
 
                 try {
