@@ -794,7 +794,7 @@ public class SymbolAdapter {
 		return true;
 	}
 
-	private static ISet getAlternatives(IConstructor r) {
+	public static ISet getAlternatives(IConstructor r) {
 		return (ISet) r.get("alternatives");
 	}
 
