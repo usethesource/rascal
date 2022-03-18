@@ -114,15 +114,6 @@ public final class FunctionResultFacade extends Result<IValue> {
 		return wrapped.equalToRascalFunction(that);
 	}
 
-	
-	public boolean isPublic() {
-		return wrapped.isPublic();
-	}
-	
-	public void setPublic(boolean isPublic) {
-		wrapped.setPublic(isPublic);
-	}
-
 	public void setInferredType(boolean inferredType) {
 		wrapped.setInferredType(inferredType);
 	}

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -53,28 +54,52 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class Environment implements IRascalFrame {
 	
-	// TODO: these NameFlags should also be used to implement Public & Private ??
 	protected static class NameFlags {
 		public final static int FINAL_NAME = 0x01;
 		public final static int OVERLOADABLE_NAME = 0x02;
-		private int flags = 0;
+		public final static int PRIVATE_NAME = 0x04;
+		private final int flags;
 
-		public NameFlags(int flags) {
+		public NameFlags() { 
+			this.flags = 0;
+		};
+
+		private NameFlags(int flags) {
 			this.flags = flags;
 		}
-		
-		public int getFlags() {
-			return flags;
+
+		public NameFlags merge(NameFlags other) {
+			return new NameFlags(flags | other.flags);
 		}
-		
-		public void setFlags(int flags) {
-			this.flags = flags;
+
+		public NameFlags makeFinal() {
+			return new NameFlags(flags & FINAL_NAME);
+		}
+
+		public NameFlags makePrivate() {
+			return new NameFlags(flags & PRIVATE_NAME);
+		}
+
+		public NameFlags makeOverloadable() {
+			return new NameFlags(flags & OVERLOADABLE_NAME);
+		}
+
+		boolean isFinal() {
+			return (flags & FINAL_NAME) != 0;
+		}
+
+		boolean isPrivate() {
+			return (flags & PRIVATE_NAME) != 0;
+		}
+
+		boolean isOverloadable() {
+			return (flags & OVERLOADABLE_NAME) != 0;
 		}
 	}
 	
 	protected Map<String, Result<IValue>> variableEnvironment;
 	protected Map<String, List<AbstractFunction>> functionEnvironment;
-	protected Map<String,NameFlags> nameFlags;
+	protected Map<String, NameFlags> nameFlags;
 	protected Map<Type, Type> staticTypeParameters;
 	protected Map<Type, Type> dynamicTypeParameters;
 	protected final Environment parent;
@@ -375,38 +400,52 @@ public class Environment implements IRascalFrame {
 		}
 	}
 
-	protected boolean isNameFlagged(QualifiedName name, int flags) {
+	protected boolean isNameFlagged(QualifiedName name, Predicate<NameFlags> tester) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRootScope()) {
 				current = current.parent;
 			}
 			
-			return current.isNameFlagged(name, flags);
+			return current.isNameFlagged(name, tester);
 		}
 		
 		String simpleName = Names.name(Names.lastName(name));
-		return isNameFlagged(simpleName, flags);
+		return isNameFlagged(simpleName, tester);
 		
 	}
 	
-	protected boolean isNameFlagged(String name, int flags) {
+	protected boolean isNameFlagged(String name, Predicate<NameFlags> tester) {
 		Environment flaggingEnvironment = getFlagsEnvironment(name);
 		if (flaggingEnvironment == null) {
 			return false;
 		}
-		return flaggingEnvironment.nameFlags.containsKey(name) && (0 != (flaggingEnvironment.nameFlags.get(name).getFlags() & flags));
+
+		return flaggingEnvironment.nameFlags.containsKey(name) 
+			&& tester.test(flaggingEnvironment.nameFlags.get(name));
 	}
 
 	public boolean isNameFinal(QualifiedName name) {
-		return isNameFlagged(name, NameFlags.FINAL_NAME);
+		return isNameFlagged(name, NameFlags::isFinal);
+	}
+
+	public boolean isNamePrivate(String name) {
+		return isNameFlagged(name, NameFlags::isPrivate);
+	}
+
+	public boolean isNamePrivate(QualifiedName name) {
+		return isNameFlagged(name, NameFlags::isPrivate);
+	}
+
+	public boolean isNameOverloadable(String name) {
+		return isNameFlagged(name, NameFlags::isOverloadable);
 	}
 
 	public boolean isNameOverloadable(QualifiedName name) {
-		return isNameFlagged(name, NameFlags.OVERLOADABLE_NAME);
+		return isNameFlagged(name, NameFlags::isOverloadable);
 	}
 
-	protected void flagName(QualifiedName name, int flags) {
+	protected void flagName(QualifiedName name, NameFlags flags) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRootScope()) {
@@ -418,37 +457,47 @@ public class Environment implements IRascalFrame {
 		
 		String simpleName = Names.name(Names.lastName(name));
 		flagName(simpleName, flags);
-		
 	}
-	
-	protected void flagName(String name, int flags) {
-		// NOTE: This assumption is that the environment level is already correct, i.e.,
-		// we are not requested to mark a name that is higher up in the hierarchy.
+
+	/** 
+	 * The assumption is that the environment level is already correct, i.e.,
+     * we are not requested to mark a name that is higher up in the hierarchy.
+     */
+	protected void flagName(String name, NameFlags flags) {
 		if (nameFlags == null) {
 			nameFlags = new HashMap<String,NameFlags>();
 		}
+		
 		if (nameFlags.containsKey(name)) {
-			nameFlags.get(name).setFlags(nameFlags.get(name).getFlags() | flags);
+			nameFlags.put(name, nameFlags.get(name).merge(flags));
 		}
 		else {
-			nameFlags.put(name, new NameFlags(flags));
+			nameFlags.put(name, flags);
 		}
 	}
 	
 	public void markNameFinal(QualifiedName name) {
-		flagName(name, NameFlags.FINAL_NAME);
+		flagName(name, new NameFlags().makeFinal());
 	}
 	
 	public void markNameFinal(String name) {
-		flagName(name, NameFlags.FINAL_NAME);
+		flagName(name, new NameFlags().makeFinal());
+	}
+
+	public void markNamePrivate(QualifiedName name) {
+		flagName(name, new NameFlags().makePrivate());
+	}
+	
+	public void markNamePrivate(String name) {
+		flagName(name, new NameFlags().makePrivate());
 	}
 
 	public void markNameOverloadable(QualifiedName name) {
-		flagName(name, NameFlags.OVERLOADABLE_NAME);
+		flagName(name, new NameFlags().makeOverloadable());
 	}
 
 	public void markNameOverloadable(String name) {
-		flagName(name, NameFlags.OVERLOADABLE_NAME);
+		flagName(name, new NameFlags().makeOverloadable());
 	}
 	
 	public void storeStaticParameterType(Type par, Type type) {
@@ -538,8 +587,6 @@ public class Environment implements IRascalFrame {
 		}
 		else {
 			// a declared variable
-			Result<IValue> old = env.get(name);
-			value.setPublic(old.isPublic());
 			env.put(name, value);
 		}
 	}
@@ -584,7 +631,7 @@ public class Environment implements IRascalFrame {
 			list = functionEnvironment.get(name);
 		}
 		
-		if (list == null || !this.isNameFlagged(name,NameFlags.OVERLOADABLE_NAME)) {
+		if (list == null || !this.isNameOverloadable(name)) {
 			list = new ArrayList<>(1); // we allocate an array list of 1, since most cases it's only a single overload, and we want to avoid allocating more memory than needed
 			
 			if (functionEnvironment == null) {
@@ -864,23 +911,23 @@ public class Environment implements IRascalFrame {
 	
 	protected void extendNameFlags(Environment other) {
 		// note that the flags need to be extended before other things, since
-		  // they govern how overloading is handled in functions.
-		  if (other.nameFlags != null) {
-	      if (this.nameFlags == null) {
-	        this.nameFlags = new HashMap<String, NameFlags>();
-	      }
-	      
-	      for (String name : other.nameFlags.keySet()) {
-	        NameFlags flags = this.nameFlags.get(name);
-	        
-	        if (flags != null) {
-	          flags.setFlags(flags.getFlags() | other.nameFlags.get(name).getFlags());
-	        }
-	        else {
-	          this.nameFlags.put(name, other.nameFlags.get(name));
-	        }
-	      }
-	    }
+		// they govern how overloading is handled in functions.
+		if (other.nameFlags != null) {
+			if (this.nameFlags == null) {
+				this.nameFlags = new HashMap<String, NameFlags>();
+			}
+
+			for (String name : other.nameFlags.keySet()) {
+				NameFlags flags = this.nameFlags.get(name);
+
+				if (flags != null) {
+					this.nameFlags.put(name, flags.merge(other.nameFlags.get(name)));
+				}
+				else {
+					this.nameFlags.put(name, other.nameFlags.get(name));
+				}
+			}
+		}
 	}
 	
 	public void extend(Environment other) {
@@ -954,7 +1001,10 @@ public class Environment implements IRascalFrame {
 			}
 		}
 		
-		if (!isRootScope()) return parent.getFlagsEnvironment(name);
+		if (!isRootScope()) {
+			return parent.getFlagsEnvironment(name);
+		}
+
 		return null;
 	}
 

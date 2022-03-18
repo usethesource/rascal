@@ -27,15 +27,17 @@ import org.rascalmpl.interpreter.matching.IBooleanResult;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.NodePattern;
-import org.rascalmpl.interpreter.matching.QualifiedNamePattern;
 import org.rascalmpl.interpreter.matching.SetPattern;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
-import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -44,11 +46,6 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-
-import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.parsetrees.ProductionAdapter;
-import org.rascalmpl.values.parsetrees.SymbolAdapter;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 /**
  * These classes special case Expression.CallOrTree for concrete syntax patterns

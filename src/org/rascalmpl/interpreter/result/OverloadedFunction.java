@@ -180,9 +180,8 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
         for (AbstractFunction f: defaultCandidates) {
             newDefaultCandidates.add((AbstractFunction) f.cloneInto(env));
         }
-        OverloadedFunction of = new OverloadedFunction(name, getStaticType(), newCandidates, newDefaultCandidates, isStatic, ctx);
-        of.setPublic(isPublic());
-        return of;
+        
+        return new OverloadedFunction(name, getStaticType(), newCandidates, newDefaultCandidates, isStatic, ctx);
     }
 
     /**
