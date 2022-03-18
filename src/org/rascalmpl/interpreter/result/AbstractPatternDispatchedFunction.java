@@ -74,11 +74,6 @@ public class AbstractPatternDispatchedFunction extends AbstractFunction {
 		return new AbstractPatternDispatchedFunction(getEval(), index, name, newAlts);
 	}
 	
-	@Override
-	public boolean isPublic() {
-		throw new UnsupportedOperationException();
-	}
-	
 	public Map<String,List<AbstractFunction>> getMap() {
 		return alternatives;
 	}
