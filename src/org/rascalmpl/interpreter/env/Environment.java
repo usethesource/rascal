@@ -73,15 +73,15 @@ public class Environment implements IRascalFrame {
 		}
 
 		public NameFlags makeFinal() {
-			return new NameFlags(flags & FINAL_NAME);
+			return new NameFlags(flags | FINAL_NAME);
 		}
 
 		public NameFlags makePrivate() {
-			return new NameFlags(flags & PRIVATE_NAME);
+			return new NameFlags(flags | PRIVATE_NAME);
 		}
 
 		public NameFlags makeOverloadable() {
-			return new NameFlags(flags & OVERLOADABLE_NAME);
+			return new NameFlags(flags | OVERLOADABLE_NAME);
 		}
 
 		boolean isFinal() {
