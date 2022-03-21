@@ -2,7 +2,6 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
