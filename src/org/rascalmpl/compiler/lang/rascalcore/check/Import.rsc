@@ -244,7 +244,7 @@ set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined | <loc _, str id, moduleId(), loc defined, DefInfo _> <- tm.defines);
+    = (id: defined | <loc _, str id, str _orgId, moduleId(), loc defined, DefInfo _> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConfig pcfg){
     if(moduleScopes[qualifiedModuleName]?){
@@ -331,7 +331,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         //roles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), keywordDormal() + annoId()} + anyVariableRoles;
         // Filter model for current module and replace functions in defType by their defined type
         
-        defs = for(tup: <loc scope, str _, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
+        defs = for(tup: <loc scope, str _, str _, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
                    if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
                       scope in filteredModuleScopes || 
                       (scope.path == mscope.path && idRole in saveModuleRoles)
