@@ -68,7 +68,7 @@ test bool concreteExpressionsSourceLocationsLengthLegacy1a()
 test bool parsedExpressionsSourceLocationsLengthLegacy1a() 
   = ([A] "a")@\loc.length == 1;  
   
-test bool concreteExpressionsSourceLocationsLength2b() 
+test bool concreteExpressionsSourceLocationsLength2a() 
   = (E) `(a+a)`.src.length == 5;
 
 test bool parsedExpressionsSourceLocationsLength1a() 
