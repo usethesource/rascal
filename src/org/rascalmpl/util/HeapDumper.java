@@ -25,7 +25,6 @@ import com.sun.management.HotSpotDiagnosticMXBean;
  * 
  * Use it to dump the heap to a file for further analysis.
  */
-@SuppressWarnings("restriction")
 public class HeapDumper {
     private static final class InstanceKeeper {
         /*package*/ 
