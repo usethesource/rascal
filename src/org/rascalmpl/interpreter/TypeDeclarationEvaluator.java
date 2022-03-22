@@ -178,7 +178,6 @@ public class TypeDeclarationEvaluator {
 				
 				try {
 					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, tf.tupleType(fields, labels), local);
-					cons.setPublic(true); // TODO: implement declared visibility
 					
 					if (local.size() > 0) {
 						Type kwType = computeKeywordParametersType(local, eval);

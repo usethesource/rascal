@@ -1688,7 +1688,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             for (AbstractFunction f : p.getSecond()) {
                 String module = ((ModuleEnvironment)f.getEnv()).getName();
                 
-                if (skipPrivate && !f.isPublic()) {
+                if (skipPrivate && env.isNamePrivate(f.getName())) {
                     continue;
                 }
                 
@@ -1700,7 +1700,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
         if (inQualifiedModule) {
             for (Entry<String, Result<IValue>> entry : env.getVariables().entrySet()) {
-                if (skipPrivate && !entry.getValue().isPublic()) {
+                if (skipPrivate && env.isNamePrivate(entry.getKey())) {
                     continue;
                 }
                 addIt(result, entry.getKey(), qualifier, partialIdentifier);
