@@ -22,7 +22,7 @@ public AGrammar expandKeywords(AGrammar g) {
   return g1;
 }
 
-private set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
+public set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
   names = {};
   done = {};
   todo = conds;
