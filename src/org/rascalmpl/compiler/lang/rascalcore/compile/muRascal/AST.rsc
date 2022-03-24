@@ -841,17 +841,17 @@ MuExp muReturn1(AType t, muWhileDo(str label, MuExp cond, MuExp body)){
 //    }
          
 MuExp muReturn1(AType t, muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont))
-    = muForRange(label, var, first, second, last, insertReturn(body, [label], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont, [label], (t == abool() || t == avalue()), exhaustedVal));
+    = muForRange(label, var, first, second, last, insertReturn(body, [label], (t == abool() || t == avalue())), insertReturn(falseCont, [label], (t == abool() || t == avalue())));
               
 MuExp muReturn1(AType t, muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont)){
-    return muForRangeInt(label, var, ifirst, istep, last, insertReturn(body, [label], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont, [label], (t == abool() || t == avalue()), exhaustedVal));
+    return muForRangeInt(label, var, ifirst, istep, last, insertReturn(body, [label], (t == abool() || t == avalue())), insertReturn(falseCont, [label], (t == abool() || t == avalue())));
 }    
 MuExp muReturn1(AType t, fo: muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
-    return muForAll(label, var, iterType, iterable, insertReturn(body, [label] , (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont,  [label] , (t == abool() || t == avalue()), exhaustedVal));
+    return muForAll(label, var, iterType, iterable, insertReturn(body, [label] , (t == abool() || t == avalue())), insertReturn(falseCont,  [label] , (t == abool() || t == avalue())));
 } 
 
 MuExp muReturn1(AType t, fo: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
-    return muForAny(label, var, iterType, iterable, insertReturn(body, [label], (t == abool() || t == avalue()), exhaustedVal), insertReturn(falseCont,  [label], (t == abool() || t == avalue()), exhaustedVal));
+    return muForAny(label, var, iterType, iterable, insertReturn(body, [label], (t == abool() || t == avalue())), insertReturn(falseCont,  [label], (t == abool() || t == avalue())));
 } 
  
 MuExp muReturn1(AType t, muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)){
@@ -919,13 +919,13 @@ MuExp removeDeadCode(MuExp exp, list[str] entered){
 MuExp muReturn1(AType t, me:muExists(str btscope, MuExp exp)){
     ires = insertReturn(exp, [btscope], t == abool() || t == avalue());
     res = muExists(btscope, ires);
-    return noSequentialExit(res) ? res : muBlock([muComment("muReturn1/muExists"), addReturn(t, res)]);
+    return noSequentialExit(res) ? res : muBlock([muComment("muReturn1/muExists"), addReturn(t, t == abool() || t == avalue(), res)]);
 } 
 
 MuExp muReturn1(AType t, me:muAll(str btscope, MuExp exp)){
     ires = insertReturn(exp, [btscope], t == abool() || t == avalue());
     res = muAll(btscope, ires);
-    return noSequentialExit(res) ? res : muBlock([muComment("muReturn1/muAll"), addReturn(t, res)]);
+    return noSequentialExit(res) ? res : muBlock([muComment("muReturn1/muAll"), addReturn(t, t == abool() || t == avalue(), res)]);
 } 
     
 MuExp muReturn1(AType t, muSucceed(str btscope))
