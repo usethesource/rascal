@@ -26,8 +26,9 @@ alias Name_Arity = tuple[str name, int arity];
 // Get all functions and constructors from a given tmodel
 
 rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
-    return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> 
-           | def <- tmodel.defines, defType(AType tp) := def.defInfo,
+     return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> 
+           | Define def <- tmodel.defines, 
+             defType(AType tp) := def.defInfo,
              (def.idRole == functionId() && any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))) || def.idRole == constructorId(),
              !(acons(AType adt, list[AType] _, list[Keyword] _) := tp && isNonTerminalType(adt))
            };
