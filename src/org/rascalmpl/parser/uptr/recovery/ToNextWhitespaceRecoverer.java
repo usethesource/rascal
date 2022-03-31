@@ -173,6 +173,7 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor>{
 		}
 	}
 	
+	@Override
 	public DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveStacks(int[] input,
 			int location,
 			Stack<AbstractStackNode<IConstructor>> unexpandableNodes,
