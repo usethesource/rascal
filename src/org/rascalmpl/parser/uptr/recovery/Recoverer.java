@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2022 NWO-I Centrum Wiskunde & Informatica (CWI)
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.uptr.recovery;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
@@ -25,7 +24,9 @@ import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+
+import io.usethesource.vallang.IConstructor;
 
 public class Recoverer implements IRecoverer<IConstructor>{
 	// TODO: its a magic constant, and it may clash with other generated constants
@@ -51,12 +52,12 @@ public class Recoverer implements IRecoverer<IConstructor>{
 	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input, int location, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes){
 		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>();
 		
-		for(int i = recoveryNodes.size() - 1; i >= 0; --i) {
+		for (int i = recoveryNodes.size() - 1; i >= 0; --i) {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
 			
 			// Handle every possible continuation associated with the recovery node (there can be more then one because of prefix-sharing).
-			for(int j = prods.size() - 1; j >= 0; --j){
+			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
 				
 				AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<IConstructor>(recoveryId++, prod, recoveryNode);
@@ -84,7 +85,7 @@ public class Recoverer implements IRecoverer<IConstructor>{
 	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(int[] input, int location, ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
 		DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>>();
 		
-		for(int i = failedNodes.size() - 1; i >= 0; --i){
+		for (int i = failedNodes.size() - 1; i >= 0; --i) {
 			findRecoveryNodes(failedNodes.get(i), recoveryNodes);
 		}
 		
@@ -92,18 +93,18 @@ public class Recoverer implements IRecoverer<IConstructor>{
 	}
 	
 	private static void collectUnexpandableNodes(Stack<AbstractStackNode<IConstructor>> unexpandableNodes, ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
-		for(int i = unexpandableNodes.getSize() - 1; i >= 0; --i){
+		for (int i = unexpandableNodes.getSize() - 1; i >= 0; --i) {
 			failedNodes.add(unexpandableNodes.get(i));
 		}
 	}
 	
 	private static void collectUnmatchableMidProductionNodes(int location, DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes, ArrayList<AbstractStackNode<IConstructor>> failedNodes){
-		for(int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i){
+		for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
 			DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
 			AbstractStackNode<IConstructor> failedNode = unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
 			
 			// Merge the information on the predecessors into the failed node.
-			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j){
+			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
 				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
 				failedNode.updateNode(predecessor, predecessorResult);
@@ -135,13 +136,13 @@ public class Recoverer implements IRecoverer<IConstructor>{
 			ArrayList<IConstructor> recoveryProductions = new ArrayList<IConstructor>();
 			collectProductions(node, recoveryProductions);
 			
-			if(recoveryProductions.size() > 0){
+			if (recoveryProductions.size() > 0) {
 				recoveryNodes.add(node, recoveryProductions);
 			}
 			
 			IntegerObjectList<EdgesSet<IConstructor>> edges = node.getEdges();
 			
-			for(int i = edges.size() - 1; i >= 0; --i){
+			for (int i = edges.size() - 1; i >= 0; --i) {
 				EdgesSet<IConstructor> edgesList = edges.getValue(i);
 
 				if (edgesList != null) {
@@ -162,27 +163,29 @@ public class Recoverer implements IRecoverer<IConstructor>{
 		
 		int dot = node.getDot();
 		
-		if(node.isEndNode()){
+		if (node.isEndNode()) {
 			IConstructor parentProduction = node.getParentProduction();
 			if(isRobust(parentProduction)){
 				productions.add(parentProduction);
 				
-				if(ProductionAdapter.isList(parentProduction)) return; // Don't follow productions in lists productions, since they are 'cyclic'.
+				if (ProductionAdapter.isList(parentProduction)) {
+				    return; // Don't follow productions in lists productions, since they are 'cyclic'.
+				}
 			}
 		}
 		 
-		for(int i = dot + 1; i < production.length; ++i){
+		for (int i = dot + 1; i < production.length; ++i) {
 			AbstractStackNode<IConstructor> currentNode = production[i];
-			if(currentNode.isEndNode()){
+			if (currentNode.isEndNode()) {
 				IConstructor parentProduction = currentNode.getParentProduction();
-				if(isRobust(parentProduction)){
+				if (isRobust(parentProduction)) {
 					productions.add(parentProduction);
 				}
 			}
 			
 			AbstractStackNode<IConstructor>[][] alternateProductions = currentNode.getAlternateProductions();
-			if(alternateProductions != null){
-				for(int j = alternateProductions.length - 1; j >= 0; --j){
+			if (alternateProductions != null) {
+				for (int j = alternateProductions.length - 1; j >= 0; --j) {
 					collectProductions(alternateProductions[j][i], productions);
 				}
 			}
