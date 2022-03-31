@@ -354,7 +354,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     try {
     consDef = range(consNameDef);
     consTypes = (d : s.getType(d) | d <- consDef);
-    for(d1 <- consDef, d2 <- consDef, d1.defined != d2.defined, t1 := consTypes[d1], t2 := consTypes[d1], t1.adt == t2.adt,
+    for(d1 <- consDef, d2 <- consDef, d1.defined != d2.defined, t1 := consTypes[d1], t2 := consTypes[d2], t1.adt == t2.adt,
         d1.scope in moduleScopes && d2.scope in moduleScopes){
         for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.label == fld2.label, !isEmpty(fld1.label), !comparable(fld1, fld2)){
             msgs = [ warning("Field `<fld1.label>` is declared with different types in constructors `<d1.id>` and `<d2.id>` for `<t1.adt.adtName>`", d1.defined)
