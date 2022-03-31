@@ -103,6 +103,7 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
+import org.rascalmpl.parser.uptr.recovery.ToNextWhitespaceRecoverer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -714,7 +715,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override	
-    public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+    public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects, boolean robust) {
         IConstructor startSort = (IConstructor) grammar.get("symbol");
         IGTD<IConstructor, ITree, ISourceLocation> parser;
         String name;
@@ -728,16 +729,17 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ? new RascalFunctionActionExecutor(filters, !hasSideEffects)
             : new NoActionExecutor();
 
-        return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
+        IRecoverer<IConstructor> recoverer = robust ? new ToNextWhitespaceRecoverer() : null;
+        return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), recoverer);
     }
 
     @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects){
+    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects, boolean robust){
         IRascalMonitor old = setMonitor(monitor);
 
         try {
             char[] input = getResourceContent(location);
-            return parseObject(startSort, filters, location, input, allowAmbiguity, hasSideEffects);
+            return parseObject(startSort, filters, location, input, allowAmbiguity, hasSideEffects, robust);
         }
         catch(IOException ioex){
             throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
@@ -748,10 +750,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, boolean allowAmbiguity, boolean hasSideEffects) {
+    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, boolean allowAmbiguity, boolean hasSideEffects, boolean robust) {
         IRascalMonitor old = setMonitor(monitor);
         try {
-            return parseObject(startSort, filters, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity, hasSideEffects);
+            return parseObject(startSort, filters, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity, hasSideEffects, robust);
         }
         finally {
             setMonitor(old);
@@ -759,10 +761,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects) {
+    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects, boolean robust) {
         IRascalMonitor old = setMonitor(monitor);
         try{
-            return parseObject(startSort, filters, loc, input.toCharArray(), allowAmbiguity, hasSideEffects);
+            return parseObject(startSort, filters, loc, input.toCharArray(), allowAmbiguity, hasSideEffects, robust);
         }finally{
             setMonitor(old);
         }

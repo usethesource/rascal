@@ -1089,11 +1089,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (result.getStaticType().isString()) {
 					tree = __eval.parseObject(value, VF.set(),
 						this.getLocation(),
-						((IString) result.getValue()).getValue().toCharArray(), true, false);
+						((IString) result.getValue()).getValue().toCharArray(), true, false, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
 					tree = __eval.parseObject(__eval, value, VF.set(),
-							((ISourceLocation) result.getValue()), true, false);
+							((ISourceLocation) result.getValue()), true, false, false);
 				}
 				
 				assert tree != null; // because we checked earlier
