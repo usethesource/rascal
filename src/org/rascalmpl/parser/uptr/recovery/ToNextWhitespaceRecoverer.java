@@ -28,26 +28,12 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
 
-public class Recoverer implements IRecoverer<IConstructor>{
+public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor>{
 	// TODO: its a magic constant, and it may clash with other generated constants
 	// should generate implementation of static int getLastId() in generated parser to fix this.
 	private int recoveryId = 100000;
+	private static final int[] WHITESPACE = {' ', '\r', '\n', '\t' };
 	
-	private final int[][] continuationCharactersList;
-	
-	private final ObjectKeyedIntegerMap<IConstructor> robust;
-	
-	public Recoverer(IConstructor[] robustProds, int[][] continuationCharactersList){
-		super();
-		
-		this.continuationCharactersList = continuationCharactersList;
-		
-		this.robust = new ObjectKeyedIntegerMap<IConstructor>();
-		
-		for (int i = robustProds.length - 1; i >= 0; --i) {
-			robust.put(robustProds[i], i);
-		}
-	}
 	
 	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input, int location, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes){
 		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>();
@@ -64,8 +50,7 @@ public class Recoverer implements IRecoverer<IConstructor>{
 				
 				int startLocation = recoveryNode.getStartLocation();
 				
-				int[] until = continuationCharactersList[robust.get(prod)];
-				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<IConstructor>(recoveryId++, until, input, startLocation, prod);
+				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<IConstructor>(recoveryId++, WHITESPACE, input, startLocation, prod);
 				recoverLiteral = recoverLiteral.getCleanCopy(startLocation);
 				recoverLiteral.initEdges();
 				EdgesSet<IConstructor> edges = new EdgesSet<IConstructor>(1);
@@ -114,10 +99,6 @@ public class Recoverer implements IRecoverer<IConstructor>{
 		}
 	}
 
-	private boolean isRobust(IConstructor prod) {
-		return robust.contains(prod);
-	}
-	
 	/**
 	 * Travels up the parse graph in an attempt to find the closest recoverable parent nodes.
 	 */
@@ -165,7 +146,7 @@ public class Recoverer implements IRecoverer<IConstructor>{
 		
 		if (node.isEndNode()) {
 			IConstructor parentProduction = node.getParentProduction();
-			if(isRobust(parentProduction)){
+			if(ProductionAdapter.isContextFree(parentProduction)){
 				productions.add(parentProduction);
 				
 				if (ProductionAdapter.isList(parentProduction)) {
@@ -178,7 +159,7 @@ public class Recoverer implements IRecoverer<IConstructor>{
 			AbstractStackNode<IConstructor> currentNode = production[i];
 			if (currentNode.isEndNode()) {
 				IConstructor parentProduction = currentNode.getParentProduction();
-				if (isRobust(parentProduction)) {
+				if (ProductionAdapter.isContextFree(parentProduction)) {
 					productions.add(parentProduction);
 				}
 			}
