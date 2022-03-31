@@ -2237,12 +2237,12 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, firstAmbiguity, robust, filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
+        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, firstAmbiguity, robust, filters);
     }
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
