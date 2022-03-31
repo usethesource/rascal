@@ -154,20 +154,20 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
     
     @Override
-    public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+    public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
         TypeFactory tf = TypeFactory.getInstance();
         
-        // the return type of the generated parse function is instantiated here to the start nonterminal of
+        // the return type of the generated parse function is instantiated here to the s tart nonterminal of
         // the provided grammar:
         Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
         
-        return function(functionType, new ParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity, robust, filters));
     }
     
     @Override
-    public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+    public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
@@ -180,7 +180,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
         
-        return function(functionType, new ParametrizedParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParametrizedParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity, robust, filters));
     }
     
     /**
@@ -196,8 +196,9 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected final boolean allowAmbiguity;
         protected final boolean hasSideEffects;
         protected final boolean firstAmbiguity;
+        protected final boolean robust;
         
-        public ParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+        public ParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
             this.ctx = ctx;
             this.vf = ctx.getValueFactory();
             this.grammar = grammar;
@@ -205,6 +206,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             this.allowAmbiguity = allowAmbiguity.getValue() || firstAmbiguity.getValue();
             this.hasSideEffects = hasSideEffects.getValue();
             this.firstAmbiguity = firstAmbiguity.getValue();
+            this.robust = robust.getValue();
         }
         
         @Override
@@ -367,8 +369,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
      */
     static private class ParametrizedParseFunction extends ParseFunction {
         
-        public ParametrizedParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-            super(ctx, grammar, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+        public ParametrizedParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
+            super(ctx, grammar, allowAmbiguity, hasSideEffects, firstAmbiguity, robust, filters);
         }
         
         @Override
