@@ -205,7 +205,7 @@ private bool _usingTypeParams = false;
 void enterFunctionDeclaration(loc src, bool useTypeParams){
     functionDeclarations = src + functionDeclarations;
     initLabelledStats();
-    inSignatureSection = false;
+    _inSignatureSection = false;
     _usingTypeParams = useTypeParams;
 }
 
