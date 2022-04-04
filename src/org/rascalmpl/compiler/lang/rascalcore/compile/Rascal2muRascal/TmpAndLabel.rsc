@@ -199,30 +199,30 @@ void leaveTryCatchFinally() {
 }
 
 private list[loc] functionDeclarations = []; // *** state
-private bool inSignatureSection = false;
-private bool usingTypeParams = false;
+private bool _inSignatureSection = false;
+private bool _usingTypeParams = false;
 
 void enterFunctionDeclaration(loc src, bool useTypeParams){
     functionDeclarations = src + functionDeclarations;
     initLabelledStats();
     inSignatureSection = false;
-    usingTypeParams = useTypeParams;
+    _usingTypeParams = useTypeParams;
 }
 
-bool usingTypeParams() = usingTypeParams;
+bool usingTypeParams() = _usingTypeParams;
 
-bool inSignatureSection() = inSignatureSection;
+bool inSignatureSection() = _inSignatureSection;
 
 void enterSignatureSection(){
     inSignatureSection = true;
 }
 void leaveSignatureSection() {
-    inSignatureSection = false;
+    _inSignatureSection = false;
 }
 
 void leaveFunctionDeclaration(){
     functionDeclarations = tail(functionDeclarations);
-    inSignatureSection = false;
+    _inSignatureSection = false;
 }
 
 loc currentFunctionDeclaration(){
