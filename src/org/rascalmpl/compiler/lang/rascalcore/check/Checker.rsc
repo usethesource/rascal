@@ -152,7 +152,8 @@ public PathConfig getDefaultPathConfig() {
 }
 public PathConfig getRascalCorePathConfig() {
    return pathConfig(   
-        srcs = [|project://rascal/src/org/rascalmpl/library|, 
+        srcs = [|std:///|,
+                |project://rascal/src/org/rascalmpl/library|, 
                 |project://rascal-core/src/org/rascalmpl/core/library|,
                 //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
                 |project://typepal/src|
