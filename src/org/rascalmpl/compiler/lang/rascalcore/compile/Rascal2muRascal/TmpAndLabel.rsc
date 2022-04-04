@@ -214,7 +214,7 @@ bool usingTypeParams() = _usingTypeParams;
 bool inSignatureSection() = _inSignatureSection;
 
 void enterSignatureSection(){
-    inSignatureSection = true;
+    _inSignatureSection = true;
 }
 void leaveSignatureSection() {
     _inSignatureSection = false;
