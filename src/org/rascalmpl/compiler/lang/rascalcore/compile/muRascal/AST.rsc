@@ -573,7 +573,7 @@ bool hasSequentialExit(MuExp exp) = !noSequentialExit(exp);
 
 // There is no sequential exit from this expression
 
-bool trace = true;
+bool trace = false;
 
 bool reportResult(MuExp exp, bool res){
     if(trace) { iprintln(exp); println(" noSequentialExit ===\> <res>"); }
