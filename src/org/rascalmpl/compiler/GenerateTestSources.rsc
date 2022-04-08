@@ -10,14 +10,14 @@ import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
 
-PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/classes|);
+PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|);
 
 void main(list[str] args) = generateTestSources(manualTestConfig);
 
 void generateTestSources(PathConfig pcfg) {
    testConfig = pathConfig(
      bin=pcfg.bin,
-     genSrcs=|project://rascal-core/target/generated-sources|,
+     genSrcs=|project://rascal-core/target/generated-test-sources|,
      srcs=[
        |std:///|
      ]);
