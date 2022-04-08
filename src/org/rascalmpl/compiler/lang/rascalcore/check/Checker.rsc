@@ -159,8 +159,8 @@ public PathConfig getRascalCorePathConfig() {
                 |project://typepal/src|
                 //|project://salix/src|
                 ],
-        bin = |project://rascal-core/target/classes|,
-        genSrcs = |project://rascal-core/target/generated-sources|
+        bin = |project://rascal-core/target/test-classes|,
+        genSrcs = |project://rascal-core/target/generated-test-sources|
     );
 }
 
