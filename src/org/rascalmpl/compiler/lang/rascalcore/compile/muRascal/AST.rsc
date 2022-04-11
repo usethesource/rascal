@@ -526,8 +526,8 @@ bool exitViaReturn1(muValueBlock(AType t, [*exps1, exp2]))
 bool exitViaReturn1(muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart))
     = exitViaReturn(thenPart) && exitViaReturn(elsePart);
 
-//bool exitViaReturn1(muIf(MuExp cond, MuExp thenPart))
-//    = false;
+bool exitViaReturn1(muIf(MuExp cond, MuExp thenPart))
+    = false;
         
 bool exitViaReturn1(muWhileDo(str label, muCon(true), MuExp body)){
     return exitViaReturn(body);
@@ -536,16 +536,16 @@ bool exitViaReturn1(muDoWhile(str label,  MuExp body, muCon(false)))
     = exitViaReturn(body);  
 
 bool exitViaReturn1(muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
-    =  exitViaReturn(body) || exitViaReturn(falseCont);
+    =  exitViaReturn(body) && exitViaReturn(falseCont);
 
 bool exitViaReturn1(muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
-    =  exitViaReturn(body) || exitViaReturn(falseCont);
+    =  exitViaReturn(body) && exitViaReturn(falseCont);
 
 bool exitViaReturn1(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont))
-    =  exitViaReturn(body) || exitViaReturn(falseCont);
+    =  exitViaReturn(body) && exitViaReturn(falseCont);
 
 bool exitViaReturn1(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont))
-    =  exitViaReturn(body) || exitViaReturn(falseCont);
+    =  exitViaReturn(body) && exitViaReturn(falseCont);
             
 bool exitViaReturn1( muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)) {
     return all(c <- cases, exitViaReturn(c.exp)) && exitViaReturn(defaultExp);
@@ -1245,7 +1245,16 @@ MuExp muNot1(muFail(str label)) = muSucceed(label);
 MuExp muNot1(muSucceed(str label)) = muFail(label);
 MuExp muNot1(muCon(bool b)) = muCon(!b);
 
-default MuExp muNot1(MuExp exp) = exp;
+MuExp muNot1(mc: muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
+    = muNotNativeBool(mc);
+    
+MuExp muNot1(mc: muCallJava(str name, str class, AType funType, list[MuExp] args, str enclosingFun))
+    = muNotNativeBool(mc);
+
+MuExp muNot1(mp: muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src))
+    = muNotNativeBool(mp);
+
+default MuExp muNot1(MuExp exp) = producesNativeBool(exp) ? muNotNativeBool(exp) : exp;
 
 // ---- muIfElse --------------------------------------------------------------
 
