@@ -2,6 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -97,14 +98,11 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
     private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IMap iMap) {
         Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parserCache.get(iMap);
         try {
-            return parser.newInstance();
-        } catch (InstantiationException e) {
-            throw new ImplementationError(e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            throw new ImplementationError(e.getMessage(), e);
-        } catch (ExceptionInInitializerError e) {
-            throw new ImplementationError(e.getMessage(), e);
-        }
+            return parser.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            throw new ImplementationError("could not instantiate generated parser", e);
+        } 
     }
 
     @Override
