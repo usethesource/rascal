@@ -91,7 +91,9 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	public boolean isEqual(AbstractStackNode<P> stackNode){
-		if(!(stackNode instanceof SkippingStackNode)) return false;
+		if ( !(stackNode instanceof SkippingStackNode)) {
+		    return false;
+		}
 		
 		SkippingStackNode<P> otherNode = (SkippingStackNode<P>) stackNode;
 		
