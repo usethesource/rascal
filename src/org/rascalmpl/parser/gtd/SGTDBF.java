@@ -815,7 +815,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			}
 		}
 		
-		if (recoverer != null) {
+		if (recoverer != null && location < input.length) {
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			if (recoveredNodes.size() > 0) {
 				for (int i = 0; i < recoveredNodes.size(); i++) {
