@@ -24,6 +24,7 @@ import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
 
@@ -116,6 +117,12 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor>{
 			
 			visited.put(node, 0);
 			
+			ArrayList<IConstructor> recoveryProductions = new ArrayList<IConstructor>();
+			collectProductions(node, recoveryProductions);
+			if (recoveryProductions.size() > 0) {
+			    recoveryNodes.add(node, recoveryProductions);
+			}
+			
 			IntegerObjectList<EdgesSet<IConstructor>> edges = node.getEdges();
 			
 			for (int i = edges.size() - 1; i >= 0; --i) {
@@ -131,6 +138,45 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor>{
 			}
 		}
 	}
+	
+	// Gathers all productions that are marked for recovery (the given node can be part of a prefix shared production)
+	private void collectProductions(AbstractStackNode<IConstructor> node, ArrayList<IConstructor> productions) {
+	    AbstractStackNode<IConstructor>[] production = node.getProduction();
+	    if (production == null) {
+	        return; // The root node does not have a production, so ignore it.
+	    }
+
+	    int dot = node.getDot();
+
+	    if (node.isEndNode()) {
+	        IConstructor parentProduction = node.getParentProduction();
+	        if (ProductionAdapter.isContextFree(parentProduction)){
+	            productions.add(parentProduction);
+
+	            if (ProductionAdapter.isList(parentProduction)) {
+	                return; // Don't follow productions in lists productions, since they are 'cyclic'.
+	            }
+	        }
+	    }
+
+	    for (int i = dot + 1; i < production.length; ++i) {
+	        AbstractStackNode<IConstructor> currentNode = production[i];
+	        if (currentNode.isEndNode()) {
+	            IConstructor parentProduction = currentNode.getParentProduction();
+	            if (ProductionAdapter.isContextFree(parentProduction)) {
+	                productions.add(parentProduction);
+	            }
+	        }
+
+	        AbstractStackNode<IConstructor>[][] alternateProductions = currentNode.getAlternateProductions();
+	        if (alternateProductions != null) {
+	            for (int j = alternateProductions.length - 1; j >= 0; --j) {
+	                collectProductions(alternateProductions[j][i], productions);
+	            }
+	        }
+	    }
+	}
+
 	
 	@Override
 	public DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveStacks(int[] input,
