@@ -823,7 +823,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					
 					int levelsFromHere = recovered.getLength() - (location - recovered.getStartLocation());
 					
-					addTodo(recovered, levelsFromHere, recoveredNodes.getSecond(i));
+//					if (levelsFromHere >= 0) { // TODO experien
+					    addTodo(recovered, levelsFromHere, recoveredNodes.getSecond(i));
+//					}
 				}
 				return findStacksToReduce();
 			}
@@ -852,6 +854,13 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
 			queueDepth = length + 1;
 			queueIndex = 0;
+		}
+		else if (length < 0) {
+            if (length + queueIndex < 0) {
+                // the queue is not long enough back into the past locations
+                // to cover this recovery node, so we must skip it
+                return;
+            }
 		}
 		
 		int insertLocation = (queueIndex + length) % queueDepth;
