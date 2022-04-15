@@ -786,7 +786,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			if (recoveredNodes.size() > 0) { // TODO Do something with the revived node. Is this the right location to do this?
 				for (int i = 0; i < recoveredNodes.size(); i++) {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
-					addTodo(recovered, recovered.getLength(), recoveredNodes.getSecond(i));
+					queueMatchableNode(recovered, recovered.getLength(), recoveredNodes.getSecond(i));
 				}
 				return findStacksToReduce();
 			}
@@ -821,11 +821,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				for (int i = 0; i < recoveredNodes.size(); i++) {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
 					
-					int levelsFromHere = recovered.getLength() - (location - recovered.getStartLocation());
+//					int levelsFromHere = recovered.getLength() - (location - recovered.getStartLocation());
 					
-//					if (levelsFromHere >= 0) { // TODO experien
-					    addTodo(recovered, levelsFromHere, recoveredNodes.getSecond(i));
-//					}
+					queueRecoveryNode(recovered, recovered.getStartLocation(), recovered.getLength(), recoveredNodes.getSecond(i));
 				}
 				return findStacksToReduce();
 			}
@@ -844,8 +842,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Inserts a stack bottom into the todo-list.
 	 */
 	@SuppressWarnings("unchecked")
-	private void addTodo(AbstractStackNode<P> node, int length, AbstractNode result){
-		if(result == null) throw new RuntimeException();
+	private void queueMatchableNode(AbstractStackNode<P> node, int length, AbstractNode result){
+		assert result != null;
+		
 		int queueDepth = todoLists.length;
 		if(length >= queueDepth){
 			DoubleStack<AbstractStackNode<P>, AbstractNode>[] oldTodoLists = todoLists;
@@ -854,13 +853,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex, queueIndex);
 			queueDepth = length + 1;
 			queueIndex = 0;
-		}
-		else if (length < 0) {
-            if (length + queueIndex < 0) {
-                // the queue is not long enough back into the past locations
-                // to cover this recovery node, so we must skip it
-                return;
-            }
 		}
 		
 		int insertLocation = (queueIndex + length) % queueDepth;
@@ -871,6 +863,61 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		}
 		terminalsTodo.push(node, result);
 	}
+	
+	/**
+     * Inserts a recovery node into the todo-list, and possibly
+     * rewinds the parser to an earlier location in the input
+     */
+    @SuppressWarnings("unchecked")
+    private void queueRecoveryNode(AbstractStackNode<P> node, int startPosition, int length, AbstractNode result){
+        assert result != null;
+        
+        int queueDepth = todoLists.length;
+
+        if (startPosition < location) {
+            // Have to reset the parser to an earlier location to at least
+            // be able to process the new node. Cannot throw away the queue, 
+            // because there are possibly already other recovery tokens in the queue.
+            // However, we may assume that the queue before the current index is
+            // done, based on the way we cycle the queue now. The queue is 
+            // looking forward to the future and we never re-use past entries.
+            
+            int negativeOffset = location - startPosition;
+            
+            DoubleStack<AbstractStackNode<P>, AbstractNode>[] oldTodoLists = todoLists;
+            todoLists = new DoubleStack[negativeOffset + Math.max(queueDepth, length) + 1];
+            System.arraycopy(oldTodoLists, queueIndex, todoLists, negativeOffset, queueDepth - queueIndex);
+            System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex + negativeOffset, queueIndex);
+            
+            // reset the parser!
+            queueIndex = 0;
+            location = startPosition; 
+            
+            DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex];
+            if (terminalsTodo == null){
+                terminalsTodo = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
+                todoLists[queueIndex] = terminalsTodo;
+            }
+            else {
+                assert false: "this should never happen";
+            }
+            
+            terminalsTodo.push(node, result);
+        }
+        else if (startPosition == location) {
+            // this is the normal case where new matchable nodes are discovered
+            // for the current parsing location, so reuse the code for queuing
+            queueMatchableNode(node, length, result); 
+        }
+        else {
+            // This would mean we have discovered a recovery node for a location
+            // we have not been yet. That would be odd because then there would
+            // not have been a parse error and we wouldn't need recovery...
+            throw new RuntimeException("discovered a future recovery? " + node);
+        }
+    }
+	
+	
 	
 	/**
 	 * Handles the retrieved alternatives for the given stack.
@@ -913,7 +960,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				
 				first = first.getCleanCopyWithResult(location, result);
 				
-				addTodo(first, length, result);
+				queueMatchableNode(first, length, result);
 			}else{
 				first = first.getCleanCopy(location);
 				stacksToExpand.push(first);
@@ -974,7 +1021,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		}
 		
 		if(stack.isMatchable()){ // Eager matching optimization related.
-			addTodo(stack, stack.getLength(), stack.getResult());
+			queueMatchableNode(stack, stack.getLength(), stack.getResult());
 		}else if(!stack.isExpandable()){ // A 'normal' non-terminal.
 			EdgesSet<P> cachedEdges = cachedEdgesForExpect.get(stack.getName());
 			if(cachedEdges == null){
@@ -1051,7 +1098,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 							}
 							
 							child = child.getCleanCopyWithResult(location, result);
-							addTodo(child, length, result);
+							queueMatchableNode(child, length, result);
 						}else{
 							child = child.getCleanCopy(location);
 							stacksToExpand.push(child);
