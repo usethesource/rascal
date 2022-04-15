@@ -23,6 +23,7 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLocation>{
 	private final static RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
+	private final static IConstructor SKIPPED = VF.constructor(RascalValueFactory.Production_Skipped, VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Range, VF.integer(1), VF.integer(Character.MAX_CODE_POINT)))));
 	private boolean allowAmb;
 	
 	public UPTRNodeFactory(boolean allowAmbiguity){
@@ -144,6 +145,6 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
     @Override
     public ITree createRecoveryNode(int[] characters) {
         IList chars = Arrays.stream(characters).mapToObj(ch -> VF.character(ch)).collect(VF.listWriter());
-        return VF.appl(VF.constructor(RascalValueFactory.Production_Skipped), chars);
+        return VF.appl(SKIPPED, chars);
     }
 }
