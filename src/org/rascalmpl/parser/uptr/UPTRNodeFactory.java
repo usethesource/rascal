@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -142,6 +143,7 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 
     @Override
     public ITree createRecoveryNode(int[] characters) {
-       throw new UnsupportedOperationException(); 
+        IList chars = Arrays.stream(characters).mapToObj(ch -> VF.character(ch)).collect(VF.listWriter());
+        return VF.appl(VF.constructor(RascalValueFactory.Production_Skipped), chars);
     }
 }
