@@ -152,6 +152,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Production_Priority = tf.constructor(uptr, Production, "priority", Symbol, "def", tf.listType(Production), "choices");
 	public static final Type Production_Composition = tf.constructor(uptr,  Production,  "composition", Production, "lhs", Production, "rhs");
 	public static final Type Production_Associativity = tf.constructor(uptr, Production, "associativity", Symbol, "def", Associativity, "assoc", tf.setType(Production), "alternatives");
+	public static final Type Production_Skipped = tf.constructor(uptr, Production, "skipped");
 	
 	/* Constructors for Attr */
 	public static final Type Attr_Assoc = tf.constructor(uptr, Attr, "assoc", Associativity, "assoc");
