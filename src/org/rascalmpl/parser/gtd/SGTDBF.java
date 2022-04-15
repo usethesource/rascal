@@ -891,7 +891,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
             
             // reset the parser!
             queueIndex = 0;
-            location = startPosition; 
+            location = startPosition + 1; 
             
             DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex + 1];
             if (terminalsTodo == null){
