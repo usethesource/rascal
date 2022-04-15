@@ -886,17 +886,17 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
             
             DoubleStack<AbstractStackNode<P>, AbstractNode>[] oldTodoLists = todoLists;
             todoLists = new DoubleStack[negativeOffset + Math.max(queueDepth, length) + 1];
-            System.arraycopy(oldTodoLists, queueIndex, todoLists, negativeOffset, queueDepth - queueIndex);
-            System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex + negativeOffset, queueIndex);
+            System.arraycopy(oldTodoLists, queueIndex, todoLists, negativeOffset + 1, queueDepth - queueIndex);
+            System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex + negativeOffset + 1, queueIndex);
             
             // reset the parser!
             queueIndex = 0;
             location = startPosition; 
             
-            DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex];
+            DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex + 1];
             if (terminalsTodo == null){
                 terminalsTodo = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
-                todoLists[queueIndex] = terminalsTodo;
+                todoLists[queueIndex + 1] = terminalsTodo;
             }
             else {
                 assert false: "this should never happen";
