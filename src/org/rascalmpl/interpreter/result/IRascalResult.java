@@ -10,5 +10,15 @@ public interface IRascalResult {
     return getValue().getType();
   }
   
+  default Type getStaticUnaliasedType() {
+      Type result = getStaticType();
+      
+      while (result.isAliased()) {
+          result = result.getAliased();
+      }
+      
+      return result;
+  }
+  
   IValue getValue();
 }
