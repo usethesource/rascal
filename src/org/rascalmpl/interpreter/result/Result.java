@@ -116,7 +116,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public Type getStaticType() { 
 		return type;
 	}
-
+	
 	@Override
 	public String toString(){
 		return getStaticType().toString() + ": " + value.toString();
