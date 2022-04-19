@@ -98,9 +98,7 @@ public class JavaMethod extends NamedFunction {
 
 	@Override
 	public JavaMethod cloneInto(Environment env) {
-		JavaMethod jm = new JavaMethod(getEval(), getFunctionType(), getType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
-		jm.setPublic(isPublic());
-		return jm;
+		return new JavaMethod(getEval(), getFunctionType(), getType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
 	}
 	
 	@Override
