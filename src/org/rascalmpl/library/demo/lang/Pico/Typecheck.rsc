@@ -28,15 +28,15 @@ TENV checkExp(exp:id(PicoId Id), TYPE req, TENV env) { // <5>
 }
 
 TENV checkExp(exp:add(EXP E1, EXP E2), TYPE req, TENV env) = // <6>
-  req == natural() ? checkExp(E1, natural(), checkExp(E2, natural(), env))
+  natural() := req ? checkExp(E1, natural(), checkExp(E2, natural(), env))
                    : addError(env, exp@location, required(req, "natural"));
   
 TENV checkExp(exp:sub(EXP E1, EXP E2), TYPE req, TENV env) = // <7>
-  req == natural() ? checkExp(E1, natural(), checkExp(E2, natural(), env))
+  natural() := req ? checkExp(E1, natural(), checkExp(E2, natural(), env))
                    : addError(env, exp@location, required(req, "natural"));
 
 TENV checkExp(exp:conc(EXP E1, EXP E2), TYPE req, TENV env) = // <8>  
-  req == string() ? checkExp(E1, string(), checkExp(E2, string(), env))
+  string() := req ? checkExp(E1, string(), checkExp(E2, string(), env))
                    : addError(env, exp@location, required(req, "string"));
 
 
@@ -78,16 +78,12 @@ TENV checkStats(list[STATEMENT] Stats1, TENV env) { // <11>
 // check declarations
 
 TENV checkDecls(list[DECL] Decls) = // <12>
-    <( Id : tp  | decl(PicoId Id, TYPE tp) <- Decls), []>;
+    <( Id : tp | decl(PicoId Id, TYPE tp) <- Decls), []>;
 
 // check a Pico program
 
-public TENV checkProgram(PROGRAM P){ // <13>
-  if(program(list[DECL] Decls, list[STATEMENT] Series) := P){
-     TENV env = checkDecls(Decls);
-     return checkStats(Series, env);
-  } else
-    throw "Cannot happen";
+public TENV checkProgram(program(list[DECL] Decls, list[STATEMENT] Series)) { // <13>
+    return checkStats(Series, checkDecls(Decls));
 }
                                                          // <14>
 public list[tuple[loc l, str msg]] checkProgram(str txt) = checkProgram(load(txt)).errors;

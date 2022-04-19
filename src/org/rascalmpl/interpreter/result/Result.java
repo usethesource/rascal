@@ -82,7 +82,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private Iterator<Result<IValue>> iterator = null;
 	protected final Type type;
 	protected T value;
-	private boolean isPublic;
 	private boolean inferredType = false;
 	protected IEvaluatorContext ctx;
 
@@ -117,7 +116,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public Type getStaticType() { 
 		return type;
 	}
-
+	
 	@Override
 	public String toString(){
 		return getStaticType().toString() + ": " + value.toString();
@@ -143,10 +142,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> makeIntegerResult(int i) {
 		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i), ctx);
 	}
-	
-	/// TODO: Factory access:
-	//this should probably access fields initialized by constructor invocations
-	//passed into them by ResultFactory.
 	
 	protected TypeFactory getTypeFactory() {
 		return TypeFactory.getInstance();
@@ -639,8 +634,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected Result<IBool> equalToListRelation(ListRelationResult that) {
-    return bool(false, ctx);
-  }
+        return bool(false, ctx);
+    }
 	
 	protected Result<IBool> equalToSet(SetResult that) {
 		return bool(false, ctx);
@@ -1045,14 +1040,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return undefinedError(IS_DEFINED_STRING, this);
 	}
 	
-	public boolean isPublic() {
-		return isPublic;
-	}
-	
-	public void setPublic(boolean isPublic) {
-		this.isPublic = isPublic;
-	}
-
 	public void setInferredType(boolean inferredType) {
 		this.inferredType  = inferredType;
 	}
