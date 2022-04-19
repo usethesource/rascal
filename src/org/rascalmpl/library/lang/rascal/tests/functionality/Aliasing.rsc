@@ -280,7 +280,7 @@ test bool listOrLrel6() = {LIST[tuple[int,int]] LT = [<3,4>]; LT + <1,2> == [<3,
 test bool listOrLrel7() = {LIST[tuple[int,int]] LT = [<3,4>]; lrel[int,int] LR = LT + <1,2>; LR == [<3,4>, <1,2>];};
 test bool listOrLrel8() = {LIST[tuple[int,int]] LT = [<3,4>]; lrel[int,int] LR = <1,2> + LT; LR == [<1,2>, <3,4>];};
 
-@doc{this triggered issue #1596}
+@doc{this triggered issue #1595}
 test bool enumerableAlias() {
   SET[int] tmp = {1,2,3};
   
