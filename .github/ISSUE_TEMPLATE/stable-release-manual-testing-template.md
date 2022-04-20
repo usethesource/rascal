@@ -34,7 +34,7 @@ First a "pre-release" of the supporting compiler/typechecker tools must be done,
 
 # Manual feature tests
 
-- [ ] Eclipse download and install latest unstable release from update site https://update.rascal-mpl.org/unstable
+- [ ] Eclipse download and install latest unstable release from update site https://releases.usethesource.io/maven/org/rascalmpl/rascal-update-site/
 - [ ] Open a Rascal REPL using the toolbar button
 - [ ] Can create new Rascal project using the wizard
 - [ ] Can create new Rascal module using the wizard
