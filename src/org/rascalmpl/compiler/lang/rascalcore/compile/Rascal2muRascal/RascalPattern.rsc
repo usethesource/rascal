@@ -93,6 +93,7 @@ str getResume(Tree t, BTSCOPES btscopes) {
     } catch _: {
         println("getResume: <t>, <getLoc(t)>");
         iprintln(btscopes);
+        return "";
     }    
 }
 
@@ -109,11 +110,11 @@ str getFail(loc l, str parent, BTSCOPES btscopes)  = getParent(btscopes[l].\fail
 
 BTINFO registerBTScope(Tree t, BTSCOPE btscope, BTSCOPES btscopes){
     l = getLoc(t);
-    if(btscopes[l]? && btscopes[l] != btscope){
-        println("btscope: <l> is being redefined:
-                '<btscopes[l]> =\> 
-                '<btscope>");
-    }
+    //if(btscopes[l]? && btscopes[l] != btscope){
+    //    println("btscope: <l> is being redefined:
+    //            '<btscopes[l]> =\> 
+    //            '<btscope>");
+    //}
     btscopes[getLoc(t)] = btscope;
     return <btscope, btscopes>;
 }
@@ -867,7 +868,7 @@ MuExp translatePat(p:(Pattern) `<QualifiedName name>`, AType subjectType, MuExp 
    //println("qualified name: <name>, <name@\loc>");
    var = mkVar(prettyPrintName(name), name@\loc);
    if(isDefinition(name@\loc) && !subjectAssigned){
-    return muBlock([muVarInit(var, subjectExp), trueCont]);
+    return muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont]);
    } else {
     return muIfElse(muIsInitialized(var), muIfElse(muMatch(var, subjectExp), trueCont, falseCont),
                                           muBlock([ muAssign(var, subjectExp), trueCont ]));

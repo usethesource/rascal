@@ -270,6 +270,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Ex
 MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`, BTSCOPES btscopes) {
     ifName = getLabel(label, "IF");
     conds = [c | Expression c <- conditions];
+    btscopes = getBTScopesAnd(conds, ifName, btscopes);
    
     code = muBlock([]);
     if(all(Expression c <- conditions, backtrackFree(c)) && isFailFree(thenStatement)){
@@ -321,6 +322,7 @@ bool isFailFree(Statement s) = /(Statement) `fail <Target _>;` !:= s;
 MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`, BTSCOPES btscopes) {
     ifName = getLabel(label, "IF");
     conds = [c | Expression c <- conditions];
+    btscopes = getBTScopesAnd(conds, ifName, btscopes);
   
     code = muBlock([]);
     elseCode = translate(elseStatement, btscopes);
@@ -926,7 +928,7 @@ MuExp translateReturn(AType resultType, Expression expression){
 default MuExp translateReturn(AType resultType, Statement statement, BTSCOPES btscopes){
     code = translate(statement, btscopes);
     if(isBoolType(resultType)){
-        switch(code){
+        visit(code){    //TODO was switch, it this too liberal?
             case muSucceed(_): return muReturn1(resultType, muCon(true));
             case muFail(_): return muReturn1(resultType, muCon(false));   
         }
