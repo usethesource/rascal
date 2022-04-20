@@ -416,7 +416,8 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      when_body = returnFromFunction(body, ftype, formalVars, isMemo, addReturn=addReturn);
      
      if(!isEmpty(when_conditions)){
-        when_body = translateAndConds((), when_conditions, when_body, muFailReturn(ftype));
+        my_btscopes = getBTScopesAnd(when_conditions, fname, my_btscopes); 
+        when_body = translateAndConds(my_btscopes, when_conditions, when_body, muFailReturn(ftype));
      }
      enterSignatureSection();
      params_when_body = ( when_body

@@ -460,7 +460,7 @@ data ModuleMessages = program(loc src, set[Message] messages);
 
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
-    println("=== check: <moduleLocs>"); iprintln(pcfg1);
+    //println("=== check: <moduleLocs>"); iprintln(pcfg1);
     <tmodels, moduleLocs1, modules> = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true,logImports=false));
     nomodels = {moduleName | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), !tmodels[moduleName]?};
     if(!isEmpty(nomodels)) println("<size(nomodels)> tmodels missing for: <nomodels>");
