@@ -15,6 +15,8 @@ package org.rascalmpl.semantics.dynamic;
 
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
@@ -34,6 +36,23 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
+			IRascalMonitor monitor = __eval.getMonitor();
+
+			if (monitor instanceof IDEServices) {
+				IDEServices services = (IDEServices) monitor;
+				String name = Names.fullName(getName());
+				
+				ISourceLocation uri = __eval.getRascalResolver().resolveModule(name);
+	       	 	if (uri == null) {
+					__eval.getOutPrinter().println("module " + name + " can not be found in the search path.");
+	        	}
+				
+				services.edit(uri);
+			}
+			else {
+				__eval.getOutPrinter().println("The current Rascal execution environment does not know how to start an editor.");
+			}
+
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 	}

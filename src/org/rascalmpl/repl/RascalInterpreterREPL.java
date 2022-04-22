@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
@@ -70,11 +71,11 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    public void initialize(InputStream input, OutputStream stdout, OutputStream stderr) {
-        eval = constructEvaluator(input, stdout, stderr);
+    public void initialize(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices ideServices) {
+        eval = constructEvaluator(input, stdout, stderr, ideServices);
     }
 
-    protected abstract Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr);
+    protected abstract Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices ideServices);
 
     @Override
     public PrintWriter getErrorWriter() {
