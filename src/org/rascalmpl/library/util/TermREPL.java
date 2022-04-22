@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -102,6 +103,7 @@ public class TermREPL {
         private final AbstractFunction completor;
         private final IValueFactory vf;
         private final AbstractFunction stacktrace;
+        private IDEServices services;
 
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
             IFunction handler, IFunction completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
@@ -144,10 +146,11 @@ public class TermREPL {
         }
 
         @Override
-        public void initialize(InputStream input, OutputStream stdout, OutputStream stderr) {
+        public void initialize(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
             this.stdout = stdout;
             this.stderr = stderr;
             this.input = input;
+            this.services = services;
         }
 
         @Override

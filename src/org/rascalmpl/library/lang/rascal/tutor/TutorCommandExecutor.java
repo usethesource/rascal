@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.rascalmpl.ideservices.BasicIDEServices;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.PathConfig;
@@ -41,14 +43,15 @@ public class TutorCommandExecutor {
 
         repl = new RascalInterpreterREPL(false, false, null) {
             @Override
-            protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
+            protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
                 Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
                 eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
+                eval.setMonitor(services);
                 return eval;
             }
         };
 
-        repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput);
+        repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, null);
         repl.setMeasureCommandTime(false); 
     }
 
