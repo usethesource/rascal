@@ -21,6 +21,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -65,12 +67,21 @@ public class BasicIDEServices implements IDEServices {
   }
   
   @Override
-  public void edit(ISourceLocation loc){
-      if(loc.getScheme() != "file"){
-         stderr.println("Can only edit files using the \"file\" scheme");
-         return;
+  public void edit(ISourceLocation loc) {
+    try {
+      if (loc.getScheme() != "file") {
+        ISourceLocation tmp = URIUtil.correctLocation("tmp", "", "rascal-edits");
+        tmp = URIUtil.getChildLocation(tmp, loc.getScheme());
+        tmp = URIUtil.getChildLocation(tmp, loc.getPath());
+        URIResolverRegistry.getInstance().copy(loc, tmp, false, true);
+        loc = URIResolverRegistry.getInstance().logicalToPhysical(tmp);
       }
+
       edit(Paths.get(loc.getURI()));
+    }
+    catch (IOException e) {
+      stderr.println("Can not edit " + loc + " because: " + e);
+    }
   }
 
   /* (non-Javadoc)
@@ -86,7 +97,7 @@ public class BasicIDEServices implements IDEServices {
         stderr.println(e.getMessage());
       }
     } else {
-      stderr.println("Desktop not supported, cannout open editor");
+      stderr.println("Desktop not supported, cannot open editor");
     }
   }
 
