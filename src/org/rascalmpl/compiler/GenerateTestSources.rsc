@@ -9,15 +9,19 @@ import lang::rascalcore::compile::Compile;
 import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
+import lang::rascalcore::compile::util::Names;
 
 PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|);
 
 void main(list[str] args) = generateTestSources(manualTestConfig);
 
+void main() = main([]);
+
 void generateTestSources(PathConfig pcfg) {
    testConfig = pathConfig(
      bin=pcfg.bin,
      genSrcs=|project://rascal-core/target/generated-test-sources|,
+     resources = |project://rascal-core/target/generated-test-resources|,
      srcs=[
        |std:///|
      ]);
@@ -73,7 +77,7 @@ void generateTestSources(PathConfig pcfg) {
                      "analysis::m3::FlowGraph", 
                      "analysis::m3::Registry",
                      "analysis::m3::TypeSymbol"];  
-   
+
    for (m <- libraryModules) {
      safeCompile(m, testConfig, (int d) { durations[m] = d; });
    }
@@ -82,12 +86,11 @@ void generateTestSources(PathConfig pcfg) {
    
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
-                 ];    
+                 ];  
+                 
    ignored = ["lang::rascal::tests::concrete::Patterns3"
              ];           
    testModules -= ignored;    
-   
-   // testModules = ["Exception", "lang::rascal::tests::basic::Equality"];
    
    list[str] exceptions = [];
    int n = size(testModules);

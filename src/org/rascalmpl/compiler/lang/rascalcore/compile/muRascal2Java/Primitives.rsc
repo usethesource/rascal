@@ -297,6 +297,10 @@ JCode transPrim("mod", aint(), [aint(), aint()], [str x, str y], JGenie jg)     
 
 JCode transPrim("negative", AType r, [AType a], [str x], JGenie jg)                      = "<x>.negate()"            when isArithType(r);
 
+// nonterminal-get-arg
+
+JCode transPrim("nonterminal-get-arg", AType r, [AType a, aint()], [str s, str idx], JGenie jg)
+                                                                                        = "$nonterminal_get_arg(((ITree)<s>), <idx>.intValue())";
 //non_negative
 
 // ---- not -------------------------------------------------------------------

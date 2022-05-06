@@ -23,10 +23,11 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     tm = tmodels[qualifiedModuleName];
     //iprintln(tm, lineLimit=10);
     
-    genSourcesDir = getDerivedSrcsDir(qualifiedModuleName, pcfg);
-    classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
-    
+    genSourcesDir = getDerivedSrcsDir(qualifiedModuleName, pcfg);    
     className = getBaseClass(qualifiedModuleName);
+    
+    resourcesDir = getDerivedResourcesDir(qualifiedModuleName, pcfg);
+    
    
     list[Message] errors = [ e | e:error(_,_) <- tm.messages];
     
@@ -51,10 +52,11 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         writeFile(genSourcesDir + "$<className>.java", the_interface);
         writeFile(genSourcesDir + "<className>.java", the_class);
         println("Written: <genSourcesDir + "<className>.java">");
+        
         writeFile(genSourcesDir + "<className>Tests.java", the_test_class);
-        writeBinaryValueFile(classesDir + "<className>.constants", constants);
-        println("Written: <classesDir + "<className>.constants">");
-     
+        
+        writeBinaryValueFile(resourcesDir + "<className>.constants", constants);
+        println("Written: <resourcesDir + "<className>.constants">");    
         return tm.messages;
        
     } catch _: CompileTimeError(Message m): {

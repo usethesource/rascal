@@ -41,6 +41,7 @@ import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter.FieldResult;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -1230,8 +1231,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-			ITree res = TreeAdapter.getLabeledField((ITree) cons, fieldName).tree;
-			return res;
+			FieldResult fldres = TreeAdapter.getLabeledField((ITree) cons, fieldName);
+			if(fldres != null) {
+				ITree res = TreeAdapter.getLabeledField((ITree) cons, fieldName).tree;
+				if(res != null) {
+					return res;
+				}
+			}
 		}
 		
 		throw RuntimeExceptionFactory.noSuchField(fieldName);
@@ -2114,6 +2120,23 @@ public abstract class $RascalModule extends Type2ATypeReifier {
         	return ((IString)((IConstructor)def).get("name")).getValue().equals(name);
         }
         return false;
+	}
+	
+	public final IValue $nonterminal_get_arg(final ITree tree, final int idx) {
+		// Find idx-th nonterminal symbol in the argument list
+		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
+		int i = 0;
+		for(IValue varg : args) {
+			if(!org.rascalmpl.values.parsetrees.TreeAdapter.isLayout((ITree)varg)) {
+				if(org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg)) {
+					if(i == idx) {
+						return varg;
+					}
+					i++;
+				}
+			}
+		}
+		throw new InternalCompilerError("nonterminal does not have argument #" + idx);
 	}
 
 	// ---- intersect ---------------------------------------------------------

@@ -283,11 +283,14 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
     } else {
         btscopes = getBTScopesAnd(conds, ifName, btscopes);
         resume = getResume(normalizeAnd(conds)[-1], btscopes);
+        iprintln(btscopes);
+        println("resume: <resume>");
         enterLabelled(label, ifName, resume);
         thenCode = translate(thenStatement, btscopes);
         if(hasSequentialExit(thenCode)){            // TODO: when is this needed?
             thenCode = muBlock([thenCode, muFail(ifName)]);
         }
+        iprintln(thenCode);
         code = muExists(ifName, 
                        translateAndConds(btscopes, 
                                          conds, 
@@ -296,6 +299,7 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
                                          normalize=toStat));
     }
     leaveLabelled();
+    iprintln(code);
     return code;
 }
 
@@ -585,6 +589,8 @@ MuExp translateSolve((Statement) `solve ( <{QualifiedName ","}+ variables> <Boun
    varCode = [ translate(var) | QualifiedName var <- variables ];
    //println("varCode: <varCode>");
    varTmps = [ nextTmp("<var>") | QualifiedName var <- variables ];
+   
+   xxx = translateLoopBody(body, btscopes);
    
    return muBlock([ muVarInit(iterations, (bound is empty) ? muCon(1000000) : muToNativeInt(translate(bound.expression))),
     				muRequireNonNegativeBound(iterations),
@@ -928,7 +934,7 @@ MuExp translateReturn(AType resultType, Expression expression){
 default MuExp translateReturn(AType resultType, Statement statement, BTSCOPES btscopes){
     code = translate(statement, btscopes);
     if(isBoolType(resultType)){
-        visit(code){    //TODO was switch, it this too liberal?
+        switch(code){       //TODO maybe a visit (too general?) was switch
             case muSucceed(_): return muReturn1(resultType, muCon(true));
             case muFail(_): return muReturn1(resultType, muCon(false));   
         }
