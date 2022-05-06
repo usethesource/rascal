@@ -888,50 +888,10 @@ BTINFO getBTInfo(e:(Expression) `any ( <{Expression ","}+ generators> )`, BTSCOP
     }
     return registerBTScope(e, <btscope1.enter, btscope1.resume, btscope.resume>, btscopes);
 }
-
-MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) {
-    str fuid = topFunctionScope();
-    str whileName = nextLabel("ANY_LOOP");
-    gens = normalizeAnd([ g | g <- generators]);
-    any_found = muTmpIValue(nextTmp("any_found"), fuid, abool());
-    enterLoop(whileName,fuid);
-    my_enter = nextTmp("ANY");
-    my_btscopes = getBTScopesAnd(gens, my_enter, ());
-    my_fail = getEnter(gens[0], my_btscopes)+"_FOR";
-    exit = muBlock([]);
-    code = muBlock([muAssign(any_found, muCon(true)), muBreak(whileName)]);
-    for(gen <- reverse(gens)){
-        if((Expression) `<Pattern pat> \<- <Expression exp>` := gen){
-            enter_gen = getEnter(gen, my_btscopes)+"_FOR";
-            if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){     
-                elemType = alub(getType(first), getType(last));
-                elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForRange(enter_gen, elem, translate(first), muCon(0), translate(last), translatePat(pat, elemType, elem, my_btscopes, code, muFail(my_fail)), muBlock([]));
-            } else 
-            if((Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]` := exp){
-                elemType = alub(alub(getType(first), getType(second)), getType(last));
-                elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForRange(enter_gen, elem, translate(first), translate(second), translate(last), translatePat(pat, elemType, elem, my_btscopes, code, muFail(my_fail)), muBlock([]));
-            } else {
-                elemType = getElementType(getType(exp));
-                if(isVoidType(elemType)){
-                    code = muCon(false);
-                } else {
-                    elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                    code = muForAll(enter_gen, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, my_btscopes, code, muFail(my_fail)), muBlock([]));
-                }
-            }
-        } else {
-            code = translateBool(gen, my_btscopes, code, exit);
-        }
-    }
-      
-    code = muValueBlock(abool(),
-                        [ muVarInit(any_found, muCon(false)),
-                          muDoWhile(whileName, code, muCon(false)),
-                          any_found ]);
-    leaveLoop();
-    return code;
+    
+MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`){
+    gens = [ g | g <- generators ];
+    return translateQuantor(gens, quantorAll = false, negateGenerators = false);
 }
 
 MuExp translateBool (e:(Expression) `any ( <{Expression ","}+ generators> )`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
@@ -948,53 +908,77 @@ BTINFO getBTInfo(e:(Expression) `all ( <{Expression ","}+ generators> )`, BTSCOP
     return registerBTScope(e, <btscope1.enter, btscope1.resume, btscope.resume>, btscopes);
 }
 
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
+MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`){
+    gens = [ g | g <- generators ];
+    my_btscopes = getBTScopesAnd(gens, nextTmp("ALL"), ());
+    return translateQuantor(gens);
+}
+
+MuExp translateBool (e:(Expression) `all ( <{Expression ","}+ generators> )`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
+    = muIfExp(translate(e), trueCont, falseCont);
+
+// -- all/any quantor -------------------------------------------------
+
+MuExp translateQuantor(list[Expression] generators, bool quantorAll = true, bool negateGenerators = false){
     str fuid = topFunctionScope();
-    str whileName = nextLabel("ALL_LOOP");
+    str whileName = nextLabel(quantorAll ? "ALL_LOOP" : "ANY_LOOP");
     gens = normalizeAnd([ g | g <- generators]);
-    all_true = muTmpIValue(nextTmp("all_true"), fuid, abool());
+    done = muTmpIValue(nextTmp("done"), fuid, abool());
     enterLoop(whileName,fuid);
    
-    my_btscopes = getBTScopesAnd(gens, nextTmp("ALL"), ());
-    enter_gen = getEnter(gens[0], my_btscopes);
-    exit = muBlock([muAssign(all_true, muCon(false)), muBreak(enter_gen+"_FOR")]);
-    code = muContinue(enter_gen+"_FOR");
-    for(gen <- reverse(gens)){
+    my_fail  = enter_quantor = nextTmp(quantorAll ? "ALL" : "ANY");
+    my_btscopes = getBTScopesAnd(gens, enter_quantor, ());
+    
+    enter_gen_for = getEnter(gens[0], my_btscopes) + "_FOR";
+    exit = quantorAll ? (negateGenerators ? muContinue(enter_gen_for)
+                                          : muBlock([muAssign(done, muCon(false)), muBreak(whileName)]) )
+                      : (negateGenerators ? muBlock([muAssign(done, muCon(true)), muBreak(whileName)])
+                                          : muBlock([]));
+                                           
+    code = quantorAll ? (negateGenerators ? muBlock([muAssign(done, muCon(false)), muBreak(whileName)])
+                                          : muContinue(enter_gen_for)) 
+                      : (negateGenerators ? muContinue(enter_gen_for) 
+                                          : muBlock([muAssign(done, muCon(true)), muBreak(whileName)]));
+                                              
+    for(gen <- reverse(gens)){       
+        // TODO: replace generator cases with ordinary handling of generators?
+        // TODO: add syntactic generators
+       
         if((Expression) `<Pattern pat> \<- <Expression exp>` := gen){
-           enter_gen = getEnter(gen, my_btscopes)+"_FOR";
+            enter_gen_for = getEnter(gen, my_btscopes) +"_FOR";         
             if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){
                 elemType = alub(getType(first), getType(last));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForRange(enter_gen, elem, translate(first), muCon(0), translate(last), translatePat(pat, elemType, elem, my_btscopes, code, exit), muBlock([]));
+                code = muForRange(enter_gen_for, elem, translate(first), muCon(0), translate(last), translatePat(pat, elemType, elem, my_btscopes, code, quantorAll ? exit : muFail(my_fail)), muBlock([]));
             } else 
             if((Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]` := exp){
                 elemType = alub(alub(getType(first), getType(second)), getType(last));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForRange(enter_gen, elem, translate(first), translate(second), translate(last), translatePat(pat, elemType, elem, my_btscopes, code, exit), muBlock([]));
+                code = muForRange(enter_gen_for, elem, translate(first), translate(second), translate(last), translatePat(pat, elemType, elem, my_btscopes, code,  quantorAll ? exit : muFail(my_fail)), muBlock([]));
             } else {
                 elemType = getElementType(getType(exp));
                 if(isVoidType(elemType)){
                     code = muCon(true);
                 } else {
                     elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                    code = muForAll(enter_gen, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, my_btscopes, code, exit), muBlock([]));
+                    code = muForAll(enter_gen_for, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, my_btscopes, code, quantorAll ? exit : muFail(my_fail)), muBlock([]));
                 }
             }
         } else {
-            code = translateBool(gen, my_btscopes, code, exit);
+            exit1 = (quantorAll  && negateGenerators) ? muContinue(replaceAll(getFail(gen, my_btscopes), "_GEN", ""))  //TODO: remove this hack
+                                                      : exit;
+            code = translateBool(gen, my_btscopes, code, exit1);
         }
     }
-      
-    code = muValueBlock(abool(),
-                        [ muVarInit(all_true, muCon(true)),
-                          muDoWhile(whileName, code, muCon(false)),
-                          all_true ]);
+
+    code = muDoWhile(whileName, code, muCon(false));
+    code = muValueBlock(abool(), [ muVarInit(done, muCon(quantorAll ? true : false)), 
+                                   quantorAll ? muAll(enter_quantor, code) : muExists(enter_quantor, code), 
+                                   done
+                                 ]);
     leaveLoop();
     return code;
 }
-
-MuExp translateBool (e:(Expression) `all ( <{Expression ","}+ generators> )`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
-    = muIfExp(translate(e), trueCont, falseCont);
 
 // -- comprehension expression --------------------------------------
 
@@ -1461,9 +1445,25 @@ BTINFO getBTInfo(Expression e:(Expression) `!<Expression exp>`, BTSCOPE btscope,
 }
 
 MuExp translate(e:(Expression) `!<Expression exp>`) {
+    while( (Expression) `(<Expression exp2>)` := exp){
+        exp = exp2;
+    }
+    return switch(exp){
+        case (Expression) `! <Expression exp2>`:
+            return translate(exp2);
+            // notin, in
+            // ==, !=
+            // :=, !:=
+        case (Expression) `any ( <{Expression ","}+ generators> )`:
+            return translateQuantor([ g | g <- generators ], quantorAll = true, negateGenerators = true);
+        case (Expression) `all ( <{Expression ","}+ generators> )`:
+            return translateQuantor([ g | g <- generators ], quantorAll = false, negateGenerators = true);
+        default:
+            return muNot(translate(exp));    
+    }
     //if(backtrackFree(exp)){
-        code = translate(exp);
-        return muNot(code);
+        //code = translate(exp);
+        //return muNot(code);
         //return muPrim("not", abool(), [abool()], [translate(exp)], e@\loc);
     //}
     //btscopes = getBTScopes(e, nextTmp("NOT"));
@@ -1629,7 +1629,6 @@ BTINFO getBTInfo(e:(Expression) `<Pattern pat> := <Expression exp>`, BTSCOPE bts
 }
 
 MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`, BTSCOPES btscopes){
-    //iprintln(btscopes);
     my_btscope = btscopes[getLoc(e)];
     //if(backtrackFree(pat))
     //    return translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail));
@@ -1637,8 +1636,9 @@ MuExp translate(e:(Expression) `<Pattern pat> := <Expression exp>`, BTSCOPES bts
         return muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter, comment="match operator"), muFail(my_btscope.\fail, comment="match operator")));
 }
     
-MuExp translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
-    = translateMatch(pat, exp, btscopes, trueCont, falseCont);
+MuExp translateBool(e:(Expression) `<Pattern pat> := <Expression exp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
+    return translateMatch(pat, exp, btscopes, trueCont, falseCont);
+}
     
 // -- no match expression -------------------------------------------
 
@@ -1647,40 +1647,16 @@ BTINFO getBTInfo(e:(Expression) `<Pattern pat> !:= <Expression exp>`, BTSCOPE bt
     my_btscope.enter = btscope.enter;
     <btscope2, btscopes2> = getBTInfo(exp, my_btscope, btscopes1);
     return registerBTScope(e, my_btscope, btscopes2);
-
-    //<my_btscope, btscopes1> = getBTInfo(pat, btscope, btscopes);
-    //my_btscope.enter = btscope.enter;
-    //<btscope2, btscopes2> = getBTInfo(exp, my_btscope, btscopes1);
-    //return registerBTScope(e, <my_btscope.enter, my_btscope.\fail, btscope.resume>, btscopes2);
 }
     
 MuExp translate(e:(Expression) `<Pattern pat> !:= <Expression exp>`,  BTSCOPES btscopes) { 
-    my_btscope = btscopes[getLoc(e)];
-   //iprintln(btscopes);
-    //println("my_btscope = <my_btscope>");
-   //return muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muFail(my_btscope.\fail), muSucceed(my_btscope.enter)));
-   //return muPrim("not", abool(), [abool()], [translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))], e@\loc);
-   
-   
-   //code = muBlock([muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muFail(my_btscope.\resume), muSucceed(my_btscope.enter))), muCon(true)]);
-   
-    code = muNot(muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
-    
-    //code = muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail)));
-    //code = negate(code, []);
-    return code;
+    my_btscope = btscopes[getLoc(e)];     
+    return muNot(muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
 }
     
 MuExp translateBool(e:(Expression) `<Pattern pat> !:= <Expression exp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
     my_btscope = btscopes[getLoc(e)];
-    
-    return muAll(my_btscope.enter, muNot(translateMatch(pat, exp, btscopes, trueCont, falseCont)));
-    
-   // return muNot(muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, trueCont, falseCont)));
-    
-    //return muBlock([muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, falseCont, trueCont)), muCon(true)]);
-    
-    //return muNot(muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, muSucceed(my_btscope.enter), muFail(my_btscope.\fail))));
+    return muNot(muExists(my_btscope.enter, translateMatch(pat, exp, btscopes, trueCont, falseCont)));
 }
     
 // -- generator expression ----------------------------------------------------
@@ -1703,15 +1679,15 @@ MuExp translateGenerator(Pattern pat, Expression exp, BTSCOPES btscopes, MuExp t
     resumeGen = getResume(pat, "GEN", btscopes);
     enterLoop(enterGen, fuid);
     code = muBlock([]);
-    // enumerator with range expression
+    // -- enumerator with range expression
     if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){
         code = muForRange(enterGen, elem, translate(first), muCon(0), translate(last), translatePat(pat, alub(getType(first), getType(last)), elem, btscopes, trueCont, muFail(resumeGen)/*falseCont*/), falseCont);
     } else
-    // enumerator with range and step expression
+    // -- enumerator with range and step expression
     if((Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]` := exp){
        code = muForRange(enterGen, elem, translate(first), translate(second), translate(last), translatePat(pat, alub(alub(getType(first), getType(second)), getType(last)), elem, btscopes, trueCont, muFail(resumeGen)/*falseCont*/), falseCont);
     } else 
-    // a syntactic list or optional
+    // -- a syntactic list or optional
     if(isIterType(expType) || isOptType(expType)){
         delta = getIterOrOptDelta(expType); // take care of skipping layout and separators
         expVar = muTmpIValue(nextTmp("exp"), fuid, expType);
@@ -1724,9 +1700,8 @@ MuExp translateGenerator(Pattern pat, Expression exp, BTSCOPES btscopes, MuExp t
                          muConInit(lastVar, muSubNativeInt(muSize(expVar, expType), muCon(1))),
                          muForRangeInt(enterGen, ivar, 0, delta, lastVar, body, falseCont)
                        ]);
-        //iprintln(code);
     } else {
-    // generic enumerator
+    // -- generic enumerator
         code = muForAll(enterGen, elem, getType(exp), translate(exp), translatePat(pat, elemType,  elem, btscopes, trueCont, muFail(resumeGen)), falseCont);
     }
     leaveLoop();
@@ -1791,17 +1766,14 @@ BTINFO getBTInfo(Expression e:(Expression) `<Expression lhs> && <Expression rhs>
 }
 
 BTSCOPES getBTScopesAnd(list[Expression] conds, str enter, BTSCOPES btscopes){
-    //enter = "<enter>_AND";
     BTSCOPE c_btscope = <enter, enter, enter>;
     for(c <- normalizeAnd(conds)){
         <c_btscope, btscopes> = getBTInfo(c, c_btscope, btscopes);
     }
-    //iprintln(btscopes);
     return btscopes;
 }
 
 BTSCOPES getBTScopesParams(list[Pattern] args, str enter){
-    //enter = "<enter>_Params";
     btscopes = ();
     BTSCOPE c_btscope = <enter, enter, enter>;
     for(c <- args){
@@ -1817,17 +1789,12 @@ MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`
 }
 
 MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`, BTSCOPES btscopes) {
-    //iprintln(btscopes);
-   
     if(backtrackFree(e)){
         return translateBool(lhs, btscopes, translate(rhs), muCon(false));
-        //return muIfExp(translate(lhs), translate(rhs), muCon(false));
     }
     enterLhs = getEnter(e, btscopes);
-    failRhs = getFail(rhs, btscopes);
   
     code = muExists(enterLhs, translateAndConds(btscopes, [lhs, rhs], muSucceed(enterLhs), muFail(enterLhs)));// <<<<
-    //iprintln(code);
     return code;    
 }
 
@@ -1856,11 +1823,9 @@ MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCon
     if(all(cond <- conds, backtrackFree(cond))){
         for(cond <- reverse(conds)){
             trueCont = translateBool(cond, btscopes, trueCont, falseCont);
-            //trueCont = muIfExp(translate(cond), trueCont, falseCont);
         }
         return trueCont;
     }
-    //iprintln(btscopes);
     for(i <- reverse(index(conds))){
         cont = i == 0 ? falseCont : muFail(getResume(conds[i-1], btscopes), comment="translateAndConds, i=0");   // <<<
         trueCont = normalize(translateBool(conds[i], btscopes, trueCont, cont));
@@ -1899,79 +1864,15 @@ MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCon
 // ---- getBTInfo
 
 BTINFO getBTInfo(Expression e:(Expression) `<Expression lhs> || <Expression rhs>`, BTSCOPE btscope, BTSCOPES btscopes){
-    //conds = normalizeOr(e);
-    //BTSCOPE c_btscope = btscope;
-    //
-    ////for(i <- reverse(index(conds))){
-    ////    c = conds[i];
-    ////    <c_btscope, btscopes> = getBTInfo(c, btscope, btscopes);
-    ////}
-    ////
-    ////iprintln(btscopes);
-    //nconds = size(conds);
-    //for(i <- reverse(index(conds))){
-    //    c = conds[i];
-    //    if(i == nconds - 1){
-    //        <c_btscope, btscopes> = getBTInfo(c, btscope, btscopes);
-    //        iprintln("<c>:");iprintln(c_btscope);
-    //    } else {
-    //        iprintln(btscopes);
-    //        <c_btscope, btscopes> = getBTInfo(c, <btscope.enter, btscope.resume, btscope.\fail>, btscopes);
-    //        iprintln("<c>:"); iprintln(c_btscope);
-    //    }
-    //}
-    //res = registerBTScope(e, <btscope.enter, c_btscope.resume, c_btscope.\fail>, btscopes);
-    //iprintln(res);
-    //return res;
-    
-    //
-   // conds = normalizeOr(e);
-   // BTSCOPE c_btscope = btscope;
-   // 
-   // for(i <- reverse(index(conds))){
-   //     c = conds[i];
-   //     <c_btscope, btscopes> = getBTInfo(c, btscope, btscopes);
-   // }
-   // 
-   // iprintln(btscopes);
-   //
-   // for(i <- reverse(index(conds))){
-   //     c = conds[i];
-   //     <c_btscope, btscopes> = getBTInfo(c, btscope, btscopes);
-   //     registerBTScope(c, <c_btscope.enter, c_btscope.resume, i == 0 ? btscope.\fail : getFail(conds[i-1], btscopes)>, btscopes);
-   // }
-   // res = registerBTScope(e, <btscope.enter, c_btscope.resume, btscope.\fail>, btscopes);
-   // iprintln(res);
-    //return res;
-    
-    // Oudste
     conds = normalizeOr(e);
     BTSCOPE c_btscope = btscope;
-    //<btfrees, bts> = separate([lhs, rhs]);
-    //sconds = bts; // + btfrees;
+    
     for(c <- conds){
         <c_btscope, btscopes> = getBTInfo(c, btscope, btscopes);
     }
     res = registerBTScope(e, <btscope.enter, c_btscope.resume, btscope.\fail>, btscopes);
-    //iprintln(res);
     return res;    
 }
-
-
-//BTINFO getBTInfo(Expression e:(Expression) `<Expression lhs> || <Expression rhs>`, BTSCOPE btscope, BTSCOPES btscopes){
-//    lhs_enter = btscope.enter; //"<btscope.enter>_OR_LHS";
-//    lhs_btscope = <lhs_enter, lhs_enter, lhs_enter>;
-//    <lhs_btscope, btscopes1> = getBTInfo(lhs, lhs_btscope, btscopes);
-//    //iprintln(btscopes1);
-//    
-//    rhs_enter = btscope.enter; //"<btscope.enter>_OR_RHS";
-//    rhs_btscope = <rhs_enter, rhs_enter, rhs_enter>;
-//    <rhs_btscope, btscopes2> = getBTInfo(rhs, rhs_btscope, btscopes1);
-//    //iprintln(btscopes2);
-//    res =  registerBTScope(e, lhs_btscope, btscopes2);
-//   //iprintln(res);
-//    return res;
-//}
 
 // ---- translate or expression
 
@@ -2049,28 +1950,6 @@ str getFailScope(MuExp exp){
     return "";
 }
 
-//MuExp translateOrConds(BTSCOPES btscopes, Expression lhs, Expression rhs, MuExp trueCont, MuExp falseCont){
-//    //if(backtrackFree(lhs) && backtrackFree(rhs)){
-//    //    return muIfExp(translate(lhs), trueCont, translateBool(rhs, btscopes, trueCont, falseCont));
-//    //}
-//    trueCont1  = redirect(trueCont, getResume(rhs, btscopes), getResume(lhs, btscopes));
-//    trueCont2  = redirect(trueCont, getResume(lhs, btscopes), getResume(rhs, btscopes));
-//    //iprintln(falseCont);
-//    //println("resume lhs: <getResume(lhs, btscopes)>");
-//    //println("enter rhs: <getEnter(rhs, btscopes)>");
-//    falseCont2 = redirect(falseCont, getResume(lhs, btscopes), getEnter(rhs, btscopes)); // <<<< getResume?
-//    //iprintln(falseCont2);
-//     
-//    enter_lhs = getEnter(lhs, btscopes);
-//    enter_rhs = getEnter(rhs, btscopes);
-//    lhs_code = muExists(enter_lhs, translateBool(lhs, btscopes, trueCont1, muBlock([]))); 
-//    rhs_code = muExists(enter_rhs, translateBool(rhs, btscopes, trueCont2, falseCont2));
-//    
-//    iprintln(btscopes);
-//    
-//    return muBlock([lhs_code, rhs_code]);
-//}
-
 MuExp redirect(MuExp exp, from, to){
     return visit(exp){
            case mf:muFail(from)    => muFail(to, comment="redirected <from> to <to>; <mf.comment>")
@@ -2128,9 +2007,8 @@ MuExp translate(Expression e:(Expression) `<Expression lhs> ==\> <Expression rhs
 
 MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`, BTSCOPES btscopes) {
     if(backtrackFree(lhs)){
-        return muIfExp(translate(lhs), translate(rhs), muCon(true));
+        return translateBool(lhs, btscopes, translate(rhs), muCon(true));
     }
-    //iprintln(btscopes);
     trueCont1 = muBlock([muComment("trueCont1"), muSucceed(getEnter(lhs, btscopes))]);
     trueCont2 = muBlock([muComment("trueCont2"), muFail(getResume(rhs, btscopes))]);
     enterLhs = getEnter(lhs, "IMPLIES", btscopes);
@@ -2196,15 +2074,15 @@ MuExp translate(Expression e:(Expression) `<Expression lhs> \<==\> <Expression r
 }
    
 MuExp translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`, BTSCOPES btscopes) {
-   // if(backtrackFree(e)){
-   //     str fuid = topFunctionScope();
-   //     rhs_val = muTmpIValue(nextTmp("rhs_val"), fuid, abool());
-   //     return muValueBlock(abool(), [ muConInit(rhs_val, translate(rhs)),
-   //                                    muIfExp(translate(lhs), 
-   //                                            rhs_val,
-   //                                            muPrim("not", abool(), [abool()], [rhs_val], e@\loc))
-   //                                   ]);
-   //}  
+    if(backtrackFree(e)){
+        str fuid = topFunctionScope();
+        rhs_val = muTmpIValue(nextTmp("rhs_val"), fuid, abool());
+        return muValueBlock(abool(), [ muConInit(rhs_val, translate(rhs)),
+                                       muIfExp(translate(lhs), 
+                                               rhs_val,
+                                               muPrim("not", abool(), [abool()], [rhs_val], e@\loc))
+                                     ]);
+   }  
    
    enterLhs = getEnter(lhs, "EQUIV", btscopes);
    code = muExists(enterLhs, translateBool(lhs, btscopes, translateBool(rhs, btscopes, muSucceed(getResume(rhs, btscopes)), muFail(getFail(rhs, btscopes))),
@@ -2227,7 +2105,6 @@ BTINFO getBTInfo(Expression e:(Expression) `<Expression condition> ? <Expression
 MuExp translate((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) {
 	btscopes = getBTScopes(condition, nextTmp("COND"));
 	res = translateBool(condition, btscopes,  translate(thenExp), translate(elseExp));
-	//iprintln(res);
 	return res;
 }
 

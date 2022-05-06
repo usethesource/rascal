@@ -26,7 +26,7 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="tpl");
     dirName = makeDirName(qualifiedModuleName);
     
-    for(loc dir <- pcfg.bin + pcfg.libs){   // In a bin or lib directory?     
+    for(loc dir <- [pcfg.bin, pcfg.resources] + pcfg.libs){   // In a bin or lib directory?     
         fileLoc = dir + "<compiled_rascal_package>" + fileName;
         if(exists(fileLoc)){
            if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
@@ -40,10 +40,13 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
 }
 
 tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
-    classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
-    tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
-    if(traceTPL) println("getTPLWriteLoc: <qualifiedModuleName> =\> \<<exists(tplLoc)>, <tplLoc>\>");
+    fileName = makeFileName(qualifiedModuleName, extension="tpl");
+    tplLoc = getDerivedResourcesDir(qualifiedModuleName, pcfg) + fileName;
     return <exists(tplLoc), tplLoc>;
+    //classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
+    //tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
+    //if(traceTPL) println("getTPLWriteLoc: <qualifiedModuleName> =\> \<<exists(tplLoc)>, <tplLoc>\>");
+    //return <exists(tplLoc), tplLoc>;
 }
 
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){

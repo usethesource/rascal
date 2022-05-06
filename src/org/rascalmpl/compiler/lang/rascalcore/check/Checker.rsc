@@ -123,7 +123,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 //}
 
 // ----  Various check functions  ---------------------------------------------
- 
+
 private int npc = 0;
 @doc{
   PathConfig for testing generated modules in |test-modules:///| in memory file system.
@@ -160,7 +160,8 @@ public PathConfig getRascalCorePathConfig() {
                 //|project://salix/src|
                 ],
         bin = |project://rascal-core/target/test-classes|,
-        genSrcs = |project://rascal-core/target/generated-test-sources|
+        genSrcs = |project://rascal-core/target/generated-test-sources|,
+        resources = |project://rascal-core/target/generated-test-resources|
     );
 }
 

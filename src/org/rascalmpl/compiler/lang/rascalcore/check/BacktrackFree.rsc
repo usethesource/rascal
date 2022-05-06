@@ -65,6 +65,7 @@ bool backtrackFree(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
 bool backtrackFree((Pattern) `/ <Pattern pattern>`) = false;
 bool backtrackFree((Pattern) `<RegExpLiteral r>`) = false;
 
+bool backtrackFree(Tree t) = backtrackFreeConcrete(t);
 
 default bool backtrackFree(Pattern p) = !isMultiVar(p);
 

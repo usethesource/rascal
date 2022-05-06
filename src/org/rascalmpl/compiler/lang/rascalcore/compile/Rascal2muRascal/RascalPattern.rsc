@@ -430,7 +430,7 @@ BTINFO getBTInfoConcrete(t:appl(Production prod, list[Tree] args),  BTSCOPE btsc
         }
         return getBTInfo(t, btscope, btscopes);
     }
-    enterAppl =/*btscope.enter; */ "<btscope.enter>_APPL";
+    enterAppl =/*btscope.enter; */ nextLabel("<btscope.enter>_APPL");
     BTSCOPE btscopeLast = <enterAppl, btscope.resume, btscope.resume>;
     for(arg <- args){
       <btscopeLast, btscopes> = getBTInfoConcrete(arg, btscopeLast, btscopes);
@@ -525,7 +525,6 @@ private MuExp translateParsedConcretePattern(t:Tree::appl(prod:Production::regul
                        ]);
    }   
    return muIfElse(muEqual(muCon(prod), muTreeGetProduction(subject)), body, falseCont);         
-
 }
                        
 // ---- any parse tree
@@ -972,10 +971,14 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    
    lpats = [pat | pat <- arguments];   //TODO: should be unnnecessary
    //TODO: bound check
+   isNonTerm = isNonTerminalType(subjectType);
+ 
    body = contExp;
    code = muBlock([]);
    for(int i <- reverse(index(lpats))){
-       body = translatePat(lpats[i], getType(lpats[i]), muSubscript(subject, muCon(i)), btscopes, body, computeFail(p, lpats, i-1, btscopes, falseCont), restore=restore);
+       arg = isNonTerm ? muPrim("nonterminal-get-arg", avalue(), [subjectType, aint()], [subject, muCon(i)], lpats[i]@\loc)
+                       : muSubscript(subject, muCon(i));
+       body = translatePat(lpats[i], getType(lpats[i]), arg, btscopes, body, computeFail(p, lpats, i-1, btscopes, falseCont), restore=restore);
    }
  
    expType = getType(expression);
@@ -1793,6 +1796,7 @@ MuExp translateListPat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType,
     typecheckNeeded = asubtype(getType(p), subjectType);
   
     //iprintln(trueCont);
+    //println("getResume(lpats[-1], btscopes): <getResume(lpats[-1], btscopes)>");
     trueCont = muIfElse(muEqualNativeInt(cursor, sublen), trueCont, muFail(getResume(lpats[-1], btscopes), comment="list match1"));
     for(i <- reverse(index(lpats))){
         trueCont = translatePatAsListElem(lpats[i], lookahead[i], subjectType, subject, sublen, cursor, i, btscopes, 
@@ -2305,73 +2309,3 @@ value translateConcretePatternAsConstant(p:Tree::appl(Production::regular(Symbol
 default value translateConcretePatternAsConstant(Pattern p){
     throw "Not a constant pattern: <p>";
 }
-///*********************************************************************/
-///*                  BacktrackFree for Patterns                       */
-///*********************************************************************/
-//
-//// TODO: Make this more precise and complete
-//
-//bool backtrackFree(p:(Pattern) `[<{Pattern ","}* pats>]`) = false; // p == (Pattern) `[]` || all(pat <- pats, backtrackFree(pat));
-//bool backtrackFree(p:(Pattern) `{<{Pattern ","}* pats>}`) = false; //p == (Pattern) `{}` || all(pat <- pats, backtrackFree(pat));
-//bool backtrackFree(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = false; // all(pat <- pats, backtrackFree(pat));
-//bool backtrackFree(p:(Pattern) `<Name name> : <Pattern pattern>`) = backtrackFree(pattern);
-//bool backtrackFree(p:(Pattern) `[ <Type tp> ] <Pattern pattern>`) = backtrackFree(pattern);
-//
-//bool backtrackFree(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`)
-//    = backtrackFree(expression) && (isEmpty(argumentList) || all(arg <- argumentList, backtrackFree(arg)))
-//                                && (isEmpty(keywordArgumentList) || all(kwa <- keywordArgumentList, backtrackFree(kwa.expression)))
-//    when argumentList := [arg | arg <- arguments], 
-//         keywordArgumentList := (((KeywordArguments[Pattern]) `<OptionalComma optionalComma> <{KeywordArgument[Pattern] ","}+ kwaList>` := keywordArguments)
-//                                ? [kwa | kwa <- kwaList]
-//                                : []);
-//bool backtrackFree((Pattern) `/ <Pattern pattern>`) = false;
-//bool backtrackFree((Pattern) `<RegExpLiteral r>`) = false;
-//
-//
-//default bool backtrackFree(Pattern p) = !isMultiVar(p);
-//
-///*********************************************************************/
-///*                  BacktrackFree for Concrete Patterns   == Tree    */
-///*********************************************************************/
-//
-//bool backtrackFreeConcrete(appl(prod(label("concrete",sort("Pattern")),[label("concrete",lex("Concrete"))], {}),[Tree concrete1])){
-//    if(e:appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete2]) := concrete1){
-//        for(/t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole]) := concrete2){
-//            //println("hole: <hole>, type: <holeType>");
-//            if(isIterSymbol(holeType)) return false;
-//        }
-//    }
-//    return true;
-//} 
-//
-//bool backtrackFreeConcrete(appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole])){
-//    return !isIterSymbol(holeType);
-//}
-//
-//bool backtrackFreeConcrete(p: appl(prod(_, [lit(_)],{}), [Tree_])) {
-//    return true;   
-//}
-//
-//bool backtrackFreeConcrete(p: appl(prod(_, [cilit(_)],{}), [Tree_])) {
-//    return true;   
-//}
-//
-//bool backtrackFreeConcrete(p: appl(prod(_, [\char-class(_)],{}), [Tree_])) {
-//    return true;   
-//}
-//
-//bool backtrackFreeConcrete(p: char(_)) {
-//    return true;   
-//}
-//
-//bool backtrackFreeConcrete(p: appl(prod(layouts(_), [_],{}), [Tree_])) {
-//    return true;   
-//}
-//
-//bool backtrackFreeConcrete(p: appl(prod(Symbol def, list[Symbol] symbols, {}), list[Tree] args)) {
-//    for(/t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole]) := symbols){
-//            //println("hole: <hole>, type: <holeType>");
-//            if(isIterSymbol(holeType)) return false;
-//        } 
-//    return true;  
-//}

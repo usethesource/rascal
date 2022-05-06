@@ -417,8 +417,10 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      
      if(!isEmpty(when_conditions)){
         my_btscopes = getBTScopesAnd(when_conditions, fname, my_btscopes); 
+        //iprintln(my_btscopes);
         when_body = translateAndConds(my_btscopes, when_conditions, when_body, muFailReturn(ftype));
      }
+     //iprintln(when_body);
      enterSignatureSection();
      params_when_body = ( when_body
                         | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], my_btscopes, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 

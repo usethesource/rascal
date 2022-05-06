@@ -171,7 +171,6 @@ public data MuExp =
           
           | muGetAnno(MuExp exp, AType resultType, str annoName)
           | muGuardedGetAnno(MuExp exp, AType resultType, str annoName)
-          //| muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
           
           // Fields of data constructors
           | muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
@@ -202,7 +201,6 @@ public data MuExp =
          
           // Backtracking
           
-        //  | muEnter(str btscope, MuExp exp)
           | muExists(str btscope, MuExp exp)
           | muAll(str btscope, MuExp exp)
                                                                 // Enter a backtracking scope
@@ -431,7 +429,6 @@ AType getType(muCon(value v)) = symbol2atype(typeOf(v));
 AType getType(muVar(str name, str fuid, int pos, AType atype)) = atype;
 AType getType(muTmpIValue(str name, str fuid, AType atype)) = atype;
 AType getType(muVarKwp(str name, str fuid, AType atype)) = atype;
-//AType getType(muCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs)) = getResultType(atype);   
 AType getType(muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
     = getResultType(atype);                                                               
 AType getType(muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) 
@@ -449,7 +446,6 @@ AType getType(muGuardedGetField(AType resultType, AType baseType, MuExp baseExp,
 AType getType(muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)) = resultType;
 AType getType(muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)) = resultType;
 AType getType(muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)) = resultType;
-         
 
 AType getType(muTreeAppl(MuExp prod, list[MuExp] args, loc src)) = aadt("Tree", [], dataSyntax());
 AType getType(muTreeAppl(MuExp prod, MuExp argList, loc src)) = aadt("Tree", [], dataSyntax());
@@ -461,13 +457,13 @@ AType getType(muTreeUnparse(MuExp tree)) = astr();
 
 AType getType(muValueBlock(AType result, list[MuExp] exps)) = result;
 
-AType getType(muMatch(MuExp exp1, MuExp exp2)) = abool();
-AType getType(muValueIsSubtypeOf(MuExp exp, AType tp)) = abool();
-AType getType(muMatchAndBind(MuExp exp, AType tp)) = abool();
-AType getType(muValueIsComparableWithInstantiatedType(MuExp exp, AType tp)) = abool();
-AType getType(muValueIsSubtypeOfInstantiatedType(MuExp exp, AType tp)) = abool();
-
-default AType getType(MuExp exp) = avalue();
+default AType getType(MuExp exp) =
+    producesNativeBool(exp)
+    ? abool() 
+    : ( producesNativeInt(exp) 
+      ? aint() 
+      : (producesNativeStr(exp) ? astr() : avalue())
+      );
          
 // ==== Simplification rules ==================================================
 
@@ -678,7 +674,7 @@ bool noSequentialExit(m: muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart)){
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart)){
+bool noSequentialExit(m: muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)){
     res = noSequentialExit(thenPart) && noSequentialExit(elsePart);
     return reportResult(m, res);
 }
@@ -875,16 +871,15 @@ private default MuExp addReturn(AType t, bool result, MuExp exp) {
 
 MuExp insertReturn(MuExp exp, list[str] entered, bool asBool){
 //println("insertReturn: exitViaReturn = <exitViaReturn(exp)>, noSequentialExit: <noSequentialExit(exp)>");
- bool _exhaustedVal = false;
 //iprintln(exp);
     return
-          top-down visit(exp) {         
+          top-down-break visit(exp) {         
                 case muSucceed(enter): {  
-                                            if(enter == entered[-1]) insert muBlock([ muComment("insertReturn: muSucceed(<enter>)"), muReturn1(abool(), _exhaustedVal ? muCon(false) : muCon(true))]);
+                                            if(enter == entered[-1]) insert muBlock([ muComment("insertReturn: muSucceed(<enter>)"), muReturn1(abool(), muCon(true))]);
                                        }
                 case muFail(enter):    { 
                                             if(enter == entered[-1])
-                                                insert muBlock([ muComment("insertReturn mufail(<enter>)"), asBool ? muReturn1(abool(), _exhaustedVal ?muCon(true) : muCon(false)) : muFailReturn(abool())]);
+                                                insert muBlock([ muComment("insertReturn mufail(<enter>)"), asBool ? muReturn1(abool(), muCon(false)) : muFailReturn(abool())]);
                                        }
              }
 }
@@ -984,6 +979,7 @@ MuExp muAssign(MuExp var1, MuExp var2)
     = muBlock([])
       when (var2 has name && var1.name == var2.name && var2 has fuid && var1.fuid == var2.fuid && var2 has pos && var1.pos == var2.pos);
 
+MuExp muAssign(MuExp var, muBlock([])) = muAssign(var, muNoValue());
 MuExp muAssign(MuExp var1, b: muBreak(_)) = b;
 MuExp muAssign(MuExp var1, c: muContinue(_)) = c;
 
@@ -1102,7 +1098,14 @@ MuExp muAssign(MuExp var, muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart))
     
 MuExp muAssign(MuExp var, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
     =  muIfElse(cond, muAssign(var, thenPart), muAssign(var, elsePart));  
-     
+
+// ----
+
+MuExp muVarInit(MuExp var, muIf(MuExp cond, MuExp thenPart))
+    =  muIfElse(cond, muAssign(var, thenPart), muAssign(var,  muNoValue()));  
+
+MuExp muAssign(MuExp var, muIf(MuExp cond, MuExp thenPart))
+    =  muIfElse(cond, muAssign(var, thenPart), muAssign(var,  muNoValue()));          
     
 // ----
 MuExp muConInit(MuExp var, muIf(MuExp cond, MuExp thenPart))
@@ -1242,35 +1245,37 @@ MuExp muNot1(fr: muForRange(str label, MuExp var, MuExp first, MuExp second, MuE
 MuExp muNot1(fr: muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont))
     = muForRangeInt(label, var, ifirst, istep, last, muNot(body), muNot(falseCont));
     
-//MuExp muNot1(mt:muTemplateAdd(MuExp template, AType atype, value val))
-//    = mt;
+//MuExp muNot1(muAssign(MuExp var, MuExp exp))
+//    = muAssign(var, muNot(exp))
+//    when isBoolType(getType(var));
+//
+//MuExp muNot1(muVarInit(MuExp var, MuExp exp))
+//    = muVarInit(var, muNot(exp))
+//    when isBoolType(getType(var));
+//
+//MuExp muNot1(muConInit(MuExp var, MuExp exp))
+//    = muConInit(var, muNot(exp))
+//    when isBoolType(getType(var));
     
-//MuExp muNot1(mt:muTemplateEndIndent(MuExp template, str unindent))
-//    = mt;
-    
-//MuExp muNot1(ma: muAssign(MuExp var, MuExp exp))
-//    = ma;
-//    
-//MuExp muNot1(mc:muContinue(str label))
-//    = mc;
-    
-MuExp muNot1(muReturn1(AType t, MuExp exp)){
-    return muReturn1(t, muNot(exp));
-}
+MuExp muNot1(muReturn1(AType t, MuExp exp))
+    = muReturn1(t, muNot(exp))
+    when isBoolType(t);
+
 MuExp muNot1(muFail(str label)) = muSucceed(label);
 MuExp muNot1(muSucceed(str label)) = muFail(label);
 MuExp muNot1(muCon(bool b)) = muCon(!b);
 
-MuExp muNot1(mc: muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
-    = muNotNativeBool(mc);
-    
-MuExp muNot1(mc: muCallJava(str name, str class, AType funType, list[MuExp] args, str enclosingFun))
-    = muNotNativeBool(mc);
+//MuExp muNot1(mc: muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
+//    = muNotNativeBool(mc);
+//    
+//MuExp muNot1(mc: muCallJava(str name, str class, AType funType, list[MuExp] args, str enclosingFun))
+//    = muNotNativeBool(mc);
 
-MuExp muNot1(mp: muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src))
-    = muNotNativeBool(mp);
+//MuExp muNot1(mp: muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src))
+//    = muNotNativeBool(mp)
+//    when name notin { "add_string_writer" };
 
-default MuExp muNot1(MuExp exp) = producesNativeBool(exp) ? muNotNativeBool(exp) : exp;
+default MuExp muNot1(MuExp exp) = isBoolType(getType(exp)) /*producesNativeBool(exp)*/ ? muNotNativeBool(exp) : exp;
 
 // ---- muIfElse --------------------------------------------------------------
 
@@ -1344,6 +1349,7 @@ MuExp muExists(str enter, MuExp exp) = exp when containsEnter(enter, exp);
 bool containsEnter(str enter, MuExp exp){
     visit(exp){
         case muExists(enter, MuExp _exp1): return true;
+        case muAll(enter, MuExp _exp1): return true;
         case muForAll(enter, MuExp _var, AType _iterType, MuExp _iterable, MuExp _body, MuExp _falseCont): return true;
         case muForAny(enter, MuExp _var, AType _iterType, MuExp _iterable, MuExp _body, MuExp _falseCont): return true;
         case muForRange(enter, MuExp _var, MuExp _first, MuExp _second, MuExp _last, MuExp _body, MuExp _falseCont): return true;
@@ -1512,7 +1518,7 @@ default MuExp ifElse2ifExp(MuExp e) = e;
 
 AType getResultType(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
 AType getResultType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
-AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = lubList(toList(overloads<2>));
+AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = getResultType(lubList(toList(overloads<2>)));
 default AType getResultType(AType t) = t;
      
 MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
