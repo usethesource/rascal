@@ -145,7 +145,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
 void collect(current: (PatternWithAction) `<Pattern pattern>: <Statement statement>`,  Collector c){
     visitOrSwitchScopes = c.getScopeInfo(visitOrSwitchScope());
     for(<scope, scopeInfo> <- visitOrSwitchScopes){
-        if(visitOrSwitchInfo(Expression _, bool isVisit) := scopeInfo){
+        if(visitOrSwitchInfo(Expression exp, bool isVisit) := scopeInfo){
             if(isVisit){
                c.enterScope(current);
                     scope = c.getScope();
@@ -160,8 +160,16 @@ void collect(current: (PatternWithAction) `<Pattern pattern>: <Statement stateme
               return;
            } else {
               c.enterScope(current);
-                    // force type calculation of pattern
-                    c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), scope, s); });
+                    c.require("pattern", pattern, [], 
+                        void(Solver s){ 
+                            expType = s.getType(exp);
+                            patType = getPatternType(pattern, expType, scope, s);
+                            if(!s.isFullyInstantiated(patType)){
+                                s.requireUnify(expType, patType, error(pattern, "Cannot unify pattern of type %t with switch expression of type %t", patType, expType));
+                                patType = s.instantiate(patType); 
+                            } 
+                            s.requireComparable(exp, patType, error(pattern, "Pattern of type %t should be comparable with type of switch expression of type %t", patType, exp) ); 
+                        });                    
                     beginPatternScope("pattern-with-action", c);
                         collect(pattern, c);
                     endPatternScope(c);
