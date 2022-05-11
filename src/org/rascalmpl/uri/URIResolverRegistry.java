@@ -320,19 +320,6 @@ public class URIResolverRegistry {
 		return result;
 	}
 
-	@FunctionalInterface
-	private static interface ThrowingFunction<A, R, E extends Exception> {
-		R apply(A arg) throws E;
-	}
-
-	private static <T,A, E extends Exception> T mapIfPresent(AtomicReference<A> reference, ThrowingFunction<A, T, E> mapper, T ifNotPresent) throws E {
-		var ref = reference.get();
-		if (ref != null) {
-			return mapper.apply(ref);
-		}
-		return ifNotPresent;
-	}
-
 	private static ISourceLocation resolveAndFixOffsets(ISourceLocation loc, ILogicalSourceLocationResolver resolver, Iterable<ILogicalSourceLocationResolver> backups) throws IOException {
 		ISourceLocation prev = loc;
 		boolean removedOffset = false;
@@ -407,10 +394,11 @@ public class URIResolverRegistry {
 			ILogicalSourceLocationResolver resolver = map.get(auth);
 			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
-		ISourceLocation finalLoc = loc;
-		return mapIfPresent(fallbackLogicalResolver, 
-			r -> resolveAndFixOffsets(finalLoc, r, Collections.emptyList()), 
-			finalLoc);
+		var fallBack = fallbackLogicalResolver.get();
+		if (fallBack != null) {
+			return resolveAndFixOffsets(loc, fallBack, Collections.emptyList());
+		}
+		return loc;
 	}
 
 	private ISourceLocation safeResolve(ISourceLocation loc) {
