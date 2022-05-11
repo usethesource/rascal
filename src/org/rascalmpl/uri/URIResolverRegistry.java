@@ -33,10 +33,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
@@ -56,6 +58,12 @@ public class URIResolverRegistry {
 	private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new ConcurrentHashMap<>();
 	private final Map<String, ISourceLocationWatcher> watchers = new ConcurrentHashMap<>();
 	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watching = new ConcurrentHashMap<>();
+
+	private final AtomicReference<@Nullable ISourceLocationInput> fallbackInputResolver = new AtomicReference<>();
+	private final AtomicReference<@Nullable ISourceLocationOutput> fallbackOutputResolver = new AtomicReference<>();
+	private final AtomicReference<@Nullable ILogicalSourceLocationResolver> fallbackLogicalResolver = new AtomicReference<>();
+	private final AtomicReference<@Nullable IClassloaderLocationResolver> fallbackClassloaderResolver = new AtomicReference<>();
+	private final AtomicReference<@Nullable ISourceLocationWatcher> fallbackWatcher = new AtomicReference<>();
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -98,6 +106,10 @@ public class URIResolverRegistry {
 		try {
 			Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
 			Collections.list(resources).forEach(f -> loadServices(f));
+			var fallbackResolverClassName = System.getProperty("rascal.fallbackResolver");
+			if (fallbackResolverClassName != null) {
+				loadFallback(fallbackResolverClassName);
+			}
 		}
 		catch (IOException e) {
 			throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
@@ -120,6 +132,57 @@ public class URIResolverRegistry {
 		return Collections.unmodifiableSet(classloaderResolvers.keySet());
 	}
 
+	private Object constructService(String name) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SecurityException {
+		Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+
+		try {
+			return clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
+		}
+		catch (NoSuchMethodException e) {
+			return clazz.newInstance();
+		}
+	}
+
+	private void loadFallback(String fallbackClass) {
+		try {
+			Object instance = constructService(fallbackClass);
+			boolean ok = false;
+			if (instance instanceof ILogicalSourceLocationResolver) {
+				fallbackLogicalResolver.set((ILogicalSourceLocationResolver) instance);
+				ok = true;
+			}
+
+			if (instance instanceof ISourceLocationInput) {
+				fallbackInputResolver.set((ISourceLocationInput) instance);
+				ok = true;
+			}
+
+			if (instance instanceof ISourceLocationOutput) {
+				fallbackOutputResolver.set((ISourceLocationOutput) instance);
+				ok = true;
+			}
+
+			if (instance instanceof IClassloaderLocationResolver) {
+				fallbackClassloaderResolver.set((IClassloaderLocationResolver) instance);
+				ok = true;
+			}
+
+			if (instance instanceof ISourceLocationWatcher) {
+				fallbackWatcher.set((ISourceLocationWatcher) instance);
+			}
+			if (!ok) {
+				System.err.println("WARNING: could not load fallback resolver " + fallbackClass
+					+ " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
+			}
+		}
+		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException
+			| IllegalArgumentException | InvocationTargetException | SecurityException  e) {
+			System.err.println("WARNING: could not load resolver due to " + e.getMessage());
+			e.printStackTrace();
+		}
+
+	}
+
 	private void loadServices(URL nextElement) {
 		try {
 			for (String name : readConfigFile(nextElement)) {
@@ -130,15 +193,7 @@ public class URIResolverRegistry {
 					continue;
 				}
 
-				Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
-				Object instance;
-
-				try {
-					instance = clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
-				}
-				catch (NoSuchMethodException e) {
-					instance = clazz.newInstance();
-				}
+				Object instance = constructService(name);
 
 				boolean ok = false;
 
