@@ -59,6 +59,8 @@ public class URIResolverRegistry {
 	private final Map<String, ISourceLocationWatcher> watchers = new ConcurrentHashMap<>();
 	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watching = new ConcurrentHashMap<>();
 
+	// we allow the user to define (using -Drascal.fallbackResolver=fully.qualified.classname) a single class that will handle
+	// scheme's not statically registered. That class should implement at least one of these interfaces
 	private final AtomicReference<@Nullable ISourceLocationInput> fallbackInputResolver = new AtomicReference<>();
 	private final AtomicReference<@Nullable ISourceLocationOutput> fallbackOutputResolver = new AtomicReference<>();
 	private final AtomicReference<@Nullable ILogicalSourceLocationResolver> fallbackLogicalResolver = new AtomicReference<>();
@@ -318,76 +320,97 @@ public class URIResolverRegistry {
 		return result;
 	}
 
+	@FunctionalInterface
+	private static interface ThrowingFunction<A, R, E extends Exception> {
+		R apply(A arg) throws E;
+	}
+
+	private static <T,A, E extends Exception> T mapIfPresent(AtomicReference<A> reference, ThrowingFunction<A, T, E> mapper, T ifNotPresent) throws E {
+		var ref = reference.get();
+		if (ref != null) {
+			return mapper.apply(ref);
+		}
+		return ifNotPresent;
+	}
+
+	private static ISourceLocation resolveAndFixOffsets(ISourceLocation loc, ILogicalSourceLocationResolver resolver, Iterable<ILogicalSourceLocationResolver> backups) throws IOException {
+		ISourceLocation prev = loc;
+		boolean removedOffset = false;
+
+		if (resolver != null) {
+			loc = resolver.resolve(loc);
+		}
+
+		if (loc == null && prev.hasOffsetLength()) {
+			loc = resolver.resolve(URIUtil.removeOffset(prev));
+			removedOffset = true;
+		}
+
+		if (loc == null || prev.equals(loc)) {
+			for (ILogicalSourceLocationResolver backup : backups) {
+				removedOffset = false;
+				loc = backup.resolve(prev);
+
+				if (loc == null && prev.hasOffsetLength()) {
+					loc = backup.resolve(URIUtil.removeOffset(prev));
+					removedOffset = true;
+				}
+
+				if (loc != null && !prev.equals(loc)) {
+					break; // continue to offset/length handling below with found location
+				}
+			}
+		}
+
+		if (loc == null || prev.equals(loc)) {
+			return null;
+		}
+
+		if (removedOffset || !loc.hasOffsetLength()) { // then copy the offset from the logical one
+			if (prev.hasLineColumn()) {
+				return vf.sourceLocation(loc, prev.getOffset(), prev.getLength(), prev.getBeginLine(),
+					prev.getEndLine(), prev.getBeginColumn(), prev.getEndColumn());
+			}
+			else if (prev.hasOffsetLength()) {
+				if (loc.hasOffsetLength()) {
+					return vf.sourceLocation(loc, prev.getOffset() + loc.getOffset(), prev.getLength());
+				}
+				else {
+					return vf.sourceLocation(loc, prev.getOffset(), prev.getLength());
+				}
+			}
+		}
+		else if (loc.hasLineColumn()) { // the logical location offsets relative to the physical offset, possibly
+										// including line numbers
+			if (prev.hasLineColumn()) {
+				return vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength(),
+					loc.getBeginLine() + prev.getBeginLine() - 1, loc.getEndLine() + prev.getEndLine() - 1,
+					loc.getBeginColumn(), loc.getEndColumn());
+			}
+			else if (prev.hasOffsetLength()) {
+				return vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+			}
+		}
+		else if (loc.hasOffsetLength()) { // the logical location offsets relative to the physical one
+			if (prev.hasOffsetLength()) {
+				return vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+			}
+		}
+		// otherwise we return the loc without any offsets
+		return loc;
+	}
+
 	private ISourceLocation physicalLocation(ISourceLocation loc) throws IOException {
 		while (logicalResolvers.containsKey(loc.getScheme())) {
 			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
 			String auth = loc.hasAuthority() ? loc.getAuthority() : "";
 			ILogicalSourceLocationResolver resolver = map.get(auth);
-			ISourceLocation prev = loc;
-			boolean removedOffset = false;
-
-			if (resolver != null) {
-				loc = resolver.resolve(loc);
-			}
-
-			if (loc == null && prev.hasOffsetLength()) {
-				loc = resolver.resolve(URIUtil.removeOffset(prev));
-				removedOffset = true;
-			}
-
-			if (loc == null || prev.equals(loc)) {
-				for (ILogicalSourceLocationResolver backup : map.values()) {
-					removedOffset = false;
-					loc = backup.resolve(prev);
-
-					if (loc == null && prev.hasOffsetLength()) {
-						loc = backup.resolve(URIUtil.removeOffset(prev));
-						removedOffset = true;
-					}
-
-					if (loc != null && !prev.equals(loc)) {
-						break; // continue to offset/length handling below with found location
-					}
-				}
-			}
-
-			if (loc == null || prev.equals(loc)) {
-				return null;
-			}
-
-			if (removedOffset || !loc.hasOffsetLength()) { // then copy the offset from the logical one
-				if (prev.hasLineColumn()) {
-					loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength(), prev.getBeginLine(),
-						prev.getEndLine(), prev.getBeginColumn(), prev.getEndColumn());
-				}
-				else if (prev.hasOffsetLength()) {
-					if (loc.hasOffsetLength()) {
-						loc = vf.sourceLocation(loc, prev.getOffset() + loc.getOffset(), prev.getLength());
-					}
-					else {
-						loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength());
-					}
-				}
-			}
-			else if (loc.hasLineColumn()) { // the logical location offsets relative to the physical offset, possibly
-											// including line numbers
-				if (prev.hasLineColumn()) {
-					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength(),
-						loc.getBeginLine() + prev.getBeginLine() - 1, loc.getEndLine() + prev.getEndLine() - 1,
-						loc.getBeginColumn(), loc.getEndColumn());
-				}
-				else if (prev.hasOffsetLength()) {
-					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
-				}
-			}
-			else if (loc.hasOffsetLength()) { // the logical location offsets relative to the physical one
-				if (prev.hasOffsetLength()) {
-					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
-				}
-			}
+			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
-
-		return loc;
+		ISourceLocation finalLoc = loc;
+		return mapIfPresent(fallbackLogicalResolver, 
+			r -> resolveAndFixOffsets(finalLoc, r, Collections.emptyList()), 
+			finalLoc);
 	}
 
 	private ISourceLocation safeResolve(ISourceLocation loc) {
@@ -442,6 +465,7 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return inputResolvers.get(subScheme);
 			}
+			return fallbackInputResolver.get();
 		}
 		return result;
 	}
@@ -454,6 +478,7 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return classloaderResolvers.get(subScheme);
 			}
+			return fallbackClassloaderResolver.get();
 		}
 		return result;
 	}
@@ -466,16 +491,9 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return outputResolvers.get(subScheme);
 			}
+			return fallbackOutputResolver.get();
 		}
 		return result;
-	}
-
-	public boolean supportsInputScheme(String scheme) {
-		return getInputResolver(scheme) != null;
-	}
-
-	public boolean supportsOutputScheme(String scheme) {
-		return getOutputResolver(scheme) != null;
 	}
 
 	public boolean supportsHost(ISourceLocation uri) {
@@ -914,7 +932,7 @@ public class URIResolverRegistry {
 			loc = URIUtil.getParentLocation(loc);
 		}
 
-		ISourceLocationWatcher watcher = watchers.get(loc.getScheme());
+		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher.get());
 		if (watcher != null) {
 			watcher.watch(loc, callback);
 		}
@@ -945,7 +963,7 @@ public class URIResolverRegistry {
 			// watching directories (the native NEO file watchers are like that)
 			loc = URIUtil.getParentLocation(loc);
 		}
-		ISourceLocationWatcher watcher = watchers.get(loc.getScheme());
+		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher.get());
 		if (watcher != null) {
 			watcher.unwatch(loc, callback);
 		}
