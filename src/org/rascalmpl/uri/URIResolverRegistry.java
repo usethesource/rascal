@@ -243,6 +243,11 @@ public class URIResolverRegistry {
 				// should do the notifications
 			}
 		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			this.out.write(b, off, len);
+		}
 	}
 
 	/**
