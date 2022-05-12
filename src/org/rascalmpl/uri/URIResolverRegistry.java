@@ -61,11 +61,11 @@ public class URIResolverRegistry {
 
 	// we allow the user to define (using -Drascal.fallbackResolver=fully.qualified.classname) a single class that will handle
 	// scheme's not statically registered. That class should implement at least one of these interfaces
-	private final AtomicReference<@Nullable ISourceLocationInput> fallbackInputResolver = new AtomicReference<>();
-	private final AtomicReference<@Nullable ISourceLocationOutput> fallbackOutputResolver = new AtomicReference<>();
-	private final AtomicReference<@Nullable ILogicalSourceLocationResolver> fallbackLogicalResolver = new AtomicReference<>();
-	private final AtomicReference<@Nullable IClassloaderLocationResolver> fallbackClassloaderResolver = new AtomicReference<>();
-	private final AtomicReference<@Nullable ISourceLocationWatcher> fallbackWatcher = new AtomicReference<>();
+	private volatile @Nullable ISourceLocationInput fallbackInputResolver;
+	private volatile @Nullable ISourceLocationOutput fallbackOutputResolver;
+	private volatile @Nullable ILogicalSourceLocationResolver fallbackLogicalResolver;
+	private volatile @Nullable IClassloaderLocationResolver fallbackClassloaderResolver;
+	private volatile @Nullable ISourceLocationWatcher fallbackWatcher;
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -150,27 +150,27 @@ public class URIResolverRegistry {
 			Object instance = constructService(fallbackClass);
 			boolean ok = false;
 			if (instance instanceof ILogicalSourceLocationResolver) {
-				fallbackLogicalResolver.set((ILogicalSourceLocationResolver) instance);
+				fallbackLogicalResolver = (ILogicalSourceLocationResolver) instance;
 				ok = true;
 			}
 
 			if (instance instanceof ISourceLocationInput) {
-				fallbackInputResolver.set((ISourceLocationInput) instance);
+				fallbackInputResolver = (ISourceLocationInput) instance;
 				ok = true;
 			}
 
 			if (instance instanceof ISourceLocationOutput) {
-				fallbackOutputResolver.set((ISourceLocationOutput) instance);
+				fallbackOutputResolver = (ISourceLocationOutput) instance;
 				ok = true;
 			}
 
 			if (instance instanceof IClassloaderLocationResolver) {
-				fallbackClassloaderResolver.set((IClassloaderLocationResolver) instance);
+				fallbackClassloaderResolver = (IClassloaderLocationResolver) instance;
 				ok = true;
 			}
 
 			if (instance instanceof ISourceLocationWatcher) {
-				fallbackWatcher.set((ISourceLocationWatcher) instance);
+				fallbackWatcher = (ISourceLocationWatcher) instance;
 			}
 			if (!ok) {
 				System.err.println("WARNING: could not load fallback resolver " + fallbackClass
@@ -394,7 +394,7 @@ public class URIResolverRegistry {
 			ILogicalSourceLocationResolver resolver = map.get(auth);
 			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
-		var fallBack = fallbackLogicalResolver.get();
+		var fallBack = fallbackLogicalResolver;
 		if (fallBack != null) {
 			return resolveAndFixOffsets(loc, fallBack, Collections.emptyList());
 		}
@@ -453,7 +453,7 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return inputResolvers.get(subScheme);
 			}
-			return fallbackInputResolver.get();
+			return fallbackInputResolver;
 		}
 		return result;
 	}
@@ -466,7 +466,7 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return classloaderResolvers.get(subScheme);
 			}
-			return fallbackClassloaderResolver.get();
+			return fallbackClassloaderResolver;
 		}
 		return result;
 	}
@@ -479,7 +479,7 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return outputResolvers.get(subScheme);
 			}
-			return fallbackOutputResolver.get();
+			return fallbackOutputResolver;
 		}
 		return result;
 	}
@@ -920,7 +920,7 @@ public class URIResolverRegistry {
 			loc = URIUtil.getParentLocation(loc);
 		}
 
-		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher.get());
+		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher);
 		if (watcher != null) {
 			watcher.watch(loc, callback);
 		}
@@ -951,7 +951,7 @@ public class URIResolverRegistry {
 			// watching directories (the native NEO file watchers are like that)
 			loc = URIUtil.getParentLocation(loc);
 		}
-		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher.get());
+		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher);
 		if (watcher != null) {
 			watcher.unwatch(loc, callback);
 		}
