@@ -388,7 +388,8 @@ public class URIResolverRegistry {
 	}
 
 	private ISourceLocation physicalLocation(ISourceLocation loc) throws IOException {
-		while (logicalResolvers.containsKey(loc.getScheme())) {
+		ISourceLocation original = loc;
+		while (loc != null && logicalResolvers.containsKey(loc.getScheme())) {
 			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
 			String auth = loc.hasAuthority() ? loc.getAuthority() : "";
 			ILogicalSourceLocationResolver resolver = map.get(auth);
@@ -396,7 +397,7 @@ public class URIResolverRegistry {
 		}
 		var fallBack = fallbackLogicalResolver;
 		if (fallBack != null) {
-			return resolveAndFixOffsets(loc, fallBack, Collections.emptyList());
+			return resolveAndFixOffsets(loc == null ? original : loc, fallBack, Collections.emptyList());
 		}
 		return loc;
 	}
