@@ -311,3 +311,18 @@ test bool selfApplyCurry() {
 
     return func2(1) == 2;
 }
+
+test bool variableAccessInNestedFunctions(){
+    int X = 0;
+    int Y = 0;
+    
+    int incX() { X += 1; return X; }
+    int incY() { Y += 1; return Y; }
+    
+    int incXY() = incX() + incY();
+
+    incX(); incX(); incX();
+    incY(); incY();
+    
+    return incXY() == 7;
+}
