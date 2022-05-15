@@ -326,3 +326,15 @@ test bool variableAccessInNestedFunctions(){
     
     return incXY() == 7;
 }
+
+test bool variableAccessInNestedFunctionWithVisit() {  
+    int uniqueItem = 1;
+    int newItem() { uniqueItem += 1; return uniqueItem; };
+    
+    list[str] rewrite(list[str] p) = 
+      visit (p) { 
+        case "a": newItem();
+        case "b": newItem();
+      };
+    return rewrite(["a", "b", "c"]) == ["a", "b", "c"] && uniqueItem == 3;
+} 
