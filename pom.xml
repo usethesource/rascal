@@ -167,7 +167,7 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin> 
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
@@ -184,7 +184,7 @@
                                     <argument>-cp</argument>
                                     <classpath />
                                     <argument>-Dfile.encoding=UTF-8</argument>
-                                    <argument>org.rascalmpl.library.lang.rascal.tutor.CourseCompiler</argument>
+                                    <argument>org.rascalmpl.library.lang.rascal.docs.CourseCompiler</argument>
                                     <argument>--bin</argument>
                                     <argument>${project.build.directory}/classes/boot</argument>
                                     <argument>--src</argument>
