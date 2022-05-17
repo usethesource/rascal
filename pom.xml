@@ -8,7 +8,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-      <tag>v0.23.2</tag>
+      <tag>v0.23.3-SNAPSHOT</tag>
   </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
