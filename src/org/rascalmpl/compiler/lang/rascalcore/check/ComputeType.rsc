@@ -664,6 +664,9 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
     if (isLocType(t1) && isStrType(t2))
         return aloc();
         
+    if(isDateTimeType(t1) && isDateTimeType(t2))
+        return adatetime();
+        
      if (isTupleType(t1) && isTupleType(t2)) {
          if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
             tflds1 = getTupleFields(t1);
@@ -736,6 +739,9 @@ AType computeSubtractionType(Tree current, AType t1, AType t2, Solver s)
 private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s) { 
     if(isNumericType(t1) && isNumericType(t2)){
         return numericArithTypes(t1, t2);
+    }
+    if(isDateTimeType(t1) && isDateTimeType(t2)){
+        return adatetime();
     }
     if(isListType(t1) && isListType(t2)){
         s.requireComparable(getListElementType(t1), getListElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", 
