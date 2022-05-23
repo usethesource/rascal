@@ -25,9 +25,9 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 	
 	@Override
 	public
-	IValue traverseTupleOnce(IValue subject, final TraversalState tr) {
-		ITuple tuple = (ITuple) subject;
-		int arity = tuple.arity();
+	IValue traverseTupleOnce(final IValue subject, final TraversalState tr) {
+		final ITuple tuple = (ITuple) subject;
+		final int arity = tuple.arity();
 
 		boolean hasMatched = false;
 		boolean hasChanged = false;
@@ -45,14 +45,11 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 	
 	@Override
 	public
-	IValue traverseADTOnce(IValue subject, final TraversalState tr) {
+	IValue traverseADTOnce(final IValue subject, final TraversalState tr) {
 		IConstructor cons = (IConstructor)subject;
-		boolean hasKwParams = false;
-		int arity = cons.arity();
+		final boolean hasKwParams = cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().hasParameters();
+		final int arity = cons.arity();
 
-		if (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().hasParameters()) {
-			hasKwParams = true;
-		}
 		if (arity == 0 && !hasKwParams) {
 			return subject; // constants have no children to traverse into
 		} 
@@ -84,20 +81,19 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 	
 	@Override
 	public
-	IValue traverseConcreteTreeOnce(IValue subject, final TraversalState tr) {
-		ITree tree = (ITree)subject;
+	IValue traverseConcreteTreeOnce(final IValue subject, final TraversalState tr) {
+		final ITree tree = (ITree)subject;
 
 		// Only visit non-layout nodes in argument list
 
 		IList list = TreeAdapter.getArgs(tree);
-		int len = list.length();
+		final int len = list.length();
 
 		if (len > 0) {
 			boolean hasChanged = false;
 			boolean hasMatched = false;
-			boolean isTop = TreeAdapter.isTop(tree);
 
-			if (isTop) {
+			if (TreeAdapter.isTop(tree)) {
 				tr.setMatchedAndChanged(false, false);
 				tr.traverse.once(list.get(1), tr);
 
@@ -124,8 +120,8 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 
 	@Override
 	public
-	IValue traverseMapOnce(IValue subject, final TraversalState tr) {
-		IMap map = (IMap) subject;
+	IValue traverseMapOnce(final IValue subject, final TraversalState tr) {
+		final IMap map = (IMap) subject;
 		if(!map.isEmpty()){
 			Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
 			boolean hasChanged = false;
@@ -153,8 +149,8 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 
 	@Override
 	public
-	IValue traverseSetOnce(IValue subject, final TraversalState tr) {
-		ISet set = (ISet) subject;
+	IValue traverseSetOnce(final IValue subject, final TraversalState tr) {
+		final ISet set = (ISet) subject;
 		if(!set.isEmpty()){
 			boolean hasChanged = false;
 			boolean hasMatched = false;
@@ -175,9 +171,9 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 
 	@Override
 	public
-	IValue traverseListOnce(IValue subject, final TraversalState tr) {
-		IList list = (IList) subject;
-		int len = list.length();
+	IValue traverseListOnce(final IValue subject, final TraversalState tr) {
+		final IList list = (IList) subject;
+		final int len = list.length();
 		if (len > 0){
 			boolean hasChanged = false;
 			boolean hasMatched = false;
@@ -200,15 +196,11 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 
 	@Override
 	public
-	IValue traverseNodeOnce(IValue subject, final TraversalState tr) {
-		IValue result= subject;
-		INode node = (INode)subject;
-		int arity = node.arity();
-		boolean hasKwParams = false;
-		
-		if(node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()){
-			hasKwParams = true;
-		}
+	IValue traverseNodeOnce(final IValue subject, final TraversalState tr) {
+		IValue result = subject;
+		final INode node = (INode)subject;
+		final int arity = node.arity();
+		final boolean hasKwParams = node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters();
 		
 		if (arity == 0 && !hasKwParams){
 			result = subject;
@@ -242,11 +234,11 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 	
 	@Override
 	public
-	IValue traverseStringOnce(IValue subject, final TraversalState tr) {
+	IValue traverseStringOnce(final IValue subject, final TraversalState tr) {
 		boolean hasMatched = tr.hasMatched();
 		boolean hasChanged = tr.hasChanged();
 		tr.setMatchedAndChanged(false, false);
-		IValue res = traverseString(subject, tr);
+		final IValue res = traverseString(subject, tr);
 		tr.setMatchedAndChanged(tr.hasMatched() | hasMatched,
 								tr.hasChanged() | hasChanged);
 		return res;
@@ -260,10 +252,10 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 	 * Performance issue: we create a lot of garbage by producing all these substrings.
 	 */
 
-	private IValue traverseString(IValue subject, final TraversalState tr){
-		IString subjectIString = (IString) subject;
-		String subjectString = subjectIString.getValue();
-		int len = subjectIString.length();
+	private IValue traverseString(final IValue subject, final TraversalState tr){
+		final IString subjectIString = (IString) subject;
+		final String subjectString = subjectIString.getValue();
+		final int len = subjectIString.length();
 		int subjectCursor = 0;
 
 		boolean hasMatched = false;
