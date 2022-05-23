@@ -606,7 +606,9 @@ public class URIResolverRegistry {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 
-		if (isDirectory(uri)) {
+		// we need to keep it for the notifyWatcher call after removing
+		var isDir = isDirectory(uri);
+		if (isDir) {
 			if (recursive) {
 				for (ISourceLocation element : list(uri)) {
 					remove(element, recursive);
@@ -619,7 +621,7 @@ public class URIResolverRegistry {
 
 		out.remove(uri);
 		notifyWatcher(uri,
-			isDirectory(uri) ? ISourceLocationWatcher.directoryDeleted(uri) : ISourceLocationWatcher.fileDeleted(uri));
+			isDir ? ISourceLocationWatcher.directoryDeleted(uri) : ISourceLocationWatcher.fileDeleted(uri));
 	}
 
 	/**
