@@ -1,5 +1,6 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ToplevelType;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IValue;
@@ -46,6 +47,26 @@ public abstract class TraverseOnce {
 	abstract IValue traverseListOnce(IValue subject, final TraversalState tr);
 
 	abstract IValue traverseNodeOnce(IValue subject, final TraversalState tr);
+	
+	private IValue traverseOnce(final Type subjectType, final IValue subject,  final TraversalState tr) {
+
+		switch(ToplevelType.getToplevelType(subjectType)) {
+		case ADT:
+			return traverseADTOnce(subject,tr);
+		case NODE:
+			return traverseNodeOnce(subject, tr);
+		case LIST:
+			return  traverseListOnce(subject,  tr);
+		case SET:
+			return traverseSetOnce(subject,  tr);
+		case MAP:
+			return traverseMapOnce(subject, tr);
+		case TUPLE:
+			return traverseTupleOnce(subject, tr);
+		default:
+			return subject;
+		}
+	}
 	
 	/*
 	 * Here are 16 specializations of the traverseOnce function for the following variants:
@@ -97,21 +118,7 @@ public abstract class TraverseOnce {
 		boolean hasChanged = false;
 
 		if(tr.shouldDescentInAbstractValue(subject)){
-			if (subjectType.isAbstractData()){
-				result = traverseADTOnce(subject,tr);
-			} else if (subjectType.isNode()){
-				result = traverseNodeOnce(subject, tr);
-			} else if(subjectType.isList()){
-				result = traverseListOnce(subject,  tr);
-			} else if(subjectType.isSet()){
-				result = traverseSetOnce(subject,  tr);
-			} else if (subjectType.isMap()) {
-				result = traverseMapOnce(subject, tr);
-			} else if(subjectType.isTuple()){
-				result = traverseTupleOnce(subject, tr);
-			} else {
-				result = subject;
-			}
+			result = traverseOnce(subjectType, subject, tr);
 		}
 
 		hasMatched = tr.hasMatched();
@@ -157,29 +164,15 @@ public abstract class TraverseOnce {
 		return result;
 	}
 	
-	public IValue traverseOnceBottomUpContinuingNoFixedPointAbstract(IValue subject, final TraversalState tr){
-		Type subjectType = subject.getType();
+	public IValue traverseOnceBottomUpContinuingNoFixedPointAbstract(final IValue subject, final TraversalState tr){
+		final Type subjectType = subject.getType();
 		IValue result = subject;
 
 		boolean hasMatched = false;
 		boolean hasChanged = false;
 
 		if(tr.shouldDescentInAbstractValue(subject)){
-			if (subjectType.isAbstractData()){
-				result = traverseADTOnce(subject,tr);
-			} else if (subjectType.isNode()){
-				result = traverseNodeOnce(subject, tr);
-			} else if(subjectType.isList()){
-				result = traverseListOnce(subject,  tr);
-			} else if(subjectType.isSet()){
-				result = traverseSetOnce(subject,  tr);
-			} else if (subjectType.isMap()) {
-				result = traverseMapOnce(subject, tr);
-			} else if(subjectType.isTuple()){
-				result = traverseTupleOnce(subject, tr);
-			} else {
-				result = subject;
-			}
+			result = traverseOnce(subjectType, subject, tr);
 		}
 
 		hasMatched = tr.hasMatched();
@@ -189,8 +182,7 @@ public abstract class TraverseOnce {
 
 		result = traverseTop(result, tr);
 
-		tr.setMatchedAndChanged(tr.hasMatched() | hasMatched,
-				tr.hasChanged() | hasChanged);
+		tr.setMatchedAndChanged(tr.hasMatched() | hasMatched, tr.hasChanged() | hasChanged);
 		return result;
 	}
 	
@@ -238,22 +230,7 @@ public abstract class TraverseOnce {
 		boolean hasChanged = false;
 
 		if(tr.shouldDescentInAbstractValue(subject)){
-
-			if (subjectType.isAbstractData()){
-				result = traverseADTOnce(subject,tr);
-			} else if (subjectType.isNode()){
-				result = traverseNodeOnce(subject, tr);
-			} else if(subjectType.isList()){
-				result = traverseListOnce(subject,  tr);
-			} else if(subjectType.isSet()){
-				result = traverseSetOnce(subject,  tr);
-			} else if (subjectType.isMap()) {
-				result = traverseMapOnce(subject, tr);
-			} else if(subjectType.isTuple()){
-				result = traverseTupleOnce(subject, tr);
-			} else {
-				result = subject;
-			}
+			result = traverseOnce(subjectType, subject, tr);			
 		}
 
 		if (tr.hasMatched()) {
@@ -317,22 +294,7 @@ public abstract class TraverseOnce {
 		boolean hasChanged = false;
 
 		if(tr.shouldDescentInAbstractValue(subject)){
-
-			if (subjectType.isAbstractData()){
-				result = traverseADTOnce(subject,tr);
-			} else if (subjectType.isNode()){
-				result = traverseNodeOnce(subject, tr);
-			} else if(subjectType.isList()){
-				result = traverseListOnce(subject,  tr);
-			} else if(subjectType.isSet()){
-				result = traverseSetOnce(subject,  tr);
-			} else if (subjectType.isMap()) {
-				result = traverseMapOnce(subject, tr);
-			} else if(subjectType.isTuple()){
-				result = traverseTupleOnce(subject, tr);
-			} else {
-				result = subject;
-			}
+			result = traverseOnce(subjectType, subject, tr);	
 		}
 
 		if (tr.hasMatched()) {
@@ -410,21 +372,7 @@ public abstract class TraverseOnce {
 		hasChanged = tr.hasChanged();
 
 		if(tr.shouldDescentInAbstractValue(subject)){
-			if (subjectType.isAbstractData()){
-				result = traverseADTOnce(subject,tr);
-			} else if (subjectType.isNode()){
-				result = traverseNodeOnce(subject, tr);
-			} else if(subjectType.isList()){
-				result = traverseListOnce(subject,  tr);
-			} else if(subjectType.isSet()){
-				result = traverseSetOnce(subject,  tr);
-			} else if (subjectType.isMap()) {
-				result = traverseMapOnce(subject, tr);
-			} else if(subjectType.isTuple()){
-				result = traverseTupleOnce(subject, tr);
-			} else {
-				result = subject;
-			}
+			result = traverseOnce(subjectType, subject, tr);
 		}
 
 		tr.setMatchedAndChanged(tr.hasMatched() | hasMatched,
@@ -465,21 +413,7 @@ public abstract class TraverseOnce {
 		hasChanged = tr.hasChanged();
 
 		if(tr.shouldDescentInAbstractValue(subject)){
-			if (subjectType.isAbstractData()){
-				result = traverseADTOnce(subject,tr);
-			} else if (subjectType.isNode()){
-				result = traverseNodeOnce(subject, tr);
-			} else if(subjectType.isList()){
-				result = traverseListOnce(subject,  tr);
-			} else if(subjectType.isSet()){
-				result = traverseSetOnce(subject,  tr);
-			} else if (subjectType.isMap()) {
-				result = traverseMapOnce(subject, tr);
-			} else if(subjectType.isTuple()){
-				result = traverseTupleOnce(subject, tr);
-			} else {
-				result = subject;
-			}
+			result = traverseOnce(subjectType, subject, tr);
 		}
 
 		tr.setMatchedAndChanged(tr.hasMatched() | hasMatched,
@@ -554,21 +488,7 @@ public abstract class TraverseOnce {
 		hasChanged = tr.hasChanged();
 
 		if(tr.shouldDescentInAbstractValue(subject)){
-			if (subjectType.isAbstractData()){
-				result = traverseADTOnce(subject,tr);
-			} else if (subjectType.isNode()){
-				result = traverseNodeOnce(subject, tr);
-			} else if(subjectType.isList()){
-				result = traverseListOnce(subject,  tr);
-			} else if(subjectType.isSet()){
-				result = traverseSetOnce(subject,  tr);
-			} else if (subjectType.isMap()) {
-				result = traverseMapOnce(subject, tr);
-			} else if(subjectType.isTuple()){
-				result = traverseTupleOnce(subject, tr);
-			} else {
-				result = subject;
-			}
+			result = traverseOnce(subjectType, subject, tr);
 		}
 
 		tr.setMatchedAndChanged(tr.hasMatched() | hasMatched,
@@ -623,22 +543,7 @@ public abstract class TraverseOnce {
 		hasChanged = tr.hasChanged();
 
 		if(tr.shouldDescentInAbstractValue(subject)){
-
-			if (subjectType.isAbstractData()){
-				result = traverseADTOnce(subject,tr);
-			} else if (subjectType.isNode()){
-				result = traverseNodeOnce(subject, tr);
-			} else if(subjectType.isList()){
-				result = traverseListOnce(subject,  tr);
-			} else if(subjectType.isSet()){
-				result = traverseSetOnce(subject,  tr);
-			} else if (subjectType.isMap()) {
-				result = traverseMapOnce(subject, tr);
-			} else if(subjectType.isTuple()){
-				result = traverseTupleOnce(subject, tr);
-			} else {
-				result = subject;
-			}
+			result = traverseOnce(subjectType, subject, tr);
 		}
 
 		tr.setMatchedAndChanged(tr.hasMatched() | hasMatched,
