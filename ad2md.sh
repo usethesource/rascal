@@ -18,9 +18,9 @@ find $courseDir -type f -name "*.jpg" -exec mv {} $imgDir \;
 
 find $courseDir -type d -empty -delete
 
-## TODO: automatically replace all IMG links with image/$image.png or image/$image.jpg
+## TODO: automatically replace all IMG links with /image/$image
 ## TODO: move all concept123/concept123.md files to toplevel ./concept123.md
-## TODO: add header block all .md files:
+## TODO: add header block all .md files, e.g.:
 ##  ---
 ##  label: "Concept 123"
 ##  sidebar_position: 2
