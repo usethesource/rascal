@@ -275,7 +275,7 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 
-			IListWriter w = vf.listWriter();
+			final IListWriter w = vf.listWriter();
 
 			for (int i = 0; i < len; i++){
 				IValue elem = list.get(i);

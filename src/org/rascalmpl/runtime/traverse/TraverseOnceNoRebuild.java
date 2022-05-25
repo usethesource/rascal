@@ -179,7 +179,7 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 			boolean hasMatched = false;
 
 			for (int i = 0; i < len; i++){
-				IValue elem = list.get(i);
+				final IValue elem = list.get(i);
 				tr.setMatchedAndChanged(false, false);
 				tr.traverse.once(elem, tr);
 				hasChanged |= tr.hasChanged();
