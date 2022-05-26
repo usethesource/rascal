@@ -84,11 +84,33 @@ private Symbol getTargetSymbol(Symbol sym) {
   } 
 }
 
+// TODO, rewritten quotable for the benefit of the compiler
+// Offending case:
+//data Symbol
+//        =  \lit()   
+//        | \parameter() 
+//        | \parameterized-lex(list[Symbol] parameters)
+//        ;
+//     
+//private bool quotable(Symbol x) { 
+//    return 
+//       \lit() := x 
+//       &&
+//       \parameterized-lex([\parameter()]) !:= x
+//       ;
+//}
+
 @doc{This decides for which part of the grammar we can write anti-quotes}
 private bool quotable(Symbol x) { 
     return 
-       \lit(_) := x 
-       &&
-       \parameterized-lex(_,[\parameter(_,_)]) !:= x
-       ;
+        !(\lit(_) := x 
+          || \empty() := x
+          || \cilit(_) := x 
+          || \char-class(_) := x 
+          || \layouts(_) := x
+          || \keywords(_) := x
+          || \start(_) := x
+          || \parameterized-sort(_,[\parameter(_,_),*_]) := x
+          || \parameterized-lex(_,[\parameter(_,_),*_]) := x
+         );
 }
