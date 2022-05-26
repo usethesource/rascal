@@ -23,8 +23,8 @@ public list[int] rev (list[int] L)
         return L;
 }
 
-int SIZE = 100;
-int ITER = 1000;
+int SIZE = 10000;
+int ITER = 1000000;
 
 public void measure(){
     L = for(int i <- [ 0 .. SIZE ]) append arbInt();
@@ -33,9 +33,13 @@ public void measure(){
 	for(int i <- [1 .. ITER])
 	    rev(L);
 	    
-	used = (realTime() - begin)/1000;
+	used = (realTime() - begin);
 		
-	println("<ITER> x rev list <SIZE> elements <used> seconds)");
+	println("<ITER> x rev list <SIZE> elements <used> (msec");
+}
+
+void main() {
+    measure();
 }
 	
 	
