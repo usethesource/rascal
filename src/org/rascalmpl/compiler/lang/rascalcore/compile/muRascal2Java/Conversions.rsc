@@ -5,6 +5,7 @@ import String;
 import Map;
 import Set;
 import ParseTree;
+import Grammar;
 
 extend lang::rascalcore::check::CheckerCommon;
 
@@ -725,7 +726,9 @@ str value2outertype(str _) = "IString";
 str value2outertype(Tree _) = "IConstructor";
 str value2outertype(Symbol _) = "IConstructor";
 str value2outertype(Production _) = "IConstructor";
+str value2outertype(Grammar _) = "IConstructor";
 default str value2outertype(node _) = "INode";
+
 str value2outertype(loc _) = "ISourceLocation";
 str value2outertype(datetime _) = "IDateTime";
 str value2outertype(list[&T] _) = "IList";
