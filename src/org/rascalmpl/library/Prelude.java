@@ -1333,10 +1333,13 @@ public class Prelude {
 		try {
 			sloc = reg.logicalToPhysical(sloc);
 
-			if (reg.supportsInputScheme(sloc.getScheme())) {
-				if (sloc.hasOffsetLength()) {
+
+			if (sloc.hasOffsetLength()) {
+				try {
 					prefix = new UnicodeOffsetLengthReader(reg.getCharacterReader(sloc.top(), charset.getValue()), 0, sloc.getOffset() + ( append ? sloc.getLength()  : 0 ));
 					postfix = new UnicodeOffsetLengthReader(reg.getCharacterReader(sloc.top(), charset.getValue()),  sloc.getOffset() + sloc.getLength(), -1);
+				} catch (UnsupportedSchemeException e) {
+					// silently ignoring that we cannot do an append for this scheme as there is no input stream resolver defined for this scheme
 				}
 			}
 
