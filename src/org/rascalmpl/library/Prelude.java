@@ -1798,7 +1798,7 @@ public class Prelude {
 	public IValue isEmpty(IList lst)
 	//@doc{isEmpty -- is list empty?}
 	{
-		return values.bool(lst.length() == 0);
+		return values.bool(lst.isEmpty());
 	}
 
 	public IValue reverse(IList lst)
@@ -2092,7 +2092,7 @@ public class Prelude {
 	public IValue isEmpty(IMap M)
 	//@doc{isEmpty -- is map empty?}
 	{
-		return values.bool(M.size() == 0);
+		return values.bool(M.isEmpty());
 	}
 
 	public IValue range(IMap M)
@@ -2685,7 +2685,7 @@ public class Prelude {
 	public IValue isEmpty(ISet st)
 	//@doc{isEmpty -- is set empty?}
 	{
-		return values.bool(st.size() == 0);
+		return values.bool(st.isEmpty());
 	}
 	
 	public IValue size(ISet st)
@@ -3013,7 +3013,7 @@ public class Prelude {
 	public IValue isEmpty(IString s)
 	//@doc{isEmpty -- is string empty?}
 	{
-		return values.bool(s.getValue().length() == 0);
+		return values.bool(s.getValue().isEmpty());
 	}
 
 	public IValue reverse(IString s)
