@@ -107,9 +107,9 @@ public class Profiler extends Thread {
 						currentCount.increment();
 					}
 				}
-				while (env.getParent() != null && !env.getParent().isRootScope()) {
-					env = env.getParent();
-				}
+					while (env.getParent() != null && !env.getParent().isRootScope() && !env.isFunctionFrame()) {
+						env = env.getParent();
+					}
 				if (env != null) {
 					Count currentCount = frame.get(env.getLocation());
 					if (currentCount == null) {
