@@ -108,6 +108,7 @@ public class Environment implements IRascalFrame {
 	protected final ISourceLocation loc;
 	protected final String name;
 	private Environment myRoot;
+	private boolean isFunctionFrame;
 
 	
 	@Override
@@ -1030,5 +1031,13 @@ public class Environment implements IRascalFrame {
     public Set<String> getFrameVariables() {
         return getVariables().keySet();
     }
+
+    public void markAsFunctionFrame() {
+		this.isFunctionFrame = true;
+    }
+
+	public boolean isFunctionFrame() {
+		return isFunctionFrame;
+	}
 }
 
