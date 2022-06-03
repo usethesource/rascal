@@ -575,13 +575,11 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(parserName, definitions);
 
     if (parser == null || force) {
-        synchronized (eval) {
-          parser = eval.getHeap().getObjectParser(parserName, definitions);
-          if (parser == null || force) {
-            // TODO: this hashCode is not good enough!
-            parser = pg.getNewParser(eval, caller, parserName, definitions);
-            eval.getHeap().storeObjectParser(parserName, definitions, parser);
-          }
+        parser = eval.getHeap().getObjectParser(parserName, definitions);
+        if (parser == null || force) {
+          // TODO: this hashCode is not good enough!
+          parser = pg.getNewParser(eval, caller, parserName, definitions);
+          eval.getHeap().storeObjectParser(parserName, definitions, parser);
         }
     }
 

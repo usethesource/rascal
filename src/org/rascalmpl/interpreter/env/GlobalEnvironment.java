@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -65,8 +66,8 @@ public class GlobalEnvironment {
 	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
 	
 	/** Keeping track of generated parsers */
-	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
-	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
+	private final Map<String,ParserTuple> objectParsersForModules = new ConcurrentHashMap<String,ParserTuple>();
+	private final Map<String,ParserTuple> rascalParsersForModules = new ConcurrentHashMap<String,ParserTuple>();
 
 	private boolean bootstrapper;
 	
@@ -216,7 +217,7 @@ public class GlobalEnvironment {
 		storeParser(objectParsersForModules, module, productions, parser);
 	}
 	
-	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
+	private static void storeParser(Map<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
 		ParserTuple newT = new ParserTuple(productions, parser);
 		store.put(module, newT);
 	}
