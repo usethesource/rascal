@@ -15,6 +15,8 @@ package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
 
+import io.usethesource.vallang.ISourceLocation;
+
 public class UndeclaredNonTerminal extends StaticError {
 	private static final long serialVersionUID = -5617996489458337612L;
 	private final String name;
@@ -24,6 +26,11 @@ public class UndeclaredNonTerminal extends StaticError {
 		this.name = name;
 	}
 
+	public UndeclaredNonTerminal(String name, String module, ISourceLocation ast) {
+		super("Undeclared non-terminal: " + name + " in module " + module, ast);
+		this.name = name;
+	}
+	
 	public String getName() {
 		return name;
 	}
