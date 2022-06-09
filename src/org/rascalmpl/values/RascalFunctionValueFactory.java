@@ -37,6 +37,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -111,8 +112,6 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     protected Class<IGTD<IConstructor, ITree, ISourceLocation>> getParserClass(IMap grammar) {
         return parserCache.get(grammar);
     }
-    
-   
     
     @Override
     public IFunction function(io.usethesource.vallang.type.Type functionType, BiFunction<IValue[], Map<String, IValue>, IValue> func) {
@@ -238,6 +237,28 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         checkPreconditions(startSort, reifiedGrammar.getType());    
         
         return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, ctx.getCurrentAST().getLocation(), parser, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+    }
+
+    /**
+     * This function mimicks `parsers(#start[Module]) inside lang::rascal::\syntax::Rascal.
+     * so it produces a parse function for the Rascal language, where non-terminal is the
+     * first parameter as a reified type and a str (IString) is the second parameter.
+     */
+    public IFunction bootstrapParsers() {
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        TypeFactory tf = TypeFactory.getInstance();
+        IValueFactory vf = ctx.getValueFactory();
+
+        Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
+
+        Type functionType = tf.functionType(parameterType,
+            tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+
+        // Funny diamond issue with multiple interface inheritance requires double cast to avoid compiler error here.
+        Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) (Class<?>) RascalParser.class;
+
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, ctx.getCurrentAST().getLocation(), parser, vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
     }
 
     private static IConstructor checkPreconditions(IValue start, Type reified) {
