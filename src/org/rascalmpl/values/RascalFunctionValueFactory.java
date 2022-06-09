@@ -108,15 +108,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
     }
 
-    private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IMap iMap) {
-        Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = parserCache.get(iMap);
-        try {
-            return parser.getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            throw new ImplementationError("could not instantiate generated parser", e);
-        } 
+    protected Class<IGTD<IConstructor, ITree, ISourceLocation>> getParserClass(IMap grammar) {
+        return parserCache.get(grammar);
     }
+    
+   
     
     @Override
     public IFunction function(io.usethesource.vallang.type.Type functionType, BiFunction<IValue[], Map<String, IValue>, IValue> func) {
@@ -213,7 +209,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
         
-        IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) ((IConstructor) reifiedGrammar).get("definitions"));
+        Class<IGTD<IConstructor, ITree, ISourceLocation>>parser = getParserClass((IMap) ((IConstructor) reifiedGrammar).get("definitions"));
         IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
 
         checkPreconditions(startSort, reifiedGrammar.getType());
@@ -236,7 +232,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
 
-        IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) ((IConstructor) reifiedGrammar).get("definitions"));
+        Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = getParserClass((IMap) ((IConstructor) reifiedGrammar).get("definitions"));
         IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
 
         checkPreconditions(startSort, reifiedGrammar.getType());    
@@ -269,11 +265,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         protected final boolean allowAmbiguity;
         protected final boolean hasSideEffects;
         protected final boolean firstAmbiguity;
-        protected final IGTD<IConstructor, ITree, ISourceLocation> parser;
+        protected final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser;
         protected final String methodName;
         protected final ISourceLocation caller;
         
-        public ParseFunction(IValueFactory vf, ISourceLocation caller, IGTD<IConstructor, ITree, ISourceLocation> parser, String methodName, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+        public ParseFunction(IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, String methodName, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
             this.vf = vf;
             this.caller = caller;
             this.parser = parser;
@@ -318,6 +314,15 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             return RuntimeExceptionFactory.callFailed(caller, Arrays.stream(parameters).collect(vf.listWriter()));
         }
         
+        private IGTD<IConstructor, ITree, ISourceLocation> getParser() {
+            try {
+                return parser.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                    | NoSuchMethodException | SecurityException e) {
+                throw new ImplementationError("could not instantiate generated parser", e);
+            } 
+        }
+
         protected IValue parse(String methodName, ISet filters, IString input,  ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects) {
             try {
                 if (origin == null) {
@@ -411,7 +416,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         private ITree parseObject(String methodName, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects,  ISet filters) {
             IActionExecutor<ITree> exec = filters.isEmpty() ?  new NoActionExecutor() : new RascalFunctionActionExecutor(filters, !hasSideEffects);
 
-            return (ITree) parser.parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
+            return (ITree) getParser().parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
         }
 
         // private IConstructor parseObject(ISet filters, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects) {
@@ -444,7 +449,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     static private class ParametrizedParseFunction extends ParseFunction {
         private Supplier<ParserGenerator> generator;
 
-        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IValueFactory vf, ISourceLocation caller, IGTD<IConstructor, ITree, ISourceLocation> parser, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
             super(vf, caller, parser, null, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
             this.generator = generator;
         }
