@@ -828,7 +828,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
             }
 
-
             Evaluator self = this;
             job("Loading parser generator", () -> {
                 synchronized (self) {
