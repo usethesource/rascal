@@ -492,8 +492,6 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
 	  }
   }
   
-  
-
   /**
    * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
    * have been parsed and their original flat literal strings replaced by fully structured parse trees.
