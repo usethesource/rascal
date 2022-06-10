@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -64,6 +65,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
@@ -212,10 +214,12 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
 
         checkPreconditions(startSort, reifiedGrammar.getType());
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
 
         String name = getParserGenerator().getParserMethodName(startSort);
 
-        return function(functionType, new ParseFunction(ctx.getValueFactory(), ctx.getCurrentAST().getLocation(), parser, name, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
     }
     
     @Override
@@ -236,7 +240,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
         checkPreconditions(startSort, reifiedGrammar.getType());    
         
-        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, ctx.getCurrentAST().getLocation(), parser, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+        
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
     }
 
     /**
@@ -258,9 +265,19 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         // Funny diamond issue with multiple interface inheritance requires double cast to avoid compiler error here.
         Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) (Class<?>) RascalParser.class;
 
-        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, ctx.getCurrentAST().getLocation(), parser, vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
     }
 
+    public IString createHole(ITree part, IInteger index) {
+        return getParserGenerator().createHole(part, index);
+    }
+
+    public IConstructor sym2symbol(ITree parsedSym) {
+        return getParserGenerator().symbolTreeToSymbol(parsedSym);
+    }
+      
     private static IConstructor checkPreconditions(IValue start, Type reified) {
         if (!(reified instanceof ReifiedType)) {
            throw RuntimeExceptionFactory.illegalArgument(start, "A reified type is required instead of " + reified);
@@ -439,24 +456,6 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
             return (ITree) getParser().parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
         }
-
-        // private IConstructor parseObject(ISet filters, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects) {
-        //     try {
-        //         char[] input = getResourceContent(location);
-        //         return parseObject(location, input, allowAmbiguity, hasSideEffects, filters);
-        //     }
-        //     catch (IOException e) {
-        //         throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
-        //     }
-        // }
-
-        // private char[] getResourceContent(ISourceLocation location) throws IOException{
-        //     try (Reader textStream = URIResolverRegistry.getInstance().getCharacterReader(location)) {
-        //         return InputConverter.toChar(textStream);
-        //     }
-        // }
-
-        
     }
     
     /**
