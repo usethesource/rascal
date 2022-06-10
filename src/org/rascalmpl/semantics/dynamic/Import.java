@@ -33,6 +33,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString.Lexical;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -469,7 +470,7 @@ private static boolean isDeprecated(Module preModule){
             parsers = vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
           }
       
-          result = parseFragments(vf, parsers, tree, location, env);
+          result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
       }
 
       return result;
@@ -510,14 +511,14 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
    * @param parser is the parser to use for the concrete literals
    * @return parse tree of a module with structured concrete literals, or parse errors
    */
-  public static ITree parseFragments(final RascalFunctionValueFactory vf, final IFunction parsers, IConstructor module, final ISourceLocation location, final ModuleEnvironment env) {
+  public static ITree parseFragments(final RascalFunctionValueFactory vf, final IRascalMonitor monitor, final IFunction parsers, IConstructor module, final ISourceLocation location, final ModuleEnvironment env) {
      return (ITree) module.accept(new IdentityTreeVisitor<ImplementationError>() {
        @Override
        public ITree visitTreeAppl(ITree tree)  {
          IConstructor pattern = getConcretePattern(tree);
          
          if (pattern != null) {
-           ITree parsedFragment = parseFragment(vf, parsers, (ITree) TreeAdapter.getArgs(tree).get(0), location);
+           ITree parsedFragment = parseFragment(vf, monitor, parsers, (ITree) TreeAdapter.getArgs(tree).get(0), location);
            return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
          }
          else {
@@ -550,7 +551,7 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
      });
   }
   
-  private static ITree parseFragment(RascalFunctionValueFactory vf, IFunction parsers, ITree tree, ISourceLocation uri) {
+  private static ITree parseFragment(RascalFunctionValueFactory vf, IRascalMonitor monitor, IFunction parsers, ITree tree, ISourceLocation uri) {
     ITree symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
     Map<String, ITree> antiquotes = new HashMap<>();
@@ -578,7 +579,7 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     catch (ParseError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-      // eval.getMonitor().warning("parse error in concrete syntax: "+ src, src);
+      monitor.warning("parse error in concrete syntax: "+ src, src);
       return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
     }
     catch (Ambiguous e) {
@@ -594,19 +595,19 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
                 loc.getBeginColumn() + ambLocation.getEndColumn()) 
             : loc;
         
-        // eval.getMonitor().warning("ambiguity in concrete syntax", src);
+        monitor.warning("ambiguity in concrete syntax", src);
         return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
     }
     catch (StaticError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-      // eval.getMonitor().warning(e.getMessage(), e.getLocation());
+      monitor.warning(e.getMessage(), e.getLocation());
       return (ITree) tree.asWithKeywordParameters().setParameter("can not parse fragment due to " + e.getMessage(), src);
     }
     catch (UndeclaredNonTerminalException e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
       ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-      // eval.getMonitor().warning(e.getMessage(), src);
+      monitor.warning(e.getMessage(), src);
       return (ITree) tree.asWithKeywordParameters().setParameter("can not parse fragment due to " + e.getMessage(), src);
     }
   }
