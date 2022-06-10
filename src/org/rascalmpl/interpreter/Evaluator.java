@@ -61,7 +61,6 @@ import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.exceptions.ImplementationError;
-import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -95,20 +94,16 @@ import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.io.InputConverter;
-import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -916,7 +911,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         if (!noBacktickOutsideStringConstant(command)) {
             ModuleEnvironment curMod = getCurrentModuleEnvironment();
             IFunction parsers = parserForCurrentModule(vf, curMod);
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, parsers, tree, location, getCurrentModuleEnvironment());
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parsers, tree, location, getCurrentModuleEnvironment());
         }
 
         Command stat = new ASTBuilder().buildCommand(tree);
@@ -946,7 +941,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         if (!noBacktickOutsideStringConstant(command)) {
             IFunction parsers = parserForCurrentModule(vf, getCurrentModuleEnvironment());
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, parsers, tree, location, getCurrentModuleEnvironment());
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parsers, tree, location, getCurrentModuleEnvironment());
         }
 
         Commands stat = new ASTBuilder().buildCommands(tree);
@@ -995,7 +990,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
         ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
         if (!noBacktickOutsideStringConstant(command)) {
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
         }
 
         return tree;
@@ -1010,7 +1005,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
             if (!noBacktickOutsideStringConstant(commands)) {
-                tree = parseFragments(vf, parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
+                tree = parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
             }
 
             return tree;
