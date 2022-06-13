@@ -144,17 +144,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 */
 	public IValue call(String adt, String name, IValue... args);
 
-	public IConstructor parseObject(IConstructor startSort, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			ISet filters, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			ISet filters, String input, boolean allowAmbiguity, boolean hasSideEffects);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects);
-
 	/**
 	 *  Freeze the global state of this evaluator so that it can no longer be updated.
 	 * 
