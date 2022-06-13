@@ -37,6 +37,7 @@ import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
@@ -90,42 +91,6 @@ public class ParserGenerator {
 		}
 	}
 	
-	/**
-	 * Generate a parser from a Rascal syntax definition (a set of production rules).
-	 * 
-	 * @param monitor a progress monitor; this method will contribute 100 work units
-	 * @param loc     a location for error reporting
-	 * @param name    the name of the parser for use in code generation and for later reference
-	 * @param imports a set of syntax definitions (which are imports in the Rascal grammar)
-	 * @return
-	 */
-	public Class<IGTD<IConstructor, IConstructor, ISourceLocation>> getParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
-		String JOB = "Generating parser:" + name;
-		monitor.jobStart(JOB, 100, 90);
-		
-		try {
-			monitor.jobStep(JOB, "Importing and normalizing grammar:" + name, 30);
-			IConstructor grammar = getGrammarFromModules(monitor, name, definition);
-			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
-			String normName = name.replaceAll("::", "_");
-			monitor.jobStep(JOB, "Generating java source code for parser: " + name,30);
-
-			IString classString;
-			synchronized(evaluator) {
-				classString = (IString) evaluator.call(monitor, "generateObjectParser", vf.string(packageName), vf.string(normName), grammar);
-			}
-			debugOutput(classString.getValue(), System.getProperty("java.io.tmpdir") + "/parser.java");
-			monitor.jobStep(JOB, "Compiling generated java code: " + name, 30);
-			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
-		}  catch (ClassCastException e) {
-			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		} catch (Throw e) {
-			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
-		} finally {
-			monitor.jobEnd(JOB, true);
-		}
-	}
-
 	private void debugOutput(Object thing, String file) {
 		if (debug) {
 			String classString = thing.toString();
@@ -229,6 +194,7 @@ public class ParserGenerator {
 	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
 		String JOB = "Generating parser:" + name;
 		monitor.jobStart(JOB, 100, 130);
+		
 		Profiler profiler = evaluator.getConfiguration().getGeneratorProfilingProperty() ? new Profiler(evaluator) : null;
 
 		try {
@@ -286,9 +252,9 @@ public class ParserGenerator {
 		}
 	}
 
-	public String createHole(IConstructor part, int size) {
+	public IString createHole(IConstructor part, IInteger size) {
 		synchronized (evaluator) {
-			return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
+			return (IString) evaluator.call("createHole", part, size);
 		}
 	}
 }

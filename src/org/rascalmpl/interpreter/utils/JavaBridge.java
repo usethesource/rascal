@@ -386,7 +386,7 @@ public class JavaBridge {
 					        args[i] = new ListClassLoader(loaders, getClass().getClassLoader()); 
 					    }
 					    else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
-					        args[i] = new RascalFunctionValueFactory(ctx);
+					        args[i] = ctx.getFunctionValueFactory();
 					    }
 						else if (formals[i].isAssignableFrom(IDEServices.class)) {
 							if (monitor instanceof IDEServices) {

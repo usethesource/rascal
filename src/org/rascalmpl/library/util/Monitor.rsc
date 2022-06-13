@@ -10,6 +10,7 @@
 .Synopsis
 Monitor the progress of a task/job.
 }
+@bootstrapParser
 module util::Monitor
 
 @doc{
