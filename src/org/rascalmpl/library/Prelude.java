@@ -3511,6 +3511,9 @@ public class Prelude {
 		
 		try (StringReader in = new StringReader(input.getValue())) {
 			return new StandardTextReader().read(values, store, start, in);
+		}
+		catch (FactParseError e) {
+			throw RuntimeExceptionFactory.parseError(values.sourceLocation(loc, e.getOffset(), 1));
 		} 
 		catch (FactTypeUseException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
