@@ -3513,7 +3513,7 @@ public class Prelude {
 			return new StandardTextReader().read(values, store, start, in);
 		}
 		catch (FactParseError e) {
-			throw RuntimeExceptionFactory.parseError(values.sourceLocation(loc, e.getOffset(), 1));
+			throw RuntimeExceptionFactory.parseError(values.sourceLocation(URIUtil.rootLocation("unknown"), e.getOffset(), 1));
 		} 
 		catch (FactTypeUseException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
