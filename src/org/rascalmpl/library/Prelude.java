@@ -115,6 +115,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -3489,6 +3490,9 @@ public class Prelude {
 		
 		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, StandardCharsets.UTF_8)) {
 			return new StandardTextReader().read(values, store, start, in);
+		}
+		catch (FactParseError e) {
+			throw RuntimeExceptionFactory.parseError(values.sourceLocation(loc, e.getOffset(), 1));
 		}
 		catch (FactTypeUseException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
