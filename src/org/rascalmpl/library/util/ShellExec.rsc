@@ -44,14 +44,14 @@ java PID createProcess(loc processCommand, loc workingDir=|cwd:///|, list[value]
 start, run and kill an external process returning its output as a string.
 }
 @deprecrated{Use the `exec`` function that takes `loc` for processCommand for better portability behavior between operating systems.}
-str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] env = ()) {
+str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
    result = readEntireStream(pid);
    killProcess(pid);
    return result;
 }
 
-str exec(loc processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] env = ()) {
+str exec(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
    result = readEntireStream(pid);
    killProcess(pid);
@@ -59,7 +59,7 @@ str exec(loc processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[
 }
 
 @deprecrated{Use the `execWithCode` function that takes `loc` for processCommand for better portability behavior between operating systems.}
-tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] env = ()) {
+tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
     pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
     result = readEntireStream(pid);
     code = exitCode(pid);
@@ -68,7 +68,7 @@ tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=
     return <result, exitCode(pid)>;
 }
 
-tuple[str output, int exitCode] execWithCode(loc processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] env = ()) {
+tuple[str output, int exitCode] execWithCode(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] env = ()) {
     pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
     result = readEntireStream(pid);
     code = exitCode(pid);
