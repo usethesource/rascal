@@ -176,7 +176,7 @@ public class ShellExec {
 			runningProcesses.put(processCounter, newProcess);
 			return processCounter;
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e, null, null);
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
