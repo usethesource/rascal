@@ -34,6 +34,11 @@ public class SystemPathURIResolver implements ILogicalSourceLocationResolver {
 	@Override
 	public ISourceLocation resolve(ISourceLocation input) {
 		String thePath = System.getenv("PATH");
+
+		if (thePath == null) {
+			return input;
+		}
+		
 		String[] elems = thePath.split(File.pathSeparator);
 
 		for (String e : elems) {
