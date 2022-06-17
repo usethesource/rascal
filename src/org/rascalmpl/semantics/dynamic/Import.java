@@ -576,14 +576,18 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
       prod = ProductionAdapter.setDefined(prod, vf.constructor(RascalValueFactory.Symbol_Label, vf.string("$parsed"), sym));
       return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
-    catch (ParseError e) {
-      ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-      monitor.warning("parse error in concrete syntax: "+ src, src);
-      return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
-    }
-    catch (Ambiguous e) {
-        ISourceLocation ambLocation = e.getLocation();
+    catch (Throw e) {
+      IConstructor exception = (IConstructor) e.getException();
+
+      if (exception.getName().equals("ParseError")) {
+        ISourceLocation err = (ISourceLocation) exception.get(0);
+        ISourceLocation loc = TreeAdapter.getLocation(tree);        
+        ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset() + err.getOffset(), loc.getLength(), loc.getBeginLine() + err.getBeginLine() - 1, loc.getEndLine() + err.getEndLine() - 1, loc.getBeginColumn() + err.getBeginColumn(), loc.getBeginColumn() + err.getEndColumn());
+        monitor.warning("parse error in concrete syntax: "+ src, src);
+        return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
+      }
+      else if (exception.getName().equals("Ambiguity")) {
+        ISourceLocation ambLocation = (ISourceLocation) exception.get(0);
         ISourceLocation loc = TreeAdapter.getLocation(tree);
         ISourceLocation src = ambLocation.hasOffsetLength() 
             ? vf.sourceLocation(loc.top(), 
@@ -594,9 +598,15 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
                 loc.getBeginColumn() + ambLocation.getBeginColumn(), 
                 loc.getBeginColumn() + ambLocation.getEndColumn()) 
             : loc;
-        
+
         monitor.warning("ambiguity in concrete syntax", src);
         return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
+      }
+      else {
+        ISourceLocation loc = TreeAdapter.getLocation(tree);   
+        monitor.warning("error while parsing concrete syntax: " + e.getException(), loc);
+        return (ITree) tree.asWithKeywordParameters().setParameter("parseError", loc);
+      }
     }
     catch (StaticError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
