@@ -338,3 +338,16 @@ test bool variableAccessInNestedFunctionWithVisit() {
       };
     return rewrite(["a", "b", "c"]) == ["a", "b", "c"] && uniqueItem == 3;
 } 
+
+int container(int n){
+
+    int f() = g();
+    
+    int g() = h();
+    
+    int h() = n + 1;
+    
+    return f();
+}
+
+test bool sharedFormal() = container(12) == 13;
