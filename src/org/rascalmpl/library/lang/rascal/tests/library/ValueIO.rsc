@@ -17,6 +17,7 @@ import util::UUID;
 
 data Bool(str def = "2") = btrue() | bfalse(bool falsity = true) | band(Bool left, Bool right) | bor(Bool left, Bool right);
 
+data C = c(Maybe[int] i);
 data Maybe[&T] = none() | some(&T t);
 
 alias X[&T] = list[&T];
@@ -65,15 +66,19 @@ test bool binParamAliasInt() = binaryWriteRead(#Y, 1);
 
 loc value_io2_test = |test-temp:///value-io2-<"<uuidi()>">.test|;
 
-private bool textWriteRead(type[&T] _, value exp) {
+ bool textWriteRead(type[&T] g, value exp) {
    writeTextValueFile(value_io2_test,exp);
    
-   if (&T N := readTextValueFile(value_io2_test) && N == exp) {
+   if (&T N := readTextValueFile(g, value_io2_test) && N == exp) {
      return true;
    }
    
    return false;
 }
+
+test bool textParametrizedAdt1() = textWriteRead(#Maybe[int], some(1));
+test bool textParametrizedAdt2() = textWriteRead(#Maybe[value], none());
+test bool textParametrizedAdt3() = textWriteRead(#C, c(some(1)));
 
 test bool textBool() = textWriteRead(#bool, true);
  
