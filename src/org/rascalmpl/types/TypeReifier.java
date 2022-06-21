@@ -180,7 +180,7 @@ public class TypeReifier {
         // lookup the definition by name instead of by symbol
         for (IValue elem : definitions) {
             IConstructor symbol = (IConstructor) elem;
-            if (SymbolAdapter.isADT(symbol) && SymbolAdapter.getName(symbol).equals(name)) {
+            if (SymbolAdapter.isParametrizableType(sort) && SymbolAdapter.getName(symbol).equals(name)) {
                 // reuse the lookup by using the declared open symbol now
                 return getSimpleAlternatives(definitions, symbol);
             }
