@@ -764,7 +764,7 @@ public class SymbolAdapter {
 		return false;
 	}
 
-	private static IList getParameters(IConstructor l) {
+	public static IList getParameters(IConstructor l) {
 		return (IList) l.get("parameters");
 	}
 
@@ -1080,4 +1080,8 @@ public class SymbolAdapter {
     private static int rangeEnd(IConstructor range) {
         return ((IInteger) range.get("end")).intValue();
     }
+
+	public static boolean isParametrizableType(IConstructor sort) {
+		return SymbolAdapter.isADT(sort) || SymbolAdapter.isParameterizedSort(sort) || SymbolAdapter.isParameterizedLex(sort);
+	}
 }
