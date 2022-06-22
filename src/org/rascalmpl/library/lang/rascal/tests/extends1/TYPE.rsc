@@ -1,4 +1,4 @@
-module lang::rascal::tests::extends::TYPE
+module lang::rascal::tests::extends1::TYPE
 
 // A <: B
 

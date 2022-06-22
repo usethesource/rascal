@@ -1,4 +1,4 @@
-module lang::rascal::tests::extends::Base3
+module lang::rascal::tests::extends1::Base3
 
 import ParseTree;
 

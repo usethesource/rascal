@@ -1,4 +1,4 @@
-module lang::rascal::tests::extends::Base1
+module lang::rascal::tests::extends1::Base1
 
 data A = a() | b();
 

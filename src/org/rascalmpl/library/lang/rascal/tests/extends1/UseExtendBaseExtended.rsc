@@ -1,8 +1,8 @@
-module lang::rascal::tests::extends::UseExtendBaseExtended
+module lang::rascal::tests::extends1::UseExtendBaseExtended
 
 syntax S = "c";
 
-extend lang::rascal::tests::extends::BaseExtended;
+extend lang::rascal::tests::extends1::BaseExtended;
 
 test bool base1() { S s = [S] "a";  return s == [S] "a";}
 
