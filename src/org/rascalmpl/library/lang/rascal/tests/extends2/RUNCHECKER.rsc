@@ -1,6 +1,6 @@
-module lang::rascalcore::compile::Examples::RUNCHECKER
+module lang::rascal::tests::extends2::RUNCHECKER
 
-extend lang::rascalcore::compile::Examples::CHECKER;
+extend lang::rascal::tests::extends2::CHECKER;
 
 str main(){
     return doCollect(1);

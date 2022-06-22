@@ -1,4 +1,4 @@
-module lang::rascal::tests::extends::Base
+module lang::rascal::tests::extends1::Base
 
 syntax S = "a";
 

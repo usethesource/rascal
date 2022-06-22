@@ -1,8 +1,8 @@
-module lang::rascal::tests::extends::Extension1
+module lang::rascal::tests::extends1::Extension1
 
 // Extension of a function str(value) with str(A)
 
-extend lang::rascal::tests::extends::Base1;
+extend lang::rascal::tests::extends1::Base1;
 
 str non_default_message = "*** NON-default use ***";
 

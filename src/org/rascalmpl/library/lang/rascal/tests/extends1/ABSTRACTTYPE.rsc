@@ -1,6 +1,6 @@
-module lang::rascal::tests::extends::ABSTRACTTYPE
+module lang::rascal::tests::extends1::ABSTRACTTYPE
 
-extend lang::rascal::tests::extends::PARSETREE;
+extend lang::rascal::tests::extends1::PARSETREE;
 
 data SYM = E();
 

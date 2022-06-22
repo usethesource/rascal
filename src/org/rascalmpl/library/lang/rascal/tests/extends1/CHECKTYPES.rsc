@@ -1,6 +1,6 @@
-module lang::rascal::tests::extends::CHECKTYPES
+module lang::rascal::tests::extends1::CHECKTYPES
 
-import lang::rascal::tests::extends::ABSTRACTTYPE;
+import lang::rascal::tests::extends1::ABSTRACTTYPE;
 
 // A <: B
 // A <: C
