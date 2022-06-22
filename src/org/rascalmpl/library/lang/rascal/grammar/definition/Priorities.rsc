@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@bootstrapParser
 module lang::rascal::grammar::definition::Priorities
 
 extend ParseTree;

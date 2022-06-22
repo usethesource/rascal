@@ -1,4 +1,4 @@
-module lang::rascal::tests::extends::BaseExtended
+module lang::rascal::tests::extends1::BaseExtended
 
 extend lang::rascal::tests::extends::Base;
 

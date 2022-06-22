@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascal::tests::extends::Base2
+module lang::rascal::tests::extends1::Base2
 
 import ParseTree;
 

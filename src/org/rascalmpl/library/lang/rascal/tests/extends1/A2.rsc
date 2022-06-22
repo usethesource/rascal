@@ -1,8 +1,8 @@
-module lang::rascal::tests::extends::UseExtendBaseExtended
+module lang::rascal::tests::extends1::A2
 
-syntax S = "c";
+extend lang::rascal::tests::extends1::BaseExtended;
 
-extend lang::rascal::tests::extends::BaseExtended;
+import lang::rascal::tests::extends1::A1;
 
 test bool base1() { S s = [S] "a";  return s == [S] "a";}
 
@@ -33,13 +33,3 @@ test bool extendedBase6() { LIST_INTEGER lst = [1,2,3]; return lst == [1,2,3];}
 test bool extendedBase7() { return ident("abc") == "abc"; }
 
 test bool extendedBase8() { return f(1) == "one"; }
-
-// extensions 
-
-test bool extend1() { S s = [S] "c";  return s == [S] "c";}
-
-test bool extend2() { Sstar s = [Sstar] "azc";  return s == [Sstar] "azc";}
-
-str f(3) = "three";
-
-test bool extend3() { return f(3) == "three"; }

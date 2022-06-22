@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
@@ -28,6 +29,7 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
@@ -46,6 +48,46 @@ public class ShellExec {
 
 	public IInteger createProcess(IString processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
 		return createProcessInternal(processCommand,arguments,envVars,workingDir);
+	}
+
+	private IString toString(IValue o) {
+		try {
+			if (o.getType().isSourceLocation()) {
+				ISourceLocation p = URIResolverRegistry.getInstance().logicalToPhysical((ISourceLocation) o);
+
+				if (!"file".equals(p.getScheme())) {
+					throw RuntimeExceptionFactory.illegalArgument(o,
+						"only file:/// URI are supported or logical schemes that derived from file");
+				}
+
+				return vf.string(new File(p.getURI()).getAbsolutePath());
+			}
+			else {
+				return vf.string(o.toString());
+			}
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IInteger createProcess(ISourceLocation processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
+		try {
+			processCommand = URIResolverRegistry.getInstance().logicalToPhysical(processCommand);
+
+			arguments = arguments.stream().map(v -> toString(v)).collect(vf.listWriter());
+			envVars = envVars.stream().map(t -> vf.tuple(((ITuple) t).get(0), toString(((ITuple) t).get(1)))).collect(vf.mapWriter());
+
+			if ("file".equals(processCommand.getScheme())) {
+				return createProcessInternal(toString(processCommand), arguments, envVars, workingDir);	
+			}
+			else {
+				throw RuntimeExceptionFactory.illegalArgument(processCommand, "createProcess only supports the file:/// scheme for command arguments, or logical schemes derived from it.");
+			}
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
 	}
 	
 	public IBool isAlive(IInteger pid) {
@@ -134,7 +176,7 @@ public class ShellExec {
 			runningProcesses.put(processCounter, newProcess);
 			return processCounter;
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.javaException(e, null, null);
+			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 

@@ -1,9 +1,9 @@
-module lang::rascal::tests::extends::Extension3
+module lang::rascal::tests::extends1::Extension3
 
 // Extension of a function str(Tree) with str(A)
 // Note: A concrete type at position 0.
 
-extend lang::rascal::tests::extends::Base3;
+extend lang::rascal::tests::extends1::Base3;
 
 syntax A = [abc];      
  

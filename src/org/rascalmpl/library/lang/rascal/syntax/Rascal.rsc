@@ -11,6 +11,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @doc{The syntax definition of Rascal, excluding concrete syntax fragments}
+@bootstrapParser
 module lang::rascal::\syntax::Rascal
 
 lexical BooleanLiteral
