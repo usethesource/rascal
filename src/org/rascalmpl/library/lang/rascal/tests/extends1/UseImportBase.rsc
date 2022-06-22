@@ -1,6 +1,6 @@
-module lang::rascal::tests::extends::UseImportBase
+module lang::rascal::tests::extends1::UseImportBase
 
-import lang::rascal::tests::extends::Base;
+import lang::rascal::tests::extends1::Base;
 
 test bool base1() { S s = [S] "a";  return s == [S] "a";}
 

@@ -18,6 +18,8 @@ import lang::rsf::IO;
 import IO;
 import util::Benchmark;
 
+value main() = measure();
+
 public bool measure(){
   return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"]);
 }
@@ -64,8 +66,8 @@ public rel[str,str] trans(rel[str,str] CALL){
 }
 
 public set[str] reachFromTop1(rel[str,str] CALL){
-    set[str] top = top(CALL);
-	return top + range(domainR(CALL+, top));
+    set[str] tp = top(CALL);
+	return tp + range(domainR(CALL+, tp));
 }
 
 public set[str] reachFromTop2(rel[str,str] CALL){

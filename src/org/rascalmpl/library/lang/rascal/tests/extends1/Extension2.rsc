@@ -1,8 +1,8 @@
-module lang::rascal::tests::extends::Extension2
+module lang::rascal::tests::extends1::Extension2
 
 // Extension of a function str(int, Tree) with str(int, A)
 
-extend lang::rascal::tests::extends::Base2;
+extend lang::rascal::tests::extends1::Base2;
 
 syntax A = [ab];      
  

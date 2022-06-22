@@ -1,6 +1,6 @@
-module lang::rascal::tests::extends::PARSETREE
+module lang::rascal::tests::extends1::PARSETREE
 
-extend lang::rascal::tests::extends::TYPE;
+extend lang::rascal::tests::extends1::TYPE;
 
 data SYM = C() | D() | SORT(SYM sym) | TREE();
 

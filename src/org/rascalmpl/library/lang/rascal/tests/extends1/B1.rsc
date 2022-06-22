@@ -1,7 +1,7 @@
-module lang::rascal::tests::extends::B1
+module lang::rascal::tests::extends1::B1
 
-import lang::rascal::tests::extends::B2;
-import lang::rascal::tests::extends::B3;
+import lang::rascal::tests::extends1::B2;
+import lang::rascal::tests::extends1::B3;
 
 import lang::rascal::tests::extends::Base;
 

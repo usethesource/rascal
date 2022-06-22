@@ -115,6 +115,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -1798,7 +1799,7 @@ public class Prelude {
 	public IValue isEmpty(IList lst)
 	//@doc{isEmpty -- is list empty?}
 	{
-		return values.bool(lst.length() == 0);
+		return values.bool(lst.isEmpty());
 	}
 
 	public IValue reverse(IList lst)
@@ -2092,7 +2093,7 @@ public class Prelude {
 	public IValue isEmpty(IMap M)
 	//@doc{isEmpty -- is map empty?}
 	{
-		return values.bool(M.size() == 0);
+		return values.bool(M.isEmpty());
 	}
 
 	public IValue range(IMap M)
@@ -2685,7 +2686,7 @@ public class Prelude {
 	public IValue isEmpty(ISet st)
 	//@doc{isEmpty -- is set empty?}
 	{
-		return values.bool(st.size() == 0);
+		return values.bool(st.isEmpty());
 	}
 	
 	public IValue size(ISet st)
@@ -3013,7 +3014,7 @@ public class Prelude {
 	public IValue isEmpty(IString s)
 	//@doc{isEmpty -- is string empty?}
 	{
-		return values.bool(s.getValue().length() == 0);
+		return values.bool(s.getValue().isEmpty());
 	}
 
 	public IValue reverse(IString s)
@@ -3490,6 +3491,9 @@ public class Prelude {
 		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, StandardCharsets.UTF_8)) {
 			return new StandardTextReader().read(values, store, start, in);
 		}
+		catch (FactParseError e) {
+			throw RuntimeExceptionFactory.parseError(values.sourceLocation(loc, e.getOffset(), 1));
+		}
 		catch (FactTypeUseException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         } 
@@ -3507,6 +3511,9 @@ public class Prelude {
 		
 		try (StringReader in = new StringReader(input.getValue())) {
 			return new StandardTextReader().read(values, store, start, in);
+		}
+		catch (FactParseError e) {
+			throw RuntimeExceptionFactory.parseError(values.sourceLocation(URIUtil.rootLocation("unknown"), e.getOffset(), 1));
 		} 
 		catch (FactTypeUseException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
