@@ -1,8 +1,8 @@
-module lang::rascal::tests::extends::A2
+module lang::rascal::tests::extends1::A2
 
-extend lang::rascal::tests::extends::BaseExtended;
+extend lang::rascal::tests::extends1::BaseExtended;
 
-import lang::rascal::tests::extends::A1;
+import lang::rascal::tests::extends1::A1;
 
 test bool base1() { S s = [S] "a";  return s == [S] "a";}
 

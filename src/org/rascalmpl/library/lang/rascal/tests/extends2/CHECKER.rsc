@@ -1,6 +1,6 @@
-module lang::rascalcore::compile::Examples::CHECKER
+module lang::rascal::tests::extends2::CHECKER
 
-extend lang::rascalcore::compile::Examples::TYPEPAL;
+extend lang::rascal::tests::extends2::TYPEPAL;
 
 str collect(int _){
     return "CHECKER";

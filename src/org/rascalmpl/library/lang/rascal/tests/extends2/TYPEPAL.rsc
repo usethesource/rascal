@@ -1,6 +1,6 @@
-module lang::rascalcore::compile::Examples::TYPEPAL
+module lang::rascal::tests::extends2::TYPEPAL
 
-extend lang::rascalcore::compile::Examples::COLLECTOR;
+extend lang::rascal::tests::extends2::COLLECTOR;
 
 str doCollect(int x){
     return collect(x);
