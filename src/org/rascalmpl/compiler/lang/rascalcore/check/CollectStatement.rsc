@@ -739,7 +739,9 @@ private void checkAssignment(Statement current, asg: (Assignable) `<Assignable r
        AType(Solver s){ 
            receiverType = computeReceiverType(current, receiver, scope, s);
            res = computeSubscriptAssignableType(current, receiverType,  subscript, operator, s.getType(rhs), s);
-           s.fact(asg, s.getType(rhs));
+           asgType = isMapType(res) ? getMapRangeType(res) : getElementType(res);
+           s.fact(asg, asgType);
+           //s.fact(asg, s.getType(rhs));
            return res;
          });
    collect(receiver, subscript, c);
