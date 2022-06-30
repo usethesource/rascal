@@ -364,7 +364,7 @@
             <dependency>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-p2-dependencies-repackaged</artifactId>
-                <version>0.5.0</version>
+                <version>0.6.0</version>
             </dependency>
 
             <!-- Regular POM Dependencies -->
