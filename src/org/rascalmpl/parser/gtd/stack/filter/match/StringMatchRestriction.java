@@ -28,10 +28,14 @@ public class StringMatchRestriction implements ICompletionFilter{
 	}
 	
 	public boolean isFiltered(int[] input, int start, int end, PositionStore positionStore){
-		if((end - start) != string.length) return false;
+		if ((end - start) != string.length) {
+			return false;
+		}
 		
-		for(int i = string.length - 1; i >= 0; --i){
-			if(input[start + i] != string[i]) return false;
+		for (int i = string.length - 1; i >= 0; --i) {
+			if (input[start + i] != string[i]) {
+				return false;
+			}
 		}
 		
 		return true;
