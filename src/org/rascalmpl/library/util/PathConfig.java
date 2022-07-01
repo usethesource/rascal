@@ -575,7 +575,10 @@ public class PathConfig {
             return vf.list();
         }
 
+        installNecessaryMavenPlugins();
+
         try {
+            // Note how we try to do this "offline" using the "-o" flag
             ProcessBuilder processBuilder = new ProcessBuilder("mvn", "-q", "-o", "exec:exec",
                 "-DExec.classpathScope=compile", "-Dexec.executable=echo", "-Dexec.args=%classpath");
             processBuilder.directory(new File(manifestRoot.getPath()));
@@ -604,6 +607,23 @@ public class PathConfig {
         }
         catch (IOException | InterruptedException e) {
             return vf.list();
+        }
+    }
+
+    private static void installNecessaryMavenPlugins() {
+        System.err.println("[INFO] installing exec plugin");
+        try {
+            // Note how we try to do this "offline" using the "-o" flag
+            ProcessBuilder processBuilder = new ProcessBuilder("mvn", "-q", "dependency:get", "-DgroupId=org.codehaus.mojo",
+                "-DartifactId=exec-maven-plugin", "-Dversion=3.0.0");
+
+            Process process = processBuilder.start();
+            if (process.waitFor() != 0) {
+                throw new IOException("mvn dependency:get returned non-zero");
+            } 
+        }
+        catch (IOException | InterruptedException e) {
+            System.err.println("[WARNING] Could not install exec-maven-plugin; classpath resolution may be incomplete hereafter: " + e.getMessage());
         }
     }
 
