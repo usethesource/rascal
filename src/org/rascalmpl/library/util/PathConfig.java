@@ -611,7 +611,6 @@ public class PathConfig {
     }
 
     private static void installNecessaryMavenPlugins() {
-        System.err.println("[INFO] installing exec plugin");
         try {
             // Note how we try to do this "offline" using the "-o" flag
             ProcessBuilder processBuilder = new ProcessBuilder("mvn", "-q", "dependency:get", "-DgroupId=org.codehaus.mojo",
