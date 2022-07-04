@@ -49,6 +49,7 @@ data PathConfig
 
 data RascalManifest
   = rascalManifest(
+      str \Project-Name = "Project",
       str \Main-Module = "Plugin",
       str \Main-Function = "main", 
       list[str] Source = ["src"],
@@ -300,3 +301,93 @@ set[str] getRascalReservedIdentifiers() = { n | /lit(n) := #RascalKeywords.defin
     
 @javaClass{org.rascalmpl.library.util.Reflective}
 java str getRascalVersion();   
+
+void newRascalProject(loc folder, str name="my-project", str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
+    mkDirectory(pomFile(folder).parent);
+    writeFile(pomFile(folder), pomXml(name, group, version));
+    mkDirectory(metafile(folder).parent);
+    writeFile(metafile(folder), rascalMF(name));
+    mkDirectory(folder + "src/main/rascal");
+    writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
+}
+
+private loc pomFile(loc folder) = folder + "pom.xml";
+
+private str emptyModule() = "module Main
+                            '
+                            'import IO;
+                            '
+                            'int main(int testArgument=0) {
+                            '    println(\"argument: \<testArgument\>\");
+                            '}
+                            '";
+
+private str rascalMF(str name) 
+  = "Project-Name: <name>
+    'Source: src/main/rascal
+    'Require-Libraries: 
+    ";
+
+private str pomXml(str name, str group, str version)  
+  = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
+    '  \<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+    '  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\>
+    '  \<modelVersion\>4.0.0\</modelVersion\>
+    '
+    '  \<groupId\><group>\</groupId\>
+    '  \<artifactId\><name>\</artifactId\>
+    '  \<version\><version>\</version\>
+    '
+    '  \<properties\>
+    '    \<project.build.sourceEncoding\>UTF-8\</project.build.sourceEncoding\>
+    '  \</properties\>
+    '
+    '  \<repositories\>
+    '    \<repository\>
+    '        \<id\>usethesource\</id\>
+    '        \<url\>https://releases.usethesource.io/maven/\</url\>
+    '    \</repository\>
+    '  \</repositories\>
+    '
+    '  \<pluginRepositories\>
+    '    \<pluginRepository\>
+    '       \<id\>usethesource\</id\>
+    '       \<url\>https://releases.usethesource.io/maven/\</url\>
+    '    \</pluginRepository\>
+    '  \</pluginRepositories\>
+    '
+    '  \<dependencies\>
+    '    \<dependency\>
+    '      \<groupId\>org.rascalmpl\</groupId\>
+    '      \<artifactId\>rascal\</artifactId\>
+    '      \<version\><getRascalVersion()>\</version\>
+    '    \</dependency\>
+    '  \</dependencies\>
+    '
+    '  \<build\>
+    '    \<plugins\>
+    '      \<plugin\>
+    '        \<groupId\>org.apache.maven.plugins\</groupId\>
+    '        \<artifactId\>maven-compiler-plugin\</artifactId\>
+    '        \<version\>3.8.0\</version\>
+    '        \<configuration\>
+    '          \<compilerArgument\>-parameters\</compilerArgument\> 
+    '          \<release\>11\</release\>
+    '        \</configuration\>
+    '      \</plugin\>
+    '      \<plugin\>
+    '        \<groupId\>org.rascalmpl\</groupId\>
+    '        \<artifactId\>rascal-maven-plugin\</artifactId\>
+    '        \<version\>0.8.2\</version\>
+    '        \<configuration\>
+    '          \<errorsAsWarnings\>true\</errorsAsWarnings\>
+    '          \<bin\>${project.build.outputDirectory}\</bin\>
+    '          \<srcs\>
+    '            \<src\>${project.basedir}/src/main/rascal\</src\>
+    '          \</srcs\>
+    '        \</configuration\>
+    '      \</plugin\>
+    '    \</plugins\>
+    '  \</build\>
+    '\</project\>
+    ";
