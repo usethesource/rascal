@@ -302,7 +302,11 @@ set[str] getRascalReservedIdentifiers() = { n | /lit(n) := #RascalKeywords.defin
 @javaClass{org.rascalmpl.library.util.Reflective}
 java str getRascalVersion();   
 
+@doc{Create a folder structure for an empty Rascal project with Maven support}
 void newRascalProject(loc folder, str name="my-project", str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
+    if (exists(folder)) {
+        throw "<folder> exists already. Please provide an non-existing and empty folder name";
+    }
     mkDirectory(pomFile(folder).parent);
     writeFile(pomFile(folder), pomXml(name, group, version));
     mkDirectory(metafile(folder).parent);
