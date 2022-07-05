@@ -537,7 +537,18 @@ public class PathConfig {
         // for the Rascal run-time
         classloaders.append(URIUtil.correctLocation("system", "", ""));
 
-        classloaders.appendAll(getPomXmlCompilerClasspath(manifestRoot));
+        IList mavenClasspath = getPomXmlCompilerClasspath(manifestRoot);
+
+        classloaders.appendAll(mavenClasspath);
+
+        // allow interpreters to load Rascal files from dependency jar files
+        if (mode == RascalConfigMode.INTERPETER) {
+            mavenClasspath.stream()
+                .map(e -> (ISourceLocation) e)
+                .forEach(p -> {
+                    addJarToSearchPath(p, srcsWriter);
+                });
+        }
         
         return new PathConfig(
                 srcsWriter.done(), 
@@ -548,6 +559,18 @@ public class PathConfig {
                 classloaders.done());
 	}
 
+    private static void addJarToSearchPath(ISourceLocation jar, IListWriter srcs) {
+        ISourceLocation prefix = RascalManifest.jarify(jar);
+        
+        RascalManifest mf = new RascalManifest();
+        List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
+
+        if (roots != null) {
+            for (String root : roots) {
+                srcs.append(URIUtil.getChildLocation(prefix, root));
+            }
+        }
+    }
     private static ISourceLocation setTargetScheme(ISourceLocation projectLoc) {
         try {
             return URIUtil.changeScheme(projectLoc, "target");
