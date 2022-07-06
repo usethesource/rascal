@@ -71,6 +71,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected final AbstractAST ast;
 	protected final IValueFactory vf;
 
+	private int hash = -1;
+
 	
 	
 	protected static int callNesting = 0;
@@ -604,7 +606,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public int hashCode() {
-		return 7 + (ast != null ? ast.hashCode() * 23 : 23);
+		if (this.hash == -1) {
+		  	this.hash = 7 + (ast != null ? ast.hashCode() * 23 : 23);
+		}
+		return this.hash;
 	}
 	
 	@Override
