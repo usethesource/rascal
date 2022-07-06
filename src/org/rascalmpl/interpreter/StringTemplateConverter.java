@@ -43,7 +43,9 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -97,7 +99,7 @@ public class StringTemplateConverter {
 
 			public IndentingAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2,
 					Statement __param3) {
-				super(__param1, null, __param2, __param3);
+				super(__param1, tree, __param2, __param3);
 			} 
 			
 			@Override
@@ -145,7 +147,7 @@ public class StringTemplateConverter {
 			protected final IString str;
 
 			public ConstAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2, String arg) {
-				super(__param1, null,  __param2, null);
+				super(__param1, tree,  __param2, new Statement.EmptyStatement(__param1, tree));
 				str = initString(preprocess(arg));
 			}
 			
