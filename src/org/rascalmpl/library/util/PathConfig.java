@@ -646,7 +646,7 @@ public class PathConfig {
 
     private static void installNecessaryMavenPlugins(String mvnCommand) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("mvn", "-q", "dependency:get", "-DgroupId=org.codehaus.mojo",
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=org.codehaus.mojo",
                 "-DartifactId=exec-maven-plugin", "-Dversion=3.0.0");
 
             Process process = processBuilder.start();
