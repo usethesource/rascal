@@ -3,7 +3,7 @@ module lang::rascal::tests::extends1::B1
 import lang::rascal::tests::extends1::B2;
 import lang::rascal::tests::extends1::B3;
 
-import lang::rascal::tests::extends::Base;
+import lang::rascal::tests::extends1::Base;
 
 int add1(int n) = n + 1;
 
