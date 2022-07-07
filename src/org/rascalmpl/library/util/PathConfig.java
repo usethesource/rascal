@@ -639,7 +639,7 @@ public class PathConfig {
     }
 
     private static String computeMavenCommandName() {
-        if (System.getProperty("os", "generic").startsWith("Windows")) {
+        if (System.getProperty("os.name", "generic").startsWith("Windows")) {
             return "mvn.cmd";
         }
         else {
