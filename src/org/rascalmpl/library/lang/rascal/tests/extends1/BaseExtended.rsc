@@ -1,6 +1,6 @@
 module lang::rascal::tests::extends1::BaseExtended
 
-extend lang::rascal::tests::extends::Base;
+extend lang::rascal::tests::extends1::Base;
 
 syntax S = "z";
 
