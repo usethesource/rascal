@@ -605,10 +605,9 @@ public class PathConfig {
 
             installNecessaryMavenPlugins(mvnCommand);
 
-       
             // Note how we try to do this "offline" using the "-o" flag
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "-o", "exec:exec",
-                "-DExec.classpathScope=compile", "-Dexec.executable=echo", "-Dexec.args=%classpath");
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-o", "dependency:build-classpath",
+                "-DincludeScope=compile");
             processBuilder.directory(new File(manifestRoot.getPath()));
 
             Process process = processBuilder.start();
@@ -618,6 +617,7 @@ public class PathConfig {
                 process.waitFor();
 
                 return processOutputReader.lines()
+                    .filter(line -> !line.startsWith("["))
                     .filter(line -> !line.contains("-----"))
                     .flatMap(line -> Arrays.stream(line.split(File.pathSeparator)))
                     .filter(fileName -> new File(fileName).exists())
@@ -649,8 +649,8 @@ public class PathConfig {
 
     private static void installNecessaryMavenPlugins(String mvnCommand) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=org.codehaus.mojo",
-                "-DartifactId=exec-maven-plugin", "-Dversion=3.0.0");
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=org.apache.maven.plugins",
+                "-DartifactId=maven-dependency-plugin", "-Dversion=2.8");
 
             Process process = processBuilder.start();
             if (process.waitFor() != 0) {
