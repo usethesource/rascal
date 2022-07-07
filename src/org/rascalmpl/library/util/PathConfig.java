@@ -598,11 +598,13 @@ public class PathConfig {
             return vf.list();
         }
 
-        installNecessaryMavenPlugins();
+        String mvnCommand = computeMavenCommandName();
+
+        installNecessaryMavenPlugins(mvnCommand);
 
         try {
             // Note how we try to do this "offline" using the "-o" flag
-            ProcessBuilder processBuilder = new ProcessBuilder("mvn", "-q", "-o", "exec:exec",
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "-o", "exec:exec",
                 "-DExec.classpathScope=compile", "-Dexec.executable=echo", "-Dexec.args=%classpath");
             processBuilder.directory(new File(manifestRoot.getPath()));
 
@@ -633,9 +635,17 @@ public class PathConfig {
         }
     }
 
-    private static void installNecessaryMavenPlugins() {
+    private static String computeMavenCommandName() {
+        if (System.getProperty("os", "generic").startsWith("Windows")) {
+            return "mvn.cmd";
+        }
+        else {
+            return "mvn";
+        }
+    }
+
+    private static void installNecessaryMavenPlugins(String mvnCommand) {
         try {
-            // Note how we try to do this "offline" using the "-o" flag
             ProcessBuilder processBuilder = new ProcessBuilder("mvn", "-q", "dependency:get", "-DgroupId=org.codehaus.mojo",
                 "-DartifactId=exec-maven-plugin", "-Dversion=3.0.0");
 
