@@ -588,21 +588,23 @@ public class PathConfig {
      * @return
      */
 	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
-        ISourceLocation pomxml = URIUtil.getChildLocation(manifestRoot, "pom.xml");
-
-        if (!"file".equals(manifestRoot.getScheme())) {
-            return vf.list();
-        }
-
-        if (!URIResolverRegistry.getInstance().exists(pomxml)) {
-            return vf.list();
-        }
-
-        String mvnCommand = computeMavenCommandName();
-
-        installNecessaryMavenPlugins(mvnCommand);
-
         try {
+            ISourceLocation pomxml = URIUtil.getChildLocation(manifestRoot, "pom.xml");
+            pomxml = URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
+
+            if (!"file".equals(manifestRoot.getScheme())) {
+                return vf.list();
+            }
+
+            if (!URIResolverRegistry.getInstance().exists(pomxml)) {
+                return vf.list();
+            }
+
+            String mvnCommand = computeMavenCommandName();
+
+            installNecessaryMavenPlugins(mvnCommand);
+
+       
             // Note how we try to do this "offline" using the "-o" flag
             ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "-o", "exec:exec",
                 "-DExec.classpathScope=compile", "-Dexec.executable=echo", "-Dexec.args=%classpath");
