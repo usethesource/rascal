@@ -591,6 +591,7 @@ public class PathConfig {
         try {
             ISourceLocation pomxml = URIUtil.getChildLocation(manifestRoot, "pom.xml");
             pomxml = URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
+            manifestRoot = URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot);
 
             if (!"file".equals(manifestRoot.getScheme())) {
                 return vf.list();
