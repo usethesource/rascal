@@ -151,6 +151,13 @@ test bool union2(map[&K,&V] M) = () + M == M;
 test bool union3(map[&K,&V] M) = M + () == M;
 test bool union4() = (1:10) + (2:20) == (1:10,2:20);
 
+// +=
+test bool increment1(){
+    map[int,rel[int,int]] M = (0 : {<1,10>});
+    M[0] += <10,20>;
+    return M ==  (0 : {<1,10>, <10,20>});
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // legacy
 
