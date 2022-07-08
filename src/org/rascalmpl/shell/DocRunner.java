@@ -37,7 +37,7 @@ public class DocRunner {
         try {
             ISourceLocation cwd = args.length > 0 ? URIUtil.createFileLocation(args[0]) : URIUtil.rootLocation("cwd");
             String folder = args.length > 1 ? args[1] : "./";
-            new DocRunner(cwd, folder).execute();
+            System.exit(new DocRunner(cwd, folder).execute() ? 0 : 1);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -47,25 +47,28 @@ public class DocRunner {
         }
     }
 
-    public void execute() throws IOException {
+    public boolean execute() throws IOException {
 		OutputStreamWriter preprocessOut = new OutputStreamWriter(System.out);
         
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
             String line = reader.readLine();
-            executeRascalShellScript(repl, reader, preprocessOut, line);
+            return executeRascalShellScript(repl, reader, preprocessOut, line);
         }
-        preprocessOut.flush();
+        finally {
+            preprocessOut.flush();
+        }
 	}
 
-    private void executeRascalShellScript(TutorCommandExecutor repl, BufferedReader reader, OutputStreamWriter preprocessOut, String line) throws IOException {
+    private boolean executeRascalShellScript(TutorCommandExecutor repl, BufferedReader reader, OutputStreamWriter preprocessOut, String line) throws IOException {
         boolean isContinue = line.contains("continue");
         boolean mayHaveErrors = line.contains("error");
+        boolean hasErrors = false;
         
         if (line.startsWith("[")){
             line = reader.readLine();   // skip ----
             if(line == null) {
                 // missing ---- ? what to do?
-                return;
+                return true;
             }
         }
         
@@ -105,6 +108,7 @@ public class DocRunner {
             } 
             
             if (!errorOutput.isEmpty()) {
+                hasErrors = true;
                 if (!mayHaveErrors) {
                     printWarning = true;
                 }
@@ -130,6 +134,8 @@ public class DocRunner {
             // note that the trailing space after the second # is important for the ADOC parser.
             preprocessOut.append(makeRed("WARNING: unexpected errors in the above SHELL example. Documentation author please fix!"));
         }
+
+        return mayHaveErrors || !hasErrors;
     }
 
     private String makeRed(String result) {
