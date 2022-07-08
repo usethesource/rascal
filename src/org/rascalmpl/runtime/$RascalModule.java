@@ -25,7 +25,6 @@ import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.Type2ATy
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
@@ -80,18 +79,32 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	/*************************************************************************/
   
     // ---- value factory for creating functions, reified types and parsers unique to the Rascal runtime 
-     final protected IRascalValueFactory $RVF = new RascalRuntimeValueFactory(this);
+     final protected IRascalValueFactory $RVF;
     
     // ---- library helper methods and fields  -------------------------------------------
-    // TODO: make OUT and ERR configurable?
-    /*package*/  final PrintStream $OUT = System.out;
-    /*package*/  final PrintWriter $OUTWRITER = new PrintWriter($OUT);
-    /*package*/  final PrintStream $ERR = System.err;
-    /*package*/  final PrintWriter $ERRWRITER = new PrintWriter($ERR);
-    /*package*/  final InputStream $IN = System.in;
+  
+    /*package*/  final PrintStream $OUT; 
+    /*package*/  final PrintWriter $OUTWRITER;
+    /*package*/  final PrintStream $ERR;
+    /*package*/  final PrintWriter $ERRWRITER;
+    /*package*/  final InputStream $IN;
     
-    // TODO: make monitor configurable?
-    /*package*/  final IRascalMonitor $MONITOR = new NullRascalMonitor();
+    /*package*/  final IRascalMonitor $MONITOR;
+
+	protected final RascalExecutionContext rex;
+    
+    public $RascalModule(RascalExecutionContext rex){
+    	this.rex = rex;
+    	$IN = rex.getInStream();
+    	$OUT = rex.getOutStream();
+    	$OUTWRITER = rex.getOutWriter();
+    	$ERR = rex.getErrStream();
+    	$ERRWRITER = rex.getErrWriter();
+    	$MONITOR = rex;
+    	$RVF = rex.getRascalRuntimeValueFactory();
+    	rex.setModule(this);
+    }
+    
     public final IConstructor $reifiedAType(IConstructor t, IMap definitions) {
         return $RVF.reifiedType(t, definitions);
     }
@@ -151,7 +164,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
                     args[i] = getClass().getClassLoader();
                 }
                 else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
-                    args[i] = new RascalRuntimeValueFactory(this);
+                    args[i] = new RascalRuntimeValueFactory(rex);
                 }
                 else if (formals[i].isAssignableFrom($RascalModule.class)) {
                     args[i] = this;
@@ -360,6 +373,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	//TODO: consider caching this method
 	
 	public final boolean $isSubtypeOf(Type left, Type right) {
+		if(left.isSubtypeOf(right))
+			return true;
 		
 		boolean res = left.accept(new DefaultRascalTypeVisitor<IBool,RuntimeException>(Rascal_FALSE) {
 			
@@ -450,7 +465,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			@Override
 			public IBool visitNode(Type type) throws RuntimeException {
-				if(right.isNode()){
+				if(right.isNode() && !right.isAbstractData()){
 					return Rascal_TRUE;
 				}
 				return checkRightValueOrParam(type, right) ? Rascal_TRUE : Rascal_FALSE;
@@ -1219,18 +1234,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final IValue $aadt_get_field(final IConstructor cons, final String fieldName) {
 		Type consType = cons.getConstructorType();
-
-		// Does fieldName exist as positional field?
-		if(consType.hasField(fieldName)){
-			return cons.get(fieldName);
-		}
-
-		IValue result = cons.asWithKeywordParameters().getParameter(fieldName);
-		if(result != null) {
-			return result;
-		}
-
-		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+		
+		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {				
 			FieldResult fldres = TreeAdapter.getLabeledField((ITree) cons, fieldName);
 			if(fldres != null) {
 				ITree res = TreeAdapter.getLabeledField((ITree) cons, fieldName).tree;
@@ -1239,7 +1244,18 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				}
 			}
 		}
-		
+
+		// Does fieldName exist as positional field?
+		if(consType.hasField(fieldName)){
+			IValue res = cons.get(fieldName);
+			return res;
+		}
+
+		IValue result = cons.asWithKeywordParameters().getParameter(fieldName);
+		if(result != null) {
+			return result;
+		}
+
 		throw RuntimeExceptionFactory.noSuchField(fieldName);
 	}
 	
@@ -2037,11 +2053,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 		Type consType = cons.getConstructorType();
 
-		// Does fieldName exist as positional field?
-		if(consType.hasField(fieldName)){
-			return cons.set(fieldName, repl);
-		}
-
 		// Does fieldName exist as field in a parse tree?
 		if(TreeAdapter.isTree(cons)) {
 			if(TreeAdapter.isAppl((ITree) cons) && TreeAdapter.getLabeledField((ITree)cons, fieldName) != null) {
@@ -2050,7 +2061,12 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				return cons.asWithKeywordParameters().setParameter(fieldName, repl);
 			}
 		}
-		
+
+		// Does fieldName exist as positional field?
+		if(consType.hasField(fieldName)){
+			return cons.set(fieldName, repl);
+		}
+
 		// fieldName must be a keyword field
 		return cons.asWithKeywordParameters().setParameter(fieldName, repl);
 	}
@@ -2077,7 +2093,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	*/
 
 	public final boolean $aadt_has_field(final IConstructor cons, final String fieldName, Type... consesWithField) {
-
+		
+		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			// TODO: keyword parameter of Tree
+			FieldResult res = TreeAdapter.getLabeledField((ITree) cons, fieldName);
+			if(res != null) return true;
+		}
+		
 		Type consType = cons.getConstructorType();
 		for(Type ct : consesWithField) {
 			if(consType.equals(ct)) return true;
@@ -2091,12 +2113,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		if($TS.hasKeywordParameter(consType, fieldName)) {
 			return cons.asWithKeywordParameters().getParameter(fieldName) != null;
 		}
-
-		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-			// TODO: keyword parameter of Tree
-			return TreeAdapter.getLabeledField((ITree) cons, fieldName) != null;
-		}
-
 		return false;
 	}
 	
@@ -4030,6 +4046,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			if(from >= actual_len) {
 				return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, $VF.list());
 			}
+			IList args = TreeAdapter.getArgs(tree).sublist(from, adjusted_len);
+			for(int i = 0; i < args.size(); i++) System.err.println(args.get(i));
 			return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree).sublist(from, adjusted_len));
 		}
 		throw RuntimeExceptionFactory.illegalArgument(tree);

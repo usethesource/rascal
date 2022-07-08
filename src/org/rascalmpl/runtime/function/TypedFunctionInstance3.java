@@ -20,6 +20,7 @@ public class TypedFunctionInstance3<R,A,B,C> extends TypedFunctionInstance {
 		super(ftype);
 		this.function = function;
 		if(ftype.isFunction()) {
+			assert ftype.getArity() == 3;
 			type_arg_0 = type.getFieldType(0);
 			type_arg_1 = type.getFieldType(1);
 			type_arg_2 = type.getFieldType(2);
