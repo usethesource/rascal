@@ -44,8 +44,8 @@ bool returnsViaAllPath((Statement) `<Label label> while( <{Expression ","}+ cond
 }
 
 bool returnsViaAllPath((Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`, str fname,  Collector c){
-    returnsViaAllPath(body, fname, c);
-    return false;
+    return returnsViaAllPath(body, fname, c);
+    //return false;
 }
 
 bool returnsViaAllPath((Statement) `<Label label> for( <{Expression ","}+ generators> ) <Statement body>`, str fname,  Collector c){
@@ -65,7 +65,7 @@ bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  C
     
 bool returnsViaAllPath((Statement) `return;`, str fname,  Collector c) =  true;
 
-bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = returnsValue(statement,fname, c)
+bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = true //returnsValue(statement,fname, c)
     when !(statement is emptyStatement);
 bool returnsViaAllPath((Statement) `throw;`, str fname,  Collector c) = true;   
     

@@ -21,7 +21,6 @@ import Node;
 import Set;
 import String;
 
-//import util::Maybe;
 import util::Reflective;
 
 // ---- Utilities -------------------------------------------------------------

@@ -752,16 +752,16 @@ void collect(current: (Expression) `<Expression lhs> && <Expression rhs>`, Colle
     collect(lhs, rhs, c);
 }
 
-private set[str] introducedVars(Expression exp){
-    return exp is match ? introducedVars(exp.pattern) : {};
+private set[str] introducedVars(Expression exp, Collector c){
+    return exp is match ? introducedVars(exp.pattern, c) : {};
 }
 
-private set[str] introducedVars(Pattern e){
+private set[str] introducedVars(Pattern e, Collector c){
     vars = {};
     top-down-break visit(e){
         case (Pattern) `<QualifiedName qualifiedName>`: {
-             nm = "<qualifiedName>"; 
-             if(nm[0] != "_") vars += nm;
+             nm = "<qualifiedName>";
+             if(nm[0] != "_" && !c.isAlreadyDefined(nm, qualifiedName)) vars += nm;
         }
         case (Pattern) `<Type _> <Name name>` : { 
              nm = "<name>"; 
@@ -769,19 +769,19 @@ private set[str] introducedVars(Pattern e){
         }
         case (Pattern) `<Name name> : <Pattern pattern>`: {
              nm = "<name>"; 
-             if(nm[0] != "_") vars += nm;
-             vars += introducedVars(pattern);
+             if(nm[0] != "_" && !c.isAlreadyDefined(nm, name)) vars += nm;
+             vars += introducedVars(pattern, c);
         }
         case (Pattern) `<Type _> <Name name> : <Pattern pattern>`: {
              nm = "<name>"; 
              if(nm[0] != "_") vars += nm;
-             vars += introducedVars(pattern);
+             vars += introducedVars(pattern, c);
         }
         case (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`: {
-            if(!(expression is qualifiedName)) vars += introducedVars(expression);
-            vars += {*introducedVars(argument) | argument <- arguments};
+            if(!(expression is qualifiedName)) vars += introducedVars(expression, c);
+            vars += {*introducedVars(argument, c) | argument <- arguments};
             if(keywordArguments is \default){
-                vars += { *introducedVars(kwa.expression) | kwa <- keywordArguments.keywordArgumentList };
+                vars += { *introducedVars(kwa.expression, c) | kwa <- keywordArguments.keywordArgumentList };
             }
         } 
     }
@@ -801,8 +801,8 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
           
     // Check that the names introduced in lhs and rhs are the same    
     
-    introLhs = introducedVars(lhs);
-    introRhs = introducedVars(rhs);
+    introLhs = introducedVars(lhs, c);
+    introRhs = introducedVars(rhs, c);
     
     collect(lhs, c);
     
