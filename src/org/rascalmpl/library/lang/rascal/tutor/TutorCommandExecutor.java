@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.Prelude;
@@ -97,19 +96,19 @@ public class TutorCommandExecutor {
         shellErrorOutput.reset();
     }
 
-    void reset() {
+    public void reset() {
         repl.cleanEnvironment();
         resetOutput();
         resetErrors();
         resetHTML();
     }
 
-    String getPrompt() {
+    public String getPrompt() {
         return repl.getPrompt();
     }
 
     
-    String eval(String line, String conceptFolder) {
+    public String eval(String line, String conceptFolder) {
         Map<String, InputStream> output = new HashMap<>();
         String result = "";
         
