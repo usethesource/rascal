@@ -26,7 +26,7 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="tpl");
     dirName = makeDirName(qualifiedModuleName);
     
-    for(loc dir <- [pcfg.bin, pcfg.resources] + pcfg.libs){   // In a bin or lib directory?     
+    for(loc dir <- [pcfg.resources, pcfg.bin] + pcfg.libs){   // In a bin or lib directory?     
         fileLoc = dir + "<compiled_rascal_package>" + fileName;
         if(exists(fileLoc)){
            if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
@@ -40,7 +40,8 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
 }
 
 tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
-    fileName = makeFileName(qualifiedModuleName, extension="tpl");
+    //fileName = makeFileName(qualifiedModuleName, extension="tpl");
+    fileName = "<getBaseClass(qualifiedModuleName)>.tpl";
     tplLoc = getDerivedResourcesDir(qualifiedModuleName, pcfg) + fileName;
     return <exists(tplLoc), tplLoc>;
     //classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
@@ -276,7 +277,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
         //classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
         //tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
-        println("saveModule(<qualifiedModuleName>) =\> <tplLoc>");
+        //println("saveModule(<qualifiedModuleName>) =\> <tplLoc>");
         //tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
         
         bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
@@ -291,6 +292,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         //println("=== BOM END"); 
         
         extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends};
+        extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
         filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
        
         TModel m1 = tmodel();
@@ -324,9 +326,10 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         m1.store[key_common_keyword_fields]   
             = tm.store[key_common_keyword_fields] ? [];
         
+        m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes || tup.from in filteredModuleScopePaths };
+        //m1.paths = tm.paths; //{ tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope };
+        //iprintln(m1.paths);
         
-        m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope };
-        //m1.paths = domainR(tm.paths, {mscope});
         
         //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
         m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in saveModuleRoles || isContainedIn(u, mscope) };
@@ -346,8 +349,8 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
                             throw "Suspicious define in TModel: <tup>";
                          }
                          //tup.scope = mscope;
-                      }           
-                    append tup;
+                      }         
+                      append tup;
                   }
                };
         

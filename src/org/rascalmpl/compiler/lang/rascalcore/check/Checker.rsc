@@ -160,21 +160,9 @@ public PathConfig getRascalCorePathConfig() {
                 //|project://salix/src|
                 ],
         bin = |project://rascal-core/target/test-classes|,
-        genSrcs = |project://rascal-core/target/generated-test-sources|,
-        resources = |project://rascal-core/target/generated-test-resources|
-    );
-}
-
-public PathConfig getDevPathConfig() {
-   return pathConfig(   
-        srcs = [|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|, 
-                |file:///Users/paulklint/git/rascal-core/src/org/rascalmpl/core/library|,
-                //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
-                |file:///Users/paulklint/git/typepal/src|
-                //|project://salix/src|
-               ], 
-         bin = |file:///Users/paulklint/git/rascal-core/target/classes|
-        //libs = [|lib://rascal/|, |lib://typepal/|]
+        generatedSources = |project://rascal-core/target/generated-test-sources|,
+        resources = |project://rascal-core/target/generated-test-resources|,
+        libs = []
     );
 }
     
@@ -404,7 +392,7 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
     modelName = intercalate(" + ", toList(domain(namedTrees)));
     
     if(config.verbose) println("\<\<\< checking <modelName>");
-    c = newCollector(modelName, namedTrees, config=config);
+    c = newCollector(modelName, namedTrees, config);
     c.push(key_pathconfig, pcfg);
     
     rascalPreCollectInitialization(namedTrees, c);

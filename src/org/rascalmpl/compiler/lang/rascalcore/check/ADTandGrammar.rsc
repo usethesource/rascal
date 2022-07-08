@@ -161,13 +161,16 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         }
         
         definedLayout = aadt("$default$", [], layoutSyntax());
-        syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
-        //if(isEmpty(allLayouts)){
+       //syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
+        if(isEmpty(allLayouts)){
+            syntaxDefinitions += (layouts("$default$"): choice(layouts("$default$"), {prod(layouts("$default$"), [])}));
         //    syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
-        //} else 
+        } else 
         if(size(allLayouts) >= 1){
             definedLayout = getOneFrom(allLayouts);
         } 
+        
+        //syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
         
         // Add start symbols
         

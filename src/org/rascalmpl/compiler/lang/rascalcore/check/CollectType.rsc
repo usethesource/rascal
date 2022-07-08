@@ -288,12 +288,18 @@ void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
     try {
         <msgs, result> = handleTupleFields(tas, [c.getType(ta) | ta <- targs]);
         for(m <- msgs) c.report(m);
+        if(isTupleType(result) && getTupleFieldCount(result) == 6 && !getTupleFields(result)[5].label?){
+            println(result);
+        }
         c.fact(current, result);
     } catch TypeUnavailable():{
         c.calculate("tuple type", current, targs, 
             AType(Solver s){
                 <msgs, result> = handleTupleFields(tas, [s.getType(ta) | ta <- targs]);
                 for(m <- msgs) s.report(m);
+                 if(isTupleType(result) && getTupleFieldCount(result) == 6 && !getTupleFields(result)[5].label?){
+                    println(result);
+                }
                 return result;
             });
     }
