@@ -34,14 +34,7 @@ rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] modu
            };
 }
 
-bool funBeforeDefaultBeforeConstructor(Define a, Define b){
-    return defType(AType ta) := a.defInfo && defType(AType tb) := b.defInfo && 
-                                       isFunctionType(ta) && (isConstructorType(tb) || !ta.isDefault && tb.isDefault);
-}
-    
-bool sameInJava(list[AType] ts1, list[AType] ts2){
-    return [atype2javatype(t1) | t1 <- ts1 ] == [atype2javatype(t2) | t2 <- ts2 ];
-}
+
     
 str varName(muVar(str name, str _fuid, int pos, AType _)){ // duplicate, see CodeGen
     return (name[0] != "$") ? "<getJavaName(name)><(pos >= 0 || name == "_") ? "_<abs(pos)>" : "">" : getJavaName(name);
@@ -98,7 +91,7 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     extend_scopes = { module2loc[ext] | ext <- extends };
     import_scopes = { module2loc[imp] | imp <- imports };
     
-    module_and_extend_scopes = module_scope + extend_scopes;
+    module_and_extend_scopes = module_scope + /*import_scopes + */extend_scopes;
     
     rel[Name_Arity, Define] functions_and_constructors = { *getFunctionsAndConstructors(tmodels[mname], module_and_extend_scopes) | mname <- tmodels };
                           
@@ -106,15 +99,17 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     for(<fname, farity> <- domain(functions_and_constructors), !isClosureName(fname)){
         // Group all functions of same name and arity by scope
         set[Define] defs = functions_and_constructors[<fname, farity>];
-        defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
-                                                    return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
-                                                           || a.scope in module_scopes && b.scope in module_scopes
-                                                           ;
-                                              });
+        
+        resolvers += generateResolver(moduleName, fname, defs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, loc2module, jg);
+        //defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
+        //                                            return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
+        //                                                   || a.scope in module_scopes && b.scope in module_scopes
+        //                                                   ;
+        //                                      });
         // ... and generate a resolver for each group
-        for(sdefs <- defs_in_disjoint_scopes){
-            resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, loc2module, jg);
-        }
+        //for(sdefs <- defs_in_disjoint_scopes){
+        //    resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, loc2module, jg);
+        //}
     }
     return resolvers;
 }
@@ -122,7 +117,7 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
 list[MuExp] getExternalRefs(Define fun_def, map[loc, MuFunction] loc2muFunction){
     if(loc2muFunction[fun_def.defined]?){
         fun = loc2muFunction[fun_def.defined];  
-        return sort({ ev | ev <- fun.externalRefs, ev.pos >= 0, ev.fuid == fun.scopeIn });
+        return sort({ ev | ev <- fun.externalRefs, ev.pos >= 0, ev notin fun.formals });
     } else { 
         return [];
     }
@@ -134,10 +129,11 @@ list[MuExp] getExternalRefs(set[Define] relevant_fun_defs, map[loc, MuFunction] 
 
 // Generate a resolver for a specific function
 
-str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, map[loc, str] loc2module, JGenie jg){
+str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, map[loc, str] loc2module, JGenie jg){
     module_scopes = domain(loc2module);
     
-    set[Define] local_fun_defs = {def | def <- fun_defs, isContainedIn(def.defined, module_scope)};  
+    set[Define] local_fun_defs = {def | def <- fun_defs, /**/isContainedIn(def.defined, module_scope)};
+    
     nonlocal_fun_defs0 = 
         for(def <- fun_defs){
             if(!isEmpty(extend_scopes) && any(ext <- extend_scopes, isContainedIn(def.defined, ext))) append def;
@@ -171,15 +167,21 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
     if(!isFunctionType(resolver_fun_type)) return "";
     
     inner_scope = "";
+  
    
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
-        def = getOneFrom(relevant_fun_defs);
-        fun = loc2muFunction[def.defined];
-        inner_scope = "<fun.scopeIn>_";
+        for(def <- relevant_fun_defs, isContainedIn(def.defined, module_scope)){
+            fun = loc2muFunction[def.defined];
+            inner_scope = "<fun.scopeIn>_";
+            break;
+        }
+        //def = getOneFrom(relevant_fun_defs);
+        //fun = loc2muFunction[def.defined];
+        //inner_scope = "<fun.scopeIn>_";
     }
     resolverName = "<inner_scope><getJavaName(functionName)>";
     
-    fun_kwFormals = [];
+    fun_kwFormals = acons_kwfields;
     for(def <- relevant_fun_defs /*local_fun_defs*/, def notin cons_defs, defType(AType tp) := def.defInfo){
         if(loc2muFunction[def.defined]?){
             fun = loc2muFunction[def.defined];
@@ -213,18 +215,34 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
     if(hasKeywordParameters(resolver_fun_type) || !isEmpty(activeKwpFormals1)) { //any(def <- local_fun_defs, def.scope != module_scope)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
     }
-   
-    externalRefs = getExternalRefs(relevant_fun_defs, loc2muFunction);
-    if(!isEmpty(externalRefs)){
-        argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalRefs, jtype := atype2javatype(var.atype)]);
-    }
     
+    onlyGlobalFuns = all(fd <- relevant_fun_defs, loc2module[fd.scope]?); // Only toplevel functions
+    if(!onlyGlobalFuns){
+        externalRefs = getExternalRefs(relevant_fun_defs, loc2muFunction);
+     
+        if(!isEmpty(externalRefs) ){
+            argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalRefs, jtype := atype2javatype(var.atype)]);
+        }
+    }
+ 
     list[str] all_conds = [];
     list[str] all_calls = [];
+    
+    extends = {<f, t> | <f, extendPath(), t> <- paths }+;
+    
+    bool funBeforeExtendedBeforeDefaultBeforeConstructor(Define a, Define b){
+        return    defType(AType ta) := a.defInfo 
+               && defType(AType tb) := b.defInfo 
+               && isFunctionType(ta) 
+               && (isConstructorType(tb) 
+                  || !ta.isDefault && tb.isDefault
+                  || <a.scope, b.scope> in extends
+                  );
+    }
 
-    for(def <- sort(relevant_fun_defs, funBeforeDefaultBeforeConstructor)){
+    for(def <- sort(relevant_fun_defs, funBeforeExtendedBeforeDefaultBeforeConstructor)){
         inner_scope = "";
-        if(def.scope notin module_scopes, def in local_fun_defs){
+        if(def.scope notin module_scopes, /*isContainedIn(def.scope, module_scope) */def in local_fun_defs){
             fun = loc2muFunction[def.defined];
             inner_scope = "<fun.scopeIn>_";
         }
@@ -242,6 +260,13 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
         }
        
        actuals_text = intercalate(", ", call_actuals);
+       if(!onlyGlobalFuns){
+            externalRefs = getExternalRefs(def, loc2muFunction);
+            if(!isEmpty(externalRefs)){
+                actuals_text += (isEmpty(actuals_text) ? "" : ", ") +  intercalate(", ", [ varName(var) | var <- externalRefs ]);
+            }
+       }
+        
        activeKwpFormals = [];
        if(def in relevant_fun_defs /*local_fun_defs*/){
           if(loc2muFunction[def.defined]?){
@@ -255,10 +280,7 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
             actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
         }
 
-        externalRefs = getExternalRefs(def, loc2muFunction);
-        if(!isEmpty(externalRefs)){
-            actuals_text += (isEmpty(actuals_text) ? "" : ", ") +  intercalate(", ", [ varName(var) | var <- externalRefs ]);
-        }
+        
         call_code = base_call = "";
         if(isContainedIn(def.defined, module_scope)){
             pref = "";
@@ -271,7 +293,8 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
             }
             call_code = "<pref><uniqueName>(<actuals_text>)";
         } else if(isContainedIn(def.defined, def.scope), loc2module[def.scope]?){
-            call_code = "<module2field(loc2module[def.scope])>.<uniqueName>(<actuals_text>)";
+            cst = returns_void ? "" : "(<atype2javatype(returnType)>)";
+            call_code = "<cst><module2field(loc2module[def.scope])>.<resolverName>(<actuals_text>)"; // was uniqueName
         } else {
             continue;
         }
@@ -310,9 +333,9 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
         actuals_text = intercalate(", ", call_actuals);
        
         if(hasKeywordParameters(consType)){
-            base_call = "return $VF.constructor(<atype2idpart(consType, jg)>, new IValue[]{<actuals_text>}, $kwpActuals);";
+            base_call = "return $VF.constructor(<jg.getATypeAccessor(consType)><atype2idpart(consType, jg)>, new IValue[]{<actuals_text>}, $kwpActuals);";
         } else {
-            base_call = "return $VF.constructor(<atype2idpart(consType, jg)>, new IValue[]{<actuals_text>});";
+            base_call = "return $VF.constructor(<jg.getATypeAccessor(consType)><atype2idpart(consType, jg)>, new IValue[]{<actuals_text>});";
         }
         all_conds += intercalate(" && ", conds);
         all_calls += base_call;
@@ -327,6 +350,8 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
         //            '    <base_call>}\n";
         //}
     }
+    
+    if(size(all_conds) == 0) return "";
     
     int i = -1;
     while (i < size(all_conds) - 1){

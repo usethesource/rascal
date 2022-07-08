@@ -50,7 +50,7 @@ data JGenie
         void(set[MuExp] evars) addExternalRefs,
         bool (MuExp exp) isExternalRef,
         void(set[MuExp] lvars) addLocalRefs,
-        bool(MuExp lvar) isLocalRef,
+        //bool(MuExp lvar) isLocalRef,
         bool(MuExp var) isRef,
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
@@ -74,7 +74,7 @@ JGenie makeJGenie(MuModule m,
     map[value,int] constant2idx = ();
     map[int,value] idx2constant = ();
     list[value] constantlist = [];
-    map[AType,str] types = ();
+    map[AType,str] type2id = ();
     int nconstants = -1;
     int ntypes = -1;
     
@@ -89,10 +89,13 @@ JGenie makeJGenie(MuModule m,
     
     TModel currentTModel = tmodels[moduleName];
     loc currentModuleScope = moduleLocs[moduleName];
+    set[loc] extending = currentTModel.paths[currentModuleScope, extendPath()];
+    rel[loc, loc] importedByExtend = {<i, e> | e <- extending, i <- currentTModel.paths[e, importPath()]};
     str functionName = "$UNKNOWN";
-    MuFunction function;
+    MuFunction function = muFunction("", "", avalue(), [], [], "", false, true, false, {}, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
-    map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs  | fun <- range(muFunctions));
+    
+    map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs | fun <- range(muFunctions), fun.scopeIn != "");
     map[loc,MuFunction] muFunctionsByLoc = (f.src : f | fname <- muFunctions, f := muFunctions[fname]);
     
     extendScopes = { m2loc | <_, extendPath(), m2loc> <- tmodels[moduleName].paths };
@@ -128,7 +131,8 @@ JGenie makeJGenie(MuModule m,
     
     loc findImportForDef(loc def){
         base = findDefiningModuleForDef(def);
-        return findLargestExtendingModule(base);
+        return base;
+        //return findLargestExtendingModule(base);
     }
     
     str _getModuleName()
@@ -159,26 +163,46 @@ JGenie makeJGenie(MuModule m,
         return module2field(allLocs2Module[findImportForDef(def)]);
     }
     
+    str _getImportViaExtend(loc def, str mname){
+        ibe = importedByExtend[def];
+        if(isEmpty(ibe)){
+            return "";
+        }
+        edef = getFirstFrom(ibe);
+        emod = allLocs2Module[edef];
+        if(emod == mname) return "";
+        res = "<module2field(emod)>.";
+        //println("_getImportViaExtend: <def> ==\> <res>");
+        return res;
+    }
+    
+    bool b = false;
+    @memo
     str _getATypeAccessor(AType t){
         t1 = unsetR(t, "label");
         tlabel = t.label? ? getUnqualifiedName(t.label) : "";
         
+        defs = {};
         for(Define def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId())){
             //!isConstructorType(t1) || def.defInfo.atype.label == t.label
             if((isConstructorType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.label == tlabel) ||
                (aadt(adtName,ps1,_) := t1 && aadt(adtName,ps2,_) := def.defInfo.atype && asubtype(ps1, ps2))){
-	            for(ms <- allLocs2Module, isContainedIn(def.scope, ms)){
-	                defMod = allLocs2Module[ms];
-	                res = defMod == moduleName ? "" : "<module2field(defMod)>.";
-	                //if(b)println("getTypeAccessor(<t>) =\> <res>)");
-	                return res;
-	            }
+                defs += def;
             }
         }
-        //if(b)println("getTypeAccessor(<t>) =\> \"\"");
+        for(Define def <- defs){
+            for(ms <- allLocs2Module, isContainedIn(def.scope, ms)){
+                defMod = allLocs2Module[ms];
+                res = defMod == moduleName ? "" : "<_getImportViaExtend(ms, defMod)><module2field(defMod)>.";
+                if(b)println("getTypeAccessor(<t>) =\> <res>)");
+                return res;
+            }
+        }
+        if(b)println("getTypeAccessor(<t>) =\> \"\"");
         return ""; //throw "No accessor found for <t>";
     }
-        
+    
+    @memo
     str _getAccessor(list[loc] srcs){
         // Single src
         if(size(srcs) == 1){
@@ -186,29 +210,33 @@ JGenie makeJGenie(MuModule m,
             if(currentTModel.definitions[src]?){
                 def = currentTModel.definitions[src];
                 if(defType(AType _) := def.defInfo){
-                        baseName = getJavaName(def.id);
-                        if(isContainedIn(def.defined, currentModuleScope)){
-                            if(def.scope != currentModuleScope){    // inner function
-                                fun = muFunctionsByLoc[def.defined];
-                                return "<fun.scopeIn>_<baseName>";
-                            }
-                            return baseName;
-                        } else {
-                            return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
+                    baseName = getJavaName(def.id);
+                    
+                    if(isContainedIn(def.defined, currentModuleScope)){
+                        if(def.scope != currentModuleScope){    // inner function
+                            fun = muFunctionsByLoc[def.defined];
+                            return isEmpty(fun.scopeIn) ? "<isClosureName(baseName) ? "" : ""/*"$me."*/><baseName>" : "<fun.scopeIn>_<baseName>";
                         }
-                     }
+                        return baseName;
+                    } else {
+                        return def.scope in importScopes ? "<_getImportedModuleName(def.defined)>.<baseName>"
+                                                         : "<isClosureName(baseName) ? "" : ""/*"$me."*/><baseName>";
+                    }
+                 }
             }
             for(ms <- sortedImportAndExtendScopes, mname := allLocs2Module[ms]){
                 if(tmodels[mname].definitions[src]?){
                     def = tmodels[mname].definitions[src];
                     if(defType(AType tp) := def.defInfo){
-                        descriptor = atype2idpart(tp, thisJGenie);
                         baseName = getJavaName(def.id);
-                      
+                        if(isClosureName(baseName)){
+                            return baseName;
+                        }
                         if(isContainedIn(def.defined, currentModuleScope)){
                             return baseName;
                         } else {
-                            return isClosureName(baseName) ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
+                            return def.scope in importScopes ? "<_getImportedModuleName(def.defined)>.<baseName>"
+                                                             : "$me.<baseName>";
                         }
                      }
                  }
@@ -224,6 +252,9 @@ JGenie makeJGenie(MuModule m,
                 break;
             }
         }
+        if(name == "head"){
+            println("head");
+        }
        
         if(isSyntheticFunctionName(name)){
             return name;
@@ -234,22 +265,28 @@ JGenie makeJGenie(MuModule m,
         if(scopeIn != ""){
             return "<scopeIn>_<name>";
         }
-        if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
-            for(d <- srcs){
-                def = currentTModel.definitions[d];
-                if(isConstructorType(def.defInfo.atype)){
-                    return name;
-                }
-            }
-            return "$me.<name>";
-        }
+        
+        //if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
+        //    for(d <- srcs){
+        //        def = currentTModel.definitions[d];
+        //        if(isConstructorType(def.defInfo.atype)){
+        //            return name;
+        //        }
+        //    }
+        //    return "$me.<name>";
+        //}
+        //
+        //return "$me.<name>";
         
        for(ms <- sortedImportAndExtendScopes){
-        if(any(d <- srcs, isContainedIn(d, ms))){
-            return "<module2field(allLocs2Module[ms])>.<name>";
-        }
+            if(any(d <- srcs, isContainedIn(d, ms))){
+                return "<ms in importScopes ? module2field(allLocs2Module[ms]) : "$me">.<name>";
+            }
        }
-       throw "_getAccessor: <name>, <srcs>";
+       
+       return "$me.<name>";
+      
+       //throw "_getAccessor: <name>, <srcs>";
     }
     
     str definedInInnerScope(list[loc] srcs){
@@ -280,8 +317,9 @@ JGenie makeJGenie(MuModule m,
     
     list[MuExp] _getExternalRefs(loc src){
         if(fun2externals[src]?){
+            fun = muFunctionsByLoc[src];
             evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
-            return sort([var | var <- evars, var.pos >= 0 ]);
+            return sort([var | var <- evars, var.pos >= 0, var notin fun.formals ]);
         }
         return [];
     }
@@ -367,19 +405,31 @@ JGenie makeJGenie(MuModule m,
         }
     }
     
+    AType setScopeInfoType = afunc(
+          avoid(),
+          [
+            aloc(label="scope"),
+            aadt(
+              "ScopeRole",
+              [],
+              dataSyntax()),
+            avalue()
+          ],
+          []);
+    
     str _shareType(AType atype){
         //println("%%%%% shareType: <atype>");
         //atype = unsetR(atype, "label");
-
         couter = "";
-        if(types[atype]?){
-            return types[atype];
+        if(type2id[atype]?){
+            return type2id[atype];
         } else if(aadt(str adtName, list[AType] _, SyntaxRole _) := atype){
-            return "<_getATypeAccessor(atype)>ADT_<adtName>";
+            res = "<_getATypeAccessor(atype)>ADT_<adtName>";
+            return res;
         } else {
             ntypes += 1;
             couter = "$T<ntypes>";
-            types[atype] = couter;
+            type2id[atype] = couter;
         }
         visit(atype){
             case AType t: {
@@ -389,10 +439,10 @@ JGenie makeJGenie(MuModule m,
                         ;
                 } else if(atypeList(_) := t){
                         ;
-                } else if(!types[t]?){
+                } else if(!type2id[t]?){
                     ntypes += 1;
                     c = "$T<ntypes>";
-                types[t] = c;
+                type2id[t] = c;
                 }
             }
         }
@@ -446,62 +496,29 @@ JGenie makeJGenie(MuModule m,
     }
     
     tuple[str,str, list[value]] _getConstants() {
-        str cdecls = "";
-        str cinits = "";
-        done = {};
-        
-        // Generate constants in the right declaration order, such that
-        // they are always declared before they are used in the list of constant fields
-        for(c <- constant2idx){
-            //if(c == ""){
-            //    if (c notin done) {
-            //      //cdecls += "private final <value2outertype(c)> <constant2idx[c]>;\n";
-            //      //cinits += "<constants[c]> = <value2IValue(c, constants2idx)>;\n";
-            //      done += {c};
-            //    }
-            //} else {
-                bottom-up visit(c) {
-                  case s:
-                        if (s notin done, s in constant2idx) {
-                          //cdecls += "private final <value2outertype(s)> <constant2idx[s]>;\n";
-                          //cinits += "<constants[s]> = <value2IValue(s, constant2idx)>;\n";
-                          done += {s};
-                        }
-                    }
-            //}
-        }
-        
         str tdecls = "";
         str tinits = "";
         done = {};
         // Generate type constants in the right declaration order, such that
         // they are always declared before they are used in the list of type fields
-        for(t <- types){
-            //if(t == ""){
-            //    if (t notin done) {
-            //      tdecls += "final io.usethesource.vallang.type.Type <types[t]>;\n";
-            //      tinits += "<types[t]> = <atype2vtype(t, thisJGenie)>;\n";
-            //      done += {t};
-            //    }
-            //} else {
-                bottom-up visit(t) {
-                  case s:
-                        if (s notin done, s in types) {
-                          tdecls += "final io.usethesource.vallang.type.Type <types[s]>;\n";
-                          tinits += "<types[s]> = <atype2vtype(s, thisJGenie)>;\n";
-                          done += {s};
-                        }
+        for(t <- type2id){
+            bottom-up visit(t) {
+              case AType s:
+                    if (s notin done, s in type2id) {
+                      tdecls += "final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
+                      tinits += "<type2id[s]> = <atype2vtype(s, thisJGenie)>;\n";
+                      done += {s};
                     }
-            //}
+            }
         }
         rdecls = "";
         rinits = "";
         for(t <- reified_constants){
-               rdecls += "private final IConstructor <reified_constants[t]>;\n";
+               rdecls += "final IConstructor <reified_constants[t]>;\t/*<t>*/\n";
                rinits += "<reified_constants[t]> = $RVF.reifiedType(<value2IValue(t, constant2idx)>, <value2IValue(reified_definitions[t], constant2idx)>);\n";
         }       
-        return <"<cdecls><tdecls><rdecls>",
-                "<cinits><tinits><rinits>",
+        return <"<tdecls><rdecls>",
+                "<tinits><rinits>",
                 constantlist
                >;
     }
@@ -522,15 +539,25 @@ JGenie makeJGenie(MuModule m,
         externalRefs += vars;
     }
     
-    bool _isExternalRef(MuExp var) = var in externalRefs && var.pos != -1;
-    
+    bool _isExternalRef(MuExp var) 
+        = var in function.externalRefs //externalRefs               // it is an external reference
+          && var.pos != -1                  // not a global variable
+          
+          //&& (function.scopeIn == "" ? var notin unsetRec(function.formals, "label")
+          //                           : var.fuid == function.scopeIn)
+                                     
+          //&& (!(function.scopeIn == "" && var in function.formals)
+          //    || (function.scopeIn != "" && var.fuid != function.scopeIn)  // not a reference to the surrounding scope
+          //   )
+          ;
+          
     void _addLocalRefs(set[MuExp] vars){
         localRefs += vars;
     }
     
-    bool _isLocalRef(MuExp var) = var in localRefs;
+    private bool _isLocalRef(MuExp var) = var in localRefs;
     
-    bool _isRef(MuExp var) = _isExternalRef(var) || _isLocalRef(var);
+    bool _isRef(MuExp var) { var1 = unsetRec(var, "label"); return _isExternalRef(var1) || _isLocalRef(var1); }
     
     str _newTmp(str prefix){
         ntmps += 1;
@@ -589,7 +616,7 @@ JGenie makeJGenie(MuModule m,
                 _addExternalRefs,
                 _isExternalRef,
                 _addLocalRefs,
-                _isLocalRef,
+              //  _isLocalRef,
                 _isRef,
                 _newTmp,
                 _addImportedLibrary,

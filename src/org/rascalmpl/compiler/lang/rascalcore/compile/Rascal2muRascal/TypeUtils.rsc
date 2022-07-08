@@ -599,13 +599,33 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) 
     return { <convert2fuid(declaredIn[decl]), position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
 }
 
+set[loc] getDefiningScopes(AType root)
+    =  { definitions[defloc].scope 
+       | defloc <- definitions, 
+         getDefType(defloc) == root, 
+         def := definitions[defloc], 
+         def.idRole in syntaxRoles
+       } & module_scopes;
 
 // Get the governing layout rule
-AType getLayouts(){
-    for(adt <- getADTs()){
-        if(isLayoutType(adt)) return layouts(getADTName(adt));
+AType getLayouts(AType root, set[AType] adts){
+    root_scopes = getDefiningScopes(root);
+    accessible_scopes = root_scopes + (current_tmodel.paths<0,2>*)[root_scopes];
+    
+    for(adt <- adts){
+        if(isLayoutType(adt)) {
+            layout_scopes = getDefiningScopes(adt);
+            if(layout_scopes <= accessible_scopes) return layouts(getADTName(adt));
+        }
     }
     return layouts("$default$");
+}
+
+set[AType] getAccessibleADTs(AType root){
+    root_scopes = getDefiningScopes(root);
+    accessible_scopes = root_scopes + (current_tmodel.paths<0,2>*)[root_scopes];
+    res = { adt | adt <- getADTs(), getDefiningScopes(adt) <= accessible_scopes };
+    return res;
 }
 
 // Collect all types that are reachable from a given type
@@ -630,10 +650,19 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         tparams = getADTTypeParameters(base_t);
         syntax_type = base_t.syntaxRole != dataSyntax();
     }
+    
+    root_scopes = getDefiningScopes(base_t);
+    accessible_scopes = root_scopes + (current_tmodel.paths<0,2>*)[root_scopes];
+    
+    my_grammar_rules = (adt : grammar.rules[adt] 
+                       | adt <- grammar.rules
+                       , getDefiningScopes(adt) <= accessible_scopes
+                       );
+    
     allADTs = { unsetRec(adt) | adt <- ADTs };
     if(syntax_type){
-        allADTs = { adt | adt <- allADTs, adt.syntaxRole != dataSyntax() };
-        allADTs += { unsetRec(adt) |  /adt:aadt(str _, list[AType] _, SyntaxRole _) := my_grammar_rules };
+        allADTs = { adt | adt <- allADTs, adt.syntaxRole != dataSyntax(), adt.syntaxRole != layoutSyntax(), getDefiningScopes(adt) <= accessible_scopes};
+        allADTs += { unsetRec(adt) |  /adt:aadt(str _, list[AType] _, SyntaxRole _) := my_grammar_rules/*, getDefiningScopes(adt) <= accessible_scopes*/ };
     }
   
     instantiatedADTs = { adt | adt <- allADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, !isTypeParameter(p)) };
@@ -655,16 +684,18 @@ map[AType,set[AType]] collectNeededDefs(AType t){
       
     definitions = ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
                   | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, adt1 := unset(uninstantiate(adt), "label")
-                  );
-    
-   
-                  
+                  );             
     
     if(syntax_type){
-     // Auxiliary rules for uses of instantiated parameterized nonterminals are never used, add them explcitly              
-        definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, adt.adtName[0] == "$" );
-        definedLayouts = getLayouts();         
-        definitions[definedLayouts] = { aprod(my_grammar_rules[definedLayouts]) };
+     // Auxiliary rules for uses of instantiated parameterized nonterminals are never used, add them explcitly    
+     
+        definedLayouts = getLayouts(base_t, allADTs);   
+        //my_grammar_rules[definedLayouts] = grammar.rules[definedLayouts];
+        my_grammar_rules = visit(my_grammar_rules) { case aadt(_, [], layoutSyntax()) => definedLayouts };  
+        allADTs =  visit(allADTs) { case aadt(_, [], layoutSyntax()) => definedLayouts }; 
+        definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, my_grammar_rules[adt]? );
+               
+        //definitions[definedLayouts] = { aprod(my_grammar_rules[definedLayouts]) };
         if(is_start){
             definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[label="top"], definedLayouts]) })) });
         }
@@ -675,7 +706,8 @@ map[AType,set[AType]] collectNeededDefs(AType t){
                                     | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := definitions,
                                       adt1 := uninstantiate(unsetRec(adt)),
                                       syntax_type ? syntaxRole != dataSyntax() : true,
-                                      !definitions[adt1]?
+                                      !definitions[adt1]?,
+                                      my_grammar_rules[adt1]?
                                 );
     }
     return definitions;

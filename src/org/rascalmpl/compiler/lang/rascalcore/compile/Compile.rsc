@@ -23,24 +23,27 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     tm = tmodels[qualifiedModuleName];
     //iprintln(tm, lineLimit=10);
     
-    genSourcesDir = getDerivedSrcsDir(qualifiedModuleName, pcfg);    
-    className = getBaseClass(qualifiedModuleName);
-    
-    resourcesDir = getDerivedResourcesDir(qualifiedModuleName, pcfg);
-    
-   
     list[Message] errors = [ e | e:error(_,_) <- tm.messages];
-    
-    //return tm.messages; // TMP
+   
     if(!isEmpty(errors)){
         return errors;
     }
-    //last_mod = lastModified(targetDir + "<className>.java");
-    //if(rel[str,datetime, PathRole] bom := tm.store[key_bom]){
-    //    if(all(dt <- bom<1>, dt <= last_mod)){
-    //        return errors;
-    //    }
-    //}
+    className = getBaseClass(qualifiedModuleName);
+    genSourcesDir = getDerivedSrcsDir(qualifiedModuleName, pcfg);  
+    interfaceFile =  genSourcesDir + "$<className>.java";
+    classFile = genSourcesDir + "<className>.java";
+    testClassFile = genSourcesDir + "<className>Tests.java";
+    
+    resourcesDir = getDerivedResourcesDir(qualifiedModuleName, pcfg);
+    constantsFile = resourcesDir + "<className>.constants";
+    
+    <tplFound, tplFile> = getTPLReadLoc(qualifiedModuleName, pcfg);
+   
+    if(tplFound && exists(classFile) && lastModified(classFile) > lastModified(tplFile)){
+        println("Reusing: <qualifiedModuleName>");
+        return tm.messages;
+    }
+    
    	
    	try {
         //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
@@ -49,14 +52,14 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         
         <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, moduleLocs);
      
-        writeFile(genSourcesDir + "$<className>.java", the_interface);
-        writeFile(genSourcesDir + "<className>.java", the_class);
-        println("Written: <genSourcesDir + "<className>.java">");
+        writeFile(interfaceFile, the_interface);
+        writeFile(classFile, the_class);
+        println("Written: <classFile>");
         
-        writeFile(genSourcesDir + "<className>Tests.java", the_test_class);
+        writeFile(testClassFile, the_test_class);
         
-        writeBinaryValueFile(resourcesDir + "<className>.constants", constants);
-        println("Written: <resourcesDir + "<className>.constants">");    
+        writeBinaryValueFile(constantsFile, constants);
+        println("Written: <constantsFile>");    
         return tm.messages;
        
     } catch _: CompileTimeError(Message m): {

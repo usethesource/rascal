@@ -73,6 +73,8 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
 
    // now parse the input to get a Tree (or a ParseError is thrown)
    Tree tree = ParseTree::parse(type(sym, rules), input, |todo:///|);
+   //println("doParseFragment: <input>");
+   //iprintln(tree);
    return isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0]@\loc);
 }
 

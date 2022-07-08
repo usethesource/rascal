@@ -6,7 +6,7 @@ import List;
 import util::Reflective;
 
 data PathConfig(
-    loc genSrcs=|unknown:///|,
+    loc generatedSources=|unknown:///|,
     loc resources = |unknown:///|,
     loc testResources =|unknown:///|
 );
@@ -83,7 +83,7 @@ loc getDerivedClassesDir(str qualifiedModuleName, PathConfig pcfg){
 }
 
 loc getDerivedSrcsDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.genSrcs + compiled_rascal_package + makeDirName(qualifiedModuleName);
+    return pcfg.generatedSources + compiled_rascal_package + makeDirName(qualifiedModuleName);
 }
 
 loc getDerivedResourcesDir(str qualifiedModuleName, PathConfig pcfg){

@@ -43,10 +43,11 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'class <className>Tests extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
            '    <className> $me;
            '    final GenerateActuals generator = new GenerateActuals(5, 5, 10);
-       
+           '
            '    public <className>Tests(){
+           '        super(new RascalExecutionContext(System.in, System.out, System.err, null, null));
            '        ModuleStore store = new ModuleStore();
-           '        store.importModule(<className>.class, <className>::new);   
+           '        store.importModule(<className>.class, this.rex, <className>::new);   
            '        $me = store.getModule(<className>.class);                     
            '    }
            '    <for(f <- functions){>
@@ -73,9 +74,9 @@ str generateTestMethod(MuFunction f, str className, JGenie jg){
     fun_name = "$me.<getFunctionName(f)>";
     
     externalArgs = "";                 
-    if(!isEmpty(f.externalRefs)){
-      externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<className>.<var.name>)" | var <- sort(f.externalRefs), var.pos >= 0, jtype := atype2javatype(var.atype)]);
-    }  
+    //if(!isEmpty(f.externalRefs)){
+    //  externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<className>.<var.name>)" | var <- sort(f.externalRefs), var.pos >= 0, jtype := atype2javatype(var.atype)]);
+    //}  
     if(isEmpty(formals)){
         if(isEmpty(expected)){
             return "@Test

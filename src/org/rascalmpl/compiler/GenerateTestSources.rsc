@@ -20,11 +20,11 @@ void main() = main([]);
 void generateTestSources(PathConfig pcfg) {
    testConfig = pathConfig(
      bin=pcfg.bin,
-     genSrcs=|project://rascal-core/target/generated-test-sources|,
+     generatedSources=|project://rascal-core/target/generated-test-sources|,
      resources = |project://rascal-core/target/generated-test-resources|,
-     srcs=[
-       |std:///|
-     ]);
+     srcs=[ |std:///| ],
+     libs = [ ]
+     );
    map[str,int] durations = ();
      
    println("PathConfig for generating test sources:\n");
@@ -78,9 +78,9 @@ void generateTestSources(PathConfig pcfg) {
                      "analysis::m3::Registry",
                      "analysis::m3::TypeSymbol"];  
 
-   for (m <- libraryModules) {
-     safeCompile(m, testConfig, (int d) { durations[m] = d; });
-   }
+   //for (m <- libraryModules) {
+   //  safeCompile(m, testConfig, (int d) { durations[m] = d; });
+   //}
      
    testFolder = |std:///lang/rascal/tests|;
    

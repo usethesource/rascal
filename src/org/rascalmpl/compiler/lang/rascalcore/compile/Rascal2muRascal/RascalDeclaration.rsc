@@ -6,6 +6,7 @@ import Map;
 import List;
 import ListRelation;
 import Location;
+import Node;
 import Set;
 import String;
 import lang::rascal::\syntax::Rascal;
@@ -111,7 +112,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         
         defExprCode = promoteVarsToFieldReferences(translate(defaultExp), adtType, adtVar);
         body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /*
@@ -137,7 +138,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
             
             defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar);
             body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", false, true, false, {}, {}, {}, {}, getModuleScope(), [], (), body));               
        }
     }
     
@@ -159,7 +160,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
                        ]
                        + muFailReturn(returnType)
                       );
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /*
@@ -231,6 +232,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                                          {},
                                          {},
                                          {},
+                                         {},
                                          fd.src, 
                                          tmods, 
                                          ttags,
@@ -261,7 +263,10 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                 if(size(body) == 1 && addReturn){
                     mubody = translateReturn(getType(body[0]), body[0], my_btscopes);
                  } else {
-                    mubody = muBlock([ translate(stat, my_btscopes) | stat <- body ]);
+                    body_code = [ translate(stat, my_btscopes) | stat <- body ];
+                    if(isVoidType(ftype.ret)) body_code += muReturn0();
+                    mubody = muBlock(body_code);
+                    
                  }
           }
        } else {
@@ -280,6 +285,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       }
       
       leaveSignatureSection();
+      externals = getExternalRefs(formalVars, tbody, fuid);
+      
       addFunctionToModule(muFunction(prettyPrintName(fd.signature.name), 
                                      fuid, 
       								 ftype,
@@ -289,7 +296,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       								 isVarArgs, 
       								 isPub,
       								 isMemo,
-      								 getExternalRefs(tbody, fuid),
+      								 externals,
+      								 {ev | ev <- externals, ev in formalVars},
       								 getLocalRefs(tbody),
       								 getKeywordParameterRefs(tbody, fuid),
       								 fd.src, 
@@ -340,17 +348,30 @@ bool hasParameterName((Pattern) `<Name name> : <Pattern pattern>`, int i) = "<na
 bool hasParameterName((Pattern) `<Type tp> <Name name> : <Pattern pattern>`, int i) = "<name>" != "_";
 default bool hasParameterName(Pattern p, int i) = false;
 
+/*
+ * Get all variables that are assigned inside a visit but are not locally introduced in that visit
+ */
 set[MuExp] getAssignedInVisit(list[MuCase] cases, MuExp def)
-    = { v | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str _, str _, int _, AType _), MuExp _) := exp};
-    
+    = { unsetRec(v, "label") | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str name, str scope, int _, AType _), MuExp _) := exp, !(/muVarInit(v, _) := exp)};
+
+/*
+ * Get all assigned variables in all visit that need to be treated as reference variables
+ */
 set[MuExp] getLocalRefs(MuExp exp)
-  = { *getAssignedInVisit(cases, defaultExp) | /muVisit(str _, MuExp _, list[MuCase] cases, MuExp defaultExp, VisitDescriptor _) := exp };
+    = { *getAssignedInVisit(cases, defaultExp) | /muVisit(str _, MuExp _, list[MuCase] cases, MuExp defaultExp, VisitDescriptor _) := exp };
 
-set[MuExp] getExternalRefs(MuExp exp, str fuid)
-    = { v | /v:muVar(str _, str fuid2, int _, AType _) := exp, fuid2 != fuid, fuid2 != "" };
-
+/*
+ * Get all variables that have been introduced outside the given function scope
+ */
+set[MuExp] getExternalRefs(list[MuExp] formals, MuExp exp, str fuid){
+   res = { unsetRec(v, "label") | /v:muVar(str _, str fuid2, int _, AType _) := exp, fuid2 != fuid, fuid2 != ""/*, v notin formals*/};
+   return res;
+}
+/*
+ * Get allkeyword variables that have introduced outside the given function scope
+ */
 set[MuExp] getKeywordParameterRefs(MuExp exp, str fuid)
-    = { v | /v:muVarKwp(str _, str fuid2, AType _) := exp, fuid2 != fuid };
+    = { unsetRec(v, "label") | /v:muVarKwp(str _, str fuid2, AType _) := exp, fuid2 != fuid };
     
 /********************************************************************/
 /*                  Translate keyword parameters                    */

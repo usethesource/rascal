@@ -1,20 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst2
 
+public &T head([&T h, *&T _]) = h; 
+public &T head(list[&T] _:[]) { throw "EmptyList()"; }
 
-data S =  a()
-        | b()
-        | c()
-        | d()
-        | par() 
-        | \pl(list[S] parameters)
-        ;
+// Get the first n elements of a list
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[&T] head(list[&T] lst, int n);
 
-bool abcpl2(S x) { 
-   y = (  //a() := x 
-          //|| 
-             b() := x
-          || c() := x 
-          || pl([par(), *_]) := x
-         );
-   return y;
-} 
