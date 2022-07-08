@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch DocRunner",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.DocRunner",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "Launch DoubleRightNullableWithPrefixSharing",
             "request": "launch",
             "mainClass": "org.rascalmpl.test.parser.DoubleRightNullableWithPrefixSharing",
