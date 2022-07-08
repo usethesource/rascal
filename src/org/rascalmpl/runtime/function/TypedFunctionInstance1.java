@@ -16,6 +16,7 @@ public class TypedFunctionInstance1<R extends IValue,A> extends TypedFunctionIns
 
 	public TypedFunctionInstance1(TypedFunction1<R,A> function, Type ftype){
 		super(ftype);
+		assert ftype.isFunction() ? ftype.getArity() == 1 : true;
 		this.function = function;
 		type_arg_0 = ftype.isFunction() ? type.getFieldType(0) : TypeFactory.getInstance().valueType();	
 	}

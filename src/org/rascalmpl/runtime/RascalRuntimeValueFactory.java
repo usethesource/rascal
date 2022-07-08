@@ -9,10 +9,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction0;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction1;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction2;
@@ -28,8 +24,6 @@ import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.Typed
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -53,6 +47,9 @@ import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
@@ -65,30 +62,27 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class RascalRuntimeValueFactory extends RascalValueFactory {
-    private final $RascalModule module;
-    private @MonotonicNonNull ParserGenerator generator;
+    
+    private final RascalExecutionContext rex;
+    
     private LoadingCache<IMap, Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache = Caffeine.newBuilder()
         .softValues()
         .maximumSize(100) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
         .expireAfterAccess(30, TimeUnit.MINUTES) // we clean up unused parsers after 30 minutes
         .build(grammar -> generateParser(grammar));
 
-   
-    public RascalRuntimeValueFactory($RascalModule currentModule) {
-        this.module = currentModule;
+    public RascalRuntimeValueFactory(RascalExecutionContext rex) {
+    	this.rex = rex;
     }
 
     private ParserGenerator getParserGenerator() {
-        if (this.generator == null) {
-            this.generator = new ParserGenerator(module.$MONITOR, module.$OUT, Collections.singletonList(module.getClass().getClassLoader()), this, new Configuration());
-        }
-        
-        return generator;
+    	return ParserGeneratorFactory.getInstance(rex).getParserGenerator(this);
     }
 
     private Class<IGTD<IConstructor, ITree, ISourceLocation>> generateParser(IMap grammar) {
         try {
-            return getParserGenerator().getNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
+        	System.err.println("generateParser: " + grammar.hashCode() +": " + grammar);
+            return getParserGenerator().getNewParser(rex, URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
         } 
         catch (ExceptionInInitializerError e) {
             throw new ImplementationError(e.getMessage(), e);
@@ -215,10 +209,10 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
 
             if (firstAmbiguity) {
                 if (parameters[0].getType().isString()) {
-                    return firstAmbiguity(grammar, (IString) parameters[0], generator);
+                    return firstAmbiguity(grammar, (IString) parameters[0], getParserGenerator());
                 }
                 else if (parameters[0].getType().isSourceLocation()) {
-                    return firstAmbiguity(grammar, (ISourceLocation) parameters[0], generator);
+                    return firstAmbiguity(grammar, (ISourceLocation) parameters[0], getParserGenerator());
                 }
             }
             else {
@@ -227,10 +221,10 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
                 }
 
                 if (parameters[0].getType().isString()) {
-                    return parse(grammar, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, filters, generator);
+                    return parse(grammar, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, filters, getParserGenerator());
                 }
                 else if (parameters[0].getType().isSourceLocation()) {
-                    return parse(grammar, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, filters, generator);
+                    return parse(grammar, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, filters, getParserGenerator());
                 }
             }
 
@@ -286,7 +280,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         protected IValue parse(IValue start, IString input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, ISet filters, ParserGenerator generator) {
             Type reified = start.getType();
             IConstructor grammar = checkPreconditions(start, reified);
-            //System.err.println("parse uses grammar:"); System.err.println(grammar);
+            System.err.println("parse uses grammar:"); System.err.println(grammar);
             if (origin == null) {
                 origin = URIUtil.rootLocation("unknown");
             }
@@ -399,10 +393,10 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
 
             if (firstAmbiguity) {
                 if (parameters[1].getType().isString()) {
-                    return firstAmbiguity(parameters[0], (IString) parameters[1], generator);
+                    return firstAmbiguity(parameters[0], (IString) parameters[1], getParserGenerator());
                 }
                 else if (parameters[1].getType().isSourceLocation()) {
-                    return firstAmbiguity(parameters[0], (ISourceLocation) parameters[1], generator);
+                    return firstAmbiguity(parameters[0], (ISourceLocation) parameters[1], getParserGenerator());
                 }
             }
             else {
@@ -415,10 +409,10 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
                 }
 
                 if (parameters[1].getType().isString()) {
-                    return parse(parameters[0], ((IString) parameters[1]), (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, filters, generator);
+                    return parse(parameters[0], ((IString) parameters[1]), (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, filters, getParserGenerator());
                 }
                 else if (parameters[1].getType().isSourceLocation()) {
-                    return parse(parameters[0], (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, filters, generator);
+                    return parse(parameters[0], (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, filters, getParserGenerator());
                 }
             }
 

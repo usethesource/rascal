@@ -1,6 +1,5 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ToplevelType;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IValue;
@@ -50,22 +49,37 @@ public abstract class TraverseOnce {
 	
 	private IValue traverseOnce(final Type subjectType, final IValue subject,  final TraversalState tr) {
 
-		switch(ToplevelType.getToplevelType(subjectType)) {
-		case ADT:
+		if (subjectType.isAbstractData()){
 			return traverseADTOnce(subject,tr);
-		case NODE:
+		} else if (subjectType.isNode()){
 			return traverseNodeOnce(subject, tr);
-		case LIST:
-			return  traverseListOnce(subject,  tr);
-		case SET:
+		} else if(subjectType.isList()){
+			return traverseListOnce(subject,  tr);
+		} else if(subjectType.isSet()){
 			return traverseSetOnce(subject,  tr);
-		case MAP:
+		} else if (subjectType.isMap()) {
 			return traverseMapOnce(subject, tr);
-		case TUPLE:
+		} else if(subjectType.isTuple()){
 			return traverseTupleOnce(subject, tr);
-		default:
+		} else {
 			return subject;
 		}
+//		switch(ToplevelType.getToplevelType(subjectType)) {
+//		case ADT:
+//			return traverseADTOnce(subject,tr);
+//		case NODE:
+//			return traverseNodeOnce(subject, tr);
+//		case LIST:
+//			return  traverseListOnce(subject,  tr);
+//		case SET:
+//			return traverseSetOnce(subject,  tr);
+//		case MAP:
+//			return traverseMapOnce(subject, tr);
+//		case TUPLE:
+//			return traverseTupleOnce(subject, tr);
+//		default:
+//			return subject;
+//		}
 	}
 	
 	/*

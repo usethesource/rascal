@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public final class ModuleStore {
 	
@@ -27,7 +26,7 @@ public final class ModuleStore {
      * @param builder Constructor for the class
      */
     @SuppressWarnings("unchecked")
-    public <T> void importModule(Class<T> module, Function<ModuleStore, T> builder) {
+    public <T> void importModule(Class<T> module, RascalExecutionContext rex, BiFunction<RascalExecutionContext, ModuleStore, T> builder) {
         T result = (T)loadedModules.get(module);
         if (result == null) {
         	if(importInProgress.contains(module)) {
@@ -35,7 +34,7 @@ public final class ModuleStore {
         	}
         	importInProgress.add(module);
             // we have to compute and then merge, computeIfAbstent can not be used, as we'll have to use the map during the compute.
-            T newResult = builder.apply(this);
+            T newResult = builder.apply(rex, this);
             // we merge, most cases we won't get a merge, but if we do, we keep the one in the store
             loadedModules.merge(module, newResult, (a, b) -> (a == newResult) ? b : a);
             importInProgress.remove(module);
@@ -45,7 +44,7 @@ public final class ModuleStore {
     /**
      * @param <T> Module type, i.e. the generated interface for the module
      * @param module Class file for module
-     * @return the loaded moduled from the store
+     * @return the loaded module from the store
      */
     @SuppressWarnings("unchecked")
 	public <T> T getModule(Class<T> module) {
@@ -54,8 +53,12 @@ public final class ModuleStore {
     	return newResult;
     }
 
-    public <T1, T2> T1 extendModule(Class<T1> module, BiFunction<ModuleStore, T2, T1> builder, T2 extension) {
-		return builder.apply(this, extension);
+    public <T1, T2> T1 extendModule(Class<T1> module, RascalExecutionContext rex, TriFunction<RascalExecutionContext, ModuleStore, T2, T1> builder, T2 extension) {
+		return builder.apply(rex, this, extension);
+    }
+    
+    public boolean notPresent(Class<?> module) {
+    	return loadedModules.get(module) == null && !importInProgress.contains(module);
     }
 
 	public <T> void put(Class<T> module, T c) {

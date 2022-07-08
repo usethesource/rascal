@@ -1,42 +1,72 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.Traverse;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public class RascalExecutionContext implements IRascalMonitor {
 	private String currentModuleName;
-	private final PrintWriter stdout;
-	private final PrintWriter stderr;
+	private $RascalModule module;
+	private final IRascalValueFactory $RVF;
+	private final InputStream instream;
+	private final PrintStream outstream;
+	private final PrintWriter outwriter;
+	private final PrintStream errstream;
+	private final PrintWriter errwriter;
 	private final PathConfig pcfg;
-	private IDEServices ideServices;
+	private final IDEServices ideServices;
+	private final Traverse $TRAVERSE;
 
 	public RascalExecutionContext(
-			PrintWriter stdout,
-			PrintWriter stderr, 
+			InputStream instream,
+			PrintStream outstream,
+			PrintStream errstream, 
 			PathConfig pcfg, 
 			IDEServices ideServices
 			){
-
-		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
-
+		
 		currentModuleName = "UNDEFINED";
-
-		this.ideServices = ideServices == null ? new BasicIDEServices(stderr) : ideServices;
-		this.stdout = stdout;
-		this.stderr = stderr;
+		
+		this.instream = instream;
+		this.outstream = outstream;
+		this.outwriter = new PrintWriter(outstream);
+		this.errstream = errstream;
+		this.errwriter = new PrintWriter(errstream);
+		
+		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
+		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter) : ideServices;
+		$RVF = new RascalRuntimeValueFactory(this);
+		$TRAVERSE = new Traverse($RVF);
 	}
-
-	public PrintWriter getStdErr() { return stderr; }
-
-	public PrintWriter getStdOut() { return stdout; }
 	
+	IRascalValueFactory getRascalRuntimeValueFactory() { return $RVF; }
+	
+	public Traverse getTraverse() { return $TRAVERSE; }
+	
+	public InputStream getInStream() { return instream; }
+	
+	public PrintWriter getOutWriter() { return outwriter; }
+	
+	public PrintStream getOutStream() { return outstream; }
+
+	public PrintWriter getErrWriter() { return errwriter; }
+	
+	public PrintStream getErrStream() { return errstream; }
+
 	public PathConfig getPathConfig() { return pcfg; }
+	
+	public void setModule($RascalModule module) { this.module = module; }
+	
+	public $RascalModule getModule() { return module; }
 
 	public String getFullModuleName(){ return currentModuleName; }
 
