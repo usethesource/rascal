@@ -93,12 +93,12 @@ public class DocRunner {
                 startREPL(preprocessOut, mayHaveErrors);
             }
             
-            preprocessOut.append(repl.getPrompt()).append(escapeForHTML(line)).append("\n");
+            preprocessOut.append(repl.getPrompt()).append(line).append("\n");
         
-            String resultOutput = escapeForHTML(repl.eval(line, folder));
+            String resultOutput = repl.eval(line, folder);
             String htmlOutput = repl.getHTMLOutput();
-            String errorOutput = escapeForHTML(repl.getErrorOutput());
-            String printedOutput = escapeForHTML(repl.getPrintedOutput());
+            String errorOutput = repl.getErrorOutput();
+            String printedOutput = repl.getPrintedOutput();
             
             if (!printedOutput.isEmpty()){
                 preprocessOut.append(printedOutput);
@@ -140,45 +140,11 @@ public class DocRunner {
         return "<span class=\"error\">" + result + "</span>";
     }
 
-    private String escapeForHTML(String s) {
-        StringBuilder out = new StringBuilder(Math.max(16, s.length()));
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c > 127) {
-                out.append("&#");
-                out.append((int) c);
-                out.append(';');
-            } 
-            else {
-                switch (c) {
-                    case '\\':
-                    case '"':
-                    case '<':
-                    case '>':
-                    case '&':
-                    case '*':
-                    case '#':
-                    case '`': 
-                    case '+':
-                        out.append("&#");
-                        out.append((int) c);
-                        out.append(';');
-                        break;
-                    default:
-                        out.append(c);
-                }
-            }
-        }
-        
-        return out.toString(); 
-    }
-
     private void endREPL(Writer preprocessOut) throws IOException {
         preprocessOut.write("```\n");
     }
 
     private void startREPL(Writer preprocessOut, boolean mayHaveErrors) throws IOException {
-        preprocessOut.write("```rascal-shell");
-        preprocessOut.write("```\n");
+        preprocessOut.write("```rascal-shell\n");
     }
 }
