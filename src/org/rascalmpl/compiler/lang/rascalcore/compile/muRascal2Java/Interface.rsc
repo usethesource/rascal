@@ -17,24 +17,27 @@ import String;
 
 // Generate an interface for a Rascal module
 
-str generateInterface(str moduleName, str packageName, str className, list[MuFunction] functions, set[str] extends, map[str,TModel] tmodels, JGenie _jg){
+str generateInterface(str moduleName, str packageName, str className, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, JGenie _jg){
     return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import io.usethesource.vallang.*;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
            '
            '@SuppressWarnings(\"unused\")
            'public interface $<className>  {
-           '    <generateInterfaceMethods(moduleName, functions, extends, tmodels)>
+           '    <generateInterfaceMethods(moduleName, functions, imports, extends, tmodels)>
            '}";
 }
 
-lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str] extends, map[str,TModel] tmodels){
+lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  imports, set[str] extends, map[str,TModel] tmodels){
+    
     result = [];
     rel[str, int, AType] signatures = {};
     mscope = tmodels[moduleName].moduleLocs[moduleName];
+   
+    
     for(f <- functions, isEmpty(f.scopeIn), isContainedIn(f.src, mscope),
-                                            !("test" in f.modifiers 
-                                             || isSyntheticFunctionName(f.name) 
+                                            !(//"test" in f.modifiers 
+                                              isSyntheticFunctionName(f.name) 
                                              || isMainName(f.name))
        ){
         signatures += <f.name, getArity(f.ftype), f.ftype>;
@@ -42,11 +45,14 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     //iprintln(signatures);
     
     for(ext <- extends){
+        escope = tmodels[ext].moduleLocs[ext];
         for(def <- tmodels[ext].defines, defType(AType tp) := def.defInfo, 
             def.idRole == functionId() || def.idRole == constructorId(),
-            isContainedIn(def.defined, mscope),
+            def.scope == escope, //isContainedIn(def.defined, escope),
             !(tp has isTest && tp.isTest),
+            !isNonTerminalType(tp), !isLexicalType(tp),
             !(isSyntheticFunctionName(def.id) || isMainName(def.id))){
+            
             signatures += <def.id, getArity(tp), tp>;
         }
     }
@@ -60,8 +66,8 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     return sort(result);
 }
 
-str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str] extends, map[str,TModel] tmodels){
-    interface_signature = getInterfaceSignature(moduleName, functions, extends, tmodels);
+str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels){
+    interface_signature = getInterfaceSignature(moduleName, functions, imports, extends, tmodels);
     methods = [generateInterfaceMethod(name, tp) | <name, tp> <- interface_signature];
     return intercalate("\n", methods);
 }

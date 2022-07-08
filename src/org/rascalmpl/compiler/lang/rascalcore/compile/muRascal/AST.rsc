@@ -43,22 +43,24 @@ MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name
 // function, or a nested or anomyous function inside a top level function. 
          
 public data MuFunction =					
-                muFunction(str name, 
-                           str uniqueName,
-                           AType ftype,
-                           list[MuExp] formals,
+                muFunction(str name,                        // Function name as in source text
+                           str uniqueName,                  // Function name made unique with position information in file
+                           AType ftype,                     // Function type
+                           list[MuExp] formals,             // List of muVar's representing the formals
                            lrel[str name, AType atype, MuExp defaultExp] kwpDefaults, 
-                           str scopeIn,
-                           bool isVarArgs,
-                           bool isPublic,
-                           bool isMemo,
-                           set[MuExp] externalRefs,
-                           set[MuExp] localRefs,
-                           set[MuExp] keywordParameterRefs,
-                           loc src,
+                           str scopeIn,                     // Name of current scope (concatenion of surrounding unique function names)
+                           bool isVarArgs,                  // Has is variable arguments?
+                           bool isPublic,                   // Is it public?
+                           bool isMemo,                     // Is it a memo function?
+                           set[MuExp] externalRefs,         // References to variables in outer scope
+                           set[MuExp] externalFormalRefs,   // Formal parameters referenced by inner functions
+                           set[MuExp] localRefs,            // references to local variables from visits
+                           set[MuExp] keywordParameterRefs, // References to keyword parameters
+                           loc src,                         // Source code of this function
                            list[str] modifiers,
                            map[str,str] tags,
-                           MuExp body)
+                           MuExp body                       // The function body
+                           )
            ;
           
 // A global (module level) variable.
@@ -178,7 +180,7 @@ public data MuExp =
           | muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)
           | muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)
 
-          | muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)
+          | muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl)
           
           // Conditionals and iterations
                     														
@@ -473,7 +475,7 @@ default AType getType(MuExp exp) =
 bool exitViaReturn(MuExp exp){
     res = exitViaReturn1(exp);
     //if(!res)
-    //    println("<exp> ==\> <res>");
+    //    println("exitViaReturn <exp> ==\> <res>");
     
     return res;
 }
@@ -552,10 +554,13 @@ bool exitViaReturn1( muVisit(str visitName, MuExp subject, list[MuCase] cases, M
 }
 
 bool exitViaReturn1(muTry(MuExp exp, MuCatch \catch, MuExp \finally))
-    = exitViaReturn(exp) && exitViaReturn(\catch.body) || exitViaReturn(\finally);
+    = /*exitViaReturn(exp) && */exitViaReturn(\catch.body) || exitViaReturn(\finally);
 
 bool exitViaReturn1(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) 
     = exitViaReturn(body);
+    
+bool exitViaReturn1(muThrow(MuExp exp, loc src))
+    = true;
     
 default bool exitViaReturn1(MuExp exp) {
    //println("default exitViaReturn1: <exp>");
@@ -712,12 +717,12 @@ bool noSequentialExit(m: muForRangeInt(str label, MuExp var, int ifirst, int ist
 
                 
 bool noSequentialExit(m: muSwitch(str switchName, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)) {
-    res = any(c <- cases, noSequentialExit(c.exp)) || noSequentialExit(defaultExp);
+    res = all(c <- cases, noSequentialExit(c.exp)) && noSequentialExit(defaultExp);
     return reportResult(m, res);
 }
 
 bool noSequentialExit(m: muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)) {
-    res = any(c <- cases, noSequentialExit(c.exp)) || noSequentialExit(defaultExp);
+    res = any(c <- cases, noSequentialExit(c.exp)) || noSequentialExit(defaultExp); // TODO: check this
     return reportResult(m, res);
 }
 
@@ -726,10 +731,13 @@ bool noSequentialExit(m: muTry(MuExp exp, MuCatch \catch, MuExp \finally)){
     return reportResult(m, res);
 }
 
-bool noSequentialExit(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) {
-    res = noSequentialExit(body);
-    return reportResult(body, res);
-}
+//bool noSequentialExit(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) {
+//    res = noSequentialExit(body);
+//    return reportResult(body, res);
+//}
+
+bool noSequentialExit(muThrow(MuExp exp, loc src))
+    = true;
     
 default bool noSequentialExit(MuExp exp){
     res = false;
@@ -888,7 +896,6 @@ MuExp removeDeadCode(MuExp exp)
     = removeDeadCode(exp, []);
     
 MuExp removeDeadCode(MuExp exp, list[str] entered){
-    //println("Before removeDeadCode:"); iprintln(exp);
     res =  top-down-break visit(exp){
         case mb: muBlock([*MuExp pre, MuExp exp2, *MuExp post]) => muBlock([*pre, exp2]) 
              when !isEmpty(post), 
@@ -912,11 +919,15 @@ MuExp removeDeadCode(MuExp exp, list[str] entered){
         case muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont) =>
              muForRangeInt(label, var, ifirst, istep, last, removeDeadCode(body, label + entered), falseCont) when label in entered    
     }
-    //println("After removeDeadCode:"); iprintln(res);
+    if(res != exp){
+        println("Before removeDeadCode:"); iprintln(exp);
+        println("After removeDeadCode:"); iprintln(res);
+    }
     return res;
 }
 
 MuExp muReturn1(AType t, me:muExists(str btscope, MuExp exp)){
+//iprintln(exp);
     ires = insertReturn(exp, [btscope], t == abool() || t == avalue());
     res = muExists(btscope, ires);
     return noSequentialExit(res) ? res : muBlock([muComment("muReturn1/muExists"), addReturn(t, t == abool() || t == avalue(), res)]);
@@ -1187,6 +1198,10 @@ MuExp muIfExp(ma:muAll(str label, MuExp body), thenPart, elsePart)
     = muValueBlock(avalue(), auxVars + pre + muIfExp(flatArgs[0], thenPart, elsePart))
       when <true, auxVars, pre, flatArgs> := flattenArgs([ma]) && !isEmpty(pre);
 
+//MuExp muIfExp(ma:muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont), thenPart, elsePart) 
+//    = muValueBlock(avalue(), auxVars + pre + muIfExp(flatArgs[0], thenPart, elsePart))
+//      when <true, auxVars, pre, flatArgs> := flattenArgs([ma]) && !isEmpty(pre);
+
 
 default MuExp muIfExp(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 
@@ -1275,7 +1290,9 @@ MuExp muNot1(muCon(bool b)) = muCon(!b);
 //    = muNotNativeBool(mp)
 //    when name notin { "add_string_writer" };
 
-default MuExp muNot1(MuExp exp) = isBoolType(getType(exp)) /*producesNativeBool(exp)*/ ? muNotNativeBool(exp) : exp;
+default MuExp muNot1(MuExp exp) =
+    isBoolType(getType(exp)) ? (producesNativeBool(exp) ? muNotNativeBool(exp) : muPrim("not", abool(), [abool()], [exp], |unknown:///|))
+                             : exp;
 
 // ---- muIfElse --------------------------------------------------------------
 
@@ -1358,7 +1375,9 @@ bool containsEnter(str enter, MuExp exp){
     return false;
 }
 
-MuExp muExists(str label, ma: muAll(label, MuExp exp)) = ma;
+MuExp muExists(str label, ma: muAll(label, MuExp exp)) {
+    return ma;
+}
     
 MuExp muExists(str label, muForAll(label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont))
     = muForAll(label, var, iterType, iterable, body, falseCont);
@@ -1615,6 +1634,11 @@ MuExp muGetKwField(AType resultType, AType baseType, muValueBlock(AType _, [*MuE
 
 MuExp muSetField(AType resultType, AType baseType, muValueBlock(AType _, [*MuExp pre, MuExp last]), value fieldIdentity, MuExp repl)
    = muValueBlock(resultType, [*pre, muSetField(resultType, baseType, last, fieldIdentity, repl)]);
+   
+MuExp muSetField(AType resultType, AType baseType,  MuExp base, value fieldIdentity, MuExp repl)
+    = muValueBlock(resultType, auxVars + pre + muSetField(resultType, baseType, base, fieldIdentity, flatArgs[0]))
+   when <true, auxVars, pre, flatArgs> := flattenArgs([repl]) && !isEmpty(pre);
+   
 
 MuExp muValueIsSubtypeOf(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;
 MuExp muValueIsComparable(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;

@@ -132,6 +132,10 @@ void enterLabelled(Label label, str alt){
     }
 }
 
+void enterLabelled(str alt){
+    labelledStats = <alt, alt> + labelledStats;
+}
+
 void leaveLabelled(){
     if(!isEmpty(labelledStats)){
         labelledStats = tail(labelledStats);

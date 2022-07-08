@@ -71,38 +71,40 @@ default str atype2javatype(AType t) = "ITree"; //"IConstructor"; // This covers 
 /*****************************************************************************/
 
 str atype2idpart(AType t, JGenie jg) {
-    str convert(avoid(), bool useAccessor = true)                 = "void";
-    str convert(abool(), bool useAccessor = true)                 = "bool";
-    str convert(aint(), bool useAccessor = true)                  = "int";
-    str convert(areal(), bool useAccessor = true)                 = "real";
-    str convert(arat(), bool useAccessor = true)                  = "rat";
-    str convert(anum(), bool useAccessor = true)                  = "num";
-    str convert(astr(), bool useAccessor = true)                  = "str";
-    str convert(aloc(), bool useAccessor = true)                  = "loc";
-    str convert(adatetime(), bool useAccessor = true)             = "datetime";
-    str convert(alist(AType t), bool useAccessor = true)          = "list_<convert(t, useAccessor=false)>";
-    str convert(aset(AType t), bool useAccessor = true)           = "set_<convert(t, useAccessor=false)>";
-    str convert(arel(AType ts), bool useAccessor = true)          = "rel_<convert(ts, useAccessor=false)>";
-    str convert(alrel(AType ts), bool useAccessor = true)         = "listrel_<convert(ts, useAccessor=false)>";
-    str convert(atuple(AType ts), bool useAccessor = true)        = "tuple_<convert(ts, useAccessor=false)>";
-    str convert(amap(AType d, AType r), bool useAccessor = true)  = "map_<convert(d, useAccessor=false)>_<convert(r, useAccessor=false)>";
+    str convert(avoid())                 = "void";
+    str convert(abool())                 = "bool";
+    str convert(aint())                  = "int";
+    str convert(areal())                 = "real";
+    str convert(arat())                  = "rat";
+    str convert(anum())                  = "num";
+    str convert(astr())                  = "str";
+    str convert(aloc())                  = "loc";
+    str convert(adatetime())             = "datetime";
+    str convert(alist(AType t))          = "list_<convert(t)>";
+    str convert(aset(AType t))           = "set_<convert(t)>";
+    str convert(arel(AType ts))          = "rel_<convert(ts)>";
+    str convert(alrel(AType ts))         = "listrel_<convert(ts)>";
+    str convert(atuple(AType ts))        = "tuple_<convert(ts)>";
+    str convert(amap(AType d, AType r))  = "map_<convert(d)>_<convert(r)>";
     
-    str convert(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), bool useAccessor = true)
-                                              = "<convert(ret)>_<intercalate("_", [convert(f, useAccessor=false) | f <- formals])>";
+    str convert(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
+                                         = "<convert(ret)>_<intercalate("_", [convert(f) | f <- formals])>";
     
-    str convert(anode(list[AType fieldType] fields), bool useAccessor = true)
-                                              = "node";
+    str convert(anode(list[AType fieldType] fields))
+                                         = "node";
     
-    str convert(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), bool useAccessor = true){
-        return "<useAccessor ? jg.getATypeAccessor(a) : ""><getJavaName(adtName)>";
+    str convert(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
+        //return "<useAccessor ? jg.getATypeAccessor(a) : ""><getJavaName(adtName)>";
+        return getJavaName(adtName);
     }
                                                   
-    str convert(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields), bool useAccessor = true){
-        ext = "<getJavaName(adt.adtName, completeId=false)><t.label? ? "_" + getJavaName(getUnqualifiedName(t.label), completeId=false) : "">_<intercalate("_", [convert(f, useAccessor=false) | f <- fields])>";
-        return "<useAccessor ? jg.getATypeAccessor(t) : ""><ext>";
+    str convert(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields)){
+        ext = "<getJavaName(adt.adtName, completeId=false)><t.label? ? "_" + getJavaName(getUnqualifiedName(t.label), completeId=false) : "">_<intercalate("_", [convert(f) | f <- fields])>";
+        //return "<useAccessor ? jg.getATypeAccessor(t) : ""><ext>";
+        return ext;
     }
     
-    str convert(overloadedAType(rel[loc, IdRole, AType] overloads), bool useAccessor = true){
+    str convert(overloadedAType(rel[loc, IdRole, AType] overloads)){
         resType = avoid();
         formalsType = avoid();
         for(<_, _, tp> <- overloads){
@@ -113,36 +115,30 @@ str atype2idpart(AType t, JGenie jg) {
         return convert(ftype);
     }
     
-    str convert(aprod(AProduction production), bool useAccessor = true){
-        return "aprod";
+    str convert(aprod(AProduction production))      = "aprod";
     
-    }
+    str convert(atypeList(list[AType] ts))          = intercalate("_", [convert(t) | t <- ts]);
     
-    str convert(atypeList(list[AType] ts), bool useAccessor = true) 
-                                              = intercalate("_", [convert(t, useAccessor=false) | t <- ts]);
+    str convert(aparameter(str pname, AType bound)) = "P<avalue() := bound ? "" : convert(bound)>"; 
+    str convert(areified(AType atype))              = "reified_<convert(atype)>";
+    str convert(avalue())                           = "value";
     
-    str convert(aparameter(str pname, AType bound), bool useAccessor = true) 
-                                              = "P<avalue() := bound ? "" : convert(bound)>"; 
-    str convert(areified(AType atype), bool useAccessor = true)   = "reified_<convert(atype)>";
-    str convert(avalue())                = "value";
+    str convert(\lit(str s))                        = "lit(\"<s>\")";
+    str convert(\empty())                           = "empty";
+    str convert(\opt(AType atype))                  = "opt_<convert(atype)>";
+    str convert(\iter(AType atype))                 = "iter_<convert(atype)>"; 
+    str convert(\iter-star(AType atype))            = "iter_star_<convert(atype)>"; 
+    str convert(\iter-seps(AType atype, list[AType] separators))
+                                                    = "iter_seps_<convert(atype)>"; 
+    str convert(\iter-star-seps(AType atype, list[AType] separators))
+                                                    = "iter_star_seps_<convert(atype)>"; 
+    str convert(\alt(set[AType] alternatives))      = "alt_"; //TODO
+    str convert(\seq(list[AType] atypes))           = "seq_";  //TODO
+    str convert(\start(AType atype))                = "start_<convert(atype)>";
+    str convert(\conditional(AType atype, set[ACondition] conditions))
+                                                    = convert(atype);
     
-    str convert(\lit(str s), bool useAccessor = true)             = "lit(\"<s>\")";
-    str convert(\empty(), bool useAccessor = true)                = "empty";
-    str convert(\opt(AType atype), bool useAccessor = true)       = "opt_<convert(atype)>";
-    str convert(\iter(AType atype), bool useAccessor = true)      = "iter_<convert(atype)>"; 
-    str convert(\iter-star(AType atype), bool useAccessor = true) = "iter_star_<convert(atype)>"; 
-    str convert(\iter-seps(AType atype, list[AType] separators), bool useAccessor = true)
-                                              = "iter_seps_<convert(atype)>"; 
-    str convert(\iter-star-seps(AType atype, list[AType] separators), bool useAccessor = true)
-                                              = "iter_star_seps_<convert(atype)>"; 
-    str convert(\alt(set[AType] alternatives), bool useAccessor = true)
-                                              = "alt_"; //TODO
-    str convert(\seq(list[AType] atypes), bool useAccessor = true)= "seq_";  //TODO
-    str convert(\start(AType atype), bool useAccessor = true)        = "start_<convert(atype)>";
-    str convert(\conditional(AType atype, set[ACondition] conditions), bool useAccessor = true)
-        = convert(atype);
-    
-    default str convert(AType t, bool useAccessor = true) { throw "convert: cannot handle <t>"; }
+    default str convert(AType t) { throw "convert: cannot handle <t>"; }
     
     return convert(t);
 
@@ -762,7 +758,18 @@ default str value2outertype(AType t) = "IValue";
 /*******************************************************************************/
 /*  Convert an AType to an equivalent type ("VType") in the Vallang type store */
 /*******************************************************************************/
-
+AType setScopeInfoType = afunc(
+          avoid(),
+          [
+            aloc(label="scope"),
+            aadt(
+              "ScopeRole",
+              [],
+              dataSyntax()),
+            avalue()
+          ],
+          []);
+          
 str refType(AType t, JGenie jg, bool inTest)
     = inTest ? "$me.<jg.shareType(t)>" : jg.shareType(t);
     
@@ -791,12 +798,12 @@ str atype2vtype(alrel(AType t), JGenie jg, bool inTest=false) = "$TF.listType($T
 
 str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), JGenie jg, bool inTest=false){
     vformals = isEmpty(formals) ? "$TF.tupleEmpty()" 
-                                : ( (!isEmpty(formals) && any(t <- formals, t.label?)) 
-                                        ? "$TF.tupleType(<intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.label>\""] | t <- formals])>)"
-                                        : "$TF.tupleType(<intercalate(", ", [ refType(t, jg, inTest) | t <- formals])>)"
-                                  );
+                                : ( (!isEmpty(formals) && all(AType t <- formals, t.label?)) 
+                                        ? "$TF.tupleType(<intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.label>\""] | AType t <- formals])>)"
+                                        : "$TF.tupleType(<intercalate(", ", [ refType(t, jg, inTest) | AType t <- formals])>)"                                        
+                                );
     vkwformals = isEmpty(kwFormals) ? "$TF.tupleEmpty()" 
-                                    : "$TF.tupleType(<intercalate(", ", [ refType(t.fieldType, jg, inTest) | t <- kwFormals])>)"; 
+                                    : "$TF.tupleType(<intercalate(", ", [ refType(t.fieldType, jg, inTest) | Keyword t <- kwFormals])>)"; 
     return "$TF.functionType(<jg.shareType(ret)>, <vformals>, <vkwformals>)";
 }
 

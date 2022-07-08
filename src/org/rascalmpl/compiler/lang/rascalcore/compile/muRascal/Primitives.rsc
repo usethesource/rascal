@@ -42,18 +42,18 @@ MuExp muPrim("negative", aint(), [aint()], [muCon(int n)], loc src2)  = muCon(-n
 
 MuExp muPrim("product", aint(), [aint(), aint()], [muCon(int n1), muCon(int n2)], loc src) = muCon(n1 * n2);
 
-MuExp muPrim("product",aint(), [aint(), aint()], [muPrim("product", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
+MuExp muPrim("product", aint(), [aint(), aint()], [muPrim("product", aint(), [aint(), aint()], [MuExp e, muCon(int n1)], loc src1), muCon(int n2)], loc src2) =
       muPrim("product", aint(), [aint(), aint()], [e, muCon(n1 * n2)], src2);
 
 MuExp muPrim("product", aint(), [aint(), aint()], [muCon(int n1), muPrim("product", aint(), [aint(), aint()], [muCon(int n2), MuExp e], loc src1)], loc src2)  =
-      muPrim("product",aint(),  [aint(), aint()], [muCon(n1 * n2), e], src2);
+      muPrim("product", aint(), [aint(), aint()], [muCon(n1 * n2), e], src2);
 
 // String concatenation
 
 MuExp muPrim("add", astr(), [astr(), astr()], [muCon(str s1), muCon(str s2)], loc src) = muCon(s1 + s2);
 
-MuExp muPrim("add",astr(), [astr(), astr()], [muPrim("add", astr(), [astr(), astr()], [MuExp e, muCon(str s1)], loc src1), muCon(str s2)], loc src2) =
-      muPrim("add", astr(),[astr(), astr()], [e, muCon(s1 + s2)], src2);
+MuExp muPrim("add", astr(), [astr(), astr()], [muPrim("add", astr(), [astr(), astr()], [MuExp e, muCon(str s1)], loc src1), muCon(str s2)], loc src2) =
+      muPrim("add", astr(), [astr(), astr()], [e, muCon(s1 + s2)], src2);
 
 MuExp muPrim("add", astr(), [astr(), astr()], [muCon(str s1), muPrim("add", astr(), [astr(), astr()], [muCon(str s2), MuExp e], loc src1)], loc src2)  =
       muPrim("add", astr(), [astr(), astr()], [muCon(s1 + s2), e], src2);

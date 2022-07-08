@@ -49,6 +49,7 @@ JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)  
                                                                                              when isArithType(a) && isArithType(b) || 
                                                                                                   isStrType(a) && isStrType(b) ||
                                                                                                   isLocType(a) && isStrType(b) ||
+                                                                                                  isDateTimeType(a) && isDateTimeType(b) ||
                                                                                                   isTupleType(a) && isTupleType(b) ||
                                                                                                   isListLikeType(a) && isListLikeType(b) ||
                                                                                                   isSetLikeType(a) && isSetLikeType(b) ||
@@ -131,9 +132,6 @@ JCode transPrim("divide", AType r, [AType a, AType b], [str x, str y], JGenie jg
 // ---- equal -----------------------------------------------------------------
 
 JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         =  "$equal(<x>, <y>)";
-
-//JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).equals(<y>)"   when !(isNodeType(a) || isNodeType(b)); // was .equal
-//JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).equals(<y>)"   when isNodeType(a) || isNodeType(b);    //WHY?
 
 // ---- field_project ---------------------------------------------------------
 
