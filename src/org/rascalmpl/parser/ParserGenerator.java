@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.jruby.ir.targets.SymbolObjectSite;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.Throw;
