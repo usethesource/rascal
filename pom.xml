@@ -275,7 +275,7 @@
                     <version>2.5.3</version>
                     <configuration>
                         <tagNameFormat>v@{project.version}</tagNameFormat>
-                        <arguments>-Drascal.courses=--buildCourses -Drascal.boot=--validating</arguments>
+                        <arguments>-Drascal.compile.skip -DskipTests</arguments>
                     </configuration>
                 </plugin>
                 <plugin>
