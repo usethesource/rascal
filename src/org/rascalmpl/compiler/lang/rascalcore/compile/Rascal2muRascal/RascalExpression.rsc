@@ -850,7 +850,11 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    }
   
    if(exp_type == "aloc"){
-       return muPrim(size(args) == 2 ? "create_loc_with_offset" : "create_loc_with_offset_and_begin_end", aloc(), [aloc()], [receiver, *args], e@\loc);
+       if(size(args) == 2){
+            return muPrim("create_loc_with_offset", aloc(), [aloc(), aint(), aint()], [receiver, *args], e@\loc);
+       } else {
+         return muPrim("create_loc_with_offset_and_begin_end", aloc(), [aloc(),aint(), aint(), atuple(atypeList([aint(), aint()])), atuple(atypeList([aint(), aint()]))], [receiver, *args], e@\loc);
+       }
    }
    str fname = unescape("<expression>");
    if(!isOverloadedAType(ftype) || fname in { "choice", "priority", "associativity"}){
