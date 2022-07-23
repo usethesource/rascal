@@ -471,7 +471,7 @@ MuExp translateParsedConcretePattern(appl(prod(Symbol::layouts(_),_,_), _), ATyp
 
 // ---- Pattern variable
 
-MuExp translateParsedConcretePattern(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole]),
+MuExp translateParsedConcretePattern(appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole]),
                         AType patType, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
    holeName = prettyPrintName(hole.name);
    return holeName == "_" ? trueCont :  muBlock([muVarInit(mkVar(holeName, hole.name@\loc), subjectExp), trueCont]);
@@ -506,10 +506,11 @@ private MuExp translateParsedConcretePattern(t:Tree::appl(p:Production::regular(
     return translateConcreteListPat(t, symbol2atype(s), subjectType, subject, btscopes, trueCont, falseCont, restore=restore, delta=1+size(seps));
 }
 
-AType getTypeTree(t:Tree::appl(Production prod, list[Tree] args)) {
+AType getTypeTree(appl(Production prod, list[Tree] args)) {
     return  symbol2atype(prod.def);
 }
 AType getTypeTree(t:Tree::char(int n)) = treeType;
+
 default AType getTypeTree(Tree t){
     throw t;
 }
@@ -529,7 +530,7 @@ private MuExp translateParsedConcretePattern(t:Tree::appl(prod:Production::regul
                        
 // ---- any parse tree
 
-default MuExp translateParsedConcretePattern(t:Tree::appl(Production prod, list[Tree] args),
+default MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] args),
                        AType patType, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([]))  {
    if(isConcreteHole(t)){
       holeName = getConcreteHoleName(t);
@@ -556,7 +557,7 @@ default bool isConcreteHole(Tree t) = false;
 Symbol getConcreteHoleSymbol(Tree::appl(Production::prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole _]))
     = holeType;
 
-loc getConcreteHoleVarLoc(h: Tree::appl(Production _prod, list[Tree] args)) {
+loc getConcreteHoleVarLoc(h: appl(Production _prod, list[Tree] args)) {
 	//println("getConcreteHoleVarLoc: <h>");
 	if(args[0].args[4].args[0]@\loc?){
 	    //iprintln(args[0].args[4].args[0]);

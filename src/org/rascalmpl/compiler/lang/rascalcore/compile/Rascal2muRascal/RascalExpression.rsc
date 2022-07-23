@@ -468,7 +468,7 @@ private MuExp translateConcreteExpression(t:Tree::appl(p:Production::regular(s:S
 private MuExp translateConcreteExpression(char(int i)) =  muTreeChar(i);
 
 // this is a normal parse tree node:
-private default MuExp translateConcreteExpression(t:Tree::appl(Production p, list[Tree] args)) 
+private default MuExp translateConcreteExpression(t:appl(Production p, list[Tree] args)) 
   = muTreeAppl(muCon(p), [translateConcreteExpression(a) | a <- args], (t@\loc?) ? t@\loc : |unknown:///|); // TODO: t@\loc does not work here, why?????
 
 
