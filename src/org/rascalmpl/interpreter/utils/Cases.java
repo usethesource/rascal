@@ -50,7 +50,7 @@ import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class Cases  {
-	public static final List<String> IUPTR_NAMES = Arrays.asList("appl", "cycle", "amb", "char");
+	public static final List<String> IUPTR_NAMES = Arrays.asList("appl", "cycle", "amb", "char", "Tree::appl", "Tree::cycle", "Tree::char", "Tree::amb");
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	
