@@ -28,6 +28,14 @@ test bool prefixAssignValue() {
     return assign(lhs,rhs) := stat;
 }
 
+test bool specialCaseForAppl1() {
+    return appl(prod(sort("S"),[],{}),[]) := appl(prod(sort("S"),[],{}),[]);
+}
+
+test bool specialCaseForAppl1() {
+    return Tree::appl(prod(sort("S"),[],{}),[]) := appl(prod(sort("S"),[],{}),[]);
+}
+
 test bool concreteAssignStatement() {
     Statement stat = parse(#Statement, input);
  
