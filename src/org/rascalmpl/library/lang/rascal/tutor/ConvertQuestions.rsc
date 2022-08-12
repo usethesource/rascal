@@ -69,18 +69,3 @@ str convert(str _/*anchor; why is this not used?*/, list[str] lines){
   }
   return result;
 }
-
-value main(){
-
-    for(conceptFile <- find(|file:///Users/paulklint/git/rascal/src/org/rascalmpl/courses/|, "concept")){
-        
-        lines = readFileLines(conceptFile);
-        questions = trim(convert(conceptFile));
-        if(questions != ""){
-            println("conceptFile: <conceptFile>");
-            println(questions);
-        }
-    }
-    
-    return true;
-}
