@@ -31,6 +31,17 @@ import Exception;
 
 @doc{
 .Synopsis
+Extracts a path relative to a parent location. 
+
+.Description
+So from `x:///a/b`` and `x:///a/b/c`` this makes `relative:///c`.
+If the outside does not envelop the inside, then the original loc is returned.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java loc relativize(loc outside, loc inside);
+
+@doc{
+.Synopsis
 Check that two locations refer to the same file.
 }    
 bool isSameFile(loc l, loc r)
