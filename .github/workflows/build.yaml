@@ -33,9 +33,6 @@ jobs:
       - name: Compile & Bootstrap
         run: mvn -B compile
 
-      - name: Generate tutor
-        run: mvn -B -Drascal.compile.skip -Drascal.courses=--buildCourses compile
-
       - name: Test if release # just to be extra sure for a release
         if: startsWith(github.ref, 'refs/tags/v')
         run: mvn -Drascal.test.memory=4 -Drascal.compile.skip test 
