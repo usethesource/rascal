@@ -31,8 +31,7 @@
         <lucence-version>7.5.0</lucence-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
-            <rascal.courses>--skipCourses</rascal.courses> <!-- Tutor compile is disabled by default, except if you pass: "-Drascal.courses= - - buildCourses" to maven (remove the spaces between the dashes) -->
-        </properties>
+    </properties>
 
 
         <build>
@@ -168,45 +167,6 @@
                         </execution>
                     </executions>
                 </plugin> 
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.4.0</version>
-                    <executions>
-                        <execution> <!--  compile the courses -->
-                            <configuration>
-                                <executable>java</executable>
-                                <classpathScope>compile</classpathScope>
-                                <workingDirectory>target/classes/</workingDirectory>
-                                <arguments>
-                                    <argument>-Xmx1G</argument>
-                                    <argument>-Dfile.encoding=UTF-8</argument>
-                                    <argument>-cp</argument>
-                                    <classpath />
-                                    <argument>-Dfile.encoding=UTF-8</argument>
-                                    <argument>org.rascalmpl.library.lang.rascal.tutor.CourseCompiler</argument>
-                                    <argument>--bin</argument>
-                                    <argument>${project.build.directory}/classes/boot</argument>
-                                    <argument>--src</argument>
-                                    <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                    <argument>--boot</argument>
-                                    <argument>${project.build.directory}/classes/boot</argument>
-                                    <argument>--lib</argument>
-                                    <argument>${project.build.directory}/classes/std</argument>
-                                    <argument>--course</argument>
-                                    <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
-                                    <argument>--all</argument>
-                                    <argument>${rascal.courses}</argument>
-                                </arguments>
-                            </configuration>
-                            <id>courses</id>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>exec</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.0.0</version>
@@ -447,18 +407,6 @@
                 <groupId>com.ibm.icu</groupId>
                 <artifactId>icu4j</artifactId>
                 <version>69.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj</artifactId>
-                <version>1.6.0-alpha.6</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jruby</groupId>
-                <artifactId>jruby-complete</artifactId>
-                <version>9.1.15.0</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.beust</groupId>
