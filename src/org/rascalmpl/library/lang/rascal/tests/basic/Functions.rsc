@@ -312,6 +312,16 @@ test bool selfApplyCurry() {
     return func2(1) == 2;
 }
 
+test bool accessParameterInClosure(){
+
+    int() make(int x) = int() { return x; };
+    
+    int () use(int n)  = make(n);
+    
+    return use(3)() == 3;
+
+}
+
 test bool assignVariableInNestedFunctions(){
     int X = 0;
     int Y = 0;
