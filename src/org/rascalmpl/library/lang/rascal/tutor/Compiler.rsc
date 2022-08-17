@@ -69,8 +69,8 @@ data Output
   | err(Message message)
   ;
 
-list[Message] compileMarkdown(loc m, PathConfig pcfg=pathConfig()) {
-  list[Output] output = compileMarkdown(readFileLines(m), m.begin.line, m.offset, pcfg=pcfg);
+list[Message] compileMarkdown(loc m, PathConfig pcfg) {
+  list[Output] output = compileMarkdown(readFileLines(m), m.begin.line, m.offset, pcfg);
 
   // write the output lines to disk (filtering error)
   writeFile(
@@ -83,21 +83,21 @@ list[Message] compileMarkdown(loc m, PathConfig pcfg=pathConfig()) {
    return [m | err(Message m) <- output];
 }
 
-list[Output] compileMarkdown([str line:/^\s*```rascal-shell<rest:.*>$/, *block, /^\s*```/, *str rest], int line, int offset, PathConfig pcfg = pathConfig())
+list[Output] compileMarkdown([str line:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg)
   = [
-      *compileRascalShell(block, /errors/ := rest, /continued/ := rest, line+1, offset + size(line) + 1, pcfg=pcfg),
-      *compileMarkdown(rest, line + 1 + size(block) + 1, offset + size(line) + (0 | it + size(b) | b <- block), pcfg=pcfg)
+      *compileRascalShell(block, /errors/ := rest1, /continued/ := rest1, line+1, offset + size(line) + 1, pcfg),
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(line) + (0 | it + size(b) | b <- block), pcfg)
     ];
 
-list[Output] compileMarkdown([], int line, int offset, PathConfig pcfg = pathConfig()) = [];
+list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _) = [];
 
-default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg = pathConfig()) 
+default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg) 
   = [
       out(head),
-      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg=pcfg)
+      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg)
     ];
 
-list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int line, int offset, PathConfig pcfg = pathConfig()) {
+list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int line, int offset, PathConfig pcfg) {
   return [];
 }
   
