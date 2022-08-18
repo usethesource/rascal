@@ -607,6 +607,10 @@ throws PathNotFound, IO;
 public java str uuencode(loc file)
 throws PathNotFound, IO;
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java str uudecode(loc file, str content)
+throws PathNotFound, IO;
+
 
 @doc{
 .Synopsis
