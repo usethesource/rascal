@@ -604,13 +604,18 @@ public java str readFileEnc(loc file, str charset)
 throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str uuencode(loc file)
+public java str readBase64(loc file)
 throws PathNotFound, IO;
+
+@deprecated{Use readBase64 instead. Uuencode was a misnomer.}
+public str uuencode(loc file) = readBase64(file);
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str uudecode(loc file, str content)
+public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
+@deprecated{Use writeBase65 instead. Uudecode was a misnomer.}
+public void uudecode(loc file, str content) = writeBase64(file, content);
 
 @doc{
 .Synopsis
