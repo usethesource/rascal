@@ -45,6 +45,7 @@ list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exe
         return compileRascal(src, pcfg, exec);
     }
     else if (src.extension in {"md", "concept"}) {
+        println("processing <src>");
         return compileMarkdown(src, pcfg, exec);
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
