@@ -1,4 +1,4 @@
-module lang::rascal::tutor::ValueGenerator
+module lang::rascal::tutor::questions::ValueGenerator
 
 import Boolean;
 import String;
