@@ -1,4 +1,4 @@
-module lang::rascal::tutor::QuestionCompiler
+module lang::rascal::tutor::questions::QuestionCompiler
 
 import IO;
 import String;

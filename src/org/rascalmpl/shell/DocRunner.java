@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.library.lang.rascal.tutor.TutorCommandExecutor;
+import org.rascalmpl.library.lang.rascal.tutor.repl.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIUtil;
