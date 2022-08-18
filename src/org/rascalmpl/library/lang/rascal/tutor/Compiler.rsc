@@ -29,18 +29,22 @@ import List;
 import Location;
 import util::Reflective;
 
-list[Message] compile(PathConfig pcfg=pathConfig())
-  = [*compile(src, pcfg=pcfg[srcs=[src]]) | src <- pcfg.srcs];
+import lang::rascal::tutor::repl::TutorCommandExecutor;
 
-list[Message] compile(loc src, PathConfig pcfg=pathConfig()) {
+data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
+
+list[Message] compile(PathConfig pcfg=pathConfig(), CommandExecutor exec = createExecutor(pcfg))
+  = [*compile(src, pcfg=pcfg[currentRoot=src], exec=exec) | src <- pcfg.srcs];
+
+list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exec = createExecutor(pcfg)) {
     if (isDirectory(src)) {
-        return compileDirectory(src, pcfg=pcfg);
+        return compileDirectory(src, pcfg, exec);
     }
     else if (src.extension == "rsc") {
-        return compileRascal(src, pcfg=pcfg);
+        return compileRascal(src, pcfg, exec);
     }
     else if (src.extension in {"md", "concept"}) {
-        return compileMarkdown(src, pcfg=pcfg);
+        return compileMarkdown(src, pcfg, exec);
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {
@@ -56,11 +60,11 @@ list[Message] compile(loc src, PathConfig pcfg=pathConfig()) {
     }
 }
 
-list[Message] compileDirectory(loc d, PathConfig pcfg=pathConfig()) {
-    return [*compile(s, pcfg=pcfg) | s <- d.ls];
+list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec) {
+    return [*compile(s, pcfg=pcfg, exec=exec) | s <- d.ls];
 }
  
-list[Message] compileRascal(loc m, PathConfig pcfg=pathConfig()) {
+list[Message] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec) {
     return [];
 }
 
@@ -69,8 +73,8 @@ data Output
   | err(Message message)
   ;
 
-list[Message] compileMarkdown(loc m, PathConfig pcfg) {
-  list[Output] output = compileMarkdown(readFileLines(m), m.begin.line, m.offset, pcfg);
+list[Message] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec) {
+  list[Output] output = compileMarkdown(readFileLines(m), m.begin.line, m.offset, pcfg[currentFile=m], exec);
 
   // write the output lines to disk (filtering error)
   writeFile(
@@ -83,21 +87,69 @@ list[Message] compileMarkdown(loc m, PathConfig pcfg) {
    return [m | err(Message m) <- output];
 }
 
-list[Output] compileMarkdown([str line:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg)
+list[Output] compileMarkdown([str line:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec)
   = [
-      *compileRascalShell(block, /errors/ := rest1, /continued/ := rest1, line+1, offset + size(line) + 1, pcfg),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(line) + (0 | it + size(b) | b <- block), pcfg)
+      *compileRascalShell(block, /errors/ := rest1, /continued/ := rest1, line+1, offset + size(line) + 1, pcfg, exec),
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(line) + (0 | it + size(b) | b <- block), pcfg, exec)
     ];
 
-list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _) = [];
+list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _) = [];
 
-default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg) 
+default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg, CommandExecutor exec) 
   = [
       out(head),
-      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg)
+      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec)
     ];
 
-list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int line, int offset, PathConfig pcfg) {
-  return [];
-}
+list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec) {
+  if (!isContinued) {
+    exec.reset();
+  }
   
+  return for (str line <- block) {
+    append out("<exec.prompt><line>");
+    
+    output = exec.eval(line);
+    result = output["text/plain"]?"";
+    stderr = output["application/rascal+stderr"]?"";
+    stdout = output["application/rascal+stdout"]?"";
+    html   = output["text/html"]?"";
+
+    if (stderr != "") {
+      append out(allowErrors ? ":::caution" : ":::danger");
+      for (errLine <- split("\n", stderr)) {
+        append out(trim(errLine));
+      }
+
+      if (!allowErrors) {
+        append out("Rascal code execution failed unexpectedly during compilation of this documentation!");
+        append err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>))); // TODO track source file
+      }
+
+       append out(":::");
+    }
+
+    if (stdout != "") {
+      append out(line);
+      line = "";
+
+      for (outLine <- split("\n", stdout)) {
+        append out("\> <trim(outLine)>");
+      }
+    }
+
+    if (html != "") {
+      // unwrap an iframe if this is an iframe
+      if (/^\s*\<iframe\\s+src=\"http://localhost:<str port:[0-9]+>\"\\s*\>.*\</iframe\>\\s*$/ := html) {
+        html = readFile(|http://localhost:<port>/index.html|);
+      }
+
+      // otherwise just inline the html
+      append(out("\<div class=\"rascal-html-output\"\>"));
+      for (htmlLineLine <- split("\n", html)) {
+        append out("\> <trim(htmlLine)>");
+      }
+      append(out("\</div\>"));
+    }
+  }
+}
