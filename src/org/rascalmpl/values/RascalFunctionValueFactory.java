@@ -184,7 +184,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                     throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
                 }
 
-                if (staticFunctionType.isBottom()) {
+                if (staticFunctionType.getReturnType().isBottom()) {
                     return ResultFactory.nothing();
                 }
                 else if (returnValue == null) {
