@@ -105,12 +105,17 @@ default list[Output] compileMarkdown([str head, *str tail], int line, int offset
     ];
 
 list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec) {
-  println("running block: <block>");
   if (!isContinued) {
     exec.reset();
   }
 
   return OUT:for (str line <- block) {
+    if (/^\s*\/\/<comment:.*>$/ := line) { // comment line
+      append OUT : out("```");
+      append OUT : out(trim(comment));
+      append OUT : out("```rascal-shell");
+      continue OUT;
+    }
     append out("<exec.prompt()><line>");
     
     output = exec.eval(line);
@@ -134,7 +139,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     }
 
     if (stdout != "") {
-      append output : out(line);
+      append OUT : out(line);
       line = "";
 
       for (outLine <- split("\n", stdout)) {
