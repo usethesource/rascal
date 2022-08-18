@@ -29,11 +29,12 @@ import List;
 import Location;
 import util::Reflective;
 
+import lang::xml::IO;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 
-list[Message] compile(PathConfig pcfg=pathConfig(), CommandExecutor exec = createExecutor(pcfg))
+list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg))
   = [*compile(src, pcfg=pcfg[currentRoot=src], exec=exec) | src <- pcfg.srcs];
 
 list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exec = createExecutor(pcfg)) {
@@ -74,11 +75,11 @@ data Output
   ;
 
 list[Message] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec) {
-  list[Output] output = compileMarkdown(readFileLines(m), m.begin.line, m.offset, pcfg[currentFile=m], exec);
+  list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec);
 
   // write the output lines to disk (filtering error)
   writeFile(
-    (pcfg.bin + relativize(pcfg.srcs[0], m))[extension="md"], 
+    (pcfg.bin + relativize(pcfg.srcs[0], m).path)[extension="md"], 
     "<for (out(l) <- output) {><l>
     '<}>"
   );
@@ -87,10 +88,12 @@ list[Message] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec) {
    return [m | err(Message m) <- output];
 }
 
-list[Output] compileMarkdown([str line:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec)
+list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec)
   = [
-      *compileRascalShell(block, /errors/ := rest1, /continued/ := rest1, line+1, offset + size(line) + 1, pcfg, exec),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(line) + (0 | it + size(b) | b <- block), pcfg, exec)
+      out("```rascal-shell"),
+      *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec),
+      out("```"),
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec)
     ];
 
 list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _) = [];
@@ -102,12 +105,13 @@ default list[Output] compileMarkdown([str head, *str tail], int line, int offset
     ];
 
 list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec) {
+  println("running block: <block>");
   if (!isContinued) {
     exec.reset();
   }
-  
-  return for (str line <- block) {
-    append out("<exec.prompt><line>");
+
+  return OUT:for (str line <- block) {
+    append out("<exec.prompt()><line>");
     
     output = exec.eval(line);
     result = output["text/plain"]?"";
@@ -118,38 +122,45 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     if (stderr != "") {
       append out(allowErrors ? ":::caution" : ":::danger");
       for (errLine <- split("\n", stderr)) {
-        append out(trim(errLine));
+        append OUT : out(trim(errLine));
       }
 
       if (!allowErrors) {
-        append out("Rascal code execution failed unexpectedly during compilation of this documentation!");
-        append err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>))); // TODO track source file
+        append OUT : out("Rascal code execution failed unexpectedly during compilation of this documentation!");
+        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>))); // TODO track source file
       }
 
-       append out(":::");
+       append OUT : out(":::");
     }
 
     if (stdout != "") {
-      append out(line);
+      append output : out(line);
       line = "";
 
       for (outLine <- split("\n", stdout)) {
-        append out("\> <trim(outLine)>");
+        append OUT : out("\> <trim(outLine)>");
       }
     }
 
     if (html != "") {
       // unwrap an iframe if this is an iframe
-      if (/^\s*\<iframe\\s+src=\"http://localhost:<str port:[0-9]+>\"\\s*\>.*\</iframe\>\\s*$/ := html) {
+      xml = readXML(html);
+
+      if ("iframe"(_, src=/\"http:\/\/localhost:<port:[0-9]+>\"/) := xml) {
         html = readFile(|http://localhost:<port>/index.html|);
       }
 
       // otherwise just inline the html
       append(out("\<div class=\"rascal-html-output\"\>"));
-      for (htmlLineLine <- split("\n", html)) {
-        append out("\> <trim(htmlLine)>");
+      for (htmlLine <- split("\n", html)) {
+        append OUT : out("\> <trim(htmlLine)>");
       }
-      append(out("\</div\>"));
+      append OUT : out("\</div\>");
     }
+    else if (result != "") {
+      for (str resultLine <- split("\n", result)) {
+        append OUT : out(trim(resultLine));
+      }
+    } 
   }
 }
