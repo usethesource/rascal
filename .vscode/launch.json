@@ -29,9 +29,7 @@
             "name": "Launch RascalShell",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
-            "vmArgs": "-ea",
             "projectName": "rascal",
-            "java.debug.settings.hotCodeReplace": "auto"
         },
         {
             "type": "java",

@@ -1,10 +1,9 @@
 package org.rascalmpl.library.lang.rascal.tutor;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,9 +11,10 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
@@ -31,14 +31,11 @@ public class TutorCommandExecutor {
     private final RascalInterpreterREPL repl;
     private final ByteArrayOutputStream shellStandardOutput;
     private final ByteArrayOutputStream shellErrorOutput;
-    private final ByteArrayOutputStream shellHTMLOutput;
-    private final ByteArrayInputStream shellInputNotUsed;
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         shellStandardOutput = new ByteArrayOutputStream();
         shellErrorOutput = new ByteArrayOutputStream();
-        shellHTMLOutput = new ByteArrayOutputStream();
-        shellInputNotUsed = new ByteArrayInputStream("***this inputstream should not be used***".getBytes());
+        ByteArrayInputStream shellInputNotUsed = new ByteArrayInputStream("***this inputstream should not be used***".getBytes());
 
         repl = new RascalInterpreterREPL(false, false, null) {
             @Override
@@ -76,110 +73,70 @@ public class TutorCommandExecutor {
         return b.toString();
     }
 
-    private void flushOutput(){
-        repl.getOutputWriter().flush();
-    }
-
-    private void flushErrors(){
-        repl.getErrorWriter().flush();
-    }
-
-    private void resetOutput(){
-        shellStandardOutput.reset();
-    }
-    
-    private void resetHTML(){
-        shellHTMLOutput.reset();
-    }
-
-    private void resetErrors(){
-        shellErrorOutput.reset();
-    }
-
     public void reset() {
         repl.cleanEnvironment();
-        resetOutput();
-        resetErrors();
-        resetHTML();
     }
 
     public String getPrompt() {
         return repl.getPrompt();
     }
-
     
-    public String eval(String line, String conceptFolder) {
+    public Map<String, String> eval(String line) throws InterruptedException, IOException {
         Map<String, InputStream> output = new HashMap<>();
-        String result = "";
+        Map<String, String> result = new HashMap<>();
         
-        try {
-            repl.handleInput(line, output, new HashMap<>());
+        repl.handleInput(line, output, new HashMap<>());
 
-            for (String mimeType : output.keySet()) {
-                InputStream content = output.get(mimeType);
+        for (String mimeType : output.keySet()) {
+            InputStream content = output.get(mimeType);
 
-                if (mimeType.equals("text/plain")) {
-                    result = Prelude.consumeInputStream(new InputStreamReader(content));
-                }
-                else if (mimeType.equals("text/html")) {
-                    shellHTMLOutput.write(Prelude.consumeInputStream(new InputStreamReader(content, StandardCharsets.UTF_8)).getBytes());
-                }
-                else if (mimeType.startsWith("image/")) {
-                    String imageFile = dumpMimetypeFile(conceptFolder, content, mimeType);
-                    shellHTMLOutput.write(("<img src=\"" + imageFile + "\">").getBytes());
-                }
-                else if (mimeType.startsWith("audio/")) {
-                    String audioFile = dumpMimetypeFile(conceptFolder, content, mimeType);
-
-                    shellHTMLOutput.write(( 
-                      "<audio controls>\n"
-                    + "<source src=\""+ audioFile + "\" type=\""+ mimeType + "\">"
-                    + "Your browser does not support the audio element.\n"
-                    + "</audio>\n").getBytes());
-                }
-                else if (mimeType.startsWith("video/")) {
-                    String videoFile = dumpMimetypeFile(conceptFolder, content, mimeType);
-
-                    shellHTMLOutput.write((  
-                      "<video width=\"100%\" height=250 controls>\n"
-                    + "<source src=\""+ videoFile + "\" type=\""+ mimeType + "\">"
-                    + "Your browser does not support the video element.\n"
-                    + "</audio>\n").getBytes());
-                }
+            if (mimeType.startsWith("text/")) {
+                result.put(mimeType, Prelude.consumeInputStream(new InputStreamReader(content, StandardCharsets.UTF_8)));
             }
+            else {
+                result.put(mimeType, uuencode(content));
+            }
+        }
 
-            return result;
-        }
-        catch (InterruptedException e) {
-            return "[error]#eval was interrupted: " + e.getMessage() + "#";
-        }
-        catch (Throwable e) {
-            return "[error]#" + e.getMessage() + "#";
-        }
+        result.put("application/rascal+stderr", getPrintedOutput());
+        result.put("application/rascal+stdout", getErrorOutput());
+
+        return result;
     }
 
-    private String dumpMimetypeFile(String imagePath, InputStream input, String mimeType)
-        throws IOException, FileNotFoundException {
-        File imageFile = new File(imagePath + "/" + UUID.randomUUID() + "." + mimeType.split("/")[1]);
-        try (OutputStream file = new FileOutputStream(imageFile)) {
-            byte[] buf = new byte[512];
-            int read = -1;
-            while ((read = input.read(buf, 0, 512)) != -1) {
-                file.write(buf, 0, read);
+    public String uuencode(InputStream content) throws IOException {
+        int BUFFER_SIZE = 3 * 512;
+        Base64.Encoder encoder = Base64.getEncoder();
+        
+        try  (BufferedInputStream in = new BufferedInputStream(content, BUFFER_SIZE); ) {
+            StringBuilder result = new StringBuilder();
+            byte[] chunk = new byte[BUFFER_SIZE];
+            int len = 0;
+            
+            // read multiples of 3 until not possible anymore
+            while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
+                 result.append( encoder.encodeToString(chunk) );
             }
+            
+            // read final chunk which is not a multiple of 3
+            if ( len > 0 ) {
+                 chunk = Arrays.copyOf(chunk,len);
+                 result.append( encoder.encodeToString(chunk) );
+            }
+            
+            return result.toString();
         }
-        return imageFile.getName();
     }
 
     public boolean isStatementComplete(String line){
         return repl.isStatementComplete(line);
     }
 
-    public String getPrintedOutput() throws UnsupportedEncodingException{
+    private String getPrintedOutput() throws UnsupportedEncodingException{
         try {
-            flushOutput();
+            repl.getOutputWriter().flush();
             String result = shellStandardOutput.toString(StandardCharsets.UTF_8.name());
-            resetOutput();
+            shellStandardOutput.reset();
             return result;
         }
         catch (UnsupportedEncodingException e) {
@@ -187,27 +144,15 @@ public class TutorCommandExecutor {
         }
     }
 
-    public String getErrorOutput() {
+    private String getErrorOutput() {
         try {
-            flushErrors();
+            repl.getErrorWriter().flush();
             String result = shellErrorOutput.toString(StandardCharsets.UTF_8.name());
-            resetErrors();
+            shellErrorOutput.reset();
             return result;
         }
         catch (UnsupportedEncodingException e) {
             return "";
         }
     }
-    
-    public String getHTMLOutput() {
-        try {
-            String result = shellHTMLOutput.toString(StandardCharsets.UTF_8.name());
-            resetHTML();
-            return result;
-        }
-        catch (UnsupportedEncodingException e) {
-            return "";
-        }
-    }
-
 }
