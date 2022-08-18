@@ -373,8 +373,8 @@ public class URIUtil {
 			return inside;
 		}
 
-		Path outsidePath = Paths.get(outside.getURI());
-		Path insidePath = Paths.get(inside.getURI());
+		Path outsidePath = Paths.get(outside.getPath());
+		Path insidePath = Paths.get(inside.getPath());
 
 		Path relPath = outsidePath.relativize(insidePath);
 	
