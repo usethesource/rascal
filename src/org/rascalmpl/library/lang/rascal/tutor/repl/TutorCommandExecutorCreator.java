@@ -46,12 +46,12 @@ public class TutorCommandExecutorCreator {
         execConstructor = ts.lookupConstructor(ts.lookupAbstractDataType("CommandExecutor"), "executor").iterator().next();
     }
     
-    public IConstructor createExecutor(IConstructor cons) {
+    public IConstructor createExecutor(IConstructor pathConfigCons) {
         try {
-            PathConfig pcfg = new PathConfig(cons);
+            PathConfig pcfg = new PathConfig(pathConfigCons);
             TutorCommandExecutor repl = new TutorCommandExecutor(pcfg);
             return vf.constructor(execConstructor,
-                cons,
+                pathConfigCons,
                 prompt(repl),
                 reset(repl),
                 eval(repl)
