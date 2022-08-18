@@ -1500,7 +1500,7 @@ public class Prelude {
 		return w.done();
 	}
 	
-    public IString uuencode(ISourceLocation sloc) {
+    public IString readBase64(ISourceLocation sloc) {
         int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
         
@@ -1527,7 +1527,7 @@ public class Prelude {
         }
     }
 
-	public void uudecode(ISourceLocation sloc, IString contents) {
+	public void writeBase64(ISourceLocation sloc, IString contents) {
         int BUFFER_SIZE = 3 * 512;
         Base64.Decoder decoder = Base64.getDecoder();
         
