@@ -1,4 +1,4 @@
-package org.rascalmpl.library.lang.rascal.tutor;
+package org.rascalmpl.library.lang.rascal.tutor.repl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -98,8 +98,8 @@ public class TutorCommandExecutor {
             }
         }
 
-        result.put("application/rascal+stderr", getPrintedOutput());
-        result.put("application/rascal+stdout", getErrorOutput());
+        result.put("application/rascal+stdout", getPrintedOutput());
+        result.put("application/rascal+stderr", getErrorOutput());
 
         return result;
     }

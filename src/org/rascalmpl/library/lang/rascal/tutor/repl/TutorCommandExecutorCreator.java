@@ -10,7 +10,7 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.library.lang.rascal.tutor;
+package org.rascalmpl.library.lang.rascal.tutor.repl;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,7 +35,6 @@ public class TutorCommandExecutorCreator {
     private final IRascalValueFactory vf;
     private final Type promptType;
     private final Type resetType;
-    private final Type clearType;
     private final Type evalType;
     private final Type execConstructor;
 
@@ -43,8 +42,7 @@ public class TutorCommandExecutorCreator {
         this.vf = vf;
         promptType = tf.functionType(tf.stringType(), tf.tupleEmpty(), tf.tupleEmpty());
         resetType  = tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty());
-        clearType = tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty());
-        evalType = tf.functionType(tf.stringType(), tf.tupleType(tf.sourceLocationType(), tf.stringType()), tf.tupleEmpty());
+        evalType = tf.functionType(tf.mapType(tf.stringType(), tf.stringType()), tf.tupleType(tf.stringType()), tf.tupleEmpty());
         execConstructor = ts.lookupConstructor(ts.lookupAbstractDataType("CommandExecutor"), "executor").iterator().next();
     }
     
