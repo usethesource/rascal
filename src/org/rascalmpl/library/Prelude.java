@@ -19,6 +19,7 @@ package org.rascalmpl.library;
 import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -1520,6 +1521,18 @@ public class Prelude {
             }
             
             return values.string(result.toString());
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
+
+	public void uudecode(ISourceLocation sloc, IString contents) {
+        int BUFFER_SIZE = 3 * 512;
+        Base64.Decoder decoder = Base64.getDecoder();
+        
+        try  (BufferedOutputStream out = new BufferedOutputStream(URIResolverRegistry.getInstance().getOutputStream(sloc, false), BUFFER_SIZE); ) {
+			out.write(decoder.decode(contents.getValue()));
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
