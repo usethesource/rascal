@@ -31,6 +31,7 @@ import util::Reflective;
 
 import lang::xml::IO;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
+import lang::rascal::tutor::apidoc::ExtractDoc;
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 
@@ -50,7 +51,7 @@ list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exe
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {
-            copy(src, pcfg.bin + relativize(pcfg.srcs[0], src).path);
+            copy(src, pcfg.bin + relativize(pcfg.currentRoot, src).path);
             return [];
         }
         catch IO(str message): {
@@ -65,9 +66,29 @@ list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exe
 list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec) {
     return [*compile(s, pcfg=pcfg, exec=exec) | s <- d.ls];
 }
- 
+
+@synopsis{Translates Rascal source files to docusaurus markdown.} 
 list[Message] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec) {
-    return [];
+    parent = relativize(pcfg.currentRoot, m).parent.path;
+    <tmp, i> = extractDoc(parent, m);
+
+    iprintln(i);
+    println("Processing Rascal file <m>");
+    // the intermediate result is now processed by the other compiler
+    // to run the rascal-shell blocks
+    // TODO: issue with true locations for errors in .rsc files
+    // list[Output] output = compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec);
+    list[Output] output = [out(l) | str l <- split("\n", tmp)];
+
+    // write the output lines to disk (filtering errors)
+    writeFile(
+      (pcfg.bin + relativize(pcfg.currentRoot, m).path)[extension="md"], 
+      "<for (out(l) <- output) {><l>
+      '<}>"
+    );
+
+    // return the errors, filtering the output:
+    return [m | err(Message m) <- output];
 }
 
 data Output 
@@ -133,7 +154,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 
       if (!allowErrors) {
         append OUT : out("Rascal code execution failed unexpectedly during compilation of this documentation!");
-        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>))); // TODO track source file
+        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>))); 
       }
 
        append OUT : out(":::");
