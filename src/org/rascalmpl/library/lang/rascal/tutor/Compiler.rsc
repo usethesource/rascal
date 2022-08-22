@@ -72,13 +72,13 @@ list[Message] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec) {
     parent = relativize(pcfg.currentRoot, m).parent.path;
     <tmp, i> = extractDoc(parent, m);
 
-    iprintln(i);
-    println("Processing Rascal file <m>");
+    
+    println("Processing Rascal file <(pcfg.bin + relativize(pcfg.currentRoot, m).path)[extension="md"]>");
     // the intermediate result is now processed by the other compiler
     // to run the rascal-shell blocks
     // TODO: issue with true locations for errors in .rsc files
-    // list[Output] output = compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec);
-    list[Output] output = [out(l) | str l <- split("\n", tmp)];
+    list[Output] output = compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec);
+    // list[Output] output = [out(l) | str l <- split("\n", tmp)];
 
     // write the output lines to disk (filtering errors)
     writeFile(
@@ -110,12 +110,29 @@ list[Message] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec) {
    return [m | err(Message m) <- output];
 }
 
+// [source,rascal-shell] --- block --- legacy syntax still supported for backward compatibility
+list[Output] compileMarkdown([str first:/^\s*\[source,rascal-shell<rest1:.*>$/, /---/, *block, /---/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec)
+  = [
+      out("```rascal-shell"),
+      *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec),
+      out("```"),
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec)
+    ];
+
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec)
   = [
       out("```rascal-shell"),
       *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec),
       out("```"),
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec)
+    ];
+
+// this supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus
+list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec) 
+  = [
+      out("### <title>"),
+      out("<rest>"),
+      *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec)
     ];
 
 list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _) = [];
@@ -146,7 +163,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     stdout = output["application/rascal+stdout"]?"";
     html   = output["text/html"]?"";
 
-    if (stderr != "") {
+    if (stderr != "" && /cancelled/ !:= stderr) {
       append out(allowErrors ? ":::caution" : ":::danger");
       for (errLine <- split("\n", stderr)) {
         append OUT : out(trim(errLine));
