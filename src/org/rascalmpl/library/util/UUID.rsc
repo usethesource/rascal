@@ -15,13 +15,17 @@ a <<Location>> (which is the preferred representation for encoding identities in
 
 [source,rascal-shell]
 ----
+import util::UUID;
 ----
+
 The uuid() function generates a location with the authority showing the literal canonical UUID string
 [source,rascal-shell,continue]
 ----
 uuid()
 ----
+
 Use it to relate identies to data objects, as in this example which adds a field to a relation:
+
 [source,rascal-shell,continue]
 ----
 myData = { <i,i*i> | i <- [1..11] }; 

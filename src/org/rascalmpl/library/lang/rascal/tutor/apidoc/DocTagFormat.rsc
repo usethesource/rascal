@@ -1,6 +1,9 @@
+@synopsis{Describes the syntax of what is inside of the @doc{} tag format in Rascal.}
 module lang::rascal::tutor::apidoc::DocTagFormat
 
-start syntax Document = Paragraph*;
+start syntax Document 
+= 
+Paragraph*;
 
 syntax Paragraph = ParagraphType Word+;
 
