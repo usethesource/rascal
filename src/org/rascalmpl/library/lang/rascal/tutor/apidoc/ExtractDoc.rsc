@@ -36,7 +36,7 @@ str makeName(str name){
 }
 
 str makeUsage(str name) =
-    ".Usage
+    "### Usage
     '`import <replaceAll(name, "/", "::")>;`
     '";
 
@@ -58,7 +58,8 @@ str declInfo2Doc(str parent, functionInfo(str moduleName, str name, str signatur
     '[[<basename(moduleName)>-<name>]]
     '## <name>
     '
-    '.Function 
+    '### Signature
+    '
     '<makeSignature(overloads)>
     '
     '<doc>
@@ -71,11 +72,10 @@ str declInfo2Doc(str parent, functionInfo(str moduleName, str name, str signatur
     "
     '[[<basename(moduleName)>-<name>]]
     '## <name>
-    '.Types
-    '[source,rascal]
-    '----
+    '
+    '```rascal
     '<for(ov <- overloads){><ov>\n<}>
-    '----
+    '```
     '<doc>
     "; 
 
@@ -83,7 +83,7 @@ str declInfo2Doc(str parent, aliasInfo(str moduleName, str name, str signature, 
     "
     '[[<basename(moduleName)>-<name>]]
     '## <name>
-    '.Types
+    '
     '<makeSignature(overloads)>
     '
     '<doc>
