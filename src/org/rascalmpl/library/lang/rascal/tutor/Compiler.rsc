@@ -28,6 +28,7 @@ import String;
 import List;
 import Location;
 import util::Reflective;
+import util::FileSystem;
 
 import lang::xml::IO;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
@@ -37,12 +38,24 @@ data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|
 
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
-  // TODO: create index for concept linking <<Concept-Name>> <<course:Concept-Name>> <<Parent-Concept-Name>> 
-  return [*compileCourse(src, pcfg[currentRoot=src], exec) | src <- pcfg.srcs];
+  ind = createConceptIndex(pcfg.srcs);
+  return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
 } 
 
-list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec) {
-  output = compileDirectory(root, pcfg, exec);
+rel[str, str] createConceptIndex(list[loc] srcs) 
+  = {*createConceptIndex(src) | src <- srcs};
+
+rel[str, str] createConceptIndex(loc src)
+  = { 
+      <cf.file, fr>,
+      <"<f.parent.file>-<cf.file>", fr>,
+      <"<src.file>:<cf.file>", "/<src.file>.md<fr>">,
+       <"<src.file>:<f.parent.file>-<cf.file>", "/<src.file>.md<fr>">      
+    | loc f <- find(src, isConceptFile), fr := fragment(src, f), cf := f[extension=""]
+    };
+
+list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) {
+  output = compileDirectory(root, pcfg, exec, ind);
   
   // write the output lines to disk (filtering errors)
   writeFile(
@@ -61,15 +74,17 @@ data Output
   | details(list[str] subConcepts)
   ;
 
-list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec) {
+alias Index = rel[str reference, str url];
+
+list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) {
     if (isDirectory(src)) {
-        return compileDirectory(src, pcfg, exec);
+        return compileDirectory(src, pcfg, exec, ind);
     }
     else if (src.extension == "rsc") {
-        return compileRascal(src, pcfg, exec);
+        return compileRascal(src, pcfg, exec, ind);
     }
     else if (src.extension in {"md", "concept"}) {
-        return compileMarkdown(src, pcfg, exec);
+        return compileMarkdown(src, pcfg, exec, ind);
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {
@@ -85,28 +100,28 @@ list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec) {
     }
 }
 
-list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec) {
+list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind) {
     indexFiles = {(d + "<d.file>")[extension="concept"], (d + "<d.file>")[extension="md"]};
 
     if (i <- indexFiles, exists(i)) {
-      output = compile(i, pcfg, exec);
+      output = compile(i, pcfg, exec, ind);
       order = [*x | details(x) <- output];
 
       if (order != []) {
-        return output + [*compile(d + s, pcfg, exec) | s <- order]
+        return output + [*compile(d + s, pcfg, exec, ind) | s <- order]
              + [err(warning("Concept <c> is missing from .Details", i)) | c <- d.ls, c.file notin order, isDirectory(c)];
       }
       else {
-        return output + [*compile(s, pcfg, exec) | s <- d.ls, s != i];
+        return output + [*compile(s, pcfg, exec, ind) | s <- d.ls, s != i];
       }
     }
     else {
-      return [*compile(s, pcfg, exec) | s <- d.ls];
+      return [*compile(s, pcfg, exec, ind) | s <- d.ls];
     }
 }
 
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
-list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec) {
+list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
     parent = relativize(pcfg.currentRoot, m).parent.path;
  
     // This is where error locations break. Have to wire the line
@@ -114,48 +129,63 @@ list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec) {
     // to fix that.
     <tmp, i> = extractDoc(parent, m);
 
-    return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec);
+    return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec, ind);
 }
 
 
-list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec) 
-  = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec);
+list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
+  = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind);
 
 // [source,rascal-shell] --- block --- legacy syntax still supported for backward compatibility
-list[Output] compileMarkdown([str first:/^\s*\[source,rascal-shell<rest1:.*>$/, /---/, *block, /---/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec)
+list[Output] compileMarkdown([str first:/^\s*\[source,rascal-shell<rest1:.*>$/, /---/, *block, /---/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind)
   = [
       out("```rascal-shell"),
-      *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec),
+      *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec)
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind)
     ];
 
-list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec)
+@synopsis{make sure to tag all section headers with the right fragment id for concept linking}
+list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind)
+  = [ out("# <title> {<fragment(pcfg.currentRoot, pcfg.currentFile)>}"),
+      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind)
+    ];
+
+list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind)
   = [
       out("```rascal-shell"),
-      *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec),
+      *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec)
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind)
     ];
+
+// list[Output] compileMarkdown([/<prefix:.*>\<\<<link:[A-Za-z0-9\-]+>\>\><postfix:.*>/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
+//    resolution = index[link];
+ 
+//    switch (resolution) {
+//       case {u}: return
+//    }
+   
+// }
 
 // this supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus
-list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec) 
+list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = [
       *[out("## <title> <rest>") | skipEmpty(rest2) != [] && [/^\s*\.[A-Z][a-z]*.*/, *_] !:= skipEmpty(rest2)],
-      *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec)
+      *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec, ind)
     ]
     +
     [details(split(" ", trim(l))) | title == ".Details", [*str lines, /^\s*\.[A-Z][a-z]*/, *_] := rest2, l <- lines];
 
-list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _) = [];
+list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _, Index _) = [];
 
-default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg, CommandExecutor exec) 
+default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = [
       out(head),
-      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec)
+      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec, ind)
     ];
 
-list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec) {
+list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
   if (!isContinued) {
     exec.reset();
   }
@@ -223,3 +253,8 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 
 list[str] skipEmpty([/^s*$/, *str rest]) = skipEmpty(rest);
 default list[str] skipEmpty(list[str] lst) = lst;
+
+bool isConceptFile(loc f) = f.extension in {"md", "concept"};
+
+str fragment(loc concept) = replaceAll("#<concept[extension=""].path[1..]>", "/", "-");
+str fragment(loc root, loc concept) = fragment(relativize(root, concept));
