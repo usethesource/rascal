@@ -503,3 +503,18 @@ test bool assignVariableInVisit5(int x) {
     
     return true;
 }
+
+data D = one_d(int(int a) n);
+
+test bool assignVariableViaFunctionValue(){
+    set[int] x = {};
+    
+    int add (int n) { x += n; return n;}
+
+    D make() {return one_d(add);}
+    
+    m = make(); 
+    m.n(3);
+    m.n(4);
+    return x == {3, 4};
+}
