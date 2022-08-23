@@ -35,10 +35,33 @@ import lang::rascal::tutor::apidoc::ExtractDoc;
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 
-list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg))
-  = [*compile(src, pcfg=pcfg[currentRoot=src], exec=exec) | src <- pcfg.srcs];
+@synopsis{compiles each pcfg.srcs folder as a course root}
+list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
+  // TODO: create index for concept linking <<Concept-Name>> <<course:Concept-Name>> <<Parent-Concept-Name>> 
+  return [*compileCourse(src, pcfg[currentRoot=src], exec) | src <- pcfg.srcs];
+} 
 
-list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exec = createExecutor(pcfg)) {
+list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec) {
+  output = compileDirectory(root, pcfg, exec);
+  
+  // write the output lines to disk (filtering errors)
+  writeFile(
+    (pcfg.bin + root.file)[extension="md"], 
+    "<for (out(l) <- output) {><l>
+    '<}>"
+  );
+
+  // return only the errors
+  return [m | err(Message m) <- output];
+}
+
+data Output 
+  = out(str content)
+  | err(Message message)
+  | details(list[str] subConcepts)
+  ;
+
+list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec) {
     if (isDirectory(src)) {
         return compileDirectory(src, pcfg, exec);
     }
@@ -46,7 +69,6 @@ list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exe
         return compileRascal(src, pcfg, exec);
     }
     else if (src.extension in {"md", "concept"}) {
-        println("processing <src>");
         return compileMarkdown(src, pcfg, exec);
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
@@ -55,7 +77,7 @@ list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exe
             return [];
         }
         catch IO(str message): {
-            return [error(message, src)];
+            return [err(error(message, src))];
         }
     }
     else {
@@ -63,52 +85,41 @@ list[Message] compile(loc src, PathConfig pcfg=pathConfig(), CommandExecutor exe
     }
 }
 
-list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec) {
-    return [*compile(s, pcfg=pcfg, exec=exec) | s <- d.ls];
+list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec) {
+    indexFiles = {(d + "<d.file>")[extension="concept"], (d + "<d.file>")[extension="md"]};
+
+    if (i <- indexFiles, exists(i)) {
+      output = compile(i, pcfg, exec);
+      order = [*x | details(x) <- output];
+
+      if (order != []) {
+        return output + [*compile(d + s, pcfg, exec) | s <- order]
+             + [err(warning("Concept <c> is missing from .Details", i)) | c <- d.ls, c.file notin order, isDirectory(c)];
+      }
+      else {
+        return output + [*compile(s, pcfg, exec) | s <- d.ls, s != i];
+      }
+    }
+    else {
+      return [*compile(s, pcfg, exec) | s <- d.ls];
+    }
 }
 
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
-list[Message] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec) {
+list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec) {
     parent = relativize(pcfg.currentRoot, m).parent.path;
+ 
+    // This is where error locations break. Have to wire the line
+    // and offset and the Output model through the old `extractDoc` function
+    // to fix that.
     <tmp, i> = extractDoc(parent, m);
 
-    
-    println("Processing Rascal file <(pcfg.bin + relativize(pcfg.currentRoot, m).path)[extension="md"]>");
-    // the intermediate result is now processed by the other compiler
-    // to run the rascal-shell blocks
-    // TODO: issue with true locations for errors in .rsc files
-    list[Output] output = compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec);
-    // list[Output] output = [out(l) | str l <- split("\n", tmp)];
-
-    // write the output lines to disk (filtering errors)
-    writeFile(
-      (pcfg.bin + relativize(pcfg.currentRoot, m).path)[extension="md"], 
-      "<for (out(l) <- output) {><l>
-      '<}>"
-    );
-
-    // return the errors, filtering the output:
-    return [m | err(Message m) <- output];
+    return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec);
 }
 
-data Output 
-  = out(str content)
-  | err(Message message)
-  ;
 
-list[Message] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec) {
-  list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec);
-
-  // write the output lines to disk (filtering error)
-  writeFile(
-    (pcfg.bin + relativize(pcfg.srcs[0], m).path)[extension="md"], 
-    "<for (out(l) <- output) {><l>
-    '<}>"
-  );
-
-   // return the errors, filtering the output:
-   return [m | err(Message m) <- output];
-}
+list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec) 
+  = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec);
 
 // [source,rascal-shell] --- block --- legacy syntax still supported for backward compatibility
 list[Output] compileMarkdown([str first:/^\s*\[source,rascal-shell<rest1:.*>$/, /---/, *block, /---/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec)
@@ -130,10 +141,11 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block
 // this supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus
 list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec) 
   = [
-      out("### <title>"),
-      out("<rest>"),
+      *[out("## <title> <rest>") | skipEmpty(rest2) != [] && [/^\s*\.[A-Z][a-z]*.*/, *_] !:= skipEmpty(rest2)],
       *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec)
-    ];
+    ]
+    +
+    [details(split(" ", trim(l))) | title == ".Details", [*str lines, /^\s*\.[A-Z][a-z]*/, *_] := rest2, l <- lines];
 
 list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _) = [];
 
@@ -208,3 +220,6 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     } 
   }
 }
+
+list[str] skipEmpty([/^s*$/, *str rest]) = skipEmpty(rest);
+default list[str] skipEmpty(list[str] lst) = lst;
