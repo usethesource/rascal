@@ -162,7 +162,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind)
     ];
 
-list[Output] compileMarkdown([/<prefix:.*>\<\<<link:[A-Za-z0-9\-]+>\>\><postfix:.*>/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
+list[Output] compileMarkdown([/<prefix:.*>\<\<<link:[A-Za-z0-9\-\ \t]+>\>\><postfix:.*>/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
   resolution = ind[removeSpaces(link)];
 
   switch (resolution) {
