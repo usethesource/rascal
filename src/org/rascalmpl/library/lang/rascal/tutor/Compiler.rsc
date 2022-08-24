@@ -48,9 +48,9 @@ rel[str, str] createConceptIndex(list[loc] srcs)
 rel[str, str] createConceptIndex(loc src)
   = { 
       <cf.file, fr>,
-      <"<f.parent.file>-<cf.file>", fr>,
+      *{<"<f.parent.parent.file>-<cf.file>", fr> | f.parent.path != "/", f.parent.file == cf.file},
       <"<src.file>:<cf.file>", "/<src.file>.md<fr>">,
-       <"<src.file>:<f.parent.file>-<cf.file>", "/<src.file>.md<fr>">      
+      *{<"<src.file>:<f.parent.parent.file>-<cf.file>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file}     
     | loc f <- find(src, isConceptFile), fr := fragment(src, f), cf := f[extension=""]
     };
 
