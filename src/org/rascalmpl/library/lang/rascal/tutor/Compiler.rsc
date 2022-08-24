@@ -167,7 +167,12 @@ list[Output] compileMarkdown([/<prefix:.*>\<\<<link:[A-Za-z0-9\-\ \t]+>\>\><post
 
   switch (resolution) {
       case {u}: 
-        return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind);
+        if (/\[<title:[A-Za-z-0-9\ ]+>\]$/ := prefix) {
+          return compileMarkdown(["<prefix[..-size(title)+2]>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind);
+        }
+        else {
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind);
+        }
       case { }: 
         return [
                   err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
@@ -286,4 +291,4 @@ default str removeSpaces(str s) = s;
 str addSpaces(/^<prefix:.*[a-z0-9]><postfix:[A-Z].+>/) =
   addSpaces("<prefix> <postfix>");
 
-default str addSpaces(str s) = s;
+default str addSpaces(str s) = split("-", s)[-1];
