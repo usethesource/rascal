@@ -648,6 +648,18 @@ Look at <<readFile>> to understand how this function chooses the character set. 
 public java list[str] readFileLines(loc file)
 throws PathNotFound, IO;
 
+@synopsis{Writes a list of strings to a file, where each separate string is ended with a newline}
+@benefits{
+  * mirrors <<readFileLines>> in its functionality
+}
+@pitfalls{
+  * if the individual elements of the list also contain newlines, the output may have more lines than list elements
+}
+public void writeFileLines(loc file, list[str] lines) {
+  writeFile(file, "<for (str line <- lines) {><line>
+                  '<}>");
+}
+
 @doc{
 .Synopsis
 Read the contents of a file location and return it as a list of strings.
