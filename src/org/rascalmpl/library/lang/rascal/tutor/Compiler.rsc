@@ -77,6 +77,9 @@ data Output
 alias Index = rel[str reference, str url];
 
 list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) {
+    // new concept, new execution environment:
+    exec.reset();
+
     if (isDirectory(src)) {
         return compileDirectory(src, pcfg, exec, ind);
     }
@@ -159,12 +162,28 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind)
     ];
 
-// list[Output] compileMarkdown([/<prefix:.*>\<\<<link:[A-Za-z0-9\-]+>\>\><postfix:.*>/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
-//    resolution = index[link];
+list[Output] compileMarkdown([/<prefix:.*>\<\<<link:[A-Za-z0-9\-]+>\>\><postfix:.*>/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
+  resolution = ind[removeSpaces(link)];
+
+  switch (resolution) {
+      case {u}: 
+        return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind);
+      case { }: 
+        return [
+                  err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+                  *compileMarkdown([":::caution\nBroken link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind)
+              ]; 
+      case {_, _, *_}:
+        return [
+                  err(error("Ambiguous concept link: <link> resolves to all of <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+                  *compileMarkdown([":::caution\nAmbiguous link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind)
+              ];
+  }
+
+  return [err(error("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
+}
+
  
-//    switch (resolution) {
-//       case {u}: return
-//    }
    
 // }
 
@@ -258,3 +277,13 @@ bool isConceptFile(loc f) = f.extension in {"md", "concept"};
 
 str fragment(loc concept) = replaceAll("#<concept[extension=""].path[1..]>", "/", "-");
 str fragment(loc root, loc concept) = fragment(relativize(root, concept));
+
+str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
+  = removeSpaces("<prefix><postfix>");
+
+default str removeSpaces(str s) = s;
+
+str addSpaces(/^<prefix:.*[a-z0-9]><postfix:[A-Z].+>/) =
+  addSpaces("<prefix> <postfix>");
+
+default str addSpaces(str s) = s;
