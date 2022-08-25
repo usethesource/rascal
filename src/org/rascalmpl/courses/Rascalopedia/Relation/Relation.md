@@ -50,7 +50,7 @@ see [functions on sets]((Libraries:Libraries-Set))).
    http://www.translatedmemories.com/bookpgs/Pg10-11CharRelation.jpg[credit]
 *  A character relation map, describing the relations between the characters in a play or soap series.
 *  A listing of the top 2000 songs of all times including the position, artist name, song title, the year the song was published.
-   image:top2000-2010.jpg[width="400px" ,alt="top2000-2010"]
+   ![]((top2000-2010.jpg))
    http://top2011.radio2.nl/lijst/2010[credit]
 
 

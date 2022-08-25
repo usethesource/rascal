@@ -32,12 +32,12 @@ render(logo());
 ----
 will produce:
 
-image:logo1.png[alt="Rascal logo"]
+![]((logo1.png))
 
 or as a screenshot:
 
 
-image:Screenshot1.png[alt="Screen shot"]
+![]((Screenshot1.png))
 
 
 

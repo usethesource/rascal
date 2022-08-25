@@ -25,7 +25,7 @@ to the syntax rules of language _L_. There are two possible answers:
 This is shown below:
 
 
-image:parser.png[alt="parser"]
+![]((parser.png))
 
 
 .Examples

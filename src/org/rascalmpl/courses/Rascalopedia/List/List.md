@@ -55,11 +55,11 @@ and of [library functions on lists]((Libraries:Libraries-List)).
 ## Lists in Daily Life
 
 *  A line of people waiting for the super market checkout or bus stop. 
-   image:queue.png[alt="bustop"]
+   ![]((queue.png))
    http://www.realbollywood.com[credit]
 *  The wagons of a train.
 *  The Top 100 Music Charts.
-   image:hot100.png[width="200px" ,alt="hot100.png"]
+   ![]((hot100.png))
    http://www.billboard.com/charts/hot-100#/charts/hot-100[credit]
 *  Twitter users ordered according to number of followers.
 *  A _to do_ list.

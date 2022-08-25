@@ -25,12 +25,12 @@ render(b);
 ----
 and it will look like this:
 
-image:b1.png[alt="Box 1"]
+![]((b1.png))
  or rather, it will look like this:
 
 
 
-image:Screenshot1.png[alt="Screenshot 1"]
+![]((Screenshot1.png))
 
 
 Wow, the box fills the whole window! So lets give our box a [size]((Libraries:Properties-size)):

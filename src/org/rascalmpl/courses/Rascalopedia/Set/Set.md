@@ -33,11 +33,11 @@ and of [library functions on sets]((Libraries:Prelude-Set)).
 ## Sets in Daily Life
 
 *  A cutlery set consisting of knife, fork and the like.
-   image:cutlery-set.jpg[width=200,alt="cutlery-set"]
+   ![]((cutlery-set.jpg))
    http://www.ikea.com/gb/en/catalog/products/50087185/[credit]
 *  A crowd of people.
 *  A stamp collection (but be aware that the duplicates will disappear!)
-   image:stamp-collecting.jpg[width=200,alt="stamp-collecting"]
+   ![]((stamp-collecting.jpg))
    http://www.life123.com/hobbies/antiques-collectibles/stamps/stamp-collecting-2.shtml[credit]
 
 ## Sets in computer science

@@ -22,14 +22,14 @@ In many cases a less detailed representation is sufficient and an abstract synta
 
 For the input sentence
 
-image:example-text.png[alt="example-text"]
+![]((example-text.png))
 
 
 the parse tree (left) and abstract syntax tree (right) may look as follows:
 
 
 
-image:parse-ast.png[alt="parse-ast"]
+![]((parse-ast.png))
 
 
 Note that the parse tree on the left did not preserve the spaces in the original text but there

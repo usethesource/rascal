@@ -40,7 +40,7 @@ which corresponds to a path relative to the root of the current workspace.
 
 The constituents of a module are shown in the figure below.
 
-image:module-parts.png[style="float: right;" width="500px" ,alt="Module Parts"]
+![]((module-parts.png))
 
 
 An ((Import)) declares other modules that are used by the current module.

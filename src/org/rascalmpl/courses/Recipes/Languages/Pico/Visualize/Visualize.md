@@ -46,7 +46,7 @@ render(visCFG(CFG.graph));
 The resulting visualization looks like this: 
 
 
-image:cfg1.png[alt="Control flow graph"]
+![]((cfg1.png))
 
 .Benefits
 

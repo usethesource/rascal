@@ -19,11 +19,11 @@ It may even be so detailed that it contains every space, comment and parenthesis
 
 .Examples
 A parse tree for the sentence 
-image:example-text.png[alt="example"]
+![]((example-text.png))
 
 
 
-image:parse-tree.png[alt="parse-tree"]
+![]((parse-tree.png))
 
 
 .Benefits
