@@ -17,7 +17,7 @@ The following statements are available:
 loctoc::[1]
 
 
-![]((statement-parts.png))
+![]((Statements-statement-parts.png))
 
 
 .Examples
