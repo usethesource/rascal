@@ -42,7 +42,7 @@ To achieve _splicing_ of these elements, i.e., the insertion of the elements of 
 it has to be prefixed by the splice operator `*`.
 
 The following operators are provided on list:
-loctoc::[1]
+(((TOC)))
 
 There are also [library functions]((Libraries:Prelude-List)) available for List.
 

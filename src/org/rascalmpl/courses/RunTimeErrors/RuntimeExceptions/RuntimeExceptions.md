@@ -16,4 +16,4 @@ All runtime exceptions that can occur during execution of a Rascal program.
 .Description
 
 The following exceptions can be trown as the result of a run-time error:
-loctoc::[1]
+(((TOC)))

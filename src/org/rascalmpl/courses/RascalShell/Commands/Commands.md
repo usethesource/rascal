@@ -7,4 +7,4 @@ RascalShell commands
 
 The RascalShell provides several built-in commands:
 
-loctoc::[1]  
+(((TOC)))  

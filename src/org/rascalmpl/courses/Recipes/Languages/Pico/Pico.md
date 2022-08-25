@@ -35,7 +35,7 @@ Pico has a single purpose in life: being so simple that specifications of every 
 
 The following aspects of the Pico language will be discussed:
 
-loctoc::[1]
+(((TOC)))
 
 .Examples
 Here is a -- not so simple -- Pico program that computes the factorial function:

@@ -79,7 +79,7 @@ When these requirements have been established, it becomes much easier to actuall
 of the first figure above.
 
 We will discuss:
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

@@ -19,5 +19,5 @@ This is an abstract view on solving meta-programming problems, but is rather com
 Rascal has been designed to fully support problem solving that fits the EASY paradigm.
 We will discuss the following use cases represented by different _personas_:
 
-loctoc::[1]
+(((TOC)))
 

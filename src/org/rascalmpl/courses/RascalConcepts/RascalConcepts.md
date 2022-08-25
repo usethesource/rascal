@@ -27,7 +27,7 @@ Most language concepts are described separately but some features we just mentio
 *  There is an extensive library for built-in datatypes, input/output, fact extraction from Java source code, visualization, and more.
 
 Here are the concepts to be discussed:
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

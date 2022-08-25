@@ -66,7 +66,7 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 
 
 The following operators are provided for Boolean:
-loctoc::[1]
+(((TOC)))
 
 There are also [library functions]((Libraries:Prelude-Boolean)) available for Booleans.
 

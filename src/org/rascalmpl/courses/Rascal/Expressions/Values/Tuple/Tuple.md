@@ -36,7 +36,7 @@ Tuples are represented by the type `tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ...]`,
 where _T_~1~, _T_~2~, ... are arbitrary types and _L_~1~, _L_~2~, ... are optional labels. 
 
 The following operators are provided for tuples:
-loctoc::[1]
+(((TOC)))
 
 .Examples
 [source,rascal-shell]

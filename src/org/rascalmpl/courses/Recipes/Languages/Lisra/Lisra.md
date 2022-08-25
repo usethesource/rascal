@@ -98,7 +98,7 @@ A Lisp interpreter consists of the following parts:
 
 We discuss all these aspects:
 
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

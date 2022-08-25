@@ -19,4 +19,4 @@ You can use Rascal in two ways:
 
 Both provide help facilities that we discuss in more detail:
 
-loctoc::[1]
+(((TOC)))

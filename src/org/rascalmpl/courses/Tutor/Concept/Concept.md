@@ -82,7 +82,7 @@ Each section starts with a keyword that should appear at the begin of a line.
 The first two sections (Name and Synopsis) are mandatory,
 
 Here is a brief summary of the sections of a concept:
-loctoc::[3]
+(((TOC)))
 
 
 .Examples

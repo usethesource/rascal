@@ -15,4 +15,4 @@ Rascal _expressions_, _statements_ and _declarations_.
 Next to Rascal language expressions, the shell features a number of specific commands available
 only in the shell:
 
-loctoc::[1]
+(((TOC)))

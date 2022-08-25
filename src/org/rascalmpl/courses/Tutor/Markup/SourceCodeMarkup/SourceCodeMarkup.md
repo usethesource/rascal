@@ -18,7 +18,7 @@ RemoteConceptMapping
 
 The mark up of concepts inside Rascal source code requires two steps:
 
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

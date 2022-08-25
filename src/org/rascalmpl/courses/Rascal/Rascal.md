@@ -16,7 +16,7 @@ Declarations Patterns Expressions Statements
 
 Here we describe _all_ features of the Rascal language in detail, for reference purposes.
 
-loctoc::[1]
+(((TOC)))
 
 You can find more (accessible) information related to Rascal here:
 

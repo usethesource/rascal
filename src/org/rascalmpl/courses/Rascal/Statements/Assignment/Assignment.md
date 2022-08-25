@@ -51,7 +51,7 @@ The other assignment operators can be expressed as abbreviations for the standar
 An assignable is either a single variable, (the base variable), optionally followed by subscriptions, slices or field selections.
 The assignment statement always results in assigning a completely new value to the base variable. 
 We distinguish the following forms of assignment:
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

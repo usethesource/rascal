@@ -18,7 +18,7 @@ the information provided here maybe inaccurate or even incorrect
 
 We cover the following topics:
 
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

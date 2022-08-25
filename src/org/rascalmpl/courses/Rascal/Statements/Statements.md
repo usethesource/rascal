@@ -14,7 +14,7 @@ All Rascal statements.
 .Description
 
 The following statements are available:
-loctoc::[1]
+(((TOC)))
 
 
 ![]((Statements-statement-parts.png))

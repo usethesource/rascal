@@ -22,5 +22,5 @@ Rascalopedia is work in progress. Please send us your suggestions for new concep
 
 These are the currently covered topics:
 
-loctoc::[1]
+(((TOC)))
 
