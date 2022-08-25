@@ -36,7 +36,7 @@ The expression is the basic unit of evaluation and may consist of the ingredient
 
 *  ((Comprehensions)).
 
-*  A ((Visit)) expression.
+*  A ((Expressions-Visit)) expression.
 
 *  A <<Boolean Any>> expression.
 

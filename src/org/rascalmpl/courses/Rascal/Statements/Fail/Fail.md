@@ -18,7 +18,7 @@ fail
 .Description
 A `fail` statement is only allowed in statements that are controlled by the outcome of a pattern match:
 
-*  The ((Patterns)) in a <<Pattern with Action>> in ((Switch)) or ((Visit)) statement controls the statements in the action part.
+*  The ((Patterns)) in a <<Pattern with Action>> in ((Switch)) or ((Statement-Visit)) statement controls the statements in the action part.
 *  The test (expression) of a ((While)) or ((Do)) statement controls the statements in the body part.
 *  The test (expressions) of a ((For)) statement control the statements in the body part.
 *  The formal parameter declaration of a <<Function Declaration>>.
