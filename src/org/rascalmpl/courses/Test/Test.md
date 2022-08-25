@@ -23,7 +23,7 @@ count;
 * _emphasis_
 * *bold*
 * http:///rascal-mpl.org[Rascal Web site]
-* <<CallAnalysis>> 
+* ((CallAnalysis)) 
 * Table:
 
   | Module | LOC |

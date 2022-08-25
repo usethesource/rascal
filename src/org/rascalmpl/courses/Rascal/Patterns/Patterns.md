@@ -6,14 +6,14 @@ and then to bind variables to parts of the matched value.
 
 .Syntax
 
-For most of the <<Values>>, there is a corresponding pattern matching operator. Then there are
+For most of the ((Values)), there is a corresponding pattern matching operator. Then there are
 some "higher-order" matching operators which make complex patterns out of simpler ones. 
 This is the complete list:
  
 |====
 | Pattern              | Syntax                                                                      
 
-| Literal              | <<Values-Boolean>>, <<Values-Integer>>, <<Values-Real>>, <<Values-Number>>, <<Values-String>>, <<Values-Location>>, or <<Values-DateTime>>
+| Literal              | ((Values-Boolean)), ((Values-Integer)), ((Values-Real)), ((Values-Number)), ((Values-String)), ((Values-Location)), or ((Values-DateTime))
 | Regular Expression   | `/<Regular Expression>/`
 | Variable declaration | `_Type_ _Var_`                                                              
 | Multi-variable       | `*_Var_`, `*_Type_ _Var_`                                                   
@@ -45,9 +45,9 @@ loctoc::[1]
 
 All these patterns may be used in:
 
-*  cases of a <<Switch>> or <<Visit>>, 
+*  cases of a ((Switch)) or ((Visit)), 
 *  on the left of the <<Boolean Match>> operator (`:=`),
-*  on the left of the <<Enumerator>> operator (`<-`), and
+*  on the left of the ((Enumerator)) operator (`<-`), and
 *  as formal parameters of <<Function Declaration>>s. 
 *  <<Try Catch>> statements to match thrown exceptions.
 

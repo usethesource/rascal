@@ -24,7 +24,7 @@ The test _Exp_ is executed from scratch in each repetition and only the first `t
 This is relevant when _Exp_ contains a <<Boolean Match>> or <<Boolean NoMatch>> operator.
 
 By default, the value of a while statement is the empty list. In general, the value of a while statement 
-consists of all values contributed by <<Statements-Append>> statements that are executed during the repeated execution 
+consists of all values contributed by ((Statements-Append)) statements that are executed during the repeated execution 
 of its body _Statement_.
 
 .Examples
@@ -41,7 +41,7 @@ n = 3;
 while (n > 0) { append n * n; n -= 1; }
 ----
 
-Just to be sure, a <<List-Comprehension>> is the superior way to write this:
+Just to be sure, a ((List-Comprehension)) is the superior way to write this:
 [source,rascal-shell]
 ----
 [n * n | n <- [3 .. 1]];

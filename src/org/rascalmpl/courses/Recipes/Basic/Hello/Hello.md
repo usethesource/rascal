@@ -18,7 +18,7 @@ Variations on the ubiquitous _Hello World_ example.
 
 
 We demonstrate hello via an interactive session with the Rascal system. First we get the prompt `rascal>` that shows that Rascal is ready for our input. 
-Next, we import the library module link:/Libraries#Prelude-IO[IO] since hello world requires printing. Rascal responds with the feedback `ok` so we know that all went well. Finally, we call `println` and proudly observe our first Rascal output!
+Next, we import the library module [IO]((Libraries:Prelude-IO)) since hello world requires printing. Rascal responds with the feedback `ok` so we know that all went well. Finally, we call `println` and proudly observe our first Rascal output!
 [source,rascal-shell]
 ----
 import IO;

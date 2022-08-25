@@ -1,7 +1,7 @@
 # Follow Declaration
 
 .Synopsis
-A conditional <<Symbol>>, constraining the characters that can immediately follow a symbol in the input source text.
+A conditional ((Symbol)), constraining the characters that can immediately follow a symbol in the input source text.
 
 .Index
 >> !>>
@@ -12,7 +12,7 @@ A conditional <<Symbol>>, constraining the characters that can immediately follo
 *  `_Symbol_ !>> _constraint_`
 
 
-where a _constraint_ is any character class, a literal or a keyword non-terminal <<SyntaxDefinition-Symbol>>.
+where a _constraint_ is any character class, a literal or a keyword non-terminal ((SyntaxDefinition-Symbol)).
 
 .Types
 

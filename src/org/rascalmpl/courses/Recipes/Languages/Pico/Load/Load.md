@@ -27,10 +27,10 @@ Notes:
 
 *  The function `load` takes a string as argument (supposedly the source code of a Pico program) and returns a value of type `PROGRAM`,
 the abstract syntax tree of the input program. In case the input program is syntactically incorrect, a `ParseError` exception will be thrown,
-see link:/Libraries#Prelude-RunTimeException[RuntimeException].
+see [RuntimeException]((Libraries:Prelude-RunTimeException)).
 
 *  `parse(#Program, txt)`: parse `txt` according to the non-terminal `Program`. Note that `#Program` is a _reified type_, i.e., the type `Program` is represented as an ordinary Rascal value and passed as argument to the `parse` function,
-see link:/Rascal#Values-ReifiedTypes[reified types].
+see [reified types]((Rascal:Values-ReifiedTypes)).
 The `parse` function returns a parse tree of the input program.
 
 *  `implode(#PROGRAM, parse(#Program, txt))`: transform the parse returned by `parse` into an abstract syntax tree of type `PROGRAM`. The [$Rascal:implode] function performs the automatic mapping between elements in the parse tree and their counterpart in the abstract syntax.

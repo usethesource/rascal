@@ -14,9 +14,9 @@ An `insert` occurs outside a `visit` expression.
 .Details
 
 .Description
-An insert statement may only occur in the action part of a link:/Rascal#Patterns-PatternWithAction[pattern with action], 
+An insert statement may only occur in the action part of a [pattern with action]((Rascal:Patterns-PatternWithAction)), 
 more precisely in a case in a 
-link:/Rascal#Expressions-Visit[visit] expression. 
+[visit]((Rascal:Expressions-Visit)) expression. 
 
 Remedies:
 

@@ -16,7 +16,7 @@ A type other than `void` is needed.
 .Description
 This error is generated when a non-void value is needed, but only void is provided.
 The most prominent examples are splicing for 
-link:/Rascal#List-Splice[list], link:/Rascal#Set-Splice[set], and link:/Rascal#Map-Splice[map].
+[list]((Rascal:List-Splice)), [set]((Rascal:Set-Splice)), and [map]((Rascal:Map-Splice)).
 
 Remedy: replace the expression that computes void by an expression that computes a non-void value.
 

@@ -18,7 +18,7 @@ image::define-extraction.png[width=400,align=left,title="Extraction Workflow"]
 .Description
  
 How can we extract facts from the _System under Investigation_ (SUI) that we are interested in? 
-The extraction workflow is shown in the figure <<Extraction-Workflow>> above and consists of the following steps:
+The extraction workflow is shown in the figure ((Extraction-Workflow)) above and consists of the following steps:
 
 *  First and foremost we have to determine which facts we need. This sounds trivial, but it is not. The problem is that we have to anticipate which facts will be needed in the next---not yet defined---analysis phase. A common approach is to use look-ahead and to sketch the queries that are likely to be used in the analysis phase and to determine which facts are needed for them. Start with extracting these facts and refine the extraction phase when the analysis phase is completely defined.
 

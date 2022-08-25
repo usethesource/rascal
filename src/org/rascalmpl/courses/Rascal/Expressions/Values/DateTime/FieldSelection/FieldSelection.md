@@ -25,7 +25,7 @@ Select a field from a datetime value.
 
 .Description
 Field selection applies to `datetime` values. 
-_Name_ should be one of the supported fields listed in <<Values-DateTime>> and returns the value of that field. 
+_Name_ should be one of the supported fields listed in ((Values-DateTime)) and returns the value of that field. 
 Name stands for itself and is not evaluated.
 
 .Examples

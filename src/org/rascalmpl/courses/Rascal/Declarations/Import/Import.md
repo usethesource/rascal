@@ -21,7 +21,7 @@ An import has as effect that all public entities declared in module _QualifiedNa
 Import is _non-transitive_, i.e., the visible entities from an imported module are not re-exported by the importing module.
 
 .Examples
-Here, is how to import the link:/Libraries#Prelude-IO[IO] library:
+Here, is how to import the [IO]((Libraries:Prelude-IO)) library:
 [source,rascal-shell]
 ----
 import IO;

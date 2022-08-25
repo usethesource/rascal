@@ -19,7 +19,7 @@ _MarkedText_
 .Description
 
 The full summary of a concept consists of the Synopsis and the optional elements
-<<Syntax>>, <<Types>> and <<Function>>.
+((Syntax)), ((Types)) and ((Function)).
 
 Synopsis is *mandatory* (this is not yet enforced).
 

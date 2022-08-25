@@ -16,7 +16,7 @@ Many websites and code generators use template-based code generation. They start
 
 Rascal provides string templates that rival what is provided in
 http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/ERB.html[Ruby], http://www.php.net/[PHP] or http://www.stringtemplate.org/[ANTLR].
-They are fully described in link:/Rascal#Values-String[string values].
+They are fully described in [string values]((Rascal:Values-String)).
 
 .Examples
 The problem we want to solve is as follows: 

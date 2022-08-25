@@ -33,7 +33,7 @@ In some cases the metaprogram transforms the source program into a _target progr
 
 .Examples
 
-A <<Refactoring>> tool for restructuring Java code:
+A ((Refactoring)) tool for restructuring Java code:
 
 *  Metaprogram: the refactoring tool.
 *  Metalanguage: in most cases Java.
@@ -43,7 +43,7 @@ A <<Refactoring>> tool for restructuring Java code:
 *  Target language: Java.
 
 
-A Java <<Compiler>>:
+A Java ((Compiler)):
 
 *  Metaprogram: the Java compiler.
 *  Metalanguage: in most cases Java.

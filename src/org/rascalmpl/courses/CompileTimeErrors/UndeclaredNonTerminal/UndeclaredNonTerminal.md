@@ -14,7 +14,7 @@ A syntax rule uses an undeclared non-terminal.
 .Details
 
 .Description
-All non-terminals that occur in a link:/Rascal#Declarations-SyntaxDefinition[syntax definition]
+All non-terminals that occur in a [syntax definition]((Rascal:Declarations-SyntaxDefinition))
 should be declared in some rule.
 This error is generated when this is not the case.
 

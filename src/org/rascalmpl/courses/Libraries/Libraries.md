@@ -2,7 +2,7 @@
 :toclevels: 2
 
 .Synopsis
-The available link:/Rascal[Rascal] libraries.
+The available [Rascal]((Rascal)) libraries.
 
 .Syntax
 

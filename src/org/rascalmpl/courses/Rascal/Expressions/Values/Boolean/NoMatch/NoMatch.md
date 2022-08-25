@@ -24,7 +24,7 @@ Negated [Boolean Match] operator.
 .Details
 
 .Description
-See <<Pattern Matching>> for an introduction to pattern matching and <<Patterns>> for a complete description.
+See <<Pattern Matching>> for an introduction to pattern matching and ((Patterns)) for a complete description.
 
 .Examples
 [source,rascal-shell]

@@ -32,24 +32,24 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 
 | `_Exp_~1~ [ _Name_ = _Exp_~2~ ]`
-| <<FieldAssignment>>
+| ((FieldAssignment))
 | Change value of named field of structured value
 
 
 | `_Exp_ < _field_~1~, ... >`
-| <<FieldProjection>>
+| ((FieldProjection))
 | Select fields from relation or structured value
 
 
 | `_Exp_ is _Name_`
-| <<ParseTree>>,
+| ((ParseTree)),
   <<Concrete Syntax>>,
   <<Algebraic Data Type>>
 | Returns true if and only if the constructor name of the value produced by _Exp_ is equal to _Name_
 
 
 | `_Exp_ has _Name_` 
-| <<ParseTree>>,
+| ((ParseTree)),
   <<Concrete Syntax>>,
   <<Algebraic Data Type>>
 | Returns true if and only if the constructor (node or parse tree) of the value produced by _Exp_ has any field labeled _Name_
@@ -98,12 +98,12 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 
 | `_Exp_ @ _Name_`
-| <<Expressions-Selection>>
+| ((Expressions-Selection))
 | Value of annotation _Name_ of _Exp_'s value
 
 
 | `_Exp_~1~ [@ _Name_ = _Exp_~2~]`
-| <<Expressions-Replacement>>
+| ((Expressions-Replacement))
 | Assign value of _Exp_~2~ to annotation _Name_ of _Exp_~1~'s value
 
 
@@ -142,7 +142,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
   <<String-Concatenation,String>>,
   <<List-Concatenation,List Concatenation>>,
   <<List-Insert, List Insert>>,<<List-Append, List Append>>,
-  <<Tuple-Concatenation>>,
+  ((Tuple-Concatenation)),
   <<Set-Union,Set>>,
   <<Map-Union,Map>>,
   <<Location-AddSegment,Location>>
@@ -222,11 +222,11 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 
 |  `_Pat_ := _Exp_`
-| <<Boolean-Match>>
+| ((Boolean-Match))
 | Pattern matches value of expression
 
 |  `_Pat_ !:= _Exp_`
-| <<Boolean-NoMatch>>
+| ((Boolean-NoMatch))
 | Pattern does not match value of expression
 
 
@@ -253,31 +253,31 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 
 | `_Exp_~1~ ? _Exp_~2~`
-| <<Boolean-IfDefinedElse>>
+| ((Boolean-IfDefinedElse))
 | Value of expression when it is defined, otherwise alternative value
 
 | `_Exp_~1~ ? _Exp_~2~ : _Exp_~3~`
-| <<Value-Conditional>>
+| ((Value-Conditional))
 | Conditional expression for all types
 
 
 | `_Exp_~1~ ==> _Exp_~2~`
-| <<Boolean-Implication>>
+| ((Boolean-Implication))
 | Implication on Boolean values
 
 
 | `_Exp_~1~ <==> _Exp_~2~`
-| <<Boolean-Equivalence>>
+| ((Boolean-Equivalence))
 | Equivalence on Boolean values
 
 
 | `_Exp_~1~ && _Exp_~2~`
-| <<Boolean-And>>
+| ((Boolean-And))
 | And on Boolean values
 
 
 | `_Exp_~1~ \|\| _Exp_~2~`
-| <<Boolean-Or>>
+| ((Boolean-Or))
 | Or on Boolean values
 
 |====

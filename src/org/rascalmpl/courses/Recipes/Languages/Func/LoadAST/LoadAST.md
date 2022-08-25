@@ -15,10 +15,10 @@ Parse Func program from string or file and convert to an abstract syntax tree.
 To simplify later processing, Func programs are converted to an abstract syntax tree.
 
 .Examples
-The concrete syntax for Func is described in <<Func-ConcreteSyntax>> and its
-abstract syntax in <<Func-AbstractSyntax>>.
+The concrete syntax for Func is described in ((Func-ConcreteSyntax)) and its
+abstract syntax in ((Func-AbstractSyntax)).
 Rather than manually writing conversion rules from Func parse trees to Func abstract syntax trees
-we use our secret weapon: link:/Libraries#PareTree-implode[implode] that performs the mapping for us.
+we use our secret weapon: [implode]((Libraries:PareTree-implode)) that performs the mapping for us.
 As you see when you compare the concrete and abstract syntax, the ground work has already been done
 by appropriately labelling concrete rules with constructor names of the abstract syntax.
 
@@ -52,7 +52,7 @@ import demo::lang::Func::programs::F0;
 load(F0);
 ----
 We get the original program and its __abstract syntax tree__ of type `Prog` back.
-In case of doubt, compare this with the result in <<Func-Parse>> where we did obtain a parse tree.
+In case of doubt, compare this with the result in ((Func-Parse)) where we did obtain a parse tree.
 Next, we try the same from a file:
 [source,rascal-shell,continue]
 ----

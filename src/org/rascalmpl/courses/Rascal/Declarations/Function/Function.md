@@ -51,7 +51,7 @@ Inside the function body, the type of this parameter will therefore be `list[_Ty
 ##  Variant 3 and 4 
 
 
-All formal parameter of a function can be <<Patterns>>. There are some restrictions however:
+All formal parameter of a function can be ((Patterns)). There are some restrictions however:
 
 *  A Pattern in formal parameter positions may not refer to variables in the scope.
 *  Patterns in formal parameter positions may not introduce fresh variables without an explicit type. 
@@ -102,7 +102,7 @@ The _Modifiers_ affect _visibility_ and _special behaviour_ of functions:
        `javaClass` annotation that determines where the Java implementation can be found.
    **  `test` declares that this is a test function. A test function is a boolean function (currently) without arguments. 
         It can be called as any other function. However, it can also be called automatically
-        by the unit test framework, by typing `:test` at the command line, see <<Help>>.
+        by the unit test framework, by typing `:test` at the command line, see ((Help)).
    **  `default` declares an alternative for an overloaded function that will only be tried after 
         all non-default alternatives have been tried. Note that <<Algebraic Data Type>>s and <<Syntax Definition>>s 
         _implicitly_ define `default` functions that may be overloaded by normal <<Function Declaration>>s.
@@ -138,7 +138,7 @@ invert2({<1,10>, <2,20>});
 invert2({<"mon", 1>, <"tue", 2>});
 ----
 As another example declare a function that can be used to swap the elements of pairs of arbitrary types
-(also see <<Tuple-Subscription>>):
+(also see ((Tuple-Subscription))):
 [source,rascal-shell,continue]
 ----
 tuple[&T2, &T1] swap(tuple[&T1, &T2] TP) { return <TP[1], TP[0]>;}
@@ -165,7 +165,7 @@ f(2);
 ----
 
 In combination with an <<Algebraic Data Type>>, which defines `default` functions implicitly for every alternative, 
-we can define canonicalization functions. The same holds for <<Syntax Definition>>s, see <<Action>>s.
+we can define canonicalization functions. The same holds for <<Syntax Definition>>s, see ((Action))s.
 
 //This definition implies a default function for t(), f() and neg(B):
 //[source,rascal-shell,continue]

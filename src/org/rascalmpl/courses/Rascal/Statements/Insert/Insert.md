@@ -1,7 +1,7 @@
 # Insert
 
 .Synopsis
-Insert a value in a tree during a <<Visit>>.
+Insert a value in a tree during a ((Visit)).
 
 .Index
 insert
@@ -17,7 +17,7 @@ insert
 
 .Description
 An insert statement may only occur in the action part of a <<Pattern With Action>>, more precisely in
-a case in a <<Visit>> expression. The value matched by the pattern of this case is replaced by the value of _Exp_.
+a case in a ((Visit)) expression. The value matched by the pattern of this case is replaced by the value of _Exp_.
 
 The following rule applies:
 

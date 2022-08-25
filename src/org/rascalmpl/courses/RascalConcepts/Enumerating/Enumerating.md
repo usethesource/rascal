@@ -17,7 +17,7 @@ or all the nodes in a tree.
 Each value that is enumerated is first matched against a pattern before it can possibly contribute to the result of 
 the enumerator. An enumerator yields `true` as long as it has generated a new value, and `false` otherwise.
 
-See link:/Rascal#Comprehensions-Enumerator[Enumerator] for details.
+See [Enumerator]((Rascal:Comprehensions-Enumerator)) for details.
 
 .Examples
 [source,rascal]
@@ -63,8 +63,8 @@ A more satisfying use is as follows:
 ----
 { x * x | int x <- {1, 3, 5, 7, 11 }};
 ----
-When used inside link:/Rascal#Expressions-Comprehensions[Comprehensions], 
-or link:/Rascal#Statements-For[For], link:/Rascal#Statements-Do[Do], or link:/Rascal#Statements-While[While] 
+When used inside [Comprehensions]((Rascal:Expressions-Comprehensions)), 
+or [For]((Rascal:Statements-For)), [Do]((Rascal:Statements-Do)), or [While]((Rascal:Statements-While)) 
 statement, all values of the generator will be produced and used.
 The variables that are introduced by a enumerator are local to the construct in which the enumerator is used.
 Here is a similar example:

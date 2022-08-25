@@ -18,7 +18,7 @@ Directly execute the statements of a program.
 There are two methods to execute a program that is written in some source language:
 
 *  An http://en.wikipedia.org/wiki/Interpreter_(computing)[Interpreter] directly executes the source statements (but see the variations below).
-*  A <<Compiler>> translates the source program to some efficient executable form. That executable form is then executed by a hardware
+*  A ((Compiler)) translates the source program to some efficient executable form. That executable form is then executed by a hardware
   processor.
 
 

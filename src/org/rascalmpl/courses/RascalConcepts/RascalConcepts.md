@@ -15,7 +15,7 @@ StaticTyping Datatypes ImmutableValues Comprehensions PatternMatching ControlStr
 .Description
 
 Rascal is based on a dozen concepts and having a global understanding of them will help to grasp the language more quickly.
-Here we will informally explain and illustrate these concepts and often we will refer to the link:/Rascal[Rascal Language Reference]
+Here we will informally explain and illustrate these concepts and often we will refer to the [Rascal Language Reference]((Rascal))
 for further details. In other words, we are providing here a friendly front-end for the actual language description.
 
 Most language concepts are described separately but some features we just mention here:

@@ -21,10 +21,10 @@ A comprehension consists of an expression that determines the successive element
 result and a list of enumerators and tests (boolean expressions). 
 The enumerators produce values and the tests filter them. 
 
-See link:/Rascal#Expressions-Comprehensions[Comprehensions], 
-link:/Rascal#List-Comprehension[List Comprehension], 
-link:/Rascal#Set-Comprehension[Set Comprehension], and
-link:/Rascal#Map-Comprehension[Map Comprehension] for details.
+See [Comprehensions]((Rascal:Expressions-Comprehensions)), 
+[List Comprehension]((Rascal:List-Comprehension)), 
+[Set Comprehension]((Rascal:Set-Comprehension)), and
+[Map Comprehension]((Rascal:Map-Comprehension)) for details.
 
 .Examples
 A standard example is
@@ -40,7 +40,7 @@ are divisible by 3. A more intriguing example (that we do not give in full detai
 ----
 {name | /asgStat(Id name, _) <- P}
 ----
-which traverses program `P` (using the _descendant match_ operator `/`, see link:/Rascal#Patterns-Abstract[Patterns]) 
+which traverses program `P` (using the _descendant match_ operator `/`, see [Patterns]((Rascal:Patterns-Abstract))) 
 and constructs a set of all identifiers that occur on the left hand 
 side of assignment statements in `P`.
 

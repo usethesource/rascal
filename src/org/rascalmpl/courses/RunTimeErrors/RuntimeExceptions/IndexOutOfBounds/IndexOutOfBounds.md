@@ -14,19 +14,19 @@ Index is out of bounds.
 .Details
 
 .Description
-Subscription is possible on various ordered types, including link:/Rascal#List-Subscription[list],
+Subscription is possible on various ordered types, including [list]((Rascal:List-Subscription)),
 link:{RascaLangl}#Tuple-Subscription[tuple], and
-link:/Rascal#Node-Subscription[node].
+[node]((Rascal:Node-Subscription)).
 This error is generated when a subscript is out of bounds for the value that is being subscripted.
 
 Remedies:
 
 * Guard the subscription with a test that the index is within bounds.
 * Make your code less dependent on index values. Suggestions:
-  ** Use the link:/Libraries#List-index[index] to produce all legal indices of a list. 
+  ** Use the [index]((Libraries:List-index)) to produce all legal indices of a list. 
      Instead of `for(int i <- [0..size(L)]) { ... }` use `for(int i <- index(L)) { ... }`.
-  ** Use a link:/Rascal#List-Slice[list slice] to automate part of the index computation.
-*  Catch the `IndexOutOfBounds` yourself, see link:/Rascal#Statements-TryCatch[try catch].
+  ** Use a [list slice]((Rascal:List-Slice)) to automate part of the index computation.
+*  Catch the `IndexOutOfBounds` yourself, see [try catch]((Rascal:Statements-TryCatch)).
 
 
 .Examples

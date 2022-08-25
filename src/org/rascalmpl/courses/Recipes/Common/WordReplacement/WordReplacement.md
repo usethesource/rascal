@@ -23,7 +23,7 @@ include::{LibDir}demo/common/WordReplacement.rsc[tags=module]
 
                 
 <1> We start by introducing a helper function `capitalize` that does the actual capitalization of a single word.
-    See link:/Rascal#Patterns-Regular[Regular Pattern] for details about regular expression patterns.
+    See [Regular Pattern]((Rascal:Patterns-Regular)) for details about regular expression patterns.
     Next we give two versions of a capitalization functions for a sentence:
 
 <2> `capAll1` uses a while loop to find subsequent words and to replace them by a capitalized version.

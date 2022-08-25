@@ -13,8 +13,8 @@ Parse a Func program from a string or a file.
 
 .Description
 Parsing uses the syntax rules for a given start non-terminnal to parse a string and turn it into a parse tree.
-The work horse is the link:/Libraries#ParseTree-parse[parse] function that is available in the 
-link:/Libraries#Prelude-ParseTree[PareTree] library.
+The work horse is the [parse]((Libraries:ParseTree-parse)) function that is available in the 
+[PareTree]((Libraries:Prelude-ParseTree)) library.
 
 .Examples
 Here is how to parse Func programs from a string or file:

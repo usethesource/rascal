@@ -26,7 +26,7 @@ Concatenate two strings.
 
 Concatenates the string values of _Exp_~1~ and _Exp_~2~.
 
-Note that to concatenate other types of values into a string, you can use <<Values-String>> interpolation.
+Note that to concatenate other types of values into a string, you can use ((Values-String)) interpolation.
 
 .Examples
 [source,rascal-shell]

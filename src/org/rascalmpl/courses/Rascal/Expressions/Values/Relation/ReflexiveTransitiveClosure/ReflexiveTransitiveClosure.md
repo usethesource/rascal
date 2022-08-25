@@ -35,7 +35,7 @@ If we define for a given relation R:
 
 
 then the reflexive transitive closure R* can be defined in two ways:
-(also see <<Relation-TransitiveClosure>>):
+(also see ((Relation-TransitiveClosure))):
 *  R* = R^0^ + R^1^ + R^2^ + R^3^ + ...
 *  R* = R^0^ + R+
 

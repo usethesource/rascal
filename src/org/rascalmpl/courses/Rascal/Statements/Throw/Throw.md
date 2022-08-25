@@ -22,7 +22,7 @@ A throw statement causes the immediate abortion of the execution of the current 
 The exception can be caught by a <<Try Catch>> statement in the current function or in one of its callers.
 If the exception is not caught, the execution of the Rascal program is terminated. The following rules apply:
 
-*  The static type of _Exp_ should be `RuntimeException`, see link:/Libraries#Exception-RuntimeException[RuntimeException].
+*  The static type of _Exp_ should be `RuntimeException`, see [RuntimeException]((Libraries:Exception-RuntimeException)).
 
 *  The Rascal program may contain data declarations that extend the type `RuntimeException`.
 

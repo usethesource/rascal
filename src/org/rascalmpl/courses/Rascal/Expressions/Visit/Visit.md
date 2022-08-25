@@ -25,7 +25,7 @@ default: ...
 
 .Description
 
-Visiting, recursively traversing, the nodes in a deeply nested data-structure is a very common task in the link:/EASY[EASY] domain. 
+Visiting, recursively traversing, the nodes in a deeply nested data-structure is a very common task in the [EASY]((EASY)) domain. 
 In many cases (but certainly not all) this data-structure is a syntax tree of some source code file 
 and the nodes correspond to expressions or statements. 
 
@@ -47,7 +47,7 @@ Given a subject term (the current value of _Exp_) and a list of cases
 (consisting of a sequence of <<Pattern with Action>>s, it traverses the term. 
 Depending on the precise actions it may perform replacement (mimicking a transformer), 
 update local variables (mimicking an accumulator) or a combination of these two (accumulating transformer). 
-If *any* of the actions contains an <<Statements-Insert>> statement, 
+If *any* of the actions contains an ((Statements-Insert)) statement, 
 the value of the visit expression is a new value that is obtained by successive insertions in the subject 
 term by executing one or more cases. Otherwise, the original value of the subject term is returned.
 
@@ -86,9 +86,9 @@ The execution of the cases has the following effect:
 
       *** `_Pattern_ => _Exp_` is equivalent to `_Pattern_ : insert _Exp_;`.
 
-   ** Execution of a <<Fail>> statement: the next case is tried.
+   ** Execution of a ((Fail)) statement: the next case is tried.
 
-   ** Execution of a <<Return>> statement that returns a value from the enclosing function.
+   ** Execution of a ((Return)) statement that returns a value from the enclosing function.
 
 The precise behaviour of the visit expression depends on the type of the subject:
 
@@ -123,9 +123,9 @@ bottom-up visit(e){
          }
 ----
 
-More examples can, for instance, be found in Recipes, see link:/Recipes#Common-ColoredTrees[ColoredTrees], 
-link:/Recipes#Common-WordReplacement[WordReplacement], link:/Recipes#CommonCountConstructors[CountConstructors], 
-and link:/Recipes#Common-Derivative[Derivative].
+More examples can, for instance, be found in Recipes, see [ColoredTrees]((Recipes:Common-ColoredTrees)), 
+[WordReplacement]((Recipes:Common-WordReplacement)), [CountConstructors]((Recipes:CommonCountConstructors)), 
+and [Derivative]((Recipes:Common-Derivative)).
 
 .Benefits
 

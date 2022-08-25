@@ -5,13 +5,13 @@ A `Solver` tries to solve the constraints in a `TModel`; unsolved constraints pr
 
 .Description
 
-The purpose of a Solver is to solve the constraints that have been gathered by the <<Collector>>
+The purpose of a Solver is to solve the constraints that have been gathered by the ((Collector))
 and to produce a TModel.
 The functions provided by a Solver are summarized below:
 
 image::Solver.png[800,650,align="center"]
 
-Two dozen functions (some very similar to the ones provided for <<Collector>>) are available 
+Two dozen functions (some very similar to the ones provided for ((Collector))) are available 
 that fall into the following categories:
 
 * _Lifecycle of Solver_: create a new Solver and use it to solve the constraints in a given TModel.
@@ -24,7 +24,7 @@ that fall into the following categories:
 * _Global Info_:  access global information such as the current <<TypePal Configuration>>, available type facts,
   and the global store (EXPLAIN). 
 
-In identical style as used for <<Collector>>, `Solver` is a datatype with a single constructur and with a number of functions as fields,
+In identical style as used for ((Collector)), `Solver` is a datatype with a single constructur and with a number of functions as fields,
 For instance, given a  `Solver` named `s`, calling the `getType` function amounts to: `s.getType(_argument-of-getType_)`.
 All Solver functions are prefixed with `/* Solver field */` to emphasize that they
 are a field of the Solver datatype.
@@ -37,7 +37,7 @@ the used vocabulary (used for name completion).
 
 == Lifecycle of Solver
 
-Once, an initial TModel has been created by a <<Collector>>, a Solver takes over to solve constraints
+Once, an initial TModel has been created by a ((Collector)), a Solver takes over to solve constraints
 and produce a final TModel. A new Solver can be created by `newSolver` that comes in two flavours:
 
 [source,rascal]
@@ -198,7 +198,7 @@ the type of a given source code fragment in the current scope:
 ----
 `src` may either be a `Tree` (i.e., a parse tree fragment) or a `loc` (the source location of a parse tree fragment).
 
-Here is how `getType` is used in <<Pico>> to check the addition operator:
+Here is how `getType` is used in ((Pico)) to check the addition operator:
 
 * two integer arguments give an integer result;
 * two string arguments give a string result;
@@ -284,7 +284,7 @@ Here:
 == Inference
 Type inference is supported by the introduction of type variables
 using `newTypeVar` in combination with unification primitives
-inside `calculateEager` <<Calculate>> and `requireEager` <<Require>>
+inside `calculateEager` ((Calculate)) and `requireEager` ((Require))
 such as `requireUnify` and `unify`. The following functions support the computation
 with types possibly containing type variables.
 

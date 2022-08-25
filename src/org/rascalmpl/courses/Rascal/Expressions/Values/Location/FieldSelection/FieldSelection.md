@@ -24,7 +24,7 @@ Field selection on locations.
 
 .Description
 Field selection applies to locations. 
-_Name_ should be one of the supported fields listed in <<Values-Location>> and returns the value of that field. 
+_Name_ should be one of the supported fields listed in ((Values-Location)) and returns the value of that field. 
 Name stands for itself and is not evaluated.
 
 .Examples

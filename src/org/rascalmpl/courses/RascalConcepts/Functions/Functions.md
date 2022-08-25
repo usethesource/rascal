@@ -16,7 +16,7 @@ Functions allow the definition of frequently used operations. They have a name a
 Functions can also be used as values thus enabling higher-order functions. 
 Rascal is a higher-order language in which functions are first-class values.
 
-See link:/Rascal#Declarations-Function[Function Declaration] for details.
+See [Function Declaration]((Rascal:Declarations-Function)) for details.
 
 .Examples
 Here is an example of a function that counts the number of assignment statements in a program:

@@ -30,7 +30,7 @@ _Software evolution_ is a specialisation in <<Software Engineering>> that addres
 *  Understanding the impact of software evolution on the structure and quality of source code.
 *  Developing <<Software Metric>>s and tools to measure the impact of software evolution.
 *  Developing methods and tools for the better understanding of source code.
-*  Developing <<Refactoring>> tools to counter the effects of software evolution.
+*  Developing ((Refactoring)) tools to counter the effects of software evolution.
 
 .Examples
 

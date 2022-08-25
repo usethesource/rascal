@@ -25,11 +25,11 @@ finally: _Statement~3~_;
 .Details
 
 .Description
-A try catch statement has as purpose to catch any link:/Libraries#Prelude-Exception[Exceptions] that are raised 
+A try catch statement has as purpose to catch any [Exceptions]((Libraries:Prelude-Exception)) that are raised 
 during the execution of _Statement_~1~.
 These exceptions may caused by:
 
-*  The execution of an explicit <<Throw>> statement.
+*  The execution of an explicit ((Throw)) statement.
 
 *  The Rascal system that discovers an abnormal condition, e.g., an out of bounds error when accessing a list element.
 
@@ -44,7 +44,7 @@ Their meaning is as follows:
 *  Before leaving the try catch statement _Statement~3~_ is always executed (when present).
 
 .Examples
-Let's define a variant of the link:/Libraries#List-head[head] function that returns the first element of a list,
+Let's define a variant of the [head]((Libraries:List-head)) function that returns the first element of a list,
 but throws an exception when the list is empty. Our variant will return `0` for an empty list:
 [source,rascal-shell]
 ----

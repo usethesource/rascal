@@ -41,7 +41,7 @@ The following fields provide access to information about the value, but cannot b
 
 
 The following fields provide access to the individual components of date, time and datetime values,
-and can be accessed using <<DateTime-FieldSelection>> and be assigned using <<DateTime-FieldSelection>>:
+and can be accessed using ((DateTime-FieldSelection)) and be assigned using ((DateTime-FieldSelection)):
 
 *  `year`
 *  `month`
@@ -79,7 +79,7 @@ loctoc::[1]
 The following functions are defined for DateTime:
 loctoc::[Rascal/Libraries/Prelude/DateTime,1]
 
-There are also link:/Libraries#Prelude-DateTime[library functions] available for DateTime.
+There are also [library functions]((Libraries:Prelude-DateTime)) available for DateTime.
 
 .Examples
 

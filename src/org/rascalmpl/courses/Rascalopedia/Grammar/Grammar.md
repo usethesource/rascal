@@ -1,7 +1,7 @@
 # Grammar
 
 .Synopsis
-A synonym for <<Syntax>>.
+A synonym for ((Syntax)).
 
 .Syntax
 

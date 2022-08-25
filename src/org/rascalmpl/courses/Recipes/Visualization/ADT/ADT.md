@@ -12,7 +12,7 @@ Visualize an Algebraic Datatype as a tree.
 .Details
 
 .Description
-In <<ColoredTrees>> we have discussed the Algebraic Data Type `ColoredTree`.
+In ((ColoredTrees)) we have discussed the Algebraic Data Type `ColoredTree`.
 Here we show how to create a visualization for them. The global approach is:
 
 *  Define a function `visColoredTree` that has a ColoredTree as argument and 
@@ -33,7 +33,7 @@ include::{LibDir}demo/vis/VisADT.rsc[tags=module]
 
 
 For the example `ColoredTree` `rb` we can set a standard 
-(see link:/Libraries#std[]) link:/Libraries#Properties-size[size] and standard link:/Libraries#Properties-gap[gap]:
+(see []((Libraries:std))) [size]((Libraries:Properties-size)) and standard [gap]((Libraries:Properties-gap)):
 [source,rascal-figure,width=,height=,file=a1.png]
 ----
                 import demo::vis::VisADT;
@@ -52,7 +52,7 @@ Note that:
 
 
 Some further custumizations are possible. By default, the tree visualization 
-uses link:/Libraries#Properties-manhattan[manhattan] style. If we turn it off
+uses [manhattan]((Libraries:Properties-manhattan)) style. If we turn it off
 [source,rascal-figure,width=,height=,file=a2.png]
 ----
                 import demo::vis::VisADT;
@@ -64,7 +64,7 @@ the result is:
 image:a2.png[alt="a2"]
 
 
-It is also possible to change the link:/Libraries#Properties-orientation[orientation] of the tree and draw it, for example, from left to right:
+It is also possible to change the [orientation]((Libraries:Properties-orientation)) of the tree and draw it, for example, from left to right:
 [source,rascal-figure,width=,height=,file=a3.png]
 ----
                 import demo::vis::VisADT;

@@ -20,8 +20,8 @@ the type checking, code generation, transformation, or optimization to be done o
 
 How can we bridge this gap? We discuss two approaches:
 
-*  <<Manual>>: a transformation is written manually to convert parse trees to abstract syntax trees.
-*  <<Automatic>>: the library function [Rascal:implode] is used to automate this transformation.
+*  ((Manual)): a transformation is written manually to convert parse trees to abstract syntax trees.
+*  ((Automatic)): the library function [Rascal:implode] is used to automate this transformation.
 
 
 .Examples

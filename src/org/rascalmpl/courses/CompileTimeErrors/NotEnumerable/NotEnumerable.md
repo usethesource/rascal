@@ -14,8 +14,8 @@ A value that cannot be enumerated is used in an enumerator.
 .Details
 
 .Description
-An link:/Rascal#Comprehensions-Enumerator[enumerator] like `int n <- _V_` is used in 
-link:/Rascal#Expressions-Comprehensions[comprehensions] to enumerate the values in `V`.
+An [enumerator]((Rascal:Comprehensions-Enumerator)) like `int n <- _V_` is used in 
+[comprehensions]((Rascal:Expressions-Comprehensions)) to enumerate the values in `V`.
 This error is produced when `V` is a value that does not support enumeration.
 This is typically the case for atomic values like numbers, Booleans and Strings,
 

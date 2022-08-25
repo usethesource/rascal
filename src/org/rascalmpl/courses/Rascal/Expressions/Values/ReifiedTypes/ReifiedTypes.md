@@ -26,9 +26,9 @@ The type reify expression operator has two functions in one go:
 As a result a reified type can be used to reconstruct a type and the abstract (<<Algebraic Data Type>>) or concrete (<<Syntax Definition>>) grammar that produced it. 
 
 
-Type literals have a nice interaction with <<Type Parameters>>, since they can be used to bind a type parameter without having to provide a value of the type. An example is the <<parse>> function in <<ParseTree>> (see below for an example usage).
+Type literals have a nice interaction with <<Type Parameters>>, since they can be used to bind a type parameter without having to provide a value of the type. An example is the ((parse)) function in ((ParseTree)) (see below for an example usage).
 
-The values that are used to represent types are declared in the <<Libraries-Prelude-Type>> module and <<Libraries-Prelude-ParseTree>> modules, namely `Symbol` is the data-type to represent types symbolically and `Production` is the data-type for representing grammatical constructs. 
+The values that are used to represent types are declared in the ((Libraries-Prelude-Type)) module and ((Libraries-Prelude-ParseTree)) modules, namely `Symbol` is the data-type to represent types symbolically and `Production` is the data-type for representing grammatical constructs. 
 
 A type literal wraps a `Symbol` and a map of `Production`s.
 

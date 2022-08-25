@@ -35,7 +35,7 @@ we use it here just as a simple illustration). Transitive closure of a relation 
 ----
 R+ = R + (R o R) + (R o R o R) + ...
 ----
-In other words, it is the union of successive <<Relation-Composition>>s of `R` with itself. 
+In other words, it is the union of successive ((Relation-Composition))s of `R` with itself. 
 For a given relation `R` this can be expressed as follows:
 [source,rascal-shell]
 ----

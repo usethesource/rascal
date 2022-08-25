@@ -17,7 +17,7 @@ Markup for a variable.
 .Details
 
 .Description
-Variables in text and code are represented by <<Italic>> markup. 
+Variables in text and code are represented by ((Italic)) markup. 
 They may be followed by one or more subscripts (enclosed by `~` and `~`) or superscripts (enclosed by `^` and `^`)
 
 .Examples

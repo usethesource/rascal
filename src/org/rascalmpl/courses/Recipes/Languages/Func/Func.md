@@ -31,7 +31,7 @@ Func is a functional language with the following features:
 
 
 Some features add more complexity to an interpreter, therefore
-we present four interpreters <<Eval0>>, <<Eval1>>, <<Eval2>> and <<Eval2>>
+we present four interpreters ((Eval0)), ((Eval1)), ((Eval2)) and ((Eval2))
 that implement increasingly complex features:
 
 

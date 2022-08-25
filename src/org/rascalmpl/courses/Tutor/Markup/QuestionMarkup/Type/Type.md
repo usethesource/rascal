@@ -20,7 +20,7 @@ A type question presents a Rascal expressions and poses a question about its typ
 _OptName_ is an optional name of the question (enclosed between `[` and `]`).
 If _OptName_ is missing, the question gets a unique number as name.
 
-The desired type is given by a <<TypeDescriptor>>.
+The desired type is given by a ((TypeDescriptor)).
 
 The first form presents the value generated for the _TypeDescriptor_ and asks about its type.
 

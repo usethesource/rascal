@@ -40,13 +40,13 @@ An n-ary list relation with m tuples is denoted by
  `[< _E_~11~, _E_~12~, ..., _E_~1n~>,< _E_~21~, _E_~22~, ..., _E_~2n~>, ..., < _E_~m1~, _E_~m2~, ..., _E_~mn~>]`, 
 where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
-Since list relations are a form of list all operations (see <<Values-List>>) and functions
-(see <<Prelude-List>>) are also applicable to relations.
+Since list relations are a form of list all operations (see ((Values-List))) and functions
+(see ((Prelude-List))) are also applicable to relations.
 
 The following additional operators are provided for list relations:
 loctoc::[1]
 
-There are also link:/Libraries#Prelude-ListRelation[library functions] available for ListRelation.
+There are also [library functions]((Libraries:Prelude-ListRelation)) available for ListRelation.
 
 
 .Examples

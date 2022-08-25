@@ -26,7 +26,7 @@ The effect is that the concepts listed there will be shown first, followed by th
 in alphabetical order.
 
 .Examples
-In <<Concept>> we want to order the details in the order as they appear in the concept description.
+In ((Concept)) we want to order the details in the order as they appear in the concept description.
 Its `Details` section is therefore:
 
 [source,subs="verbatim,quotes"]

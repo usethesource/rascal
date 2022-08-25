@@ -44,7 +44,7 @@ where
 * `id` is the text representation of the identifier;
 * `idRole` is the role in which the identifier is defined, see <<Identifier Role>>;
 * `defined` is source code area of the definition;
-* `defInfo` is any additional information associated with this definition, see <<DefInfo>>,
+* `defInfo` is any additional information associated with this definition, see ((DefInfo)),
 
 == Identifier Use
 The _use_ of an identifier is characterized by a `Use`:
@@ -195,6 +195,6 @@ data DefInfo
     `getAType` will only be called by TypePal during constraint solving.
 <4> Refine a set of definitions by taking their LUB, mostly used for local type inference.
 
-The <<Solver>> argument of `getAType` and `getATypes` is the current constraint solver being used.
+The ((Solver)) argument of `getAType` and `getATypes` is the current constraint solver being used.
 
 WARNING: noDefInfo may be removed.

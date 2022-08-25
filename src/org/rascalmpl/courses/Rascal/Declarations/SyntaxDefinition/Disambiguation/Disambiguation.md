@@ -3,7 +3,7 @@
 .Synopsis
 
 Disambiguation is the definition of filters on the parse trees that <<Syntax Definition>>s define. 
-There are several ways of defining <<Disambiguation>> in Rascal.
+There are several ways of defining ((Disambiguation)) in Rascal.
 
 .Syntax
 
@@ -24,9 +24,9 @@ There are generally three ways of removing ambiguity from parse forests that are
    **  <<Precede Declaration>>s, which can be used to implement first match using look behind
    **  <<Reserve Declaration>s, which allow you to finite sets of strings from a <<Syntax Definition>>
        to implement keyword reservation
-*  The second way is to add <<Action>>s that will be triggered just after parsing and allow you to trim a parse forest 
+*  The second way is to add ((Action))s that will be triggered just after parsing and allow you to trim a parse forest 
    using any information necessary.
-*  The third way is use the <<Visit>> statement on a parse tree and implement your own filter post-parsing time, 
+*  The third way is use the ((Visit)) statement on a parse tree and implement your own filter post-parsing time, 
    or any other kind of program that processes <<Parse Trees>>.
 
 .Examples

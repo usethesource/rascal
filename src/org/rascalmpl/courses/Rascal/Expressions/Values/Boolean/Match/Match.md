@@ -16,7 +16,7 @@ Match a pattern against an expression.
 |====
 | `_Pat_`      | `_Exp_` |`_Pat_ := _Exp_`
 
-| <<Patterns>> | `value` | `bool`        
+| ((Patterns)) | `value` | `bool`        
 |====
 
 .Function
@@ -24,7 +24,7 @@ Match a pattern against an expression.
 .Details
 
 .Description
-See <<Pattern Matching>> for an introduction to pattern matching and <<Patterns>> for a complete description.
+See <<Pattern Matching>> for an introduction to pattern matching and ((Patterns)) for a complete description.
 
 .Examples
 [source,rascal-shell]

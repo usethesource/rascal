@@ -18,7 +18,7 @@ Some adaptation is possible and includes:
 *  Using another separator than a comma (use `"separator" : ";"` in the option map for the various functions, where `";"` can be any single character string).
 
 
-The following functions are provided in the <<Rascal-Libraries-lang-csv-IO>> library:
+The following functions are provided in the ((Rascal-Libraries-lang-csv-IO)) library:
 loctoc::[1]
 
 .Examples

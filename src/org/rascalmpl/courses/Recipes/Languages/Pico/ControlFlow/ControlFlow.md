@@ -80,7 +80,7 @@ import demo::lang::Pico::ControlFlow;
 cflowProgram("begin declare n : natural, s : string; n := 10; s := \"a\"; while n do s := s + \"a\"; n := n - 1 od end");
 ----
 
-Is the above not very motivating to move on to <<Pico-Visualize>>?
+Is the above not very motivating to move on to ((Pico-Visualize))?
 
 .Benefits
 

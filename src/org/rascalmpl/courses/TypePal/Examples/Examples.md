@@ -56,7 +56,7 @@ Each example has the same structure:
 
 [cols="1,8"]
 |===
-| *What*        | Extension of <<Fun>> with modules
+| *What*        | Extension of ((Fun)) with modules
 | *Illustrates* | PathRole, addPathToDef
 | *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/modfun
 |===
@@ -73,7 +73,7 @@ Each example has the same structure:
 == Aliases
 [cols="1,8"]
 |===
-| *What*        |  <<Struct>> extended with type aliases
+| *What*        |  ((Struct)) extended with type aliases
 | *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole
 | *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/aliases
 |===
@@ -83,7 +83,7 @@ Each example has the same structure:
 
 [cols="1,8"]
 |===
-| *What*        | <<Struct>> extended with fields on non-record type
+| *What*        | ((Struct)) extended with fields on non-record type
 | *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType 
 | *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/staticFields
 |===
@@ -91,7 +91,7 @@ Each example has the same structure:
 == StructParameters
 [cols="1,8"]
 |===
-| *What*        | <<Struct>> with parameterized records
+| *What*        | ((Struct)) with parameterized records
 | *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType, instantiateTypeParameters
 | *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/structParameters
 |===

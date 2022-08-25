@@ -109,7 +109,7 @@ Accept myIsAcceptablePath(TModel tm, loc def, Use use, PathRole pathRole) {
 `mayOverload` determines whether a set of definitions (`defs`) are allowed to be overloaded,
 given their definitions (`defines`).
 
-In <<FWJava>> the only allowed overloading is between class names and constructor names.
+In ((FWJava)) the only allowed overloading is between class names and constructor names.
 [source,rascal]
 ----
 bool fwjMayOverload (set[loc] defs, map[loc, Define] defines) {
@@ -169,7 +169,7 @@ The function `instantiateTypeParameters` defines instantiation of *language-spec
 `instantiateTypeParameters` will match `def` with `ins` and the resulting bindings will be used to instantiate `act`.
 The instantiated version of `act` is returned.
 
-In <<StructParameters>> parameterized structs (records) are defined. 
+In ((StructParameters)) parameterized structs (records) are defined. 
 The formal type of such a struct is ``structDef(str name, list[str] formals)``, 
 i.e., a struct has a name and a list of named formal type parameters.
 The actual type of a struct is ``structType(str name, list[AType] actuals)``, 
@@ -197,7 +197,7 @@ default AType structParametersInstantiateTypeParameters(Tree current, AType def,
 /* Configuration field */  tuple[list[str] typeNames, set[IdRole] idRoles] (AType atype) getTypeNamesAndRole
 ----
 This function determines whether a given `atype` is a named type or not. This is needed for the customization
-of indirect type computations such as <<useViaType>> and <<getTypeInType>>. When `atype` is a named type
+of indirect type computations such as ((useViaType)) and ((getTypeInType)). When `atype` is a named type
 `getTypeNamesAndRole` returns:
 
 * A list of names that may be associated with it. In most languages this will contain just a single element, the name of the type.
@@ -242,7 +242,7 @@ In the Rascal type checker common keyword parameters of data declarations are ha
 `getTypeInNamelessType` describes field selection on built-types that have not been explicitly declared with a name.
 A case in point is a `length` field on a built-in string type.
 
-In <<StaticFields>> this is done as follows:
+In ((StaticFields)) this is done as follows:
 [source,rascal]
 ----
 AType staticFieldsGetTypeInNamelessType(AType containerType, Tree selector, loc scope, Solver s){

@@ -23,7 +23,7 @@ include::{LibDir}demo/basic/Factorial.rsc[tags=module]
 ----
           
 <1> `fac` is defined using a conditional expression to distinguish cases.
-<2> `fac2` distinguishes cases using pattern-based dispatch (link:/Rascal#Concepts-Function[Rascal Functions]).
+<2> `fac2` distinguishes cases using pattern-based dispatch ([Rascal Functions]((Rascal:Concepts-Function))).
     Here the case for `0` is defined.
 <3> Here all other cases for `fac2` are defined (as indicated by the `default` keyword).
 <4> `fac3` shows a more imperative implementation of factorial.

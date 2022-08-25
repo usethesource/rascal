@@ -1,7 +1,7 @@
 # Reserve Declaration
 
 .Synopsis
-Reserve is a conditional <<Symbol>>, constraining the set of strings that a symbol may produce.
+Reserve is a conditional ((Symbol)), constraining the set of strings that a symbol may produce.
 
 .Index
 \
@@ -11,7 +11,7 @@ Reserve is a conditional <<Symbol>>, constraining the set of strings that a symb
 *  `_Symbol_ \ _constraint_`
 
 
-where a _constraint_ is any character class, a literal or a keyword non-terminal <<Symbol>>.
+where a _constraint_ is any character class, a literal or a keyword non-terminal ((Symbol)).
 
 .Types
 

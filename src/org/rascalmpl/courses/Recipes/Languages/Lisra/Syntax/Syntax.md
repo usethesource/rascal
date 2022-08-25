@@ -36,7 +36,7 @@ of `LispExp`s surrouned by parentheses.
 
 .Examples
 
-This grammar is demonstrated in <<Lisra-Parse>>.
+This grammar is demonstrated in ((Lisra-Parse)).
 
 .Benefits
 

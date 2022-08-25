@@ -16,14 +16,14 @@ An assertion in the Rascal code is false.
 .Details
 
 .Description
-An link:/Rascal#Assert[Assert] statement can be used to check assumptions during the execution of a Rascal program.
+An [Assert]((Rascal:Assert)) statement can be used to check assumptions during the execution of a Rascal program.
 This error is generated if an assertion is not true.
 
 Remedies:
 
 *  Modify your code to make the assertion true.
 *  Modify your assertion to reflect the current behaviour of your code.
-*  Catch the `AssertionFailed` yourself, see link:/Rascal#TryCatch[try catch].
+*  Catch the `AssertionFailed` yourself, see [try catch]((Rascal:TryCatch)).
 
 
 .Examples

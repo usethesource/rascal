@@ -22,7 +22,7 @@ This is a recipe for computing basic or more advanced metrics from a Java projec
 *  You have a Java project in your Eclipse workspace that compiles without errors. Let's call it `HelloWorld`.
 
 
-Now we will follow the link:/EASY[EASY] paradigm:
+Now we will follow the [EASY]((EASY)) paradigm:
 
 *  a library will be used to _parse_ the Java code generating [Rascalopedia:AbstractSyntaxTree]
 *  the same library will generate a [Rascal:Values/Relation]al model to represent interesting facts between Java source code artifacts

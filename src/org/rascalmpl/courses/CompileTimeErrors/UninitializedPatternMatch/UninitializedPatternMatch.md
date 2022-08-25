@@ -14,9 +14,9 @@ Pattern matching has not been properly initialized.
 .Details
 
 .Description
-link:/Rascal#Concepts-PatternMatching[Pattern matching] requires two ingredients:
+[Pattern matching]((Rascal:Concepts-PatternMatching)) requires two ingredients:
 
-*  One of the many link:/Rascal#Rascal-Patterns[patterns].
+*  One of the many [patterns]((Rascal:Rascal-Patterns)).
 *  A non-void subject value to which the pattern is applied.
 
 This error is generated when the subject is void.

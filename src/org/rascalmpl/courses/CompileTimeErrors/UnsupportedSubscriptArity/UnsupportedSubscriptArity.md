@@ -15,12 +15,12 @@ Wrong number of subscripts is used.
 
 .Description
 Subscription is available for values of various types including: 
-link:/Rascal#String-Subscription[string], 
-link:/Rascal#Node-Subscription[node],
-link:/Rascal#List-Subscription[list], 
-link:/Rascal#Map-Subscription[map], 
-link:/Rascal#Tuple-Subscription[tuple] and 
-link:/Rascal#Relation-Subscription[relation].
+[string]((Rascal:String-Subscription)), 
+[node]((Rascal:Node-Subscription)),
+[list]((Rascal:List-Subscription)), 
+[map]((Rascal:Map-Subscription)), 
+[tuple]((Rascal:Tuple-Subscription)) and 
+[relation]((Rascal:Relation-Subscription)).
 This error is generated when subscription is applied to a value that does support subscription but not the number
 of indices that are used.
 

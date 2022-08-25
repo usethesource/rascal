@@ -18,9 +18,9 @@ fail
 .Description
 A `fail` statement is only allowed in statements that are controlled by the outcome of a pattern match:
 
-*  The <<Patterns>> in a <<Pattern with Action>> in <<Switch>> or <<Visit>> statement controls the statements in the action part.
-*  The test (expression) of a <<While>> or <<Do>> statement controls the statements in the body part.
-*  The test (expressions) of a <<For>> statement control the statements in the body part.
+*  The ((Patterns)) in a <<Pattern with Action>> in ((Switch)) or ((Visit)) statement controls the statements in the action part.
+*  The test (expression) of a ((While)) or ((Do)) statement controls the statements in the body part.
+*  The test (expressions) of a ((For)) statement control the statements in the body part.
 *  The formal parameter declaration of a <<Function Declaration>>.
 
 
@@ -37,7 +37,7 @@ When `fail` is executed:
 
 .Examples
 
-Here is an example taken from link:/Recipes#Bubble[Bubble]. 
+Here is an example taken from [Bubble]((Recipes:Bubble)). 
 It uses a `fail` for the case that no unsorted element can be found in the list of numbers.
 As a result, the whole case fails and the default case is used.
 [source,rascal-shell]

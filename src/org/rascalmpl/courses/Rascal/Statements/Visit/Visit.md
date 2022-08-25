@@ -2,14 +2,14 @@
 
 .Synopsis
 
-The <<Visit>> expression can also be used directly as a statement
+The ((Visit)) expression can also be used directly as a statement
 
 .Index
 visit
 
 .Syntax 
 
-See <<Expression-Visit>>.
+See ((Expression-Visit)).
 
 .Types
 
@@ -19,7 +19,7 @@ See <<Expression-Visit>>.
 
 .Description
 
-See <<Visit>> for the details.
+See ((Visit)) for the details.
 
 .Examples
 [source,rascal-shell]
