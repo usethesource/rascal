@@ -21,8 +21,8 @@ Given a value and a set of rewrite rules the patterns are tried on every subpart
 
 Rascal has ancestors, notably http://www.meta-environment.org/[ASF+SDF], where rewriting was the most important computation mechanism.
 In Rascal, rewriting can be achieved using pattern-directed invocation, 
-see link:/Rascal#Declarations-Function[Function Declaration], 
-possibly combined with a link:/Rascal#Expressions-Visit[Visit] statement.
+see [Function Declaration]((Rascal:Declarations-Function)), 
+possibly combined with a [Visit]((Rascal:Expressions-Visit)) statement.
 
 .Examples
 In a package for symbolic differentiation it is desirable to keep expressions in simplified form in order 
@@ -59,7 +59,7 @@ Exp simplify(Exp e){                          // <3>
 <3> The actual `simplify` function: it performs a bottom up visit of the expression, replacing each subexpression by
 a simplified version.
 
-See link:/Recipes#Common-Derivative[Derivative] for a full explanation of this example.
+See [Derivative]((Recipes:Common-Derivative)) for a full explanation of this example.
 
 .Benefits
 

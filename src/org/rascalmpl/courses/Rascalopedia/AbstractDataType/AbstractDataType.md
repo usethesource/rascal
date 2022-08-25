@@ -22,8 +22,8 @@ can be implemented using a list, array or something else.
 In functional languages, and also in Rascal, abstract datatypes (or ADTs for short)
 are used to define new data types. Well-known examples are http://en.wikipedia.org/wiki/Stack_(data_structure)[stack] and http://en.wikipedia.org/wiki/Tree_(data_structure)[tree].
 
-See link:/Rascal#Declarations-AlgebraicDataType[Algebraic Data Types] and 
-link:/Rascal#Values-Constructor[Constructors] in the link:/Rascal[Rascal Language Reference].
+See [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) and 
+[Constructors]((Rascal:Values-Constructor)) in the [Rascal Language Reference]((Rascal)).
 
 .Examples
 

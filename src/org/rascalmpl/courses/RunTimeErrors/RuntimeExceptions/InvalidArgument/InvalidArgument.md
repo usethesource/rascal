@@ -20,7 +20,7 @@ Remedies:
 
 .Examples
 
-Changing the month of a link:/Rascal#Values-DateTime[DateTime] to an illegal month (13):
+Changing the month of a [DateTime]((Rascal:Values-DateTime)) to an illegal month (13):
 [source,rascal-shell,error]
 ----
 NOW = $2013-01-13T22:16:51.740+01:00$;

@@ -14,9 +14,9 @@ A field name is used that has not been declared.
 .Details
 
 .Description
-Fields of link:/Rascal#Values-Tuple[tuple] (hence also of link:/Rascal#Values-Relation[relation]
- and link:/Rascal#Values-ListRelation[listrelation])
-and constructors of link:/Rascal#Declarations-AlgebraicDataType[algebraic data types] may have names.
+Fields of [tuple]((Rascal:Values-Tuple)) (hence also of [relation]((Rascal:Values-Relation))
+ and [listrelation]((Rascal:Values-ListRelation)))
+and constructors of [algebraic data types]((Rascal:Declarations-AlgebraicDataType)) may have names.
 This error is generated when a reference is made to an undeclared field.
 
 Remedies:

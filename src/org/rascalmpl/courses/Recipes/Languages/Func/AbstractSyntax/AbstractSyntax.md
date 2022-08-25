@@ -22,7 +22,7 @@ include::{LibDir}demo/lang/Func/AST.rsc[tags=module]
 ----
 
                 
-Observe that the abstract syntax follows the structure of the <<Func-ConcreteSyntax>> but
+Observe that the abstract syntax follows the structure of the ((Func-ConcreteSyntax)) but
 omits details such as operator priorities, parentheses, and the like.
 
 .Benefits

@@ -17,11 +17,11 @@ Pattern matching determines whether a given pattern matches a given value.
 The outcome can be `false` (no match) or `true` (a match). A pattern match that succeeds may bind values to variables.
 
 Pattern matching is _the_ mechanism for case distinction 
-(link:/Rascal#Statements-Switch[Switch] statement) and search (link:/Rascal#Expressions-Visit[Visit] statement) in Rascal. 
+([Switch]((Rascal:Statements-Switch)) statement) and search ([Visit]((Rascal:Expressions-Visit)) statement) in Rascal. 
 Patterns can also be used in an explicit match operator `:=` and can then be part of larger boolean expressions. 
 Since a pattern match may have more than one solution, local backtracking over the alternatives of a match is provided. 
-Patterns can also be used in link:/Rascal#Comprehensions-Enumerator[Enumerators]s and control structures like 
-link:/Rascal#Statements-For[For] and link:/Rascal#Statements-While[While] statement.
+Patterns can also be used in [Enumerators]((Rascal:Comprehensions-Enumerator))s and control structures like 
+[For]((Rascal:Statements-For)) and [While]((Rascal:Statements-While)) statement.
 
 A very rich pattern language is provided that includes string matching based on regular expressions, 
 matching of abstract patterns, and matching of concrete syntax patterns. 
@@ -30,7 +30,7 @@ set (associative, commutative, idempotent) matching, and deep matching of descen
 All these forms of matching can be used in a single pattern and can be nested. 
 Patterns may contain variables that are bound when the match is successful. 
 Anonymous (don't care) positions are indicated by the underscore (`_`). 
-See link:/Rascal#Rascal-Patterns[Patterns] for more details.
+See [Patterns]((Rascal:Rascal-Patterns)) for more details.
 
 .Examples
 
@@ -72,7 +72,7 @@ whileStat(EXP Exp, _*)
 ----
 
 When there is a grammar for this example language, we can also write concrete patterns as described in
-link:/Rascal#Patterns-Concrete[Concrete Patterns].
+[Concrete Patterns]((Rascal:Patterns-Concrete)).
 
 
 

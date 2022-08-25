@@ -23,13 +23,13 @@ This whole process starts with a syntax for the language we want to analyze (let
 The _L_ syntax is used to parse the _L_ program we want to type check. The result is a parse tree.
 
 Collecting constraints from the resulting parse tree is based on the builder pattern:
-first a new <<Collector>> is created (using `newCollector`) and that enables the author of the type checker
+first a new ((Collector)) is created (using `newCollector`) and that enables the author of the type checker
 to add facts, requirements and calculators to the `TModel` depending on the specific input program.
 The Collector calls user-defined `collect` functions for each language construct.
 This collection process is strictly _local_ and based
 on the nested structure of the parse tree and the result is an initial `TModel`.
 
 After the Collector phase, a `TModel` is available whose constraints can be solved (or not).
-This is done by creating a new <<Solver>> (using `newSolver`) and running it on the given `TModel`.
+This is done by creating a new ((Solver)) (using `newSolver`) and running it on the given `TModel`.
 
 TypePal can be configured using a <<TypePal Configuration>>.

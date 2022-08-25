@@ -21,7 +21,7 @@ This is expressed by a subtype constraint which expresses that
 actual types bound to _Name_ should be a subtype of _Type_. 
 
 .Examples
-Here is the definition of the absolute value function `abs` from the <<Number>> library:
+Here is the definition of the absolute value function `abs` from the ((Number)) library:
 [source,rascal]
 ----
 public &T <: num abs(&T <: num N)
@@ -37,7 +37,7 @@ abs(-3);
 abs(-3.5);
 ----
 
-Here is an example from the <<Values-Node>> library:
+Here is an example from the ((Values-Node)) library:
 [source,rascal]
 ----
 &T <: node setAnnotations(&T <: node x, map[str, value] annotations);

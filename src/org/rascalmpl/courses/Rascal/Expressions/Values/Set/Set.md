@@ -43,7 +43,7 @@ it has to be prefixed by the splice operator `*`.
 The following operators are provided on sets:
 loctoc::[1]
 
-There are also link:/Libraries#Prelude-Set[library functions] available for Sets.
+There are also [library functions]((Libraries:Prelude-Set)) available for Sets.
 .Examples
 ##  Set types 
 

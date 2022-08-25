@@ -16,7 +16,7 @@ Strategies to synthesise results.
 image::define-synthesis.png[width=400,align=left,title="Synthesis Workflow"]
 
 .Description
-Results are synthesized as shown in the Figure <<Synthesis-Workflow>> above. This consists of the following steps:
+Results are synthesized as shown in the Figure ((Synthesis-Workflow)) above. This consists of the following steps:
 
 *  Determine the results of the synthesis phase. Wide range of results is possible including:
 

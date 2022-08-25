@@ -40,5 +40,5 @@ The `+` operator will add elements to sets.
 
 .Pitfalls
 
-*  if both operands of `+` are a set then it acts as <<Set-Union>>.
+*  if both operands of `+` are a set then it acts as ((Set-Union)).
 

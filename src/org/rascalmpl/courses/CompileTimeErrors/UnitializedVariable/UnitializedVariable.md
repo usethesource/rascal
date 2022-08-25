@@ -14,7 +14,7 @@ Use of a variable that has not been initialized.
 .Details
 
 .Description
-A link:/Rascal#Declarations-Variable[variable] has to be initialized before it can be used.
+A [variable]((Rascal:Declarations-Variable)) has to be initialized before it can be used.
 This error is generated when an uninitialzed variable is used.
 
 Remedy: assign a value to the variable before its use:

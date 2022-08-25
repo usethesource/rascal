@@ -20,8 +20,8 @@ A word is here defined as one or more letters (lowercase or uppercase), digits a
 
 We split the problem in two parts:
 
-*  Count the words in a single line. We explore three ways to do this in an imperative (<<CountInLine1>>], <<CountInLine2>>)
-  and a functional style (<<CountInLine3>>).
+*  Count the words in a single line. We explore three ways to do this in an imperative (((CountInLine1))], ((CountInLine2)))
+  and a functional style (((CountInLine3))).
 *  Next we apply the single line counter to all the lines.
 
 
@@ -39,10 +39,10 @@ include::{LibDir}demo/common/WordCount/WordCount.rsc[tags=module]
 ----
 
                 
-<1> An link:/Rascal#Comprehensions-Enumerator[enumerator] is used to generated all the lines in the list of lines.
+<1> An [enumerator]((Rascal:Comprehensions-Enumerator)) is used to generated all the lines in the list of lines.
 <2> The argument function `countInLine` is applied to count the number of words in each line.
 
-Let's now do some experiments using the <<Jabberwocky>> poem by Lewis Carrol as input.
+Let's now do some experiments using the ((Jabberwocky)) poem by Lewis Carrol as input.
 
 [source,rascal-shell]
 ----
@@ -64,7 +64,7 @@ in the following alternative `wordCount2` function:
 int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line <- lines);
 wordCount2(Jabberwocky);
 ----
-The function body contains two nested link:/Rascal#Expressions-Reducer[reducers].
+The function body contains two nested [reducers]((Rascal:Expressions-Reducer)).
 The inner reducer counts the number of words in a line, the outer reducer accumulates all line word counts.
 
 [source,rascal-shell,continue]

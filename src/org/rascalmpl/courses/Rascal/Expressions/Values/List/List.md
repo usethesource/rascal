@@ -44,7 +44,7 @@ it has to be prefixed by the splice operator `*`.
 The following operators are provided on list:
 loctoc::[1]
 
-There are also link:/Libraries#Prelude-List[library functions] available for List.
+There are also [library functions]((Libraries:Prelude-List)) available for List.
 
 .Examples
 [source,rascal-shell]

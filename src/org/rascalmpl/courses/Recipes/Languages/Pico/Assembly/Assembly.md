@@ -16,7 +16,7 @@ Assembly language for Pico.
 .Description
 
 .Examples
-The <<Pico-Compile>>r will translate Pico programs into the following assembly language.
+The ((Pico-Compile))r will translate Pico programs into the following assembly language.
 [source,rascal]
 ----
 include::{LibDir}demo/lang/Pico/Assembly.rsc[tags=module]

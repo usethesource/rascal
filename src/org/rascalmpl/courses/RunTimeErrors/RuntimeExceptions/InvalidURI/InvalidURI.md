@@ -10,7 +10,7 @@ An invalid URI is created at runtime.
 `import Exception;` (only needed when `InvalidURI` is used in `catch`)
 
 .Description
-Thrown by operations on link:/Rascal#Values-Location[source locations] that would 
+Thrown by operations on [source locations]((Rascal:Values-Location)) that would 
 lead to an invalid URI part of a source location value.
 
 .Examples

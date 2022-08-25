@@ -18,7 +18,7 @@ a numeric function  is called with an out-of-range argument.
 Remedies:
 
 *  Check the validity of the argument before you call the function or apply the operator.
-*  Catch the `ArithmeticException` yourself, see link:/Rascal#Statements-TryCatch[try catch] statement.
+*  Catch the `ArithmeticException` yourself, see [try catch]((Rascal:Statements-TryCatch)) statement.
 
 .Examples
 Division by 0 gives an error:

@@ -14,8 +14,8 @@ Requested information is unavailable at runtime
 
 Several datetypes may contain optional information that is not always available:
 
-* In a link:/Rascal#Values-DateTime[datetime] value the date or the time may be missing.
-* In a link:/Rascal#Values-Location[location] value, various fields are optional, 
+* In a [datetime]((Rascal:Values-DateTime)) value the date or the time may be missing.
+* In a [location]((Rascal:Values-Location)) value, various fields are optional, 
   e.g., `port`, `offset`, `begin` and `end`.
   
 This exception is thrown when optional information is not available.

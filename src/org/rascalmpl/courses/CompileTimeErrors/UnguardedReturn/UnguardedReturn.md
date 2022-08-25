@@ -14,7 +14,7 @@ A return statement occurs outside a function body.
 .Details
 
 .Description
-A link:/Rascal#Statements-Return[return] statement is used to return a value from a function.
+A [return]((Rascal:Statements-Return)) statement is used to return a value from a function.
 It is an error to use it outside a function body.
 
 .Examples

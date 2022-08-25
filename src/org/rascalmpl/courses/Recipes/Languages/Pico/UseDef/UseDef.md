@@ -25,7 +25,7 @@ include::{LibDir}demo/lang/Pico/UseDef.rsc[tags=module]
 ----
 
                 
-Recall that `Occurrence` was introduced in <<Pico-Abstract>>; it is a parameterized container to associate
+Recall that `Occurrence` was introduced in ((Pico-Abstract)); it is a parameterized container to associate
 program entities with their location.
 
 <1> The function `usesExp` computes a set of occurrences (uses) of Pico identifiers in a given statement:

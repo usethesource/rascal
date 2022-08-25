@@ -15,7 +15,7 @@ Drawing a box in many variations.
 
 .Examples
 
-Drawing a red link:/Libraries#Figure-box[box] is as simple as this:
+Drawing a red [box]((Libraries:Figure-box)) is as simple as this:
 [source,rascal-figure,width=,height=,file=b1.png]
 ----
 import vis::Figure;
@@ -33,7 +33,7 @@ image:b1.png[alt="Box 1"]
 image:Screenshot1.png[alt="Screenshot 1"]
 
 
-Wow, the box fills the whole window! So lets give our box a link:/Libraries#Properties-size[size]:
+Wow, the box fills the whole window! So lets give our box a [size]((Libraries:Properties-size)):
 [source,rascal-figure,width=,height=,file=b2.png]
 ----
 import vis::Figure;
@@ -51,7 +51,7 @@ The lesson here is that size is to be taken as *minimum size* (and probably we s
 rename `size` to `minSize` to emphasize this).
 
 So how can we produce a box that does _not_ fill the whole window? The answer is to define the size of the box
-_relative_ to its surroundings by using link:/Libraries#Properties-shrink[shrink]:
+_relative_ to its surroundings by using [shrink]((Libraries:Properties-shrink)):
 
 [source,rascal-figure,width=,height=,file=b3.png]
 ----
@@ -66,8 +66,8 @@ which says: _I am a red box and I want to occupy 50% of the available space._ Th
 image::Screenshot2.png[alt="Screen shot 2"]
 
 
-Shrinking can also be limited to one dimension using link:/Libraries#Properties-hshrink[hshrink] 
-or link:/Libraries#Properties-vshrink[vshrink]:
+Shrinking can also be limited to one dimension using [hshrink]((Libraries:Properties-hshrink)) 
+or [vshrink]((Libraries:Properties-vshrink)):
 [source,rascal-figure,width=,height=,file=b4.png]
 ----
 import vis::Figure;

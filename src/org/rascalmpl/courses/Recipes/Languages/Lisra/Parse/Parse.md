@@ -15,7 +15,7 @@ Parsing a Lisp expression.
 
 .Description
 
-Given the Lisp <<Lisra-Syntax>>, we can now apply it to parse textual Lisp expressions
+Given the Lisp ((Lisra-Syntax)), we can now apply it to parse textual Lisp expressions
 and convert them to the runtime representation `Lval`.
 
 [source,rascal]

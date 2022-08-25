@@ -1,7 +1,7 @@
 # Parser
 
 .Synopsis
-Check that a text adheres to the rules of a language (and return a <<ParseTree>>).
+Check that a text adheres to the rules of a language (and return a ((ParseTree))).
 
 .Syntax
 
@@ -18,7 +18,7 @@ Check that a text adheres to the rules of a language (and return a <<ParseTree>>
 A http://en.wikipedia.org/wiki/Parsing[parser] checks that a text in language _L_ indeed adheres 
 to the syntax rules of language _L_. There are two possible answers:
 
-*  _Yes_. A <<ParseTree>> is returned that shows how the text adheres to the syntax rules.
+*  _Yes_. A ((ParseTree)) is returned that shows how the text adheres to the syntax rules.
 *  _No_. Error messages pin point the location where the text deviates from the syntax rules.
 
 

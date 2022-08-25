@@ -38,19 +38,19 @@ To appreciate these general strategies, it is good to keep some specific problem
 
 
 With these examples in mind, we can study the overall problem solving workflow as shown 
-in the figure <<Problem-Solving-Workflow>> above.
+in the figure ((Problem-Solving-Workflow)) above.
 It consists of three optional phases:
 
-*  Is extraction needed to solve the problem, then define the extraction phase, see <<Extraction>>.
+*  Is extraction needed to solve the problem, then define the extraction phase, see ((Extraction)).
 
-*  Is analysis needed, then define the analysis phase, see <<Analysis>>. 
+*  Is analysis needed, then define the analysis phase, see ((Analysis)). 
 
-*  Is synthesis needed, then define the synthesis phase, see <<Synthesis>>.
+*  Is synthesis needed, then define the synthesis phase, see ((Synthesis)).
 
 [[Validation-Workflow]]
 image::validation.png[width=250, align=left, title="Validation Workflow"]
 
-Each phase is subject to a validation and improvement workflow as shown in the second figure <<Validation-Workflow>>. 
+Each phase is subject to a validation and improvement workflow as shown in the second figure ((Validation-Workflow)). 
 Each individual phase as well as the combination of phases may introduce errors and has thus to be carefully validated. 
 In combination with the detailed strategies for each phase, this forms a complete approach for problem solving and validation 
 using Rascal.
@@ -62,7 +62,7 @@ A major question in every problem solving situation is how to determine the requ
 For instance, how do we know what to extract from the source code if we do not know what the desired end results of the project are? 
 The standard solution is to use a workflow for requirements gathering that is the inverse of the phases needed to solve 
 the complete problem. 
-This is shown in the third figure <<Requirements-Workflow>> and amounts to the phases: 
+This is shown in the third figure ((Requirements-Workflow)) and amounts to the phases: 
 
 *  Requirements of the synthesis phase. 
   This amounts to making an inventory of the desired results of the whole project and may include generated source code, 

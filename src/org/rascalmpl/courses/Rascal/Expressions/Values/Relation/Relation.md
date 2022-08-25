@@ -38,13 +38,13 @@ An n-ary relations with m tuples is denoted by
  `{< _E_~11~, _E_~12~, ..., _E_~1n~ >,< _E_~21~, _E_~22~, ..., _E_~2n~ >, ..., < _E_~m1~, _E_~m2~, ..., _E_~mn~ >}`, 
 where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
-Since relations are a form of set all operations (see <<Values-Set>>) and functions
-(see <<Prelude-Set>>) are also applicable to relations.
+Since relations are a form of set all operations (see ((Values-Set))) and functions
+(see ((Prelude-Set))) are also applicable to relations.
 
 The following additional operators are provided for relations:
 loctoc::[1]
 
-There are also link:/Libraries#Prelude-Relation[library functions] available for Relations.
+There are also [library functions]((Libraries:Prelude-Relation)) available for Relations.
 
 
 .Examples

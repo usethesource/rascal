@@ -31,10 +31,10 @@ All Rascal documentation is organized
 in _courses_, each course consist of
 a hierarchy of _concepts_.
 The documentation for `while` is found in the
-course named link:/Rascal[Rascal]
-and the complete name is link:/Rascal#Statements-While[Rascal/Statements/While].
+course named [Rascal]((Rascal))
+and the complete name is [Rascal/Statements/While]((Rascal:Statements-While)).
 
-There are other courses like link:/Help[Help] (this course)
-and link:/Recipes[Recipes] and the search for while
+There are other courses like [Help]((Help)) (this course)
+and [Recipes]((Recipes)) and the search for while
 found uses of while in various courses (like this one, since we are mentioning
 `while` quite a lot).

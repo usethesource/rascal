@@ -14,7 +14,7 @@ The special variable `it` occurs outside a reducer expression.
 .Details
 
 .Description
-A link:/Rascal#Expressions-Reducer[reducer] is used to reduce all elements in a collection to a sngle value.
+A [reducer]((Rascal:Expressions-Reducer)) is used to reduce all elements in a collection to a sngle value.
 The special variable `it` represents the currently reduced value and can be modified inside the reducer.
 This error is generated when `it` i used otuside the a reducer.
 

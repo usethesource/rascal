@@ -33,7 +33,7 @@ In the Eclipse version, Rascal modules can be edited and a command console is al
 NOTE: Add a screenshot
 
 Where to go from here: 
-have a look at link:/GettingHelp[Getting Help] and in particular 
-link:/GettingHelp#GettingHelp-FurtherReading[further reading]
+have a look at [Getting Help]((GettingHelp)) and in particular 
+[further reading]((GettingHelp:GettingHelp-FurtherReading))
 or just click  the RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] 
 at the top left of each Tutor page.

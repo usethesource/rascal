@@ -82,5 +82,5 @@ catch Ambiguity(loc l, str s, _):
 
 Here are some pointers for further disambiguation help:
 
-* link:/Rascal#Declarations-SyntaxDefinition[Syntax Definitions].
-* link:/Rascal#SyntaxDefinition-Disambiguation[Disambiguation features].
+* [Syntax Definitions]((Rascal:Declarations-SyntaxDefinition)).
+* [Disambiguation features]((Rascal:SyntaxDefinition-Disambiguation)).

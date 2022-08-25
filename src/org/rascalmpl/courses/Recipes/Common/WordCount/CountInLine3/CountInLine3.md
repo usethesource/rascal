@@ -22,7 +22,7 @@ include::{LibDir}demo/common/WordCount/CountInLine3.rsc[tags=module]
 ----
 
                 
-We use a link:/Rascal#Expressions-Reducer[reducer] that is a recipe to reduce the values produced by one or more generators
+We use a [reducer]((Rascal:Expressions-Reducer)) that is a recipe to reduce the values produced by one or more generators
   to a single value:
   
 * `0` is the initial value of the reducer

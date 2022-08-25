@@ -13,7 +13,7 @@ Literal in abstract pattern.
 
 .Description
 
-A literal of one of the basic types <<Values-Boolean>>, <<Values-Integer>>, <<Values-Real>>, <<Values-Number>>, <<Values-String>>, <<Values-Location>>, or <<Values-DateTime>>
+A literal of one of the basic types ((Values-Boolean)), ((Values-Integer)), ((Values-Real)), ((Values-Number)), ((Values-String)), ((Values-Location)), or ((Values-DateTime))
 can be used as abstract pattern.
 A literal pattern matches with a value that is identical to the literal.
 

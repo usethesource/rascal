@@ -15,11 +15,11 @@ break
 .Details
 
 .Description
-A `break` statement is only allowed inside the body of a <<While>>, <<Do>> or <<For>> statement
+A `break` statement is only allowed inside the body of a ((While)), ((Do)) or ((For)) statement
 and is associated with the innermost loop statement in which it is contained.
 Its effect is to end the execution of the loop.
 
-Also see <<Continue>> and <<Fail>>.
+Also see ((Continue)) and ((Fail)).
 
 .Examples
 

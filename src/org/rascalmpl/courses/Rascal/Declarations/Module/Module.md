@@ -43,7 +43,7 @@ The constituents of a module are shown in the figure below.
 image:module-parts.png[style="float: right;" width="500px" ,alt="Module Parts"]
 
 
-An <<Import>> declares other modules that are used by the current module.
+An ((Import)) declares other modules that are used by the current module.
 Following imports, a module may contain declarations (in arbitrary order, but a <<Syntax Definition>> can
 occur directly following the imports) for:
 
@@ -84,12 +84,12 @@ include::{LibDir}demo/basic/Hello.rsc[tags=module]
 ----
 
                 
-It defines a module with the name `demo::basic::Hello` and imports the link:/Libraries#Prelude-IO[IO] library.
+It defines a module with the name `demo::basic::Hello` and imports the [IO]((Libraries:Prelude-IO)) library.
 Finally, it declares the `hello` function.
 
 The actual source of this module can be found in `library/demo/basic/Hello.rsc` in the Rascal sources.
 
-More ways to write this example are discussed in the link:/Recipes#Basic-Hello[Hello] example in link:/Recipes[Recipes].
+More ways to write this example are discussed in the [Hello]((Recipes:Basic-Hello)) example in [Recipes]((Recipes)).
 
 .Benefits
 

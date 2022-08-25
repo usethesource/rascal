@@ -22,7 +22,7 @@ named, values and to provide access to the elements of such a collection through
 
 In Rascal, algebraic data types provide this facility. They have to be declared, and
 then values can be declared using calls to the declared constructor functions,
-see <<Values-Constructor>>.
+see ((Values-Constructor)).
 
 .Examples
 

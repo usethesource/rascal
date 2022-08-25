@@ -6,14 +6,14 @@ The Rascal standard prelude.
 .Description
 
 The `Prelude` library provides core functionality for handling all of Rascal's data-types.
-See the link:/Rascal[Rascal Language Reference] for details of the language Rascal itself.
+See the [Rascal Language Reference]((Rascal)) for details of the language Rascal itself.
 
 For 
 
-* numeric functions, see the <<Math>> library,
-* statistical functions see <<analysis-statistics>>,
-* graph functions see <<analysis-graphs>>,
-* other common utilitites see <<Libraries-util>>.
+* numeric functions, see the ((Math)) library,
+* statistical functions see ((analysis-statistics)),
+* graph functions see ((analysis-graphs)),
+* other common utilitites see ((Libraries-util)).
 
 `Prelude` provides the following:
 

@@ -162,7 +162,7 @@ An expression consisting of a single identifier represents a _use_ of that ident
 
 NOTE: In larger languages names may be defined in different scopes. Scopes do not play a role in Cal.
 
-NOTE: We do not enforce _define-before-use_ in this example, but see <<XXX>> how to achieve this.
+NOTE: We do not enforce _define-before-use_ in this example, but see ((XXX)) how to achieve this.
 
 ==== Check Exp: Boolean and Integer constants
 
@@ -305,7 +305,7 @@ TModel calcTModelFromTree(Tree pt){
     return collectAndSolve(pt);
 }
 ----
-Given a parse tree `pt` for a Calc program, we apply <<collectAndSolve>> to it. This creates a Collector, uses it to collect constraints from `pt` and then creates a Solver 
+Given a parse tree `pt` for a Calc program, we apply ((collectAndSolve)) to it. This creates a Collector, uses it to collect constraints from `pt` and then creates a Solver 
 to solve all constraints. The result is a `TModel`. `calcTModelFromTree` will also be used during automated testing.
 
 [source,rascal]

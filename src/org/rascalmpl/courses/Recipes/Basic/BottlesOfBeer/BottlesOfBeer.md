@@ -27,7 +27,7 @@ include::{LibDir}demo/basic/Bottles.rsc[tags=module]
 <1> We use an auxiliary function `bottles` that returns the word "bottle" adjusted for the actual number of bottles that is available.
 Observe how we use the patterns `0`, `1` and `int n` in the definition of three variants of this function.
 
-<2> _Pattern-directed invocation_ (see link:/Rascal#Declarations-Function[function declaration]) will determine at the call site which function will be called. The
+<2> _Pattern-directed invocation_ (see [function declaration]((Rascal:Declarations-Function))) will determine at the call site which function will be called. The
 general case is labeled with `default` to indicate that if the case for 0 and 1 do not match, this alternative should handle the other cases. 
 
 <3> The main function is `sing` that iterates over the numbers 99 down to 1 (as described by the range `[99 .. 0]`)

@@ -34,7 +34,7 @@ Next, a data value is constructed in accordance with the declared data type
 using the values _V_~i~ as arguments for the constructor. This data value is used as value of the constructor. 
 Constructors are functions that can be used in all contexts where functions can be used.
 
-Observe that the syntax of a constructor is identical to the syntax of an function <<Call>>.
+Observe that the syntax of a constructor is identical to the syntax of an function ((Call)).
 
 .Examples
 

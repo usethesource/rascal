@@ -24,7 +24,7 @@ add an element in front of a list
 
 .Description
 
-The `+` operator can insert an element in front of a list. Note that `+` is one of the <<Operators>> that is overloaded, it is also <<List-Concatenation>> and <<List-Append>> for example.
+The `+` operator can insert an element in front of a list. Note that `+` is one of the ((Operators)) that is overloaded, it is also ((List-Concatenation)) and ((List-Append)) for example.
 
 .Examples
 

@@ -33,12 +33,12 @@ The concept name of this concept is `ReferenceToConcept` while its display name 
 We can create a reference to the `InlineMarkup` concept in the current course in the following ways:
 
 * `\<<Inline Markup>>` (using the display name) gives <<Inline Markup>>.
-* `\<<Markup-InlineMarkup>>` (using its parent concept name and concept name) gives <<Markup-InlineMarkup>>.
-* `\link:/Tutor#Markup-InlineMarkup[see inline markup]` gives link:/Tutor#Markup-InlineMarkup[see inline markup]
+* `\((Markup-InlineMarkup))` (using its parent concept name and concept name) gives ((Markup-InlineMarkup)).
+* `\[see inline markup]((Tutor:Markup-InlineMarkup))` gives [see inline markup]((Tutor:Markup-InlineMarkup))
 
 Here is a reference to another course:
 
-* `\link:/Rascal#Statements-If[If statement]` gives link:/Rascal#Statements-If[If statement].
+* `\[If statement]((Rascal:Statements-If))` gives [If statement]((Rascal:Statements-If)).
 
 .Benefits
 

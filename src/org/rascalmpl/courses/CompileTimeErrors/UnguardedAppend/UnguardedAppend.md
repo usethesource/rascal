@@ -14,7 +14,7 @@ Append statement occurs outside a for/while statement.
 .Details
 
 .Description
-The link:/Rascal#Statements-Append[append] statement can be used inside a loop statement.
+The [append]((Rascal:Statements-Append)) statement can be used inside a loop statement.
 This error is generated when append occurs outside a loop.
 
 Remedy: use List concatenation to append an element to a list outside a loop.

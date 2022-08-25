@@ -20,22 +20,22 @@ loctoc::[1]
 
 You can find more (accessible) information related to Rascal here:
 
-*  link:/WhyRascal[Why Rascal]: gives the motivation for the Rascal language and describes various usage scenarios.
-*  link:/GettingStarted[Getting Started] describes how to download, install and start Rascal.
-*  link:/GettingHelp[Getting Help] shows how to use the help facilties and search the documentation. 
-   See link:/GettingHelp#GettingHelp-FurtherReading[Further Reading] for a reading guide.
-*  Library functies are described in link:/Libraries[Rascal Libraries].
+*  [Why Rascal]((WhyRascal)): gives the motivation for the Rascal language and describes various usage scenarios.
+*  [Getting Started]((GettingStarted)) describes how to download, install and start Rascal.
+*  [Getting Help]((GettingHelp)) shows how to use the help facilties and search the documentation. 
+   See [Further Reading]((GettingHelp:GettingHelp-FurtherReading)) for a reading guide.
+*  Library functies are described in [Rascal Libraries]((Libraries)).
 *  We do not maintain a list of frequently asked questions (faq) but 
    use http://stackoverflow.com/questions/tagged/rascal[StackOverflow] instead.
 
 .Examples
 
 *  We show examples for each Rascal language construct described here.
-*  You can find many simple code examples in link:/Recipes[Recipes]. 
-*  The link:/Libraries[Rascal Libraries] contain examples for most functions. 
+*  You can find many simple code examples in [Recipes]((Recipes)). 
+*  The [Rascal Libraries]((Libraries)) contain examples for most functions. 
 
 .Benefits
-*  Rascal has everything you need for any kind of (meta-)program you want to write. See link:/WhyRascal[Why Rascal].
+*  Rascal has everything you need for any kind of (meta-)program you want to write. See [Why Rascal]((WhyRascal)).
 
 .Pitfalls
 

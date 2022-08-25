@@ -31,7 +31,7 @@ Moving the documentation for a library file is as simple as
 moving `C` to another position in the concept hierarchy.
 
 .Examples
-The `DateTime` library module is defined in the link:/Libraries[Libraries] course by
+The `DateTime` library module is defined in the [Libraries]((Libraries)) course by
 the subdirectory `Libraries/Prelude/DateTime` and the file `DateTime/DateTime.remote`.
 The latter contains a single line with the location of the DateTime module:
 

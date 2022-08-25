@@ -23,7 +23,7 @@ data Resource = root(set[Resource] projects)
 .Description
 The `Resource` library provides direct access to Eclipse projects and the resources they contain. 
 A `Resource` is the Rascal representation of an Eclipse project, or a folder or a file in an Eclipse project. 
-In combination with the <<Prelude-IO>> library module, users of the Resources library gain access to the contents 
+In combination with the ((Prelude-IO)) library module, users of the Resources library gain access to the contents 
 of any file that is in an Eclipse project.
 
 Resource is a recursive data-type, where recursion indicates *containment*, i.e., 
@@ -32,7 +32,7 @@ The root of an Eclipse workspace also contains other resources, in particular `p
 
 Each Resource, but the root, has an `id` field that explains the exact location of the resource.
 
-The schema `project` that is supported by source locations (see <<Values-Location>>) gives direct access to Eclipse projects.
+The schema `project` that is supported by source locations (see ((Values-Location))) gives direct access to Eclipse projects.
 
 The `Resource` library provides the following:
 loctoc::[1]

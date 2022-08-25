@@ -26,7 +26,7 @@ Typed variable inside a concrete pattern: <_Type_ _Var_>
 .Description
 
 A concrete pattern is a pattern for matching a <<Parse Tree>>. The notation of a concrete pattern is the *object language* itself, the language that the parse tree describes. 
-In other words, you can use a code example to match parsed code using a concrete pattern. These concrete code examples can contain <<Variable Pattern>>s like the other <<Patterns>>.
+In other words, you can use a code example to match parsed code using a concrete pattern. These concrete code examples can contain <<Variable Pattern>>s like the other ((Patterns)).
 
 The mechanism of concete patterns gives a good notation for matching complex structures such as a <<Parse Tree>>, and it works in a simple manner:
    
@@ -63,7 +63,7 @@ Some observations about this example:
 ** When this example pattern actually matches the variable `a` is bound and can be used again like any other <<Variable Pattern>>. 
 
 
-A full example of concrete patterns can be found in link:/Recipes#Concrete-WithLayout[WithLayout].
+A full example of concrete patterns can be found in [WithLayout]((Recipes:Concrete-WithLayout)).
 
 .Benefits
 

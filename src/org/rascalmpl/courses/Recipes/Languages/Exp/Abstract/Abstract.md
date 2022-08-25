@@ -42,7 +42,7 @@ include::{LibDir}demo/lang/Exp/Abstract/Eval.rsc[tags=module]
 ----
 
            
-Here we see Rascal's _pattern-directed invocation_ in action (see link:/Rascal#Declarations-Function[Function Declaration]).
+Here we see Rascal's _pattern-directed invocation_ in action (see [Function Declaration]((Rascal:Declarations-Function))).
 The essence is this: in other languages the formal parameters in a function declaration
 are just that: formal parameters, i.e., single names that can be used inside the function and
 that are bound when the function is called.

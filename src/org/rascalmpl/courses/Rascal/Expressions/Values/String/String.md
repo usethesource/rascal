@@ -74,7 +74,7 @@ _Auto-indent_: Expressions that get interpolated in a string will be auto-indent
 The following operators are defined for Strings:
 loctoc::[1]
 
-There are also link:/Libraries#Prelude-String[library functions] available for Strings.
+There are also [library functions]((Libraries:Prelude-String)) available for Strings.
 
 .Examples
 [source,rascal-shell]

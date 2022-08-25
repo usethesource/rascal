@@ -21,7 +21,7 @@ sequence of digits of arbitrary length.
 .Description
 The integer values are represented by the type `int` and are written as usual. They can be _arbitrarily large_.
 
-See <<Number>> for all operations and functions on integers, reals and numbers.
+See ((Number)) for all operations and functions on integers, reals and numbers.
 
 .Examples
 

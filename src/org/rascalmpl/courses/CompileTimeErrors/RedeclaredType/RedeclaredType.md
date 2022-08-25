@@ -15,7 +15,7 @@ A type with the same name has been declared before.
 
 .Description
 Some declarations introduce new type names. Most important are an 
-link:/Rascal#Declarations-AlgebraicDataType[algebraic data type] and link:/Rascal#Declarations-Alias[alias].
+[algebraic data type]((Rascal:Declarations-AlgebraicDataType)) and [alias]((Rascal:Declarations-Alias)).
 This error signals that the same type name is used for incompatible purposes.
 
 Remedy: rename one of the type names.

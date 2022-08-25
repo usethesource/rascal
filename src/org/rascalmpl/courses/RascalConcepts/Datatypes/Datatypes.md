@@ -14,19 +14,19 @@ Built-in and user-defined datatypes.
 .Description
 Rascal provides a rich set of datatypes:
 
-*  link:/Rascal#Values-Boolean[Boolean] (`bool`).
-*  Infinite precision link:/Rascal#Values-Integer[Integer] (`int`), 
-   link:/Rascal#Values-Real[Real] (`real`), and link:/Rascal#Values-Number[Number] (`num`).
-*  link:/Rascal#Values-String[String]s (`str`) that can act as templates with embedded expressions and statements. 
-*  Source code link:/Rascal#Values-Location[Location]s (`loc`) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
-*  Date and time values (link:/Rascal#Values-DateTime[DateTime], `datetime`).
-*  link:/Rascal#Values-List[List] (`list`).
-*  link:/Rascal#Values-Tuple[Tuple] (`tuple`).
-*  link:/Rascal#Values-Set[Set] (`set`).
-*  link:/Rascal#Values-Map[Map] (`map`) 
-*  link:/Rascal#Values-Relation[Relation] (`rel`). 
-*  Untyped tree structures (link:/Rascal#Values-Node[Node], `node`).  
-*  User-defined algebraic datatypes (link:/Rascal#Declarations-AlgebraicDataType[Algebraic Data Type], `data`) allow the introduction of problem-specific types and are a subtype of node. 
+*  [Boolean]((Rascal:Values-Boolean)) (`bool`).
+*  Infinite precision [Integer]((Rascal:Values-Integer)) (`int`), 
+   [Real]((Rascal:Values-Real)) (`real`), and [Number]((Rascal:Values-Number)) (`num`).
+*  [String]((Rascal:Values-String))s (`str`) that can act as templates with embedded expressions and statements. 
+*  Source code [Location]((Rascal:Values-Location))s (`loc`) based on an extension of Universal Resource Identifiers (URI) that allow precise description of text areas in local and remote files.
+*  Date and time values ([DateTime]((Rascal:Values-DateTime)), `datetime`).
+*  [List]((Rascal:Values-List)) (`list`).
+*  [Tuple]((Rascal:Values-Tuple)) (`tuple`).
+*  [Set]((Rascal:Values-Set)) (`set`).
+*  [Map]((Rascal:Values-Map)) (`map`) 
+*  [Relation]((Rascal:Values-Relation)) (`rel`). 
+*  Untyped tree structures ([Node]((Rascal:Values-Node)), `node`).  
+*  User-defined algebraic datatypes ([Algebraic Data Type]((Rascal:Declarations-AlgebraicDataType)), `data`) allow the introduction of problem-specific types and are a subtype of node. 
   This makes it possible to have typed
   and untyped views on the same data. 
   A special case are syntax trees that are the result of parsing source files are represented 

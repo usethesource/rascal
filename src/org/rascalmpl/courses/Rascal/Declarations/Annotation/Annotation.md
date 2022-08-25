@@ -36,7 +36,7 @@ The following constructs are provided for handling annotations:
 *  `_Val_ @ _Anno_`: is an expression that retrieves the value of annotation _Anno_ of value _Val_ (may be undefined!). See [Selection].
 
 *  `_Val~1~_[@_Anno_ = _Val~2~_]`: is an expression that sets the value of annotation _Anno_ of the value _Val~1~_ to _Val~2~_
-   and returns _Val~1~_ with the new annotation value as result. See <<Replacement>>.
+   and returns _Val~1~_ with the new annotation value as result. See ((Replacement)).
 
 *  `_Var_ @ _Anno_ = _Val_`: is an assignment statement that sets the value of annotation _Anno_ of the value of variable _Var_ to _Val_.
 
@@ -48,4 +48,4 @@ Examples have been removed since this feature is deprecated.
 
 .Pitfalls
 
-* Annotations are cumbersome since they change the structure of <<Values>> without changing the semantics of the identity of a value. This is why they are deprecated.
+* Annotations are cumbersome since they change the structure of ((Values)) without changing the semantics of the identity of a value. This is why they are deprecated.

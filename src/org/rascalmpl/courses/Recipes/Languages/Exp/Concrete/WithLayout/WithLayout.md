@@ -36,7 +36,7 @@ And now we can use spaces in our definition of the eval function as well:
 include::{LibDir}demo/lang/Exp/Concrete/WithLayout/Eval.rsc[tags=module]
 ----
 
-Note that link:/Rascal#Concepts-PatternMatching[Pattern Matching] will _ignore_ all trees in layout positions, such that the parse tree of "1 + \\n1" will match against `<Exp e1> + <Exp e2>`. The same goes for equality on parse trees.
+Note that [Pattern Matching]((Rascal:Concepts-PatternMatching)) will _ignore_ all trees in layout positions, such that the parse tree of "1 + \\n1" will match against `<Exp e1> + <Exp e2>`. The same goes for equality on parse trees.
 
 For the above example Rascal will insert the `Whitespace` non-terminal between every element of the syntax rules for `Exp`.
 Moreover, for the start production (See <<No Layout>>) `Whitespace` will be added before and after the `Exp`.

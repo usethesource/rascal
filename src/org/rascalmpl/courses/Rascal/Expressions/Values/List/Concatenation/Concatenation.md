@@ -28,7 +28,7 @@ Concatenate two lists.
 
 The `+` operator concatenates the elements of the two lists in order of appearance. 
 
-Note that the same operator is overloaded for <<List-Insert>> and <<List-Append>>.
+Note that the same operator is overloaded for ((List-Insert)) and ((List-Append)).
 
 .Examples
 

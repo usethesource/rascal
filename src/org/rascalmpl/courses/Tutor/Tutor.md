@@ -13,10 +13,10 @@ The RascalTutor can be used to create, maintain and follow interactive courses.
 .Details
 
 .Description
-The RascalTutor is an interactive <<Authoring>> and learning environment intended to create and follow interactive courses related to the Rascal language.
+The RascalTutor is an interactive ((Authoring)) and learning environment intended to create and follow interactive courses related to the Rascal language.
 It is based on the following principles and ideas:
 
-* The basic notion is a <<Concept>>. Each concept has a _name_ and contains a fixed set of subsections that describe it.
+* The basic notion is a ((Concept)). Each concept has a _name_ and contains a fixed set of subsections that describe it.
 * A course is a _concept tree_:
   The central subject of the course is the root of the concept tree, and all subtrees further explain their parent concept.
 

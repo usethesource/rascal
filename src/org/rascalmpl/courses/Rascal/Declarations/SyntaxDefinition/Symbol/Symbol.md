@@ -47,7 +47,7 @@ The following operations on character classes can be composed arbitrarily:
 
 
 
-The following regular expressions can be constructed over <<SyntaxDefinition-Symbol>>s:
+The following regular expressions can be constructed over ((SyntaxDefinition-Symbol))s:
 
 [cols="40,60"]
 |====
@@ -65,7 +65,7 @@ The following regular expressions can be constructed over <<SyntaxDefinition-Sym
 
 
 
-Inline conditions (<<Disambiguation>>s) can be added to symbols to constrain their acceptability:
+Inline conditions (((Disambiguation))s) can be added to symbols to constrain their acceptability:
 
 [cols="40,60"]
 |====
@@ -100,19 +100,19 @@ You can use any defined non-terminal name in any other definition (lexical in sy
 Then we have literals and character classes to define the _terminals_ of a grammar. 
 When you use a literal such as `"begin"`, Rascal will produce a definition for it down to the character level before generating a parser: `syntax "begin" = [b][e][g][i][n];`. This effect will be visible in the <<Parse Trees>> produced by the parser. For case insensitive literals you will see a similar effect; the use of `'begin'` produces `syntax 'begin' = [bB][eE][gG][iI][nN]`.
 
-Character classes have the same escaping conventions as characters in a <<Values-String>> literal, but spaces and newlines are meaningless and have to be escaped and the `[` and `]` brackets as well as the dash `-` need escaping. For example, one writes `[\[ \] \ \n\-]` for a class that includes the open and close square brackets and a space, a newline and a dash. Character classes support ranges as in `[a-zA-Z0-9]`. Please note about character classes that:
+Character classes have the same escaping conventions as characters in a ((Values-String)) literal, but spaces and newlines are meaningless and have to be escaped and the `[` and `]` brackets as well as the dash `-` need escaping. For example, one writes `[\[ \] \ \n\-]` for a class that includes the open and close square brackets and a space, a newline and a dash. Character classes support ranges as in `[a-zA-Z0-9]`. Please note about character classes that:
 
 *  the operations on character classes are executed before parser generation time. You will not find explicit representation of these operations in [ParseTrees], but rather their net effect as resulting character classes. 
 *  Character classes are also ordered by Rascal and overlapping ranges are merged before parsers are generated. Equality between character classes is checked after this canonicalization.
-*  Although all <<Symbol>>s are type constructors, the character class operators are not allowed in types.
+*  Although all ((Symbol))s are type constructors, the character class operators are not allowed in types.
 
 
-The other symbols either _generate_ for you parts of the construction of a grammar, or they _constrain_ the rules of the grammar to generate a smaller set of trees as <<Disambiguation>>s.
+The other symbols either _generate_ for you parts of the construction of a grammar, or they _constrain_ the rules of the grammar to generate a smaller set of trees as ((Disambiguation))s.
 
 The _generative symbols_ are referred to as the _regular symbols_. These are like named non-terminals, except that they are defined implicitly and interpreted by the parser generator to produce a parser that can recognize a symbol optionally, iteratively, alternatively, sequentially, etc. You also need to know this about the regular symbols:
 
 *  In <<Parse Trees>> you will find special nodes for the regular expression symbols that hide _how_ these were recognized. 
-*  <<Patterns>> using <<Concrete Syntax>> have special semantics for the regular symbols (list matching, separator handling, ignoring layout, etc.).
+*  ((Patterns)) using <<Concrete Syntax>> have special semantics for the regular symbols (list matching, separator handling, ignoring layout, etc.).
 *  Regular symbols are not allowed in _keyword_ <<Syntax Definition>>s
 *  Depending on their occurrence in a _lexical_, _syntax_ or _layout_ <<Syntax Definition>> 
    the semantics of regular symbols changes. In the _syntax_ context, layout non-terminals will be woven 
@@ -123,7 +123,7 @@ The _generative symbols_ are referred to as the _regular symbols_. These are lik
 The _constraint_ symbols are specially there to deal with the fact that Rascal does not generate a scanner. There are no a priori disambiguation rules such as prefer keywords or longest match. Instead, you should use the constraint symbols to define the effect of keyword reservation and longest match. 
 
 *  It is important to note that these constraints work on a character-by-character level in the input stream. So, a follow constraint such as `A >> [a-z]` means that the character immediately following a recognized A must be in the range `[a-z]`.
-*  Read more on the constraint symbols via <<Disambiguation>>s.
+*  Read more on the constraint symbols via ((Disambiguation))s.
 
 .Examples
 

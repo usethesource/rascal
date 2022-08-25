@@ -32,7 +32,7 @@ You can analyze and manipulate parse trees in three ways:
 
 *  Directly on the `Tree` level, just like any other <<Algebraic Data Type>>
 *  Using <<Concrete Syntax>>
-*  Using <<Action>>s
+*  Using ((Action))s
 
 
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 

@@ -69,7 +69,7 @@ with the current parse tree of a source program and the Collector as arguments.
 The `collect` function is applied recursively until all
 information has been collected from the source program.
 
-Finally, `run` creates the desired `TModel` that will be used by the <<Solver>>:
+Finally, `run` creates the desired `TModel` that will be used by the ((Solver)):
 [source,rascal]
 ---- 
 /* Collector field */ TModel () run;
@@ -117,7 +117,7 @@ Scope management amounts to entering a new scope, leave the current scope and re
 ----
 In order to check consistency, `leaveScope` has the inner scope that it is supposed to be leaving as argument.
 
-Here is an example how the `let` expression in <<Fun>> handles subscopes:
+Here is an example how the `let` expression in ((Fun)) handles subscopes:
 
 [source,rascal]
 ----      
@@ -236,7 +236,7 @@ One or more reports can be added by `report` and `reports`:
 /* Collector field */ void (list[FailMessage] fmgs) reports;
 ----
 
-See <<Reporting>> for a description of `FailMessage`.
+See ((Reporting)) for a description of `FailMessage`.
 
 IMPORTANT: If one of the messages is `error` the execution of the current calculator or requirement is immediately terminated.
      
@@ -256,7 +256,7 @@ The following functions add to the scope graph a path from the current scope to 
 `occ` is an occurence of a name that should be defined elsewhere in one of the given roles.
 The effect is to add a `pathRole` path between the current scope and the definition.
 
-Here is an example taken from <<ModFun>>:
+Here is an example taken from ((ModFun)):
 [source,rascal]
 ----
 void collect(current: (ImportDecl) `import <ModId mid> ;`, Collector c){
@@ -278,7 +278,7 @@ Similar to `addPathToDef` for the occurrence of a qualified names rather than a 
 `occ` is a parse tree with has a certain type.
 The effect is to add a `pathRole` path between the current scope and the definition of that type.
 
-A prime example is type checking of <<Pascal>>'s `with` statement which _opens_ the definition
+A prime example is type checking of ((Pascal))'s `with` statement which _opens_ the definition
 of a record type and makes all defined fields available in the body of the `with` statement.
 Here we create a `withPath` between the scope of the with statement and all definitions
 of the record types of the given record variables:
@@ -307,7 +307,7 @@ where:
 * `id` is the textual appearance of the name.
 * `idRole` is the role played by the name.
 * `def` is the part of the parse tree that corresponds to the definition of the name.
-* `info` is the definition information <<DefInfo>> to be associated with this definition.
+* `info` is the definition information ((DefInfo)) to be associated with this definition.
 
 The function `defineInScope` adds the definition of a name in a _given_ scope:
 [source,rascal]
@@ -327,7 +327,7 @@ The most elementary use of a name is described by:
 The parse tree `occ` is a use to be resolved in the current scope in one of the given roles `idRoles`.
 The use of a variable in an expression is typically modelled with this use function.
 
-Here is an example from <<Calc>>:
+Here is an example from ((Calc)):
 [source,rascal]
 ----
 void collect(current: (Exp) `<Id name>`, Collector c){
@@ -361,7 +361,7 @@ where
 * `selector`: is the name to be selected from that named type.
 * `idRolesSel`:  are the IdRoles allowed for the selector.
 
-Here is an example of field selection from a record in <<Struct>>:
+Here is an example of field selection from a record in ((Struct)):
 
 [source,rascal]
 ----
@@ -374,7 +374,7 @@ void collect(current:(Expression)`<Expression lhs> . <Id fieldName>`, Collector 
 <1> Determine the type of `lhs`, say _T_. Now look for a definition of `fieldName` (as `fieldId`) in the definition of _T_.
 <2> The type of the whole expressions becomes the type of `fieldId`.
 
-`useViaType` can be configured with <<getTypeNamesAndRole>> and <<getTypeInNamelessType>> that
+`useViaType` can be configured with ((getTypeNamesAndRole)) and ((getTypeInNamelessType)) that
 determine the precise mapping between a named or unnamed type and its fields.
 
 === UseLub
@@ -398,7 +398,7 @@ ATypes may contain type variables and new type variables can be created using `n
 
 Type variables can be bound via unification.
 
-Here is an example of a call expression taken from <<UntypedFun>>:
+Here is an example of a call expression taken from ((UntypedFun)):
 
 [source,rascal]
 ----
@@ -433,7 +433,7 @@ The function `fact` registers known type information for a program fragment `src
 ----
 where `atype` can be either an `AType` or a `Tree`. In the latter case the type of that Tree is used when available.
 
-Here are two examples from <<Calc>>:
+Here are two examples from ((Calc)):
 [source,rascal]
 ----  
 void collect(current: (Exp) `<Integer integer>`, Collector c){
@@ -461,7 +461,7 @@ while `calculateEager` can also handle dependencies that still contain type vari
 ----
 See <<A Calculator Language>> and <<Examples of Typecheckers>> for examples of calculator definitions.
 
-See <<Inference>> for details about type variables.
+See ((Inference)) for details about type variables.
 
 == Require
 
@@ -492,4 +492,4 @@ that the one is a subtype of the other, or that they can be unified:
 The arguments `l` and `r` should either be an AType or a subtree whose type is known.
 
 See <<A Calculator Language>> and <<Examples of Typecheckers>> for examples of requirement definitions.
-See <<Inference>> for details about type variables.
+See ((Inference)) for details about type variables.
