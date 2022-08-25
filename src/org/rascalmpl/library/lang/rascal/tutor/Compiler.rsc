@@ -48,11 +48,12 @@ rel[str, str] createConceptIndex(list[loc] srcs)
 rel[str, str] createConceptIndex(loc src)
   = { 
       <cf.file, fr>,
-      *{<"<f.parent.parent.file>-<cf.file>", fr> | f.parent.path != "/", f.parent.file == cf.file},
+      *{<"<f.parent.parent.file>-<cf.file>", fr> | f.parent.path != "/", f.parent.file == cf.file, f.parent != src},
       <"<src.file>:<cf.file>", "/<src.file>.md<fr>">,
       *{<"<src.file>:<f.parent.parent.file>-<cf.file>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file}     
     | loc f <- find(src, isConceptFile), fr := fragment(src, f), cf := f[extension=""]
     };
+
 
 list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) {
   output = compileDirectory(root, pcfg, exec, ind);
@@ -77,6 +78,8 @@ data Output
 alias Index = rel[str reference, str url];
 
 list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) {
+    println("\rcompiling <src>");
+
     // new concept, new execution environment:
     exec.reset();
 
@@ -143,7 +146,7 @@ list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index
 list[Output] compileMarkdown([str first:/^\s*\[source,rascal-shell<rest1:.*>$/, /---/, *block, /---/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind)
   = [
       out("```rascal-shell"),
-      *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
+      *compileRascalShell(block, /,error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind)
     ];
@@ -162,7 +165,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind)
     ];
 
-list[Output] compileMarkdown([/<prefix:.*>\<\<<link:[A-Za-z0-9\-\ \t]+>\>\><postfix:.*>/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
+list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
   resolution = ind[removeSpaces(link)];
 
   switch (resolution) {
@@ -175,7 +178,7 @@ list[Output] compileMarkdown([/<prefix:.*>\<\<<link:[A-Za-z0-9\-\ \t]+>\>\><post
         }
       case { }: 
         return [
-                  err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+                  err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))
                   *compileMarkdown([":::caution\nBroken link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind)
               ]; 
       case {_, _, *_}:
@@ -284,11 +287,11 @@ str fragment(loc concept) = replaceAll("#<concept[extension=""].path[1..]>", "/"
 str fragment(loc root, loc concept) = fragment(relativize(root, concept));
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
-  = removeSpaces("<prefix><postfix>");
+  = removeSpaces("<prefix><capitalize(postfix)>");
 
 default str removeSpaces(str s) = s;
 
 str addSpaces(/^<prefix:.*[a-z0-9]><postfix:[A-Z].+>/) =
-  addSpaces("<prefix> <postfix>");
+  addSpaces("<prefix> <uncapitalize(postfix)>");
 
 default str addSpaces(str s) = split("-", s)[-1];
