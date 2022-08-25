@@ -45,7 +45,7 @@ loctoc::[1]
 
 All these patterns may be used in:
 
-*  cases of a ((Switch)) or ((Visit)), 
+*  cases of a ((Switch)) or [visit statements]((Statement-Visit)) or [visit expressions]((Expression-Visit)), 
 *  on the left of the <<Boolean Match>> operator (`:=`),
 *  on the left of the ((Enumerator)) operator (`<-`), and
 *  as formal parameters of <<Function Declaration>>s. 
