@@ -46,10 +46,10 @@ loctoc::[1]
 All these patterns may be used in:
 
 *  cases of a ((Switch)) or [visit statements]((Statements-Visit)) or [visit expressions]((Expressions-Visit)), 
-*  on the left of the <<Boolean Match>> operator (`:=`),
+*  on the left of the ((Boolean Match)) operator (`:=`),
 *  on the left of the ((Enumerator)) operator (`<-`), and
-*  as formal parameters of <<Function Declaration>>s. 
-*  <<Try Catch>> statements to match thrown exceptions.
+*  as formal parameters of ((Function Declaration))s. 
+*  ((Try Catch)) statements to match thrown exceptions.
 
 Each pattern binds variables in a conditional scope:
 

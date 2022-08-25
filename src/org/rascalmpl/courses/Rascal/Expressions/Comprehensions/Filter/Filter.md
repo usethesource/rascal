@@ -1,7 +1,7 @@
 # Filter
 
 .Synopsis
-Filter values in a <<List-Comprehension,List Comprehension>>], <<Set-Comprehension,Set Comprehension>> or <<Map-Comprehension, Map Comprehension>>.
+Filter values in a ((List-Comprehension))], ((Set-Comprehension)) or ((Map-Comprehension)).
 
 .Syntax
 `_Exp_`

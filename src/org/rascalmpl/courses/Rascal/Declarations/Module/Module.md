@@ -44,16 +44,16 @@ The constituents of a module are shown in the figure below.
 
 
 An ((Import)) declares other modules that are used by the current module.
-Following imports, a module may contain declarations (in arbitrary order, but a <<Syntax Definition>> can
+Following imports, a module may contain declarations (in arbitrary order, but a ((Syntax Definition)) can
 occur directly following the imports) for:
 
-*  <<Syntax Definition>>
-*  <<Variable Declaration>>
-*  <<Function Declaration>>
-*  <<Algebraic Data Type>>
-*  <<Alias Declaration>>
-*  <<Annotation Declaration>>
-*  <<Tag Declaration>>
+*  ((Syntax Definition))
+*  ((Variable Declaration))
+*  ((Function Declaration))
+*  ((Algebraic Data Type))
+*  ((Alias Declaration))
+*  ((Annotation Declaration))
+*  ((Tag Declaration))
 
 
 Each declaration may contain a `private` or `public` keyword that determines 

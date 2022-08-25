@@ -15,8 +15,8 @@ Various versions of Exp based on concrete syntax.
 
 We discuss several versions of Exp based on concrete syntax:
 
-*  <<No Layout>>: is the simplest version that does not consider layout symbols in expressions.
-*  <<With Layout>>: adds layout information to Exp's synax definition.
+*  ((No Layout)): is the simplest version that does not consider layout symbols in expressions.
+*  ((With Layout)): adds layout information to Exp's synax definition.
 
 
 .Examples

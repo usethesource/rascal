@@ -94,11 +94,11 @@ Every non-terminal symbol is a type.
 
 .Description
 The basic symbols are the non-terminal name and the labeled non-terminal name. 
-These refer to the names defined by <<Syntax Definition>>. 
+These refer to the names defined by ((Syntax Definition)). 
 You can use any defined non-terminal name in any other definition (lexical in syntax, syntax in lexical, etc). 
 
 Then we have literals and character classes to define the _terminals_ of a grammar. 
-When you use a literal such as `"begin"`, Rascal will produce a definition for it down to the character level before generating a parser: `syntax "begin" = [b][e][g][i][n];`. This effect will be visible in the <<Parse Trees>> produced by the parser. For case insensitive literals you will see a similar effect; the use of `'begin'` produces `syntax 'begin' = [bB][eE][gG][iI][nN]`.
+When you use a literal such as `"begin"`, Rascal will produce a definition for it down to the character level before generating a parser: `syntax "begin" = [b][e][g][i][n];`. This effect will be visible in the ((Parse Trees)) produced by the parser. For case insensitive literals you will see a similar effect; the use of `'begin'` produces `syntax 'begin' = [bB][eE][gG][iI][nN]`.
 
 Character classes have the same escaping conventions as characters in a ((Values-String)) literal, but spaces and newlines are meaningless and have to be escaped and the `[` and `]` brackets as well as the dash `-` need escaping. For example, one writes `[\[ \] \ \n\-]` for a class that includes the open and close square brackets and a space, a newline and a dash. Character classes support ranges as in `[a-zA-Z0-9]`. Please note about character classes that:
 
@@ -111,10 +111,10 @@ The other symbols either _generate_ for you parts of the construction of a gramm
 
 The _generative symbols_ are referred to as the _regular symbols_. These are like named non-terminals, except that they are defined implicitly and interpreted by the parser generator to produce a parser that can recognize a symbol optionally, iteratively, alternatively, sequentially, etc. You also need to know this about the regular symbols:
 
-*  In <<Parse Trees>> you will find special nodes for the regular expression symbols that hide _how_ these were recognized. 
-*  ((Patterns)) using <<Concrete Syntax>> have special semantics for the regular symbols (list matching, separator handling, ignoring layout, etc.).
-*  Regular symbols are not allowed in _keyword_ <<Syntax Definition>>s
-*  Depending on their occurrence in a _lexical_, _syntax_ or _layout_ <<Syntax Definition>> 
+*  In ((Parse Trees)) you will find special nodes for the regular expression symbols that hide _how_ these were recognized. 
+*  ((Patterns)) using ((Concrete Syntax)) have special semantics for the regular symbols (list matching, separator handling, ignoring layout, etc.).
+*  Regular symbols are not allowed in _keyword_ ((Syntax Definition))s
+*  Depending on their occurrence in a _lexical_, _syntax_ or _layout_ ((Syntax Definition)) 
    the semantics of regular symbols changes. In the _syntax_ context, layout non-terminals will be woven 
    into the regular symbol, but not in the _lexical_ and _layout_ contexts. 
    For example, a `_Symbol_\*` in a _syntax_ definition such as `syntax X = A*;` will be processed to `syntax X = `{A Layout}*`. Similarly, `syntax X = {A B}+;` will be processed to `syntax X = {A (Layout B Layout)}+;`. 

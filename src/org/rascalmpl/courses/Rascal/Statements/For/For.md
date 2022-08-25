@@ -19,7 +19,7 @@ for
 
 The for-statement executes _Statement_ for all possible combinations of values generated, and filtered, by the expressions _Exp_~i~.
 
-Some of the expressions can generate bindings (((Enumerator)), <<Values,Boolean,Match>>), and some can filter them (<<Values,Boolean>>). 
+Some of the expressions can generate bindings (((Enumerator)), <<Values,Boolean,Match>>), and some can filter them (((Values))). 
 The for loop will iterate over the cartesian product of all the generating expressions, and filter the combinations which fail the conditional expressions. 
 
 By default, the value of a for statement is the empty list. In general, 

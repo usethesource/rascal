@@ -44,7 +44,7 @@ There are three frequently occurring scenarios:
 The visit expression in Rascal can accommodate all these (and more) use cases.
 
 Given a subject term (the current value of _Exp_) and a list of cases 
-(consisting of a sequence of <<Pattern with Action>>s, it traverses the term. 
+(consisting of a sequence of ((Pattern with Action))s, it traverses the term. 
 Depending on the precise actions it may perform replacement (mimicking a transformer), 
 update local variables (mimicking an accumulator) or a combination of these two (accumulating transformer). 
 If *any* of the actions contains an ((Statements-Insert)) statement, 

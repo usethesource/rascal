@@ -35,7 +35,7 @@ All other occurrences of type parameters are _using occurrences_. The following 
 *  For every using occurrence of a type parameter there should be a binding occurrence of a type parameter with the same name.
 
 .Examples
-Let\'s consider a small example of the use of function parameters in a function declaration, see <<Function Declaration>>
+Let\'s consider a small example of the use of function parameters in a function declaration, see ((Function Declaration))
 for more details on function declarations.
 The following function `swap` returns a tuple in which its arguments are swapped and can be applied to arbitrary values 
 in a type safe manner:

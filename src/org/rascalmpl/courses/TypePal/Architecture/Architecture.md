@@ -32,4 +32,4 @@ on the nested structure of the parse tree and the result is an initial `TModel`.
 After the Collector phase, a `TModel` is available whose constraints can be solved (or not).
 This is done by creating a new ((Solver)) (using `newSolver`) and running it on the given `TModel`.
 
-TypePal can be configured using a <<TypePal Configuration>>.
+TypePal can be configured using a ((TypePal Configuration)).

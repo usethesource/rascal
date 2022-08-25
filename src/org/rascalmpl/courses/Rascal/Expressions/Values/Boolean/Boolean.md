@@ -56,7 +56,7 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 
 *  Tests in ((For)), ((While)), ((Do)) statements.
 
-*  Tests in <<Boolean Any>> and <<Boolean All>> expressions.
+*  Tests in ((Boolean Any)) and ((Boolean All)) expressions.
 
 *  Tests and ((Enumerator))s in comprehensions.
 

@@ -21,7 +21,7 @@ Assign but replace if value is not defined.
 First the value of _Exp_~1~ is determined and if that is defined it is assigned to _Assignable_. 
 Otherwise, the value of _Exp_~2~ is assigned to _Assignable_. 
 Values which can be undefined are values in ((Map))s where the key is not set 
-or values of <<Annotation Declaration,Annotations>> which have not been set yet. 
+or values of ((Annotation Declaration)) which have not been set yet. 
 
 No other values can be used in an undefined state, so the ? operator does not make sense on undefined or uninitialized variables for example.
 

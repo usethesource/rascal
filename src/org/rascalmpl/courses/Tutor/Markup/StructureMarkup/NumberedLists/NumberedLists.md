@@ -27,7 +27,7 @@ A list item ends with:
 *  the start of a new list item.
 *  an empty line.
 
-<<Bullet Lists>> and Numbered Lists can be mixed.
+((Bullet Lists)) and Numbered Lists can be mixed.
 See http://asciidoctor.org/docs/user-manual/#ordered-lists for the precise rules.
 
 .Examples

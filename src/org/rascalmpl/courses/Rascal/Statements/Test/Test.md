@@ -12,7 +12,7 @@ Test statement (__deprecated__).
 .Details
 
 .Description
-The `test` statement is deprecated and is replaced by the `test` modifier in function declarations, see <<Function Declaration>>.
+The `test` statement is deprecated and is replaced by the `test` modifier in function declarations, see ((Function Declaration)).
 
 .Examples
 

@@ -13,7 +13,7 @@ left right assoc non-assoc
 *  `syntax _Exp_ = _Assoc_ _Symbol~1~_ _Symbol~2~_ ...`
  
 
-Here _Assoc_ is one of: `left`, `right`, `assoc` or `non-assoc`. See <<Syntax Definition>>s on how to define alternatives and ((SyntaxDefinition-Symbol))s.
+Here _Assoc_ is one of: `left`, `right`, `assoc` or `non-assoc`. See ((Syntax Definition))s on how to define alternatives and ((SyntaxDefinition-Symbol))s.
 
 .Types
 
@@ -64,7 +64,7 @@ A finer point is that associativity has no effect on any other position than the
 .Pitfalls
 
 *  Please do not assume that Rascal's associativity declarations have the same semantics as SDF's associativity declarations.
-*  Use of productions that are not both left and right recursive in an associativity group, although safe, is not very meaningful. We would advise to use the <<Priority Declaration>> relation such a case. For example:
+*  Use of productions that are not both left and right recursive in an associativity group, although safe, is not very meaningful. We would advise to use the ((Priority Declaration)) relation such a case. For example:
 
 |====
 | Original associativity | Better written as priority 

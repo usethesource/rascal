@@ -17,9 +17,9 @@ Comprehensions provide a concise notation to conditionally generate new values.
 .Description
 Comprehensions are defined for the following types:
 
-*  `list`, see <<List-Comprehension,List Comprehension>>,
-*  `set`, see <<Set-Comprehension, Set Comprehension>>,
-*  `map`, see <<Map-Comprehension, Map Comprehension>>.
+*  `list`, see ((List-Comprehension)),
+*  `set`, see ((Set-Comprehension)),
+*  `map`, see ((Map-Comprehension)).
 
 
 The syntax varies slightly for each type, but comprehensions have the following common elements:
@@ -72,7 +72,7 @@ fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
 (fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
 ----
 
-See <<List-Comprehension, List Comprehension>>, <<Set-Comprehension, Set Comprehension>>, or <<Map-Comprehension, Map Comprehension>> for more examples.
+See ((List-Comprehension)), ((Set-Comprehension)), or ((Map-Comprehension)) for more examples.
 
 .Benefits
 
