@@ -23,7 +23,7 @@ way of representing and manipulating HTML, XHTML and XML documents.
 
 The following functions are provided:
 
-loctoc::[1]
+(((TOC)))
 }
 
 module lang::xml::DOM
@@ -102,7 +102,7 @@ parseXMLDOM(N);
 ----
 The DOM instance contains every single character (including spaces and newlines)
 as they appear in the source file.
-As expected, the result is of type <<xml-DOM-Node>>.
+As expected, the result is of type ((xml-DOM-Node)).
 }
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOM(str src);
@@ -122,7 +122,7 @@ N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 parseXMLDOMTrim(N);
 ----
 All whitespace characters have been removed and do not occur in the trimmed DOM instance.
-Compare this with the output of <<parseXMLDOM>>.
+Compare this with the output of ((parseXMLDOM)).
 }
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOMTrim(str src);

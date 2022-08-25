@@ -16,10 +16,10 @@ Library functions for strings.
 
 .Description
 
-For operators on strings see link:/Rascal#Values-String[String] in the Rascal Language Reference.
+For operators on strings see [String]((Rascal:Values-String)) in the Rascal Language Reference.
 
 The following functions are defined for strings:
-loctoc::[1]
+(((TOC)))
 }
 module String
 
@@ -60,7 +60,7 @@ Return character in a string by its index position.
 
 .Description
 Return the character at position `i` in string `s` as integer character code.
-Also see <<String-stringChar>> that converts character codes back to string.
+Also see ((String-stringChar)) that converts character codes back to string.
 
 .Examples
 [source,rascal-shell]
@@ -78,7 +78,7 @@ public java int charAt(str s, int i) throws IndexOutOfBounds;
 Return characters of a string.
 .Description
 Return a list of the characters of `s` as integer character codes.
-Also see <<String-stringChars>> that converts character codes back to string.
+Also see ((String-stringChars)) that converts character codes back to string.
 
 .Examples
 [source,rascal-shell]
@@ -171,7 +171,7 @@ Find all occurrences of a string in another string.
 Find all occurrences of string `find` in string `subject`.
 The result is a (possible empty) list of positions where `find` matches.
 
-See also <<findFirst>> and <<findLast>>.
+See also ((findFirst)) and ((findLast)).
 
 .Examples
 [source,rascal-shell]
@@ -193,7 +193,7 @@ Find the first occurrence of a string in another string.
 Find the first occurrence of string `find` in string `subject`.
 The result is either a position in `subject` or `-1` when `find` is not found.
 
-Also see <<findAll>> and <<findLast>>.
+Also see ((findAll)) and ((findLast)).
 
 .Examples
 [source,rascal-shell]
@@ -215,7 +215,7 @@ Find the last occurrence of a string in another string.
 Find the last occurrence of string `find` in string `subject`.
 The result is either a position in `subject` or `-1` when `find` is not found.
 
-Also see <<findAll>> and <<findFirst>>.
+Also see ((findAll)) and ((findFirst)).
 
 .Examples
 [source,rascal-shell]
@@ -298,7 +298,7 @@ Replace all occurrences of a string in another string.
 
 .Description
 Return a copy of `subject` in which all occurrences of `find` (if any) have been replaced by `replacement`.
-Also see <<replaceFirst>> and <<replaceLast>>.
+Also see ((replaceFirst)) and ((replaceLast)).
 
 .Examples
 [source,rascal-shell]
@@ -322,7 +322,7 @@ Replace the first occurrence of a string in another string.
 
 .Description
 Return a copy of `subject` in which the first occurrence of `find` (if it exists) has been replaced by `replacement`.
-Also see <<replaceAll>> and <<replaceLast>>.
+Also see ((replaceAll)) and ((replaceLast)).
 
 .Examples
 [source,rascal-shell]
@@ -345,7 +345,7 @@ Replace the last occurrence of a string in another string.
 
 .Description
 Return a copy of `subject` in which the last occurrence of `find` (if it exists) has been replaced by `replacement`.
-Also see <<replaceFirst>> and <<replaceLast>>.
+Also see ((replaceFirst)) and ((replaceLast)).
 
 .Examples
 [source,rascal-shell]
@@ -537,7 +537,7 @@ public java int toInt(str s, int r) throws IllegalArgument;
 Convert the characters in a string value to lower case.
 
 .Description
-Convert all characters in string `s` to lowercase. Also see <<toUpperCase>>.
+Convert all characters in string `s` to lowercase. Also see ((toUpperCase)).
 
 .Examples
 [source,rascal-shell]
@@ -576,7 +576,7 @@ Convert the characters in a string value to upper case.
 .Description
 Converts all characters in string `s` to upper case.
 
-Also see <<toLowerCase>>.
+Also see ((toLowerCase)).
 
 .Examples
 [source,rascal-shell]

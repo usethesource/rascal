@@ -16,7 +16,7 @@ The concept of a _source [Location]_ is important for abstract syntax trees. The
 pointing to the physical location of the construct in the source code.
 
 The concept of _declaration_ is also relevant. A `decl` annotation points from a use of a concept to its definition, but always
-via an indirection (i.e. fully qualified name). The `decl` annotation is also of type `loc`, where each <<Expressions-Values-Location>> is a fully qualified name of the
+via an indirection (i.e. fully qualified name). The `decl` annotation is also of type `loc`, where each ((Expressions-Values-Location)) is a fully qualified name of the
 definition that is used. 
 
 Finally, the concept of a _type_ is relevant for ASTs. In particular an `Expression` may have a `typ` annotation, or

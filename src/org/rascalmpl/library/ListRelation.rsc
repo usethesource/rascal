@@ -16,10 +16,10 @@ Library functions for list relations.
 
 .Description
 
-For operators on listrelations see link:/Rascal#Values-ListRelation[ListRelation] in the Rascal Language Reference.
+For operators on listrelations see [ListRelation]((Rascal:Values-ListRelation)) in the Rascal Language Reference.
 
 The following functions are defined for list relations :
-loctoc::[1]
+(((TOC)))
 }
 module ListRelation
 

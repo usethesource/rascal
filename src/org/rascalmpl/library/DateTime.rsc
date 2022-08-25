@@ -13,10 +13,10 @@ Library functions for date and time.
 
 .Description
 
-For operators on `datetime` see link:/Rascal#Values-DateTime[DateTime] in the Rascal Language Reference.
+For operators on `datetime` see [DateTime]((Rascal:Values-DateTime)) in the Rascal Language Reference.
 
 The following functions are defined for datetime:
-loctoc::[1]
+(((TOC)))
 }
 module DateTime
 

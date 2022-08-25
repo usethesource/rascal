@@ -14,7 +14,7 @@ Compute the http://en.wikipedia.org/wiki/Correlation[correlation] between pairs 
 Correlation measures the statistical relationship between two sets of data.
 
 The following functions are provided:
-loctoc::[1]
+(((TOC)))
 }
 module analysis::statistics::Correlation
 
@@ -28,7 +28,7 @@ Compute the http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coef
 It is a measure of the strength of the linear dependence between two variables.
 
 .Pitfalls
-Use <<SpearmansCorrelation>> when there is a *monotonous dependence* between the two variables.
+Use ((SpearmansCorrelation)) when there is a *monotonous dependence* between the two variables.
 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
@@ -56,10 +56,10 @@ Spearman's rank correlation coefficient.
 
 Compute http://en.wikipedia.org/wiki/Spearman's_rank_correlation_coefficient[Spearman's rank correlation coefficient].
 The correlation between the data values is computed by first performing a rank transformation
-on the data values using a natural ranking and then computing <<PearsonsCorrelation>>.
+on the data values using a natural ranking and then computing ((PearsonsCorrelation)).
 
 .Pitfalls
-Use <<PearsonsCorrelation>> when there is a *linear dependence* between the variables.
+Use ((PearsonsCorrelation)) when there is a *linear dependence* between the variables.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java num SpearmansCorrelation(lrel[num x,num y] values);
