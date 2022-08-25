@@ -14,10 +14,10 @@ Library functions for Booleans.
 
 .Description
 
-For operators on Boolean values see link:/Rascal#Values-Boolean[Boolean] in the Rascal Language Reference.
+For operators on Boolean values see [Boolean]((Rascal:Values-Boolean)) in the Rascal Language Reference.
 
 The following functions are defined for Booleans:
-loctoc::[1]
+(((TOC)))
 }
 module Boolean
 

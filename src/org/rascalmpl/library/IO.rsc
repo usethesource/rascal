@@ -17,7 +17,7 @@ Library functions for input/output.
 .Description
 
 The following input/output functions are defined:
-loctoc::[1]
+(((TOC)))
 }
 module IO
 
@@ -81,12 +81,12 @@ Append a textual representation of some values to an existing or a newly created
 
 .Encoding
 
-The existing file can be stored using any character set possible, if you know the character set, please use <<appendToFileEnc>>.
-Else the same method of deciding the character set is used as in <<readFile>>.
+The existing file can be stored using any character set possible, if you know the character set, please use ((appendToFileEnc)).
+Else the same method of deciding the character set is used as in ((readFile)).
 
 .Pitfalls
 
-*  The same encoding pitfalls as the <<readFile>> function.
+*  The same encoding pitfalls as the ((readFile)) function.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void appendToFile(loc file, value V...)
@@ -119,7 +119,7 @@ public java set[str] charsets();
 
 @doc{
 .Synopsis
-Returns whether this charset can be used for encoding (use with <<writeFile>>)
+Returns whether this charset can be used for encoding (use with ((writeFile)))
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[str] canEncode(str charset);
@@ -131,7 +131,7 @@ Print a value and return true.
 
 .Description
 Print a value and return `true`. This is useful for debugging complex Boolean expressions or comprehensions.
-The only difference between this function and <<IO-println>> is that its return type is `bool` rather than `void`.
+The only difference between this function and ((IO-println)) is that its return type is `bool` rather than `void`.
 
 .Examples
 [source,rascal-shell]
@@ -207,9 +207,9 @@ public java bool isDirectory(loc file);
 Print an indented representation of a value.
 
 .Description
-See <<IO-iprintExp>> for a version that returns its argument as result
-and <<IO-iprintln>> for a version that adds a newline
-and <<IO-iprintToFile>> for a version that prints to a file.
+See ((IO-iprintExp)) for a version that returns its argument as result
+and ((IO-iprintln)) for a version that adds a newline
+and ((IO-iprintToFile)) for a version that prints to a file.
 
 .Examples
 
@@ -227,9 +227,9 @@ public java void iprint(value arg, int lineLimit = 1000);
 Print an indented representation of a value to the specified location.
 
 .Description
-See <<IO-iprint>> for a version that displays the result on the console
-and <<IO-iprintExp>> for a version that returns its argument as result
-and <<IO-iprintln>> for a version that adds a newline.
+See ((IO-iprint)) for a version that displays the result on the console
+and ((IO-iprintExp)) for a version that returns its argument as result
+and ((IO-iprintln)) for a version that adds a newline.
 
 .Examples
 
@@ -250,7 +250,7 @@ public java str iprintToString(value arg);
 Print an indented representation of a value and returns the value as result.
 
 .Description
-See <<IO-iprintlnExp>> for a version that adds a newline.
+See ((IO-iprintlnExp)) for a version that adds a newline.
 
 .Examples
 
@@ -270,7 +270,7 @@ public &T iprintExp(&T v) {
 Print an indented representation of a value followed by a newline and returns the value as result.
 
 .Description
-See <<IO-iprintExp>> for a version that does not add a newline.
+See ((IO-iprintExp)) for a version that does not add a newline.
 
 .Examples
 
@@ -291,11 +291,11 @@ public &T iprintlnExp(&T v) {
 Print a indented representation of a value and add a newline at the end.
 
 .Description
-See <<IO-iprintlnExp>> for a version that returns its argument as result
-and <<IO-iprint>> for a version that does not add a newline.
+See ((IO-iprintlnExp)) for a version that returns its argument as result
+and ((IO-iprint)) for a version that does not add a newline.
 
 By default we only print the first 1000 lines, if you want to print larger values, either 
-use <<ValueIO-writeTextValueFile>> or change the limit with the lineLimit parameter.
+use ((ValueIO-writeTextValueFile)) or change the limit with the lineLimit parameter.
 
 .Examples
 
@@ -417,13 +417,13 @@ Print a value without subsequent newline.
 
 .Description
 Print a value on the output stream.
-See <<IO-println>> for a version that adds a newline
-and <<IO-printExp>> for a version that returns its argument as value.
+See ((IO-println)) for a version that adds a newline
+and ((IO-printExp)) for a version that returns its argument as value.
 
 
 .Examples
 
-Note that the only difference with <<IO-println>> is that no newline is added after the value is printed
+Note that the only difference with ((IO-println)) is that no newline is added after the value is printed
 [source,rascal-shell]
 ----
 import IO;
@@ -465,8 +465,8 @@ Print a value to the output stream and add a newline.
 
 .Description
 Print a value on the output stream followed by a newline.
-See <<IO-print>> for a version that does not add a newline
-and <<IO-printlnExp>> for a version that returns its argument as value.
+See ((IO-print)) for a version that does not add a newline
+and ((IO-printlnExp)) for a version that returns its argument as value.
 
 .Examples
 [source,rascal-shell]
@@ -559,15 +559,15 @@ Read the contents of a location and return it as string value.
 
 .Description
 Return the contents of a file location as a single string.
-Also see <<readFileLines>>.
+Also see ((readFileLines)).
 
 .Encoding
 
 A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
-If you know the encoding of the file, please use the <<readFileEnc>> and <<readFileLinesEnc>> overloads.
+If you know the encoding of the file, please use the ((readFileEnc)) and ((readFileLinesEnc)) overloads.
 If you do not know, we try to detect this. This detection is explained below:
 
-*  If the implementation of the used scheme in the link:/Rascal#Values-Location[location] 
+*  If the implementation of the used scheme in the [location]((Rascal:Values-Location)) 
    (e.g.,`|project:///|`) defines the charset of the file then this is used.
 *  Otherwise if the file contains a UTF8/16/32 http://en.wikipedia.org/wiki/Byte_order_mark[BOM], 
    then this is used.
@@ -576,7 +576,7 @@ If you do not know, we try to detect this. This detection is explained below:
    **  Are the first 32 bytes valid UTF-32? Then use UTF-32.
 *  Finally, we fall back to the system default (as given by the Java Runtime Environment).
 
-*To summarize*, we use UTF-8 by default, except if the link:/Rascal#Values-Location[location] has available meta-data, the file contains a BOM, or
+*To summarize*, we use UTF-8 by default, except if the [location]((Rascal:Values-Location)) has available meta-data, the file contains a BOM, or
 the first 32 bytes of the file are not valid UTF-8.
 
 .Pitfalls
@@ -597,7 +597,7 @@ Read the contents of a location and return it as string value.
 
 .Description
 Return the contents (decoded using the Character set supplied) of a file location as a single string.
-Also see <<readFileLinesEnc>>.
+Also see ((readFileLinesEnc)).
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str readFileEnc(loc file, str charset)
@@ -632,17 +632,17 @@ Read the contents of a file location and return it as a list of strings.
 
 .Description
 Return the contents of a file location as a list of lines.
-Also see <<readFile>>.
+Also see ((readFile)).
 
 .Encoding 
 
-Look at <<readFile>> to understand how this function chooses the character set. If you know the character set used, please use <<readFileLinesEnc>>.
+Look at ((readFile)) to understand how this function chooses the character set. If you know the character set used, please use ((readFileLinesEnc)).
 
 .Pitfalls
 
 *  In case encoding is not known, we try to estimate as best as we can (see [readFile]).
 *  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
-  you might get an decoding error or just strange looking characters (see <<readFile>>).
+  you might get an decoding error or just strange looking characters (see ((readFile))).
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] readFileLines(loc file)
@@ -650,7 +650,7 @@ throws PathNotFound, IO;
 
 @synopsis{Writes a list of strings to a file, where each separate string is ended with a newline}
 @benefits{
-  * mirrors <<readFileLines>> in its functionality
+  * mirrors ((readFileLines)) in its functionality
 }
 @pitfalls{
   * if the individual elements of the list also contain newlines, the output may have more lines than list elements
@@ -666,7 +666,7 @@ Read the contents of a file location and return it as a list of strings.
 
 .Description
 Return the contents (decoded using the Character set supplied) of a file location as a list of lines.
-Also see <<readFileLines>>.
+Also see ((readFileLines)).
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] readFileLinesEnc(loc file, str charset)
@@ -688,7 +688,7 @@ Write a textual representation of some values to a file:
 *  All other values are printed as-is.
 *  Each value is terminated by a newline character.
 
-Files are encoded in UTF-8, in case this is not desired, use <<writeFileEnc>>.
+Files are encoded in UTF-8, in case this is not desired, use ((writeFileEnc)).
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeFile(loc file, value V...)

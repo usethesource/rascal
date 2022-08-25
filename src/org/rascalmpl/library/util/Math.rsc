@@ -19,7 +19,7 @@ Mathematical functions.
 
 The `Math` library provides the following functions:
 
-loctoc::[1]
+(((TOC)))
 }
 module util::Math
 
@@ -100,8 +100,8 @@ public java real arbReal();
 Define the seed for the generation of arbitrary values.
 
 .Description
-Define the seed for the generation of arbitrary values such as <<arbBool>>, <<arbInt>>, <<arbReal>>,
-<<arbRat>>, <<List-getOneFrom>>,<<Set-getOneFrom>>, <<List-takeOneFrom>> and <<Set-takeOneFrom>>. <<arbSeed>> resets the random number generator that
+Define the seed for the generation of arbitrary values such as ((arbBool)), ((arbInt)), ((arbReal)),
+((arbRat)), ((List-getOneFrom)),((Set-getOneFrom)), ((List-takeOneFrom)) and ((Set-takeOneFrom)). ((arbSeed)) resets the random number generator that
 is used to choose arbitrary values. This can be used to generate a reproducible series of choices.
 }
 @javaClass{org.rascalmpl.library.util.Math}
@@ -146,7 +146,7 @@ Compute the smallest integer that is larger than a given number.
 
 .Description
 Computes the _ceiling_ of a given number.
-Also see <<Math-floor>>.
+Also see ((Math-floor)).
 
 .Examples
 [source,rascal-shell]
@@ -222,7 +222,7 @@ Compute the largest integer that is smaller than a given number.
 
 .Description
 Computes the _floor_ of a given number.
-Also see <<Math-ceil>>.
+Also see ((Math-ceil)).
 
 .Examples
 [source,rascal-shell]

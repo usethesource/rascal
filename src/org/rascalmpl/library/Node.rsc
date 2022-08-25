@@ -13,10 +13,10 @@ Library functions for nodes.
 
 .Description
 
-For operators on nodes see link:/Rascal#Values-Node[Node] in the Rascal Language Reference.
+For operators on nodes see [Node]((Rascal:Values-Node)) in the Rascal Language Reference.
 
 The following functions are defined for nodes:
-loctoc::[1]
+(((TOC)))
 }
 module Node
 
