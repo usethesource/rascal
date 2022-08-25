@@ -29,15 +29,15 @@ See [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) and
 
 ## Abstract Data Types in Daily Life
 
-*  A stack of trays in the local cafetaria: image:dispenser.jpg[width=200,align=right,alt="dispenser"]
+*  A stack of trays in the local cafetaria: ![]((dispenser.jpg))
    http://www.thermo-box.co.uk/fimi-food-transport-and-handling-products/self-levelling-heated-and-unheated-plate-and-tray-systems.html[credit]
 
 *  A tree:
-   image:tree.jpg[width=300,align=right,alt="tree"]
+   ![]((tree.jpg))
    http://free-extras.com/images/tree-569.htm[credit]
 
 *  Coral:
-   image:coral.jpg[width=320,align=right,alt="coral"]
+   ![]((coral.jpg))
    http://blog.enn.com/?p=476[credit]
 
 

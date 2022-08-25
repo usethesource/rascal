@@ -42,7 +42,7 @@ render(space(visColoredTree(rb), std(size(30)), std(gap(30))));
 and the result is:
 
 
-image:a1.png[alt="a1"]
+![]((a1.png))
 
 
 Note that:
@@ -61,7 +61,7 @@ render(space(visColoredTree(rb), std(size(30)), std(gap(30)), std(manhattan(fals
 the result is:
 
 
-image:a2.png[alt="a2"]
+![]((a2.png))
 
 
 It is also possible to change the [orientation]((Libraries:Properties-orientation)) of the tree and draw it, for example, from left to right:
@@ -73,7 +73,7 @@ render(space(visColoredTree(rb), std(size(30)), std(gap(30)), std(orientation(le
 the result is:
 
 
-image:a3.png[alt="a3"]
+![]((a3.png))
 
 
 .Benefits

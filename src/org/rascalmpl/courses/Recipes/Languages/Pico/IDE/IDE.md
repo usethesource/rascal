@@ -37,26 +37,26 @@ include::{LibDir}demo/lang/Pico/Plugin.rsc[tags=module]
 Let's write a Pico program that produces a string of "a"s:
 
 
-image:Screenshot1.png[alt="screen 1"]
+![]((Screenshot1.png))
 
 
 As can be seen in the editor above, we get an error since we made a typo (missing comma) in the declarations. We correct it:
 
 
 
-image:Screenshot2.png[alt="screen 2"]
+![]((Screenshot2.png))
 
 
 Now it turns out that we had erroneously used the `+` operator on strings (it should be `||`). We correct it:
 
 
-image:Screenshot3.png[alt="screen 3"]
+![]((Screenshot3.png))
 
 
 Now we get a warning that variable `n` is not initialized. We correct it and get an error-free and warning-free program:
 
 
-image:Screenshot4.png[alt="screen 4"]
+![]((Screenshot4.png))
 
 
 .Benefits

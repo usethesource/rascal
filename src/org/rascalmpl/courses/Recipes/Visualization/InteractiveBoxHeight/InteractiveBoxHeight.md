@@ -50,7 +50,7 @@ render(higher());
 gives
 
 
-image:h1.png[alt="h1"]
+![]((h1.png))
 
 
 Unfortunately we cannot show the interaction here, so run this example from the `demo` directory and watch how the height of the box changes when you enter a new number in the text field.
