@@ -29,6 +29,7 @@ import List;
 import Location;
 import util::Reflective;
 import util::FileSystem;
+import util::UUID;
 
 import lang::xml::IO;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
@@ -52,7 +53,13 @@ rel[str, str] createConceptIndex(loc src)
       <"<src.file>:<cf.file>", "/<src.file>.md<fr>">,
       *{<"<src.file>:<f.parent.parent.file>-<cf.file>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file}     
     | loc f <- find(src, isConceptFile), fr := fragment(src, f), cf := f[extension=""]
-    };
+    }
+  +
+    { <"<f.parent.file>-<f.file>", "/assets/<unid.authority>.<f.extension>">,
+      <f.file, "/assets/<unid.authority>.<f.extension>">
+    |  loc f <- find(src, isImageFile), loc unid := uuid()
+    }
+    ;
 
 
 list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) {
@@ -94,7 +101,9 @@ list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) 
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {
-            copy(src, pcfg.bin + relativize(pcfg.currentRoot, src).path);
+            if (str path <- ind["<src.parent.file>-<src.file>"]) {
+              copy(src, pcfg.bin + path);
+            }
             return [];
         }
         catch IO(str message): {
@@ -122,7 +131,7 @@ list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Inde
       }
     }
     else {
-      return [*compile(s, pcfg, exec, ind) | s <- d.ls];
+      return [*compile(s, pcfg, exec, ind) | isDirectory(d), s <- d.ls];
     }
 }
 
@@ -165,13 +174,13 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind)
     ];
 
-list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
+list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) {
   resolution = ind[removeSpaces(link)];
 
   switch (resolution) {
       case {u}: 
-        if (/\[<title:[A-Za-z-0-9\ ]+>\]$/ := prefix) {
-          return compileMarkdown(["<prefix[..-size(title)+2]>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind);
+        if (/\[<title:[A-Za-z-0-9\ ]*>\]$/ := prefix) {
+          return compileMarkdown(["<prefix[..-(size(title)+2)]>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind);
         }
         else {
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind);
@@ -282,6 +291,8 @@ list[str] skipEmpty([/^s*$/, *str rest]) = skipEmpty(rest);
 default list[str] skipEmpty(list[str] lst) = lst;
 
 bool isConceptFile(loc f) = f.extension in {"md", "concept"};
+
+bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
 str fragment(loc concept) = replaceAll("#<concept[extension=""].path[1..]>", "/", "-");
 str fragment(loc root, loc concept) = fragment(relativize(root, concept));
