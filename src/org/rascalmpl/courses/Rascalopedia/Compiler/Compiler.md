@@ -19,7 +19,7 @@ A http://en.wikipedia.org/wiki/Compiler[compiler] transforms the source code of 
 (in a target language)
 and consists of the following phases:
 
-*  ((Parser)): read the source code and build an <<Abstract Syntax Tree>>.
+*  ((Parser)): read the source code and build an ((Abstract Syntax Tree)).
 *  ((Typechecker)): perform a semantic analysis of the code, resolve all names
   and verify that the program is type correct.
 *  Optimisation: perform optimisations (e.g., constant folding, dead code elimination, call unfolding).

@@ -25,7 +25,7 @@ Assign to a slice of a list or string.
 
 A slice assignment is defined for ((Expressions-List)), ((String)) and ((Values-Node)) 
 and aims to replace a slice from the old value of the assignable by a new value. 
-See <<List Slice>>, <<String Slice>> or <<Node Slice>> for a more detailed explanation of slicing.
+See ((List Slice)), ((String Slice)) or ((Node Slice)) for a more detailed explanation of slicing.
 
 Let _V_ be the current value of _Assignable_.
 

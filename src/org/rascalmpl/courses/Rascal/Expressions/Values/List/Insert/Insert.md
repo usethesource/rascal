@@ -39,7 +39,7 @@ The `+` operator can insert an element in front of a list. Note that `+` is one 
 
 .Pitfalls
 
-*  If the first operand before the `+` is a list, `+` acts as <<List Concatenation>> and not as <<List Insert>>
+*  If the first operand before the `+` is a list, `+` acts as ((List Concatenation)) and not as ((List Insert))
 
 This is concatenation:
 [source,rascal-shell,continue]

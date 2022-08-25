@@ -2,7 +2,7 @@
 
 .Synopsis
 
-Declare an annotation type for nodes. This feature is deprecated; please use <<Keyword Fields>> instead.
+Declare an annotation type for nodes. This feature is deprecated; please use ((Keyword Fields)) instead.
 
 .Index
 anno @
@@ -17,7 +17,7 @@ anno @
 .Details
 
 .Description
-An annotation may be associated with any node value, be it a pure node or some <<Algebraic Data Type>> derived from it.
+An annotation may be associated with any node value, be it a pure node or some ((Algebraic Data Type)) derived from it.
 
 Annotations are intended to attach application data to values,
 like adding position information or control flow information to source code or adding visualization information to a graph.

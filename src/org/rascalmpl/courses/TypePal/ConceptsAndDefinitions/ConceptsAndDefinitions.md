@@ -42,7 +42,7 @@ where
 
 * `scope` is the scope in which the definition occurs;
 * `id` is the text representation of the identifier;
-* `idRole` is the role in which the identifier is defined, see <<Identifier Role>>;
+* `idRole` is the role in which the identifier is defined, see ((Identifier Role));
 * `defined` is source code area of the definition;
 * `defInfo` is any additional information associated with this definition, see ((DefInfo)),
 

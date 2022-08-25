@@ -31,7 +31,7 @@ Here
 * `tm` is a given TModel
 * `def` is a proposed definition
 * `use` is the use 
-  (characterized by the `Use` data type that contains, name, occurrence, scope and identifier roles of the use, see <<Identifier Use>>)
+  (characterized by the `Use` data type that contains, name, occurrence, scope and identifier roles of the use, see ((Identifier Use)))
   for which the definition is proposed.
 
 `isAcceptableSimple` accepts or rejects a proposed definition for the use of a simple name in a particular role. 

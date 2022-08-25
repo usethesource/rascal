@@ -1,7 +1,7 @@
 # Prettyprinter
 
 .Synopsis
-Transform an <<Abstract Syntax Tree>> into a formatted string.
+Transform an ((Abstract Syntax Tree)) into a formatted string.
 
 .Syntax
 
@@ -20,7 +20,7 @@ Pretty printers differ in the inputs they accept:
 
 *  The source text itself.
 *  A ((ParseTree)) that corresponds to the source text. This variant is also called _unparser_.
-*  An <<Abstract Syntax Tree>> that corresponds to the source text.
+*  An ((Abstract Syntax Tree)) that corresponds to the source text.
 
 
 Pretty printers also differ in flexibility. They differ in:

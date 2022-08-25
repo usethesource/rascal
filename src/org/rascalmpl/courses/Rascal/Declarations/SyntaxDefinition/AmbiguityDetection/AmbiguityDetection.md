@@ -12,7 +12,7 @@ Ambiguity detection helps to find ambiguities in syntax definitions.
 .Details
 
 .Description
-AmbiDexter is a tool that analyzes <<Syntax Definition>>s, including their ((Disambiguation))s, to try and determine which ambiguities it contains. 
+AmbiDexter is a tool that analyzes ((Syntax Definition))s, including their ((Disambiguation))s, to try and determine which ambiguities it contains. 
 Static detection of ambiguity is not decidable, nevertheless AmbiDexter does a fine job at finding them. 
 
 

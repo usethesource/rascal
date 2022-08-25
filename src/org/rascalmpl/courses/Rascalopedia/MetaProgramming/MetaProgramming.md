@@ -53,7 +53,7 @@ A Java ((Compiler)):
 *  Target language: instructions for the JVM (Java Virtual Machine) or machine code, depending on the hardware platform.
 
 
-A tool to compute <<Software Metric>>s of Java programs
+A tool to compute ((Software Metric))s of Java programs
 
 *  Metaprogram: the metrics tool.
 *  Metalanguage: varies per tool: Java, Rascal.

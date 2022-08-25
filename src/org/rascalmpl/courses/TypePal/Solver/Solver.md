@@ -21,7 +21,7 @@ that fall into the following categories:
 * _Types_: retrieve the type of a program fragment in various ways, if that type is available.
 * _Inference_: create new type variables for type inference.
 * _Reporting_: report errors, warnings and info messages.
-* _Global Info_:  access global information such as the current <<TypePal Configuration>>, available type facts,
+* _Global Info_:  access global information such as the current ((TypePal Configuration)), available type facts,
   and the global store (EXPLAIN). 
 
 In identical style as used for ((Collector)), `Solver` is a datatype with a single constructur and with a number of functions as fields,
@@ -109,7 +109,7 @@ The function `equal` determines whether the types of `l` and `r` are equal, the 
 /* Solver field */ bool (value l, value r) subtype
 ----
 The function `subtype` determines whether the type of `l` is a subtype of the type of `r`;
-it calls the user-provided function `getSubType`, see <<TypePal Configuration>>.
+it calls the user-provided function `getSubType`, see ((TypePal Configuration)).
 
 
 === comparable
@@ -118,7 +118,7 @@ it calls the user-provided function `getSubType`, see <<TypePal Configuration>>.
 /* Solver field */ bool (value l, value r) comparable
 ----
 The function `comparable` determines whether the type of `l` is comparable with the type of `r`;
-it calls the user-provided function `getSubType` twice, see <<TypePal Configuration>>.
+it calls the user-provided function `getSubType` twice, see ((TypePal Configuration)).
 
 === unify
 [source,rascal]
@@ -126,7 +126,7 @@ it calls the user-provided function `getSubType` twice, see <<TypePal Configurat
 /* Solver field */ bool (value l, value r) unify
 ----
 The function `unify` determines whether the type of `l` can be unified with the type of `r`
-it calls the user-provided functions `getSubType` and `getLub`, see <<TypePal Configuration>>.
+it calls the user-provided functions `getSubType` and `getLub`, see ((TypePal Configuration)).
 The bindings that may result from unification are effectuated when the enclosing calculate succeeds.
 
 === lub
@@ -135,7 +135,7 @@ The bindings that may result from unification are effectuated when the enclosing
 /* Solver field */ AType (value l, value r) lub
 ----
 The function `lub` return the least upper bound of the types of `l` and `r`;
-it calls the user-provided function `getLub`, see <<TypePal Configuration>>.
+it calls the user-provided function `getLub`, see ((TypePal Configuration)).
 
 
 == Require
@@ -152,7 +152,7 @@ The function `requireEqual` returns when the types of `l` and `r` are equal, oth
 /* Solver field */ void (value l, value r, FailMessage fmsg) requireSubType
 ----
 The function `requireSubtype` returns when the type of `l` is a subtype of `r`, otherwise the FailMessage is reported;
-it calls the user-provided function `getSubType`, see <<TypePal Configuration>>.
+it calls the user-provided function `getSubType`, see ((TypePal Configuration)).
 
 === requireCompare
 [source,rascal]
@@ -160,7 +160,7 @@ it calls the user-provided function `getSubType`, see <<TypePal Configuration>>.
 /* Solver field */ void (value l, value r, FailMessage fmsg) requireComparable
 ----
 The function `requireComparable` returns when the type of `l` is comparable with the type of `r`, otherwise the FailMessage is generated;
-it calls the user-provided function `getSubType`twice, see <<TypePal Configuration>>.
+it calls the user-provided function `getSubType`twice, see ((TypePal Configuration)).
 
 === requireUnify
 [source,rascal]
@@ -168,7 +168,7 @@ it calls the user-provided function `getSubType`twice, see <<TypePal Configurati
 /* Solver field */ void (value l, value r, FailMessage fmsg) requireUnify
 ----
 The function `requireUnify just returns when the type of `l` can be unified with the type of `r`, otherwise the FailMessage is reported;
-it calls the user-provided functions `getSubType` and `getLub`, see <<TypePal Configuration>>.
+it calls the user-provided functions `getSubType` and `getLub`, see ((TypePal Configuration)).
 The bindings that may result from unification are effectuated when the enclosing require succeeds.
 
 === requireTrue and requireFalse
@@ -316,7 +316,7 @@ checks whether `atype` contains any occurrences of type variables.
 ----
 /* Solver field */ TypePalConfig () getConfig
 ----
-Returns the current <<TypePal Configuration>>.
+Returns the current ((TypePal Configuration)).
 
 === getFacts
 [source,rascal]
@@ -334,5 +334,5 @@ Returns the type facts known to the Solver as mapping from source location to AT
 
 Returns the global store of the Solver. The following elements may occur in the store:
 
-* Remaining <<Nested Info>> from the collect phase. For instance, a single `push` to a stack during the collect phase will be visible during the solve phase and
+* Remaining ((Nested Info)) from the collect phase. For instance, a single `push` to a stack during the collect phase will be visible during the solve phase and
 can me (mis)used to communicate information between the two phases.

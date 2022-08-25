@@ -13,8 +13,8 @@ Ambiguity diagnosis suggests changes to syntax definitions to make them non-ambi
 
 .Description
 The `Ambiguity` library, a.k.a. DrAmbiguity, contains a diagnosis tool that can help you find the causes of ambiguous 
-parse trees and possible ((Disambiguation))s to solve them in a <<Syntax Definition>>.
-DrAmbiguity is a library that processes any parse forest produced by a parser generated from Rascal's <<Syntax Definition>>s.
+parse trees and possible ((Disambiguation))s to solve them in a ((Syntax Definition)).
+DrAmbiguity is a library that processes any parse forest produced by a parser generated from Rascal's ((Syntax Definition))s.
 Please read ((Disambiguation)) first.
 
 .Examples

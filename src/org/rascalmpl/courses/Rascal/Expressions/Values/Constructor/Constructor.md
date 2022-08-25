@@ -24,7 +24,7 @@ Constructors create values for user-defined datatypes (Algebraic Datatypes).
 In ordinary programming languages record types or classes exist to introduce a new type name for a collection of related, 
 named, values and to provide access to the elements of such a collection through their name. 
 
-In Rascal, algebraic data types provide this facility. They have to be declared, see <<Algebraic Data Type>>, and
+In Rascal, algebraic data types provide this facility. They have to be declared, see ((Algebraic Data Type)), and
 then values can be created using calls to the declared constructor functions.
 The constructor _Name_ should correspond (regarding name, arity and argument types) to one of the alternatives
 in the ADT declaration.

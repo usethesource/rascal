@@ -24,9 +24,9 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 
 | `_Exp_ . _Name_`
-| <<Location-FieldSelection,Location>>,
-  <<DateTime-FieldSelection,DateTime>>,
-  <<Tuple-FieldSelection,Tuple>>,
+| ((Location-FieldSelection)),
+  ((DateTime-FieldSelection)),
+  ((Tuple-FieldSelection)),
   <<Relation-FieldSelection.Relation>>,
 | Select named field from structured value
 
@@ -43,57 +43,57 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 | `_Exp_ is _Name_`
 | ((Library:ParseTree)),
-  <<Concrete Syntax>>,
-  <<Algebraic Data Type>>
+  ((Concrete Syntax)),
+  ((Algebraic Data Type))
 | Returns true if and only if the constructor name of the value produced by _Exp_ is equal to _Name_
 
 
 | `_Exp_ has _Name_` 
 | ((Library:ParseTree)),
-  <<Concrete Syntax>>,
-  <<Algebraic Data Type>>
+  ((Concrete Syntax)),
+  ((Algebraic Data Type))
 | Returns true if and only if the constructor (node or parse tree) of the value produced by _Exp_ has any field labeled _Name_
 
 
 | `_Exp_~1~ [ _Exp_~2~ , _Exp_~3~, .... ]`
-| <<List-Subscription,List>>,
-  <<Map-Subscription,Map>>,
-  <<Tuple-Subscription,Tuple>>,
-  <<Relation-Subscription,Relation>>
+| ((List-Subscription)),
+  ((Map-Subscription)),
+  ((Tuple-Subscription)),
+  ((Relation-Subscription))
 | Retrieve values for given index/key from list, map, tuple or relation.
 
 
 | `_Exp_~1~ [ _Exp_~2~ , _Exp_~3~ .. _Exp_~4~ ]`
-| <<Values-List-Slice,List>>,
-  <<String-Slice,String>>,
-  <<Node-Slice,Node>>
+| ((Values-List-Slice)),
+  ((String-Slice)),
+  ((Node-Slice))
 | Retrieve a slice from a list, string, or node.
 
 
 |  `_Exp_?`
-| <<Boolean-IsDefined,Boolean>>
+| ((Boolean-IsDefined))
 | Test whether an expression has a defined value
 
 
 |  `!_Exp_`
-| <<Boolean-Negation,Boolean>>
+| ((Boolean-Negation))
 | Negate a Boolean value
 
 
 | `- _Exp_`
-| <<Number-Negation,Number>>
+| ((Number-Negation))
 | Negation of numbers
 
 
 | `_Exp_ +`
-| <<Relation-TransitiveClosure,Relation>>,
-  <<ListRelation-TransitiveClosure,ListRelation>>,
+| ((Relation-TransitiveClosure)),
+  ((ListRelation-TransitiveClosure)),
 | Transitive closure on relation or list relation
 
 
 | `_Exp_ *`
-| <<Relation-ReflexiveTransitiveClosure,Relation>>,
-  <<ListRelation-ReflexiveTransitiveClosure,ListRelation>>
+| ((Relation-ReflexiveTransitiveClosure)),
+  ((ListRelation-ReflexiveTransitiveClosure))
 | Reflexive transitive closure on relation or list relation
 
 
@@ -108,116 +108,116 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 
 | `_Exp_~1~ o _Exp_~2~`
-| <<Relation-Composition,Relation>>,
-  <<Map-Composition,Map>>
+| ((Relation-Composition)),
+  ((Map-Composition))
 | _Exp_~1~ and _Exp_~2~ should evaluate to a relation or map; return their composition. Note: the letter "o" is thus a keyword
 
 
 | `_Exp_~1~ / _Exp_~2~`
-| <<Number-Division,Number>>
+| ((Number-Division))
 | Divide two numbers
 
 
 | `_Exp_~1~ % _Exp_~2~`
-| <<Number-Remainder,Number>>
+| ((Number-Remainder))
 | Remainder on numbers
 
 | `_Exp_~1~ * _Exp_~2~`
-| <<Number-Multiplication,Number>>,
-  <<List-Product,List>>,
-  <<Set-Product,Set>>,
-  <<Relation-CartesianProduct,Relation>>
+| ((Number-Multiplication)),
+  ((List-Product)),
+  ((Set-Product)),
+  ((Relation-CartesianProduct))
 | Multiply numbers; product of list, set, or relation
 
 
 | `_Exp_~1~ & _Exp_~2~`
-| <<List-Intersection,List>>,
-  <<Set-Intersection,Set>>,
-  <<Map-Intersection,Map>>
+| ((List-Intersection)),
+  ((Set-Intersection)),
+  ((Map-Intersection))
 | Intersection of list, set (including relation), or map
 
 
 | `_Exp_~1~ + _Exp_~2~`
-| <<Number-Addition,Number>>,
-  <<String-Concatenation,String>>,
-  <<List-Concatenation,List Concatenation>>,
-  <<List-Insert, List Insert>>,<<List-Append, List Append>>,
+| ((Number-Addition)),
+  ((String-Concatenation)),
+  ((List-Concatenation)),
+  ((List-Insert)),((List-Append)),
   ((Tuple-Concatenation)),
-  <<Set-Union,Set>>,
-  <<Map-Union,Map>>,
-  <<Location-AddSegment,Location>>
+  ((Set-Union)),
+  ((Map-Union)),
+  ((Location-AddSegment))
 | Add numbers; concatenate string, list or tuple; 
   union on set (including relation), or map;
   concatenate location and string
   
   
 | `_Exp_~1~ - _Exp_~2~`
-| <<Number-Subtraction,Number>>,
-  <<List-Difference,List>>,
-  <<Set-Difference,Set>>,
-  <<Map-Difference,Map>>
+| ((Number-Subtraction)),
+  ((List-Difference)),
+  ((Set-Difference)),
+  ((Map-Difference))
 | Subtract numbers; difference of list, set (including relation), or map
 
 
 | `_Exp_~1~ join _Exp_~2~`
-| <<Relation-Join,Relation>>
+| ((Relation-Join))
 | Join on relation
 
 
 | `_Exp_~1~ in _Exp_~2~`
-| <<List-in,List>>, 
-  <<Set-in,Set>>,
-  <<Map-in,Map>>
+| ((List-in)), 
+  ((Set-in)),
+  ((Map-in))
 | Membership test for element in list, map, set (including relation)
 
 
 | `_Exp_~1~ notin _Exp_~2~`
-| <<List-notin,List>>,
-  <<Set-notin,Set>>,
-  <<Map-notin,Map>>
+| ((List-notin)),
+  ((Set-notin)),
+  ((Map-notin))
 | Negated membership test for element in  list, map, set (including relation)
 
 
 | `_Exp_~1~ <= _Exp_~2~`
-| <<Number-LessThanOrEqual,Number>>,
-  <<String-LessThanOrEqual,String>>,
-  <<Location-LessThanOrEqual,Location>>,
-  <<DateTime-LessThanOrEqual,DateTime>>,
-  <<List-SubList,List>>,
-  <<Set-SubSet,Set>>,
-  <<Map-SubMap,Map>>
+| ((Number-LessThanOrEqual)),
+  ((String-LessThanOrEqual)),
+  ((Location-LessThanOrEqual)),
+  ((DateTime-LessThanOrEqual)),
+  ((List-SubList)),
+  ((Set-SubSet)),
+  ((Map-SubMap))
 | Less than or equal on all values
 
 | `_Exp_~1~ < _Exp_~2~`
-| <<Number-LessThan,Number>>,
-  <<String-LessThan,String>>,
-  <<Location-LessThan,Location>>,
-  <<DateTime-LessThan,dateTime>>,
-  <<List-StrictSubList,List>>,
-  <<Set-StrictSubSet,Set>>,
-  <<Map-StrictSubMap,Map>>
+| ((Number-LessThan)),
+  ((String-LessThan)),
+  ((Location-LessThan)),
+  ((DateTime-LessThan)),
+  ((List-StrictSubList)),
+  ((Set-StrictSubSet)),
+  ((Map-StrictSubMap))
 | Less than on all values
 
 
 | `_Exp_~1~ >= _Exp_~2~`
-| <<Number-GreaterThanOrEqual,Number>>,
-  <<String-GreaterThanOrEqual,String>>,
-  <<Location-GreaterThanOrEqual,Location>>,
-  <<DateTime-GreaterThanOrEqual,DateTime>>,
-  <<List-SuperList,List>>,
-  <<Set-SuperSet,Set>>,
-  <<Map-SuperMap,Map>>
+| ((Number-GreaterThanOrEqual)),
+  ((String-GreaterThanOrEqual)),
+  ((Location-GreaterThanOrEqual)),
+  ((DateTime-GreaterThanOrEqual)),
+  ((List-SuperList)),
+  ((Set-SuperSet)),
+  ((Map-SuperMap))
 | Greater than or equal on all values
 
 
 | `_Exp_~1~ > _Exp_~2~`
-| <<Number-GreaterThan,Number>>,
-  <<String-GreaterThan,String>>,
-  <<Location-GreaterThan,Location>>,
-  <<DateTime-GreaterThan,DateTime>>,
-  <<List-StrictSuperList,List>>,
-  <<Set-StrictSuperSet,Set>>,
-  <<Map-StrictSuperMap,Map>>
+| ((Number-GreaterThan)),
+  ((String-GreaterThan)),
+  ((Location-GreaterThan)),
+  ((DateTime-GreaterThan)),
+  ((List-StrictSuperList)),
+  ((Set-StrictSuperSet)),
+  ((Map-StrictSuperMap))
 | Greater than on all values.
 
 
@@ -231,24 +231,24 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 
 | `_Exp_~1~ == _Exp_~2~`
-| <<Number-Equal,Number>>,
-  <<String-Equal,String>>,
-  <<Location-Equal,Location>>,
-  <<DateTime-Equal,DateTime>>,
-  <<List-Equal,List>>,
-  <<Set-Equal,Set>>,
-  <<Map-Equal,Map>>
+| ((Number-Equal)),
+  ((String-Equal)),
+  ((Location-Equal)),
+  ((DateTime-Equal)),
+  ((List-Equal)),
+  ((Set-Equal)),
+  ((Map-Equal))
 | Equality on all values
 
 
 | `_Exp_~1~ != _Exp_~2~`
-| <<Number-NotEqual,Number>>,
-  <<String-NotEqual,String>>,
-  <<Location-NotEqual,Location>>,
-  <<DateTime-NotEqual,DateTime>>,
-  <<List-NotEqual,List>>,
-  <<Set-NotEqual,Set>>,
-  <<Map-NotEqual,Map>>
+| ((Number-NotEqual)),
+  ((String-NotEqual)),
+  ((Location-NotEqual)),
+  ((DateTime-NotEqual)),
+  ((List-NotEqual)),
+  ((Set-NotEqual)),
+  ((Map-NotEqual))
 | Inequality on all values
 
 

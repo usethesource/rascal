@@ -33,8 +33,8 @@ where _Associativity_ is nothing, or one of `assoc`, `left`, `right` or `non-ass
 
 .Description
 Rascal supports full context-free grammars for syntax definition. It generates scannerless parsers from these definitions. 
-These parsers produce <<Parse Trees>> that can be further processed by Rascal using <<Concrete Syntax>> fragments
- in ((Patterns)) and ((Expressions)), or they can be _imploded_ to <<Algebraic Data Type>>s.
+These parsers produce ((Parse Trees)) that can be further processed by Rascal using ((Concrete Syntax)) fragments
+ in ((Patterns)) and ((Expressions)), or they can be _imploded_ to ((Algebraic Data Type))s.
 
 There are four kinds of non-terminals that can be defined with slightly different characteristics.
 
@@ -61,15 +61,15 @@ The alternative of a defined syntax type may be labeled or not as well. With the
 *  The `is` operator is defined for labeled alternatives (see ((Operators))).
 *  The `has` operator is defined for labeled ((Symbol))s in the right-hand side (see ((Operators))).
 *  ((Action)) functions can be written to override the construction of a parse tree, using the label of an alternative as the function name
-*  [implode] uses labeled alternatives to map to an <<Algebraic Data Type>>
+*  [implode] uses labeled alternatives to map to an ((Algebraic Data Type))
 
 
-Alternatives can be combined in a single <<Syntax Definition>> using the `|`, `>` and associativity combinators.
+Alternatives can be combined in a single ((Syntax Definition)) using the `|`, `>` and associativity combinators.
 The latter two represent ((Disambiguation)) constructs that you should read more about. The `|` is a short-hand for not having to repeat `syntax A =` for every alternative of `A`.
 
 Alternatives can be named or not. The names are essential only if:
 
-*  you need to [implode]((Libraries:ParseTree-implode)) <<Parse Trees>>
+*  you need to [implode]((Libraries:ParseTree-implode)) ((Parse Trees))
 *  you need to use the `is` expression, as in `myStatement is ifThenElse` instead of using concrete pattern matching.
 *  you want to write ((Action))s that triggers on the construction of the alternative.
 
@@ -89,12 +89,12 @@ For example:
 layout L = [\ ]*; start Program = Statement*;`
 ----
 will produce `syntax start[Program] = L Program _top_ L;`. 
-Note that the `start[Program]` type is now available in your program, and <<Parse Trees>> assigned to variable of that 
+Note that the `start[Program]` type is now available in your program, and ((Parse Trees)) assigned to variable of that 
 type will allow access to the _top_ field.
 
 
 .Examples
-The following example makes use of practically all of the <<Syntax Definition>> features, except parse actions.
+The following example makes use of practically all of the ((Syntax Definition)) features, except parse actions.
 [source,rascal]
 ----
 // layout is lists of whitespace characters
@@ -130,10 +130,10 @@ syntax Expression
 *  Powerful disambiguation constructs for common programming language disambiguation patterns.
 *  Data-dependent (context-sensitive) disambiguation via arbitrary functions.
 *  Embedding of concrete syntax fragments in Rascal programs
-*  <<Syntax Definition>>s follow the syntax and semantics of <<Algebraic Data Type>>s quite closely.
+*  ((Syntax Definition))s follow the syntax and semantics of ((Algebraic Data Type))s quite closely.
 
 .Pitfalls
 
-*  Grammars may be ambiguous, so read about ((Disambiguation)), <<Ambiguity Detection>> and <<Ambiguity Diagnosis>>.
+*  Grammars may be ambiguous, so read about ((Disambiguation)), ((Ambiguity Detection)) and ((Ambiguity Diagnosis)).
 *  Static grammar checker is not implemented yet.
 

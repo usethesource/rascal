@@ -19,11 +19,11 @@ List in abstract pattern.
 A list pattern matches a list value (the subject), provided that _Pat_~1~, _Pat_~2~, ..., _Pat_~n~ match the elements of that list in order. 
 Special cases exist when one of the patterns _Pat_~i~ is
 
-*  a <<Variable Pattern>> with a type that is identical to the element type of the subject list: the variable is matched with the value at the corresponding position in the subject list.
+*  a ((Variable Pattern)) with a type that is identical to the element type of the subject list: the variable is matched with the value at the corresponding position in the subject list.
 
-*  a <<MultiVariable Pattern>>, with an optional element type that is identical to the element type of the subject list: list matching is applied and the variable can match an arbitrary number of elements of the subject list.
+*  a ((MultiVariable Pattern)), with an optional element type that is identical to the element type of the subject list: list matching is applied and the variable can match an arbitrary number of elements of the subject list.
 
-*  a <<Variable Pattern>>, where the variable has been declared with a list type, but not initialized, outside the pattern: list matching is applied and the variable can match an arbitrary number of elements of the subject list.
+*  a ((Variable Pattern)), where the variable has been declared with a list type, but not initialized, outside the pattern: list matching is applied and the variable can match an arbitrary number of elements of the subject list.
 
 *  a <<Variable] Pattern>>, where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with the value at the corresponding position in the subject list.
 

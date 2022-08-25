@@ -23,7 +23,7 @@ Each example has the same structure:
 
 [cols="1,8"]
 |===
-| *What*        | The pocket calculator language Calc; we already covered it <<A simple pocket calculator language>>
+| *What*        | The pocket calculator language Calc; we already covered it ((A simple pocket calculator language))
 | *Illustrates* | fact, define, use, requireEqual, calculate, getType, report
 | *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/calc
 |===

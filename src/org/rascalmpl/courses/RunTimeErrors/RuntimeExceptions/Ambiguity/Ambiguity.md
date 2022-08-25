@@ -69,7 +69,7 @@ if (/amb({a1, a2}) := t)
           'alternative 2: <a2.prod>");
 ----
 
-Or, one could catch the ambiguity and report it like a <<Parse Error>>:
+Or, one could catch the ambiguity and report it like a ((Parse Error)):
 
 [source,rascal-shell,continue]
 ----

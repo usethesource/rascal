@@ -26,7 +26,7 @@ If the concept is part of the course (i.e. it is now a remote concept, see below
 
 
 If the concept involves remote content (i.e., the concepts are described in rascallibrary files),
-then a <<Remote Concept Mapping>> has to be added as explained in <<Source Code Markup>>.
+then a ((Remote Concept Mapping)) has to be added as explained in ((Source Code Markup)).
 
 .Examples
 

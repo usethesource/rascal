@@ -38,7 +38,7 @@ The operator `+` appends an element at the end of a list. The `+` is one of thos
 
 .Pitfalls:
 
-* If both operands of `+` are a list, then it acts as <<List Concatenation>> 
+* If both operands of `+` are a list, then it acts as ((List Concatenation)) 
 
 This is concatenation:
 [source,rascal-shell,continue]

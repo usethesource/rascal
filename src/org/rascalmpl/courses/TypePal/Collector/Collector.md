@@ -62,7 +62,7 @@ where
 
 * `modelName` is the name of the TModel to be created (used for logging);
 * `pt` is the parse tree of the source program to be type checked;
-* `config` is a <<TypePal Configuration>>.
+* `config` is a ((TypePal Configuration)).
 
 Once a Collector has been created, the user-defined `collect` function is invoked
 with the current parse tree of a source program and the Collector as arguments.
@@ -97,7 +97,7 @@ IMPORTANT: Each `collect` function is responsible for collecting constraints fro
 
 == Configuration
 
-The <<TypePal Configuration>> can be retrieved or adjusted by the following two functions:
+The ((TypePal Configuration)) can be retrieved or adjusted by the following two functions:
 [source,rascal]
 ----
 /* Collector field */ TypePalConfig () getConfig;
@@ -459,7 +459,7 @@ while `calculateEager` can also handle dependencies that still contain type vari
 /* Collector field */ void (str name, Tree src, list[value] dependencies, AType(Solver s) calculator) calculate;
 /* Collector field */ void (str name, Tree src, list[value] dependencies, AType(Solver s) calculator) calculateEager;
 ----
-See <<A Calculator Language>> and <<Examples of Typecheckers>> for examples of calculator definitions.
+See ((A Calculator Language)) and ((Examples of Typecheckers)) for examples of calculator definitions.
 
 See ((Inference)) for details about type variables.
 
@@ -491,5 +491,5 @@ that the one is a subtype of the other, or that they can be unified:
 ----  
 The arguments `l` and `r` should either be an AType or a subtree whose type is known.
 
-See <<A Calculator Language>> and <<Examples of Typecheckers>> for examples of requirement definitions.
+See ((A Calculator Language)) and ((Examples of Typecheckers)) for examples of requirement definitions.
 See ((Inference)) for details about type variables.

@@ -69,22 +69,22 @@ All formal parameter of a function can be ((Patterns)). There are some restricti
 ##  Parameterized types in function declaration 
 
 
-The types that occur in function declarations may also contain <<Type Parameters>>.
+The types that occur in function declarations may also contain ((Type Parameters)).
 In this way functions can be defined for arbitrary types. The type variable is bound (statically) at by the types of the parameters given at location of the call. The result type must be used at least once in any of the parameters.
 
 ##  Overloading 
 
  
 Function definitions may be overloaded, i.e. a function with the same name may be defined twice and 
-a function may redefine a constructor of an <<Algebraic Data Type>> or a <<Syntax Definition>>.
+a function may redefine a constructor of an ((Algebraic Data Type)) or a ((Syntax Definition)).
 
 There are some restrictions however:
 
 *  Overloaded alternatives for the same function name but with different patterns must return the same type.
 *  Overloaded alternatives for the same function name must have mutually exclusive patterns, unless one alternative is labeled `default` and the other is not. The patterns of formal parameters are mutually exclusive if for at least one parameter position:
 **  They range over incomparable types, as in `int f(int a)` and `int f(real a)`, or
-**  They range over different alternatives of an <<Algebraic Data Type>>, as in `int f(and(Bool a, Bool b))` and `int f(or(Bool a, Bool b))`
-**  They range over different alternatives of a <<Syntax Definition>>
+**  They range over different alternatives of an ((Algebraic Data Type)), as in `int f(and(Bool a, Bool b))` and `int f(or(Bool a, Bool b))`
+**  They range over different alternatives of a ((Syntax Definition))
 **  And note that deep matches using the `/` alternative are considered to be of type `value` and therefore overlap with all other patterns.
 *  Overlapping patterns are allowed if the one alternative has the `default` modified while the other does not.
 *  If a function is fallible, it uses the `fail` statement to back-track to a different alternative, then there must be a `default` alternative defined which can handle the general case. An [AlgebraicDataType] or a [SyntaxDefinition] with the same name and return type counts as a `default` alternative.
@@ -104,8 +104,8 @@ The _Modifiers_ affect _visibility_ and _special behaviour_ of functions:
         It can be called as any other function. However, it can also be called automatically
         by the unit test framework, by typing `:test` at the command line, see ((Help)).
    **  `default` declares an alternative for an overloaded function that will only be tried after 
-        all non-default alternatives have been tried. Note that <<Algebraic Data Type>>s and <<Syntax Definition>>s 
-        _implicitly_ define `default` functions that may be overloaded by normal <<Function Declaration>>s.
+        all non-default alternatives have been tried. Note that ((Algebraic Data Type))s and ((Syntax Definition))s 
+        _implicitly_ define `default` functions that may be overloaded by normal ((Function Declaration))s.
 
 
 .Examples
@@ -164,8 +164,8 @@ f(0);
 f(2);
 ----
 
-In combination with an <<Algebraic Data Type>>, which defines `default` functions implicitly for every alternative, 
-we can define canonicalization functions. The same holds for <<Syntax Definition>>s, see ((Action))s.
+In combination with an ((Algebraic Data Type)), which defines `default` functions implicitly for every alternative, 
+we can define canonicalization functions. The same holds for ((Syntax Definition))s, see ((Action))s.
 
 //This definition implies a default function for t(), f() and neg(B):
 //[source,rascal-shell,continue]

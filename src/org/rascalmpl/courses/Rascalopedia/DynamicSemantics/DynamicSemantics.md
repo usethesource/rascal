@@ -19,7 +19,7 @@ Dynamic semantics describes the execution behaviour of a program and includes:
 *  Treatment of declarations, names, variables and ((Scope))s.
 *  Execution of procedures, statements and expressions.
 
-Contrast with <<Static Semantics>> that describes pre-execution behaviour.
+Contrast with ((Static Semantics)) that describes pre-execution behaviour.
 
 .Examples
 
