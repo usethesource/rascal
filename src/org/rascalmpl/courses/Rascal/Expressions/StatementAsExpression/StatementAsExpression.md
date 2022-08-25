@@ -13,7 +13,7 @@ Statements that have a value and can be used as expressions.
 
 .Description
 Several forms of statements produce a value and can be used as expression. 
-This is further explained in the sections for the relevant statements, see ((If)), ((While)), ((Do)) and ((For)).
+This is further explained in the sections for the relevant statements, see ((Statements-If)), ((While)), ((Do)) and ((For)).
 
 .Examples
 
