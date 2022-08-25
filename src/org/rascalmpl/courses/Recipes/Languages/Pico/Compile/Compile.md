@@ -35,8 +35,8 @@ Notes:
     the index of the last generated label and `nextLabel` uses this to generate a new, unique label.
 
 <5> Consider code generation for an if-the-else statement:
-    **  Two fresh labels mark the start of the code for the else part (`elseLab`) and the end of the whole statement (`endLab`).
-    **  The code that is generated consists of the following:
+    *  Two fresh labels mark the start of the code for the else part (`elseLab`) and the end of the whole statement (`endLab`).
+    *  The code that is generated consists of the following:
         ***  Code for the test.
         ***  A gofalse to the code for the else-part.
         ***  Code for the then-part and a jump to the end of the statement.

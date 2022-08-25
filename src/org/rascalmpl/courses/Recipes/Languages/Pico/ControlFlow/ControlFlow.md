@@ -31,15 +31,15 @@ include::{LibDir}demo/lang/Pico/ControlFlow.rsc[tags=module]
 Notes:
 
 <1> First we define a data type `CFNODE` that represents the various elements of a control flow graph:
-    **  `entry`: the entry point of the program.
-    **  `exit` the exit point of the program.
-    **  `choice`: a decision point in the control flow.
-    **  `statement`: a statement in the control flow.
+    *  `entry`: the entry point of the program.
+    *  `exit` the exit point of the program.
+    *  `choice`: a decision point in the control flow.
+    *  `statement`: a statement in the control flow.
 
 <2> Next we define `CFGRAPH` , an alias for a tuple consisting of the following three elements:
-    **  `entry`: the set of entry nodes of the graph.
-    **  `graph`: the actual graph of `CFNODE`s.
-    **  `exit`: the set of exit nodes.
+    *  `entry`: the set of entry nodes of the graph.
+    *  `graph`: the actual graph of `CFNODE`s.
+    *  `exit`: the set of exit nodes.
 
    The computation of the control flow graph is defined by the functions 
   `cflowStat`, `cflowStats`, `cflowDecls` and `cflowProgram`.
@@ -49,11 +49,11 @@ Notes:
     statement as entry and exit node, and no internal connections.
 
 <4> The control flow of an if-then-else statement is computed as follows:
-    **  First the control flows of the then part and the else part are computed,
+    *  First the control flows of the then part and the else part are computed,
         yielding `CF1` and `CF2`.
-    **  Next a set `E` is created that consist of a the test of the if-then-else statement
+    *  Next a set `E` is created that consist of a the test of the if-then-else statement
         wrapped as choice node.
-    **  Finally, a `CFGRAPH` is returned consisting of the followng three elements:
+    *  Finally, a `CFGRAPH` is returned consisting of the followng three elements:
         ***  The entry point set `E`.
         ***  A graph consisting of the connections between the entry point and both
              branches (`E * CF1.entry + E * CF2.entry`) and the internal graphs of both branches

@@ -45,14 +45,14 @@ Notes:
 
 <1> We import [Rascal:ParseTree] because we will need the `parse` function below.
 <2> The main function `eval` that evaluates an expression as string to an integer. It proceeds in two steps:
-    **  `parse(#Exp, txt)` parses the given `txt` according to non-terminal `Exp` as defined by the grammar.
+    *  `parse(#Exp, txt)` parses the given `txt` according to non-terminal `Exp` as defined by the grammar.
         The result is a parse tree.
-    **  This parse tree is given to another eval function that will reduce the tree to an integer.
+    *  This parse tree is given to another eval function that will reduce the tree to an integer.
 <3> Converts an IntegerLiteral to an integer. Let's dissect this further:
-    **  The `Exp` preceding the concrete pattern, unambiguously defines the type of the pattern.
+    *  The `Exp` preceding the concrete pattern, unambiguously defines the type of the pattern.
         This is good practice to avoid ambiguities.
-    **  `<IntegerLiteral l>` matches an IntegerLiteral and binds it (a parse tree fragment) to variable `l`.
-    **  In the function body, `toInt("<l>")`, the parse tree fragment is inserted in a string -- effectively unparsing it --
+    *  `<IntegerLiteral l>` matches an IntegerLiteral and binds it (a parse tree fragment) to variable `l`.
+    *  In the function body, `toInt("<l>")`, the parse tree fragment is inserted in a string -- effectively unparsing it --
         and that string is converted to an integer.
 <4> Handle the multiplication case.
 <5> Handle the addition case.

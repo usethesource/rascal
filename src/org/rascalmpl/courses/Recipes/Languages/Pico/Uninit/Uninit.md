@@ -32,11 +32,11 @@ include::{LibDir}demo/lang/Pico/Uninit.rsc[tags=module]
 <3> Next we ask for every use of a variable the question: can it be reached from the entries
     of the program without encountering a definition? This determined as follows:
 
-    **  `rangeR(D, {occ.item})` is the set of definition for the variable were are looking at. See [Rascal:Relation/rangeR].
-    **  `reachX` determines the reachability in a graph while excluding certain nodes, see [Rascal:Graph/reachX]. Here
+    *  `rangeR(D, {occ.item})` is the set of definition for the variable were are looking at. See [Rascal:Relation/rangeR].
+    *  `reachX` determines the reachability in a graph while excluding certain nodes, see [Rascal:Graph/reachX]. Here
         `reachX(CFG.graph, CFG.entry, rangeR(D, {occ.item}))` determines the nodes in the graph that can be reached from the
          entry point of the program without passing a definition of the current variable.
-    **  `any(CFNode N <- reachX( ... ), N has location && occ.location \<= N.location)` yields true if there is such a reachable node
+    *  `any(CFNode N <- reachX( ... ), N has location && occ.location \<= N.location)` yields true if there is such a reachable node
         that covers the location of the current variable.
 <4> The complete comprehension returns the set of occurrences of uninitialized variables.
 

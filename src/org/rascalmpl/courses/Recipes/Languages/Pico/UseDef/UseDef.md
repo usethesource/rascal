@@ -29,8 +29,8 @@ Recall that `Occurrence` was introduced in ((Pico-Abstract)); it is a parameteri
 program entities with their location.
 
 <1> The function `usesExp` computes a set of occurrences (uses) of Pico identifiers in a given statement:
-    ** If the expression is itself an identifier, then a singleton set containing that identifier and the statement is returned.
-    ** If the expression is composite, all its containing identifiers are collected using a descendant (deep) match 
+    * If the expression is itself an identifier, then a singleton set containing that identifier and the statement is returned.
+    * If the expression is composite, all its containing identifiers are collected using a descendant (deep) match 
        (`/`, see [Rascal:Descendant]))  in `/u:id(PicoId Id) \<- e`. 
         Note that we use a labeled pattern `u:id(PicoId Id)`,
        so that we can access the whole expression that was matched and retrieve its 
@@ -43,9 +43,9 @@ program entities with their location.
 <4> The function `defs`  has a Pico program as argument and returns a set of occurrences (definitions) of Pico identifiers.
     The definition consists of a single set comprehension that consists of the following parts:
 
-    **  ` ... \<- P. stats` enumerates all statements in the program.
-    **  `/asgStat(PicoId Id, EXP Exp) \<- P.stats` uses again a descendant match to find all assignment statements.
-    **  For each assignment statement a (location, identifier) pair is added to the result.
+    *  ` ... \<- P. stats` enumerates all statements in the program.
+    *  `/asgStat(PicoId Id, EXP Exp) \<- P.stats` uses again a descendant match to find all assignment statements.
+    *  For each assignment statement a (location, identifier) pair is added to the result.
 
 .Benefits
 
