@@ -32,19 +32,19 @@ For further styling of images, see http://asciidoctor.org/docs/user-manual/#imag
 ##  Example 1 
 [source,subs=""]
 ----
-image::dandelion.jpg[]
+![]((dandelion.jpg))
 ----
 will produce:
 
-image::dandelion.jpg[]
+![]((dandelion.jpg))
 
 ##  Example 2 
 [source,subs=""]
 ----
-image::dandelion.jpg[Dandelion, 200, 300, float="right"]
+![]((dandelion.jpg))
 ----
 
-image::dandelion.jpg[Dandelion, 200, 300, float="right"]
+![]((dandelion.jpg))
 
 produces a reduced image floating at the right.
 
@@ -53,11 +53,11 @@ produces a reduced image floating at the right.
 And, finally,
 [source]
 ----
-image::dandelion.jpg[Dandelion, 200, 300, link="https://flic.kr/p/GknoaW"]
+![]((dandelion.jpg))
 ----
 produces a clickable image that links back to the source of the image.
 
-image::dandelion.jpg[Dandelion, 200, 300, link="https://flic.kr/p/GknoaW"]
+![]((dandelion.jpg))
 
 Try it!
 

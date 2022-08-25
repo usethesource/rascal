@@ -15,7 +15,7 @@ Suppose we want to learn about `while` statement in Rascal and
 the type `help while` at the command line. This will show the following
 results (actual results may differ):
 
-image::search-results-while.png[width=1000,height=1000,align=center]
+![]((search-results-while.png))
 
 In the right pane you find the search results,
 most relevant first (this happpens to be the

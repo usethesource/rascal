@@ -12,7 +12,7 @@ Static type checking.
 .Details
 
 
-image::type-lattice.png[width=400,title="Type Lattice"]
+![Type Lattice]((type-lattice.png))
 
 .Description
 

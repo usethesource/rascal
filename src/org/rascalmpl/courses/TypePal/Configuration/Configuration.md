@@ -16,7 +16,7 @@ TypePal provides configuration options for
 
 Here is an overview:
 
-image::TypePalConfig.png[600,600,align="center"]
+![]((TypePalConfig.png))
 
 == Name Resolution & Overloading
 

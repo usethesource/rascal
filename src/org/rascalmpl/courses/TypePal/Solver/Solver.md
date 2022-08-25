@@ -9,7 +9,7 @@ The purpose of a Solver is to solve the constraints that have been gathered by t
 and to produce a TModel.
 The functions provided by a Solver are summarized below:
 
-image::Solver.png[800,650,align="center"]
+![]((Solver.png))
 
 Two dozen functions (some very similar to the ones provided for ((Collector))) are available 
 that fall into the following categories:

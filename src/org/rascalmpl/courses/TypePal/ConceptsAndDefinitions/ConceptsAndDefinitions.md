@@ -91,7 +91,7 @@ we follow semantic path to other trees (either in the current tree or in other t
 This is illustrated below, where a name occurrence _O_ 
 can be resolved to definitions _D1_ (syntactic resolution), _D2_ (semantic resolution) and/or _D3_ (semantic resolution).
 
-image::NameResolution.png[400,400,align="center"]
+![]((NameResolution.png))
 
 IMPORTANT: Name resolution need not have a unique solution. 
 Therefore the author of a TypePal-based type checker can provide functions to 

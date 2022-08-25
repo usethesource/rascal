@@ -46,7 +46,7 @@ see [functions on sets]((Libraries:Libraries-Set))).
 ## Relations in Daily Life
 
 *  The _parent-of_ or _friend-of_ relation between people.
-   image::char-relation.jpg[width="350px" ,alt="char-relation"]
+   ![]((char-relation.jpg))
    http://www.translatedmemories.com/bookpgs/Pg10-11CharRelation.jpg[credit]
 *  A character relation map, describing the relations between the characters in a play or soap series.
 *  A listing of the top 2000 songs of all times including the position, artist name, song title, the year the song was published.

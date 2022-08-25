@@ -17,7 +17,7 @@ Type checking using TypePal proceeds in the following stages:
 This approach is very flexible, since each of the stages can be called separately, enabeling a pipeline with 
 user-defined model transformations inbetween.
 
-image::Architecture.png[900,900,align="center"]
+![]((Architecture.png))
 
 This whole process starts with a syntax for the language we want to analyze (let's call that language _L_ for now). 
 The _L_ syntax is used to parse the _L_ program we want to type check. The result is a parse tree.

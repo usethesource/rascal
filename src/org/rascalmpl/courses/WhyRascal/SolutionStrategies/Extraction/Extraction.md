@@ -13,7 +13,7 @@ Strategies to extract facts from software systems.
 
 
 [[Extraction-Workflow]]
-image::define-extraction.png[width=400,align=left,title="Extraction Workflow"]
+![Extraction Workflow]((define-extraction.png))
 
 .Description
  
