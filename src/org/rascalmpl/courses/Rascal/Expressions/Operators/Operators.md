@@ -42,14 +42,14 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 
 | `_Exp_ is _Name_`
-| ((ParseTree)),
+| ((Library:ParseTree)),
   <<Concrete Syntax>>,
   <<Algebraic Data Type>>
 | Returns true if and only if the constructor name of the value produced by _Exp_ is equal to _Name_
 
 
 | `_Exp_ has _Name_` 
-| ((ParseTree)),
+| ((Library:ParseTree)),
   <<Concrete Syntax>>,
   <<Algebraic Data Type>>
 | Returns true if and only if the constructor (node or parse tree) of the value produced by _Exp_ has any field labeled _Name_
