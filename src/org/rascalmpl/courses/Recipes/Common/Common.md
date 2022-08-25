@@ -14,7 +14,7 @@ Solutions for some common tasks.
 .Description
 We discuss the following tasks:
 
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

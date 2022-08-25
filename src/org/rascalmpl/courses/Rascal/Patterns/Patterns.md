@@ -41,7 +41,7 @@ Patterns are used to *dispatch* functions and conditional control flow, to *extr
 from values and to conditionally *filter* values. The pattern following pattern kinds can be arbitrarily nested, following
 the above syntax:
 
-loctoc::[1]
+(((TOC)))
 
 All these patterns may be used in:
 

@@ -34,7 +34,7 @@ Values of type `node` represent untyped trees and are constructed as follows:
 * optionally, unordered named fields can be added as well.
 
 The following are provided for nodes:
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

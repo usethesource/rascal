@@ -44,7 +44,7 @@ Since list relations are a form of list all operations (see ((Values-List))) and
 (see ((Prelude-List))) are also applicable to relations.
 
 The following additional operators are provided for list relations:
-loctoc::[1]
+(((TOC)))
 
 There are also [library functions]((Libraries:Prelude-ListRelation)) available for ListRelation.
 

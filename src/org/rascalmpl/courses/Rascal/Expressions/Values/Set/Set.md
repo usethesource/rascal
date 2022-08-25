@@ -41,7 +41,7 @@ To achieve splicing of these elements, i.e., the insertion of the elements of th
 it has to be prefixed by the splice operator `*`.
 
 The following operators are provided on sets:
-loctoc::[1]
+(((TOC)))
 
 There are also [library functions]((Libraries:Prelude-Set)) available for Sets.
 .Examples

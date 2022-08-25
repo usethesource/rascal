@@ -13,4 +13,4 @@ They cannot be caught by the Rascal program. Although some of these errors are r
 Rascal programs in the interpreter, they are all intended to be raised by a static checker. This static
 checker is currently under development.
  
-loctoc::[1]
+(((TOC)))

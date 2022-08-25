@@ -14,7 +14,7 @@ Module Import Program StaticTyping AlgebraicDataType Variable Function SyntaxDef
 
 .Description
 The following concepts are relevant for declarations:
-loctoc::[1]
+(((TOC)))
 
 
 .Examples

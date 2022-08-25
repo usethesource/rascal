@@ -72,7 +72,7 @@ In the interpolation variant of these statements the block or blocks that are pa
 _Auto-indent_: Expressions that get interpolated in a string will be auto-indented. This means that each line that results from the evaluation of the expression is prefixed with the indentation level of the position of the expression in the current string.
 
 The following operators are defined for Strings:
-loctoc::[1]
+(((TOC)))
 
 There are also [library functions]((Libraries:Prelude-String)) available for Strings.
 

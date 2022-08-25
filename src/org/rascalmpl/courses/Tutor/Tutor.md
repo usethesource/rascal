@@ -45,7 +45,7 @@ in most cases we directly refer to
 * http://asciidoctor.org/docs/user-manual/
 
 The folling topics will be described here:
-loctoc::[3]
+(((TOC)))
 
 .Examples
 

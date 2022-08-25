@@ -17,7 +17,7 @@ How to maintain a course.
 
 The following topics are discussed:
 
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

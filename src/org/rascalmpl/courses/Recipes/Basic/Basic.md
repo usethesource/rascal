@@ -14,7 +14,7 @@ Hello Factorial Squares
 
 .Description
 We discuss the following examples:
-loctoc::[1]
+(((TOC)))
 
 
 .Examples

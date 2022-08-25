@@ -14,7 +14,7 @@ Definitions of several languages and their tools.
 .Description
 
 Examples of several languages and the implementation of tools like interpreters and compilers:
-loctoc::[1]
+(((TOC)))
 
 Other languages that we are considering (but are not yet described):
 

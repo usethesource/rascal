@@ -17,7 +17,7 @@ Value stands for all possible Rascal values and is represented by the type `valu
 This type is a container for all other types and does not have any values itself.
 
 The following operators are provided for values:
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

@@ -6,4 +6,4 @@ The different types of values.
 
 .Description
 
-loctoc::[1]
+(((TOC)))

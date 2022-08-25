@@ -74,7 +74,7 @@ The `isDate`, `isTime`, and `isDateTime` fields can be checked in advance to det
 kind of value is stored in a variable of type `datetime`.
 
 The following operators are defined for DateTime:
-loctoc::[1]
+(((TOC)))
 
 The following functions are defined for DateTime:
 loctoc::[Rascal/Libraries/Prelude/DateTime,1]

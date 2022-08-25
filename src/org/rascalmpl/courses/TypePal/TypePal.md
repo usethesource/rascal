@@ -26,7 +26,7 @@ questions:
 TypePal is a Rascal framework that addresses the above questions and we describe here all its concepts, architecture and features
 and also show some examples:
  
-loctoc::[1]
+(((TOC)))
 
 .Examples
 

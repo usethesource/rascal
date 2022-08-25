@@ -42,7 +42,7 @@ Since relations are a form of set all operations (see ((Values-Set))) and functi
 (see ((Prelude-Set))) are also applicable to relations.
 
 The following additional operators are provided for relations:
-loctoc::[1]
+(((TOC)))
 
 There are also [library functions]((Libraries:Prelude-Relation)) available for Relations.
 
