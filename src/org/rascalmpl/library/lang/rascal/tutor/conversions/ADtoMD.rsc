@@ -48,6 +48,9 @@ str convertLine(/^<prefix:.*>\<\<<concept:[A-Za-z\-0-9\ ]+>\>\><postfix:.*$>/)
 str convertLine(/^<prefix:.*>loctoc::\[[0-9]+\]<postfix:.*$>/)
   = convertLine("<prefix>(((TOC)))<postfix>");
 
+str convertLine(/^\ \ \ \ \*\*<postfix:.*$>/)
+  = convertLine("    *<postfix>");
+
 default str convertLine(str line) = line;
 
 str extractTitle(/title=\"<t:[^\"]+>\"/) = t;
