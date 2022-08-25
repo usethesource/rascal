@@ -78,7 +78,7 @@ render(b);
 which says:_ I am a red box and I want to occupy 50% of the available space in the horizontal direction and 100% of the available space in the vertical direction._ The result is:
 
 
-![]((Screenshot3.png))
+![]((MyFirstBox-Screenshot3.png))
 
 
 Relative sizes can also be used when figures are nested.

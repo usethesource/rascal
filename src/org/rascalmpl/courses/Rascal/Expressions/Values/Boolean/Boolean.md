@@ -60,7 +60,7 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 
 *  Tests and ((Enumerator))s in comprehensions.
 
-*  Pattern matches in cases of a ((Visit)).
+*  Pattern matches in cases of a ((Expressions-Visit)).
 
 *  Pattern matches in cases of a ((Switch)).
 
