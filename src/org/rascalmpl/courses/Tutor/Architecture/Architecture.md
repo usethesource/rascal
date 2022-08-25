@@ -9,11 +9,11 @@ At the highest level, a course consists of concept files, which are translated t
 http://asciidoctor.org[AsciiDoc] files,
 which in their turn, can be translated to html, pdf, epub and other output formats:
 
-image::Global.png[Global Translation]
+![]((Global.png))
 
 The compilation and runtime use of a single course are organized as follows:
 
-image::CompileUse.png[Compilation of a course]
+![]((CompileUse.png))
 
 A course is a directory with concept files. Each concept file yields:
 

@@ -28,7 +28,7 @@ to access and change its internal state. The global services provided by a `Coll
 
 The functions provided by a `Collector` are summarized below:
 
-image::Collector.png[800,600,align="center"]
+![]((Collector.png))
 
 Three dozen functions are available that fall into the following categories:
 

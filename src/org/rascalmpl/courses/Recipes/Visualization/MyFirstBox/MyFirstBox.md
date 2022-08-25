@@ -43,7 +43,7 @@ render(b);
 ----
 and it will look like this:
 
-image::b2.png[alt="Box 2"]
+![]((b2.png))
 
 
 On screen however, it still fills the whole window as shown above.
@@ -63,7 +63,7 @@ render(b);
 which says: _I am a red box and I want to occupy 50% of the available space._ The result is:
 
 
-image::Screenshot2.png[alt="Screen shot 2"]
+![]((Screenshot2.png))
 
 
 Shrinking can also be limited to one dimension using [hshrink]((Libraries:Properties-hshrink)) 
@@ -78,7 +78,7 @@ render(b);
 which says:_ I am a red box and I want to occupy 50% of the available space in the horizontal direction and 100% of the available space in the vertical direction._ The result is:
 
 
-image::Screenshot3.png[alt="Screen shot 3"]
+![]((Screenshot3.png))
 
 
 Relative sizes can also be used when figures are nested.
@@ -92,7 +92,7 @@ b2 = box(b1, fillColor("yellow"), size(200,100));
 render(b2);
 ----
 
-image::b5.png[alt="Box 5"]     
+![]((b5.png))     
 
 
 .Benefits

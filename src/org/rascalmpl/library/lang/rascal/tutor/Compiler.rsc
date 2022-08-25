@@ -178,7 +178,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t]+>\)\)<pos
         }
       case { }: 
         return [
-                  err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))
+                  err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown([":::caution\nBroken link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind)
               ]; 
       case {_, _, *_}:

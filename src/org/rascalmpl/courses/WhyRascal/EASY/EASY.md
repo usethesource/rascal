@@ -3,7 +3,7 @@
 .Synopsis
 Rascal excels in supporting the Extract-Analyze-SYnthesize (EASY) paradigm.
 
-image::easy-workflow.png[width=300,height=300,align=right]
+![]((easy-workflow.png))
 
 // explicitly separate image from Description 
 

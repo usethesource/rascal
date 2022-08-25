@@ -13,7 +13,7 @@ Strategies to analyze software systems.
 
 
 [[Analysis-Workflow]]
-image::define-analysis.png[width=400, align=left,title="Analysis Workflow"]
+![Analysis Workflow]((define-analysis.png))
 
 .Description
 The analysis workflow is shown in the figure ((Analysis-Workflow)) below and consists of two steps:

@@ -29,7 +29,7 @@ The following types of questions are supported:
 
 ((Type)) and ((Value)) questions are based on a template that consists of an optional _listing_ and an _equality_:
 
-image::Question.png[Question]
+![]((Question.png))
 
 
 There should be exactly one _hole_ (indicated by `<?>`) in this template that is to be filled in by the student; it may occur in the listing

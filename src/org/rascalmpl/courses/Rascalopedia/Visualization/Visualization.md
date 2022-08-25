@@ -36,7 +36,7 @@ Robert vam Liere and Wim de Leeuw have visualized liquid flows.
 There is also an http://homepages.cwi.nl/~robertl/movies/flow1.mpg[animated] version.
 
 
-image::flow.jpg[width=400,alt="flow"]
+![]((flow.jpg))
 
 
 
@@ -47,7 +47,7 @@ Facebook's http://apps.facebook.com/friendwheel/[Friend Wheel] shows the connect
 
 
 
-image::friends.jpg[width="400px" ,alt="friends"]
+![]((friends.jpg))
 
 
 ## Software Visualization
@@ -56,14 +56,14 @@ Stephen Eick http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.67.962[visu
 in all source files of a software system.
 
 
-image::freq.png[width="400px" ,alt="frequency"]
+![]((freq.png))
 
 
 
 Daniel Bierwirth http://www.danielbierwirth.de/index.php/reseachprojects/8-myresearch/mastercurriculumresearchcat/73-bundle-view-software-visualization[shows] the connections (colored lines) between system components (at outer circle).
 
 
-image::bundle.jpg[width="400px" ,alt="bundle"]
+![]((bundle.jpg))
 
 
 .Benefits

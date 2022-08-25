@@ -18,7 +18,7 @@ A frequently occurring problem is that we know the call relation of a system but
 Consider the following figure:
 
 
-image::parts.png[width="500px" ,alt="Module Parts"]
+![]((parts.png))
 
 
 (a) Shows the calls between procedures;

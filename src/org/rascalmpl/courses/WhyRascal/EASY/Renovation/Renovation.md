@@ -3,7 +3,7 @@
 .Synopsis
 System renovation.
 
-image::extract-analyze-view-paradigm.png[width=300,align=right,alt="Extract-Analyze-View Paradigm"]
+![]((extract-analyze-view-paradigm.png))
 
 // explicitly separate image from Description 
 

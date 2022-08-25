@@ -13,7 +13,7 @@ Strategies to synthesise results.
 
 
 [[Synthesis-Workflow]]
-image::define-synthesis.png[width=400,align=left,title="Synthesis Workflow"]
+![Synthesis Workflow]((define-synthesis.png))
 
 .Description
 Results are synthesized as shown in the Figure ((Synthesis-Workflow)) above. This consists of the following steps:
