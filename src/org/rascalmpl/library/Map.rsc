@@ -15,10 +15,10 @@ Library functions for maps.
 
 .Description
 
-For operators on maps see link:/Rascal#Values-Map[Map] in the Rascal Language Reference.
+For operators on maps see [Map]((Rascal:Values-Map)) in the Rascal Language Reference.
 
 The following functions are defined for maps:
-loctoc::[1]
+(((TOC)))
 }
 module Map
 
@@ -116,7 +116,7 @@ Invert the (key,value) pairs in a map.
 
 .Description
 Returns inverted map in which each value in the old map `M` is associated with a set of key values from the old map.
-Also see <<invertUnique>>.
+Also see ((invertUnique)).
 
 .Examples
 [source,rascal-shell]
@@ -139,7 +139,7 @@ the `MultipleKey` exception is raised since
 an attempt is made to create a map where more than one 
 value would be associated with the same key.
 
-Also see <<Map-invert>> and <<Prelude-Exception>>.
+Also see ((Map-invert)) and ((Prelude-Exception)).
 
 .Examples
 [source,rascal-shell,error]

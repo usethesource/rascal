@@ -12,7 +12,7 @@ Statistical inference methods.
 .Description
 
 The following functions are provided:
-loctoc::[1]
+(((TOC)))
 }
 module analysis::statistics::Inference
 
@@ -159,7 +159,7 @@ Perform http://en.wikipedia.org/wiki/Analysis_of_variance[Analysis of Variance t
 also described http://www.statsoft.com/textbook/anova-manova/[here].
 
 Computes the exact p-value using the formula `p = 1 - cumulativeProbability(F)`
-where `F` is the <<anovaFValue>>.
+where `F` is the ((anovaFValue)).
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num anovaPValue(list[list[num]] categoryData);
@@ -176,7 +176,7 @@ also described http://www.statsoft.com/textbook/anova-manova/[here].
 Returns true iff the estimated p-value is less than `alpha` (0 < `alpha` <= 0.5).
 
 The exact p-value is computed using the formula `p = 1 - cumulativeProbability(F)`
-where `F` is the <<anovaFValue>>.
+where `F` is the ((anovaFValue)).
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java bool anovaTest(list[list[num]] categoryData, num alpha);

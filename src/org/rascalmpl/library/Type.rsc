@@ -16,7 +16,7 @@ Rascal's type system, implemented in Rascal itself.
 The goal of this module is to provide:
 
 *  reflection capabilities that are useful for deserialization and validation of data, and 
-*  to provide the basic building blocks for syntax trees (see <<Prelude-ParseTree>>)
+*  to provide the basic building blocks for syntax trees (see ((Prelude-ParseTree)))
 
 The following definition is built into Rascal:
 [source,rascal]
@@ -59,7 +59,7 @@ We define here:
 <3>  Composite types.
 <4>  Parameters that represent a type variable.
 
-In <<Prelude-ParseTree>>, see <<ParseTree-Symbol>>, 
+In ((Prelude-ParseTree)), see ((ParseTree-Symbol)), 
 Symbols will be further extended with the symbols that may occur in a ParseTree.
 }  
 data Symbol    // <1>
@@ -113,7 +113,7 @@ Productions represent abstract (recursive) definitions of abstract data type con
 * `choice`: the choice between various alternatives.
 * `composition`: composition of two productions.
 
-In ParseTree, see <<ParseTree-Production>>, 
+In ParseTree, see ((ParseTree-Production)), 
 Productions will be further extended and will be used to represent productions in syntax rules.
 }  
 data Production
@@ -562,7 +562,7 @@ typeOf(x)
 .Pitfalls
 
 *  Note that the `typeOf` function does not produce definitions, like the 
-   link:/Rascal#Values-ReifiedTypes[reify] operator `#` does, 
+   [reify]((Rascal:Values-ReifiedTypes)) operator `#` does, 
    since values may escape the scope in which they've been constructed leaving their contents possibly undefined.
 }
 @javaClass{org.rascalmpl.library.Type}

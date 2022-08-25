@@ -13,10 +13,10 @@ Library functions for source locations.
 
 .Description
 
-For a description of source locations see link:/Rascal#Values-Location[Location] in the Rascal Language Reference.
+For a description of source locations see [Location]((Rascal:Values-Location)) in the Rascal Language Reference.
 
 The following functions are defined for source locations:
-loctoc::[1]
+(((TOC)))
 
 A source location `l` refers to a text fragment in another file or resource. To ease the description we will
 talk about _`l` 's text_ instead of _the text `l` refers to_.

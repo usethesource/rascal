@@ -17,7 +17,7 @@ Functions for time measurement and benchmarking.
 .Description
 
 The `Benchmark` library provides the following functions:
-loctoc::[1]
+(((TOC)))
 }
 module util::Benchmark
 
@@ -78,7 +78,7 @@ CPU time in nanoseconds (10^-9^ sec).
 
 .Examples
 
-We use the `fac` function described in link:/Recipes#Basic-Factorial[Factorial] as example:
+We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
 [source,rascal-shell]
 ----
 import util::Benchmark;
@@ -124,7 +124,7 @@ System time in nanoseconds (10^-9^ sec).
 *  System time in nanoseconds needed to execute the code `block`.
 
 .Examples
-We use the `fac` function described in link:/Recipes#Basic-Factorial[Factorial] as example:
+We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
 [source,rascal-shell]
 ----
 import util::Benchmark;
@@ -167,7 +167,7 @@ User time in nanoseconds (10^-9^ sec).
 
 .Examples
 
-We use the `fac` function described in link:/Recipes#Basic-Factorial[Factorial] as example:
+We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
 [source,rascal-shell]
 ----
 import util::Benchmark;
@@ -210,8 +210,8 @@ Current time in milliseconds (10^-3^ sec).
 *  Real time in milliseconds needed to execute the code `block`.
 
 .Pitfalls
-This function is a competitor for the <<DateTime-now>> function that provides a
-link:/Rascal#Values-Datetime[datetime] value for the current time.
+This function is a competitor for the ((DateTime-now)) function that provides a
+[datetime]((Rascal:Values-Datetime)) value for the current time.
 }
 
 @javaImport{import java.lang.System;}
@@ -234,22 +234,22 @@ Measure and report the execution time of name:void-closure pairs
 .Description
 
 Given is a map that maps strings (used as label to identify each case) to void-closures that execute the code to be benchmarked.
-An optional `duration` argument can be used to specify the function to perform the actual measurement. By default the function <<realTime>> is used. A map of labels and durations is returned.
+An optional `duration` argument can be used to specify the function to perform the actual measurement. By default the function ((realTime)) is used. A map of labels and durations is returned.
 
 .Examples
-We use the `fac` function described in link:/Recipes#Basic-Factorial[Factorial] as example:
+We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
 [source,rascal-shell]
 ----
 import util::Benchmark;
 import demo::basic::Factorial;
 ----
 We measure two calls to the factorial function with arguments `100`, respectively, `200` 
-(using by default <<realTime>> that returns milliseconds):
+(using by default ((realTime)) that returns milliseconds):
 [source,rascal-shell,continue]
 ----
 benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}) );
 ----
-We can do the same using <<userTime>> that returns nanoseconds:
+We can do the same using ((userTime)) that returns nanoseconds:
 [source,rascal-shell,continue]
 ----
 benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}), userTime );
@@ -283,7 +283,7 @@ public java int getNanoTime();
 Current time in milliseconds (10^-3^ sec) since January 1, 1970 GMT.
 
 .Description
-This function is a synonym for <<realTime>> and gives the wall clock time in milliseconds.
+This function is a synonym for ((realTime)) and gives the wall clock time in milliseconds.
 }
 @javaClass{org.rascalmpl.library.util.Benchmark}
 public java int getMilliTime();

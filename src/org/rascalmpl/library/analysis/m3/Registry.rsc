@@ -20,7 +20,7 @@ register an M3 model for a certain project name.
 The effect of registering a project is that the m3 URI resolver knows how to find the physical source location
 for qualified names.
 
-Note that <<registerProject>> will be called usually as a side-effect of a function that extracts a model for
+Note that ((registerProject)) will be called usually as a side-effect of a function that extracts a model for
 a specific language.  
 
 .Benefits
@@ -30,7 +30,7 @@ a specific language.
 .Pitfalls
 
 *  the registry is a global store that will retain links to M3 models even when they are not in use anymore. The 
-programmer should take care to call <<unregisterProject>> to prevent memory leakage.
+programmer should take care to call ((unregisterProject)) to prevent memory leakage.
 }
 void registerProject(loc project, M3 model) {
     rel[str scheme, loc name, loc src] perScheme 

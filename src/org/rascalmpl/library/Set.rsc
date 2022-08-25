@@ -16,10 +16,10 @@ Library functions for sets.
 
 .Description
 
-For operators on sets see link:/Rascal#Values-Set[Set] in the Rascal Language Reference.
+For operators on sets see [Set]((Rascal:Values-Set)) in the Rascal Language Reference.
 
 The following functions are defined for sets:
-loctoc::[1]
+(((TOC)))
 }
 module Set
 
@@ -267,7 +267,7 @@ reducer({10, 20, 30, 40}, add, 0);
 ----
 
 .Pitfalls
-WARNING: This function is *deprecated*, use a link:/Rascal#Expressions-Reducer[reducer] instead.
+WARNING: This function is *deprecated*, use a [reducer]((Rascal:Expressions-Reducer)) instead.
 }
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
 	(unit | fn(it,elm) | elm <- st);
@@ -352,7 +352,7 @@ Remove an arbitrary element from a set, returns the element and a set without th
 
 .Description
 Remove an arbitrary element from set `s` and return a tuple consisting of the element and a set without that element.
- Also see <<Set-getOneFrom>>.
+ Also see ((Set-getOneFrom)).
 
 .Examples
 [source,rascal-shell]

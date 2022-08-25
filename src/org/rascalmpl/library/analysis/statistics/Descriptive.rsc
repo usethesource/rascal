@@ -12,7 +12,7 @@ Descriptive Statistics.
 .Description
 Provides the following univariate (single variable) statistics functions:
 
-loctoc::[1]
+(((TOC)))
 
 .Examples
 
@@ -116,7 +116,7 @@ Median of data values.
 .Description
 
 Returns the http://en.wikipedia.org/wiki/Median[median] of the available values.
-This is the same as the 50th <<percentile>>.
+This is the same as the 50th ((percentile)).
 
 .Examples
 [source,rascal-shell]

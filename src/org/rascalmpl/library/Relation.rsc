@@ -13,10 +13,10 @@ Library functions for relations.
 
 .Description
 
-For operators on relations see link:/Rascal#Values-Relation[Relation] in the Rascal Language Reference.
+For operators on relations see [Relation]((Rascal:Values-Relation)) in the Rascal Language Reference.
 
 The following functions are defined for relations:
-loctoc::[1]
+(((TOC)))
 }
 module Relation
 

@@ -161,6 +161,6 @@ public java void writeTo(PID processId, str msg);
 Process Identifiers (PID).
 
 .Description
-A PID is returned by <<createProcess>> and is required for any further interaction with the created process.
+A PID is returned by ((createProcess)) and is required for any further interaction with the created process.
 }
 public alias PID = int;

@@ -12,7 +12,7 @@ Statistical methods for simple regression.
 .Description
 
 The following functions are provided:
-loctoc::[1]
+(((TOC)))
 }
 module analysis::statistics::SimpleRegression
 
@@ -56,7 +56,7 @@ Pearson's product-moment correlation coefficient.
 
 .Description
 Computes Pearson's product-moment correlation coefficient.
-More functions related to this coefficient can be found in <<Correlation>>.
+More functions related to this coefficient can be found in ((Correlation)).
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num R(lrel[num,num] values) throws IllegalArgument;

@@ -9,15 +9,15 @@ a small sub-set of the Java language. It allows one to build objects
 using fully qualified class names (which should be on the run-time
 classpath somehow). 
 
-A call to the <<interpret>> function will load an OIL expression and 
+A call to the ((interpret)) function will load an OIL expression and 
 generate the object in memory and then call the toString() method
 on it, returning the resulting string.
 
 OIL works best in combination with writing one or two `java` functions
 for example to be able to influence the classpath and or to further process
 the constructed object (if necessary). In this case we call the interpret
-function directly from Java. The <<interpret>> function is used to debug
-an OIL expression and eventually we use the <<interpret>> method directly
+function directly from Java. The ((interpret)) function is used to debug
+an OIL expression and eventually we use the ((interpret)) method directly
 from Java.
 
 .Benefits
