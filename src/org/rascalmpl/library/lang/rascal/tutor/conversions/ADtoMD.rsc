@@ -33,7 +33,8 @@ str convertLine(/<prefix:.*>\<\<<concept:[A-Za-z0-9\-]+>\>\><postfix:.*$>/)
 
 // [[Extraction-Workflow]]
 // image::define-extraction.png[width=400,align=left,title="Extraction Workflow"]
-str convertLine(/^<prefix:.*>image::<filename:[A-Za-z\-0-9]+>\.<ext:png|jpeg|jpg|svg>\[<properties:[^\]]*>\]<postfix:.*$>/)
+// statement-parts.png[width="500px" style="float: right;" ,alt="Statement Types"]
+str convertLine(/^<prefix:.*>image:[:]*<filename:[A-Za-z\-0-9]+>\.<ext:png|jpeg|jpg|svg>\[<properties:[^\]]*>\]<postfix:.*$>/)
   = convertLine("<prefix>![<extractTitle(properties)>]((<filename>.<ext>))<postfix>");
 
 default str convertLine(str line) = line;
