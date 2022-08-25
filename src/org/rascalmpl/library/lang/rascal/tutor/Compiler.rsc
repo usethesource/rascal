@@ -148,59 +148,66 @@ list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index i
     return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec, ind);
 }
 
-
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, []);
 
-// [source,rascal-shell] --- block --- legacy syntax still supported for backward compatibility
-list[Output] compileMarkdown([str first:/^\s*\[source,rascal-shell<rest1:.*>$/, /---/, *block, /---/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] details)
+@synopsis{[source,rascal-shell] --- block --- legacy syntax still supported for backward compatibility}
+list[Output] compileMarkdown([str first:/^\s*\[source,rascal-shell<rest1:.*>$/, /---/, *block, /---/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [
       out("```rascal-shell"),
       *compileRascalShell(block, /,error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, details)
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, dtls)
     ];
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
-list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] details)
+list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [ out("# <title> {<fragment(pcfg.currentRoot, pcfg.currentFile)>}"),
-      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, details)
+      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, dtls)
     ];
 
-list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] details)
+@synopsis{execute _rascal-shell_ blocks on the REPL}
+list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [
       out("```rascal-shell"),
       *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, details)
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, dtls)
     ];
 
-list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] details)
+@synopsis{inline an itemized list of details (collected from the .Details section)}
+list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [
-     *[*compileMarkdown(["* ((<d>))"], line, offset, pcfg, exec, ind, []) | d <- details],
+     *[*compileMarkdown(["* ((<d>))"], line, offset, pcfg, exec, ind, []) | d <- dtls],
      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+    ]
+    +
+    [
+      err(warning("TOC is empty. .Details section is missing?", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>)))
+      | dtls == [] 
     ];
 
-list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] details) {
+@synopsis{resolve ((links)) and [labeled]((links))}
+list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   resolution = ind[removeSpaces(link)];
 
   switch (resolution) {
       case {u}: 
         if (/\[<title:[A-Za-z-0-9\ ]*>\]$/ := prefix) {
-          return compileMarkdown(["<prefix[..-(size(title)+2)]>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, details);
+          return compileMarkdown(["<prefix[..-(size(title)+2)]>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         else {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, details);
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
       case { }: 
         return [
                   err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-                  *compileMarkdown([":::caution\nBroken link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind, details)
+                  *compileMarkdown([":::caution\nBroken link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ]; 
       case {_, _, *_}:
         return [
                   err(error("Ambiguous concept link: <link> resolves to all of <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-                  *compileMarkdown([":::caution\nAmbiguous link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind, details)
+                  *compileMarkdown([":::caution\nAmbiguous link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
   }
 
@@ -211,21 +218,37 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.]+>\)\)<p
    
 // }
 
-// this supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus
-list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) 
-  = title != ".Details" ? [
+@synopsis{this supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus}
+list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+  if (title == ".Details" || /^##\s*Details/ := title) {
+    // details need to be collected and then skipped in the output
+    if ([*str lines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3] := rest2) {
+       return [
+        *[details(split(" ", trim(l))) | l <- lines],
+        *compileMarkdown([nextHeader, *rest3], line + 1 + size(lines), offset + size(first) + (0 | 1 + it | _ <- lines), pcfg, exec, ind, dtls)
+       ];
+    }
+    else {
+      return [err(error("Parsing input around .Details section failed somehow.", pcfg.currentFile(offset, 0, <line, 0>, <line, 1>)))];
+    }
+  }
+  else {
+    // just a normal section header 
+    return [
       *[out("## <title> <rest>") | skipEmpty(rest2) != [] && [/^\s*\.[A-Z][a-z]*.*/, *_] !:= skipEmpty(rest2)],
-      *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec, ind)
-    ] : []
-    +
-    [details(split(" ", trim(l))) | title == ".Details", [*str lines, /^\s*\.[A-Z][a-z]*/, *_] := rest2, l <- lines];
+      *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec, ind, dtls)
+    ];
+  }
+}
 
-list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _, Index _) = [];
+@synopsis{this is when we have processed all the input lines}
+list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _, Index _, list[str] _) = [];
 
-default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind) 
+@synopsis{all other lines are simply copied to the output stream}
+default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
   = [
       out(head),
-      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec, ind)
+      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec, ind, dtls)
     ];
 
 list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {

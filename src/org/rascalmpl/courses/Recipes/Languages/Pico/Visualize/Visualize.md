@@ -29,9 +29,9 @@ include::{LibDir}demo/lang/Pico/Visualize.rsc[tags=module]
 <3> `visNode` implements the visualization per CFG node.
 <4> Since Figure nodes in a visual graph need an `id` property, we define here a scheme to associate unique identifiers to each Figure node.
 <5> The complete visualization of a CFG is implemented by `visCFG`: it gets the CFG graph as arguments and then
-    **  creates all Figure edges,
-    **  creates all Figure nodes,
-    **  returns a Figure graph.
+    *  creates all Figure edges,
+    *  creates all Figure nodes,
+    *  returns a Figure graph.
 
 
 Let's now apply this:

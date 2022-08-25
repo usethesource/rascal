@@ -50,9 +50,9 @@ Some points to note:
     to resolve calls.
 <5> The if expression is defined: the then-branch is taken when the test evaluates to a non-zero integer.
 <6> The call expression is interpreted. It contains the following steps:
-    **  The actual parameters are evaluated.
-    **  A substitution is made in the body of the called function, replacing formal parameters by actual values.
-    **  The result of this substitution is evaluated.
+    *  The actual parameters are evaluated.
+    *  A substitution is made in the body of the called function, replacing formal parameters by actual values.
+    *  The result of this substitution is evaluated.
 
 
 Let's try this on example `F0`:

@@ -224,10 +224,10 @@ where
 * `current` is the parse tree for which we are computing a type.
 * _list of dependencies_ is a list of other parse trees whose type is needed in the computation of the type of `current`.
 * `AType(Solver s) { ... }` performs the type computation:
-    ** it is only called when the types of all dependencies are known.
-    ** it has a `Solver` as argument: a `Solver` manages the constraint solving process and is aware of all facts and solved constraints so far and
+    * it is only called when the types of all dependencies are known.
+    * it has a `Solver` as argument: a `Solver` manages the constraint solving process and is aware of all facts and solved constraints so far and
        knows, for instance, about the existence of type information for some parse tree.
-    ** it either returns an `AType` or reports an error.
+    * it either returns an `AType` or reports an error.
   
 The above code could be paraphrased as follows:
 _The type of `current` can only be computed when the types of `e1` and `e2` are known. When known,
