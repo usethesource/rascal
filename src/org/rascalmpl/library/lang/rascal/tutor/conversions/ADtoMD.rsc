@@ -37,6 +37,14 @@ str convertLine(/<prefix:.*>\<\<<concept:[A-Za-z0-9\-]+>\>\><postfix:.*$>/)
 str convertLine(/^<prefix:.*>image:[:]*<filename:[A-Za-z\-0-9]+>\.<ext:png|jpeg|jpg|svg>\[<properties:[^\]]*>\]<postfix:.*$>/)
   = convertLine("<prefix>![<extractTitle(properties)>]((<filename>.<ext>))<postfix>");
 
+// <<String-GreaterThan,String>>
+str convertLine(/^<prefix:.*>\<\<<concept:[A-Za-z\-0-9\ ]+>,<title:[A-Za-z\-0-9\ ]+>\>\><postfix:.*$>/)
+  = convertLine("<prefix>((<concept>))<postfix>");
+
+// <<Pattern Matching>>
+str convertLine(/^<prefix:.*>\<\<<concept:[A-Za-z\-0-9\ ]+>\>\><postfix:.*$>/)
+  = convertLine("<prefix>((<concept>))<postfix>");
+
 default str convertLine(str line) = line;
 
 str extractTitle(/title=\"<t:[^\"]+>\"/) = t;
