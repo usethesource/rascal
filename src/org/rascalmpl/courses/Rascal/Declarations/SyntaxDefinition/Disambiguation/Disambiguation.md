@@ -26,7 +26,7 @@ There are generally three ways of removing ambiguity from parse forests that are
        to implement keyword reservation
 *  The second way is to add ((Action))s that will be triggered just after parsing and allow you to trim a parse forest 
    using any information necessary.
-*  The third way is use the ((Visit)) statement on a parse tree and implement your own filter post-parsing time, 
+*  The third way is use the ((Statement-Visit)) statement on a parse tree and implement your own filter post-parsing time, 
    or any other kind of program that processes <<Parse Trees>>.
 
 .Examples
