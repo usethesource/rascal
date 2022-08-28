@@ -518,3 +518,10 @@ test bool assignVariableViaFunctionValue(){
     m.n(4);
     return x == {3, 4};
 }
+
+test bool namedParameterInClosure(){             
+    int collect(current: int n){
+        return  int () { return current; }();
+    }
+    return collect(5) == 5;
+}
