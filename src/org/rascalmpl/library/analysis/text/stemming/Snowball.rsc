@@ -9,11 +9,10 @@ See http://snowball.tartarus.org[the Snowball homepage] for more informations
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import analysis::stemming::Snowball
 stem("bikes")
-----
+```
 }
 module analysis::text::stemming::Snowball
 

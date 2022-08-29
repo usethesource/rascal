@@ -44,12 +44,11 @@ An optional `duration` argument may be present to limit the time
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import util::Eval;
 eval("2 * 3;");
 eval(["X = 2 * 3;", "X + 5;"]);
-----
+```
 
 }
 // --- eval with default duration (1000 ms)
@@ -87,12 +86,11 @@ An optional `duration` argument may be present to limit the time
 (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import util::Eval;
 evalType("2 * 3;");
 evalType("[1, 2, 3];");
-----
+```
 }
 // --- evalType with default duration (1000 ms)
 
