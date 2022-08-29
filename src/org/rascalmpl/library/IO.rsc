@@ -134,11 +134,10 @@ Print a value and return `true`. This is useful for debugging complex Boolean ex
 The only difference between this function and ((IO-println)) is that its return type is `bool` rather than `void`.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 bprintln("Hello World");
-----
+```
 }
 public bool bprintln(value arg) 
 {
@@ -155,15 +154,13 @@ Check whether a certain location exists, i.e., whether an actual file is associa
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
-----
+```
 Does the library file `IO.rsc` exist?
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 exists(|std:///IO.rsc|);
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool exists(loc file);
@@ -175,15 +172,13 @@ Find a named file in a list of locations.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
-----
+```
 Find the file `IO.rsc` in the standard library:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 find("IO.rsc", [|std:///|]);
-----
+```
 }
 public loc find(str name, list[loc] path) throws PathNotFound {
   if (dir <- path, f := dir + "/<name>", exists(f)) { 
@@ -213,11 +208,10 @@ and ((IO-iprintToFile)) for a version that prints to a file.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprint(value arg, int lineLimit = 1000); 
@@ -233,11 +227,10 @@ and ((IO-iprintln)) for a version that adds a newline.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprintToFile(loc file, value arg); 
@@ -254,11 +247,10 @@ See ((IO-iprintlnExp)) for a version that adds a newline.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 iprintExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
-----
+```
 }
 public &T iprintExp(&T v) {
 	iprint(v);
@@ -274,11 +266,10 @@ See ((IO-iprintExp)) for a version that does not add a newline.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 iprintlnExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
-----
+```
 }
 public &T iprintlnExp(&T v) {
 	iprintln(v);
@@ -299,12 +290,11 @@ use ((ValueIO-writeTextValueFile)) or change the limit with the lineLimit parame
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 iprintln(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 iprintln([ {"hi"} | i <- [0..1000]], lineLimit = 10);
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprintln(value arg, int lineLimit = 1000); 
@@ -328,15 +318,13 @@ Last modification date of a location.
 Returns last modification time of the file at location `file`.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
-----
+```
 Determine the last modification date of the Rascal standard library:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 lastModified(|std:///IO.rsc|);
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime lastModified(loc file);
@@ -349,15 +337,13 @@ Creation datetime of a location.
 Returns the creation time of the file at location `file`.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
-----
+```
 Determine the last modification date of the Rascal standard library:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 created(|std:///IO.rsc|);
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime created(loc file);
@@ -386,15 +372,13 @@ List the entries in directory `file`.
 
 .Examples
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import IO;
-----
+```
 List all entries in the standard library:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 listEntries(|std:///|);
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] listEntries(loc file);
@@ -424,11 +408,10 @@ and ((IO-printExp)) for a version that returns its argument as value.
 .Examples
 
 Note that the only difference with ((IO-println)) is that no newline is added after the value is printed
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 print("Hello World");
-----
+```
 
 NOTE: Since `print` does not add a newline, the prompt `ok` appears at a weird place, i.e., 
 glued to the output of `print`.
@@ -442,12 +425,11 @@ public java void print(value arg);
 Print a value and return it as result.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 printExp(3.14);
 printExp("The value of PI is approximately ", 3.14);
-----
+```
 }
 public &T printExp(&T v) {
 	print("<v>");
@@ -469,33 +451,28 @@ See ((IO-print)) for a version that does not add a newline
 and ((IO-printlnExp)) for a version that returns its argument as value.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 println("Hello World");
-----
+```
 Introduce variable S and print it:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 S = "Hello World";
 println(S);
-----
+```
 Introduce variable L and print it:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 L = ["a", "b", "c"];
 println(L);
-----
+```
 Use a string template to print several values:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 println("<S>: <L>");
-----
+```
 Just print a newline
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 println();
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void println(value arg);
@@ -508,12 +485,11 @@ public java void println();
 Print a value followed by a newline and return it as result.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 printlnExp(3.14);
 printlnExp("The value of PI is approximately ", 3.14);
-----
+```
 NOTE: Since `printExp` does no produce a newline after its output, the result prompt `real: 3.14` is glued to the
 output of `printExp`.
 }
