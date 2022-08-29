@@ -28,12 +28,11 @@ import util::Math;
 Compute a distribution: count how many times events are mapped to which bucket.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import analysis::statistics::Frequency;
 distribution({<"chicken","animal">,<"bear","animal">,<"oak","plant">,<"tulip","plant">});
 distribution({<"alice",2>,<"bob",3>,<"claire",5>},5);
-----
+```
 }
 public map[&T, int] distribution(rel[&U event, &T bucket] input) {
   map[&T,int] result = ();
@@ -80,14 +79,13 @@ Returns 0 if the value is not comparable to the values set.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import analysis::statistics::Frequency;
 D = [1, 2, 1, 1, 3, 5];
 cumFreq(D, 1);
 cumFreq(D, 2);
 cumFreq(D, 10);
-----
+```
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Frequencies}
 public java int cumFreq(list[value] values, num n);
@@ -102,14 +100,13 @@ Cumulative percentage of values less than or equal to a given value.
 .Description
 Returns the cumulative percentage of values less than or equal to v (as a proportion between 0 and 1).
 
-[source,rascal-shell]
-----
+```rascal-shell
 import analysis::statistics::Frequency;
 D = [1, 2, 1, 1, 3, 5];
 cumPct(D, 1);
 cumPct(D, 2);
 cumPct(D, 10);
-----
+```
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Frequencies}
 public java num cumPct(list[value] values, num n);
@@ -124,14 +121,13 @@ Percentage of values that are equal to a given value.
 .Description
 Returns the percentage of values that are equal to v (as a proportion between 0 and 1).
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import analysis::statistics::Frequency;
 D = [1, 2, 1, 1, 3, 5];
 pct(D, 1);
 pct(D, 2);
 pct(D, 10);
-----
+```
 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Frequencies}
