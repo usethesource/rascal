@@ -63,8 +63,7 @@ see [functions on sets]((Libraries:Libraries-Set))).
 ## Relations in Rascal
 
 *  A parent child relation:
-[source,rascal]
-----
+```rascal
 rel[str parent, str child] = {
 <"Paul", "Eva">,
 <"Paul", "Thomas">,
@@ -72,17 +71,16 @@ rel[str parent, str child] = {
 <"Jurgen", "David">,
 <"Tijs", "Mats">
 };
-----
+```
 *  A fragment of the top 2000 relation:
-[source,rascal]
-----
+```rascal
 rel[int position, str artist, str title, int year] Top2000 = {
 <1, "Eagles", "Hotel California",1977>,
 <2, "Queen", "Bohemian rhapsody", 1975>,
 <3, "Boudewijn de Groot", "Avond", 1997>,
 ...
 };
-----
+```
 
 .Benefits
 

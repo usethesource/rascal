@@ -28,11 +28,10 @@ Conditional expression for numeric values.
 If the value of _Exp_ is `true` then the value of _Exp_~1~ else the value of _Exp_~2~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 (3 > 2) ? 10 : 20
 (3 > 20) ? 10 : 20
-----
+```
 
 .Benefits
 

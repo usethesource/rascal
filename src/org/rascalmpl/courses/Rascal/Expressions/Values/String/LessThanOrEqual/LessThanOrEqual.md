@@ -27,13 +27,12 @@ Yields `true` if the string value of _Exp_~1~ is lexicographically less
 than the string value of _Exp_~2~ or if both string are equal, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 "abc" <= "abc";
 "abc" <= "abcdef";
 "abc" <= "defghi";
 "abc" <= "a";
-----
+```
 
 .Benefits
 

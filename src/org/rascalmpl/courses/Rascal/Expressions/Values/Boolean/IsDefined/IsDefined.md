@@ -30,15 +30,14 @@ the result is `true`. Otherwise, it is `false`.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 T = ("a" : 1, "b" : 2);
 T["b"]?
 T["c"]?
 L = [10, 20, 30];
 L[1]?
 L[5]?
-----
+```
 
 .Benefits
 

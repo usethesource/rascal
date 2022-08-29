@@ -21,14 +21,13 @@ First the value _Exp_ is determined and should be a data value of the form `_Nam
 Next the assignments `_Assignable_~i~ = _V_~i~` are performed for 1 \<= i \<= n.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 data FREQ = wf(str word, int freq);
 W = wf("rascal", 1000);
 wf(S, I) = W;
 S;
 I;
-----
+```
 
 .Benefits
 

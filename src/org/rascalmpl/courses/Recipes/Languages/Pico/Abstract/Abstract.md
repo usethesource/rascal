@@ -18,10 +18,9 @@ Abstract syntax for Pico.
 .Examples
 Here is the complete abstract syntax for Pico:
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/Abstract.rsc[tags=module]
-----
+```
 
                 
 Notes:

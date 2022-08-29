@@ -34,10 +34,9 @@ Recall the following properties of Pico that are relevant for type checking:
 
 The type checker is going to check these rules and will produce an error message when they are violated.
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/Typecheck.rsc[tags=module]
-----
+```
 
                 
 Notes:
@@ -77,11 +76,10 @@ Notes:
 
 
 Checking an erroneous program goes like this:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Pico::Typecheck;
 checkProgram("begin declare  x : natural; x := \"abc\" end");
-----
+```
 
 The error location will be use later to give specific messages in the IDE.
 

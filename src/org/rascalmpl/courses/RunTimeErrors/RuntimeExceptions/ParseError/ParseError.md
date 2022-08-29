@@ -26,36 +26,31 @@ Remedies:
 
 .Examples
 Define the non-terminal `As` that accepts one or more letters `a`:
-[source,rascal-shell]
-----
+```rascal-shell
 syntax As = "a"+;
-----
+```
 Then import `ParseTree` so that we can use the `parse` function:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import ParseTree;
-----
+```
 Now we can parse sentences consisting of letters `a`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 parse(#As, "aaaaaaaa");
-----
+```
 But we get an error when parsing syntactically incorrect input  (i.e., that does not
 consists of letters `a` only):
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 parse(#As, "aaaabaaa");
-----
+```
 We can also catch the ParseError but first import the Rascal modules `Exception` and `IO`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import Exception;
 import IO;
 try 
   parse(#As, "aaaabaaa"); 
 catch ParseError(e): 
   println("Your input cannot be parsed: <e>");
-----
+```
 
 
 .Benefits

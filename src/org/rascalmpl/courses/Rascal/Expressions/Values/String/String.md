@@ -77,44 +77,39 @@ The following operators are defined for Strings:
 There are also [library functions]((Libraries:Prelude-String)) available for Strings.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 N = 13;
 "The value of N is <N>";
 "The value of N*N is <N*N>";
 "The value is <(N < 10) ? 10 : N*N>";
-----
+```
 As you can see the string value of variables and expressions is interpolated in the result as expected. 
 <br>
 Some examples of more advances string interpolation 
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 "N is <if(N < 10){> small <} else {> large <}>";
 "N is <if(N < 10){> small <} else {> large (<N>)<}>";
 "before <for(x<-[1..5]){>a <x> b <}>after";
-----
+```
 multi-line string
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import IO;
 println("hello
 this
   is
     new")
-----
+```
 multi-line string with margin:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if (true)
   println("this is
           'what
           '  margins
           'are good for
           ");
-----
+```
 auto indent:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 str genMethod(str n) = "int <n>() {
                        '  return 0;
                        '}";
@@ -122,7 +117,7 @@ str genClass() = "class myClass {
                  '  <genMethod("myMethod")>
                  '}";
 println(genClass());
-----
+```
 
 
 .Benefits

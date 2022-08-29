@@ -30,22 +30,19 @@ Pretty printers also differ in flexibility. They differ in:
 
 .Examples
 The program fragment
-[source,rascal]
-----
+```rascal
 if(x > 10) { System.err.println("x > 10"); } else { System.err.println("x <= 10"); }
-----
+```
 can be pretty printed in many different ways. Here are two variants examples:
-[source,rascal]
-----
+```rascal
 if(x > 10) { 
    System.err.println("x > 10"); 
 } else { 
    System.err.println("x <= 10"); 
 }
-----
+```
 
-[source,rascal]
-----
+```rascal
 if( x > 10 )
 { 
   System.err.println("x > 10"); 
@@ -53,7 +50,7 @@ if( x > 10 )
 { 
    System.err.println("x <= 10"); 
 }
-----
+```
 .Benefits
 
 .Pitfalls

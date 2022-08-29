@@ -20,11 +20,10 @@ Assign to a variable.
 The expression _Exp_ is evaluated and its value is assigned to the variable _Var_.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 N = 3;
 N;
-----
+```
 
 .Benefits
 

@@ -26,18 +26,16 @@ Remainder of two integer values.
 Yields the remainder when dividing the of _Exp_~1~ by the value of _Exp_~2~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 12 % 5
 12 % 6
-----
+```
 
 .Benefits
 
 .Pitfalls
 Remainder is only defined on integers:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 13.5 % 6
-----
+```
 

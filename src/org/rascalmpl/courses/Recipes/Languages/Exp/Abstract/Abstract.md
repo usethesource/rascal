@@ -23,10 +23,9 @@ Abstract syntax has the following properties:
 
 .Examples
 The abstract syntax for Exp looks like this:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Abstract/Syntax.rsc[tags=module]
-----
+```
 
                 
 <1> Defines integer constants, e.g., `con(123)`.
@@ -36,10 +35,9 @@ include::{LibDir}demo/lang/Exp/Abstract/Syntax.rsc[tags=module]
 
 Given the abstract syntax for Exp, we can define an interpreter that evaluates
 expressions:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Abstract/Eval.rsc[tags=module]
-----
+```
 
            
 Here we see Rascal's _pattern-directed invocation_ in action (see [Function Declaration]((Rascal:Declarations-Function))).
@@ -65,13 +63,12 @@ In this example we use this mechanism to define separate functions for each case
     and return the addition of their values.
 
 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Exp::Abstract::Syntax;
 import demo::lang::Exp::Abstract::Eval;
 eval(mul(con(7), con(3)));
 eval(add(con(3), mul(con(4), con(5))));
-----
+```
 Entering expressions in abstract syntax form is no fun, and this is where concrete syntax comes to the rescue.
 
 

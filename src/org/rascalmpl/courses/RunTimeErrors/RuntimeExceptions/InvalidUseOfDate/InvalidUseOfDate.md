@@ -17,11 +17,10 @@ try to update unavailable information.
 .Examples
 
 Setting the `hour` field on a date value throws an exception:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 NOW = $2016-09-18$;
 NOW.hour = 14;
-----
+```
 
 NOTE: Exception is not shown properly
 

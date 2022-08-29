@@ -18,24 +18,22 @@ a visualization can be useful.
 
 .Examples
 We embark on visualizing parse trees for the language Exp:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 parse(#Exp, "1+2*3");
-----
+```
 As can be seen, even for such a trivial example, the details in the parse tree representation become sizeable.
 
 We can visualize it as follows:
-[source,rascal-figure,width=100,height=100,file=t1.png]
-----
+```rascal-figure,width=100,height=100,file=t1.png
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 import vis::Figure;
 import vis::ParseTree;
 import vis::Render;
 render(visParsetree(parse(#Exp, "1+2*3")));
-----
+```
 With as result:
 
 ![]((t1.png))

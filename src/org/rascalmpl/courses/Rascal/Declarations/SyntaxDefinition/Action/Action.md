@@ -19,14 +19,13 @@ This constructor is the default function, and when it is overloaded by a non-def
 You can overload any labeled ((Syntax Definition)) using the name of an alternative.
 
 For example:
-[source,rascal]
-----
+```rascal
 syntax A = a: B  C;
 
 public A a(B b, C c) {
   return f(b, c);
 }
-----
+```
 In this example ((Action)) function the a is replaced by whatever A the `f` function returns. 
 
 ((Action))s are executed every time a parse tree is constructed:
@@ -38,8 +37,7 @@ In this example ((Action)) function the a is replaced by whatever A the `f` func
 
 
 They can be used as a ((Disambiguation)) method, using the `filter` statement, as in:
-[source,rascal]
-----
+```rascal
 syntax E = id: Id i;
 set[Id] types = {};
 
@@ -49,7 +47,7 @@ public E id(Id i) {
   else 
     fail; // just build the parse tree "E = id: Id i", by defaulting to the constructor
 } 
-----
+```
 .Examples
 
 .Benefits

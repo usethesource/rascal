@@ -27,27 +27,24 @@ Remedies:
 .Examples
 
 Import the `Set` library and introduce `S` with an empty set as value:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 import Set;
 S = {};
-----
+```
 Taking an element from an empty set gives an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 getOneFrom(S);
-----
+```
 We can also catch the `EmptySet` error. First import the Rascal exceptions (which are also included in `Prelude`)
 and `IO`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 import Exception;
 import IO;
 try 
   println(getOneFrom(S)); 
 catch EmptySet(): 
   println("Cannot apply getOneFrom to empty set");
-----
+```
 
 .Benefits
 

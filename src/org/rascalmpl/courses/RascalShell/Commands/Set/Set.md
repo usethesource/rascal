@@ -25,20 +25,18 @@ The options are:
 
 .Examples
 Turn `tracing` on and execute a function:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::basic::Factorial;
 :set tracing true
 fac(5)
-----
+```
 
 Turn trace off and execute the same function:
 
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 :set tracing false
 fac(5)
-----
+```
 
 .Pitfalls
 The `set` command is completely unrelated to Rascal's built-in `set` type.

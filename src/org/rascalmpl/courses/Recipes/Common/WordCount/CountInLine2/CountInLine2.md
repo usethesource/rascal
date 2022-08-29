@@ -15,10 +15,9 @@ Count words in a line.
 
 .Examples
 A slighly more involved manner of using regular matching in a loop.
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/WordCount/CountInLine2.rsc[tags=module]
-----
+```
 
                 
 The pattern `/^\W*\w+<rest:.*$>/` can be understood as follows:
@@ -34,11 +33,10 @@ the remainder of the current match. To summarize: each iteration
 removes the first word from `S` and counts it.
 
 Here is `countInLine2` in action:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::WordCount::CountInLine2;
 countInLine2("Jabberwocky by Lewis Carroll");
-----
+```
 
 .Benefits
 

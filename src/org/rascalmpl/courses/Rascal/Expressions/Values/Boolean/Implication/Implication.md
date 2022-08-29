@@ -38,10 +38,9 @@ The _implication_ operator on Boolean values defined as follows:
 Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. In the case of the `==>` operator, the result is `true` if `_Exp_~1~` evaluates to `false`, otherwise `_Exp_~2~` is evaluated to determine the result.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 false ==> true;
-----
+```
 
 
 .Benefits

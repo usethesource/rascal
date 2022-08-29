@@ -27,27 +27,24 @@ Remedies:
 .Examples
 
 Import the `Map` library and introduce `M` with an empty map as value:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import Map;
 M = ();
-----
+```
 Trying to get an arbitrary value from it gives an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 getOneFrom(M);
-----
+```
 We can also catch the `EmptyMap` error. First import the Rascal exceptions (which are also included in `Prelude`)
 and `IO`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 import Exception;
 import IO;
 try 
   println(getOneFrom(M)); 
 catch EmptyMap(): 
   println("Cannot use getOneFrom on empty map");
-----
+```
 
 .Benefits
 

@@ -17,10 +17,9 @@ Concrete syntax for Pico.
 .Description
 
 .Examples
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/Syntax.rsc[tags=module]
-----
+```
 
                 
 Notes:

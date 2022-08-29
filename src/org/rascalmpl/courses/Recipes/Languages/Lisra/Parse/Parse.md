@@ -18,10 +18,9 @@ Parsing a Lisp expression.
 Given the Lisp ((Lisra-Syntax)), we can now apply it to parse textual Lisp expressions
 and convert them to the runtime representation `Lval`.
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Lisra/Parse.rsc[tags=module]
-----
+```
 
                 
 <1> First we define the actual `parse` function: it takes a string as argument and returns an `Lval`.
@@ -44,10 +43,9 @@ include::{LibDir}demo/lang/Lisra/Parse.rsc[tags=module]
 .Concrete Patterns
 ****
 We use concrete patterns in these definitions. For instance, the argument pattern 
-[source,rascal]
-----
+```rascal
 (LispExp)`<IntegerLiteral il>`
-----
+```
 says:
 
 *  Match something of type `LispExp`.
@@ -55,21 +53,19 @@ says:
 
 More precisely, the text between backquotes should be a string that can be parsed according to the non-terminal
 that precedes it (`LispExp` in this example). This is illustrated by the list case where the parentheses appear in the concrete pattern:
-[source,rascal]
-----
+```rascal
 (LispExp)`( <LispExp* lst> )`
-----
+```
 ****
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Lisra::Parse;
 import demo::lang::Lisra::Runtime;
 parse("1");
 parse("x");
 parse("(+ 5 7)");
-----
+```
 
 .Benefits
 

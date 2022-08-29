@@ -17,10 +17,9 @@ We describe howto write a grammar for Exp and how to use it to implement an eval
 
 .Examples
 Here is the grammar for Exp:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Concrete/NoLayout/Syntax.rsc[tags=module]
-----
+```
 
 Notes:
 
@@ -36,10 +35,9 @@ Notes:
 
 
 Now that the grammar is in place we want to use it to build an evaluator. Here is how:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Concrete/NoLayout/Eval.rsc[tags=module]
-----
+```
 
 Notes:
 
@@ -60,25 +58,22 @@ Notes:
 
 
 What remains, is to check that `eval` works as expected.
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Exp::Concrete::NoLayout::Syntax;
 import ParseTree;
-----
+```
 Just checking that `parse` returns a sort of parse tree:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 parse(#Exp, "2+3");
-----
+```
 You will see such parse trees only once, unless you are a researcher in parsing ;-)
 Here is a demonstration of `eval`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import demo::lang::Exp::Concrete::NoLayout::Eval;
 eval("2+3");
 eval("2+3*4");
 eval("(2+3)*4");
-----
+```
 
 
 .Benefits

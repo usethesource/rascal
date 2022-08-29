@@ -26,25 +26,22 @@ The following rule applies:
 .Examples
 
 Consider the following datatype `CTree` and assign a CTree value to variable `T`:
-[source,rascal-shell]
-----
+```rascal-shell
 data CTree = leaf(int n) | red(CTree left, CTree right) | green(CTree left, CTree right);
 CTree T = red(green(leaf(1), red(leaf(2), leaf(3))), red(leaf(4), leaf(5)));
-----
+```
 We can now switch the arguments of all red nodes as follows:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 visit(T){
   case red(CTree l, CTree r): insert red(r,l);
 }
-----
+```
 Since this is a very common idiom, we also have a shorthand for it:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 visit(T){
   case red(CTree l, CTree r) => red(r,l)
 }
-----
+```
 
 .Benefits
 

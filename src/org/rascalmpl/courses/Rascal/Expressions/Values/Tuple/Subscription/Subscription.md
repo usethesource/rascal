@@ -20,11 +20,10 @@ Subscription retrieves the tuple element with index _Exp_~2~ from the tuple valu
 
 .Examples
 Introduce a tuple, assign it to T and retrieve the element with index 0:
-[source,rascal-shell]
-----
+```rascal-shell
 T = <"mon", 1>;
 T[0];
-----
+```
 
 .Benefits
 

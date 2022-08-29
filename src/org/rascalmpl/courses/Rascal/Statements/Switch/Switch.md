@@ -10,15 +10,14 @@ against a number of `case` patterns.
 switch case default
 
 .Syntax
-[source,rascal,subs="quotes"]
-----
+```rascal
 switch ( _Exp_ ) {
 case _PatternWithAction~1~_;
 case _PatternWithAction~2~_;
 ...
 default: ...
 }
-----
+```
 
 .Types
 
@@ -37,8 +36,7 @@ There is no fall through from one case to the next.
 
 .Examples
 Suppose we want to naively analyze a sentence and print the topic it is about:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 S = "Princess Leila sipped from her rum punch";
 switch(S){
@@ -46,7 +44,7 @@ switch(S){
   case /rum/:   println("The topic is Drunken man");
   case /punch/: println("The topic is Kick Boxing");
 }
-----
+```
 From the printed message you can infer that the cases are tried in the order in which they occur.
 
 .Benefits

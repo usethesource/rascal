@@ -15,8 +15,7 @@ lead to an inconsistent or incomplete location value.
 
 .Examples
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 someLoc = |home:///abc.txt|;
 someLoc.begin = <1, 2>;
-----
+```

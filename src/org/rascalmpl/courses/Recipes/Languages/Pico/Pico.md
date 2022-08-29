@@ -41,8 +41,7 @@ The following aspects of the Pico language will be discussed:
 Here is a -- not so simple -- Pico program that computes the factorial function:
 
 
-[source,rascal]
-----
+```rascal
 begin declare input : natural, // <1>
               output : natural,           
               repnr : natural,
@@ -59,7 +58,7 @@ begin declare input : natural, // <1>
           input := input - 1
       od
 end
-----
+```
 
 Notes:
 	

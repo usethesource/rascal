@@ -17,15 +17,13 @@ being used at run time. This exception is thrown when a non-existent field is ac
 .Examples
 
 Consider this highly simplified view on persons:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 data Person = man(str name, bool beard) | woman(str name, bool necklace);
 jane = woman("jane", false);
-----
+```
 The field `beard` is evidently only applicable to a `man` but not to a woman
 (didn't we say "simplified", above):
 
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 jane.beard;
-----
+```

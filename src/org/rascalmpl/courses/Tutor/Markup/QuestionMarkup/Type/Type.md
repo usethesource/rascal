@@ -32,19 +32,17 @@ See the effect of the following type questions in the Questions section below.
 ##  Question 1 
 
 The following question can be paraphrased as: _I give you an arbitrary set of integers, what is its type?_
-[source,rascal]
-----
+```rascal
 QType: <A:set[int]>
-----
+```
 
 ##  Question 2 
 
 
 The following question can be paraphrased as: _I give you an addition of a set of integers, strings or reals and another set of the same type; what is the type of the result?_
-[source,rascal]
-----
+```rascal
 QType: <A:set[arb[int,str,real]]> + <B:same[A]>
-----
+```
 
 .Benefits
 

@@ -28,8 +28,7 @@ possibly combined with a [Visit]((Rascal:Expressions-Visit)) statement.
 In a package for symbolic differentiation it is desirable to keep expressions in simplified form in order 
 to avoid intermediate results like `add(product(con(1), x), mul(con(0), y))` that can be simplified to `x`. 
 The following definitions achieve this:
-[source,rascal]
-----
+```rascal
 Exp simp(add(con(n), con(m))) = con(n + m);   //<1>
 Exp simp(mul(con(n), con(m))) = con(n * m);
 
@@ -48,7 +47,7 @@ Exp simplify(Exp e){                          // <3>
            case Exp e1 => simp(e1)
          }
 }
-----
+```
 
 <1> Definitions of the function `simp` are given with different patterns as formal argument.
     Each definition is responsible for one particular simplification 

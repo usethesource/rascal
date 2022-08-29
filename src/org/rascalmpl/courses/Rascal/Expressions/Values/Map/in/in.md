@@ -26,11 +26,10 @@ Yields `true` if the value of _Exp_~1~ occurs as key in the map value of _Exp_~2
 The type of _Exp_~1~ should be compatible with the key type _TK_ of _Exp_~2~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 "pear" in ("apple": 1, "pear": 2);
 "pineapple" in ("apple": 1, "pear": 2);
-----
+```
 
 .Benefits
 

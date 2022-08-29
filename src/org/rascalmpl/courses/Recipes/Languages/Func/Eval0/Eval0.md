@@ -36,10 +36,9 @@ Interpreter Eval0 supports the following features of Func:
 .Examples
 
 Here is the code for Eval0:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/Eval0.rsc[tags=module]
-----
+```
 
 Some points to note:
 
@@ -56,19 +55,17 @@ Some points to note:
 
 
 Let's try this on example `F0`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F0.func[]
-----
+```
 
                 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Func::Load;
 import demo::lang::Func::Eval0;
 import demo::lang::Func::programs::F0;
 eval0("fact", [10], load(F0));
-----
+```
 
 .Benefits
 

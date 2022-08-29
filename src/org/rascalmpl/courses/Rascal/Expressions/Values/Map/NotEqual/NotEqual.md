@@ -25,11 +25,10 @@ Not equal operator on map values.
 Yields `true` if both arguments contain different key/value pairs, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 ("apple": 1, "pear": 2) != ("apple": 1, "banana": 3);
 ("apple": 1, "pear": 2) != ("pear": 2, "apple": 1);
-----
+```
 
 .Benefits
 

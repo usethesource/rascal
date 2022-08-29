@@ -24,10 +24,9 @@ given a number of fields (with a name and a type)
 how can we generate a Java class with getters and setters for those fields?
 
 Here is a solution:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/StringTemplate.rsc[tags=module]
-----
+```
 
                 
 <1> An auxiliary function `capitalize` is defined to capitalize the first character of a string.
@@ -50,8 +49,7 @@ Let's discuss some of them:
 *  `public void set<capitalize(x)>(<fields[x]> <x>)`: method header for the setter for field `x`.
 
 Let's see how this works out on actual data:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::StringTemplate;
 import IO;
 fields = (
@@ -60,7 +58,7 @@ fields = (
      "address" : "String"
   );
 println(genClass("Person", fields));
-----
+```
 
 .Benefits
 

@@ -28,13 +28,12 @@ Subtract two numeric values.
 Yields the numerical result of subtracting the value of _Exp_~2~ from the value of _Exp_~1~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 13 - 12
 13.5 - 12
 12 - 13
 12 - 13.5
-----
+```
 
 .Benefits
 

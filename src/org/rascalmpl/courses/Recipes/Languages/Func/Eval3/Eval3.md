@@ -38,28 +38,25 @@ Interpreter Eval3 supports the following features of Func:
 The main additions are the address and dereference operators.
 
 .Examples
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/Eval3.rsc[tags=module]
-----
+```
 
                 
 
 We apply `eval3` to example `F3`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F3.func[]
-----
+```
 
                 
 Let's try this.
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Func::Load;
 import demo::lang::Func::Eval3;
 import demo::lang::Func::programs::F3;
 eval3("fact", [10], load(F3));
-----
+```
 
 
 

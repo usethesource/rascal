@@ -29,52 +29,44 @@ Remedies for variables:
 
 .Examples
 Calling the undeclared function `triple` gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 triple(5)
-----
+```
 We can remedy this by declaring the function:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 int triple(int n) = 3 * n;
 triple(5)
-----
+```
 
 Calling the library function `size` gives an error if the proper library (in this case: `List`) is not imported
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 size([20, 1, 77]);
-----
+```
 The solution is:
-[source,rascal-shell]
-----
+```rascal-shell
 import List;
 size([20, 1, 77]);
-----
+```
 Another solution is to import the complete Rascal library at once:
-[source,rascal-shell]
-----
+```rascal-shell
 import Prelude;
 size([20, 1, 77]);
-----
+```
 
 Using an undeclared variable gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 n + 1;
-----
+```
 A variable is introduced by just assigning to it (with or without its expected type):
-[source,rascal-shell]
-----
+```rascal-shell
 n = 3;
 n + 1;
-----
+```
 Or equivalenty (with an expected type):
-[source,rascal-shell]
-----
+```rascal-shell
 int n = 3;
 n + 1;
-----
+```
 
 .Benefits
 

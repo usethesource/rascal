@@ -27,10 +27,9 @@ constructor to which it has to be mapped.
 
 .Examples
 Let's first label the syntax rules of the Exp grammar with constructor names:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Combined/Automatic/Syntax.rsc[tags=module]
-----
+```
             
 Observe that at image:{images}/1.png[], image:{images}/2.png[] and image:{images}/3.png[] these labels have been added.
 
@@ -43,23 +42,20 @@ It is good practice to introduce separate modules for parsing and for the conver
 
 
 Here is the `Parse` module for Exp ...
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Combined/Automatic/Parse.rsc[tags=module]
-----
+```
 
 and this is how it works:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Exp::Combined::Automatic::Parse;
 parseExp("2+3*4");
-----
+```
 
 We can use `parse` to define `load`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Combined/Automatic/Load.rsc[tags=module]
-----
+```
 
 Notes:
 
@@ -69,25 +65,22 @@ Notes:
 
 
 Let's try it:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Exp::Combined::Automatic::Load;
 load("2+3*4");
-----
+```
 
 Remains the definition of the `eval` function:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Combined/Automatic/Eval.rsc[tags=module]
-----
+```
 
                 
 Here is the end result:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Exp::Combined::Automatic::Eval;
 eval("2+3*4");
-----
+```
 
 .Benefits
 

@@ -22,20 +22,17 @@ Remedies:
 *  Add a new keyword parameter to the function.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 int incr(int n, int delta=1) = n + delta;
-----
+```
 Calling `incr` with a wrong keyword parameter gives an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 incr(3, diff=5);
-----
+```
 This can be fixed by using the correct name for the keyword parameter:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 incr(3, delta=5);
-----
+```
 
 .Benefits
 

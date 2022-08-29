@@ -14,10 +14,9 @@ The concrete syntax of Func.
 .Description
 
 .Examples
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/Func.rsc[tags=module]
-----
+```
 
                 
 The concrete syntax of Func uses many features of Rascal's syntax definitions. Some notes:

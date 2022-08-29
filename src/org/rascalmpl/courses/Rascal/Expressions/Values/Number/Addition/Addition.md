@@ -28,11 +28,10 @@ Addition on numeric values.
 Yields the numerical sum of the values of _Exp_~1~ and _Exp_~2~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 12 + 13
 12 + 13.5
-----
+```
 
 .Benefits
 

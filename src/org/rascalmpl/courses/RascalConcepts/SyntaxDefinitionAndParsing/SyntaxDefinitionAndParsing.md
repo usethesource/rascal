@@ -43,19 +43,17 @@ Here are some examples:
 
 The EXP language can be defined as follows:
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Concrete/WithLayout/Syntax.rsc[tags=module]
-----
+```
 
                 
 Now you may parse and manipulate programs in the EXP language. Let's demonstrate parsing an expression:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import ParseTree;
 parse(#start[Exp], "2+3*4");
-----
+```
 
 First we import the syntax definition and the link:/Libraries/Prelude-ParseTree[ParseTree] module that provides the parsing functionality.
 Finally, we parse `2+3*4` using the start symbol `Exp`.

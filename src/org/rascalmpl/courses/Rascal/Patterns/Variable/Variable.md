@@ -23,23 +23,20 @@ or the enclosing ((If)), ((While)), or ((Do)) if the pattern occurs in the test 
 
 .Examples
 Initialize variable `N`
-[source,rascal-shell]
-----
+```rascal-shell
 N = 10;
-----
+```
 and use `N` in a pattern; its value is used as value to match with:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 N := 10;
 N := 20;
-----
+```
 Use a non-existing variable in a pattern, it is bound when the match succeeds:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import IO;
 if(M := 10)
    println("Match succeeded, M == <M>");
-----
+```
 
 .Benefits
 

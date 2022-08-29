@@ -21,10 +21,9 @@ This means that there is a path in the control flow graph from the entry point o
 to a specific use of a variable, where that path does not contain a definition of that variable.
 
 This can be computed as follows:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/Uninit.rsc[tags=module]
-----
+```
 
                 
 <1> First, we determine the variable definitions of the program,
@@ -44,11 +43,10 @@ include::{LibDir}demo/lang/Pico/Uninit.rsc[tags=module]
 The function `uninitProgram` performs this analysis on the source text of a Pico program.
 
 Here is a simple example, where variable `p` is used without intialization:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Pico::Uninit;
 uninitProgram("begin declare n : natural, m : natural, p : natural; n := 10; m := n + p end");
-----
+```
 
 
 .Benefits

@@ -28,32 +28,28 @@ Remedies:
 .Examples
 
 Import the `List` library and introduce `L` with an empty list as value:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import List;
 L = [];
-----
+```
 Taking the head of an empty list gives an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 head(L);
-----
+```
 This is the case when taking the tail as well:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 tail(L);
-----
+```
 We can also catch the `EmptyList` error. First import the Rascal exceptions (which are also included in `Prelude`)
 and `IO`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 import Exception;
 import IO;
 try 
   println(head(L)); 
 catch EmptyList(): 
   println("Cannot take head of empty list");
-----
+```
 
 .Benefits
 

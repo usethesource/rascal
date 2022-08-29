@@ -40,12 +40,11 @@ Boolean operators have _short circuit_ semantics:  only those operands are evalu
 Note that the `<==>` operator backtracks over its arguments until it finds an evaluation that is `true`, unless there is none. Variable bindings that are the effect of matching  operators in its arguments are not visible outside the scope of the `<==>`.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 false <==> false;
 false <==> true;
-----
+```
 
 NOTE: We should add a more meaningful example of backtracking over <==> than this old one:
 (i <- [1,2]) <==> (j <- [1,2,3]);

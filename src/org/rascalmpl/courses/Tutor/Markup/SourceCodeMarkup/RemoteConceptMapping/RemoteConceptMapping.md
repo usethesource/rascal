@@ -35,10 +35,9 @@ The `DateTime` library module is defined in the [Libraries]((Libraries)) course 
 the subdirectory `Libraries/Prelude/DateTime` and the file `DateTime/DateTime.remote`.
 The latter contains a single line with the location of the DateTime module:
 
-[source,rascal]
-----
+```rascal
 |std:///DateTime.rsc|
-----
+```
 
 
 This establishes, for instance, that the function `now` that is declared in the `DateTime.rsc` library file

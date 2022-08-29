@@ -47,14 +47,13 @@ There are also [library functions]((Libraries:Prelude-Set)) available for Sets.
 .Examples
 ##  Set types 
 
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3};
 {<1,10>, <2,20>, <3,30>};
 {1, "b", 3};
 {<"a", 10>, <"b", 20>, <"c", 30>}
 {{"a", "b"}, {"c", "d", "e"}}
-----
+```
 Note that
 
 *  `{1, 2, 3}` and `{3, 2, 1}` are identical sets (since order is not relevant).
@@ -65,20 +64,17 @@ Note that
 ##  Set splicing 
 
 Introduce a set variable `S`
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 S = {1, 2, 3};
-----
+```
 and observe how the value of `S` is added as single element in another set:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 {10, S, 20};
-----
+```
 or how its elements are added as elements to the other set:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 {10, *S, 20};
-----
+```
 
 .Benefits
 

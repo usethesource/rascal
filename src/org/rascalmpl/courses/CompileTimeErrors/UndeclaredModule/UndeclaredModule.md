@@ -23,11 +23,10 @@ Remedies:
 
 .Examples
 Referring to the non-existing module `M` gives errors:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 M::x = 3;
 M::f(3);
-----
+```
 
 .Benefits
 

@@ -21,18 +21,16 @@ Remedies:
 .Examples
 
 Changing the month of a [DateTime]((Rascal:Values-DateTime)) to an illegal month (13):
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 NOW = $2013-01-13T22:16:51.740+01:00$;
 NOW.month = 13;
-----
+```
 
 Setting the offset in a location to a negative value:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 someLoc = |home:///abc.txt|;
 someLoc.offset = -1;
-----
+```
 
 .Benefits
 

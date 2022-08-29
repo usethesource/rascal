@@ -7,14 +7,13 @@ Declare a module.
 module
 
 .Syntax
-[source,rascal,subs="quotes"]
-----
+```rascal
 module _Name_
 _Imports_;
 _Declaration~1~_;
 ...
 _Declaration~n~_;
-----
+```
 
 .Types
 
@@ -32,10 +31,9 @@ A module declaration consists of:
 
 The module name _Name_ will be used when the current module is imported in another module. 
 A module name is in general a qualified name of the form:
-[source,rascal,subs="quotes"]
-----
+```rascal
 _Name~1~_::_Name~2~_:: ... ::_Name~n~_
-----
+```
 which corresponds to a path relative to the root of the current workspace.
 
 The constituents of a module are shown in the figure below.
@@ -68,20 +66,18 @@ The entities that are _visible inside_ a module are
 
 The only entities that are _visible outside_ the module, are the public entities declared in the module itself. If different imported modules declare the same visible name, it can be disambiguated by explicitly qualifying it with its module name:
 
-[source,rascal,subs="quotes"]
-----
+```rascal
 _Module_ :: _Name_
-----
+```
 
 Each module resides in a separate file with extension `.rsc`.
 
 .Examples
 Here is the `Hello` module:
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/basic/Hello.rsc[tags=module]
-----
+```
 
                 
 It defines a module with the name `demo::basic::Hello` and imports the [IO]((Libraries:Prelude-IO)) library.

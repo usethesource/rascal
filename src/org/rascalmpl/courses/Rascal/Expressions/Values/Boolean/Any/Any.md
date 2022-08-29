@@ -28,10 +28,9 @@ Any combination of argument values is true.
 Yields `true` when at least one combination of values of _Exp_~i~ is true.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 any(int n <- [1 .. 10], n % 2 == 0);
-----
+```
 
 .Benefits
 

@@ -31,15 +31,14 @@ See http://asciidoctor.org/docs/user-manual/#tables for details.
 
 ##  Example 1 
 
-[source,rascal]
-----
+```rascal
 |===
 | A  | B  | C
 
 | 11 | 12 | 13
 | 21 | 22 | 23
 |===
-----
+```
 
 gives:
 
@@ -55,8 +54,7 @@ gives:
 A column specification may precede the table and specifies the number of columns with default alignment (left) and with
 specified alignment: left (`<`), centered (`^`) or right (`>`).
 
-[source,rascal]
-----
+```rascal
 [cols="1*,^,1*"]
 |===
 | A  | B  | C
@@ -64,7 +62,7 @@ specified alignment: left (`<`), centered (`^`) or right (`>`).
 | 11 | 12 | 13
 | 21 | 22 | 23
 |===
-----
+```
 
 gives (with column B centered):
 
@@ -78,8 +76,7 @@ gives (with column B centered):
 
 ##  Example 3 
 
-[source,rascal]
-----
+```rascal
 [cols="2*,>"]
 |===
 | A  | B  | C
@@ -87,7 +84,7 @@ gives (with column B centered):
 | 11 | 12 | 13
 | 21 | 22 | 23
 |===
-----
+```
 
 gives (with column C right-aligned):
 
@@ -101,14 +98,13 @@ gives (with column C right-aligned):
 
 ##  Example 4 
 
-[source,rascal]
-----
+```rascal
 |===
 | Operator    | Description
 
 | `_A_ \| _B_` | Or operator
 |===
-----
+```
 
 gives (note the escaped `|` character in one table entry):
 

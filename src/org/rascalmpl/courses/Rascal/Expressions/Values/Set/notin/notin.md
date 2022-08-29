@@ -26,11 +26,10 @@ notin
 Yields `true` if the value of _Exp_~1~ does not occur as element in the value of _Exp_~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 4 notin {1, 2, 3};
 4 notin {1, 2, 3, 4};
-----
+```
 
 .Benefits
 

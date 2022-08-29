@@ -26,18 +26,16 @@ Remedies:
 
 .Examples
 Use of the undeclared field `gender`:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 tuple[str name, int age] Jo = <"Jo", 33>;
 Jo.gender;
-----
+```
 A similar example now expressed as ADT:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 data Person = person(str name, int age);
 jo = person("Jo", 33);
 jo.gender;
-----
+```
 
 .Benefits
 

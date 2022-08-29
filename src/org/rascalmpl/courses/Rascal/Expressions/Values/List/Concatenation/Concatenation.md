@@ -32,20 +32,18 @@ Note that the same operator is overloaded for ((List-Insert)) and ((List-Append)
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 [1, 2, 3] + [4, 5, 6];
 [] + [1]
 [1] + []
 [1] + [2] + [3]
-----
+```
 
 And overloaded usage for insert and append looks like:
-[source,rascal-shell]
-----
+```rascal-shell
 1 + []
 [] + 1
-----
+```
 
 .Benefits
 

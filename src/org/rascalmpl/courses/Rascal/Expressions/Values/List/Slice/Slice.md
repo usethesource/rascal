@@ -92,44 +92,38 @@ Some common use cases (with `begin` <= `end`):
 
 Let's put this into practice now.
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 L = [0, 10, 20, 30, 40, 50, 60, 70, 80];
-----
+```
 Slices with begin < end
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L[1..3];
 L[1..];       // empty end => end of list
 L[..3];       // empty begin => first element of list
 L[..];        // both empty => whole list
-----
+```
 Slices with  begin >= end
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L[3..1];      // slice contains elements with indices 3 and 2 (in that order)
 L[3..3];      // empty slice when begin == end
-----
+```
 Slices with negative begin or end:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L[2..-2];     // equivalent to L[2..7]
 L[2..7];
 L[-4..-2];    // equivalent to L[5..7]
 L[5..7];
-----
+```
 Slices with an explicit second index:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L[1,3..6];
 L[5,3..];
-----
+```
 Explore error cases:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L[..10];
 L[1..20];
-----
+```
 
 
 

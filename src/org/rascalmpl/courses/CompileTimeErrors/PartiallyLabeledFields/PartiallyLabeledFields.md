@@ -25,11 +25,10 @@ This error signals the case that thei fields are partially labelled.
 
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 tuple[int n, str] T;
 rel[str name, int] R;
-----
+```
 .Benefits
 
 .Pitfalls

@@ -48,53 +48,46 @@ Let _V_ be the current value of _Assignable_.
 
 .Examples
 Replace the elements with index 3, 4, 5 in `L`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 L = [0,1,2,3,4,5,6,7,8,9];
 L[3..6] = [100,200,300,400,500];
-----
+```
 Replace the elements with index 1, 3, 5, 7 in `L` (note how the elements from `[100,200]` are used in a circular way):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 L = [0,1,2,3,4,5,6,7,8,9];
 L[1,3..8] = [100,200];
-----
+```
 Replace the elements with index 1, 3, 5, 7 in `L` (note how the unused elements from `[100,200,300,400,500]` 
 are insert at index 7):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 L = [0,1,2,3,4,5,6,7,8,9];
 L[1,3..8] = [100,200,300,400,500];
-----
+```
 Similar examples for slicing assignment on strings:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 S = "abcdefghij";
 S[3..6] = "UVWXYZ";
 S = "abcdefghij";
 S[1,3..8] = "XY";
 S = "abcdefghij";
 S[1,3..8] = "UVWXYZ";
-----
+```
 Replace the elements with index 3, 4, 5 in node `N`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 N = "f"(0,true,2,"abc",4,5.5,6,{7,77},8,{9,99,999});
 N[3..6] = [100,200,300,400,500];
-----
+```
 Replace the elements with index 1, 3, 5, 7 in `L` (note how the elements from `[100,200]` are used in a circular way):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 N = "f"(0,true,2,"abc",4,5.5,6,{7,77},8,{9,99,999});
 N[1,3..8] = [100,200];
-----
+```
 Replace the elements with index 1, 3, 5, 7 in `L` (note how the unused elements from `[100,200,300,400,500]` 
 are insert at index 7):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 N = "f"(0,true,2,"abc",4,5.5,6,{7,77},8,{9,99,999});
 N[1,3..8] = [100,200,300,400,500];
-----
+```
 
 .Benefits
 

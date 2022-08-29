@@ -16,10 +16,9 @@ Suppose you are a book editor and want to ensure that all chapter
 and section titles are properly capitalized. Here is how to do this. 
 
 .Examples
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/WordReplacement.rsc[tags=module]
-----
+```
 
                 
 <1> We start by introducing a helper function `capitalize` that does the actual capitalization of a single word.
@@ -32,13 +31,12 @@ include::{LibDir}demo/common/WordReplacement.rsc[tags=module]
 
 Here are some examples:
 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::WordReplacement;
 capitalize("rascal");
 capAll1("turn this into a capitalized title")
 capAll2("turn this into a capitalized title")
-----
+```
 
 .Benefits
 

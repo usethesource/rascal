@@ -29,21 +29,18 @@ The operator `*` splices the elements of a set in an enclosing set.
 .Examples
 
 Consider the following set in which the set `{10, 20, 30}` occurs as set element. It has as type `set[value]`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 {1, 2, {10, 20, 30}, 3, 4};
-----
+```
 The effect of splicing the same set element in the enclosing set gives a flat list of type `set[int]`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 {1, 2, *{10, 20, 30}, 3, 4};
-----
+```
 The same example can be written as:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 S = {10, 20, 30};
 {1, 2, *S, 3, 4};
-----
+```
 
 .Benefits
 

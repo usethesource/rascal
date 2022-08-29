@@ -27,8 +27,7 @@ This construct is used for:
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 data Lang = add(Lang l, Lang r) | number(int i);
 data Exp = id(str n) | add(Exp l, Exp r) | subtract(Exp l, Exp r) | otherLang(Lang a);
@@ -37,7 +36,7 @@ visit (ex) {
   case Lang l:add(_,_) : println("I found a Lang <l>");
   case Exp e:add(_,_)  : println("And I found an Exp <e>");
 }
-----
+```
 
 .Benefits
 

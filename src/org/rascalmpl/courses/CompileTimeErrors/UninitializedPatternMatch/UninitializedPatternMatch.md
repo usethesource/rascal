@@ -25,11 +25,10 @@ Remedy: replace the subject by a non-void value.
 
 .Examples
 here is a (contrived) example that produces this error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 void dummy() { return; }
 int n := dummy();
-----
+```
 
 .Benefits
 

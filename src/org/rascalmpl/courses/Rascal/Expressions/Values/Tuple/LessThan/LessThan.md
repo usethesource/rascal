@@ -33,10 +33,9 @@ value of _Exp_~2~ is less than that element in _Exp_~2~.
 Otherwise the result if `false`.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 <1, "abc", true> < <1, "def", true>;
-----
+```
 
 .Benefits
 

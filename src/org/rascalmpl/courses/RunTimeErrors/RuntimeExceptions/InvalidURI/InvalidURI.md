@@ -15,15 +15,13 @@ lead to an invalid URI part of a source location value.
 
 .Examples
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 someLoc = |home:///abc.txt|;
 someLoc.scheme = "a:b";
-----
+```
 
 Another well-known example is a missing path when using `//` (wrong) instead of `///` (good):
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 |home:///|;
 |home://|;
-----
+```

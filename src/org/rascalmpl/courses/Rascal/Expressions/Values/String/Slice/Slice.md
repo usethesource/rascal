@@ -90,44 +90,38 @@ Some common use cases (with `begin` <= `end`):
 
 Let's put this into practice now.
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 S = "abcdefghi";
-----
+```
 Slices with begin < end
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 S[1..3];
 S[1..];       // empty end => end of string
 S[..3];       // empty begin => first character of string
 S[..];        // both empty => whole string
-----
+```
 Slices with  begin >= end
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 S[3..1];      // slice contains characters with indices 3 and 2 (in that order)
 S[3..3];      // empty slice when begin == end
-----
+```
 Slices with negative begin or end:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 S[2..-2];     // equivalent to S[2..7]
 S[2..7];
 S[-4..-2];    // equivalent to S[5..7]
 S[5..7];
-----
+```
 Slices with an explicit second index:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 S[1,3..6];
 S[5,3..];
-----
+```
 Explore error cases:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 S[..10];
 S[1..20];
-----
+```
 
 
 

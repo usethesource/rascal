@@ -84,24 +84,21 @@ There are also [library functions]((Libraries:Prelude-DateTime)) available for D
 .Examples
 
 Examples of `datetime` values are:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 $2010-07-15$
 $T07:15:23.123+0100$;
-----
+```
 Now introduce a `datetime` value and assign it to `DT`.
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 DT = $2010-07-15T09:15:23.123+03:00$;
-----
+```
 Here are examples of some `datatime` fields:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 DT.isDateTime;
 DT.justDate;
 DT.justTime;
 DT.century;
-----
+```
 
 .Benefits
 

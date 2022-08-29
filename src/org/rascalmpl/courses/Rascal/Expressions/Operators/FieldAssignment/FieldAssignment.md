@@ -23,12 +23,11 @@ Field assignment returns a new value in which the named component has been repla
 _Name_ stands for itself and is not evaluated.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 tuple[int key, str val] T = <1, "abc">;
 T[val = "def"];
  T;
-----
+```
 
 Observe that field assignment creates a new value with an updated field. The old value remains unchanged as can be seen from the unchanged value of T in the above example.
 

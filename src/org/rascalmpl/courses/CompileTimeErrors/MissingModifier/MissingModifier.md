@@ -36,18 +36,16 @@ If you are an expert developer and have implemented your own extension in Java, 
 
 .Examples
 This is how the `size` function on lists is declared in the Rascal library:
-[source,rascal-shell]
-----
+```rascal-shell
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(list[&T] lst);
-----
+```
 
 This is what happens if the `java` keyword is missing:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 @javaClass{org.rascalmpl.library.Prelude}
 public int size(list[&T] lst);
-----
+```
 
 .Benefits
 

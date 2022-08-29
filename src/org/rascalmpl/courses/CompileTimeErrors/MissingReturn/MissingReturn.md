@@ -24,27 +24,24 @@ Remedies:
 
 .Examples
 Here is an incorrect definition of function `triple`:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 int triple(int x) {
    x * 3;
 }
 triple(5)
-----
+```
 It should look like this:
-[source,rascal-shell]
-----
+```rascal-shell
 int triple(int x) {
    return x * 3;
 }
 triple(5)
-----
+```
 This is another solution using the abbreviated function format:
-[source,rascal-shell]
-----
+```rascal-shell
 int triple(int x) = x * 3;
 triple(5)
-----
+```
 
 .Benefits
 

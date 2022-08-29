@@ -22,11 +22,10 @@ Import is _non-transitive_, i.e., the visible entities from an imported module a
 
 .Examples
 Here, is how to import the [IO]((Libraries:Prelude-IO)) library:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 println("IO library was imported.");
-----
+```
 
 .Benefits
 

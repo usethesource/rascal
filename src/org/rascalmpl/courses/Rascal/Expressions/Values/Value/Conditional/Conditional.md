@@ -27,11 +27,10 @@ Yields the value of _Exp_~2~ if the value of _Exp_~1~ is `true` and the value of
 The result type is the _least upper bound_ (also known as `lub`, see ((Declarations-StaticTyping))) of the types of _Exp_~2~ and _Exp_~3~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 ( 3 > 2 ) ? 30 : 40;
 ( 3 < 2 ) ? "abc" : {3, 4};
-----
+```
 
 .Benefits
 

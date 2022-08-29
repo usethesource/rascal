@@ -36,40 +36,35 @@ See [Patterns]((Rascal:Rascal-Patterns)) for more details.
 
 Here is a _regular expression_ that matches a line of text, finds the first alphanumeric word in it, and extracts the word itself as well as the before and after it (`\W` matches all non-word characters; `\w` matches all word characters):
 
-[source,rascal]
-----
+```rascal
 /^<before:\W*><word:\w+><after:.*$>/
-----
+```
 
 Regular expressions follow the Java regular expression syntax with one exception: instead of using numbered groups to refer to parts of the subject string that have been matched by a part of the regular expression we use the notation:
 
-[source,rascal,subs="quotes"]
-----
+```rascal
 <_Name_:_RegularExpression_>
-----
+```
 
 If `_RegularExpression_` matches, the matched substring is assigned to string variable `_Name_`.
 
 The following abstract pattern matches the abstract syntax of a while statement defined earlier:
 
-[source,rascal]
-----
+```rascal
 whileStat(EXP Exp, list[STAT] Stats)
-----
+```
 
 Variables in a pattern are either explicitly declared in the pattern itself---as done in the example---or they may be declared in the context in which the pattern occurs. So-called multi-variables in list and set patterns are declared by a `*` suffix: `X*` is thus 
 an abbreviation for `list[...] X` or `set[...] X`, where the precise element type depends on the context. The above pattern can then be written as
 
-[source,rascal]
-----
+```rascal
 whileStat(EXP Exp, Stats*)
-----
+```
 or, if you are not interested in the actual value of the statements as
 
-[source,rascal]
-----
+```rascal
 whileStat(EXP Exp, _*)
-----
+```
 
 When there is a grammar for this example language, we can also write concrete patterns as described in
 [Concrete Patterns]((Rascal:Patterns-Concrete)).

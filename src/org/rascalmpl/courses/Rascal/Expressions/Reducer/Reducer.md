@@ -20,13 +20,12 @@ A reducer resembles the http://en.wikipedia.org/wiki/Fold_(higher-order_function
 found in most functional languages.
 
 A reducer is equivalent to the following code:
-[source,rascal,subs="verbatim,quotes"]
-----
+```rascal,subs="verbatim,quotes"
 it = _InitExp_; // <1>
 for(_Gen~1~_, _Gen~2~_, ... ) // <2>
     it = _RedExp_; // <3>
 it; // <4>
-----
+```
 and is executed as follows:
 
 <1> A fresh variable `it` is initialized with _InitExp_. 
@@ -38,12 +37,11 @@ and is executed as follows:
 <4> The value of `it` is the result of the reducer.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 L = [1, 3, 5, 7];
 (0 | it + e | int e <- L);
 (1 | it * e | int e <- L);
-----
+```
 
 .Benefits
 

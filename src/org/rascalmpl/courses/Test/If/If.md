@@ -27,15 +27,13 @@ The value of an if-then statement is equal to _Statement_ when its test is true.
 The value of an if-then-else statement is the value of the statement that was executed.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 if( 3 > 2 ) 30; else 40;
 x = if( 3 > 2 ) 30; else 40;
 if( 3 > 2 ) 30;
-----
+```
 An if-then statement yields `void`  when its test is false
 (demonstrated by the __ok__ that is printed by the Rascal system):
-[source,rascal-shell-continue]
-----
+```rascal-shell-continue
 if( 2 > 3 ) 30;
-----
+```

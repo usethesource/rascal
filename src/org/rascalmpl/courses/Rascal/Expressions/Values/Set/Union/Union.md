@@ -20,11 +20,10 @@ Union of two set values.
 The `+` operator computes set union if both operands are sets. If one of the operands is not a set, it acts as ((Set-Insert)) instead.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3} + {4, 5, 6};
 {1,2,3} + {2,3,4};
 {1, 2, 3} + {3};
 {2} + { 2, 3, 4};
-----
+```
 

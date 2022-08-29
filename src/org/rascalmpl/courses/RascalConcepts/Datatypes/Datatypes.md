@@ -68,18 +68,16 @@ Here are some examples of the built-in data types:
 
 A fragment of the datatype that defines the abstract syntax for statements (assignment, if, while) in a programming language would look as follows:
 
-[source,rascal]
-----
+```rascal
 data STAT = asgStat(Id name, EXP exp)
           | ifStat(EXP exp,list[STAT] thenpart,
                            list[STAT] elsepart) 
           | whileStat(EXP exp, list[STAT] body)
           ;
-----
+```
 
 Here are some examples how Rascal responds to values of the above built-in datatypes:
-[source,rascal-shell]
-----
+```rascal-shell
 true;
 101;
 3.14;
@@ -92,7 +90,7 @@ $2101-09-05$;
 {<"apples", 10, 15>, <"oranges", 5, 7>, <"bananas", 9, 11>};
 ("apples" : 100, "oranges": 150, "bananas": 75);
 "abc"(1, 2, 3);
-----
+```
 
 
 .Benefits

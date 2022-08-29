@@ -52,28 +52,24 @@ The Rascal type system has various advanced features that are described separate
 Here are some simple examples of correct and incorrect typing:
 
 We can assign an integer value to an integer variable:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 int i = 3;
-----
+```
 But assigning a string value gives an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 int j = "abc";
-----
+```
 The `num` type accepts integer and real values:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 num n = i;
 n = 3.14;
-----
+```
 A variable of type `value` accepts all possible values:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 value v = true;
 v = "abc";
 v = [1, 2, 3];
-----
+```
 
 .Benefits
 

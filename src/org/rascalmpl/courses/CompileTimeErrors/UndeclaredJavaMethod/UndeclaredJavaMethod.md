@@ -37,17 +37,15 @@ If you are an expert developer and have implemented your own extension in Java, 
 
 .Examples
 This is how the `size` function on lists is declared in the Rascal library:
-[source,rascal-shell]
-----
+```rascal-shell
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(list[&T] lst);
-----
+```
 This is the result of misspelling the function name (`siz` instead of `size`):
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 @javaClass{org.rascalmpl.library.Prelude}
 public java int siz(list[&T] lst);
-----
+```
 .Benefits
 
 .Pitfalls

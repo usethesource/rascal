@@ -28,12 +28,11 @@ If the exception is not caught, the execution of the Rascal program is terminate
 
 .Examples
 Here is a a variant of string concatenation for ball haters:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 str conc(str x, str y){ if("ball" in {x, y}) throw "I hate balls"; return x + y; }
 conc("fairy", "tale");
 conc("foot", "ball");
-----
+```
 
 
 .Benefits

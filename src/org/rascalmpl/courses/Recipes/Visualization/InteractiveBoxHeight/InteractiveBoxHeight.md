@@ -18,10 +18,9 @@ Control the height of a box with user input.
 
 .Examples
 Here is a solution:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/vis/Higher.rsc[tags=module]
-----
+```
 
                 
 The auxiliary function `intInput` checks that a strings consists solely of digits.
@@ -42,11 +41,10 @@ Function `higher` can be understood as follows:
 
 
 Rendering this figure:
-[source,rascal-figure,width=,height=,file=h1.png]
-----
+```rascal-figure,width=,height=,file=h1.png
 import demo::vis::Higher;
 render(higher());
-----
+```
 gives
 
 

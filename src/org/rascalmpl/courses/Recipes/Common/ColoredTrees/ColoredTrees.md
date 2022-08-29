@@ -22,10 +22,9 @@ Our trees can have red and black nodes and we want to perform the following oper
 
 .Examples
 The definition of ColoredTrees is as follows:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/ColoredTrees.rsc[tags=module]
-----
+```
        
 <1> We define the data type of `ColoredTrees` with constructors `leaf`, `red` and `black`.
 
@@ -39,26 +38,22 @@ the counter `c` for each red one.
 <5> `makeGreen` visits all nodes and turns red nodes in green ones.
 
 We can now explore ColoredTrees:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::ColoredTrees;
 rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
-----
+```
 Count the red nodes in `rb`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 cntRed(rb);
-----
+```
 and compute the sum of all leaves:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 addLeaves(rb);
-----
+```
 Finally, we convert all red nodes:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 makeGreen(rb);
-----
+```
 
 .Benefits
 This example illustrates the fully automatic visiting of the elements of a structured data type.

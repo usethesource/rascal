@@ -18,10 +18,9 @@ try to update unavailable information.
 .Examples
 
 Setting the `year` field on a time value throws an exception:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 NOW = $T20:11:01.463+00:00$;
 NOW.year = 2020;
-----
+```
 
 NOTE: Exception is not shown properly

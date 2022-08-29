@@ -24,13 +24,12 @@ Examples of violations are:
 Remedy: correct the type.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 bool[int] x;
 list[int,str] l;
 map[str, int, int]  m;
 set[int,str] s;
-----
+```
 .Benefits
 
 .Pitfalls

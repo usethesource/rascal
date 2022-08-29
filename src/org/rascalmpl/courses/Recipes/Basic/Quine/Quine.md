@@ -24,10 +24,9 @@ Learning about quines, is about learning how to quote and escape symbols in stri
 
 .Examples
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/basic/Quine.rsc[]
-----
+```
 
                 
 <1> A remarkable point in the code: the string variable `program` has as value
@@ -42,39 +41,35 @@ include::{LibDir}demo/basic/Quine.rsc[]
 Now here is the catch: we have to be very carefull in handling special characters like quote (`"`) and backslash (`\`) in strings.
 
 Let's do a simple experiment:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 str greeting = "\"Good Morning, Dr. Watson\", said Holmes";
 println("\"" + greeting + "\"");
-----
+```
 As you see the quotes inside the string are not escaped and the result is not a legal string.
 So what can we do? We escape all dangerous characters in the string before printing it using the [Rascal:escape] function.
 It takes a string and a map of characters to be escaped and returns a result in which all escaping has been carried out.
 Be aware that in the map, also escaping is needed!
 We want to say: escape `"` and replace it by `\"`, but since both `"` and `\` have to be escaped themselves
 we have to say: escape `"\""` and replace it by `"\\\""`. The effect is as follows:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import String;
 println("\"" + escape(greeting, ("\"": "\\\"")) + "\"");
-----
+```
 And indeed, the two quotes are now properly escaped.
 
 This is exactly what happens at image:{images}/4.png[] in the definition of `quine`:
-[source,rascal]
-----
+```rascal
 println("\"" + escape(program, ("\"" : "\\\"", "\\" : "\\\\")) + "\";");
-----
+```
 We escape `program` and replace `"` by `\"`, and `\` by `\\`.
 The mesmerizing amount of `\` characters can be explained due to escaping `"` and `\`.
 
 Now let's put `quine` to the test.
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::basic::Quine;
 quine();
-----
+```
 If you follow this output line-by-line you will see that it
 is identical to the original source code of module `Quine`.
 

@@ -25,18 +25,16 @@ Remedies:
 
 .Examples
 This is correct:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 data Fruit = apple(int n) | orange(int n);
 anno str Fruit @ quality;
 piece = orange(13);
 piece @ quality = "great";
-----
+```
 But using a wrong annotation name generates an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 piece @ qual;
-----
+```
 
 .Benefits
 

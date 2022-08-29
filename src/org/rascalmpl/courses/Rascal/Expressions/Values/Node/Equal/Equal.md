@@ -26,11 +26,10 @@ Yields `true` if the node names of the values of _Exp_~1~ and _Exp_~2~ are equal
 the children of each node are pairwise equal, otherwise `false`.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 "f"(1, "abc", true) == "f"(1, "abc", true);
 "f"(1, "abc", true) == "f"(1, "def", true);
-----
+```
 
 .Benefits
 

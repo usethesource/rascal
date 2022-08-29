@@ -28,15 +28,14 @@ Equality operator on numeric values.
 Yields `true` if the value of both arguments is numerically equal, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 12 == 12
 12 == 12.0
 12 == 13
 12 == 13.0
 3.14 == 3.14
 3.14 == 3
-----
+```
 
 .Benefits
 

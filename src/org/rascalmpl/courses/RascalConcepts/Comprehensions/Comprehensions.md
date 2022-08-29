@@ -29,17 +29,15 @@ See [Comprehensions]((Rascal:Expressions-Comprehensions)),
 .Examples
 A standard example is
 
-[source,rascal-shell]
-----
+```rascal-shell
 { x * x | int x <- [1 .. 10], x % 3 == 0 }
-----
+```
 i.e., the squares of the integers in the range `[ 1 .. 10 ]` that 
 are divisible by 3. A more intriguing example (that we do not give in full detail) is
 
-[source,rascal]
-----
+```rascal
 {name | /asgStat(Id name, _) <- P}
-----
+```
 which traverses program `P` (using the _descendant match_ operator `/`, see [Patterns]((Rascal:Patterns-Abstract))) 
 and constructs a set of all identifiers that occur on the left hand 
 side of assignment statements in `P`.

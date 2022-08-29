@@ -33,53 +33,46 @@ Completely analogous to list patterns, there are special cases when one of the p
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
-----
+```
 
 * A single variable
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if({10, 30, 40, 50, int N} := {10, 20, 30, 40, 50})
    println("Match succeeded, N = <N>");
-----
+```
 
 * An untyped multi-variable:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if({10, *S, 50} := {50, 40, 30, 20, 10})
    println("Match succeeded, S = <S>");
-----
+```
 
 * A typed multi-variable:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if({10, *int S, 50} := {50, 40, 30, 20, 10})
    println("Match succeeded, S = <S>");
-----
+```
 Here we see an example, where all possible splits of a set in two subsets are printed:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 for({*S1, *S2} :={30, 20, 10})
     println("<S1> and <S2>");
-----
+```
 
 * Already declared set variable:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 set[int] S;
 if({10, *S, 50} := {10, 20, 30, 40, 50})
    println("Match succeeded, S = <S>");
-----
+```
 
 * Already declared element variable:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 int N;
 if({10, N, 30, 40, 50} := {50, 40, 30, 20, 10})
    println("Match succeeded, N = <N>");
-----
+```
 
 .Benefits
 

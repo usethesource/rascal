@@ -8,14 +8,12 @@ Concrete patterns.
 
 .Syntax
 
-[source,rascal,subs="quotes"]
-----
+```rascal
 Concrete pattern with expected symbol type: (_Symbol_) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `
-----
-[source,rascal,subs="quotes"]
-----
+```
+```rascal
 Typed variable inside a concrete pattern: <_Type_ _Var_>
-----
+```
 
 .Types
 
@@ -45,8 +43,7 @@ Inside concrete syntax patterns, layout is ignored while pattern matching. So pa
 Examples (in a context where an appropriate concrete syntax has been defined):
 
 *  Quoted syntax pattern with two pattern variable declarations:
-[source,rascal-shell]
-----
+```rascal-shell
 import ParseTree;
 syntax Id = [a-z]+;
 syntax Num = [0-9]+;
@@ -55,7 +52,7 @@ layout WS = [\ \n\r\t]*;
 visit (parse(#Exp, "x + x")) {
    case (Exp) `<Id a> + <Id b>` => (Exp) `2 * <Id a>` when a == b
 }
-----
+```
 Some observations about this example:
 
 ** Notice how the non-terminals `Exp` and `Id` from the ((Syntax Definition)) become types for the pattern.

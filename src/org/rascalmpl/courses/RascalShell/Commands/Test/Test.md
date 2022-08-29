@@ -15,14 +15,12 @@ in the terminal.
 
 Execute the tests in an imported module:
 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::basic::Factorial;
 test
-----
+```
 
 Execute the tests in the `Integers` module in the Rascal test suite:
-[source,rascal-shell]
-----
+```rascal-shell
 test lang::rascal::tests::basic::Integers
-----
+```

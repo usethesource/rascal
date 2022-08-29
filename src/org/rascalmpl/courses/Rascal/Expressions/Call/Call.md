@@ -41,10 +41,9 @@ NOTE: Describe keyword parameters.
 .Examples
 
 First declare a function `square` with argument _n_ that returns _n^2_:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 int square(int n) { return n * n; }
-----
+```
 
 Next call `square`. This results in the following steps:
 
@@ -55,10 +54,9 @@ Next call `square`. This results in the following steps:
 * Execute the body of `square`.
 * The return value of square is the vale of the call:
 
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 square(12);
-----
+```
 
 .Benefits
 

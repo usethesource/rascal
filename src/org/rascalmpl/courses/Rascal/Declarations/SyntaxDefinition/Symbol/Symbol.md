@@ -129,45 +129,37 @@ The _constraint_ symbols are specially there to deal with the fact that Rascal d
 
 
 A character class that defines all alphanumeric characters:
-[source,rascal]
-----
+```rascal
 lexical AlphaNumeric = [a-zA-Z0-9];
-----
+```
 A character class that defines anything except quotes:
-[source,rascal]
-----
+```rascal
 lexical AnythingExceptQuote = ![\"];
-----
+```
 An identifier class with longest match (can not be followed immediately by [a-z]):
-[source,rascal]
-----
+```rascal
 lexical Id = [a-z]+ !>> [a-z];
-----
+```
 An identifier class with longest match and first match (can not be preceded or followed by [a-z]):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 lexical Id = [a-z] !<< [a-z]+ !>> [a-z];
-----
+```
 An identifier class with some reserved keywords and longest match:
-[source,rascal]
-----
+```rascal
 lexical Id = [a-z]+ !>> [a-z] \ "if" \ "else" \ "fi";
-----
+```
 An optional else branch coded using sequence and optional symbols:
-[source,rascal]
-----
+```rascal
 syntax Statement = "if" Expression "then" Statement ("else" Statement)? "fi";
-----
+```
 A block of statements separated by semicolons:
-[source,rascal]
-----
+```rascal
 syntax Statement = "{" {Statement ";"}* "}";
-----
+```
 A declaration with an embedded list of alternative modifiers and a list of typed parameters:
-[source,rascal]
-----
+```rascal
 syntax Declaration = ("public" | "private" | "static" | "final")* Type Id "(" {(Type Id) ","}* ")" Statement;
-----
+```
 
 .Benefits
 

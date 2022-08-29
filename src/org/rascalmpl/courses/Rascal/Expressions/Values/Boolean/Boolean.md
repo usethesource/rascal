@@ -32,10 +32,9 @@ Most operators are self-explanatory except the match (:=) and no match (!:=) ope
 
 
 The _match_ operator
-[source,rascal,subs="quotes"]
-----
+```rascal
 _Pat_ := _Exp_
-----
+```
 is evaluated as follows:
 
 *  _Exp_ is evaluated, the result is a subject value;
@@ -72,10 +71,9 @@ There are also [library functions]((Libraries:Prelude-Boolean)) available for Bo
 
 .Examples
 Consider the following match of a list
-[source,rascal-shell]
-----
+```rascal-shell
 [1, *int L, 2, *int M] := [1,2,3,2,4]
-----
+```
 By definition `list[int] L` and `list[int] M` match list elements that are part of the enclosing list in which they occur. If they should match a nested list each should be enclosed in list brackets.
 
 There are two solutions for the above match:
@@ -84,20 +82,18 @@ There are two solutions for the above match:
 
 *  `L` = `[2,3]` and `M` =` [4]`.
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 for ([1, *int L, 2, *int M] := [1,2,3,2,4])
   println("L: <L>, M: <M>");
-----
+```
 
 Depending on the context, only the first solution of a match expression is used, respectively all solutions are used.
 If a match expression occurs in a larger Boolean expression, a subsequent subexpression may yield false and -- depending on the actual operator -- evaluation backtracks to a previously evaluated match operator to try a next solution. Let's illustrate this by extending the above example:
 
-[source,rascal]
-----
+```rascal
 [1, *int L, 2, *int M] := [1,2,3,2,4] && size(L) > 0
-----
+```
 where we are looking for a solution in which L has a non-empty list as value. Evaluation proceeds as follows:
 
 *  The left argument of the `&&` operator is evaluated: the match expression is evaluated resulting in the bindings `L = []` and `M = [2, 3, 2, 4]`;
@@ -110,23 +106,20 @@ where we are looking for a solution in which L has a non-empty list as value. Ev
 
 *  The result of evaluating the complete expression is `true`.
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 import List;
-----
+```
 for prints them all:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 for ([1, *int L, 2, *int M] := [1,2,3,2,4] && size(L) > 0)
   println("L: <L>, M: <M>");
-----
+```
 if prints the first
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if ([1, *int L, 2, *int M] := [1,2,3,2,4] && size(L) > 0)
   println("L: <L>, M: <M>");
-----
+```
 
 .Benefits
 

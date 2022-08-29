@@ -39,15 +39,13 @@ Observe that the syntax of a constructor is identical to the syntax of an functi
 .Examples
 
 First, define a datatype `WF` for word frequencies:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 data WF = wf(str word, int freq);
-----
+```
 Then construct a new `WF` value by calling the constructor `wf` with appropriate arguments:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 wf("Rascal", 10000);
-----
+```
 
 .Benefits
 

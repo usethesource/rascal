@@ -23,18 +23,16 @@ In Rascal, the major difference between lexical syntax and non-lexical syntax is
 
 
 The following example extends the grammar for `Exp` in ((No Layout)) with a layout definition:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Concrete/WithLayout/Syntax.rsc[tags=module]
-----
+```
 
 <1> Using the `layout` definition, we define that the `Whitespace` non-terminal is used _in between every symbol_ of the `syntax` productions in the current module.
 
 And now we can use spaces in our definition of the eval function as well:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Exp/Concrete/WithLayout/Eval.rsc[tags=module]
-----
+```
 
 Note that [Pattern Matching]((Rascal:Concepts-PatternMatching)) will _ignore_ all trees in layout positions, such that the parse tree of "1 + \\n1" will match against `<Exp e1> + <Exp e2>`. The same goes for equality on parse trees.
 
@@ -44,8 +42,7 @@ Moreover, for the start production (See ((No Layout))) `Whitespace` will be adde
 .Examples
 
 The effect of the layout definition is that before parser generation the following grammar is derived for `Exp`:
-[source,rascal]
-----
+```rascal
 syntax Exp 
   = IntegerLiteral          
   | bracket "(" Whitespace Exp Whitespace ")"     
@@ -54,17 +51,16 @@ syntax Exp
   ;
 
 syntax start[Exp] = Whitespace Exp top Whitespace;
-----
+```
 
 To put this all to the test:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
 import demo::lang::Exp::Concrete::WithLayout::Eval;
 eval("2 +  3");
 eval("2   +  3*4");
 eval("( 2+3 )* 4");
-----
+```
 
 .Benefits
 

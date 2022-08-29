@@ -16,10 +16,9 @@ An Integrated Development Environment for Pico.
 .Description
 
 .Examples
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/Plugin.rsc[tags=module]
-----
+```
 
                 
 *  First the name of the language and its file name extension are defined (image:{images}/1.png).

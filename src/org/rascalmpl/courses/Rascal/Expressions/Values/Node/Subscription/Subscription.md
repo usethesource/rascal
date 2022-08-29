@@ -28,21 +28,18 @@ The value of _Exp_~2~ should be greater or equal 0 and less than the number of a
 If this is not the case, the exception `IndexOutOfBounds` is thrown.
 
 .Examples
-[source,rascal-shell,error]
-----
-----
+```rascal-shell,error
+```
 Introduce a node, assign it to F and retrieve the various arguments:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 F = "f"(1, "abc", false);
 F[0]
 F[1]
 F[2]
-----
+```
 Explore an error case:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 F[3];
-----
+```
 
        

@@ -21,13 +21,12 @@ First the value _Exp_ is determined and should be a tuple of the form `< _V_~1~,
 Next the assignments `_Assignable_~i~ = _V_~i~` are performed for 1 \<= i \<= n.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 <A, B, C> = <"abc", 2.5, [1,2,3]>;
 A;
 B;
 C;
-----
+```
 
 .Benefits
 

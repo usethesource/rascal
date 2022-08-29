@@ -34,10 +34,9 @@ The _not_ operator on Boolean values defined as follows:
 |====
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 !true;
-----
+```
 
 .Benefits
 

@@ -25,11 +25,10 @@ o
 Returns the composition of two maps.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import Map;
 ("one" : 1, "two" : 2) o (1 : 10, 2 : 20);
-----
+```
 
 .Benefits
 

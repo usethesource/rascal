@@ -25,15 +25,13 @@ Remedies:
 
 .Examples
 This is correct way to add all elements in a list:
-[source,rascal-shell]
-----
+```rascal-shell
 (0 | it + n | int n <- [1,5,9] )
-----
+```
 Using `it` outside a reducer gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 it + 3
-----
+```
 
 .Benefits
 

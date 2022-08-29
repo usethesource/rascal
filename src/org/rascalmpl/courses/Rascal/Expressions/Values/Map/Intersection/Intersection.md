@@ -27,11 +27,10 @@ Returns the intersection of the two map values of _Exp_~1~ and _Exp_~2~, i.e., a
 occur in both maps.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 ("apple": 1, "pear": 2) & ("banana": 3, "apple": 1);
 ("apple": 1, "pear": 2) & ("banana": 3, "apple": 4);
-----
+```
 
 .Benefits
 

@@ -26,12 +26,11 @@ Yields `true` if all key/value pairs in the map value of _Exp_~1~ occur in the m
 or the values of _Exp_~1~ and _Exp_~2~ are equal, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 ("apple": 1, "pear": 2) <= ("pear": 2, "apple": 1);
 ("apple": 1, "pear": 2) <= ("pear": 2, "apple": 1, "banana" : 3);
 ("apple": 1, "pear": 2) <= ("apple": 1, "banana" : 3);
-----
+```
 
 .Benefits
 

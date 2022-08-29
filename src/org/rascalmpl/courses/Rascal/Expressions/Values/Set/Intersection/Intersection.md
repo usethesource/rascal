@@ -27,10 +27,9 @@ Returns the intersection of the two set values of _Exp_~1~ and _Exp_~2~.
 The intersection consists of the common elements of both sets.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3, 4, 5} & {4, 5, 6};
-----
+```
 
 .Benefits
 

@@ -30,15 +30,13 @@ If this is not the case, the exception `IndexOutOfBounds` is thrown.
 .Examples
 
 Introduce a string, assign it to S and retrieve the element with index 1:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 S = "abc";
 S[1];
-----
+```
 Explore an error case:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 S[5];
-----
+```
 
        

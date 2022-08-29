@@ -39,21 +39,19 @@ Let\'s consider a small example of the use of function parameters in a function 
 for more details on function declarations.
 The following function `swap` returns a tuple in which its arguments are swapped and can be applied to arbitrary values 
 in a type safe manner:
-[source,rascal-shell]
-----
+```rascal-shell
 tuple[&B, &A] swap(&A a, &B b) { return <b, a>; }
 swap(1,2);
 swap("abc", 3);
-----
+```
 Observe that the type parameters that are used in the return type should be defined in the declarations of the formal parameter of the function.
 
 An ((Alias)) declaration may also be parameterized. So we can generalize graphs as follows:
-[source,rascal]
-----
+```rascal
 alias Graph[&Node] = rel[&Node, &Node];
 Graph[int] GI = {<1,2>, <3,4>, <4,1>};
 Graph[str] GS = {<"a", "b">, <"c","d">, <"d", "a">};
-----
+```
 The type parameters that are used in the type in the right part of the alias declaration 
 should be defined in the left part of the alias definition.
 

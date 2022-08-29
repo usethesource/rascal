@@ -39,10 +39,9 @@ The following functions are provided for maps:
 (((TOC)))
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 ("pear" : 1, "apple" : 3, "banana" : 0);
-----
+```
 
 .Benefits
 

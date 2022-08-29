@@ -7,15 +7,14 @@ Visit the elements in a tree or value.
 visit case default top-down top-down-break bottom-up bottom-up-break innermost outermost
 
 .Syntax
-[source,rascal,subs="quotes"]
-----
+```rascal
 Strategy visit ( _Exp_ ) {
 case _PatternWithAction~1~_;
 case _PatternWithAction~2~_;
 ...
 default: ...
 }
-----
+```
 
 .Types
 
@@ -102,26 +101,23 @@ The precise behaviour of the visit expression depends on the type of the subject
 
 .Examples
 Visit a value and increment a counter for pattern `leaf(int N)` matches:
-[source,rascal]
-----
+```rascal
 visit(t) {
      case leaf(int N): c = c + N;   
    };
-----
+```
 Replace all values that match the pattern `red(l, r)`:
-[source,rascal]
-----
+```rascal
 visit(t) {
      case red(l, r) => green(l, r)   
    };
-----
+```
 Do a bottom-up visit of an expression and apply the function `simp` to each subexpression:
-[source,rascal]
-----
+```rascal
 bottom-up visit(e){
            case Exp e1 => simp(e1)
          }
-----
+```
 
 More examples can, for instance, be found in Recipes, see [ColoredTrees]((Recipes:Common-ColoredTrees)), 
 [WordReplacement]((Recipes:Common-WordReplacement)), [CountConstructors]((Recipes:CommonCountConstructors)), 

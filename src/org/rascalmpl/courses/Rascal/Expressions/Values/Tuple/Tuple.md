@@ -39,12 +39,11 @@ The following operators are provided for tuples:
 (((TOC)))
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 tuple[str first, str last, int age] P = <"Jo","Jones",35>;
 P.first;
 P.first = "Bo";
-----
+```
 
 .Benefits
 

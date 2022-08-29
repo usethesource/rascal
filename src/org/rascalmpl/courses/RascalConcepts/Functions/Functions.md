@@ -20,8 +20,7 @@ See [Function Declaration]((Rascal:Declarations-Function)) for details.
 
 .Examples
 Here is an example of a function that counts the number of assignment statements in a program:
-[source,rascal]
-----
+```rascal
 int countAssignments(PROGRAM P){
     int n = 0;
     visit (P){
@@ -30,17 +29,16 @@ int countAssignments(PROGRAM P){
     }
     return n;
 }
-----
+```
 
 Consider the following use of higher-order functions:
-[source,rascal]
-----
+```rascal
 int double(int x) { return 2 * x; }
 
 int triple(int x) { return 3 * x; }
 
 int f(int x, int (int) multi){ return multi(x); }
-----
+```
 
 The functions `double` and `triple` simply multiply their argument with a constant. 
 Function `f` is, however, more interesting. 
@@ -48,10 +46,9 @@ It takes an integer `x` and a function `multi` (with integer argument and intege
 applies multi to its own argument. `f(5, triple)` will hence return `15`. 
 Function values can also be created anonymously as illustrated by the following, alternative, 
 manner of writing this same call to `f`:
-[source,rascal]
-----
+```rascal
 f(5, int (int y){return 3 * y;});
-----
+```
 
 Here the second argument of `f` is an anonymous function.
 

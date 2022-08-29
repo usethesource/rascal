@@ -15,7 +15,6 @@ This exception is thrown when a syntactically incorrect regular expression is us
 
 .Examples
 The following regular expression `/+/` is incorrect (maybe `/a+/` was meant?):
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 /+/ := "aaaa";
-----
+```

@@ -31,15 +31,13 @@ Adds a segment to the path component of a location.
 This concatenation introduces a path separator (`/`) automatically.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 |tmp:///myDir| + "myFile";
-----
+```
 To get the original back, you can use the `parent` field:
-[source,rascal-shell]
-----
+```rascal-shell
 (|tmp:///myDir| + "myFile").parent
-----
+```
 .Benefits
 
 .Pitfalls

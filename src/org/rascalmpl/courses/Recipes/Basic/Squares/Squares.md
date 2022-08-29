@@ -15,10 +15,9 @@ Print a list of squares
 
 .Examples
 How can we print a list of squares? Here is a solution:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/basic/Squares.rsc[tags=module]
-----
+```
            
 <1> The [IO]((Libraries:Prelude-IO)) module is imported since we want to print things using `println`.
 
@@ -31,25 +30,22 @@ include::{LibDir}demo/basic/Squares.rsc[tags=module]
     and returns a string value instead of printing the results itself.
 
 Here is how `square` can be used:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::basic::Squares;
 squares(9);
-----
+```
 
 `squaresTemplate` gives a similar result but now as a string:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 squaresTemplate(9);
-----
+```
 
 To get a truly identical result we have to import the [IO]((Libraries:Prelude-IO)) module 
 and print the value of `squaresTemplate`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import IO;
 println(squaresTemplate(9));
-----
+```
 
 
 .Benefits

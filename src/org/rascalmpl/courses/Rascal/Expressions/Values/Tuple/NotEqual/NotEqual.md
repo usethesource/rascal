@@ -26,11 +26,10 @@ Not equal operator on tuple values.
 Yields `true` if both tuples are not identical and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 <1, "abc", true> != <1, "abc">;
 <1, "abc", true> != <1, "abc", true>;
-----
+```
 
 .Benefits
 

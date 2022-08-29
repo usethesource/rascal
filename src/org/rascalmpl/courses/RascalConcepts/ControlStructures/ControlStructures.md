@@ -23,22 +23,20 @@ In the latter case, the Boolean expression is executed for each generated value.
 
 .Examples
 A classical if statement:
-[source,rascal]
-----
+```rascal
 if(N <= 0)
      return 1; 
   else
      return N * fac(N - 1);
-----
+```
 
 A combination of a generator and a test:
 
-[source,rascal]
-----
+```rascal
 for(/asgStat(Id name, _) <- P, size(name) > 10){
     println(name);
 }
-----
+```
 This statement prints all identifiers in assignment statements (`asgStat`) that consist of more than 10 characters.
 
 .Benefits

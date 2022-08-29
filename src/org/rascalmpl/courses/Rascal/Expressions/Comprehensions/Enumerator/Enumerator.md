@@ -39,10 +39,9 @@ respectively, their direct children are enumerated. An enumerator is evaluated a
 Type information is used to check the validity of an enumerator and guard you against mistakes.
 An impossible enumerator like 
 
-[source,rascal]
-----
+```rascal
 int N <- {"apples", "oranges"}
-----
+```
 will be flagged as an error since the pattern can never match.
 
 .Examples
@@ -62,11 +61,10 @@ Here are some examples of enumerators:
 
 
 Here are examples of enumerators in action:
-[source,rascal-shell]
-----
+```rascal-shell
 [ N * N | int N <- [1, 2, 3, 4, 5] ];
 {<N, K> | <str K, int N> <- {<"a",10>, <"b",20>, <"c",30>}};
-----
+```
 
 .Benefits
 

@@ -33,15 +33,14 @@ that serves as a identifying message for this assertion.
 When _Exp_~1~ evaluates to `false`, an `AssertionFailed` exception is thrown.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 assert 1==2 : "is never true";
 int div(int x, int y) {
   assert y != 0 : "y must be non-zero";
   return x / y;
 }
 div(4,0);
-----
+```
 
 .Benefits
 

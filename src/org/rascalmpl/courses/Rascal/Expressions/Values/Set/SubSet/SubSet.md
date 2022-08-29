@@ -26,11 +26,10 @@ Subset operator on set values.
 Yields `true` if the value of _SetExp_~1~ is a subset of the value of _SetExp_~2~, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3} <= {1, 2, 3, 4};
 {1, 2, 3} <= {1, 2, 3};
-----
+```
 
 .Benefits
 

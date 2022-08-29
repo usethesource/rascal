@@ -21,15 +21,13 @@ Remedy: Fix the datetime value.
 
 .Examples
 A correct datetime value:
-[source,rascal-shell]
-----
+```rascal-shell
 $2013-07-15T09:15:23.123+03:00$;
-----
+```
 Certain errors, like a wrong day number (here: 40) lead to a parse error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 $2013-07-40T09:15:23.123+03:00$;
-----
+```
 Others, like a wrong month number (here: 15) lead to a DateTimeSyntax error
 //[source,rascal-shell,continue,error]
 //----

@@ -18,18 +18,16 @@ we can reproduce it as visualization.
 
 .Examples
 Here is the solution:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/vis/Logo.rsc[tags=module]
-----
+```
 
                 
 We can use it as follows:
-[source,rascal-figure,width=,height=,file=logo1.png]
-----
+```rascal-figure,width=,height=,file=logo1.png
                 import demo::vis::Logo;
 render(logo());
-----
+```
 will produce:
 
 ![]((logo1.png))

@@ -27,25 +27,21 @@ Remedies:
 Here is an example of the use of insert to swap the arguments of red nodes:
 
 Our favorite data type, colored trees:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 data CTree = leaf(int n) | red(CTree left, CTree right) | green(CTree left, CTree right);
-----
+```
 An example tree:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 CTree T = red(green(leaf(1), red(leaf(2), leaf(3))), red(leaf(4), leaf(5)));
-----
+```
 A visit to swap the arguments of red nodes:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 visit(T){ case red(CTree l, CTree r): insert red(r,l); }
-----
+```
 An error occurs when insert is used outside a visit:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 insert red(leaf(1), leaf(2));
-----
+```
 
 .Benefits
 

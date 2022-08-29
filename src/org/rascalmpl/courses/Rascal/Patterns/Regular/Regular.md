@@ -89,35 +89,30 @@ For convenience, we summarize the most frequently used constructs in regular exp
 
 .Examples
 Here are some examples of regular expression patterns.
-[source,rascal]
-----
+```rascal
 /\brascal\b/i
-----
+```
 does a case-insensitive match (`i`) of the word `rascal` between word boundaries (`\b`). And
-[source,rascal]
-----
+```rascal
 /^.*?<word:\w+><rest:.*$>/m
-----
+```
 does a multi-line match (`m`), matches the first consecutive word characters (`\w`) and assigns them to the variable `word`. The remainder of the string is assigned to the variable `rest`. 
 
 
 A variable reference used to make a non-linear pattern:
-[source,rascal]
-----
-/<x:[a-z]+>---<x>/
+```rascal
+```
 ----
 matches strings like `abc---abc` that consist of two identical sequences of letters separated 
 by three dashes. Variables that are referenced in a regular expression may also come from 
 the context in which the regular expression occurs. For instance,
-[source,rascal]
-----
+```rascal
 /<x><n>/
-----
+```
 will use the current values of `x` and `n` as regular expression. For values `"abc"`, respectively, `3` this would be equivalent to the regular expression:
-[source,rascal]
-----
+```rascal
 /abc3/
-----
+```
 Observe that context variables may be of arbitrary type and that their value is first converted to 
 a string before it is inserted in the regular expression. This can be used in many ways. 
 For instance, regular expressions may contain restrictions on the number of repetitions 
@@ -126,51 +121,45 @@ number of occurrences can be defined.
 Here is how the repetition count can be inserted by a variable reference 
 (where `n` is assumed to have an integer value):
 
-[source,rascal]
-----
+```rascal
 /a{<n>}/
-----
+```
 Taking this example one step further, we can even write
 
-[source,rascal]
-----
+```rascal
 /<x:a{<n>}>/
-----
+```
 in other words, we introduce variable `x` and its defining regular expression contains a 
 reference to a context variable.
 
 
 Multi-line matching:
-[source,rascal-shell]
-----
+```rascal-shell
 /XX$/ := "lineoneXX\nlinetwo";
 /XX$/m := "lineoneXX\nlinetwo";
 /(?m)XX$/ := "lineoneXX\nlinetwo";
-----
+```
 
 Case-insensitive matching:
-[source,rascal-shell]
-----
+```rascal-shell
 /XX/ := "some xx";
 /XX/i := "some xx";
 /(?i)XX/ := "some xx";
-----
+```
 
 Single-line mode:
-[source,rascal-shell]
-----
+```rascal-shell
 /a.c/ := "abc";
 /a.c/ := "a\nc";
 /a.c/s := "a\nc";
 /(?s)a.c/ := "a\nc";
-----
+```
 
 Here are examples, how to escape punctuation characters in regular expressions:
-[source,rascal-shell]
-----
+```rascal-shell
 /a\/b/ := "a/b";
 /a\+b/ := "a+b";
-----
+```
 
 .Benefits
 

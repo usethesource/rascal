@@ -34,37 +34,32 @@ Remedies:
 
 INFO: Eliminate the double [red]##Error: Error:##
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 data Fruit = apple(int n) | orange(int n);
 anno str Fruit @ quality;
 piece = orange(13);
 piece@quality;
-----
+```
 Use the unary postfix operator isDefined `?` to check whether the `quality` annotation is set:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 piece@quality?;
-----
+```
 Use the ternary operator ifDefinedElse `?` to compute an alternative value when the `quality` annotation is not set:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 piece@quality ? "no quality value";
-----
+```
 We can also catch the `NoSuchAnnotation` error. First import the Rascal exceptions (which are also included in `Prelude`)
 and `IO`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 import Exception;
 import IO;
 try piece@quality; catch NoSuchAnnotation(l): println("No such annotation: <l>");
-----
+```
 Finally, we can just assign a value to the `quality` annotation:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 piece@quality = "excellent";
 piece@quality;
-----
+```
 
 .Benefits
 

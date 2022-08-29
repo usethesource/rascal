@@ -34,17 +34,15 @@ The following rules apply:
 In each function with a return type that is void, a return statement is implicitly assumed at the end of each execution path through the function body.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 int twice(int n) { return 2 * n; }
 twice(5);
-----
+```
 Functions that only return a value can be abbreviated (and the return is implicit):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 int twiceb(int n) = 2 * n;
 twiceb(5);
-----
+```
 
 .Benefits
 

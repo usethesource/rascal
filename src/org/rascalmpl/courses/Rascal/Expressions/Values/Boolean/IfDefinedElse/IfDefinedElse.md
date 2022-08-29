@@ -31,31 +31,26 @@ Also see ((Boolean isDefined)) and ((Assignment)).
 
 .Examples
 This test can, for instance, be used to handle the case that a certain key value is not in a map:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 T = ("a" : 1, "b" : 2);
-----
+```
 Trying to access the key `"c"` will result in an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 T["c"];
-----
+```
 Using the `?` operator, we can write:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 T["c"] ? 0;
-----
+```
 This is very useful, if we want to modify the associated value, but are not sure whether it exists:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 T["c"] ? 0 += 1;
-----
+```
 Another example using a list:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L = [10, 20, 30];
 L[4] ? 0;
-----
+```
 It is, however, not possible to assign to index positions outside the list.
 
 .Benefits

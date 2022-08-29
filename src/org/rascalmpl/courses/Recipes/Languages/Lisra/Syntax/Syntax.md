@@ -17,10 +17,9 @@ The textual syntax of Lisp.
 
 The first step in defining Lisp's textual format, we define a grammar for it:
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Lisra/Syntax.rsc[tags=module]
-----
+```
 
                 
 `Whitespace` defines the characters that can be ignored between tokens.

@@ -16,10 +16,9 @@ The abstract syntax for Func.
 .Examples
 
 Here is the abstract syntax for Func:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/AST.rsc[tags=module]
-----
+```
 
                 
 Observe that the abstract syntax follows the structure of the ((Func-ConcreteSyntax)) but

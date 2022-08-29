@@ -38,8 +38,7 @@ Location values are represented by the type `loc` and serve the following purpos
 
 
 URIs are explained in http://en.wikipedia.org/wiki/Uniform_Resource_Identifier[Uniform Resource Identifier]. From their original definition in RFC3986 we cite the following useful overview of an URI:
-[source,rascal]
-----
+```rascal
 
          foo://example.com:8042/over/there?name=ferret#nose
          \_/   \______________/\_________/ \_________/ \__/
@@ -48,7 +47,7 @@ URIs are explained in http://en.wikipedia.org/wiki/Uniform_Resource_Identifier[U
           |   _____________________|__
          / \ /                        \
          urn:example:animal:ferret:nose
-----
+```
 
 The elements of a location value can be accessed and modified using the standard mechanism of field selection and field assignment. The corresponding field names are:
 
@@ -108,15 +107,13 @@ Supported protocols are:
 
 .Examples
 Locations with specific position information should always be generated automatically but for the curious here is an example:
-[source,rascal-shell]
-----
+```rascal-shell
 |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>)
-----
+```
 Note that this is equivalent to using the `home` scheme:
-[source,rascal-shell]
-----
+```rascal-shell
 |home://pico.trm|(0,1,<2,3>,<4,5>)
-----
+```
 
 //FIXME: This throws exceptions
 //Accessing a file `src/HelloWorld.java` in a project with the name `example-project` in the currently running Eclipse is done as follows:
@@ -127,18 +124,16 @@ Note that this is equivalent to using the `home` scheme:
 
 
 You could read a webpage:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 println(readFile(|http://www.example.org|))
-----
+```
 
 Addition on locations creates longer paths:
-[source,rascal-shell]
-----
+```rascal-shell
 x = |tmp://myTempDirectory|;
 x += "myTempFile.txt";
-----
+```
 
 //FIXME: this throws exceptions
 //Check the contents of a folder:

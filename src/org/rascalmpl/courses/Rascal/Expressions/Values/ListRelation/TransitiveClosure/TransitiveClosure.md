@@ -39,10 +39,9 @@ then the transitive closure R+ can be defined as
 
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [<1,2>, <2,3>, <3,4>]+;
-----
+```
 
 .Benefits
 
