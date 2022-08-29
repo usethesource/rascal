@@ -7,8 +7,7 @@ Try to execute a statement and catch resulting exceptions.
 try catch finally
 
 .Syntax
-[source,rascal,subs="quotes"]
-----
+```rascal
 try
    _Statement~1~_;
 catch _PatternWithAction~1~_;
@@ -16,7 +15,7 @@ catch _PatternWithAction~2~_;
 ...
 catch: _Statement~2~_;
 finally: _Statement~3~_;
-----
+```
 
 .Types
 
@@ -46,21 +45,19 @@ Their meaning is as follows:
 .Examples
 Let's define a variant of the [head]((Libraries:List-head)) function that returns the first element of a list,
 but throws an exception when the list is empty. Our variant will return `0` for an empty list:
-[source,rascal-shell]
-----
+```rascal-shell
 import List;
 import Exception;
 int hd(list[int] x) { try return head(x); catch: return 0; }
 hd([1,2,3]);
 hd([]);
-----
+```
 We can also be more specific and catch the `EmptyList` exception
 (which is available here since we have imported the `Exception` module):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 int hd2(list[int] x) { try return head(x); catch EmptyList(): return 0; }
 hd2([]);
-----
+```
 
 
 .Benefits

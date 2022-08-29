@@ -29,11 +29,10 @@ Comparison on nodes is defined by a lexicographic ordering. Node `_N_ = _F_(_N_~
 *  _F_ is lexicographically less than _G_, or _F_ is equal to _G_ and `_n_ < _m_`.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 "f"(10, "abc") < "g"(3);
 "f"(10) < "f"(10, "abc");
-----
+```
 
 .Benefits
 

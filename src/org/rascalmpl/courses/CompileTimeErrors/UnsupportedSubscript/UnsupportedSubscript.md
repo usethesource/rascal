@@ -30,20 +30,18 @@ Remedies:
 
 .Examples
 Here are some correct uses of subscription:
-[source,rascal-shell]
-----
+```rascal-shell
 "abc"[1];
 [1,2,3][1];
 "f"(1,2,3)[1];
 ("a":1, "b":2, "c":3)["b"]
-----
+```
 Here are some erroneous examples:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 true[1];
 123[1];
 {1,2,3}[1];
-----
+```
 
 .Benefits
 

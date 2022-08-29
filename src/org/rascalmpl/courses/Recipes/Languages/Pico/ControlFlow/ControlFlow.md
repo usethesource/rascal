@@ -22,10 +22,9 @@ and an if-then-else statement creates a decision point (its test) that connects 
 The exits of each branch are connected to the exit of the if-then-else statement as a whole.
 
 A control flow graph for Pico programs can be created as follows:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/ControlFlow.rsc[tags=module]
-----
+```
 
                 
 Notes:
@@ -74,11 +73,10 @@ Notes:
 <8> Shows the steps from text to control flow graph.
 
 We can now create a CFG for a small Pico program:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Pico::ControlFlow;
 cflowProgram("begin declare n : natural, s : string; n := 10; s := \"a\"; while n do s := s + \"a\"; n := n - 1 od end");
-----
+```
 
 Is the above not very motivating to move on to ((Pico-Visualize))?
 

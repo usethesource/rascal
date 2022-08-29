@@ -20,10 +20,9 @@ While using the command line interface you have two commands at your proposal:
 
 First, type `help` and get some introductory help:
 
-[source,rascal-shell]
-----
+```rascal-shell
 help
-----
+```
 
 Next, type `help` followed by some search terms will open a browser window 
 with a list of relevant pages in the Rascal documentation. 
@@ -34,8 +33,7 @@ Typing `apropos` followed by search terms shows the search results directly
 in the command shell and does not open a separate browser. Here is a way to search for
 help related to `if`.
 
-[source,rascal-shell]
-----
+```rascal-shell
 apropos if
-----
+```
   

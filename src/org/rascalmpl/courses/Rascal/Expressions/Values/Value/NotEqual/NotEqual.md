@@ -28,22 +28,19 @@ Yields `true` if both arguments are not identical and `false` otherwise.
 .Examples
 
 Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 value X = "abc";
 value Y = "abc";
 value Z = 3.14;
-----
+```
 Now compare `X` and `Y` for inequality:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 X != Y;
-----
+```
 and `X` and `Z`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 X != Z;
-----
+```
 
 .Benefits
 

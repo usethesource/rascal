@@ -22,24 +22,21 @@ Remedies:
 
 .Examples
 Division by 0 gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 3/0;
-----
+```
 Giving an out-of-range argument to a mathematical function also gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import util::Math;
 tan(-550000000000000000000000);
-----
+```
 We can also catch the `ArithmeticException` error. First import the Rascal exceptions (which are also included in `Prelude`)
 and `IO`:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import Exception;
 import IO;
 try println(3/0); catch ArithmeticException(msg): println("The message is: <msg>");
-----
+```
 
 .Benefits
 

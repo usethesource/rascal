@@ -79,11 +79,10 @@ Consider the source code of the now function in the `DateTime` library.
   Get the current datetime.
 
   .Examples
-  [source,rascal-shell]
-  ----
+```rascal-shell
   import DateTime;
   now();
-  ----
+```
   }
   @javaClass{org.rascalmpl.library.DateTime}
   public java datetime now();
@@ -104,11 +103,10 @@ This will be expanded to
   Get the current datetime.
 
   .Examples
-  [source,rascal-shell]
-  ----
+```rascal-shell
   import DateTime;
   now();
-  ----
+```
 ----
 
 and the final result is link:/Libraries#Prelude-DateTime#now[now].

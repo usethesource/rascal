@@ -33,10 +33,9 @@ We split the problem in two parts:
 The main task of `wordCount` is to loop over all lines and to add the word counts per line.
 
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/WordCount/WordCount.rsc[tags=module]
-----
+```
 
                 
 <1> An [enumerator]((Rascal:Comprehensions-Enumerator)) is used to generated all the lines in the list of lines.
@@ -44,8 +43,7 @@ include::{LibDir}demo/common/WordCount/WordCount.rsc[tags=module]
 
 Let's now do some experiments using the ((Jabberwocky)) poem by Lewis Carrol as input.
 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::WordCount::WordCount;
 import demo::common::WordCount::CountInLine1;
 import demo::common::WordCount::CountInLine2;
@@ -54,22 +52,20 @@ import demo::common::WordCount::Jabberwocky;
 wordCount(Jabberwocky, countInLine1);
 wordCount(Jabberwocky, countInLine2);
 wordCount(Jabberwocky, countInLine3);
-----
+```
 It is satisfactory that the three ways of counting words all yield the same result.
 
 If you are into one-liners, we can include everything you learned from this example
 in the following alternative `wordCount2` function:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 int wordCount2(list[str] lines) = (0 | it + (0 | it + 1 | /\w+/ := line) | str line <- lines);
 wordCount2(Jabberwocky);
-----
+```
 The function body contains two nested [reducers]((Rascal:Expressions-Reducer)).
 The inner reducer counts the number of words in a line, the outer reducer accumulates all line word counts.
 
-[source,rascal-shell,continue]
-----
-----
+```rascal-shell,continue
+```
 
 
 .Benefits

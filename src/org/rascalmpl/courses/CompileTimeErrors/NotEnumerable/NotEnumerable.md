@@ -22,11 +22,10 @@ This is typically the case for atomic values like numbers, Booleans and Strings,
 Remedy: modify the expression in the enumerator to return a value that supports enumeration.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 int x <- 17
 b <- true
-----
+```
 
 .Benefits
 

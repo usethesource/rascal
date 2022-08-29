@@ -26,22 +26,19 @@ or values of ((Annotation Declaration)) which have not been set yet.
 No other values can be used in an undefined state, so the ? operator does not make sense on undefined or uninitialized variables for example.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 M = ("Andy": 1, "Brian" : 2);
-----
+```
 Using an `isDefined` assignable can we increment a non-existing entry:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 M["SomebodyElse"] ? 0 += 1;
 M["SomebodyElse"];
-----
+```
 And if we increment an existing entry the ? has no effect:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 M["Andy"] ? 0 += 1;
 M["Andy"]
-----
+```
 
 .Benefits
 

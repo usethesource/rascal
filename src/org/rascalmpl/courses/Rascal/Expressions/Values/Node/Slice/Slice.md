@@ -89,41 +89,35 @@ Some common use cases (with `begin` <= `end`):
 
 Let's put this into practice now.
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 ND = "f"(0, "abc", 20, false, 40, [3,4,5], 60, {"a", "b"}, 80);
-----
+```
 Slices with begin < end
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 ND[1..3];
 ND[1..];       // empty end => end of list of children
 ND[..3];       // empty begin => first child of list
 ND[..];        // both empty => whole list of children
-----
+```
 Slices with  begin >= end
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 ND[3..1];      // slice contains children with indices 3 and 2 (in that order)
 ND[3..3];      // empty slice when begin == end
-----
+```
 Slices with negative begin or end:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 ND[2..-2];     // equivalent to ND[2..7]
 ND[2..7];
 ND[-4..-2];    // equivalent to ND[5..7]
 ND[5..7];
-----
+```
 Slices with an explicit second index:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 ND[1,3..6];
 ND[5,3..];
-----
+```
 Explore error cases:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 ND[..10];
 ND[1..20];
-----
+```

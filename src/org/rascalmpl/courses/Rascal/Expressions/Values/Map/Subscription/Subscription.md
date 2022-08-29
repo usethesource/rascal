@@ -26,22 +26,19 @@ Map subscription uses the value of _Exp_~2~ as key in the map value of _Exp_~1~ 
 If this key does not occur in the map, the exception `NoSuchKey` is thrown.
 
 .Examples
-[source,rascal-shell,error]
-----
-----
+```rascal-shell,error
+```
 Introduce a map, assign it to `colors`, and retrieve the element with index `"trumps"`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 colors = ("hearts":"red", "clover":"black", 
           "trumps":"black", "clubs":"red");
 colors["trumps"];
-----
+```
 Explore some erroneous subscription expressions:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 colors[0];
 colors["square"];
-----
+```
 
 .Benefits
 

@@ -28,15 +28,13 @@ see ((Values-Constructor)).
 
 The following data declaration defines the datatype `Bool` that contains various constants (`tt()` and `ff()`
 and constructor functions `conj` and `disj`.
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 data Bool = tt() | ff() | conj(Bool L, Bool R)  | disj(Bool L, Bool R);
-----
+```
 terms of type `Bool` can be constructed using the defined constructors:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 conj(tt(),ff());
-----
+```
 
 .Benefits
 

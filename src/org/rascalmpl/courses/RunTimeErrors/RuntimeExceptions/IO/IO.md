@@ -33,20 +33,18 @@ Remedies:
 
 .Examples
 Import the `IO` library and attempt to use a non-existing scheme:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import IO;
 readFile(|myScheme:///example.rsc|);
-----
+```
 We can catch this `IO` error. First import the Rascal exceptions (which are also included in `Prelude`):
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 import Exception;
 try 
   readFileLines(|myScheme:///example.rsc|); 
 catch IO(msg): 
   println("This did not work: <msg>");
-----
+```
 
 .Benefits
 

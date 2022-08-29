@@ -24,18 +24,16 @@ In general, the value of a do statement consists of all values contributed by ((
 that are executed during the repeated execution of its body Statement.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 int n = 3;
 do { println("n = <n>"); n -= 1; } while (n > 0);
-----
+```
 Now build a list result using the `append` statement:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 n = 3;
 do { append n * n; n -= 1; } while (n > 0);
-----
+```
 
 .Benefits
 

@@ -25,20 +25,17 @@ Remedies:
 
 .Examples
 Here is a correct (albeit not very useful) use of `fail` where the pattern match `int N := 35` acts as guard:
-[source,rascal-shell]
-----
+```rascal-shell
 if(int N := 35){ if(N > 10) fail; }
-----
+```
 Any condition (non only one using pattern matching) can act as guard:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if(true) { fail; }
-----
+```
 An error occurs when `fail` is used outside a conditional context:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 fail;
-----
+```
 
 .Benefits
 

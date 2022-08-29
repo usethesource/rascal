@@ -36,32 +36,27 @@ In other words: a call between two procedures will be lifted to
 a call between the components to which each procedure belongs.
 
 Here is a solution:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/Lift.rsc[tags=module]
-----
+```
 
 And we can use it as follows:
 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::Lift;
-----
+```
 Encode the call relation and partOf relation:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 calls = {<"main", "a">, <"main", "b">, <"a", "b">, <"a", "c">, <"a", "d">, <"b", "d">};        
 partOf = {<"main", "Appl">, <"a", "Appl">, <"b", "DB">, <"c", "Lib">, <"d", "Lib">};
-----
+```
 and do the lifting:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 lift(calls, partOf);
-----
+```
 Please verify that this corresponds exactly to (c) in the figure above.
-[source,rascal-shell,continue]
-----
-----
+```rascal-shell,continue
+```
 
 .Benefits
 

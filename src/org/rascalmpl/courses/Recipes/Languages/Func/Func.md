@@ -57,28 +57,24 @@ Here are several versions of the factorial function
 that use more and more features of the Func language:
 
 `F0.func`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F0.func[]
-----
+```
 
 `F1.func`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F1.func[]
-----
+```
 
 `F2.func`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F2.func[]
-----
+```
 
 `F3.func`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F3.func[]
-----
+```
 
                 
 For convenience, we use two versions of these examples for each _F_~i~:
@@ -88,10 +84,9 @@ For convenience, we use two versions of these examples for each _F_~i~:
 
 
 For instance, `F0.rsc` looks like this 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F0.rsc[]
-----
+```
 
 NOTE: Note the escaped `<` character in `\\<=`. This is necessary since `<` and `>` are used
 in strings to enclose interpolations (insertion of the value of a Rascal expression).

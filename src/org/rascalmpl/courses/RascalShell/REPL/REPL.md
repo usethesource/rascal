@@ -13,32 +13,27 @@ modules and try out their functionality.
 .Examples
 
 Rascal code can be a trivial expression
-[source,rascal-shell]
-----
+```rascal-shell
 1+2
-----
+```
 Or a more complex list comprehension:
-[source,rascal-shell]
-----
+```rascal-shell
 [ n * n | int n <- [0..10] ]
-----
+```
 Or importing a module and using a function declared in it:
-[source,rascal-shell]
-----
+```rascal-shell
 import List;
 size([ n * n | int n <- [0..10] ])
-----
+```
 Another use is to declare variables
-[source,rascal-shell]
-----
+```rascal-shell
 int x = 2;
 int y = 3;
-----
+```
 and use them later on:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 x * y
-----
+```
 
 .Pitfalls
 

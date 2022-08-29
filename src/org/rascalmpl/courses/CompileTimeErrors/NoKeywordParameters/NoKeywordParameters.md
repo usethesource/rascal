@@ -23,17 +23,15 @@ Remedies:
 *  Add a keyword parameter to the function declaration.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 int incr(int x) = x + 1;
 incr(3, delta=5);
-----
+```
 Here is one solution:
-[source,rascal-shell]
-----
+```rascal-shell
 int incr(int x, int delta=1) = x + delta;
 incr(3, delta=5);
-----
+```
 
 .Benefits
 

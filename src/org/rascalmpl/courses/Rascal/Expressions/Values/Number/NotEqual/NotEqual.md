@@ -26,15 +26,14 @@ Not equal operator on numeric values.
 Yields `true` if the value of both arguments is numerically unequal, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 12 != 13
 12 != 12
 12 != 13.0
 12.0 != 13
 3.14 != 3
 3.14 != 3.14
-----
+```
 
 .Benefits
 

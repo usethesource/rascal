@@ -28,12 +28,11 @@ Multiply two numeric values.
 Yields the result of multiplying the values of _Exp~1~_ and _Exp~2~_.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 12 * 13
 12 * 13.5
 -12*13
-----
+```
 
 .Benefits
 

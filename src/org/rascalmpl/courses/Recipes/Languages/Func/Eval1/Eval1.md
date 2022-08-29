@@ -39,10 +39,9 @@ In particular, the let construct is supported and this requires the addition
 of an extra environment for <name, value> bindings.
 
 .Examples
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/Eval1.rsc[tags=module]
-----
+```
 
                 
 <1> The alias `Env` is introduced that maps strings to integers.
@@ -52,19 +51,17 @@ include::{LibDir}demo/lang/Func/Eval1.rsc[tags=module]
 
 
 Let's try this with F1:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F1.func[]
-----
+```
 
 The result:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Func::Load;
 import demo::lang::Func::Eval1;
 import demo::lang::Func::programs::F1;
 eval1("fact", [10], load(F1));
-----
+```
 
 .Benefits
 

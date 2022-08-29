@@ -24,8 +24,7 @@ Also see ((Continue)) and ((Fail)).
 .Examples
 
 Here is an example using break to find the first number divisible by 3:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 for(int i <- [1 .. 10]){
     if(i % 3 == 0){
@@ -33,7 +32,7 @@ for(int i <- [1 .. 10]){
        break;
     }
 }
-----
+```
 
 .Benefits
 

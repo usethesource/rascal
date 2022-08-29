@@ -28,33 +28,28 @@ Remedies:
 
 .Examples
 A false assertion gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 assert 3 > 4;
-----
+```
 Define a function that only increments positive integers:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 int incrPositive(int n) { assert n > 0: "n should be greater than 0"; return n + 1; }
-----
+```
 Calling it with a positive integer is fine:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 incrPositive(3);
-----
+```
 But a negative argument gives an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 incrPositive(-3);
-----
+```
 We can also catch the `AssertionFailed` error. First import the Rascal exceptions (which are also included in `Prelude`)
 and `IO`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 import Exception;
 import IO;
 try println(incrPositive(-3)); catch AssertionFailed(msg): println("incrPositive: <msg>");
-----
+```
 
 .Benefits
 

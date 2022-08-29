@@ -16,10 +16,9 @@ Count words in a line.
 .Examples
 
 Here is a clever, albeit rather dense, solution that illustrates several Rascal concepts.
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/WordCount/CountInLine3.rsc[tags=module]
-----
+```
 
                 
 We use a [reducer]((Rascal:Expressions-Reducer)) that is a recipe to reduce the values produced by one or more generators
@@ -32,11 +31,10 @@ We use a [reducer]((Rascal:Expressions-Reducer)) that is a recipe to reduce the 
 
 
 Let's try it:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::WordCount::CountInLine3;
 countInLine3("Jabberwocky by Lewis Carroll");
-----
+```
 
 .Benefits
 

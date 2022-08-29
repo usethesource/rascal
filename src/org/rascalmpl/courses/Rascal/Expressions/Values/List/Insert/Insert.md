@@ -28,12 +28,11 @@ The `+` operator can insert an element in front of a list. Note that `+` is one 
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 1 + []
 1 + [2]
 1 + [2,3]
-----
+```
 
 .Benefits
 
@@ -42,13 +41,11 @@ The `+` operator can insert an element in front of a list. Note that `+` is one 
 *  If the first operand before the `+` is a list, `+` acts as ((List Concatenation)) and not as ((List Insert))
 
 This is concatenation:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 [1] + [2]
-----
+```
 To insert a list as an element, use extra brackets:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 [[1]] + [2]
-----
+```
 

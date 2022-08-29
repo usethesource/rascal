@@ -40,37 +40,31 @@ A generator can use the variables introduced by preceding generators.
 .Examples
 
 A list comprehension:
-[source,rascal-shell]
-----
+```rascal-shell
 [ 3 * X | int X <- [1 .. 10] ];
-----
+```
 A list comprehension with a filter:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 [ 3 * X | int X <- [1 .. 10], X > 5];
-----
+```
 A list comprehension with multiple contributing expressions:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 [X, X * X | int X <- [1, 2, 3, 4, 5], X >= 3];
-----
+```
 A set comprehension with a filter:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 {X | int X <- {1, 2, 3, 4, 5}, X >= 3};
-----
+```
 A set comprehension that constructs a relation:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 {<X, Y> | int X <- {1, 2, 3}, int Y <- {2, 3, 4}, X >= Y};
 {<Y, X> | <int X, int Y> <- {<1,10>, <2,20>}};
-----
+```
 Introduce a map of `fruits` and use a map comprehension to filter fruits with an associated value larger than 10:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
 (fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
-----
+```
 
 See ((List-Comprehension)), ((Set-Comprehension)), or ((Map-Comprehension)) for more examples.
 

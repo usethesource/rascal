@@ -24,10 +24,9 @@ by appropriately labelling concrete rules with constructor names of the abstract
 
 Here is the code for the `load` funcion:
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/Load.rsc[tags=module]
-----
+```
 
                 
 This looks simple but also slightly intimidating due to the many qualified names.
@@ -39,25 +38,22 @@ For instance, the local version of `implode` defined here get a concrete `Prog` 
 Both `load` function return an abstract `Prog`.
 
 Let's try this on example `F0`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F0.func[]
-----
+```
 
                 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Func::Load;
 import demo::lang::Func::programs::F0;
 load(F0);
-----
+```
 We get the original program and its __abstract syntax tree__ of type `Prog` back.
 In case of doubt, compare this with the result in ((Func-Parse)) where we did obtain a parse tree.
 Next, we try the same from a file:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 load(|std:///demo/lang/Func/programs/F0.func|);
-----
+```
 
 .Benefits
 

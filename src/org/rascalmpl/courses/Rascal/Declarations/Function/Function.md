@@ -111,58 +111,51 @@ The _Modifiers_ affect _visibility_ and _special behaviour_ of functions:
 .Examples
 
 Declare a function
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 rel[int, int] invert(rel[int,int] R){
    return {<Y, X> | <int X, int Y> <- R };
 }
-----
+```
 Call it
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 invert({<1,10>, <2,20>});
-----
+```
 
 In the following example we illustrate the use of type variables in function declarations.
 Declare an inversion function that is applicable to any binary relation:
-[source,rascal-shell]
-----
+```rascal-shell
 rel[&T2, &T1] invert2(rel[&T1,&T2] R){  
    return {<Y, X> | <&T1 X, &T2 Y> <- R };
 }
-----
+```
 Now apply it to relations with different types:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 invert2({<1,10>, <2,20>});
 invert2({<"mon", 1>, <"tue", 2>});
-----
+```
 As another example declare a function that can be used to swap the elements of pairs of arbitrary types
 (also see ((Tuple-Subscription))):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 tuple[&T2, &T1] swap(tuple[&T1, &T2] TP) { return <TP[1], TP[0]>;}
 swap(<1, 2>);
 swap(<"wed", 3>);
-----
+```
 
 Here we use an overloaded definition with incomparable patterns:
-[source,rascal-shell]
-----
+```rascal-shell
 int f(int i) = 1;
 int f(real r) = 2;
 f(0);
 f(0.0);
-----
+```
 
 And we may use `default`, as in:
-[source,rascal-shell]
-----
+```rascal-shell
 int f(0) = 1;
 default int f(int n) = n * f(n - 1);
 f(0);
 f(2);
-----
+```
 
 In combination with an ((Algebraic Data Type)), which defines `default` functions implicitly for every alternative, 
 we can define canonicalization functions. The same holds for ((Syntax Definition))s, see ((Action))s.

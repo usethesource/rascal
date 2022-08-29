@@ -37,8 +37,7 @@ A finer point is that Rascal restricts the filtering of priority such that it is
 
 .Examples
 The following snippet uses all ((Disambiguation-Priority)) features:
-[source,rascal]
-----
+```rascal
 syntax Exp 
   = A: Id
   | B: Number 
@@ -48,7 +47,7 @@ syntax Exp
   > F: Exp "+" Exp;
   | bracket G: "(" Exp ")"
   ;
-----
+```
 A short explanation:
 
 *  C and D share a group of equal priority. They are incomparable in the partial ordering. That's fine because `1![2]` is not ambiguous.

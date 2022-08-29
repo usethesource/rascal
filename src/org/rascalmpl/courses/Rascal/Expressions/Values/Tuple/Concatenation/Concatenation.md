@@ -26,10 +26,9 @@ Concatenate two tuple values.
 Returns a tuple consisting of the concatenation of the tuple elements of _Exp_~1~ and _Exp_~2~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 <"abc", 1, 2.5> + <true, "def">;
-----
+```
 
 .Benefits
 

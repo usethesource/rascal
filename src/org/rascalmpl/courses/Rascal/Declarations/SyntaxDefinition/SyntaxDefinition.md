@@ -84,10 +84,9 @@ The _start_ modifier identifies the start of a grammar.
 The effect of a start modifier is that Rascal will generate an extra syntax definition before generating a parser
 that allows layout to before and after the start non-terminal. 
 For example:
-[source,rascal]
-----
+```rascal
 layout L = [\ ]*; start Program = Statement*;`
-----
+```
 will produce `syntax start[Program] = L Program _top_ L;`. 
 Note that the `start[Program]` type is now available in your program, and ((Parse Trees)) assigned to variable of that 
 type will allow access to the _top_ field.
@@ -95,8 +94,7 @@ type will allow access to the _top_ field.
 
 .Examples
 The following example makes use of practically all of the ((Syntax Definition)) features, except parse actions.
-[source,rascal]
-----
+```rascal
 // layout is lists of whitespace characters
 layout MyLayout = [\t\n\ \r\f]*;
 
@@ -119,7 +117,7 @@ syntax Expression
          )
   | bracket "(" Expression ")"
   ;
-----
+```
 
 .Benefits
 

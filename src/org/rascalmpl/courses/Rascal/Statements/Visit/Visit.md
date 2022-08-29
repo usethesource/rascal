@@ -22,8 +22,7 @@ See ((Expressions-Visit)).
 See ((Expressions-Visit)) for the details.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 x = [[1],[2],[3]];
 if (true) {
   // this visit is a nested statement in an if block:
@@ -31,7 +30,7 @@ if (true) {
     case int i => i + 1
   }
 }
-----
+```
 
 .Benefits
 

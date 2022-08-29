@@ -42,8 +42,7 @@ Note that `&&` backtracks over its argument expressions until it can find an eva
 Variable assignments as a result of matching or generator expressions under a `&&` are visible outside the context of the operator, but only if the context is conditional, such as an if-then-else or a for loop. Note that if one of the argument expressions evaluates to false, then no binding is done either.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 true && false;
 i <- [1,2,3] && (i % 2 == 0)
 import IO;
@@ -51,7 +50,7 @@ if (i <- [1,2,3] && (i % 2 == 0))
   println("<i> % 2 == 0");
 for (i <- [1,2,3,4] && (i % 2 == 0)) 
   println("<i> % 2 == 0");
-----
+```
 
 .Benefits
 
@@ -61,12 +60,11 @@ for (i <- [1,2,3,4] && (i % 2 == 0))
 
 *  Side effects to global variables or IO in the context of a backtracking `&&` can lead to more effects than you bargained for.
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 int i = 0;
 bool incr() { i += 1; return true; }
 for (int j <- [1,2,3] && incr() && (i % 2 == 0)) 
   println("once true for <j>");
 i;
-----
+```

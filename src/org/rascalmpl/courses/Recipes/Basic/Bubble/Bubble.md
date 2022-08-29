@@ -17,10 +17,9 @@ We present here several styles to implement bubble sort.
 Also see [sort]((Libraries:List-sort)) for a more efficient library function for sorting.
 
 .Examples
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/basic/Bubble.rsc[tags=module]
-----
+```
                 
 `sort1` is a classic, imperative style, implementation of bubble sort: it iterates over consecutive pairs of elements and
 when a not-yet-sorted pair is encountered, the elements are exchanged, and `sort1` is applied recursively to the whole list.
@@ -40,8 +39,7 @@ the non-list variables has been omitted.
 `sort5` uses tail recursion to reach a fixed point instead of a while loop. One alternative matches lists with out-of-order elements, while the default alternative returns the list if no out-of-order elements are found.
 
 Let's put them to the test:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::basic::Bubble;
 L = [9,8,7,6,5,4,3,2,1];
 sort1(L);
@@ -49,7 +47,7 @@ sort2(L);
 sort3(L);
 sort4(L);
 sort5(L);
-----
+```
 
 
 .Benefits

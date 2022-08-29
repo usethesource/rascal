@@ -27,15 +27,13 @@ Yields a list of tuples resulting from the product of the values of _Exp_~1~ and
 It contains a tuple for each combination of values from both arguments.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [1, 2, 3] * [4, 5, 6];
-----
+```
 Here is a concise way to create a deck of cards:
-[source,rascal-shell]
-----
+```rascal-shell
 ["clubs", "hearts", "diamonds", "spades"] * [1 .. 13];
-----
+```
 
 .Benefits
 

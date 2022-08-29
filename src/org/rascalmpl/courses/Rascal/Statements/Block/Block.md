@@ -24,22 +24,19 @@ The value produced by a block is the value produced by its last statement (if an
 
 .Examples
 Here is a contrived block of three expressions (be aware of the last semi-colon):
-[source,rascal-shell]
-----
+```rascal-shell
 {1;2;3;}
-----
+```
 its value is `3`.
 
 The effect of a local variable declared in a block can be seen as follows:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 {int x = 3; x*x;}
-----
+```
 After the block we cannot refer to `x`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 x;
-----
+```
 
 
 .Benefits

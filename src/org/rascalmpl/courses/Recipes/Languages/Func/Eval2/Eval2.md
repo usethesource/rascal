@@ -39,10 +39,9 @@ The main additions are local side effects and the sequence operator.
 
 .Examples
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/Eval2.rsc[tags=module]
-----
+```
 
                 
 <1> The alias `Result` is introduced: a pair of an environment and an integer value.
@@ -58,20 +57,18 @@ include::{LibDir}demo/lang/Func/Eval2.rsc[tags=module]
 
 
 We apply `eval2` to example `F2`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Func/programs/F2.func[]
-----
+```
 
                 
 Let's try this.
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Func::Load;
 import demo::lang::Func::Eval2;
 import demo::lang::Func::programs::F2;
 eval2("fact", [10], load(F2));
-----
+```
 
 .Benefits
 

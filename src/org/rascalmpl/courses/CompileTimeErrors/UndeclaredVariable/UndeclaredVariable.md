@@ -24,16 +24,14 @@ Remedy:
 
 .Examples
 Here is an example where an undeclared variables occurs in list splicing:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 [1, *x, 3]
-----
+```
 The remedy is here:
-[source,rascal-shell]
-----
+```rascal-shell
 x = 5;
 [1, *x, 3]
-----
+```
 
 .Benefits
 

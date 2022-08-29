@@ -28,14 +28,13 @@ Division on numeric values.
 Yields the result of dividing the value of _Exp~1~_ by the value of _Exp~2~_.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 12 / 3
 10 / 3
 12 / 3.0
 10 / 3.0
 12 / 0
-----
+```
 
 .Benefits
 

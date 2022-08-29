@@ -28,24 +28,21 @@ consists of all values contributed by ((Statements-Append)) statements that are 
 of its body _Statement_.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 int n = 3;
 while( n > 0 ) { println("n = <n>"); n -= 1; }
-----
+```
 Now build a list result using the `append` statement:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 n = 3;
 while (n > 0) { append n * n; n -= 1; }
-----
+```
 
 Just to be sure, a ((List-Comprehension)) is the superior way to write this:
-[source,rascal-shell]
-----
+```rascal-shell
 [n * n | n <- [3 .. 1]];
-----
+```
 
 .Benefits
 

@@ -26,11 +26,10 @@ Not equal operator on string values.
 Yields `true` if both arguments are not identical and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 "abc" != "defghi";
 "abc" != "abc";
-----
+```
 
 .Benefits
 

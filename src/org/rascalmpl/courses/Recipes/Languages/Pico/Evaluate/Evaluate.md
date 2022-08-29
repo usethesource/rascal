@@ -18,10 +18,9 @@ Evaluate a Pico program.
 .Examples
 
 A complete evaluator (interpreter) for Pico is defined below.
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/Eval.rsc[tags=module]
-----
+```
 
                 
 Notes:
@@ -34,11 +33,10 @@ Notes:
 
 
 Here is how to evaluate a Pico program:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Pico::Eval;
 evalProgram("begin declare x : natural, y : natural; x := 1; y := x + 5 end");
-----
+```
 
 .Benefits
 

@@ -21,12 +21,11 @@ The value `V` of _Assignable_ is determined and should be of a type that has a f
 The value of that field is replaced in _V_ by the value of _Exp_ resulting in a new value _V_' that is assigned to _Assignable_.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 data FREQ = wf(str word, int freq);
 W = wf("rascal", 1000);
 W.freq = 100000;
-----
+```
 
 .Benefits
 

@@ -27,10 +27,9 @@ We present here rules for determining the derivative `dE/dX` of simple expressio
 
 Here is our solution followed by a list of explanations:
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/Derivative.rsc[tags=module]
-----
+```
 
 <1> Define a data type `Exp` to represent expressions.
 <2> Introduce an example expression `E` for later use.
@@ -42,22 +41,19 @@ rules on the up.
 
                 
 Let's differentiate the example expression `E`:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::Derivative;
 dd(E, var("x"));
-----
+```
 As you can see, we managed to compute a derivative, but the result is far more complex than we would like.
 This is where simplification comes in. First try a simple case:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 simplify(mul(var("x"), add(con(3), con(5))));
-----
+```
 Now apply simplification to the result of differentiation:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 simplify(dd(E, var("x")));
-----
+```
 
 .Benefits
 

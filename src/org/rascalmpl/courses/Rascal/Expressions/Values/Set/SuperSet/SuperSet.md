@@ -26,11 +26,10 @@ Superset operator on set values.
 Yields `true` if the value of _Exp_~1~ is a superset of the value of _Exp_~2~ and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3, 4} >= {3, 2, 1};
 {1, 2, 3, 4} >= {4, 3, 2, 1};
-----
+```
 
 .Benefits
 

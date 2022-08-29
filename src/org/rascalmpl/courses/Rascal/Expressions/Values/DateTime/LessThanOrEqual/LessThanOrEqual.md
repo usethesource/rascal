@@ -28,11 +28,10 @@ Yields `true` if the `datetime` value of _Exp_~1~ is earlier in time than the `d
 of _Exp_~2~ or if the values of _Exp_~1~ and _Exp_~2~ are equal, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 $2010-07-15$ <= $2010-07-15$;
 $2011-07-15$ <= $2010-07-14$;
-----
+```
 
 .Benefits
 

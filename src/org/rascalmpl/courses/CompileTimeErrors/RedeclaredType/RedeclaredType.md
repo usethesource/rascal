@@ -21,17 +21,15 @@ This error signals that the same type name is used for incompatible purposes.
 Remedy: rename one of the type names.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 data D = d(int x);
 alias D = str;
-----
+```
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 alias D = int;
 alias D = str;
-----
+```
 
 .Benefits
 

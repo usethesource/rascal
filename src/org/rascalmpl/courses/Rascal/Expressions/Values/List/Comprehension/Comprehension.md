@@ -28,15 +28,13 @@ generators _Gen_~1~, _Gen_~2~, _Gen_~3~, ... that are evaluated as described in 
 
 .Examples
 Computing a list of squares of the numbers from 0 to 10 that are divisible by 3:
-[source,rascal-shell]
-----
+```rascal-shell
 [n * n | int n <- [0 .. 10], n % 3 == 0];
-----
+```
 But we can also include the relevant `n` in the resulting list:
-[source,rascal-shell]
-----
+```rascal-shell
 [n, n * n | int n <- [0 .. 10], n % 3 == 0];
-----
+```
 
 .Benefits
 

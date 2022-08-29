@@ -25,17 +25,15 @@ Remedies:
 
 .Examples
 Using the undeclared type `myint` gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 myint incr(myint n) = n + 1;
-----
+```
 The solkution is to first declares `myint` (here as an alias for `int`):
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 alias myint = int;
 myint incr(myint n) = n + 1;
 incr(3);
-----
+```
 
 .Benefits
 

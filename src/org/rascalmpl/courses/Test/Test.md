@@ -6,8 +6,7 @@ See examples below!!!
 
 # Examples 
  
-[source,rascal-shell]
-----
+```rascal-shell
 import Content; 
 html("hello", "this is some \<strong\>HTML\</strong\> output")
 file("image", |https://www.rascal-mpl.org/assets/ico/favicon.png|)
@@ -18,7 +17,7 @@ count;
 count = 66;
 content("counter", Response (Request _) { count += 1; return response("count: <count>"); })
 count;
-----
+```
 
 * _emphasis_
 * *bold*

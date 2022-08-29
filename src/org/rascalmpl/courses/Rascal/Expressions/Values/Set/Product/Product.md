@@ -26,15 +26,13 @@ The product of two set values.
 Yields a relation resulting from the product of the values of _Exp_~1~ and _Exp_~2~. It contains a tuple for each combination of values from both arguments.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3} * {4, 5, 6};
-----
+```
 A card deck can be created as follows:
-[source,rascal-shell]
-----
+```rascal-shell
 {"clubs", "hearts", "diamonds", "spades"} * {1,2,3,4,5,6,7,8,9,10,11,12,13};
-----
+```
 
 .Benefits
 

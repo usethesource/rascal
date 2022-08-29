@@ -22,9 +22,8 @@ This exception is thrown when optional information is not available.
 
 .Examples
 
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 $2016-09-14$.hour;
 someLoc = |home:///abc.txt|;
 someLoc.offset;
-----
+```

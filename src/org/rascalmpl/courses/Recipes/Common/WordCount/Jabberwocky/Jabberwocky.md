@@ -14,10 +14,9 @@ Lewis Carroll's well-known poem.
 .Description
 
 .Examples
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/WordCount/Jabberwocky.rsc[tags=module]
-----
+```
 
                 
 .Benefits

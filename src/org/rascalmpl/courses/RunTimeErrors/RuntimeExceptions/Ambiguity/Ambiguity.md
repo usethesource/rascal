@@ -13,46 +13,40 @@ an ambiguity is found while parsing the sentence according to that grammar.
 .Examples
 First declare a very simple expression language that should
 recognize expressions like `a`, `a+a`, `a+(a+a)`:
-[source,rascal-shell]
-----
+```rascal-shell
 syntax A = "a";
 syntax E = A | "(" E ")" | E "+" E;
-----
+```
 Next, import the ParseTree module that provides a `parse` function that we will use:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import ParseTree;
-----
+```
 Entering a first expression goes well, except that the parser generator already predicts future ambiguity. So it prints a warning.
-[source,rascal-shell-error,continue]
-----
+```rascal-shell-error,continue
 parse(#E, "a+a");
-----
+```
 
 The following example triggers the predicted ambiguity indeed:
 
-[source,rascal-shell,continue,errors]
-----
+```rascal-shell,continue,errors
 parse(#E, "a+a+a");
-----
+```
 The conclusion is that there are two parses here: `a+(a+a)` and `(a+a)+a`, 
 because we did forget to define the associativity of the `+` operator.
 
 Let's fix this:
 
-[source,rascal-shell,errors]
-----
+```rascal-shell,errors
 syntax A = "a";
 syntax E = A | "(" E ")" | left E "+" E;
 import ParseTree;
 parse(#E, "a+a+a");
-----
+```
 
 However, one can also deal with ambiguity differently. For example we could have the parser build a tree
 for all ambiguous interpretations and inspect the resulting data-structure:
 
-[source,rascal-shell,errors]
-----
+```rascal-shell,errors
 syntax A = "a";
 syntax E = A | "(" E ")" | left E "+" E | left E "*" E;
 import ParseTree;
@@ -67,18 +61,17 @@ import IO;
 if (/amb({a1, a2}) := t) 
   println("alternative 1: <a1.prod>
           'alternative 2: <a2.prod>");
-----
+```
 
 Or, one could catch the ambiguity and report it like a ((Parse Error)):
 
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import IO;
 try 
   parse(#E, "a+a*a");
 catch Ambiguity(loc l, str s, _): 
   println("the input is ambiguous for <s> on line <l.begin.line>");
-----
+```
 
 Here are some pointers for further disambiguation help:
 

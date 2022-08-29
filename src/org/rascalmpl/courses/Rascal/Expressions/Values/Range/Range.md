@@ -27,21 +27,19 @@ A range with integer expressions is identical to a list ((List Slice)).
 However, a range may also contain numeric expressions that are not integers.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [1 .. 10];
 [1, 3 .. 10];
 [0.5, 3.2 .. 10];
 [1, -2 .. -10];
-----
+```
 
 .Benefits
 Ranges are mostly used to loop over ranges of integers.
 
 .Pitfalls
 In some cases ranges are empty where one could have expected at least one element:
-[source,rascal-shell]
-----
+```rascal-shell
 [1, 3 .. -10];
-----
+```
 

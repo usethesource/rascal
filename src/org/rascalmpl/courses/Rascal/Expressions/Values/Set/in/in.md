@@ -26,11 +26,10 @@ in
 Yields `true` if the value of _Exp_~1~ occurs as element in the value of _Exp_~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 2 in {1, 2, 3};
 4 in {1, 2, 3};
-----
+```
 
 .Benefits
 

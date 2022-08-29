@@ -24,8 +24,7 @@ See [Switch]((Rascal:Statements-Switch)),[Visit]((Rascal:Expressions-Visit)) and
 .Examples
 We use the [ColoredTrees]((Recipes:Common-ColoredTrees)) datatype as example and use a switch to
 distinguish between red and black nodes:
-[source,rascal-shell]
-----
+```rascal-shell
 data ColoredTree = 
       leaf(int N) 
     | red(ColoredTree left, ColoredTree right) 
@@ -38,7 +37,7 @@ case red(_, _):
 case black(_, _):
      println("A black root node");
 }
-----
+```
 
 .Benefits
 

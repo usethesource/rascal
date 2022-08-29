@@ -39,20 +39,17 @@ The following are provided for nodes:
 .Examples
 
 A node with name "my_node" and three arguments:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 "my_node"(1, true, "abc");
-----
+```
 A nested node structure:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 "my_node1"(1, "my_node2"(3.5, ["a", "b", "c"]), true);
-----
+```
 A node with named fields:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 "my_node2"(1,2,size=2,age=24);
-----
+```
 
 .Benefits
 

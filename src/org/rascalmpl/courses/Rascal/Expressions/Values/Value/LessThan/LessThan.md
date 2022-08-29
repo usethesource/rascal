@@ -36,22 +36,19 @@ than (according to the ordering defined above) the value of _Exp_~2~, and `false
 .Examples
 
 Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 value X = "abc";
 value Y = "def";
 value Z = 3.14;
-----
+```
 Now compare `X` and `Y`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 X < Y;
-----
+```
 and `X` and `Z`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 X < Z;
-----
+```
 
 .Benefits
 

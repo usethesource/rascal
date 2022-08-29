@@ -47,21 +47,19 @@ The following operators are provided on list:
 There are also [library functions]((Libraries:Prelude-List)) available for List.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [1, 2, 3];
 [<1,10>, <2,20>, <3,30>];
 [1, "b", 3];
 [<"a",10>, <"b",20>, <"c",30>];
 [["a", "b"], ["c", "d", "e"]];
-----
+```
 List splicing works as follows: by prefixing `L` by the splice operator, its elements are included as elements in the enclosing list:
-[source,rascal-shell]
-----
+```rascal-shell
 L = [1, 2, 3];
 [10, L, 20];
 [10, *L, 20];
-----
+```
 
 .Benefits
 

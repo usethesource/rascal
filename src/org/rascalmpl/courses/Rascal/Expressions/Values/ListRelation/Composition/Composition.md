@@ -27,10 +27,9 @@ o
 Returns the composition of two binary list relations.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [<1,10>, <2,20>, <3,15>] o [<10,100>, <20,200>];
-----
+```
 
 .Benefits
 

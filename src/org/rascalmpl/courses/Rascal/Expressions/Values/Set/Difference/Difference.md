@@ -30,13 +30,12 @@ If _Exp_~2~ does not have a set as value, it is first converted to a set before 
 The difference is computed by removing all elements of the second set from the first set.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3, 4} - {1, 2, 3};
 {1, 2, 3, 4} - {3};
 {1, 2, 3, 4} - 3;
 {1, 2, 3, 4} - {5, 6, 7};
-----
+```
 
 .Benefits
 

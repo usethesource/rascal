@@ -19,10 +19,9 @@ Compile a Pico program to assembly language.
 
 The Pico compiler translates Pico programs to ((Pico-Assembly)) language programs.
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/Compile.rsc[tags=module]
-----
+```
 
                 
 Notes:
@@ -50,14 +49,12 @@ Notes:
 
 
 Here is an example:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Pico::Compile;
 compileProgram("begin declare x : natural; x := 47 end");
-----
+```
 Here is the compilation of the factorial program:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 compileProgram("begin declare input : natural,  
                '              output : natural,           
                '             repnr : natural,
@@ -74,7 +71,7 @@ compileProgram("begin declare input : natural,
                '          input := input - 1
                '      od
                'end");
-----
+```
 
 .Benefits
 

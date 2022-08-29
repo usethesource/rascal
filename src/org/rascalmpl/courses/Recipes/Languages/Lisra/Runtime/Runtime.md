@@ -22,10 +22,9 @@ that have to be described:
 *  The way the interpreter returns its results (see `Result` below).
 
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Lisra/Runtime.rsc[tags=module]
-----
+```
 
                 
 <1> The data type `Lval` takes care of the representation of Lisp values.

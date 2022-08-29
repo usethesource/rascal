@@ -28,10 +28,9 @@ Returns the intersection of the two list values of  _Exp_~1~ and _Exp_~2~, i.e.,
 the list value of _Exp_~1~ with all elements removed that do not occur in the list value of _Exp_~2~.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [1, 2, 3, 4, 5] & [4, 5, 6];
-----
+```
 
 .Benefits
 

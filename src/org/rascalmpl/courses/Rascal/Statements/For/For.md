@@ -26,12 +26,11 @@ By default, the value of a for statement is the empty list. In general,
 the value of a for statement consists of all values contributed by ((Statements-Append)) statements that are executed during the repeated execution of its body Statement.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 for(int n <- [1 .. 5]) println("n = <n>");
 for(int n <- [1 .. 5]) append n * n;
-----
+```
 
 .Benefits
 

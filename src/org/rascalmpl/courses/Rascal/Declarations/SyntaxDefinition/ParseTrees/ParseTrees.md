@@ -40,8 +40,7 @@ Each such a non-terminal type has `Tree` as its immediate super-type.
                 
 .Examples
 
-[source,rascal]
-----
+```rascal
 // the following definition
 syntax A = "a";
 // would make the following [Test] succeed:
@@ -57,10 +56,9 @@ appl(prod(
         {}),
       [char(97)])]);
 // you see that the defined non-terminal A ends up as the production for the outermost node. As the only child is the tree for recognizing the literal a, which is defined to be a single a from the character-class [ a ].
-----
+```
 
-[source,rascal]
-----
+```rascal
 // when we use labels in the definitions, they also end up in the trees:
 // the following definition
 lexical A = myA:"a" B bLabel;
@@ -68,7 +66,7 @@ lexical B = myB:"b";
 // would make the following [Test] succeed:
 test a() = parse(#A,"ab") == appl(prod(label("myA",lex("A")),[lit("a"),sort("bLabel",lex("B"))],{}),[appl(prod(lit("a"),[\char-class([range(97,97)]),[char(97)]),appl(prod(label("myB", lex("B"),[lit("b")],{}),[appl(prod(lit("b"),[\char-class([range(98,98)]),[char(98)])]) ]);
 // here you see that the alternative name is a label around the first argument of `prod` while argument labels become labels in the list of children of a `prod`.
-----
+```
 .Benefits
 
 .Pitfalls

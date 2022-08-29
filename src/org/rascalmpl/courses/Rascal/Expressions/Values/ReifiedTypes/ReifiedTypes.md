@@ -34,47 +34,40 @@ A type literal wraps a `Symbol` and a map of `Production`s.
 
 .Examples
 First import the module `Type`:
-[source,rascal-shell]
-----
+```rascal-shell
 import Type;
-----
+```
 Builtin types can be constructed without definitions, so the reified type representation is simple:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 #int
 #list[int]
 #rel[int from, int to]
-----
+```
 to get the symbol from the reified type:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 #int.symbol
-----
+```
 or we can use some definitions and reify the defined type to see a different behavior:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 data Nat = zero() | succ(Nat prev) | add(Nat l, Nat r) | mul(Nat l, Nat r);
 #Nat
-----
+```
 and we can get an abstract definition of the constructors of the [AlgebraicDataType]:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import Type;
 #Nat.definitions[adt("Nat",[])]
-----
+```
 we could go the other way around and construct a type literal dynamically:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 type(\int(),())
 type(\int(),()) == #int
-----
+```
 we use type literals often in IO to express an expected type:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 import ValueIO;
 int testInt = readTextValueString(#int, "1");
 tuple[int,int] testTuple = readTextValueString(#tuple[int,int], "\<1,2\>");
-----
+```
 
 
 

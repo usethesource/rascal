@@ -26,11 +26,10 @@ Cartesian product of two list relation values.
 Returns a binary relation that is the http://en.wikipedia.org/wiki/Cartesian_product[Cartesian product] of two lists.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [1, 2, 3] * [9];
 [1, 2, 3] * [10, 11];
-----
+```
 
 .Benefits
 

@@ -23,25 +23,21 @@ An alias declaration states that _Name_ can be used everywhere instead of the al
 Both types are thus structurally equivalent. 
 
 .Examples
-[source,rascal-shell]
-----
-----
+```rascal-shell
+```
 Introduce two aliases `ModuleId` and `Frequency` for the type str.
-[source,rascal,continue]
-----
+```rascal,continue
 alias ModuleId = str;
 alias Frequency = int;
-----
+```
 Another example is an alias definition for a graph containing integer nodes:
-[source,rascal,continue]
-----
+```rascal,continue
 alias IntGraph = rel[int,int];
-----
+```
 Note that the Rascal Standard Library provides a graph data type that is defined as follows:
-[source,rascal,continue]
-----
+```rascal,continue
 alias Graph[&T] = rel[&T, &T];
-----
+```
 In other words the standard graph datatype can be parameterized with any element type.
 
 See ((Type Parameters)) for other examples parameterized alias declarations.

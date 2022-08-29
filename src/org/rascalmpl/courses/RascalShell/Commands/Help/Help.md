@@ -8,7 +8,6 @@ Get a reminder of the shell commands.
 
 .Description
 
-[source,rascal-shell]
-----
+```rascal-shell
 :help
-----
+```

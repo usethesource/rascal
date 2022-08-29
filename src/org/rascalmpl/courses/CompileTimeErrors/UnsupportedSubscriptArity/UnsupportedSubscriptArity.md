@@ -27,12 +27,11 @@ of indices that are used.
 Remedies: correct the number of indices used in the subscription.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 [1,2,3][2,1];
 ("a":1, "b":2, "c":3)["c", "d"];
 <1, 2, 3>[5,6];
-----
+```
 
 .Benefits
 

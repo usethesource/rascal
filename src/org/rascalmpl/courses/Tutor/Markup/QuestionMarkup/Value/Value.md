@@ -49,35 +49,32 @@ See the effect of the following value questions in the Questions section below.
 ##  Question 1 
 
 The following question can be paraphrased as: _I give you a union of two sets of integers, what is its value?_
-[source,rascal]
-----
+```rascal
 QValue: <A:set[int]> + <B:same[A]>
-----
+```
 
 ##  Question 2 
 
 The following question can be paraphrased as: _What is the size of a given list of integers?_
-[source,rascal]
-----
+```rascal
 QValue:
 prep: import List;
 test: size(<A:list[int]>) == <?>
-----
+```
 Note that the `List` module is imported as a preparatory step.
 
 ##  Question 3 
 
 The following question can be paraphrased as: 
 _I give you a union of integers or strings and an unknown set and the result of the union; what is the value of the unknown set?_
-[source,rascal]
-----
+```rascal
 QValue:
 make: A = set[arb[int,str]]
 make: B = same[A]
 expr: C = <A> + <B>
 hint: <B>
 test: <A> + <?> == <C>
-----
+```
 
 Observe that we generate values for `A` and `B` and compute the value of `C`.
 The value of `B` is the answer we are looking for, and we replace it by `<?>` in the posed test.
@@ -87,8 +84,7 @@ When the student gives a wrong answer, we show the value of `B` as hint.
 
 The following question can be paraphrased as: 
 _Fill in the hole in the definition of funcion find to ensure that it returns all strings that contain "o"._
-[source,rascal]
-----
+```rascal
 QValue:
 desc: Return the strings that contain "o".
 list:
@@ -100,7 +96,7 @@ public list[str] find(list[str] text){
         <?>;
 }
 test: find(text) == ["moi", "Mousa", "polutropon"];
-----
+```
 
 .Benefits
 

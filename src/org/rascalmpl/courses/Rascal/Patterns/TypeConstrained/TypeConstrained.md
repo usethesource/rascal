@@ -22,30 +22,26 @@ Warning: This does not seem to work properly. There is a bug.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
-----
+```
 Some example data type which contains generic values as well as specific expressions:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 data Exp = val(value v) | add(Exp l, Exp r) | sub(Exp l, Exp r);
 ex = add(add(val("hello"(1,2)),val("bye")), sub(val(1),val(2)));
-----
+```
 Here we constrain the match to find only Exps:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 visit (ex) {
   case [Exp] str name(_,_) : println("node name is <name>");
 }
-----
+```
 Here we do not constrain the same pattern:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 visit (ex) {
   case str name(_,_) : println("node name is <name>");
 }
-----
+```
 
 .Benefits
 

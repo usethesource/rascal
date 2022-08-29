@@ -26,11 +26,10 @@ Equal operator on set values.
 Yields `true` if both arguments are equal sets and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3} == {3, 2, 1};
 {1, 2, 3} == {1, 2};
-----
+```
 
 .Benefits
 

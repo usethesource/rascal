@@ -27,12 +27,11 @@ Negate a numeric value.
 Yields the negated values of _Exp_.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 -12
 -13.5
 - -12
-----
+```
 
 .Benefits
 

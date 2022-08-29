@@ -28,11 +28,10 @@ The operator `+` appends an element at the end of a list. The `+` is one of thos
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 [] + 1;
 [1] + 2;
-----
+```
 
 .Benefits:
 
@@ -41,14 +40,12 @@ The operator `+` appends an element at the end of a list. The `+` is one of thos
 * If both operands of `+` are a list, then it acts as ((List Concatenation)) 
 
 This is concatenation:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 [1] + [2]
-----
+```
 
 To append a list to a list, use extra brackets:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 [1] + [[2]]
-----
+```
 

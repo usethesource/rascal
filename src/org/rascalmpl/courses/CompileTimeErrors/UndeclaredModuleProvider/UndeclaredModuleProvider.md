@@ -23,16 +23,14 @@ Remedy: Use an existing scheme.
 
 .Examples
 Misspelling the scheme for Rascal's standard library (which is `std`) gives an error when the location is used:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import IO;
 readFileLines(|standard:///demo/basic/Hello.rsc|);
-----
+```
 This is fixed by using the proper scheme name:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 readFileLines(|std:///demo/basic/Hello.rsc|);
-----
+```
 
 .Benefits
 

@@ -33,15 +33,13 @@ right click on it and then select `Run as Rascal Application`.
 
 .Examples
 Here is a correct import of the library module `List`:
-[source,rascal-shell]
-----
+```rascal-shell
 import List;
-----
+```
 Here is the effect of a misspelled module name (assuming that you do not have a module `Lis`):
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import Lis;
-----
+```
 
 .Benefits
 

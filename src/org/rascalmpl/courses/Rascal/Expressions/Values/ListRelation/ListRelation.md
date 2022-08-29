@@ -50,17 +50,15 @@ There are also [library functions]((Libraries:Prelude-ListRelation)) available f
 
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [<1,10>, <2,20>, <3,30>]
-----
+```
 instead of lrel[int,int] we can also give `list[tuple[int,int]]` as type of the above expression
 remember that these types are interchangeable.
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 [<"a",10>, <"b",20>, <"c",30>]
 [<"a", 1, "b">, <"c", 2, "d">]
-----
+```
 
 .Benefits
 

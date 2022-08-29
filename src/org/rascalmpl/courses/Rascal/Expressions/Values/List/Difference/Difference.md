@@ -32,15 +32,14 @@ The difference is computed by taking the successive elements of the second list 
 removing the first occurrence of that element in the first list. 
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [1, 2, 3, 4] - [1, 2, 3];
 [1, 2, 3, 4] - [3];
 [1, 2, 3, 4] - 3;
 [1, 2, 3, 4] - [5, 6, 7];
 [1, 2, 3, 1, 2, 3] - [1];
 [1, 2, 3, 1, 2, 3] - [1, 2];
-----
+```
 
 .Benefits
 

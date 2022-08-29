@@ -42,23 +42,20 @@ the traversal of the subject continues.
 
 .Examples
 Two examples of variant 1 (replacement):
-[source,rascal]
-----
+```rascal
 case red(CTree l, CTree r) => red(r,l)
 case red(l, r) => green(l, r)
-----
+```
 Three examples of variant 2 (Statement):
-[source,rascal]
-----
+```rascal
 case /Leila/: println("The topic is Starwars");
 case red(_, _):    println("A red root node");
 case red(_,_): c = c + 1; 
-----
+```
 The action may also be a ((Block)):
-[source,rascal]
-----
+```rascal
 case red(_,_): { c = c + 1; println("c = <c>"); }
-----
+```
 
 .Benefits
 

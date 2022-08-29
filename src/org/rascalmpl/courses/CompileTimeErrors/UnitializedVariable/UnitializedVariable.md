@@ -21,16 +21,14 @@ Remedy: assign a value to the variable before its use:
 
 .Examples
 Using the uninitialized variable `x` gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 x + 5;
-----
+```
 This can be avoided by first initializing `x`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 x = 3;
 x + 5;
-----
+```
 
 .Benefits
 

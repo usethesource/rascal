@@ -29,12 +29,11 @@ ListRelation resulting from the natural join of the list relation values of the 
 This list relation contains tuples that are the result from concatenating the elements from both arguments.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 [<1,2>, <10,20>] join [<2,3>];
 [<1,2>] join [3, 4];
 [<1,2>, <10,20>] join [<2,3>, <20,30>];
-----
+```
 
 .Benefits
 

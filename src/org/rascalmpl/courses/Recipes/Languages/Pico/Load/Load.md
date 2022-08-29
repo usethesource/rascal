@@ -17,10 +17,9 @@ Convert a Pico parse tree into a Pico abstract syntax tree.
 
 .Examples
 The mapping between parse tree and abstract sybtax tree is achieved as follows:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/lang/Pico/Load.rsc[tags=module]
-----
+```
 
                 
 Notes:
@@ -37,11 +36,10 @@ The `parse` function returns a parse tree of the input program.
 
 
 The function `load` can be used as follows:
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::lang::Pico::Load;
 load("begin declare x : natural; x := 3 end");
-----
+```
 
 Observe how the various parts of the abstract syntax tree are annotated with location attributes.
 

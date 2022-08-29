@@ -39,13 +39,11 @@ then the transitive closure R+ can be defined as
 
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {<1,2>, <2,3>, <3,4>}+;
-----
+```
 We can also simply (but not necessarily efficiently) define transitive closure ourselves:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 rel[int,int] tclosure(rel[int,int] R) {
    tc = R;
    while(true){
@@ -56,7 +54,7 @@ rel[int,int] tclosure(rel[int,int] R) {
    }
 }
 //tclosure({<1,2>, <2,3>, <3,4>});
-----
+```
 
 .Benefits
 

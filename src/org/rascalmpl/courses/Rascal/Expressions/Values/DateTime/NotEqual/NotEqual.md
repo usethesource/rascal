@@ -24,11 +24,10 @@ Not equal operator on datetime values.
 Yields `true` if both arguments are different `datetime` values and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 $2010-07-15$ != $2010-07-14$;
 $2010-07-15$ != $2010-07-15$;
-----
+```
 
 .Benefits
 

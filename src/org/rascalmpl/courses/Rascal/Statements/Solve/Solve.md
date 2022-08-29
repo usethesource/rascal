@@ -31,20 +31,18 @@ in which values can only become larger until a fixed upper bound or become small
 .Examples
 Let's consider transitive closure as an example (transitive closure is already available as built-in operator, 
 we use it here just as a simple illustration). Transitive closure of a relation is usually defined as:
-[source,rascal]
-----
+```rascal
 R+ = R + (R o R) + (R o R o R) + ...
-----
+```
 In other words, it is the union of successive ((Relation-Composition))s of `R` with itself. 
 For a given relation `R` this can be expressed as follows:
-[source,rascal-shell]
-----
+```rascal-shell
 rel[int,int] R = {<1,2>, <2,3>, <3,4>};
 T = R;
 solve (T) {
           T = T + (T o R);
         }
-----
+```
 
 .Benefits
 

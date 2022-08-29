@@ -28,11 +28,10 @@ _Exp_ should evaluate to a tuple with field _Name_ and returns the value of that
 _Name_ stands for itself and is not evaluated.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 tuple[int key, str val] T = <1, "abc">;
 T.val;
-----
+```
 
 .Benefits
 

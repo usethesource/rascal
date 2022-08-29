@@ -8,8 +8,7 @@ Open an editor for a Rascal module
 
 .Description
 
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 :edit IO
-----
+```

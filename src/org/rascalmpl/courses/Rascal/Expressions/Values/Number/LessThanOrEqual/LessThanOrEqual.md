@@ -28,13 +28,12 @@ Less than or equal operator on numeric values.
 Yields `true` if the value of _Exp~1~_ is numerically less than or equal to the value of _Exp~2~_, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 13 <= 12
 12 <= 13
 13.5 <= 12
 12.5 <= 13
-----
+```
 
 .Benefits
 

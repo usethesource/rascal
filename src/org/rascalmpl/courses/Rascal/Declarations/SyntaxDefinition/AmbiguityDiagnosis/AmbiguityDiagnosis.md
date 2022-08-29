@@ -18,11 +18,10 @@ DrAmbiguity is a library that processes any parse forest produced by a parser ge
 Please read ((Disambiguation)) first.
 
 .Examples
-[source,rascal]
-----
+```rascal
 import analysis::grammars::Ambiguity;
 diagnose(t); // for any t of which you know it contains an ambiguity
-----
+```
 
 .Benefits
 

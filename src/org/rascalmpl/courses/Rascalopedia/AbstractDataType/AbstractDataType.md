@@ -51,10 +51,9 @@ See [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) and
 ## Abstract Data Types in Rascal
 
 *  A tree data type:
-[source,rascal]
-----
+```rascal
 data MyTree = leaf(int n) | tree(str name, MyTree left, MyTree right);
-----
+```
 
 .Benefits
 

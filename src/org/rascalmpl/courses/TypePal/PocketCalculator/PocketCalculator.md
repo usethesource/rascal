@@ -11,8 +11,7 @@ See ((Examples of Typecheckers)) for a list of all available type checker exampl
 
 == Syntax of Calc
 
-[source,rascal]
-----
+```rascal
 module lang::calc::Syntax
 
 extend lang::CommonLex;     //<1>
@@ -38,7 +37,7 @@ syntax Exp
 keyword Reserved
     = "var" | "if" | "then" | "else"
     ;     
-----  
+```
 
 <1> For brevity we use some common lexical definitions  in `lang::CommonLex`. They take, amongst others, care of whitespace, comments and
     definitions for integer and Boolean constants (`Integer` and `Boolean`) as well as identifiers (`Id`).
@@ -72,13 +71,12 @@ and describe the parts as we go. You should be explicitly aware of the fact that
 
 === Begin of type checker module for Calc
 
-[source,rascal]
-----
+```rascal
 module lang::calc::Checker
 
 import lang::calc::Syntax;                  // The Calc syntax
 extend analysis::typepal::TypePal;          // TypePal
-----
+```
 
 We import the Calc syntax `lang::calc::Syntax` and then we _extend_ the TypePal `analysis::typepal::TypePal`.
 
@@ -89,8 +87,7 @@ and functions (e.g., `collect`) are already defined in TypePal itself and they a
 
 TypePal has a built-in data type to represent types: `AType`. This data type can be extended to represent language-specific types.
 
-[source,rascal]
-----
+```rascal
 data AType   
     = boolType()    
     | intType()                                     
@@ -98,7 +95,7 @@ data AType
     
 str prettyAType(boolType()) = "bool";
 str prettyAType(intType()) = "int";
-----
+```
 
 The values in Calc are Booleans and integers and we create two `AType` constants `boolType()` and `intType()` to represent these types.
 `prettyAType` converts them back to a string representation; this is used in error reporting.
@@ -107,10 +104,9 @@ The values in Calc are Booleans and integers and we create two `AType` constants
 
 Writing a type checker in TypePal amounts to collecting facts and constaints from a source program to be checked.
 This is achieved by the `collect` function that has the form
-[source,rascal,subs="verbatim,quotes"]
-----
+```rascal,subs="verbatim,quotes"
 void collect(current: _syntactic pattern_, Collector c){ ... }`
-----
+```
 
 where _syntactic pattern_ corresponds with a rule from the  language syntax, in this case `lang::calc::Syntax`.
 The `Collector` argument provides methods to add facts and constraints.
@@ -124,13 +120,12 @@ WARNING: Each `collect` declaration is responsible for calling `collect` on rele
 ==== Check Declaration
 
 A declaration introduces a new name and associates the type of the righthand side expression with it.
-[source,rascal]
-----
+```rascal
 void collect(current: (Decl) `var <Id name> = <Exp exp> ;`, Collector c){
     c.define("<name>", variableId(), current, defType(exp));
     collect(exp, c);
 }
-----
+```
 Here we define `name` as a variable and define its type as the same type as `exp`. Let's digest this:
 
 - `c.define(...)` calls the `define` function in the `Collector` and adds this definition to the internal state of the Collector.
@@ -147,12 +142,11 @@ Here we define `name` as a variable and define its type as the same type as `exp
 An expression consisting of a single identifier, refers to a name introduced in another declaration
 and gets the type introduced in that declaration.
 
-[source,rascal]
-----
+```rascal
 void collect(current: (Exp) `<Id name>`, Collector c){
     c.use(name, {variableId()});
 }
-----
+```
 
 An expression consisting of a single identifier represents a _use_ of that identifier.
 `c.use(_name_, _roles_)` records this. There are then two possibilities:
@@ -166,8 +160,7 @@ NOTE: We do not enforce _define-before-use_ in this example, but see ((XXX)) how
 
 ==== Check Exp: Boolean and Integer constants
 
-[source,rascal]
-----
+```rascal
 void collect(current: (Exp) `<Boolean boolean>`, Collector c){
     c.fact(current, boolType());
 }
@@ -175,7 +168,7 @@ void collect(current: (Exp) `<Boolean boolean>`, Collector c){
 void collect(current: (Exp) `<Integer integer>`, Collector c){
     c.fact(current, intType());
 }
-----
+```
 
 When encountering a Boolean or integer constant we record their type using `c.fact(current, _its type_)`.
 
@@ -183,13 +176,12 @@ NOTE: The second argument of `fact` maybe an `AType`, an arbitrary parse tree (i
       or a function that returns a type.
 
 ==== Check Exp: parentheses
-[source,rascal]
-----
+```rascal
 void collect(current: (Exp) `( <Exp e> )`, Collector c){
     c.fact(current, e);
     collect(e, c);
 }
-----
+```
 The type of an expression enclosed by parentheses is the same as the same of the enclosed expression.
 
 A final, essential, step is to collect constraints from the subpart `e`.
@@ -197,8 +189,7 @@ A final, essential, step is to collect constraints from the subpart `e`.
 ==== Check Exp: addition
 
 Addition of integers given an integer result and addition of Booleans gives a Boolean result.
-[source,rascal]
-----
+```rascal
 void collect(current: (Exp) `<Exp e1> + <Exp e2>`, Collector c){
      c.calculate("addition", current, [e1, e2],
         AType (Solver s) { 
@@ -211,7 +202,7 @@ void collect(current: (Exp) `<Exp e1> + <Exp e2>`, Collector c){
         });
       collect(e1, e2, c);
 }
-----
+```
 
 Checking addition is more complex since we need the type of sub expressions `e1` and `e2` in order to do our job.
 The type of an arbitrary parse tree can be computed using 
@@ -237,8 +228,7 @@ otherwise report an error._
 A final, essential, step is to collect constraints from the subparts `e1` and `e2`.
 
 ==== Check Exp: multiplication
-[source,rascal]
-----
+```rascal
 void collect(current: (Exp) `<Exp e1> * <Exp e2>`, Collector c){
      c.calculate("multiplication", current, [e1, e2],
         AType (Solver s) { 
@@ -251,12 +241,11 @@ void collect(current: (Exp) `<Exp e1> * <Exp e2>`, Collector c){
         });
       collect(e1, e2, c);
 }
-----
+```
 Checking multiplication follows exactly the same pattern as checking addition. Even in this simple example we see repetition of code that could be factored out.
 
 ==== Check Exp: conditional expression
-[source,rascal]
-----
+```rascal
 void collect(current: (Exp) `if <Exp cond> then <Exp e1> else <Exp e2>`, Collector c){
     c.calculate("if Exp", current, [cond, e1, e2],
         AType(Solver s){
@@ -268,7 +257,7 @@ void collect(current: (Exp) `if <Exp cond> then <Exp e1> else <Exp e2>`, Collect
         });
     collect(cond, e1, e2, c);
 }
-----
+```
 Checking a conditional expression amounts to checking that the condition has type Boolean and
 that the then and else branch have the same type (which also becomes the type of the conditional expression as a whole).
 In the above code we see `s.requireEqual(_arg1_, _arg2_, _message_)`. 
@@ -282,14 +271,13 @@ A final, essential, step is to collect constraints from the subparts `cond`, `e1
 
 === Getting started
 
-[source,rascal]
-----
+```rascal
 module lang::calc::Test
 
 extend lang::calc::Checker;
 extend analysis::typepal::TestFramework;    // TypePal test utilities
 import ParseTree;                           // In order to parse tests
-----
+```
 
 We need three ingredients for testing:
 
@@ -299,22 +287,20 @@ We need three ingredients for testing:
 
 === Manual testing
 
-[source,rascal]
-----
+```rascal
 TModel calcTModelFromTree(Tree pt){
     return collectAndSolve(pt);
 }
-----
+```
 Given a parse tree `pt` for a Calc program, we apply ((collectAndSolve)) to it. This creates a Collector, uses it to collect constraints from `pt` and then creates a Solver 
 to solve all constraints. The result is a `TModel`. `calcTModelFromTree` will also be used during automated testing.
 
-[source,rascal]
-----
+```rascal
 TModel calcTModelFromStr(str text){
     pt = parse(#start[Calc], text).top;
     return calcTModelFromTree(pt);
 }
-----
+```
 In order to obtain a parse tree, we need to parse it as shown above.
 
 TModels contain much information but here we are only interested in the messages that have been generated during constraint solving.
@@ -326,13 +312,12 @@ With the above machinery in place we can perform some experiments:
 - `calcTModelFromStr("var x = 3+true;").messsages` reports that addition of integer and Boolean is illegal.
 
 === Automated testing
-[source,rascal]
-----
+```rascal
 bool calcTests() {
      return runTests([|project://typepal-examples/src/lang/calc/tests.ttl|], 
                      #Calc, calcTModelFromTree);
 }
-----
+```
 
 TypePal's testing framework enables scripting of tests. Each script is written in TTL (TypePal Testing Language).
 Use `runtests(_list of TTL files_, _start non-terminal_, _function to create a TModel_)` to execute the scripts.

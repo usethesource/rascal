@@ -23,10 +23,9 @@ In real applications this becomes relevant when counting, for instance, statemen
 
 .Examples
 
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/common/CountConstructors.rsc[tags=module]
-----
+```
 
                 
 Two data types are introduced `ColoredTree` and `Hand` together
@@ -44,13 +43,12 @@ with an example value of each (`CT`, respectively, `H`).
 <6> Defines a variant `countRelevant`; it gets is an extra argument of relevant constructors
 names that is used to filter the map that is returned by `count` using [domainR]((Libraries:Map-domainR)).
 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::common::CountConstructors;
 count(CT);
 count(H);
 countRelevant(H, {"hearts", "spades"});
-----
+```
 
 .Benefits
 

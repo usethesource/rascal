@@ -28,13 +28,12 @@ Add an element to a set.
 The `+` operator will add elements to sets.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 {1, 2, 3} + 4;
 1 + { 2, 3, 4};
 {1} + 1;
 1 + {1};
-----
+```
 
 .Benefits
 

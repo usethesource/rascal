@@ -52,8 +52,7 @@ The result is a ListRelation with all tuples that have these index values as fir
 with the index values removed from the tuple. 
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 R = [<1,10>, <2,20>, <1,11>, <3,30>, <2,21>];
 R[1];
 R[{1}];
@@ -62,25 +61,22 @@ RR = [<1,10,100>,<1,11,101>,<2,20,200>,<2,22,202>,
               <3,30,300>];
 RR[1];
 RR[1,_];
-----
+```
 Introduce a relation with economic data and assign it to `GDP`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 lrel[str country, int year, int amount] GDP =
 [<"US", 2008, 14264600>, <"EU", 2008, 18394115>,
  <"Japan", 2008, 4923761>, <"US", 2007, 13811200>, 
  <"EU", 2007, 13811200>, <"Japan", 2007, 4376705>];
-----
+```
 and then retrieve the information for the index `"Japan"`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 GDP["Japan"];
-----
+```
 or rather for the indices `"Japan"` and `2008`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 GDP["Japan", 2008];
-----
+```
 
 .Benefits
 

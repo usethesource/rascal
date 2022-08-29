@@ -29,67 +29,58 @@ Special cases exist when one of the patterns _Pat_~i~ is
 
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
-----
+```
 
 * A single variable
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if([10, int N, 30, 40, 50] := [10, 20, 30, 40, 50])
    println("Match succeeded, N = <N>");
-----
+```
 
 * An untyped multi-variable:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if([10, *L, 50] := [10, 20, 30, 40, 50])
    println("Match succeeded, L = <L>");
-----
+```
 
 * A typed multi-variable:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if([10, *int L, 50] := [10, 20, 30, 40, 50])
    println("Match succeeded, L = <L>");
-----
+```
 
 A list pattern may also be __non-linear__, i.e., it may contain uses of variables that were bound earlier in the pattern
 (here, the second occurence of `L`):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if([10, *L, 40, *L, 50] := [10, 20, 30, 40, 20, 30, 50])
    println("Match succeeded, L = <L>");
-----
+```
 Here we see an example, where all pairs of equal elements in a list are printed:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 for([*L1, int N, *L2, N, *L3] := [ 5, 10, 20, 30, 40, 30, 15, 20, 10])
     println("N = <N>");
-----
+```
 Here we print all ways in which a given list can be partitioned in two lists:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 for([*L1, *L2] := [10, 20, 30, 40, 50]) 
     println("<L1> and <L2>");
-----
+```
 
 * Already declared list variable:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 list[int] L;
 if([10, L, 50] := [10, 20, 30, 40, 50])
    println("Match succeeded, L = <L>");
-----
+```
 
 * Already declared element variable:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 int N;
 if([10, N, 30, 40, 50] := [10, 20, 30, 40, 50])
    println("Match succeeded, N = <N>");
-----
+```
 
 .Benefits
 

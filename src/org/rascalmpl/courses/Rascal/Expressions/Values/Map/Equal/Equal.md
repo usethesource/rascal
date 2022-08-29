@@ -25,11 +25,10 @@ Equality operator on maps.
 Yields `true` if both arguments contain the same key/value pairs, and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 ("apple": 1, "pear": 2) == ("pear": 2, "apple": 1);
 ("apple": 1, "pear": 2) == ("apple": 1, "banana": 3) 
-----
+```
 
 .Benefits
 

@@ -24,30 +24,25 @@ Remedies:
 *  Rewrite the expression compleye to get the effect you intended.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 L = [1,2,3];
-----
+```
 Division is not supported on lists:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 [1, 2, 3] / 4;
-----
+```
 Combined multiplication and assignment is not supported either:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L *= 3;
-----
+```
 Taking the time from a date-only value is not supported:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 $2010-07-15$.justTime;
-----
+```
 Calling an integer as a function is not supported:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 17(3, "abc");
-----
+```
 
 .Benefits
 

@@ -40,8 +40,7 @@ When `fail` is executed:
 Here is an example taken from [Bubble]((Recipes:Bubble)). 
 It uses a `fail` for the case that no unsorted element can be found in the list of numbers.
 As a result, the whole case fails and the default case is used.
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 public list[int] sort(list[int] numbers){
   switch(numbers){
@@ -55,7 +54,7 @@ public list[int] sort(list[int] numbers){
    }
 }
 sort([10, 1, 5, 3]);
-----
+```
 
 .Benefits
 

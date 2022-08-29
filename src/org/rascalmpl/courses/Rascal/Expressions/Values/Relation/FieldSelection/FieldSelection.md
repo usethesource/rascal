@@ -28,11 +28,10 @@ Return a set with all values of that field.
 _Name_ stands for itself and is not evaluated.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 rel[str street, int nm] R = {<"abc", 1>, <"abc", 2>, <"def", 4>, <"def", 5>};
 R.street;
-----
+```
 
 .Benefits
 

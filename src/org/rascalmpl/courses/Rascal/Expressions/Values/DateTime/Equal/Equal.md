@@ -27,11 +27,10 @@ Equality on datetime values.
 Yields `true` if both arguments are identical `datetime` values and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 $2010-07-15$ == $2010-07-15$;
 $2010-07-15$ == $2010-07-14$;
-----
+```
 
 .Benefits
 

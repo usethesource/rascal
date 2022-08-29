@@ -24,13 +24,12 @@ A list is a sequence of values with the following properties:
 
 
 Formally, a list can be defined as follows. Given the domains `ELEM` (elements) and `LIST` (lists) and the functions:
-[source,rascal]
-----
+```rascal
 nil :             -> LIST
 cons: ELEM x LIST -> LIST
 head: LIST        -> ELEM
 tail: LIST        -> LIST
-----
+```
 `nil` and `cons` are so-called _constructor functions_ that define the values in `LIST`. They can be paraphrased as:
 
 *  The _empty list_ `nil` is an element of `LIST`.
@@ -39,11 +38,10 @@ tail: LIST        -> LIST
 
 `head` (take the first element) and `tail` (take the remainder of a list)
 are defined functions characterized by the axioms:
-[source,rascal]
-----
+```rascal
 head(cons(e, l)) = e
 tail(cons(e, l)) = l
-----
+```
 The cases `head(nil)` and `tail(nil)` are left undefined (and usually correspond to a runtime error in a programming language).
 
 In Rascal, lists are surrounded by brackets `[` and `]` and the elements are separated by commas.

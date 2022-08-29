@@ -26,11 +26,10 @@ Equality operator on string values.
 Yields `true` if both arguments are identical and `false` otherwise.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 "abc" == "abc";
 "abc" == "defghi";
-----
+```
 
 .Benefits
 

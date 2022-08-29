@@ -35,10 +35,9 @@ Remedies:
 If you are an expert developer, please check the body of the offending function first.
 
 .Examples
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 java int incr(int x) {}
-----
+```
 
 .Benefits
 

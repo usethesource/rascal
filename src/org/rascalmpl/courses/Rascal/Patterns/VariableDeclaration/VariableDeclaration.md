@@ -14,10 +14,9 @@ Variable declaration in abstract pattern.
 .Description
 
 A variable declaration
-[source,rascal,subs="quotes"]
-----
+```rascal
 _Type_ _Var_
-----
+```
 can be used as abstract pattern.
 A variable declaration introduces a new variable _Var_ that matches any value of the given type _Type_.
 That value is assigned to _Var_ when the whole match succeeds.
@@ -27,24 +26,21 @@ or the enclosing ((If)), ((While)), or ((Do)) if the pattern occurs in the test 
 
 .Examples
 Let's first perform a match that succeeds:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 str S := "abc";
-----
+```
 and now we attempt to inspect the value of `S`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 S;
-----
+```
 
 As mentioned above: `S` is only bound in the scope of the match expression!
 Let's explore how bindings work in an if statement:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 if(str S := "abc")
    println("Match succeeds, S == \"<S>\"");
-----
+```
 
 .Benefits
 

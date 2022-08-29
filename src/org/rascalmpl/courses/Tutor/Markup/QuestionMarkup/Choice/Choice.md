@@ -29,14 +29,13 @@ When generating a question 3 choices (including one good answer) are presented i
 Providing more good and bad answers will therefore create more variation in the generated questions.
 
 .Examples
-[source,rascal]
-----
+```rascal
 QChoice[Faster]: Which means of transportation is faster:
 b: Apache Helicopter
 g: High-speed train
 b: Ferrari F430
 b: Hovercraft
-----
+```
 will produce the question `Faster` in the questions section below.
 
 And, by the way, the http://en.wikipedia.org/wiki/High-speed_rail[High-speed train] wins with over 570 km/hour compared to

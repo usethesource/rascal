@@ -32,26 +32,23 @@ Remedies:
 .Examples
 
 Initialize a list `L`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L = [0, 10, 20, 30, 40];
-----
+```
 The legal indices are 0, 1, 2, 3, 4, so index 5 gives an error:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 L[5];
-----
+```
 We can catch the `IndexOutOfBounds` error. First import the Rascal exceptions (which are also included in `Prelude`)
 and `IO`:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 import Exception;
 import IO;
 try 
   L[5]; 
 catch IndexOutOfBounds(msg):
   println("The message is: <msg>");
-----
+```
 
 
 .Benefits

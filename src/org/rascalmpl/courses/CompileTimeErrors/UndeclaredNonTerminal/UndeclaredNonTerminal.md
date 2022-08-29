@@ -23,12 +23,11 @@ Remedy: declare the offending non-terminal.
 .Examples
 
 Here is an example where the non-terminal `Y` is not declared:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 import ParseTree;
 syntax X = "a" Y;
 parse(#X, "ab");
-----
+```
 
 .Benefits
 

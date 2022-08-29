@@ -21,15 +21,13 @@ Remedy: remove the qualification.
 
 .Examples
 Using a qualified name gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 data M::D = d();
-----
+```
 Without the qualification, this is correct:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 data D = d();
-----
+```
 
 .Benefits
 

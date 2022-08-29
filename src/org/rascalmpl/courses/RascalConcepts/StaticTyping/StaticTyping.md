@@ -47,36 +47,30 @@ set union and the like.
 .Examples
 
 Some example can illustrate the above.
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 int I = 3;
-----
+```
 Since I is declared as type `int`, we cannot assign a `real` value to it:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 I = 3.5;
-----
+```
 
-[source,rascal-shell]
-----
+```rascal-shell
 num N = 3;
-----
+```
 Since N is declared as type `num`, we can assign both `int` and `real` values to it:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 N = 3.5;
-----
+```
 
 Since all types are a subtype of type `value`, one can assign values of any type to a variable declared as `value`:
-[source,rascal-shell]
-----
+```rascal-shell
 value V = 3;
 V = "abc";
 V = false;
-----
+```
 We can use pattern matching to classify the actual type of a value:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 str classify(value V){
   switch(V){
     case str S: return "A string";
@@ -87,24 +81,21 @@ str classify(value V){
 classify(V);
 V = 3.5;
 classify(V);
-----
+```
 
 In addition to these standard examples, it is interesting that all [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) are subtypes of type `node`.
 Let's introduce a simple `Color` data type:
-[source,rascal-shell]
-----
+```rascal-shell
 data Color = red(int level) | blue(int level);
-----
+```
 Unsurprisingly, we have:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 Color C = red(3);
-----
+```
 Due to subtyping, we can also have:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 node ND = red(3);
-----
+```
 
 One example of the actual application of subtypes can be found in 
 [Count Constructors]((Recipes:Common-CountConstructors)).

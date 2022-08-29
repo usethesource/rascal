@@ -28,25 +28,21 @@ and _Exp_~2~ (the values associated with those key values) and a number of
 generators _Gen_~1~, _Gen_~2~, _Gen_~3~, ... that are evaluated as described in ((Expressions-Comprehensions)).
 
 .Examples
-[source,rascal-shell]
-----
-----
+```rascal-shell
+```
 Introduce a map of `fruits`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
 import String;
-----
+```
 Use a map comprehension to filter fruits with a name of at most 5 characters:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 (fruit : fruits[fruit] | fruit <- fruits, size(fruit) <= 5);
-----
+```
 Use a map comprehension to filter fruits with an associated value larger than 10:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 (fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
-----
+```
 
 .Benefits
 

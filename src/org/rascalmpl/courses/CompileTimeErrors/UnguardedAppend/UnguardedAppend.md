@@ -21,15 +21,13 @@ Remedy: use List concatenation to append an element to a list outside a loop.
 
 .Examples
 This is the typical use of `append`:
-[source,rascal-shell]
-----
+```rascal-shell
 for(int i <- [1..5]) append i*i;
-----
+```
 Using append outside a loop gives an error:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 append 3;
-----
+```
 
 
 .Benefits

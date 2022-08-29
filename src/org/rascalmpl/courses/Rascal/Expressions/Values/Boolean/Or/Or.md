@@ -42,14 +42,13 @@ Note that `||` will backtrack over its argument expressions until it can find an
 Variable assignments as a result of matching or generator expressions under a `||` are visible outside the context of the operator, but only if the context is conditional, such as an if-then-else or a for loop. Note that it is statically required that both sides of an `||` introduce the same variable names of the same type.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 false || true;
 (i <- [1,2,3,4] && i % 2 == 0) || false
 for ((i <- [1,2,3,4] && i % 2 == 0) || false) 
   println("true for <i>");
-----
+```
 
 .Benefits
 

@@ -24,34 +24,29 @@ It can occur in a list pattern or set pattern and can match zero or more list or
 Optionally the *element type* of the multi-variable may be specified.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
-----
+```
 Using lists:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if([10, *N, 50] := [10, 20, 30, 40, 50])
    println("Match succeeds, N == <N>");
-----
+```
 the above is equivalent with:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if([10, *int N, 50] := [10, 20, 30, 40, 50])
    println("Match succeeds, N == <N>");
-----
+```
 Using sets:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if({10, *S, 50} := {50, 40, 30, 30, 10})
    println("Match succeeds, S == <S>");
-----
+```
 the above is equivalent with:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 if({10, *int S, 50} := {50, 40, 30, 30, 10})
    println("Match succeeds, S == <S>");
-----
+```
 
 .Benefits
 

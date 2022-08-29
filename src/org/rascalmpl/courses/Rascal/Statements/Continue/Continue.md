@@ -24,15 +24,14 @@ Also see ((Break)) and ((Fail)).
 
 .Examples
 Here is an example using continue to avoid printing numbers that are divisible by 3:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 for(int i <- [1 .. 10]){
     if(i % 3 == 0)
        continue;
     println("i = <i>");
 }
-----
+```
 
 .Benefits
 

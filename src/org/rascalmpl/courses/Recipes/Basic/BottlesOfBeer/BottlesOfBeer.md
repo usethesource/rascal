@@ -18,10 +18,9 @@ and the lyrics can be found http://99-bottles-of-beer.net/lyrics.html[here].
 
 .Examples
 Here is our version:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/basic/Bottles.rsc[tags=module]
-----
+```
 
                 
 <1> We use an auxiliary function `bottles` that returns the word "bottle" adjusted for the actual number of bottles that is available.
@@ -35,11 +34,10 @@ and prints appropriate lyrics. Observe how the value  of the `bottles` function 
 
 Here is the result:
 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::basic::Bottles;
 sing();
-----
+```
 
 
 .Benefits

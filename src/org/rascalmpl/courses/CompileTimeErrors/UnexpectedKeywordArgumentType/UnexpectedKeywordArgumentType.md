@@ -25,15 +25,13 @@ Remedies:
 .Examples
 
 Declare `incr` function with keyword parameter `delta` of type `int`:
-[source,rascal-shell,error]
-----
+```rascal-shell,error
 int incr(int x, int delta = 1) = n + delta;
-----
+```
 Erroneous use of `delta` with a string value:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 incr(3, delta="more");
-----
+```
 
 .Benefits
 

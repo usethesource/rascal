@@ -25,16 +25,14 @@ Solutions to FizzBuzz in various languages are available http://www.geekschool.o
 
 .Examples
 Here are a few possible Rascal solutions:
-[source,rascal]
-----
+```rascal
 include::{LibDir}demo/basic/FizzBuzz.rsc[tags=module]
-----
+```
 
-[source,rascal-shell]
-----
+```rascal-shell
 import demo::basic::FizzBuzz;
 fizzbuzz();
-----
+```
 
 .Benefits
 
