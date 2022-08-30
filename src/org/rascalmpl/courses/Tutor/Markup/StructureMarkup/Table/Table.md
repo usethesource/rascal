@@ -6,12 +6,13 @@ Mark up for a table.
 .Syntax
 [source,subs="quotes"]
 ----
-|             |             |     |
-| --- | --- | --- |
-| _Header_~1~ | _Header_~2~ | ... |
-| _Entry_~11~  | _Entry_~12~  | ... |
-| _Entry_~21~  | _Entry_~22~  | ... |
+|===
+| _Header_~1~ | _Header_~2~ | ...
 
+| _Entry_~11~  | _Entry_~12~  | ...
+
+| _Entry_~21~  | _Entry_~22~  | ...
+|===
 ----
 
 .Types
@@ -31,22 +32,22 @@ See http://asciidoctor.org/docs/user-manual/#tables for details.
 ##  Example 1 
 
 ```rascal
-|    |    |   |
-| --- | --- | --- |
-| A  | B  | C |
-| 11 | 12 | 13 |
-| 21 | 22 | 23 |
+|===
+| A  | B  | C
 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 ```
 
 gives:
 
-|    |    |   |
-| --- | --- | --- |
-| A  | B  | C |
-| 11 | 12 | 13 |
-| 21 | 22 | 23 |
+|===
+| A  | B  | C
 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 
 ##  Example 2 
 
@@ -55,63 +56,63 @@ specified alignment: left (`<`), centered (`^`) or right (`>`).
 
 ```rascal
 [cols="1*,^,1*"]
-|    |    |   |
-| --- | --- | --- |
-| A  | B  | C |
-| 11 | 12 | 13 |
-| 21 | 22 | 23 |
+|===
+| A  | B  | C
 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 ```
 
 gives (with column B centered):
 
 [cols="1*,^,1*"]
-|    |    |   |
-| --- | --- | --- |
-| A  | B  | C |
-| 11 | 12 | 13 |
-| 21 | 22 | 23 |
+|===
+| A  | B  | C
 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 
 ##  Example 3 
 
 ```rascal
 [cols="2*,>"]
-|    |    |   |
-| --- | --- | --- |
-| A  | B  | C |
-| 11 | 12 | 13 |
-| 21 | 22 | 23 |
+|===
+| A  | B  | C
 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 ```
 
 gives (with column C right-aligned):
 
 [cols="2*,>"]
-|    |    |   |
-| --- | --- | --- |
-| A  | B  | C |
-| 11 | 12 | 13 |
-| 21 | 22 | 23 |
+|===
+| A  | B  | C
 
+| 11 | 12 | 13
+| 21 | 22 | 23
+|===
 
 ##  Example 4 
 
 ```rascal
-|             |             |
-| --- | --- |
-| Operator    | Description |
-| `_A_ \| _B_` | Or operator |
+|===
+| Operator    | Description
 
+| `_A_ \| _B_` | Or operator
+|===
 ```
 
 gives (note the escaped `|` character in one table entry):
 
-|             |             |
-| --- | --- |
-| Operator    | Description |
-| `_A_ \| _B_` | Or operator |
+|===
+| Operator    | Description
 
+| `_A_ \| _B_` | Or operator
+|===
 
 .Benefits
 Table formatting are versatile and include, sizing, subtables, column spans, and more, see  http://asciidoctor.org/docs/user-manual/#tables.

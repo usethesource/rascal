@@ -16,22 +16,22 @@ A complete Func interpreter including support for the address and dereference op
 Interpreter Eval3 supports the following features of Func: 
 
 
-|                      |       |
-| --- | --- |
-| Feature              | Eval3 |
-| function declaration | y |
-| integer constant     | y |
-| variable             | y |
-| arithmetic operators | y |
-| comparison operators | y |
-| call                 | y |
-| if                   | y |
-| let                  | y |
-| sequence             | y |
-| assignment           | y |
-| __address operator__ | y |
-| __dereference operator__ | y |
+|====
+| Feature              | Eval3
 
+| function declaration | y
+| integer constant     | y
+| variable             | y
+| arithmetic operators | y
+| comparison operators | y
+| call                 | y
+| if                   | y
+| let                  | y
+| sequence             | y
+| assignment           | y
+| __address operator__ | y
+| __dereference operator__ | y
+|====
 
 
 

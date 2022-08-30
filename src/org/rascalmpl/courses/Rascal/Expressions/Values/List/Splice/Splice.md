@@ -12,12 +12,12 @@ Splice the elements of a list in an enclosing list.
 
 //
 
+[cols="10,10,10,70"]
+|====
+|`_Exp_` | `_Exp~1~_`|  `_Exp~n~_` | `[_Exp~1~_, ..., _Exp_, ..., _Exp~n~_]` 
 
-|        |           |             |                                          |
-| --- | --- | --- | --- |
-|`_Exp_` | `_Exp~1~_`|  `_Exp~n~_` | `[_Exp~1~_, ..., _Exp_, ..., _Exp~n~_]`  |
-|`_T_`   | `_T~1~_`  |  `_T~n~_`   | `list[lub(_T~1~_, ..., _T_, ...,_T~n~_)]`     |
-
+|`_T_`   | `_T~1~_`  |  `_T~n~_`   | `list[lub(_T~1~_, ..., _T_, ...,_T~n~_)]`    
+|====
 
 .Function
        

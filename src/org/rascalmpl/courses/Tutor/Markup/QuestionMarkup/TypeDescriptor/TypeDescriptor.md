@@ -51,15 +51,15 @@ extensions that are helpfull when generating values:
 
 .Examples
 
-|                     |                 |
-| --- | --- |
-| TypeDescriptor      | Generated value |
-| `int`               | Arbitrary integer |
-| `int[-5,10]`        | An integer between -5 and 10 |
-| `arb[int,bool,str]` | An arbitrary integer, boolean or string |
-| `list[int]`         | A list of integers |
-| `set[int[0,10]]`    | A set of integers between 0 and 10  |
+|====
+| TypeDescriptor      | Generated value
 
+| `int`               | Arbitrary integer
+| `int[-5,10]`        | An integer between -5 and 10
+| `arb[int,bool,str]` | An arbitrary integer, boolean or string
+| `list[int]`         | A list of integers
+| `set[int[0,10]]`    | A set of integers between 0 and 10 
+|====
 
 .Benefits
 

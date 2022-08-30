@@ -12,13 +12,13 @@ Addition on numeric values.
 .Types
 
 
-|             |             |                        |
-| --- | --- | --- |
-| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ + _Exp~2~_`  |
-| `int`      |  `int`     | `int`                 |
-| `int`      |  `real`    | `real`                |
-| `real`     |  `real`    | `real`                |
+|====
+| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ + _Exp~2~_` 
 
+| `int`      |  `int`     | `int`                
+| `int`      |  `real`    | `real`               
+| `real`     |  `real`    | `real`               
+|====
 
 .Function
 

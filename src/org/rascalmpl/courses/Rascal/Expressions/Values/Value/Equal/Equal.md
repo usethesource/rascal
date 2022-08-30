@@ -12,11 +12,11 @@ Equal operator on values.
 .Types
 
 
-|              |            |                         |
-| --- | --- | --- |
-| `_Exp~1~_`   | `_Exp~2~_` | `_Exp~1~_ == _Exp~2~_`  |
-| `value`     |  `value`  | `bool`                |
+|====
+| `_Exp~1~_`   | `_Exp~2~_` | `_Exp~1~_ == _Exp~2~_` 
 
+| `value`     |  `value`  | `bool`               
+|====
 
 .Function
 

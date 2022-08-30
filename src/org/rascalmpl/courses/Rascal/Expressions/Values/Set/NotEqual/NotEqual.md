@@ -12,11 +12,11 @@ Not equal operator on set values.
 .Types
 
 
-|               |                |                         |
-| --- | --- | --- |
-| `_Exp~1~_`    |  `_Exp~2~_`    | `_Exp~1~_ != _Exp~2~_`  |
-| `set[_T~1~_]` |  `set[_T~2~_]` | `bool`                |
+|====
+| `_Exp~1~_`    |  `_Exp~2~_`    | `_Exp~1~_ != _Exp~2~_` 
 
+| `set[_T~1~_]` |  `set[_T~2~_]` | `bool`               
+|====
 
 .Function
 

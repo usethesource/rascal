@@ -56,19 +56,19 @@ and can be accessed using ((DateTime-FieldSelection)) and be assigned using ((Da
 
 Not all fields are available on all values as indicated by the following table:
 
-|                         |        |            |         |
-| --- | --- | --- | --- |
-| Field                   | `date` | `datetime` | `time`  |
+|====
+| Field                   | `date` | `datetime` | `time` 
+
 | `year`                  |  x     |  x         |        
 | `month`                 |  x     |  x         |        
 | `day`                   |  x     |  x         |        
-| `hour`                  |        |  x         | x       |
-| `minute`                |        |  x         | x       |
-| `second`                |        |  x         | x       |
-| `millisecond`           |        |  x         | x       |
-| `timezoneOffsetHours`   |        |  x         | x       |
-| `timezoneOffsetMinutes` |        |  x         | x       |
-
+| `hour`                  |        |  x         | x      
+| `minute`                |        |  x         | x      
+| `second`                |        |  x         | x      
+| `millisecond`           |        |  x         | x      
+| `timezoneOffsetHours`   |        |  x         | x      
+| `timezoneOffsetMinutes` |        |  x         | x      
+|====
 
 The `isDate`, `isTime`, and `isDateTime` fields can be checked in advance to determine what
 kind of value is stored in a variable of type `datetime`.

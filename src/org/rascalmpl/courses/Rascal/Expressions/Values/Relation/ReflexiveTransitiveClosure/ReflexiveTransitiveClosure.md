@@ -12,11 +12,11 @@ The reflexive transitive closure of a binary relation.
 .Types
 
 
-|                     |                      |
-| --- | --- |
-|`_Exp_`              | `_Exp_ *`            |
-| `rel[_T~1~_, _T~2~_]` | `rel[_T~1~_, _T~2~_]`  |
+|====
+|`_Exp_`              | `_Exp_ *`           
 
+| `rel[_T~1~_, _T~2~_]` | `rel[_T~1~_, _T~2~_]` 
+|====
 
 .Function
 

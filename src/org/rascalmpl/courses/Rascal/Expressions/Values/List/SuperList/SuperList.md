@@ -12,11 +12,11 @@ The super list operator on lists.
 .Types
 
 
-|                |                 |                         |
-| --- | --- | --- |
-| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ >= _Exp~2~_`  |
-| `list[_T~1~_]` |  `list[_T~2~_]` | `bool`                |
+|====
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ >= _Exp~2~_` 
 
+| `list[_T~1~_]` |  `list[_T~2~_]` | `bool`               
+|====
 
 .Function
 

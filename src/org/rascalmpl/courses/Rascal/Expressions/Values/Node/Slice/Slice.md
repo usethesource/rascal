@@ -16,12 +16,12 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 
 .Types
 
+[cols="10,10,10,10,60"]
+|====
+| `_Exp~1~_`     | `_Exp~2~_` |  `_Exp~3~_`  | `_Exp~4~_` | `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_ ]`   or  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]` 
 
-|                |            |              |            |                                                                                          |
-| --- | --- | --- | --- | --- |
-| `_Exp~1~_`     | `_Exp~2~_` |  `_Exp~3~_`  | `_Exp~4~_` | `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_ ]`   or  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]`  |
-| `node` | `int`     | `int`       | `int`     |  `list[value]`                                                                 |
-
+| `node` | `int`     | `int`       | `int`     |  `list[value]`                                                                
+|====
 
 .Function
 
@@ -63,28 +63,28 @@ Consider the list `ND = "f"(0, "abc", 20, false, 40, [3,4,5], 60, {"a", "b"}, 80
 Here is a view on the children of _ND_ that will help to correlate positive and negative indices:
 
 
-|             |   |       |    |       |    |         |    |            |     |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-|`_i_`        | 0 |     1 |  2 |     3 |  4 |       5 |  6 |          7 |  8  |
-|`ND[_i_]`    |`0`|`"abc"`|`20`|`false`|`40`|`[3,4,5]`|`60`|`{"a", "b"}`|`80` |
-|`-_i_`       | -9|     -8|  -7|     -6|  -5|       -4|  -3|          -2|  -1 |
+|====
+|`_i_`        | 0 |     1 |  2 |     3 |  4 |       5 |  6 |          7 |  8 
 
+|`ND[_i_]`    |`0`|`"abc"`|`20`|`false`|`40`|`[3,4,5]`|`60`|`{"a", "b"}`|`80`
+|`-_i_`       | -9|     -8|  -7|     -6|  -5|       -4|  -3|          -2|  -1
+|====
     
 
 Some common use cases (with `begin` <= `end`):
 
 
-|                  |                                                                         |
-| --- | --- |
-| Slice            | Means:                                                                  |
-| `ND[begin..end]` | children with indices `begin` through `end-1`                           |
-| `ND[begin..]`    | children with indices `begin` through the rest of the list of children  |
-| `ND[..end]`      | children with indices from the beginning through `end-1`                |
-| `ND[..]`         | the whole list of children                                              |
-| `ND[-1]`         | last child of the list of children                                      |
-| `ND[-2..]`       | the last two children of the list of children                           |
-| `ND[..-2]`       | all children except the last two.                                       |
+|====
+| Slice            | Means:                                                                 
 
+| `ND[begin..end]` | children with indices `begin` through `end-1`                          
+| `ND[begin..]`    | children with indices `begin` through the rest of the list of children 
+| `ND[..end]`      | children with indices from the beginning through `end-1`               
+| `ND[..]`         | the whole list of children                                             
+| `ND[-1]`         | last child of the list of children                                     
+| `ND[-2..]`       | the last two children of the list of children                          
+| `ND[..-2]`       | all children except the last two.                                      
+|====
 
 
 Let's put this into practice now.
