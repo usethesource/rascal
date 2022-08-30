@@ -36,14 +36,14 @@ include::{LibDir}demo/lang/Pico/Plugin.rsc[tags=module]
 Let's write a Pico program that produces a string of "a"s:
 
 
-![]((Screenshot1.png))
+![]((IDE-Screenshot1.png))
 
 
 As can be seen in the editor above, we get an error since we made a typo (missing comma) in the declarations. We correct it:
 
 
 
-![]((Screenshot2.png))
+![]((IDE-Screenshot2.png))
 
 
 Now it turns out that we had erroneously used the `+` operator on strings (it should be `||`). We correct it:

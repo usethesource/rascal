@@ -36,7 +36,7 @@ render(visParsetree(parse(#Exp, "1+2*3")));
 ```
 With as result:
 
-![]((t1.png))
+![]((ParseTree-t1.png))
 
 
 The figure is interactive (not available here):
