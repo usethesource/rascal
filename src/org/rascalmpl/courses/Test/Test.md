@@ -8,8 +8,8 @@ See examples below!!!
  
 ```rascal-shell
 import Content; 
-html("hello", "this is some \<strong\>HTML\</strong\> output")
-file("image", |https://www.rascal-mpl.org/assets/ico/favicon.png|)
+html("this is some \<strong\>HTML\</strong\> output")
+file(|https://www.rascal-mpl.org/assets/ico/favicon.png|)
 1 + 1 == 2
 int count = 1;
 content("counter", Response (Request _) { count += 1; return response("count: <count>"); })
@@ -22,7 +22,7 @@ count;
 * _emphasis_
 * *bold*
 * http:///rascal-mpl.org[Rascal Web site]
-* ((CallAnalysis)) 
+* ((CallAnalysis-CallAnalysis)) 
 * Table:
 
   | Module | LOC |

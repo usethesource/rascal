@@ -43,7 +43,7 @@ and of [library functions on sets]((Libraries:Prelude-Set)).
 ## Sets in computer science
 
 
-*  The files in a directory. Of course, when you order them (by name, modification date) you need a ((List)) to represent them.
+*  The files in a directory. Of course, when you order them (by name, modification date) you need a ((Expressions-Values-List-List)) to represent them.
 *  The set of moves an opponent can play in a game.
 *  The set of nodes in a network.
 

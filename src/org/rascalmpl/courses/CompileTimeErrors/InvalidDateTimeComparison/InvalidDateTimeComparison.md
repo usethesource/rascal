@@ -24,11 +24,8 @@ Comparing dates with dates:
 ```rascal-shell
 $2013-07-15$ < $2014-07-15$
 ```
-Or times with times:
-```rascal-shell,continue
-$T20:03:56.901+01:00$ < $T22:00:56.901+01:00$
-```
-Or datetimes with datetimes:
+
+Or with datetimes:
 ```rascal-shell,continue
 $2013-01-11T23:03:56.901+01:00$ < $2013-01-11T23:05:00.901+01:00$
 ```
