@@ -30,20 +30,32 @@ list[str] convertSections([str first:/^\s*\[source,rascal<rest1:.*>]\s*$/, /---/
     ];
 
 
+/*
+[cols="1,8"]
+|====
+| *What*        | The pocket calculator language Calc; we already covered it ((A simple pocket calculator language))
+| *Illustrates* | fact, define, use, requireEqual, calculate, getType, report
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/calc
+|====
+*/
 list[str] convertSections([
     str before,
-    /^\s*|====*\s*$/, 
+    /^\s*\|====*\s*$/, 
     str firstLine,
     *str body,
-    /^\s*|====*\s*$/
+    /^\s*\|====*\s*$/,
+    *str rest
     ])
-    = [ /^\s*\[[^\]]*\]\s*$/ := before ? "" : before,
+    = [ /^\s*\[[^\]*]*\]\s*$/ := before ? "" : before,
       emptyHeader(firstLine),
-      columnsLine(firstLine),
-      *[completeBodyLine(b) | b <- body, trim(b) != ""]
-    ];
+      columnsLine(emptyHeader(firstLine)),
+      completeBodyLine(firstLine),
+      *[completeBodyLine(b) | b <- body, trim(b) != ""],
+      "",
+      *convertSections(rest)
+    ] when [*_, /\|====*/, *_] !:= body;
 
-str emptyHeader(str firstLine) = visit(completeBodyLine(firstLine)) { case /[^|]/ => " "};
+str emptyHeader(str firstLine) = visit(completeBodyLine(firstLine)) { case /[^\|]/ => " "};
 
 str completeBodyLine(str body) = /\|\s*$/ := body ? body : "<body> |";
 
