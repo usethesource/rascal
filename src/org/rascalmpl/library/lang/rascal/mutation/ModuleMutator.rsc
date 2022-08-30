@@ -21,11 +21,10 @@ Mutant Generator for Rascal modules
   
 Examples
 
-[source,rascal]
-----
+```rascal
 import lang::rascal::mutation::ModuleMutator;
 mutate(|project://rascal/src/org/rascalmpl/library/lang/rascal/format/Grammar.rsc|, mutations=5)
-----
+```
 }
 @contributor{Cleverton Hentz}
 @contributor{Jurgen Vinju}
