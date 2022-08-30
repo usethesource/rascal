@@ -35,24 +35,27 @@ Exceptions can be caught with a [try catch]((Rascal:Statements-TryCatch)).
 .Examples
 
 Import relevant libraries:
-```rascal-shell,continue,error
+[source,rascal-shell,continue,error]
+----
 import Exception;
 import IO;
-```
+----
 Define the map `weekend` and do a subscription with a non-existing key:
-```rascal-shell,continue,error
+[source,rascal-shell,continue,error]
+----
 weekend = ("saturday": 1, "sunday": 2);
 weekend["monday"];
-```
+----
 Repeat this, but catch the exception. We use variable `N` to track what happened:
-```rascal-shell,continue,error
+[source,rascal-shell,continue,error]
+----
 N = 1;
 try {
    N = weekend["monday"];
 } catch NoSuchKey(v):
   N = 100;
 println(N);
-```
+----
 
 }
 

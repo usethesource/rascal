@@ -184,12 +184,13 @@ then the pair <true, F> is returned. Otherwise <false, some error location> is r
 For a source extension (typically "rsc" or "mu" but this can be configured) srcs is searched, otherwise binPath + libs.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Reflective;
 getDerivedReadLoc("List", "rsc", pathConfig());
 getDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-```
+----
 
 .Benefits
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be read
@@ -234,12 +235,13 @@ For source modules, a writable location cannot be derived.
 For other modules, a location for this path in bin will be returned.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Reflective;
 getDerivedWriteLoc("List", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-```
+----
 
 .Benefits
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be written

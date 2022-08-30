@@ -27,10 +27,11 @@ import List;
 Get the current datetime.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 now();
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime now();
@@ -40,10 +41,11 @@ public java datetime now();
 Create a new date.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 createDate(2012,1,1);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime createDate(int year, int month, int day);
@@ -55,11 +57,12 @@ public java datetime createDate(int year, int month, int day);
 Create a new time (with optional timezone offset).
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 createTime(8,15,30,55);
 createTime(8,15,30,55,2,0);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime createTime(int hour, int minute, int second, int millisecond);
@@ -74,11 +77,12 @@ public java datetime createTime(int hour, int minute, int second, int millisecon
 Create a new datetime (with optional timezone offset).
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 createDateTime(2012,1,1,8,15,30,55);
 createDateTime(2012,1,1,8,15,30,55,2,0);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime createDateTime(int year, int month, int day, int hour, int minute, 
@@ -95,12 +99,13 @@ public java datetime createDateTime(int year, int month, int day, int hour, int 
 Create a new datetime by combining a date and a time.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 D = createDate(2012, 1, 1);
 T = createTime(8, 15, 45, 30);
 joinDateAndTime(D, T);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime joinDateAndTime(datetime date, datetime time);
@@ -111,11 +116,12 @@ public java datetime joinDateAndTime(datetime date, datetime time);
 Split an existing datetime into a tuple with the date and the time.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 splitDateTime(N);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java tuple[datetime date, datetime time] splitDateTime(datetime dt);
@@ -126,12 +132,13 @@ public java tuple[datetime date, datetime time] splitDateTime(datetime dt);
 Increment the years by given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 incrementYears(N);
 incrementYears(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementYears(datetime dt, int n);
@@ -148,12 +155,13 @@ Increment the months by a given amount or by 1.
 .Function
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 incrementMonths(N);
 incrementMonths(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementMonths(datetime dt, int n);
@@ -168,12 +176,13 @@ public datetime incrementMonths(datetime dt) {
 Increment the days by given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 incrementDays(N);
 incrementDays(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementDays(datetime dt, int n);
@@ -188,12 +197,13 @@ public datetime incrementDays(datetime dt) {
 Increment the hours by a given amount or by 1.`
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 incrementHours(N);
 incrementHours(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementHours(datetime dt, int n);
@@ -209,12 +219,13 @@ public datetime incrementHours(datetime dt) {
 Increment the minutes by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 incrementMinutes(N);
 incrementMinutes(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementMinutes(datetime dt, int n);
@@ -230,12 +241,13 @@ public datetime incrementMinutes(datetime dt) {
 Increment the seconds by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 incrementSeconds(N);
 incrementSeconds(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementSeconds(datetime dt, int n);
@@ -251,12 +263,13 @@ public datetime incrementSeconds(datetime dt) {
 Increment the milliseconds by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 incrementMilliseconds(N);
 incrementMilliseconds(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime incrementMilliseconds(datetime dt, int n);
@@ -272,12 +285,13 @@ public datetime incrementMilliseconds(datetime dt) {
 Decrement the years by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 decrementYears(N);
 decrementYears(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementYears(datetime dt, int n);
@@ -292,12 +306,13 @@ public datetime decrementYears(datetime dt) {
 Decrement the months by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 decrementMonths(N);
 decrementMonths(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementMonths(datetime dt, int n);
@@ -313,12 +328,13 @@ public datetime decrementMonths(datetime dt) {
 Decrement the days by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 decrementDays(N);
 decrementDays(N, 3);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementDays(datetime dt, int n);
@@ -333,12 +349,13 @@ public datetime decrementDays(datetime dt) {
 Decrement the hours by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 decrementHours(N);
 decrementHours(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementHours(datetime dt, int n);
@@ -353,12 +370,13 @@ public datetime decrementHours(datetime dt) {
 Decrement the minutes by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 decrementMinutes(N);
 decrementMinutes(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementMinutes(datetime dt, int n);
@@ -374,12 +392,13 @@ public datetime decrementMinutes(datetime dt) {
 Decrement the seconds by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 decrementSeconds(N);
 decrementSeconds(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementSeconds(datetime dt, int n);
@@ -395,12 +414,13 @@ public datetime decrementSeconds(datetime dt) {
 Decrement the milliseconds by a given amount or by 1.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 decrementMilliseconds(N);
 decrementMilliseconds(N, 5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime decrementMilliseconds(datetime dt, int n);
@@ -421,12 +441,13 @@ data interval = Interval(datetime begin, datetime end);
 Given two datetime values, create an interval.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 B = now();
 E = incrementDays(B, 2);
 createInterval(B, E);
-```
+----
 }
 // TODO: Question, should we throw here if begin > end?
 public interval createInterval(datetime begin, datetime end) {
@@ -448,14 +469,15 @@ private java tuple[int,int,int,int,int,int,int] createDurationInternal(datetime 
 Create a new duration representing the duration between the begin and end dates.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 B = now();
 E1 = incrementHours(B);
 createDuration(B, E1);
 E2 = incrementMinutes(B);
 createDuration(B, E2);
-```
+----
 }
 public Duration createDuration(datetime begin, datetime end) {	
 	switch(createDurationInternal(begin,end)) {
@@ -476,13 +498,14 @@ public Duration createDuration(interval i) {
 Return the number of days in an interval, including the begin and end days.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 B = now();
 E = incrementDays(B, 2);
 I = createInterval(B, E);
 daysInInterval(I);
-```
+----
 }
 public int daysInInterval(interval i) {
 	return daysDiff(i.begin,i.end);
@@ -493,12 +516,13 @@ public int daysInInterval(interval i) {
 Return the difference between two dates and/or datetimes in days.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 B = now();
 E = incrementDays(B, 2);
 daysDiff(B, E);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java int daysDiff(datetime begin, datetime end);
@@ -511,13 +535,14 @@ Given an interval, return a list of days.
 Given an interval `i`, return a list of days `[i.begin, ..., i.end]`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 B = now();
 E = incrementDays(B, 2);
 I = createInterval(B, E);
 dateRangeByDay(I);
-```
+----
 }
 public list[datetime] dateRangeByDay(interval i) {
 	list[datetime] l = [];
@@ -537,11 +562,12 @@ public list[datetime] dateRangeByDay(interval i) {
 Parse an input date given as a string using the given format string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 parseDate("2011-12-23", "yyyy-MM-dd");
 parseDate("20111223", "yyyyMMdd");
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseDate(str inputDate, str formatString);
@@ -558,10 +584,11 @@ public java datetime parseDateInLocale(str inputDate, str formatString, str loca
 Parse an input time given as a string using the given format string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 parseTime("11/21/19", "HH/mm/ss");
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseTime(str inputTime, str formatString);
@@ -578,10 +605,11 @@ public java datetime parseTimeInLocale(str inputTime, str formatString, str loca
 Parse an input datetime given as a string using the given format string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 parseDateTime("2011/12/23/11/19/54", "YYYY/MM/dd/HH/mm/ss");
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime parseDateTime(str inputDateTime, str formatString);
@@ -598,11 +626,12 @@ public java datetime parseDateTimeInLocale(str inputDateTime, str formatString, 
 Print an input date using the given format string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 printDate(now());
 printDate(now(), "YYYYMMdd");
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printDate(datetime inputDate, str formatString);
@@ -616,11 +645,12 @@ public java str printDate(datetime inputDate);
 Print an input date using a specific locale and format string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 printDateInLocale(now(), "Europe/Netherlands");
 printDateInLocale(now(), "French");
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printDateInLocale(datetime inputDate, str formatString, str locale);
@@ -634,12 +664,13 @@ public java str printDateInLocale(datetime inputDate, str locale);
 Print an input time using the given format string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 printTime(N);
 printTime(N, "HH/mm/ss");
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printTime(datetime inputTime, str formatString);
@@ -664,13 +695,14 @@ public java str printTimeInLocale(datetime inputTime, str locale);
 Print an input datetime using the given format string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 N = now();
 printDateTime(N);
 printDateTime(N, "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
 printDateTime(N, "YYYY/MM/dd/HH/mm/ss");
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printDateTime(datetime inputDateTime, str formatString);
@@ -695,10 +727,11 @@ public java str printDateTimeInLocale(datetime inputDateTime, str locale);
 Create a new arbitrary datetime.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import DateTime;
 arbDateTime();
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime arbDateTime();

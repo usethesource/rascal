@@ -25,11 +25,12 @@ module Node
 Determine the number of children of a node.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import Node;
 arity("f"(10, "abc"));
 arity("f"(10, "abc", false));
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java int arity(node T);
@@ -39,10 +40,11 @@ public java int arity(node T);
 Get the children of a node.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import Node;
 getChildren("f"(10, "abc"));
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[value] getChildren(node T);
@@ -52,10 +54,11 @@ public java list[value] getChildren(node T);
 Get the keyword parameters of a node.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import Node;
 getKeywordParameters("f"(10, "abc", height=0));
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[str,value] getKeywordParameters(node T);
@@ -68,10 +71,11 @@ public map[str, value] getAnnotations(node T) = getKeywordParameters(T);
 Set the keyword parameters of a node.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import Node;
 setKeywordParameters("f"(10, "abc"), ("height":0));
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters);
@@ -85,10 +89,11 @@ public &T <: node setAnnotations(&T <: node x, map[str,value] keywordParameters)
 Determine the name of a node.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import Node;
 getName("f"(10, "abc"));
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str getName(node T);
@@ -98,10 +103,11 @@ public java str getName(node T);
 Create a node given its function name and arguments.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import Node;
 makeNode("f", [10, "abc"]);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
@@ -175,11 +181,12 @@ public java node arbNode();
 Convert a node to a string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import Node;
 F = "f"(10, "abc", color="red", size="large");
 toString(F);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(node T);
@@ -190,11 +197,12 @@ public java str toString(node T);
 Convert a node to an indented string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import Node;
 F = "f"(10, "abc", color="red", size="large");
 itoString(F);
-```
+----
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str itoString(node T);

@@ -78,7 +78,8 @@ Each such a non-terminal type has `Tree` as its immediate super-type.
 .Examples
 
 // the following definition
-```rascal-shell
+[source,rascal-shell]
+----
 import ParseTree;
 syntax A = "a";
 // will make the following succeed:
@@ -94,13 +95,14 @@ appl(
         [\char-class([range(97,97)])],
         {}),
       [char(97)])]);
-```
+----
 You see that the defined non-terminal A ends up as the production for the outermost node. 
 As the only child is the tree for recognizing the literal a, which is defined to be a single a from the character-class `[ a ]`.
 
 When we use labels in the definitions, they also end up in the trees.
 The following definition
-```rascal-shell
+[source,rascal-shell]
+----
 import ParseTree;
 lexical B= myB:"b";
 lexical C = myC:"c" B bLabel;
@@ -136,7 +138,7 @@ appl(
             [\char-class([range(98,98)])],
             {}),
           [char(98)])])]);
-```
+----
 
 Here you see that the alternative name is a label around the first argument of `prod` while argument labels become 
 labels in the list of children of a `prod`.
@@ -425,16 +427,19 @@ to false. So this is quite an important flag to consider.
 
 
 .Examples
-```rascal-shell,error
+[source,rascal-shell,error]
+----
 import demo::lang::Exp::Concrete::NoLayout::Syntax;
 import ParseTree;
-```
+----
 Seeing that `parse` returns a parse tree:
-```rascal-shell,continue,error
+[source,rascal-shell,continue,error]
+----
 parse(#Exp, "2+3");
-```
+----
 Catching a parse error:
-```rascal-shell,continue,error
+[source,rascal-shell,continue,error]
+----
 import IO;
 try {
   Exp e = parse(#Exp, "2@3");
@@ -442,7 +447,7 @@ try {
 catch ParseError(loc l): {
   println("I found a parse error at line <l.begin.line>, column <l.begin.column>");
 }
-```
+----
 }
 public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
@@ -521,19 +526,22 @@ Yield the string of characters that form the leafs of the given parse tree.
 .Description
 `unparse` is the inverse function of ((ParseTree-parse)), i.e., for every syntactically correct string _TXT_ of
 type `S`, the following holds:
-```rascal
+[source,rascal,subs="quotes"]
+----
 unparse(parse(#S, _TXT_)) == _TXT_
-```
+----
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import demo::lang::Exp::Concrete::NoLayout::Syntax;
 import ParseTree;
-```
+----
 First parse an expression, this results in a parse tree. Then unparse this parse tree:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 unparse(parse(#Exp, "2+3"));
-```
+----
 }
 public str unparse(Tree tree) = "<tree>";
 
@@ -620,9 +628,10 @@ Finally, source location fields are propagated as keyword fields on constructor 
 To access them, the user is required to explicitly declare a keyword field on all
 ADTs used in implosion. In other words, for every ADT type `T`, add:
 
-```rascal
+[source,rascal]
+----
 data T(loc location=|unknown);
-```
+----
 
 .Examples
 Here are some examples for the above rules.
@@ -630,50 +639,58 @@ Here are some examples for the above rules.
 .Example for rule 5
 
 Given the grammar
-```rascal
+[source,rascal]
+----
 syntax IDTYPE = Id ":" Type;
 syntax Decls = decls: "declare" {IDTYPE ","}* ";";
-```
+----
     
 `Decls` will be imploded as:
-```rascal
+[source,rascal]
+----
 data Decls = decls(list[tuple[str,Type]]);
-```
+----
 (assuming Id is a lexical non-terminal).   
 
 .Example for rule 6
 
 Given the grammar
-```rascal
+[source,rascal]
+----
 syntax Formal = formal: "VAR"? {Id ","}+ ":" Type;
-```
+----
 The corresponding ADT could be:
-```rascal
+[source,rascal]
+----
 data Formal = formal(bool, list[str], Type);
-```
+----
 
 .Example for rule 8
 
 Given the grammar
-```rascal
+[source,rascal]
+----
 syntax Tag = "[" {Modifier ","}* "]";
 syntax Decl = decl: Tag? Signature Body;
-```
+----
 In this case, a `Decl` is imploded into the following ADT:
-```rascal
+[source,rascal]
+----
 data Decl = decl(list[Modifier], Signature, Body);  
-```
+----
 
 .Example for rule 9
 
 Given the grammar
-```rascal
+[source,rascal]
+----
 syntax Exp = left add: Exp "+" Exp;
-```
+----
 Can be imploded into:
-```rascal
+[source,rascal]
+----
 data Exp = add(Exp, Exp);
-```
+----
 }
 public java &T<:value implode(type[&T<:value] t, Tree tree);
 
