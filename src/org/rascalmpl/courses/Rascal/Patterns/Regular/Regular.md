@@ -52,40 +52,40 @@ For convenience, we summarize the most frequently used constructs in regular exp
 
 
 .Frequently used elements of Regular Expression Syntax
+[cols="10,90"]
+|====
+|Operator   | Description
 
-|           |             |
-| --- | --- |
-|Operator   | Description |
-| `x`       | The single character `x` as long as it is not a punctuation character with a  |
-                                                        special meaning in the regular expression syntax |
-| `\p`      | The punctuation character `p`, this includes `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `<`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `\|`, `}`, and `~`. |
-| `\\`      | The backslash character |
-| `\n`      | Newline character |
-| `\t`      | Tab character |
-| `[...]`   | One of the characters between the brackets (also known as _character class_).  |
-                                                         Character ranges and set operations on character classes may be used. |
-| `[^...]`  | Any one character not between the brackets. |
-| `[a-z0-9]` | Character range: character between `a` and `z` or `0` and `9`. |
-| `.`       | Any character except a line terminator. If single-line mode is set (using `(?s)` or modifier `s`), then it matches any character including line terminators. |
-| `\d`      | Digit: `[0-9]` |
-| `\D`      | Non-digit:` [^0-9]` |
-| `\s`      | Whitespace |
-| `\S`      | Anything but whitespace. |
-| `\w`      | A word: `[a-zA-Z0-9_]` |
-| `\W`      | A non-word:` [^\w]` |
-| `xy`      | Match `x` followed by `y` |
-| `x|y`     | Match `x` or `y` |
-| `x?`      | Optional occurrence of `x` |
-| `x*`      | Zero or more occurrences of `x` |
-| `x+`      | One or more occurrences of `x` |
-| `x{n}`    | Exactly `n` occurrences of `x` |
-| `x{n,}`   | `n` or more occurrences of `x` |
-| `x{n,m}`  | At least `n`, at most `m` occurrences of `x` |
-| `^`       | The beginning of the subject string |
-| `$`       | The end of the input string |
-| `\b`      | Word boundary: position between a word and a non-word character |
-| `\B`      | Non-word boundary: position that is a not a word boundary |
-
+| `x`       | The single character `x` as long as it is not a punctuation character with a 
+                                                        special meaning in the regular expression syntax
+| `\p`      | The punctuation character `p`, this includes `!`, `"`, `#`, `$`, `%`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `-`, `.`, `/`, `:`, `;`, `<`, `=`, `>`, `?`, `@`, `[`, `\`, `]`, `^`, `_`, `{`, `\|`, `}`, and `~`.
+| `\\`      | The backslash character
+| `\n`      | Newline character
+| `\t`      | Tab character
+| `[...]`   | One of the characters between the brackets (also known as _character class_). 
+                                                         Character ranges and set operations on character classes may be used.
+| `[^...]`  | Any one character not between the brackets.
+| `[a-z0-9]` | Character range: character between `a` and `z` or `0` and `9`.
+| `.`       | Any character except a line terminator. If single-line mode is set (using `(?s)` or modifier `s`), then it matches any character including line terminators.
+| `\d`      | Digit: `[0-9]`
+| `\D`      | Non-digit:` [^0-9]`
+| `\s`      | Whitespace
+| `\S`      | Anything but whitespace.
+| `\w`      | A word: `[a-zA-Z0-9_]`
+| `\W`      | A non-word:` [^\w]`
+| `xy`      | Match `x` followed by `y`
+| `x|y`     | Match `x` or `y`
+| `x?`      | Optional occurrence of `x`
+| `x*`      | Zero or more occurrences of `x`
+| `x+`      | One or more occurrences of `x`
+| `x{n}`    | Exactly `n` occurrences of `x`
+| `x{n,}`   | `n` or more occurrences of `x`
+| `x{n,m}`  | At least `n`, at most `m` occurrences of `x`
+| `^`       | The beginning of the subject string
+| `$`       | The end of the input string
+| `\b`      | Word boundary: position between a word and a non-word character
+| `\B`      | Non-word boundary: position that is a not a word boundary
+|====
 
 .Examples
 Here are some examples of regular expression patterns.

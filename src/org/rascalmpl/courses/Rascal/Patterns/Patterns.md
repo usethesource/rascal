@@ -10,24 +10,24 @@ For most of the ((Values)), there is a corresponding pattern matching operator. 
 some "higher-order" matching operators which make complex patterns out of simpler ones. 
 This is the complete list:
  
-|                      |                                                                              |
-| --- | --- |
-| Pattern              | Syntax                                                                       |
-| Literal              | ((Values-Boolean)), ((Values-Integer)), ((Values-Real)), ((Values-Number)), ((Values-String)), ((Values-Location)), or ((Values-DateTime)) |
-| Regular Expression   | `/<Regular Expression>/` |
-| Variable declaration | `_Type_ _Var_`                                                               |
-| Multi-variable       | `*_Var_`, `*_Type_ _Var_`                                                    |
-| Variable             | `_Var_`                                                                      |
-| List                 | `[ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ ]`                                         |
-| Set                  | `{ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ }`                                         |
-| Tuple                | `< _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ >`                                         |
-| Node                 | `_Name_ ( _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ )`                                  |
-| Descendant           | `/ _Pat_`                                                                    |
-| Labelled             | `_Var_ : _Pat_`                                                               |
-| TypedLabelled        | `_Type_ _Var_ : _Pat_`                                                       |
-| TypeConstrained      |  `[_Type_] _Pat_` |
-| Concrete             | (Symbol) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `                                                          |
+|====
+| Pattern              | Syntax                                                                      
 
+| Literal              | ((Values-Boolean)), ((Values-Integer)), ((Values-Real)), ((Values-Number)), ((Values-String)), ((Values-Location)), or ((Values-DateTime))
+| Regular Expression   | `/<Regular Expression>/`
+| Variable declaration | `_Type_ _Var_`                                                              
+| Multi-variable       | `*_Var_`, `*_Type_ _Var_`                                                   
+| Variable             | `_Var_`                                                                     
+| List                 | `[ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ ]`                                        
+| Set                  | `{ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ }`                                        
+| Tuple                | `< _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ >`                                        
+| Node                 | `_Name_ ( _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ )`                                 
+| Descendant           | `/ _Pat_`                                                                   
+| Labelled             | `_Var_ : _Pat_`                                                              
+| TypedLabelled        | `_Type_ _Var_ : _Pat_`                                                      
+| TypeConstrained      |  `[_Type_] _Pat_`
+| Concrete             | (Symbol) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `                                                         
+|====
 
 .Types
 

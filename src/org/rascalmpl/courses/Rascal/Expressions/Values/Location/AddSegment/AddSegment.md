@@ -13,11 +13,11 @@ Locations can be concatenated with strings to add segments to the path component
 
 //
 
-|         |         |                  |
-| --- | --- | --- |
-| `_Loc_` | `_Str_` | `_Loc_ + _Str_`  |
-| `loc`     | `str`     | `loc`                |
+|====
+| `_Loc_` | `_Str_` | `_Loc_ + _Str_` 
 
+| `loc`     | `str`     | `loc`               
+|====
 
 .Function
 

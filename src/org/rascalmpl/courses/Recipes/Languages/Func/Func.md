@@ -35,22 +35,22 @@ we present four interpreters ((Eval0)), ((Eval1)), ((Eval2)) and ((Eval2))
 that implement increasingly complex features:
 
 
-|                      |       |       |       |       |
-| --- | --- | --- | --- | --- |
-| Feature              | Eval0 | Eval1 | Eval2 | Eval3 |
-| function declaration | y     | y     | y     | y |
-| integer constant     | y     | y     | y     | y |
-| variable             | y     | y     | y     | y |
-| arithmetic operators | y     | y     | y     | y |
-| comparison operators | y     | y     | y     | y |
-| call                 | y     | y     | y     | y |
-| if                   | y     | y     | y     | y |
-| let                  |       | y     | y     | y |
-| sequence             |       |       | y     | y |
-| assignment           |       |       | y     | y |
-| address operator     |       |       |       | y |
-| dereference operator |       |       |       | y |
+|====
+| Feature              | Eval0 | Eval1 | Eval2 | Eval3
 
+| function declaration | y     | y     | y     | y
+| integer constant     | y     | y     | y     | y
+| variable             | y     | y     | y     | y
+| arithmetic operators | y     | y     | y     | y
+| comparison operators | y     | y     | y     | y
+| call                 | y     | y     | y     | y
+| if                   | y     | y     | y     | y
+| let                  |       | y     | y     | y
+| sequence             |       |       | y     | y
+| assignment           |       |       | y     | y
+| address operator     |       |       |       | y
+| dereference operator |       |       |       | y
+|====
 
 .Examples
 Here are several versions of the factorial function

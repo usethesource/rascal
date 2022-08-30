@@ -12,13 +12,13 @@ Conditional expression for numeric values.
 .Types
 
 
-|              |             |             |                                    |
-| --- | --- | --- | --- |
-| `_Exp~1~_`   | `_Exp~2~_`  |  `_Exp~3~_` | `_Exp~1~_ ? _Exp~2~_ : _Exp~3~_`   |
-|  `bool`     | `int`      |  `int`     | `int`                           |
-|  `bool`     | `int`      |  `real`    | `real`                          |
-|  `bool`     | `real`     |  `real`    | `real`                          |
+|====
+| `_Exp~1~_`   | `_Exp~2~_`  |  `_Exp~3~_` | `_Exp~1~_ ? _Exp~2~_ : _Exp~3~_`  
 
+|  `bool`     | `int`      |  `int`     | `int`                          
+|  `bool`     | `int`      |  `real`    | `real`                         
+|  `bool`     | `real`     |  `real`    | `real`                         
+|====
 
 .Function
 

@@ -21,122 +21,109 @@ Each example has the same structure:
 
 == Calc
 
-
-|               |                                                                                                    |
-| --- | --- |
-| *What*        | The pocket calculator language Calc; we already covered it ((A simple pocket calculator language)) |
-| *Illustrates* | fact, define, use, requireEqual, calculate, getType, report |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/calc |
-
+[cols="1,8"]
+|===
+| *What*        | The pocket calculator language Calc; we already covered it ((A simple pocket calculator language))
+| *Illustrates* | fact, define, use, requireEqual, calculate, getType, report
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/calc
+|===
 
 == Pico
-
-|               |                                                                                          |
-| --- | --- |
-| *What*        | Toy language with declared variables in single scope, assignment, if and while statement |
-| *Illustrates* | fact, define, use, enterScope, leaveScope, requireEqual, calculate, getType, report |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/pico |
-
+[cols="1,8"]
+|===
+| *What*        | Toy language with declared variables in single scope, assignment, if and while statement
+| *Illustrates* | fact, define, use, enterScope, leaveScope, requireEqual, calculate, getType, report
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/pico
+|===
 
 == QL
-
-|               |                                                                                           |
-| --- | --- |
-| *What*        | A questionnaire language, for describing forms with text entry fields and computed values |
-| *Illustrates* | fact, define, use, requireEqual, requireTrue, calculate, getType, report |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/ql |
-
+[cols="1,8"]
+|===
+| *What*        | A questionnaire language, for describing forms with text entry fields and computed values
+| *Illustrates* | fact, define, use, requireEqual, requireTrue, calculate, getType, report
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/ql
+|===
 
 == Fun
-
-|               |                                                                                                  |
-| --- | --- |
-| *What*        | Functional language with explicit types, function declarations and calls, let and if expressions |
-| *Illustrates* | fact, define, use, enterScope, leaveScope, requireEqual, calculate, getType, report |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/fun |
-
+[cols="1,8"]
+|===
+| *What*        | Functional language with explicit types, function declarations and calls, let and if expressions
+| *Illustrates* | fact, define, use, enterScope, leaveScope, requireEqual, calculate, getType, report
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/fun
+|===
 
 == ModFun
 
-
-|               |                                   |
-| --- | --- |
-| *What*        | Extension of ((Fun)) with modules |
-| *Illustrates* | PathRole, addPathToDef |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/modfun |
-
+[cols="1,8"]
+|===
+| *What*        | Extension of ((Fun)) with modules
+| *Illustrates* | PathRole, addPathToDef
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/modfun
+|===
 
 == Struct
 
-
-|               |                      |
-| --- | --- |
-| *What*        | Simple named records |
-| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/struct |
-
+[cols="1,8"]
+|===
+| *What*        | Simple named records
+| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/struct
+|===
 
 == Aliases
-
-|               |                                        |
-| --- | --- |
-| *What*        |  ((Struct)) extended with type aliases |
-| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/aliases |
-
+[cols="1,8"]
+|===
+| *What*        |  ((Struct)) extended with type aliases
+| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/aliases
+|===
 
 
 == StaticFields
 
-
-|               |                                                    |
-| --- | --- |
-| *What*        | ((Struct)) extended with fields on non-record type |
-| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType  |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/staticFields |
-
+[cols="1,8"]
+|===
+| *What*        | ((Struct)) extended with fields on non-record type
+| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType 
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/staticFields
+|===
 
 == StructParameters
-
-|               |                                       |
-| --- | --- |
-| *What*        | ((Struct)) with parameterized records |
-| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType, instantiateTypeParameters |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/structParameters |
-
+[cols="1,8"]
+|===
+| *What*        | ((Struct)) with parameterized records
+| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType, instantiateTypeParameters
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/structParameters
+|===
 
 == SmallOO
-
-|               |                                       |
-| --- | --- |
-| *What*        | Small OO language without inheritance |
-| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/smallOO |
-
+[cols="1,8"]
+|===
+| *What*        | Small OO language without inheritance
+| *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/smallOO
+|===
 
 == FWJava
-
-|               |                                                                                      |
-| --- | --- |
-| *What*        | FeatherWeight Java, a minimal, Java-like, language with inheritance and constructors |
-| *Illustrates* | useViaType, addPathToDef, isSubType, TypePalConfig, getTypeNamesAndRole, mayOverload, preSolver, setScopeInfo, getScopeInfo |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/fwjava |
-
+[cols="1,8"]
+|===
+| *What*        | FeatherWeight Java, a minimal, Java-like, language with inheritance and constructors
+| *Illustrates* | useViaType, addPathToDef, isSubType, TypePalConfig, getTypeNamesAndRole, mayOverload, preSolver, setScopeInfo, getScopeInfo
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/fwjava
+|===
 
 == Pascal
-
-|               |                                            |
-| --- | --- |
-| *What*        | The Pascal language (Second Edition, 1978) |
-| *Illustrates* |  useViaType, addPathToType, PathRole, isSubType, TypePalConfig, preCollectInitialization getTypeNamesAndRole  |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/pascal |
-
+[cols="1,8"]
+|===
+| *What*        | The Pascal language (Second Edition, 1978)
+| *Illustrates* |  useViaType, addPathToType, PathRole, isSubType, TypePalConfig, preCollectInitialization getTypeNamesAndRole 
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/pascal
+|===
 
 == UntypedFun
-
-|               |                                                                                                             |
-| --- | --- |
-| *What*        | Functional language with implicit (inferred) types, function declarations and calls, let and if expressions |
-| *Illustrates* | fact, define, use, enterScope, leaveScope, requireEqual, calculate, getType, report, newTypeVar, calculateEager, requireUnify, unify |
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/untypedFun |
-
+[cols="1,8"]
+|===
+| *What*        | Functional language with implicit (inferred) types, function declarations and calls, let and if expressions
+| *Illustrates* | fact, define, use, enterScope, leaveScope, requireEqual, calculate, getType, report, newTypeVar, calculateEager, requireUnify, unify
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/untypedFun
+|===

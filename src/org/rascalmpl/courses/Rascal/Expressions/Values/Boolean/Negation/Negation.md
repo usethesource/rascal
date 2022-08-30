@@ -13,11 +13,11 @@ The _not_ operator on Boolean values.
 
 //
 
-|         |            |
-| --- | --- |
-| `_Exp_` | `! _Exp_`  |
-| `bool`   | `bool`     |
+|====
+| `_Exp_` | `! _Exp_` 
 
+| `bool`   | `bool`    
+|====
 
 .Function
 
@@ -26,12 +26,12 @@ The _not_ operator on Boolean values.
 .Description
 The _not_ operator on Boolean values defined as follows:
 
-|          |            |
-| --- | --- |
-| `_Exp_`  | `! _Exp_`  |
-| `true`   | `false`    |
-| `false`  | `true`     |
+|====
+| `_Exp_`  | `! _Exp_` 
 
+| `true`   | `false`   
+| `false`  | `true`    
+|====
 
 .Examples
 ```rascal-shell

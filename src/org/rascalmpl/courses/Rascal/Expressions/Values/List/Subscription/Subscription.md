@@ -13,11 +13,11 @@ Retrieve a list element via its index.
 
 //
 
-|                |            |                         |
-| --- | --- | --- |
-| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` |
-| `list[_T~1~_]` | `int`     | `_T~1~_`              |
+|====
+| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]`
 
+| `list[_T~1~_]` | `int`     | `_T~1~_`             
+|====
 
 .Function
 

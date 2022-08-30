@@ -49,22 +49,22 @@ These built-in datatypes are closely related to each other:
 
 .Examples
 Here are some examples of the built-in data types:
-|                           |            |
-| --- | --- |
-| _Type_                    | _Examples_ |
-| `bool`                    | `true`, `false` |
-| `int`                     | `11, 101, 1-11, 1123456789` |
-| `real`                    | `1.01, 11.0232e201, 1-25.5` |
-| `str`                     | `"abc"`, `"first\nnext"`, `"result: <X>"` |
-| `loc`                     | `\|file:///etc/passwd\|` |
-| `dateTime`                | `$2101-09-05T07:16:19.714+0200$` |
-| `tuple[_T~1~,...,_T~n~_]`	| `<1,2>`, `<"john", 43, true>` |
-| `list[_T_]`               | `[]`, `[1]`, `[1,2,3]`, `[true, 2, "abc"]` |
-| `set[_T_]`                | `{}`, `{1,2,3,5,7}`, `{"john", 4.0}` |
-| `rel[_T~1~,...,_T~n~_]`   | `{<1,2>,<2,3>,<1,3>}`, `{<1,10,100>, <2,20,200>}` |
-| `map[_T_, _U_]`           | `()`, `(1:true, 2:false)`, `("a":1, "b":2)` |
-| `node`                    | `f()`, `add(x,y)`, `g("abc", [2,3,4])` |
+|====
+| _Type_                    | _Examples_
 
+| `bool`                    | `true`, `false`
+| `int`                     | `11, 101, 1-11, 1123456789`
+| `real`                    | `1.01, 11.0232e201, 1-25.5`
+| `str`                     | `"abc"`, `"first\nnext"`, `"result: <X>"`
+| `loc`                     | `\|file:///etc/passwd\|`
+| `dateTime`                | `$2101-09-05T07:16:19.714+0200$`
+| `tuple[_T~1~,...,_T~n~_]`	| `<1,2>`, `<"john", 43, true>`
+| `list[_T_]`               | `[]`, `[1]`, `[1,2,3]`, `[true, 2, "abc"]`
+| `set[_T_]`                | `{}`, `{1,2,3,5,7}`, `{"john", 4.0}`
+| `rel[_T~1~,...,_T~n~_]`   | `{<1,2>,<2,3>,<1,3>}`, `{<1,10,100>, <2,20,200>}`
+| `map[_T_, _U_]`           | `()`, `(1:true, 2:false)`, `("a":1, "b":2)`
+| `node`                    | `f()`, `add(x,y)`, `g("abc", [2,3,4])`
+|====
 
 A fragment of the datatype that defines the abstract syntax for statements (assignment, if, while) in a programming language would look as follows:
 

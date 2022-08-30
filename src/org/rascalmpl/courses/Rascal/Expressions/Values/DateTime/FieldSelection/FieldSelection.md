@@ -13,11 +13,11 @@ Select a field from a datetime value.
 
 //
 
-|              |          |                   |
-| --- | --- | --- |
-| `_Exp_`      | `_Name_` | `_Exp_ . _Name_`  |
-| `datetime`   |          | depends on field  |
+|====
+| `_Exp_`      | `_Name_` | `_Exp_ . _Name_` 
 
+| `datetime`   |          | depends on field 
+|====
 
 .Function
 

@@ -16,22 +16,22 @@ A Func interpreter that does not support let-expressions and pointers.
 Interpreter Eval0 supports the following features of Func:
 
 
-|                      |       |
-| --- | --- |
-| Feature              | Eval0 |
-| function declaration | y |
-| integer constant     | y |
-| variable             | y |
-| arithmetic operators | y |
-| comparison operators | y |
-| call                 | y |
-| if                   | y |
+|====
+| Feature              | Eval0
+
+| function declaration | y
+| integer constant     | y
+| variable             | y
+| arithmetic operators | y
+| comparison operators | y
+| call                 | y
+| if                   | y
 | let                  |
 | sequence             |
 | assignment           |
 | address operator     |
 | dereference operator |
-
+|====
 
 .Examples
 

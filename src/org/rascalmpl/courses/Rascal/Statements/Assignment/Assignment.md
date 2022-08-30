@@ -35,16 +35,16 @@ The purpose of an assignment is to assign a new value to a simple variable or to
 The standard assignment operator is `=`. 
 The other assignment operators can be expressed as abbreviations for the standard assignment operator.
 
-|                                 |                                         |
-| --- | --- |
-| Assignment Operator             | Equivalent to                           |
-| `_Assignable_ += _Exp_`         | `_Assignable_ = _Assignable_ + _Exp_`   |
-| `_Assignable_ -= _Exp_`         | `_Assignable_ = _Assignable_ - _Exp_`   |
-| `_Assignable_ *= _Exp_`         | `_Assignable_ = _Assignable_ * _Exp_`   |
-| `_Assignable_ /= _Exp_`         | `_Assignable_ = _Assignable_ / _Exp_`   |
-| `_Assignable_ &= _Exp_`         | `_Assignable_ = _Assignable_ & _Exp_`   |
-| `_Assignable_ ?= _Exp_`         | `_Assignable_ = _Assignable_ ? _Exp_`   |
+|====
+| Assignment Operator             | Equivalent to                          
 
+| `_Assignable_ += _Exp_`         | `_Assignable_ = _Assignable_ + _Exp_`  
+| `_Assignable_ -= _Exp_`         | `_Assignable_ = _Assignable_ - _Exp_`  
+| `_Assignable_ *= _Exp_`         | `_Assignable_ = _Assignable_ * _Exp_`  
+| `_Assignable_ /= _Exp_`         | `_Assignable_ = _Assignable_ / _Exp_`  
+| `_Assignable_ &= _Exp_`         | `_Assignable_ = _Assignable_ & _Exp_`  
+| `_Assignable_ ?= _Exp_`         | `_Assignable_ = _Assignable_ ? _Exp_`  
+|====
 
 
 

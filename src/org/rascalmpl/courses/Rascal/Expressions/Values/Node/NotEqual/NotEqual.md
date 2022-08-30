@@ -12,11 +12,11 @@ Not equal operator on node values.
 .Types
 
 
-|             |             |                         |
-| --- | --- | --- |
-| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ != _Exp~2~_`  |
-| `node`     |  `node`    | `bool`                |
+|====
+| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ != _Exp~2~_` 
 
+| `node`     |  `node`    | `bool`               
+|====
 
 .Function
 

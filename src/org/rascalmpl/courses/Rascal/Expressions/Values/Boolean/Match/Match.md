@@ -13,11 +13,11 @@ Match a pattern against an expression.
 
 //
 
-|              |         |                 |
-| --- | --- | --- |
-| `_Pat_`      | `_Exp_` |`_Pat_ := _Exp_` |
-| ((Patterns)) | `value` | `bool`         |
+|====
+| `_Pat_`      | `_Exp_` |`_Pat_ := _Exp_`
 
+| ((Patterns)) | `value` | `bool`        
+|====
 
 .Function
 
