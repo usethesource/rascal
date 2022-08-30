@@ -12,11 +12,10 @@ The difference between two maps.
 .Types
 
 
-|====
-| `_Exp~1~_`             |  `_Exp~2~_`             | `_Exp~1~_ - _Exp~2~_`                            
+| `_Exp~1~_`             |  `_Exp~2~_`             | `_Exp~1~_ - _Exp~2~_`                             |
+| --- | --- | --- |
+| `map[_TK~1~_, _TV~1~_]` |  `map[_TK~2~_, _TV~2~_]` | `map[lub(_TK~1~_,_TK~2~_),lub(_TK~1~_,_TK~2~_)]`   |
 
-| `map[_TK~1~_, _TV~1~_]` |  `map[_TK~2~_, _TV~2~_]` | `map[lub(_TK~1~_,_TK~2~_),lub(_TK~1~_,_TK~2~_)]`  
-|====
 
 .Function
 

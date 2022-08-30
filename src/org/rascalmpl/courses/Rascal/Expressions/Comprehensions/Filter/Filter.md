@@ -10,11 +10,10 @@ Filter values in a ((List-Comprehension))], ((Set-Comprehension)) or ((Map-Compr
 
 //
 
-|====
-| `_Exp_` 
+| `_Exp_`  |
+| --- |
+| `bool`   |
 
-| `bool`  
-|====
 
 .Function
 

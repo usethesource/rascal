@@ -12,11 +12,10 @@ The greater than operator on location values.
 .Types
 
 
-|====
-| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ > _Exp~2~_` 
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ > _Exp~2~_`  |
+| --- | --- | --- |
+| `loc`     |  `loc`    | `bool`                |
 
-| `loc`     |  `loc`    | `bool`               
-|====
 
 .Function
 

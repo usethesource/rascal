@@ -10,11 +10,10 @@ Not equal operator on datetime values.
 `_Exp_~1~ != _Exp_~2~`
 
 .Types
-|====
-| `_Exp~1~_`      | `_Exp~2~_`      | `_Exp~1~_ != _Exp~2~_` 
+| `_Exp~1~_`      | `_Exp~2~_`      | `_Exp~1~_ != _Exp~2~_`  |
+| --- | --- | --- |
+| `datetime`     |  `datetime`    | `bool`                |
 
-| `datetime`     |  `datetime`    | `bool`               
-|====
 
 .Function
 

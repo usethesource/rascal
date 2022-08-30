@@ -10,11 +10,10 @@ Constructors create values for user-defined datatypes (Algebraic Datatypes).
 
 //
 
-|====
-| `_Exp~1~_` | `_Exp~2~_` | ... |  `_Name_ ( _Exp~1~_, _Exp~2~_, ... )` 
+| `_Exp~1~_` | `_Exp~2~_` | ... |  `_Name_ ( _Exp~1~_, _Exp~2~_, ... )`  |
+| --- | --- | --- | --- |
+| `_T~1~_`   | `_T~2~_`   | ... | Depends on ADT declaration           |
 
-| `_T~1~_`   | `_T~2~_`   | ... | Depends on ADT declaration          
-|====
 
 .Function
 

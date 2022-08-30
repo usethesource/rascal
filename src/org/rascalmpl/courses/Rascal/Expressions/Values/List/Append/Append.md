@@ -12,11 +12,10 @@ Append an element at the end of a list
 
 //
 
-|====
-| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ + _Exp~2~_`      
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ + _Exp~2~_`       |
+| --- | --- | --- |
+| `list[_T~1~_]` |  `_T~2~_`       | `list[lub(_T~1~_,_T~2~_)]`  |
 
-| `list[_T~1~_]` |  `_T~2~_`       | `list[lub(_T~1~_,_T~2~_)]` 
-|====
 
 .Function
 

@@ -16,12 +16,11 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 
 .Types
 
-[cols="15,15,15,15,40"]
-|====
-| `_Exp~1~_`     | `_Exp~2~_` |  `_Exp~3~_`  | `_Exp~4~_` | `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_ ]`   or  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]` 
 
-| `str`         | `int`     | `int`       | `int`     |  `str`                                                                           
-|====
+| `_Exp~1~_`     | `_Exp~2~_` |  `_Exp~3~_`  | `_Exp~4~_` | `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_ ]`   or  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]`  |
+| --- | --- | --- | --- | --- |
+| `str`         | `int`     | `int`       | `int`     |  `str`                                                                            |
+
 
 .Function
 
@@ -63,29 +62,27 @@ Consider the string `S = "abcdefghi";` (with size 9) as running example.
 Here is a view on _L_ that will help to correlate positive and negative indices:
 
 
-|====
-|`_i_`        | 0    |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  
+|`_i_`        | 0    |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8   |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|`S[_i_]`     | `"a"`| `"b"`| `"c"`| `"d"`| `"e"`| `"f"`| `"g"`| `"h"`| `"i"` |
+|`-_i_`       | -9   | -8   | -7   | -6   |   -5 |   -4 |   -3 |   -2 |   -1  |
 
-|`S[_i_]`     | `"a"`| `"b"`| `"c"`| `"d"`| `"e"`| `"f"`| `"g"`| `"h"`| `"i"`
-|`-_i_`       | -9   | -8   | -7   | -6   |   -5 |   -4 |   -3 |   -2 |   -1 
-|====
 
 
 
 Some common use cases (with `begin` <= `end`):
 
 
-|====
-| Slice           | Means:                                                         
+| Slice           | Means:                                                          |
+| --- | --- |
+| `S[begin..end]` | characters with indices `begin` through `end-1`                 |
+| `S[begin..]`    | characters with indices `begin` through the rest of the string  |
+| `S[..end]`      | characters with indices from the beginning through `end-1`      |
+| `S[..]`         | the whole list                                                  |
+| `S[-1]`         | last element of the string                                      |
+| `S[-2..]`       | the last two characters of the string                           |
+| `S[..-2]`       | all characters except the last two.                             |
 
-| `S[begin..end]` | characters with indices `begin` through `end-1`                
-| `S[begin..]`    | characters with indices `begin` through the rest of the string 
-| `S[..end]`      | characters with indices from the beginning through `end-1`     
-| `S[..]`         | the whole list                                                 
-| `S[-1]`         | last element of the string                                     
-| `S[-2..]`       | the last two characters of the string                          
-| `S[..-2]`       | all characters except the last two.                            
-|====
 
 
 Let's put this into practice now.

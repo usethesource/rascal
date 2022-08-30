@@ -31,12 +31,13 @@ list[str] convertSections([str first:/^\s*\[source,rascal<rest1:.*>]\s*$/, /---/
 
 
 /*
-[cols="1,8"]
-|====
-| *What*        | The pocket calculator language Calc; we already covered it ((A simple pocket calculator language))
-| *Illustrates* | fact, define, use, requireEqual, calculate, getType, report
-| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/calc
-|====
+
+|               |                                                                                                    |
+| --- | --- |
+| *What*        | The pocket calculator language Calc; we already covered it ((A simple pocket calculator language)) |
+| *Illustrates* | fact, define, use, requireEqual, calculate, getType, report |
+| *Source*      | https://github.com/cwi-swat/typepal/tree/master/src/examples/calc |
+
 */
 list[str] convertSections([
     str before,
@@ -47,9 +48,9 @@ list[str] convertSections([
     *str rest
     ])
     = [ /^\s*\[[^\]*]*\]\s*$/ := before ? "" : before,
-      emptyHeader(firstLine),
-      columnsLine(emptyHeader(firstLine)),
+    //   emptyHeader(firstLine),
       completeBodyLine(firstLine),
+      columnsLine(emptyHeader(firstLine)),
       *[completeBodyLine(b) | b <- body, trim(b) != ""],
       "",
       *convertSections(rest)

@@ -13,11 +13,10 @@ Negated [Boolean Match] operator.
 
 //
 
-|====
-| `_Pat_`     | `_Exp_` |`_Pat_ !:= _Exp_`
+| `_Pat_`     | `_Exp_` |`_Pat_ !:= _Exp_` |
+| --- | --- | --- |
+| [Patterns]  | `value` | `bool`           |
 
-| [Patterns]  | `value` | `bool`          
-|====
 
 .Function
 

@@ -11,11 +11,10 @@ Retrieve a value by its key in map.
 
 .Types
 
-|====
-| `_Exp~1~_`           | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` 
+| `_Exp~1~_`           | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]`  |
+| --- | --- | --- |
+| `map[_T~1~_, _T~2~_]` | `_T~1~_`   | `_T~2~_`                |
 
-| `map[_T~1~_, _T~2~_]` | `_T~1~_`   | `_T~2~_`               
-|====
 
 .Function
 

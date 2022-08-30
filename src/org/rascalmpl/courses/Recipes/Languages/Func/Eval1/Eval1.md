@@ -16,22 +16,21 @@ Like Eval0 but with support for let-expressions.
 Interpreter Eval1 supports the following features of Func: 
 
 
-|====
-| Feature              | Eval1
-
-| function declaration | y
-| integer constant     | y
-| variable             | y
-| arithmetic operators | y
-| comparison operators | y
-| call                 | y
-| if                   | y
-| __let__              | y
+| Feature              | Eval1 |
+| --- | --- |
+| function declaration | y |
+| integer constant     | y |
+| variable             | y |
+| arithmetic operators | y |
+| comparison operators | y |
+| call                 | y |
+| if                   | y |
+| __let__              | y |
 | sequence             |
 | assignment           |
 | address operator     |
 | dereference operator |
-|====
+
 
 
 

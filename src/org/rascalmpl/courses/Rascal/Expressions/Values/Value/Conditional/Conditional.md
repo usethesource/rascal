@@ -12,11 +12,10 @@ Conditional expression on values.
 .Types
 
 
-|====
-| `_Exp~1~_`  | `_Exp~2~_` | `_Exp~3~_` | `_Exp~1~_ ? _Exp~2~_ : _Exp~3~_` 
+| `_Exp~1~_`  | `_Exp~2~_` | `_Exp~3~_` | `_Exp~1~_ ? _Exp~2~_ : _Exp~3~_`  |
+| --- | --- | --- | --- |
+|   `bool`   | `_T~2~_`   | `_T~3~_`   | `lub(_T~2~_,_T~3~_)`             |
 
-|   `bool`   | `_T~2~_`   | `_T~3~_`   | `lub(_T~2~_,_T~3~_)`            
-|====
 
 .Function
 

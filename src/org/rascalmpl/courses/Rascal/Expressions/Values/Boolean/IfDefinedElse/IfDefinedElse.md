@@ -13,11 +13,10 @@ Test whether expression has a defined value, otherwise provide alternative.
 
 //
 
-|====
-| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ ? _Exp~2~_`
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ ? _Exp~2~_` |
+| --- | --- | --- |
+| `_T~1~_`   | `_T~2~_`   |  `_T~2~_ <: _T~1~_`  |
 
-| `_T~1~_`   | `_T~2~_`   |  `_T~2~_ <: _T~1~_` 
-|====
 
 .Function
 

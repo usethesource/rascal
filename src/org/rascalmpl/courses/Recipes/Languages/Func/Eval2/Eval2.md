@@ -16,22 +16,21 @@ Like Eval1 but with support for sequences and assignments.
 Interpreter Eval2 supports the following features of Func: 
 
 
-|====
-| Feature              | Eval2
-
-| function declaration | y
-| integer constant     | y
-| variable             | y
-| arithmetic operators | y
-| comparison operators | y
-| call                 | y
-| if                   | y
-| let                  | y
-| __sequence__         | y
-| __assignment__       | y
+| Feature              | Eval2 |
+| --- | --- |
+| function declaration | y |
+| integer constant     | y |
+| variable             | y |
+| arithmetic operators | y |
+| comparison operators | y |
+| call                 | y |
+| if                   | y |
+| let                  | y |
+| __sequence__         | y |
+| __assignment__       | y |
 | address operator     |
 | dereference operator |
-|====
+
 
 
 
