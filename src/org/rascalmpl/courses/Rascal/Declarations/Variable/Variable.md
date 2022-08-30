@@ -10,10 +10,11 @@ Declare a variable.
 
 .Types
 
-|====
-|`_Type_`  | `_Exp_`
-| `_Type_` | `<: _Type_`
-|====
+|          |         |
+| --- | --- |
+|`_Type_`  | `_Exp_` |
+| `_Type_` | `<: _Type_` |
+
 
 .Function
 

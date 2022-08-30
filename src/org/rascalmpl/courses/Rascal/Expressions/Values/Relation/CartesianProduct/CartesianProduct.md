@@ -12,11 +12,11 @@ Cartesian product of two relation values.
 .Types
 
 
-|====
-|`_Exp~1~_`      | `_Exp~2~_`     | `_Exp~1~_ * _Exp~2~_`  
+|                |                |                         |
+| --- | --- | --- |
+|`_Exp~1~_`      | `_Exp~2~_`     | `_Exp~1~_ * _Exp~2~_`   |
+| `set[_T~1~_]`  | `set[_T~2~_]`  | `rel[_T~1~_, _T~2~_]`   |
 
-| `set[_T~1~_]`  | `set[_T~2~_]`  | `rel[_T~1~_, _T~2~_]`  
-|====
 
 .Function
 

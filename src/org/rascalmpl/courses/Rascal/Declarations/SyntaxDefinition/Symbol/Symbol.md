@@ -11,75 +11,75 @@ The symbols that can occur in a syntax definition.
 Nonterminal symbols are identifier names that _start with an uppercase letter_.
 
 
-|====
-| Symbol                      | Description
+|                             |             |
+| --- | --- |
+| Symbol                      | Description |
+| `_Symbol_ _fieldName_`      | Any symbol can be labeled with a field name that _starts with a lowercase letter_ |
 
-| `_Symbol_ _fieldName_`      | Any symbol can be labeled with a field name that _starts with a lowercase letter_
-|====
 
 
 The following literal symbols and character classes are defined:
 
 
-[cols="40,60"]
-|====
-| Symbol                        | Description
 
-|`"_stringliteral_"`            | Literal string
-|`'_stringliteral_'`            | Case-insensitive literal string
-|`[_range~1~_ _range~2~_ ... ]` | Character class
-|====
+|                               |             |
+| --- | --- |
+| Symbol                        | Description |
+|`"_stringliteral_"`            | Literal string |
+|`'_stringliteral_'`            | Case-insensitive literal string |
+|`[_range~1~_ _range~2~_ ... ]` | Character class |
+
 
 
 
 The following operations on character classes can be composed arbitrarily:
 
-[cols="40,60"]
-|====
-| Class                        | Description 
 
-|`!_Class_`                    | Complement of `_Class_` with respect to the UTF8 universe of characters
-| `_Class~1~_ - _Class~2~_`    | Difference of character classes `_Class~1~_` and `_Class~2~_`             
-| `_Class~1~_ \|\| _Class~2~_` | Union of character classes `_Class~1~_` and `_Class~2~_`                  
-| `_Class~1~_ && _Class~2~_`   | Intersection of character classes `_Class~1~_` and `_Class~2~_`           
-| `(_Class_)`                  | Brackets for defining application order of class operators              
-|====
+|                              |              |
+| --- | --- |
+| Class                        | Description  |
+|`!_Class_`                    | Complement of `_Class_` with respect to the UTF8 universe of characters |
+| `_Class~1~_ - _Class~2~_`    | Difference of character classes `_Class~1~_` and `_Class~2~_`              |
+| `_Class~1~_ \|\| _Class~2~_` | Union of character classes `_Class~1~_` and `_Class~2~_`                   |
+| `_Class~1~_ && _Class~2~_`   | Intersection of character classes `_Class~1~_` and `_Class~2~_`            |
+| `(_Class_)`                  | Brackets for defining application order of class operators               |
+
 
 
 
 The following regular expressions can be constructed over ((SyntaxDefinition-Symbol))s:
 
-[cols="40,60"]
-|====
-| Symbol                                 | Description                                                         
 
-| `_Symbol_?`                            | Optional _Symbol_                                                   
-| `_Symbol_+`                            | Non-empty list of _Symbol_s                                         
-| `_Symbol_*`                            | Possibly empty list of _Symbol_s.                                   
-| `{_Symbol~1~_ _Symbol~2~_}+`           | Non-empty list of _Symbol~1~_ separated by _Symbol~2~_                
-| `{_Symbol~1~_ _Symbol~2~_}*`           | Possibly empty list of _Symbol~1~_ separated by _Symbol~2~_.          
-| `(_Symbol~1~_ _Symbol~2~_ ... )`       | Embedded sequence of symbols                                        
-| `(_Symbol~1~_ \| _Symbol~2~_ \| ... )` | Embedded choice of alternative symbols                              
-| `()`                                   | The anonymous non-terminal for the language with the empty string  
-|====
+|                                        |                                                                      |
+| --- | --- |
+| Symbol                                 | Description                                                          |
+| `_Symbol_?`                            | Optional _Symbol_                                                    |
+| `_Symbol_+`                            | Non-empty list of _Symbol_s                                          |
+| `_Symbol_*`                            | Possibly empty list of _Symbol_s.                                    |
+| `{_Symbol~1~_ _Symbol~2~_}+`           | Non-empty list of _Symbol~1~_ separated by _Symbol~2~_                 |
+| `{_Symbol~1~_ _Symbol~2~_}*`           | Possibly empty list of _Symbol~1~_ separated by _Symbol~2~_.           |
+| `(_Symbol~1~_ _Symbol~2~_ ... )`       | Embedded sequence of symbols                                         |
+| `(_Symbol~1~_ \| _Symbol~2~_ \| ... )` | Embedded choice of alternative symbols                               |
+| `()`                                   | The anonymous non-terminal for the language with the empty string   |
+
 
 
 
 Inline conditions (((Disambiguation))s) can be added to symbols to constrain their acceptability:
 
-[cols="40,60"]
-|====
-| Disambiguation                             | Description                                                
 
-| `_Symbol_ _`                 | _Symbol_ ends at end of line or end of file                    
-| `^_Symbol_`                  | _Symbol_ starts at begin of line                               
-| `_Symbol_ @ _ColumnIndex_`   | _Symbol_ starts at certain column index.                       
-| `_Symbol~1~_ >> _Symbol~2~_`   | _Symbol~1~_ must be (directly) followed by _Symbol~2~_           
-| `_Symbol~1~_ !>> _Symbol~2~_`  | _Symbol~1~_ must _not_ be (directly) followed by _Symbol~2~_     
-| `_Symbol~1~_ << _Symbol~2~_`   | _Symbol~2~_ must be (directly) preceded by _Symbol~1~_           
-| `_Symbol~1~_ !<< _Symbol~2~_`  | _Symbol~2~_ must _not_ be (directly) preceded by _Symbol~1~_     
-| `_Symbol~1~_ \ _Symbol~2~_`   | _Symbol~1~_ must not be in the language defined by _Symbol~2~_   
-|====
+|                                            |                                                             |
+| --- | --- |
+| Disambiguation                             | Description                                                 |
+| `_Symbol_ _`                 | _Symbol_ ends at end of line or end of file                     |
+| `^_Symbol_`                  | _Symbol_ starts at begin of line                                |
+| `_Symbol_ @ _ColumnIndex_`   | _Symbol_ starts at certain column index.                        |
+| `_Symbol~1~_ >> _Symbol~2~_`   | _Symbol~1~_ must be (directly) followed by _Symbol~2~_            |
+| `_Symbol~1~_ !>> _Symbol~2~_`  | _Symbol~1~_ must _not_ be (directly) followed by _Symbol~2~_      |
+| `_Symbol~1~_ << _Symbol~2~_`   | _Symbol~2~_ must be (directly) preceded by _Symbol~1~_            |
+| `_Symbol~1~_ !<< _Symbol~2~_`  | _Symbol~2~_ must _not_ be (directly) preceded by _Symbol~1~_      |
+| `_Symbol~1~_ \ _Symbol~2~_`   | _Symbol~1~_ must not be in the language defined by _Symbol~2~_    |
+
 
 
 

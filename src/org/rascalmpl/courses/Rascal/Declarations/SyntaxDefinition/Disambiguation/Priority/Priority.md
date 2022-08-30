@@ -26,14 +26,14 @@ Any other position of A will allow B fine. Note that the priority relation you d
 
 A finer point is that Rascal restricts the filtering of priority such that it is guaranteed that no parse errors occur at the cause of a priority. The following table defines when and where Rascal forbids a direct nesting between two productions `parent > child`, depending on at which left-most or right-most positions the parent and the child are recursive. 
 
-|====
-| If `Parent > Child` | Parent None: `E = "[" E "]"` | Parent Left-most: `E = E "*"` |Parent  Right-most: `E = "*" E` | Parent Both: `E = E "*" E`  
+|                     |                              |                               |                                |                              |
+| --- | --- | --- | --- | --- |
+| If `Parent > Child` | Parent None: `E = "[" E "]"` | Parent Left-most: `E = E "*"` |Parent  Right-most: `E = "*" E` | Parent Both: `E = E "*" E`   |
+| __Child None:__ `E = "{" E "}"`  | No filter        | No filter                    | No filter                     | No filter               |
+| __Child Left-most:__ `E = E "+"` | No filter        | No filter                    | Filter under right            | Filter under right      |
+| __Child Right-most:__ `E = "+" E`| No filter        | Filter under left            | No filter                     | Filter under left       |
+| __Child Both:__ `E = E "+" E`    | No filter        | Filter under left            | Filter under right            | Filter under left and right  |
 
-| __Child None:__ `E = "{" E "}"`  | No filter        | No filter                    | No filter                     | No filter              
-| __Child Left-most:__ `E = E "+"` | No filter        | No filter                    | Filter under right            | Filter under right     
-| __Child Right-most:__ `E = "+" E`| No filter        | Filter under left            | No filter                     | Filter under left      
-| __Child Both:__ `E = E "+" E`    | No filter        | Filter under left            | Filter under right            | Filter under left and right 
-|====
 
 .Examples
 The following snippet uses all ((Disambiguation-Priority)) features:

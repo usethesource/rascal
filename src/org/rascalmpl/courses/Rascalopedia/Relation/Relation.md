@@ -22,14 +22,14 @@ the set _D_~i~. When _n_ = 2, we call the relation a http://en.wikipedia.org/wik
 
 In http://en.wikipedia.org/wiki/Relational_algebra[database theory], a relation is a table with a heading and an unordered set of tuples:
 
-|====
-| _D~1~ Name~1~_ | _D~2~ Name~2~_ | ... | _D~n~ Name~n~_
-
-| _V~11~_        | _V~12~_        | ... | _V~1n~_       
-| _V~21~_        | _V~22~_        | ... | _V~2n~_        
-| _V~31~_        | _V~32~_        | ... | _V~3n~_        
+|                |                |     |                |
+| --- | --- | --- | --- |
+| _D~1~ Name~1~_ | _D~2~ Name~2~_ | ... | _D~n~ Name~n~_ |
+| _V~11~_        | _V~12~_        | ... | _V~1n~_        |
+| _V~21~_        | _V~22~_        | ... | _V~2n~_         |
+| _V~31~_        | _V~32~_        | ... | _V~3n~_         |
 | ...            | ...            | ... |                
-|====
+
 
 
 

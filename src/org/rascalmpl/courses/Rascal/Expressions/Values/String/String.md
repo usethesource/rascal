@@ -25,25 +25,25 @@ where `_StringChar~i~_ may be one of the following:
 
 *  __String Interpolation__: 
 
-|====
-| Form      | Description
+|           |             |
+| --- | --- |
+| Form      | Description |
+| `<_Exp_>` | Interpolate the value of the expression as a string |
+| `<if(_Exp_){> ... _StringChars_ ... <}>` | Conditional inclusion of _Text_, where _StringChars_ may use variables introduced in _Exp_ |
+| `<if(_Exp_){> ... _StringChars~1~_ ... <} else {>  ... _StringChars~2~_ ... <}>` | Conditional inclusion of either _StringChars~1~_ or _StringChars~2~_ |
+| `<for(_Exp_){>... _StringChars_ ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
+| `<while(_Exp_){> ... _StringChars_ ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
+| `<do {>... _StringChars_ ... <} while (_Exp_)>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
 
-| `<_Exp_>` | Interpolate the value of the expression as a string
-| `<if(_Exp_){> ... _StringChars_ ... <}>` | Conditional inclusion of _Text_, where _StringChars_ may use variables introduced in _Exp_
-| `<if(_Exp_){> ... _StringChars~1~_ ... <} else {>  ... _StringChars~2~_ ... <}>` | Conditional inclusion of either _StringChars~1~_ or _StringChars~2~_
-| `<for(_Exp_){>... _StringChars_ ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_.
-| `<while(_Exp_){> ... _StringChars_ ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_.
-| `<do {>... _StringChars_ ... <} while (_Exp_)>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_.
-|====
 
 *  __Multiline__:
 
-|====
-| Form | Description 
+|      |              |
+| --- | --- |
+| Form | Description  |
+| `_StringChars~1~_\n _StringChars~2~_ `   | Strings can be multi-line without an escape or continuation marker  |
+| `_StringChars~2~_\n '  _StringChars~2~_` | A margin character `'` indicates where the next line starts  |
 
-| `_StringChars~1~_\n _StringChars~2~_ `   | Strings can be multi-line without an escape or continuation marker 
-| `_StringChars~2~_\n '  _StringChars~2~_` | A margin character `'` indicates where the next line starts 
-|====
 
 
 .Usage

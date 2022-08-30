@@ -90,20 +90,20 @@ The elements of a location value can be accessed and modified using the standard
 
 Supported protocols are:
 
-|====
-| Scheme name and pattern | Description
+|                         |             |
+| --- | --- |
+| Scheme name and pattern | Description |
+| `http://_host_:_port_/_path_?_query_#_fragment_`      | access a remote file via the web. |
+| `file:///_path_`                                      | access a local file on the file system. |
+| `cwd:///_path_`                                       | access the current working directory (the directory from which Rascal was started). |
+| `home:///_path_`                                      | access the home directory of the user. |
+| `std:///_path_`                                       | access the Rascal standard library.  |
+| `tmp:///_path_`                                       | access the temporay file directory.  |
+| `jar:_url_!/[_entry_]`                                | access any entry in a zip file (or a jar)  |
+| `rascal://_qualifiedModulename_`                      | access the source code of a Rascal module name  |
+| `project://_projectName_/_projectRelativePath_`       | access a project in the current instance of Eclipse.  |
+| `bundleresource://_bundleId_/_bundleRelativePath_`    | access OSGI bundles. Only active in Eclipse context  |
 
-| `http://_host_:_port_/_path_?_query_#_fragment_`      | access a remote file via the web.
-| `file:///_path_`                                      | access a local file on the file system.
-| `cwd:///_path_`                                       | access the current working directory (the directory from which Rascal was started).
-| `home:///_path_`                                      | access the home directory of the user.
-| `std:///_path_`                                       | access the Rascal standard library. 
-| `tmp:///_path_`                                       | access the temporay file directory. 
-| `jar:_url_!/[_entry_]`                                | access any entry in a zip file (or a jar) 
-| `rascal://_qualifiedModulename_`                      | access the source code of a Rascal module name 
-| `project://_projectName_/_projectRelativePath_`       | access a project in the current instance of Eclipse. 
-| `bundleresource://_bundleId_/_bundleRelativePath_`    | access OSGI bundles. Only active in Eclipse context 
-|====
 
 .Examples
 Locations with specific position information should always be generated automatically but for the curious here is an example:

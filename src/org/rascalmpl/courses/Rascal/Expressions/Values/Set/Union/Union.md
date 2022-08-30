@@ -10,11 +10,11 @@ Union of two set values.
 
 .Types
 
-|====
-| `_Exp~1~_`    |  `_Exp~2~_`    | `_Exp~1~_ + _Exp~2~_`      
+|               |                |                             |
+| --- | --- | --- |
+| `_Exp~1~_`    |  `_Exp~2~_`    | `_Exp~1~_ + _Exp~2~_`       |
+| `set[_T~1~_]` |  `set[_T~2~_]` | `set[lub(_T~1~_,_T~2~_)]`   |
 
-| `set[_T~1~_]` |  `set[_T~2~_]` | `set[lub(_T~1~_,_T~2~_)]`  
-|====
 
 .Description
 The `+` operator computes set union if both operands are sets. If one of the operands is not a set, it acts as ((Set-Insert)) instead.

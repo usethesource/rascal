@@ -13,12 +13,12 @@ Any combination of argument values is true.
 
 //
 
-[cols="20,20,20,40"]
-|====
-| `_Exp~1~_` | `_Exp~2~_` | ... | `any ( _Exp~1~_, _Exp~2~_, ... )` 
 
-|`bool`     | `bool`    | ... | `bool`                          
-|====
+|            |            |     |                                    |
+| --- | --- | --- | --- |
+| `_Exp~1~_` | `_Exp~2~_` | ... | `any ( _Exp~1~_, _Exp~2~_, ... )`  |
+|`bool`     | `bool`    | ... | `bool`                           |
+
 
 .Function
 

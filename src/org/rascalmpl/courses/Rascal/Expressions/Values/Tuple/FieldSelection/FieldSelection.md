@@ -12,11 +12,11 @@ Select a field from a tuple by its field name.
 .Types
 
 
-|====
-| `_Exp_`                                 | `_Name_` | `_Exp_ . _Name_`
+|                                         |          |                  |
+| --- | --- | --- |
+| `_Exp_`                                 | `_Name_` | `_Exp_ . _Name_` |
+|`tuple[ _T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` |  `_L~i~_` | `_T~i~_`         |
 
-|`tuple[ _T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` |  `_L~i~_` | `_T~i~_`        
-|====
 
 .Function
 
