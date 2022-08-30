@@ -64,17 +64,23 @@ rel[str, str] createConceptIndex(loc src)
 
 list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) {
   output = compileDirectory(root, pcfg, exec, ind);
-  
+  issues = [m | err(Message m) <- output];
 
   // write the output lines to disk (filtering errors)
   writeFile(
     (pcfg.bin + root.file)[extension="md"], 
-    "<for (out(l) <- output) {><l>
+    "<if (issues != []) {>## Document preparation issues
+    '
+    'The following issues have been detected while preparing this draft document. It is not ready for publication.
+    '
+    '<for (str severity(str msg, loc at) <- issues) {>1. [<severity>] <at>: <msg>
+    '<}>
+    '<}><for (out(l) <- output) {><l>
     '<}>"
   );
 
   // return only the errors
-  return [m | err(Message m) <- output];
+  return issues;
 }
 
 data Output 
@@ -145,20 +151,11 @@ list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index i
     // to fix that.
     <tmp, i> = extractDoc(parent, m);
 
-    return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec, ind);
+    return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec, ind, []);
 }
 
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, []);
-
-@synopsis{[source,rascal-shell] --- block --- legacy syntax still supported for backward compatibility}
-list[Output] compileMarkdown([str first:/^\s*\[source,rascal-shell<rest1:.*>$/, /---/, *block, /---/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
-  = [
-      out("```rascal-shell"),
-      *compileRascalShell(block, /,error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
-      out("```"),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, dtls)
-    ];
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
 list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
@@ -170,7 +167,7 @@ list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int l
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [
       out("```rascal-shell"),
-      *compileRascalShell(block, /errors/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
+      *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, dtls)
     ];

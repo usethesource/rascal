@@ -86,7 +86,7 @@ There are also [library functions]((Libraries:Prelude-DateTime)) available for D
 Examples of `datetime` values are:
 ```rascal-shell,continue
 $2010-07-15$
-$T07:15:23.123+0100$;
+$2010-07-15T07:15:23.123+0100$;
 ```
 Now introduce a `datetime` value and assign it to `DT`.
 ```rascal-shell,continue
@@ -103,6 +103,7 @@ DT.century;
 .Benefits
 
 .Pitfalls
-In normal parlance, the year 2010 is in the 21th century.
-The `century` field, however, just returns the century component of a given year, e.g., for 2010 this is 20.
+
+* In normal parlance, the year 2010 is in the 21th century. The `century` field, however, just returns the century component of a given year, e.g., for 2010 this is 20.
+* `DT.justTime` prints a time literal that currently can not be parsed back into a value to due to issue #1443.
 

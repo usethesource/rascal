@@ -34,7 +34,7 @@ The value returned by the function is used as value of the function call.
 
 A _constructor call_ has identical syntax to that of a function call, see ((Values-Constructor)),
 
-See ((Function Declaration)) for more details about function declarations.
+See ((Function)) for more details about function declarations.
 
 NOTE: Describe keyword parameters.
 
