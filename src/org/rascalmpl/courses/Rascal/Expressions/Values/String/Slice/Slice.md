@@ -28,7 +28,7 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 .Details
 
 .Description
-A String slice is similar to a list ((List Slice)) and uses the integer values of _Exp_~2~ and _Exp_~4~ to determine the `begin` (*inclusive*) and `end` (*exclusive*)
+A String slice is similar to a list ((List-Slice)) and uses the integer values of _Exp_~2~ and _Exp_~4~ to determine the `begin` (*inclusive*) and `end` (*exclusive*)
 of a slice from the string value _S_ of _Exp_~1~. Negative indices count from the end of the string backwards.
 Using the second form, an extra index _Exp_~3~ is given that determines the
 index of the second element in the slice and establishes the `step` between
