@@ -289,7 +289,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       line = "";
 
       for (outLine <- split("\n", stdout)) {
-        append OUT : out("\> <trim(outLine)>");
+        append OUT : out("<trim(outLine)>");
       }
     }
 
