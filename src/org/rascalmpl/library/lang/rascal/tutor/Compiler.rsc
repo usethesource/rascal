@@ -155,7 +155,8 @@ list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index i
 }
 
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
-  = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, []);
+  = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, 
+    [ fragment(pcfg.currentRoot, d) | d <- m.parent.ls, isDirectory(d), exists((d + d.file)[extension="md"])]);
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
 list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
@@ -198,17 +199,17 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.]+>\)\)<p
         }
       case { }: 
         return [
-                  err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+                  err(warning("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown([":::caution\nBroken link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ]; 
       case {_, _, *_}:
         return [
-                  err(error("Ambiguous concept link: <link> resolves to all of <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+                  err(warning("Ambiguous concept link: <link> resolves to all of <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown([":::caution\nAmbiguous link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
   }
 
-  return [err(error("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
+  return [err(warning("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
 }
 
  
@@ -321,7 +322,7 @@ bool isConceptFile(loc f) = f.extension in {"md", "concept"};
 
 bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
-str fragment(loc concept) = replaceAll("#<concept[extension=""].path[1..]>", "/", "-");
+str fragment(loc concept) { println("fragment: <concept>"); return replaceAll("#<concept[extension=""].path[1..]>", "/", "-");}
 str fragment(loc root, loc concept) = fragment(relativize(root, concept));
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
