@@ -15,12 +15,11 @@ A `Message` datatype that represents messages in the IDE.
 .Syntax
 
 .Types
-[source,rascal]
-----
+```rascal
 data Message = error(str msg, loc at)
              | warning(str msg, loc at)
              | info(str msg, loc at);
-----
+```
 
 
 

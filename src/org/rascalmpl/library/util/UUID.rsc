@@ -13,30 +13,26 @@ a ((Location)) (which is the preferred representation for encoding identities in
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import util::UUID;
-----
+```
 
 The uuid() function generates a location with the authority showing the literal canonical UUID string
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 uuid()
-----
+```
 
 Use it to relate identies to data objects, as in this example which adds a field to a relation:
 
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 myData = { <i,i*i> | i <- [1..11] }; 
 rel[int n, int square, loc id] myUniqueData = { <i,j,uuid()> | <i,j> <- myData };
 map[tuple[int i, int j], loc id] myUniqueMap = (<i,j>:uuid() | <i,j> <- myData );
-----
+```
 Note how uuid() should always generate a fresh value:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 assert uuid() != uuid(); 
-----
+```
 
 .Benefits
 
