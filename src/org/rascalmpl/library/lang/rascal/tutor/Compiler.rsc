@@ -322,7 +322,7 @@ bool isConceptFile(loc f) = f.extension in {"md", "concept"};
 
 bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
-str fragment(loc concept) { println("fragment: <concept>"); return replaceAll("#<concept[extension=""].path[1..]>", "/", "-");}
+str fragment(loc concept) = replaceAll("#<concept[extension=""].path[1..]>", "/", "-");
 str fragment(loc root, loc concept) = fragment(relativize(root, concept));
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
