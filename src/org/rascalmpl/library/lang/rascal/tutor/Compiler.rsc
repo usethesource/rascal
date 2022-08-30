@@ -36,6 +36,7 @@ import lang::rascal::tutor::repl::TutorCommandExecutor;
 import lang::rascal::tutor::apidoc::ExtractDoc;
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
+data Message(str cause="");
 
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
@@ -156,7 +157,7 @@ list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index i
 
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, 
-    [ fragment(pcfg.currentRoot, d) | d <- m.parent.ls, isDirectory(d), exists((d + d.file)[extension="md"])]);
+    [ fragment(pcfg.currentRoot, d) | d <- m.parent.ls, isDirectory(d), exists((d + d.file)[extension="md"])]) + [out("")];
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
 list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
@@ -166,7 +167,7 @@ list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int l
 
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
-  = [
+  = [ out(""), // must have an empty line
       out("```rascal-shell"),
       *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
@@ -269,7 +270,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     stdout = output["application/rascal+stdout"]?"";
     html   = output["text/html"]?"";
 
-    if (stderr != "" && /cancelled/ !:= stderr) {
+    if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
       append out(allowErrors ? ":::caution" : ":::danger");
       for (errLine <- split("\n", stderr)) {
         append OUT : out(trim(errLine));
@@ -277,7 +278,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 
       if (!allowErrors) {
         append OUT : out("Rascal code execution failed unexpectedly during compilation of this documentation!");
-        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>))); 
+        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>), cause=stderr)); 
       }
 
        append OUT : out(":::");
@@ -334,3 +335,10 @@ str addSpaces(/^<prefix:.*[a-z0-9]><postfix:[A-Z].+>/) =
   addSpaces("<prefix> <uncapitalize(postfix)>");
 
 default str addSpaces(str s) = split("-", s)[-1];
+
+str filterErrors(str errorStream) = intercalate("\n", filterErrors(split("\n", errorStream)));
+
+list[str] filterErrors([/^warning, ambiguity/, *str rest]) = filterErrors(rest);
+list[str] filterErrors([/^Generating parser/, *str rest]) = filterErrors(rest);
+default list[str] filterErrors([str head, *str tail]) = [head, *filterErrors(tail)];
+list[str] filterErrors([]) = [];
