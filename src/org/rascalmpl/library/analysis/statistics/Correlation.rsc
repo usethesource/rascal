@@ -73,10 +73,11 @@ Covariance of data values.
 Computes the http://en.wikipedia.org/wiki/Covariance[covariance] between the `x` and `y` values.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::statistics::Correlation;
 covariance([<1,12>,<3,12>,<3,11>,<5,7>]);
-```
+----
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java num covariance(lrel[num x,num y] values);

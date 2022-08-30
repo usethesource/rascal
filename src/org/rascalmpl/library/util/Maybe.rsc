@@ -23,7 +23,8 @@ Data type to represent an optional value.
 .Description
 
 .Examples
-```rascal
+[source,rascal]
+----
 Maybe[int] linearSearch(list[int] l, int toFind) {
    for(i <- index(l)){
       if(l[i] == toFind) {
@@ -32,6 +33,6 @@ Maybe[int] linearSearch(list[int] l, int toFind) {
    }
    return nothing();
 }
-```
+----
 }
 data Maybe[&A] = nothing() | just(&A val);

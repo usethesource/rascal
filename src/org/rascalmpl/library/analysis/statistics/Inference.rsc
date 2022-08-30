@@ -29,10 +29,11 @@ Compute the http://en.wikipedia.org/wiki/Chi-square_statistic[ChiSquare statisti
 Consider an example from the web page mentioned above.
 To test the hypothesis that a random sample of 100 people has been drawn from a population in which men and women are equal in frequency, the observed number of men and women would be compared to the theoretical frequencies of 50 men and 50 women. If there were 44 men in the sample and 56 women, then we have the following:
 
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::statistics::Inference;
 chiSquare([<50, 44>, <50, 56>])
-```
+----
 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
@@ -89,27 +90,30 @@ Returns true iff the null hypothesis can be rejected with confidence 1 - `alpha`
 .Examples
 We use the data from the following http://web.mst.edu/~psyworld/texample.htm#1[example] to illustrate the t-test.
 First, we compute the t-statistic using the formula given above.
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 import analysis::statistics::Descriptive;
 import List;
 s1 = [5,7,5,3,5,3,3,9];
 s2 = [8,1,4,6,6,4,1,2];
 (mean(s1) - mean(s2))/sqrt(variance(s1)/size(s1) + variance(s2)/size(s2));
-```
+----
 This is the same result as obtained in the cited example.
 We can also compute it directly using the `tTest` functions:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 import analysis::statistics::Inference;
 tTest(s1, s2);
-```
+----
 Observe that this is a smaller value than comes out directly of the formula.
 Recall that: _The number returned is the smallest significance level at which one can reject the null hypothesis that the two means are equal in favor of the two-sided alternative that they are different._
 Finally, we perform the test around the significance level we just obtained:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 tTest(s1,s2,0.40);
 tTest(s1,s2,0.50);
-```
+----
 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
@@ -192,17 +196,20 @@ value between 0 (completely equal distribution) and
 1 (completely unequal distribution).
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::statistics::Inference;
-```
+----
 A completely equal distribution:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 gini([<10000, 1>, <10000, 1>, <10000, 1>]);
-```
+----
 A rather unequal distribution:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 gini([<998000, 1>, <20000, 3>, <117500, 1>, <70000, 2>, <23500, 5>, <45200,1>]);
-```
+----
 }
 
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
