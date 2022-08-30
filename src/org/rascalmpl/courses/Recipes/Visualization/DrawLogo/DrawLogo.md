@@ -35,7 +35,7 @@ will produce:
 or as a screenshot:
 
 
-![]((Screenshot1.png))
+![]((DrawLogo-Screenshot1.png))
 
 
 

@@ -14,7 +14,7 @@ Representation of the abstract syntactic structure of a program.
 .Details
 
 .Description
-A ((ParseTree)) is a detailed and very precise represention of the concrete syntactic structure of a program.
+A ((ParseTree-ParseTree)) is a detailed and very precise represention of the concrete syntactic structure of a program.
 It may even be so detailed that it contains every space, comment and parenthesis in the original source text.
 In many cases a less detailed representation is sufficient and an abstract syntax tree (or AST for short) is used.
 

@@ -90,8 +90,8 @@ We now know the entry points for this application ("a" and "f") and the indirect
 we can determine which procedures are called from each entry point. This is done by indexing closureCalls with appropriate procedure name.
 The index operator yields all right-hand sides of tuples that have a given value as left-hand side. This gives the following:
 ```rascal-shell-continue
-set[Proc] calledFromA = closureCalls["a"]
-set[Proc] calledFromF = closureCalls["f"]
+set[Proc] calledFromA = closureCalls["a"];
+set[Proc] calledFromF = closureCalls["f"];
 ```
 __Which procedures are called from all entry points?__
 Finally, we can determine which procedures are called from both entry points by taking the intersection of the two sets 
