@@ -12,12 +12,12 @@ Some convenient shortcuts are:
 
 [cols="1,3"]
 |===
-| kbd:[Ctrl+a]  | Move cursor to begin of line.
-| kbd:[Ctrl+d]  | EOF marker, closes the current RascalShell (equivalent to the
+| `Ctrl+a`  | Move cursor to begin of line.
+| `Ctrl+d`  | EOF marker, closes the current RascalShell (equivalent to the
    command (`quit`).
  
-| kbd:[Ctrl+e]  | Move cursor to end of line.
-| kbd:[Ctrl+k]  | Kill remainder of line after cursor.
-| kbd:[Ctrl+l]  | Clear screen.
+| `Ctrl+e`  | Move cursor to end of line.
+| `Ctrl+k`  | Kill remainder of line after cursor.
+| `Ctrl+l`  | Clear screen.
 |===
  

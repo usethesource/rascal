@@ -6,7 +6,7 @@ import IO;
 import String;
 
 void ad2md(loc root) {
-    for (f <- find(root, "rsc"))
+    for (f <- find(root, "md"))
       convertFile(f);
 }
 
@@ -47,6 +47,9 @@ str convertLine(/^<prefix:.*>\<\<<concept:[A-Za-z\-0-9\ ]+>\>\><postfix:.*$>/)
 
 str convertLine(/^<prefix:.*>loctoc::\[[0-9]+\]<postfix:.*$>/)
   = convertLine("<prefix>(((TOC)))<postfix>");
+
+str convertLine(/^<prefix:.*>kbd:\[<keys:.*?>\]<postfix:.*$>/)
+  = convertLine("<prefix>`<keys>`<postfix>");
 
 str convertLine(/^\ \ \ \ \*\*<postfix:.*$>/)
   = convertLine("    *<postfix>");

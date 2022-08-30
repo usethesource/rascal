@@ -14,10 +14,10 @@ RascalShell provides a history of previously entered commands. This can be acces
 
 [cols="1,3"]
 |===
-| kbd:[{arrow-up}]| Show previous command in history; Type kbd:[Return] to execute it.
-| kbd:[{arrow-down}] | Next command in history; Type kbd:[Return] to execute it.
-| kbd:[Ctrl+r]       |(After search text) Search backward in history.
-| kbd:[Ctrl+s]       | (After search text) Forward search in history
+| `{arrow-up}`| Show previous command in history; Type `Return` to execute it.
+| `{arrow-down}` | Next command in history; Type `Return` to execute it.
+| `Ctrl+r`       |(After search text) Search backward in history.
+| `Ctrl+s`       | (After search text) Forward search in history
 |===
 
 .Examples
@@ -27,14 +27,14 @@ a = 1;
 b = 2;
 c = 3;
 ```
-Typing kbd:[{arrow-up}] will then show the text (not followed by kbd:[Return]!):
+Typing `{arrow-up}` will then show the text (not followed by `Return`!):
 ```rascal
 rascal>c = 3;
 ```
-Typing kbd:[Return] will reexecute `c = 3`.
+Typing `Return` will reexecute `c = 3`.
 
-Typing the letter `a` (the search text in this example) followed by kbd:[Ctrl+r] will show the text:
+Typing the letter `a` (the search text in this example) followed by `Ctrl+r` will show the text:
 ```rascal,subs="verbatim,quotes"
 (reverse-i-search)`a': a = 3;
 ```
-And again, typing kbd:[Return] will reexecute `a = 3`.
+And again, typing `Return` will reexecute `a = 3`.
