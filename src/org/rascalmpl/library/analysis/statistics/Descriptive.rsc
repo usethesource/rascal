@@ -16,7 +16,8 @@ Provides the following univariate (single variable) statistics functions:
 
 .Examples
 
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::statistics::Descriptive;
 D = [67, 88, 55, 92.5, 102, 51];
 mn = min(D);
@@ -31,7 +32,7 @@ variance(D);
 percentile(D,25);
 percentile(D,50);
 percentile(D,75);
-```
+----
 }
 module analysis::statistics::Descriptive
 
@@ -118,11 +119,12 @@ Returns the http://en.wikipedia.org/wiki/Median[median] of the available values.
 This is the same as the 50th ((percentile)).
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::statistics::Descriptive;
 median([1,2,5,7,8]);
 median([1,2,2,6,7,8]);
-```
+----
 
 }
 default real median(list[num] nums:[_, *_]) 

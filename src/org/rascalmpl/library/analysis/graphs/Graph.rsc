@@ -37,10 +37,11 @@ alias Graph[&T] = rel[&T from, &T to];
 Compute topological order of the nodes in a graph.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import  analysis::graphs::Graph;
 order({<3,4>, <1,2>, <2,4>, <1,3>});
-```
+----
 }
 list[&T] order(Graph[&T] g){
     <components, topsort> = stronglyConnectedComponentsAndTopSort(g);
@@ -52,10 +53,11 @@ list[&T] order(Graph[&T] g){
 Compute strongly connected components in a graph.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import  analysis::graphs::Graph;
 stronglyConnectedComponents({<1, 2>, <2, 3>, <3, 2>, <2, 4>, <4, 2>, <3, 5>, <5, 3>, <4, 5>, <5, 3>});
-```
+----
 }
 set[set[&T]] stronglyConnectedComponents(Graph[&T] g){
     <components, topsort> = stronglyConnectedComponentsAndTopSort(g);
@@ -133,10 +135,11 @@ Determine the bottom nodes (leaves) of a graph.
 Returns the bottom nodes of Graph `G`, i.e., the leaf nodes that don't have any descendants.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::graphs::Graph;
 bottom({<1,2>, <1,3>, <2,4>, <3,4>});
-```
+----
 }
 public set[&T] bottom(Graph[&T] G)
 {
@@ -151,10 +154,11 @@ Determine the direct predecessors of a graph node.
 Returns the direct predecessors of node `From` in Graph `G`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::graphs::Graph;
 predecessors({<1,2>, <1,3>, <2,4>, <3,4>}, 4);
-```
+----
 }
 public set[&T] predecessors(Graph[&T] G, &T From)
 {
@@ -192,10 +196,11 @@ Returns the set of nodes in Graph `G` that are reachable from any of the nodes
 in set `Start` using path that only use nodes in the set `Restr`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::graphs::Graph;
 reachR({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {1, 2, 3});
-```
+----
 }
 public set[&T] reachR(Graph[&T] G, set[&T] Start, set[&T] Restr)
 {
@@ -211,10 +216,11 @@ Returns set of nodes in Graph `G` that are reachable from any of the nodes
 in `Start` via path that exclude nodes in `Excl`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::graphs::Graph;
 reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2});
-```
+----
 }
 public set[&T] reachX(Graph[&T] G, set[&T] Start, set[&T] Excl)
 {
@@ -239,10 +245,11 @@ Determine the direct successors of a graph node.
 Returns the direct successors of node `From` in Graph `G`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::graphs::Graph;
 successors({<1,2>, <1,3>, <2,4>, <3,4>}, 1);
-```
+----
 }
 public set[&T] successors(Graph[&T] G, &T From)
 {
@@ -257,10 +264,11 @@ Determine the set of top nodes (roots) of a graph.
 Returns the top nodes of Graph `G`, i.e., the root nodes that do not have any predecessors.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::graphs::Graph;
 top({<1,2>, <1,3>, <2,4>, <3,4>});
-```
+----
 }
 public set[&T] top(Graph[&T] G)
 {
@@ -275,10 +283,11 @@ Determine the connected components of a graph.
 Returns the http://en.wikipedia.org/wiki/Connected_component_(graph_theory)[connected components] of Graph `G`, as sets of nodes. All nodes within one component are all reachable from one another, there are no paths between two nodes from different components. The graph is assumed to be undirected.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import analysis::graphs::Graph;
 connectedComponents({<1,2>, <1,3>, <4,5>, <5,6>});
-```
+----
 }
 public set[set[&T]] connectedComponents(Graph[&T] G)
 {

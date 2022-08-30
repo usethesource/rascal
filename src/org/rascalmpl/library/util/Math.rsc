@@ -34,13 +34,14 @@ Absolute value of a number.
 Absolute value of the number `n`. The result type is equal to the type of the argument `n`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 abs(13)
 abs(-13)
 abs(3.14)
 abs(-3.14)
-```
+----}
 public &T <: num abs(&T <: num N)
 {
 	return N >= 0 ? N : -N;
@@ -55,7 +56,8 @@ Return an arbitrary integer value. When the argument `limit` is given, the gener
 i.e., the limit is exclusive.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 arbInt();
 arbInt();
@@ -63,7 +65,7 @@ arbInt();
 arbInt(10);
 arbInt(10);
 arbInt(10);
-```
+----
 
 .Benefits
 `arbInt` is a convenient generator for pseudo-random integers.
@@ -82,12 +84,13 @@ Generate a random real value in the interval [0.0,1.0).
 Generates an arbitrary real value in the interval [0.0, 1.0].
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 arbReal();
 arbReal();
 arbReal();
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real arbReal();
@@ -109,7 +112,8 @@ public java void arbSeed(int seed);
 Generate an arbitrary rational value.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 arbRat();
 arbRat();
@@ -117,7 +121,7 @@ arbRat();
 arbRat(10,100);
 arbRat(10,100);
 arbRat(10,100);
-```
+----
 }
 
 public rat arbRat() {
@@ -145,11 +149,12 @@ Computes the _ceiling_ of a given number.
 Also see ((Math-floor)).
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 ceil(3.2);
 ceil(-3.2);
-```
+----
 
 }
 public int ceil(num x) { 
@@ -170,11 +175,12 @@ Calculate the cosine of a numeric value.
 The cosine of the number `x`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 cos(1.0)
 cos(60 * PI() / 180)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real cos(num x);
@@ -191,10 +197,11 @@ public java int denominator(rat n);
 The constant E.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 E();
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real E();
@@ -218,11 +225,12 @@ Computes the _floor_ of a given number.
 Also see ((Math-ceil)).
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 floor(3.2);
 floor(-3.2);
-```
+----
 }
 public int floor(num x) {
 	i = toInt(x);
@@ -242,11 +250,12 @@ Calculate the natural log of a numeric value.
 Calculate natural log of `x`. 
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 ln(20.0)
 ln(42.0)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real ln(num x);
@@ -259,12 +268,13 @@ Calculate the log<sub>base</sub> of a numeric value.
 Calculate log<sub>base</sub> of `x`. 
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 log(9.99999999, 10)
 log(10, 10)
 log(256.0, 2)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real log(num x, num base);
@@ -289,12 +299,13 @@ Determine the largest of two numeric values.
 The largest of two numbers. The type of the result is the same as the type of the largest argument.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 max(12, 13);
 max(12, 13.5);
 max(12, 11.5);
-```
+----}
 public &T <: num max(&T <: num N, &T <: num M)
 {
 	return N > M ? N : M;
@@ -308,12 +319,13 @@ Determine the smallest of two numeric values.
 The smallest of two numbers. The type of the result is the same as the type of the smallest argument.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 min(12, 13);
 min(12, -13);
 min(3.14, 4);
-```
+----}
 public &T <: num min(&T <: num N, &T <: num M)
 {
 	return N < M ? N : M;
@@ -334,12 +346,13 @@ Calculate the n<sup>th</sup> root of a numeric value.
 Calculate <sup>n</sup>&radic;`x` where `n` can only be a integer.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 nroot(42 * 42, 2);
 nroot(42 * 42 * 42, 3);
 nroot(123456789012345678901234567890123456789.0, 100)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real nroot(num x, int n);
@@ -349,10 +362,11 @@ public java real nroot(num x, int n);
 The constant pi.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 PI();
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real PI();
@@ -365,11 +379,12 @@ Calculate an arbitrary power of a numeric value.
 The calculate `x`<sup>`y`</sup> where `y` can only be a integer.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 pow(sqrt(42), 2)
 pow(12345678901234567890.0, 1000)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real pow(num x, int y);
@@ -381,11 +396,12 @@ Calculate an arbitrary power of a numeric value.
 The calculate `x`<sup>`y`</sup> where `y` can be any real value.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 pow(sqrt(42), 2.3)
 pow(12345678901234567890.0, 100.2)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real pow(num x, real y);
@@ -439,7 +455,8 @@ public java int remainder(rat n);
 Round a number to the nearest multiple of a given number (default 1).
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 round(3.4);
 round(3.5);
@@ -450,7 +467,7 @@ round(-3.6);
 round(13, 5);
 round(1.5,0.2);
 round(3r2,1r4);
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java int round(num d);
@@ -505,12 +522,13 @@ public java real fitDouble(real r) throws ArithmeticException;
 Compute the ratio between two numbers as a percentage.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 percent(1r4, 1);
 percent(13,250);
 percent(80.0,160.0);
-```
+----
 }
 public int percent(num part, num whole) = round((part / (whole * 1.0)) * 100);
 
@@ -522,11 +540,12 @@ Calculate the sine of a numeric value.
 The sine of the number `x`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 sin(0)
 sin(PI() / 2)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real sin(num x);
@@ -539,11 +558,12 @@ Calculate the square root of a numeric value.
 Calculate &radic;`x`. 
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 sqrt(42 * 42);
 sqrt(12345678901234567890.5 * 12345678901234567890.5);
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real sqrt(num x);
@@ -556,10 +576,11 @@ Calculate the tangent of a numeric value.
 The tangent of the number `x`.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 tan(45 * PI() / 180)
-```
+----
 }
 
 @javaClass{org.rascalmpl.library.util.Math}
@@ -573,11 +594,12 @@ Convert a numeric value to an integer.
 Convert a number to an integer. If `n` is an integer, this is the identity. If `n` is a real value (implemented as BigDecimal) to an integer (implemented as BigInteger). This conversion is analogous to a narrowing primitive conversion from double to long as defined in the Java Language Specification: any fractional part of this BigDecimal will be discarded. Note that this conversion can loose information about the precision of the BigDecimal value.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 toInt(13)
 toInt(13.5)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java int toInt(num N);
@@ -595,11 +617,12 @@ public java rat toRat(int numerator, int denominator);
 Convert a numeric value to a real.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 toReal(12)
 toReal(3.14)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java real toReal(num N);
@@ -609,11 +632,12 @@ public java real toReal(num N);
 Convert a numeric value to a string.
 
 .Examples
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Math;
 toString(12)
 toString(3.14)
-```
+----
 }
 @javaClass{org.rascalmpl.library.util.Math}
 public java str toString(num N);

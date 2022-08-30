@@ -79,20 +79,23 @@ CPU time in nanoseconds (10^-9^ sec).
 .Examples
 
 We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Benchmark;
 import demo::basic::Factorial;
-```
+----
 Here we measure time by using separate calls to `cpuTime` before and after a call to `fac`.
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 before = cpuTime();
 fac(50);
 cpuTime() - before;
-```
+----
 The code to be measured can also be passed as a function parameter to `cpuTime`:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 cpuTime( void() { fac(50); } );
-```
+----
 These two timings for the same task may differ significantly due to the way these statements are executed here in the tutor.
 
 
@@ -122,20 +125,23 @@ System time in nanoseconds (10^-9^ sec).
 
 .Examples
 We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Benchmark;
 import demo::basic::Factorial;
-```
+----
 Here we measure time by using separate calls to `sytemTime` before and after a call to `fac`.
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 before = systemTime();
 fac(50);
 systemTime() - before;
-```
+----
 The code to be measured can also be passed as a function parameter to `systemTime`:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 systemTime( void() { fac(50); } );
-```
+----
 
 }
 
@@ -162,20 +168,23 @@ User time in nanoseconds (10^-9^ sec).
 .Examples
 
 We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Benchmark;
 import demo::basic::Factorial;
-```
+----
 Here we measure time by using separate calls to `userTime` before and after a call to `fac`.
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 before = userTime();
 fac(50);
 userTime() - before;
-```
+----
 The code to be measured can also be passed as a function parameter to `userTime`:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 userTime( void() { fac(50); } );
-```
+----
 }
 
 @javaImport{import java.lang.System;}
@@ -229,19 +238,22 @@ An optional `duration` argument can be used to specify the function to perform t
 
 .Examples
 We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
-```rascal-shell
+[source,rascal-shell]
+----
 import util::Benchmark;
 import demo::basic::Factorial;
-```
+----
 We measure two calls to the factorial function with arguments `100`, respectively, `200` 
 (using by default ((realTime)) that returns milliseconds):
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}) );
-```
+----
 We can do the same using ((userTime)) that returns nanoseconds:
-```rascal-shell,continue
+[source,rascal-shell,continue]
+----
 benchmark( ("fac100" : void() {fac(100);}, "fac200" : void() {fac(200);}), userTime );
-```
+----
 }
 public map[str,num] benchmark(map[str, void()] Cases) {
 	return benchmark(Cases, realTime);
