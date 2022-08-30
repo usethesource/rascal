@@ -22,7 +22,7 @@ A variable declaration introduces a new variable _Var_ that matches any value of
 That value is assigned to _Var_ when the whole match succeeds.
 
 The scope of this variable is the outermost expression in which the pattern occurs
-or the enclosing ((If)), ((While)), or ((Do)) if the pattern occurs in the test expression of those statements.
+or the enclosing ((Statements-If)), ((While)), or ((Do)) if the pattern occurs in the test expression of those statements.
 
 .Examples
 Let's first perform a match that succeeds:

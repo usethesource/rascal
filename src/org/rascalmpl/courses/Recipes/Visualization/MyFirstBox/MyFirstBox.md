@@ -29,7 +29,7 @@ and it will look like this:
 
 
 
-![]((Screenshot1.png))
+![]((MyFirstBox-Screenshot1.png))
 
 
 Wow, the box fills the whole window! So lets give our box a [size]((Libraries:Properties-size)):
@@ -60,7 +60,7 @@ render(b);
 which says: _I am a red box and I want to occupy 50% of the available space._ The result is:
 
 
-![]((Screenshot2.png))
+![]((MyFirstBox-Screenshot2.png))
 
 
 Shrinking can also be limited to one dimension using [hshrink]((Libraries:Properties-hshrink)) 
