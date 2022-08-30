@@ -1,4 +1,3 @@
-[[Statement-If]]
 ## If
 
 .Synopsis

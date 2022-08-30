@@ -1,6 +1,7 @@
 module lang::rascal::tutor::conversions::ConvertSections
 
 import IO;
+import String;
 import util::FileSystem;
 
 void convertAllSections(loc dir) {
@@ -27,6 +28,27 @@ list[str] convertSections([str first:/^\s*\[source,rascal<rest1:.*>]\s*$/, /---/
         "```<postfix>",
         *convertSections(rest2)
     ];
+
+
+list[str] convertSections([
+    str before,
+    /^\s*|====*\s*$/, 
+    str firstLine,
+    *str body,
+    /^\s*|====*\s*$/
+    ])
+    = [ /^\s*\[[^\]]*\]\s*$/ := before ? "" : before,
+      emptyHeader(firstLine),
+      columnsLine(firstLine),
+      *[completeBodyLine(b) | b <- body, trim(b) != ""]
+    ];
+
+str emptyHeader(str firstLine) = visit(completeBodyLine(firstLine)) { case /[^|]/ => " "};
+
+str completeBodyLine(str body) = /\|\s*$/ := body ? body : "<body> |";
+
+str columnsLine(/\|\s*\|<postfix:.*>$/) = "| --- <columnsLine("|<postfix>")>"; 
+str columnsLine("|") = "|";
 
 list[str] convertSections([]) 
     = [];
