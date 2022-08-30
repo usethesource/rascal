@@ -12,11 +12,10 @@ Field selection on locations.
 .Types
 
 
-|====
-| `_Exp_` | `_Name_` | `_Exp_ . _Name_` 
+| `_Exp_` | `_Name_` | `_Exp_ . _Name_`  |
+| --- | --- | --- |
+| `loc`   |          | Depends on field |
 
-| `loc`   |          | Depends on field
-|====
 
 .Function
 

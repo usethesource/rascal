@@ -13,11 +13,10 @@ Test whether the value of an expression is defined.
 
 //
 
-|====
-| `_Exp_` | `_Exp_ ?` 
+| `_Exp_` | `_Exp_ ?`  |
+| --- | --- |
+|  `_T_`   |   `bool`      |
 
-|  `_T_`   |   `bool`     
-|====
 
 .Function
 

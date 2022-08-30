@@ -12,18 +12,16 @@ if else
 *  `if ( _Exp_ ) _Statement~1~_ else _Statement~2~_;`
 
 .Types
-|====
-| `_Exp_` | `if ( _Exp_ ) _Statement_;` 
+| `_Exp_` | `if ( _Exp_ ) _Statement_;`  |
+| --- | --- |
+| `bool`  |  `void`                      |
 
-| `bool`  |  `void`                     
-|====
 
-[cols="20,20,20,40"]
-|====
-| `_Exp_` | `_Statement~1~_` | `_Statement~2~_` | `if ( _Exp_ ) _Statement~1~_ else _Statement~2~_;` 
 
-| `bool`  |  _T~1~_        | _T~2~_         | `lub(_T~1~_, _T~2~_)`                              
-|====
+| `_Exp_` | `_Statement~1~_` | `_Statement~2~_` | `if ( _Exp_ ) _Statement~1~_ else _Statement~2~_;`  |
+| --- | --- | --- | --- |
+| `bool`  |  _T~1~_        | _T~2~_         | `lub(_T~1~_, _T~2~_)`                               |
+
 
 .Function
 

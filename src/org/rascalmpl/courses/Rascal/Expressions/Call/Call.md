@@ -13,11 +13,10 @@ Function call.
 
 //
 
-|====
-| `_Exp~1~_`  | `_Exp~2~_` | ... | `_Name_ ( _Exp~1~_, _Exp~2~_, ... )` 
+| `_Exp~1~_`  | `_Exp~2~_` | ... | `_Name_ ( _Exp~1~_, _Exp~2~_, ... )`  |
+| --- | --- | --- | --- |
+| `_T~1~_`    | `_T~2~_`   | ... | Determined by _Name_, _T~i~_ and function declarations  |
 
-| `_T~1~_`    | `_T~2~_`   | ... | Determined by _Name_, _T~i~_ and function declarations 
-|====
 
 .Function
 

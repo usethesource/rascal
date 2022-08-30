@@ -18,12 +18,11 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 
 //
 
-[cols="70,10,10,10"]
-|====
-| `_Exp~1~_`     | `_Exp~2~_` |  `_Exp~3~_`  | `_Exp~4~_` | `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_ ]`   or  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]` 
 
-| `list[_T~1~_]` | `int`     | `int`       | `int`     |  `list[_T~1~_]`                                                                
-|====
+| `_Exp~1~_`     | `_Exp~2~_` |  `_Exp~3~_`  | `_Exp~4~_` | `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_ ]`   or  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]`  |
+| --- | --- | --- | --- | --- |
+| `list[_T~1~_]` | `int`     | `int`       | `int`     |  `list[_T~1~_]`                                                                 |
+
 
 .Function
 
@@ -65,29 +64,27 @@ Consider the list `L = [0, 10, 20, 30, 40, 50, 60, 70, 80];` as running example.
 Here is a view on _L_ that will help to correlate positive and negative indices:
 
 
-|====
-|`_i_`        | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 
+|`_i_`        | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|`L[_i_]`     | 0 | 10| 20| 30| 40| 50| 60| 70|80  |
+|`-_i_`       | -9| -8| -7| -6| -5| -4| -3| -2| -1 |
 
-|`L[_i_]`     | 0 | 10| 20| 30| 40| 50| 60| 70|80 
-|`-_i_`       | -9| -8| -7| -6| -5| -4| -3| -2| -1
-|====
 
 
 
 Some common use cases (with `begin` <= `end`):
 
 
-|====
-| Slice           | Means:                                                     
+| Slice           | Means:                                                      |
+| --- | --- |
+| `L[begin..end]` | elements with indices `begin` through `end-1`               |
+| `L[begin..]`    | elements with indices `begin` through the rest of the list  |
+| `L[..end]`      | elements with indices from the beginning through `end-1`    |
+| `L[..]`         | the whole list                                              |
+| `L[-1]`         | last element of the list                                    |
+| `L[-2..]`       | the last two elements of the list                           |
+| `L[..-2]`       | all elements except the last two.                           |
 
-| `L[begin..end]` | elements with indices `begin` through `end-1`              
-| `L[begin..]`    | elements with indices `begin` through the rest of the list 
-| `L[..end]`      | elements with indices from the beginning through `end-1`   
-| `L[..]`         | the whole list                                             
-| `L[-1]`         | last element of the list                                   
-| `L[-2..]`       | the last two elements of the list                          
-| `L[..-2]`       | all elements except the last two.                          
-|====
 
 
 Let's put this into practice now.

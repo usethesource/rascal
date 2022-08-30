@@ -12,12 +12,11 @@ Negate a numeric value.
 .Types
 
 
-|====
-| `_Exp_`  |  `- _Exp_` 
+| `_Exp_`  |  `- _Exp_`  |
+| --- | --- |
+| `int`    |  `int`      |
+| `real`   |  `real`     |
 
-| `int`    |  `int`     
-| `real`   |  `real`    
-|====
 
 .Function
 
