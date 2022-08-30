@@ -12,11 +12,11 @@ Concatenate two strings.
 .Types
 
 
-|====
-| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ + _Exp~2~_` 
+|            |            |                        |
+| --- | --- | --- |
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ + _Exp~2~_`  |
+| `str`     | `str`     | `str`                |
 
-| `str`     | `str`     | `str`               
-|====
 
 .Function
 

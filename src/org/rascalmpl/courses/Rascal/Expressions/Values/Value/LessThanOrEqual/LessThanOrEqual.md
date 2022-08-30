@@ -12,11 +12,11 @@ Less than or equal operator on values.
 .Types
 
 
-|====
-| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ <= _Exp~2~_` 
+|            |            |                         |
+| --- | --- | --- |
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ <= _Exp~2~_`  |
+| `value`   |  `value`  | `bool`                |
 
-| `value`   |  `value`  | `bool`               
-|====
 
 .Function
 

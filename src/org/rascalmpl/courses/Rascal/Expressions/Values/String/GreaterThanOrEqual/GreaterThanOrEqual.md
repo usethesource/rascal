@@ -12,11 +12,11 @@ Greater than or equal operator on string values.
 .Types
 
 
-|====
-| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ >= _Exp~2~_` 
+|            |            |                         |
+| --- | --- | --- |
+| `_Exp~1~_` | `_Exp~2~_` | `_Exp~1~_ >= _Exp~2~_`  |
+| `str`     |  `str`    | `bool`                |
 
-| `str`     |  `str`    | `bool`               
-|====
 
 .Function
 

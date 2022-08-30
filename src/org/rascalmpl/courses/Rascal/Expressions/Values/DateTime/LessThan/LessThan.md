@@ -13,11 +13,11 @@ Less than operator on datetime values.
 
 //
 
-|====
-| `_Exp~1~_`      | `_Exp~2~_`      | `_Exp~1~_ < _Exp~2~_` 
+|                 |                 |                        |
+| --- | --- | --- |
+| `_Exp~1~_`      | `_Exp~2~_`      | `_Exp~1~_ < _Exp~2~_`  |
+| `datetime`     |  `datetime`    | `bool`               |
 
-| `datetime`     |  `datetime`    | `bool`              
-|====
 
 .Function
 

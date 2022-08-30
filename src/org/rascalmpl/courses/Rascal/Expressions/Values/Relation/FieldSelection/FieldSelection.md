@@ -12,11 +12,11 @@ Select a field (column) from a relation value.
 .Types
 
 
-|====
-|`_Exp_`                                | `_Exp_ . _Name_` 
+|                                       |                   |
+| --- | --- |
+|`_Exp_`                                | `_Exp_ . _Name_`  |
+| `rel[_T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` | `set[_T~i~_]`      |
 
-| `rel[_T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` | `set[_T~i~_]`     
-|====
 
 .Function
 

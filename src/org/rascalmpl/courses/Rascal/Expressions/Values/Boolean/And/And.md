@@ -13,11 +13,11 @@ Boolean _and_ operator.
 
 //
 
-|====
-| `_Exp~1~_` | `_Exp~2~_`  | `_Exp~1~_ && _Exp~2~_` 
+|            |             |                         |
+| --- | --- | --- |
+| `_Exp~1~_` | `_Exp~2~_`  | `_Exp~1~_ && _Exp~2~_`  |
+| `bool`       | `bool`         | `bool`  |
 
-| `bool`       | `bool`         | `bool` 
-|====
 
 .Function
 
@@ -26,14 +26,14 @@ Boolean _and_ operator.
 .Description
 The _and_ operator on Boolean values defined as follows:
 
-|====
-| `_Exp~1~_` | `_Exp~2~_`  | `_Exp~1~_ && _Exp~2~_` 
+|            |             |                         |
+| --- | --- | --- |
+| `_Exp~1~_` | `_Exp~2~_`  | `_Exp~1~_ && _Exp~2~_`  |
+| `true`       | `true`         | `true`  |
+| `true`       | `false`         | `false`  |
+| `false`       | `true`         | `false`  |
+| `false`       | `false`         | `false`  |
 
-| `true`       | `true`         | `true` 
-| `true`       | `false`         | `false` 
-| `false`       | `true`         | `false` 
-| `false`       | `false`         | `false` 
-|====
 
 Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. In the case of the `&&` operator, the result is `false` if `_Exp_~1~` evaluates to `false`, otherwise `_Exp_~2~` is evaluated to determine the result.
 

@@ -13,11 +13,11 @@ The strict super list operator on lists.
 
 //
 
-|====
-| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ > _Exp~2~_` 
+|                |                 |                        |
+| --- | --- | --- |
+| `_Exp~1~_`     |  `_Exp~2~_`     | `_Exp~1~_ > _Exp~2~_`  |
+| `list[_T~1~_]` |  `list[_T~2~_]` | `bool`               |
 
-| `list[_T~1~_]` |  `list[_T~2~_]` | `bool`              
-|====
 
 .Function
 
