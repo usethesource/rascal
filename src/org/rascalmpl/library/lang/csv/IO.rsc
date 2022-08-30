@@ -21,12 +21,11 @@ The following functions are provided:
 (((TOC)))
 
 .Examples
-[source,rascal]
-----
+```rascal
 field_name1,field_name2,field_name3
 aaa,bbb,ccc CRLF
 zzz,yyy,xxx CRLF
-----
+```
 
 
 
@@ -86,27 +85,23 @@ Reading the values in fields is straightforward, except for the case that the te
 .Examples
 
 Given is the follwing file `ex1.csv`:
-[source,rascal]
-----
+```rascal
 include::{LibDir}Libraries/lang/csv/ex1.csv[]
-----
+```
 
                 We can read it in various ways:
-[source,rascal-shell]
-----
+```rascal-shell
 import lang::csv::IO;
 R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Libraries/lang/csv/ex1.csv|, separator = ";");
-----
+```
 Now we can, for instance, select one of the fields of `R1`:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 R1.artist;
-----
+```
 It is also possible to infer the type:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 R1 = readCSV(|courses:///Libraries/lang/csv/ex1.csv|, separator = ";");
-----
+```
 
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
@@ -137,8 +132,7 @@ The options influence the way the actrual CSV file is written:
 
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import lang::csv::IO;
 rel[int position, str artist, str title, int year] R1 = {
   <1,"Eagles","Hotel California",1977>,
@@ -147,20 +141,18 @@ rel[int position, str artist, str title, int year] R1 = {
 };
 writeCSV(#rel[int position, str artist, str title, int year], R1, |courses:///Rascal/Libraries/lang/csv/ex1a.csv|);
 writeCSV(rel[int, str, str, int], R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
-----
+```
 will produce the following files:
 
 `ex1a.csv` (with a header line and default separator `,`):
-[source,rascal]
-----
+```rascal
 include::{LibDir}Rascal/Libraries/lang/csv/ex1a.csv[]
-----
+```
 
                 `ex1b.csv` (without a header line with separator `;`):
-[source,rascal]
-----
+```rascal
 include::{LibDir}Rascal/Libraries/lang/csv/ex1b.csv[]
-----
+```
 
                 
 }

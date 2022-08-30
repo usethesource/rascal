@@ -93,13 +93,12 @@ Parse an XML document and return a DOM instance.
 
 .Examples
 Read the sample note file, parse it, and construct a DOM instance.
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 import lang::xml::DOM;
 N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 parseXMLDOM(N);
-----
+```
 The DOM instance contains every single character (including spaces and newlines)
 as they appear in the source file.
 As expected, the result is of type ((xml-DOM-Node)).
@@ -114,13 +113,12 @@ Parse an XML document and trim it (remove layout).
 .Examples
 
 Read the sample note file, parse it, and construct a DOM instance (using `parseXMLDOMTrim`).
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 import lang::xml::DOM;
 N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 parseXMLDOMTrim(N);
-----
+```
 All whitespace characters have been removed and do not occur in the trimmed DOM instance.
 Compare this with the output of ((parseXMLDOM)).
 }
@@ -133,15 +131,14 @@ Convert a DOM instance to a raw XML string.
 
 .Examples
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 import lang::xml::DOM;
 F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 println(F);
 S = xmlRaw(parseXMLDOM(F));
 println(S);
-----
+```
 Apart from an extra XML header, the original source file `F` and the output `S` of `xmlRaw` are identical.
 }
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
@@ -153,15 +150,14 @@ Convert a DOM instance to a compact XML string (with minimal white space).
 
 .Examples
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 import lang::xml::DOM;
 F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 println(F);
 S = xmlCompact(parseXMLDOM(F));
 println(S);
-----
+```
 The output `S` of `xmlCompact` is a version of the original source file `F` with all white space removed.
 }
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
@@ -173,15 +169,14 @@ Convert a DOM instance to a pretty printed XML string.
 
 .Examples
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
-[source,rascal-shell]
-----
+```rascal-shell
 import IO;
 import lang::xml::DOM;
 F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
 println(F);
 S = xmlPretty(parseXMLDOM(F));
 println(S);
-----
+```
 The output `S` of `xmlPretty` is a pretty printed version of the original source file `F`.
 Observe that the elements inside `<note> ... </note>` are indented.
 }

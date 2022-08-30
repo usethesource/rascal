@@ -19,16 +19,14 @@ The goal of this module is to provide:
 *  to provide the basic building blocks for syntax trees (see ((Prelude-ParseTree)))
 
 The following definition is built into Rascal:
-[source,rascal]
-----
+```rascal
 data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-----
+```
 
 The `#` operator will always produce a value of `type[&T]`, where `&T` is bound to the type that was reified.
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import Type;
 #int
 #rel[int,int]
@@ -37,7 +35,7 @@ data B = t();
 syntax A = "a";
 #A;
 type(\int(),())
-----
+```
     
 The following functions are provided on types:
 }
@@ -301,12 +299,11 @@ int, real and rat.
 
 .Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import Type;
 1 == 1.0
 eq(1,1.0)
-----
+```
 }
 @javaClass{org.rascalmpl.library.Type}
 public java bool eq(value x, value y);
@@ -552,12 +549,11 @@ function produces the dynamic type of a value, represented by a symbol.
 
 
 .Examples
-[source,rascal-shell]
-----
+```rascal-shell
 import Type;
 value x = 1;
 typeOf(x)
-----
+```
 
 .Pitfalls
 
