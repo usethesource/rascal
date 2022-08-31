@@ -54,7 +54,7 @@ Each pattern binds variables in a conditional scope:
 
 * in further patterns to the right of the name which is bound in the same pattern
 * in the body of case statement (either a replacement or a statement body) 
-* in the conditions and bodies of <If>, <For>, and <While> control flow statements
+* in the conditions and bodies of `<If>`, `<For>`, and `<While>` control flow statements
 * in the yielding expressions of comprehensions and in furter conditions of the comprehensions
 
 .Examples
@@ -65,7 +65,7 @@ Each pattern binds variables in a conditional scope:
 .Pitfalls
 
 * If a pattern does not match, then it may be hard to find out why. A small test case is the best thing to create. Often a default alternative
-which <Throw>s an exception with the value which is not matched can be used to find out why this is happening.
+which `<Throw>`s an exception with the value which is not matched can be used to find out why this is happening.
 * If a variable is bound in the scope of a pattern, then it acts as an `==` test, so make sure to use fresh variables
 to avoid such accidental collisions. 
 

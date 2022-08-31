@@ -25,7 +25,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 | ((Location-FieldSelection)), |
   ((DateTime-FieldSelection)), |
   ((Tuple-FieldSelection)), |
-  <<Relation-FieldSelection.Relation>>, |
+  ((Relation-FieldSelection)), |
 | Select named field from structured value |
 | `Exp~1~ [ Name = Exp~2~ ]` |
 | ((FieldAssignment)) |

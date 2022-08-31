@@ -82,7 +82,7 @@ N = 13;
 "The value is <(N < 10) ? 10 : N*N>";
 ```
 As you can see the string value of variables and expressions is interpolated in the result as expected. 
-<br>
+<br />
 Some examples of more advances string interpolation 
 ```rascal-shell,continue
 "N is <if(N < 10){> small <} else {> large <}>";

@@ -189,7 +189,7 @@ of indirect type computations such as ((useViaType)) and ((getTypeInType)). When
   In more sophisticated cases the list may contain a list of named types to be considered.
 * A list of roles in which the type name can be bound.
 
-Here are the definitions for <<Struct>:
+Here are the definitions for ((Struct)):
 ```rascal
 tuple[list[str] typeNames, set[IdRole] idRoles] structGetTypeNamesAndRole(structType(str name)){
     return <[name], {structId()}>; //<1>
