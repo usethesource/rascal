@@ -44,7 +44,7 @@ The Lisp variant to be implemented is the following subset of the http://en.wiki
 | `(if _test conseq alt_)` |
 | Evaluate _test_; if true, |
   evaluate and return _conseq_; otherwise evaluate and return  |
-  _alt_. <br>Example: `(if (< 10 20) (+ 1 1) (+ 3 3)) => 2` |
+  _alt_. <br />Example: `(if (< 10 20) (+ 1 1) (+ 3 3)) => 2` |
 | http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.6[assignment] |
 | `(set! _var exp_)` |
 | Evaluate _exp_ and assign that value to |

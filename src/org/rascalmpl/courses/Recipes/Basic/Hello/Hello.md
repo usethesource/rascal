@@ -56,7 +56,7 @@ The summit of hello-engineering can be reached by placing all the above in a sep
 include::{LibDir}demo/basic/Hello.rsc[tags=module]
 ```
 
-This module should be placed in <project dir>/src/demo/basic/Hello.rsc.
+This module should be placed in `<project dir>/src/demo/basic/Hello.rsc`.
 
 Using this Hello module is now simple:
 
