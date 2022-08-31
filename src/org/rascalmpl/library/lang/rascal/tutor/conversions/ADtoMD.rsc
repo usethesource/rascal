@@ -6,7 +6,7 @@ import IO;
 import String;
 
 void ad2md(loc root) {
-    for (f <- find(root, "rsc"))
+    for (f <- find(root, "md"))
       convertFile(f);
 }
 
@@ -55,7 +55,7 @@ str convertLine(/^\ \ \ \ \*\*<postfix:.*$>/)
   = convertLine("    *<postfix>");
 
 // italics within backquotes is not supported anymore. removing underscores for readability's sake
-str convertLine(/^<prefix:.*>`<prequote:[^`]*>_<italics:[A-Za-z]+>_<postquote:[^`]*>`<postfix:.*$>/)
+str convertLine(/^<prefix:.*>`<prequote:[^`]*>_<italics:[A-Za-z0-9~]+>_<postquote:[^`]*>`<postfix:.*$>/)
   = convertLine("<prefix>`<prequote><italics><postquote>`<postfix>");
 
 default str convertLine(str line) = line;
