@@ -12,9 +12,9 @@ Map values.
 .Types
 
 
-| `_KeyExp~1~_` | `_ValExp~1~_` | `_KeyExp~2~_` | `_ValExp~2~_` | ... | `( _KeyExp~1~_ : _ValExp~1~_, _KeyExp~2~_ : _ValExp~2~_, ... )`   |
+| `KeyExp~1~` | `ValExp~1~` | `KeyExp~2~` | `ValExp~2~` | ... | `( KeyExp~1~ : ValExp~1~, KeyExp~2~ : ValExp~2~, ... )`   |
 | --- | --- | --- | --- | --- | --- |
-| `_TK~1~_`     |  `_TV~1~_`    |  `_TK~2~_`    | `_TV~2~_`     | ... | `map[lub(_TK~1~_, _TK~2~_, ... ) , lub(_TV~1~_, _TV~2~_, ... )]`  |
+| `TK~1~`     |  `TV~1~`    |  `TK~2~`    | `TV~2~`     | ... | `map[lub(TK~1~, TK~2~, ... ) , lub(TV~1~, TV~2~, ... )]`  |
 
 
 .Usage

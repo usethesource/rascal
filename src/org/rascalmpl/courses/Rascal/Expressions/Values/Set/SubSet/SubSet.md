@@ -12,9 +12,9 @@ Subset operator on set values.
 .Types
 
 
-| `_Exp~1~_`    |  `_Exp~2~_`    | `_Exp~1~_ <= _Exp~2~_`   |
+| `Exp~1~`    |  `Exp~2~`    | `Exp~1~ <= Exp~2~`   |
 | --- | --- | --- |
-| `set[_T~1~_]` |  `set[_T~2~_]` | `bool`                 |
+| `set[T~1~]` |  `set[T~2~]` | `bool`                 |
 
 
 .Function

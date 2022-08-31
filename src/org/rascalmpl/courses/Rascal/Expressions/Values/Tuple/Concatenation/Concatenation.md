@@ -12,9 +12,9 @@ Concatenate two tuple values.
 .Types
 
 
-| `_Exp~1~_`                      |  `Exp2_`                      | `_Exp~1~_ > Exp2_`                                 |
+| `Exp~1~`                      |  `Exp2_`                      | `Exp~1~ > Exp2_`                                 |
 | --- | --- | --- |
-| `tuple[ _T~11~_, _T~12~_, ... ]` |  `tuple[ _T~21~_, _T~22~_, ... ]` | `tuple[ _T~11~_, _T~12~_, ..., _T~21~_, _T~22~_, ... ]` |
+| `tuple[ T~11~, T~12~, ... ]` |  `tuple[ T~21~, T~22~, ... ]` | `tuple[ T~11~, T~12~, ..., T~21~, T~22~, ... ]` |
 
 
 .Function

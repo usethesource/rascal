@@ -8,12 +8,12 @@ Node values.
 
 .Syntax
 
-`Exp~0~ ( Exp~1~, Exp~2~, ..., _FieldName~1~_ = _Expr~1_, _FieldName~2~ = _Expr~2_, ... )`
+`Exp~0~ ( Exp~1~, Exp~2~, ..., FieldName~1~ = Expr~1, _FieldName~2~ = Expr~2, ... )`
 
 .Types
 
 
-|`_Exp~0~_`  | `_Exp~1~_` | `_Exp~2~_` | ... | `_Exp~0~_ ( _Exp~1~_, _Exp~2~_, ... )`  |
+|`Exp~0~`  | `Exp~1~` | `Exp~2~` | ... | `Exp~0~ ( Exp~1~, Exp~2~, ... )`  |
 | --- | --- | --- | --- | --- |
 | `str`      | `value`    | `value`    | ... | `node`                               |
 

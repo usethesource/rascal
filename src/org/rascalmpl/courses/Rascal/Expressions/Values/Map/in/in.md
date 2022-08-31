@@ -11,9 +11,9 @@ in
 
 .Types
 
-| `_Exp~1~_`           |  `_Exp~2~_`         | `_Exp~1~_ in _Exp~2~_`  |
+| `Exp~1~`           |  `Exp~2~`         | `Exp~1~ in Exp~2~`  |
 | --- | --- | --- |
-| `_T~1~_`  <: `TK`  |  `map[TK, TV]` | `bool`                |
+| `T~1~`  <: `TK`  |  `map[TK, TV]` | `bool`                |
 
 
 .Function

@@ -8,25 +8,25 @@ Indexing of a list relation via tuple values.
 
 .Syntax
 
-*  `_Exp~0~_ [ _Exp~1~_, _Exp~2~_, ... _Exp~n~_]`
+*  `Exp~0~ [ Exp~1~, Exp~2~, ... Exp~n~]`
 
-*  `_Exp~0~_ [ _Exp~1~_]`
+*  `Exp~0~ [ Exp~1~]`
 
 .Types
 ## Variant 1
 
 
-| `_Exp~0~_`                          | `_Exp~1~_` | `_Exp~2~_` | ... | `_Exp~0~_ [ _Exp~1~_, _Exp~2~_, ... ]`  |
+| `Exp~0~`                          | `Exp~1~` | `Exp~2~` | ... | `Exp~0~ [ Exp~1~, Exp~2~, ... ]`  |
 | --- | --- | --- | --- | --- |
-| `lrel[_T~1~_, _T~2~_, ... _T~m~_]`    | `int`     |  `int`    | ... | `lrel[_T~n~_, _T~n+1~_, ... _T~m~_]`    |
+| `lrel[T~1~, T~2~, ... T~m~]`    | `int`     |  `int`    | ... | `lrel[T~n~, _T~n+1~_, ... T~m~]`    |
 
 
 ## Variant 2
 
-| `_Exp~0~_`                          | `_Exp~1~_`     | `_Exp~0~_ [ _Exp~1~_ ]`             |
+| `Exp~0~`                          | `Exp~1~`     | `Exp~0~ [ Exp~1~ ]`             |
 | --- | --- | --- |
 |
-| `lrel[_T~1~_, _T~2~_, ... _T~m~_]`    | `list[_T~1~_]` | `lrel[_T~2~_, _T~3~_, ... _T~m~_]`   |
+| `lrel[T~1~, T~2~, ... T~m~]`    | `list[T~1~]` | `lrel[T~2~, T~3~, ... T~m~]`   |
 
 
 .Function

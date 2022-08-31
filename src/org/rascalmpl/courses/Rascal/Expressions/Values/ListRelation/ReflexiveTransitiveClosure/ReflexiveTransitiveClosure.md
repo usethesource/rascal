@@ -14,7 +14,7 @@ The reflexive transitive closure of a binary list relation.
 
 |`Exp`               | `Exp *`             |
 | --- | --- |
-| `lrel[_T~1~_, _T~2~_]` | `lrel[_T~1~_, _T~2~_]`  |
+| `lrel[T~1~, T~2~]` | `lrel[T~1~, T~2~]`  |
 
 
 .Function

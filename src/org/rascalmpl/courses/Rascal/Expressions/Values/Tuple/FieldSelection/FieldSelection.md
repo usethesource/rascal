@@ -14,7 +14,7 @@ Select a field from a tuple by its field name.
 
 | `Exp`                                 | `Name` | `Exp . Name` |
 | --- | --- | --- |
-|`tuple[ _T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` |  `_L~i~_` | `_T~i~_`         |
+|`tuple[ T~1~ L~1~, T~2~ L~2~, ... ]` |  `L~i~` | `T~i~`         |
 
 
 .Function

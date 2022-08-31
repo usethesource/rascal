@@ -12,7 +12,7 @@ Conditional expression for numeric values.
 .Types
 
 
-| `_Exp~1~_`   | `_Exp~2~_`  |  `_Exp~3~_` | `_Exp~1~_ ? _Exp~2~_ : _Exp~3~_`   |
+| `Exp~1~`   | `Exp~2~`  |  `Exp~3~` | `Exp~1~ ? Exp~2~ : Exp~3~`   |
 | --- | --- | --- | --- |
 |  `bool`     | `int`      |  `int`     | `int`                           |
 |  `bool`     | `int`      |  `real`    | `real`                          |

@@ -10,7 +10,7 @@ Not equal operator on numeric values.
 `Exp~1~ != Exp~2~`
 
 .Types
-| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ != _Exp~2~_`   |
+| `Exp~1~`  |  `Exp~2~` | `Exp~1~ != Exp~2~`   |
 | --- | --- | --- |
 | `int`      |  `int`     | `bool`                 |
 | `int`      |  `real`    | `bool`                 |

@@ -11,9 +11,9 @@ Retrieve a value by its key in map.
 
 .Types
 
-| `_Exp~1~_`           | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]`  |
+| `Exp~1~`           | `Exp~2~` | `Exp~1~ [ Exp~2~ ]`  |
 | --- | --- | --- |
-| `map[_T~1~_, _T~2~_]` | `_T~1~_`   | `_T~2~_`                |
+| `map[T~1~, T~2~]` | `T~1~`   | `T~2~`                |
 
 
 .Function

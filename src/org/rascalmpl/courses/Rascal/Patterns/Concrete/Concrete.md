@@ -9,7 +9,7 @@ Concrete patterns.
 .Syntax
 
 ```rascal
-Concrete pattern with expected symbol type: (_Symbol_) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `
+Concrete pattern with expected symbol type: (_Symbol_) ` Token~1~ Token~2~ ... Token~n~ `
 ```
 ```rascal
 Typed variable inside a concrete pattern: <_Type_ _Var_>

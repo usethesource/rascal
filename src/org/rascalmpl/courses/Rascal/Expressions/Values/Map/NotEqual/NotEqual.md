@@ -11,9 +11,9 @@ Not equal operator on map values.
 
 .Types
 
-| `_Exp~1~_`            |  `_Exp~2~_`             | `_Exp~1~_ != _Exp~2~_`  |
+| `Exp~1~`            |  `Exp~2~`             | `Exp~1~ != Exp~2~`  |
 | --- | --- | --- |
-| `map[_TK~1~_,_TV~2~_]` |  `map[_TK~2~_, _TV~2~_]` | `bool`                |
+| `map[TK~1~,TV~2~]` |  `map[TK~2~, TV~2~]` | `bool`                |
 
 
 .Function

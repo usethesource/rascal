@@ -260,7 +260,7 @@ void collect(current: (Exp) `if <Exp cond> then <Exp e1> else <Exp e2>`, Collect
 ```
 Checking a conditional expression amounts to checking that the condition has type Boolean and
 that the then and else branch have the same type (which also becomes the type of the conditional expression as a whole).
-In the above code we see `s.requireEqual(_arg1_, _arg2_, message)`. 
+In the above code we see `s.requireEqual(arg1, arg2, message)`. 
 Here _arg1_ and _arg2_ may either be a subtree (in which case its type is used) or an `AType`.
 `requireEqual` requires that both types are equal or reports an error.
 

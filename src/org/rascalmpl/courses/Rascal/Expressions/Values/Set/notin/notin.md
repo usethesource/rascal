@@ -12,9 +12,9 @@ notin
 .Types
 
 
-| `_Exp~1~_`           |  `_Exp~2~_`    | `_Exp~1~_ notin _Exp~2~_`  |
+| `Exp~1~`           |  `Exp~2~`    | `Exp~1~ notin Exp~2~`  |
 | --- | --- | --- |
-| `_T~1~_`  <: `_T~2~_` |  `set[_T~2~_]` | `bool`                   |
+| `T~1~`  <: `T~2~` |  `set[T~2~]` | `bool`                   |
 
 
 .Function

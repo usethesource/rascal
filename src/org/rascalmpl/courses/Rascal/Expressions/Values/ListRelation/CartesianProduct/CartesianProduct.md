@@ -12,9 +12,9 @@ Cartesian product of two list relation values.
 .Types
 
 
-|`_Exp~1~_`      | `_Exp~2~_`     | `_Exp~1~_ * _Exp~2~_`   |
+|`Exp~1~`      | `Exp~2~`     | `Exp~1~ * Exp~2~`   |
 | --- | --- | --- |
-| `list[_T~1~_]` | `list[_T~2~_]` | `lrel[_T~1~_, _T~2~_]`  |
+| `list[T~1~]` | `list[T~2~]` | `lrel[T~1~, T~2~]`  |
 
 
 .Function

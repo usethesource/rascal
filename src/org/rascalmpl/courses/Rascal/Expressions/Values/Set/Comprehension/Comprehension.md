@@ -12,9 +12,9 @@ A set comprehension generates a set value.
 .Types
 
 
-| `_Exp~1~_` | `_Exp~2~_` | ... | `{ _Exp~1~_, _Exp~2~_, ... \| _Gen~1~_, _Gen~2~_, ... }`  |
+| `Exp~1~` | `Exp~2~` | ... | `{ Exp~1~, Exp~2~, ... \| Gen~1~, Gen~2~, ... }`  |
 | --- | --- | --- | --- | --- |
-| `_T~1~_`   | `_T~2~_`   | ... | `set[ lub( _T~1~_, _T~2~_, ... ) ]`                    |
+| `T~1~`   | `T~2~`   | ... | `set[ lub( T~1~, T~2~, ... ) ]`                    |
 
 
 .Function

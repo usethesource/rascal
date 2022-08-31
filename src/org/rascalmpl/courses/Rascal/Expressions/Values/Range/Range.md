@@ -8,8 +8,8 @@ Numeric range of values.
 
 .Syntax
 
-*  `[ _Exp~1~_ .. _Exp~3~_ ]`
-*  `[ _Exp~1~_, _Exp~2~_ .. _Exp~3~_ ]`
+*  `[ Exp~1~ .. Exp~3~ ]`
+*  `[ Exp~1~, Exp~2~ .. Exp~3~ ]`
 
 .Types
 

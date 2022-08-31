@@ -14,7 +14,7 @@ Any combination of argument values is true.
 //
 
 
-| `_Exp~1~_` | `_Exp~2~_` | ... | `any ( _Exp~1~_, _Exp~2~_, ... )`  |
+| `Exp~1~` | `Exp~2~` | ... | `any ( Exp~1~, Exp~2~, ... )`  |
 | --- | --- | --- | --- |
 |`bool`     | `bool`    | ... | `bool`                           |
 
