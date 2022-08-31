@@ -26,15 +26,15 @@ Returns the transitive closure of a binary listrelation.
 Transitive closure is defined by repeated composition of a relation.
 If we define for a given relation R:
 
-*  R^1^ = R
-*  R^2^ = R o R
-*  R^3^ = R o R^2^
-*  ...
+*  `R~1~ = R`
+*  `R~2~ = R o R`
+*  `R~3~ = R o R~2~`
+*  `...`
 
 
 then the transitive closure R+ can be defined as
 
-*  R+ = R^1^ + R^2^ + R^3^ + ...
+*  `R+ = R~1~ + R~2~ + R~3~ + ...`
 
 
 .Examples
