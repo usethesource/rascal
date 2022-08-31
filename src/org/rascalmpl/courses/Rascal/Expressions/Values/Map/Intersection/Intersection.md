@@ -12,9 +12,9 @@ Intersection of two maps.
 .Types
 
 
-| `_Exp~1~_`    |  `_Exp~2~_`      | `_Exp~1~_ & _Exp~2~_`      |
+| `Exp~1~`    |  `Exp~2~`      | `Exp~1~ & Exp~2~`      |
 | --- | --- | --- |
-| `map[_T~1~1_, _T12_]` |  `set[_T~2~_]`   | `set[lub(_T~1~_,_T~2~_)]`  |
+| `map[T~1~1, T12]` |  `set[T~2~]`   | `set[lub(T~1~,T~2~)]`  |
 
 
 .Function

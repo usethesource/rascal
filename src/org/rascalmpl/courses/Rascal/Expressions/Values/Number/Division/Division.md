@@ -12,7 +12,7 @@ Division on numeric values.
 .Types
 
 
-| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ / _Exp~2~_`   |
+| `Exp~1~`  |  `Exp~2~` | `Exp~1~ / Exp~2~`   |
 | --- | --- | --- |
 | `int`      |  `int`     | `int`                 |
 | `int`      |  `real`    | `real`                |

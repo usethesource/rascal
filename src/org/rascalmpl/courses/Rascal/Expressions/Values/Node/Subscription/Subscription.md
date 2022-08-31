@@ -12,7 +12,7 @@ Retrieve an argument of a node via its index.
 .Types
 
 
-| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]`  |
+| `Exp~1~`     | `Exp~2~` | `Exp~1~ [ Exp~2~ ]`  |
 | --- | --- | --- |
 | `node`        | `int`     | `value`                 |
 

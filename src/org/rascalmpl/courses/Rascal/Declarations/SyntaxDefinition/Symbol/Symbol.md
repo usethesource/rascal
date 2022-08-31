@@ -25,7 +25,7 @@ The following literal symbols and character classes are defined:
 | --- | --- |
 |`"stringliteral"`            | Literal string |
 |`'stringliteral'`            | Case-insensitive literal string |
-|`[_range~1~_ _range~2~_ ... ]` | Character class |
+|`[range~1~ range~2~ ... ]` | Character class |
 
 
 
@@ -36,9 +36,9 @@ The following operations on character classes can be composed arbitrarily:
 | Class                        | Description  |
 | --- | --- |
 |`!Class`                    | Complement of `Class` with respect to the UTF8 universe of characters |
-| `_Class~1~_ - _Class~2~_`    | Difference of character classes `_Class~1~_` and `_Class~2~_`              |
-| `_Class~1~_ \|\| _Class~2~_` | Union of character classes `_Class~1~_` and `_Class~2~_`                   |
-| `_Class~1~_ && _Class~2~_`   | Intersection of character classes `_Class~1~_` and `_Class~2~_`            |
+| `Class~1~ - Class~2~`    | Difference of character classes `Class~1~` and `Class~2~`              |
+| `Class~1~ \|\| Class~2~` | Union of character classes `Class~1~` and `Class~2~`                   |
+| `Class~1~ && Class~2~`   | Intersection of character classes `Class~1~` and `Class~2~`            |
 | `(Class)`                  | Brackets for defining application order of class operators               |
 
 
@@ -52,10 +52,10 @@ The following regular expressions can be constructed over ((SyntaxDefinition-Sym
 | `Symbol?`                            | Optional _Symbol_                                                    |
 | `Symbol+`                            | Non-empty list of _Symbol_s                                          |
 | `Symbol*`                            | Possibly empty list of _Symbol_s.                                    |
-| `{_Symbol~1~_ _Symbol~2~_}+`           | Non-empty list of _Symbol~1~_ separated by _Symbol~2~_                 |
-| `{_Symbol~1~_ _Symbol~2~_}*`           | Possibly empty list of _Symbol~1~_ separated by _Symbol~2~_.           |
-| `(_Symbol~1~_ _Symbol~2~_ ... )`       | Embedded sequence of symbols                                         |
-| `(_Symbol~1~_ \| _Symbol~2~_ \| ... )` | Embedded choice of alternative symbols                               |
+| `{Symbol~1~ Symbol~2~}+`           | Non-empty list of _Symbol~1~_ separated by _Symbol~2~_                 |
+| `{Symbol~1~ Symbol~2~}*`           | Possibly empty list of _Symbol~1~_ separated by _Symbol~2~_.           |
+| `(Symbol~1~ Symbol~2~ ... )`       | Embedded sequence of symbols                                         |
+| `(Symbol~1~ \| Symbol~2~ \| ... )` | Embedded choice of alternative symbols                               |
 | `()`                                   | The anonymous non-terminal for the language with the empty string   |
 
 
@@ -69,11 +69,11 @@ Inline conditions (((Disambiguation))s) can be added to symbols to constrain the
 | `Symbol _`                 | _Symbol_ ends at end of line or end of file                     |
 | `^Symbol`                  | _Symbol_ starts at begin of line                                |
 | `Symbol @ ColumnIndex`   | _Symbol_ starts at certain column index.                        |
-| `_Symbol~1~_ >> _Symbol~2~_`   | _Symbol~1~_ must be (directly) followed by _Symbol~2~_            |
-| `_Symbol~1~_ !>> _Symbol~2~_`  | _Symbol~1~_ must _not_ be (directly) followed by _Symbol~2~_      |
-| `_Symbol~1~_ << _Symbol~2~_`   | _Symbol~2~_ must be (directly) preceded by _Symbol~1~_            |
-| `_Symbol~1~_ !<< _Symbol~2~_`  | _Symbol~2~_ must _not_ be (directly) preceded by _Symbol~1~_      |
-| `_Symbol~1~_ \ _Symbol~2~_`   | _Symbol~1~_ must not be in the language defined by _Symbol~2~_    |
+| `Symbol~1~ >> Symbol~2~`   | _Symbol~1~_ must be (directly) followed by _Symbol~2~_            |
+| `Symbol~1~ !>> Symbol~2~`  | _Symbol~1~_ must _not_ be (directly) followed by _Symbol~2~_      |
+| `Symbol~1~ << Symbol~2~`   | _Symbol~2~_ must be (directly) preceded by _Symbol~1~_            |
+| `Symbol~1~ !<< Symbol~2~`  | _Symbol~2~_ must _not_ be (directly) preceded by _Symbol~1~_      |
+| `Symbol~1~ \ Symbol~2~`   | _Symbol~1~_ must not be in the language defined by _Symbol~2~_    |
 
 
 

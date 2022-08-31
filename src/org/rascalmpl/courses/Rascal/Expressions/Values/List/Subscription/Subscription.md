@@ -13,9 +13,9 @@ Retrieve a list element via its index.
 
 //
 
-| `_Exp~1~_`     | `_Exp~2~_` | `_Exp~1~_ [ _Exp~2~_ ]` |
+| `Exp~1~`     | `Exp~2~` | `Exp~1~ [ Exp~2~ ]` |
 | --- | --- | --- |
-| `list[_T~1~_]` | `int`     | `_T~1~_`              |
+| `list[T~1~]` | `int`     | `T~1~`              |
 
 
 .Function

@@ -8,8 +8,8 @@ Declare the priority of operators.
 
 .Syntax
 
-*  `syntax Exp = _alt~1~_ > _alt~2~_ > _alt~3~_` is the basic syntax for priorities.
-*  `syntax Exp = _alt~1~_ | _alt~2~_ > _alt~3~_ | _alt~4~_`, where the `|` signifies groups of equal priority
+*  `syntax Exp = alt~1~ > alt~2~ > alt~3~` is the basic syntax for priorities.
+*  `syntax Exp = alt~1~ | alt~2~ > alt~3~ | alt~4~`, where the `|` signifies groups of equal priority
 *  `syntax Exp = associativity ( _alt~1~ | ... ) > _alt~2~`, where an associativity group denotes a group of equal priority
 
 .Types

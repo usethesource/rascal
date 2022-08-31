@@ -9,9 +9,9 @@ Indexing of a relation via tuple values.
 
 ## Syntax
 
-*  `Exp0_ [ _Exp~1~_, _Exp~2~_, ... _Exp~n~_]`
+*  `Exp0_ [ Exp~1~, Exp~2~, ... Exp~n~]`
 
-*  `Exp0_ [ _Exp~1~_]`
+*  `Exp0_ [ Exp~1~]`
 
 .Types
 
@@ -19,15 +19,15 @@ Indexing of a relation via tuple values.
 
 |     |     |     |     |     |
 | --- | --- | --- | --- | --- |
-| `_Exp~0~`                         | `_Exp~1~_` | `_Exp~2~_` | ... | `Exp0_ [ _Exp~1~_, _Exp~2~_, ... ]`  |
-| `rel[_T~1~_, _T~2~_, ... _T~m~_]`    | `int`     |  `int`    | ... | `rel[_T~n~_, _T~n+1~_, ... _T~m~_]`  |
+| `_Exp~0~`                         | `Exp~1~` | `Exp~2~` | ... | `Exp0_ [ Exp~1~, Exp~2~, ... ]`  |
+| `rel[T~1~, T~2~, ... T~m~]`    | `int`     |  `int`    | ... | `rel[T~n~, _T~n+1~_, ... T~m~]`  |
 
 
 ### Set of Values Variant 
 
-| `_Exp~0~_`                         | `_Exp~1~_`     | `_Exp~0~_ [ _Exp~1~_ ]`             |
+| `Exp~0~`                         | `Exp~1~`     | `Exp~0~ [ Exp~1~ ]`             |
 | --- | --- | --- |
-| `rel[_T~1~_, _T~2~_, ... _T~m~_]`    | `set[_T~1~_]`  | `rel[_T~2~_, _T~2~_, ... _T~m~_]`    |
+| `rel[T~1~, T~2~, ... T~m~]`    | `set[T~1~]`  | `rel[T~2~, T~2~, ... T~m~]`    |
 
 
 

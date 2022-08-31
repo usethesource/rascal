@@ -8,9 +8,9 @@ left right assoc non-assoc
 
 .Syntax
 
-*  `syntax Exp = Assoc Label _Symbol~1~_ _Symbol~2~_ ...`
-*  `syntax Exp = Assoc ( _Alt~1~_ | _Alt~2~_ | ... )`
-*  `syntax Exp = Assoc _Symbol~1~_ _Symbol~2~_ ...`
+*  `syntax Exp = Assoc Label Symbol~1~ Symbol~2~ ...`
+*  `syntax Exp = Assoc ( Alt~1~ | Alt~2~ | ... )`
+*  `syntax Exp = Assoc Symbol~1~ Symbol~2~ ...`
  
 
 Here _Assoc_ is one of: `left`, `right`, `assoc` or `non-assoc`. See ((Syntax Definition))s on how to define alternatives and ((SyntaxDefinition-Symbol))s.

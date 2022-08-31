@@ -8,8 +8,8 @@ Retrieve a slice of a list.
 
 .Syntax
 
-*  `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_]`
-*  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]`
+*  `Exp~1~ [ Exp~2~ .. Exp~4~]`
+*  `Exp~1~ [ Exp~2~ , Exp~3~ .. Exp~4~]`
 
 
 where _Exp_~2~ and _Exp_~4~ are optional.
@@ -19,9 +19,9 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 //
 
 
-| `_Exp~1~_`     | `_Exp~2~_` |  `_Exp~3~_`  | `_Exp~4~_` | `_Exp~1~_ [ _Exp~2~_ .. _Exp~4~_ ]`   or  `_Exp~1~_ [ _Exp~2~_ , _Exp~3~_ .. _Exp~4~_]`  |
+| `Exp~1~`     | `Exp~2~` |  `Exp~3~`  | `Exp~4~` | `Exp~1~ [ Exp~2~ .. Exp~4~ ]`   or  `Exp~1~ [ Exp~2~ , Exp~3~ .. Exp~4~]`  |
 | --- | --- | --- | --- | --- |
-| `list[_T~1~_]` | `int`     | `int`       | `int`     |  `list[_T~1~_]`                                                                 |
+| `list[T~1~]` | `int`     | `int`       | `int`     |  `list[T~1~]`                                                                 |
 
 
 .Function
@@ -43,13 +43,13 @@ The slice parameters `begin`, `end`, and `step` are determined as follows:
 
 *  _Exp~2~_:
 **  If _Exp~2~_ is absent, then `begin = 0`.
-**  Otherwise, if _N~2~_ >= 0 then `begin = _N~2~_` else `begin = _N~2~_ + Len`. 
+**  Otherwise, if _N~2~_ >= 0 then `begin = N~2~` else `begin = N~2~ + Len`. 
 *  _Exp~4~_:
 **  If _Exp~4~_ is absent, then `end = Len`.
-**  Otherwise, if _N~4~_ >= 0, then `end = _N~4~_` else `end = _N~4~_ + Len`.
+**  Otherwise, if _N~4~_ >= 0, then `end = N~4~` else `end = N~4~ + Len`.
 *  _Exp~3~_:
 **  If _Exp~3~_ is absent, then if `begin < end` then `step = 1` else `step = -1`.
-**  Otherwise, if `begin < end`, then `step = _N~3~_ - begin` else `step = begin - _N~3~_`.
+**  Otherwise, if `begin < end`, then `step = N~3~ - begin` else `step = begin - N~3~`.
 
 
 Now, the constraints `0 <= begin < Len` and `0 < end < Len` should hold,

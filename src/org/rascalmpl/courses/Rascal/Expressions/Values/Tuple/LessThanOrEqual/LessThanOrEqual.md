@@ -12,9 +12,9 @@ Less than or equal operator on tuple values.
 .Types
 
 
-| `_Exp~1~_`                      |  `_Exp~2~_`                      | `_Exp~1~_ <= _Exp~2~_`  |
+| `Exp~1~`                      |  `Exp~2~`                      | `Exp~1~ <= Exp~2~`  |
 | --- | --- | --- |
-| `tuple[ _T~11~_, _T~12~_, ... ]` |  `tuple[ _T~21~_, _T~22~_, ... ]` | `bool`                |
+| `tuple[ T~11~, T~12~, ... ]` |  `tuple[ T~21~, T~22~, ... ]` | `bool`                |
 
 
 .Function

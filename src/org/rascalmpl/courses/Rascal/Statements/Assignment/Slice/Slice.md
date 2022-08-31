@@ -8,8 +8,8 @@ Assign to a slice of a list or string.
 
 .Syntax
 
-*   `Assignable [ _Exp~1~_ .. Exp3_ ] = _Exp~4~_`
-*   `Assignable [ _Exp~1~_, _Exp~2~_ .. _Exp~3~_ ] = _Exp~4~_`
+*   `Assignable [ Exp~1~ .. Exp3_ ] = Exp~4~`
+*   `Assignable [ Exp~1~, Exp~2~ .. Exp~3~ ] = Exp~4~`
 
 
 `Exp~1~` and `Exp~3~` are optional
@@ -29,14 +29,14 @@ See ((List Slice)), ((String Slice)) or ((Node Slice)) for a more detailed expla
 
 Let _V_ be the current value of _Assignable_.
 
-*  `Assignable [ _Exp~1~_ .. _Exp~3~_ ] = _Exp~4~_`:
+*  `Assignable [ Exp~1~ .. Exp~3~ ] = Exp~4~`:
    The slice `[ Exp~1~ .. Exp~3~ ]` determines two indices `begin` (inclusive) and `end`   
   (exclusive) in _V_.
   A new value _V_' is computed that is a copy of _V_ but with all the elements in _V_ with `begin <= index < end` replaced by the elements of the value of _Exp_~4~.
   Note that the size of _V_ and _V_' may differ.
   _V_' is assigned to the _Assignable_. 
 
-*  `Assignable [ _Exp~1~_, _Exp~2~_ .. _Exp~3~_ ] = _Exp~4~_`:
+*  `Assignable [ Exp~1~, Exp~2~ .. Exp~3~ ] = Exp~4~`:
   The slice `[ Exp~1~, Exp~2~ .. _Exp~3~ ]` determines two indices `begin` (inclusive) and `end` (exclusive)
   and a `step` between indices in _V_.
   A new value _V_' is computed that is a copy of _V_ but with all the elements in _V_ with indices 

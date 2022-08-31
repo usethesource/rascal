@@ -14,7 +14,7 @@ Select a field (column) from a relation value.
 
 |`Exp`                                | `Exp . Name`  |
 | --- | --- |
-| `rel[_T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` | `set[_T~i~_]`      |
+| `rel[T~1~ L~1~, T~2~ L~2~, ... ]` | `set[T~i~]`      |
 
 
 .Function

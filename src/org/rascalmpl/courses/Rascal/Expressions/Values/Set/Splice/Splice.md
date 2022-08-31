@@ -11,9 +11,9 @@ Splice the elements of a set in an enclosing set.
 .Types
 
 
-|`Exp` | `_Exp~1~_`|  `_Exp~n~_` | `{_Exp~1~_, ..., Exp, ..., _Exp~n~_}`  |
+|`Exp` | `Exp~1~`|  `Exp~n~` | `{Exp~1~, ..., Exp, ..., Exp~n~}`  |
 | --- | --- | --- | --- |
-|`T`   | `_T~1~_`  |  `_T~n~_`   | `set[lub(_T~1~_, ..., T, ...,_T~n~_)]`     |
+|`T`   | `T~1~`  |  `T~n~`   | `set[lub(T~1~, ..., T, ...,T~n~)]`     |
 
 
 .Function

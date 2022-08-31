@@ -12,7 +12,7 @@ Greater than operator on numeric values.
 .Types
 
 
-| `_Exp~1~_`  |  `_Exp~2~_` | `_Exp~1~_ > _Exp~2~_`   |
+| `Exp~1~`  |  `Exp~2~` | `Exp~1~ > Exp~2~`   |
 | --- | --- | --- |
 | `int`      |  `int`     | `bool`                |
 | `int`      |  `real`    | `bool`                |
@@ -24,7 +24,7 @@ Greater than operator on numeric values.
 .Details
 
 .Description
-Yields `true` if the value of _Exp~1~_ is numerically greater than the value of _Exp~2~_, and `false` otherwise.
+Yields `true` if the value of Exp~1~ is numerically greater than the value of Exp~2~, and `false` otherwise.
 
 .Examples
 ```rascal-shell

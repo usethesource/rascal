@@ -8,16 +8,16 @@ public private java test default &
 
 .Syntax
 
-*  `Modifiers Type Name( _Type~1~_ _Var~1~_, ..., _Type~n~_ _Var~n~_ ) Body`
-*  `Modifiers Type Name( _Type~1~_ _Var~1~_, ..., _Type~n~_ _Var~n~_ _Type~0~_ _Name~0~_... ) Body`
-*  `Modifiers Type Name( _Pattern~1~_, ..., _Pattern~n~_) Body`
-*  `Modifiers Type Name( _Pattern~1~_, ..., _Pattern~n~_, _Type~0~_ _Name~0~_...) Body`
+*  `Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ ) Body`
+*  `Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ Type~0~ Name~0~... ) Body`
+*  `Modifiers Type Name( Pattern~1~, ..., Pattern~n~) Body`
+*  `Modifiers Type Name( Pattern~1~, ..., Pattern~n~, Type~0~ Name~0~...) Body`
 
 
 where `Body` is one of:
 
 *  `{ Statements }`
-*  `throws _Exception~1~_, _Exception~2~_, ... { Statements }`
+*  `throws Exception~1~, Exception~2~, ... { Statements }`
 *  `= Expression;`
 
 

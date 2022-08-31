@@ -9,7 +9,7 @@ if else
 .Syntax
 
 *  `if ( Exp ) Statement;`
-*  `if ( Exp ) _Statement~1~_ else _Statement~2~_;`
+*  `if ( Exp ) Statement~1~ else Statement~2~;`
 
 .Types
 | `Exp` | `if ( Exp ) Statement;`  |
@@ -18,9 +18,9 @@ if else
 
 
 
-| `Exp` | `_Statement~1~_` | `_Statement~2~_` | `if ( Exp ) _Statement~1~_ else _Statement~2~_;`  |
+| `Exp` | `Statement~1~` | `Statement~2~` | `if ( Exp ) Statement~1~ else Statement~2~;`  |
 | --- | --- | --- | --- |
-| `bool`  |  _T~1~_        | _T~2~_         | `lub(_T~1~_, _T~2~_)`                               |
+| `bool`  |  T~1~        | T~2~         | `lub(T~1~, T~2~)`                               |
 
 
 .Function

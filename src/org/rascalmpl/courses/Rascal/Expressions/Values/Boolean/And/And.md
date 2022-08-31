@@ -13,7 +13,7 @@ Boolean _and_ operator.
 
 //
 
-| `_Exp~1~_` | `_Exp~2~_`  | `_Exp~1~_ && _Exp~2~_`  |
+| `Exp~1~` | `Exp~2~`  | `Exp~1~ && Exp~2~`  |
 | --- | --- | --- |
 | `bool`       | `bool`         | `bool`  |
 
@@ -25,7 +25,7 @@ Boolean _and_ operator.
 .Description
 The _and_ operator on Boolean values defined as follows:
 
-| `_Exp~1~_` | `_Exp~2~_`  | `_Exp~1~_ && _Exp~2~_`  |
+| `Exp~1~` | `Exp~2~`  | `Exp~1~ && Exp~2~`  |
 | --- | --- | --- |
 | `true`       | `true`         | `true`  |
 | `true`       | `false`         | `false`  |

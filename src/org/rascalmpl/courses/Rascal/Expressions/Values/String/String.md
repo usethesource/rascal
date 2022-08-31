@@ -18,9 +18,9 @@ where `_StringChar~i~_ may be one of the following:
 **  `\r`: carriage return
 **  `\b`: backspace
 **  `\f`: vertical feed
-**  `\u _hexDigit~1~_ _hexDigit~2~_ _hexDigit~3~_ _hexDigit~4~_` : hexadecimal escapes with four digit indexes into UNICODE.
-**  `\U _hexDigit~1~_ _hexDigit~2~_ _hexDigit~3~_ _hexDigit~4~_ _hexDigit~5~_ _hexDigit~6~_` : hexadecimal escapes with six digit indexes into UNICODE.
-**  `\ a_hexDigit~1~_ _hexDigit~2~_`:  hexadecimal escapes with 2 digit indexes into ASCII (0x0 ... 0x7F).
+**  `\u hexDigit~1~ hexDigit~2~ hexDigit~3~ hexDigit~4~` : hexadecimal escapes with four digit indexes into UNICODE.
+**  `\U hexDigit~1~ hexDigit~2~ hexDigit~3~ hexDigit~4~ hexDigit~5~ hexDigit~6~` : hexadecimal escapes with six digit indexes into UNICODE.
+**  `\ ahexDigit~1~ hexDigit~2~`:  hexadecimal escapes with 2 digit indexes into ASCII (0x0 ... 0x7F).
 
 
 *  __String Interpolation__: 
@@ -29,7 +29,7 @@ where `_StringChar~i~_ may be one of the following:
 | --- | --- |
 | `<Exp>` | Interpolate the value of the expression as a string |
 | `<if(Exp){> ... StringChars ... <}>` | Conditional inclusion of _Text_, where _StringChars_ may use variables introduced in _Exp_ |
-| `<if(Exp){> ... _StringChars~1~_ ... <} else {>  ... _StringChars~2~_ ... <}>` | Conditional inclusion of either _StringChars~1~_ or _StringChars~2~_ |
+| `<if(Exp){> ... StringChars~1~ ... <} else {>  ... StringChars~2~ ... <}>` | Conditional inclusion of either _StringChars~1~_ or _StringChars~2~_ |
 | `<for(Exp){>... StringChars ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
 | `<while(Exp){> ... StringChars ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
 | `<do {>... StringChars ... <} while (Exp)>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
@@ -39,8 +39,8 @@ where `_StringChar~i~_ may be one of the following:
 
 | Form | Description  |
 | --- | --- |
-| `_StringChars~1~_\n _StringChars~2~_ `   | Strings can be multi-line without an escape or continuation marker  |
-| `_StringChars~2~_\n '  _StringChars~2~_` | A margin character `'` indicates where the next line starts  |
+| `StringChars~1~\n StringChars~2~ `   | Strings can be multi-line without an escape or continuation marker  |
+| `StringChars~2~\n '  StringChars~2~` | A margin character `'` indicates where the next line starts  |
 
 
 

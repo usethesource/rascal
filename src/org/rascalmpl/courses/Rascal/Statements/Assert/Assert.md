@@ -8,13 +8,13 @@ assert
 
 .Syntax
 
-*  `assert _Exp~1~_`
-*  `assert _Exp~1~_ : _Exp~2~_`
+*  `assert Exp~1~`
+*  `assert Exp~1~ : Exp~2~`
 
 .Types
 
 
-| `_Exp~1~_` | `_Exp~2~_`  |
+| `Exp~1~` | `Exp~2~`  |
 | --- | --- |
 | `bool`    | `str`      |
 

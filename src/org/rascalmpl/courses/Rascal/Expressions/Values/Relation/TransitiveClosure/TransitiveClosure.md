@@ -15,7 +15,7 @@ Transitive closure on binary relation values.
 
 |`Exp`              | `Exp +`            |
 | --- | --- |
-| `rel[_T~1~_, _T~2~_]` | `rel[_T~1~_, _T~2~_]`  |
+| `rel[T~1~, T~2~]` | `rel[T~1~, T~2~]`  |
 
 
 .Function
