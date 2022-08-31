@@ -6,7 +6,7 @@ import IO;
 import String;
 
 void ad2md(loc root) {
-    for (f <- find(root, "md"))
+    for (f <- find(root, "rsc"))
       convertFile(f);
 }
 
