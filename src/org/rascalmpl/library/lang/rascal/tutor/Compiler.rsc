@@ -27,6 +27,7 @@ import IO;
 import String;
 import List;
 import Location;
+import ParseTree;
 import util::Reflective;
 import util::FileSystem;
 import util::UUID;
@@ -160,7 +161,7 @@ list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index
     [ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d), exists((d + d.file)[extension="md"])]) + [out("")];
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
-list[Output] compileMarkdown([str first:/^\s*#\s*<title:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [ out("# <title> {<fragment(pcfg.currentRoot, pcfg.currentFile)>}"),
       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, dtls)
     ];
@@ -186,6 +187,34 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
       | dtls == [] 
     ];
 
+@synopsis{implement subscript syntax for digits}
+list[Output] compileMarkdown([/^<prefix:.*>~<digits:[0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><char(0x2080 /* that's `₀` */  - 48 /* that's `0` */ + ch)><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+
+@synopsis{implement subscript syntax for [aeh-pr-vx] (the subscript alphabet is incomplete in unicode)}
+list[Output] compileMarkdown([/^<prefix:.*>~<digits:[aeh-pr-vx]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><subscripts["<char(ch)>"]><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+
+private map[str, str] subscripts 
+  =  (  "a" : "\u2090",
+        "e" : "\u2091",
+        "h" : "\u2095",
+        "i" : "\u1d62",
+        "j" : "\u2c7c",
+        "k" : "\u2096",
+        "l" : "\u2097",
+        "m" : "\u2098",
+        "n" : "\u2099",
+        "o" : "\u2092",
+        "p" : "\u209a",
+        "r" : "\u1d63",
+        "s" : "\u209b",
+        "t" : "\u209c",
+        "u" : "\u1d64",
+        "v" : "\u1d65",
+        "x" : "\u2093"
+  );
+        
 @synopsis{resolve ((links)) and [labeled]((links))}
 list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   resolution = ind[removeSpaces(link)];
@@ -213,9 +242,8 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
   return [err(warning("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
 }
 
+
  
-   
-// }
 
 @synopsis{this supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus}
 list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
