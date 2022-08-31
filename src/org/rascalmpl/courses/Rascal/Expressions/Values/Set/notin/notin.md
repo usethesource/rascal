@@ -7,7 +7,7 @@ Negated membership test on set values.
 notin
 
 .Syntax
-`_Exp_~1~ notin _Exp_~2~`
+`Exp~1~ notin Exp~2~`
 
 .Types
 
@@ -22,7 +22,7 @@ notin
 .Details
 
 .Description
-Yields `true` if the value of _Exp_~1~ does not occur as element in the value of _Exp_~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
+Yields `true` if the value of Exp~1~ does not occur as element in the value of Exp~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
 
 .Examples
 ```rascal-shell

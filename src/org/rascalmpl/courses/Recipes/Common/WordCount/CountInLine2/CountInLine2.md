@@ -22,7 +22,7 @@ include::{LibDir}demo/common/WordCount/CountInLine2.rsc[tags=module]
                 
 The pattern `/^\W*\w+<rest:.*$>/` can be understood as follows:
 
-*  The `^` makes it _anchored_, only matches at the begin of the substring `S`.
+*  The `^` makes it anchored, only matches at the begin of the substring `S`.
 *  `\W*` matches zero or more non-word characters.
 *  `\w+` matches one or more word characters.
 *  `<rest:.*$>` matches the remaining part of `S` and assigns the result to the variable `rest`.

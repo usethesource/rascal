@@ -4,10 +4,10 @@
 Refer to a concept in this course or another course.
 
 .Syntax
-* `<< _DisplayName_ >>`
-* `<< _ParentConceptName_-_ConceptName_ >>`
-* `\link:/_Course_[_LinkText_]`
-* `\link:/_Course_#_ParentConceptName_-_ConceptName_[_LinkText_]`
+* `(( DisplayName ))`
+* `(( ParentConceptName-ConceptName ))`
+* `\[LinkText]((Course))`
+* `\[LinkText]((Course:ParentConceptName-ConceptName))`
 
 .Types
 

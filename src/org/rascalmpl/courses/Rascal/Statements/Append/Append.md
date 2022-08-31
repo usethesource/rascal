@@ -7,7 +7,7 @@ Append an element to the list value produced by various loop statements.
 append
 
 .Syntax
-`append _Exp_`
+`append Exp`
 
 .Types
 

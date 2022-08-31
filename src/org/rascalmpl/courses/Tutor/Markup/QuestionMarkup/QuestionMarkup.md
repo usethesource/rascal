@@ -38,16 +38,16 @@ Given that the listing is optional, this template represents 5 different questio
 
 ((Type)) and ((Value)) questions use ((TypeDescriptor))s to describe desired values and share certain common steps (_QSteps_):
 
-* `prep: _RascalCommand_` describes preparatory steps needed to execute the question. Typically, required
+* `prep: RascalCommand` describes preparatory steps needed to execute the question. Typically, required
   imports can be listed here.
-* `make: _Var_ = _TypeDescriptor_`: makes a new value generated according to _TypeDescriptor_ and assigns it to a new variable _Var_.
+* `make: Var = TypeDescriptor`: makes a new value generated according to _TypeDescriptor_ and assigns it to a new variable _Var_.
   _Var_ can be used in later steps in the same question.
-* `expr: _Var_ = _Expr_`: introduces a new variable _Var_ and assigns to it the result of evaluating _Expr_. 
-   _Expr_ may contain references to previously introduced variables using `<`_Var_`>`.
-* `type: _TypeDescriptor_`
-* `hint: _Text_`: a hint to be given to the student in response to a wrong answer. _Text_ may contain references to previously introduced variables.
-* `test: _Expr_~1~ == _Expr_~2~`: the equality that should hold. The expressions may contain references to variables. One side may contain a hole (`<?>`).
-* `list: _Text_`: a listing that runs until the next question or the end of the concept. It may contain a hole.
+* `expr: Var = Expr`: introduces a new variable _Var_ and assigns to it the result of evaluating _Expr_. 
+   _Expr_ may contain references to previously introduced variables using `<`Var`>`.
+* `type: TypeDescriptor`
+* `hint: Text`: a hint to be given to the student in response to a wrong answer. _Text_ may contain references to previously introduced variables.
+* `test: Expr~1~ == Expr~2~`: the equality that should hold. The expressions may contain references to variables. One side may contain a hole (`<?>`).
+* `list: Text`: a listing that runs until the next question or the end of the concept. It may contain a hole.
 
 .Examples
 

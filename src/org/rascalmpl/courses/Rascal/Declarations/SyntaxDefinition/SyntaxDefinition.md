@@ -8,17 +8,17 @@ start lexical layout keyword assoc left right non-assoc
 
 .Syntax
 
-*  `_Start_ syntax _Nonterminal_ = _Alternatives_;`
-*  `lexical _Nonterminal_ = _Alternatives_;`
-*  `layout _Nonterminal_ = _Alternatives_;`
-*  `keyword _Nonterminal_ = _Alternatives_;`
+*  `Start syntax Nonterminal = Alternatives;`
+*  `lexical Nonterminal = Alternatives;`
+*  `layout Nonterminal = Alternatives;`
+*  `keyword Nonterminal = Alternatives;`
 
 
 where _Start_ is either `start` or nothing, and _Alternatives_ are one of:
 
-*  `_Tags_ _Associativity_ _Symbols_`
-*  `_Tags_ _Associativity_ _Name_ : _Symbols_`
-*  `_Associativity_ ( _Alternatives_ )`
+*  `Tags Associativity Symbols`
+*  `Tags Associativity Name : Symbols`
+*  `Associativity ( Alternatives )`
 *  `_Alternatives~1~_ | _Alternatives~2~_`  
 *  `_Alternatives~1~_ > _Alternatives~2~_`  
 
@@ -40,7 +40,7 @@ There are four kinds of non-terminals that can be defined with slightly differen
 
 *  _Syntax_ non-terminals are general context-free non-terminals. This mean left-recursion, right-recursion, any of the regular expression ((Symbol))s and all kinds of ((Disambiguation)) can be used to define it.
    It is important to note that in between the _Symbols_ that define a syntax non-terminal the locally defined layout non-terminal will be interleaved. 
-   For example, if you define `layout ML = [\ ]*;` and `syntax A = "a" "a"`, Rascal will _modify_ the definition of A to `syntax A = "a" ML "a";` before generating a parser.
+   For example, if you define `layout ML = [\ ]*;` and `syntax A = "a" "a"`, Rascal will modify the definition of A to `syntax A = "a" ML "a";` before generating a parser.
 
 *  _Lexical_ non-terminals are just like _syntax_ non-terminals, very much like _syntax_ non-terminals. 
    However, the definition of a lexical is _not_ modified with interleaved layout non-terminals. 
@@ -87,7 +87,7 @@ For example:
 ```rascal
 layout L = [\ ]*; start Program = Statement*;`
 ```
-will produce `syntax start[Program] = L Program _top_ L;`. 
+will produce `syntax start[Program] = L Program top L;`. 
 Note that the `start[Program]` type is now available in your program, and ((Parse Trees)) assigned to variable of that 
 type will allow access to the _top_ field.
 

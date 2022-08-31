@@ -4,7 +4,7 @@
 Open an editor for a Rascal module
 
 .Syntax
-* `:edit _ModuleName_`  
+* `:edit ModuleName`  
 
 .Description
 

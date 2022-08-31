@@ -4,11 +4,11 @@
 Mark up for admonitions.
 
 .Syntax
-* `NOTE: _MarkedText_`
-* `TIP: _MarkedText_`
-* `IMPORTANT: _MarkedText_`
-* `CAUTION: _MarkedText_`
-* `WARNING: _MarkedText_`
+* `NOTE: MarkedText`
+* `TIP: MarkedText`
+* `IMPORTANT: MarkedText`
+* `CAUTION: MarkedText`
+* `WARNING: MarkedText`
 
 .Types
 

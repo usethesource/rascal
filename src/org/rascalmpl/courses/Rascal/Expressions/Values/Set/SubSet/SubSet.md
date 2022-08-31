@@ -7,7 +7,7 @@ Subset operator on set values.
 <=
 
 .Syntax
-`_Exp_~1~ <= _Exp_~2~`
+`Exp~1~ <= Exp~2~`
 
 .Types
 
@@ -22,7 +22,7 @@ Subset operator on set values.
 .Details
 
 .Description
-Yields `true` if the value of _SetExp_~1~ is a subset of the value of _SetExp_~2~, and `false` otherwise.
+Yields `true` if the value of SetExp~1~ is a subset of the value of SetExp~2~, and `false` otherwise.
 
 .Examples
 ```rascal-shell

@@ -14,17 +14,17 @@ This is the complete list:
 | --- | --- |
 | Literal              | ((Values-Boolean)), ((Values-Integer)), ((Values-Real)), ((Values-Number)), ((Values-String)), ((Values-Location)), or ((Values-DateTime)) |
 | Regular Expression   | `/<Regular Expression>/` |
-| Variable declaration | `_Type_ _Var_`                                                               |
-| Multi-variable       | `*_Var_`, `*_Type_ _Var_`                                                    |
-| Variable             | `_Var_`                                                                      |
+| Variable declaration | `Type Var`                                                               |
+| Multi-variable       | `*Var`, `*Type Var`                                                    |
+| Variable             | `Var`                                                                      |
 | List                 | `[ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ ]`                                         |
 | Set                  | `{ _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ }`                                         |
 | Tuple                | `< _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ >`                                         |
-| Node                 | `_Name_ ( _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ )`                                  |
-| Descendant           | `/ _Pat_`                                                                    |
-| Labelled             | `_Var_ : _Pat_`                                                               |
-| TypedLabelled        | `_Type_ _Var_ : _Pat_`                                                       |
-| TypeConstrained      |  `[_Type_] _Pat_` |
+| Node                 | `Name ( _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ )`                                  |
+| Descendant           | `/ Pat`                                                                    |
+| Labelled             | `Var : Pat`                                                               |
+| TypedLabelled        | `Type Var : Pat`                                                       |
+| TypeConstrained      |  `[Type] Pat` |
 | Concrete             | (Symbol) ` _Token~1~_ _Token~2~_ ... _Token~n~_ `                                                          |
 
 

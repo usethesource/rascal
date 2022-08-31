@@ -7,7 +7,7 @@ Assignment to a field of a tuple or datatype.
 [ = ]
 
 .Syntax
-`_Exp_~1~ [ _Name_ = _Exp_~2~ ]`
+`Exp~1~ [ Name = Exp~2~ ]`
 
 .Types
 

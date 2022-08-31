@@ -5,9 +5,9 @@ Markup for a variable.
 
 .Syntax
 
-* `\_VarName_`
-* `\_VarName_\~_Index_~`
-* `\_VarName_\^_Index_^`
+* `\VarName`
+* `\VarName\~Index~`
+* `\VarName\^Index^`
 
 
 .Types
@@ -22,13 +22,13 @@ They may be followed by one or more subscripts (enclosed by `~` and `~`) or supe
 
 .Examples
 
-* `\_Var_` gives _Var_.
+* `\Var` gives _Var_.
 
-* `\_Var_\~1~` gives _Var_~1~.
+* `\Var\~1~` gives _Var_~1~.
 
-* `\_Var_\^1^` gives _Var_^1^.
+* `\Var\^1^` gives _Var_^1^.
 
-* `\_Var_\^1^\~2~` gives _Var_^1^~2~.
+* `\Var\^1^\~2~` gives _Var_^1^~2~.
 
 .Benefits
 

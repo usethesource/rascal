@@ -20,7 +20,7 @@ A list is a sequence of values with the following properties:
 *  The values in the list are _ordered_.
 *  The same value may occur more than once.
 *  The list has a size that is equal to the number of values in the list.
-*  Each element in a list _L_ has an index. The first element has index 0. The last element has index `size(_L_)-1`.
+*  Each element in a list _L_ has an index. The first element has index 0. The last element has index `size(L)-1`.
 
 
 Formally, a list can be defined as follows. Given the domains `ELEM` (elements) and `LIST` (lists) and the functions:
@@ -45,7 +45,7 @@ tail(cons(e, l)) = l
 The cases `head(nil)` and `tail(nil)` are left undefined (and usually correspond to a runtime error in a programming language).
 
 In Rascal, lists are surrounded by brackets `[` and `]` and the elements are separated by commas.
-Each list has a type of the form `list[_T_]`, where _T_ is the smallest common type of all list elements.
+Each list has a type of the form `list[T]`, where _T_ is the smallest common type of all list elements.
 Read the description of [lists and their operators]((Rascal:Values-List))
 and of [library functions on lists]((Libraries:Libraries-List)).
 

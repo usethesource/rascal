@@ -7,7 +7,7 @@ ListRelation values.
 [ ] < >
 
 .Syntax
-`[ < _Exp_~11~, _Exp_~12~, ... > , < _Exp_~21~, _Exp_~22~, ... > , ... ]`
+`[ < Exp~11~, Exp~12~, ... > , < Exp~21~, Exp~22~, ... > , ... ]`
 
 .Types
 
@@ -32,11 +32,11 @@ A list relation is a list of elements with the following property:
 
 
 ListRelations are thus nothing more than lists of tuples, but since they are used so often we provide a shorthand notation for them.
-ListRelations are represented by the type `lrel[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]`, where _T_~1~, _T_~2~, ... are arbitrary types and
-_L_~1~, _L_~2~, ... are optional labels. It is a shorthand for `list[tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]]`.
+ListRelations are represented by the type `lrel[T~1~ L~1~, T~2~ L~2~, ... ]`, where _T_~1~, _T_~2~, ... are arbitrary types and
+_L_~1~, _L_~2~, ... are optional labels. It is a shorthand for `list[tuple[T~1~ L~1~, T~2~ L~2~, ... ]]`.
 
 An n-ary list relation with m tuples is denoted by
- `[< _E_~11~, _E_~12~, ..., _E_~1n~>,< _E_~21~, _E_~22~, ..., _E_~2n~>, ..., < _E_~m1~, _E_~m2~, ..., _E_~mn~>]`, 
+ `[< E~11~, E~12~, ..., E~1n~>,< E~21~, E~22~, ..., E~2n~>, ..., < E~m1~, E~m2~, ..., E~mn~>]`, 
 where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
 Since list relations are a form of list all operations (see ((Values-List))) and functions

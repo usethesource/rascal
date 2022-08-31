@@ -7,7 +7,7 @@ Greater than operator on datetime values.
 >
 
 .Syntax
-`_Exp_~1~ > _Exp_~2~`
+`Exp~1~ > Exp~2~`
 
 .Types
 
@@ -23,7 +23,7 @@ Greater than operator on datetime values.
 .Details
 
 .Description
-Yields `true` if the `datetime` value of _Exp_~1~ is later in time than the `datetime` value
+Yields `true` if the `datetime` value of Exp~1~ is later in time than the `datetime` value
 of _Exp_~2~, and `false` otherwise.
 
 .Examples

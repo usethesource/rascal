@@ -8,8 +8,8 @@ A conditional ((Symbol)), constraining the characters that can immediately prece
 
 .Syntax
 
-*  `_constraint_ << _Symbol_` 
-*  `_constraint_ !<< _Symbol_`
+*  `constraint << Symbol` 
+*  `constraint !<< Symbol`
 
 
 where a _constraint_ is any character class, a literal or a keyword non-terminal ((SyntaxDefinition-Symbol)).

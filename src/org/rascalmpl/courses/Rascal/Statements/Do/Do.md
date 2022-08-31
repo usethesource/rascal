@@ -7,7 +7,7 @@ Repeat statements while condition holds.
 do while
 
 .Syntax
-`do _Statement_ while ( _Exp_ );`
+`do Statement while ( Exp );`
 
 .Types
 

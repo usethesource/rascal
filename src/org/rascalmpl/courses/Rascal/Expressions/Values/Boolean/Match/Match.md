@@ -7,13 +7,13 @@ Match a pattern against an expression.
 :=
 
 .Syntax
-`_Pat_ := _Exp_`
+`Pat := Exp`
 
 .Types
 
 //
 
-| `_Pat_`      | `_Exp_` |`_Pat_ := _Exp_` |
+| `Pat`      | `Exp` |`Pat := Exp` |
 | --- | --- | --- |
 | ((Patterns)) | `value` | `bool`         |
 

@@ -346,7 +346,7 @@ void collect(current:(Expression)`<Expression lhs> . <Id fieldName>`, Collector 
     collect(lhs, c);
 }
 ```
-<1> Determine the type of `lhs`, say _T_. Now look for a definition of `fieldName` (as `fieldId`) in the definition of _T_.
+<1> Determine the type of `lhs`, say T. Now look for a definition of `fieldName` (as `fieldId`) in the definition of _T_.
 <2> The type of the whole expressions becomes the type of `fieldId`.
 
 `useViaType` can be configured with ((getTypeNamesAndRole)) and ((getTypeInNamelessType)) that

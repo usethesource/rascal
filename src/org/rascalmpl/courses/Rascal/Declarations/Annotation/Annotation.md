@@ -8,7 +8,7 @@ Declare an annotation type for nodes. This feature is deprecated; please use ((K
 anno @
 
 .Syntax
-`anno _AnnoType_ _OnType_ @ _Name_`
+`anno AnnoType OnType @ Name`
 
 .Types
 
@@ -33,12 +33,12 @@ Any value of any named type can be annotated and the type of these annotations c
 
 The following constructs are provided for handling annotations:
 
-*  `_Val_ @ _Anno_`: is an expression that retrieves the value of annotation _Anno_ of value _Val_ (may be undefined!). See [Selection].
+*  `Val @ Anno`: is an expression that retrieves the value of annotation _Anno_ of value _Val_ (may be undefined!). See [Selection].
 
-*  `_Val~1~_[@_Anno_ = _Val~2~_]`: is an expression that sets the value of annotation _Anno_ of the value _Val~1~_ to _Val~2~_
+*  `_Val~1~_[@Anno = _Val~2~_]`: is an expression that sets the value of annotation _Anno_ of the value _Val~1~_ to _Val~2~_
    and returns _Val~1~_ with the new annotation value as result. See ((Replacement)).
 
-*  `_Var_ @ _Anno_ = _Val_`: is an assignment statement that sets the value of annotation _Anno_ of the value of variable _Var_ to _Val_.
+*  `Var @ Anno = Val`: is an assignment statement that sets the value of annotation _Anno_ of the value of variable _Var_ to _Val_.
 
 .Examples
 

@@ -5,10 +5,10 @@ A (possibly nested) list of numbered points.
 
 .Syntax
 
-* `_Number_ _MarkedText_`
-* `. _MarkedText_`
-* `.. _MarkedText_`
-* `\... _MarkedText_`
+* `Number MarkedText`
+* `. MarkedText`
+* `.. MarkedText`
+* `\... MarkedText`
 * ...
 
 

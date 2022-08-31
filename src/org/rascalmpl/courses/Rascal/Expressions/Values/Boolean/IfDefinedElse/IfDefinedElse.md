@@ -7,7 +7,7 @@ Test whether expression has a defined value, otherwise provide alternative.
 ?
 
 .Syntax
-`_Exp_~1~ ? _Exp_~2~`
+`Exp~1~ ? Exp~2~`
 
 .Types
 
@@ -23,7 +23,7 @@ Test whether expression has a defined value, otherwise provide alternative.
 .Details
 
 .Description
-If no exception is generated during the evaluation of _Exp_~1~, the result of `_Exp_~1~ ? _Exp_~2~` is the value of _Exp_~1~.
+If no exception is generated during the evaluation of _Exp_~1~, the result of `Exp~1~ ? Exp~2~` is the value of _Exp_~1~.
 Otherwise, it is the value of _Exp_~2~.
 
 Also see ((Boolean-IsDefined)) and ((Assignment)).

@@ -7,12 +7,12 @@ Concatenate two tuple values.
 +
 
 .Syntax
-`_Exp_~1~ + _Exp_~2~`
+`Exp~1~ + Exp~2~`
 
 .Types
 
 
-| `_Exp~1~_`                      |  `_Exp_2_`                      | `_Exp~1~_ > _Exp_2_`                                 |
+| `_Exp~1~_`                      |  `Exp2_`                      | `_Exp~1~_ > Exp2_`                                 |
 | --- | --- | --- |
 | `tuple[ _T~11~_, _T~12~_, ... ]` |  `tuple[ _T~21~_, _T~22~_, ... ]` | `tuple[ _T~11~_, _T~12~_, ..., _T~21~_, _T~22~_, ... ]` |
 

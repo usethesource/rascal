@@ -7,7 +7,7 @@ List values.
 [ ]
 
 .Syntax
-`[ _Exp_~1~, _Exp_~2~, ... ]`
+`[ Exp~1~, Exp~2~, ... ]`
 
 .Types
 
@@ -33,8 +33,8 @@ A list is an ordered sequence of values and has the following properties:
 *  A list may contain an element more than once.
 
 
-The type of a list has the form `list[_T_]`,
-where `_T_` is an arbitrary type.
+The type of a list has the form `list[T]`,
+where `T` is an arbitrary type.
 
 When a value or variable of type list occurs inside a list, that list value is inserted as list element.
 To achieve _splicing_ of these elements, i.e., the insertion of the elements of the list value rather than the whole list,

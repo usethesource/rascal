@@ -23,16 +23,16 @@ We use a regular expression language that slightly extends/modifies the Java Reg
 
 *  Regular expression are delimited by `/` and `/` optionally followed by modifiers (see below).
 
-*  We allow _variable introductions_, syntax `<_Name_:_Regex_>`, which introduce a variable of type `str` named _Name_.
+*  We allow _variable introductions_, syntax `<Name:Regex>`, which introduce a variable of type `str` named _Name_.
    A variable introduction corresponds to a group in a Java regexp. Each variable that is introduced should be unique, but may be referenced more than once later in the regular expression.
 
-*  Regular expressions may also contain _references to variables_, syntax `<_Name_>`,
-the string value of variable `_Name_` is used at the position of the variable reference. 
+*  Regular expressions may also contain _references to variables_, syntax `<Name>`,
+the string value of variable `Name` is used at the position of the variable reference. 
 This can be used to define so-called _non-linear_ patterns.
 
 *  Java regular expressions allow optional groups, which may introduce null bindings. Since uninitialized variables are not allowed in Rascal, we limit the kinds of expressions one can write here by not allowing nesting of variable introductions.
 
-*  We allow variable references in a regular expression of the form: `<_Name_>` which inserts the string value of _Name_ in the pattern. $Name$ should have been introduced in the regular expression itself or in the context in which the regular expression occurs.
+*  We allow variable references in a regular expression of the form: `<Name>` which inserts the string value of _Name_ in the pattern. $Name$ should have been introduced in the regular expression itself or in the context in which the regular expression occurs.
 
 *  In Perl matching options _follow_ the regular expression, but Java uses the notation `(?Option)` 
 at the _beginning_ of the regular expression to set matching options. We support both styles. 

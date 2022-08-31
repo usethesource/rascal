@@ -4,9 +4,9 @@
 A (possible nested) list of bullet points.
 
 .Syntax
-*  `* _MarkedText_`
-*  `** _MarkedText_`
-*  `\*** _MarkedText_`
+*  `* MarkedText`
+*  `** MarkedText`
+*  `\*** MarkedText`
 *  ...
 
 .Types

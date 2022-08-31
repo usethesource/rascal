@@ -5,8 +5,8 @@ Mark up for a named paragraph.
 
 .Syntax
 
-*  `## _ParagraphName_`
-*  `\### _ParagraphName_`
+*  `## ParagraphName`
+*  `\### ParagraphName`
 *  ...
 
 .Types

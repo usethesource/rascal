@@ -46,7 +46,7 @@ Regular expressions follow the Java regular expression syntax with one exception
 <_Name_:_RegularExpression_>
 ```
 
-If `_RegularExpression_` matches, the matched substring is assigned to string variable `_Name_`.
+If `RegularExpression` matches, the matched substring is assigned to string variable `Name`.
 
 The following abstract pattern matches the abstract syntax of a while statement defined earlier:
 

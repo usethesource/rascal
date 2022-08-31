@@ -7,13 +7,13 @@ Locations can be concatenated with strings to add segments to the path component
 +
 
 .Syntax
-`_Loc_ + _Str_`
+`Loc + Str`
 
 .Types
 
 //
 
-| `_Loc_` | `_Str_` | `_Loc_ + _Str_`  |
+| `Loc` | `Str` | `Loc + Str`  |
 | --- | --- | --- |
 | `loc`     | `str`     | `loc`                |
 

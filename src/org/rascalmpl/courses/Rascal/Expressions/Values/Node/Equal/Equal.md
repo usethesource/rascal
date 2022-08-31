@@ -7,7 +7,7 @@ Equal operator on node values.
 ==
 
 .Syntax
-`_Exp_~1~ == _Exp_~2~`
+`Exp~1~ == Exp~2~`
 
 .Types
 

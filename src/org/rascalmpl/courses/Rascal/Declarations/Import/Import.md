@@ -7,7 +7,7 @@ Declare the import a module.
 import
 
 .Syntax
-`import _QualifiedName_;`
+`import QualifiedName;`
 
 .Types
 

@@ -7,7 +7,7 @@ Composition of two list relation values.
 o
 
 .Syntax
-`_Exp_~1~ o _Exp_~2~`
+`Exp~1~ o Exp~2~`
 
 .Types
 

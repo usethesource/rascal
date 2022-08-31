@@ -93,7 +93,7 @@ gives (with column C right-aligned):
 ```rascal
 | Operator    | Description |
 | --- | --- |
-| `_A_ \| _B_` | Or operator |
+| `A \| B` | Or operator |
 
 ```
 
@@ -101,7 +101,7 @@ gives (note the escaped `|` character in one table entry):
 
 | Operator    | Description |
 | --- | --- |
-| `_A_ \| _B_` | Or operator |
+| `A \| B` | Or operator |
 
 
 .Benefits

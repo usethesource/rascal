@@ -7,13 +7,13 @@ Select a field from a datetime value.
 .
 
 .Syntax
-`_Exp_ . _Name_`
+`Exp . Name`
 
 .Types
 
 //
 
-| `_Exp_`      | `_Name_` | `_Exp_ . _Name_`  |
+| `Exp`      | `Name` | `Exp . Name`  |
 | --- | --- | --- |
 | `datetime`   |          | depends on field  |
 

@@ -5,8 +5,8 @@ A question about a Rascal type.
 
 .Syntax
 
-*  `QType _OptName_ : _TypeDescriptor_`
-*  `QType _OptName_ : _QSteps_ _Test_ _Listing_`
+*  `QType OptName : TypeDescriptor`
+*  `QType OptName : QSteps Test Listing`
 
 .Types
 

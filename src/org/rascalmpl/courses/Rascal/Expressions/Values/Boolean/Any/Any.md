@@ -7,7 +7,7 @@ any
 Any combination of argument values is true.
 
 .Syntax
-`any ( _Exp_~1~, _Exp_~2~, ... )`
+`any ( Exp~1~, Exp~2~, ... )`
 
 .Types
 

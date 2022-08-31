@@ -4,13 +4,13 @@
 Filter values in a ((List-Comprehension))], ((Set-Comprehension)) or ((Map-Comprehension)).
 
 .Syntax
-`_Exp_`
+`Exp`
 
 .Types
 
 //
 
-| `_Exp_`  |
+| `Exp`  |
 | --- |
 | `bool`   |
 

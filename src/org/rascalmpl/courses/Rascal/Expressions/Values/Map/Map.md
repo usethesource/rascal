@@ -7,7 +7,7 @@ Map values.
 ( : )
 
 .Syntax
-`( _KeyExp_~1~ : _ValExp_~1~, _KeyExp_~2~ : _ValExp_~2~, ... )`
+`( KeyExp~1~ : ValExp~1~, KeyExp~2~ : ValExp~2~, ... )`
 
 .Types
 

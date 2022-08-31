@@ -7,7 +7,7 @@ The _implication_ operator on Boolean values.
 ==>
 
 .Syntax
-`_Exp_~1~ ==> _Exp_~2~`
+`Exp~1~ ==> Exp~2~`
 
 .Types
 
@@ -33,7 +33,7 @@ The _implication_ operator on Boolean values defined as follows:
 | `false`       | `false`         | `true`  |
 
 
-Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. In the case of the `==>` operator, the result is `true` if `_Exp_~1~` evaluates to `false`, otherwise `_Exp_~2~` is evaluated to determine the result.
+Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. In the case of the `==>` operator, the result is `true` if `Exp~1~` evaluates to `false`, otherwise `Exp~2~` is evaluated to determine the result.
 
 .Examples
 ```rascal-shell

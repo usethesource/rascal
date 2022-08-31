@@ -7,7 +7,7 @@ Insert a value in a tree during a ((Visit)).
 insert
 
 .Syntax
-`insert _Exp_;`
+`insert Exp;`
 
 .Types
 

@@ -7,21 +7,21 @@ Assign a value to a variable or more complex data structure.
 = += -= *= /= ?= [ .. ] . ? @
 
 .Syntax
-`_Assignable_ _AssignmentOp_ _Exp_`
+`Assignable AssignmentOp Exp`
 
 where _AssignmentOp_ may be one of `=`, `+=`, `-=`, `*=`, `/=`, or `?=`.
 
 An _Assignable_ is one of the following:
 
-*   `_Var_`
-*   `_Assignable_ [ _Exp_ ]`
-*   `_Assignable_ [ _Exp_ .. _Exp_ ]`
-*   `_Assignable_ [ _Exp_, _Exp_ .. _Exp_ ]`
-*   `_Assignable_ . _Name_` 
-*   `< _Assignable_, _Assignable_, ..., _Assignable_ >`
-*   `_Assignable_ ? _Exp_` 
-*   `_Assignable_ @ _Name_`
-*   `_Name_ ( _Assignable_, _Assignable_, ... )`
+*   `Var`
+*   `Assignable [ Exp ]`
+*   `Assignable [ Exp .. Exp ]`
+*   `Assignable [ Exp, Exp .. Exp ]`
+*   `Assignable . Name` 
+*   `< Assignable, Assignable, ..., Assignable >`
+*   `Assignable ? Exp` 
+*   `Assignable @ Name`
+*   `Name ( Assignable, Assignable, ... )`
 
 .Types
 
@@ -37,12 +37,12 @@ The other assignment operators can be expressed as abbreviations for the standar
 
 | Assignment Operator             | Equivalent to                           |
 | --- | --- |
-| `_Assignable_ += _Exp_`         | `_Assignable_ = _Assignable_ + _Exp_`   |
-| `_Assignable_ -= _Exp_`         | `_Assignable_ = _Assignable_ - _Exp_`   |
-| `_Assignable_ *= _Exp_`         | `_Assignable_ = _Assignable_ * _Exp_`   |
-| `_Assignable_ /= _Exp_`         | `_Assignable_ = _Assignable_ / _Exp_`   |
-| `_Assignable_ &= _Exp_`         | `_Assignable_ = _Assignable_ & _Exp_`   |
-| `_Assignable_ ?= _Exp_`         | `_Assignable_ = _Assignable_ ? _Exp_`   |
+| `Assignable += Exp`         | `Assignable = Assignable + Exp`   |
+| `Assignable -= Exp`         | `Assignable = Assignable - Exp`   |
+| `Assignable *= Exp`         | `Assignable = Assignable * Exp`   |
+| `Assignable /= Exp`         | `Assignable = Assignable / Exp`   |
+| `Assignable &= Exp`         | `Assignable = Assignable & Exp`   |
+| `Assignable ?= Exp`         | `Assignable = Assignable ? Exp`   |
 
 
 

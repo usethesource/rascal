@@ -7,7 +7,7 @@ Join two relation values.
 join
 
 .Syntax
-`_Exp_~1~ join _Exp_~2~`
+`Exp~1~ join Exp~2~`
 
 .Types
 

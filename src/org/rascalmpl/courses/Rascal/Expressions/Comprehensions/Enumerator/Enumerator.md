@@ -7,7 +7,7 @@ Enumerate all values in a given subject value.
 <-
 
 .Syntax
-`_Pattern_ <- _Exp_`
+`Pattern <- Exp`
 
 .Types
 

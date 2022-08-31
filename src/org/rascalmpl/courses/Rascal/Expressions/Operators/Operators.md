@@ -21,84 +21,84 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 
 | Operator                          | See                                           | Short Description |
 | --- | --- | --- |
-| `_Exp_ . _Name_` |
+| `Exp . Name` |
 | ((Location-FieldSelection)), |
   ((DateTime-FieldSelection)), |
   ((Tuple-FieldSelection)), |
   <<Relation-FieldSelection.Relation>>, |
 | Select named field from structured value |
-| `_Exp_~1~ [ _Name_ = _Exp_~2~ ]` |
+| `Exp~1~ [ Name = Exp~2~ ]` |
 | ((FieldAssignment)) |
 | Change value of named field of structured value |
-| `_Exp_ < _field_~1~, ... >` |
+| `Exp < field~1~, ... >` |
 | ((FieldProjection)) |
 | Select fields from relation or structured value |
-| `_Exp_ is _Name_` |
+| `Exp is Name` |
 | ((Library:ParseTree)), |
   ((Concrete Syntax)), |
   ((Algebraic Data Type)) |
 | Returns true if and only if the constructor name of the value produced by _Exp_ is equal to _Name_ |
-| `_Exp_ has _Name_`  |
+| `Exp has Name`  |
 | ((Library:ParseTree)), |
   ((Concrete Syntax)), |
   ((Algebraic Data Type)) |
 | Returns true if and only if the constructor (node or parse tree) of the value produced by _Exp_ has any field labeled _Name_ |
-| `_Exp_~1~ [ _Exp_~2~ , _Exp_~3~, .... ]` |
+| `Exp~1~ [ Exp~2~ , Exp~3~, .... ]` |
 | ((List-Subscription)), |
   ((Map-Subscription)), |
   ((Tuple-Subscription)), |
   ((Relation-Subscription)) |
 | Retrieve values for given index/key from list, map, tuple or relation. |
-| `_Exp_~1~ [ _Exp_~2~ , _Exp_~3~ .. _Exp_~4~ ]` |
+| `Exp~1~ [ Exp~2~ , Exp~3~ .. Exp~4~ ]` |
 | ((Values-List-Slice)), |
   ((String-Slice)), |
   ((Node-Slice)) |
 | Retrieve a slice from a list, string, or node. |
-|  `_Exp_?` |
+|  `Exp?` |
 | ((Boolean-IsDefined)) |
 | Test whether an expression has a defined value |
-|  `!_Exp_` |
+|  `!Exp` |
 | ((Boolean-Negation)) |
 | Negate a Boolean value |
-| `- _Exp_` |
+| `- Exp` |
 | ((Number-Negation)) |
 | Negation of numbers |
-| `_Exp_ +` |
+| `Exp +` |
 | ((Relation-TransitiveClosure)), |
   ((ListRelation-TransitiveClosure)), |
 | Transitive closure on relation or list relation |
-| `_Exp_ *` |
+| `Exp *` |
 | ((Relation-ReflexiveTransitiveClosure)), |
   ((ListRelation-ReflexiveTransitiveClosure)) |
 | Reflexive transitive closure on relation or list relation |
-| `_Exp_ @ _Name_` |
+| `Exp @ Name` |
 | ((Expressions-Selection)) |
 | Value of annotation _Name_ of _Exp_'s value |
-| `_Exp_~1~ [@ _Name_ = _Exp_~2~]` |
+| `Exp~1~ [@ Name = Exp~2~]` |
 | ((Expressions-Replacement)) |
 | Assign value of _Exp_~2~ to annotation _Name_ of _Exp_~1~'s value |
-| `_Exp_~1~ o _Exp_~2~` |
+| `Exp~1~ o Exp~2~` |
 | ((Relation-Composition)), |
   ((Map-Composition)) |
 | _Exp_~1~ and _Exp_~2~ should evaluate to a relation or map; return their composition. Note: the letter "o" is thus a keyword |
-| `_Exp_~1~ / _Exp_~2~` |
+| `Exp~1~ / Exp~2~` |
 | ((Number-Division)) |
 | Divide two numbers |
-| `_Exp_~1~ % _Exp_~2~` |
+| `Exp~1~ % Exp~2~` |
 | ((Number-Remainder)) |
 | Remainder on numbers |
-| `_Exp_~1~ * _Exp_~2~` |
+| `Exp~1~ * Exp~2~` |
 | ((Number-Multiplication)), |
   ((List-Product)), |
   ((Set-Product)), |
   ((Relation-CartesianProduct)) |
 | Multiply numbers; product of list, set, or relation |
-| `_Exp_~1~ & _Exp_~2~` |
+| `Exp~1~ & Exp~2~` |
 | ((List-Intersection)), |
   ((Set-Intersection)), |
   ((Map-Intersection)) |
 | Intersection of list, set (including relation), or map |
-| `_Exp_~1~ + _Exp_~2~` |
+| `Exp~1~ + Exp~2~` |
 | ((Number-Addition)), |
   ((String-Concatenation)), |
   ((List-Concatenation)), |
@@ -110,26 +110,26 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 | Add numbers; concatenate string, list or tuple;  |
   union on set (including relation), or map; |
   concatenate location and string |
-| `_Exp_~1~ - _Exp_~2~` |
+| `Exp~1~ - Exp~2~` |
 | ((Number-Subtraction)), |
   ((List-Difference)), |
   ((Set-Difference)), |
   ((Map-Difference)) |
 | Subtract numbers; difference of list, set (including relation), or map |
-| `_Exp_~1~ join _Exp_~2~` |
+| `Exp~1~ join Exp~2~` |
 | ((Relation-Join)) |
 | Join on relation |
-| `_Exp_~1~ in _Exp_~2~` |
+| `Exp~1~ in Exp~2~` |
 | ((List-in)),  |
   ((Set-in)), |
   ((Map-in)) |
 | Membership test for element in list, map, set (including relation) |
-| `_Exp_~1~ notin _Exp_~2~` |
+| `Exp~1~ notin Exp~2~` |
 | ((List-notin)), |
   ((Set-notin)), |
   ((Map-notin)) |
 | Negated membership test for element in  list, map, set (including relation) |
-| `_Exp_~1~ <= _Exp_~2~` |
+| `Exp~1~ <= Exp~2~` |
 | ((Number-LessThanOrEqual)), |
   ((String-LessThanOrEqual)), |
   ((Location-LessThanOrEqual)), |
@@ -138,7 +138,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
   ((Set-SubSet)), |
   ((Map-SubMap)) |
 | Less than or equal on all values |
-| `_Exp_~1~ < _Exp_~2~` |
+| `Exp~1~ < Exp~2~` |
 | ((Number-LessThan)), |
   ((String-LessThan)), |
   ((Location-LessThan)), |
@@ -147,7 +147,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
   ((Set-StrictSubSet)), |
   ((Map-StrictSubMap)) |
 | Less than on all values |
-| `_Exp_~1~ >= _Exp_~2~` |
+| `Exp~1~ >= Exp~2~` |
 | ((Number-GreaterThanOrEqual)), |
   ((String-GreaterThanOrEqual)), |
   ((Location-GreaterThanOrEqual)), |
@@ -156,7 +156,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
   ((Set-SuperSet)), |
   ((Map-SuperMap)) |
 | Greater than or equal on all values |
-| `_Exp_~1~ > _Exp_~2~` |
+| `Exp~1~ > Exp~2~` |
 | ((Number-GreaterThan)), |
   ((String-GreaterThan)), |
   ((Location-GreaterThan)), |
@@ -165,13 +165,13 @@ to lowest precedence. In other words, operators listed earlier in the table bind
   ((Set-StrictSuperSet)), |
   ((Map-StrictSuperMap)) |
 | Greater than on all values. |
-|  `_Pat_ := _Exp_` |
+|  `Pat := Exp` |
 | ((Boolean-Match)) |
 | Pattern matches value of expression |
-|  `_Pat_ !:= _Exp_` |
+|  `Pat !:= Exp` |
 | ((Boolean-NoMatch)) |
 | Pattern does not match value of expression |
-| `_Exp_~1~ == _Exp_~2~` |
+| `Exp~1~ == Exp~2~` |
 | ((Number-Equal)), |
   ((String-Equal)), |
   ((Location-Equal)), |
@@ -180,7 +180,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
   ((Set-Equal)), |
   ((Map-Equal)) |
 | Equality on all values |
-| `_Exp_~1~ != _Exp_~2~` |
+| `Exp~1~ != Exp~2~` |
 | ((Number-NotEqual)), |
   ((String-NotEqual)), |
   ((Location-NotEqual)), |
@@ -189,22 +189,22 @@ to lowest precedence. In other words, operators listed earlier in the table bind
   ((Set-NotEqual)), |
   ((Map-NotEqual)) |
 | Inequality on all values |
-| `_Exp_~1~ ? _Exp_~2~` |
+| `Exp~1~ ? Exp~2~` |
 | ((Boolean-IfDefinedElse)) |
 | Value of expression when it is defined, otherwise alternative value |
-| `_Exp_~1~ ? _Exp_~2~ : _Exp_~3~` |
+| `Exp~1~ ? Exp~2~ : Exp~3~` |
 | ((Value-Conditional)) |
 | Conditional expression for all types |
-| `_Exp_~1~ ==> _Exp_~2~` |
+| `Exp~1~ ==> Exp~2~` |
 | ((Boolean-Implication)) |
 | Implication on Boolean values |
-| `_Exp_~1~ <==> _Exp_~2~` |
+| `Exp~1~ <==> Exp~2~` |
 | ((Boolean-Equivalence)) |
 | Equivalence on Boolean values |
-| `_Exp_~1~ && _Exp_~2~` |
+| `Exp~1~ && Exp~2~` |
 | ((Boolean-And)) |
 | And on Boolean values |
-| `_Exp_~1~ \|\| _Exp_~2~` |
+| `Exp~1~ \|\| Exp~2~` |
 | ((Boolean-Or)) |
 | Or on Boolean values |
 

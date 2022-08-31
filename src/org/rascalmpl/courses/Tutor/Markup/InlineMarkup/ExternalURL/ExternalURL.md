@@ -4,8 +4,8 @@
 Refer to an external URL.
 
 .Syntax
-* `_URL_`
-* `_URL_[_MarkedText_]`
+* `URL`
+* `URL[MarkedText]`
 
 
 .Types

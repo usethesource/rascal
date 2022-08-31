@@ -7,7 +7,7 @@ Conditional expression for numeric values.
 ? :
 
 .Syntax
-`_Exp_~1~ ? _Exp_~2~ : _Exp_~3~`
+`Exp~1~ ? Exp~2~ : Exp~3~`
 
 .Types
 

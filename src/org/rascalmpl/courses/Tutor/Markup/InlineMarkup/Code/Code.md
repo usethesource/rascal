@@ -7,7 +7,7 @@ Create inline code fragments.
 .Syntax
 [source,subs="verbatim,quotes"]
 ----
-\`_MarkedText_`
+\`MarkedText`
 ----
 
 .Types

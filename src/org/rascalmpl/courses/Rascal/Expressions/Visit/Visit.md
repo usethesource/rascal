@@ -69,12 +69,12 @@ determine the traversal order of the subject:
 
 The execution of the cases has the following effect:
 
-*  A PatternWithAction of the form `_Pattern_ => _Exp_` replaces the current subtree of the subject by the value of _Exp_. 
+*  A PatternWithAction of the form `Pattern => Exp` replaces the current subtree of the subject by the value of _Exp_. 
    Note that a copy of the subject is created at the start of the visit statement and all replacements are made in this copy. 
    As a consequence, modifications made during the visit cannot influence matches later on.
    The modified copy of the subject is ultimately returned by the visit expression.
 
-*  A PatternWithAction of the form `_Pattern_ : _Statement_` executes `Statement` and this should lead to one of the following:
+*  A PatternWithAction of the form `Pattern : Statement` executes `Statement` and this should lead to one of the following:
 
    ** Execution of an Insert statement of the form `insert _Exp~2~_`.
       The value of _Exp_~2~ replaces the subtree of the subject that is currently being visited. 
@@ -83,7 +83,7 @@ The execution of the cases has the following effect:
 
       *** An insert statement may only occur in a PatternWithAction in a visit expression or a rule.
 
-      *** `_Pattern_ => _Exp_` is equivalent to `_Pattern_ : insert _Exp_;`.
+      *** `Pattern => Exp` is equivalent to `Pattern : insert Exp;`.
 
    ** Execution of a ((Fail)) statement: the next case is tried.
 

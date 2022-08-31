@@ -8,7 +8,7 @@ Node values.
 
 .Syntax
 
-`_Exp_~0~ ( _Exp_~1~, _Exp_~2~, ..., _FieldName~1~_ = _Expr~1_, _FieldName~2~ = _Expr~2_, ... )`
+`Exp~0~ ( Exp~1~, Exp~2~, ..., _FieldName~1~_ = _Expr~1_, _FieldName~2~ = _Expr~2_, ... )`
 
 .Types
 

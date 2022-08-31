@@ -8,7 +8,7 @@ Reserve is a conditional ((Symbol)), constraining the set of strings that a symb
 
 .Syntax
 
-*  `_Symbol_ \ _constraint_`
+*  `Symbol \ constraint`
 
 
 where a _constraint_ is any character class, a literal or a keyword non-terminal ((Symbol)).

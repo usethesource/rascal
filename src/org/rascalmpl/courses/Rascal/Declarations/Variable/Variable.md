@@ -5,14 +5,14 @@ Declare a variable.
 
 .Syntax
 
-*  `_Type_ _Name_ = _Exp_ ;`
-*  `_Type_ _Name_;`
+*  `Type Name = Exp ;`
+*  `Type Name;`
 
 .Types
 
-|`_Type_`  | `_Exp_` |
+|`Type`  | `Exp` |
 | --- | --- |
-| `_Type_` | `<: _Type_` |
+| `Type` | `<: Type` |
 
 
 .Function

@@ -7,12 +7,12 @@ Select a field (column) from a list relation value.
 .
 
 .Syntax
-`_Exp_ . _Name_`
+`Exp . Name`
 
 .Types
 
 
-|`_Exp_`                                 | `_Exp_ . _Name_`  |
+|`Exp`                                 | `Exp . Name`  |
 | --- | --- |
 |
 | `lrel[_T~1~_ _L~1~_, _T~2~_ _L~2~_, ... ]` | `list[_T~i~_]`     |

@@ -7,12 +7,12 @@ Field selection on locations.
 .
 
 .Syntax
-`_Exp_ . _Name_`
+`Exp . Name`
 
 .Types
 
 
-| `_Exp_` | `_Name_` | `_Exp_ . _Name_`  |
+| `Exp` | `Name` | `Exp . Name`  |
 | --- | --- | --- |
 | `loc`   |          | Depends on field |
 
