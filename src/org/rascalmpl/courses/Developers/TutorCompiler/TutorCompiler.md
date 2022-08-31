@@ -22,7 +22,7 @@ The tutor compiler is located here: [src/org/rascalmpl/library/lang/rascal/tutor
 ## Compile and run the Rascal interpreter
 
 * clone the rascal project first: `git clone git@github.com:usethesource/rascal.git`
-* compile it, but skip the type-checking of the library: `git -Drascal.compile.skip -DskipTests package`
+* compile it, but skip the type-checking of the library: `mvn -Drascal.compile.skip -DskipTests package`
 * run can be done in several ways:
    1. use VScode run command to execute `RascalShell` in debug mode
    2. use Eclipse to "Run as Java Program", also `RascalShell`
