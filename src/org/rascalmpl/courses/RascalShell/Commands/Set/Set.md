@@ -5,7 +5,7 @@ Set parameters that control options of RascalShell.
 
 .Syntax
 * `:set`
-* `:set _Option_ _TrueOrFalse_`
+* `:set Option TrueOrFalse`
 
 .Description
 

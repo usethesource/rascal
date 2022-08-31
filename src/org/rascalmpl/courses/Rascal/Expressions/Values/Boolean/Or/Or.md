@@ -7,7 +7,7 @@ The _or_ operator on Boolean values.
 ||
 
 .Syntax
-`_Exp_~1~ || _Exp_~2~`
+`Exp~1~ || Exp~2~`
 
 .Types
 
@@ -33,7 +33,7 @@ The _or_ operator on Boolean values defined as follows:
 | `false`   | `false`    | `false`               |
 
 
-Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. In the case of the `||` operator, the result is `true` if `_Exp_~1~` evaluates to `true`, otherwise `_Exp_~2~` is evaluated to determine the result.
+Boolean operators have _short circuit_ semantics:  only those operands are evaluated that are needed to compute the result. In the case of the `||` operator, the result is `true` if `Exp~1~` evaluates to `true`, otherwise `Exp~2~` is evaluated to determine the result.
 
 Note that `||` will backtrack over its argument expressions until it can find an evaluation that is `true`, unless there is none.
 

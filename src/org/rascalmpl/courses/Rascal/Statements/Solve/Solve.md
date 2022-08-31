@@ -7,7 +7,7 @@ Solve a set of equalities by fixed-point iteration.
 solve
 
 .Syntax
-`solve(_Var_~1~, _Var_~2~, ..., _Var_~n~; _Exp_) _Statement_;`
+`solve(Var~1~, Var~2~, ..., Var~n~; Exp) Statement;`
 
 .Types
 

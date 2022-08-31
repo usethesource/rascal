@@ -7,12 +7,12 @@ The reflexive transitive closure of a binary relation.
 *
 
 .Syntax
-`_Exp_ *`
+`Exp *`
 
 .Types
 
 
-|`_Exp_`              | `_Exp_ *`            |
+|`Exp`              | `Exp *`            |
 | --- | --- |
 | `rel[_T~1~_, _T~2~_]` | `rel[_T~1~_, _T~2~_]`  |
 

@@ -9,7 +9,7 @@ return
 .Syntax
 
 *  `return;`
-*  `return _Exp_`
+*  `return Exp`
 
 .Types
 

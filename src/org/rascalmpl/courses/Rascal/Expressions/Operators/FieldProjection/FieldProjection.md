@@ -7,7 +7,7 @@ Projection of tuple.
 < >
 
 .Syntax
-`_Exp_ < _Field_~1~, _Field_~2~ ... >`
+`Exp < Field~1~, Field~2~ ... >`
 
 .Types
 

@@ -7,7 +7,7 @@ Type parameters enable parameterized types.
 &
 
 .Syntax
-`& _Name_`
+`& Name`
 
 .Types
 

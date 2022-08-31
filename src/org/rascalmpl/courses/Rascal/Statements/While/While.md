@@ -9,7 +9,7 @@ While loop.
 while
 
 .Syntax
-`while ( _Exp_ ) _Statement_;`
+`while ( Exp ) Statement;`
 
 .Types
 

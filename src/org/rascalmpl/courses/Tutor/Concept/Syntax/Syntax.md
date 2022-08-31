@@ -27,7 +27,7 @@ The syntax section for an if-then statement can be written as:
 [source,subs="verbatim"]
 ----
 .Syntax
-`if ( _Exp_ ) _Statement_;`
+`if ( Exp ) Statement;`
 ----
 
 .Benefits

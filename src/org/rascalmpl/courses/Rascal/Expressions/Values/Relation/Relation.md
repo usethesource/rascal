@@ -7,7 +7,7 @@ Relation values.
 { } rel
 
 .Syntax
-`{ < _Exp~11~_, _Exp~12~_, ... > , < _Exp~21~_, _Exp_~22~, ... > , ... }`
+`{ < _Exp~11~_, _Exp~12~_, ... > , < _Exp~21~_, Exp~22~, ... > , ... }`
 
 .Types
 
@@ -30,11 +30,11 @@ A relation is a set of elements with the following property:
 
 
 Relations are thus nothing more than sets of tuples, but since they are used so often we provide a shorthand notation for them.
-Relations are represented by the type `rel[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]`, where _T_~1~, _T_~2~, ... are arbitrary types and
-_L_~1~, _L_~2~, ... are optional labels. It is a shorthand for `set[tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ... ]]`.
+Relations are represented by the type `rel[T~1~ L~1~, T~2~ L~2~, ... ]`, where _T_~1~, _T_~2~, ... are arbitrary types and
+_L_~1~, _L_~2~, ... are optional labels. It is a shorthand for `set[tuple[T~1~ L~1~, T~2~ L~2~, ... ]]`.
 
 An n-ary relations with m tuples is denoted by
- `{< _E_~11~, _E_~12~, ..., _E_~1n~ >,< _E_~21~, _E_~22~, ..., _E_~2n~ >, ..., < _E_~m1~, _E_~m2~, ..., _E_~mn~ >}`, 
+ `{< E~11~, E~12~, ..., E~1n~ >,< E~21~, E~22~, ..., E~2n~ >, ..., < E~m1~, E~m2~, ..., E~mn~ >}`, 
 where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
 Since relations are a form of set all operations (see ((Values-Set))) and functions

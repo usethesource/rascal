@@ -7,7 +7,7 @@ Type constraints restrict the acceptable type for parameters.
 <: &
 
 .Syntax
-`& _Name_ <: _Type_`
+`& Name <: Type`
 
 .Types
 

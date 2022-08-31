@@ -7,12 +7,12 @@ Negate a numeric value.
 -
 
 .Syntax
-`- _Exp_`
+`- Exp`
 
 .Types
 
 
-| `_Exp_`  |  `- _Exp_`  |
+| `Exp`  |  `- Exp`  |
 | --- | --- |
 | `int`    |  `int`      |
 | `real`   |  `real`     |

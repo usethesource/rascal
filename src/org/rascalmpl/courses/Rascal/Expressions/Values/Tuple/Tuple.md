@@ -7,7 +7,7 @@ Tuple values.
 < >
 
 .Syntax
-`< _Exp_~1~, _Exp_~2~, ... >`
+`< Exp~1~, Exp~2~, ... >`
 
 .Types
 
@@ -31,7 +31,7 @@ A tuple is a sequence of elements with the following properties:
 *  Each tuple is fixed-width, i.e., has the same number of elements.
 
 
-Tuples are represented by the type `tuple[_T_~1~ _L_~1~, _T_~2~ _L_~2~, ...]`, 
+Tuples are represented by the type `tuple[T~1~ L~1~, T~2~ L~2~, ...]`, 
 where _T_~1~, _T_~2~, ... are arbitrary types and _L_~1~, _L_~2~, ... are optional labels. 
 
 The following operators are provided for tuples:

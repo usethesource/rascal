@@ -41,10 +41,10 @@ The slice parameters `begin`, `end`, and `step` are determined as follows:
 
 *  _Exp~2~_:
 **  If _Exp~2~_ is absent, then `begin = 0`.
-**  Otherwise, if _N~2~_ >= 0 then `begin = _N~2~_` else `begin = _N~2~_ + _Len_`. 
+**  Otherwise, if _N~2~_ >= 0 then `begin = _N~2~_` else `begin = _N~2~_ + Len`. 
 *  _Exp~4~_:
-**  If _Exp~4~_ is absent, then `end = _Len_`.
-**  Otherwise, if _N~4~_ >= 0, then `end = _N~4~_` else `end = _N~4~_ + _Len_`.
+**  If _Exp~4~_ is absent, then `end = Len`.
+**  Otherwise, if _N~4~_ >= 0, then `end = _N~4~_` else `end = _N~4~_ + Len`.
 *  _Exp~3~_:
 **  If _Exp~3~_ is absent, then if `begin < end` then `step = 1` else `step = -1`.
 **  Otherwise, if `begin < end`, then `step = _N~3~_ - begin` else `step = begin - _N~3~_`.
@@ -62,10 +62,10 @@ Consider the string `S = "abcdefghi";` (with size 9) as running example.
 Here is a view on _L_ that will help to correlate positive and negative indices:
 
 
-|`_i_`        | 0    |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8   |
+|`i`        | 0    |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8   |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-|`S[_i_]`     | `"a"`| `"b"`| `"c"`| `"d"`| `"e"`| `"f"`| `"g"`| `"h"`| `"i"` |
-|`-_i_`       | -9   | -8   | -7   | -6   |   -5 |   -4 |   -3 |   -2 |   -1  |
+|`S[i]`     | `"a"`| `"b"`| `"c"`| `"d"`| `"e"`| `"f"`| `"g"`| `"h"`| `"i"` |
+|`-i`       | -9   | -8   | -7   | -6   |   -5 |   -4 |   -3 |   -2 |   -1  |
 
 
 

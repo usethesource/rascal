@@ -78,7 +78,7 @@ import lang::calc::Syntax;                  // The Calc syntax
 extend analysis::typepal::TypePal;          // TypePal
 ```
 
-We import the Calc syntax `lang::calc::Syntax` and then we _extend_ the TypePal `analysis::typepal::TypePal`.
+We import the Calc syntax `lang::calc::Syntax` and then we extend the TypePal `analysis::typepal::TypePal`.
 
 NOTE: There is a technical reason why we have to extend TypePal rather than import it. Some data types (e.g., `AType`)
 and functions (e.g., `collect`) are already defined in TypePal itself and they are being extended in each type checker.
@@ -149,7 +149,7 @@ void collect(current: (Exp) `<Id name>`, Collector c){
 ```
 
 An expression consisting of a single identifier represents a _use_ of that identifier.
-`c.use(_name_, _roles_)` records this. There are then two possibilities:
+`c.use(name, roles)` records this. There are then two possibilities:
 
 - a matching define is found for one of the given roles: use and definition are connected to each other.
 - no matching define is found and an error is reported.
@@ -260,7 +260,7 @@ void collect(current: (Exp) `if <Exp cond> then <Exp e1> else <Exp e2>`, Collect
 ```
 Checking a conditional expression amounts to checking that the condition has type Boolean and
 that the then and else branch have the same type (which also becomes the type of the conditional expression as a whole).
-In the above code we see `s.requireEqual(_arg1_, _arg2_, _message_)`. 
+In the above code we see `s.requireEqual(_arg1_, _arg2_, message)`. 
 Here _arg1_ and _arg2_ may either be a subtree (in which case its type is used) or an `AType`.
 `requireEqual` requires that both types are equal or reports an error.
 

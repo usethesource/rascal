@@ -41,7 +41,7 @@ Horizontal rule:
 ---
 
 * `code`
-* `in code: _italics_`
+* `in code: italics`
 
 <toc Test 2>
 

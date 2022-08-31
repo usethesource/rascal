@@ -7,7 +7,7 @@ Set values.
 { }
 
 .Syntax
-`{ _Exp_~1~, _Exp~2~_, ... }`
+`{ Exp~1~, _Exp~2~_, ... }`
 
 .Usage
 
@@ -32,8 +32,8 @@ A set is an unordered sequence of values and has the following properties:
   matter how many times an element is added to a set, it will occur in it only once.
 
 
-The type of a set has the form `set[_T_]`,
-where `_T_` is an arbitrary type.
+The type of a set has the form `set[T]`,
+where `T` is an arbitrary type.
 
 When a value or variable of type set occurs inside a set, that set value is inserted as set element. 
 To achieve splicing of these elements, i.e., the insertion of the elements of the set value rather than the whole set,

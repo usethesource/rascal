@@ -8,7 +8,7 @@ Throw any value as an exception up the call stack.
 throw
 
 .Syntax
-`throw _Exp_`
+`throw Exp`
 
 .Types
 

@@ -8,17 +8,17 @@ if else
 
 .Syntax
 
-*  `if ( _Exp_ ) _Statement_;`
-*  `if ( _Exp_ ) _Statement~1~_ else _Statement~2~_;`
+*  `if ( Exp ) Statement;`
+*  `if ( Exp ) _Statement~1~_ else _Statement~2~_;`
 
 .Types
-| `_Exp_` | `if ( _Exp_ ) _Statement_;`  |
+| `Exp` | `if ( Exp ) Statement;`  |
 | --- | --- |
 | `bool`  |  `void`                      |
 
 
 
-| `_Exp_` | `_Statement~1~_` | `_Statement~2~_` | `if ( _Exp_ ) _Statement~1~_ else _Statement~2~_;`  |
+| `Exp` | `_Statement~1~_` | `_Statement~2~_` | `if ( Exp ) _Statement~1~_ else _Statement~2~_;`  |
 | --- | --- | --- | --- |
 | `bool`  |  _T~1~_        | _T~2~_         | `lub(_T~1~_, _T~2~_)`                               |
 

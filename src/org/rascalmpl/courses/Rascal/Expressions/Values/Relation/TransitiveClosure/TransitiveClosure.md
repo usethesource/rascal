@@ -7,12 +7,13 @@ Transitive closure on binary relation values.
 +
 
 .Syntax
-`_Exp_ +`
+
+`Exp +`
 
 .Types
 
 
-|`_Exp_`              | `_Exp_ +`            |
+|`Exp`              | `Exp +`            |
 | --- | --- |
 | `rel[_T~1~_, _T~2~_]` | `rel[_T~1~_, _T~2~_]`  |
 
@@ -52,7 +53,7 @@ rel[int,int] tclosure(rel[int,int] R) {
          return tc;
    }
 }
-//tclosure({<1,2>, <2,3>, <3,4>});
+tclosure({<1,2>, <2,3>, <3,4>});
 ```
 
 .Benefits

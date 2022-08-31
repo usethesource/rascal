@@ -7,7 +7,7 @@ For loop.
 for
 
 .Syntax
-`for ( _Exp_~1~ , _Exp_~2~ , ... , _Exp_~n~ ) _Statement_;`
+`for ( Exp~1~ , Exp~2~ , ... , Exp~n~ ) Statement;`
 
 .Types
 

@@ -8,20 +8,20 @@ public private java test default &
 
 .Syntax
 
-*  `_Modifiers_ _Type_ _Name_( _Type~1~_ _Var~1~_, ..., _Type~n~_ _Var~n~_ ) _Body_`
-*  `_Modifiers_ _Type_ _Name_( _Type~1~_ _Var~1~_, ..., _Type~n~_ _Var~n~_ _Type~0~_ _Name~0~_... ) _Body_`
-*  `_Modifiers_ _Type_ _Name_( _Pattern~1~_, ..., _Pattern~n~_) _Body_`
-*  `_Modifiers_ _Type_ _Name_( _Pattern~1~_, ..., _Pattern~n~_, _Type~0~_ _Name~0~_...) _Body_`
+*  `Modifiers Type Name( _Type~1~_ _Var~1~_, ..., _Type~n~_ _Var~n~_ ) Body`
+*  `Modifiers Type Name( _Type~1~_ _Var~1~_, ..., _Type~n~_ _Var~n~_ _Type~0~_ _Name~0~_... ) Body`
+*  `Modifiers Type Name( _Pattern~1~_, ..., _Pattern~n~_) Body`
+*  `Modifiers Type Name( _Pattern~1~_, ..., _Pattern~n~_, _Type~0~_ _Name~0~_...) Body`
 
 
-where `_Body_` is one of:
+where `Body` is one of:
 
-*  `{ _Statements_ }`
-*  `throws _Exception~1~_, _Exception~2~_, ... { _Statements_ }`
-*  `= _Expression_;`
+*  `{ Statements }`
+*  `throws _Exception~1~_, _Exception~2~_, ... { Statements }`
+*  `= Expression;`
 
 
-and where `_Modifiers_` may be:
+and where `Modifiers` may be:
 
 *  `("public" | "private")? ("java" | "test" | "default")?`
 
@@ -34,7 +34,7 @@ and where `_Modifiers_` may be:
 .Description
 ##  Variant 1 
 
-A function declaration introduces a new function with name _name_, typed formal parameters `_Type_~1~ _Var_~1~`, a return type _Type_
+A function declaration introduces a new function with name _name_, typed formal parameters `Type~1~ Var~1~`, a return type _Type_
 and a _Statement_ that forms the function body.
 The type of _Statement_ should be equal to _Type_.
 
@@ -46,7 +46,7 @@ A function may have a variable list of arguments, this has as syntax variant 2 g
 
 The last parameter of a function may be followed by `...` and this has as effect that all remaining actual parameters
 that occur in a call to this function are collected as list value of the last formal parameter. 
-Inside the function body, the type of this parameter will therefore be `list[_Type_~0~]`.
+Inside the function body, the type of this parameter will therefore be `list[Type~0~]`.
 
 ##  Variant 3 and 4 
 

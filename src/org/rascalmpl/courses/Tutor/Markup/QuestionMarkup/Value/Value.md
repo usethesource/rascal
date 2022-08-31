@@ -5,8 +5,8 @@ Question about the value of a Rascal expression or program.
 
 .Syntax
 
-*  `QValue _OptName_: _TypeDescriptor_`
-*  `QValue _OptName_: _QSteps_ _Test_ _Listing_`
+*  `QValue OptName: TypeDescriptor`
+*  `QValue OptName: QSteps Test Listing`
 
 .Types
 
@@ -27,19 +27,19 @@ The first form presents the value generated for the _TypeDescriptor_ and asks ab
 The second form allows more preparatory steps and also allows adding a listing to the question.
 The following steps are defined:
 
-*  `prep: _Cmd_`: execute _Cmd_ as preparatory step. Mostly used to import necessary libraries.
-*  `make: _Var_ = _TypeDescriptor_`: create a new variable and use _TypeDescriptor_ to generate its value.
-*  `expr: _Var_ = _Exp_`: evaluate the Rascal expression _Exp_ and assign its value to the new variable _Var_.
-*  `list: _Lines_`: lines that will be displayed as a listing. The listing may contain a placeholder in the form of `<?>` and
+*  `prep: Cmd`: execute _Cmd_ as preparatory step. Mostly used to import necessary libraries.
+*  `make: Var = TypeDescriptor`: create a new variable and use _TypeDescriptor_ to generate its value.
+*  `expr: Var = Exp`: evaluate the Rascal expression _Exp_ and assign its value to the new variable _Var_.
+*  `list: Lines`: lines that will be displayed as a listing. The listing may contain a placeholder in the form of `<?>` and
   ends where a new step begins.
-*  `test: _Exp_~1~ == _Exp_~2~`: the equality is evaluated as Rascal expression. The outcome determines the success or failure to answer this question.
-*  `hint: _Text_`: a hint that will be shown when the user enters a wrong answer.
+*  `test: Exp~1~ == Exp~2~`: the equality is evaluated as Rascal expression. The outcome determines the success or failure to answer this question.
+*  `hint: Text`: a hint that will be shown when the user enters a wrong answer.
 
 The following restrictions apply:
 
 *  Each step starts at the beginning of a new line.
-*  Every _Exp_ or _Cmd_ or listing may contain one or more variable references of the form `<` _Var_ `>`.
-*  Each variable reference `<` _Var_ `>` is first replaced by the value of _Var_.
+*  Every _Exp_ or _Cmd_ or listing may contain one or more variable references of the form `<` Var `>`.
+*  Each variable reference `<` Var `>` is first replaced by the value of _Var_.
    _Var_ should have received a value in a preceeding `make` or `expr` step.
 *  The listing, and the expressions in the test may contain at most one placeholder `<?>`.
 

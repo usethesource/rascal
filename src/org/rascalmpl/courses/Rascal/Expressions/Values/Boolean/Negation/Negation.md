@@ -7,13 +7,13 @@ The _not_ operator on Boolean values.
 !
 
 .Syntax
-`! _Exp_`
+`! Exp`
 
 .Types
 
 //
 
-| `_Exp_` | `! _Exp_`  |
+| `Exp` | `! Exp`  |
 | --- | --- |
 | `bool`   | `bool`     |
 
@@ -25,7 +25,7 @@ The _not_ operator on Boolean values.
 .Description
 The _not_ operator on Boolean values defined as follows:
 
-| `_Exp_`  | `! _Exp_`  |
+| `Exp`  | `! Exp`  |
 | --- | --- |
 | `true`   | `false`    |
 | `false`  | `true`     |

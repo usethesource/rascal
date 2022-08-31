@@ -8,8 +8,8 @@ Multi-variable (also known as Splice-variable) in abstract pattern.
 
 .Syntax
 
-*  `*_Var_`
-*  `*_Type_ _Var_`
+*  `*Var`
+*  `*Type Var`
 
 .Types
 

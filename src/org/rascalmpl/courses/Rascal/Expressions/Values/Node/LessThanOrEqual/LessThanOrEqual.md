@@ -7,7 +7,7 @@ Less than or equal operator on node values.
 <=
 
 .Syntax
-`_Exp_~1~ <= _Exp_~2~`
+`Exp~1~ <= Exp~2~`
 
 .Types
 
@@ -21,10 +21,10 @@ Less than or equal operator on node values.
 .Details
 
 .Description
-Comparison on nodes is defined by a lexicographic ordering. Node `_N_ = _F_(_N_~1~, ..., _N_~n~)` is less than or equal node 
-`_N_ = _G_(_M_~1~, ..., _M_~m~)` when:
+Comparison on nodes is defined by a lexicographic ordering. Node `N = F(N~1~, ..., N~n~)` is less than or equal node 
+`N = G(M~1~, ..., M~m~)` when:
 *  _N_ is equal to _M_, or
-*  _F_ is lexicographically less than _G_, or _F_ is equal to _G_ and `_n_ < _m_`.
+*  _F_ is lexicographically less than _G_, or _F_ is equal to _G_ and `n < m`.
 
 .Examples
 ```rascal-shell

@@ -7,7 +7,7 @@ Declare an alias for a type.
 alias
 
 .Syntax
-`alias _Name_  = _Type_;`
+`alias Name  = Type;`
 
 .Types
 

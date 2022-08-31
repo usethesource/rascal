@@ -7,7 +7,7 @@ String values.
 " ' < > \ \n \t \r \b \f \u \U hex if else for while do
 
 .Syntax
-`"_StringChar_~1~_StringChar_~2~..."`
+`"StringChar~1~StringChar~2~..."`
 where `_StringChar~i~_ may be one of the following:
 
 *  __Ordinary character__: Any character except `<`, `>`, `"`, `'` or `\`.
@@ -27,12 +27,12 @@ where `_StringChar~i~_ may be one of the following:
 
 | Form      | Description |
 | --- | --- |
-| `<_Exp_>` | Interpolate the value of the expression as a string |
-| `<if(_Exp_){> ... _StringChars_ ... <}>` | Conditional inclusion of _Text_, where _StringChars_ may use variables introduced in _Exp_ |
-| `<if(_Exp_){> ... _StringChars~1~_ ... <} else {>  ... _StringChars~2~_ ... <}>` | Conditional inclusion of either _StringChars~1~_ or _StringChars~2~_ |
-| `<for(_Exp_){>... _StringChars_ ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
-| `<while(_Exp_){> ... _StringChars_ ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
-| `<do {>... _StringChars_ ... <} while (_Exp_)>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
+| `<Exp>` | Interpolate the value of the expression as a string |
+| `<if(Exp){> ... StringChars ... <}>` | Conditional inclusion of _Text_, where _StringChars_ may use variables introduced in _Exp_ |
+| `<if(Exp){> ... _StringChars~1~_ ... <} else {>  ... _StringChars~2~_ ... <}>` | Conditional inclusion of either _StringChars~1~_ or _StringChars~2~_ |
+| `<for(Exp){>... StringChars ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
+| `<while(Exp){> ... StringChars ... <}>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
+| `<do {>... StringChars ... <} while (Exp)>` | Iterative splicing of _StringChars_ into the result, where _StringChars_ may use variables introduced in _Exp_. |
 
 
 *  __Multiline__:

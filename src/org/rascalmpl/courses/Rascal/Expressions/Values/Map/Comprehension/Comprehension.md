@@ -7,7 +7,7 @@ A map comprehension generates a map value.
 ( | )
 
 .Syntax
-`( _Exp_~1~ : _Exp_~2~ | _Gen_~1~, _Gen_~2~, ... )`
+`( Exp~1~ : Exp~2~ | Gen~1~, Gen~2~, ... )`
 
 .Types
 

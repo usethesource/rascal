@@ -35,7 +35,7 @@ Finally, each `alias` is structurally equivalent to one or more specific other t
 
 
 The fact that the types are ordered in a lattice makes it possible to define a *Least Upper Bound* (lub) on types.
-Given two types _T_~1~ and _T_~2~, `lub(_T_~1~, _T_~2~)` is defined as the nearest common super type of _T_~1~ and _T_~2~
+Given two types _T_~1~ and _T_~2~, `lub(T~1~, T~2~)` is defined as the nearest common super type of _T_~1~ and _T_~2~
 in the type lattice.
 
 ## Advanced Features

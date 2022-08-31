@@ -33,7 +33,7 @@ In http://en.wikipedia.org/wiki/Relational_algebra[database theory], a relation 
 
 
 In Rascal, a relation is a set of tuples and is characterized by the type:
-`rel[_D_~1~ _Name_~1~, _D_~2~ _Name_~2~, ..., _D_~n~ _Name_~n~]` 
+`rel[D~1~ Name~1~, D~2~ Name~2~, ..., D~n~ Name~n~]` 
 See [Relation Values]((Rascal:Values-Relation)) and  for a description of relations and their operators
 (since relations are sets all set operators also apply to them, see [Set Values]((Rascal:Values-Set)))
 and [functions on relations]((Libraries:Libraries-Relation))

@@ -9,28 +9,28 @@ A _TypeDescriptor_ is one of
 
 *  `bool`
 *  `int`
-*  `int[_Max_]`
-*  `int[_Min_,_Max_]`
+*  `int[Max]`
+*  `int[Min,Max]`
 *  `real`
-*  `real[_Max_]`
-*  `real[_Min_,_Max_]`
+*  `real[Max]`
+*  `real[Min,Max]`
 *  `num`
-*  `num[_Max_]`
-*  `num[_Min_,_Max_]`
+*  `num[Max]`
+*  `num[Min,Max]`
 *  `str`
 *  `loc`
 *  `datetime`
-*  `list[_TypeDescriptor_]`
-*  `set[_TypeDescriptor_]`
-*  `map[_TypeDescriptor_,_TypeDescriptor_]`
-*  `tuple[_TypeDescriptor_~1~, _TypeDescriptor_~2~, ...]`
+*  `list[TypeDescriptor]`
+*  `set[TypeDescriptor]`
+*  `map[TypeDescriptor,TypeDescriptor]`
+*  `tuple[TypeDescriptor~1~, TypeDescriptor~2~, ...]`
 *  `void`
 *  `value`
 *  `arb`
-*  `arb[_Int_]`
-*  `arb[_Int_, _TypeDescriptor_~1~, _TypeDescriptor_~2~]`
-*  `arb[_TypeDescriptor_~1~, _TypeDescriptor_~2~]`
-*  `same[_TypeName_]`
+*  `arb[Int]`
+*  `arb[Int, TypeDescriptor~1~, TypeDescriptor~2~]`
+*  `arb[TypeDescriptor~1~, TypeDescriptor~2~]`
+*  `same[TypeName]`
 
 .Types
 
@@ -47,7 +47,7 @@ extensions that are helpfull when generating values:
 *  `arb` describes an arbitrary type. The choice can be restricted by:
    **  given an integer that defines the maximal depth of the type.
    **  given an explicit list of types to choose from.
-*  `same[_Name_]` refers back to a type that was used earlier on in the same question.
+*  `same[Name]` refers back to a type that was used earlier on in the same question.
 
 .Examples
 

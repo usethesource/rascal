@@ -195,25 +195,6 @@ list[Output] compileMarkdown([/^<prefix:.*>~<digits:[0-9]+>~<postfix:.*>$/, *str
 list[Output] compileMarkdown([/^<prefix:.*>~<digits:[aeh-pr-vx]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
   = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><subscripts["<char(ch)>"]><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
-private map[str, str] subscripts 
-  =  (  "a" : "\u2090",
-        "e" : "\u2091",
-        "h" : "\u2095",
-        "i" : "\u1d62",
-        "j" : "\u2c7c",
-        "k" : "\u2096",
-        "l" : "\u2097",
-        "m" : "\u2098",
-        "n" : "\u2099",
-        "o" : "\u2092",
-        "p" : "\u209a",
-        "r" : "\u1d63",
-        "s" : "\u209b",
-        "t" : "\u209c",
-        "u" : "\u1d64",
-        "v" : "\u1d65",
-        "x" : "\u2093"
-  );
         
 @synopsis{resolve ((links)) and [labeled]((links))}
 list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
@@ -242,10 +223,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
   return [err(warning("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
 }
 
-
- 
-
-@synopsis{this supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus}
+@synopsis{This supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus}
 list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   if (title == ".Details" || /^##\s*Details/ := title) {
     // details need to be collected and then skipped in the output
@@ -317,7 +295,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       line = "";
 
       for (outLine <- split("\n", stdout)) {
-        append OUT : out("<trim(outLine)>");
+        append OUT : out("<outLine>");
       }
     }
 
@@ -370,3 +348,23 @@ list[str] filterErrors([/^warning, ambiguity/, *str rest]) = filterErrors(rest);
 list[str] filterErrors([/^Generating parser/, *str rest]) = filterErrors(rest);
 default list[str] filterErrors([str head, *str tail]) = [head, *filterErrors(tail)];
 list[str] filterErrors([]) = [];
+
+private map[str, str] subscripts 
+  =  (  "a" : "\u2090",
+        "e" : "\u2091",
+        "h" : "\u2095",
+        "i" : "\u1d62",
+        "j" : "\u2c7c",
+        "k" : "\u2096",
+        "l" : "\u2097",
+        "m" : "\u2098",
+        "n" : "\u2099",
+        "o" : "\u2092",
+        "p" : "\u209a",
+        "r" : "\u1d63",
+        "s" : "\u209b",
+        "t" : "\u209c",
+        "u" : "\u1d64",
+        "v" : "\u1d65",
+        "x" : "\u2093"
+  );

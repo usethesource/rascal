@@ -37,7 +37,7 @@ The Lisp variant to be implemented is the following subset of the http://en.wiki
 | _number_ |
 | A number evaluates to itself. Example: `12` |
 | http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.2[quotation] |
-| `(quote _exp_)` |
+| `(quote exp)` |
 | Return the _exp_ literally; do not evaluate it. Example: |
   `(quote (a b c)) =>; (a b c)` |
 | http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.5[conditional] |
@@ -52,12 +52,12 @@ The Lisp variant to be implemented is the following subset of the http://en.wiki
   `define` or as a parameter to an enclosing procedure). |
    Example: `(set! x2 (* x x))` |
 | http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_sec_5.2[definition] |
-| `(define _var_ _exp_)` |
+| `(define var exp)` |
 | Define a new variable in the innermost environment and give it |
   the value of evaluating the expression _exp_.  |
-  Examples: `(define r 3)` _or_ `(define square (lambda (x) (* x x)))` |
+  Examples: `(define r 3)` or `(define square (lambda (x) (* x x)))` |
 | http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.4[procedure] |
-| `(lambda (_var..._) _exp_)` |
+| `(lambda (_var..._) exp)` |
 | Create a procedure |
   with parameter(s) named _var..._ and the expression as the body. |
   Example: `(lambda (r) (* r r))` |

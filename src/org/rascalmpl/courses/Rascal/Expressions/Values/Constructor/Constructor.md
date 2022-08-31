@@ -4,13 +4,13 @@
 Constructors create values for user-defined datatypes (Algebraic Datatypes).
 
 .Syntax
-`_Name_ ( _Exp_~1~, _Exp_~2~, ... )`
+`Name ( Exp~1~, Exp~2~, ... )`
 
 .Types
 
 //
 
-| `_Exp~1~_` | `_Exp~2~_` | ... |  `_Name_ ( _Exp~1~_, _Exp~2~_, ... )`  |
+| `_Exp~1~_` | `_Exp~2~_` | ... |  `Name ( _Exp~1~_, _Exp~2~_, ... )`  |
 | --- | --- | --- | --- |
 | `_T~1~_`   | `_T~2~_`   | ... | Depends on ADT declaration           |
 

@@ -5,7 +5,7 @@ Generate a local table of contents of current concept.
 
 .Syntax
 
-`loctoc::[_Depth_]`
+`loctoc::[Depth]`
 
 .Types
 

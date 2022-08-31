@@ -199,11 +199,11 @@ default tuple[list[str] typeNames, set[IdRole] idRoles] structGetTypeNamesAndRol
     return <[], {}>;               //<2>
 }
 ```
-<1> A `structType(_name_)` has a name that is bound in the role `structId()`. Return the name and role.
+<1> A `structType(name)` has a name that is bound in the role `structId()`. Return the name and role.
 <2> Any other type is unnamed; return an empty list of type names.
 
 Another example is the Rascal type checker, where we need to model the case that all abstract data types are a subtype of `Tree`.
-In that case `getTypeNamesAndRole` will return `<["A", "Tree"], _roles_>` for an abstract data type `A`. The net effect
+In that case `getTypeNamesAndRole` will return `<["A", "Tree"], roles>` for an abstract data type `A`. The net effect
 is that when the search for a name in `A` fails, the search is continued in `Tree`.
 
 === getTypeInTypeFromDefine

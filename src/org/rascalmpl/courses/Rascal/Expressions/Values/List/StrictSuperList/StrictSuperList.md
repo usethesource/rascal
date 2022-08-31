@@ -7,7 +7,7 @@ The strict super list operator on lists.
 >
 
 .Syntax
-`_Exp_~1~ > _Exp_~2~`
+`Exp~1~ > Exp~2~`
 
 .Types
 
@@ -23,7 +23,7 @@ The strict super list operator on lists.
 .Details
 
 .Description
-Yields `true` if the value of _Exp_~2~ is a strict sublist of the value of _Exp_~1~,  and `false` otherwise.
+Yields `true` if the value of Exp~2~ is a strict sublist of the value of Exp~1~,  and `false` otherwise.
 
 .Examples
 ```rascal-shell

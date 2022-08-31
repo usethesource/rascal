@@ -7,15 +7,15 @@ Test whether the value of an expression is defined.
 ?
 
 .Syntax
-`_Exp_ ?`
+`Exp ?`
 
 .Types
 
 //
 
-| `_Exp_` | `_Exp_ ?`  |
+| `Exp` | `Exp ?`  |
 | --- | --- |
-|  `_T_`   |   `bool`      |
+|  `T`   |   `bool`      |
 
 
 .Function

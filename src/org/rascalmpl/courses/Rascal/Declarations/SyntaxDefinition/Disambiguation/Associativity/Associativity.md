@@ -8,9 +8,9 @@ left right assoc non-assoc
 
 .Syntax
 
-*  `syntax _Exp_ = _Assoc_ _Label_ _Symbol~1~_ _Symbol~2~_ ...`
-*  `syntax _Exp_ = _Assoc_ ( _Alt~1~_ | _Alt~2~_ | ... )`
-*  `syntax _Exp_ = _Assoc_ _Symbol~1~_ _Symbol~2~_ ...`
+*  `syntax Exp = Assoc Label _Symbol~1~_ _Symbol~2~_ ...`
+*  `syntax Exp = Assoc ( _Alt~1~_ | _Alt~2~_ | ... )`
+*  `syntax Exp = Assoc _Symbol~1~_ _Symbol~2~_ ...`
  
 
 Here _Assoc_ is one of: `left`, `right`, `assoc` or `non-assoc`. See ((Syntax Definition))s on how to define alternatives and ((SyntaxDefinition-Symbol))s.
@@ -30,7 +30,7 @@ The semantics are that an associativity modifier will instruct the parser to dis
 *  `right` will disallow productions to directly nest in their _left-most_ position.
 *  `non-assoc` will disallow productions to directly nest in either their left-most or their right-most position.
 
-When associativity is declared for a group of productions, e.g. `left ( _Alt_~1~ | _Alt ~2~_ | _Alt_~3~)`, then each alternative will be mutually associative to each other alternative _and itself_. If an alternative of a group defines its own local associativity, as in `left ( right _Alt_~1~ | _Alt_~2~ | _Alt_~3~)`, then _Alt_~1~ is right associative with respect to itself and left associative with respect to all others in the group. 
+When associativity is declared for a group of productions, e.g. `left ( Alt~1~ | _Alt ~2~_ | Alt~3~)`, then each alternative will be mutually associative to each other alternative _and itself_. If an alternative of a group defines its own local associativity, as in `left ( right Alt~1~ | Alt~2~ | Alt~3~)`, then _Alt_~1~ is right associative with respect to itself and left associative with respect to all others in the group. 
 
 A finer point is that associativity has no effect on any other position than the left-most and right-most position (see also ((Disambiguation-Priority))). This is to guarantee that associativity does not introduce parse errors. The following tables explain when an associativity declaration filters, given two productions `father` and `child` that share an associativity group.
 | If `left (Parent | Child)`      | Parent None: `E = "[" E "]"` | Parent Left-most: `E = E "*"` |Parent  Right-most: `E = "*" E` | Parent Both: `E = E "*" E`   |

@@ -7,7 +7,7 @@ Membership test on set values.
 in
 
 .Syntax
-`_Exp_~1~ in _Exp_~2~`
+`Exp~1~ in Exp~2~`
 
 .Types
 
@@ -22,7 +22,7 @@ in
 .Details
 
 .Description
-Yields `true` if the value of _Exp_~1~ occurs as element in the value of _Exp_~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
+Yields `true` if the value of Exp~1~ occurs as element in the value of Exp~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
 
 .Examples
 ```rascal-shell

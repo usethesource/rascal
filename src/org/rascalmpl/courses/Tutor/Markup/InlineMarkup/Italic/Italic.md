@@ -18,7 +18,7 @@ _ _Text_ _
 .Description
 
 .Examples
-`\_italic_` gives: _italic_.
+`\italic` gives: _italic_.
 
 .Benefits
 

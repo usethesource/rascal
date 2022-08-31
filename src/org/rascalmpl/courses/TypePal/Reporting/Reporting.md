@@ -22,7 +22,7 @@ Here,
 
 The following insertion directives are supported:
 
-* `%t`: insert the _type_ of the next element of `args`.
-* `%v`: insert the _value_ of the next element of `args`.
-* `%q`: quote and insert the _type_ or _value_ of the next element of `args`.
+* `%t`: insert the type of the next element of `args`.
+* `%v`: insert the value of the next element of `args`.
+* `%q`: quote and insert the type or value of the next element of `args`.
 * `%%`: insert the character `%`.

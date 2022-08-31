@@ -7,7 +7,7 @@ Group statements into a block.
 { } ;
 
 .Syntax
-`{ _Statement_~1~; ... ; _Statement_~n~ }`
+`{ Statement~1~; ... ; Statement~n~ }`
 
 .Types
 

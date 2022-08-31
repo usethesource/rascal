@@ -17,8 +17,8 @@ Assign to multiple assignables.
 .Details
 
 .Description
-First the value _Exp_ is determined and should be a tuple of the form `< _V_~1~, _V_~2~, ..., _V_~n~ >`.
-Next the assignments `_Assignable_~i~ = _V_~i~` are performed for 1 \<= i \<= n.
+First the value _Exp_ is determined and should be a tuple of the form `< V~1~, V~2~, ..., V~n~ >`.
+Next the assignments `Assignable~i~ = V~i~` are performed for 1 \<= i \<= n.
 
 .Examples
 ```rascal-shell

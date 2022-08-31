@@ -7,7 +7,7 @@ Reified types are types that can be used as values.
 # type &
 
 .Syntax
-`# _Name_`
+`# Name`
 
 .Types
 `type`

@@ -7,7 +7,7 @@ Reduce generated values to a single value.
 ( | ) it
 
 .Syntax
-`( _InitExp_ | _RedExp_ | _Gen_~1~, _Gen_~2~, ... )`
+`( InitExp | RedExp | Gen~1~, Gen~2~, ... )`
 
 .Types
 

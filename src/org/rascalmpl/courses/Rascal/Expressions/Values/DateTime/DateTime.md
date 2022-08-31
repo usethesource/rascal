@@ -8,9 +8,9 @@ $ date datetime time
 
 .Syntax
 
-*  `$` `_Date_` `$`
-*  `$` `_Time_` `$`
-*  `$` `_DateTime_` `$`
+*  `$` `Date` `$`
+*  `$` `Time` `$`
+*  `$` `DateTime` `$`
 
 .Types
 `datetime`
