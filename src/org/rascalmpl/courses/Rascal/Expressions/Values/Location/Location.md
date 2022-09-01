@@ -7,6 +7,7 @@
 | ( )
 
 .Syntax
+
 `| Uri | ( O, L, < BL, BC > , < EL,EC > )`
 where:
 
@@ -21,8 +22,8 @@ where:
 
 The part following the second pipe symbol (`|`) is optional.
 
-
 .Types
+
 `loc`
 
 .Function
@@ -114,15 +115,17 @@ Note that this is equivalent to using the `home` scheme:
 |home://pico.trm|(0,1,<2,3>,<4,5>)
 ```
 
+<!--
 //FIXME: This throws exceptions
 //Accessing a file `src/HelloWorld.java` in a project with the name `example-project` in the currently running Eclipse is done as follows:
 //[source,rascal-shell]
 //----
 //|project://example-project/src/HelloWorld.java|
-//----
+//---- -->
 
 
 You could read a webpage:
+
 ```rascal-shell
 import IO;
 println(readFile(|http://www.example.org|))
@@ -133,13 +136,13 @@ Addition on locations creates longer paths:
 x = |tmp://myTempDirectory|;
 x += "myTempFile.txt";
 ```
-
+<!--
 //FIXME: this throws exceptions
 //Check the contents of a folder:
 //[source,rascal-shell]
 //----
 //|project://example-project/src|.ls
-//----
+//---- -->
 
 .Benefits
 
