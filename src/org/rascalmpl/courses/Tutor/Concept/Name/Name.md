@@ -4,10 +4,9 @@
 The display (presentation) name of a concept.
 
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 # _ConceptName_
-----
+```
 
 .Types
 
@@ -31,11 +30,10 @@ Name is *mandatory*.
 .Examples
 The first line of this concept is:
 
-[source,subs="verbatim,quotes"]
-----
+```
 .Name
 Name
-----
+```
 
 .Benefits
 

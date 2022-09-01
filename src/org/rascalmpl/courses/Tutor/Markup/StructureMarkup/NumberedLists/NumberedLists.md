@@ -33,11 +33,10 @@ See http://asciidoctor.org/docs/user-manual/#ordered-lists for the precise rules
 .Examples
 The input
 
-[source]
-----
+```
 . First item.
 . Second item.
-----
+```
 
 will produce:
 
@@ -46,13 +45,12 @@ will produce:
 
 The input
 
-[source]
-----
+```
 . First item.
   ..  First subitem.
   ..  Second subitem.
 . Second item
-----
+```
 
 will produce:
 

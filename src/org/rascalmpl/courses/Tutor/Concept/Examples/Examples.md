@@ -4,11 +4,10 @@
 Examples to illustrate the concept.
 
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 .Examples
 _MarkedText_
-----
+```
 
 .Types
 

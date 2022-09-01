@@ -4,13 +4,12 @@
 Multiple-choice question.
 
 .Syntax
-[source,subs="quotes"]
-----
+```
 QChoice _OptName_: _MarkedText_ 
 _GoodOrBad_~1~: _Choice_~1~
 _GoodOrBad_~2~: _Choice_~2~
 ...
-----
+```
 
 .Types
 
