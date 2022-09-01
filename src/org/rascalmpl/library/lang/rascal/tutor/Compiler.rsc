@@ -162,7 +162,7 @@ list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
 list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
-  = [ out("# <title> {<fragment(pcfg.currentRoot, pcfg.currentFile)>}"),
+  = [ out("## <title> {<fragment(pcfg.currentRoot, pcfg.currentFile)>}"),
       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, dtls)
     ];
 
@@ -186,6 +186,10 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
       err(warning("TOC is empty. .Details section is missing?", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>)))
       | dtls == [] 
     ];
+
+@synopsis{implement subscript syntax for digits}
+list[Output] compileMarkdown([/^<prefix:.*>~<digits:[0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><char(0x2080 /* that's `₀` */  - 48 /* that's `0` */ + ch)><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
 @synopsis{implement subscript syntax for digits}
 list[Output] compileMarkdown([/^<prefix:.*>~<digits:[0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
@@ -225,7 +229,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
 
 @synopsis{This supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus}
 list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
-  if (title == ".Details" || /^##\s*Details/ := title) {
+  if (title == ".Details" || /^##+\s*Details/ := title) {
     // details need to be collected and then skipped in the output
     if ([*str lines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3] := rest2) {
        return [
@@ -240,7 +244,7 @@ list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *s
   else {
     // just a normal section header 
     return [
-      *[out("## <title> <rest>") | skipEmpty(rest2) != [] && [/^\s*\.[A-Z][a-z]*.*/, *_] !:= skipEmpty(rest2)],
+      *[out("### <title> <rest>") | skipEmpty(rest2) != [] && [/^\s*\.[A-Z][a-z]*.*/, *_] !:= skipEmpty(rest2)],
       *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec, ind, dtls)
     ];
   }
