@@ -5,11 +5,10 @@ Include an image.
 
 .Syntax
 
-[source,subs="quotes"]
-----
+```
 image::_File_[]
 image::_File_[_AlternateName_, _Width_, _Height_, link=_URI_]
-----
+```
 
 .Types
 
@@ -30,19 +29,17 @@ For further styling of images, see http://asciidoctor.org/docs/user-manual/#imag
 
 .Examples
 ##  Example 1 
-[source,subs=""]
-----
+```
 ![]((dandelion.jpg))
-----
+```
 will produce:
 
 ![]((dandelion.jpg))
 
 ##  Example 2 
-[source,subs=""]
-----
+```
 ![]((dandelion.jpg))
-----
+```
 
 ![]((dandelion.jpg))
 
@@ -51,10 +48,9 @@ produces a reduced image floating at the right.
 ##  Example 3 
 
 And, finally,
-[source]
-----
+```
 ![]((dandelion.jpg))
-----
+```
 produces a clickable image that links back to the source of the image.
 
 ![]((dandelion.jpg))

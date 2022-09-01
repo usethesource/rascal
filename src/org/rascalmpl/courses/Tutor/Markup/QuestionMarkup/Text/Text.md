@@ -4,13 +4,12 @@
 A text question with a free-format answer.
 
 .Syntax
-[source,subs="quotes"]
-----
+```
 QText _OptName_: _Text_
 a: _Answer_~1~
 a: _Answer_~2~
 ...
-----
+```
 
 .Types
 

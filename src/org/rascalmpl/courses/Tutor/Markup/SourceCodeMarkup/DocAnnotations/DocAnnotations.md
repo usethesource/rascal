@@ -16,12 +16,11 @@ The Tutor supports and expands inline concept descriptions for the following dec
 The name of this module is extracted.
 The header of the concept definition is automatically generated and consists of:
 
-[source,subs="quotes"]
-----
+```
 # _Module name_
 .Usage
 _Import declaration needed to use this module_
-----
+```
 
 ## Function Declaration
 
@@ -29,14 +28,13 @@ The signatures of this function and of all directly following functions with the
 The signatures are placed in an itemized list (unless there is only one).
 The header of the concept definition is automatically generated and consists of:
 
-[source,subs="quotes"]
-----
+```
 # _Function name_
 .Function
 _Function signature_
 .Usage
 _Import declaration needed to use this module_
-----
+```
 
 ## Data Declaration
 
@@ -44,36 +42,33 @@ The signatures of this data declaration and of all directly following data decla
 are collected.
 The header of the concept definition is automatically generated and consists of:
 
-[source,subs="quotes"]
-----
+```
 # _Data declaration name_
 .Type
 _Data declarations_
 .Usage
 _Import declaration needed to use this module_
-----
+```
 
 ## Annotation Declaration
 
 The signature of this annotation declaration is collected.
 The header of the concept definition is automatically generated and consists of:
 
-[source,subs="quotes"]
-----
+```
 # _Annotation declaration name_
 .Type
 _Annotation declarations_
 .Usage
 _Import declaration needed to use this module_
-----
+```
 
 .Examples
 We only give an example of documenting a simple function. Read the source code of Rascal library files for other ones. 
 
 Consider the source code of the now function in the `DateTime` library.
 
-[source]
-----
+```
   @doc{
   .Synopsis
   Get the current datetime.
@@ -86,13 +81,12 @@ Consider the source code of the now function in the `DateTime` library.
   }
   @javaClass{org.rascalmpl.library.DateTime}
   public java datetime now();
-----
+```
   
   
 This will be expanded to
 
-[source]
-----
+```
   # now
   .Function
   `datetime now()`
@@ -107,7 +101,7 @@ This will be expanded to
   import DateTime;
   now();
 ```
-----
+```
 
 and the final result is link:/Libraries#Prelude-DateTime#now[now].
 

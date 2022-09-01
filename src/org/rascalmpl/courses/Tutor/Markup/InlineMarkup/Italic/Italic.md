@@ -4,10 +4,9 @@
 Create _italic_ text.
 
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 _ _Text_ _
-----
+```
 
 .Types
 

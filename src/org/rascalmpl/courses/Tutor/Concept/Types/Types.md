@@ -4,11 +4,10 @@
 Part of the synopsis that describes any types or typing rules introduced by this concept.
 
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 .Types
 _MarkedText_
-----
+```
 
 .Types
 
@@ -24,11 +23,10 @@ The description can be just text, but in many cases a table is useful to describ
 .Examples
 Here is a type description of an if-then-else statement:
 
-[source,subs="verbatim,quotes"]
-----
+```
 .Types
 | `Exp` | `if ( Exp ) Statement;`  |
-| --- | --- |
+``` | 
 | `bool`  |  `void`                      |
 
 
