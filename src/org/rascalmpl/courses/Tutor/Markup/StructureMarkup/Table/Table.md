@@ -4,10 +4,9 @@
 Mark up for a table.
 
 .Syntax
-[source,subs="quotes"]
-----
+```
 | _Header_~1~ | _Header_~2~ | ... |
-| --- | --- | --- |
+``` | 
 | _Entry_~11~  | _Entry_~12~  | ... |
 | _Entry_~21~  | _Entry_~22~  | ... |
 

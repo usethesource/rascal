@@ -4,11 +4,10 @@
 Gives a concise explanation of a concept.
 
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 .Description
 _MarkedText_
-----
+```
 
 .Types
 
@@ -22,11 +21,10 @@ The `Description` section gives a concise explanation of a concept.
 .Examples
 The `Description` section of the concept `Description` (= the previous section) reads as follows:
 
-[source,subs="verbatim,quotes"]
-----
+```
 .Description
 The `Description` section gives a concise explanation of a concept.
-----
+```
 
 .Benefits
 

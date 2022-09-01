@@ -4,11 +4,10 @@
 One-line summary of the concept that is usable as a tool tip or table of contents entry
 
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 .Synopsis
 _MarkedText_
-----
+```
 
 .Types
 
