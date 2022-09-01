@@ -142,6 +142,7 @@ swap(<"wed", 3>);
 ```
 
 Here we use an overloaded definition with incomparable patterns:
+
 ```rascal-shell
 int f(int i) = 1;
 int f(real r) = 2;
@@ -150,6 +151,7 @@ f(0.0);
 ```
 
 And we may use `default`, as in:
+
 ```rascal-shell
 int f(0) = 1;
 default int f(int n) = n * f(n - 1);
@@ -160,18 +162,19 @@ f(2);
 In combination with an ((Algebraic Data Type)), which defines `default` functions implicitly for every alternative, 
 we can define canonicalization functions. The same holds for ((Syntax Definition))s, see ((Action))s.
 
-//This definition implies a default function for t(), f() and neg(B):
-//[source,rascal-shell,continue]
-//----
-//data B = t() | f() | neg(B);
-//----
-//the following definition will remove any nested neg before it is even constructed:
-//[source,rascal-shell,continue]
-//----
-//B neg(neg(B b)) = b;
-//neg(t());
-//neg(neg(f()));
-//----
+This definition implies a default function for t(), f() and neg(B):
+
+```rascal-shell,continue
+data B = t() | f() | neg(B);
+```
+
+The following definition will remove any nested neg before it is even constructed:
+
+```rascal-shell,continue
+B neg(neg(B b)) = b;
+neg(t());
+neg(neg(f()));
+```
 
 .Benefits
 
