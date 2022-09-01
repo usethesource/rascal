@@ -324,8 +324,7 @@ Use `runtests(_list of TTL files_, _start non-terminal_, _function to create a T
 
 Here is a sample script:
 
-[source, TTL]
-----
+```
 test Ok1 [[ var x = 1; ]]
 
 test Ok2 [[ var x = 1; var y = x + 2; ]]
@@ -347,13 +346,12 @@ expect { "Equal types required, found `int` and `bool`" }
 
 test If3 [[ var x = if 1 then 2 else 3; ]] 
 expect { "Condition should be Boolean, found `int`" }
-----
+```
 
 
 and here is the produced output:
 
-[source]
-----
+```
 Test Ok1: true
 Test Ok2: true
 Test Undef1: true
@@ -364,4 +362,4 @@ Test If1: true
 Test If2: true
 Test If3: true
 Test summary: 9 tests executed, 9 succeeded, 0 failed
-----
+```

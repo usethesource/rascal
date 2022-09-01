@@ -4,10 +4,9 @@
 Create *bold* text.
 
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 \*_Text_*
-----
+```
 
 .Types
 

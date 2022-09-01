@@ -4,11 +4,10 @@
 Explcitly order the subconcepts of the current concept.
 
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 .Details
 _ConceptNames_
-----
+```
 
 .Types
 
@@ -29,11 +28,10 @@ in alphabetical order.
 In ((Concept)) we want to order the details in the order as they appear in the concept description.
 Its `Details` section is therefore:
 
-[source,subs="verbatim,quotes"]
-----
+```
 .Details
 Name Details Syntax Types Function Synopsis Description Examples Benefits Pitfalls Questions
-----
+```
 
 .Benefits
 

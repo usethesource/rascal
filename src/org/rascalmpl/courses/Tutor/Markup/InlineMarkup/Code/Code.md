@@ -5,10 +5,9 @@ Create inline code fragments.
 
 .Syntax
 .Syntax
-[source,subs="verbatim,quotes"]
-----
+```
 \`MarkedText`
-----
+```
 
 .Types
 
