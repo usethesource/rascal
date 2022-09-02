@@ -24,7 +24,7 @@ render(e);
 
 (we add the shrink to leave some space for thick lines and shadows below).
 
-Change the style of its border using [lineStyle]((Libraries:Properties-lineStyle)):
+Change the style of its border using [lineStyle]((Library:Properties-lineStyle)):
 ```rascal-figure,width=,height=,file=e2.png
                 e = ellipse(size(200,100), shrink(0.8), lineStyle("dot"));
 render(e);
@@ -33,7 +33,7 @@ render(e);
 ![]((e2.png))
 
 
-Change the thickness of its border using [lineWidth]((Libraries:Properties-lineWidth)):
+Change the thickness of its border using [lineWidth]((Library:Properties-lineWidth)):
 ```rascal-figure,width=,height=,file=e3.png
                 e = ellipse(size(200,100), shrink(0.8), lineWidth(5));
 render(e);
@@ -42,7 +42,7 @@ render(e);
 ![]((e3.png))
 
 
-Change the color of its border using [lineColor]((Libraries:Properties-lineColor)):
+Change the color of its border using [lineColor]((Library:Properties-lineColor)):
 ```rascal-figure,width=,height=,file=e4.png
                 e = ellipse(size(200,100), shrink(0.8), lineColor("blue"));
 render(e);
@@ -51,7 +51,7 @@ render(e);
 ![]((e4.png))
 
 
-Change the color of its area using [fillColor]((Libraries:Properties-fillColor)):
+Change the color of its area using [fillColor]((Library:Properties-fillColor)):
 ```rascal-figure,width=,height=,file=e5.png
                 e = ellipse(size(200,100), shrink(0.8), fillColor("yellow"));
 render(e);
@@ -60,7 +60,7 @@ render(e);
 ![]((e5.png))
 
 
-Add a shadow using [shadow]((Libraries:Properties-shadow)):
+Add a shadow using [shadow]((Library:Properties-shadow)):
 ```rascal-figure,width=,height=,file=e6.png
                 e = ellipse(size(200,100), shrink(0.8), shadow(true));
 render(e);
@@ -69,7 +69,7 @@ render(e);
 ![]((e6.png))
 
 
-Add the color of the shadow using [shadowColor]((Libraries:Properties-shadowColor)):
+Add the color of the shadow using [shadowColor]((Library:Properties-shadowColor)):
 ```rascal-figure,width=,height=,file=e7.png
                 e = ellipse(size(200,100), shrink(0.8), shadow(true), shadowColor("grey"));
 render(e);

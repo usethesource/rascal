@@ -11,10 +11,10 @@ import lang::rascal::tutor::apidoc::DeclarationInfo;
 
 @synopsis{Extract declaration information from a Rascal module at given location.}
 list[DeclarationInfo] extractInfo(loc moduleLoc)
-  = extractInfo(moduleLoc, lastModified(moduleLoc));
+  = doExtractInfo(moduleLoc, lastModified(moduleLoc));
 
 @memo
-private list[DeclarationInfo] extractInfo(loc moduleLoc, datetime _/*lastModified*/){
+private list[DeclarationInfo] doExtractInfo(loc moduleLoc, datetime _/*lastModified*/){
     M = parseModuleWithSpaces(moduleLoc).top;
     return extractModule(M);
 }

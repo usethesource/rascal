@@ -36,12 +36,12 @@ with an example value of each (`CT`, respectively, `H`).
 <2> Introduces an empty map to maintain the frequencies.
 <3> Defines a visit of argument `N`; it traverses the complete value of `N`.
 <4> Defines the case that we encounter a node and we update its frequency count.
-  First the name of the constructor is retrieved (using [getName]((Libraries:Node-getName))) and then the
+  First the name of the constructor is retrieved (using [getName]((Library:Node-getName))) and then the
   frequency is updated. The [isDefined]((Rascal:Assignment-IsDefined)) operator is used to provide a default value of 0 when
   the name was not yet in the map.
 <5> The map `freq` is returned as result.
 <6> Defines a variant `countRelevant`; it gets is an extra argument of relevant constructors
-names that is used to filter the map that is returned by `count` using [domainR]((Libraries:Map-domainR)).
+names that is used to filter the map that is returned by `count` using [domainR]((Library:Map-domainR)).
 
 ```rascal-shell
 import demo::common::CountConstructors;

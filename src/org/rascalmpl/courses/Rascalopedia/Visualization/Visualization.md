@@ -24,7 +24,7 @@ in a visual form. There are several subareas:
 * http://en.wikipedia.org/wiki/Software_visualization[Software Visualization]: deals with facts related to software.
 
 
-The [Visualization Library]((Libraries:Libraries-Vis)) library provides a framework for interactive visualization.
+The [Visualization Library]((Library:Libraries-Vis)) library provides a framework for interactive visualization.
 Simple examples can be found in [visualization recipes]((Recipes:Recipes-Visualization)).
 
 .Examples

@@ -37,11 +37,12 @@ str makeName(str name){
 
 str makeUsage(str name) =
     "### Usage
+    '
     '`import <replaceAll(name, "/", "::")>;`
     '";
 
 str makeSignature(list[str] overloads) =
-    size(overloads) == 1 ? "`<overloads[0]>`" : "<for(s <- overloads){>* `<s>`\n<}>"; 
+    size(overloads) == 1 ? "`<overloads[0]>`" : "<for(s <- overloads){>* ``<s>``\n<}>"; 
     
 str declInfo2Doc(str parent, moduleInfo(str moduleName, loc src, str synopsis, str doc), list[str] overloads) =
     "

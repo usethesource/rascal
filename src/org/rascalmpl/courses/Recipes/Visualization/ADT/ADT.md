@@ -32,7 +32,7 @@ include::{LibDir}demo/vis/VisADT.rsc[tags=module]
 
 
 For the example `ColoredTree` `rb` we can set a standard 
-(see []((Libraries:std))) [size]((Libraries:Properties-size)) and standard [gap]((Libraries:Properties-gap)):
+(see []((Library:std))) [size]((Library:Properties-size)) and standard [gap]((Library:Properties-gap)):
 ```rascal-figure,width=,height=,file=a1.png
                 import demo::vis::VisADT;
 render(space(visColoredTree(rb), std(size(30)), std(gap(30))));
@@ -50,7 +50,7 @@ Note that:
 
 
 Some further custumizations are possible. By default, the tree visualization 
-uses [manhattan]((Libraries:Properties-manhattan)) style. If we turn it off
+uses [manhattan]((Library:Properties-manhattan)) style. If we turn it off
 ```rascal-figure,width=,height=,file=a2.png
                 import demo::vis::VisADT;
 render(space(visColoredTree(rb), std(size(30)), std(gap(30)), std(manhattan(false))));
@@ -61,7 +61,7 @@ the result is:
 ![]((a2.png))
 
 
-It is also possible to change the [orientation]((Libraries:Properties-orientation)) of the tree and draw it, for example, from left to right:
+It is also possible to change the [orientation]((Library:Properties-orientation)) of the tree and draw it, for example, from left to right:
 ```rascal-figure,width=,height=,file=a3.png
                 import demo::vis::VisADT;
 render(space(visColoredTree(rb), std(size(30)), std(gap(30)), std(orientation(leftRight()))));
