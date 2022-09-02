@@ -41,7 +41,7 @@ data Message(str cause="");
 
 public PathConfig defaultConfig
   = pathConfig(
-  bin=|home:///doctestt|,
+  bin=|target://rascal/doc|,
   srcs=[
     |project://rascal/src/org/rascalmpl/courses/Rascalopedia|,
     |project://rascal/src/org/rascalmpl/courses/CompileTimeErrors|,
@@ -86,17 +86,18 @@ rel[str, str] createConceptIndex(loc src)
       <"<src.file>:<cf.file>", "/<src.file>.md<fr>">,
 
       // `((Rascal:Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
-      *{<"<src.file>:<f.parent.parent.file>-<cf.file>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
+      *{<"<capitalize(src.file)>:<f.parent.parent.file>-<cf.file>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
-      <"<src.file>:<fr[1..]>", fr>
+      <"<capitalize(src.file)>:<fr[1..]>", fr>
 
     | loc f <- find(src, isConceptFile), fr := fragment(src, f), cf := f[extension=""]
     }
   +
-    { <"<f.parent.file>-<f.file>", "/assets/<unid.authority>.<f.extension>">,
-      <f.file, "/assets/<unid.authority>.<f.extension>">
-    |  loc f <- find(src, isImageFile), loc unid := uuid()
+    { <"<f.parent.file>-<f.file>", "/assets/<md5>.<f.extension>">,
+      <f.file, "/assets/<md5>.<f.extension>">,
+      <"<capitalize(src.file)>:<f.file>", "/assets/<md5>.<f.extension>">
+    |  loc f <- find(src, isImageFile), md5 := md5HashFile(f)
     }
     ;
 
