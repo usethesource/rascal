@@ -6,7 +6,7 @@ import IO;
 import String;
 
 void ad2md(loc root) {
-    for (f <- find(root, "md"))
+    for (f <- find(root, "rsc"))
       convertFile(f);
 }
 
@@ -19,7 +19,7 @@ void convertFile(loc file) {
     writeFileLines(file, result);
 }
 
-// [map functions]((Libraries:Prelude-Map))
+// [map functions]((Library:Prelude-Map))
 str convertLine(/<prefix:.*>link:\/<course:[A-Za-z0-9]+>#<concept:[A-Za-z0-9\-]+>\[<title:[^\]]*>\]<postfix:.*$>/) 
   = convertLine("<prefix>[<title>]((<trim(course)>:<trim(concept)>))<postfix>");
 
@@ -54,7 +54,11 @@ str convertLine(/^<prefix:.*>kbd:\[<keys:.*?>\]<postfix:.*$>/)
 str convertLine(/^\ \ \ \ \*\*<postfix:.*$>/)
   = convertLine("    *<postfix>");
 
+// ((Library:Libraries
 str convertLine(/^<prefix:.*>\(\(Libraries:<postfix:.*$>/)
+  = convertLine("<prefix>((Library:<postfix>");
+
+str convertLine(/^<prefix:.*>\(\(Library:Libraries-<postfix:.*$>/)
   = convertLine("<prefix>((Library:<postfix>");
 
 // italics within backquotes is not supported anymore. removing underscores for readability's sake
