@@ -78,7 +78,7 @@ The following operators are defined for DateTime:
 The following functions are defined for DateTime:
 loctoc::[Rascal/Libraries/Prelude/DateTime,1]
 
-There are also [library functions]((Libraries:Prelude-DateTime)) available for DateTime.
+There are also [library functions]((Library:Prelude-DateTime)) available for DateTime.
 
 .Examples
 

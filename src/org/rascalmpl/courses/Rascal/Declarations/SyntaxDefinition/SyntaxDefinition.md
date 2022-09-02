@@ -69,7 +69,7 @@ The latter two represent ((Disambiguation)) constructs that you should read more
 
 Alternatives can be named or not. The names are essential only if:
 
-*  you need to [implode]((Libraries:ParseTree-implode)) ((Parse Trees))
+*  you need to [implode]((Library:ParseTree-implode)) ((Parse Trees))
 *  you need to use the `is` expression, as in `myStatement is ifThenElse` instead of using concrete pattern matching.
 *  you want to write ((Action))s that triggers on the construction of the alternative.
 

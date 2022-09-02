@@ -72,7 +72,7 @@ _Auto-indent_: Expressions that get interpolated in a string will be auto-indent
 The following operators are defined for Strings:
 (((TOC)))
 
-There are also [library functions]((Libraries:Prelude-String)) available for Strings.
+There are also [library functions]((Library:Prelude-String)) available for Strings.
 
 .Examples
 ```rascal-shell

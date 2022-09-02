@@ -42,7 +42,7 @@ it has to be prefixed by the splice operator `*`.
 The following operators are provided on sets:
 (((TOC)))
 
-There are also [library functions]((Libraries:Prelude-Set)) available for Sets.
+There are also [library functions]((Library:Prelude-Set)) available for Sets.
 .Examples
 ##  Set types 
 

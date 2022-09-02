@@ -15,7 +15,7 @@ Parse of a syntactically incorrect string.
 
 .Description
 This error is generated when during the execution of a Rascal program the
-[parse]((Libraries:ParseTree-parse)) function is applied to a syntactically incorrect input sentence.
+[parse]((Library:ParseTree-parse)) function is applied to a syntactically incorrect input sentence.
 
 Remedies:
 

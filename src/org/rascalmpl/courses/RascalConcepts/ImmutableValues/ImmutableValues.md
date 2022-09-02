@@ -46,7 +46,7 @@ In pointer-based languages and in object-oriented languages the change to the or
 via `M`.
 
 
-String values are, like all other values, also immutable. Let's experiment with the [replaceAll]((Libraries:String-replaceAll)) function:
+String values are, like all other values, also immutable. Let's experiment with the [replaceAll]((Library:String-replaceAll)) function:
 ```rascal-shell
 import String;
 replaceAll("abracadabra", "a", "A");

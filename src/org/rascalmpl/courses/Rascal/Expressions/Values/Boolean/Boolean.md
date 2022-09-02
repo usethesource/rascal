@@ -67,7 +67,7 @@ This behaviour is applicable in the context of all Rascal constructs where a pat
 The following operators are provided for Boolean:
 (((TOC)))
 
-There are also [library functions]((Libraries:Prelude-Boolean)) available for Booleans.
+There are also [library functions]((Library:Prelude-Boolean)) available for Booleans.
 
 .Examples
 Consider the following match of a list

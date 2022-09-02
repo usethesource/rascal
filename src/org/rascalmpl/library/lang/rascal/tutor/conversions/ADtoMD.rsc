@@ -54,6 +54,9 @@ str convertLine(/^<prefix:.*>kbd:\[<keys:.*?>\]<postfix:.*$>/)
 str convertLine(/^\ \ \ \ \*\*<postfix:.*$>/)
   = convertLine("    *<postfix>");
 
+str convertLine(/^<prefix:.*>\(\(Libraries:<postfix:.*$>/)
+  = convertLine("<prefix>((Library:<postfix>");
+
 // italics within backquotes is not supported anymore. removing underscores for readability's sake
 str convertLine(/^<prefix:.*>`<prequote:[^`]*>_<italics:[A-Za-z0-9~]+>_<postquote:[^`]*>`<postfix:.*$>/)
   = convertLine("<prefix>`<prequote><italics><postquote>`<postfix>");

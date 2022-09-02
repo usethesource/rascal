@@ -80,7 +80,7 @@ include::{LibDir}demo/basic/Hello.rsc[tags=module]
 ```
 
                 
-It defines a module with the name `demo::basic::Hello` and imports the [IO]((Libraries:Prelude-IO)) library.
+It defines a module with the name `demo::basic::Hello` and imports the [IO]((Library:Prelude-IO)) library.
 Finally, it declares the `hello` function.
 
 The actual source of this module can be found in `library/demo/basic/Hello.rsc` in the Rascal sources.
