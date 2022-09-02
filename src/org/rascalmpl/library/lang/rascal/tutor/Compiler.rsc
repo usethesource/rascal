@@ -39,6 +39,28 @@ import lang::rascal::tutor::apidoc::ExtractDoc;
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 data Message(str cause="");
 
+public PathConfig defaultConfig
+  = pathConfig(
+  bin=|home:///doctestt|,
+  srcs=[
+    |project://rascal/src/org/rascalmpl/courses/Rascalopedia|,
+    |project://rascal/src/org/rascalmpl/courses/CompileTimeErrors|,
+    |project://rascal/src/org/rascalmpl/courses/Test|,
+    |project://rascal/src/org/rascalmpl/courses/RascalConcepts|,
+    |project://rascal/src/org/rascalmpl/courses/TypePal|,
+    |project://rascal/src/org/rascalmpl/courses/Recipes|,
+    |project://rascal/src/org/rascalmpl/courses/Tutor|,
+    |project://rascal/src/org/rascalmpl/courses/GettingStarted|,
+    |project://rascal/src/org/rascalmpl/courses/WhyRascal|,
+    |project://rascal/src/org/rascalmpl/courses/Rascal|,
+    |project://rascal/src/org/rascalmpl/courses/TutorHome|,
+    |project://rascal/src/org/rascalmpl/courses/RascalTests|,
+    |project://rascal/src/org/rascalmpl/courses/RascalShell|,
+    |project://rascal/src/org/rascalmpl/courses/RunTimeErrors|,
+    |project://rascal/src/org/rascalmpl/courses/Developers|,
+    |project://rascal/src/org/rascalmpl/library|
+  ]);
+
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
   ind = createConceptIndex(pcfg.srcs);
@@ -90,7 +112,7 @@ list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Ind
     '
     'The following issues have been detected while preparing this draft document. It is not ready for publication.
     '
-    '<for (str severity(str msg, loc at) <- issues) {>1. [<severity>] <at.top>:<at.begin.line>,<at.begin.column> <msg>
+    '<for (str severity(str msg, loc at) <- issues) {>1. [<severity>] <at.top>:<if (at.begin?) {><at.begin.line>,<at.begin.column><}><msg>
     '<}>
     '<}><for (out(l) <- output) {><l>
     '<}>"
@@ -104,6 +126,7 @@ data Output
   = out(str content)
   | err(Message message)
   | details(list[str] order)
+  | search(list[str] contents, str fragment)
   ;
 
 alias Index = rel[str reference, str url];
@@ -203,17 +226,13 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
       | dtls == [] 
     ];
 
-@synopsis{implement subscript syntax for digits}
-list[Output] compileMarkdown([/^<prefix:.*>~<digits:[0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><char(0x2080 /* that's `₀` */  - 48 /* that's `0` */ + ch)><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+@synopsis{implement subscript syntax for letters and numbers and dashes and underscores}
+list[Output] compileMarkdown([/^<prefix:.*>~<words:[A-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = compileMarkdown(["<prefix>\<sub\><words>\</sub\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
-@synopsis{implement subscript syntax for digits}
-list[Output] compileMarkdown([/^<prefix:.*>~<digits:[0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><char(0x2080 /* that's `₀` */  - 48 /* that's `0` */ + ch)><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
-
-@synopsis{implement subscript syntax for [aeh-pr-vx] (the subscript alphabet is incomplete in unicode)}
-list[Output] compileMarkdown([/^<prefix:.*>~<digits:[aeh-pr-vx]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><subscripts["<char(ch)>"]><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+@synopsis{implement superscript syntax for letters and numbers and dashes and underscores}
+list[Output] compileMarkdown([/^<prefix:.*>^<words:[A-Z0-9\-_0-9]+>^<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = compileMarkdown(["<prefix>\<sup\><words>\</sup\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
         
 @synopsis{resolve ((links)) and [labeled]((links))}
@@ -245,7 +264,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
 
 @synopsis{This supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus}
 list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
-  if (title == ".Details" || /^##+\s*Details/ := title) {
+  if (title == "Details" || /^##+\s*Details/ := title) {
     // details need to be collected and then skipped in the output
     if ([*str lines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3] := rest2) {
        return [
@@ -255,6 +274,16 @@ list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *s
     }
     else {
       return [err(error("Parsing input around .Details section failed somehow.", pcfg.currentFile(offset, 0, <line, 0>, <line, 1>)))];
+    }
+  }
+  else if (title == "Index" || /^##+\sIndex/ := title) {
+    if ([*str lines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3] := rest2) {
+       return [
+        search(lines, fragment(pcfg.currentRoot, pcfg.currentFile)),
+        *compileMarkdown([nextHeader, *rest3], line + 1 + size(lines), offset + size(first) + (0 | 1 + it | _ <- lines), pcfg, exec, ind, dtls)
+       ];
+    } else {
+       return [err(error("Parsing input around .Index section failed somehow.", pcfg.currentFile(offset, 0, <line, 0>, <line, 1>)))];
     }
   }
   else {
@@ -352,8 +381,8 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 list[str] skipEmpty([/^s*$/, *str rest]) = skipEmpty(rest);
 default list[str] skipEmpty(list[str] lst) = lst;
 
-bool isConceptFile(loc f) = f.extension in {"md", "concept"};
-
+bool isConceptFile(loc f) = f.extension in {"md"};
+bool isRascalFile(loc f) = f.extension in {"rsc"};
 bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
 str fragment(loc concept) = stripDoubleEnd(replaceAll("#<concept[extension=""].path[1..]>", "/", "-"));
@@ -379,22 +408,4 @@ list[str] filterErrors([/^Generating parser/, *str rest]) = filterErrors(rest);
 default list[str] filterErrors([str head, *str tail]) = [head, *filterErrors(tail)];
 list[str] filterErrors([]) = [];
 
-private map[str, str] subscripts 
-  =  (  "a" : "\u2090",
-        "e" : "\u2091",
-        "h" : "\u2095",
-        "i" : "\u1d62",
-        "j" : "\u2c7c",
-        "k" : "\u2096",
-        "l" : "\u2097",
-        "m" : "\u2098",
-        "n" : "\u2099",
-        "o" : "\u2092",
-        "p" : "\u209a",
-        "r" : "\u1d63",
-        "s" : "\u209b",
-        "t" : "\u209c",
-        "u" : "\u1d64",
-        "v" : "\u1d65",
-        "x" : "\u2093"
-  );
+

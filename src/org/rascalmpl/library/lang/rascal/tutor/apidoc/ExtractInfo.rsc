@@ -1,6 +1,7 @@
 @bootstrapParser
 module  lang::rascal::tutor::apidoc::ExtractInfo
 
+import IO;
 import String;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
@@ -8,8 +9,12 @@ import util::Reflective;
 
 import lang::rascal::tutor::apidoc::DeclarationInfo;
 
-@doc{Extract declaration information from a Rascal module at given location.}
-list[DeclarationInfo] extractInfo(loc moduleLoc){
+@synopsis{Extract declaration information from a Rascal module at given location.}
+list[DeclarationInfo] extractInfo(loc moduleLoc)
+  = extractInfo(moduleLoc, lastModified(moduleLoc));
+
+@memo
+private list[DeclarationInfo] extractInfo(loc moduleLoc, datetime _/*lastModified*/){
     M = parseModuleWithSpaces(moduleLoc).top;
     return extractModule(M);
 }
