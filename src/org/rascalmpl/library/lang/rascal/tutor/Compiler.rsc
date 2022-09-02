@@ -70,12 +70,12 @@ list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Ind
 
   // write the output lines to disk (filtering errors)
   writeFile(
-    (pcfg.bin + root.file)[extension="md"], 
+    (pcfg.bin + capitalize(root.file))[extension="md"], 
     "<if (issues != []) {>## Document preparation issues
     '
     'The following issues have been detected while preparing this draft document. It is not ready for publication.
     '
-    '<for (str severity(str msg, loc at) <- issues) {>1. [<severity>] <at>: <msg>
+    '<for (str severity(str msg, loc at) <- issues) {>1. [<severity>] <at.top>:<at.begin.line>,<at.begin.column> <msg>
     '<}>
     '<}><for (out(l) <- output) {><l>
     '<}>"
@@ -215,12 +215,12 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
       case { }: 
         return [
                   err(warning("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-                  *compileMarkdown([":::caution\nBroken link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+                  *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ]; 
       case {_, _, *_}:
         return [
                   err(warning("Ambiguous concept link: <link> resolves to all of <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-                  *compileMarkdown([":::caution\nAmbiguous link <link>", "<prefix>_broken:<link>_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+                  *compileMarkdown(["<prefix>_broken:<link> (ambiguous link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
   }
 
@@ -281,17 +281,24 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     html   = output["text/html"]?"";
 
     if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
-      append out(allowErrors ? ":::caution" : ":::danger");
-      for (errLine <- split("\n", stderr)) {
-        append OUT : out(trim(errLine));
+      for (allowErrors, errLine <- split("\n", stderr)) {
+        append OUT : out(errLine);
       }
 
       if (!allowErrors) {
-        append OUT : out("Rascal code execution failed unexpectedly during compilation of this documentation!");
+        append OUT : out("```");      
+        append out(":::danger");
+        append OUT : out("Rascal code execution failed (unexpectedly) during compilation of this documentation.");
+        append OUT : out("\<pre\>");
+        for (errLine <- split("\n", stderr)) {
+           append OUT : out(errLine);
+        }
+        append OUT : out("\</pre\>");
         append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>), cause=stderr)); 
+        append OUT : out(":::");
+        append OUT : out("");
+        append OUT : out("```rascal-shell");
       }
-
-       append OUT : out(":::");
     }
 
     if (stdout != "") {
