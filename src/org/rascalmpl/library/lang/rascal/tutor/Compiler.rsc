@@ -48,12 +48,27 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
 rel[str, str] createConceptIndex(list[loc] srcs) 
   = {*createConceptIndex(src) | src <- srcs};
 
+@synopsis{creates a lookup table for concepts nested in a folder}
 rel[str, str] createConceptIndex(loc src)
   = { 
+      // `((StrictSuperSetSet)) -> #Expressions-Values-Set-StrictSuperSet``
       <cf.file, fr>,
+
+      // `((Set-StrictSuperSet)) -> #Expressions-Values-Set-StrictSuperSet``
       *{<"<f.parent.parent.file>-<cf.file>", fr> | f.parent.path != "/", f.parent.file == cf.file, f.parent != src},
+
+      // `((Expressions-Values-Set-StrictSuperSet)) -> #Expressions-Values-Set-StrictSuperSet``
+      *{<"<fr[1..]>", fr>},
+
+      // `((Rascal:StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
       <"<src.file>:<cf.file>", "/<src.file>.md<fr>">,
-      *{<"<src.file>:<f.parent.parent.file>-<cf.file>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file}     
+
+      // `((Rascal:Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
+      *{<"<src.file>:<f.parent.parent.file>-<cf.file>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
+
+      // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
+      <"<src.file>:<fr[1..]>", fr>
+
     | loc f <- find(src, isConceptFile), fr := fragment(src, f), cf := f[extension=""]
     }
   +
@@ -158,6 +173,7 @@ list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index i
 
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, 
+    // this uses another nested directory listing to construct information for the (((TOC))) embedded in the current document:
     [ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d), exists((d + d.file)[extension="md"])]) + [out("")];
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
@@ -340,8 +356,11 @@ bool isConceptFile(loc f) = f.extension in {"md", "concept"};
 
 bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
-str fragment(loc concept) = replaceAll("#<concept[extension=""].path[1..]>", "/", "-");
+str fragment(loc concept) = stripDoubleEnd(replaceAll("#<concept[extension=""].path[1..]>", "/", "-"));
 str fragment(loc root, loc concept) = fragment(relativize(root, concept));
+
+str stripDoubleEnd(/<prefix:.*>\-<a:[^\-]+>\-<b:[^\-]+>$/) = "<prefix>-<b>" when a == b;
+default str stripDoubleEnd(str x) = x;
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
   = removeSpaces("<prefix><capitalize(postfix)>");
