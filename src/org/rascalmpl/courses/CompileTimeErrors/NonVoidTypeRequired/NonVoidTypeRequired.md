@@ -1,6 +1,7 @@
 # NonVoidTypeRequired
 
 .Synopsis
+
 A type other than `void` is needed.
 
 .Syntax
@@ -14,11 +15,13 @@ A type other than `void` is needed.
 .Details
 
 .Description
-This error is generated when a non-void value is needed, but only void is provided.
-The most prominent examples are splicing for 
-[list]((Rascal:List-Splice)), [set]((Rascal:Set-Splice)), and [map]((Rascal:Map-Splice)).
 
-Remedy: replace the expression that computes void by an expression that computes a non-void value.
+This error is generated when a value is needed, so an expression of any type but the `void` type.
+
+The most prominent examples are splicing for 
+[list]((Rascal:List-Splice)) and [set]((Rascal:Set-Splice)).
+
+Remedy: replace the expression of type `void` by an expression that computes a value.
 
 .Examples
 First define a dummy function that returns void:
