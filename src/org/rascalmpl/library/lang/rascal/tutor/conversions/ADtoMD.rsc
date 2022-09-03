@@ -6,9 +6,11 @@ import IO;
 import String;
 
 void ad2md(loc root) {
-    for (f <- find(root, "md"))
+    for (f <- find(root, isSourceFile))
       convertFile(f);
 }
+
+bool isSourceFile(loc f) = f.extension in {"md", "rsc"};
 
 void convertFile(loc file) {
     println("converting: <file>");
@@ -64,6 +66,12 @@ str convertLine(/^<prefix:.*>\(\(Library:Libraries-<postfix:.*$>/)
 // Library:Prelude-
 str convertLine(/^<prefix:.*>\(\(Library:Prelude-<postfix:.*$>/)
   = convertLine("<prefix>((Library:<postfix>");
+
+str convertLine(/^<prefix:.*>\(\(<pre:[^\)]+>-Prelude-<lst:[^\)\-]+>\)\)<postfix:.*>$/)
+  = convertLine("<prefix>((<pre>-<lst>))<postfix>");
+
+str convertLine(/^<prefix:.*>\(\(<pre:[^\)]+>-<fst:[^\)\-]+>-<lst:[^\)\-]+>\)\)<postfix:.*>$/)
+  = convertLine("<prefix>((<pre>-<fst>))<postfix>") when lst == fst, fst != "Prelude";
 
 // italics within backquotes is not supported anymore. removing underscores for readability's sake
 str convertLine(/^<prefix:.*>`<prequote:[^`]*>_<italics:[A-Za-z0-9~]+>_<postquote:[^`]*>`<postfix:.*$>/)
