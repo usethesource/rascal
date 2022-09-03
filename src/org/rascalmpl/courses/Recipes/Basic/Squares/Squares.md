@@ -19,7 +19,7 @@ How can we print a list of squares? Here is a solution:
 include::{LibDir}demo/basic/Squares.rsc[tags=module]
 ```
            
-<1> The [IO]((Library:Prelude-IO)) module is imported since we want to print things using `println`.
+<1> The [IO]((Library:IO)) module is imported since we want to print things using `println`.
 
 <2> [String]((Rascal:Values-String)) interpolation is used several times.
     Here the value of `N` is inserted in the header message.
@@ -40,7 +40,7 @@ squares(9);
 squaresTemplate(9);
 ```
 
-To get a truly identical result we have to import the [IO]((Library:Prelude-IO)) module 
+To get a truly identical result we have to import the [IO]((Library:IO)) module 
 and print the value of `squaresTemplate`:
 ```rascal-shell,continue
 import IO;

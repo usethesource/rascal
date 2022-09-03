@@ -43,7 +43,7 @@ Since relations are a form of set all operations (see ((Values-Set))) and functi
 The following additional operators are provided for relations:
 (((TOC)))
 
-There are also [library functions]((Library:Prelude-Relation)) available for Relations.
+There are also [library functions]((Library:Relation)) available for Relations.
 
 
 .Examples

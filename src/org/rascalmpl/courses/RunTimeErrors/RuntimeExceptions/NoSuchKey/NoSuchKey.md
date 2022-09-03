@@ -13,7 +13,7 @@ A map does not contain a requested key.
 
 .Description
 Rascal provides many operations and functions on maps, 
-see [map values]((Rascal:Values-Map)) and [map functions]((Library:Prelude-Map)).
+see [map values]((Rascal:Values-Map)) and [map functions]((Library:Map)).
 This error is generated when a function or operation cannot find a requested key value in a map.
 
 Remedies: 

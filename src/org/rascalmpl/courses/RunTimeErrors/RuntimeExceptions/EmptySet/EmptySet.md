@@ -15,7 +15,7 @@ Illegal operation on an empty set.
 
 .Description
 Rascal provides many operations and functions on sets, see [set values]((Rascal:Values-Set))
-and [set functions]((Library:Prelude-Set)).
+and [set functions]((Library:Set)).
 This error is generated when a function or operations cannot handle the empty set.
 
 Remedies:

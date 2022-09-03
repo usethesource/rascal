@@ -83,10 +83,10 @@ rel[str, str] createConceptIndex(loc src)
       *{<"<fr[1..]>", fr>},
 
       // `((Rascal:StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
-      <"<src.file>:<cf.file>", "/<src.file>.md<fr>">,
+      <"<capitalize(src.file)>:<capitalize(cf.file)>", "/<src.file>.md<fr>">,
 
       // `((Rascal:Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
-      *{<"<capitalize(src.file)>:<f.parent.parent.file>-<cf.file>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
+      *{<"<capitalize(src.file)>:<capitalize(f.parent.parent.file)>-<capitalize(cf.file)>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
       <"<capitalize(src.file)>:<fr[1..]>", fr>
@@ -386,7 +386,7 @@ bool isConceptFile(loc f) = f.extension in {"md"};
 bool isRascalFile(loc f) = f.extension in {"rsc"};
 bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
-str fragment(loc concept) = stripDoubleEnd(replaceAll("#<concept[extension=""].path[1..]>", "/", "-"));
+str fragment(loc concept) = stripDoubleEnd(replaceAll("#<capitalize(concept[extension=""].path[1..])>", "/", "-"));
 str fragment(loc root, loc concept) = fragment(relativize(root, concept));
 
 str stripDoubleEnd(/<prefix:.*>\-<a:[^\-]+>\-<b:[^\-]+>$/) = "<prefix>-<b>" when a == b;
