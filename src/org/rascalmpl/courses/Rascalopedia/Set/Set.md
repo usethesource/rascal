@@ -40,13 +40,11 @@ and of [library functions on sets]((Library:Set)).
    ![]((stamp-collecting.jpg))
    http://www.life123.com/hobbies/antiques-collectibles/stamps/stamp-collecting-2.shtml[credit]
 
-## Sets in computer science
+## Sets in Computer Science
 
-
-*  The files in a directory. Of course, when you order them (by name, modification date) you need a ((Expressions-Values-List)) to represent them.
+*  The files in a directory. Of course, when you order them (by name, modification date) you need a ((List)) to represent them.
 *  The set of moves an opponent can play in a game.
 *  The set of nodes in a network.
-
 
 ## Sets in Rascal
 
