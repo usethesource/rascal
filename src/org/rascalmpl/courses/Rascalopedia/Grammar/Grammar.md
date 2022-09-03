@@ -2,5 +2,5 @@
 
 .Synopsis
 
-A synonym for ((Concept-Syntax-Syntax)).
+A synonym for ((Concept-Syntax)).
 
