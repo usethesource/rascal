@@ -45,7 +45,7 @@ Since list relations are a form of list all operations (see ((Values-List))) and
 The following additional operators are provided for list relations:
 (((TOC)))
 
-There are also [library functions]((Library:Prelude-ListRelation)) available for ListRelation.
+There are also [library functions]((Library:ListRelation)) available for ListRelation.
 
 
 .Examples

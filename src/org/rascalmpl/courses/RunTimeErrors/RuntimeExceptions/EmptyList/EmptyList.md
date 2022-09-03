@@ -15,7 +15,7 @@ Illegal operation on an empty list.
 
 .Description
 Rascal provides many operations and functions on lists, see [list values]((Rascal:Values-List)) 
-and [list functions]((Library:Prelude-List)).
+and [list functions]((Library:List)).
 This error is generated when a function or operation cannot handle the empty list.
 
 Remedies:
