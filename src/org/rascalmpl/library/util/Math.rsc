@@ -142,7 +142,7 @@ Compute the smallest integer that is larger than a given number.
 
 .Description
 Computes the _ceiling_ of a given number.
-Also see ((Math-floor)).
+Also see ((util::Math::floor)).
 
 .Examples
 ```rascal-shell
@@ -215,7 +215,7 @@ Compute the largest integer that is smaller than a given number.
 
 .Description
 Computes the _floor_ of a given number.
-Also see ((Math-ceil)).
+Also see ((util::Math::ceil)).
 
 .Examples
 ```rascal-shell
