@@ -312,7 +312,17 @@ test bool selfApplyCurry() {
     return func2(1) == 2;
 }
 
-test bool variableAccessInNestedFunctions(){
+test bool accessParameterInClosure(){
+
+    int() make(int x) = int() { return x; };
+    
+    int () use(int n)  = make(n);
+    
+    return use(3)() == 3;
+
+}
+
+test bool assignVariableInNestedFunctions(){
     int X = 0;
     int Y = 0;
     
@@ -327,7 +337,7 @@ test bool variableAccessInNestedFunctions(){
     return incXY() == 7;
 }
 
-test bool variableAccessInNestedFunctionWithVisit() {  
+test bool assignVariableInNestedFunctionWithVisit() {  
     int uniqueItem = 1;
     int newItem() { uniqueItem += 1; return uniqueItem; };
     
@@ -351,3 +361,167 @@ int container(int n){
 }
 
 test bool sharedFormal() = container(12) == 13;
+
+test bool assignVariableInNestedFunctions1() {
+    int x = 1;
+    
+    void setX() { x = 10; }
+    
+    setX();
+    return x == 10;
+}
+
+test bool assignVariableInVisit1() {
+    int x = 1;
+    
+    visit([1,2,3]){ case 1: x = 10; }
+    return x == 10;
+}
+
+test bool assignVariableInNestedFunctions2(int x) {
+    
+    void setX() { x = 10; }
+    
+    setX();
+    return x == 10;
+}
+
+test bool assignVariableInVisit2(int x) {
+    
+    visit([1,2,3]){ case 1: x = 10; }
+   
+    return x == 10;
+}
+
+
+test bool assignVariableInNestedFunctions3() {
+    int x = 1;
+    int y = 100;
+    
+    void setX() { x = 10; }
+    void setY() { y = 20; }
+    
+    x1 = x; y1 = y;
+    setX();
+    if(x != 10 || y != y1) return false;
+    
+    x1 = x; y1 = y;
+    setY();
+    if(x != x1 || y != 20 ) return false;
+    
+    return true;
+}
+
+test bool assignVariableInVisit3() {
+    int x = 1;
+    int y = 100;
+    
+    x1 = x; y1 = y;
+    visit([1,2,3]){ case 1: x = 10; }
+    if(x != 10 || y != y1) return false;
+    
+    x1 = x; y1 = y;
+    visit([1,2,3]){ case 1: y = 20; }
+    if(x != x1 || y != 20 ) return false;
+    
+    return true;
+}
+
+test bool assignVariableInNestedFunctions4() {
+    int x = 1;
+    int y = x;
+    
+    void setX() { x = 10; }
+    void setY() { y = 20; }
+    
+    x1 = x; y1 = y;
+    setX();
+    if(x != 10 || y != y1) return false;
+    
+    x1 = x; y1 = y;
+    setY();
+    if(x != x1 || y != 20 ) return false;
+    
+    return true;
+}
+
+test bool assignVariableInVisit4() {
+    int x = 1;
+    int y = x;
+    
+    x1 = x; y1 = y;
+    visit([1,2,3]){ case 1: x = 10; }
+    if(x != 10 || y != y1) return false;
+    
+    x1 = x; y1 = y;
+    visit([1,2,3]){ case 1: y = 20; }
+    if(x != x1 || y != 20 ) return false;
+    
+    return true;
+}
+    
+test bool assignVariableInNestedFunctions5(int x) {
+    int y = x;
+    int z = 3;
+    
+    void setX() { x = 10; }
+    void setY() { y = 20; }
+    void setZ() { z = 30; }
+    
+    x1 = x; y1 = y; z1 = z;
+    setX();
+    if(x != 10 || y != y1 || z != z1) return false;
+    
+    x1 = x; y1 = y; z1 = z;
+     
+    setY();
+    if(x != x1 || y != 20 || z != z1) return false;
+    x1 = x; y1 = y; z1 = z;
+    setZ();
+     
+    if(x != x1 || y != y1 || z != 30) return false;
+    
+    return true;
+}
+
+test bool assignVariableInVisit5(int x) {
+    int y = x;
+    int z = 3;
+    
+    x1 = x; y1 = y; z1 = z;
+    visit([1,2,3]){ case 1: x = 10; }
+    if(x != 10 || y != y1 || z != z1) return false;
+    
+    x1 = x; y1 = y; z1 = z;
+     
+    visit([1,2,3]){ case 1: y = 20; }
+    if(x != x1 || y != 20 || z != z1) return false;
+    x1 = x; y1 = y; z1 = z;
+    visit([1,2,3]){ case 1: z = 30; }
+     
+    if(x != x1 || y != y1 || z != 30) return false;
+    
+    return true;
+}
+
+data D = one_d(int(int a) n);
+
+test bool assignVariableViaFunctionValue(){
+    set[int] x = {};
+    
+    int add (int n) { x += n; return n;}
+
+    D make() {return one_d(add);}
+    
+    m = make(); 
+    m.n(3);
+    m.n(4);
+    return x == {3, 4};
+}
+
+test bool namedParameterInClosure(){             
+    int collect(current: int n){
+        return  int () { return current; }();
+    }
+    return collect(5) == 5;
+}

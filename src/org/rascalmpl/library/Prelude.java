@@ -102,6 +102,7 @@ import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
+import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -126,6 +127,9 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.visitors.BottomUpTransformer;
+import io.usethesource.vallang.visitors.IValueVisitor;
+import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
@@ -2243,6 +2247,26 @@ public class Prelude {
     public INode unset(INode node) {
         return  node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetAll() : node;
     }
+
+	public IValue unsetRec(IValue val) {
+		return val.accept(new BottomUpTransformer<>(new IdentityVisitor<RuntimeException>() {
+			@Override
+			public IValue visitConstructor(IConstructor o) throws RuntimeException {
+				return unset(o);
+			}
+			@Override
+			public IValue visitNode(INode o) throws RuntimeException {
+				return unset(o);
+			}
+			@Override
+			public IValue visitExternal(IExternalValue o) throws RuntimeException {
+				if (o instanceof INode) {
+					return unset((INode)o);
+				}
+				return o;
+			}
+		}, rascalValues));
+	}
     
     public INode arbNode() {
         return (INode) createRandomValue(TypeFactory.getInstance().nodeType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
