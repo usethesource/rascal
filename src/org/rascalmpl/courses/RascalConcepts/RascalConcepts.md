@@ -10,7 +10,8 @@ Gentle introduction to the main concepts of the Rascal language.
 .Function
 
 .Details
-StaticTyping Datatypes ImmutableValues Comprehensions PatternMatching ControlStructures CaseDistinction Visiting Enumerators Functions SyntaxDefinitionAndParsing RewriteRules IDEConstruction
+
+StaticTyping Datatypes ImmutableValues  Enumerating Comprehensions PatternMatching ControlStructures CaseDistinction Visiting Enumerators Functions SyntaxDefinitionAndParsing Rewriting IDEConstruction CodeModels EquationSolving
 
 .Description
 

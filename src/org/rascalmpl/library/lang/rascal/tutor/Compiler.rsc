@@ -203,7 +203,9 @@ list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Inde
 
       if (order != []) {
         return output + [*compile(d + s, pcfg, exec, ind) | s <- order]
-             + [err(warning("Concept <c> is missing from .Details: <order>", i)) | c <- d.ls, c.file notin order, isDirectory(c)];
+             + [err(warning("Concept <c> is missing from .Details: <order>", i)) | str c <- d.ls, c.file notin order, isDirectory(c)]
+             + [err(warning("Concept <c> from .Details is missing from file system: <files>", i)) | str c <- order, files := [c.file | str e <- d.ls, isDirectory(e)], d notin files]
+             ;
       }
       else {
         return output + [*compile(s, pcfg, exec, ind) | s <- d.ls, s != i];
@@ -304,7 +306,7 @@ list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *s
     // details need to be collected and then skipped in the output
     if ([*str lines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3] := rest2) {
        return [
-        *[details(split(" ", trim(l))) | l <- lines],
+        *[details([trim(word) | word <- split(" ", trim(l)), trim(word) != ""]) | l <- lines],
         *compileMarkdown([nextHeader, *rest3], line + 1 + size(lines), offset + size(first) + (0 | 1 + it | _ <- lines), pcfg, exec, ind, dtls)
        ];
     }
