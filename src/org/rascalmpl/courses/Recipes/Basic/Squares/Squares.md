@@ -40,7 +40,7 @@ squares(9);
 squaresTemplate(9);
 ```
 
-To get a truly identical result we have to import the [IO]((Library:IO)) module 
+To get a truly identical result we have to import the [IO]((Library:IO-IO)) module 
 and print the value of `squaresTemplate`:
 ```rascal-shell,continue
 import IO;
