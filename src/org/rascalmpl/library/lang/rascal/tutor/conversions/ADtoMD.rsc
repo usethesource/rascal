@@ -5,6 +5,11 @@ import util::FileSystem;
 import IO;
 import String;
 
+void ad2md() {
+    ad2md();
+    ad2md();
+}
+
 void ad2md(loc root) {
     for (f <- find(root, isSourceFile))
       convertFile(f);
@@ -72,6 +77,10 @@ str convertLine(/^<prefix:.*>\(\(<pre:[^\)]+>-Prelude-<lst:[^\)\-]+>\)\)<postfix
 
 str convertLine(/^<prefix:.*>\(\(<pre:[^\)]+>-<fst:[^\)\-]+>-<lst:[^\)\-]+>\)\)<postfix:.*>$/)
   = convertLine("<prefix>((<pre>-<fst>))<postfix>") when lst == fst, fst != "Prelude";
+
+// Rascal:Concepts-
+str convertLine(/^<prefix:.*>\(\(Rascal:Concepts-<rest:[^)]+>\)\)<postfix:.*>$/)
+  = convertLine("<prefix>((RascalConcepts:<rest>))<postfix>");
 
 // italics within backquotes is not supported anymore. removing underscores for readability's sake
 str convertLine(/^<prefix:.*>`<prequote:[^`]*>_<italics:[A-Za-z0-9~]+>_<postquote:[^`]*>`<postfix:.*$>/)

@@ -203,8 +203,8 @@ list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Inde
 
       if (order != []) {
         return output + [*compile(d + s, pcfg, exec, ind) | s <- order]
-             + [err(warning("Concept <c> is missing from .Details: <order>", i)) | str c <- d.ls, c.file notin order, isDirectory(c)]
-             + [err(warning("Concept <c> from .Details is missing from file system: <files>", i)) | str c <- order, files := [c.file | str e <- d.ls, isDirectory(e)], d notin files]
+             + [err(warning("Concept <c> is missing from .Details: <order>", i)) | loc c <- d.ls, c.file notin order, isDirectory(c)]
+             + [err(warning("Concept <c> from .Details is missing from file system: <files>", i)) | str c <- order, files := [e.file | loc e <- d.ls, isDirectory(e)], d notin files]
              ;
       }
       else {
