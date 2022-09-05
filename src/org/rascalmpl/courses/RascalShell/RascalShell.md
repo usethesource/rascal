@@ -5,7 +5,7 @@ The interactive Rascal commandline shell
 
 .Details
 
-REPL Completion
+REPL Completion History Commands Keyboard
 
 .Description
 

@@ -25,8 +25,8 @@ Remedies:
 
 *  Ensure that the annotation value is properly initialized for all relevant parts of the node value. 
 *  Use the 
-   [isDefined]((Rascal:Boolean-isDefined)) and 
-   [ifDefinedElse]((Rascal:Boolean-ifDefinedElse)) operators to check whether the annotation value 
+   [isDefined]((Rascal:Boolean-IsDefined)) and 
+   [ifDefinedElse]((Rascal:Boolean-IfDefinedElse)) operators to check whether the annotation value 
    is set and act accordingly.
 *  Catch the `NoSuchAnnotation yourself`, see [try catch]((Rascal:Statements-TryCatch)).
 
