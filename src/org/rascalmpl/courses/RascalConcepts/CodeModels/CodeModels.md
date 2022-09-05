@@ -33,7 +33,7 @@ The core language independent model can be found here: [analysis::m3]((Library:a
 
 Extensions for representing facts about specific languages:
 
-*  [lang::java::m3]((Library:java-m3)).
+*  [lang::java::m3]((Library:java::m3)).
 
 .Examples
 
