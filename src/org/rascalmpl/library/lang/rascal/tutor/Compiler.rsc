@@ -141,7 +141,7 @@ list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Inde
       if (order != []) {
         return output + [*compile(d + s, pcfg, exec, ind) | s <- order]
              + [err(warning("Concept <c> is missing from .Details: <order>", i)) | loc c <- d.ls, c.file notin order, isDirectory(c)]
-             + [err(warning("Concept <c> from .Details is missing from file system: <files>", i)) | str c <- order, files := [e.file | loc e <- d.ls, isDirectory(e)], d notin files]
+             + [err(warning("Concept <c> from .Details is missing from file system: <files>", i)) | str c <- order, files := [e.file | loc e <- d.ls, isDirectory(e)], c notin files]
              ;
       }
       else {
@@ -218,11 +218,17 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
         else {
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
-      case { }: 
+      case { }: {
+        if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
+            // give this a second chance, in reverse
+            return compileMarkdown(["<prefix>((<secondWord>-<firstWord>))<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+        }
+
         return [
                   err(warning("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
+      }
       case {a:/^#<link:.*$>/, b:/^\/[^#]+#<link2:.*$>/}:
          if (link == link2) {
             return compileMarkdown(["<prefix>[<addSpaces(link2)>](<b>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 

@@ -1,6 +1,7 @@
 # Type Constrained Pattern
 
 .Synopsis
+
 Type constrained abstract pattern.
 
 .Index
