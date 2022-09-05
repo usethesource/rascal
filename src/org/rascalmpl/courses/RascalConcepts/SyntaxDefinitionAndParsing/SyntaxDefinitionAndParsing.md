@@ -20,7 +20,7 @@ Using [Syntax Definitions]((Rascal:Declarations-SyntaxDefinition)) you can defin
 
 *  will generate the parser, and
 *  will provide pattern matching and pattern construction on parse trees and abstract syntax trees,
-   see [Abstract Patterns]((Rascal:Patterns-Abstract)) and    
+   see [Abstract Patterns]((Rascal:Patterns-Node)) and    
   [Concrete Patterns]((Rascal:Patterns-Concrete)).
 
 .Examples
