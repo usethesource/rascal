@@ -110,7 +110,7 @@ list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) 
         return compileDirectory(src, pcfg, exec, ind);
     }
     else if (src.extension == "rsc") {
-        return compileRascal(src, pcfg, exec, ind);
+        return compileRascal(src, pcfg[currentFile=src], exec, ind);
     }
     else if (src.extension in {"md"}) {
         return compileMarkdown(src, pcfg, exec, ind);

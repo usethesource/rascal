@@ -186,7 +186,7 @@ Production in ParseTrees
 
 .Description
 
-The type `Production` is introduced in ((Prelude-Type)), see ((Type-Production)). Here we extend it with the symbols
+The type `Production` is introduced in ((Type)), see ((Type-Production)). Here we extend it with the symbols
 that can occur in a ParseTree. We also extend productions with basic combinators allowing to
 construct ordered and un-ordered compositions, and associativity groups.
 
@@ -259,7 +259,7 @@ Symbols that can occur in a ParseTree
 
 .Description
 
-The type `Symbol` is introduced in ((Prelude-Type)), see ((Type-Symbol)), to represent the basic Rascal types,
+The type `Symbol` is introduced in ((Type)), see ((Type-Symbol)), to represent the basic Rascal types,
 e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occur in a ParseTree.
 
 <1>  The `start` symbol wraps any symbol to indicate that it is a start symbol of the grammar and
