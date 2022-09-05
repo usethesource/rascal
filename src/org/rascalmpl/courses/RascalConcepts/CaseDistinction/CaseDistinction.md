@@ -19,7 +19,7 @@ executed successfully, all changes to variables made by the statement are commit
 The variables bound by the pattern are always local to the statement associated with the case. 
 
 See [Switch]((Rascal:Statements-Switch)),[Visit]((Rascal:Expressions-Visit)) and 
-[Pattern With Action]((Rascal:Patterns-PatternWithAction)) for more details.
+[Pattern With Action]((Rascal:PatternWithAction)) for more details.
 
 .Examples
 We use the [ColoredTrees]((Recipes:Common-ColoredTrees)) datatype as example and use a switch to

@@ -38,7 +38,7 @@ are divisible by 3. A more intriguing example (that we do not give in full detai
 ```rascal
 {name | /asgStat(Id name, _) <- P}
 ```
-which traverses program `P` (using the _descendant match_ operator `/`, see [Patterns]((Rascal:Patterns-Abstract))) 
+which traverses program `P` (using the _descendant match_ operator `/`, see [Patterns]((Rascal:Patterns-Node))) 
 and constructs a set of all identifiers that occur on the left hand 
 side of assignment statements in `P`.
 

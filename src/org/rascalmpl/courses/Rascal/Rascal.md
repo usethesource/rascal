@@ -10,6 +10,7 @@ Reference manual for the Rascal meta-programming language.
 .Function
 
 .Details
+
 Declarations Patterns Expressions Statements
 
 .Description

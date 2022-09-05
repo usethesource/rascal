@@ -16,7 +16,7 @@ Description of all aspects of a language.
 .Description
 A language definition defines all relevant aspects of a programming language or ((Domain Specific Language)) and includes:
 
-*  A ((Grammar)) (including lexical and contect-free syntax).
+*  A ((Rascalopedia:Grammar-Grammar)) (including lexical and context-free syntax).
 *  Rules to describe the textual formatting of a language. 
   These rules are sufficient to generate a ((Prettyprinter)) for it.
 *  Rules that describe the ((Static Semantics)) of a language.
