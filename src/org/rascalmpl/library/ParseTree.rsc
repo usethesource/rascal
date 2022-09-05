@@ -31,7 +31,7 @@ while the leaf nodes are labeled by terminals (characters) of the grammar.
 *  `Tree` is a subtype of the type [node]((Rascal:Values-Node)).
 *  All types (non-terminals) declared in [syntax definitions]((Rascal:Declarations-SyntaxDefinition)) are sub-types of `Tree`.
 *  All [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax)) produce parse trees with a type corresponding to a non-terminals.
-*  Trees can be annotated in various ways, see features for [IDE construction]((Rascal:Concepts-IDEConstruction)).
+*  Trees can be annotated in various ways, see features for [IDE construction]((RascalConcepts:IDEConstruction)).
    Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
 
 
@@ -69,7 +69,7 @@ You can analyze and manipulate parse trees in three ways:
 *  Directly on the `Tree` level, just like any other [algebraic data type]((Rascal:Declarations-AlgebraicDataType)).
 *  Using [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax))
 and [concrete syntax patterns]((Rascal:Patterns-Concrete)).
-*  Using [actions]((Rascal:SynyaxDefinition-Action)).
+*  Using [actions]((Rascal:SyntaxDefinition-Action)).
 
 
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
