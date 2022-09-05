@@ -30,7 +30,7 @@ include::{LibDir}demo/lang/Lisra/Parse.rsc[tags=module]
 
 <2> Function `build` is defined in cases, to handle the various parse tree forms.
     Fortunately, we do not have to spell out the details of the parse tree, but we can use concrete
-    patterns instead (see ((Concrete Patterns)), below).
+    patterns instead (see [concrete patterns]((Patterns-Concrete)), below).
  
    The right-hand sides deserve some attention. Here the argument `il` is a _parse tree_ (!!) that represents an integer literal.
    We first convert it to a string using string interpolation (`"<il>"`) and then convert it to an integer.

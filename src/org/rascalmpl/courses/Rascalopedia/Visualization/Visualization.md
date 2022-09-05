@@ -24,10 +24,9 @@ in a visual form. There are several subareas:
 * http://en.wikipedia.org/wiki/Software_visualization[Software Visualization]: deals with facts related to software.
 
 
-The [Visualization Library]((Library:Vis)) library provides a framework for interactive visualization.
-Simple examples can be found in [visualization recipes]((Recipes:Recipes-Visualization)).
-
 .Examples
+
+See ((Recipes::Visualization)).
 
 ## Scientific visualization
 
@@ -43,9 +42,7 @@ There is also an http://homepages.cwi.nl/~robertl/movies/flow1.mpg[animated] ver
 ## Information Visualization
 
 
-Facebook's http://apps.facebook.com/friendwheel/[Friend Wheel] shows the connection between friends:
-
-
+Facebook's Friend Wheel showed the connection between friends:
 
 ![]((friends.jpg))
 

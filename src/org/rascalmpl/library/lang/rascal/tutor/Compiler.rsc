@@ -30,7 +30,7 @@ import Location;
 import ParseTree;
 import util::Reflective;
 import util::FileSystem;
-
+import ValueIO;
 
 import lang::xml::IO;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
@@ -66,6 +66,7 @@ public PathConfig defaultConfig
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
   ind = createConceptIndex(pcfg.srcs);
+  writeBinaryValueFile(pcfg.bin + "index.value", ind);
   return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
 } 
 
@@ -113,12 +114,12 @@ rel[str, str] createConceptIndex(loc src)
          <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
 
       // `((util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
-      *{<"<item.moduleName>::<item.name>", "<moduleFragment(item.moduleName)>-<item.name>" >,
-        <"<item.kind>:<item.moduleName>::<item.name>", "<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
+      *{<"<item.moduleName><sep><item.name>", "<moduleFragment(item.moduleName)>-<item.name>" >,
+        <"<item.kind>:<item.moduleName><sep><item.name>", "<moduleFragment(item.moduleName)>-<item.name>" > | item.name?, sep <- {"::", "-"}},
 
       // ((Library:util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.moduleName>::<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" >,
-         <"<capitalize(src.file)>:<item.kind>:<item.moduleName>::<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
+      *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" >,
+         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" > | item.name?, sep <- {"::", "-"}},
 
       // ((Set)) -> `#Set`
       *{<item.moduleName, "<moduleFragment(item.moduleName)>" >, <"module:<item.moduleName>", "<moduleFragment(item.moduleName)>" > | item is moduleInfo},
@@ -202,7 +203,7 @@ list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Inde
 
       if (order != []) {
         return output + [*compile(d + s, pcfg, exec, ind) | s <- order]
-             + [err(warning("Concept <c> is missing from .Details", i)) | c <- d.ls, c.file notin order, isDirectory(c)];
+             + [err(warning("Concept <c> is missing from .Details: <order>", i)) | c <- d.ls, c.file notin order, isDirectory(c)];
       }
       else {
         return output + [*compile(s, pcfg, exec, ind) | s <- d.ls, s != i];

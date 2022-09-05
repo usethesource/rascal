@@ -1,7 +1,7 @@
 # Language
 
 .Synopsis
-The set of strings defined by a ((Grammar)).
+The set of strings defined by a ((Rascalopedia:Grammar)).
 
 .Syntax
 
@@ -15,7 +15,7 @@ The set of strings defined by a ((Grammar)).
 
 .Description
 
-A ((Grammar)) or ((Syntax)) defines the formation rules for a language.
+A ((Rascalopedia:Grammar)) or ((Rascalopedia:Syntax)) defines the formation rules for a language.
 A language is the (possible infinite) set of strings that are defined by a grammar.
 
 .Examples
