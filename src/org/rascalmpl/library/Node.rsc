@@ -142,9 +142,8 @@ public &T <: node delAnnotations(&T <: node x) = unset(x);
 .Synopsis
 Recursively reset all keyword parameters of the node and its children back to their default.
 }
-public &T unsetRec(&T x) = visit(x) { 
-  case node n => unset(n) 
-};
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T unsetRec(&T x);
 
 @Deprecated{Use `unsetRec(x)`}
 public &T delAnnotationsRec(&T x) = unsetRec(x);
