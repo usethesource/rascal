@@ -42,7 +42,7 @@ and of [library functions on sets]((Library:Set)).
 
 ## Sets in Computer Science
 
-*  The files in a directory. Of course, when you order them (by name, modification date) you need a ((List)) to represent them.
+*  The files in a directory. Of course, when you order them (by name, modification date) you need a ((Rascalopedia:List)) to represent them.
 *  The set of moves an opponent can play in a game.
 *  The set of nodes in a network.
 

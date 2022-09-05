@@ -16,6 +16,8 @@ tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str paren
         list[str] overloads = [];
         if(dinfo[i] has name){
            overloads = [dinfo[i].signature];
+           // TODO: this only collects consecutive overloads. if a utility function interupts the flow,
+           // then we do not get to see the other overloads with the current group. Rewrite to use a "group-by" query.
            while(j < size(dinfo) && dinfo[i].name == dinfo[j].name){
              overloads += dinfo[j].signature;
              j += 1;
@@ -30,6 +32,8 @@ tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str paren
 public str basename(str cn){
   return (/^.*::<base:[A-Za-z0-9\-\_]+>$/ := cn) ? base : cn;
 }
+
+private str fragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
 
 str makeName(str name){
   return "# <basename(name)>";
@@ -46,8 +50,7 @@ str makeSignature(list[str] overloads) =
     
 str declInfo2Doc(str parent, moduleInfo(str moduleName, loc src, str synopsis, str doc), list[str] overloads) =
     "
-    '
-    '[[<basename(parent)>-<basename(moduleName)>]]
+    '## <moduleName> {#<fragment(moduleName)>}
     '<makeName(moduleName)>
     '<makeUsage(moduleName)>
     '
@@ -56,8 +59,7 @@ str declInfo2Doc(str parent, moduleInfo(str moduleName, loc src, str synopsis, s
 
 str declInfo2Doc(str parent, functionInfo(str moduleName, str name, str signature, loc src, str synopsis, str doc), list[str] overloads) =
     "
-    '[[<basename(moduleName)>-<name>]]
-    '## <name>
+    '## <name> {<fragment(moduleName)>-<name>}
     '
     '### Signature
     '
@@ -71,8 +73,7 @@ str declInfo2Doc(str parent, functionInfo(str moduleName, str name, str signatur
     
  str declInfo2Doc(str parent, dataInfo(str moduleName, str name, str signature, loc src, str synopsis, str doc), list[str] overloads) =
     "
-    '[[<basename(moduleName)>-<name>]]
-    '## <name>
+    '## <name> {<fragment(moduleName)>-<name>}
     '
     '```rascal
     '<for(ov <- overloads){><ov>\n<}>
@@ -82,8 +83,7 @@ str declInfo2Doc(str parent, functionInfo(str moduleName, str name, str signatur
 
 str declInfo2Doc(str parent, aliasInfo(str moduleName, str name, str signature, loc src, str synopsis, str doc), list[str] overloads) =
     "
-    '[[<basename(moduleName)>-<name>]]
-    '## <name>
+    '## <name> {<fragment(moduleName)>-<name>}
     '
     '<makeSignature(overloads)>
     '

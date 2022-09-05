@@ -14,7 +14,7 @@ Parse a Func program from a string or a file.
 .Description
 Parsing uses the syntax rules for a given start non-terminnal to parse a string and turn it into a parse tree.
 The work horse is the [parse]((Library:ParseTree-parse)) function that is available in the 
-[PareTree]((Library:ParseTree)) library.
+[ParseTree]((Library:ParseTree)) library.
 
 .Examples
 Here is how to parse Func programs from a string or file:
