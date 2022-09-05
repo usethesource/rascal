@@ -19,8 +19,8 @@ This error is generated when a function or operation cannot find a requested key
 Remedies: 
 
 *  Use the 
-   [isDefined]((Rascal:Boolean-isDefined)) and 
-   [ifDefinedElse]((Rascal:Boolean-ifDefinedElse)) operator to guard a lookup in a map.
+   [isDefined]((Rascal:Boolean-IsDefined)) and 
+   [ifDefinedElse]((Rascal:Boolean-IfDefinedElse)) operator to guard a lookup in a map.
 *  Catch the `NoSuchKey` yourself, see [try catch]((Rascal:Statements-TryCatch)).
 
 .Examples
