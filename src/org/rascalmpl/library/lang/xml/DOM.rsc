@@ -13,9 +13,10 @@
 .Synopsis
 Functions for reading and writing XML files.
 .Description
-http://en.wikipedia.org/wiki/XML[XML] is a widely used markup language for encoding and exchanging documents.
 
-The Document Object Model http://en.wikipedia.org/wiki/Document_Object_Model[DOM] is a cross-platform and language-independent
+[XML](http://en.wikipedia.org/wiki/XML) is a widely used markup language for encoding and exchanging documents.
+
+The Document Object Model [DOM](http://en.wikipedia.org/wiki/Document_Object_Model) is a cross-platform and language-independent
 way of representing and manipulating HTML, XHTML and XML documents.
 
 *  An optional header line consisting of field names separated by comma's.
