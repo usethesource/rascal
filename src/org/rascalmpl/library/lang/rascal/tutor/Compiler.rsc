@@ -42,6 +42,7 @@ import lang::rascal::tutor::Names;
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 data Message(str cause="");
 
+
 public PathConfig defaultConfig
   = pathConfig(
   bin=|target://rascal/doc|,
@@ -63,6 +64,20 @@ public PathConfig defaultConfig
     |project://rascal/src/org/rascalmpl/courses/Developers|,
     |project://rascal/src/org/rascalmpl/library|
   ]);
+public list[Message] lastErrors = [];
+
+public void defaultCompile() {
+  errors = compile(defaultConfig);
+
+  for (e <- errors) {
+    println("<e.at>: <e.msg>");
+    if (e.cause?)
+        println("
+                '    <e.cause>"[1..]);
+  }
+
+  lastErrors = errors;
+}
 
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
