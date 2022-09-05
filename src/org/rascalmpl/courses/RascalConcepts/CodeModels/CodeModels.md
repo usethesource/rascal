@@ -29,11 +29,11 @@ for computing metrics: #/Libraries#analysis-m3[M3]. This M3 model consists of:
   for representing abstract syntax trees. 
 
 
-The core language independent model can be found here: [analysis::m3]((Library:analysis-m3)).
+The core language independent model can be found here: [analysis::m3]((Library:analysis::m3)).
 
 Extensions for representing facts about specific languages:
 
-*  [lang::java::m3]((Library:java::m3)).
+* [lang::java::m3]((Library:java::m3)).
 
 .Examples
 

@@ -14,7 +14,7 @@ A field name is redeclared.
 .Details
 
 .Description
-The definition of an [algebraic data type]((Rascal:Declarations-AlgebraicDatatype)) consists of a number of constructor functions.
+The definition of an [algebraic data type]((Rascal:Declarations-AlgebraicDataType)) consists of a number of constructor functions.
 Each constructor has named fields but the same field name may only be used in different constructors
 if it has the same type in all occurrences in the declaration.
 
