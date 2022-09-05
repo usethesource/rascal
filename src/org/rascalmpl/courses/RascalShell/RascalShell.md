@@ -4,7 +4,8 @@
 The interactive Rascal commandline shell
 
 .Details
-REPL
+
+REPL Completion
 
 .Description
 

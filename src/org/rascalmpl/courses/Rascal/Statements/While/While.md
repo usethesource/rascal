@@ -21,7 +21,7 @@ while
 The Boolean expression _Exp_ is evaluated repeatedly and _Statement_ is executed when the test is true. 
 Execution ends the first time that the test yields false. 
 The test _Exp_ is executed from scratch in each repetition and only the first `true` value (if any) is used.
-This is relevant when _Exp_ contains a ((Boolean Match)) or ((Boolean NoMatch)) operator.
+This is relevant when _Exp_ contains a ((Boolean-Match)) or ((Boolean-NoMatch)) operator.
 
 By default, the value of a while statement is the empty list. In general, the value of a while statement 
 consists of all values contributed by ((Statements-Append)) statements that are executed during the repeated execution 
