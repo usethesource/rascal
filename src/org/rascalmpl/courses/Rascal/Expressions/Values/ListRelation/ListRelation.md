@@ -1,18 +1,18 @@
 # ListRelation
 
 .Synopsis
-ListRelation values.
+
+List relations are lists of tuples with relational calculus operators defined on them.
 
 .Index
+
 [ ] < >
 
 .Syntax
+
 `[ < Exp~11~, Exp~12~, ... > , < Exp~21~, Exp~22~, ... > , ... ]`
 
 .Types
-
-//
-
 
 | `Exp~11~` |  `Exp~12~` |  ...  | `{ < Exp~11~, Exp~12~, ... > , ... }`   |
 | --- | --- | --- | --- |
@@ -26,6 +26,7 @@ ListRelation values.
 .Details
 
 .Description
+
 A list relation is a list of elements with the following property:
 
 *  All elements have the same static tuple type.
@@ -40,20 +41,22 @@ An n-ary list relation with m tuples is denoted by
 where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
 Since list relations are a form of list all operations (see ((Values-List))) and functions
-(see ((Library-List))) are also applicable to relations.
+(see ((Library:List))) are also applicable to relations.
 
 The following additional operators are provided for list relations:
 (((TOC)))
 
-There are also [library functions]((Library:ListRelation)) available for ListRelation.
+There are also [library functions]((Library:ListRelation)) available for list relations.
 
 
 .Examples
 ```rascal-shell
 [<1,10>, <2,20>, <3,30>]
 ```
-instead of lrel[int,int] we can also give `list[tuple[int,int]]` as type of the above expression
+
+Instead of `lrel[int,int]` we can also give `list[tuple[int,int]]` as type of the above expression
 remember that these types are interchangeable.
+
 ```rascal-shell,continue
 [<"a",10>, <"b",20>, <"c",30>]
 [<"a", 1, "b">, <"c", 2, "d">]

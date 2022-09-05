@@ -956,7 +956,7 @@ public java str itoString(list[&T] lst);
 Make a pair (triple) of lists from a list of pairs (triples).
 
 .Description
-Also see ((List-unzip));
+Also see ((List::unzip));
 
 .Examples
 ```rascal-shell
