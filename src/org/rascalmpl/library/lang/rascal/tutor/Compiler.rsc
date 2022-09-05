@@ -35,6 +35,7 @@ import lang::xml::IO;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
 import lang::rascal::tutor::apidoc::ExtractDoc;
 import lang::rascal::tutor::apidoc::ExtractInfo;
+import lang::rascal::tutor::apidoc::DeclarationInfo;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Names;
 
@@ -160,9 +161,9 @@ list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index i
     // This is where error locations break. Have to wire the line
     // and offset and the Output model through the old `extractDoc` function
     // to fix that.
-    <tmp, i> = extractDoc(parent, m);
+    <tmp, inf> = extractDoc(parent, m);
 
-    return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec, ind, []);
+    return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec, ind, ["<i.moduleName>::<i.name>" | DeclarationInfo i <- inf, i has name]);
 }
 
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
