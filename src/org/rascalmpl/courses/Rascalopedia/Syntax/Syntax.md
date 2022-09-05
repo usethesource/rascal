@@ -1,6 +1,7 @@
 # Syntax
 
 .Synopsis
+
 The rules that describe correctly structured programs in a language.
 
 .Syntax
@@ -36,7 +37,7 @@ http://dictionary.reference.com/browse/syntax[Dictionary.com] is more elaborate 
 http://en.wikipedia.org/wiki/Syntax_(programming_languages[Wikipedia] says:  the syntax of a programming language is the
 set of rules that define the combinations of symbols that are considered to be correctly structured programs in that language.
 
-In linguistics, a ((Grammar)) is a concept that includes syntax.
+In linguistics, a ((Rascalopedia:Grammar)) is a concept that includes syntax.
 However, in the cases that are relevant for meta-programming they can be used interchangeably.
 We will use them as synonyms.
 

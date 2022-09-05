@@ -47,7 +47,7 @@ The cases `head(nil)` and `tail(nil)` are left undefined (and usually correspond
 In Rascal, lists are surrounded by brackets `[` and `]` and the elements are separated by commas.
 Each list has a type of the form `list[T]`, where _T_ is the smallest common type of all list elements.
 Read the description of [lists and their operators]((Rascal:Values-List))
-and of [library functions on lists]((Library:List)).
+and of [library functions on lists]((Library:module:List)).
 
 .Examples
 ## Lists in Daily Life
