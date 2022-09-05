@@ -133,7 +133,7 @@ the `MultipleKey` exception is raised since
 an attempt is made to create a map where more than one 
 value would be associated with the same key.
 
-Also see ((Map-invert)) and ((Exception)).
+Also see ((Map-invert)) and ((module:Exception)).
 
 .Examples
 ```rascal-shell,error
