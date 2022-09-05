@@ -30,11 +30,13 @@ import Location;
 import ParseTree;
 import util::Reflective;
 import util::FileSystem;
-import util::UUID;
+
 
 import lang::xml::IO;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
 import lang::rascal::tutor::apidoc::ExtractDoc;
+import lang::rascal::tutor::apidoc::DeclarationInfo;
+import lang::rascal::tutor::apidoc::ExtractInfo;
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 data Message(str cause="");
@@ -72,7 +74,10 @@ rel[str, str] createConceptIndex(list[loc] srcs)
 
 @synopsis{creates a lookup table for concepts nested in a folder}
 rel[str, str] createConceptIndex(loc src)
-  = { 
+  = // first we collect index entries for concept names, each file is one concept which
+    // can be linked to in 6 different ways ranging from very short but likely inaccurate to
+    // rather long, but guaranteed to be exact:
+    { 
       // `((StrictSuperSetSet)) -> #Expressions-Values-Set-StrictSuperSet``
       <cf.file, fr>,
 
@@ -83,7 +88,7 @@ rel[str, str] createConceptIndex(loc src)
       *{<"<fr[1..]>", fr>},
 
       // `((Rascal:StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
-      <"<capitalize(src.file)>:<capitalize(cf.file)>", "/<src.file>.md<fr>">,
+      <"<capitalize(src.file)>:<capitalize(cf.file)>", "/<capitalize(src.file)>.md<fr>">,
 
       // `((Rascal:Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
       *{<"<capitalize(src.file)>:<capitalize(f.parent.parent.file)>-<capitalize(cf.file)>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
@@ -93,11 +98,36 @@ rel[str, str] createConceptIndex(loc src)
 
     | loc f <- find(src, isConceptFile), fr := fragment(src, f), cf := f[extension=""]
     }
-  +
+  + // Now follow the index entries for image files:
     { <"<f.parent.file>-<f.file>", "/assets/<md5>.<f.extension>">,
       <f.file, "/assets/<md5>.<f.extension>">,
       <"<capitalize(src.file)>:<f.file>", "/assets/<md5>.<f.extension>">
     |  loc f <- find(src, isImageFile), md5 := md5HashFile(f)
+    }
+  + // Here come the index entries for Rascal modules and declarations:
+    {  // `((getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
+      *{<"<item.kind>:<item.name>","<moduleFragment(item.moduleName)>-<item.name>">, <item.name, "<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
+     
+      // `((Library:getDefaultPathConfig))` -> `/Library.md#util-Reflective-getDefaultPathConfig`
+      *{<"<capitalize(src.file)>:<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" >,
+         <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
+
+      // `((util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
+      *{<"<item.moduleName>::<item.name>", "<moduleFragment(item.moduleName)>-<item.name>" >,
+        <"<item.kind>:<item.moduleName>::<item.name>", "<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
+
+      // ((Library:util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
+      *{<"<capitalize(src.file)>:<item.moduleName>::<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" >,
+         <"<capitalize(src.file)>:<item.kind>:<item.moduleName>::<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
+
+      // ((Set)) -> `#Set`
+      *{<item.moduleName, "<moduleFragment(item.moduleName)>" >, <"module:<item.moduleName>", "<moduleFragment(item.moduleName)>" > | item is moduleInfo},
+
+      // `((Library:Set))` -> `/Library.md#Set`
+      *{<"<capitalize(src.file)>:<item.moduleName>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>" >,
+         <"<capitalize(src.file)>:module:<item.moduleName>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>" > | item is moduleInfo}
+
+      | loc f <- find(src, "rsc"), list[DeclarationInfo] inf := extractInfo(f), item <- inf
     }
     ;
 
@@ -252,7 +282,11 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
         return [
                   err(warning("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
                   *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
-              ]; 
+              ];
+      case {a:/^#<link:.*$>/, b:/^\/[^#]+#<link2:.*$>/}:
+         if (link == link2) {
+            return compileMarkdown(["<prefix>[<addSpaces(link2)>](<b>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+         }  else fail;
       case {_, _, *_}:
         return [
                   err(warning("Ambiguous concept link: <link> resolves to all of <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
@@ -388,6 +422,7 @@ bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
 str fragment(loc concept) = stripDoubleEnd(replaceAll("#<capitalize(concept[extension=""].path[1..])>", "/", "-"));
 str fragment(loc root, loc concept) = fragment(relativize(root, concept));
+str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
 
 str stripDoubleEnd(/<prefix:.*>\-<a:[^\-]+>\-<b:[^\-]+>$/) = "<prefix>-<b>" when a == b;
 default str stripDoubleEnd(str x) = x;
@@ -408,5 +443,6 @@ list[str] filterErrors([/^warning, ambiguity/, *str rest]) = filterErrors(rest);
 list[str] filterErrors([/^Generating parser/, *str rest]) = filterErrors(rest);
 default list[str] filterErrors([str head, *str tail]) = [head, *filterErrors(tail)];
 list[str] filterErrors([]) = [];
+
 
 
