@@ -38,6 +38,7 @@ import lang::rascal::tutor::apidoc::ExtractInfo;
 import lang::rascal::tutor::apidoc::DeclarationInfo;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Names;
+import lang::rascal::tutor::Output;
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 data Message(str cause="");
@@ -64,16 +65,29 @@ public PathConfig defaultConfig
     |project://rascal/src/org/rascalmpl/courses/Developers|,
     |project://rascal/src/org/rascalmpl/library|
   ]);
+
+public PathConfig onlyAPIconfig
+  = defaultConfig[srcs=[|project://rascal/src/org/rascalmpl/library|]];
+
 public list[Message] lastErrors = [];
 
 public void defaultCompile() {
   errors = compile(defaultConfig);
 
   for (e <- errors) {
-    println("<e.at>: <e.msg>");
-    if (e.cause?)
-        println("
-                '    <e.cause>"[1..]);
+    println("<e.at>: <e.msg><if (e.cause?) {>
+            '    <e.cause><}>");
+  }
+
+  lastErrors = errors;
+}
+
+public void onlyAPICompile() {
+ errors = compile(onlyAPIconfig);
+
+  for (e <- errors) {
+    println("<e.at>: <e.msg><if (e.cause?) {>
+            '    <e.cause><}>");
   }
 
   lastErrors = errors;
@@ -107,14 +121,7 @@ list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Ind
   return issues;
 }
 
-data Output 
-  = out(str content)
-  | err(Message message)
-  | details(list[str] order)
-  | search(list[str] contents, str fragment)
-  ;
 
-alias Index = rel[str reference, str url];
 
 list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) {
     println("\rcompiling <src>");

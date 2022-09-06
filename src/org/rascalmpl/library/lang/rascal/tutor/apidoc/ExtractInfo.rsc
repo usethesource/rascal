@@ -21,13 +21,14 @@ private list[DeclarationInfo] doExtractInfo(loc moduleLoc, datetime _/*lastModif
 
 list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
     moduleName = "<header.name>";
-    tags = getTags(header.tags);
+    tags = getTagContents(header.tags);
+    locs = getTagLocations(header.tags);
     tls = [ *extractTopLevel(moduleName, tl) |  tl <- body.toplevels ];
 
     content = trim(tags["doc"] ? "") + trim((!(tags["doc"]?)) ? contentFromTags(tags) : "");
     synopsis = getSynopsis(tags, content);
 
-    return moduleInfo(moduleName, m@\loc, synopsis, content) + tls;
+    return moduleInfo(moduleName=moduleName, src=m@\loc, synopsis=synopsis, doc=content) + tls;
 }
 
 str contentFromTags(map[str,str] tags) 
@@ -55,23 +56,25 @@ list[DeclarationInfo] extractTopLevel(str moduleName, (Toplevel) `<Declaration d
 
 // -- variable declaration ------------------------------------------
 
-list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {  
-    return [];
-}       
+list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`)
+  = [];
 
 // -- miscellaneous declarations ------------------------------------
 
-list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType>@<Name name> ;`) = [  ];
+list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType>@<Name name> ;`) 
+  = [];
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`) {
-     dtags = getTags(tags);
+     dtags = getTagContents(tags);
      content = trim(dtags["doc"] ? "");
-     return [ aliasInfo(moduleName, "<user>", "<base>", d@\loc, getSynopsis(dtags, content), content) ];
+     return [ aliasInfo(moduleName=moduleName, name="<user>", signature="<base>", src=d@\loc, synopsis=getSynopsis(dtags, content), doc=content)];
 }
 
-list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  = [ ];
+list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  
+  = [ ];
 
-list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> ;`)  = [ ];
+list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> ;`)  
+  = [ ];
 
 str align({Variant "|"}+ variants){
    res = "";
@@ -84,48 +87,46 @@ str align({Variant "|"}+ variants){
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> ;`) { 
-    dtags = getTags(tags);
+    dtags = getTagContents(tags);
     adtName = "<user.name>";
     content = trim(dtags["doc"] ? "");
-    return [dataInfo(moduleName, adtName, "data <user> <commonKeywordParameters>",
-                                       d@\loc, getSynopsis(dtags, content), content)];
+    return [dataInfo(moduleName=moduleName, name=adtName, signature="data <user> <commonKeywordParameters>",
+                                       src=d@\loc, synopsis=getSynopsis(dtags, content), doc=content)];
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) { 
-    dtags = getTags(tags);
+    dtags = getTagContents(tags);
     adtName = "<user.name>";
     infoVariants = [ genVariant(moduleName, variant) | variant <- variants ];
     content = trim(dtags["doc"] ? "");
-    return dataInfo(moduleName, adtName, "data <user> <commonKeywordParameters> <align(variants)>",
-                                       d@\loc, getSynopsis(dtags, content), content) + infoVariants;
+    return dataInfo(moduleName=moduleName, name=adtName, signature="data <user> <commonKeywordParameters> <align(variants)>",
+                                       src=d@\loc, synopsis=getSynopsis(dtags, content), doc=content) + infoVariants;
 }
 
-DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg ","}* _> <KeywordFormals _>)`){
+DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg ","}* _> <KeywordFormals _>)`) {
     signature = "<v>";
-    return constructorInfo(moduleName, "<name>", "<v>", v@\loc);
+    return constructorInfo(moduleName=moduleName, name="<name>", signature="<v>", src=v@\loc);
 }
 
-list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = [ extractFunDecl(moduleName, functionDeclaration) ];
+list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<FunctionDeclaration functionDeclaration>`) 
+  = [ extractFunDecl(moduleName, functionDeclaration) ];
 
 // -- function declaration ------------------------------------------
 
-DeclarationInfo extractFunDecl(str moduleName, fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   {
-  return extractFunctionDeclaration(moduleName, fd);
-}
+DeclarationInfo extractFunDecl(str moduleName, fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)
+  = extractFunctionDeclaration(moduleName, fd);
 
-DeclarationInfo extractFunDecl(str moduleName, fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
-  return extractFunctionDeclaration(moduleName, fd);
-}
+DeclarationInfo extractFunDecl(str moduleName, fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`)
+  = extractFunctionDeclaration(moduleName, fd);
 
-DeclarationInfo extractFunDecl(str moduleName, fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
-  return extractFunctionDeclaration(moduleName, fd); 
-}
+DeclarationInfo extractFunDecl(str moduleName, fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`) 
+  = extractFunctionDeclaration(moduleName, fd); 
 
-DeclarationInfo extractFunDecl(str moduleName, fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
-  return extractFunctionDeclaration(moduleName, fd);
-}
 
-private DeclarationInfo extractFunctionDeclaration(str moduleName, FunctionDeclaration fd){
+DeclarationInfo extractFunDecl(str moduleName, fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`)
+  = extractFunctionDeclaration(moduleName, fd);
+ 
+private DeclarationInfo extractFunctionDeclaration(str moduleName, FunctionDeclaration fd) {
   fname = "<fd.signature.name>";
   
   signature =  "<fd.signature>";
@@ -133,9 +134,9 @@ private DeclarationInfo extractFunctionDeclaration(str moduleName, FunctionDecla
     signature = signature[size("java")+1 .. ];
   }
    
-  tags =  getTags(fd.tags);
+  tags =  getTagContents(fd.tags);
   content = trim(tags["doc"] ? "");
-  return functionInfo(moduleName, fname, signature, fd@\loc, getSynopsis(tags, content), content);
+  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags, content), doc=content);
 }
 
 /********************************************************************/
@@ -146,7 +147,7 @@ str getSynopsis(map[str, str] tags, str docContents) {
     if ("doc" in tags) {
       s = trim(docContents);
       synopsis = ".Synopsis\n";
-      if(startsWith(s, synopsis)){
+      if (startsWith(s, synopsis)){
           s = s[size(synopsis) ..];
           return trim(s[ .. findFirst(s, "\n")]);
       }
@@ -160,7 +161,7 @@ str getSynopsis(map[str, str] tags, str docContents) {
     }
 }
 
-public map[str,str] getTags(Tags tags){
+map[str label, str doc] getTagContents(Tags tags){
    m = ();
    for(tg <- tags.tags){
      str name = "<tg.name>";
@@ -174,3 +175,5 @@ public map[str,str] getTags(Tags tags){
    }
    return m;
 }
+
+map[str label, loc src] getTagLocations(Tags tags) = ( "<tg.name>" : tg.src | tg <- tags.tags);
