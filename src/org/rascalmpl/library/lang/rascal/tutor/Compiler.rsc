@@ -7,7 +7,7 @@
   tags with those declarations. @doc is also supported for backward compatibility's purposes.
   The resulting markdown is processed by the rest of the compiler, as if written by hand.
 
-  Every .md file is scanned for ```rascal-shell elements. The contents between the ``` are
+  Every .md file is scanned for rascal-shell between triple backticks elements. The contents between the backticks are
   executed by a private Rascal REPL and the output is captured in different ways. Normal IO
   via stderr and stdout is literally printed back and HTML or image output is inlined into 
   the document.
@@ -33,9 +33,8 @@ import util::FileSystem;
 
 import lang::xml::IO;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
-import lang::rascal::tutor::apidoc::ExtractDoc;
+import lang::rascal::tutor::apidoc::GenerateMarkdown;
 import lang::rascal::tutor::apidoc::ExtractInfo;
-import lang::rascal::tutor::apidoc::DeclarationInfo;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Names;
 import lang::rascal::tutor::Output;
@@ -111,7 +110,8 @@ list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Ind
     '
     'The following issues have been detected while preparing this draft document. It is not ready for publication.
     '
-    '<for (str severity(str msg, loc at) <- issues) {>1. [<severity>] <at.top>:<if (at.begin?) {><at.begin.line>,<at.begin.column><}><msg>
+    '<for (str severity(str msg, loc at) <- issues) {>1. [<severity>] <at.top>:<if (at.begin?) {><at.begin.line>,<at.begin.column><}>
+    '   \> <msg>
     '<}>
     '<}><for (out(l) <- output) {><l>
     '<}>"
@@ -177,16 +177,8 @@ list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Inde
 }
 
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
-list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
-    parent = relativize(pcfg.currentRoot, m).parent.path;
- 
-    // This is where error locations break. Have to wire the line
-    // and offset and the Output model through the old `extractDoc` function
-    // to fix that.
-    <tmp, inf> = extractDoc(parent, m);
-
-    return compileMarkdown(split("\n", tmp), 1, 0, pcfg, exec, ind, ["<i.moduleName>::<i.name>" | DeclarationInfo i <- inf, i has name]);
-}
+list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index ind)
+  = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
 
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, 

@@ -995,8 +995,8 @@ Also see ((List-unzip)).
 .Examples
 ```rascal-shell
 import List;
-zip3([3, 1, 4], ["thirty", "ten", "forty"]);
-zip3([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
+zip2([3, 1, 4], ["thirty", "ten", "forty"]);
+zip2([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
 ```}
 public list[tuple[&T first, &U second]] zip2(list[&T] a, list[&U] b) {
 	if(size(a) != size(b))
