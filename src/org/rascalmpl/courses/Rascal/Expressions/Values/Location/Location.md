@@ -38,7 +38,7 @@ Location values are represented by the type `loc` and serve the following purpos
   This is very handy to associate a source code location which extracted facts.
 
 
-URIs are explained in http://en.wikipedia.org/wiki/Uniform_Resource_Identifier[Uniform Resource Identifier]. From their original definition in RFC3986 we cite the following useful overview of an URI:
+URIs are explained in [Uniform Resource Identifier](http://en.wikipedia.org/wiki/Uniform_Resource_Identifier). From their original definition in RFC3986 we cite the following useful overview of an URI:
 ```rascal
 
          foo://example.com:8042/over/there?name=ferret#nose

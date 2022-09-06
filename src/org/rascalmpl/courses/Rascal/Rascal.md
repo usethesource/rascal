@@ -27,7 +27,7 @@ You can find more (accessible) information related to Rascal here:
    See [Further Reading]((GettingHelp:GettingHelp-FurtherReading)) for a reading guide.
 *  Library functies are described in [Rascal Libraries]((Libraries)).
 *  We do not maintain a list of frequently asked questions (faq) but 
-   use http://stackoverflow.com/questions/tagged/rascal[StackOverflow] instead.
+   use [StackOverflow](http://stackoverflow.com/questions/tagged/rascal) instead.
 
 .Examples
 

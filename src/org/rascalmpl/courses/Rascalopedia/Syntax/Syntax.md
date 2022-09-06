@@ -16,13 +16,13 @@ The rules that describe correctly structured programs in a language.
 
 .Description
 
-According to the http://www.merriam-webster.com/dictionary/syntax[Merriam-Webster] dictionary _syntax_ means
+According to the [Merriam-Webster](http://www.merriam-webster.com/dictionary/syntax) dictionary _syntax_ means
 
 *  the way in which linguistic elements (as words) are put together to form constituents (as phrases or clauses);
 *  the part of grammar dealing with this.
 
 
-http://dictionary.reference.com/browse/syntax[Dictionary.com] is more elaborate and defines _syntax_ as:
+[Dictionary.com](http://dictionary.reference.com/browse/syntax) is more elaborate and defines _syntax_ as:
 
 *  _Linguistics_:
 **  a. the study of the rules for the formation of grammatical sentences in a language.

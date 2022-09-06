@@ -34,11 +34,11 @@ and of [library functions on sets]((Library:Set)).
 
 *  A cutlery set consisting of knife, fork and the like.
    ![]((cutlery-set.jpg))
-   http://www.ikea.com/gb/en/catalog/products/50087185/[credit]
+   [credit](http://www.ikea.com/gb/en/catalog/products/50087185/)
 *  A crowd of people.
 *  A stamp collection (but be aware that the duplicates will disappear!)
    ![]((stamp-collecting.jpg))
-   http://www.life123.com/hobbies/antiques-collectibles/stamps/stamp-collecting-2.shtml[credit]
+   [credit](http://www.life123.com/hobbies/antiques-collectibles/stamps/stamp-collecting-2.shtml)
 
 ## Sets in Computer Science
 

@@ -6,7 +6,7 @@ The global architeture of the Rascal Tutor
 .Description
 
 At the highest level, a course consists of concept files, which are translated to intermediate 
-http://asciidoctor.org[AsciiDoc] files,
+[AsciiDoc](http://asciidoctor.org) files,
 which in their turn, can be translated to html, pdf, epub and other output formats:
 
 ![]((Global.png))

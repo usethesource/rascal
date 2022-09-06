@@ -22,7 +22,7 @@ Cartesian product of two list relation values.
 .Details
 
 .Description
-Returns a binary relation that is the http://en.wikipedia.org/wiki/Cartesian_product[Cartesian product] of two lists.
+Returns a binary relation that is the [Cartesian product](http://en.wikipedia.org/wiki/Cartesian_product) of two lists.
 
 .Examples
 ```rascal-shell

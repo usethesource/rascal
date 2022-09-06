@@ -13,7 +13,7 @@ Rascal explained for ASF+SDF programmers.
 
 .Description
 
-Rascal is the successor of the specification language ASF+SDF that is part of the http://www.meta-environment.org[ASF+SDF Meta-Environment].
+Rascal is the successor of the specification language ASF+SDF that is part of the [ASF+SDF Meta-Environment](http://www.meta-environment.org).
 
 What are the differences between ASF+SDF and Rascal? What are the commonalities?
 

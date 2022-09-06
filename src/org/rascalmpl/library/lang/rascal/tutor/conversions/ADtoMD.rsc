@@ -86,6 +86,10 @@ str convertLine(/^<prefix:.*>\(\(Rascal:Concepts-<rest:[^)]+>\)\)<postfix:.*>$/)
 str convertLine(/^<prefix:.*>`<prequote:[^`]*>_<italics:[A-Za-z0-9~]+>_<postquote:[^`]*>`<postfix:.*$>/)
   = convertLine("<prefix>`<prequote><italics><postquote>`<postfix>");
 
+// http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.3[procedure call]
+str convertLine(/^<prefix:.*>http\:\/\/<url:[^\[\(\)]+>\[<label:[^\]\(\)]+>\]<postfix:.*$>/)
+  = convertLine("<prefix>[<label>](http://<url>)<postfix>");
+
 default str convertLine(str line) = line;
 
 str extractTitle(/title=\"<t:[^\"]+>\"/) = t;

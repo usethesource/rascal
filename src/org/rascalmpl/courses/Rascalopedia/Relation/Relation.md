@@ -20,7 +20,7 @@ _n_-ary relation _R_ is characterized by _R_ &subseteq;  _D_~1~ &times; _D_~2~ &
 In other words, _R_ consists of a set of tuples < _V~1~_, ..., _V~n~_ > where each _V_~i~ is an element of
 the set _D_~i~. When _n_ = 2, we call the relation a http://en.wikipedia.org/wiki/Relation_(mathematics)[binary relation].
 
-In http://en.wikipedia.org/wiki/Relational_algebra[database theory], a relation is a table with a heading and an unordered set of tuples:
+In [database theory](http://en.wikipedia.org/wiki/Relational_algebra), a relation is a table with a heading and an unordered set of tuples:
 
 | _D~1~ Name~1~_ | _D~2~ Name~2~_ | ... | _D~n~ Name~n~_ |
 | --- | --- | --- | --- |
@@ -46,11 +46,11 @@ see [functions on sets]((Library:Set))).
 
 *  The _parent-of_ or _friend-of_ relation between people.
    ![]((char-relation.jpg))
-   http://www.translatedmemories.com/bookpgs/Pg10-11CharRelation.jpg[credit]
+   [credit](http://www.translatedmemories.com/bookpgs/Pg10-11CharRelation.jpg)
 *  A character relation map, describing the relations between the characters in a play or soap series.
 *  A listing of the top 2000 songs of all times including the position, artist name, song title, the year the song was published.
    ![]((top2000-2010.jpg))
-   http://top2011.radio2.nl/lijst/2010[credit]
+   [credit](http://top2011.radio2.nl/lijst/2010)
 
 
 ## Relations in computer science

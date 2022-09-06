@@ -18,10 +18,10 @@ Visual presentation of scientific or abstract data.
 Visualization is the activity of presenting scientific data or abstract structures
 in a visual form. There are several subareas:
 
-*  http://en.wikipedia.org/wiki/Scientific_visualization[Scientific visualization]: deals with data that are geometric in nature and
+*  [Scientific visualization](http://en.wikipedia.org/wiki/Scientific_visualization): deals with data that are geometric in nature and
   may have a time dimension.
-*  http://en.wikipedia.org/wiki/Information_visualization[Information visualization](: deals with abstract data structures like trees, graphs and relations.
-* http://en.wikipedia.org/wiki/Software_visualization[Software Visualization]: deals with facts related to software.
+*  [Information visualization](http://en.wikipedia.org/wiki/Information_visualization)(: deals with abstract data structures like trees, graphs and relations.
+* [Software Visualization](http://en.wikipedia.org/wiki/Software_visualization): deals with facts related to software.
 
 
 .Examples
@@ -32,7 +32,7 @@ See ((Recipes:Visualization)).
 
 
 Robert vam Liere and Wim de Leeuw have visualized liquid flows.
-There is also an http://homepages.cwi.nl/~robertl/movies/flow1.mpg[animated] version.
+There is also an [animated](http://homepages.cwi.nl/~robertl/movies/flow1.mpg) version.
 
 
 ![]((flow.jpg))
@@ -49,7 +49,7 @@ Facebook's Friend Wheel showed the connection between friends:
 
 ## Software Visualization
 
-Stephen Eick http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.67.962[visualizes] the frequency of execution for each line
+Stephen Eick [visualizes](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.67.962) the frequency of execution for each line
 in all source files of a software system.
 
 
@@ -57,7 +57,7 @@ in all source files of a software system.
 
 
 
-Daniel Bierwirth http://www.danielbierwirth.de/index.php/reseachprojects/8-myresearch/mastercurriculumresearchcat/73-bundle-view-software-visualization[shows] the connections (colored lines) between system components (at outer circle).
+Daniel Bierwirth [shows](http://www.danielbierwirth.de/index.php/reseachprojects/8-myresearch/mastercurriculumresearchcat/73-bundle-view-software-visualization) the connections (colored lines) between system components (at outer circle).
 
 
 ![]((bundle.jpg))

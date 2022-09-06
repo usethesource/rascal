@@ -169,7 +169,9 @@ public java str xmlCompact(Node x);
 Convert a DOM instance to a pretty printed XML string.
 
 .Examples
+
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
+
 ```rascal-shell
 import IO;
 import lang::xml::DOM;

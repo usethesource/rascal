@@ -14,7 +14,7 @@ Transform an ((Abstract Syntax Tree)) into a formatted string.
 .Details
 
 .Description
-A http://en.wikipedia.org/wiki/Prettyprint[pretty printer]
+A [pretty printer](http://en.wikipedia.org/wiki/Prettyprint)
 formats the source code of programs. Alternative names are _formatter_ or _beautifier_.
 Pretty printers differ in the inputs they accept:
 

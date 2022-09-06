@@ -25,9 +25,9 @@ http://www.rascal-mpl.org
 ```
 gives http://www.rascal-mpl.org and
 ```
-http://www.rascal-mpl.org[Rascal]
+[Rascal](http://www.rascal-mpl.org)
 ```
-gives http://www.rascal-mpl.org[Rascal]. Try it!
+gives [Rascal](http://www.rascal-mpl.org). Try it!
 
 .Benefits
 

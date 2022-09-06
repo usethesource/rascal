@@ -54,11 +54,11 @@ and of [library functions on lists]((Library:module:List)).
 
 *  A line of people waiting for the super market checkout or bus stop. 
    ![]((queue.png))
-   http://www.realbollywood.com[credit]
+   [credit](http://www.realbollywood.com)
 *  The wagons of a train.
 *  The Top 100 Music Charts.
    ![]((hot100.png))
-   http://www.billboard.com/charts/hot-100#/charts/hot-100[credit]
+   [credit](http://www.billboard.com/charts/hot-100#/charts/hot-100)
 *  Twitter users ordered according to number of followers.
 *  A _to do_ list.
 
