@@ -139,8 +139,8 @@ rel[int position, str artist, str title, int year] R1 = {
   <2,"Queen","Bohemian rhapsody",1975>,
   <3,"Boudewijn de Groot","Avond",1997>
 };
-writeCSV(#rel[int position, str artist, str title, int year], R1, |courses:///Rascal/Libraries/lang/csv/ex1a.csv|);
-writeCSV(rel[int, str, str, int], R1, |courses:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
+writeCSV(#rel[int position, str artist, str title, int year], R1, |tmp:///Rascal/Libraries/lang/csv/ex1a.csv|);
+writeCSV(rel[int, str, str, int], R1, |tmp:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
 ```
 will produce the following files:
 
