@@ -10,7 +10,9 @@ import lang::rascal::tutor::apidoc::DeclarationInfo;
 import lang::rascal::tutor::apidoc::ExtractInfo;
 import lang::rascal::tutor::Names;
 
-rel[str, str] createConceptIndex(PathConfig pcfg) {
+public alias Index = rel[str reference, str url];
+
+Index createConceptIndex(PathConfig pcfg) {
     ind = createConceptIndex(pcfg.srcs);
 
     // store index for later usage by depending documentation projects
