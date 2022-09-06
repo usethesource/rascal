@@ -59,7 +59,7 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
 
 list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
-        out("## <d.moduleName> {#<fragment(d.moduleName)>}"),
+        out("## module <d.moduleName> {#<fragment(d.moduleName)>}"),
         empty(),
         out("### Usage"),
         empty(),
@@ -71,7 +71,7 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
 
 list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
-        out("## <d.name> {<fragment(d.moduleName)>-<d.name>}"),
+        out("## function <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         empty(),
         *[out("* `<ov>`") | ov <- overloads],
         empty(),
@@ -84,7 +84,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
     
  list[Output] declInfo2Doc(str parent, d:dataInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
-        out("## <d.name> {<fragment(d.moduleName)>-<d.name>}"),
+        out("## data <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         empty(),
         *[out("* `<ov>`") | ov <- overloads],
         empty(),
@@ -93,7 +93,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
 
 list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
-        out("## <d.name> {<fragment(d.moduleName)>-<d.name>}"),
+        out("## alias <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         empty(),
         *[out("* `<ov>`") | ov <- overloads],
         empty(),
