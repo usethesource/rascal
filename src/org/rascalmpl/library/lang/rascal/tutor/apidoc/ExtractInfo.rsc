@@ -22,31 +22,13 @@ private list[DeclarationInfo] doExtractInfo(loc moduleLoc, datetime _/*lastModif
 list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
     moduleName = "<header.name>";
     tags = getTagContents(header.tags);
-    locs = getTagLocations(header.tags);
+    
     tls = [ *extractTopLevel(moduleName, tl) |  tl <- body.toplevels ];
 
-    content = trim(tags["doc"] ? "") + trim((!(tags["doc"]?)) ? contentFromTags(tags) : "");
-    synopsis = getSynopsis(tags, content);
+    synopsis = getSynopsis(tags);
 
-    return moduleInfo(moduleName=moduleName, src=m@\loc, synopsis=synopsis, doc=content) + tls;
+    return moduleInfo(moduleName=moduleName, src=m@\loc, synopsis=synopsis, docs=sortedDocTags(tags)) + tls;
 }
-
-str contentFromTags(map[str,str] tags) 
-  = "<if (tags["synopsis"]?) {>### Synopsis
-    '<trim(tags["synopsis"])><}>
-    '<if (tags["details"]?) {>### Details
-    '<trim(tags["details"])><}>
-    '<if (tags["types"]?) {>### Types
-    '<trim(tags["types"])><}>
-    '<if (tags["description"]?) {>### Description
-    '<trim(tags["description"])><}>
-    '<if (tags["examples"]?) {>### Examples
-    '<trim(tags["examples"])><}>
-    '<if (tags["benefits"]?) {>### Benefits
-    '<trim(tags["benefits"])><}>
-    '<if (tags["pitfalls"]?) {>### Pitfalls
-    '<trim(tags["pitfalls"])><}>
-    ";
 
 /********************************************************************/
 /*                  Process declarations in a module                */
@@ -66,8 +48,7 @@ list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags>
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`) {
      dtags = getTagContents(tags);
-     content = trim(dtags["doc"] ? "");
-     return [ aliasInfo(moduleName=moduleName, name="<user>", signature="<base>", src=d@\loc, synopsis=getSynopsis(dtags, content), doc=content)];
+     return [ aliasInfo(moduleName=moduleName, name="<user>", signature="<base>", src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  
@@ -89,18 +70,18 @@ str align({Variant "|"}+ variants){
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> ;`) { 
     dtags = getTagContents(tags);
     adtName = "<user.name>";
-    content = trim(dtags["doc"] ? "");
+    
     return [dataInfo(moduleName=moduleName, name=adtName, signature="data <user> <commonKeywordParameters>",
-                                       src=d@\loc, synopsis=getSynopsis(dtags, content), doc=content)];
+      src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) { 
     dtags = getTagContents(tags);
     adtName = "<user.name>";
     infoVariants = [ genVariant(moduleName, variant) | variant <- variants ];
-    content = trim(dtags["doc"] ? "");
+    
     return dataInfo(moduleName=moduleName, name=adtName, signature="data <user> <commonKeywordParameters> <align(variants)>",
-                                       src=d@\loc, synopsis=getSynopsis(dtags, content), doc=content) + infoVariants;
+                                       src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags)) + infoVariants;
 }
 
 DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg ","}* _> <KeywordFormals _>)`) {
@@ -135,45 +116,63 @@ private DeclarationInfo extractFunctionDeclaration(str moduleName, FunctionDecla
   }
    
   tags =  getTagContents(fd.tags);
-  content = trim(tags["doc"] ? "");
-  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags, content), doc=content);
+  
+  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags), docs=sortedDocTags(tags));
 }
 
-/********************************************************************/
-/*      Get tags in a function declaration                          */
-/********************************************************************/
 
-str getSynopsis(map[str, str] tags, str docContents) {
-    if ("doc" in tags) {
-      s = trim(docContents);
-      synopsis = ".Synopsis\n";
-      if (startsWith(s, synopsis)){
-          s = s[size(synopsis) ..];
-          return trim(s[ .. findFirst(s, "\n")]);
+str getSynopsis(rel[str, DocTag] tags) {
+    if (docTag(content=str docContents) <- tags["doc"]) {
+      if ([*_, /^.Synopsis\s+<rest:.*>$/, *str cont, /^.[A-Za-z].*$/, *str _] := split("\n", docContents)) {
+        return intercalate(" ", [rest, *cont]);
       }
-      return s [ .. findFirst(s, "\n")];
+      else if ([*_, /^#+\s*Synopsis\s+<rest:.*>$/, *str cont, /^.[A-Za-z].*$/, *str _] := split("\n", docContents)) {
+        return intercalate(" ", [rest, *cont]);
+      }
     }
-    else if ("synopsis" in tags) {
-      return trim(tags["synopsis"]);
+
+    if (docTag(content=str docContents) <- tags["synopsis"]) {
+      return trim(intercalate(" ", split("\n", docContents)));
     }
     else {
       return "";
     }
 }
 
-map[str label, str doc] getTagContents(Tags tags){
-   m = ();
-   for(tg <- tags.tags){
-     str name = "<tg.name>";
-     if(tg is \default){
-        cont = "<tg.contents>"[1 .. -1];
-        m[name] = cont;
-     } else if (tg is empty)
-        m[name] = "";
-     else
-        m[name] = "<tg.expression>"[1 .. -1];
-   }
-   return m;
+
+bool isTutorTag(str label) = label in {"doc", "synopsis", "syntax", "types", "details", "description", "examples", "benefits", "pitfalls"};
+
+@synopsis{extracts the contents of _all_ tags from a declaration syntax tree and stores origin information}
+rel[str, DocTag] getTagContents(Tags tags){
+  m = {};
+  for (tg <- tags.tags){
+    str name = "<tg.name>";
+    if (!isTutorTag(name)) {
+      continue;
+    }
+
+    if (tg is \default) {
+      cont = "<tg.contents>"[1 .. -1];
+      m += <name, docTag(label=name, content=cont, src=tg.src)>;
+    } else if (tg is empty) {
+      m += <name, docTag(label=name, content="", src=tg.src)>;
+    } else {
+      m += <name, docTag(label=name, content="<tg.expression>"[1 .. -1], src=tg.src)>;
+    }
+  }
+
+  return m;
 }
 
-map[str label, loc src] getTagLocations(Tags tags) = ( "<tg.name>" : tg.src | tg <- tags.tags);
+@synopsis{lists the supported documentation tags in the prescribed order}
+list[DocTag] sortedDocTags(rel[str, DocTag] tags) 
+  = [ *tags["doc"],
+      *tags["synopsis"],
+      *tags["syntax"],
+      *tags["types"],
+      *tags["details"],
+      *tags["description"],
+      *tags["examples"],
+      *tags["benefits"],
+      *tags["pitfalls"]
+    ];
