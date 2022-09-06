@@ -20,7 +20,7 @@ A Rascal program running inside Eclipse can get access to many of the services p
 outlining, documentation hovering and much more. Similarly Rascal programs running inside VScode have access to all features
 of the [language server protocol](https://microsoft.github.io/language-server-protocol/), and more.
 
-For Eclipse, Rascal uses the services of the IDE Meta-tooling Platform, or http://www.eclipse.org/imp/[IMP] for short, a collection of API and tools to support constructing IDEs for programming languages and domain specific languages. 
+For Eclipse, Rascal uses the services of the IDE Meta-tooling Platform, or [IMP](http://www.eclipse.org/imp/) for short, a collection of API and tools to support constructing IDEs for programming languages and domain specific languages. 
 
 For VScode, Rascal builds on top of the [language server protocol](https://microsoft.github.io/language-server-protocol/) for its own services, and for services that
 Rascal programmers create for their own languages.

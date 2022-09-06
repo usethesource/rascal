@@ -12,8 +12,8 @@ Comprehensions for generating values.
 .Details
 
 .Description
-Comprehensions are a notation inspired by mathematical http://en.wikipedia.org/wiki/Set-builder_notation[set-builder notation]
-and http://en.wikipedia.org/wiki/List_comprehension[list comprehensions]
+Comprehensions are a notation inspired by mathematical [set-builder notation](http://en.wikipedia.org/wiki/Set-builder_notation)
+and [list comprehensions](http://en.wikipedia.org/wiki/List_comprehension)
 that help to write succinct definitions of lists and sets. They are also inspired by queries as found in a language like SQL.
 
 Rascal generalizes comprehensions in various ways. Comprehensions exist for lists, sets and maps. 

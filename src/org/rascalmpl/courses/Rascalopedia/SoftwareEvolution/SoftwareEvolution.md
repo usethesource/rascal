@@ -15,8 +15,8 @@ Understanding and managing the continuous change of software.
 
 .Description
 
-http://en.wikipedia.org/wiki/Meir_M._Lehman[Meir M. Lehman] was one of the first scientist to observe
-that software evolves over its lifetime. He formulated several http://en.wikipedia.org/wiki/Lehman's_laws_of_software_evolution[laws]
+[Meir M. Lehman](http://en.wikipedia.org/wiki/Meir_M._Lehman) was one of the first scientist to observe
+that software evolves over its lifetime. He formulated several [laws](http://en.wikipedia.org/wiki/Lehman's_laws_of_software_evolution)
 about software evolution. Here are three examples of his laws (slightly paraphrased):
 
 *  _Continuing Change_: Programs must be continually adapted or they become progressively less usefull.

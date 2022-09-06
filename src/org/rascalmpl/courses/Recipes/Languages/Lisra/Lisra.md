@@ -21,51 +21,51 @@ Popular word has that all large applications evolve until they include a Lisp in
 (A variant says the same about including an email client in every large application).
 
 We will closely follow and *reuse parts of* Peter Norvig's excellent page
-on http://norvig.com/lispy.html[Lispy], a Lisp interpreter written in Python.
+on [Lispy](http://norvig.com/lispy.html), a Lisp interpreter written in Python.
 The Lisp variant to be implemented is the following subset of the http://en.wikipedia.org/wiki/Scheme_(programming_language)[Scheme]
  language:
 
 
 | Form | Syntax | Semantics and Example |
 | --- | --- | --- |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.1[variable reference] |
+| [variable reference](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.1) |
 | _var_ |
 | A symbol is interpreted as a variable name; |
   its value is the variable's |
   value. Example: `x` |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.2[constant literal] |
+| [constant literal](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.2) |
 | _number_ |
 | A number evaluates to itself. Example: `12` |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.2[quotation] |
+| [quotation](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.2) |
 | `(quote exp)` |
 | Return the _exp_ literally; do not evaluate it. Example: |
   `(quote (a b c)) =>; (a b c)` |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.5[conditional] |
+| [conditional](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.5) |
 | `(if _test conseq alt_)` |
 | Evaluate _test_; if true, |
   evaluate and return _conseq_; otherwise evaluate and return  |
   _alt_. <br />Example: `(if (< 10 20) (+ 1 1) (+ 3 3)) => 2` |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.6[assignment] |
+| [assignment](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.6) |
 | `(set! _var exp_)` |
 | Evaluate _exp_ and assign that value to |
   _var_, which must have been previously defined (with a |
   `define` or as a parameter to an enclosing procedure). |
    Example: `(set! x2 (* x x))` |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_sec_5.2[definition] |
+| [definition](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-8.html#%_sec_5.2) |
 | `(define var exp)` |
 | Define a new variable in the innermost environment and give it |
   the value of evaluating the expression _exp_.  |
   Examples: `(define r 3)` or `(define square (lambda (x) (* x x)))` |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.4[procedure] |
+| [procedure](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.4) |
 | `(lambda (_var..._) exp)` |
 | Create a procedure |
   with parameter(s) named _var..._ and the expression as the body. |
   Example: `(lambda (r) (* r r))` |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.2.3[sequencing] |
+| [sequencing](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.2.3) |
 | `(begin _exp..._)` |
 | Evaluate each of the expressions in left-to-right order, and return the final value. |
   Example: `(begin (set! x 1) (set! x (+ x 1)) (* x 2)) => 4 |
-| http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.3[procedure call] |
+| [procedure call](http://www.schemers.org/Documents/Standards/R5RS/HTML/r5rs-Z-H-7.html#%_sec_4.1.3) |
 | `(_proc exp..._)` |
 | If _proc_ is |
    anything other than one of the symbols `if`, `set!`, `define`, |

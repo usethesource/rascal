@@ -15,7 +15,7 @@ Check that a text adheres to the rules of a language (and return a ((ParseTree-P
 
 .Description
 
-A http://en.wikipedia.org/wiki/Parsing[parser] checks that a text in language _L_ indeed adheres 
+A [parser](http://en.wikipedia.org/wiki/Parsing) checks that a text in language _L_ indeed adheres 
 to the syntax rules of language _L_. There are two possible answers:
 
 *  _Yes_. A ((ParseTree-ParseTree)) is returned that shows how the text adheres to the syntax rules.

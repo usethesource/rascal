@@ -21,7 +21,7 @@ count;
 
 * _emphasis_
 * *bold*
-* http:///rascal-mpl.org[Rascal Web site]
+* [Rascal Web site](http:///rascal-mpl.org)
 * ((CallAnalysis-CallAnalysis)) 
 * Table:
 

@@ -14,7 +14,7 @@ Compute the factorial function.
 .Description
 
 .Examples
-The http://en.wikipedia.org/wiki/Factorial[factorial]
+The [factorial](http://en.wikipedia.org/wiki/Factorial)
 of a number N is defined as `N * (N-1) * (N-2) * ... * 1`.
 Here is the Rascal version:
 ```rascal

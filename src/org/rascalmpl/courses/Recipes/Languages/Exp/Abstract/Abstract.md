@@ -12,7 +12,7 @@ A version of Exp based on abstract syntax.
 .Details
 
 .Description
-The http://en.wikipedia.org/wiki/Abstract_syntax[abstract syntax] for a language is a
+The [abstract syntax](http://en.wikipedia.org/wiki/Abstract_syntax) for a language is a
 data type that is used to represent programs in the language in an _abstract_ form.
 Abstract syntax has the following properties:
 

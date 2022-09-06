@@ -13,8 +13,8 @@ A Rascal version of a generator for the _99 Bottles of Beer_ song.
 
 .Description
 Programs that generate the lyrics for the song _99 Bottles of Beer_ are a popular way to compare programming languages.
-At http://99-bottles-of-beer.net/[99-bottles-of-beer.net] you can find versions in nearly 1500 different languages
-and the lyrics can be found http://99-bottles-of-beer.net/lyrics.html[here].
+At [99-bottles-of-beer.net](http://99-bottles-of-beer.net/) you can find versions in nearly 1500 different languages
+and the lyrics can be found [here](http://99-bottles-of-beer.net/lyrics.html).
 
 .Examples
 Here is our version:

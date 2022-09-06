@@ -21,7 +21,7 @@ For most programs the data are numeric (calculator, spreadsheet)
 or textual (text editor, word processor).
 
 A _metaprogram_ is a program that uses programs as data. Writing
-metaprograms is called http://en.wikipedia.org/wiki/Metaprogramming[metaprogramming].
+metaprograms is called [metaprogramming](http://en.wikipedia.org/wiki/Metaprogramming).
 
 A metaprogram has to be written in some programming language itself.
 This is called the _metalanguage_.

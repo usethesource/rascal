@@ -16,7 +16,7 @@ A http://en.wikipedia.org/wiki/Quine_(computing)[quine]
 is a computer program that takes no input and produces a copy of its own source code.
 A quine is also called a _self-replicating_ or _self-reproducing_ program.
 
-At the http://www.nyx.net/~gthompso/quine.htm[Quine Page] you can find hundreds of
+At the [Quine Page](http://www.nyx.net/~gthompso/quine.htm) you can find hundreds of
 quines in many different programming languages.
 
 Learning about quines, is about learning how to quote and escape symbols in strings.

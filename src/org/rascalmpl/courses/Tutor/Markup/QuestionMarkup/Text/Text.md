@@ -31,7 +31,7 @@ QText[Taller]: Which is taller, the Eiffel Tower or the Empire State Building?
 a: Empire
 ```
 Will generate question `Tall` in the questions section below.
-The answer is obvious: the http://en.wikipedia.org/wiki/Empire_State_Building[Empire State Building] is 443.2 meters tall while the http://en.wikipedia.org/wiki/Eiffel_Tower[Eifel Tower] is 324 meters tall.
+The answer is obvious: the [Empire State Building](http://en.wikipedia.org/wiki/Empire_State_Building) is 443.2 meters tall while the [Eifel Tower](http://en.wikipedia.org/wiki/Eiffel_Tower) is 324 meters tall.
 Any answer that contains `Empire` will be accepted.
 
 .Benefits

@@ -15,7 +15,7 @@ Tranform source code to an executable form.
 
 .Description
 
-A http://en.wikipedia.org/wiki/Compiler[compiler] transforms the source code of a program (in a source langue) to an executable form
+A [compiler](http://en.wikipedia.org/wiki/Compiler) transforms the source code of a program (in a source langue) to an executable form
 (in a target language)
 and consists of the following phases:
 

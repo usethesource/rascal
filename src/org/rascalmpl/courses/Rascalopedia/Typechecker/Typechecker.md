@@ -15,7 +15,7 @@ Checks the type rules for a source language.
 
 .Description
 
-A http://en.wikipedia.org/wiki/Type_system[type system] is a set of rules that defines how values,
+A [type system](http://en.wikipedia.org/wiki/Type_system) is a set of rules that defines how values,
 variables and functions may be used in a given programming languages.
 
 A type checker, checks that these rules are enforced. The moment that type checking can be done differs

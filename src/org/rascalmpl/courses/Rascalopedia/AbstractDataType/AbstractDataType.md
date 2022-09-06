@@ -14,7 +14,7 @@ A definition of a data type.
 .Details
 
 .Description
-An http://en.wikipedia.org/wiki/Abstract_data_type[Abstract Data Type] is a mathematical description of a structure
+An [Abstract Data Type](http://en.wikipedia.org/wiki/Abstract_data_type) is a mathematical description of a structure
 that can be implemented in various ways. For instance, a stack data type can be characterized by `empty` (the empty stack),
 two functions `push` and `pop` and axioms that define them. At the implementation level, a stack
 can be implemented using a list, array or something else.
@@ -30,15 +30,15 @@ See [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) and
 ## Abstract Data Types in Daily Life
 
 *  A stack of trays in the local cafetaria: ![]((dispenser.jpg))
-   http://www.thermo-box.co.uk/fimi-food-transport-and-handling-products/self-levelling-heated-and-unheated-plate-and-tray-systems.html[credit]
+   [credit](http://www.thermo-box.co.uk/fimi-food-transport-and-handling-products/self-levelling-heated-and-unheated-plate-and-tray-systems.html)
 
 *  A tree:
    ![]((tree.jpg))
-   http://free-extras.com/images/tree-569.htm[credit]
+   [credit](http://free-extras.com/images/tree-569.htm)
 
 *  Coral:
    ![]((coral.jpg))
-   http://blog.enn.com/?p=476[credit]
+   [credit](http://blog.enn.com/?p=476)
 
 
 ## Abstract Data Types in computer science

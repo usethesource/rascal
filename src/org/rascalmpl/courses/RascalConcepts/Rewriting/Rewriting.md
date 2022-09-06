@@ -19,7 +19,7 @@ A rewrite rule has a pattern as left-hand side -- here: (_a_ + _b_)^2^ -- and a 
 right-hand side -- here: _a_^2^ + 2 _ab_ + _b_^2^. 
 Given a value and a set of rewrite rules the patterns are tried on every subpart of the value and replacements are made if a match is successful. This is repeated as long as some pattern matches.
 
-Rascal has ancestors, notably http://www.meta-environment.org/[ASF+SDF], where rewriting was the most important computation mechanism.
+Rascal has ancestors, notably [ASF+SDF](http://www.meta-environment.org/), where rewriting was the most important computation mechanism.
 In Rascal, rewriting can be achieved using pattern-directed invocation, 
 see [Function Declaration]((Rascal:Declarations-Function)), 
 possibly combined with a [Visit]((Rascal:Expressions-Visit)) statement.
