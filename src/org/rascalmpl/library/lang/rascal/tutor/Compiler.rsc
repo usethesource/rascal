@@ -19,11 +19,10 @@
 }
 module lang::rascal::tutor::Compiler
 
-// THIS FILE IS UNDER CONSTRUCTION (FIRST VERSION)
-
 import Message;
 import Exception;
 import IO;
+import ValueIO;
 import String;
 import List;
 import Location;
@@ -121,8 +120,6 @@ list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Ind
   return issues;
 }
 
-
-
 list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) {
     println("\rcompiling <src>");
 
@@ -211,6 +208,23 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
       err(warning("TOC is empty. .Details section is missing?", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>)))
       | dtls == [] 
     ];
+
+// @synopsis{inline files literally, in Rascal loc notation, but do not compile further from there. Works only if positioned on a line by itself.}
+// list[Output] compileMarkdown([str first:/^\s*\(\(include\:\s+\|<url:[^\|]+>|<post:\(?[^\)]*?\)?>\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+//   try {
+//     return [
+//       *[out(l) | str l <- split("\n", readFile(readTextValueString(#loc, "|<url>|<post>")))],
+//       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+//     ];
+//   }
+//   catch value x: {
+//     return [
+//       err(error("Could not read <url> for inclusion: <x>", pcfg.currentFile(offset, 1, <line, 1>, <line, 2>))),
+//       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+//     ];
+//   }
+
+// }
 
 @synopsis{implement subscript syntax for letters and numbers and dashes and underscores}
 list[Output] compileMarkdown([/^<prefix:.*>~<words:[A-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
