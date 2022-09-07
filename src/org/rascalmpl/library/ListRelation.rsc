@@ -27,14 +27,17 @@ import List;
 
 @doc{
 .Synopsis
+
 Return the list of all elements in any tuple in a list relation.
 
 .Examples
+
 ```rascal-shell
 import ListRelation;
 carrier([<1,10>, <2,20>]);
 carrier([<1,10,100,1000>, <2,20,200,2000>]);
-```}
+```
+}
 public list[&T]  carrier (lrel[&T,&T] R)
 	= [V0, V1 | <&T V0, &T V1> <- R];
 
@@ -55,10 +58,12 @@ A list relation restricted to certain element values in tuples.
 Returns list relation `R` restricted to tuples with elements in set `S`.
 
 .Examples
+
 ```rascal-shell
 import ListRelation;
 carrierR([<1,10>, <2,20>, <3,30>], {10, 1, 20});
-```}
+```
+}
 public lrel[&T,&T] carrierR (lrel[&T,&T] R, set[&T] S)
 	= [ <V0, V1> | <&T V0, &T V1> <- R, V0 in S, V1 in S ];
 
@@ -74,18 +79,11 @@ public lrel[&T,&T,&T,&T,&T] carrierR (lrel[&T,&T,&T,&T,&T] R, set[&T] S)
 
 @doc{
 .Synopsis
-A list relation excluding tuples that contain certain element values.
 
-.Examples
-```rascal-shell
-import ListRelation;
-carrierX([<1,10>, <2,20>, <3,30>], {10, 1, 20});
-```}
-@doc{
-.Synopsis
 A list relation excluding tuples containing certain values.
 
 .Description
+
 Returns list relation `R` excluding tuples with some element in `S`.
 
 .Examples
@@ -117,32 +115,37 @@ all possible tuples with element values that occur at corresponding tuple positi
 The function `complement` returns the complement of `R` relative to `U`, in other words: `U - R`.
 
 .Examples
+
 ```rascal-shell
 import ListRelation;
 ```
+
 Declare `R` and compute corresponding `U`:
+
 ```rascal-shell,continue
 R = [<1,10>, <2, 20>, <3, 30>];
 U = domain(R) * range(R);
 ```
+
 Here is the complement of `R` computed in two ways:
 ```rascal-shell,continue
 U - R;
 complement([<1,10>, <2, 20>, <3, 30>]);
-```}
+```
+}
 public lrel[&T0, &T1] complement(lrel[&T0, &T1] R)
 	= size(R) < 2 ? []
-	: squeeze([<V0, V1> | &T0 V0 <- R<0>, &T1 V1 <- R<1>, <V0, V1> notin R]);
+	: dup([<V0, V1> | &T0 V0 <- R<0>, &T1 V1 <- R<1>, <V0, V1> notin R]);
  // Was:  (domain(R) * range(R)) - R;
 
 public lrel[&T0, &T1, &T2] complement(lrel[&T0, &T1, &T2] R)
-	= squeeze([<V0, V1, V2> | &T0 V0 <- R<0>, &T1 V1 <- R<1>,  &T2 V2 <- R<2>, <V0, V1, V2> notin R]);
+	= dup([<V0, V1, V2> | &T0 V0 <- R<0>, &T1 V1 <- R<1>,  &T2 V2 <- R<2>, <V0, V1, V2> notin R]);
 
 public lrel[&T0, &T1, &T2, &T3] complement(lrel[&T0, &T1, &T2, &T3] R)
-	= squeeze([<V0, V1, V2, V3> | &T0 V0 <- R<0>, &T1 V1 <- R<1>,  &T2 V2 <- R<2>, &T3 V3 <- R<3>, <V0, V1, V2, V3> notin R]);
+	= dup([<V0, V1, V2, V3> | &T0 V0 <- R<0>, &T1 V1 <- R<1>,  &T2 V2 <- R<2>, &T3 V3 <- R<3>, <V0, V1, V2, V3> notin R]);
 
 public lrel[&T0, &T1, &T2, &T3, &T4] complement(lrel[&T0, &T1, &T2, &T3, &T4] R)
-	= squeeze([<V0, V1, V2, V3, V4> | &T0 V0 <- R<0>, &T1 V1 <- R<1>,  &T2 V2 <- R<2>, &T3 V3 <- R<3>, 
+	= dup([<V0, V1, V2, V3, V4> | &T0 V0 <- R<0>, &T1 V1 <- R<1>,  &T2 V2 <- R<2>, &T3 V3 <- R<3>, 
                                  &T4 V4 <- R<4>, <V0, V1, V2, V3, V4> notin R]);
 
 @doc{
@@ -156,15 +159,17 @@ result contains elements (or tuples) in the order of appearance of the original 
 but all occurences after the first occurrence of an element have been removed.
 
 .Examples
+
 ```rascal-shell
 import ListRelation;
 domain([<1,10>, <2,20>]);
 domain([<"mon", 1>, <"tue", 2>]);
-```}
-public list[&T0] domain(lrel[&T0,&T1]             R) = squeeze(R<0>);
-public list[&T0] domain(lrel[&T0,&T1,&T2]         R) = squeeze(R<0>);
-public list[&T0] domain(lrel[&T0,&T1,&T2,&T3]     R) = squeeze(R<0>);
-public list[&T0] domain(lrel[&T0,&T1,&T2,&T3,&T4] R) = squeeze(R<0>);
+```
+}
+public list[&T0] domain(lrel[&T0,&T1]             R) = dup(R<0>);
+public list[&T0] domain(lrel[&T0,&T1,&T2]         R) = dup(R<0>);
+public list[&T0] domain(lrel[&T0,&T1,&T2,&T3]     R) = dup(R<0>);
+public list[&T0] domain(lrel[&T0,&T1,&T2,&T3,&T4] R) = dup(R<0>);
 
 @doc{
 .Synopsis
@@ -177,7 +182,8 @@ Restriction of a list relation `R` to tuples with first element in `S`.
 ```rascal-shell
 import ListRelation;
 domainR([<1,10>, <2,20>, <3,30>], {3, 1});
-```}
+```
+}
 public lrel[&T0,&T1] domainR (lrel[&T0,&T1] R, set[&T0] S)
 	= [ <V0, V1> | <&T0 V0, &T1 V1> <- R, V0 in S ];
 
@@ -212,20 +218,22 @@ List relation excluding certain domain values.
 List relation `R` excluding tuples with first element in `S`.
 
 .Examples
+
 ```rascal-shell
 import ListRelation;
 domainX([<1,10>, <2,20>, <3,30>], {3, 1});
-```}
-public lrel[&T0,&T1] domainX (lrel[&T0,&T1] R, set[&T0] S)
+```
+}
+public lrel[&T0, &T1] domainX (lrel[&T0, &T1] R, set[&T0] S)
 	= [ <V0, V1> | <&T0 V0, &T1 V1> <- R, V0 notin S ];
 
-public lrel[&T0,&T1,&T2] domainX (lrel[&T0,&T1,&T2] R, set[&T0] S)
+public lrel[&T0, &T1, &T2] domainX (lrel[&T0, &T1, &T2] R, set[&T0] S)
 	= [ <V0, V1, V2> | <&T0 V0, &T1 V1, &T2 V2> <- R, V0 notin S ];
 
-public lrel[&T0,&T1,&T2,&T3] domainX (lrel[&T0,&T1,&T2,&T3] R, set[&T0] S)
+public lrel[&T0, &T1, &T2, &T3] domainX (lrel[&T0, &T1, &T2, &T3] R, set[&T0] S)
 	= [ <V0, V1, V2, V3> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3> <- R, V0 notin S ];
 
-public lrel[&T0,&T1,&T2,&T3,&T4] domainX (lrel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
+public lrel[&T0, &T1, &T2, &T3, &T4] domainX (lrel[&T0, &T1, &T2, &T3, &T4] R, set[&T0] S)
 	= [ <V0, V1, V2, V3, V4> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3, &T4 V4> <- R, V0 notin S ];
 
 
@@ -242,9 +250,7 @@ groupDomainByRange(legs);
 ```
 }
 public list[list[&U]] groupDomainByRange(lrel[&U dom, &T ran] input) 
-	= squeeze([[d | <&U d,r> <- input] | &T r <- input.ran]);
-// NB: this "mapreduce" works a tiny bit faster than a more cautious rel-based implementation
-// but, of course, twice as slow as a map-based one
+	= dup([[d | <&U d,r> <- input] | &T r <- input.ran]);
 
 @doc{
 .Synopsis
@@ -258,7 +264,7 @@ groupRangeByDomain(skins);
 ```
 }
 public list[list[&T]] groupRangeByDomain(lrel[&U dom, &T ran] input)
-	= squeeze([[r | <d,&T r> <- input] | &U d <- input.dom]);
+	= dup([[r | <d,&T r> <- input] | &U d <- input.dom]);
 	// the "input[i]" trick used for set-based relations does not work here
 	// because [<"a",1>]["a"] does give [1], but [<1,1>][1] does not!
 
@@ -273,7 +279,8 @@ The identity list relation for set `S`.
 ```rascal-shell
 import ListRelation;
 ident(["mon", "tue", "wed"]);
-```}
+```
+}
 public lrel[&T, &T] ident (list[&T] S) = [<V, V> | V <- S];
 
 @doc{
@@ -284,7 +291,8 @@ Invert the tuples in a list relation.
 ```rascal-shell
 import ListRelation;
 invert([<1,10>, <2,20>]);
-```}
+```
+}
 public lrel[            &T1,&T0] invert (lrel[&T0,&T1            ] R) = R<1,0>;
 public lrel[        &T2,&T1,&T0] invert (lrel[&T0,&T1,&T2        ] R) = R<2,1,0>;
 public lrel[    &T3,&T2,&T1,&T0] invert (lrel[&T0,&T1,&T2,&T3    ] R) = R<3,2,1,0>;
@@ -305,11 +313,12 @@ but all occurences after the first occurrence of an element have been removed.
 import ListRelation;
 range([<1,10>, <2,20>]);
 range([<"mon", 1>, <"tue", 2>]);
-```}
-public list[&T1]             range (lrel[&T0,&T1]             R) = squeeze(R<1>);
-public lrel[&T1,&T2]         range (lrel[&T0,&T1, &T2]        R) = squeeze(R<1,2>);
-public lrel[&T1,&T2,&T3]     range (lrel[&T0,&T1,&T2,&T3]     R) = squeeze(R<1,2,3>);
-public lrel[&T1,&T2,&T3,&T4] range (lrel[&T0,&T1,&T2,&T3,&T4] R) = squeeze(R<1,2,3,4>);
+```
+}
+public list[&T1]             range (lrel[&T0,&T1]             R) = dup(R<1>);
+public lrel[&T1,&T2]         range (lrel[&T0,&T1, &T2]        R) = dup(R<1,2>);
+public lrel[&T1,&T2,&T3]     range (lrel[&T0,&T1,&T2,&T3]     R) = dup(R<1,2,3>);
+public lrel[&T1,&T2,&T3,&T4] range (lrel[&T0,&T1,&T2,&T3,&T4] R) = dup(R<1,2,3,4>);
 
 @doc{
 .Synopsis
@@ -322,7 +331,8 @@ Restriction of binary list relation `R` to tuples with second element in set `S`
 ```rascal-shell
 import ListRelation;
 rangeR([<1,10>, <2,20>, <3,30>], {30, 10});
-```}
+```
+}
 public lrel[&T0,&T1] rangeR (lrel[&T0,&T1] R, set[&T1] S)
 	= [ <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 in S ];
 
@@ -341,7 +351,8 @@ Restriction of binary list relation `R` to tuples with second element not in set
 ```rascal-shell
 import ListRelation;
 rangeX([<1,10>, <2,20>, <3,30>], {30, 10});
-```}
+```
+}
 public lrel[&T0,&T1] rangeX (lrel[&T0,&T1] R, set[&T1] S)
 	= [ <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 notin S ];
 // Why not?
@@ -356,6 +367,7 @@ Listes a binary list relation as a map
 Converts a binary list relation to a map of the domain to a set of the range.
 
 .Examples
+
 ```rascal-shell
 import ListRelation;
 index([<1,10>, <2,20>, <3,30>, <30,10>]);
@@ -364,4 +376,4 @@ index([<1,10>, <2,20>, <3,30>, <30,10>]);
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&K, set[&V]] index(lrel[&K, &V] R);
 
-private list[&T] squeeze(list[&T] xs) = ( [] | (ix in it) ? it : it + [ix] | &T ix <- xs);
+

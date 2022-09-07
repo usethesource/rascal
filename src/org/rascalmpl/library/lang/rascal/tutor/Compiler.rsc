@@ -22,7 +22,6 @@ module lang::rascal::tutor::Compiler
 import Message;
 import Exception;
 import IO;
-import ValueIO;
 import String;
 import List;
 import Location;
