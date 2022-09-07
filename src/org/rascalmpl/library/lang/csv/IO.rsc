@@ -10,6 +10,7 @@
 @doc{
 .Synopsis
 Functions for reading and writing Comma-Separated Values (CSV) files.
+
 .Description
 The http://tools.ietf.org/html/rfc4180[CSV format] is used for exchanging
 information between spreadsheets and databases. A CSV file has the following structure:
@@ -18,17 +19,17 @@ information between spreadsheets and databases. A CSV file has the following str
 *  One or more lines consisting of values separated by comma's.
 
 The following functions are provided:
+
 (((TOC)))
 
 .Examples
-```rascal
+
+* CSV file with headers
+```csv
 field_name1,field_name2,field_name3
-aaa,bbb,ccc CRLF
-zzz,yyy,xxx CRLF
+aaa,bbb,ccc 
+zzz,yyy,xxx 
 ```
-
-
-
 }
 module lang::csv::IO
 
@@ -56,7 +57,6 @@ Optionally, the following arguments can be supplied:
 
 The CSV data should conform to the specified type (if any).
 
-
 If the required type is not specified, it is _inferred_ in three steps:
 
 _Step 1_: The type of each field occurrence is inferred from its contents using the
@@ -67,15 +67,12 @@ following rules:
 *  A field that contains `true` or `false` is of type is `bool`.
 *  In all other cases the field is of type `str`.
 
-
 _Step 2_: The type of each field is inferred from the type of all of its occurrences:
 
 *  If all occurrences have a numeric type, then the smallest possible type is used.
 *  If the occurrences have a mixed type, i.e., numeric, non-numeric, boolean or string, then the type is `str`.
 *  If the requested type for a field is `str` and another type would be inferred by the preceeding two rules, 
 its inferred type will be `str`.
-
-
 
 Reading the values in fields is straightforward, except for the case that the text in the field is enclosed between double quotes (`"`):
 
@@ -85,24 +82,27 @@ Reading the values in fields is straightforward, except for the case that the te
 .Examples
 
 Given is the follwing file `ex1.csv`:
+
 ```rascal
 include::{LibDir}Libraries/lang/csv/ex1.csv[]
 ```
 
-                We can read it in various ways:
+We can read it in various ways:
+
 ```rascal-shell
 import lang::csv::IO;
 R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Libraries/lang/csv/ex1.csv|, separator = ";");
 ```
 Now we can, for instance, select one of the fields of `R1`:
+
 ```rascal-shell,continue
 R1.artist;
 ```
 It is also possible to infer the type:
+
 ```rascal-shell,continue
 R1 = readCSV(|courses:///Libraries/lang/csv/ex1.csv|, separator = ";");
 ```
-
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
@@ -129,9 +129,8 @@ The options influence the way the actrual CSV file is written:
 *  `header`: add or omit a header (based on the labels of the relation).
 *  `separator`: defines the separator character between fields (default is `,`).
 
-
-
 .Examples
+
 ```rascal-shell
 import lang::csv::IO;
 rel[int position, str artist, str title, int year] R1 = {
@@ -140,7 +139,7 @@ rel[int position, str artist, str title, int year] R1 = {
   <3,"Boudewijn de Groot","Avond",1997>
 };
 writeCSV(#rel[int position, str artist, str title, int year], R1, |tmp:///Rascal/Libraries/lang/csv/ex1a.csv|);
-writeCSV(rel[int, str, str, int], R1, |tmp:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
+writeCSV(#rel[int, str, str, int], R1, |tmp:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
 ```
 will produce the following files:
 
@@ -149,12 +148,10 @@ will produce the following files:
 include::{LibDir}Rascal/Libraries/lang/csv/ex1a.csv[]
 ```
 
-                `ex1b.csv` (without a header line with separator `;`):
+`ex1b.csv` (without a header line with separator `;`):
 ```rascal
 include::{LibDir}Rascal/Libraries/lang/csv/ex1b.csv[]
 ```
-
-                
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 public java void writeCSV(type[&T] schema, &T relation, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
@@ -163,7 +160,7 @@ public lang::csv::ast::CSV::Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 
 public lang::csv::ast::CSV::Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));
 
-@doc{Generator for CSV resources}
+@synopsis{Generator for CSV resources}
 @resource{csv}
 public str generate(str moduleName, loc uri) {
     map[str,str] options = uri.params;
