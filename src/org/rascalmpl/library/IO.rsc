@@ -557,7 +557,6 @@ the first 32 bytes of the file are not valid UTF-8.
 
 .Pitfalls
 
-*  The second version of `readFile` with a string argument is __deprecated__.
 *  In case encoding is not known, we try to estimate as best as we can.
 *  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
   you might get an decoding error or just strange looking characters.

@@ -99,22 +99,15 @@ drop(2, ["zebra", "elephant", "snake", "owl"]);
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] drop(int n, list[&T] lst) ;
 
-@doc{
-.Synopsis
-Remove multiple occurrences of elements in a list. The first occurrence remains.
-
-.Examples
+@synopsis{Remove multiple occurrences of elements in a list. The first occurrence remains.}
+@examples{
 ```rascal-shell
 import List;
 dup([3, 1, 5, 3, 1, 7, 1, 2]);
-```}
-public list[&T] dup(list[&T] lst) {
-  done = {};
-  return for (e <- lst, e notin done) {
-    done = done + {e};
-    append e;
-  }
+```
 }
+public list[&T] dup(list[&T] lst) 
+  = ([] | (ix in it) ? it : it + [ix] | &T ix <- lst);
 
 @deprecated{use the indexing instead}
 @javaClass{org.rascalmpl.library.Prelude}
@@ -956,7 +949,8 @@ public java str itoString(list[&T] lst);
 Make a pair (triple) of lists from a list of pairs (triples).
 
 .Description
-Also see ((List::unzip));
+
+Also see ((List-unzip3));
 
 .Examples
 ```rascal-shell
@@ -990,7 +984,8 @@ public java list[int] upTill(int n);
 Make a list of pairs from two (three) lists of the same length.
 
 .Description
-Also see ((List-unzip)).
+
+Also see ((List-unzip3)).
 
 .Examples
 ```rascal-shell
@@ -1009,3 +1004,4 @@ public list[tuple[&T first, &U second, &V third]] zip3(list[&T] a, list[&U] b, l
 		throw IllegalArgument(<size(a),size(b),size(c)>, "List size mismatch");
 	return [<elementAt(a,i), elementAt(b,i), elementAt(c,i)> | i <- index(a)];
 }
+

@@ -10,6 +10,7 @@ import lang::rascal::tutor::Output;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Compiler;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
+import lang::rascal::tutor::Names;
 
 @synopsis{Generate markdown documentation from the declaration extracted from a Rascal module.}
 @description{
@@ -26,7 +27,7 @@ import lang::rascal::tutor::repl::TutorCommandExecutor;
 list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, CommandExecutor exec, Index ind) {
     dinfo = extractInfo(moduleLoc);
 
-    dtls = ["<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, i has name];
+    dtls = dup(["<fragment(pcfg.currentRoot, moduleLoc)[1..]>-<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]);
 
     // TODO: this overloading collection should happen in ExtractInfo
     res = [];
