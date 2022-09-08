@@ -180,7 +180,7 @@ transform the containment relation to a recursive tree model
 .Benefits
 
 *  Transforming the containment relation to a tree model allows further analysis using operators
-such as ((Visit)) and ((Descendant)) which is sometimes more convenient.
+such as ((Statements-Visit)) and ((Descendant)) which is sometimes more convenient.
 
 .Pitfalls
 
