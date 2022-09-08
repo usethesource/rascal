@@ -24,6 +24,7 @@ import Exception;
 import IO;
 import String;
 import List;
+import Relation;
 import Location;
 import ParseTree;
 import util::Reflective;
@@ -257,14 +258,16 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
                   *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
       }
-      case {a:/^#<link:.*$>/, b:/^\/[^#]+#<link2:.*$>/}:
-         if (link == link2) {
-            return compileMarkdown(["<prefix>[<addSpaces(link2)>](<b>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+      case {a:/^#<plink:.*$>/, b:/^\/[^#]+#<qlink:.*$>/}:
+         if (plink == qlink) {
+            return compileMarkdown(["<prefix>[<addSpaces(qlink)>](<b>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
       case {_, _, *_}:
         return [
-                  err(warning("Ambiguous concept link: <link> resolves to all of <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-                  *compileMarkdown(["<prefix>_broken:<link> (ambiguous link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+                  err(warning("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
+                              cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
+                                    '    <k> resolves to <v>\n<}>")),
+                  *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
   }
 

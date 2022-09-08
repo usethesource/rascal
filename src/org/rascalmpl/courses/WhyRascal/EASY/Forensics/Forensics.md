@@ -1,6 +1,7 @@
 # Forensics
 
 .Synopsis
+
 Domain-specific language for forensics research.
 
 .Syntax
