@@ -24,7 +24,8 @@ finally: _Statement~3~_;
 .Details
 
 .Description
-A try catch statement has as purpose to catch any [Exceptions]((Library:Exception)) that are raised 
+
+A try catch statement has as purpose to catch any [Exceptions]((Library:module:Exception)) that are raised 
 during the execution of _Statement_~1~.
 These exceptions may caused by:
 
