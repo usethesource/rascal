@@ -10,7 +10,7 @@ See http://snowball.tartarus.org[the Snowball homepage] for more informations
 .Examples
 
 ```rascal-shell
-import analysis::stemming::Snowball
+import analysis::stemming::Snowball;
 stem("bikes")
 ```
 }
