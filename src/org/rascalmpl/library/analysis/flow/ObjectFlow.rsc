@@ -10,7 +10,7 @@ representation for object flow. We may translate for example
 Java to this intermediate language and then analyze object flow
 based on the simpler language.
   
-The implementation in this file is intended to work with ((M3)) models
+The implementation in this file is intended to work with ((data:analysis::m3::Core-M3)) models
 }
 @bibliography{
 @book{tonella,
