@@ -9,18 +9,19 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
 
-@doc{
-.Synopsis
-Functions for reading and writing XML files.
-.Description
+@synopsis{Functions for reading and writing XML files to and from a "DOM" representation.}
+@description{
 
 [XML](http://en.wikipedia.org/wiki/XML) is a widely used markup language for encoding and exchanging documents.
 
 The Document Object Model [DOM](http://en.wikipedia.org/wiki/Document_Object_Model) is a cross-platform and language-independent
-way of representing and manipulating HTML, XHTML and XML documents.
+way of representing and manipulating HTML, XHTML and XML documents. In this module we represent the DOM as a 
+Rascal ((AlgebraicDataType)) using ((KeywordParameters)) for the optional attributes.
 
-*  An optional header line consisting of field names separated by comma's.
-*  One or more lines consisting of values separated by comma's.
+In ((lang::xml::IO)) a different approach is taken, where each XML document is mapped to an instance of 
+the `node` class, which gives a more direct one-to-ony mapping as opposed to the DOM encoding here.
+If you are studying XML documents in general, then the current module is the place to be. If you
+are reading in specific data which is only accidentally encoded as XML, then have a look at ((lang::xml::IO)).
 
 The following functions are provided:
 
@@ -37,16 +38,16 @@ Datatypes for representing an instance of the DOM.
 }
 
 data Node 
-     = document(Node root)
-     | attribute(Namespace namespace, str name, str text)
-	 | element(Namespace namespace, str name, list[Node] children)
-	 | charData(str text)
-	 | cdata(str text)
-	 | comment(str text)
-	 | pi(str target, str text)
-	 | entityRef(str name)
-	 | charRef(int code)
-	 ;  
+    = document(Node root)
+    | attribute(Namespace namespace, str name, str text)
+	  | element(Namespace namespace, str name, list[Node] children)
+	  | charData(str text)
+	  | cdata(str text)
+	  | comment(str text)
+	  | pi(str target, str text)
+	  | entityRef(str name)
+	  | charRef(int code)
+	  ;  
 		  
 data Namespace 
      = namespace(str prefix, str uri)
@@ -97,12 +98,13 @@ Read the sample note file, parse it, and construct a DOM instance.
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
+N = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 parseXMLDOM(N);
 ```
+
 The DOM instance contains every single character (including spaces and newlines)
 as they appear in the source file.
-As expected, the result is of type ((xml-DOM-Node)).
+As expected, the result is of type ((lang::xml::DOM::Node)).
 }
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOM(str src);
@@ -117,7 +119,7 @@ Read the sample note file, parse it, and construct a DOM instance (using `parseX
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-N = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
+N = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 parseXMLDOMTrim(N);
 ```
 All whitespace characters have been removed and do not occur in the trimmed DOM instance.
@@ -135,7 +137,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
+F = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 println(F);
 S = xmlRaw(parseXMLDOM(F));
 println(S);
@@ -154,7 +156,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
+F = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 println(F);
 S = xmlCompact(parseXMLDOM(F));
 println(S);
@@ -175,7 +177,7 @@ Read the sample note file, parse it, construct a DOM instance, and convert it to
 ```rascal-shell
 import IO;
 import lang::xml::DOM;
-F = readFile(|courses:///Rascal/Libraries/lang/xml/note.xml|);
+F = readFile(|project://rascal/src/org/rascalmpl/library/lang/xml/examples/note.xml|);
 println(F);
 S = xmlPretty(parseXMLDOM(F));
 println(S);
