@@ -91,7 +91,7 @@ We can read it in various ways:
 
 ```rascal-shell
 import lang::csv::IO;
-R1 = readCSV(#rel[int position, str artist, str title, int year],  |courses:///Libraries/lang/csv/ex1.csv|, separator = ";");
+R1 = readCSV(#rel[int position, str artist, str title, int year],  |project://rascal/src/org/rascalmpl/library/lang/csv/examples/ex1.csv|, separator = ";");
 ```
 Now we can, for instance, select one of the fields of `R1`:
 
@@ -101,7 +101,7 @@ R1.artist;
 It is also possible to infer the type:
 
 ```rascal-shell,continue
-R1 = readCSV(|courses:///Libraries/lang/csv/ex1.csv|, separator = ";");
+R1 = readCSV(|project://rascal/src/org/rascalmpl/library/lang/csv/examples/ex1.csv|, separator = ";");
 ```
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
@@ -138,19 +138,23 @@ rel[int position, str artist, str title, int year] R1 = {
   <2,"Queen","Bohemian rhapsody",1975>,
   <3,"Boudewijn de Groot","Avond",1997>
 };
-writeCSV(#rel[int position, str artist, str title, int year], R1, |tmp:///Rascal/Libraries/lang/csv/ex1a.csv|);
-writeCSV(#rel[int, str, str, int], R1, |tmp:///Rascal/Libraries/lang/csv/ex1b.csv|, header = false, separator = ";");
+// we can write the CSV with a header row:
+writeCSV(#rel[int position, str artist, str title, int year], R1, |tmp:///ex1a.csv|);
+
+// or write it without the header row:
+writeCSV(#rel[int, str, str, int], R1, |tmp:///ex1b.csv|, header = false, separator = ";");
 ```
-will produce the following files:
+
+The result of both calls to writeCSV are included below:
 
 `ex1a.csv` (with a header line and default separator `,`):
 ```rascal
-include::{LibDir}Rascal/Libraries/lang/csv/ex1a.csv[]
+include::|tmp:///ex1a.csv|[]
 ```
 
 `ex1b.csv` (without a header line with separator `;`):
 ```rascal
-include::{LibDir}Rascal/Libraries/lang/csv/ex1b.csv[]
+|tmp:///ex1b.csv|
 ```
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}

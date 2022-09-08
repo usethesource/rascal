@@ -147,7 +147,7 @@ Get the first element(s) from a list.
 .Description
 
 * Returns the first element of a list or throws `EmptyList` when the list is empty. 
-  This is identical to ((top)).
+  This is identical to ((List-top)).
 * Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short. 
   This is similar to ((take)).
 
@@ -859,7 +859,7 @@ public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey;
 .Synopsis
 Take the top element of a list.
 .Description
-This function is identical to ((head)).
+This function is identical to ((List-head)).
 Also see ((List-pop)) and ((List-push)).
 
 .Examples

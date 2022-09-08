@@ -16,7 +16,7 @@ Rascal's type system, implemented in Rascal itself.
 The goal of this module is to provide:
 
 *  reflection capabilities that are useful for deserialization and validation of data, and 
-*  to provide the basic building blocks for syntax trees (see ((ParseTree)))
+*  to provide the basic building blocks for syntax trees (see ((module:ParseTree)))
 
 The following definition is built into Rascal:
 ```rascal
@@ -57,7 +57,7 @@ We define here:
 <3>  Composite types.
 <4>  Parameters that represent a type variable.
 
-In ((ParseTree)), see ((ParseTree-Symbol)), 
+In ((module:ParseTree)), see ((ParseTree-Symbol)), 
 Symbols will be further extended with the symbols that may occur in a parse tree.
 }  
 data Symbol    // <1>

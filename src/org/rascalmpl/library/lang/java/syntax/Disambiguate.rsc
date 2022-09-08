@@ -8,7 +8,7 @@
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 @doc{
     Import this module to Disambiguate the ambiguity cause by the prefix operators +/- and infix operators +/-.
-    An example of this ambiguity is (A) + (B) . This could be (A)(+ (B)) or ((A)) + ((B)).
+    An example of this ambiguity is `A + B`` . This could be `A (+B)` or `(A) + (B)`.
     We need to have a symbol table to decide if A is a type and thus a TypeCast, or it is a field/variable access.
     
     Java lacks operator overloading, therefore, prefix operators only work on numeric types.

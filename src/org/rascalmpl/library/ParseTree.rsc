@@ -186,7 +186,7 @@ Production in ParseTrees
 
 .Description
 
-The type `Production` is introduced in ((Type)), see ((Type-Production)). Here we extend it with the symbols
+The type `Production` is introduced in ((Library:module:Type)), see ((Type-Production)). Here we extend it with the symbols
 that can occur in a ParseTree. We also extend productions with basic combinators allowing to
 construct ordered and un-ordered compositions, and associativity groups.
 
@@ -259,7 +259,7 @@ Symbols that can occur in a ParseTree
 
 .Description
 
-The type `Symbol` is introduced in ((Type)), see ((Type-Symbol)), to represent the basic Rascal types,
+The type `Symbol` is introduced in ((Library:module:Type)), see ((Type-Symbol)), to represent the basic Rascal types,
 e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occur in a ParseTree.
 
 <1>  The `start` symbol wraps any symbol to indicate that it is a start symbol of the grammar and
@@ -353,13 +353,14 @@ public Production priority(Symbol s, [*Production a, priority(Symbol _, list[Pro
    
 @doc{
 .Synopsis
+
 Normalization of associativity.
 
 .Description
 
-* Choice (see the `choice` constructor in ((Type-ParseTree))) under associativity is flattened.
+* The ((Type-choice)) constructor under associativity is flattened.
 * Nested (equal) associativity is flattened.
-* Priority under an associativity group defaults to choice.
+* ((ParseTree-priority)) under an associativity group defaults to choice.
 }
 Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)}) 
   = associativity(s, as, a+b); 
