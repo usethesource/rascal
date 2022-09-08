@@ -27,7 +27,7 @@ import lang::rascal::tutor::Names;
 list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, CommandExecutor exec, Index ind) {
     dinfo = extractInfo(moduleLoc);
 
-    dtls = dup(["<fragment(pcfg.currentRoot, moduleLoc)[1..]>-<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]);
+    dtls = dup(["<pcfg.currentRoot.file>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]);
 
     // TODO: this overloading collection should happen in ExtractInfo
     res = [];
