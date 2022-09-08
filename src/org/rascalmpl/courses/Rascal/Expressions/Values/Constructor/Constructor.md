@@ -1,9 +1,11 @@
 # Constructor
 
 .Synopsis
+
 Constructors create values for user-defined datatypes (Algebraic Datatypes).
 
 .Syntax
+
 `Name ( Exp~1~, Exp~2~, ... )`
 
 .Types
