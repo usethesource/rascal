@@ -63,7 +63,7 @@ if (/amb({a1, a2}) := t)
           'alternative 2: <a2.prod>");
 ```
 
-Or, one could catch the ambiguity and report it like a ((RuntimeExceptions::ParseError)):
+Or, one could catch the ambiguity and report it like a ((RuntimeExceptions-ParseError)):
 
 ```rascal-shell,continue
 import IO;
