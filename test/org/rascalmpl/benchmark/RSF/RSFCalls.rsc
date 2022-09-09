@@ -41,9 +41,9 @@ public bool measure(list[str] names){
 		println("<name>: size top <nTop>");
 	
 		time0 = realTime();
-		res1 = trans(CALL);          time1 = realTime();
-		res2  = reachFromTop1(CALL); time2 = realTime();
-		res3 = reachFromTop2(CALL);  time3 = realTime();
+		res1 = trans(CALL);          time1 = realTimeNow();
+		res2  = reachFromTop1(CALL); time2 = realTimeNow();
+		res3 = reachFromTop2(CALL);  time3 = realTimeNow();
 		
 		d1 = time1 - time0;
 		d2 = time2 - time1;
