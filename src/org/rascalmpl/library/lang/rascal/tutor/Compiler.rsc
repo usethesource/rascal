@@ -180,7 +180,7 @@ list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index i
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, 
     // this uses another nested directory listing to construct information for the (((TOC))) embedded in the current document:
-    [ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d), exists((d + d.file)[extension="md"])]) + [out("")];
+    [ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d), exists((d + d.file)[extension="md"])]) + [empty()];
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
 list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
@@ -190,7 +190,7 @@ list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], i
 
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
-  = [ out(""), // must have an empty line
+  = [ empty(), // must have an empty line
       out("```rascal-shell"),
       *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
@@ -322,6 +322,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     exec.reset();
   }
 
+  lineOffsetHere = 0;
   return OUT:for (str line <- block) {
     if (/^\s*\/\/<comment:.*>$/ := line) { // comment line
       append OUT : out("```");
@@ -351,9 +352,9 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
            append OUT : out(errLine);
         }
         append OUT : out("\</pre\>");
-        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset, 0>, <lineOffset, 1>), cause=stderr)); 
+        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
         append OUT : out(":::");
-        append OUT : out("");
+        append OUT : Output::empty();
         append OUT : out("```rascal-shell");
       }
     }
@@ -387,6 +388,8 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
         append OUT : out(trim(resultLine));
       }
     } 
+
+    lineOffsetHere +=1;
   }
 }
 

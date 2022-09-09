@@ -9,7 +9,7 @@ M3 provides a general mechanism to associate types, symbolically, with source co
 The `TypeSymbol` type is a general concept which needs to be extended for specific programming languages. One language will 
 class and interface definitions which coincide with types, another may have higher order function types etc.
 
-As a basic principle, the symbols for declared types always link to their definition in the source code using a ((Rascal-Expressions-Values-Location)),
+As a basic principle, the symbols for declared types always link to their definition in the source code using a ((Rascal:Expressions-Values-Location)),
 while other implicit types do not have such a link (i.e. `int` and `void`).
 
 We cater for languages to have a subtype relation to be defined, and a least upper bound computation. 
