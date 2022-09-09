@@ -27,6 +27,7 @@ import List;
 Get the current datetime.
 
 .Examples
+
 ```rascal-shell
 import DateTime;
 now();
@@ -148,6 +149,7 @@ Increment the months by a given amount or by 1.
 .Function
 
 .Examples
+
 ```rascal-shell
 import DateTime;
 N = now();
@@ -230,6 +232,7 @@ public datetime incrementMinutes(datetime dt) {
 Increment the seconds by a given amount or by 1.
 
 .Examples
+
 ```rascal-shell
 import DateTime;
 N = now();

@@ -12,6 +12,7 @@ Built-in and user-defined datatypes.
 .Details
 
 .Description
+
 Rascal provides a rich set of datatypes:
 
 *  [Boolean]((Rascal:Values-Boolean)) (`bool`).

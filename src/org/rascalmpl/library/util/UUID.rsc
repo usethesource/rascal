@@ -27,7 +27,7 @@ Use it to relate identies to data objects, as in this example which adds a field
 ```rascal-shell,continue
 myData = { <i,i*i> | i <- [1..11] }; 
 rel[int n, int square, loc id] myUniqueData = { <i,j,uuid()> | <i,j> <- myData };
-map[tuple[int i, int j], loc id] myUniqueMap = (<i,j>:uuid() | <i,j> <- myData );
+map[tuple[int i, int j] t, loc id] myUniqueMap = (<i,j>:uuid() | <i,j> <- myData );
 ```
 Note how uuid() should always generate a fresh value:
 ```rascal-shell,continue
@@ -36,13 +36,13 @@ assert uuid() != uuid();
 
 .Benefits
 
-*  [Location]s are used for identifying program elements or model elements in Rascal. The uuid() function provides
+*  ((Values-Location))s are used for identifying program elements or model elements in Rascal. The uuid() function provides
 an quick-and-easy way of acquiring such an identity without having to design a naming scheme.
 
 .Pitfalls
 
-*  UUIDs are a quick and dirty way of identifying data which may lead to hard to debug code. A naming scheme for ((Locations)) is better because it generates human readable
-((Locations)) which carry meaning. For example consider the difference in readability between these two values:
+*  UUIDs are a quick and dirty way of identifying data which may lead to hard to debug code. A naming scheme for ((Values-Location))s is better because it generates human readable
+((Values-Location))s which carry meaning. For example consider the difference in readability between these two values:
 `|uuid://47fdcd64-4fd0-41a1-8aa3-61c5b272c3fc|` and `|java+class:///java/lang/Object|`. Both may lead to the same 
 results in your computation, but if we print either of them out, one of them is opaque and the other is transparent. A transparent naming scheme is preferable for
 debugging purposes.

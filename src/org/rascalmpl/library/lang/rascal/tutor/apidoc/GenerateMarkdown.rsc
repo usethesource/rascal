@@ -74,7 +74,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
     [
         out("## function <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         empty(),
-        *[out("* `<ov>`") | ov <- overloads],
+        *[out("* `<removeNewlines(ov)>`") | ov <- overloads],
         empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
     ];
@@ -87,8 +87,16 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
     [
         out("## data <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         empty(),
-        *[out("* `<ov>`") | ov <- overloads],
-        empty(),
+        *[
+            out("```rascal"),
+            *[
+                out(defLine)
+            | str defLine <- split("\n", ov)
+            ], 
+            out("```"),
+            empty()
+        | ov <- overloads
+        ],
          *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
     ]; 
 
@@ -96,7 +104,7 @@ list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathCo
     [
         out("## alias <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         empty(),
-        *[out("* `<ov>`") | ov <- overloads],
+        *[out("* `<removeNewlines(ov)>`") | ov <- overloads],
         empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
     ];
@@ -110,7 +118,9 @@ list[Output] tags2Markdown(list[DocTag] tags, PathConfig pcfg, CommandExecutor e
         *(l != "doc" ? [out("### <capitalize(l)>"), empty()] : []),
         
         // here is where we get the origin information into the right place for error reporting:
-        *compileMarkdown(split("\n", c), s.begin.line, s.offset, pcfg, exec, ind, dtls) 
+        *compileMarkdown(split("\n", c), s.begin.line, s.offset, pcfg, exec, ind, dtls),
+
+        empty() 
 
         // this assumes that the doc tags have been ordered correctly already by the extraction stage
         | docTag(label=str l, src=s, content=str c) <- tags
@@ -122,7 +132,9 @@ public str basename(str cn){
 
 private str fragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
 
-
+str removeNewlines(str x) = visit(x) {
+  case /\n/ => " "
+};
 
 
 

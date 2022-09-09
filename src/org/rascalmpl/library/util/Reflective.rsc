@@ -238,7 +238,10 @@ For other modules, a location for this path in bin will be returned.
 import util::Reflective;
 getDerivedWriteLoc("List", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
-getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
+```
+
+```rascal-shell,error
+getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "rsc", pathConfig());
 ```
 
 .Benefits
