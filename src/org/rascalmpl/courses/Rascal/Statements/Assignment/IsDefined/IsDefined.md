@@ -1,6 +1,7 @@
 # IsDefined
 
 .Synopsis
+
 Assign but replace if value is not defined.
 
 .Index
@@ -19,9 +20,13 @@ Assign but replace if value is not defined.
 .Description
 
 First the value of _Exp_~1~ is determined and if that is defined it is assigned to _Assignable_. 
-Otherwise, the value of _Exp_~2~ is assigned to _Assignable_. 
-Values which can be undefined are values in ((Values-Map))s where the key is not set 
-or values of ((Annotation Declaration)) which have not been set yet. 
+Otherwise, the value of _Exp_~2~ is assigned to _Assignable_.
+
+Values which can be undefined are:
+* in ((Values-Map))s where the key is _not_ set
+* values of ((Annotation Declarations)) which are not present.
+* values of ((Function))'s keyword parameters which have not been provided, but are set to default.
+* values of ((Constructors))'s keyword parameters which have not been provided, but are computed by defaults.
 
 No other values can be used in an undefined state, so the ? operator does not make sense on undefined or uninitialized variables for example.
 
@@ -41,6 +46,8 @@ M["Andy"]
 ```
 
 .Benefits
+
+* short notation that inline initialization of map values, keyword fields or annotations without having to write a lot of boilerplate if-then-else statements. 
 
 .Pitfalls
 
