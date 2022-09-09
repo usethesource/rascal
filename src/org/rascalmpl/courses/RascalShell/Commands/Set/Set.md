@@ -39,4 +39,5 @@ fac(5)
 ```
 
 .Pitfalls
-The `set` command is completely unrelated to Rascal's built-in `set` type.
+
+* The `set` command is completely unrelated to Rascal's built-in `set` type.

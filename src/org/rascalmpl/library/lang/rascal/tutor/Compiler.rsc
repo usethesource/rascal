@@ -190,7 +190,7 @@ list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], i
 
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
-  = [ empty(), // must have an empty line
+  = [ Output::empty(), // must have an empty line
       out("```rascal-shell"),
       *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
@@ -278,7 +278,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
 list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   if (title == "Details" || /^##+\s*Details/ := title) {
     // details need to be collected and then skipped in the output
-    if ([*str lines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3] := rest2) {
+    if ([*str lines, str nextHeader:/^\s*(\.|##\s+)[A-Z][a-z]*/, *str rest3] := rest2) {
        return [
         *[details([trim(word) | word <- split(" ", trim(l)), trim(word) != ""]) | l <- lines],
         *compileMarkdown([nextHeader, *rest3], line + 1 + size(lines), offset + size(first) + (0 | 1 + it | _ <- lines), pcfg, exec, ind, dtls)

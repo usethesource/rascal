@@ -29,11 +29,11 @@ int ITER = 1000000;
 public void measure(){
     L = for(int i <- [ 0 .. SIZE ]) append arbInt();
     
-    begin = realTime();
+    begin = realTimeNow();
 	for(int i <- [1 .. ITER])
 	    rev(L);
 	    
-	used = (realTime() - begin);
+	used = (realTimeNow() - begin);
 		
 	println("<ITER> x rev list <SIZE> elements <used> (msec");
 }
