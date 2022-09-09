@@ -1,13 +1,19 @@
 # Call
 
 .Synopsis
-Function call.
+
+Functions and constructors can be called or invoked in a uniform style.
 
 .Index
+
 ( )
 
 .Syntax
-`Name ( Exp~1~, Exp~2~, ... )`
+
+* function call with positional parameters `Name ( Exp~1~, Exp~2~, ... )`
+* function call with keyword parameters `Name (Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)`
+* function call with both positional and keyword parameters `Name (Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)`
+* function calls with computed functions `Exp ( Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...) 
 
 .Types
 
@@ -23,6 +29,11 @@ Function call.
 .Details
 
 .Description
+
+For the purpose of calling a function or a constructor, we make no distinction between these two concepts.
+A constructor is a function that constructs an application of an algebraic data-type constructor definition,
+so it has no body, but it is a function which can be called.
+
 First, the actual parameter expressions _Exp_~i~ are evaluated resulting in values _V_~i~.
 Based on _Name_ and the argument types _T_~i~, the identity of the function to be called is determined.
 
@@ -30,12 +41,23 @@ The values _V_~i~ are bound to the formal parameter names of the
 declared functions and the function body is executed.
 The value returned by the function is used as value of the function call.
 
+For the keyword parameters a similar evaluation produces values for each expression and those values
+are bound to the respective names. 
+* The order of keyword parameters is irrelevant in the call syntax, as opposed to the order of the positional parameters. 
+* Notably, values are _also_ bound for the keyword parameters which are _not listed_ in the call site. For those values, _default_ expressions are evaluation which are retrieved from the ((Function)) signature. 
+* For ((Function))s those default parameters are computed and bound at the time of calling the function
+* For ((AlgebraicDataType)) constructors, the missing default parameters are computed, lazily, at the moment of ((FieldProjection)).
 
-A _constructor call_ has identical syntax to that of a function call, see ((Values-Constructor)),
+For more information:
+* see ((Function)) for more details about function declarations.
+* see ((AlgebraicDataType)) for more details about constructor declarations.
 
-See ((Function)) for more details about function declarations.
+In case of ((Overloading)), where there a more definitions of the same function (the same name and argument arity), there is a selection process called "dynamic dispatch". The functions are tried in arbitrary order,
+and if their signature [matches]((Matching)), and their body does not ((Fail)), then the return value of that function is used. Otherwise, the next function alternative is tried until a succesful alternative is found. 
+If the pattern ((Matching)) of the signature is non-unitary, it involves backtracking, then a single function
+may be tried many times.
 
-NOTE: Describe keyword parameters.
+If the name of the function in the call is
 
 .Examples
 
@@ -58,6 +80,10 @@ square(12);
 ```
 
 .Benefits
+
+* calls with positional parameters are the classical way of function invocation in Mathematics and Computer Science
+* calls with keyword parameters provide readability at the call site and we do not have to remember the invocation order
+* calls with keyword parameters are always bound by defaults, so there is never a `null` reference
 
 .Pitfalls
 
