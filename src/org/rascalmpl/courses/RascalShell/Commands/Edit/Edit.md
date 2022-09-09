@@ -12,3 +12,4 @@ Open an editor for a Rascal module
 import IO;
 :edit IO
 ```
+

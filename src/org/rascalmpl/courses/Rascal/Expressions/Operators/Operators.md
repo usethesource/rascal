@@ -35,12 +35,12 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 | Select fields from relation or structured value |
 | `Exp is Name` |
 | ((Library:ParseTree)), |
-  ((Concrete Syntax)), |
+  ((Expressions-ConcreteSyntax)), |
   ((Algebraic Data Type)) |
 | Returns true if and only if the constructor name of the value produced by _Exp_ is equal to _Name_ |
 | `Exp has Name`  |
 | ((Library:ParseTree)), |
-  ((Concrete Syntax)), |
+  ((Expressions-ConcreteSyntax)), |
   ((Algebraic Data Type)) |
 | Returns true if and only if the constructor (node or parse tree) of the value produced by _Exp_ has any field labeled _Name_ |
 | `Exp~1~ [ Exp~2~ , Exp~3~, .... ]` |
@@ -50,7 +50,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
   ((Relation-Subscription)) |
 | Retrieve values for given index/key from list, map, tuple or relation. |
 | `Exp~1~ [ Exp~2~ , Exp~3~ .. Exp~4~ ]` |
-| ((Values-List-Slice)), |
+| ((Expressions-Values-List-Slice)), |
   ((String-Slice)), |
   ((Node-Slice)) |
 | Retrieve a slice from a list, string, or node. |
@@ -75,7 +75,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 | ((Expressions-Selection)) |
 | Value of annotation _Name_ of _Exp_'s value |
 | `Exp~1~ [@ Name = Exp~2~]` |
-| ((Expressions-Replacement)) |
+| ((Annotations)) |
 | Assign value of _Exp_~2~ to annotation _Name_ of _Exp_~1~'s value |
 | `Exp~1~ o Exp~2~` |
 | ((Relation-Composition)), |

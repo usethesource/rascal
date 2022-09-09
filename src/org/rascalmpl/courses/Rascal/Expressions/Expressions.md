@@ -10,7 +10,8 @@ The expressions available in Rascal.
 .Function
 
 .Details
-Values Operators
+
+Values Operators StatementAsExpression
 
 .Description
 The expression is the basic unit of evaluation and may consist of the ingredients shown in the figure.
