@@ -40,7 +40,7 @@ public bool measure(list[str] names){
 		nTop = size(top(CALL));
 		println("<name>: size top <nTop>");
 	
-		time0 = realTime();
+		time0 = realTimeNow();
 		res1 = trans(CALL);          time1 = realTimeNow();
 		res2  = reachFromTop1(CALL); time2 = realTimeNow();
 		res3 = reachFromTop2(CALL);  time3 = realTimeNow();
