@@ -16,7 +16,7 @@
 
 The Document Object Model [DOM](http://en.wikipedia.org/wiki/Document_Object_Model) is a cross-platform and language-independent
 way of representing and manipulating HTML, XHTML and XML documents. In this module we represent the DOM as a 
-Rascal ((AlgebraicDataType)) using ((KeywordParameters)) for the optional attributes.
+Rascal ((AlgebraicDataType)) using [keyword parameters]((Declarations-Function)) for the optional attributes.
 
 In ((lang::xml::IO)) a different approach is taken, where each XML document is mapped to an instance of 
 the `node` class, which gives a more direct one-to-ony mapping as opposed to the DOM encoding here.

@@ -1,11 +1,4 @@
-@doc{
-.Synopsis
-extends the M3 [$analysis/m3/Core] with Java specific concepts such as inheritance and overriding.
-
-.Description
-
-For a quick start, go find ((createM3FromEclipseProject)).
-}
+@synopsis{Extends the M3 ((analysis::m3::Core)) with Java specific concepts such as inheritance and overriding.}
 module lang::java::m3::Core
 
 extend lang::java::m3::TypeSymbol;
