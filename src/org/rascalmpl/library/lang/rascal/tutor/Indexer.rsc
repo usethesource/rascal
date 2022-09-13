@@ -41,7 +41,7 @@ rel[str, str] createConceptIndex(loc src)
       *{<"<f.parent.parent.file>-<cf.file>", fr> | f.parent.path != "/", f.parent.file == cf.file, f.parent != src},
 
       // `((Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
-      *{<"<fr[1..]>", fr>},
+      *{<"<replaceAll(fr[1..][findFirst(fr[1..], "/")+1..], "/", "-")>", fr>},
 
       // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
       <"<capitalize(src.file)>:<capitalize(cf.file)>", fr>,
@@ -50,7 +50,7 @@ rel[str, str] createConceptIndex(loc src)
       *{<"<capitalize(src.file)>:<capitalize(f.parent.parent.file)>-<capitalize(cf.file)>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
-      <"<capitalize(src.file)>:<fr[1..]>", fr>
+      <"<capitalize(src.file)>:<replaceAll(fr[1..][findFirst(fr[1..], "/")+1..], "/", "-")>", fr>
 
     | loc f <- find(src, isConceptFile), fr := localLink(src, f), cf := f[extension=""]
     }
