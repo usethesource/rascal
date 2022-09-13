@@ -5,6 +5,7 @@ import ValueIO;
 import String;
 import util::FileSystem;
 import IO;
+import Location;
 
 import lang::rascal::tutor::apidoc::DeclarationInfo;
 import lang::rascal::tutor::apidoc::ExtractInfo;
@@ -33,50 +34,50 @@ rel[str, str] createConceptIndex(loc src)
     // can be linked to in 6 different ways ranging from very short but likely inaccurate to
     // rather long, but guaranteed to be exact:
     { 
-      // `((StrictSuperSetSet)) -> #Expressions-Values-Set-StrictSuperSet``
+      // `((StrictSuperSetSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
       <cf.file, fr>,
 
-      // `((Set-StrictSuperSet)) -> #Expressions-Values-Set-StrictSuperSet``
+      // `((Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
       *{<"<f.parent.parent.file>-<cf.file>", fr> | f.parent.path != "/", f.parent.file == cf.file, f.parent != src},
 
-      // `((Expressions-Values-Set-StrictSuperSet)) -> #Expressions-Values-Set-StrictSuperSet``
+      // `((Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
       *{<"<fr[1..]>", fr>},
 
-      // `((Rascal:StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
-      <"<capitalize(src.file)>:<capitalize(cf.file)>", "/<capitalize(src.file)>.md<fr>">,
+      // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
+      <"<capitalize(src.file)>:<capitalize(cf.file)>", fr>,
 
-      // `((Rascal:Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
+      // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
       *{<"<capitalize(src.file)>:<capitalize(f.parent.parent.file)>-<capitalize(cf.file)>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
 
-      // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal.md#Expressions-Values-Set-StrictSuperSet``
+      // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
       <"<capitalize(src.file)>:<fr[1..]>", fr>
 
-    | loc f <- find(src, isConceptFile), fr := fragment(src, f), cf := f[extension=""]
+    | loc f <- find(src, isConceptFile), fr := localLink(src, f), cf := f[extension=""]
     }
   + // Now follow the index entries for image files:
-    { <"<f.parent.file>-<f.file>", "/assets/<md5>.<f.extension>">,
-      <f.file, "/assets/<md5>.<f.extension>">,
-      <"<capitalize(src.file)>:<f.file>", "/assets/<md5>.<f.extension>">
-    |  loc f <- find(src, isImageFile), md5 := md5HashFile(f)
+    { <"<f.parent.file>-<f.file>", "/assets/<capitalize(src.file)><relativize(src, f)>">,
+      <f.file, "/assets/<capitalize(src.file)><relativize(src, f)>">,
+      <"<capitalize(src.file)>:<f.file>", "/assets/<capitalize(src.file)><relativize(src, f)>">
+    |  loc f <- find(src, isImageFile)
     }
   + // Here come the index entries for Rascal modules and declarations:
     {  // `((getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
-      *{<"<item.kind>:<item.name>","<moduleFragment(item.moduleName)>-<item.name>">, <item.name, "<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
+      *{<"<item.kind>:<item.name>","<moduleFragment(item.moduleName)>/#<item.name>">, <item.name, "<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
      
       // `((Library:getDefaultPathConfig))` -> `/Library.md#util-Reflective-getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" >,
-         <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
+      *{<"<capitalize(src.file)>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
+         <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
 
       // `((util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
-      *{<"<item.moduleName><sep><item.name>", "<moduleFragment(item.moduleName)>-<item.name>" >,
-        <"<item.kind>:<item.moduleName><sep><item.name>", "<moduleFragment(item.moduleName)>-<item.name>" > | item.name?, sep <- {"::", "-"}},
+      *{<"<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
+        <"<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
 
       // ((Library:util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" >,
-         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>-<item.name>" > | item.name?, sep <- {"::", "-"}},
+      *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
+         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
 
       // ((Set)) -> `#Set`
-      *{<item.moduleName, "<moduleFragment(item.moduleName)>" >, <"module:<item.moduleName>", "<moduleFragment(item.moduleName)>" > | item is moduleInfo},
+      *{<item.moduleName, "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>" >, <"module:<item.moduleName>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>" > | item is moduleInfo},
 
       // `((Library:Set))` -> `/Library.md#Set`
       *{<"<capitalize(src.file)>:<item.moduleName>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>" >,
@@ -87,6 +88,5 @@ rel[str, str] createConceptIndex(loc src)
     ;
 
 private bool isConceptFile(loc f) = f.extension in {"md"};
-private bool isRascalFile(loc f) = f.extension in {"rsc"};
 private bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 

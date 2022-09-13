@@ -3,11 +3,16 @@ module lang::rascal::tutor::Names
 import String;
 import Location;
 
-str fragment(loc concept) = stripDoubleEnd(replaceAll("#<capitalize(concept[extension=""].path[1..])>", "/", "-"));
-str fragment(loc root, loc concept) = fragment(relativize(root, concept));
-str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
+str localLink(loc root, loc concept) = (concept.file == "index.md" || concept.parent.file == concept[extension=""].file) 
+  ? "/<capitalize(root.file)><relativize(root, concept.parent).path>"
+  : "/<capitalize(root.file)><relativize(root, concept)[extension="md"]>"
+  ;
 
-str stripDoubleEnd(/<prefix:.*>\-<a:[^\-]+>\-<b:[^\-]+>$/) = "<prefix>-<b>" when a == b;
+str fragment(loc concept) = stripDoubleEnd("/<capitalize(concept[extension=""].path[1..])>");
+str fragment(loc root, loc concept) = stripDoubleEnd(fragment(relativize(root, concept)));
+str moduleFragment(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
+
+str stripDoubleEnd(/<prefix:.*>\/<a:[^\/]+>\/<b:[^\-]+>$/) = "<prefix>/<b>" when a == b;
 default str stripDoubleEnd(str x) = x;
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
