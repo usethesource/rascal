@@ -98,29 +98,10 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
   return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
 } 
 
-list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) {
-  output = compileDirectory(root, pcfg, exec, ind);
-  issues = [m | err(Message m) <- output];
-
-  // write the output lines to disk (filtering errors)
-  writeFile(
-    (pcfg.bin + capitalize(root.file))[extension="md"], 
-    "<if (issues != []) {>## Document preparation issues
-    '
-    'The following issues have been detected while preparing this draft document. It is not ready for publication.
-    '
-    '<for (str severity(str msg, loc at) <- issues) {>1. [<severity>] <at.top>:<if (at.begin?) {><at.begin.line>,<at.begin.column><}>
-    '   \> <msg>
-    '<}>
-    '<}><for (out(l) <- output) {><l>
-    '<}>"
-  );
-
-  // return only the errors
-  return issues;
-}
-
-list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) {
+list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) 
+  = compileDirectory(root, pcfg[currentRoot=root], exec, ind);
+  
+list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) {
     println("\rcompiling <src>");
 
     // new concept, new execution environment:
@@ -130,20 +111,19 @@ list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) 
         return compileDirectory(src, pcfg, exec, ind);
     }
     else if (src.extension == "rsc") {
-        return compileRascal(src, pcfg[currentFile=src], exec, ind);
+        return compileRascalFile(src, pcfg[currentFile=src], exec, ind);
     }
     else if (src.extension in {"md"}) {
-        return compileMarkdown(src, pcfg, exec, ind);
+        return compileMarkdownFile(src, pcfg, exec, ind);
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
-        try {
-            if (str path <- ind["<src.parent.file>-<src.file>"]) {
-              copy(src, pcfg.bin + path);
-            }
-            return [];
+        try {  
+          copy(src, pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path);
+          
+          return [];
         }
         catch IO(str message): {
-            return [err(error(message, src))];
+            return [error(message, src)];
         }
     }
     else {
@@ -151,36 +131,57 @@ list[Output] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) 
     }
 }
 
-list[Output] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind) {
-    indexFiles = {(d + "<d.file>")[extension="concept"], (d + "<d.file>")[extension="md"]};
+list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind) {
+    indexFiles = {(d + "<d.file>")[extension="concept"], (d + "<d.file>")[extension="md"], (d + "index.md")};
 
-    if (i <- indexFiles, exists(i)) {
-      output = compile(i, pcfg, exec, ind);
-      order = [*x | details(x) <- output];
+    return [
+      *(((i <- indexFiles) && exists(i)) ? compile(i, pcfg, exec, ind) : generateIndexFile(d, pcfg)), 
+      *[*compile(s, pcfg, exec, ind) | s <- d.ls, !(s in indexFiles), isDirectory(s) || s.extension in {"md","rsc"}]
+    ];
+}
 
-      if (order != []) {
-        return output + [*compile(d + s, pcfg, exec, ind) | s <- order]
-             + [err(warning("Concept <c> is missing from .Details: <order>", i)) | loc c <- d.ls, c.file notin order, isDirectory(c)]
-             + [err(warning("Concept <c> from .Details is missing from file system: <files>", i)) | str c <- order, files := [e.file | loc e <- d.ls, isDirectory(e)], c notin files]
-             ;
-      }
-      else {
-        return output + [*compile(s, pcfg, exec, ind) | s <- d.ls, s != i];
-      }
-    }
-    else {
-      return [*compile(s, pcfg, exec, ind) | isDirectory(d), s <- d.ls];
-    }
+list[Message] generateIndexFile(loc d, PathConfig pcfg) {
+  try {
+    writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, d).path + "index.md",
+      "# <replaceAll("/", "::", relativize(pcfg.currentRoot, d).path[1..])>
+      '
+      '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}) {>
+      '   * [<e[extension=""].file>](<capitalize(pcfg.currentRoot.file)>/<relativize(pcfg.currentRoot, e).path>)<}>");
+    return [];
+  } catch IO(msg): {
+    return [error(msg, d)];
+  }
 }
 
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
-list[Output] compileRascal(loc m, PathConfig pcfg, CommandExecutor exec, Index ind)
-  = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
+list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
+   list[Output] output = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
 
-list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) 
-  = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, 
-    // this uses another nested directory listing to construct information for the (((TOC))) embedded in the current document:
-    [ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d), exists((d + d.file)[extension="md"])]) + [empty()];
+   writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
+      "<for (out(x) <- output) {><x>
+      '<}>"
+   );
+
+   return [e | err(e) <- output];
+}
+
+
+list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
+  // this uses another nested directory listing to construct information for the (((TOC))) embedded in the current document:
+  order = [ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}];
+
+  list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, order) + [empty()];
+
+  // turn A/B/B.md into A/B/index.md for better URLs in the end result (`A/B/`` is better than `A/B/B.html`)
+  m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
+
+  writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
+      "<for (out(x) <- output) {><x>
+      '<}>"
+  );
+
+  return [e | err(e) <- output];
+}
 
 @synopsis{make sure to tag all section headers with the right fragment id for concept linking}
 list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
