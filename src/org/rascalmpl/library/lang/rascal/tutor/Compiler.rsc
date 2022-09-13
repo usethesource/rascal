@@ -70,6 +70,7 @@ public PathConfig onlyAPIconfig
 public list[Message] lastErrors = [];
 
 public void defaultCompile() {
+  remove(defaultConfig.bin, recursive=true);
   errors = compile(defaultConfig);
 
   for (e <- errors) {
