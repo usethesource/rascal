@@ -373,12 +373,18 @@ public class URIUtil {
 			return inside;
 		}
 
-		Path outsidePath = Paths.get(outside.getPath());
-		Path insidePath = Paths.get(inside.getPath());
+		String[] outsidePath = outside.getPath().split("/");
+		String[] insidePath = inside.getPath().split("/");
 
-		Path relPath = outsidePath.relativize(insidePath);
+		// we already know that outsidePath is a parent of insidePath, so
+		// all we need to do is skip over the prefix
+		StringBuilder relativePath = new StringBuilder();
+		for (int i = outsidePath.length; i < insidePath.length; i++) {
+			relativePath.append("/");
+			relativePath.append(insidePath[i]);
+		}
 	
-		return URIUtil.correctLocation("relative", "", relPath.toString());
+		return URIUtil.correctLocation("relative", "", relativePath.toString());
 	}
 
 	public static ISourceLocation removeAuthority(ISourceLocation loc) {
