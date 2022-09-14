@@ -276,37 +276,20 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
   return [err(warning("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
 }
 
+list[Output] compileMarkdown([firstLine:/^details:<dtlsLine:.*>$/, *str otherMetaData, "---", *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = [
+    details([trim(word) | word <- split(" ", trim(dtlsLine)), trim(word) != ""]),
+    out(firstLine),
+    *compileMarkdown([*otherMetaData, "---", *rest], line + 1, offset + size(firstLine), pcfg, exec, ind, [trim(word) | word <- split(" ", trim(dtlsLine)), trim(word) != ""])
+  ];
+
 @synopsis{This supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus}
 list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
-  if (title == "Details" || /^##+\s*Details/ := title) {
-    // details need to be collected and then skipped in the output
-    if ([*str lines, str nextHeader:/^\s*(\.|##\s+)[A-Z][a-z]*/, *str rest3] := rest2) {
-       return [
-        *[details([trim(word) | word <- split(" ", trim(l)), trim(word) != ""]) | l <- lines],
-        *compileMarkdown([nextHeader, *rest3], line + 1 + size(lines), offset + size(first) + (0 | 1 + it | _ <- lines), pcfg, exec, ind, dtls)
-       ];
-    }
-    else {
-      return [err(error("Parsing input around .Details section failed somehow.", pcfg.currentFile(offset, 0, <line, 0>, <line, 1>)))];
-    }
-  }
-  else if (title == "Index" || /^##+\sIndex/ := title) {
-    if ([*str lines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3] := rest2) {
-       return [
-        search(lines, fragment(pcfg.currentRoot, pcfg.currentFile)),
-        *compileMarkdown([nextHeader, *rest3], line + 1 + size(lines), offset + size(first) + (0 | 1 + it | _ <- lines), pcfg, exec, ind, dtls)
-       ];
-    } else {
-       return [err(error("Parsing input around .Index section failed somehow.", pcfg.currentFile(offset, 0, <line, 0>, <line, 1>)))];
-    }
-  }
-  else {
-    // just a normal section header 
-    return [
-      *[out("### <title> <rest>") | skipEmpty(rest2) != [] && [/^\s*\.[A-Z][a-z]*.*/, *_] !:= skipEmpty(rest2)],
-      *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec, ind, dtls)
-    ];
-  }
+  // just a normal section header 
+  return [
+    *[out("### <title> <rest>") | skipEmpty(rest2) != [] && [/^\s*\.[A-Z][a-z]*.*/, *_] !:= skipEmpty(rest2)],
+    *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec, ind, dtls)
+  ];
 }
 
 @synopsis{this is when we have processed all the input lines}
