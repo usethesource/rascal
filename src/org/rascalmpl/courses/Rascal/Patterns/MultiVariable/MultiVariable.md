@@ -3,25 +3,27 @@ title: "MultiVariable Pattern"
 keywords: "*"
 ---
 
-.Synopsis
+#### Synopsis
+
 Multi-variable (also known as Splice-variable) in abstract pattern.
 
-.Syntax
+#### Syntax
 
 *  `*Var`
 *  `*Type Var`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A multi-variable is an abbreviation for a variable declaration pattern.
 It can occur in a list pattern or set pattern and can match zero or more list or set elements.
 Optionally the *element type* of the multi-variable may be specified.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import IO;
 ```
@@ -46,8 +48,9 @@ if({10, *int S, 50} := {50, 40, 30, 30, 10})
    println("Match succeeds, S == <S>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 In older versions of Rascal the type of a multi-variable had to be a list or set type.
 

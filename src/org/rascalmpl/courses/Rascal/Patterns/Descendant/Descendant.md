@@ -3,21 +3,24 @@ title: "Descendant Pattern"
 keywords: "/"
 ---
 
-.Synopsis
+#### Synopsis
+
 Deep match in an abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A descendant pattern
 performs a deep match of the pattern _Pat_. In other words, it matches when any element of the subject at any depth
 that matches _Pat_ and is used to match, for instance, tree nodes at an arbitrary distance from the root.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import IO;
 data ColoredTree = leaf(int N)
@@ -49,7 +52,7 @@ for(/int N := T)
     append N;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

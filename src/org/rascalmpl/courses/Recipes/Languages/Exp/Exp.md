@@ -2,17 +2,19 @@
 title: Exp
 ---
 
-.Synopsis
+#### Synopsis
+
 The _hello world_ of syntax definition and language definition.
 It illustrates how to define concrete and abstract syntax and how to use concrete and abstract patterns to evaluate expressions.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Our sample language Exp contains the following elements:
 
 *  Integer constants, e.g., `123`.
@@ -22,14 +24,14 @@ Our sample language Exp contains the following elements:
 *  Addition is left-associative.
 *  Parentheses can be used to override the precedence of the operators.
 
-.Examples
+#### Examples
 
 *  `123`
 *  `2+3+4`
 *  `2+3*4`
 *  `(2+3)*4`
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

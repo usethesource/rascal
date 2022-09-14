@@ -2,21 +2,24 @@
 title: Invalid Use Of Date
 ---
 
-.Synopsis
+#### Synopsis
+
 Invalid of of a date at runtime
 
-.Types
+#### Types
+
 `data RuntimeException = InvalidUseOfDate(str message);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `InvalidUseOfDate` is used in `catch`)
 
-.Description
+#### Description
 
 Thrown by operations on date values that
 try to update unavailable information.
 
-.Examples
+#### Examples
 
 Setting the `hour` field on a date value throws an exception:
 ```rascal-shell,error

@@ -2,18 +2,20 @@
 title: SyntaxError
 ---
 
-.Synopsis
+#### Synopsis
+
 Text in a module or entered via the command line violates the Rascal syntax.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 This error is generated when a text is expected to be Rascal but does not comply with the Rascal syntax.
 
 Remedy: Correct your text and check for the following:
@@ -33,9 +35,9 @@ When you are completely desparate and cannot find the syntax error, the followin
    ** The module does not parse. The syntax error is in the top part.
       Move the `/*` marker to the middle of the top part and repeat.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

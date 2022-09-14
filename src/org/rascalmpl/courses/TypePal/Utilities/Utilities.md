@@ -2,10 +2,11 @@
 title: Utilities
 ---
 
-.Synopsis
+#### Synopsis
+
 Some utility functions.
 
-.Description
+#### Description
 
 TypePal provides some utility functions to address common scenarios.
 

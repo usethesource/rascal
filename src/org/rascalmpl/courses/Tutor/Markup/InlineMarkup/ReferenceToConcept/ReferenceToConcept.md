@@ -2,20 +2,22 @@
 title: Reference to Concept
 ---
 
-.Synopsis
+#### Synopsis
+
 Refer to a concept in this course or another course.
 
-.Syntax
+#### Syntax
+
 * `(( DisplayName ))`
 * `(( ParentConceptName-ConceptName ))`
 * `\[LinkText]((Course))`
 * `\[LinkText]((Course:ParentConceptName-ConceptName))`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Recall that a concept is known under two names, its _concept name_ (the file name of the concept) and its _display name_ (the name as displayed in the text).
 
@@ -26,7 +28,7 @@ The remaining two forms create a link to a concept in another course.
 The first creates a link to a complete course, the second to a specific concept in an external course.
 
 
-.Examples
+#### Examples
 
 The concept name of this concept is `ReferenceToConcept` while its display name is `Reference to Concept` (note the spaces).
 
@@ -40,8 +42,9 @@ Here is a reference to another course:
 
 * `\[If statement]((Rascal:Statements-If))` gives [If statement]((Rascal:Statements-If)).
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 Note the `/` before the course name in refernces to another course.
 

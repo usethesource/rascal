@@ -3,23 +3,25 @@ title: "Break"
 keywords: "break"
 ---
 
-.Synopsis
+#### Synopsis
+
 End the execution of a while, do or for loop.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A `break` statement is only allowed inside the body of a ((While)), ((Do)) or ((For)) statement
 and is associated with the innermost loop statement in which it is contained.
 Its effect is to end the execution of the loop.
 
 Also see ((Continue)) and ((Fail)).
 
-.Examples
+#### Examples
 
 Here is an example using break to find the first number divisible by 3:
 ```rascal-shell
@@ -32,7 +34,7 @@ for(int i <- [1 .. 10]){
 }
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

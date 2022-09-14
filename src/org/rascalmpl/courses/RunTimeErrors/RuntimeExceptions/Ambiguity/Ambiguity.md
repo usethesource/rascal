@@ -2,17 +2,20 @@
 title: Ambiguity
 ---
 
-.Synopsis
+#### Synopsis
+
 Ambiguity found in parsed text. 
 
-.Description
+#### Description
+
 Rascal supports general context-free grammars and also provides
 various mechanisms to disambiguate them.
 
 This exception is thrown when, given a grammar and a sentence,
 an ambiguity is found while parsing the sentence according to that grammar.
 
-.Examples
+#### Examples
+
 First declare a very simple expression language that should
 recognize expressions like `a`, `a+a`, `a+(a+a)`:
 ```rascal-shell

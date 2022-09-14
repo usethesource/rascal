@@ -2,16 +2,17 @@
 title: Extraction
 ---
 
-.Synopsis
+#### Synopsis
+
 Strategies to extract facts from software systems.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 ![Extraction workflow]((define-extraction.png))
 
@@ -69,9 +70,9 @@ The Rascal features that are most frequently used for extraction are:
 
 *  The repertoire of built-in datatypes (like lists, maps, sets and relations) to represent the extracted facts.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

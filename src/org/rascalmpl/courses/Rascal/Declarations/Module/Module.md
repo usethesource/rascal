@@ -3,10 +3,12 @@ title: "Module Declaration"
 keywords: "module"
 ---
 
-.Synopsis
+#### Synopsis
+
 Declare a module.
 
-.Syntax
+#### Syntax
+
 ```rascal
 module _Name_
 _Imports_;
@@ -15,11 +17,12 @@ _Declaration~1~_;
 _Declaration~n~_;
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A module declaration consists of:
 
 *  A module name.
@@ -70,7 +73,8 @@ _Module_ :: _Name_
 
 Each module resides in a separate file with extension `.rsc`.
 
-.Examples
+#### Examples
+
 Here is the `Hello` module:
 
 ```rascal
@@ -85,7 +89,7 @@ The actual source of this module can be found in `library/demo/basic/Hello.rsc` 
 
 More ways to write this example are discussed in the [Hello]((Recipes:Basic-Hello)) example in [Recipes]((Recipes)).
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

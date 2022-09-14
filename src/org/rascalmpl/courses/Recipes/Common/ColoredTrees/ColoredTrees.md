@@ -2,16 +2,18 @@
 title: Colored Trees
 ---
 
-.Synopsis
+#### Synopsis
+
 Computations on binary trees.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 We consider binary trees---trees with exactly two children---that have integers as their leaves. 
 Our trees can have red and black nodes and we want to perform the following operations on them:
 
@@ -20,7 +22,8 @@ Our trees can have red and black nodes and we want to perform the following oper
 *  Extend the tree data type with green nodes.
 *  Replace all red nodes by green ones.
 
-.Examples
+#### Examples
+
 The definition of ColoredTrees is as follows:
 ```rascal
 include::{LibDir}demo/common/ColoredTrees.rsc[tags=module]
@@ -55,13 +58,15 @@ Finally, we convert all red nodes:
 makeGreen(rb);
 ```
 
-.Benefits
+#### Benefits
+
 This example illustrates the fully automatic visiting of the elements of a structured data type.
 Compare this with the traditional programming style in which a switch statement is used to determine
 the constructor and recursion is used to visit substructures. This style becomes particularly cumbersome
 for data types with large numbers of constructors such as, for instance, abstract syntax trees for real
 programming languages.
 
-.Pitfalls
+#### Pitfalls
+
 The visit statement is based on a new paradigm one has to learn.
 

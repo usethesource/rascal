@@ -3,13 +3,15 @@ title: "ListRelation Reflexive Transitive Closure"
 keywords: "*"
 ---
 
-.Synopsis
+#### Synopsis
+
 The reflexive transitive closure of a binary list relation.
 
-.Syntax
+#### Syntax
+
 `Exp *`
 
-.Types
+#### Types
 
 
 |`Exp`               | `Exp *`             |
@@ -17,9 +19,9 @@ The reflexive transitive closure of a binary list relation.
 | `lrel[T~1~, T~2~]` | `lrel[T~1~, T~2~]`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Reflexive transitive closure is defined by repeated composition of a list relation.
 If we define for a given list relation R:
@@ -38,12 +40,13 @@ then the reflexive transitive closure R* can be defined in two ways:
 *  `R* = R~0~ + R+`
 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 [<1,2>, <2,3>, <3,4>]*;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

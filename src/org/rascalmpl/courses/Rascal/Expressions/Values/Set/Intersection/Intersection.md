@@ -3,13 +3,15 @@ title: "Set Intersection"
 keywords: "&"
 ---
 
-.Synopsis
+#### Synopsis
+
 Intersection of two sets.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ & Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`    |  `Exp~2~`      | `Exp~1~ & Exp~2~`      |
@@ -17,18 +19,20 @@ Intersection of two sets.
 | `set[T~1~]` |  `set[T~2~]`   | `set[lub(T~1~,T~2~)]`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Returns the intersection of the two set values of _Exp_~1~ and _Exp_~2~.
 The intersection consists of the common elements of both sets.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 {1, 2, 3, 4, 5} & {4, 5, 6};
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

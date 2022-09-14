@@ -2,18 +2,19 @@
 title: Test
 ---
 
-.Synopsis
+#### Synopsis
+
 Tests for the Lisp interpreter.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 It is good practice to write tests for your software.
 
@@ -24,9 +25,9 @@ include::{LibDir}demo/lang/Lisra/Test.rsc[tags=module]
 ```
 
                 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

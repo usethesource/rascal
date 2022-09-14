@@ -2,18 +2,19 @@
 title: My First Box
 ---
 
-.Synopsis
+#### Synopsis
+
 Drawing a box in many variations.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 Drawing a red [box]((Library:Figure-box)) is as simple as this:
 ```rascal-figure,width=,height=,file=b1.png
@@ -90,9 +91,9 @@ render(b2);
 ![]((b5.png))     
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 In the above examples we have consistently added the two imports:
 ```rascal

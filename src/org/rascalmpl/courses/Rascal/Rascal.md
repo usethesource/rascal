@@ -3,16 +3,17 @@ title: Rascal Language Reference
 details: Declarations,Patterns,Expressions,Statements
 ---
 
-.Synopsis
+#### Synopsis
+
 Reference manual for the Rascal meta-programming language. 
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Here we describe _all_ features of the Rascal language in detail, for reference purposes.
 
@@ -28,16 +29,17 @@ You can find more (accessible) information related to Rascal here:
 *  We do not maintain a list of frequently asked questions (faq) but 
    use [StackOverflow](http://stackoverflow.com/questions/tagged/rascal) instead.
 
-.Examples
+#### Examples
 
 *  We show examples for each Rascal language construct described here.
 *  You can find many simple code examples in [Recipes]((Recipes)). 
 *  The [Rascal Libraries]((Libraries)) contain examples for most functions. 
 
-.Benefits
+#### Benefits
+
 *  Rascal has everything you need for any kind of (meta-)program you want to write. See [Why Rascal]((WhyRascal)).
 
-.Pitfalls
+#### Pitfalls
 
 *  Rascal is a procedural/functional language with immutable data. Do not confuse this with object-oriented programming.
 *  Rascal allows you to write highly imperative code, but it has declarative constructs that lead to shorter and more readable code.

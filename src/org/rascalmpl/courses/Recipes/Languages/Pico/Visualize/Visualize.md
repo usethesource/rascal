@@ -2,23 +2,25 @@
 title: Visualize
 ---
 
-.Synopsis
+#### Synopsis
+
 Visualize Pico Control Flow Graphs.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 WARNING: The visualization library is being reimplemented and reorganized; 
 the information provided here maybe inaccurate or even incorrect.
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/lang/Pico/Visualize.rsc[tags=module]
 ```
@@ -46,7 +48,7 @@ The resulting visualization looks like this:
 
 ![]((cfg1.png))
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,10 +2,11 @@
 title: Command Completion
 ---
 
-.Synopsis
+#### Synopsis
+
 Context-dependent command completion.
 
-.Description
+#### Description
 
 RascalShell provides context-dependent command completion.
 Typing `Tab` autocompletes from the current cursor position and will show all possible completions

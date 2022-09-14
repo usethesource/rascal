@@ -2,24 +2,26 @@
 title: Variable Declaration
 ---
 
-.Synopsis
+#### Synopsis
+
 Declare a variable.
 
-.Syntax
+#### Syntax
 
 *  `Type Name = Exp ;`
 *  `Type Name;`
 
-.Types
+#### Types
 
 |`Type`  | `Exp` |
 | --- | --- |
 | `Type` | `<: Type` |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The effect of a variable declaration is to introduce a new variable _Name_ and
 to assign the value of expression _Exp_ to _Name_. A mention of _Name_ later on in the same scope
 will be replaced by this value, provided that _Name_\'s value has not been changed by an intermediate assignment. 
@@ -50,7 +52,7 @@ Rascal provides local type inference, which allows the implicit declaration of v
 
 *  All uses of an implicitly declared variable must be compatible with its implicit type.
 
-.Examples
+#### Examples
 
 Two explicit variable declarations:
 ```rascal-shell,continue,error
@@ -68,9 +70,9 @@ int month = 12;
 month ="December";
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 *  Local type inference for variables always uses the smallest possible scope for a variable; this implies that
   a variable introduced in an inner scope is not available outside that scope. Here is how things can go wrong:

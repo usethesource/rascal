@@ -2,10 +2,11 @@
 title: Numbered Lists
 ---
 
-.Synopsis
+#### Synopsis
+
 A (possibly nested) list of numbered points.
 
-.Syntax
+#### Syntax
 
 * `Number MarkedText`
 * `. MarkedText`
@@ -14,11 +15,12 @@ A (possibly nested) list of numbered points.
 * ...
 
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Numbered Lists create, possibly nested, lists of numbered points.
 They either start with a period (`.`) or a number. The number of periods indicates the nesting level.
 
@@ -30,7 +32,8 @@ A list item ends with:
 ((Bullet Lists)) and Numbered Lists can be mixed.
 See http://asciidoctor.org/docs/user-manual/#ordered-lists for the precise rules.
 
-.Examples
+#### Examples
+
 The input
 
 ```
@@ -59,8 +62,9 @@ will produce:
   ..  Second subitem.
 . Second item
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 An empty line is required before and after a NumberedList.
 

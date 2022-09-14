@@ -2,20 +2,21 @@
 title: Typecheck
 ---
 
-.Synopsis
+#### Synopsis
+
 Typechecker for Pico programs.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 Recall the following properties of Pico that are relevant for type checking:
 
@@ -83,7 +84,7 @@ checkProgram("begin declare  x : natural; x := \"abc\" end");
 
 The error location will be use later to give specific messages in the IDE.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

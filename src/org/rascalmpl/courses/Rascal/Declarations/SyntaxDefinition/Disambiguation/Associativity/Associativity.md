@@ -3,10 +3,11 @@ title: "Associativity Declaration"
 keywords: "left,right,assoc,non-assoc"
 ---
 
-.Synopsis
+#### Synopsis
+
 Define associativity of operators
 
-.Syntax
+#### Syntax
 
 *  `syntax Exp = Assoc Label Symbol~1~ Symbol~2~ ...`
 *  `syntax Exp = Assoc ( Alt~1~ | Alt~2~ | ... )`
@@ -15,11 +16,12 @@ Define associativity of operators
 
 Here _Assoc_ is one of: `left`, `right`, `assoc` or `non-assoc`. See ((Syntax Definition))s on how to define alternatives and ((SyntaxDefinition-Symbol))s.
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Using Associativity declarations we may disambiguate binary recursive operators. 
 
 The semantics are that an associativity modifier will instruct the parser to disallow certain productions to nest _at particular argument positions_:
@@ -49,15 +51,15 @@ A finer point is that associativity has no effect on any other position than the
 
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
 *  Short notation for common constructs in programming languages.
 *  Removes ambiguity but can not introduce parse errors.
 *  Allows the use of less non-terminals for the same expression grammar (typically only one), which makes parse trees simpler as well as the mapping to an abstract syntax tree more direct.
 
-.Pitfalls
+#### Pitfalls
 
 *  Please do not assume that Rascal's associativity declarations have the same semantics as SDF's associativity declarations.
 *  Use of productions that are not both left and right recursive in an associativity group, although safe, is not very meaningful. We would advise to use the ((Priority Declaration)) relation such a case. For example:

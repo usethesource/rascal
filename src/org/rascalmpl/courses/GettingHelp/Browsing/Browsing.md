@@ -3,10 +3,11 @@ title: "Browsing Documentation"
 keywords: "help"
 ---
 
-.Synopsis
+#### Synopsis
+
 Browsing the Rascal documentation
 
-.Description
+#### Description
 
 All Rascal documentation has been indexed and cross-referenced 
 and can be accessed via a single browser interface.

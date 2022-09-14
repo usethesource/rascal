@@ -2,18 +2,20 @@
 title: List
 ---
 
-.Synopsis
+#### Synopsis
+
 An ordered sequence of values.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 A list is a sequence of values with the following properties:
 
 *  The list maybe empty.
@@ -49,7 +51,8 @@ Each list has a type of the form `list[T]`, where _T_ is the smallest common typ
 Read the description of [lists and their operators]((Rascal:Values-List))
 and of [library functions on lists]((Library:module:List)).
 
-.Examples
+#### Examples
+
 ## Lists in Daily Life
 
 *  A line of people waiting for the super market checkout or bus stop. 
@@ -76,7 +79,7 @@ and of [library functions on lists]((Library:module:List)).
 *  A list of integers: `[3, 1, 4]`. Its type is `list[int]`.
 *  A list of mixed-type values: `[3, "a", 4]`. Its type is `list[value]`.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

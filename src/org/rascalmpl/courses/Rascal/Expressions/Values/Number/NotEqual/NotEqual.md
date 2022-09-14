@@ -3,13 +3,16 @@ title: "Number NotEqual"
 keywords: "!="
 ---
 
-.Synopsis
+#### Synopsis
+
 Not equal operator on numeric values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ != Exp~2~`
 
-.Types
+#### Types
+
 | `Exp~1~`  |  `Exp~2~` | `Exp~1~ != Exp~2~`   |
 | --- | --- | --- |
 | `int`      |  `int`     | `bool`                 |
@@ -17,12 +20,14 @@ Not equal operator on numeric values.
 | `real`     |  `real`    | `bool`                 |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the value of both arguments is numerically unequal, and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 12 != 13
 12 != 12
@@ -32,7 +37,7 @@ Yields `true` if the value of both arguments is numerically unequal, and `false`
 3.14 != 3.14
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

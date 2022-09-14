@@ -2,20 +2,22 @@
 title: ControlFlow
 ---
 
-.Synopsis
+#### Synopsis
+
 Compute the control flow graph for a Pico program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 A control flow graph shows how the entry and exit points of a program are connected with each other via all
 decision points and statements in the program. Typically, an assignment statement is a single node in the graph
 and an if-then-else statement creates a decision point (its test) that connects the then branch and the else branch.
@@ -80,7 +82,7 @@ cflowProgram("begin declare n : natural, s : string; n := 10; s := \"a\"; while 
 
 Is the above not very motivating to move on to ((Pico-Visualize))?
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

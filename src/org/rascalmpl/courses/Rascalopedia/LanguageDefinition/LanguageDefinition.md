@@ -2,18 +2,20 @@
 title: Language Definition
 ---
 
-.Synopsis
+#### Synopsis
+
 Description of all aspects of a language.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 A language definition defines all relevant aspects of a programming language or ((Domain Specific Language)) and includes:
 
 *  A ((Rascalopedia:Grammar-Grammar)) (including lexical and context-free syntax).
@@ -28,9 +30,9 @@ A language definition defines all relevant aspects of a programming language or 
 
 Other aspects of a language definition may include editor behaviour, highlighting, debugging, outlining, auto-completion and more.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

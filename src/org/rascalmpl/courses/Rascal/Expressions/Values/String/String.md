@@ -3,10 +3,12 @@ title: "String"
 keywords: "",',<,>,\,\n,\t,\r,\b,\f,\u,\U,hex,if,else,for,while,do"
 ---
 
-.Synopsis
+#### Synopsis
+
 String values.
 
-.Syntax
+#### Syntax
+
 `"StringChar~1~StringChar~2~..."`
 where `_StringChar~i~_ may be one of the following:
 
@@ -44,14 +46,15 @@ where `_StringChar~i~_ may be one of the following:
 
 
 
-.Usage
+#### Usage
 
-.Types
+#### Types
+
 `str`
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The string values are represented by the type `str` and consist of character 
 sequences surrounded by double quotes, e.g., `"a"` or `"a\nlong\nstring"`.
@@ -72,7 +75,8 @@ The following operators are defined for Strings:
 
 There are also [library functions]((Library:String)) available for Strings.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 N = 13;
 "The value of N is <N>";
@@ -116,9 +120,10 @@ println(genClass());
 ```
 
 
-.Benefits
+#### Benefits
+
 String interpolation enables very flexible template-based text generation as used in generators for
 source code, markup and the like.
 
-.Pitfalls
+#### Pitfalls
 

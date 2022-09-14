@@ -2,16 +2,17 @@
 title: Count Constructors
 ---
 
-.Synopsis
+#### Synopsis
+
 Generic function that can count constructors in a value of any algebraic data type.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 In ((ColoredTrees)), we have seen a function that can count the number of red nodes in a `ColoredTree`.
 Is it possible to define a function that can count constructors in a value of any algerbaic data type?
@@ -22,7 +23,7 @@ and the type [node]((Rascal:Values-Node)) to achieve this.
 
 In real applications this becomes relevant when counting, for instance, statement types in programs.
 
-.Examples
+#### Examples
 
 ```rascal
 include::{LibDir}demo/common/CountConstructors.rsc[tags=module]
@@ -51,7 +52,7 @@ count(H);
 countRelevant(H, {"hearts", "spades"});
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

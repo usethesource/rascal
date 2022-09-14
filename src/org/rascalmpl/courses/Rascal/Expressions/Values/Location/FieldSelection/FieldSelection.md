@@ -3,13 +3,15 @@ title: "Location FieldSelection"
 keywords: "."
 ---
 
-.Synopsis
+#### Synopsis
+
 Field selection on locations.
 
-.Syntax
+#### Syntax
+
 `Exp . Name`
 
-.Types
+#### Types
 
 
 | `Exp` | `Name` | `Exp . Name`  |
@@ -17,16 +19,17 @@ Field selection on locations.
 | `loc`   |          | Depends on field |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Field selection applies to locations. 
 _Name_ should be one of the supported fields listed in ((Values-Location)) and returns the value of that field. 
 Name stands for itself and is not evaluated.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

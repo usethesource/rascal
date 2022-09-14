@@ -3,13 +3,15 @@ title: "String Equal"
 keywords: "=="
 ---
 
-.Synopsis
+#### Synopsis
+
 Equality operator on string values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ == Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~` | `Exp~2~` | `Exp~1~ == Exp~2~`  |
@@ -17,18 +19,20 @@ Equality operator on string values.
 | `str`     |  `str`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if both arguments are identical and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 "abc" == "abc";
 "abc" == "defghi";
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,16 +2,17 @@
 title: Synthesis
 ---
 
-.Synopsis
+#### Synopsis
+
 Strategies to synthesise results.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 ![Synthesis,Workflow]((define-synthesis.png))
 
@@ -50,9 +51,9 @@ The Rascal features that are frequently used for synthesis are:
 
 *  Rewrite rules.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

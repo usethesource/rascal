@@ -2,19 +2,19 @@
 title: UndeclaredVariable
 ---
 
-.Synopsis
+#### Synopsis
 
 Use of a variable that has not been declared.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 A variable can only be used when it has been declared and initialized.
 This error is generated when this is not the case. 
@@ -28,7 +28,8 @@ Remedy:
 *  Rename the offending variable name into the name of an existing variable.
 *  Introduce a new variable.
 
-.Examples
+#### Examples
+
 Here is an example where an undeclared variables occurs in list splicing:
 ```rascal-shell,error
 [1, *x, 3]
@@ -40,11 +41,11 @@ x = 5;
 [1, *x, 3]
 ```
 
-.Benefits
+#### Benefits
 
 * Knowing this error statically means this can never happen at run-time if you do not get the error.
 * Variable references are never `null` in Rascal. In fact `null` is not a concept in Rascal at all.
 
-.Pitfalls
+#### Pitfalls
 
 * Not only variable produce `UndeclaredVariable`, also missing function and constructors do.

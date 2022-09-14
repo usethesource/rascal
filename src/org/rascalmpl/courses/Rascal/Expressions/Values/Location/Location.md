@@ -3,10 +3,11 @@ title: "Location"
 keywords: "|,(,)"
 ---
 
-.Synopsis
+#### Synopsis
+
 (Source code) location values.
 
-.Syntax
+#### Syntax
 
 `| Uri | ( O, L, < BL, BC > , < EL,EC > )`
 where:
@@ -22,13 +23,14 @@ where:
 
 The part following the second pipe symbol (`|`) is optional.
 
-.Types
+#### Types
 
 `loc`
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Location values are represented by the type `loc` and serve the following purposes:
 
 *  Providing a uniform mechanism for accessing local or remote files. This is used in all IO-related library functions.
@@ -103,7 +105,8 @@ Supported protocols are:
 | `bundleresource://bundleId/bundleRelativePath`    | access OSGI bundles. Only active in Eclipse context  |
 
 
-.Examples
+#### Examples
+
 Locations with specific position information should always be generated automatically but for the curious here is an example:
 ```rascal-shell
 |file:///home/paulk/pico.trm|(0,1,<2,3>,<4,5>)
@@ -142,7 +145,7 @@ x += "myTempFile.txt";
 //|project://example-project/src|.ls
 //---- -->
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

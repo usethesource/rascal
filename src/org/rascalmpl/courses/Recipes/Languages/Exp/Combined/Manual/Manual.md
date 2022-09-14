@@ -2,18 +2,19 @@
 title: Manual
 ---
 
-.Synopsis
+#### Synopsis
+
 An Exp evaluator that uses a manually written conversion from parse tree to abstract syntax tree.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 First we define a `parse` function for Exp:
 
@@ -62,7 +63,7 @@ import demo::lang::Exp::Combined::Manual::Eval;
 eval("2+3");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

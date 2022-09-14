@@ -2,18 +2,20 @@
 title: Dynamic Semantics
 ---
 
-.Synopsis
+#### Synopsis
+
 Description of the execution behaviour of a program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Dynamic semantics describes the execution behaviour of a program and includes:
 
 *  Treatment of declarations, names, variables and ((Rascalopedia:Scope))s.
@@ -21,9 +23,9 @@ Dynamic semantics describes the execution behaviour of a program and includes:
 
 Contrast with ((Static Semantics)) that describes pre-execution behaviour.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

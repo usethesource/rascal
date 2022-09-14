@@ -3,16 +3,18 @@ title: "Comprehensions"
 keywords: "[,],{,},(,),|,<-"
 ---
 
-.Synopsis
+#### Synopsis
+
 Comprehensions provide a concise notation to conditionally generate new values.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Comprehensions are defined for the following types:
 
 *  `list`, see ((List-Comprehension)),
@@ -35,7 +37,7 @@ excluded by a test. When a filter fails, execution continues with the preceding 
 Each enumerator may introduce new variables that can be used in subsequent generators as well as in the contributing expressions.
 A generator can use the variables introduced by preceding generators. 
 
-.Examples
+#### Examples
 
 A list comprehension:
 ```rascal-shell
@@ -66,7 +68,7 @@ fruits = ("pear" : 1, "apple" : 3, "banana" : 0, "berry" : 25, "orange": 35);
 
 See ((List-Comprehension)), ((Set-Comprehension)), or ((Map-Comprehension)) for more examples.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

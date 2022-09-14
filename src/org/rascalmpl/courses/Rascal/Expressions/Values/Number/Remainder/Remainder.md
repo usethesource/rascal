@@ -3,13 +3,15 @@ title: "Number Remainder"
 keywords: "%"
 ---
 
-.Synopsis
+#### Synopsis
+
 Remainder of two integer values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ % Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`  |  `Exp~2~` | `Exp~1~ % Exp~2~`  |
@@ -17,20 +19,23 @@ Remainder of two integer values.
 | `int`      |  `int`     | `int`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields the remainder when dividing the of _Exp_~1~ by the value of _Exp_~2~.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 12 % 5
 12 % 6
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 Remainder is only defined on integers:
 ```rascal-shell,error
 13.5 % 6

@@ -2,11 +2,14 @@
 title: Clear Command
 ---
 
-.Synopsis
+#### Synopsis
+
 Clear all break points.
 
-.Syntax
+#### Syntax
+
 `clear`
 
-.Description
+#### Description
+
 Removes all break points.

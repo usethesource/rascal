@@ -2,18 +2,20 @@
 title: UndeclaredAnnotation
 ---
 
-.Synopsis
+#### Synopsis
+
 An annotation is used that has not been declared.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 An [annotation]((Rascal:Declarations-Annotation)) can be used to add information to an instance of an
 [algebraic data type]((Rascal:Declarations-AlgebraicDataType)).
 An annotation has to declared beforehand. This error is generated when an undeclared annotation is used.
@@ -23,7 +25,8 @@ Remedies:
 *  Declare the annotation.
 *  Use an already declared annotation.
 
-.Examples
+#### Examples
+
 This is correct:
 ```rascal-shell,error
 data Fruit = apple(int n) | orange(int n);
@@ -36,7 +39,7 @@ But using a wrong annotation name generates an error:
 piece @ qual;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

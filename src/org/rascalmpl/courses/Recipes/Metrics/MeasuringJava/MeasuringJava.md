@@ -2,18 +2,19 @@
 title: Measuring Java
 ---
 
-.Synopsis
+#### Synopsis
+
 A few steps using the M3 model to compute basic metrics for a Java project in Eclipse
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 
 This is a recipe for computing basic or more advanced metrics from a Java project in Eclipse. We assume:
@@ -34,7 +35,7 @@ These are a number of recipes for measuring different things about Java:
 *  [MeasuringClasses]
 *  [MeasuringMethods]
 
-.Examples
+#### Examples
 
 
 ```rascal-shell
@@ -54,9 +55,9 @@ Calling the following function generates an enormous value representing everythi
 myModel = createM3FromEclipseProject(|project://example-project|);
 ```
 
-.Benefits
+#### Benefits
 
 *  Notice that _all_ these [$Rascal:Values/Location] literals are hyperlinks and you can click on them to go the source code that they point to. Try it!
 
-.Pitfalls
+#### Pitfalls
 

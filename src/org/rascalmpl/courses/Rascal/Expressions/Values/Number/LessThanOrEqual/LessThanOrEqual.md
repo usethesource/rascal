@@ -3,13 +3,15 @@ title: "Number LessThanOrEqual"
 keywords: "<="
 ---
 
-.Synopsis
+#### Synopsis
+
 Less than or equal operator on numeric values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ <= Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~` |  `Exp~2~` | `Exp~1~ <= Exp~2~`  |
@@ -19,12 +21,14 @@ Less than or equal operator on numeric values.
 | `real`    |  `real`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the value of Exp~1~ is numerically less than or equal to the value of Exp~2~, and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 13 <= 12
 12 <= 13
@@ -32,7 +36,7 @@ Yields `true` if the value of Exp~1~ is numerically less than or equal to the va
 12.5 <= 13
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

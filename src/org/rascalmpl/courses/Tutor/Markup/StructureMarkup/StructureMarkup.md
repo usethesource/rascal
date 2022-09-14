@@ -2,24 +2,24 @@
 title: Structure Markup
 ---
 
-.Synopsis
+#### Synopsis
 
 Markup for structured text entities.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The follwing structured markup is supported:
 loctoc::[]
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,18 +2,22 @@
 title: IO
 ---
 
-.Synopsis
+#### Synopsis
+
 An input/output operation caused an error.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
+
 `data RuntimeException = IO(str message);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `IO` is used in `catch`)
 
-.Description
+#### Description
+
 This error can be generated for many reasons.
 
 First there may be a problem in the [location]((Rascal:Values-Location)) that is used.
@@ -31,7 +35,8 @@ Remedies:
 *  Check that you are allowed to read or write the resource indicated by the location.
 *  Catch `IO` using a [try catch]((Rascal:Statements-TryCatch)).
 
-.Examples
+#### Examples
+
 Import the `IO` library and attempt to use a non-existing scheme:
 ```rascal-shell,error
 import IO;
@@ -46,7 +51,7 @@ catch IO(msg):
   println("This did not work: <msg>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

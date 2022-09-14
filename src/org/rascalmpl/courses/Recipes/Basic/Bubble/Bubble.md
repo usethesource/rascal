@@ -2,21 +2,24 @@
 title: Bubble
 ---
 
-.Synopsis
+#### Synopsis
+
 Variout styles to write bubble sort.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 [Bubble sort](http://en.wikipedia.org/wiki/Bubble_sort) is a classical (albeit not the most efficient) technique to sort lists of values.
 We present here several styles to implement bubble sort. 
 Also see [sort]((Library:List-sort)) for a more efficient library function for sorting.
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/basic/Bubble.rsc[tags=module]
 ```
@@ -50,7 +53,7 @@ sort5(L);
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

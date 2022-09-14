@@ -2,21 +2,24 @@
 title: Bottles Of Beer
 ---
 
-.Synopsis
+#### Synopsis
+
 A Rascal version of a generator for the _99 Bottles of Beer_ song.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Programs that generate the lyrics for the song _99 Bottles of Beer_ are a popular way to compare programming languages.
 At [99-bottles-of-beer.net](http://99-bottles-of-beer.net/) you can find versions in nearly 1500 different languages
 and the lyrics can be found [here](http://99-bottles-of-beer.net/lyrics.html).
 
-.Examples
+#### Examples
+
 Here is our version:
 ```rascal
 include::{LibDir}demo/basic/Bottles.rsc[tags=module]
@@ -40,7 +43,7 @@ sing();
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

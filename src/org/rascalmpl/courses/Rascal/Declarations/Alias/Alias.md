@@ -3,24 +3,28 @@ title: "Alias Declaration"
 keywords: "alias"
 ---
 
-.Synopsis
+#### Synopsis
+
 Declare an alias for a type.
 
-.Syntax
+#### Syntax
+
 `alias Name  = Type;`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Everything can be expressed using the elementary types and values that are provided by Rascal. 
 However, for the purpose of documentation and readability it is sometimes better to use a descriptive name as type indication, rather than an elementary type.  The use of aliases is a good way to document your intentions. 
 
 An alias declaration states that _Name_ can be used everywhere instead of the already defined type _Type_. 
 Both types are thus structurally equivalent. 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ```
 Introduce two aliases `ModuleId` and `Frequency` for the type str.
@@ -40,7 +44,7 @@ In other words the standard graph datatype can be parameterized with any element
 
 See ((Type Parameters)) for other examples parameterized alias declarations.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

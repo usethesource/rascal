@@ -2,18 +2,19 @@
 title: Set
 ---
 
-.Synopsis
+#### Synopsis
+
 An unordered collection of values without duplicates.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 A set is a collection of values with the following properties:
 
@@ -28,7 +29,7 @@ Each set has a type of the form `set[T]`, where _T_ is the smallest common type 
 Read the description of [sets and their operators]((Rascal:Values-Set))
 and of [library functions on sets]((Library:Set)).
 
-.Examples
+#### Examples
 
 ## Sets in Daily Life
 
@@ -52,7 +53,7 @@ and of [library functions on sets]((Library:Set)).
 *  A set of integers: `{3, 1, 4}`. Its type is `set[int]`.
 *  A set of mixed-type values: `{3, "a", 4}`. Its type is `set[value]`.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

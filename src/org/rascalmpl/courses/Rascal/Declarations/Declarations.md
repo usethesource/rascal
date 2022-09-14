@@ -3,23 +3,25 @@ title: Declarations
 details: Module,Import,Program,StaticTyping,AlgebraicDataType,Variable,Function,SyntaxDefinition,Alias,Annotation,Tag
 ---
 
-.Synopsis
+#### Synopsis
+
 The entities that can be declared in Rascal programs.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The following concepts are relevant for declarations:
 (((TOC)))
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

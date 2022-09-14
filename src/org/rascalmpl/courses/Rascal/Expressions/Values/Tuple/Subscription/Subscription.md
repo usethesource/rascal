@@ -3,27 +3,31 @@ title: "Tuple Subscription"
 keywords: "[,]"
 ---
 
-.Synopsis
+#### Synopsis
+
 Retrieve a tuple field by its index position.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ [ Exp~2~ ]`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Subscription retrieves the tuple element with index _Exp_~2~ from the tuple value of _Exp_~1~.
 
-.Examples
+#### Examples
+
 Introduce a tuple, assign it to T and retrieve the element with index 0:
 ```rascal-shell
 T = <"mon", 1>;
 T[0];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

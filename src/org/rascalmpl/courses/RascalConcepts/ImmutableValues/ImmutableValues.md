@@ -2,16 +2,18 @@
 title: Immutable Values
 ---
 
-.Synopsis
+#### Synopsis
+
 Immutable values.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Values are the basic building blocks of a language and the type of values determines how they may be used.
 
 Rascal is a _value-oriented language_. This means that values are immutable and are always freshly constructed from existing parts.
@@ -23,7 +25,7 @@ The language also provides variables. A value can be associated with a variable 
 The approach that values are immutable and that variables can be associated with different immutable values during their lifetime avoids
 sharing and aliasing problems that exist in many languages. 
 
-.Examples
+#### Examples
 
 First we, create a list value and assign it to two variables `L` and `M`.
 ```rascal-shell
@@ -63,11 +65,11 @@ T;
 To summarize: all values are immutable and variables can during their lifetime be associated with different immutable values.
 
 
-.Benefits
+#### Benefits
 
 *  Immutable values contribute to referential transparence.
 
-.Pitfalls
+#### Pitfalls
 
 *  Immutable values maybe less efficient than mutable ones.
 

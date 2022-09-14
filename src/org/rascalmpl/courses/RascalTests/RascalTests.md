@@ -3,16 +3,17 @@ title: RascalTests
 ---
 
 
-.Synopsis
+#### Synopsis
+
 Online exams to test your Rascal expertise.
 
-.Description
+#### Description
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 * No registration of scores.

@@ -2,18 +2,19 @@
 title: Tuple
 ---
 
-.Synopsis
+#### Synopsis
+
 An ordered, fixed length, sequence of values of possibly different type.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 A tuple is an ordered fixed length sequence of values of possibly different type.
 
@@ -26,9 +27,9 @@ _T_~i~ represents the type of element _i_. Tuple have two major applications:
 
 See [Tuple Values]((Rascal:Values-Tuple)) for the operations on tuples.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

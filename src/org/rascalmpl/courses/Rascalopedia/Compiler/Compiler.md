@@ -2,18 +2,19 @@
 title: Compiler
 ---
 
-.Synopsis
+#### Synopsis
+
 Tranform source code to an executable form.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 A [compiler](http://en.wikipedia.org/wiki/Compiler) transforms the source code of a program (in a source langue) to an executable form
 (in a target language)
@@ -26,9 +27,9 @@ and consists of the following phases:
   This can be seen as a form of ((Refactoring)).
 *  Code generation: generate the final code, this can be asembly language or directly executable code.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

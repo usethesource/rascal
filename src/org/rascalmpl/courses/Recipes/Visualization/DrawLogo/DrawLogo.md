@@ -2,21 +2,23 @@
 title: Draw a Logo
 ---
 
-.Synopsis
+#### Synopsis
+
 Draw the Rascal logo.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Given a 50x50 matrix containing the colors of the Rascal logo,
 we can reproduce it as visualization.
 
-.Examples
+#### Examples
+
 Here is the solution:
 ```rascal
 include::{LibDir}demo/vis/Logo.rsc[tags=module]
@@ -39,7 +41,7 @@ or as a screenshot:
 
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

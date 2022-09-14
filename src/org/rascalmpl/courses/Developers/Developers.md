@@ -3,11 +3,11 @@ title: Developers manual
 details: TutorCompiler
 ---
 
-.Synopsis
+#### Synopsis
 
 Contains tips, tricks and howto's on the development of Rascal itself.
 
-.Description
+#### Description
 
 Rascal is implemented in Rascal itself and Java. It depends on many third-party
 open-source libraries, and some of those are owned by the Rascal project itself.

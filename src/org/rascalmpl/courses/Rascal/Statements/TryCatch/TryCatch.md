@@ -3,10 +3,12 @@ title: "Try Catch"
 keywords: "try,catch,finally"
 ---
 
-.Synopsis
+#### Synopsis
+
 Try to execute a statement and catch resulting exceptions.
 
-.Syntax
+#### Syntax
+
 ```rascal
 try
    _Statement~1~_;
@@ -17,11 +19,11 @@ catch: _Statement~2~_;
 finally: _Statement~3~_;
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A try catch statement has as purpose to catch any [Exceptions]((Library:module:Exception)) that are raised 
 during the execution of _Statement_~1~.
@@ -41,7 +43,8 @@ Their meaning is as follows:
 
 *  Before leaving the try catch statement _Statement~3~_ is always executed (when present).
 
-.Examples
+#### Examples
+
 Let's define a variant of the [head]((Library:List-head)) function that returns the first element of a list,
 but throws an exception when the list is empty. Our variant will return `0` for an empty list:
 ```rascal-shell
@@ -59,7 +62,7 @@ hd2([]);
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

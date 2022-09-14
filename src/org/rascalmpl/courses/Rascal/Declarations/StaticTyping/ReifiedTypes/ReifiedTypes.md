@@ -3,18 +3,22 @@ title: "Reified Types"
 keywords: "#,type,&"
 ---
 
-.Synopsis
+#### Synopsis
+
 Reified types are types that can be used as values.
 
-.Syntax
+#### Syntax
+
 `# Name`
 
-.Types
+#### Types
+
 `type`
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Usually one declares functions that have arguments that have a type that corresponds to one of the many forms of values in Rascal.
 In exceptional circumstances it is desirable to define functions that have a type itself as argument. 
 
@@ -23,7 +27,8 @@ Types are not values and without an additional mechanism they cannot be passed a
 To achieve this effect we introduce reified types that are denoted by the type `type`. 
 In other words, reified types make it possible to use types as values.
 
-.Examples
+#### Examples
+
 The prototypical example is a parse function: how to write a type safe parse function that expresses the type of the result we expect?
 Suppose we want to parse a language that has the non-terminals `EXP`, `STAT` and `PROGRAM`.
 A first, naive, solution introduces a parse function for each non-terminal:
@@ -47,7 +52,7 @@ and use the parse by giving it a type as argument:
 parse(#EXP, "1+3");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

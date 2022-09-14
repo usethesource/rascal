@@ -2,20 +2,22 @@
 title: Uninit
 ---
 
-.Synopsis
+#### Synopsis
+
 Find unitialized variables in a Pico program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 Uninitialized variables are variables that are used without being initialized.
 This means that there is a path in the control flow graph from the entry point of the program
 to a specific use of a variable, where that path does not contain a definition of that variable.
@@ -49,7 +51,7 @@ uninitProgram("begin declare n : natural, m : natural, p : natural; n := 10; m :
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

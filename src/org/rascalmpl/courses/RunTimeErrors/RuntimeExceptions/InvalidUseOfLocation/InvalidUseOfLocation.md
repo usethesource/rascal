@@ -2,20 +2,24 @@
 title: Invalid Use Of Location
 ---
 
-.Synopsis
+#### Synopsis
+
 Invalid use of a source location at runtime.
 
-.Types
+#### Types
+
 `data RuntimeException = InvalidUseOfLocation(str message);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `InvalidUseOfLocation` is used in `catch`)
 
-.Description
+#### Description
+
 Thrown by operations on [source locations]((Rascal:Values-Location)) that would 
 lead to an inconsistent or incomplete location value.
 
-.Examples
+#### Examples
 
 ```rascal-shell,error
 someLoc = |home:///abc.txt|;

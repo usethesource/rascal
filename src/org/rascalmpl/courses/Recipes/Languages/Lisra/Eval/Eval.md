@@ -2,18 +2,19 @@
 title: Eval
 ---
 
-.Synopsis
+#### Synopsis
+
 A Lisp interpreter.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 Here is the core of our Lisp interpreter. Its basic functionality is to take
 
@@ -80,7 +81,7 @@ We now explain the different cases in more detail:
 
 <12> A default function that prints an error message when an undefined function is called.
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import demo::lang::Lisra::Runtime;
@@ -90,11 +91,11 @@ eval(Atom("x"));
 eval(List([Atom("+"), Integer(5), Integer(7)]));
 ```
 
-.Benefits
+#### Benefits
 
 *  A very modular, rule-based, type safe Lisp interpreter.
 
-.Pitfalls
+#### Pitfalls
 
 *  It is no pleasure to type in `Lval`s directly, that is why a parser is needed, see ((Lisra-Parse)).
 

@@ -2,23 +2,25 @@
 title: Common
 ---
 
-.Synopsis
+#### Synopsis
+
 Solutions for some common tasks.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 We discuss the following tasks:
 
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

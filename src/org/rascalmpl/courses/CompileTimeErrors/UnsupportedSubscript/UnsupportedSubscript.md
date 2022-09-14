@@ -2,18 +2,20 @@
 title: UnsupportedSubscript
 ---
 
-.Synopsis
+#### Synopsis
+
 A subscript is applied to a value that does not support it.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Subscription is available for values of various types including: 
 [string]((Rascal:String-Subscription)), 
 [node]((Rascal:Node-Subscription)),
@@ -28,7 +30,8 @@ Remedies:
 *  Use another operation than subscription to extract the values you want.
 *  Use another type (that does support subscription) to represent your data.
 
-.Examples
+#### Examples
+
 Here are some correct uses of subscription:
 ```rascal-shell
 "abc"[1];
@@ -43,7 +46,7 @@ true[1];
 {1,2,3}[1];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

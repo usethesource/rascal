@@ -2,18 +2,20 @@
 title: Hello
 ---
 
-.Synopsis
+#### Synopsis
+
 Variations on the ubiquitous _Hello World_ example.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 ##  `hello` on command line 
 
 
@@ -70,7 +72,7 @@ We could stress this by adding writing `public void hello() { ... }`.
 Restricting visibility to the module itself can be achieved by adding the keyword `private`
 to the definition of `hello`.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

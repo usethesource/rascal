@@ -3,17 +3,20 @@ title: "Reducer"
 keywords: "(,|,),it"
 ---
 
-.Synopsis
+#### Synopsis
+
 Reduce generated values to a single value.
 
-.Syntax
+#### Syntax
+
 `( InitExp | RedExp | Gen~1~, Gen~2~, ... )`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A reducer resembles the http://en.wikipedia.org/wiki/Fold_(higher-order_function)[fold] function
 found in most functional languages.
 
@@ -34,14 +37,15 @@ and is executed as follows:
     Note that `it` itself and variables introduced in _Gen_~1~, _Gen_~2~, ... may occur in _RedExp_.
 <4> The value of `it` is the result of the reducer.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 L = [1, 3, 5, 7];
 (0 | it + e | int e <- L);
 (1 | it * e | int e <- L);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

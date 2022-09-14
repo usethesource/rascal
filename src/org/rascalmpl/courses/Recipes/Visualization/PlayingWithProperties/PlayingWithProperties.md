@@ -2,18 +2,20 @@
 title: Playing With Properties
 ---
 
-.Synopsis
+#### Synopsis
+
 Illustrate the effect of various figure properties.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 Here is an ellipse with minimum size 200x300 that occupies 80% of the available space:
 ```rascal-figure,width=,height=,file=e1.png
                 e = ellipse(size(200,100), shrink(0.8));
@@ -89,7 +91,7 @@ render(e);
 
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

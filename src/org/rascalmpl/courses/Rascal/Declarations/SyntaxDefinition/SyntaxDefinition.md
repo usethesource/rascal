@@ -3,10 +3,11 @@ title: "Syntax Definition"
 keywords: "start,lexical,layout,keyword,assoc,left,right,non-assoc"
 ---
 
-.Synopsis
+#### Synopsis
+
 Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.
 
-.Syntax
+#### Syntax
 
 *  `Start syntax Nonterminal = Alternatives;`
 *  `lexical Nonterminal = Alternatives;`
@@ -25,11 +26,12 @@ where _Start_ is either `start` or nothing, and _Alternatives_ are one of:
 
 where _Associativity_ is nothing, or one of `assoc`, `left`, `right` or `non-assoc`, and _Tags_ are a possibly empty list of tags.
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Rascal supports full context-free grammars for syntax definition. It generates scannerless parsers from these definitions. 
 These parsers produce ((Parse Trees)) that can be further processed by Rascal using ((Concrete Syntax)) fragments
  in ((Patterns)) and ((Expressions)), or they can be _imploded_ to ((Algebraic Data Type))s.
@@ -90,7 +92,8 @@ Note that the `start[Program]` type is now available in your program, and ((Pars
 type will allow access to the _top_ field.
 
 
-.Examples
+#### Examples
+
 The following example makes use of practically all of the ((Syntax Definition)) features, except parse actions.
 ```rascal
 // layout is lists of whitespace characters
@@ -117,7 +120,7 @@ syntax Expression
   ;
 ```
 
-.Benefits
+#### Benefits
 
 *  Modular and compositional.
 *  No grammar normalization or grammar factoring necessary.
@@ -128,7 +131,7 @@ syntax Expression
 *  Embedding of concrete syntax fragments in Rascal programs
 *  ((Syntax Definition))s follow the syntax and semantics of ((Algebraic Data Type))s quite closely.
 
-.Pitfalls
+#### Pitfalls
 
 *  Grammars may be ambiguous, so read about ((Disambiguation)), ((Ambiguity Detection)) and ((Ambiguity Diagnosis)).
 *  Static grammar checker is not implemented yet.

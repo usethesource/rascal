@@ -2,16 +2,17 @@
 title: Control Structures
 ---
 
-.Synopsis
+#### Synopsis
+
 Success-directed control structures.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The flow of Rascal program execution is completely explicit. Boolean expressions determine choices that drive the control structures. 
 Only local backtracking is provided in the context of boolean expressions and pattern matching.
@@ -21,7 +22,8 @@ and [For]((Rascal:Statements-For)) statement are driven by Boolean expressions.
 Actually, combinations of generators and Boolean expressions can be used to drive the control structures. 
 In the latter case, the Boolean expression is executed for each generated value.
 
-.Examples
+#### Examples
+
 A classical if statement:
 ```rascal
 if(N <= 0)
@@ -39,7 +41,7 @@ for(/asgStat(Id name, _) <- P, size(name) > 10){
 ```
 This statement prints all identifiers in assignment statements (`asgStat`) that consist of more than 10 characters.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

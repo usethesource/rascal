@@ -2,26 +2,28 @@
 title: Removing
 ---
 
-.Synopsis
+#### Synopsis
+
 Remove a concept from a course.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 To remove a concept _C_:
 
 *  Remove subdirectory _C_ (and its subdirectories) using standard commands.
 *  Recompile the course.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,20 +2,22 @@
 title: UseDef
 ---
 
-.Synopsis
+#### Synopsis
+
 Compute use-def information for the variables in a Pico program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 The _definitions_ of a variable are the source code locations where a variable gets a value.
 The _uses_ of a variable are the location where the value of that variable is used.
 Both concepts are relevant for program analysis and are defined here.
@@ -46,7 +48,7 @@ program entities with their location.
     *  `/asgStat(PicoId Id, EXP Exp) \<- P.stats` uses again a descendant match to find all assignment statements.
     *  For each assignment statement a (location, identifier) pair is added to the result.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

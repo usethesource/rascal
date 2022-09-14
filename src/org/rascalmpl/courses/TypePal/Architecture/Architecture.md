@@ -2,10 +2,11 @@
 title: Architecture of TypePal
 ---
   
-.Synopsis
+#### Synopsis
+
 Architectural overview of TypePal
 
-.Description
+#### Description
 
 Type checking using TypePal proceeds in the following stages:
 

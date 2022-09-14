@@ -2,10 +2,11 @@
 title: TypeDescriptor
 ---
 
-.Synopsis
+#### Synopsis
+
 Description of a Rascal type used in type and value questions.
 
-.Syntax
+#### Syntax
 
 A _TypeDescriptor_ is one of
 
@@ -34,11 +35,12 @@ A _TypeDescriptor_ is one of
 *  `arb[TypeDescriptor~1~, TypeDescriptor~2~]`
 *  `same[TypeName]`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A TypeDescriptor is used to describe Rascal types and values in questions and are used to automatically generate
 values of the described type. TypeDescriptors largely follow the types as available in Rascal, with the following
 extensions that are helpfull when generating values:
@@ -49,7 +51,7 @@ extensions that are helpfull when generating values:
    **  given an explicit list of types to choose from.
 *  `same[Name]` refers back to a type that was used earlier on in the same question.
 
-.Examples
+#### Examples
 
 | TypeDescriptor      | Generated value |
 | --- | --- |
@@ -60,9 +62,9 @@ extensions that are helpfull when generating values:
 | `set[int[0,10]]`    | A set of integers between 0 and 10  |
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 *  There is currently an arbitrary built-in limit that restricts generated lists, sets,
    maps and relations to at most 5 elements.

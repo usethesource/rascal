@@ -2,18 +2,20 @@
 title: MetaProgramming
 ---
 
-.Synopsis
+#### Synopsis
+
 Analysis or transformation of one program by another program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 All programs have data as input and produce other data as output.
 A typical example is a desktop calculator program:
 after entering some numbers and operators, the program displays an answer.
@@ -31,7 +33,7 @@ and is written in the _source language_ (also: _object language_).
 
 In some cases the metaprogram transforms the source program into a _target program_ in a _target language_. 
 
-.Examples
+#### Examples
 
 A ((Refactoring)) tool for restructuring Java code:
 
@@ -62,7 +64,7 @@ A tool to compute ((Software Metric))s of Java programs
 *  Target program: the value of the computed metric.
 *  Target language: number.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

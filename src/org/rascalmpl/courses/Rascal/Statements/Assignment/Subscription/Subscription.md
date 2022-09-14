@@ -3,23 +3,26 @@ title: "Subscription"
 keywords: "[,],="
 ---
 
-.Synopsis
+#### Synopsis
+
 Assign a single element of a structured value.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Let _V_ be the current value of _Assignable_. The value of _Exp_~1~ is used as index in _V_ and 
 the value of _Exp_~2~ replaces the original value at that index position. 
 The result is a new value _V_' that is assigned to the _Assignable_.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ```
 Assignable has a list value:
@@ -44,7 +47,7 @@ T[1] = "def";
 ```
 NOTE: See https://github.com/usethesource/rascal/issues/948
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

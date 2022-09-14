@@ -3,24 +3,28 @@ title: "Block"
 keywords: "{,},;"
 ---
 
-.Synopsis
+#### Synopsis
+
 Group statements into a block.
 
-.Syntax
+#### Syntax
+
 `{ Statement~1~; ... ; Statement~n~ }`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A _block_ consists of a sequence of statements separated by semi-colons.
 
 Since a block is itself a statement, it may be used in all places where a statement is required. 
 A block also introduces a new scope and variables that are declared in the block are local to that block. 
 The value produced by a block is the value produced by its last statement (if any).
 
-.Examples
+#### Examples
+
 Here is a contrived block of three expressions (be aware of the last semi-colon):
 ```rascal-shell
 {1;2;3;}
@@ -37,7 +41,7 @@ x;
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

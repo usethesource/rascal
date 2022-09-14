@@ -2,26 +2,26 @@
 title: Inline Markup
 ---
 
-.Synopsis
+#### Synopsis
 
 Markup directives used in input lines.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 For convenience we summarize the most commonn inline markup elements.
 See http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/ for more details.
 
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

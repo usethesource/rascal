@@ -2,18 +2,22 @@
 title: Empty Map
 ---
 
-.Synopsis
+#### Synopsis
+
 Illegal operation on an empty map.
 
-.Syntax
+#### Syntax
 
-.Types 
+#### Types
+
 `data RuntimeException = EmptyMap();`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `EmptyMap` is used in `catch`)
 
-.Description
+#### Description
+
 Rascal provides many operations and functions on maps, see [map values]((Rascal:Values-Map))
 and [map functions]((Library:Map)).
 This error is generated when a function or operations cannot handle the empty map case.
@@ -24,7 +28,7 @@ Remedies:
   take alternative action in that case.
 *  Catch the `EmptyMap` yourself, see [try catch]((Rascal:Statements-TryCatch)).
 
-.Examples
+#### Examples
 
 Import the `Map` library and introduce `M` with an empty map as value:
 ```rascal-shell,error
@@ -46,7 +50,7 @@ catch EmptyMap():
   println("Cannot use getOneFrom on empty map");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

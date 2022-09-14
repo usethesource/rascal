@@ -2,18 +2,19 @@
 title: Visualization
 ---
 
-.Synopsis
+#### Synopsis
+
 Visual presentation of scientific or abstract data.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 Visualization is the activity of presenting scientific data or abstract structures
 in a visual form. There are several subareas:
@@ -24,7 +25,7 @@ in a visual form. There are several subareas:
 * [Software Visualization](http://en.wikipedia.org/wiki/Software_visualization): deals with facts related to software.
 
 
-.Examples
+#### Examples
 
 See ((Recipes:Visualization)).
 
@@ -63,7 +64,7 @@ Daniel Bierwirth [shows](http://www.danielbierwirth.de/index.php/reseachprojects
 ![]((bundle.jpg))
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

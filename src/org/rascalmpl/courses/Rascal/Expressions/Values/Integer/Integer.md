@@ -3,31 +3,35 @@ title: "Integer"
 keywords: "int"
 ---
 
-.Synopsis
+#### Synopsis
+
 Integer values.
 
-.Syntax
+#### Syntax
+
 sequence of digits of arbitrary length.
 
-.Types
+#### Types
+
 `int`
 
-.Usage
+#### Usage
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The integer values are represented by the type `int` and are written as usual. They can be _arbitrarily large_.
 
 See ((Number)) for all operations and functions on integers, reals and numbers.
 
-.Examples
+#### Examples
 
 *  `12`
 *  `0`
 *  `-123456789`
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

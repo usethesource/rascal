@@ -2,16 +2,17 @@
 title: Concrete
 ---
 
-.Synopsis
+#### Synopsis
+
 Various versions of Exp based on concrete syntax.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 We discuss several versions of Exp based on concrete syntax:
 
@@ -19,9 +20,9 @@ We discuss several versions of Exp based on concrete syntax:
 *  ((With Layout)): adds layout information to Exp's synax definition.
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

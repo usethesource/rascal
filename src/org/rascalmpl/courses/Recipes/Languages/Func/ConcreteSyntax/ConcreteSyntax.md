@@ -2,18 +2,20 @@
 title: Concrete Syntax
 ---
 
-.Synopsis
+#### Synopsis
+
 The concrete syntax of Func.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/lang/Func/Func.rsc[tags=module]
 ```
@@ -31,7 +33,7 @@ The concrete syntax of Func uses many features of Rascal's syntax definitions. S
 **  Each alternative has a label, this is for the benefit of converting parse trees to abstract syntaxt trees.
 **  Each alternative spells out its priority and associativity.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

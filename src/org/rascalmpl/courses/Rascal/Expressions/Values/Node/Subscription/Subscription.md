@@ -3,13 +3,15 @@ title: "Node Subscription"
 keywords: "[,]"
 ---
 
-.Synopsis
+#### Synopsis
+
 Retrieve an argument of a node via its index.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ [ Exp~2~ ]`
 
-.Types
+#### Types
 
 
 | `Exp~1~`     | `Exp~2~` | `Exp~1~ [ Exp~2~ ]`  |
@@ -17,14 +19,16 @@ Retrieve an argument of a node via its index.
 | `node`        | `int`     | `value`                 |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Node subscription uses the integer value of _Exp_~2~ as index in the argument list of the node value of _Exp_~1~.
 The value of _Exp_~2~ should be greater or equal 0 and less than the number of arguments of the node.
 If this is not the case, the exception `IndexOutOfBounds` is thrown.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 ```
 Introduce a node, assign it to F and retrieve the various arguments:

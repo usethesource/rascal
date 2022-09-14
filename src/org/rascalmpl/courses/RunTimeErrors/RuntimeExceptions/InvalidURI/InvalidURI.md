@@ -2,20 +2,24 @@
 title: Invalid URI
 ---
 
-.Synopsis
+#### Synopsis
+
 An invalid URI is created at runtime.
 
-.Types
+#### Types
+
 `data RuntimeException = InvalidURI(str uri);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `InvalidURI` is used in `catch`)
 
-.Description
+#### Description
+
 Thrown by operations on [source locations]((Rascal:Values-Location)) that would 
 lead to an invalid URI part of a source location value.
 
-.Examples
+#### Examples
 
 ```rascal-shell,error
 someLoc = |home:///abc.txt|;

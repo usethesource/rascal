@@ -2,19 +2,19 @@
 title: Syntax
 ---
 
-.Synopsis
+#### Synopsis
 
 The rules that describe correctly structured programs in a language.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 According to the [Merriam-Webster](http://www.merriam-webster.com/dictionary/syntax) dictionary _syntax_ means
 
@@ -53,9 +53,9 @@ to the syntax rules of language _L_. There are two possible answers:
 *  _Yes_. A ((ParseTree-ParseTree)) is returned that shows how the text adheres to the syntax rules.
 *  _No_. Error messages pin point the location where the text deviates from the syntax rules.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

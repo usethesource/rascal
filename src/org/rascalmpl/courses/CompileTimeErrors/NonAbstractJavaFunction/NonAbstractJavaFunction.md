@@ -2,18 +2,20 @@
 title: NonAbstractJavaFunction
 ---
 
-.Synopsis
+#### Synopsis
+
 A function declared with the `java` modifier has a Rascal body.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Rascal functions can be implemented in Java. This is the case for many functions in the standard library.
 This requires these elements:
 
@@ -34,12 +36,13 @@ Remedies:
 
 If you are an expert developer, please check the body of the offending function first.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 java int incr(int x) {}
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,12 +3,13 @@ title: "List Splice"
 keywords: "*"
 ---
 
-.Synopsis
+#### Synopsis
+
 Splice the elements of a list in an enclosing list.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
 //
 
@@ -18,14 +19,15 @@ Splice the elements of a list in an enclosing list.
 |`T`   | `T~1~`  |  `T~n~`   | `list[lub(T~1~, ..., T, ...,T~n~)]`     |
 
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 The operator `*` splices the elements of a list in an enclosing list.
 
-.Examples
+#### Examples
 
 Consider the following list in which the list `[10, 20, 30]` occurs as list element. It has as type `list[value]`:
 ```rascal-shell
@@ -41,8 +43,9 @@ L = [10, 20, 30];
 [1, 2, *L, 3, 4];
 ```
 
-.Benefits
+#### Benefits
+
 in which nested lists are handled.
 
-.Pitfalls
+#### Pitfalls
 

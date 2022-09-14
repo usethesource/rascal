@@ -4,10 +4,11 @@ keywords: "tutorial,newbie,faq,question,beginner,doc,documentation"
 details: CommandLine,IDE,Browsing
 ---
 
-.Synopsis
+#### Synopsis
+
 Getting help when working with Rascal
 
-.Description
+#### Description
 
 You can use Rascal in two ways: 
 

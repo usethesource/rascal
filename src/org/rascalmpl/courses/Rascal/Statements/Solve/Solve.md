@@ -3,17 +3,20 @@ title: "Solve"
 keywords: "solve"
 ---
 
-.Synopsis
+#### Synopsis
+
 Solve a set of equalities by fixed-point iteration.
 
-.Syntax
+#### Syntax
+
 `solve(Var~1~, Var~2~, ..., Var~n~; Exp) Statement;`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Rascal provides a solve statement for performing arbitrary fixed-point computations. This means, repeating a certain computation as long as it causes changes. This can, for instance, be used for the solution of sets of simultaneous 
 linear equations but has much wider applicability.
 
@@ -26,7 +29,8 @@ of any of the variables was changed compared to the previous repetition.
 Note that this computation will only terminate if the variables range over a so-called _bounded monotonic lattice_,
 in which values can only become larger until a fixed upper bound or become smaller until a fixed lower bound.
 
-.Examples
+#### Examples
+
 Let's consider transitive closure as an example (transitive closure is already available as built-in operator, 
 we use it here just as a simple illustration). Transitive closure of a relation is usually defined as:
 ```rascal
@@ -42,7 +46,7 @@ solve (T) {
         }
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

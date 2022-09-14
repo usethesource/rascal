@@ -2,19 +2,21 @@
 title: Type
 ---
 
-.Synopsis
+#### Synopsis
+
 A question about a Rascal type.
 
-.Syntax
+#### Syntax
 
 *  `QType OptName : TypeDescriptor`
 *  `QType OptName : QSteps Test Listing`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A type question presents a Rascal expressions and poses a question about its type.
 
 _OptName_ is an optional name of the question (enclosed between `[` and `]`).
@@ -26,7 +28,8 @@ The first form presents the value generated for the _TypeDescriptor_ and asks ab
 
 The second form allows more preparatory steps and also allows adding a listing to the question.
 
-.Examples
+#### Examples
+
 See the effect of the following type questions in the Questions section below.
 
 ##  Question 1 
@@ -44,7 +47,7 @@ The following question can be paraphrased as: _I give you an addition of a set o
 QType: <A:set[arb[int,str,real]]> + <B:same[A]>
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

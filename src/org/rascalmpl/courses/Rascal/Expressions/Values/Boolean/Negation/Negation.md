@@ -3,13 +3,15 @@ title: "Boolean Negation"
 keywords: "!"
 ---
 
-.Synopsis
+#### Synopsis
+
 The _not_ operator on Boolean values.
 
-.Syntax
+#### Syntax
+
 `! Exp`
 
-.Types
+#### Types
 
 //
 
@@ -18,9 +20,10 @@ The _not_ operator on Boolean values.
 | `bool`   | `bool`     |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The _not_ operator on Boolean values defined as follows:
 
 | `Exp`  | `! Exp`  |
@@ -29,12 +32,13 @@ The _not_ operator on Boolean values defined as follows:
 | `false`  | `true`     |
 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 !true;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

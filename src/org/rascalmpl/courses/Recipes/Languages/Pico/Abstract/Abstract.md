@@ -2,20 +2,22 @@
 title: Abstract
 ---
 
-.Synopsis
+#### Synopsis
+
 Abstract syntax for Pico.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 Here is the complete abstract syntax for Pico:
 
 ```rascal
@@ -32,7 +34,7 @@ Notes:
     a parse tree into an abstract syntax tree.
 <5> Introduce `Occurrence` as a genereic way of describing the location of various items in the AST.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,18 +2,19 @@
 title: Typechecker
 ---
 
-.Synopsis
+#### Synopsis
+
 Checks the type rules for a source language.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 A [type system](http://en.wikipedia.org/wiki/Type_system) is a set of rules that defines how values,
 variables and functions may be used in a given programming languages.
@@ -40,13 +41,13 @@ These different styles of type checking have different trade offs:
 
 
 
-.Examples
+#### Examples
 
 *  If in Java a variable has been declared as `bool` it cannot be added to an integer.
 *  If in Java a method has three formal parameters, it cannot be called with four actual parameters.
 *  In Python, a variable can first get a string value assigned and later on an integer value.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

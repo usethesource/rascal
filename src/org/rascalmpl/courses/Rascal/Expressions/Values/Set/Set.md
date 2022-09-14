@@ -3,15 +3,17 @@ title: "Set"
 keywords: "{,}"
 ---
 
-.Synopsis
+#### Synopsis
+
 Set values.
 
-.Syntax
+#### Syntax
+
 `{ Exp~1~, Exp~2~, ... }`
 
-.Usage
+#### Usage
 
-.Types
+#### Types
 
 
 |  `Exp~1~` |  `Exp~2~` |  ...  |  `{ Exp~1~, Exp~2~, ... }`    |
@@ -19,9 +21,10 @@ Set values.
 | _T~1~_    | _T~2~_    |  ...  |  set[ lub(_T~1~_, _T~2~_, ... ) ]  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A set is an unordered sequence of values and has the following properties:
 
 *  All elements have the same static type.
@@ -41,7 +44,8 @@ The following operators are provided on sets:
 (((TOC)))
 
 There are also [library functions]((Library:Set)) available for Sets.
-.Examples
+#### Examples
+
 ##  Set types 
 
 ```rascal-shell
@@ -73,7 +77,7 @@ or how its elements are added as elements to the other set:
 {10, *S, 20};
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

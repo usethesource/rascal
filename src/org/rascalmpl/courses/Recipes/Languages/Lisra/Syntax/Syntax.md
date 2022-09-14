@@ -2,18 +2,19 @@
 title: Syntax
 ---
 
-.Synopsis
+#### Synopsis
+
 The textual syntax of Lisp.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 The first step in defining Lisp's textual format, we define a grammar for it:
 
@@ -33,11 +34,11 @@ ensures that an integer cannot be followed by another digit.
 The main syntactic concept is a `LispExp` that may be an `IntegerLiteral`, `AtomExp` or a list
 of `LispExp`s surrouned by parentheses.
 
-.Examples
+#### Examples
 
 This grammar is demonstrated in ((Lisra-Parse)).
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

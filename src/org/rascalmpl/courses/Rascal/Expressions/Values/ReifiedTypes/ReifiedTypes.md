@@ -3,18 +3,19 @@ title: "ReifiedTypes"
 keywords: "#"
 ---
 
-.Synopsis
+#### Synopsis
+
 Types can be represented by values
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 The type reify expression operator has two functions in one go:
 
@@ -30,7 +31,8 @@ The values that are used to represent types are declared in the ((Libraries-Type
 
 A type literal wraps a `Symbol` and a map of `Production`s.
 
-.Examples
+#### Examples
+
 First import the module `Type`:
 ```rascal-shell
 import Type;
@@ -69,9 +71,9 @@ tuple[int,int] testTuple = readTextValueString(#tuple[int,int], "\<1,2\>");
 
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 *  Note that the type reify operator always produces constant values, because type literals are always constants.
 

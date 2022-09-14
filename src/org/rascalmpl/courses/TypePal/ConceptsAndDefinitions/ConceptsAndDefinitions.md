@@ -2,7 +2,8 @@
 title: Concepts and Definitions
 ---
 
-.Synopsis
+#### Synopsis
+
 The concepts and definitions used in TypePal.
 
 == Identifier

@@ -3,23 +3,24 @@ title: "Visit"
 keywords: "visit"
 ---
 
-.Synopsis
+#### Synopsis
 
 The ((Expressions-Visit)) expression can also be used directly as a statement
 
-.Syntax 
+#### Syntax
 
 See ((Expressions-Visit)).
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 See ((Expressions-Visit)) for the details.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 x = [[1],[2],[3]];
 if (true) {
@@ -30,7 +31,7 @@ if (true) {
 }
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

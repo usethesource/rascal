@@ -3,13 +3,15 @@ title: "Number Negation"
 keywords: "-"
 ---
 
-.Synopsis
+#### Synopsis
+
 Negate a numeric value.
 
-.Syntax
+#### Syntax
+
 `- Exp`
 
-.Types
+#### Types
 
 
 | `Exp`  |  `- Exp`  |
@@ -18,19 +20,21 @@ Negate a numeric value.
 | `real`   |  `real`     |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields the negated values of _Exp_.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 -12
 -13.5
 - -12
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

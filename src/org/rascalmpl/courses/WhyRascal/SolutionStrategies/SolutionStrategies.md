@@ -3,16 +3,17 @@ title: Solution Strategies
 details: Extraction,Analysis,Synthesis
 ---
 
-.Synopsis
+#### Synopsis
+
 Strategies to solve problems in various domains using Rascal.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 
 ![Problem-solving workflow]((problem-solving.png))
@@ -82,9 +83,9 @@ of the first figure above.
 We will discuss:
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

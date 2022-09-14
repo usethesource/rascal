@@ -3,13 +3,15 @@ title: "Number Equal"
 keywords: "=="
 ---
 
-.Synopsis
+#### Synopsis
+
 Equality operator on numeric values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ == Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`  |  `Exp~2~` | `Exp~1~ == Exp~2~`   |
@@ -19,12 +21,14 @@ Equality operator on numeric values.
 | `real`     |  `real`    | `bool`                 |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the value of both arguments is numerically equal, and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 12 == 12
 12 == 12.0
@@ -34,7 +38,7 @@ Yields `true` if the value of both arguments is numerically equal, and `false` o
 3.14 == 3
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

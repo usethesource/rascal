@@ -2,20 +2,21 @@
 title: Evaluate
 ---
 
-.Synopsis
+#### Synopsis
+
 Evaluate a Pico program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 A complete evaluator (interpreter) for Pico is defined below.
 ```rascal
@@ -38,7 +39,7 @@ import demo::lang::Pico::Eval;
 evalProgram("begin declare x : natural, y : natural; x := 1; y := x + 5 end");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,14 +3,15 @@ title: "Node"
 keywords: "(,)"
 ---
 
-.Synopsis
+#### Synopsis
+
 Node values.
 
-.Syntax
+#### Syntax
 
 `Exp~0~ ( Exp~1~, Exp~2~, ..., FieldName~1~ = Expr~1, _FieldName~2~ = Expr~2, ... )`
 
-.Types
+#### Types
 
 
 |`Exp~0~`  | `Exp~1~` | `Exp~2~` | ... | `Exp~0~ ( Exp~1~, Exp~2~, ... )`  |
@@ -18,11 +19,11 @@ Node values.
 | `str`      | `value`    | `value`    | ... | `node`                               |
 
 
-.Usage
+#### Usage
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Values of type `node` represent untyped trees and are constructed as follows:
 
@@ -33,7 +34,7 @@ Values of type `node` represent untyped trees and are constructed as follows:
 The following are provided for nodes:
 (((TOC)))
 
-.Examples
+#### Examples
 
 A node with name "my_node" and three arguments:
 ```rascal-shell,continue
@@ -48,11 +49,11 @@ A node with named fields:
 "my_node2"(1,2,size=2,age=24);
 ```
 
-.Benefits
+#### Benefits
 
 * nodes are untyped and can be used to quickly import untyped data into Rascal
 * pattern matching on nodes is quite expressive
 
-.Pitfalls
+#### Pitfalls
 
 * the lack of types at run-time makes pattern matching on node possibly inaccurate (you might match more than you think)

@@ -3,13 +3,15 @@ title: "List"
 keywords: "[,]"
 ---
 
-.Synopsis
+#### Synopsis
+
 List values.
 
-.Syntax
+#### Syntax
+
 `[ Exp~1~, Exp~2~, ... ]`
 
-.Types
+#### Types
 
 //
 
@@ -19,11 +21,12 @@ List values.
 | `T~1~`    | `T~2~`    |  ...  |  `list[lub(T~1~, T~2~, ... )]`  |
 
 
-.Usage
+#### Usage
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A list is an ordered sequence of values and has the following properties:
 
 *  All elements have the same static type.
@@ -43,7 +46,8 @@ The following operators are provided on list:
 
 There are also [library functions]((Library:List)) available for List.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 [1, 2, 3];
 [<1,10>, <2,20>, <3,30>];
@@ -58,7 +62,7 @@ L = [1, 2, 3];
 [10, *L, 20];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,13 +3,15 @@ title: "String Concatenation"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 Concatenate two strings.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ + Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~` | `Exp~2~` | `Exp~1~ + Exp~2~`  |
@@ -17,20 +19,21 @@ Concatenate two strings.
 | `str`     | `str`     | `str`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Concatenates the string values of _Exp_~1~ and _Exp_~2~.
 
 Note that to concatenate other types of values into a string, you can use ((Values-String)) interpolation.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 "abc" + "def";
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

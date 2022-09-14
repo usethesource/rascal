@@ -3,10 +3,11 @@ title: "Node Slice"
 keywords: "[,..,]"
 ---
 
-.Synopsis
+#### Synopsis
+
 Retrieve a slice of a node's argument list.
 
-.Syntax
+#### Syntax
 
 *  `Exp~1~ [ Exp~2~ .. Exp~4~]`
 *  `Exp~1~ [ Exp~2~ , Exp3 .. Exp~4~]`
@@ -14,7 +15,7 @@ Retrieve a slice of a node's argument list.
 
 where _Exp_~2~ and _Exp_~4~ are optional.
 
-.Types
+#### Types
 
 
 | `Exp~1~`     | `Exp~2~` |  `Exp~3~`  | `Exp~4~` | `Exp~1~ [ Exp~2~ .. Exp~4~ ]`   or  `Exp~1~ [ Exp~2~ , Exp~3~ .. Exp~4~]`  |
@@ -22,9 +23,10 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 | `node` | `int`     | `int`       | `int`     |  `list[value]`                                                                 |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A Node slice is similar to a list ((List-Slice)) and uses the integer values of _Exp_~2~ and _Exp_~4~ to determine the `begin` (*inclusive*) and `end` (*exclusive*)
 of a slice from the children of the node value _ND_ of _Exp_~1~. Negative indices count from the end of the list of children backwards.
 Using the second form, an extra index _Exp_~3~ is given that determines the
@@ -54,7 +56,8 @@ otherwise the exception `IndexOutOfBounds` is thrown.
 The slice consists of the children `ND[begin]`, `ND[begin+step]`, `ND[end - step]`.
 When `begin >= end`, the elements are listed in reverse order.
 
-.Examples
+#### Examples
+
 Consider the list `ND = "f"(0, "abc", 20, false, 40, [3,4,5], 60, {"a", "b"}, 80);` as running example.
 
 Here is a view on the children of _ND_ that will help to correlate positive and negative indices:

@@ -2,29 +2,35 @@
 title: Types
 ---
 
-.Synopsis
+#### Synopsis
+
 Part of the synopsis that describes any types or typing rules introduced by this concept.
 
-.Syntax
+#### Syntax
+
 ```
-.Types
+#### Types
+
 _MarkedText_
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The `Types` section describes any types that are involved in the concept that is described.
 The description can be just text, but in many cases a table is useful to describe types.
 
 
-.Examples
+#### Examples
+
 Here is a type description of an if-then-else statement:
 
 ```
-.Types
+#### Types
+
 | `Exp` | `if ( Exp ) Statement;`  |
 ``` | 
 | `bool`  |  `void`                      |
@@ -39,7 +45,8 @@ Here is a type description of an if-then-else statement:
 
 The result will be displayed as:
 
-.Types
+#### Types
+
 | `Exp` | `if ( Exp ) Statement;`  |
 | --- | --- |
 | `bool`  |  `void`                      |
@@ -51,7 +58,7 @@ The result will be displayed as:
 | `bool`  |  T~1~        | T~2~         | `lub(T~1~, T~2~)`                               |
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

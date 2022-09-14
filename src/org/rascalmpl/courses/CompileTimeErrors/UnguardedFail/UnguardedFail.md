@@ -2,18 +2,20 @@
 title: UnguardedFail
 ---
 
-.Synopsis
+#### Synopsis
+
 Use of `fail` statement outside a condtional context.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 A [fail]((Rascal:Statements-Fail)) statement is only allowed inside conditional statements.
 This error is generated when `fail` is used outside a conditional context.
 
@@ -23,7 +25,8 @@ Remedies:
 *  Replace the `fail` statement by a [Rascal:Throw] statement.
 *  replace the `fail` statement by a [Rascal:Return] statement.
 
-.Examples
+#### Examples
+
 Here is a correct (albeit not very useful) use of `fail` where the pattern match `int N := 35` acts as guard:
 ```rascal-shell
 if(int N := 35){ if(N > 10) fail; }
@@ -37,7 +40,7 @@ An error occurs when `fail` is used outside a conditional context:
 fail;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

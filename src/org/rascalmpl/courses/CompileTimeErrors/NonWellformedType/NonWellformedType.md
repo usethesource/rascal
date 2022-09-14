@@ -2,18 +2,20 @@
 title: NonWellformedType
 ---
 
-.Synopsis
+#### Synopsis
+
 A type in a declaration is not wellformed.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Types should respect some structural rules and this error signals a violation of these rules.
 Examples of violations are:
 
@@ -23,14 +25,15 @@ Examples of violations are:
 
 Remedy: correct the type.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 bool[int] x;
 list[int,str] l;
 map[str, int, int]  m;
 set[int,str] s;
 ```
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

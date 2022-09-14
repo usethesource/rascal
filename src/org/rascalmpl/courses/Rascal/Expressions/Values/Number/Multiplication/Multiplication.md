@@ -3,13 +3,15 @@ title: "Number Multiplication"
 keywords: "*"
 ---
 
-.Synopsis
+#### Synopsis
+
 Multiply two numeric values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ * Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~` |  `Exp~2~` | `Exp~1~ * Exp~2~`  |
@@ -19,19 +21,21 @@ Multiply two numeric values.
 | `real`    |  `real`    | `real`               |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields the result of multiplying the values of _Exp~1~_ and _Exp~2~_.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 12 * 13
 12 * 13.5
 -12*13
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

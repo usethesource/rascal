@@ -278,19 +278,20 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
 
 list[Output] compileMarkdown([firstLine:/^details:<dtlsLine:.*>$/, *str otherMetaData, "---", *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
   = [
-    details([trim(word) | word <- split(" ", trim(dtlsLine)), trim(word) != ""]),
+    details([trim(word) | word <- split(",", trim(dtlsLine)), trim(word) != ""]),
     out(firstLine),
-    *compileMarkdown([*otherMetaData, "---", *rest], line + 1, offset + size(firstLine), pcfg, exec, ind, [trim(word) | word <- split(" ", trim(dtlsLine)), trim(word) != ""])
+    *compileMarkdown([*otherMetaData, "---", *rest], line + 1, offset + size(firstLine), pcfg, exec, ind, [trim(word) | word <- split(",", trim(dtlsLine)), trim(word) != ""])
   ];
 
-@synopsis{This supports legacy headers like .Description and .Synopsis to help in the transition to docusaurus}
-list[Output] compileMarkdown([str first:/^\s*\.<title:[A-Z][a-z]*><rest:.*>/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
-  // just a normal section header 
-  return [
-    *[out("### <title> <rest>") | skipEmpty(rest2) != [] && [/^\s*\.[A-Z][a-z]*.*/, *_] !:= skipEmpty(rest2)],
-    *compileMarkdown(rest2, line + 1, offset + size(first), pcfg, exec, ind, dtls)
-  ];
-}
+@synopsis{Removes empty sections in the middle of a document}
+list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, nextSection:/^\s*#\s+.*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = compileMarkdown([nextSection, *rest], line + 1 + size(emptySection), offset + size(first) + (0 | it + size(l) | l <- emptySection), pcfg, exec, ind, dtls)
+    when !(/\S/ <- emptySection);
+
+@synopsis{Removes empty sections at the end of a document}
+list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, /^\s*$/], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = [] when !(/\S/ <- emptySection);
+
 
 @synopsis{this is when we have processed all the input lines}
 list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _, Index _, list[str] _) = [];

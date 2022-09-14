@@ -2,18 +2,19 @@
 title: Word Count
 ---
 
-.Synopsis
+#### Synopsis
+
 Counting words in strings.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 The purpose of WordCount is to count the number of _words_ in a list of lines (strings).
 A word is here defined as one or more letters (lowercase or uppercase), digits and the underscore character (`_`).
@@ -68,7 +69,7 @@ The inner reducer counts the number of words in a line, the outer reducer accumu
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

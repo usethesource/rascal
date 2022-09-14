@@ -3,26 +3,26 @@ title: "ListRelation"
 keywords: "[,],<,>"
 ---
 
-.Synopsis
+#### Synopsis
 
 List relations are lists of tuples with relational calculus operators defined on them.
 
-.Syntax
+#### Syntax
 
 `[ < Exp~11~, Exp~12~, ... > , < Exp~21~, Exp~22~, ... > , ... ]`
 
-.Types
+#### Types
 
 | `Exp~11~` |  `Exp~12~` |  ...  | `{ < Exp~11~, Exp~12~, ... > , ... }`   |
 | --- | --- | --- | --- |
 | `T~1~`    |    `T~2~`  |  ...  |  `lrel[T~1~, T~2~, ... ]`               |
 
 
-.Usage
+#### Usage
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A list relation is a list of elements with the following property:
 
@@ -46,7 +46,8 @@ The following additional operators are provided for list relations:
 There are also [library functions]((Library:ListRelation)) available for list relations.
 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 [<1,10>, <2,20>, <3,30>]
 ```
@@ -59,7 +60,7 @@ remember that these types are interchangeable.
 [<"a", 1, "b">, <"c", 2, "d">]
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

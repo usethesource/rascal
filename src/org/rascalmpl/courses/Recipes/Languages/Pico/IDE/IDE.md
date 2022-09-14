@@ -2,20 +2,22 @@
 title: IDE
 ---
 
-.Synopsis
+#### Synopsis
+
 An Integrated Development Environment for Pico.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/lang/Pico/Plugin.rsc[tags=module]
 ```
@@ -58,7 +60,7 @@ Now we get a warning that variable `n` is not initialized. We correct it and get
 ![]((Screenshot4.png))
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,16 +2,18 @@
 title: Func
 ---
 
-.Synopsis
+#### Synopsis
+
 Func is a tiny functional language; we present several interpreters for it.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Func is a functional language with the following features:
 
 * A program consists of a number of function declarations.
@@ -51,7 +53,8 @@ that implement increasingly complex features:
 | dereference operator |       |       |       | y |
 
 
-.Examples
+#### Examples
+
 Here are several versions of the factorial function
 that use more and more features of the Func language:
 
@@ -91,7 +94,7 @@ NOTE: Note the escaped `<` character in `\\<=`. This is necessary since `<` and 
 in strings to enclose interpolations (insertion of the value of a Rascal expression).
 Both symbols need to be escaped when used as literal symbol and not as interpolation.
                 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,10 +3,12 @@ title: "Visit"
 keywords: "visit,case,default,top-down,top-down-break,bottom-up,bottom-up-break,innermost,outermost"
 ---
 
-.Synopsis
+#### Synopsis
+
 Visit the elements in a tree or value.
 
-.Syntax
+#### Syntax
+
 ```rascal
 Strategy visit ( _Exp_ ) {
 case _PatternWithAction~1~_;
@@ -16,11 +18,11 @@ default: ...
 }
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Visiting, recursively traversing, the nodes in a deeply nested data-structure is a very common task in the [EASY]((EASY)) domain. 
 In many cases (but certainly not all) this data-structure is a syntax tree of some source code file 
@@ -97,7 +99,8 @@ The precise behaviour of the visit expression depends on the type of the subject
    matched against the cases. 
    When inserts are made, a new structured value is created. In these cases a strategy does not have any effect.
 
-.Examples
+#### Examples
+
 Visit a value and increment a counter for pattern `leaf(int N)` matches:
 ```rascal
 visit(t) {
@@ -121,7 +124,7 @@ More examples can, for instance, be found in Recipes, see [ColoredTrees]((Recipe
 [WordReplacement]((Recipes:Common-WordReplacement)), [CountConstructors]((Recipes:CommonCountConstructors)), 
 and [Derivative]((Recipes:Common-Derivative)).
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,11 +2,12 @@
 title: Examples of Typecheckers
 ---
   
-.Synopsis
+#### Synopsis
+
 Examples of type checkers built with TypePal.
 
 
-.Description
+#### Description
 
 TypePal is used in a new type checker for the Rascal meta-programming language and also in type checkers for half a dozen
 domain-specific languages created by http://swat.engineering in the domains finance, forensics and privacy.

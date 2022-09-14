@@ -2,16 +2,18 @@
 title: Enumerating
 ---
 
-.Synopsis
+#### Synopsis
+
 Enumerating values.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Enumerating regards the enumeration of the values in a given (finite) domain, be it the elements in a list, the substrings of a string, 
 or all the nodes in a tree. 
 Each value that is enumerated is first matched against a pattern before it can possibly contribute to the result of 
@@ -19,7 +21,8 @@ the enumerator. An enumerator yields `true` as long as it has generated a new va
 
 See [Enumerator]((Rascal:Comprehensions-Enumerator)) for details.
 
-.Examples
+#### Examples
+
 ```rascal
 int x <- { 1, 3, 5, 7, 11 }
 int x <- [ 1 .. 10 ]
@@ -69,8 +72,9 @@ for(int x <- {1, 3, 5, 7, 11 })
     println("x = <x>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 The variables that are bound by an enumerator are local to the statement in which the enumerator is used.
 

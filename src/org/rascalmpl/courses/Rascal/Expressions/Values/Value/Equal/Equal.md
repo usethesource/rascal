@@ -3,13 +3,15 @@ title: "Value Equal"
 keywords: "=="
 ---
 
-.Synopsis
+#### Synopsis
+
 Equal operator on values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ == Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`   | `Exp~2~` | `Exp~1~ == Exp~2~`  |
@@ -17,12 +19,14 @@ Equal operator on values.
 | `value`     |  `value`  | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if both arguments are identical and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ```
 Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
@@ -40,7 +44,7 @@ and `X` and `Z`:
 X == Z;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

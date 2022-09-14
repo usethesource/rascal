@@ -3,13 +3,15 @@ title: "Tuple LessThanOrEqual"
 keywords: "<="
 ---
 
-.Synopsis
+#### Synopsis
+
 Less than or equal operator on tuple values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ <= Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`                      |  `Exp~2~`                      | `Exp~1~ <= Exp~2~`  |
@@ -17,9 +19,10 @@ Less than or equal operator on tuple values.
 | `tuple[ T~11~, T~12~, ... ]` |  `tuple[ T~21~, T~22~, ... ]` | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if 
 
 *  both tuples are equal, or
@@ -29,13 +32,14 @@ value of _Exp_~2~ is less than that element in _Exp_~2~.
 
 Otherwise the result if `false`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 <1, "abc", true> <= <1, "abc", true>;
 <1, "abc", true> <= <1, "def", true>;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,18 +2,20 @@
 title: PartiallyLabeledFields
 ---
 
-.Synopsis
+#### Synopsis
+
 In a tuple or relation all fields should have names or none at all.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 The fields in tuples and relations can optionally be labelled with a name.
 There are only two legal situations:
 
@@ -24,12 +26,13 @@ There are only two legal situations:
 This error signals the case that thei fields are partially labelled.
 
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 tuple[int n, str] T;
 rel[str name, int] R;
 ```
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

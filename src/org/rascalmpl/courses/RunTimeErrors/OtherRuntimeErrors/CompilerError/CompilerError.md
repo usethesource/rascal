@@ -2,10 +2,12 @@
 title: Compiler Error
 ---
 
-.Synopsis
+#### Synopsis
+
 An internal error in the Rascal compiler
 
-.Description
+#### Description
+
 An internal error condition occurred while running the Rascal compiler.
 This exception may be generated due to:
 
@@ -14,5 +16,6 @@ This exception may be generated due to:
 * Incorrect configuration of paths (PathConfig) when calling the compiler.
 * Causes outside control of the compiler.
 
-.Pitfalls
+#### Pitfalls
+
 At the moment this error category is too wide and should be narrowed.

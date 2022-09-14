@@ -2,20 +2,22 @@
 title: Load
 ---
 
-.Synopsis
+#### Synopsis
+
 Convert a Pico parse tree into a Pico abstract syntax tree.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 The mapping between parse tree and abstract sybtax tree is achieved as follows:
 ```rascal
 include::{LibDir}demo/lang/Pico/Load.rsc[tags=module]
@@ -43,7 +45,7 @@ load("begin declare x : natural; x := 3 end");
 
 Observe how the various parts of the abstract syntax tree are annotated with location attributes.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,16 +2,18 @@
 title: StaticTyping
 ---
 
-.Synopsis
+#### Synopsis
+
 The static type system of Rascal.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before 
 the program is executed. 
 
@@ -48,7 +50,8 @@ The Rascal type system has various advanced features that are described separate
 *  The formal arguments of functions are bound to _values_ but in exceptional cases
   a function may need a type as argument value, ((Reified Types)) make this possible.
 
-.Examples
+#### Examples
+
 Here are some simple examples of correct and incorrect typing:
 
 We can assign an integer value to an integer variable:
@@ -71,7 +74,7 @@ v = "abc";
 v = [1, 2, 3];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

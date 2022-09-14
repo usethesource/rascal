@@ -2,16 +2,17 @@
 title: Motivation
 ---
 
-.Synopsis
+#### Synopsis
+
 The distinguishing features of Rascal and how they solve real problems.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 _Meta-programs_ are programs that analyze, transform or generate other programs. Ordinary programs work on data; meta-programs work on programs. 
 
@@ -23,7 +24,8 @@ The _point of Rascal_ is to provide a reusable set of primitives to build and ma
 
 _Rascal is a domain specific programming language_. We emphasize programming here because Rascal is intended as an engineering tool for programmers that need to construct meta programs. Rascal programs allow running, inspecting, debugging, tracing, profiling, etc. just as normal programs do. The skills of any good programmer are enough to easily write good Rascal programs.
 
-.Examples
+#### Examples
+
 Typical applications of Rascal are:
 
 *  Refactoring of Java source code.
@@ -41,7 +43,7 @@ Since representation of information is central to the approach, Rascal provides 
 To support extraction and analysis, parsing and advanced pattern matching are provided. 
 High-level control structures make analysis and synthesis of complex data structures simple.
 
-.Benefits
+#### Benefits
 
 *  __Familiar syntax__ in a _what-you-see is-what-you-get_ style is used even for sophisticated concepts 
    and this makes the language easy to learn and easy to use.
@@ -57,5 +59,5 @@ High-level control structures make analysis and synthesis of complex data struct
 *  __Generic types__ allow writing functions that are applicable for many different types.
 *  __Eclipse integration__ makes Rascal programming a breeze. All familiar tools are at your fingertips.
 
-.Pitfalls
+#### Pitfalls
 

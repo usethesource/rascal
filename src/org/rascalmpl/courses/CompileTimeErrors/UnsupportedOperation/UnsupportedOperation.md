@@ -2,18 +2,20 @@
 title: UnsupportedOperation
 ---
 
-.Synopsis
+#### Synopsis
+
 Attempt to apply a operation to a value for which the operation is not defined.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 This error is generated when an unsupported operation is applied to (a combination of) values.
 There can be many causes for this as illustrated below.
 
@@ -23,7 +25,8 @@ Remedies:
 *  Change the values so that the operation can be applied to them.
 *  Rewrite the expression compleye to get the effect you intended.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 L = [1,2,3];
 ```
@@ -44,7 +47,7 @@ Calling an integer as a function is not supported:
 17(3, "abc");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

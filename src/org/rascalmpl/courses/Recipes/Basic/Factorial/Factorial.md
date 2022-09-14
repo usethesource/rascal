@@ -2,18 +2,20 @@
 title: Factorial
 ---
 
-.Synopsis
+#### Synopsis
+
 Compute the factorial function.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 The [factorial](http://en.wikipedia.org/wiki/Factorial)
 of a number N is defined as `N * (N-1) * (N-2) * ... * 1`.
 Here is the Rascal version:
@@ -41,7 +43,7 @@ Here is an example of `fac2`:
 fac2(47);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

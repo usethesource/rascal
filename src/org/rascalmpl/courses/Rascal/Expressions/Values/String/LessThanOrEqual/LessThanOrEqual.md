@@ -3,13 +3,15 @@ title: "String LessThanOrEqual"
 keywords: "<="
 ---
 
-.Synopsis
+#### Synopsis
+
 Less than or equal operator on string values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ <= Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~` | `Exp~2~` | `Exp~1~ <= Exp~2~`  |
@@ -17,13 +19,15 @@ Less than or equal operator on string values.
 | `str`     |  `str`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the string value of _Exp_~1~ is lexicographically less
 than the string value of _Exp_~2~ or if both string are equal, and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 "abc" <= "abc";
 "abc" <= "abcdef";
@@ -31,7 +35,7 @@ than the string value of _Exp_~2~ or if both string are equal, and `false` other
 "abc" <= "a";
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,18 +2,20 @@
 title: Prettyprinter
 ---
 
-.Synopsis
+#### Synopsis
+
 Transform an ((Abstract Syntax Tree)) into a formatted string.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 A [pretty printer](http://en.wikipedia.org/wiki/Prettyprint)
 formats the source code of programs. Alternative names are _formatter_ or _beautifier_.
 Pretty printers differ in the inputs they accept:
@@ -28,7 +30,8 @@ Pretty printers also differ in flexibility. They differ in:
 *  The source language(s) they can accept.
 *  The adaptability of the formatting rules.
 
-.Examples
+#### Examples
+
 The program fragment
 ```rascal
 if(x > 10) { System.err.println("x > 10"); } else { System.err.println("x <= 10"); }
@@ -51,7 +54,7 @@ if( x > 10 )
    System.err.println("x <= 10"); 
 }
 ```
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

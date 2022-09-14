@@ -2,24 +2,27 @@
 title: Pitfalls
 ---
 
-.Synopsis
+#### Synopsis
+
 Comprehensive list of known shortcomings or usage problems of the concept.
 
-.Syntax
+#### Syntax
+
 ```
-.Pitfalls
+#### Pitfalls
+
 _MarkedText_
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

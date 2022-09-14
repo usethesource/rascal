@@ -2,20 +2,23 @@
 title: No Layout
 ---
 
-.Synopsis
+#### Synopsis
+
 A version of Exp based on concrete syntax.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 We describe howto write a grammar for Exp and how to use it to implement an evaluator.
 
 
-.Examples
+#### Examples
+
 Here is the grammar for Exp:
 ```rascal
 include::{LibDir}demo/lang/Exp/Concrete/NoLayout/Syntax.rsc[tags=module]
@@ -76,7 +79,7 @@ eval("(2+3)*4");
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

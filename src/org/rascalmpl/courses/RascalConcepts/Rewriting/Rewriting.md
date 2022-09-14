@@ -2,16 +2,17 @@
 title: Rewriting
 ---
 
-.Synopsis
+#### Synopsis
+
 Rewriting using pattern-directed invocation
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A rewrite rule is a recipe on how to simplify values. 
 Remember: (_a_ + _b_)^2^ = _a_^2^ + 2 _ab_ + _b_^2^? 
@@ -24,7 +25,8 @@ In Rascal, rewriting can be achieved using pattern-directed invocation,
 see [Function Declaration]((Rascal:Declarations-Function)), 
 possibly combined with a [Visit]((Rascal:Expressions-Visit)) statement.
 
-.Examples
+#### Examples
+
 In a package for symbolic differentiation it is desirable to keep expressions in simplified form in order 
 to avoid intermediate results like `add(product(con(1), x), mul(con(0), y))` that can be simplified to `x`. 
 The following definitions achieve this:
@@ -60,7 +62,7 @@ a simplified version.
 
 See [Derivative]((Recipes:Common-Derivative)) for a full explanation of this example.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,13 +3,15 @@ title: "Node NotEqual"
 keywords: "!="
 ---
 
-.Synopsis
+#### Synopsis
+
 Not equal operator on node values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ != Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`  |  `Exp~2~` | `Exp~1~ != Exp~2~`  |
@@ -17,19 +19,21 @@ Not equal operator on node values.
 | `node`     |  `node`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the node names of the values of _Exp_~1~ and _Exp_~2~ are unequal or
 any of the children of each node is pairwise unequal, otherwise `true`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 "f"(1, "abc", true) != "g"(1, "abc", true);
 "f"(1, "abc", true) != "f"(1, "abc", true);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

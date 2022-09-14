@@ -2,32 +2,38 @@
 title: Function
 ---
 
-.Synopsis
+#### Synopsis
+
 Part of the synopsis that describes function signatures introduced by this concept.
 
-.Syntax
+#### Syntax
+
 ```
-.Function
+#### Function
+
 _MarkedText_
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 Here is an example for the `readFile` function:
 
 
-.Syntax
+#### Syntax
+
 ```
-.Function
+#### Function
+
 str readFile(loc file) throws UnsupportedScheme(loc file), PathNotFound(loc file), IOError(str msg)
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,10 +3,12 @@ title: "Assignment"
 keywords: "=,+=,-=,*=,/=,?=,[,..,],.,?,@"
 ---
 
-.Synopsis
+#### Synopsis
+
 Assign a value to a variable or more complex data structure.
 
-.Syntax
+#### Syntax
+
 `Assignable AssignmentOp Exp`
 
 where _AssignmentOp_ may be one of `=`, `+=`, `-=`, `*=`, `/=`, or `?=`.
@@ -23,11 +25,12 @@ An _Assignable_ is one of the following:
 *   `Assignable @ Name`
 *   `Name ( Assignable, Assignable, ... )`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The purpose of an assignment is to assign a new value to a simple variable or to an element of a more complex data structure. 
 
 The standard assignment operator is `=`. 
@@ -50,10 +53,10 @@ The assignment statement always results in assigning a completely new value to t
 We distinguish the following forms of assignment:
 (((TOC)))
 
-.Examples
+#### Examples
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

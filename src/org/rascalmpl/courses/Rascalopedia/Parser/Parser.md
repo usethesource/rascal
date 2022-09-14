@@ -2,18 +2,19 @@
 title: Parser
 ---
 
-.Synopsis
+#### Synopsis
+
 Check that a text adheres to the rules of a language (and return a ((ParseTree-ParseTree))).
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 A [parser](http://en.wikipedia.org/wiki/Parsing) checks that a text in language _L_ indeed adheres 
 to the syntax rules of language _L_. There are two possible answers:
@@ -28,9 +29,9 @@ This is shown below:
 ![]((parser.png))
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,17 +3,20 @@ title: "Fail"
 keywords: "fail"
 ---
 
-.Synopsis
+#### Synopsis
+
 Let the current alternative of a pattern match fail.
 
-.Syntax
+#### Syntax
+
 `fail;`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A `fail` statement is only allowed in statements that are controlled by the outcome of a pattern match:
 
 *  The ((Patterns)) in a ((Pattern with Action)) in ((Switch)) or ((Statements-Visit)) statement controls the statements in the action part.
@@ -33,7 +36,7 @@ When `fail` is executed:
       alternative in the test is tried; otherwise the loop is terminated.
    ** For a function call it means that the next function declaration (or the default one) is tried.
 
-.Examples
+#### Examples
 
 Here is an example taken from [Bubble]((Recipes:Bubble)). 
 It uses a `fail` for the case that no unsorted element can be found in the list of numbers.
@@ -54,7 +57,7 @@ public list[int] sort(list[int] numbers){
 sort([10, 1, 5, 3]);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

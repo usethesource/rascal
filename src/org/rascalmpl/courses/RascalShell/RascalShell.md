@@ -3,10 +3,11 @@ title: Rascal Shell
 details: REPL,Completion,History,Commands,Keyboard
 ---
 
-.Synopsis
+#### Synopsis
+
 The interactive Rascal commandline shell
 
-.Description
+#### Description
 
 The Rascal shell is an interactive console -- or if you prefer a Command Line Interface (CLI) or
 Read Eval Print Loop (REPL) -- for entering and executing 

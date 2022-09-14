@@ -2,18 +2,19 @@
 title: ArgumentMismatch
 ---
 
-.Synopsis
+#### Synopsis
+
 The called signature does not match any defined function.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 A function has a name and a signature (the names and types of its arguments). 
 This error is reported when a call of a function cannot be associated with a function declaration.
@@ -23,7 +24,8 @@ Remedies:
 *  Modify the call so that the arguments match the function declaration.
 *  Write a new definition for a function with the same name, that matches the argument types in the call.
 
-.Examples
+#### Examples
+
 Define a function `triple` that multiplies its argument by 3:
 ```rascal-shell,error
 int triple(int x) = 3 * x;
@@ -42,7 +44,7 @@ list[int] triple(list[int] L) = [3 * x | x <- L];
 triple([1,2,3]);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

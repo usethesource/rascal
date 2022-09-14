@@ -2,23 +2,26 @@
 title: String Template
 ---
 
-.Synopsis
+#### Synopsis
+
 Using string templates to generate code.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Many websites and code generators use template-based code generation. They start from a text template that contains embedded variables and code. The template is "executed" by replacing the embedded variables and code by their string value. Languages like PHP and Ruby are popular for this feature. Let's see how we can do this in Rascal. 
 
 Rascal provides string templates that rival what is provided in
 [Ruby](http://www.ruby-doc.org/stdlib/libdoc/erb/rdoc/ERB.html), [PHP](http://www.php.net/) or [ANTLR](http://www.stringtemplate.org/).
 They are fully described in [string values]((Rascal:Values-String)).
 
-.Examples
+#### Examples
+
 The problem we want to solve is as follows: 
 given a number of fields (with a name and a type)
 how can we generate a Java class with getters and setters for those fields?
@@ -60,12 +63,12 @@ fields = (
 println(genClass("Person", fields));
 ```
 
-.Benefits
+#### Benefits
 
 *  String templates are ideal to generate arbitrary output. In particular, no grammar is needed to describe this output.
 *  Auto-indent helps to be able to compose templates from reusable parts.
 
-.Pitfalls
+#### Pitfalls
 
 *  Since no grammar is used to control output, errors in generated code can only be detected by a downstream processor such as a compiler for the generated code.
 

@@ -2,7 +2,7 @@
 title: Grammar
 ---
 
-.Synopsis
+#### Synopsis
 
 A synonym for ((Concept-Syntax)).
 

@@ -2,16 +2,17 @@
 title: Pattern Matching
 ---
 
-.Synopsis
+#### Synopsis
+
 Pattern matching.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Pattern matching determines whether a given pattern matches a given value. 
 The outcome can be `false` (no match) or `true` (a match). A pattern match that succeeds may bind values to variables.
@@ -32,7 +33,7 @@ Patterns may contain variables that are bound when the match is successful.
 Anonymous (don't care) positions are indicated by the underscore (`_`). 
 See [Patterns]((Rascal:Rascal-Patterns)) for more details.
 
-.Examples
+#### Examples
 
 Here is a _regular expression_ that matches a line of text, finds the first alphanumeric word in it, and extracts the word itself as well as the before and after it (`\W` matches all non-word characters; `\w` matches all word characters):
 
@@ -71,7 +72,7 @@ When there is a grammar for this example language, we can also write concrete pa
 
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

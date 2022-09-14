@@ -2,14 +2,16 @@
 title: Set Command
 ---
 
-.Synopsis
+#### Synopsis
+
 Set parameters that control options of RascalShell.
 
-.Syntax
+#### Syntax
+
 * `:set`
 * `:set Option TrueOrFalse`
 
-.Description
+#### Description
 
 The shell provides a number of options to control its behaviour.
 The `set` command manages their value.
@@ -25,7 +27,8 @@ The options are:
 * `tracing`: while executing Rascal code, print a trace of all function calls.
 * `errors`: print more diagnostic stack traces if available (of internal functionality)
 
-.Examples
+#### Examples
+
 Turn `tracing` on and execute a function:
 ```rascal-shell
 import demo::basic::Factorial;
@@ -40,6 +43,6 @@ Turn trace off and execute the same function:
 fac(5)
 ```
 
-.Pitfalls
+#### Pitfalls
 
 * The `set` command is completely unrelated to Rascal's built-in `set` type.

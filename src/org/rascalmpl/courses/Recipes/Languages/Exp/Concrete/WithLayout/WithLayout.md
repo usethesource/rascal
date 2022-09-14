@@ -2,16 +2,17 @@
 title: With Layout
 ---
 
-.Synopsis
+#### Synopsis
+
 Defines a concrete syntax for Exp with layout.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 In Rascal, the major difference between lexical syntax and non-lexical syntax is that:
 
@@ -39,7 +40,7 @@ Note that [Pattern Matching]((RascalConcepts:PatternMatching)) will _ignore_ all
 For the above example Rascal will insert the `Whitespace` non-terminal between every element of the syntax rules for `Exp`.
 Moreover, for the start production (See ((No Layout))) `Whitespace` will be added before and after the `Exp`.
 
-.Examples
+#### Examples
 
 The effect of the layout definition is that before parser generation the following grammar is derived for `Exp`:
 ```rascal
@@ -62,9 +63,9 @@ eval("2   +  3*4");
 eval("( 2+3 )* 4");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 *  If the grammar for `Exp` would contain an optional symbol, as in `syntax Exp = Exp "+"? Exp`, then it would be ambiguous. Does a space in "1 1", belong to the `Whitespace` before or after the missing `+`? To disambiguate the `layout` definition should be changed to `layout Whitespace = [\ \t\n\r]* !>> [\ \t\n\r]`. That will make sure the space goes with the first Whitespace, because even an empty Whitespace list must never be followed immediately by a space.
 

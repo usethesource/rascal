@@ -2,10 +2,11 @@
 title: Commands
 ---
 
-.Synopsis
+#### Synopsis
+
 RascalShell commands
 
-.Description
+#### Description
 
 The RascalShell provides several built-in commands:
 

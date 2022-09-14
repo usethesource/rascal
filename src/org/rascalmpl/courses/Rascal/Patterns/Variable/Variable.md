@@ -2,17 +2,20 @@
 title: Variable Pattern
 ---
 
-.Synopsis
+#### Synopsis
+
 Variable in abstract pattern.
 
-.Syntax
+#### Syntax
+
 _Var_
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A variable pattern can act in two roles:
 
 * If _Var_ has already a defined value then it matches with that value.
@@ -21,7 +24,8 @@ A variable pattern can act in two roles:
     That value is assigned to _Var_. The scope of this variable is the outermost expression in which the pattern occurs
 or the enclosing ((If)), ((While)), or ((Do)) if the pattern occurs in the test expression of those statements.
 
-.Examples
+#### Examples
+
 Initialize variable `N`
 ```rascal-shell
 N = 10;
@@ -38,7 +42,7 @@ if(M := 10)
    println("Match succeeded, M == <M>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

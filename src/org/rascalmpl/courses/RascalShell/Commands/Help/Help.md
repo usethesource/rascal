@@ -2,13 +2,15 @@
 title: Help Command
 ---
 
-.Synopsis
+#### Synopsis
+
 Get a reminder of the shell commands.
 
-.Syntax
+#### Syntax
+
 * `:help`  
 
-.Description
+#### Description
 
 ```rascal-shell
 :help

@@ -2,17 +2,18 @@
 title: Tutor
 ---
 
-.Synopsis
+#### Synopsis
 
 The RascalTutor can be used to create, maintain and follow interactive courses.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The RascalTutor is an interactive ((Authoring)) and learning environment intended to create and follow interactive courses related to the Rascal language.
 It is based on the following principles and ideas:
 
@@ -47,9 +48,9 @@ in most cases we directly refer to
 The folling topics will be described here:
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

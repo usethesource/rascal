@@ -2,18 +2,20 @@
 title: Test Command
 ---
 
-.Synopsis
+#### Synopsis
+
 Run tests.
 
-.Syntax
+#### Syntax
+
 * `:test`
 
-.Description
+#### Description
 
 Run Rascal tests. The tests in all currently imported modules are executed and the results are reported
 in the terminal.
 
-.Examples
+#### Examples
 
 Execute the tests in an imported module:
 

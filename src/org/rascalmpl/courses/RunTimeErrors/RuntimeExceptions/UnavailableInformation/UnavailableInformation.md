@@ -2,17 +2,20 @@
 title: Unavailable Information
 ---
 
-.Synopsis
+#### Synopsis
+
 Requested information is unavailable at runtime
 
 
-.Types
+#### Types
+
 `data RuntimeException = UnavailableInformation(str message);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `UnavailableInformation` is used in `catch`)
 
-.Description
+#### Description
 
 Several datetypes may contain optional information that is not always available:
 
@@ -22,7 +25,7 @@ Several datetypes may contain optional information that is not always available:
   
 This exception is thrown when optional information is not available.
 
-.Examples
+#### Examples
 
 ```rascal-shell,error
 $2016-09-14$.hour;

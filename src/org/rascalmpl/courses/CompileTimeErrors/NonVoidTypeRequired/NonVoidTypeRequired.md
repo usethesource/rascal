@@ -2,19 +2,19 @@
 title: NonVoidTypeRequired
 ---
 
-.Synopsis
+#### Synopsis
 
 A type other than `void` is needed.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 This error is generated when a value is needed, so an expression of any type but the `void` type.
 
@@ -23,7 +23,8 @@ The most prominent examples are splicing for
 
 Remedy: replace the expression of type `void` by an expression that computes a value.
 
-.Examples
+#### Examples
+
 First define a dummy function that returns void:
 ```rascal-shell,error
 void dummy() { return; }
@@ -38,7 +39,7 @@ int dummy() { return 17; }
 {1, *dummy(), 2}
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

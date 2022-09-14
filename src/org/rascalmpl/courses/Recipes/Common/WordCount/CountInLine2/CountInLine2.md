@@ -2,18 +2,20 @@
 title: CountInLine2
 ---
 
-.Synopsis
+#### Synopsis
+
 Count words in a line.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 A slighly more involved manner of using regular matching in a loop.
 ```rascal
 include::{LibDir}demo/common/WordCount/CountInLine2.rsc[tags=module]
@@ -38,7 +40,7 @@ import demo::common::WordCount::CountInLine2;
 countInLine2("Jabberwocky by Lewis Carroll");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

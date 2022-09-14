@@ -2,10 +2,11 @@
 title: Values
 ---
 
-.Synopsis
+#### Synopsis
+
 The different types of values.
 
 
-.Description
+#### Description
 
 (((TOC)))

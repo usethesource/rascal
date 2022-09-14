@@ -78,6 +78,13 @@ list[str] convertSections(["---", *str headers, "---", *str otherStuff, /^\s*\.D
         *otherStuff,
         nextHeader,
         *moreStuff
+    ];   
+
+list[str] convertSections([/^\.<headerTitle:[A-Z][A-Za-z]+>\s*$/, *str otherStuff])
+    = [
+        "#### <headerTitle>",
+        *(([str firstLine, *_] := otherStuff && trim(firstLine) != "") ? [""] : []),
+        *convertSections(otherStuff)
     ];    
 
 /*

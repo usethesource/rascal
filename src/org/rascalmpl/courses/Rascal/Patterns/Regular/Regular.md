@@ -3,16 +3,18 @@ title: "Regular Expression Pattern"
 keywords: "/,\,[,],^,-,.,|,?,*,+,{,},$"
 ---
 
-.Synopsis
+#### Synopsis
+
 Regular expression patterns.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Regular expressions are used to match a string value and to decompose it in parts and also to compose new strings. Regular expression patterns bind variables of type `str` when the match succeeds, otherwise they do not bind anything. 
 They can occur in cases of visit and switch statements, 
 on the left-hand side of the match operator (`:=` or `!:=`) and as declarator in enumerators.
@@ -84,7 +86,8 @@ For convenience, we summarize the most frequently used constructs in regular exp
 | `\B`      | Non-word boundary: position that is a not a word boundary |
 
 
-.Examples
+#### Examples
+
 Here are some examples of regular expression patterns.
 ```rascal
 /\brascal\b/i
@@ -158,7 +161,7 @@ Here are examples, how to escape punctuation characters in regular expressions:
 /a\+b/ := "a+b";
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

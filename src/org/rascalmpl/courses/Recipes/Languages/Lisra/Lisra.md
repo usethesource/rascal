@@ -3,18 +3,19 @@ title: Lisra
 details: Syntax,Runtime,Parse,Pretty,Eval,Test
 ---
 
-.Synopsis
+#### Synopsis
+
 A lisp interpreter in Rascal.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 Writing a Lisp interpreter is a classical challenge. 
 Popular word has that all large applications evolve until they include a Lisp interpreter.
@@ -91,9 +92,9 @@ We discuss all these aspects:
 
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

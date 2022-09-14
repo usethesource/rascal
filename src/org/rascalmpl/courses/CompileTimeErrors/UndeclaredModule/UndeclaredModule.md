@@ -2,18 +2,20 @@
 title: UndeclaredModule
 ---
 
-.Synopsis
+#### Synopsis
+
 Reference to a non-existing module.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 This can, for example, occur in a qualified name.
 
 Remedies:
@@ -21,14 +23,15 @@ Remedies:
 *  Check that the offending module name is spelled correctly.
 *  Create a module of that name.
 
-.Examples
+#### Examples
+
 Referring to the non-existing module `M` gives errors:
 ```rascal-shell,error
 M::x = 3;
 M::f(3);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

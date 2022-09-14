@@ -3,16 +3,17 @@ title: "List Pattern"
 keywords: "[,]"
 ---
 
-.Synopsis
+#### Synopsis
+
 List in abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A list pattern matches a list value (the subject), provided that _Pat_~1~, _Pat_~2~, ..., _Pat_~n~ match the elements of that list in order. 
 Special cases exist when one of the patterns _Pat_~i~ is
@@ -26,7 +27,8 @@ Special cases exist when one of the patterns _Pat_~i~ is
 *  a <<Variable] Pattern>>, where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with the value at the corresponding position in the subject list.
 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import IO;
 ```
@@ -80,7 +82,7 @@ if([10, N, 30, 40, 50] := [10, 20, 30, 40, 50])
    println("Match succeeded, N = <N>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,18 +2,20 @@
 title: UnsupportedSubscriptArity
 ---
 
-.Synopsis
+#### Synopsis
+
 Wrong number of subscripts is used. 
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Subscription is available for values of various types including: 
 [string]((Rascal:String-Subscription)), 
 [node]((Rascal:Node-Subscription)),
@@ -26,14 +28,15 @@ of indices that are used.
 
 Remedies: correct the number of indices used in the subscription.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 [1,2,3][2,1];
 ("a":1, "b":2, "c":3)["c", "d"];
 <1, 2, 3>[5,6];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

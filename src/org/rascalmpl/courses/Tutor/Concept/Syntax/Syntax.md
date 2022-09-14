@@ -2,33 +2,39 @@
 title: Syntax
 ---
 
-.Synopsis
+#### Synopsis
+
 Part of the synopsis that summarizes syntax introduced by this concept.
 
-.Syntax
+#### Syntax
+
 ```
-.Syntax
+#### Syntax
+
 _MarkedText_
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The syntax section is intended to describe syntactic aspects of language constructs.
 The contents of this section are arbitrary text.
 
 
-.Examples
+#### Examples
+
 The syntax section for an if-then statement can be written as:
 
 ```
-.Syntax
+#### Syntax
+
 `if ( Exp ) Statement;`
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

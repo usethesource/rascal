@@ -3,13 +3,15 @@ title: "List Concatenation"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 Concatenate two lists.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ + Exp~2~`
 
-.Types
+#### Types
 
 //
 
@@ -19,15 +21,15 @@ Concatenate two lists.
 
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The `+` operator concatenates the elements of the two lists in order of appearance. 
 
 Note that the same operator is overloaded for ((List-Insert)) and ((List-Append)).
 
-.Examples
+#### Examples
 
 ```rascal-shell
 [1, 2, 3] + [4, 5, 6];
@@ -42,7 +44,7 @@ And overloaded usage for insert and append looks like:
 [] + 1
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

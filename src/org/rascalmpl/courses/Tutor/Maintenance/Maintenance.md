@@ -2,26 +2,27 @@
 title: Maintenance
 ---
 
-.Synopsis
+#### Synopsis
+
 How to maintain a course.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 The following topics are discussed:
 
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,13 +3,15 @@ title: "Location Equal"
 keywords: "=="
 ---
 
-.Synopsis
+#### Synopsis
+
 Equality operator on locations.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ == Exp~2~`
 
-.Types
+#### Types
 
 //
 
@@ -18,14 +20,15 @@ Equality operator on locations.
 | `loc`     |  `loc`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if both arguments are identical and `false` otherwise.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

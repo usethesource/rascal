@@ -3,13 +3,15 @@ title: "Boolean Any"
 keywords: "any"
 ---
 
-.Synopsis
+#### Synopsis
+
 Any combination of argument values is true.
 
-.Syntax
+#### Syntax
+
 `any ( Exp~1~, Exp~2~, ... )`
 
-.Types
+#### Types
 
 //
 
@@ -19,17 +21,19 @@ Any combination of argument values is true.
 |`bool`     | `bool`    | ... | `bool`                           |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` when at least one combination of values of _Exp_~i~ is true.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 any(int n <- [1 .. 10], n % 2 == 0);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

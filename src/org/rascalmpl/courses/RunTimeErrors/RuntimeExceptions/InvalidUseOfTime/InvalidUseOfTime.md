@@ -2,22 +2,25 @@
 title: Invalid Use Of Time
 ---
 
-.Synopsis
+#### Synopsis
+
 Invalid use of a time value at runtime
 
 
-.Types
+#### Types
+
 `data RuntimeException = InvalidUseOfTime(str message);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `InvalidUseOfTime` is used in `catch`)
 
-.Description
+#### Description
 
 Thrown by operations on time values that
 try to update unavailable information.
 
-.Examples
+#### Examples
 
 Setting the `year` field on a time value throws an exception:
 ```rascal-shell,error

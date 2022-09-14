@@ -2,24 +2,26 @@
 title: Jabberwocky
 ---
 
-.Synopsis
+#### Synopsis
+
 Lewis Carroll's well-known poem.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/common/WordCount/Jabberwocky.rsc[tags=module]
 ```
 
                 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

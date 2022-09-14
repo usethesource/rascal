@@ -3,13 +3,15 @@ title: "DateTime Equal"
 keywords: "=="
 ---
 
-.Synopsis
+#### Synopsis
+
 Equality on datetime values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ == Exp~2~`
 
-.Types
+#### Types
 
 //
 
@@ -18,18 +20,20 @@ Equality on datetime values.
 | `datetime`     |  `datetime`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if both arguments are identical `datetime` values and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 $2010-07-15$ == $2010-07-15$;
 $2010-07-15$ == $2010-07-14$;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

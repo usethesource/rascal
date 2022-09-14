@@ -3,10 +3,11 @@ title: Why Rascal
 details: Motivation,EASY,SolutionStrategies,CompareWithOtherParadigms
 ---
 
-.Synopsis
+#### Synopsis
+
 What is the motivation for Rascal and which problems can you solve with it?
 
-.Description
+#### Description
 
 We give various answers to these questions:
 

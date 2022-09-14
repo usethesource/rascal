@@ -2,20 +2,23 @@
 title: Bullet Lists
 ---
 
-.Synopsis
+#### Synopsis
+
 A (possible nested) list of bullet points.
 
-.Syntax
+#### Syntax
+
 *  `* MarkedText`
 *  `** MarkedText`
 *  `\*** MarkedText`
 *  ...
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Bullet lists create, possibly nested, lists of points.
 The number of `*` characters determines the nesting level of a (sub)list.
 
@@ -27,7 +30,8 @@ A list item ends with:
 Bullet Lists and ((Numbered Lists)) can be mixed.
 See http://asciidoctor.org/docs/user-manual/#unordered-lists for the precise rules.
 
-.Examples
+#### Examples
+
 The input
 
 ```
@@ -57,8 +61,9 @@ will produce:
    **  Second subitem.
 *  Second item.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 An empty line is required before and after a BulletList.
 

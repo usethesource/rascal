@@ -3,10 +3,11 @@ title: "Concrete Patterns"
 keywords: "(,),`,<,>"
 ---
 
-.Synopsis
+#### Synopsis
+
 Concrete patterns.
 
-.Syntax
+#### Syntax
 
 ```rascal
 Concrete pattern with expected symbol type: (_Symbol_) ` Token~1~ Token~2~ ... Token~n~ `
@@ -15,11 +16,11 @@ Concrete pattern with expected symbol type: (_Symbol_) ` Token~1~ Token~2~ ... T
 Typed variable inside a concrete pattern: <_Type_ _Var_>
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A concrete pattern is a pattern for matching a ((Parse Tree)). The notation of a concrete pattern is the *object language* itself, the language that the parse tree describes. 
 In other words, you can use a code example to match parsed code using a concrete pattern. These concrete code examples can contain ((Variable Pattern))s like the other ((Patterns)).
@@ -36,7 +37,7 @@ grammar in the ((Syntax Definition)) and the types of the ((Variable Pattern))s 
 
 Inside concrete syntax patterns, layout is ignored while pattern matching. So parse trees which have different whitespace and comments but are otherwise the same will match anyway.
 
-.Examples
+#### Examples
 
 Examples (in a context where an appropriate concrete syntax has been defined):
 
@@ -60,7 +61,7 @@ Some observations about this example:
 
 A full example of concrete patterns can be found in [WithLayout]((Recipes:Concrete-WithLayout)).
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

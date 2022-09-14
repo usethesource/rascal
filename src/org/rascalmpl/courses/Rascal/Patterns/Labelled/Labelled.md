@@ -3,20 +3,22 @@ title: "Labelled Pattern"
 keywords: ":"
 ---
 
-.Synopsis
+#### Synopsis
+
 Labelled abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A labelled pattern matches the same values as _Pat_, but has as side-effect that the matched value is assigned to _Var_.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import IO;
 data ColoredTree = leaf(int N)
@@ -28,7 +30,7 @@ for(/M:black(_,leaf(4)) := T)
 ```
 We use an *anonymous variable* `_` at a position where we don't care about the actual value that is matched.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,13 +3,15 @@ title: "String GreaterThan"
 keywords: ">"
 ---
 
-.Synopsis
+#### Synopsis
+
 Greater than operator on string values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ > Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~` | `Exp~2~` | `Exp~1~ > Exp~2~`  |
@@ -17,20 +19,22 @@ Greater than operator on string values.
 | `str`     |  `str`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the string value of _Exp_~1~ is strictly lexicographically greater
 than the string value of _Exp_~2~, and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 "abcdef" > "abc";
 "defghi" > "abcdef";
 "a" > "abc";
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
