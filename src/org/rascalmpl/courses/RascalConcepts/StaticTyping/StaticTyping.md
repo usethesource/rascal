@@ -2,16 +2,17 @@
 title: Static Typing
 ---
 
-.Synopsis
+#### Synopsis
+
 Static type checking.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 ![Type Lattice]((type-lattice.png))
 
@@ -43,7 +44,7 @@ Built-in operators are heavily overloaded.
 For instance, the operator `+` is used for addition on integers and reals but also for list concatenation, 
 set union and the like.
 
-.Examples
+#### Examples
 
 Some example can illustrate the above.
 ```rascal-shell,error
@@ -99,7 +100,7 @@ node ND = red(3);
 One example of the actual application of subtypes can be found in 
 [Count Constructors]((Recipes:Common-CountConstructors)).
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,14 +2,15 @@
 title: The Extract-Analyze-SYnthesize (EASY) paradigm
 ---
 
-.Synopsis
+#### Synopsis
+
 Rascal excels in supporting the Extract-Analyze-SYnthesize (EASY) paradigm.
 
 ![]((easy-workflow.png))
 
 // explicitly separate image from Description 
 
-.Description
+#### Description
 
 Many meta-programming problems follow a fixed pattern. 
 Starting with some input system (a black box that we usually call _system-of-interest_), 

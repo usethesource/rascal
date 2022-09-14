@@ -2,18 +2,22 @@
 title: Empty List
 ---
 
-.Synopsis
+#### Synopsis
+
 Illegal operation on an empty list.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
+
 `data RuntimeException = EmptyList();`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `EmptyList` is used in `catch`)
 
-.Description
+#### Description
+
 Rascal provides many operations and functions on lists, see [list values]((Rascal:Values-List)) 
 and [list functions]((Library:module:List)).
 This error is generated when a function or operation cannot handle the empty list.
@@ -25,7 +29,7 @@ Remedies:
 * Catch the `EmptyList` yourself, see [try catch]((Rascal:Statements-TryCatch)).
 
 
-.Examples
+#### Examples
 
 Import the `List` library and introduce `L` with an empty list as value:
 ```rascal-shell,error
@@ -51,7 +55,7 @@ catch EmptyList():
   println("Cannot take head of empty list");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

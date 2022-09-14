@@ -3,18 +3,20 @@ title: "Annotation Declaration"
 keywords: "anno,@"
 ---
 
-.Synopsis
+#### Synopsis
 
 Declare an annotation type for nodes. This feature is deprecated; please use ((Keyword Fields)) instead.
 
-.Syntax
+#### Syntax
+
 `anno AnnoType OnType @ Name`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 An annotation may be associated with any node value, be it a pure node or some ((Algebraic Data Type)) derived from it.
 
 Annotations are intended to attach application data to values,
@@ -38,12 +40,12 @@ The following constructs are provided for handling annotations:
 
 *  `Var @ Anno = Val`: is an assignment statement that sets the value of annotation _Anno_ of the value of variable _Var_ to _Val_.
 
-.Examples
+#### Examples
 
 Examples have been removed since this feature is deprecated. 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 * Annotations are cumbersome since they change the structure of ((Values)) without changing the semantics of the identity of a value. This is why they are deprecated.

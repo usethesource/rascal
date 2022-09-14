@@ -2,10 +2,11 @@
 title: Solver
 ---
 
-.Synopsis
+#### Synopsis
+
 A `Solver` tries to solve the constraints in a `TModel`; unsolved constraints produce error messages
 
-.Description
+#### Description
 
 The purpose of a Solver is to solve the constraints that have been gathered by the ((Collector))
 and to produce a TModel.

@@ -3,16 +3,18 @@ title: "ListRelation Subscription"
 keywords: "[,]"
 ---
 
-.Synopsis
+#### Synopsis
+
 Indexing of a list relation via tuple values.
 
-.Syntax
+#### Syntax
 
 *  `Exp~0~ [ Exp~1~, Exp~2~, ... Exp~n~]`
 
 *  `Exp~0~ [ Exp~1~]`
 
-.Types
+#### Types
+
 ## Variant 1
 
 
@@ -29,9 +31,10 @@ Indexing of a list relation via tuple values.
 | `lrel[T~1~, T~2~, ... T~m~]`    | `list[T~1~]` | `lrel[T~2~, T~3~, ... T~m~]`   |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 ListRelation resulting from subscription of a ListRelation _Exp_~0~.
 
 ## Variant 1
@@ -48,7 +51,8 @@ Subscription with a set of the index values of _Exp_~1~.
 The result is a ListRelation with all tuples that have these index values as first element
 with the index values removed from the tuple. 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 R = [<1,10>, <2,20>, <1,11>, <3,30>, <2,21>];
 R[1];
@@ -75,7 +79,7 @@ or rather for the indices `"Japan"` and `2008`:
 GDP["Japan", 2008];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

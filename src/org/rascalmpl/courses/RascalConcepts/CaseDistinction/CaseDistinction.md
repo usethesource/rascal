@@ -2,16 +2,18 @@
 title: Case Distinction
 ---
 
-.Synopsis
+#### Synopsis
+
 Case distinction via pattern matching.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The switch statement as known from C and Java is generalized: the subject value to switch on may be an 
 arbitrary value and the cases are arbitrary patterns followed by a statement. 
 Each case is comparable to a _transaction_: when the pattern succeeds and the following statement is 
@@ -21,7 +23,8 @@ The variables bound by the pattern are always local to the statement associated 
 See [Switch]((Rascal:Statements-Switch)),[Visit]((Rascal:Expressions-Visit)) and 
 [Pattern With Action]((Rascal:PatternWithAction)) for more details.
 
-.Examples
+#### Examples
+
 We use the [ColoredTrees]((Recipes:Common-ColoredTrees)) datatype as example and use a switch to
 distinguish between red and black nodes:
 ```rascal-shell
@@ -39,7 +42,7 @@ case black(_, _):
 }
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

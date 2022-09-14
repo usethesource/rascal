@@ -2,16 +2,18 @@
 title: Operators
 ---
 
-.Synopsis
+#### Synopsis
+
 The Rascal operators.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 An _operator expression_ consists of an operator and one or more operands. The evaluation order of the operands depends on the operator. 
 The operator is applied to the operands and the resulting value (or values in some cases) is the result of the operator expression. 
 
@@ -209,9 +211,9 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 | Or on Boolean values |
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

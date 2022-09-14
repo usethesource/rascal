@@ -2,10 +2,12 @@
 title: Table
 ---
 
-.Synopsis
+#### Synopsis
+
 Mark up for a table.
 
-.Syntax
+#### Syntax
+
 ```
 | _Header_~1~ | _Header_~2~ | ... |
 ``` | 
@@ -14,17 +16,17 @@ Mark up for a table.
 
 ----
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The simplest table starts and ends with `|===`, each row is separetd by an empty line and each column starts with `|`.
 There are, hwoever, other formats and options to specify the formatting of cells and columns.
 See http://asciidoctor.org/docs/user-manual/#tables for details.
 
-.Examples
+#### Examples
 
 ##  Example 1 
 
@@ -103,8 +105,9 @@ gives (note the escaped `|` character in one table entry):
 | `A \| B` | Or operator |
 
 
-.Benefits
+#### Benefits
+
 Table formatting are versatile and include, sizing, subtables, column spans, and more, see  http://asciidoctor.org/docs/user-manual/#tables.
 
-.Pitfalls
+#### Pitfalls
 

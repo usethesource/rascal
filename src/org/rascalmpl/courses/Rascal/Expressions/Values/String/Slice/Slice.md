@@ -3,10 +3,11 @@ title: "String Slice"
 keywords: "[,..,]"
 ---
 
-.Synopsis
+#### Synopsis
+
 Retrieve a slice of a string.
 
-.Syntax
+#### Syntax
 
 ---
 title: `Exp~1~ [ Exp~2~ .. Exp~4~]`
@@ -18,7 +19,7 @@ title: `Exp~1~ [ Exp~2~ , Exp3 .. Exp~4~]`
 
 where _Exp_~2~ and _Exp_~4~ are optional.
 
-.Types
+#### Types
 
 
 | `Exp~1~`     | `Exp~2~` |  `Exp~3~`  | `Exp~4~` | `Exp~1~ [ Exp~2~ .. Exp~4~ ]`   or  `Exp~1~ [ Exp~2~ , Exp~3~ .. Exp~4~]`  |
@@ -26,9 +27,10 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 | `str`         | `int`     | `int`       | `int`     |  `str`                                                                            |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A String slice is similar to a list ((List-Slice)) and uses the integer values of _Exp_~2~ and _Exp_~4~ to determine the `begin` (*inclusive*) and `end` (*exclusive*)
 of a slice from the string value _S_ of _Exp_~1~. Negative indices count from the end of the string backwards.
 Using the second form, an extra index _Exp_~3~ is given that determines the
@@ -58,7 +60,8 @@ otherwise the exception `IndexOutOfBounds` is thrown.
 The slice consists of the elements `S[begin]`, `S[begin+step]`, `S[end - step]`.
 When `begin >= end`, the elements are listed in reverse order.
 
-.Examples
+#### Examples
+
 Consider the string `S = "abcdefghi";` (with size 9) as running example.
 
 Here is a view on _L_ that will help to correlate positive and negative indices:

@@ -3,25 +3,26 @@ title: "Reserve Declaration"
 keywords: "\"
 ---
 
-.Synopsis
+#### Synopsis
+
 Reserve is a conditional ((Symbol)), constraining the set of strings that a symbol may produce.
 
-.Syntax
+#### Syntax
 
 *  `Symbol \ constraint`
 
 
 where a _constraint_ is any character class, a literal or a keyword non-terminal ((Symbol)).
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

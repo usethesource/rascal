@@ -2,16 +2,20 @@
 title: Arithmetic Exception
 ---
 
-.Synopsis
+#### Synopsis
+
 An arithmetic exception occurred.
 
-.Types
+#### Types
+
 `data RuntimeException = ArithmeticException(str message);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `ArithmeticException` is used in `catch`)
 
-.Description
+#### Description
+
 This error is generated when an illegal arithmetic operation occurs or when
 a numeric function  is called with an out-of-range argument.
 
@@ -20,7 +24,8 @@ Remedies:
 *  Check the validity of the argument before you call the function or apply the operator.
 *  Catch the `ArithmeticException` yourself, see [try catch]((Rascal:Statements-TryCatch)) statement.
 
-.Examples
+#### Examples
+
 Division by 0 gives an error:
 ```rascal-shell,error
 3/0;
@@ -38,7 +43,7 @@ import IO;
 try println(3/0); catch ArithmeticException(msg): println("The message is: <msg>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

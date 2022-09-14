@@ -2,13 +2,16 @@
 title: No Parent
 ---
 
-.Synopsis
+#### Synopsis
+
 Parent directory is missing in source location.
 
 
-.Types
+#### Types
+
 `data RuntimeException = NoParent(loc noparentloc);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `NoParent` is used in `catch`)
 

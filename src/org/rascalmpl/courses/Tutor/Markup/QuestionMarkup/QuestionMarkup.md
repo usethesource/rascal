@@ -2,16 +2,17 @@
 title: QuestionMarkup
 ---
 
-.Synopsis
+#### Synopsis
+
 Mark up for interactive questions.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 WARNING: The specification of questions is being redesigned; The information provided here is outdated.
 
@@ -49,7 +50,7 @@ Given that the listing is optional, this template represents 5 different questio
 * `test: Expr~1~ == Expr~2~`: the equality that should hold. The expressions may contain references to variables. One side may contain a hole (`<?>`).
 * `list: Text`: a listing that runs until the next question or the end of the concept. It may contain a hole.
 
-.Examples
+#### Examples
 
 *  `prep: import List;` imports the List module before executing the following steps.
 *  `make: A = set[arb[int,str]]` introduces `A` and assigns it a value of the indicated type.
@@ -59,7 +60,7 @@ Given that the listing is optional, this template represents 5 different questio
 *  `hint: One or more integers separated by comma's`.
 *  `test: <A> + <?> == <C>`: the student has to replace `<?>` by an answwer that makes the equality true.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

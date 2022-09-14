@@ -2,18 +2,19 @@
 title: MissingModifier
 ---
 
-.Synopsis
+#### Synopsis
+
 A modifier is missing in a declaration.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 Rascal functions can be implemented in Java. This is the case for many functions in the standard library.
 This requires these elements:
@@ -34,7 +35,8 @@ Remedy: Contact the Rascal developers:
 If you are an expert developer and have implemented your own extension in Java, please check your own extension code first.
 
 
-.Examples
+#### Examples
+
 This is how the `size` function on lists is declared in the Rascal library:
 ```rascal-shell
 @javaClass{org.rascalmpl.library.Prelude}
@@ -47,7 +49,7 @@ This is what happens if the `java` keyword is missing:
 public int size(list[&T] lst);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

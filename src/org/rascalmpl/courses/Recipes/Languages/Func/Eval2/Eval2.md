@@ -2,17 +2,19 @@
 title: Eval2
 ---
 
-.Synopsis
+#### Synopsis
+
 Like Eval1 but with support for sequences and assignments.
 
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Interpreter Eval2 supports the following features of Func: 
 
 
@@ -36,7 +38,7 @@ Interpreter Eval2 supports the following features of Func:
 
 The main additions are local side effects and the sequence operator.
 
-.Examples
+#### Examples
 
 ```rascal
 include::{LibDir}demo/lang/Func/Eval2.rsc[tags=module]
@@ -69,7 +71,7 @@ import demo::lang::Func::programs::F2;
 eval2("fact", [10], load(F2));
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

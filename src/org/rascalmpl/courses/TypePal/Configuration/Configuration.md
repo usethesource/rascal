@@ -2,10 +2,11 @@
 title: TypePal Configuration
 ---
   
-.Synopsis
+#### Synopsis
+
 Configuration options for TypePal
 
-.Description
+#### Description
 
 TypePal provides configuration options for
 

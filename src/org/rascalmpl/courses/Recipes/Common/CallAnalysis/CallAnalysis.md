@@ -2,16 +2,17 @@
 title: Call Analysis
 ---
 
-.Synopsis
+#### Synopsis
+
 Analyzing the call structure of an application.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Suppose a mystery box ends up on your desk. When you open it, it contains a huge software system with several questions attached to it:
 
@@ -26,7 +27,7 @@ Suppose a mystery box ends up on your desk. When you open it, it contains a huge
 
 Let's see how these questions can be answered using Rascal.
 
-.Examples
+#### Examples
 
 Consider the following call graph (a box represents a procedure and an arrow represents a call from one procedure to another procedure):
 
@@ -125,12 +126,12 @@ The reducer is initialized with  all procedures (`carrier(Calls)`) and iterates 
 At each iteration the current value of the reducer (`it`) is intersected (`&`) with the procedures called directly or indirectly
 from that entry point (`(Calls+)[p]`).
 
-.Benefits
+#### Benefits
 
 *  In small examples, the above results can be easily obtained by a visual inspection of the call graph.
 Such a visual inspection does _not_ scale very well to large graphs and this makes the above form of analysis particularly suited for studying large systems.
 
-.Pitfalls
+#### Pitfalls
 
 *  We discuss call analysis in a, intentionally, simplistic fashion that does not take into account how the call relation
   is extracted from actual source code.

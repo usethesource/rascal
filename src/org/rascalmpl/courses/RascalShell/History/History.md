@@ -2,10 +2,11 @@
 title: Command History
 ---
 
-.Synopsis
+#### Synopsis
+
 Use the command history.
 
-.Description
+#### Description
 
 RascalShell provides a history of previously entered commands. This can be accessed as follows:
 
@@ -16,7 +17,7 @@ RascalShell provides a history of previously entered commands. This can be acces
 | `Ctrl+r`       |(After search text) Search backward in history. |
 | `Ctrl+s`       | (After search text) Forward search in history |
 
-.Examples
+#### Examples
 
 ```rascal-shell
 a = 1;

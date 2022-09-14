@@ -2,18 +2,19 @@
 title: Interpreter
 ---
 
-.Synopsis
+#### Synopsis
+
 Directly execute the statements of a program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 There are two methods to execute a program that is written in some source language:
 
@@ -43,9 +44,9 @@ The advantages of interpreters versus compiler are:
 **  Con: complex, optimizations are error-prone.
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

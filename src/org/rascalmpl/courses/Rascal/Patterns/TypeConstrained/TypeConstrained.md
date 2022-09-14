@@ -3,23 +3,23 @@ title: "Type Constrained Pattern"
 keywords: "[,]"
 ---
 
-.Synopsis
+#### Synopsis
 
 Type constrained abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A type constrained pattern matches provided that the subject has type _Type_ and _Pat_ matches. This can be handy in case of ambiguity (say more than one constructor with the same name), or in case the pattern is completely general. See an example below:
 
 Warning: This does not seem to work properly. There is a bug.
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import IO;
@@ -42,7 +42,7 @@ visit (ex) {
 }
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

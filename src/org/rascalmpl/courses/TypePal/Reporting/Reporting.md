@@ -2,10 +2,11 @@
 title: Reporting
 ---
 
-.Synopsis
+#### Synopsis
+
 How to format and report errors, warnings and info messages.
 
-.Description
+#### Description
 
 Reporting may be done both in the Collector and the Solver. 
 It uses values of the datatype `FailMessage` that can be created as follows:

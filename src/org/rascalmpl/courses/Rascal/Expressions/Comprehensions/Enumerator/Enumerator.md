@@ -3,17 +3,20 @@ title: "Enumerator"
 keywords: "<-"
 ---
 
-.Synopsis
+#### Synopsis
+
 Enumerate all values in a given subject value.
 
-.Syntax
+#### Syntax
+
 `Pattern <- Exp`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 An enumerator generates all the values in a given subject value. 
 For elementary types (`bool`, `int`, `real`, `num`, `loc`, `datetime`, `str`) this is just a singleton.
 For composite types (`list`, `set`, `map`, `tuple`, `rel`, `node`) the values of their elements, 
@@ -42,7 +45,8 @@ int N <- {"apples", "oranges"}
 ```
 will be flagged as an error since the pattern can never match.
 
-.Examples
+#### Examples
+
 Here are some examples of enumerators:
 
 *  `int N <- {1, 2, 3, 4, 5}`.
@@ -64,7 +68,7 @@ Here are examples of enumerators in action:
 {<N, K> | <str K, int N> <- {<"a",10>, <"b",20>, <"c",30>}};
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

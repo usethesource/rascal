@@ -2,19 +2,22 @@
 title: Call Lifting
 ---
 
-.Synopsis
+#### Synopsis
+
 Lift procedure calls to component calls.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A frequently occurring problem is that we know the call relation of a system but that we want to understand it at the component level rather than at the procedure level. If it is known to which component each procedure belongs, it is possible to lift the call relation to the component level. Actual lifting amounts to translating each call between procedures by a call between components. 
 
-.Examples
+#### Examples
+
 Consider the following figure:
 
 
@@ -58,7 +61,7 @@ Please verify that this corresponds exactly to (c) in the figure above.
 ```rascal-shell,continue
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

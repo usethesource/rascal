@@ -2,10 +2,12 @@
 title: Doc Annotations
 ---
 
-.Synopsis
+#### Synopsis
+
 A doc annotation attaches an inline concept description to a Rascal declaration.
 
-.Description 
+#### Description
+
 All Rascal declarations can be preceeded by an annotation of the form `@doc{ ... }` where ... may be arbitrary text, 
 provided that `{` and `}` characters are balanced and that unbalanced braces are escaped like `\{` or `\}`. 
 This text is expanded to a full concept definition when the concept is processed. 
@@ -22,7 +24,8 @@ The header of the concept definition is automatically generated and consists of:
 ---
 title: _Module name_
 ---
-.Usage
+#### Usage
+
 _Import declaration needed to use this module_
 ```
 
@@ -33,7 +36,9 @@ The signatures are placed in an itemized list (unless there is only one).
 The header of the concept definition is automatically generated and consists of:
 
 ```
-# _Function name_
+---
+title: _Function name_
+---
 .Function
 _Function signature_
 .Usage

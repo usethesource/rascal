@@ -2,19 +2,22 @@
 title: Load AST
 ---
 
-.Synopsis
+#### Synopsis
+
 Parse Func program from string or file and convert to an abstract syntax tree.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 To simplify later processing, Func programs are converted to an abstract syntax tree.
 
-.Examples
+#### Examples
+
 The concrete syntax for Func is described in ((Func-ConcreteSyntax)) and its
 abstract syntax in ((Func-AbstractSyntax)).
 Rather than manually writing conversion rules from Func parse trees to Func abstract syntax trees
@@ -55,7 +58,7 @@ Next, we try the same from a file:
 load(|std:///demo/lang/Func/programs/F0.func|);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

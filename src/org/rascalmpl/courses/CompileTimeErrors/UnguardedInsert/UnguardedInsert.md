@@ -2,18 +2,19 @@
 title: UnguardedInsert
 ---
 
-.Synopsis
+#### Synopsis
+
 An `insert` occurs outside a `visit` expression.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 An insert statement may only occur in the action part of a [pattern with action]((Rascal:PatternWithAction)), 
 more precisely in a case in a 
@@ -24,7 +25,8 @@ Remedies:
 *  Use an auxiliary variable and list or set operations to insert the value where you want.
 *  Place the insert statement inside a visit.
 
-.Examples
+#### Examples
+
 Here is an example of the use of insert to swap the arguments of red nodes:
 
 Our favorite data type, colored trees:
@@ -44,7 +46,7 @@ An error occurs when insert is used outside a visit:
 insert red(leaf(1), leaf(2));
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,13 +2,15 @@
 title: Edit Command
 ---
 
-.Synopsis
+#### Synopsis
+
 Open an editor for a Rascal module
 
-.Syntax
+#### Syntax
+
 * `:edit ModuleName`  
 
-.Description
+#### Description
 
 This opens an editor for the given module name. For every context of running Rascal, this could
 mean different things:

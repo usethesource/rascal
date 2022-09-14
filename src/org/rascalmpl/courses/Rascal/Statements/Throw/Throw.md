@@ -3,18 +3,19 @@ title: "Throw"
 keywords: "throw"
 ---
 
-.Synopsis
+#### Synopsis
 
 Throw any value as an exception up the call stack.
 
-.Syntax
+#### Syntax
+
 `throw Exp`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A throw statement causes the immediate abortion of the execution of the current function with _Exp_ \'s value as exception value.
 The exception can be caught by a ((Try Catch)) statement in the current function or in one of its callers.
@@ -24,7 +25,8 @@ If the exception is not caught, the execution of the Rascal program is terminate
 
 *  The Rascal program may contain data declarations that extend the type `RuntimeException`.
 
-.Examples
+#### Examples
+
 Here is a a variant of string concatenation for ball haters:
 ```rascal-shell,error
 str conc(str x, str y){ if("ball" in {x, y}) throw "I hate balls"; return x + y; }
@@ -33,7 +35,7 @@ conc("foot", "ball");
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

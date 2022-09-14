@@ -3,10 +3,11 @@ title: "Function Declaration"
 keywords: "public,private,java,test,default,&"
 ---
 
-.Synopsis
+#### Synopsis
+
 Declare a function.
 
-.Syntax
+#### Syntax
 
 *  `Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ ) Body`
 *  `Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ Type~0~ Name~0~... ) Body`
@@ -25,11 +26,12 @@ and where `Modifiers` may be:
 
 *  `("public" | "private")? ("java" | "test" | "default")?`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 ##  Variant 1 
 
 A function declaration introduces a new function with name _name_, typed formal parameters `Type~1~ Var~1~`, a return type _Type_
@@ -106,7 +108,7 @@ The _Modifiers_ affect _visibility_ and _special behaviour_ of functions:
         _implicitly_ define `default` functions that may be overloaded by normal ((Function Declaration))s.
 
 
-.Examples
+#### Examples
 
 Declare a function
 ```rascal-shell,continue
@@ -174,12 +176,12 @@ neg(t());
 neg(neg(f()));
 ```
 
-.Benefits
+#### Benefits
 
 * Overloaded functions can be extended by other modules that extend the current module, and even be "fused" by modules that extend different modules that define the same overloaded signature. In this way you can write language processors **modularly**. The open extensibility of overloaded functions in Rascal is a way to circumvent the classes ["Expression Problem".](https://en.wikipedia.org/wiki/Expression_problem)
 * Overloaded functions including complex pattern matching at the parameter positions are as powerful as term rewriting systems; they _are_ a kind of term rewriting system. Together with the ((SyntaxDefinition)) and ((AlgebraicDataType)) features (serving as many-sorted algebraic signatures), the overloaded functions allow for "algebraic specification" as a style of programming in Rascal. 
 
-.Pitfalls
+#### Pitfalls
 
 * In case of overlapping function definitions, the order in which the functions are tried is left undefined. The only exceptions are functions marked `default`, those will be tried after non-`default` functions.
 * Neither the Rascal compiler not its static checker, or the interpreter, check for the **completeness** of overloaded function definitions. The question: is do they handle all the cases that the grammar of the input data-types provide for? And if so, is every choice of prioritizing the different alternatives leading to the same answer? This problem is akin to the properties of **termination**, **unique normal forms** and **confluence** of term rewriting systems. A set of overloaded alternative functions, including a data constructor with the same name, are comparable to a term rewriting system for a many-sorted algebraic signature. 

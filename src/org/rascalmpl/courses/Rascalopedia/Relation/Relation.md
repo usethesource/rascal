@@ -2,18 +2,19 @@
 title: Relation
 ---
 
-.Synopsis
+#### Synopsis
+
 An unordered set of tuples.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 In mathematics, given sets _D_~1~, _D_~2~, ... _D_~n~, a
 _n_-ary relation _R_ is characterized by _R_ &subseteq;  _D_~1~ &times; _D_~2~ &times; ... &times; _D_~n~.
@@ -41,7 +42,8 @@ and [functions on relations]((Library:Relation))
 see [functions on sets]((Library:Set))).
 
 
-.Examples
+#### Examples
+
 ## Relations in Daily Life
 
 *  The _parent-of_ or _friend-of_ relation between people.
@@ -81,7 +83,7 @@ rel[int position, str artist, str title, int year] Top2000 = {
 };
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

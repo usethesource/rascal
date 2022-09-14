@@ -2,20 +2,25 @@
 title: RegExp Syntax Error
 ---
 
-.Synopsis
+#### Synopsis
+
 Syntax error in regular expression at run time
 
-.Types
+#### Types
+
 `data RuntimeException = RegExpSyntaxError(str message);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `RegExpSyntaxError` is used in `catch`)
 
-.Description
+#### Description
+
 At the moment, the parsing and compilation of regular expression is done at run time.
 This exception is thrown when a syntactically incorrect regular expression is used.
 
-.Examples
+#### Examples
+
 The following regular expression `/+/` is incorrect (maybe `/a+/` was meant?):
 ```rascal-shell,error
 /+/ := "aaaa";

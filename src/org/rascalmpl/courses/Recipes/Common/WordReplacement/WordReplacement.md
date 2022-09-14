@@ -2,20 +2,23 @@
 title: Word Replacement
 ---
 
-.Synopsis
+#### Synopsis
+
 Replace words in a string.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Suppose you are a book editor and want to ensure that all chapter
 and section titles are properly capitalized. Here is how to do this. 
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/common/WordReplacement.rsc[tags=module]
 ```
@@ -38,7 +41,7 @@ capAll1("turn this into a capitalized title")
 capAll2("turn this into a capitalized title")
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

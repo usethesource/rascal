@@ -2,18 +2,19 @@
 title: Abstract Syntax
 ---
 
-.Synopsis
+#### Synopsis
+
 The abstract syntax for Func.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 Here is the abstract syntax for Func:
 ```rascal
@@ -24,7 +25,7 @@ include::{LibDir}demo/lang/Func/AST.rsc[tags=module]
 Observe that the abstract syntax follows the structure of the ((Func-ConcreteSyntax)) but
 omits details such as operator priorities, parentheses, and the like.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

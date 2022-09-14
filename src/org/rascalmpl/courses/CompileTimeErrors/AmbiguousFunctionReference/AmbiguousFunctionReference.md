@@ -2,21 +2,24 @@
 title: AmbiguousFunctionReference
 ---
 
-.Synopsis
+#### Synopsis
+
 An ambiguous function name
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Warning: How to generate this error? 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 data D = d(int x);
 data D2 = d(str x);
@@ -24,7 +27,7 @@ d(3).x
 d("a").x
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

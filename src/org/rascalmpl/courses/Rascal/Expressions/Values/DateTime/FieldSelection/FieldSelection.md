@@ -3,13 +3,15 @@ title: "DateTime Field Selection"
 keywords: "."
 ---
 
-.Synopsis
+#### Synopsis
+
 Select a field from a datetime value.
 
-.Syntax
+#### Syntax
+
 `Exp . Name`
 
-.Types
+#### Types
 
 //
 
@@ -18,16 +20,17 @@ Select a field from a datetime value.
 | `datetime`   |          | depends on field  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Field selection applies to `datetime` values. 
 _Name_ should be one of the supported fields listed in ((Values-DateTime)) and returns the value of that field. 
 Name stands for itself and is not evaluated.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,26 +2,30 @@
 title: Examples
 ---
 
-.Synopsis
+#### Synopsis
+
 Examples to illustrate the concept.
 
-.Syntax
+#### Syntax
+
 ```
-.Examples
+#### Examples
+
 _MarkedText_
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Gives a number of simple but complete examples to illustrate the concepts and its variations.
 Running examples (using ((Screen))) are preferred.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

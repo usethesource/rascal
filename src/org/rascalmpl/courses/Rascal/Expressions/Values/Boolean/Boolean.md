@@ -3,20 +3,24 @@ title: "Boolean"
 keywords: "true,false"
 ---
 
-.Synopsis
+#### Synopsis
+
 Boolean values.
 
-.Syntax
+#### Syntax
+
 `true`, `false`
 
-.Usage
+#### Usage
 
-.Types
+#### Types
+
 `bool`
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The Booleans are represented by the type `bool` which has two values: `true` and `false`.
 
 The Boolean operators (to be more precise: operators with a value of type Boolean as result) have _short-circuit_ semantics. 
@@ -67,7 +71,8 @@ The following operators are provided for Boolean:
 
 There are also [library functions]((Library:Boolean)) available for Booleans.
 
-.Examples
+#### Examples
+
 Consider the following match of a list
 ```rascal-shell
 [1, *int L, 2, *int M] := [1,2,3,2,4]
@@ -119,7 +124,7 @@ if ([1, *int L, 2, *int M] := [1,2,3,2,4] && size(L) > 0)
   println("L: <L>, M: <M>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

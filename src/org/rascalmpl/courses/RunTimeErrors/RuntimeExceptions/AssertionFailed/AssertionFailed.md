@@ -2,20 +2,23 @@
 title: Assertion Failed
 ---
 
-.Synopsis
+#### Synopsis
+
 An assertion in the Rascal code is false.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
+
 `data RuntimeException = AssertionFailed(str label);`
 
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 An [Assert]((Rascal:Assert)) statement can be used to check assumptions during the execution of a Rascal program.
 This error is generated if an assertion is not true.
 
@@ -26,7 +29,8 @@ Remedies:
 *  Catch the `AssertionFailed` yourself, see [try catch]((Rascal:TryCatch)).
 
 
-.Examples
+#### Examples
+
 A false assertion gives an error:
 ```rascal-shell,error
 assert 3 > 4;
@@ -51,12 +55,12 @@ import IO;
 try println(incrPositive(-3)); catch AssertionFailed(msg): println("incrPositive: <msg>");
 ```
 
-.Benefits
+#### Benefits
 
 * Enables the precise expression of assumptions in your code.
 * Asserts are actually executed when the compiler option 
   `enableAsserts` is set to true (by default set to `false`).
 * In the RascalShell, `enableAsserts` is always true.
 
-.Pitfalls
+#### Pitfalls
 

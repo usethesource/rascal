@@ -2,16 +2,17 @@
 title: Object-Oriented and Imperative Languages
 ---
 
-.Synopsis
+#### Synopsis
+
 Rascal explained for OO and imperative programmers.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Rascal is an imperative domain-specific language (DSL) for meta-programming.
 It provides high level statements and expressions specifically targeted at the domain of analysis and transformation of source code.
@@ -61,9 +62,9 @@ a weakly imperative language. Rascal is, however, closer, to functional language
 
 *  Rascal is executed by an interpreter written in Java, or it can be compiled to Java classes.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

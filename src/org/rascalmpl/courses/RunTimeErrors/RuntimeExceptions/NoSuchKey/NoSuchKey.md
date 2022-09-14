@@ -2,16 +2,20 @@
 title: No Such Key
 ---
 
-.Synopsis
+#### Synopsis
+
 A map does not contain a requested key.
 
-.Types
+#### Types
+
 `data RuntimeException = NoSuchKey(value v);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `NoSuchKey` is used in `catch`)
 
-.Description
+#### Description
+
 Rascal provides many operations and functions on maps, 
 see [map values]((Rascal:Values-Map)) and [map functions]((Library:Map)).
 This error is generated when a function or operation cannot find a requested key value in a map.
@@ -23,7 +27,7 @@ Remedies:
    [ifDefinedElse]((Rascal:Boolean-IfDefinedElse)) operator to guard a lookup in a map.
 *  Catch the `NoSuchKey` yourself, see [try catch]((Rascal:Statements-TryCatch)).
 
-.Examples
+#### Examples
 
 Import the `Map` and `IO` libraries and introduce map `M`:
 ```rascal-shell,error
@@ -51,7 +55,7 @@ import Exception;
 try println(M["c"]); catch NoSuchKey(k): println("Key <k> does not exist");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,31 +3,35 @@ title: "Map Equal"
 keywords: "=="
 ---
 
-.Synopsis
+#### Synopsis
+
 Equality operator on maps.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ == Exp~2~`
 
-.Types
+#### Types
 
 | `Exp~1~`            |  `Exp~2~`             | `Exp~1~ == Exp~2~`  |
 | --- | --- | --- |
 | `map[TK~1~,TV~2~]` |  `map[TK~2~, TV~2~]` | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if both arguments contain the same key/value pairs, and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ("apple": 1, "pear": 2) == ("pear": 2, "apple": 1);
 ("apple": 1, "pear": 2) == ("apple": 1, "banana": 3) 
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

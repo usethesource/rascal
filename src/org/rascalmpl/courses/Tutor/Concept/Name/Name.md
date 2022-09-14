@@ -2,12 +2,16 @@
 title: Name
 ---
 
-.Synopsis
+#### Synopsis
+
 The display (presentation) name of a concept.
 
-.Syntax
+#### Syntax
+
 ```
-# _ConceptName_
+---
+title: _ConceptName_
+---
 ```
 
 .Types

@@ -3,16 +3,17 @@ title: Rascal Concepts
 details: StaticTyping,Datatypes,ImmutableValues,Enumerating,Comprehensions,PatternMatching,ControlStructures,CaseDistinction,Visiting,Enumerators,Functions,SyntaxDefinitionAndParsing,Rewriting,IDEConstruction,CodeModels,EquationSolving
 ---
 
-.Synopsis
+#### Synopsis
+
 Gentle introduction to the main concepts of the Rascal language.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Rascal is based on a dozen concepts and having a global understanding of them will help to grasp the language more quickly.
 Here we will informally explain and illustrate these concepts and often we will refer to the [Rascal Language Reference]((Rascal))
@@ -29,9 +30,9 @@ Most language concepts are described separately but some features we just mentio
 Here are the concepts to be discussed:
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,18 +2,20 @@
 title: Runtime
 ---
 
-.Synopsis
+#### Synopsis
+
 The runtime representation of Lisp programs and data.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 There are several aspects of the runtime representation of Lisp programs and Lisp data
 that have to be described:
 
@@ -49,9 +51,9 @@ include::{LibDir}demo/lang/Lisra/Runtime.rsc[tags=module]
     Each step during interpretation will thus return the value it computed and
     a possibly modified environment.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

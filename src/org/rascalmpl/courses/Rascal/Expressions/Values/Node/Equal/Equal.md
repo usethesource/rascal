@@ -3,32 +3,36 @@ title: "Node Equal"
 keywords: "=="
 ---
 
-.Synopsis
+#### Synopsis
+
 Equal operator on node values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ == Exp~2~`
 
-.Types
+#### Types
 
 | `Exp~1~`  |  `Exp~2~` | `Exp~1~ == Exp~2~`  |
 | --- | --- | --- |
 | `node`     |  `node`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the node names of the values of _Exp_~1~ and _Exp_~2~ are equal and
 the children of each node are pairwise equal, otherwise `false`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 "f"(1, "abc", true) == "f"(1, "abc", true);
 "f"(1, "abc", true) == "f"(1, "def", true);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

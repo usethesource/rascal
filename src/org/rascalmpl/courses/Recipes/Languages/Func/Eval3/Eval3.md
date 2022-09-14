@@ -2,16 +2,17 @@
 title: Eval3
 ---
 
-.Synopsis
+#### Synopsis
+
 A complete Func interpreter including support for the address and dereference operators.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Interpreter Eval3 supports the following features of Func: 
 
@@ -36,7 +37,8 @@ Interpreter Eval3 supports the following features of Func:
 
 The main additions are the address and dereference operators.
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/lang/Func/Eval3.rsc[tags=module]
 ```
@@ -59,7 +61,7 @@ eval3("fact", [10], load(F3));
 
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

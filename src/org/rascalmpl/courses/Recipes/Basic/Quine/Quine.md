@@ -2,16 +2,18 @@
 title: Quine
 ---
 
-.Synopsis
+#### Synopsis
+
 A self-reproducing program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A http://en.wikipedia.org/wiki/Quine_(computing)[quine]
 is a computer program that takes no input and produces a copy of its own source code.
 A quine is also called a _self-replicating_ or _self-reproducing_ program.
@@ -22,7 +24,7 @@ quines in many different programming languages.
 Learning about quines, is about learning how to quote and escape symbols in strings.
 
 
-.Examples
+#### Examples
 
 ```rascal
 include::{LibDir}demo/basic/Quine.rsc[]
@@ -73,7 +75,7 @@ quine();
 If you follow this output line-by-line you will see that it
 is identical to the original source code of module `Quine`.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

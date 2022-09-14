@@ -2,22 +2,24 @@
 title: Literal Pattern
 ---
 
-.Synopsis
+#### Synopsis
+
 Literal in abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A literal of one of the basic types ((Values-Boolean)), ((Values-Integer)), ((Values-Real)), ((Values-Number)), ((Values-String)), ((Values-Location)), or ((Values-DateTime))
 can be used as abstract pattern.
 A literal pattern matches with a value that is identical to the literal.
 
-.Examples
+#### Examples
+
 A literal pattern matches with a value that is equal to it:
 ```rascal-shell
 123 := 123
@@ -42,7 +44,7 @@ x = 123;
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

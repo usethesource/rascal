@@ -2,10 +2,11 @@
 title: Syntax Definition and Parsing
 ---
 
-.Synopsis
+#### Synopsis
+
 Syntax definition and parser generation for new languages.
 
-.Description
+#### Description
 
 All source code analysis projects need to extract information directly from the source code. 
 There are two main approaches to this:
@@ -25,7 +26,8 @@ Using [Syntax Definitions]((Rascal:Declarations-SyntaxDefinition)) you can defin
    see [Abstract Patterns]((Rascal:Patterns-Node)) and    
   [Concrete Patterns]((Rascal:Patterns-Concrete)).
 
-.Examples
+#### Examples
+
 Let's use the Exp language as example. It contains the following elements:
 
 *  Integer constants, e.g., `123`.
@@ -72,6 +74,6 @@ See [Recipes]((Recipes)) for a more extensive presentation of the
 [EXP]((Recipes:Languages-Exp))
 language and [Languages]((Recipes:Recipes-Languages)) for other language examples.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls

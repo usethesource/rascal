@@ -2,18 +2,19 @@
 title: Code Models
 ---
 
-.Synopsis
+#### Synopsis
+
 Code models are abstract representations of source code
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 You can use any of Rascal's [Values]((Rascal:Expressions-Values)) to represent facts about source code. 
 For example, [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) can be used to define 
@@ -35,9 +36,9 @@ Extensions for representing facts about specific languages:
 
 * [lang::java::m3]((Library:java::m3)).
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,13 +3,15 @@ title: "Tuple NotEqual"
 keywords: "!="
 ---
 
-.Synopsis
+#### Synopsis
+
 Not equal operator on tuple values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ != Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`                      |  `Exp~2~`                      | `Exp~1~ != Exp~2~`  |
@@ -17,18 +19,20 @@ Not equal operator on tuple values.
 | `tuple[ T~11~, T~12~, ... ]` |  `tuple[ T~21~, T~22~, ... ]` | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if both tuples are not identical and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 <1, "abc", true> != <1, "abc">;
 <1, "abc", true> != <1, "abc", true>;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

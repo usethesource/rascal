@@ -3,33 +3,37 @@ title: "Map SubMap"
 keywords: "<="
 ---
 
-.Synopsis
+#### Synopsis
+
 Submap operator on map values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ <= Exp~2~`
 
-.Types
+#### Types
 
 | `Exp~1~`            |  `Exp~2~`             | `Exp~1~ <= Exp~2~`  |
 | --- | --- | --- |
 | `map[TK~1~,TV~2~]` |  `map[TK~2~, TV~2~]` | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if all key/value pairs in the map value of _Exp_~1~ occur in the map value _Exp_~2~
 or the values of _Exp_~1~ and _Exp_~2~ are equal, and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ("apple": 1, "pear": 2) <= ("pear": 2, "apple": 1);
 ("apple": 1, "pear": 2) <= ("pear": 2, "apple": 1, "banana" : 3);
 ("apple": 1, "pear": 2) <= ("apple": 1, "banana" : 3);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

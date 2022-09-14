@@ -2,18 +2,20 @@
 title: Refactoring
 ---
 
-.Synopsis
+#### Synopsis
+
 Restructuring source code to improve its internal structure without changing its external behaviour.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Refactoring was popularized by [Martin Fowler](http://martinfowler.com/refactoring/) and aims at improving source code quality.
 The basic philosophy is to identify small, atomic, refactoring steps that improve the internal structure
 of the code but do not change its external behaviour.
@@ -26,14 +28,15 @@ The major Interactive Development Environements --
 [Visual Studio](http://www.microsoft.com/visualstudio/en-us) --
 provide interactive support for refactoring.
 
-.Examples
+#### Examples
+
 Some well-known refactorings are:
 
 *  [Rename Method](http://martinfowler.com/refactoring/catalog/renameMethod.html)
 *  [Encapsulate Field](http://martinfowler.com/refactoring/catalog/encapsulateField.html)
 *  [Extract Methods](http://martinfowler.com/refactoring/catalog/extractMethod.html)
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,24 +2,27 @@
 title: Italic
 ---
 
-.Synopsis
+#### Synopsis
+
 Create _italic_ text.
 
-.Syntax
+#### Syntax
+
 ```
 _ _Text_ _
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 `\italic` gives: _italic_.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

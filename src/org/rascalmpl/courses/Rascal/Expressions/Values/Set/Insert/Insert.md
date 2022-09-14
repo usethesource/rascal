@@ -3,13 +3,15 @@ title: "Set Insert"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 Add an element to a set.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ + Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`    |  `Exp~2~`    | `Exp~1~ + Exp~2~`       |
@@ -18,13 +20,14 @@ Add an element to a set.
 | `T~1~`      |  `set[T~2~]` | `set[lub(T~1~,T~2~)]`   |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The `+` operator will add elements to sets.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 {1, 2, 3} + 4;
 1 + { 2, 3, 4};
@@ -32,9 +35,9 @@ The `+` operator will add elements to sets.
 1 + {1};
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 *  if both operands of `+` are a set then it acts as ((Set-Union)).
 

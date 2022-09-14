@@ -2,24 +2,25 @@
 title: Callout
 ---
 
-.Synopsis
+#### Synopsis
+
 Create a numeric callout for the digits 1--9.
 
-.Syntax
+#### Syntax
 
 ```
 < _Digit_ >
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Callouts are used to attach numeric labels to a source code ((Listing)) for later discussion in the text.
 
-.Examples
+#### Examples
 
 ``````
 ```
@@ -40,8 +41,9 @@ will give:
 
 <1> refers to the callout.
 
-.Benefits
+#### Benefits
+
 Callout are most usefull to place markers in code fragments for later reference in explanatory text.
 
-.Pitfalls
+#### Pitfalls
 

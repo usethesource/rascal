@@ -2,21 +2,24 @@
 title: Parse
 ---
 
-.Synopsis
+#### Synopsis
+
 Parse a Func program from a string or a file.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Parsing uses the syntax rules for a given start non-terminnal to parse a string and turn it into a parse tree.
 The work horse is the [parse]((Library:ParseTree-parse)) function that is available in the 
 [ParseTree]((Library:ParseTree)) library.
 
-.Examples
+#### Examples
+
 Here is how to parse Func programs from a string or file:
 ```rascal
 include::{LibDir}demo/lang/Func/Parse.rsc[tags=module]
@@ -41,7 +44,7 @@ See [$Rascal:Expressions/Values/Location] for further details on other schemes.
 parse(|std:///demo/lang/Func/programs/F0.func|);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

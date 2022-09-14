@@ -3,13 +3,15 @@ title: "Boolean IfDefinedElse"
 keywords: "?"
 ---
 
-.Synopsis
+#### Synopsis
+
 Test whether expression has a defined value, otherwise provide alternative.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ ? Exp~2~`
 
-.Types
+#### Types
 
 //
 
@@ -18,15 +20,17 @@ Test whether expression has a defined value, otherwise provide alternative.
 | `T~1~`   | `T~2~`   |  `T~2~ <: T~1~`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 If no exception is generated during the evaluation of _Exp_~1~, the result of `Exp~1~ ? Exp~2~` is the value of _Exp_~1~.
 Otherwise, it is the value of _Exp_~2~.
 
 Also see ((Boolean-IsDefined)) and ((Assignment)).
 
-.Examples
+#### Examples
+
 This test can, for instance, be used to handle the case that a certain key value is not in a map:
 ```rascal-shell,error
 T = ("a" : 1, "b" : 2);
@@ -50,7 +54,7 @@ L[4] ? 0;
 ```
 It is, however, not possible to assign to index positions outside the list.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

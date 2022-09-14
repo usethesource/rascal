@@ -3,12 +3,13 @@ title: "Set Splice"
 keywords: "*"
 ---
 
-.Synopsis
+#### Synopsis
+
 Splice the elements of a set in an enclosing set.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
 
 |`Exp` | `Exp~1~`|  `Exp~n~` | `{Exp~1~, ..., Exp, ..., Exp~n~}`  |
@@ -16,14 +17,15 @@ Splice the elements of a set in an enclosing set.
 |`T`   | `T~1~`  |  `T~n~`   | `set[lub(T~1~, ..., T, ...,T~n~)]`     |
 
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 The operator `*` splices the elements of a set in an enclosing set.
 
-.Examples
+#### Examples
 
 Consider the following set in which the set `{10, 20, 30}` occurs as set element. It has as type `set[value]`:
 ```rascal-shell,continue
@@ -39,7 +41,7 @@ S = {10, 20, 30};
 {1, 2, *S, 3, 4};
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

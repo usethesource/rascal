@@ -2,21 +2,24 @@
 title: ParseTree
 ---
 
-.Synopsis
+#### Synopsis
+
 Visualize a parse tree.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A parse tree is a (usually large) internal representation of  a parsed text.
 In the rare situation that it is necessary to read or inspect a parse tree,
 a visualization can be useful.
 
-.Examples
+#### Examples
+
 We embark on visualizing parse trees for the language Exp:
 ```rascal-shell
 import demo::lang::Exp::Concrete::WithLayout::Syntax;
@@ -45,11 +48,11 @@ The figure is interactive (not available here):
 *  Little circles represent non-terminals: hovering over them shows the corresponding grammar rule.
 *  Little grey rectangles represent layout: hovering over them also shows the corresponding lexical rule.
 
-.Benefits
+#### Benefits
 
 *  A dense, structured, representation of a parse tree that provides extra information via interaction.
 
-.Pitfalls
+#### Pitfalls
 
 *  This visualization does not scale to huge trees.
 

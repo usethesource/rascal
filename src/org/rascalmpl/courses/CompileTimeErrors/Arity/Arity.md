@@ -2,24 +2,27 @@
 title: Arity
 ---
 
-.Synopsis
+#### Synopsis
+
 The number of arguments of an operator differ from what is required.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Various operators like [composition]((Rascal:Relation-Composition)), 
 [transitive closure]((Rascal:Relation-TransitiveClosure)) and 
 [reflexive transitive closure]((Rascal:Relation-ReflexiveTransitiveClosure)) 
 expect binary relations or tuples as arguments.
 
-.Examples
+#### Examples
+
 This composition is correct:
 ```rascal-shell
 {<1,10>, <2,20>} o {<10,100>, <20, 200>};
@@ -39,7 +42,7 @@ But these are incorrect:
 {<1,2,3>, <2,3,4>,<4,5,6>}+
 {<1,2,3>, <2,3,4>,<4,5,6>}*
 ```
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,13 +3,14 @@ title: "Switch"
 keywords: "switch,case,default"
 ---
 
-.Synopsis
+#### Synopsis
 
 The switch statement is a control flow statement
 where the next block is selected by pattern matching
 against a number of `case` patterns. 
 
-.Syntax
+#### Syntax
+
 ```rascal
 switch ( _Exp_ ) {
 case _PatternWithAction~1~_;
@@ -19,11 +20,11 @@ default: ...
 }
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A switch statement is similar to a switch statement in C or Java.
 The value of the expression _Exp_ is the subject term that will be matched by the successive 
@@ -32,7 +33,8 @@ the subject term and does not traverse it. The type of the pattern in each case 
 the subject term (or be a supertype of it). If no case matches, the switch acts as a dummy statement.
 There is no fall through from one case to the next.
 
-.Examples
+#### Examples
+
 Suppose we want to naively analyze a sentence and print the topic it is about:
 ```rascal-shell
 import IO;
@@ -45,8 +47,9 @@ switch(S){
 ```
 From the printed message you can infer that the cases are tried in the order in which they occur.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 The switch statement does not yet return a value, this will be changed.
 

@@ -3,13 +3,15 @@ title: "Tuple"
 keywords: "<,>"
 ---
 
-.Synopsis
+#### Synopsis
+
 Tuple values.
 
-.Syntax
+#### Syntax
+
 `< Exp~1~, Exp~2~, ... >`
 
-.Types
+#### Types
 
 
 | `Exp~1~`  | `Exp~2~`  |  ...  | `< Exp~1~, Exp~2~, ... >`  |
@@ -17,9 +19,10 @@ Tuple values.
 | `T~1~`    |  T~2~     | ...   | `tuple[T~1~, T~2~, ... ]`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A tuple is a sequence of elements with the following properties:
 
 *  Each element in a tuple (may) have a different type.
@@ -35,14 +38,15 @@ where _T_~1~, _T_~2~, ... are arbitrary types and _L_~1~, _L_~2~, ... are option
 The following operators are provided for tuples:
 (((TOC)))
 
-.Examples
+#### Examples
+
 ```rascal-shell
 tuple[str first, str last, int age] P = <"Jo","Jones",35>;
 P.first;
 P.first = "Bo";
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

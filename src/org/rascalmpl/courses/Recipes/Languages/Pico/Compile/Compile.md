@@ -2,20 +2,21 @@
 title: Compile
 ---
 
-.Synopsis
+#### Synopsis
+
 Compile a Pico program to assembly language.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 The Pico compiler translates Pico programs to ((Pico-Assembly)) language programs.
 
@@ -73,7 +74,7 @@ compileProgram("begin declare input : natural,
                'end");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

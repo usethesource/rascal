@@ -2,17 +2,19 @@
 title: Eval1
 ---
 
-.Synopsis
+#### Synopsis
+
 Like Eval0 but with support for let-expressions.
 
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Interpreter Eval1 supports the following features of Func: 
 
 
@@ -37,7 +39,8 @@ Interpreter Eval1 supports the following features of Func:
 In particular, the let construct is supported and this requires the addition
 of an extra environment for <name, value> bindings.
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/lang/Func/Eval1.rsc[tags=module]
 ```
@@ -62,7 +65,7 @@ import demo::lang::Func::programs::F1;
 eval1("fact", [10], load(F1));
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

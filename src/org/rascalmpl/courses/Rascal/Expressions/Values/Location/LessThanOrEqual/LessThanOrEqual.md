@@ -3,13 +3,15 @@ title: "Location LessThanOrEqual"
 keywords: "<="
 ---
 
-.Synopsis
+#### Synopsis
+
 The less than or equal operator on location values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ <= Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~` | `Exp~2~` | `Exp~1~ <= Exp~2~`  |
@@ -17,15 +19,16 @@ The less than or equal operator on location values.
 | `loc`     |  `loc`    | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the location value of _Exp_~1~ is textually contained
 in the location value of _Exp_~2~, and `false` otherwise.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

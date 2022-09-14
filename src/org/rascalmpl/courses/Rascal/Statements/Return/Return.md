@@ -3,19 +3,21 @@ title: "Return"
 keywords: "return"
 ---
 
-.Synopsis
+#### Synopsis
+
 Return a value as result of a [Function].
 
-.Syntax
+#### Syntax
 
 *  `return;`
 *  `return Exp`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A return statement comes in two variants: without and with an expression,
 both variants end the execution of the current function. 
 The first variant applies to functions with `void` as return type. 
@@ -31,7 +33,8 @@ The following rules apply:
 
 In each function with a return type that is void, a return statement is implicitly assumed at the end of each execution path through the function body.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 int twice(int n) { return 2 * n; }
 twice(5);
@@ -42,7 +45,7 @@ int twiceb(int n) = 2 * n;
 twiceb(5);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

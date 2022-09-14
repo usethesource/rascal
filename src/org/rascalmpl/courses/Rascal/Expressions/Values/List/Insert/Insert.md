@@ -3,12 +3,13 @@ title: "List Insert"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 add an element in front of a list
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
 //
 
@@ -17,13 +18,13 @@ add an element in front of a list
 | `T~1~`       |  `list[T~2~]` | `list[lub(T~1~,T~2~)]`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The `+` operator can insert an element in front of a list. Note that `+` is one of the ((Operators)) that is overloaded, it is also ((List-Concatenation)) and ((List-Append)) for example.
 
-.Examples
+#### Examples
 
 ```rascal-shell
 1 + []
@@ -31,9 +32,9 @@ The `+` operator can insert an element in front of a list. Note that `+` is one 
 1 + [2,3]
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 *  If the first operand before the `+` is a list, `+` acts as ((List-Concatenation)) and not as ((List-Insert))
 

@@ -3,13 +3,15 @@ title: "Tuple Concatenation"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 Concatenate two tuple values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ + Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`                      |  `Exp2_`                      | `Exp~1~ > Exp2_`                                 |
@@ -17,17 +19,19 @@ Concatenate two tuple values.
 | `tuple[ T~11~, T~12~, ... ]` |  `tuple[ T~21~, T~22~, ... ]` | `tuple[ T~11~, T~12~, ..., T~21~, T~22~, ... ]` |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Returns a tuple consisting of the concatenation of the tuple elements of _Exp_~1~ and _Exp_~2~.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 <"abc", 1, 2.5> + <true, "def">;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

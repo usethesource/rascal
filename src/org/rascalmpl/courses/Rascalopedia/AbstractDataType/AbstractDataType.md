@@ -2,18 +2,20 @@
 title: AbstractDataType
 ---
 
-.Synopsis
+#### Synopsis
+
 A definition of a data type.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 An [Abstract Data Type](http://en.wikipedia.org/wiki/Abstract_data_type) is a mathematical description of a structure
 that can be implemented in various ways. For instance, a stack data type can be characterized by `empty` (the empty stack),
 two functions `push` and `pop` and axioms that define them. At the implementation level, a stack
@@ -25,7 +27,7 @@ are used to define new data types. Well-known examples are http://en.wikipedia.o
 See [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) and 
 [Constructors]((Rascal:Values-Constructor)) in the [Rascal Language Reference]((Rascal)).
 
-.Examples
+#### Examples
 
 ## Abstract Data Types in Daily Life
 
@@ -55,7 +57,7 @@ See [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) and
 data MyTree = leaf(int n) | tree(str name, MyTree left, MyTree right);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

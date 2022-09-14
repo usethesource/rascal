@@ -3,13 +3,15 @@ title: "Map Intersection"
 keywords: "&"
 ---
 
-.Synopsis
+#### Synopsis
+
 Intersection of two maps.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ & Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`    |  `Exp~2~`      | `Exp~1~ & Exp~2~`      |
@@ -17,19 +19,21 @@ Intersection of two maps.
 | `map[T~1~1, T12]` |  `set[T~2~]`   | `set[lub(T~1~,T~2~)]`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Returns the intersection of the two map values of _Exp_~1~ and _Exp_~2~, i.e., a map that contains the key/value pairs that
 occur in both maps.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ("apple": 1, "pear": 2) & ("banana": 3, "apple": 1);
 ("apple": 1, "pear": 2) & ("banana": 3, "apple": 4);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

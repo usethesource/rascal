@@ -3,10 +3,11 @@ title: "Getting Started with Rascal"
 keywords: "help"
 ---
 
-.Synopsis
+#### Synopsis
+
 First steps using Rascal
 
-.Description
+#### Description
 
 You can start using Rascal by following these steps:
 

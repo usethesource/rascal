@@ -2,16 +2,17 @@
 title: Eval0
 ---
 
-.Synopsis
+#### Synopsis
+
 A Func interpreter that does not support let-expressions and pointers.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Interpreter Eval0 supports the following features of Func:
 
@@ -32,7 +33,7 @@ Interpreter Eval0 supports the following features of Func:
 | dereference operator |
 
 
-.Examples
+#### Examples
 
 Here is the code for Eval0:
 ```rascal
@@ -66,7 +67,7 @@ import demo::lang::Func::programs::F0;
 eval0("fact", [10], load(F0));
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

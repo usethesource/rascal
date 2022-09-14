@@ -3,13 +3,15 @@ title: "Boolean Or"
 keywords: "||"
 ---
 
-.Synopsis
+#### Synopsis
+
 The _or_ operator on Boolean values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ || Exp~2~`
 
-.Types
+#### Types
 
 //
 
@@ -18,9 +20,10 @@ The _or_ operator on Boolean values.
 | `bool`    | `bool`     | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The _or_ operator on Boolean values defined as follows:
 
 | `Exp~1~` | `Exp~2~`  | `Exp~1~ \|\| Exp~2~`  |
@@ -37,7 +40,8 @@ Note that `||` will backtrack over its argument expressions until it can find an
 
 Variable assignments as a result of matching or generator expressions under a `||` are visible outside the context of the operator, but only if the context is conditional, such as an if-then-else or a for loop. Note that it is statically required that both sides of an `||` introduce the same variable names of the same type.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import IO;
 false || true;
@@ -46,7 +50,7 @@ for ((i <- [1,2,3,4] && i % 2 == 0) || false)
   println("true for <i>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

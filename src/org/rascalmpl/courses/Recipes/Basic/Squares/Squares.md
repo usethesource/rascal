@@ -2,18 +2,20 @@
 title: Squares
 ---
 
-.Synopsis
+#### Synopsis
+
 Print a list of squares
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 How can we print a list of squares? Here is a solution:
 ```rascal
 include::{LibDir}demo/basic/Squares.rsc[tags=module]
@@ -48,7 +50,7 @@ println(squaresTemplate(9));
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

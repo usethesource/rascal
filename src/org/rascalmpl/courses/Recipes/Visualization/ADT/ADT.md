@@ -2,16 +2,18 @@
 title: ADT
 ---
 
-.Synopsis
+#### Synopsis
+
 Visualize an Algebraic Datatype as a tree.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 In ((ColoredTrees)) we have discussed the Algebraic Data Type `ColoredTree`.
 Here we show how to create a visualization for them. The global approach is:
 
@@ -19,7 +21,8 @@ Here we show how to create a visualization for them. The global approach is:
   creates a `Figure` for it.
 *  Display the resulting figure using [$Rascal:Render/render].
 
-.Examples
+#### Examples
+
 Here is our solution:
 ```rascal
 include::{LibDir}demo/vis/VisADT.rsc[tags=module]
@@ -72,7 +75,7 @@ the result is:
 ![]((a3.png))
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,24 +2,28 @@
 title: ExternalURL
 ---
 
-.Synopsis
+#### Synopsis
+
 Refer to an external URL.
 
-.Syntax
+#### Syntax
+
 * `URL`
 * `URL[MarkedText]`
 
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Creates a link to an external url _URL_.
 When _MarkedText_ is present, a clickable hyperlink is included with the text _Name_.
 Otherwise _URL_ itself is included as clickable hyperlink.
 
-.Examples
+#### Examples
+
 ```
 http://www.rascal-mpl.org
 ```
@@ -29,7 +33,7 @@ gives http://www.rascal-mpl.org and
 ```
 gives [Rascal](http://www.rascal-mpl.org). Try it!
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

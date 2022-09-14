@@ -2,18 +2,20 @@
 title: UndeclaredFunction
 ---
 
-.Synopsis
+#### Synopsis
+
 A function is called that has not been declared.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 All functions, constructors and variables have to be declared before they can be used.
 This error is generated when this rule is violated.
 
@@ -27,7 +29,8 @@ Remedies for variables:
 
 *  Declare the variable.
 
-.Examples
+#### Examples
+
 Calling the undeclared function `triple` gives an error:
 ```rascal-shell,error
 triple(5)
@@ -68,7 +71,7 @@ int n = 3;
 n + 1;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

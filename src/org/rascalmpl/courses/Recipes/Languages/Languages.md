@@ -2,16 +2,17 @@
 title: Languages
 ---
 
-.Synopsis
+#### Synopsis
+
 Definitions of several languages and their tools.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Examples of several languages and the implementation of tools like interpreters and compilers:
 (((TOC)))
@@ -22,9 +23,9 @@ Other languages that we are considering (but are not yet described):
 *  MissGrant: a state machine language.
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

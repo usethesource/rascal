@@ -3,19 +3,21 @@ title: "Pattern With Action"
 keywords: "=>,:"
 ---
 
-.Synopsis
+#### Synopsis
+
 A pattern with an associated action that is executed on a successful match.
 
-.Syntax
+#### Syntax
 
 *  `Pattern => Exp`
 *  `Pattern: Statement`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Patterns can be used in various contexts, but a common context is a PatternWithAction, 
 which in its turn, may be used in various statements such ((Switch)) and ((Expressions-Visit)).
 
@@ -38,7 +40,8 @@ The form `Pattern : Statement` is as described for switch statements, with the a
 ((Statements-Insert)) statement will replace the current subtree. After both success or failure of the PatternWithAction, 
 the traversal of the subject continues.
 
-.Examples
+#### Examples
+
 Two examples of variant 1 (replacement):
 ```rascal
 case red(CTree l, CTree r) => red(r,l)
@@ -55,7 +58,7 @@ The action may also be a ((Block)):
 case red(_,_): { c = c + 1; println("c = <c>"); }
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

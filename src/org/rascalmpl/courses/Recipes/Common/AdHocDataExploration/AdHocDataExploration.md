@@ -2,16 +2,18 @@
 title: Ad Hoc Data Exploration
 ---
 
-.Synopsis
+#### Synopsis
+
 Using Rascal to explore an interesting data space.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The problem we will look at comes from mathematics, and has a precise analytical solution, but
 let's use Rascal to explore the state space, and see how it can help us to build intuition.
 
@@ -398,9 +400,9 @@ And we're done.  But what did we learn here?  Here's what I think:
 
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

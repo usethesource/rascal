@@ -2,18 +2,19 @@
 title: Pico
 ---
 
-.Synopsis
+#### Synopsis
+
 The classical toy language, including a specialized IDE.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 Pico is a toy language that has been used as example over the years in many projects and disguishes,
 Pico has a single purpose in life: being so simple that specifications of every possible language aspect are so simple that they fit on a few pages. It can be summarized as follows:
@@ -37,7 +38,8 @@ The following aspects of the Pico language will be discussed:
 
 (((TOC)))
 
-.Examples
+#### Examples
+
 Here is a -- not so simple -- Pico program that computes the factorial function:
 
 
@@ -67,7 +69,7 @@ Notes:
 
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

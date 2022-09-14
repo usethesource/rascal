@@ -2,21 +2,23 @@
 title: Image
 ---
 
-.Synopsis
+#### Synopsis
+
 Include an image.
 
-.Syntax
+#### Syntax
 
 ```
 image::_File_[]
 image::_File_[_AlternateName_, _Width_, _Height_, link=_URI_]
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Describes an image to be included:
 
 * _File_ is the name of the image file.
@@ -27,7 +29,8 @@ Describes an image to be included:
 
 For further styling of images, see http://asciidoctor.org/docs/user-manual/#images.
 
-.Examples
+#### Examples
+
 ##  Example 1 
 ```
 ![]((dandelion.jpg))
@@ -57,7 +60,7 @@ produces a clickable image that links back to the source of the image.
 
 Try it!
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

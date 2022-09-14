@@ -6,7 +6,7 @@ keywords: "[,],##,Syntax,*,`Exp0_,[,Exp~1~,,Exp~2~,,...,Exp~n~]`,*,`Exp0_,[,Exp~
 ## Synopsis
 Indexing of a relation via tuple values.
 
-.Types
+#### Types
 
 ### Single Value Variant 1
 
@@ -42,7 +42,8 @@ Subscription with a set of the index values of _Exp_~1~.
 The result is a relation with all tuples that have these index values as first element
 with the index values removed from the tuple. 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 R = {<1,10>, <2,20>, <1,11>, <3,30>, <2,21>};
 R[1];

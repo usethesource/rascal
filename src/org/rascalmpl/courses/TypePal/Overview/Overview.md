@@ -2,10 +2,11 @@
 title: Overview
 ---
 
-.Synopsis
+#### Synopsis
+
 An overview of TypePal
 
-.Description
+#### Description
 
 TypePal is a declarative framework that operates on a model of the program to be type checked that consisting of 
 

@@ -3,17 +3,20 @@ title: "Type Parameters"
 keywords: "&"
 ---
 
-.Synopsis
+#### Synopsis
+
 Type parameters enable parameterized types.
 
-.Syntax
+#### Syntax
+
 `& Name`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A type parameter may occur at every syntactic position where a type is required and turns an ordinary type into a parameterized type.
 Parameterized types are used to define polymorphic functions and data types, i.e., functions and data types that are applicable for more than one type. Type parameters are bound to an actual type when the function or data type is applied and further uses of the type parameter are consistently replaced by the actual type.
 
@@ -32,7 +35,8 @@ All other occurrences of type parameters are _using occurrences_. The following 
 
 *  For every using occurrence of a type parameter there should be a binding occurrence of a type parameter with the same name.
 
-.Examples
+#### Examples
+
 Let\'s consider a small example of the use of function parameters in a function declaration, see ((Function Declaration))
 for more details on function declarations.
 The following function `swap` returns a tuple in which its arguments are swapped and can be applied to arbitrary values 
@@ -53,7 +57,7 @@ Graph[str] GS = {<"a", "b">, <"c","d">, <"d", "a">};
 The type parameters that are used in the type in the right part of the alias declaration 
 should be defined in the left part of the alias definition.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

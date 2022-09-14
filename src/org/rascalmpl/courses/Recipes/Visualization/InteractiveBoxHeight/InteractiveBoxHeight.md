@@ -2,21 +2,23 @@
 title: Interactive Box Height
 ---
 
-.Synopsis
+#### Synopsis
+
 Control the height of a box with user input.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 *  A text entry field to enter numbers.
 *  A box, whose height is controlled by the numer entered in the text field.
 
-.Examples
+#### Examples
+
 Here is a solution:
 ```rascal
 include::{LibDir}demo/vis/Higher.rsc[tags=module]
@@ -53,7 +55,7 @@ gives
 
 Unfortunately we cannot show the interaction here, so run this example from the `demo` directory and watch how the height of the box changes when you enter a new number in the text field.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

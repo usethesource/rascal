@@ -2,26 +2,29 @@
 title: Value
 ---
 
-.Synopsis
+#### Synopsis
+
 Values of type `value`.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
+
 `value`
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Value stands for all possible Rascal values and is represented by the type `value`.
 This type is a container for all other types and does not have any values itself.
 
 The following operators are provided for values:
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

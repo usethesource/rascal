@@ -2,18 +2,19 @@
 title: ModuleImport
 ---
 
-.Synopsis
+#### Synopsis
+
 A Rascal module could not be imported.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 Rascal programs are split up in modules.
 An [import]((Rascal:Declarations-Import)) declaration is used to include one module in another.
@@ -32,7 +33,8 @@ right click on it and then select `Run as Rascal Application`.
 
 *  At the command line, change directory to where the toplevel module of your program is located and then execute the Rascal Shell.
 
-.Examples
+#### Examples
+
 Here is a correct import of the library module `List`:
 ```rascal-shell
 import List;
@@ -42,7 +44,7 @@ Here is the effect of a misspelled module name (assuming that you do not have a 
 import Lis;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

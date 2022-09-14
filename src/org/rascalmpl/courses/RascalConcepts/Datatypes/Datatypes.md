@@ -2,16 +2,17 @@
 title: Datatypes
 ---
 
-.Synopsis
+#### Synopsis
+
 Built-in and user-defined datatypes.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Rascal provides a rich set of datatypes:
 
@@ -48,7 +49,8 @@ These built-in datatypes are closely related to each other:
 *  A map is an associative table of (key, value) pairs. Key and value (may) have different static 
   type and a key can only be associated with a value once.
 
-.Examples
+#### Examples
+
 Here are some examples of the built-in data types:
 | _Type_                    | _Examples_ |
 | --- | --- |
@@ -93,7 +95,7 @@ $2101-09-05$;
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

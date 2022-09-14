@@ -2,27 +2,29 @@
 title: Assembly
 ---
 
-.Synopsis
+#### Synopsis
+
 Assembly language for Pico.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 The ((Pico-Compile))r will translate Pico programs into the following assembly language.
 ```rascal
 include::{LibDir}demo/lang/Pico/Assembly.rsc[tags=module]
 ```
 
                 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

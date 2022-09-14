@@ -3,30 +3,33 @@ title: "Real"
 keywords: "real"
 ---
 
-.Synopsis
+#### Synopsis
+
 Real values.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
+
 `real`
 
-.Usage
+#### Usage
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The real values are represented by the type `real` and are written as usual in most programming languages.
 They can have _arbitrary size and precision_.
 
 See ((Values-Number)) for all operations on integers, reals and numbers.
 
-.Examples
+#### Examples
 
 *  1.5
 *  3.14e-123
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

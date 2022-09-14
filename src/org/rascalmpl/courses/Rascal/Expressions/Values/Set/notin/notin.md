@@ -3,13 +3,15 @@ title: "Set notin"
 keywords: "notin"
 ---
 
-.Synopsis
+#### Synopsis
+
 Negated membership test on set values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ notin Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`           |  `Exp~2~`    | `Exp~1~ notin Exp~2~`  |
@@ -17,18 +19,20 @@ Negated membership test on set values.
 | `T~1~`  <: `T~2~` |  `set[T~2~]` | `bool`                   |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if the value of Exp~1~ does not occur as element in the value of Exp~2~ and `false` otherwise. The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 4 notin {1, 2, 3};
 4 notin {1, 2, 3, 4};
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

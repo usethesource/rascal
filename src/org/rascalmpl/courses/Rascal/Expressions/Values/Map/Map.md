@@ -3,13 +3,15 @@ title: "Map"
 keywords: "(,:,)"
 ---
 
-.Synopsis
+#### Synopsis
+
 Map values.
 
-.Syntax
+#### Syntax
+
 `( KeyExp~1~ : ValExp~1~, KeyExp~2~ : ValExp~2~, ... )`
 
-.Types
+#### Types
 
 
 | `KeyExp~1~` | `ValExp~1~` | `KeyExp~2~` | `ValExp~2~` | ... | `( KeyExp~1~ : ValExp~1~, KeyExp~2~ : ValExp~2~, ... )`   |
@@ -17,11 +19,12 @@ Map values.
 | `TK~1~`     |  `TV~1~`    |  `TK~2~`    | `TV~2~`     | ... | `map[lub(TK~1~, TK~2~, ... ) , lub(TV~1~, TV~2~, ... )]`  |
 
 
-.Usage
+#### Usage
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A map is a set of key/value pairs and has the following properties:
 
 *  Key and value may have different static types.
@@ -35,12 +38,13 @@ The following functions are provided for maps:
 
 (((TOC)))
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ("pear" : 1, "apple" : 3, "banana" : 0);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

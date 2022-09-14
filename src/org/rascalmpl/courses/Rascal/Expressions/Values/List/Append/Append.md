@@ -3,12 +3,13 @@ title: "List Append"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 Append an element at the end of a list
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
 //
 
@@ -17,13 +18,13 @@ Append an element at the end of a list
 | `list[T~1~]` |  `T~2~`       | `list[lub(T~1~,T~2~)]`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The operator `+` appends an element at the end of a list. The `+` is one of those ((Operators)) which are overloaded. It can also mean ((List-Insert)) or ((List-Concatenation)) for example.
 
-.Examples
+#### Examples
 
 ```rascal-shell
 [] + 1;

@@ -2,18 +2,20 @@
 title: UndeclaredType
 ---
 
-.Synopsis
+#### Synopsis
+
 Use of a type that has not been declared.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 A type has to be declared before it can be used.
 This error is generated when an undeclared type is used.
 
@@ -23,7 +25,8 @@ Remedies:
 *  Declare the type.
 *  Import a module that declares the type. (Did you import all library modules?)
 
-.Examples
+#### Examples
+
 Using the undeclared type `myint` gives an error:
 ```rascal-shell,error
 myint incr(myint n) = n + 1;
@@ -35,7 +38,7 @@ myint incr(myint n) = n + 1;
 incr(3);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,16 +2,18 @@
 title: Visiting
 ---
 
-.Synopsis
+#### Synopsis
+
 Visiting tree structures and arbitrary values.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Visiting the elements of a data structure is one of the most common operations in our domain 
 and the visitor design pattern is a solution known to every software engineer. 
 Given a tree-like data structure we want to perform an operation on some (or all) nodes of the tree. The purpose of the visitor design pattern is to decouple the logistics of visiting each node from the actual operation on each node. In Rascal the logistics of visiting is completely automated.
@@ -28,11 +30,12 @@ with that case are executed. These cases may:
 The value of a visit expression is the original subject value with all replacements made as dictated by matching cases. 
 The traversal order in a visit expressions can be explicitly defined by the programmer. 
 
-.Examples
+#### Examples
+
 Examples of visiting are, for instance, given in the Recipes 
 [ColoredTrees]((Recipes:Common-ColoredTrees)) and [Derivative]((Recipes:Common-Derivative)).
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

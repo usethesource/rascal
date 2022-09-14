@@ -3,13 +3,15 @@ title: "Boolean NoMatch"
 keywords: "!:="
 ---
 
-.Synopsis
+#### Synopsis
+
 Negated [Boolean Match] operator.
 
-.Syntax
+#### Syntax
+
 `Pat !:= Exp`
 
-.Types
+#### Types
 
 //
 
@@ -18,19 +20,21 @@ Negated [Boolean Match] operator.
 | [Patterns]  | `value` | `bool`           |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 See ((Pattern Matching)) for an introduction to pattern matching and ((Patterns)) for a complete description.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 123 !:= 456;
 [10, *n, 50] !:= [10, 20, 30, 40];
 {10, *n, 50} !:= {40, 30, 30, 10};
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

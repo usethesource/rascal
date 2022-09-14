@@ -3,14 +3,15 @@ title: "Relation TransitiveClosure"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 Transitive closure on binary relation values.
 
-.Syntax
+#### Syntax
 
 `Exp +`
 
-.Types
+#### Types
 
 
 |`Exp`              | `Exp +`            |
@@ -18,9 +19,10 @@ Transitive closure on binary relation values.
 | `rel[T~1~, T~2~]` | `rel[T~1~, T~2~]`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Returns the transitive closure of a binary relation.
 Transitive closure is defined by repeated composition of a relation.
 If we define for a given relation R:
@@ -36,7 +38,8 @@ then the transitive closure R+ can be defined as
 *  `R+ = R~1~ + R~2~ + R~3~ + ...`
 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 {<1,2>, <2,3>, <3,4>}+;
 ```
@@ -54,7 +57,7 @@ rel[int,int] tclosure(rel[int,int] R) {
 tclosure({<1,2>, <2,3>, <3,4>});
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

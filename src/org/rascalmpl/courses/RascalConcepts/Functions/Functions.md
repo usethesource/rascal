@@ -2,23 +2,26 @@
 title: Functions
 ---
 
-.Synopsis
+#### Synopsis
+
 Functions and pattern-directed invocation.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Functions allow the definition of frequently used operations. They have a name and formal parameters. They are explicitly declared and are fully typed. 
 Functions can also be used as values thus enabling higher-order functions. 
 Rascal is a higher-order language in which functions are first-class values.
 
 See [Function Declaration]((Rascal:Declarations-Function)) for details.
 
-.Examples
+#### Examples
+
 Here is an example of a function that counts the number of assignment statements in a program:
 ```rascal
 int countAssignments(PROGRAM P){
@@ -52,7 +55,7 @@ f(5, int (int y){return 3 * y;});
 
 Here the second argument of `f` is an anonymous function.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

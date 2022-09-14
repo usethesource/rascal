@@ -2,10 +2,11 @@
 title: A Calculator Language
 ---
   
-.Synopsis
+#### Synopsis
+
 Calc illustraties the basic facilities of TypePal
 
-.Description
+#### Description
 
 By developing a type checker for *_Calc_*, a tiny pocket calculator language, we illustrate elementary usage of TypePal.
 The full source code of Calc can be found at https://github.com/cwi-swat/typepal/tree/master/src/examples/calc.

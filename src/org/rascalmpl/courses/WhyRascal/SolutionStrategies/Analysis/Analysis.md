@@ -2,16 +2,18 @@
 title: Analysis
 ---
 
-.Synopsis
+#### Synopsis
+
 Strategies to analyze software systems.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The analysis workflow is shown in the figure ((Analysis-Workflow)) below and consists of two steps:
 
 *  Determine the results that are needed for the synthesis phase.
@@ -44,9 +46,9 @@ The Rascal features that are frequently used for analysis are:
 
 *  Rewrite rules to simplify results and to enforce constraints.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

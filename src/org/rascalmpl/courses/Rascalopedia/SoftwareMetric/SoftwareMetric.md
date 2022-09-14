@@ -2,24 +2,26 @@
 title: Software Metric
 ---
 
-.Synopsis
+#### Synopsis
+
 A metric to measure a source code property.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 A software metric is a quantitative measure about source code.
 A combination of one or more metrics can be used to quantitatively characterize
 aspects of [software quality](http://en.wikipedia.org/wiki/Software_quality).
 Various quality aspects are of interest such as size, reliability, maintainability and so on.
 
-.Examples
+#### Examples
 
 Examples of software metrics are:
 
@@ -30,7 +32,7 @@ Examples of software metrics are:
 * http://en.wikipedia.org/wiki/Coupling_(computer_science)[Coupling] measures the coupling between software components.
   High coupling indicates problems in the structure of a system.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

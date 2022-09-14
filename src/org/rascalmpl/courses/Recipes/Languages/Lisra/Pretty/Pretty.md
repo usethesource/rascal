@@ -2,18 +2,20 @@
 title: Pretty
 ---
 
-.Synopsis
+#### Synopsis
+
 A Lisp pretty printer.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 The purpose of a pretty printer is to convert an internal structure to text.
 We define here the simplest possible solution:
 
@@ -34,7 +36,7 @@ In other words, for every `L` the following should hold:
 parse(pretty(L)) == L
 ```
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import demo::lang::Lisra::Runtime;
@@ -50,7 +52,7 @@ import demo::lang::Lisra::Parse;
 parse(pretty(L)) == L;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

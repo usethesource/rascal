@@ -1,5 +1,6 @@
 ---
 title: Concept
+details: Name,Synopsis,Syntax,Types,Function,Details,Description,Examples,Benefits,Pitfalls,Questions
 ---
 
 .Synopsis
@@ -58,9 +59,6 @@ It is recommended to give examples.
 .Types
 
 .Function
-
-.Details
-Name Synopsis Syntax Types Function Details Description Examples Benefits Pitfalls Questions
 
 .Description
 A concept describes a separate entity (idea, artefact, function, rule) that is relevant in the scope of the course in which it appears.

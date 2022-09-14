@@ -2,16 +2,18 @@
 title: Abstract
 ---
 
-.Synopsis
+#### Synopsis
+
 A version of Exp based on abstract syntax.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The [abstract syntax](http://en.wikipedia.org/wiki/Abstract_syntax) for a language is a
 data type that is used to represent programs in the language in an _abstract_ form.
 Abstract syntax has the following properties:
@@ -21,7 +23,8 @@ Abstract syntax has the following properties:
 *  While a language has one grammar (also known as, _concrete syntax_) it may have several abstract syntaxes
   for different purposes: type analysis, code generation, etc.
 
-.Examples
+#### Examples
+
 The abstract syntax for Exp looks like this:
 ```rascal
 include::{LibDir}demo/lang/Exp/Abstract/Syntax.rsc[tags=module]
@@ -72,7 +75,7 @@ eval(add(con(3), mul(con(4), con(5))));
 Entering expressions in abstract syntax form is no fun, and this is where concrete syntax comes to the rescue.
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

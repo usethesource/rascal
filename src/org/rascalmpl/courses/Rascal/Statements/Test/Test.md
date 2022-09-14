@@ -2,21 +2,23 @@
 title: Test
 ---
 
-.Synopsis
+#### Synopsis
+
 Test statement (__deprecated__).
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The `test` statement is deprecated and is replaced by the `test` modifier in function declarations, see ((Function Declarations)).
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

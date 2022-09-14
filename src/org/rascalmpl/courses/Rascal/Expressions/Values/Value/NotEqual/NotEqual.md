@@ -3,13 +3,15 @@ title: "Value NotEqual"
 keywords: "!="
 ---
 
-.Synopsis
+#### Synopsis
+
 Not equal operator on values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ != Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`   | `Exp~2~` | `Exp~1~ != Exp~2~`  |
@@ -17,12 +19,13 @@ Not equal operator on values.
 | `value`     |  `value`  | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if both arguments are not identical and `false` otherwise.
 
-.Examples
+#### Examples
 
 Introduce two variables `X`, `Y` and `Z` and force them to be of type `value`:
 ```rascal-shell,continue
@@ -39,7 +42,7 @@ and `X` and `Z`:
 X != Z;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

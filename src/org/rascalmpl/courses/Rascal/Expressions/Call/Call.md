@@ -3,18 +3,18 @@ title: "Call"
 keywords: "(,)"
 ---
 
-.Synopsis
+#### Synopsis
 
 Functions and constructors can be called or invoked in a uniform style.
 
-.Syntax
+#### Syntax
 
 * function call with positional parameters `Name ( Exp~1~, Exp~2~, ... )`
 * function call with keyword parameters `Name (Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)`
 * function call with both positional and keyword parameters `Name (Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)`
 * function calls with computed functions `Exp ( Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...) 
 
-.Types
+#### Types
 
 //
 
@@ -23,9 +23,9 @@ Functions and constructors can be called or invoked in a uniform style.
 | `T~1~`    | `T~2~`   | ... | Determined by _Name_, _T~i~_ and function declarations  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 For the purpose of calling a function or a constructor, we make no distinction between these two concepts.
 A constructor is a function that constructs an application of an algebraic data-type constructor definition,
@@ -56,7 +56,7 @@ may be tried many times.
 
 If the name of the function in the call is
 
-.Examples
+#### Examples
 
 First declare a function `square` with argument _n_ that returns _n^2_:
 ```rascal-shell,continue
@@ -76,11 +76,11 @@ Next call `square`. This results in the following steps:
 square(12);
 ```
 
-.Benefits
+#### Benefits
 
 * calls with positional parameters are the classical way of function invocation in Mathematics and Computer Science
 * calls with keyword parameters provide readability at the call site and we do not have to remember the invocation order
 * calls with keyword parameters are always bound by defaults, so there is never a `null` reference
 
-.Pitfalls
+#### Pitfalls
 

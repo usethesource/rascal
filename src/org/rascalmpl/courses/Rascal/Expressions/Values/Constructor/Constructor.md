@@ -2,15 +2,15 @@
 title: Constructor
 ---
 
-.Synopsis
+#### Synopsis
 
 Constructors create values for user-defined datatypes (Algebraic Datatypes).
 
-.Syntax
+#### Syntax
 
 `Name ( Exp~1~, Exp~2~, ... )`
 
-.Types
+#### Types
 
 //
 
@@ -19,9 +19,10 @@ Constructors create values for user-defined datatypes (Algebraic Datatypes).
 | `T~1~`   | `T~2~`   | ... | Depends on ADT declaration           |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 In ordinary programming languages record types or classes exist to introduce a new type name for a collection of related, 
 named, values and to provide access to the elements of such a collection through their name. 
 
@@ -37,7 +38,7 @@ Constructors are functions that can be used in all contexts where functions can 
 
 Observe that the syntax of a constructor is identical to the syntax of an function ((Call)).
 
-.Examples
+#### Examples
 
 First, define a datatype `WF` for word frequencies:
 ```rascal-shell,continue
@@ -48,7 +49,7 @@ Then construct a new `WF` value by calling the constructor `wf` with appropriate
 wf("Rascal", 10000);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

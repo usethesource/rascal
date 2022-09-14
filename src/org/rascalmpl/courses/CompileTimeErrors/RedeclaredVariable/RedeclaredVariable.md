@@ -2,27 +2,30 @@
 title: RedeclaredVariable
 ---
 
-.Synopsis
+#### Synopsis
+
 A variable with the same name has been declared in the same scope.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 Remedy: rename one of the variables.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 int n = 3;
 int n = 4;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,23 +3,24 @@ title: "Slice"
 keywords: "[,..,],="
 ---
 
-.Synopsis
+#### Synopsis
+
 Assign to a slice of a list or string.
 
-.Syntax
+#### Syntax
 
 *   `Assignable [ Exp~1~ .. Exp3_ ] = Exp~4~`
 *   `Assignable [ Exp~1~, Exp~2~ .. Exp~3~ ] = Exp~4~`
 
 
 `Exp~1~` and `Exp~3~` are optional
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 A slice assignment is defined for ((Expressions-Values-List)), ((Values-String)) and ((Values-Node)) 
 and aims to replace a slice from the old value of the assignable by a new value. 
@@ -44,7 +45,8 @@ Let _V_ be the current value of _Assignable_.
   **  If the number of elements in the slice is larger: the elements of _Exp~4~_ are used in a circular manner.
   **  If the number of elements in the slice is smaller: the remaining elements of _Exp~4~_ is inserted after the last index in the slice.
 
-.Examples
+#### Examples
+
 Replace the elements with index 3, 4, 5 in `L`:
 ```rascal-shell,continue
 L = [0,1,2,3,4,5,6,7,8,9];
@@ -87,7 +89,7 @@ N = "f"(0,true,2,"abc",4,5.5,6,{7,77},8,{9,99,999});
 N[1,3..8] = [100,200,300,400,500];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

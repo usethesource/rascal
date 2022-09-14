@@ -2,25 +2,27 @@
 title: Variable
 ---
 
-.Synopsis
+#### Synopsis
+
 Markup for a variable.
 
-.Syntax
+#### Syntax
 
 * `\VarName`
 * `\VarName\~Index~`
 * `\VarName\^Index^`
 
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Variables in text and code are represented by ((Italic)) markup. 
 They may be followed by one or more subscripts (enclosed by `~` and `~`) or superscripts (enclosed by `^` and `^`)
 
-.Examples
+#### Examples
 
 * `\Var` gives _Var_.
 
@@ -30,7 +32,7 @@ They may be followed by one or more subscripts (enclosed by `~` and `~`) or supe
 
 * `\Var\^1^\~2~` gives _Var_^1^~2~.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

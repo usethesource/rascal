@@ -2,18 +2,22 @@
 title: Parse Error
 ---
 
-.Synopsis
+#### Synopsis
+
 Parse of a syntactically incorrect string.
 
 
-.Types
+#### Types
+
 `data RuntimeException = ParseError(loc parseloc) | ParseError(loc parseloc, str nt, str s);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `ParseError` is used in `catch`)
 
 
-.Description
+#### Description
+
 This error is generated when during the execution of a Rascal program the
 [parse]((Library:ParseTree-parse)) function is applied to a syntactically incorrect input sentence.
 
@@ -24,7 +28,8 @@ Remedies:
 *  Catch the ParseError yourself, see [try catch]((Rascal:Statements-TryCatch)).
 
 
-.Examples
+#### Examples
+
 Define the non-terminal `As` that accepts one or more letters `a`:
 ```rascal-shell
 syntax As = "a"+;
@@ -53,7 +58,7 @@ catch ParseError(e):
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

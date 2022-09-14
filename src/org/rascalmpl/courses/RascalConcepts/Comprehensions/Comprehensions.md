@@ -2,16 +2,18 @@
 title: Comprehensions
 ---
 
-.Synopsis
+#### Synopsis
+
 Comprehensions for generating values.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Comprehensions are a notation inspired by mathematical [set-builder notation](http://en.wikipedia.org/wiki/Set-builder_notation)
 and [list comprehensions](http://en.wikipedia.org/wiki/List_comprehension)
 that help to write succinct definitions of lists and sets. They are also inspired by queries as found in a language like SQL.
@@ -26,7 +28,8 @@ See [Comprehensions]((Rascal:Expressions-Comprehensions)),
 [Set Comprehension]((Rascal:Set-Comprehension)), and
 [Map Comprehension]((Rascal:Map-Comprehension)) for details.
 
-.Examples
+#### Examples
+
 A standard example is
 
 ```rascal-shell
@@ -42,7 +45,7 @@ which traverses program `P` (using the _descendant match_ operator `/`, see [Pat
 and constructs a set of all identifiers that occur on the left hand 
 side of assignment statements in `P`.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,16 +2,18 @@
 title: Authoring
 ---
 
-.Synopsis
+#### Synopsis
+
 Creating and writing a course for the Rascal Tutor.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The life cycle of a course consists of the following steps:
 
 * A new course, say `MyCourse`, is created. This is achieved by:
@@ -31,10 +33,12 @@ Concepts are represented as directories for the following reasons:
   ** A complete concept can be easily moved or renamed as a single unit.
   ** Name clashes between included files per concept are avoided.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
+
 You can use your favourite editor and standard system command to author a course.
 
-.Pitfalls
+#### Pitfalls
+
 There is no editing support or incremental course compilation available (yet).

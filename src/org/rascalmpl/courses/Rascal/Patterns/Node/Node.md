@@ -2,21 +2,23 @@
 title: Node pattern
 ---
 
-.Synopsis
+#### Synopsis
+
 Node in abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A node pattern matches a node value or a datatype value, provided that _Name_ matches with the constructor symbol of that value 
 and _Pat_~1~, _Pat_~2~, ..., _Pat_~n~  match the children of that value in order.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ```
 Match on node values (recall that the function symbol of a node has to be quoted, see [Values/Node]):
@@ -32,7 +34,7 @@ if(red(K) := red(13))
    println("K = <K>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

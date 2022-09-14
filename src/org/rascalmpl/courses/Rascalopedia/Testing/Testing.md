@@ -2,26 +2,27 @@
 title: Testing
 ---
 
-.Synopsis
+#### Synopsis
+
 Determine that the quality and functionality of software.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 [Software testing](http://en.wikipedia.org/wiki/Software_testing) is the process to determine
 that a software system meets its specifications and works as expected. This is done by 
 manually or automatically executing test cases and observe the result.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,23 +2,27 @@
 title: Invalid Argument
 ---
 
-.Synopsis
+#### Synopsis
+
 A function or operation is applied to an invalid argument value.
 
-.Types
+#### Types
+
 `data RuntimeException = InvalidArgument() | InvalidArgument(value v) | InvalidArgument(value v, str message);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `InvalidArgument` is used in `catch`)
 
-.Description
+#### Description
+
 This error is generated when a function or operation is applied to a value that it does not expect.
 
 Remedies:
 
 *  Check the value or values to which you apply the function or operation.
 
-.Examples
+#### Examples
 
 Changing the month of a [DateTime]((Rascal:Values-DateTime)) to an illegal month (13):
 ```rascal-shell,error
@@ -32,7 +36,7 @@ someLoc = |home:///abc.txt|;
 someLoc.offset = -1;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

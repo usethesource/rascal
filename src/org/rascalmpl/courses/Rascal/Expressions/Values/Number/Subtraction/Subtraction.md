@@ -3,13 +3,15 @@ title: "Number Subtraction"
 keywords: "-"
 ---
 
-.Synopsis
+#### Synopsis
+
 Subtract two numeric values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ - Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~` |  `Exp~2~` | `Exp~1~ - Exp~2~`  |
@@ -19,12 +21,14 @@ Subtract two numeric values.
 | `real`    |  `real`    | `real`               |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields the numerical result of subtracting the value of _Exp_~2~ from the value of _Exp_~1~.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 13 - 12
 13.5 - 12
@@ -32,7 +36,7 @@ Yields the numerical result of subtracting the value of _Exp_~2~ from the value 
 12 - 13.5
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

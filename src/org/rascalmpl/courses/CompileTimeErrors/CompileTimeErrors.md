@@ -2,10 +2,11 @@
 title: Compile Time Errors
 ---
 
-.Synopsis
+#### Synopsis
+
 All errors that can occur during compilation of a Rascal program.
 
-.Description
+#### Description
 
 WARNING: in progress of being adopted to the Rascal compiler. This list currently holds 
 for the Rascal interpreter.

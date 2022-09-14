@@ -3,13 +3,15 @@ title: "Relation"
 keywords: "{,},rel"
 ---
 
-.Synopsis
+#### Synopsis
+
 Relation values.
 
-.Syntax
+#### Syntax
+
 `{ < Exp~11~, Exp~12~, ... > , < Exp~21~, Exp~22~, ... > , ... }`
 
-.Types
+#### Types
 
 
 | `Exp~11~` |  `Exp~12~` |  ...  | `{ < Exp~11~, Exp~12~, ... > , ... }`   |
@@ -17,11 +19,12 @@ Relation values.
 | `T~1~`    |    `T~2~`  |  ...  |  `rel[T~1~, T~2~, ... ]`               |
 
 
-.Usage
+#### Usage
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A relation is a set of elements with the following property:
 
 *  All elements have the same static tuple type.
@@ -44,7 +47,8 @@ The following additional operators are provided for relations:
 There are also [library functions]((Library:Relation)) available for Relations.
 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 {<1,10>, <2,20>, <3,30>}
 ```
@@ -55,7 +59,7 @@ remember that these types are interchangeable.
 {<"a", 1, "b">, <"c", 2, "d">}
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

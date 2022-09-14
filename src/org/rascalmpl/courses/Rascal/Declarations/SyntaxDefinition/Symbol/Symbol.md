@@ -3,10 +3,11 @@ title: "Symbol"
 keywords: "",',[,],!,-,||,&&,(,),?,+,*,{,},|,(),^,@,>>,!>>,<<,!<<,\"
 ---
 
-.Synopsis
+#### Synopsis
+
 The symbols that can occur in a syntax definition.
 
-.Syntax
+#### Syntax
 
 Nonterminal symbols are identifier names that _start with an uppercase letter_.
 
@@ -80,12 +81,14 @@ Inline conditions (((Disambiguation))s) can be added to symbols to constrain the
 
 Symbols can be composed arbitrarily.
 
-.Types
+#### Types
+
 Every non-terminal symbol is a type.
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The basic symbols are the non-terminal name and the labeled non-terminal name. 
 These refer to the names defined by ((Syntax Definition)). 
 You can use any defined non-terminal name in any other definition (lexical in syntax, syntax in lexical, etc). 
@@ -118,7 +121,7 @@ The _constraint_ symbols are specially there to deal with the fact that Rascal d
 *  It is important to note that these constraints work on a character-by-character level in the input stream. So, a follow constraint such as `A >> [a-z]` means that the character immediately following a recognized A must be in the range `[a-z]`.
 *  Read more on the constraint symbols via ((Disambiguation))s.
 
-.Examples
+#### Examples
 
 
 A character class that defines all alphanumeric characters:
@@ -154,13 +157,13 @@ A declaration with an embedded list of alternative modifiers and a list of typed
 syntax Declaration = ("public" | "private" | "static" | "final")* Type Id "(" {(Type Id) ","}* ")" Statement;
 ```
 
-.Benefits
+#### Benefits
 
 *  The symbol language is very expressive and can lead to short definitions of complex syntactic constructs.
 *  There is no built-in longest match for iterators, which makes syntax definitions open to languages that do not have longest match.
 *  There is no built-in keyword preference or reservation, which makes syntax definitions open to language composition and legacy languages.
 
-.Pitfalls
+#### Pitfalls
 
 *  By nesting too many symbols definitions can be become hard to understand. 
 *  By nesting too many symbols pattern matching and term construction becomes more complex. Extra non-terminals and rules with meaningful names can make a language specification more manageable. 

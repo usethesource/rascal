@@ -2,18 +2,19 @@
 title: CountInLine3
 ---
 
-.Synopsis
+#### Synopsis
+
 Count words in a line.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 Here is a clever, albeit rather dense, solution that illustrates several Rascal concepts.
 ```rascal
@@ -36,7 +37,7 @@ import demo::common::WordCount::CountInLine3;
 countInLine3("Jabberwocky by Lewis Carroll");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

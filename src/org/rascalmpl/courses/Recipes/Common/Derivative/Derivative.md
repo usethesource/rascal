@@ -2,16 +2,18 @@
 title: Derivative
 ---
 
-.Synopsis
+#### Synopsis
+
 Symbolic differentiation.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Computing the http://en.wikipedia.org/wiki/Differentiation_(mathematics)[derivative] of an expression with respect to some variable is a classical calculus problem. Loosely speaking, a derivative can be thought of as how much one quantity is changing in response to changes in some other quantity; for example, the derivative of the position of a moving object with respect to time is the object's instantaneous velocity.
 
 We present here rules for determining the derivative `dE/dX` of simple expressions `E` for a given variable `X`. Recall that for number `N`, variables `X` and `Y`, and expressions `E1` and `E2` the following rules apply:
@@ -23,7 +25,7 @@ We present here rules for determining the derivative `dE/dX` of simple expressio
 *  `d(E1 * E2) / dX =  (d E1 / dX  * E2) + (E1 * d E2 /dX)`.
 
 
-.Examples
+#### Examples
 
 Here is our solution followed by a list of explanations:
 
@@ -55,7 +57,7 @@ Now apply simplification to the result of differentiation:
 simplify(dd(E, var("x")));
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,13 +2,15 @@
 title: Quit Command
 ---
 
-.Synopsis
+#### Synopsis
+
 Quit the RascalShell.
 
-.Syntax
+#### Syntax
+
 * `:quit`
 * `Ctrl+d` or `Eof`
 
-.Description
+#### Description
 
 Typing `:quit` or `Ctrl+d` will end the execution of the shell.

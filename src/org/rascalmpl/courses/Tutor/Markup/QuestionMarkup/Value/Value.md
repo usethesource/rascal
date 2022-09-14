@@ -2,19 +2,21 @@
 title: Value
 ---
 
-.Synopsis
+#### Synopsis
+
 Question about the value of a Rascal expression or program.
 
-.Syntax
+#### Syntax
 
 *  `QValue OptName: TypeDescriptor`
 *  `QValue OptName: QSteps Test Listing`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A value question presents a Rascal expression and poses a question about its value.
 
 _OptName_ is an optional name of the question (enclosed between `[` and `]`).
@@ -43,7 +45,8 @@ The following restrictions apply:
    _Var_ should have received a value in a preceeding `make` or `expr` step.
 *  The listing, and the expressions in the test may contain at most one placeholder `<?>`.
 
-.Examples
+#### Examples
+
 See the effect of the following value questions in the Questions section below.
 
 ##  Question 1 
@@ -98,7 +101,7 @@ public list[str] find(list[str] text){
 test: find(text) == ["moi", "Mousa", "polutropon"];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

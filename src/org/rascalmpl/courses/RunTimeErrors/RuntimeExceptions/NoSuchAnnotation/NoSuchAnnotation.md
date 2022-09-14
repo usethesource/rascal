@@ -2,21 +2,25 @@
 title: No Such Annotation
 ---
 
-.Synopsis
+#### Synopsis
+
 Annotation without a value.
 
-.Types
+#### Types
+
 `data RuntimeException = NoSuchAnnotation(str label);`
        
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `NoSuchAnnotation` is used in `catch`)
 
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 An [annotation]((Rascal:Declarations-Annotation)) can be associated with any node value
 (including any [algebraic data type]((Rascal:Declarations-AlgebraicDataType))).
 This error is generated when the value of an annotation is requested but has not been defined.
@@ -30,7 +34,7 @@ Remedies:
    is set and act accordingly.
 *  Catch the `NoSuchAnnotation yourself`, see [try catch]((Rascal:Statements-TryCatch)).
 
-.Examples
+#### Examples
 
 INFO: Eliminate the double [red]##Error: Error:##
 
@@ -61,9 +65,9 @@ piece@quality = "excellent";
 piece@quality;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 WARNING: Using white space around the `@` confuses the Rascal parser
 

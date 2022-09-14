@@ -3,13 +3,15 @@ title: "Boolean IsDefined"
 keywords: "?"
 ---
 
-.Synopsis
+#### Synopsis
+
 Test whether the value of an expression is defined.
 
-.Syntax
+#### Syntax
+
 `Exp ?`
 
-.Types
+#### Types
 
 //
 
@@ -18,14 +20,14 @@ Test whether the value of an expression is defined.
 |  `T`   |   `bool`      |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 If no exception is generated during the evaluation of _Exp_, 
 the result is `true`. Otherwise, it is `false`.
 
-.Examples
+#### Examples
 
 ```rascal-shell
 T = ("a" : 1, "b" : 2);
@@ -36,7 +38,7 @@ L[1]?
 L[5]?
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

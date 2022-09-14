@@ -3,13 +3,15 @@ title: "Boolean All"
 keywords: "all"
 ---
 
-.Synopsis
+#### Synopsis
+
 All argument expressions are true.
 
-.Syntax
+#### Syntax
+
 `all ( Exp~1~, Exp~2~, ... )`
 
-.Types
+#### Types
 
 //
 
@@ -18,12 +20,13 @@ All argument expressions are true.
 |`bool`     | `bool`    | ... | `bool`                           |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` when all combinations of values of _Exp_~i~ are true.
 
-.Examples
+#### Examples
 
 Are all integers 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 even?
 ```rascal-shell,continue
@@ -39,9 +42,9 @@ When one of the _Exp_~i~ enumerates the elements of an empty list, `all` always 
 all(int n <- [], n > 0);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 WARNING: The Rascal interpreter and compiler give different results on an empty list. 
 The interpreter returns `fals` for the abo eexample.

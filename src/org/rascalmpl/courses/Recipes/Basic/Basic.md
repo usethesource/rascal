@@ -3,24 +3,27 @@ title: Basic
 details: Hello,Factorial,Squares
 ---
 
-.Synopsis
+#### Synopsis
+
 Some basic, _hello world_-like, examples of Rascal programs.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 We discuss the following examples:
 (((TOC)))
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 These programs illustrate various features of Rascal; they are *not representative* as use cases of the language.
 

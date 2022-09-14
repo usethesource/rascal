@@ -2,18 +2,20 @@
 title: UninitializedPatternMatch
 ---
 
-.Synopsis
+#### Synopsis
+
 Pattern matching has not been properly initialized.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 [Pattern matching]((RascalConcepts:PatternMatching)) requires two ingredients:
 
 *  One of the many [patterns]((Rascal:Rascal-Patterns)).
@@ -23,14 +25,15 @@ This error is generated when the subject is void.
 
 Remedy: replace the subject by a non-void value.
 
-.Examples
+#### Examples
+
 here is a (contrived) example that produces this error:
 ```rascal-shell,error
 void dummy() { return; }
 int n := dummy();
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

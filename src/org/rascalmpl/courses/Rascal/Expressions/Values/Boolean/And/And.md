@@ -3,13 +3,15 @@ title: "Boolean And"
 keywords: "&&"
 ---
 
-.Synopsis
+#### Synopsis
+
 Boolean _and_ operator.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ && Exp~2~`
 
-.Types
+#### Types
 
 //
 
@@ -18,9 +20,10 @@ Boolean _and_ operator.
 | `bool`       | `bool`         | `bool`  |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The _and_ operator on Boolean values defined as follows:
 
 | `Exp~1~` | `Exp~2~`  | `Exp~1~ && Exp~2~`  |
@@ -37,7 +40,8 @@ Note that `&&` backtracks over its argument expressions until it can find an eva
 
 Variable assignments as a result of matching or generator expressions under a `&&` are visible outside the context of the operator, but only if the context is conditional, such as an if-then-else or a for loop. Note that if one of the argument expressions evaluates to false, then no binding is done either.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 true && false;
 i <- [1,2,3] && (i % 2 == 0)
@@ -48,11 +52,11 @@ for (i <- [1,2,3,4] && (i % 2 == 0))
   println("<i> % 2 == 0");
 ```
 
-.Benefits
+#### Benefits
 
 *  The backtracking `&&` allows one to express searching for a computational solution in concise manner.
 
-.Pitfalls
+#### Pitfalls
 
 *  Side effects to global variables or IO in the context of a backtracking `&&` can lead to more effects than you bargained for.
 

@@ -2,16 +2,17 @@
 title: Variable Declaration Pattern
 ---
 
-.Synopsis
+#### Synopsis
+
 Variable declaration in abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A variable declaration
 ```rascal
@@ -24,7 +25,8 @@ That value is assigned to _Var_ when the whole match succeeds.
 The scope of this variable is the outermost expression in which the pattern occurs
 or the enclosing ((Statements-If)), ((While)), or ((Do)) if the pattern occurs in the test expression of those statements.
 
-.Examples
+#### Examples
+
 Let's first perform a match that succeeds:
 ```rascal-shell,error
 str S := "abc";
@@ -42,7 +44,7 @@ if(str S := "abc")
    println("Match succeeds, S == \"<S>\"");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

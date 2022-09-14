@@ -2,11 +2,12 @@
 title: Patterns
 ---
 
-.Synopsis
+#### Synopsis
+
 Patterns are a notation for pattern matching used to detect if a value has a certain shape, 
 and then to bind variables to parts of the matched value. 
 
-.Syntax
+#### Syntax
 
 For most of the ((Values)), there is a corresponding pattern matching operator. Then there are
 some "higher-order" matching operators which make complex patterns out of simpler ones. 
@@ -30,11 +31,11 @@ This is the complete list:
 | Concrete             | (Symbol) ` Token~1~ Token~2~ ... Token~n~ `                                                          |
 
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Patterns are used to *dispatch* functions and conditional control flow, to *extract* information 
 from values and to conditionally *filter* values. The pattern following pattern kinds can be arbitrarily nested, following
@@ -57,12 +58,12 @@ Each pattern binds variables in a conditional scope:
 * in the conditions and bodies of `<If>`, `<For>`, and `<While>` control flow statements
 * in the yielding expressions of comprehensions and in furter conditions of the comprehensions
 
-.Examples
+#### Examples
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 * If a pattern does not match, then it may be hard to find out why. A small test case is the best thing to create. Often a default alternative
 which `<Throw>`s an exception with the value which is not matched can be used to find out why this is happening.

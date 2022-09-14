@@ -2,10 +2,11 @@
 title: Keyboard Shortcuts
 ---
 
-.Synopsis
+#### Synopsis
+
 Keybord shortcuts.
 
-.Description
+#### Description
 
 When handling console input, RascalShell supports a subset of the shortcuts provided by
 https://en.wikipedia.org/wiki/GNU_Readline[GNU Readline]

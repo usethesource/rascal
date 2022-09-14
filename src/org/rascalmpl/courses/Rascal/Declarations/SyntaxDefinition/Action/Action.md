@@ -2,16 +2,17 @@
 title: Action
 ---
 
-.Synopsis
+#### Synopsis
+
 Actions are functions that are called when parse trees are constructed (right after parsing).
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A so-called ((Action)) is a normal rascal ((Function Declaration)) that overloads a ((Syntax Definition)). 
 A ((Syntax Definition)), very similar to ((Algebraic Data Type)) definitions, defines a constructor for a parse tree node. 
@@ -48,9 +49,9 @@ public E id(Id i) {
     fail; // just build the parse tree "E = id: Id i", by defaulting to the constructor
 } 
 ```
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

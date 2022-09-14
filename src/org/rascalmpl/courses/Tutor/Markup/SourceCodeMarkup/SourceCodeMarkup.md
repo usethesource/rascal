@@ -3,26 +3,27 @@ title: Source Code Markup
 details: RemoteConceptMapping
 ---
 
-.Synopsis
+#### Synopsis
+
 Mark up in Rascal source code.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 The mark up of concepts inside Rascal source code requires two steps:
 
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

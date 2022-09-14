@@ -3,13 +3,15 @@ title: "Map Comprehension"
 keywords: "(,|,)"
 ---
 
-.Synopsis
+#### Synopsis
+
 A map comprehension generates a map value.
 
-.Syntax
+#### Syntax
+
 `( Exp~1~ : Exp~2~ | Gen~1~, Gen~2~, ... )`
 
-.Types
+#### Types
 
 
 | `Exp~1~` | `Exp~2~` | `( Exp~1~ : Exp~2~ \| Gen~1~, Gen~2~, ... )`  |
@@ -17,14 +19,16 @@ A map comprehension generates a map value.
 | `T~1~`   | `T~2~`   | `map[T~1~, T~2~]`                               |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A map comprehension consists of a number of two contributing expressions _Exp_~1~ (for key values), 
 and _Exp_~2~ (the values associated with those key values) and a number of
 generators _Gen_~1~, _Gen_~2~, _Gen_~3~, ... that are evaluated as described in ((Expressions-Comprehensions)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ```
 Introduce a map of `fruits`:
@@ -41,7 +45,7 @@ Use a map comprehension to filter fruits with an associated value larger than 10
 (fruit : fruits[fruit] | fruit <- fruits, fruits[fruit] > 10);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,19 +3,19 @@ title: "IsDefined"
 keywords: "?"
 ---
 
-.Synopsis
+#### Synopsis
 
 Assign but replace if value is not defined.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 First the value of _Exp_~1~ is determined and if that is defined it is assigned to _Assignable_. 
 Otherwise, the value of _Exp_~2~ is assigned to _Assignable_.
@@ -28,7 +28,8 @@ Values which can be undefined are:
 
 No other values can be used in an undefined state, so the ? operator does not make sense on undefined or uninitialized variables for example.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 M = ("Andy": 1, "Brian" : 2);
 ```
@@ -43,9 +44,9 @@ M["Andy"] ? 0 += 1;
 M["Andy"]
 ```
 
-.Benefits
+#### Benefits
 
 * short notation that inline initialization of map values, keyword fields or annotations without having to write a lot of boilerplate if-then-else statements. 
 
-.Pitfalls
+#### Pitfalls
 

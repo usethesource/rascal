@@ -3,13 +3,15 @@ title: "Location AddSegment"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 Locations can be concatenated with strings to add segments to the path component
 
-.Syntax
+#### Syntax
+
 `Loc + Str`
 
-.Types
+#### Types
 
 //
 
@@ -18,14 +20,15 @@ Locations can be concatenated with strings to add segments to the path component
 | `loc`     | `str`     | `loc`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Adds a segment to the path component of a location.
 This concatenation introduces a path separator (`/`) automatically.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 |tmp:///myDir| + "myFile";
 ```
@@ -33,7 +36,7 @@ To get the original back, you can use the `parent` field:
 ```rascal-shell
 (|tmp:///myDir| + "myFile").parent
 ```
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

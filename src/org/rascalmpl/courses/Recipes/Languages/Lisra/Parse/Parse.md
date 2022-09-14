@@ -2,18 +2,19 @@
 title: Parse
 ---
 
-.Synopsis
+#### Synopsis
+
 Parsing a Lisp expression.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
 Given the Lisp ((Lisra-Syntax)), we can now apply it to parse textual Lisp expressions
 and convert them to the runtime representation `Lval`.
@@ -58,7 +59,8 @@ that precedes it (`LispExp` in this example). This is illustrated by the list ca
 ```
 ****
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import demo::lang::Lisra::Parse;
 import demo::lang::Lisra::Runtime;
@@ -67,7 +69,7 @@ parse("x");
 parse("(+ 5 7)");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

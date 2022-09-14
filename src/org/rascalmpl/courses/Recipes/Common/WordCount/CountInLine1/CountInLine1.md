@@ -2,18 +2,20 @@
 title: CountInLine1
 ---
 
-.Synopsis
+#### Synopsis
+
 Count words in a line.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 We count words using a regular expression match in a for loop.
 Each time that the pattern `/[a-zA-Z0-9_]+/` matches, the body of the loop is executed
 and `count` is incremented.
@@ -28,7 +30,7 @@ import demo::common::WordCount::CountInLine1;
 countInLine1("Jabberwocky by Lewis Carroll");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,23 +2,26 @@
 title: Void
 ---
 
-.Synopsis
+#### Synopsis
+
 Values of type `void`.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
+
 `void`
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Void stands for _nothing_ and is represented by the type `void`. 
 It is a type without any values.
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

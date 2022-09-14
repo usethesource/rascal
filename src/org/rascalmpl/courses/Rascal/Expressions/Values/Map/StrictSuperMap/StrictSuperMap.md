@@ -3,32 +3,36 @@ title: "Map StrictSuperMap"
 keywords: ">"
 ---
 
-.Synopsis
+#### Synopsis
+
 Strict supermap operator on map values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ > Exp~2~`
 
-.Types
+#### Types
 
 | `Exp~1~`            |  `Exp~2~`             | `Exp~1~ > Exp~2~`  |
 | --- | --- | --- |
 | `map[TK~1~,TV~2~]` |  `map[TK~2~, TV~2~]` | `bool`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields `true` if all key/value pairs in the map value of _Exp_~2~ occur in the map value _Exp_~1~
 and the values of _Exp_~1~ and _EXp_~2~ are not equal, and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 ("pear": 2, "apple": 1, "banana" : 3) > ("apple": 1, "pear": 2);
 ("apple": 1, "banana" : 3) > ("apple": 1, "pear": 2);
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

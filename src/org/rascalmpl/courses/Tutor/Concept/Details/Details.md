@@ -19,8 +19,6 @@ details: Detail~1~, Detail~2~, ...
 
 .Function
 
-.Details
-
 .Description
 
 To fully describe a concept, subconcepts (or details) are needed.

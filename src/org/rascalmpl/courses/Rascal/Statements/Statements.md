@@ -2,16 +2,17 @@
 title: Statements
 ---
 
-.Synopsis
+#### Synopsis
+
 All Rascal statements.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 The following statements are available:
 (((TOC)))
@@ -20,9 +21,9 @@ The following statements are available:
 ![]((Statements-statement-parts.png))
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,22 +2,24 @@
 title: Program
 ---
 
-.Synopsis
+#### Synopsis
+
 A Rascal program consists of a number of ((Module Declaration))s.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A Rascal program consists of a number of ((Module Declaration))s, each stored in a separate file with extension `.rsc`.
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

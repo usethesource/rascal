@@ -2,20 +2,20 @@
 title: Measuring Methods
 ---
 
-.Synopsis
+#### Synopsis
 
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import lang::java::m3::Core;
@@ -61,7 +61,7 @@ import List;
 size([m@src | /Expression m := methodAST]) == (0 | it + 1 | /Expression _ := methodAST)
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

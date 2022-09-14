@@ -3,13 +3,15 @@ title: "Number Division"
 keywords: "/"
 ---
 
-.Synopsis
+#### Synopsis
+
 Division on numeric values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ / Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`  |  `Exp~2~` | `Exp~1~ / Exp~2~`   |
@@ -19,12 +21,14 @@ Division on numeric values.
 | `real`     |  `real`    | `real`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields the result of dividing the value of _Exp~1~_ by the value of _Exp~2~_.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 12 / 3
 10 / 3
@@ -33,7 +37,7 @@ Yields the result of dividing the value of _Exp~1~_ by the value of _Exp~2~_.
 12 / 0
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

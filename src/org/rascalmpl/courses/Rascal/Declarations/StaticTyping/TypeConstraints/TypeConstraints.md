@@ -3,22 +3,26 @@ title: "Type Constraints"
 keywords: "<:,&"
 ---
 
-.Synopsis
+#### Synopsis
+
 Type constraints restrict the acceptable type for parameters.
 
-.Syntax
+#### Syntax
+
 `& Name <: Type`
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Constraints can be imposed on the actual types to which a type parameter may be bound. 
 This is expressed by a subtype constraint which expresses that 
 actual types bound to _Name_ should be a subtype of _Type_. 
 
-.Examples
+#### Examples
+
 Here is the definition of the absolute value function `abs` from the ((Number)) library:
 ```rascal
 public &T <: num abs(&T <: num N)
@@ -59,7 +63,7 @@ And apply `setAnnotations` to a value of type `Suite`:
 setAnnotations(st, ("player" : "Hossein", "gain" : "120"));
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

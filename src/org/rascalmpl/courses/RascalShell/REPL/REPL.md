@@ -2,17 +2,17 @@
 title: Read Eval Print Loop (REPL)
 ---
 
-.Synopsis
+#### Synopsis
 
 The Rascal Read Eval Print Loop (REPL)
 
-.Description
+#### Description
 
 The Rascal shell is an interactive console to experiment with Rascal code. You can write
 your own expressions, statements and declarations right there. Or, you can import library
 modules and try out their functionality.
 
-.Examples
+#### Examples
 
 Rascal code can be a trivial expression
 ```rascal-shell
@@ -37,7 +37,7 @@ and use them later on:
 x * y
 ```
 
-.Pitfalls
+#### Pitfalls
 
 * Rascal is quite demanding as far as the proper placement of semicolons (`;`) is concerned.
 * Rascal is a statically typed language but we have not released the type checker yet. Sometimes this

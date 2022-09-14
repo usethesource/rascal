@@ -2,16 +2,17 @@
 title: Even
 ---
 
-.Synopsis
+#### Synopsis
+
 Produce a list of even numbers.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Let's write a function that generates all the even numbers in a list up to a certain maximum. We will do it in a few alternative 
 ways: from very imperative to very declarative and some steps in between.
@@ -82,15 +83,15 @@ set[int] even7(int max) = {i | i <- [0..max], i % 2 == 0};
 even7(25);
 ```
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
 *  You can program in for loops and use temporary variables if you like.
 *  Comprehensions are shorter and more powerful.
 *  There are comprehensions for lists, sets, and maps
 
-.Pitfalls
+#### Pitfalls
 
 *  Trainwreck alert: if you start putting too many conditions in a single for loop or comprehension the code may become unreadable.
 

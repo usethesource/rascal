@@ -2,10 +2,11 @@
 title: Architecture
 ---
 
-.Synopsis
+#### Synopsis
+
 The global architeture of the Rascal Tutor
 
-.Description
+#### Description
 
 At the highest level, a course consists of concept files, which are translated to intermediate 
 [AsciiDoc](http://asciidoctor.org) files,
@@ -42,11 +43,11 @@ can be answered using https://lucene.apache.org[Lucene] and the single index.
 
 Another way to use a compiled course is directly from the REPL.
 
-.Benefits
+#### Benefits
 
 * Index creation is modular: an index is created per course and these indices are combined at runtime.
 
-.Pitfalls
+#### Pitfalls
 
 * Courses are compiled on a per-course basis. 
   Support for incremental courses compilation is not yet available.

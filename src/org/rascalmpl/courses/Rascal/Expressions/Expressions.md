@@ -2,16 +2,18 @@
 title: Expressions
 ---
 
-.Synopsis
+#### Synopsis
+
 The expressions available in Rascal.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 The expression is the basic unit of evaluation and may consist of the ingredients shown in the figure.
 
 *  An elementary _literal value_, e.g. constants of the types ((Values-Boolean)), ((Values-Integer)), ((Values-Real)), 
@@ -43,9 +45,9 @@ The expression is the basic unit of evaluation and may consist of the ingredient
 
 *  Some statements like ((If)), ((For)), ((While)) and ((Do)) can also be used in expressions, see ((Statement as Expression)).
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -3,27 +3,30 @@ title: "Variable"
 keywords: "="
 ---
 
-.Synopsis
+#### Synopsis
+
 Assign to a variable.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 The expression _Exp_ is evaluated and its value is assigned to the variable _Var_.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 N = 3;
 N;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,23 +2,26 @@
 title: NamedParagraph
 ---
 
-.Synopsis
+#### Synopsis
+
 Mark up for a named paragraph.
 
-.Syntax
+#### Syntax
 
 *  `## ParagraphName`
 *  `\### ParagraphName`
 *  ...
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 A NamedParagraph produces a named paragraph of a level that is determined by the number of `#` characters preceding the _ParagraphName_.
 
-.Examples
+#### Examples
+
 The input:
 
 `## Paragraph`
@@ -27,9 +30,10 @@ will give
 
 ## Paragraph
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 * NamedParagraphs have at least two hash signs (`##`). A single hash is reserved for the Concept level.
 * A NamedParagraph should start at the start of a line.
 

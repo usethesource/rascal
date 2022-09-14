@@ -2,16 +2,17 @@
 title: Parse Trees
 ---
 
-.Synopsis
+#### Synopsis
+
 An algebraic data-type for parse trees; produced by all parsers generated from syntax definitions.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 Below is the full definition of `Tree` and `Production` and `Symbol`. A parse tree is a nested tree structure of type `Tree`. 
 
@@ -38,7 +39,7 @@ You can analyze and manipulate parse trees in three ways:
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
 Each such a non-terminal type has `Tree` as its immediate super-type.
                 
-.Examples
+#### Examples
 
 ```rascal
 // the following definition
@@ -67,7 +68,7 @@ lexical B = myB:"b";
 test a() = parse(#A,"ab") == appl(prod(label("myA",lex("A")),[lit("a"),sort("bLabel",lex("B"))],{}),[appl(prod(lit("a"),[\char-class([range(97,97)]),[char(97)]),appl(prod(label("myB", lex("B"),[lit("b")],{}),[appl(prod(lit("b"),[\char-class([range(98,98)]),[char(98)])]) ]);
 // here you see that the alternative name is a label around the first argument of `prod` while argument labels become labels in the list of children of a `prod`.
 ```
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,23 +2,25 @@
 title: Abstract Syntax Tree
 ---
 
-.Synopsis
+#### Synopsis
+
 Representation of the abstract syntactic structure of a program.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
+
 A ((ParseTree-ParseTree)) is a detailed and very precise represention of the concrete syntactic structure of a program.
 It may even be so detailed that it contains every space, comment and parenthesis in the original source text.
 In many cases a less detailed representation is sufficient and an abstract syntax tree (or AST for short) is used.
 
-.Examples
+#### Examples
 
 For the input sentence
 
@@ -35,7 +37,7 @@ the parse tree (left) and abstract syntax tree (right) may look as follows:
 Note that the parse tree on the left did not preserve the spaces in the original text but there
 are parse tree formats (including the one used by Rascal) that preserve all textual information.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

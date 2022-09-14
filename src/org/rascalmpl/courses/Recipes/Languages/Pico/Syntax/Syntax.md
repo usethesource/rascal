@@ -2,21 +2,23 @@
 title: Syntax
 ---
 
-.Synopsis
+#### Synopsis
+
 Concrete syntax for Pico.
 
-.Syntax
+#### Syntax
 
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 ```rascal
 include::{LibDir}demo/lang/Pico/Syntax.rsc[tags=module]
 ```
@@ -31,7 +33,7 @@ Notes:
 *  The rules for `Expression` describe the priority and associativity of the operators: all operators are left-associative and `||` has a higher priority then `+` and `-`.
 *  Two auxiliary functions `program` are defined that parse a given string or a given location as Pico program.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

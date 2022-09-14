@@ -3,16 +3,17 @@ title: "Set Pattern"
 keywords: "{,}"
 ---
 
-.Synopsis
+#### Synopsis
+
 Set in abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A set pattern matches a set value (the subject), provided that _Pat_~1~, _Pat_~2~, ..., _Pat_~n~ match the elements of that set in *any* order
 (recall that the elements of a set are unordered and do not contain duplicates).
@@ -29,7 +30,7 @@ Completely analogous to list patterns, there are special cases when one of the p
 
 
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import IO;
@@ -72,7 +73,7 @@ if({10, N, 30, 40, 50} := {50, 40, 30, 20, 10})
    println("Match succeeded, N = <N>");
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

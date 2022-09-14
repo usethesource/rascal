@@ -3,23 +3,26 @@ title: "DateTime"
 keywords: "$,date,datetime,time"
 ---
 
-.Synopsis
+#### Synopsis
+
 Date and time values.
 
-.Syntax
+#### Syntax
 
 *  `$` `Date` `$`
 *  `$` `Time` `$`
 *  `$` `DateTime` `$`
 
-.Types
+#### Types
+
 `datetime`
 
-.Usage
+#### Usage
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Date, time, and datetime values are represented by the `datetime` type.
 `datetime` literals start with a `$` and are made up of either a date, given in year, month, day of month order; 
 a time, preceded by `T` and given in hour, minute, second, millisecond, (optional) timezone offset order; 
@@ -78,7 +81,7 @@ loctoc::[Rascal/Libraries/Prelude/DateTime,1]
 
 There are also [library functions]((Library:DateTime)) available for DateTime.
 
-.Examples
+#### Examples
 
 Examples of `datetime` values are:
 ```rascal-shell,continue
@@ -97,9 +100,9 @@ DT.justTime;
 DT.century;
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
 * In normal parlance, the year 2010 is in the 21th century. The `century` field, however, just returns the century component of a given year, e.g., for 2010 this is 20.
 * `DT.justTime` prints a time literal that currently can not be parsed back into a value to due to issue #1443.

@@ -3,13 +3,15 @@ title: "Number Addition"
 keywords: "+"
 ---
 
-.Synopsis
+#### Synopsis
+
 Addition on numeric values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ + Exp~2~`
 
-.Types
+#### Types
 
 
 | `Exp~1~`  |  `Exp~2~` | `Exp~1~ + Exp~2~`  |
@@ -19,18 +21,20 @@ Addition on numeric values.
 | `real`     |  `real`    | `real`                |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Yields the numerical sum of the values of _Exp_~1~ and _Exp_~2~.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 12 + 13
 12 + 13.5
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

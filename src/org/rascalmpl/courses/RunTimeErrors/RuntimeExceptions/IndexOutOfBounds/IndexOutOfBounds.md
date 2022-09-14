@@ -2,18 +2,22 @@
 title: Index Out Of Bounds
 ---
 
-.Synopsis
+#### Synopsis
+
 Index is out of bounds.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
+
 `data RuntimeException = IndexOutOfBounds(int index)`
 
-.Usage
+#### Usage
+
 `import Exception;` (only needed when `IndexOutOfBounds` is used in `catch`)
 
-.Description
+#### Description
+
 Subscription is possible on various ordered types, including [list]((Rascal:List-Subscription)),
 link:{RascaLangl}#Tuple-Subscription[tuple], and
 [node]((Rascal:Node-Subscription)).
@@ -29,7 +33,7 @@ Remedies:
 *  Catch the `IndexOutOfBounds` yourself, see [try catch]((Rascal:Statements-TryCatch)).
 
 
-.Examples
+#### Examples
 
 Initialize a list `L`:
 ```rascal-shell,continue,error
@@ -51,7 +55,7 @@ catch IndexOutOfBounds(msg):
 ```
 
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

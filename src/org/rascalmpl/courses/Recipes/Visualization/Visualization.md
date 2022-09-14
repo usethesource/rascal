@@ -2,16 +2,17 @@
 title: Visualization
 ---
 
-.Synopsis
+#### Synopsis
+
 Recipes for creating visualizations.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 WARNING: The visualization library is being reimplemented and reorganized; 
 the information provided here maybe inaccurate or even incorrect
@@ -20,9 +21,9 @@ We cover the following topics:
 
 (((TOC)))
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

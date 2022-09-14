@@ -3,13 +3,15 @@ title: "ListRelation Composition"
 keywords: "o"
 ---
 
-.Synopsis
+#### Synopsis
+
 Composition of two list relation values.
 
-.Syntax
+#### Syntax
+
 `Exp~1~ o Exp~2~`
 
-.Types
+#### Types
 
 //
 
@@ -18,18 +20,21 @@ Composition of two list relation values.
 | `lrel[T~1~, T~2~]` | `lrel[T~2~, T~3~]` | `lrel[T~1~, T~3~]` |
 
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Returns the composition of two binary list relations.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 [<1,10>, <2,20>, <3,15>] o [<10,100>, <20,200>];
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 We use the letter `o` as operator and this may conflict other defined names.
 

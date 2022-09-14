@@ -2,16 +2,18 @@
 title: Recipes
 ---
 
-.Synopsis
+#### Synopsis
+
 Recipes for writing Rascal programs.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a collection of basic Rascal language examples and use cases.
 It consists of the following parts:
 
@@ -31,9 +33,9 @@ The following features are covered:
 *  Visualization.
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

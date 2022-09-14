@@ -2,10 +2,11 @@
 title: Collector
 ---
 
-.Synopsis
+#### Synopsis
+
 A `Collector` collects constraints from source code and produces an initial `TModel`.
 
-.Description
+#### Description
 
 A `Collector` is a statefull object that provides all the functions described below
 to access and change its internal state. The global services provided by a `Collector` are:

@@ -2,24 +2,27 @@
 title: Benefits
 ---
 
-.Synopsis
+#### Synopsis
+
 Briefly lists known advantages of the concept.
 
-.Syntax
+#### Syntax
+
 ```
-.Benefits
+#### Benefits
+
 _MarkedText_
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,20 +2,20 @@
 title: Measuring Classes
 ---
 
-.Synopsis
+#### Synopsis
 
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
        
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
 ```rascal-shell
 ```
@@ -68,7 +68,7 @@ what is the ratio between fields and methods for each class?
 (cl : (numberOfFieldsPerClass[cl] * 1.0) / (numberOfMethodsPerClass[cl] * 1.0) | cl <- classes(myModel))
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,23 +2,26 @@
 title: Statement as Expression
 ---
 
-.Synopsis
+#### Synopsis
+
 Statements that have a value and can be used as expressions.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Several forms of statements produce a value and can be used as expression. 
 This is further explained in the sections for the relevant statements, see ((Statements-If)), ((While)), ((Do)) and ((For)).
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 It is likely that the design of Rascal will evolve into completely merging expressions and statements.
 

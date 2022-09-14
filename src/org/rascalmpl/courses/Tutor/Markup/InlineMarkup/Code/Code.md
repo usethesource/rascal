@@ -2,27 +2,32 @@
 title: Code
 ---
 
-.Synopsis
+#### Synopsis
+
 Create inline code fragments.
 
-.Syntax
-.Syntax
+#### Syntax
+
+#### Syntax
+
 ```
 \`MarkedText`
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
+
 Creates inline fragments of text that represent code.
 Inside the _MarkedText_, other markup can be used.
 
-.Examples
+#### Examples
+
 ` `if` ` --- that is ` followed by `if` followed by ` --- gives `if`.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

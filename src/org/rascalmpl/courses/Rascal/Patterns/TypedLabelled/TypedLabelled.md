@@ -3,16 +3,17 @@ title: "Typed and Labelled Pattern"
 keywords: ":"
 ---
 
-.Synopsis
+#### Synopsis
+
 Typed, labelled, abstract pattern.
 
-.Syntax
+#### Syntax
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
 A typed, labelled, pattern matches when the subject value has type _Type_ and _Pat_ matches. 
 The matched value is assigned to _Var_.
@@ -23,7 +24,7 @@ This construct is used for:
    This is similar to ((Labelled Pattern))s but with an extra type
 *  to assert that the pattern has a certain type. This can be useful in disambiguating a constructor name, as in the example below.
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import IO;
@@ -36,7 +37,7 @@ visit (ex) {
 }
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 

@@ -2,24 +2,27 @@
 title: Bold
 ---
 
-.Synopsis
+#### Synopsis
+
 Create *bold* text.
 
-.Syntax
+#### Syntax
+
 ```
 \*_Text_*
 ```
 
-.Types
+#### Types
 
-.Function
+#### Function
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 `\*bold*` gives *bold*.
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
 
