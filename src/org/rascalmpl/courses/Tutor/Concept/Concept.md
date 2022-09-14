@@ -1,6 +1,5 @@
 ---
 title: Concept
-details: _ConceptNames_,```,```
 ---
 
 .Synopsis

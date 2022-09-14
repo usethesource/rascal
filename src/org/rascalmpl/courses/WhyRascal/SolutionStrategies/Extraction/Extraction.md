@@ -1,6 +1,5 @@
 ---
 title: Extraction
-details: [[Extraction-Workflow]],![Extraction,Workflow]((define-extraction.png))
 ---
 
 .Synopsis
@@ -13,7 +12,9 @@ Strategies to extract facts from software systems.
 .Function
 
 .Description
- 
+
+![Extraction workflow]((define-extraction.png))
+
 How can we extract facts from the _System under Investigation_ (SUI) that we are interested in? 
 The extraction workflow is shown in the figure above and consists of the following steps:
 

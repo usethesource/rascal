@@ -1,6 +1,5 @@
 ---
 title: Analysis
-details: [[Analysis-Workflow]],![Analysis,Workflow]((define-analysis.png))
 ---
 
 .Synopsis
@@ -27,6 +26,7 @@ The analysis workflow is shown in the figure ((Analysis-Workflow)) below and con
 
   **  Combining enriched, extracted, facts to create new facts.
 
+![Analysis,Workflow]((define-analysis.png))
 
 As before, validate, validate and validate the results of analysis. Essentially the same approach can be used as for validating the facts. Manual checking of answers on random samples of the SUI may be mandatory. It also happens frequently that answers inspire new queries that lead to new answers, and so on.
 
