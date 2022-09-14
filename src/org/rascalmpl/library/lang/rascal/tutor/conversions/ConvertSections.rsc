@@ -2,6 +2,7 @@ module lang::rascal::tutor::conversions::ConvertSections
 
 import IO;
 import String;
+import List;
 import util::FileSystem;
 
 void convertAllSections(loc dir) {
@@ -43,6 +44,20 @@ list[str] convertSections([str first:/^\s*\[source[^\]]*\]\s*$/, /---/, *str blo
         "```<postfix>",
         *convertSections(rest2)
     ];
+
+list[str] convertSections([str first:/^#\s+<title:.*>$/, *str rest2, /^\s*\.Index/, *str indexLines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3])
+    = [
+        "---",
+        "title: \"<title>\"",
+        "keywords: \"<intercalate(",", words(indexLines))>\"",
+        "---",
+        *convertSections(rest2),
+        nextHeader,
+        *rest3
+    ];    
+
+list[str] words(list[str] input) = [ *words(line) | line <- input];
+list[str] words(str input) = [w | /<w:\S+>/ := input];
 
 /*
 
