@@ -1,4 +1,6 @@
-# Compiler Error
+---
+title: Compiler Error
+---
 
 .Synopsis
 An internal error in the Rascal compiler

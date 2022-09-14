@@ -1,4 +1,6 @@
-# Renaming
+---
+title: Renaming
+---
 
 .Synopsis
 How to rename a concept.
@@ -10,8 +12,6 @@ How to rename a concept.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 To rename a concept _C_ to _D_:

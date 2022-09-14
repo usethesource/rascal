@@ -22,8 +22,6 @@ The difference between two lists.
 
 .Function
 
-.Details
-
 .Description
 If both _Exp_~1~ and _Exp_~2~ have a list as value, the result is the difference of these two list values. 
 If _Exp_~2~ does not have a list as value, it is first converted to a list before the difference is computed.

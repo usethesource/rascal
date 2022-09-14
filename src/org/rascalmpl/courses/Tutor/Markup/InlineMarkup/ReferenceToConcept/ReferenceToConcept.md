@@ -1,4 +1,6 @@
-# Reference to Concept
+---
+title: Reference to Concept
+---
 
 .Synopsis
 Refer to a concept in this course or another course.
@@ -12,8 +14,6 @@ Refer to a concept in this course or another course.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

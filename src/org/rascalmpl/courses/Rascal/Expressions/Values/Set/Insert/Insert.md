@@ -20,8 +20,6 @@ Add an element to a set.
 
 .Function
 
-.Details
-
 .Description
 
 The `+` operator will add elements to sets.

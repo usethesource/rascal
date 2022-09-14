@@ -1,4 +1,6 @@
-# Image
+---
+title: Image
+---
 
 .Synopsis
 Include an image.
@@ -13,8 +15,6 @@ image::_File_[_AlternateName_, _Width_, _Height_, link=_URI_]
 .Types
 
 .Function
-
-.Details
 
 .Description
 Describes an image to be included:

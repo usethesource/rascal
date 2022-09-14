@@ -27,8 +27,6 @@ An _Assignable_ is one of the following:
 
 .Function
 
-.Details
-
 .Description
 The purpose of an assignment is to assign a new value to a simple variable or to an element of a more complex data structure. 
 

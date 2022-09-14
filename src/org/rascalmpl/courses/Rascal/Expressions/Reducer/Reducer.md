@@ -13,8 +13,6 @@ Reduce generated values to a single value.
 
 .Function
 
-.Details
-
 .Description
 A reducer resembles the http://en.wikipedia.org/wiki/Fold_(higher-order_function)[fold] function
 found in most functional languages.

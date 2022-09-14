@@ -20,8 +20,6 @@ Less than operator on datetime values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the `datetime` value of Exp~1~ is earlier in time than the `datetime` value
 of _Exp~2~_, and `false` otherwise.

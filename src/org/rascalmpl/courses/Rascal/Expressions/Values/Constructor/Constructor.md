@@ -1,4 +1,6 @@
-# Constructor
+---
+title: Constructor
+---
 
 .Synopsis
 
@@ -18,8 +20,6 @@ Constructors create values for user-defined datatypes (Algebraic Datatypes).
 
 
 .Function
-
-.Details
 
 .Description
 In ordinary programming languages record types or classes exist to introduce a new type name for a collection of related, 

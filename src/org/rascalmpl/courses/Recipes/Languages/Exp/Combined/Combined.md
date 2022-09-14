@@ -1,4 +1,6 @@
-# Combined
+---
+title: Combined
+---
 
 .Synopsis
 Combine concrete syntax with abstract syntax.
@@ -8,8 +10,6 @@ Combine concrete syntax with abstract syntax.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Concrete syntax gives full control over the textual appearance of a language and leads to parse trees

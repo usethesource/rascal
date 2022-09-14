@@ -1,4 +1,6 @@
-# UnguardedIt
+---
+title: UnguardedIt
+---
 
 .Synopsis
 The special variable `it` occurs outside a reducer expression.
@@ -10,8 +12,6 @@ The special variable `it` occurs outside a reducer expression.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A [reducer]((Rascal:Expressions-Reducer)) is used to reduce all elements in a collection to a sngle value.

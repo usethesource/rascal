@@ -1,4 +1,7 @@
-# Basic
+---
+title: Basic
+details: Hello,Factorial,Squares
+---
 
 .Synopsis
 Some basic, _hello world_-like, examples of Rascal programs.
@@ -8,9 +11,6 @@ Some basic, _hello world_-like, examples of Rascal programs.
 .Types
 
 .Function
-
-.Details
-Hello Factorial Squares
 
 .Description
 We discuss the following examples:

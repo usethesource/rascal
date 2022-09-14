@@ -1,4 +1,6 @@
-# Ambiguity
+---
+title: Ambiguity
+---
 
 .Synopsis
 Ambiguity found in parsed text. 

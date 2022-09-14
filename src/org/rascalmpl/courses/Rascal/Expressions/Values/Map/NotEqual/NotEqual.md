@@ -18,8 +18,6 @@ Not equal operator on map values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments contain different key/value pairs, and `false` otherwise.
 

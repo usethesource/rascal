@@ -1,4 +1,6 @@
-# Eval3
+---
+title: Eval3
+---
 
 .Synopsis
 A complete Func interpreter including support for the address and dereference operators.
@@ -8,8 +10,6 @@ A complete Func interpreter including support for the address and dereference op
 .Types
 
 .Function
-
-.Details
 
 .Description
 

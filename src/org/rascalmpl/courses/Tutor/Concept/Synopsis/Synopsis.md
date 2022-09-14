@@ -1,4 +1,6 @@
-# Synopsis
+---
+title: Synopsis
+---
 
 .Synopsis
 One-line summary of the concept that is usable as a tool tip or table of contents entry
@@ -12,8 +14,6 @@ _MarkedText_
 .Types
 
 .Function
-
-.Details
 
 .Description
 

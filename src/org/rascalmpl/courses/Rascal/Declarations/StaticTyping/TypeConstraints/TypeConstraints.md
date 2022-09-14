@@ -13,8 +13,6 @@ Type constraints restrict the acceptable type for parameters.
 
 .Function
 
-.Details
-
 .Description
 Constraints can be imposed on the actual types to which a type parameter may be bound. 
 This is expressed by a subtype constraint which expresses that 

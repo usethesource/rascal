@@ -1,4 +1,6 @@
-# UndeclaredNonTerminal
+---
+title: UndeclaredNonTerminal
+---
 
 .Synopsis
 A syntax rule uses an undeclared non-terminal.
@@ -10,8 +12,6 @@ A syntax rule uses an undeclared non-terminal.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 All non-terminals that occur in a [syntax definition]((Rascal:Declarations-SyntaxDefinition))

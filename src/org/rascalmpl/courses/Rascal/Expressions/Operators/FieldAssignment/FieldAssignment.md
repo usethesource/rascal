@@ -13,8 +13,6 @@ Assignment to a field of a tuple or datatype.
 
 .Function
 
-.Details
-
 .Description
 _Exp_~1~ should evaluate to a tuple or datatype with a field _Name_; assign the value of _Exp_~2~ to that field
 

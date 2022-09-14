@@ -18,8 +18,6 @@ Equal operator on node values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the node names of the values of _Exp_~1~ and _Exp_~2~ are equal and
 the children of each node are pairwise equal, otherwise `false`.

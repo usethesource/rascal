@@ -1,4 +1,6 @@
-# Abstract
+---
+title: Abstract
+---
 
 .Synopsis
 A version of Exp based on abstract syntax.
@@ -8,8 +10,6 @@ A version of Exp based on abstract syntax.
 .Types
 
 .Function
-
-.Details
 
 .Description
 The [abstract syntax](http://en.wikipedia.org/wiki/Abstract_syntax) for a language is a

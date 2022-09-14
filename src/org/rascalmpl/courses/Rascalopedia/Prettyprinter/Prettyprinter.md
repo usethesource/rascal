@@ -1,4 +1,6 @@
-# Prettyprinter
+---
+title: Prettyprinter
+---
 
 .Synopsis
 Transform an ((Abstract Syntax Tree)) into a formatted string.
@@ -10,8 +12,6 @@ Transform an ((Abstract Syntax Tree)) into a formatted string.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A [pretty printer](http://en.wikipedia.org/wiki/Prettyprint)

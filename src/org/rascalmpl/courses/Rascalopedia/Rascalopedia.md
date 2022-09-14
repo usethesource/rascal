@@ -1,4 +1,6 @@
-# Rascalopedia
+---
+title: Rascalopedia
+---
 
 .Synopsis
 Overview of important terms and concepts.
@@ -10,8 +12,6 @@ Overview of important terms and concepts.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

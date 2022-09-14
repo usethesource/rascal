@@ -19,8 +19,6 @@ Remainder of two integer values.
 
 .Function
 
-.Details
-
 .Description
 Yields the remainder when dividing the of _Exp_~1~ by the value of _Exp_~2~.
 

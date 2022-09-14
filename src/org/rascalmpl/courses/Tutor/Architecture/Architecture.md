@@ -1,4 +1,6 @@
-# Architecture
+---
+title: Architecture
+---
 
 .Synopsis
 The global architeture of the Rascal Tutor

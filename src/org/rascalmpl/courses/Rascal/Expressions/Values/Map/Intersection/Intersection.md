@@ -19,8 +19,6 @@ Intersection of two maps.
 
 .Function
 
-.Details
-
 .Description
 Returns the intersection of the two map values of _Exp_~1~ and _Exp_~2~, i.e., a map that contains the key/value pairs that
 occur in both maps.

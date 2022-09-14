@@ -1,4 +1,6 @@
-# Types
+---
+title: Types
+---
 
 .Synopsis
 Part of the synopsis that describes any types or typing rules introduced by this concept.
@@ -12,8 +14,6 @@ _MarkedText_
 .Types
 
 .Function
-
-.Details
 
 .Description
 The `Types` section describes any types that are involved in the concept that is described.

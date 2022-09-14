@@ -1,4 +1,6 @@
-# Value
+---
+title: Value
+---
 
 .Synopsis
 Question about the value of a Rascal expression or program.
@@ -11,8 +13,6 @@ Question about the value of a Rascal expression or program.
 .Types
 
 .Function
-
-.Details
 
 .Description
 A value question presents a Rascal expression and poses a question about its value.

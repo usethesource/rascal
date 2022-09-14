@@ -1,4 +1,6 @@
-# Unavailable Information
+---
+title: Unavailable Information
+---
 
 .Synopsis
 Requested information is unavailable at runtime

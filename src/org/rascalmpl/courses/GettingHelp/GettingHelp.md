@@ -1,13 +1,11 @@
 ---
 title: "Getting Help"
 keywords: "tutorial,newbie,faq,question,beginner,doc,documentation"
+details: CommandLine,IDE,Browsing
 ---
 
 .Synopsis
 Getting help when working with Rascal
-
-.Details
-CommandLine IDE Browsing
 
 .Description
 

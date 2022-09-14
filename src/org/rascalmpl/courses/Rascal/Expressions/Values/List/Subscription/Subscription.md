@@ -20,8 +20,6 @@ Retrieve a list element via its index.
 
 .Function
 
-.Details
-
 .Description
 List subscription uses the integer value of _Exp_~2~ as index in the list value of _Exp_~1~.
 The value of _Exp_~2~ should be greater or equal 0 and less than the number of elements in the list.

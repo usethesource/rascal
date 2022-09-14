@@ -1,4 +1,6 @@
-# Bullet Lists
+---
+title: Bullet Lists
+---
 
 .Synopsis
 A (possible nested) list of bullet points.
@@ -12,8 +14,6 @@ A (possible nested) list of bullet points.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Bullet lists create, possibly nested, lists of points.

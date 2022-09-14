@@ -1,4 +1,6 @@
-# Manual
+---
+title: Manual
+---
 
 .Synopsis
 An Exp evaluator that uses a manually written conversion from parse tree to abstract syntax tree.
@@ -8,8 +10,6 @@ An Exp evaluator that uses a manually written conversion from parse tree to abst
 .Types
 
 .Function
-
-.Details
 
 .Description
 

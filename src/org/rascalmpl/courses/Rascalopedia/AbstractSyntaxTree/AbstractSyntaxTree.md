@@ -1,4 +1,6 @@
-# Abstract Syntax Tree
+---
+title: Abstract Syntax Tree
+---
 
 .Synopsis
 Representation of the abstract syntactic structure of a program.
@@ -10,8 +12,6 @@ Representation of the abstract syntactic structure of a program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A ((ParseTree-ParseTree)) is a detailed and very precise represention of the concrete syntactic structure of a program.

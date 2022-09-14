@@ -1,13 +1,13 @@
-# TypePal: Name and Type Analysis Made Easy 
+---
+title: TypePal: Name and Type Analysis Made Easy 
+details: Overview,PocketCalculator,ConceptsAndDefinitions,Architecture,Reporting,Collector,Solver,Configuration,Utilities,Examples
+---
       
 .Synopsis
 TypePal is a framework for name analysis, type checking and type inference
 
 .Usage
   
-.Details
-Overview PocketCalculator ConceptsAndDefinitions Architecture Reporting Collector Solver Configuration Utilities Examples
-
 .Description
 Many type checkers have already been written in Rascal with good results. However, type checkers for different languages have a lot in common and address similar
 questions:

@@ -1,4 +1,6 @@
-# Parse
+---
+title: Parse
+---
 
 .Synopsis
 Parsing a Lisp expression.
@@ -10,8 +12,6 @@ Parsing a Lisp expression.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

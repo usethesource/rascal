@@ -1,4 +1,6 @@
-# Not Implemented
+---
+title: Not Implemented
+---
 
 .Synopsis
 Attempt to execute an unimplemented feature.

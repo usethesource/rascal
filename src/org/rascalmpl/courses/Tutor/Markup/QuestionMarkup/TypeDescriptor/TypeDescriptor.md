@@ -1,4 +1,6 @@
-# TypeDescriptor
+---
+title: TypeDescriptor
+---
 
 .Synopsis
 Description of a Rascal type used in type and value questions.
@@ -35,8 +37,6 @@ A _TypeDescriptor_ is one of
 .Types
 
 .Function
-
-.Details
 
 .Description
 A TypeDescriptor is used to describe Rascal types and values in questions and are used to automatically generate

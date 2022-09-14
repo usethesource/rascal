@@ -1,4 +1,6 @@
-# UndeclaredModule
+---
+title: UndeclaredModule
+---
 
 .Synopsis
 Reference to a non-existing module.
@@ -10,8 +12,6 @@ Reference to a non-existing module.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 This can, for example, occur in a qualified name.

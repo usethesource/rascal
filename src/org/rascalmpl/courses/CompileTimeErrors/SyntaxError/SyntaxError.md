@@ -1,4 +1,6 @@
-# SyntaxError
+---
+title: SyntaxError
+---
 
 .Synopsis
 Text in a module or entered via the command line violates the Rascal syntax.
@@ -10,8 +12,6 @@ Text in a module or entered via the command line violates the Rascal syntax.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 This error is generated when a text is expected to be Rascal but does not comply with the Rascal syntax.

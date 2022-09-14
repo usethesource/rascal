@@ -51,8 +51,6 @@ where `_StringChar~i~_ may be one of the following:
 
 .Function
 
-.Details
-
 .Description
 
 The string values are represented by the type `str` and consist of character 

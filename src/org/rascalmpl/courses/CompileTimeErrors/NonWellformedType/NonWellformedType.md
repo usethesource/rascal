@@ -1,4 +1,6 @@
-# NonWellformedType
+---
+title: NonWellformedType
+---
 
 .Synopsis
 A type in a declaration is not wellformed.
@@ -10,8 +12,6 @@ A type in a declaration is not wellformed.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Types should respect some structural rules and this error signals a violation of these rules.

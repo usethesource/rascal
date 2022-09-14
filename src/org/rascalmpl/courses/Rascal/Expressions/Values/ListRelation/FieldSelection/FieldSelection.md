@@ -20,8 +20,6 @@ Select a field (column) from a list relation value.
 
 .Function
 
-.Details
-
 .Description
 _Exp_ should evaluate to a list relation that has an _i_-th field label _L_~i~ that is identical to _Name_.
 Return a list with all values of that field.

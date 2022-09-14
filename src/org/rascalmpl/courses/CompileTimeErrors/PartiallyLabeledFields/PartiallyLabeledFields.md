@@ -1,4 +1,6 @@
-# PartiallyLabeledFields
+---
+title: PartiallyLabeledFields
+---
 
 .Synopsis
 In a tuple or relation all fields should have names or none at all.
@@ -10,8 +12,6 @@ In a tuple or relation all fields should have names or none at all.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 The fields in tuples and relations can optionally be labelled with a name.

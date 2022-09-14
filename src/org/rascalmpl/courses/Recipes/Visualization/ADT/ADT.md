@@ -1,4 +1,6 @@
-# ADT
+---
+title: ADT
+---
 
 .Synopsis
 Visualize an Algebraic Datatype as a tree.
@@ -8,8 +10,6 @@ Visualize an Algebraic Datatype as a tree.
 .Types
 
 .Function
-
-.Details
 
 .Description
 In ((ColoredTrees)) we have discussed the Algebraic Data Type `ColoredTree`.

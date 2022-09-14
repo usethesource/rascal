@@ -13,8 +13,6 @@ Define a user-defined type (Algebraic Data Type).
 
 .Function
 
-.Details
-
 .Description
 
 In ordinary programming languages record types or classes exist to introduce a new type name for a collection of related, 

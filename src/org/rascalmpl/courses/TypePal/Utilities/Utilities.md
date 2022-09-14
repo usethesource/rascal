@@ -1,4 +1,6 @@
-# Utilities
+---
+title: Utilities
+---
 
 .Synopsis
 Some utility functions.

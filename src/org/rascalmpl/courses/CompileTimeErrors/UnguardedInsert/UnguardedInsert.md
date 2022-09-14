@@ -1,4 +1,6 @@
-# UnguardedInsert
+---
+title: UnguardedInsert
+---
 
 .Synopsis
 An `insert` occurs outside a `visit` expression.
@@ -10,8 +12,6 @@ An `insert` occurs outside a `visit` expression.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

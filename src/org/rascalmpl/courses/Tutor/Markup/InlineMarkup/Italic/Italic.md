@@ -1,4 +1,6 @@
-# Italic
+---
+title: Italic
+---
 
 .Synopsis
 Create _italic_ text.
@@ -11,8 +13,6 @@ _ _Text_ _
 .Types
 
 .Function
-
-.Details
 
 .Description
 

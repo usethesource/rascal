@@ -1,4 +1,6 @@
-# Type
+---
+title: Type
+---
 
 .Synopsis
 A question about a Rascal type.
@@ -11,8 +13,6 @@ A question about a Rascal type.
 .Types
 
 .Function
-
-.Details
 
 .Description
 A type question presents a Rascal expressions and poses a question about its type.

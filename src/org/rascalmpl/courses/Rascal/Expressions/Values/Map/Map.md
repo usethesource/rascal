@@ -21,8 +21,6 @@ Map values.
 
 .Function
 
-.Details
-
 .Description
 A map is a set of key/value pairs and has the following properties:
 

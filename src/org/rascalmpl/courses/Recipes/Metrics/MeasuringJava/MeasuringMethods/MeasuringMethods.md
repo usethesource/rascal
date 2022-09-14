@@ -1,4 +1,6 @@
-# Measuring Methods
+---
+title: Measuring Methods
+---
 
 .Synopsis
 
@@ -10,8 +12,6 @@
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

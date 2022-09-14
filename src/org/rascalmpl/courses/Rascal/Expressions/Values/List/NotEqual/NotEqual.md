@@ -20,8 +20,6 @@ Not equal operator on lists.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments are unequal lists and `false` otherwise.
 

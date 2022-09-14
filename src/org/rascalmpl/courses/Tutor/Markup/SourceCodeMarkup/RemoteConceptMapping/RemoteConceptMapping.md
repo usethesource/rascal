@@ -1,4 +1,6 @@
-# Remote Concept Mapping
+---
+title: Remote Concept Mapping
+---
 
 .Synopsis
 Include the concepts in a Rascal source module in a course.
@@ -10,8 +12,6 @@ Include the concepts in a Rascal source module in a course.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

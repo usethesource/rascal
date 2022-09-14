@@ -1,4 +1,6 @@
-# NewParagraph
+---
+title: NewParagraph
+---
 
 .Synopsis
 Introduce a new paragraph.
@@ -8,8 +10,6 @@ Introduce a new paragraph.
 .Types
 
 .Function
-
-.Details
 
 .Description
 A new paragraph is created by a single empty line.

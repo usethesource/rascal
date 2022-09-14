@@ -21,8 +21,6 @@ Concatenate two lists.
 
 .Function
 
-.Details
-
 .Description
 
 The `+` operator concatenates the elements of the two lists in order of appearance. 

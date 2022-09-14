@@ -1,4 +1,6 @@
-# Admonition
+---
+title: Admonition
+---
 
 .Synopsis
 Mark up for admonitions.
@@ -13,8 +15,6 @@ Mark up for admonitions.
 .Types
 
 .Function
-
-.Details
 
 .Description
 An admonition is remark that should draw the reader's attention.

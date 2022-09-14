@@ -16,8 +16,6 @@ sequence of digits of arbitrary length.
 
 .Function
 
-.Details
-
 .Description
 The integer values are represented by the type `int` and are written as usual. They can be _arbitrarily large_.
 

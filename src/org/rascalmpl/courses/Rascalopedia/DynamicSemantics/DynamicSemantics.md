@@ -1,4 +1,6 @@
-# Dynamic Semantics
+---
+title: Dynamic Semantics
+---
 
 .Synopsis
 Description of the execution behaviour of a program.
@@ -10,8 +12,6 @@ Description of the execution behaviour of a program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Dynamic semantics describes the execution behaviour of a program and includes:

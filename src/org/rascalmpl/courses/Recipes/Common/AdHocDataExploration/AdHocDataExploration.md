@@ -1,4 +1,6 @@
-# Ad Hoc Data Exploration
+---
+title: Ad Hoc Data Exploration
+---
 
 .Synopsis
 Using Rascal to explore an interesting data space.
@@ -8,8 +10,6 @@ Using Rascal to explore an interesting data space.
 .Types
 
 .Function
-
-.Details
 
 .Description
 The problem we will look at comes from mathematics, and has a precise analytical solution, but

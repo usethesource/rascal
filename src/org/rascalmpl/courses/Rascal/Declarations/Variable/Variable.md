@@ -1,4 +1,6 @@
-# Variable Declaration
+---
+title: Variable Declaration
+---
 
 .Synopsis
 Declare a variable.
@@ -16,8 +18,6 @@ Declare a variable.
 
 
 .Function
-
-.Details
 
 .Description
 The effect of a variable declaration is to introduce a new variable _Name_ and

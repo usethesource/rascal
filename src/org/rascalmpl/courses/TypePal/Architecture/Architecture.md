@@ -1,4 +1,6 @@
-# Architecture of TypePal
+---
+title: Architecture of TypePal
+---
   
 .Synopsis
 Architectural overview of TypePal

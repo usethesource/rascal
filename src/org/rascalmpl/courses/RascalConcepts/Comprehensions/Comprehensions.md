@@ -1,4 +1,6 @@
-# Comprehensions
+---
+title: Comprehensions
+---
 
 .Synopsis
 Comprehensions for generating values.
@@ -8,8 +10,6 @@ Comprehensions for generating values.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Comprehensions are a notation inspired by mathematical [set-builder notation](http://en.wikipedia.org/wiki/Set-builder_notation)

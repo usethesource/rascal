@@ -1,4 +1,6 @@
-# Pico
+---
+title: Pico
+---
 
 .Synopsis
 The classical toy language, including a specialized IDE.
@@ -10,8 +12,6 @@ The classical toy language, including a specialized IDE.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

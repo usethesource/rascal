@@ -18,8 +18,6 @@ Retrieve a value by its key in map.
 
 .Function
 
-.Details
-
 .Description
 Map subscription uses the value of _Exp_~2~ as key in the map value of _Exp_~1~ and returns the associated value.
 If this key does not occur in the map, the exception `NoSuchKey` is thrown.

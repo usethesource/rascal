@@ -19,8 +19,6 @@ The product of two set values.
 
 .Function
 
-.Details
-
 .Description
 Yields a relation resulting from the product of the values of _Exp_~1~ and _Exp_~2~. It contains a tuple for each combination of values from both arguments.
 

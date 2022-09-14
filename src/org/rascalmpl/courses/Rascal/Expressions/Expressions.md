@@ -1,4 +1,6 @@
-# Expressions
+---
+title: Expressions
+---
 
 .Synopsis
 The expressions available in Rascal.

@@ -1,4 +1,6 @@
-# UndeclaredFunction
+---
+title: UndeclaredFunction
+---
 
 .Synopsis
 A function is called that has not been declared.
@@ -10,8 +12,6 @@ A function is called that has not been declared.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 All functions, constructors and variables have to be declared before they can be used.

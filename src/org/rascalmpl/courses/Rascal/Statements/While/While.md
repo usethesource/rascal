@@ -15,8 +15,6 @@ While loop.
 
 .Function
 
-.Details
-
 .Description
 The Boolean expression _Exp_ is evaluated repeatedly and _Statement_ is executed when the test is true. 
 Execution ends the first time that the test yields false. 

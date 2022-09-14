@@ -1,4 +1,6 @@
-# Static Typing
+---
+title: Static Typing
+---
 
 .Synopsis
 Static type checking.
@@ -8,8 +10,6 @@ Static type checking.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

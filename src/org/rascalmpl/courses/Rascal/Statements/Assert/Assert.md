@@ -21,8 +21,6 @@ An executable assertion.
 
 .Function
 
-.Details
-
 .Description
 An assert statement may occur everywhere where a declaration is allowed. It has two forms:
 

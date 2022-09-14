@@ -20,8 +20,6 @@ Test whether expression has a defined value, otherwise provide alternative.
 
 .Function
 
-.Details
-
 .Description
 If no exception is generated during the evaluation of _Exp_~1~, the result of `Exp~1~ ? Exp~2~` is the value of _Exp_~1~.
 Otherwise, it is the value of _Exp_~2~.

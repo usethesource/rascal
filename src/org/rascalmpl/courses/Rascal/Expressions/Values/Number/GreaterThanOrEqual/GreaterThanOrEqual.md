@@ -21,8 +21,6 @@ Greater than or equal operator on numeric values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the value of Exp~1~ is numerically greater than or equal to the value of Exp~2~, and `false` otherwise.
 

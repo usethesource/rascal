@@ -1,4 +1,6 @@
-# Tuple
+---
+title: Tuple
+---
 
 .Synopsis
 An ordered, fixed length, sequence of values of possibly different type.
@@ -10,8 +12,6 @@ An ordered, fixed length, sequence of values of possibly different type.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

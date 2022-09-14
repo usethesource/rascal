@@ -1,4 +1,6 @@
-# Renovation
+---
+title: Renovation
+---
 
 .Synopsis
 System renovation.

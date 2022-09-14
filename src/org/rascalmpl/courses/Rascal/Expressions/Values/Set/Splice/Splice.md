@@ -20,8 +20,6 @@ Splice the elements of a set in an enclosing set.
        
 .Usage
 
-.Details
-
 .Description
 The operator `*` splices the elements of a set in an enclosing set.
 

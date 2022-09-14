@@ -29,8 +29,6 @@ and where `Modifiers` may be:
 
 .Function
 
-.Details
-
 .Description
 ##  Variant 1 
 

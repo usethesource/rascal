@@ -14,8 +14,6 @@ Declare an annotation type for nodes. This feature is deprecated; please use ((K
 
 .Function
 
-.Details
-
 .Description
 An annotation may be associated with any node value, be it a pure node or some ((Algebraic Data Type)) derived from it.
 

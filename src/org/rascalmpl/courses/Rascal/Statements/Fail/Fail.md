@@ -13,8 +13,6 @@ Let the current alternative of a pattern match fail.
 
 .Function
 
-.Details
-
 .Description
 A `fail` statement is only allowed in statements that are controlled by the outcome of a pattern match:
 

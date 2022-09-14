@@ -14,8 +14,6 @@ Assign to multiple assignables.
        
 .Usage
 
-.Details
-
 .Description
 First the value _Exp_ is determined and should be a tuple of the form `< V~1~, V~2~, ..., V~n~ >`.
 Next the assignments `Assignable~i~ = V~i~` are performed for 1 \<= i \<= n.

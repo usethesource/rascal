@@ -1,4 +1,6 @@
-# Measuring Classes
+---
+title: Measuring Classes
+---
 
 .Synopsis
 
@@ -10,8 +12,6 @@
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

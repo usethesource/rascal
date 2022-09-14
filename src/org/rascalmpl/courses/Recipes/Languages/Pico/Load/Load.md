@@ -1,4 +1,6 @@
-# Load
+---
+title: Load
+---
 
 .Synopsis
 Convert a Pico parse tree into a Pico abstract syntax tree.
@@ -10,8 +12,6 @@ Convert a Pico parse tree into a Pico abstract syntax tree.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

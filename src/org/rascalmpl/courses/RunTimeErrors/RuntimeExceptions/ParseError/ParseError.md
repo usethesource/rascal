@@ -1,4 +1,6 @@
-# Parse Error
+---
+title: Parse Error
+---
 
 .Synopsis
 Parse of a syntactically incorrect string.
@@ -10,8 +12,6 @@ Parse of a syntactically incorrect string.
 .Usage
 `import Exception;` (only needed when `ParseError` is used in `catch`)
 
-
-.Details
 
 .Description
 This error is generated when during the execution of a Rascal program the

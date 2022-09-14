@@ -20,8 +20,6 @@ Equality on lists.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments are equal lists and `false` otherwise.
 

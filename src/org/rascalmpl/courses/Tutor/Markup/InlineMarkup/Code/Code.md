@@ -1,4 +1,6 @@
-# Code
+---
+title: Code
+---
 
 .Synopsis
 Create inline code fragments.
@@ -12,8 +14,6 @@ Create inline code fragments.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Creates inline fragments of text that represent code.

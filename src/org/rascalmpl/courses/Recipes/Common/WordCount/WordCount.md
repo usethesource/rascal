@@ -1,4 +1,6 @@
-# Word Count
+---
+title: Word Count
+---
 
 .Synopsis
 Counting words in strings.
@@ -8,8 +10,6 @@ Counting words in strings.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

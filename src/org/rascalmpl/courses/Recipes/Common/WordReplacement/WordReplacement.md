@@ -1,4 +1,6 @@
-# Word Replacement
+---
+title: Word Replacement
+---
 
 .Synopsis
 Replace words in a string.
@@ -8,8 +10,6 @@ Replace words in a string.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Suppose you are a book editor and want to ensure that all chapter

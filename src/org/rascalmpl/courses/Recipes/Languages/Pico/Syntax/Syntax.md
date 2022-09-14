@@ -1,4 +1,6 @@
-# Syntax
+---
+title: Syntax
+---
 
 .Synopsis
 Concrete syntax for Pico.
@@ -11,8 +13,6 @@ Concrete syntax for Pico.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

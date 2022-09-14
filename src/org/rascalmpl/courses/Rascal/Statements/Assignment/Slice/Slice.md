@@ -19,8 +19,6 @@ Assign to a slice of a list or string.
        
 .Usage
 
-.Details
-
 .Description
 
 A slice assignment is defined for ((Expressions-Values-List)), ((Values-String)) and ((Values-Node)) 

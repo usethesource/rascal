@@ -1,4 +1,6 @@
-# Func
+---
+title: Func
+---
 
 .Synopsis
 Func is a tiny functional language; we present several interpreters for it.
@@ -8,8 +10,6 @@ Func is a tiny functional language; we present several interpreters for it.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Func is a functional language with the following features:

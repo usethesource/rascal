@@ -1,4 +1,7 @@
-# Runtime Errors 
+---
+title: Runtime Errors 
+details: RuntimeExceptions,OtherRuntimeErrors
+---
 
 .Synopsis
 All exceptions and errors a Rascal program can generate during execution (run time).
@@ -10,9 +13,6 @@ All exceptions and errors a Rascal program can generate during execution (run ti
 .Function
        
 .Usage
-
-.Details
-RuntimeExceptions OtherRuntimeErrors
 
 .Description
 

@@ -1,4 +1,6 @@
-# Eval0
+---
+title: Eval0
+---
 
 .Synopsis
 A Func interpreter that does not support let-expressions and pointers.
@@ -8,8 +10,6 @@ A Func interpreter that does not support let-expressions and pointers.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

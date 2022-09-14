@@ -19,8 +19,6 @@ Retrieve a substring via its index.
 
 .Function
 
-.Details
-
 .Description
 String subscription uses the integer value of _Exp_~2~ as index in the string value of _Exp_~1~.
 The value of _Exp_~2~ should be greater or equal 0 and less than the number of characters in the string.

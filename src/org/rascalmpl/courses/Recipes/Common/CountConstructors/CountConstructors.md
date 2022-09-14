@@ -1,4 +1,6 @@
-# Count Constructors
+---
+title: Count Constructors
+---
 
 .Synopsis
 Generic function that can count constructors in a value of any algebraic data type.
@@ -8,8 +10,6 @@ Generic function that can count constructors in a value of any algebraic data ty
 .Types
 
 .Function
-
-.Details
 
 .Description
 

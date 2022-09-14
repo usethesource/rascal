@@ -19,8 +19,6 @@ The reflexive transitive closure of a binary list relation.
 
 .Function
 
-.Details
-
 .Description
 
 Reflexive transitive closure is defined by repeated composition of a list relation.

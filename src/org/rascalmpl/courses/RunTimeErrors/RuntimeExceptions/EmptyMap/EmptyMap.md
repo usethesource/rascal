@@ -1,4 +1,6 @@
-# Empty Map
+---
+title: Empty Map
+---
 
 .Synopsis
 Illegal operation on an empty map.
@@ -10,8 +12,6 @@ Illegal operation on an empty map.
        
 .Usage
 `import Exception;` (only needed when `EmptyMap` is used in `catch`)
-
-.Details
 
 .Description
 Rascal provides many operations and functions on maps, see [map values]((Rascal:Values-Map))

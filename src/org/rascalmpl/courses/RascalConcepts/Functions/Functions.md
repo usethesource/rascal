@@ -1,4 +1,6 @@
-# Functions
+---
+title: Functions
+---
 
 .Synopsis
 Functions and pattern-directed invocation.
@@ -8,8 +10,6 @@ Functions and pattern-directed invocation.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Functions allow the definition of frequently used operations. They have a name and formal parameters. They are explicitly declared and are fully typed. 

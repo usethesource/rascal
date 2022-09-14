@@ -1,4 +1,6 @@
-# Empty Set
+---
+title: Empty Set
+---
 
 .Synopsis
 Illegal operation on an empty set.
@@ -10,8 +12,6 @@ Illegal operation on an empty set.
        
 .Usage
 `import Exception;` (only needed when `EmptySet` is used in `catch`)
-
-.Details
 
 .Description
 Rascal provides many operations and functions on sets, see [set values]((Rascal:Values-Set))

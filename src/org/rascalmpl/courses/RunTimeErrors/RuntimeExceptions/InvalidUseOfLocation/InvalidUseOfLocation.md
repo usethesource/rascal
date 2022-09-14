@@ -1,4 +1,6 @@
-# Invalid Use Of Location
+---
+title: Invalid Use Of Location
+---
 
 .Synopsis
 Invalid use of a source location at runtime.

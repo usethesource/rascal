@@ -85,8 +85,6 @@ Every non-terminal symbol is a type.
 
 .Function
 
-.Details
-
 .Description
 The basic symbols are the non-terminal name and the labeled non-terminal name. 
 These refer to the names defined by ((Syntax Definition)). 

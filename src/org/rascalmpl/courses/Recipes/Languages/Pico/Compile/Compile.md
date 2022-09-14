@@ -1,4 +1,6 @@
-# Compile
+---
+title: Compile
+---
 
 .Synopsis
 Compile a Pico program to assembly language.
@@ -10,8 +12,6 @@ Compile a Pico program to assembly language.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

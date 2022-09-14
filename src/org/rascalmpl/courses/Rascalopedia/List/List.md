@@ -1,4 +1,6 @@
-# List
+---
+title: List
+---
 
 .Synopsis
 An ordered sequence of values.
@@ -10,8 +12,6 @@ An ordered sequence of values.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A list is a sequence of values with the following properties:

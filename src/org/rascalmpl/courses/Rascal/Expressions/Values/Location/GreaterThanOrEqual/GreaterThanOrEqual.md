@@ -19,8 +19,6 @@ The greater than or equal operator on location values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the location value of _Exp_~1~ textually encloses
 the location value of _Exp_~2~, and `false` otherwise.

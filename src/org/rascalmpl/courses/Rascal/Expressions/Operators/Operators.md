@@ -1,4 +1,6 @@
-# Operators
+---
+title: Operators
+---
 
 .Synopsis
 The Rascal operators.
@@ -8,8 +10,6 @@ The Rascal operators.
 .Types
 
 .Function
-
-.Details
 
 .Description
 An _operator expression_ consists of an operator and one or more operands. The evaluation order of the operands depends on the operator. 

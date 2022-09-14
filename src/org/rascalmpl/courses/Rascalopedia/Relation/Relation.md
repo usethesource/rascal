@@ -1,4 +1,6 @@
-# Relation
+---
+title: Relation
+---
 
 .Synopsis
 An unordered set of tuples.
@@ -10,8 +12,6 @@ An unordered set of tuples.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

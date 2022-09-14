@@ -1,4 +1,6 @@
-# Name
+---
+title: Name
+---
 
 .Synopsis
 The display (presentation) name of a concept.
@@ -11,8 +13,6 @@ The display (presentation) name of a concept.
 .Types
 
 .Function
-
-.Details
 
 .Description
 A concept has actually three names:

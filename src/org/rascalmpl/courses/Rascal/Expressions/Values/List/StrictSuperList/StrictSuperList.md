@@ -20,8 +20,6 @@ The strict super list operator on lists.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the value of Exp~2~ is a strict sublist of the value of Exp~1~,  and `false` otherwise.
 

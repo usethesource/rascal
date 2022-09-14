@@ -1,4 +1,6 @@
-# Disambiguation
+---
+title: Disambiguation
+---
 
 .Synopsis
 
@@ -10,8 +12,6 @@ There are several ways of defining ((Disambiguation)) in Rascal.
 .Types
 
 .Function
-
-.Details
 
 .Description
 There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from ((Syntax Definition))s.

@@ -1,4 +1,6 @@
-# Keyboard Shortcuts
+---
+title: Keyboard Shortcuts
+---
 
 .Synopsis
 Keybord shortcuts.

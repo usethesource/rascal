@@ -25,8 +25,6 @@ Functions and constructors can be called or invoked in a uniform style.
 
 .Function
 
-.Details
-
 .Description
 
 For the purpose of calling a function or a constructor, we make no distinction between these two concepts.

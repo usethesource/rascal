@@ -1,4 +1,6 @@
-# ControlFlow
+---
+title: ControlFlow
+---
 
 .Synopsis
 Compute the control flow graph for a Pico program.
@@ -10,8 +12,6 @@ Compute the control flow graph for a Pico program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# No Main Function
+---
+title: No Main Function
+---
 
 .Synopsis
 Rascal program does not provide a `main` function.

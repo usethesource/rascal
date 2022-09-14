@@ -1,4 +1,6 @@
-# No Such Key
+---
+title: No Such Key
+---
 
 .Synopsis
 A map does not contain a requested key.
@@ -8,8 +10,6 @@ A map does not contain a requested key.
        
 .Usage
 `import Exception;` (only needed when `NoSuchKey` is used in `catch`)
-
-.Details
 
 .Description
 Rascal provides many operations and functions on maps, 

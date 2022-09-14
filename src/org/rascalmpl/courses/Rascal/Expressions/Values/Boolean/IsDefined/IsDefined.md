@@ -20,8 +20,6 @@ Test whether the value of an expression is defined.
 
 .Function
 
-.Details
-
 .Description
 
 If no exception is generated during the evaluation of _Exp_, 

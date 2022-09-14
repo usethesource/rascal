@@ -1,4 +1,6 @@
-# Structure Markup
+---
+title: Structure Markup
+---
 
 .Synopsis
 
@@ -9,8 +11,6 @@ Markup for structured text entities.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

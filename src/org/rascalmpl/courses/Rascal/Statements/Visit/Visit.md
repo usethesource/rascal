@@ -15,8 +15,6 @@ See ((Expressions-Visit)).
 
 .Function
 
-.Details
-
 .Description
 
 See ((Expressions-Visit)) for the details.

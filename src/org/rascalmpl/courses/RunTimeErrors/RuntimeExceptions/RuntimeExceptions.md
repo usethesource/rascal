@@ -1,4 +1,6 @@
-# Runtime Exceptions
+---
+title: Runtime Exceptions
+---
 
 .Synopsis
 All runtime exceptions that can occur during execution of a Rascal program.
@@ -10,8 +12,6 @@ All runtime exceptions that can occur during execution of a Rascal program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

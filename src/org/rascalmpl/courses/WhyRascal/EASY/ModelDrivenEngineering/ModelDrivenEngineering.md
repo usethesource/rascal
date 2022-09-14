@@ -1,4 +1,6 @@
-# Model-Driven Engineering
+---
+title: Model-Driven Engineering
+---
 
 .Synopsis
 Tools for Model-Driven Engineering.
@@ -8,8 +10,6 @@ Tools for Model-Driven Engineering.
 .Types
 
 .Function
-
-.Details
 
 .Description
 _Elisabeth_ is a software architect at a large airplane manufacturer and her concern is reliability and dependability of 

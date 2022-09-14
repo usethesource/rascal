@@ -1,4 +1,6 @@
-# Examples of Typecheckers
+---
+title: Examples of Typecheckers
+---
   
 .Synopsis
 Examples of type checkers built with TypePal.

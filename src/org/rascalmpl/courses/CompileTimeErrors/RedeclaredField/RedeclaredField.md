@@ -1,4 +1,6 @@
-# RedeclaredField
+---
+title: RedeclaredField
+---
 
 .Synopsis
 A field name is redeclared.
@@ -10,8 +12,6 @@ A field name is redeclared.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 The definition of an [algebraic data type]((Rascal:Declarations-AlgebraicDataType)) consists of a number of constructor functions.

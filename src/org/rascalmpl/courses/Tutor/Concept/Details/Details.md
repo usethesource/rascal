@@ -1,14 +1,13 @@
-# Details
+---
+title: Details
+details: _ConceptNames_,```
+---
 
 .Synopsis
 Explcitly order the subconcepts of the current concept.
 
 .Syntax
 ```
-.Details
-_ConceptNames_
-```
-
 .Types
 
 .Function

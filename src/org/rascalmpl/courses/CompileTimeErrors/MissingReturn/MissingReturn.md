@@ -1,4 +1,6 @@
-# MissingReturn
+---
+title: MissingReturn
+---
 
 .Synopsis
 A return statement is missing from a function body.
@@ -10,8 +12,6 @@ A return statement is missing from a function body.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Functions return some value (except functions that have return type `void`).

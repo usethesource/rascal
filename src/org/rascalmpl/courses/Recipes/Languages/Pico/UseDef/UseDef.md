@@ -1,4 +1,6 @@
-# UseDef
+---
+title: UseDef
+---
 
 .Synopsis
 Compute use-def information for the variables in a Pico program.
@@ -10,8 +12,6 @@ Compute use-def information for the variables in a Pico program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# UndeclaredField
+---
+title: UndeclaredField
+---
 
 .Synopsis
 A field name is used that has not been declared.
@@ -10,8 +12,6 @@ A field name is used that has not been declared.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Fields of [tuple]((Rascal:Values-Tuple)) (hence also of [relation]((Rascal:Values-Relation))

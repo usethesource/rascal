@@ -1,4 +1,6 @@
-# Set
+---
+title: Set
+---
 
 .Synopsis
 An unordered collection of values without duplicates.
@@ -10,8 +12,6 @@ An unordered collection of values without duplicates.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

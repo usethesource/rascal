@@ -19,8 +19,6 @@ Greater than or equal operator on values.
 
 .Function
 
-.Details
-
 .Description
 By brute force, a total less than operator between two values _V_~1~ and _V_~2~ of arbitrary types _T_~1~ and _T_~2~ is defined:
 

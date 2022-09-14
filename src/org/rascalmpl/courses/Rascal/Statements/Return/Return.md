@@ -15,8 +15,6 @@ Return a value as result of a [Function].
 
 .Function
 
-.Details
-
 .Description
 A return statement comes in two variants: without and with an expression,
 both variants end the execution of the current function. 

@@ -1,4 +1,6 @@
-# Text
+---
+title: Text
+---
 
 .Synopsis
 A text question with a free-format answer.
@@ -14,8 +16,6 @@ a: _Answer_~2~
 .Types
 
 .Function
-
-.Details
 
 .Description
 Presents a text questions consisting of _Text_.

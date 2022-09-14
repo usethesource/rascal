@@ -1,4 +1,6 @@
-# Comparison with other Paradigms
+---
+title: Comparison with other Paradigms
+---
 
 .Synopsis
 Rascal compared with the imperative, object-oriented and algebraic paradigms

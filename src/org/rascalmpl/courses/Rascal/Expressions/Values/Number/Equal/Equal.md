@@ -21,8 +21,6 @@ Equality operator on numeric values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the value of both arguments is numerically equal, and `false` otherwise.
 

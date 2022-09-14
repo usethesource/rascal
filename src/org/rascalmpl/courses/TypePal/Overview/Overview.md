@@ -1,4 +1,6 @@
-# Overview
+---
+title: Overview
+---
 
 .Synopsis
 An overview of TypePal

@@ -13,8 +13,6 @@ Solve a set of equalities by fixed-point iteration.
 
 .Function
 
-.Details
-
 .Description
 Rascal provides a solve statement for performing arbitrary fixed-point computations. This means, repeating a certain computation as long as it causes changes. This can, for instance, be used for the solution of sets of simultaneous 
 linear equations but has much wider applicability.

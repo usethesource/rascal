@@ -1,4 +1,6 @@
-# Syntax
+---
+title: Syntax
+---
 
 .Synopsis
 
@@ -11,8 +13,6 @@ The rules that describe correctly structured programs in a language.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

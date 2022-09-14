@@ -1,4 +1,6 @@
-# Arity
+---
+title: Arity
+---
 
 .Synopsis
 The number of arguments of an operator differ from what is required.
@@ -10,8 +12,6 @@ The number of arguments of an operator differ from what is required.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Various operators like [composition]((Rascal:Relation-Composition)), 

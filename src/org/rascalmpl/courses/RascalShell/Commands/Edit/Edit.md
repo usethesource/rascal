@@ -1,4 +1,6 @@
-# Edit Command
+---
+title: Edit Command
+---
 
 .Synopsis
 Open an editor for a Rascal module

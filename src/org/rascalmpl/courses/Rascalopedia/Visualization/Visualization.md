@@ -1,4 +1,6 @@
-# Visualization
+---
+title: Visualization
+---
 
 .Synopsis
 Visual presentation of scientific or abstract data.
@@ -10,8 +12,6 @@ Visual presentation of scientific or abstract data.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

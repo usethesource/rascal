@@ -20,8 +20,6 @@ The _or_ operator on Boolean values.
 
 .Function
 
-.Details
-
 .Description
 The _or_ operator on Boolean values defined as follows:
 

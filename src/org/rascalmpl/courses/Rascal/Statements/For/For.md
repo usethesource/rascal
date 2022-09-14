@@ -13,8 +13,6 @@ For loop.
 
 .Function
 
-.Details
-
 .Description
 
 The for-statement executes _Statement_ for all possible combinations of values generated, and filtered, by the expressions _Exp_~i~.

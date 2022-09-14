@@ -19,8 +19,6 @@ Equal operator on set values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments are equal sets and `false` otherwise.
 

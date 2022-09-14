@@ -20,8 +20,6 @@ Boolean _and_ operator.
 
 .Function
 
-.Details
-
 .Description
 The _and_ operator on Boolean values defined as follows:
 

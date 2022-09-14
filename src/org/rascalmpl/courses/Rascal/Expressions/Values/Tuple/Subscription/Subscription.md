@@ -13,8 +13,6 @@ Retrieve a tuple field by its index position.
 
 .Function
 
-.Details
-
 .Description
 Subscription retrieves the tuple element with index _Exp_~2~ from the tuple value of _Exp_~1~.
 

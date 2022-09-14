@@ -1,4 +1,6 @@
-# Datatypes
+---
+title: Datatypes
+---
 
 .Synopsis
 Built-in and user-defined datatypes.
@@ -8,8 +10,6 @@ Built-in and user-defined datatypes.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

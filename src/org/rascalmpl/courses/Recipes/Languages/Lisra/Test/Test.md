@@ -1,4 +1,6 @@
-# Test
+---
+title: Test
+---
 
 .Synopsis
 Tests for the Lisp interpreter.
@@ -10,8 +12,6 @@ Tests for the Lisp interpreter.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# Quit Command
+---
+title: Quit Command
+---
 
 .Synopsis
 Quit the RascalShell.

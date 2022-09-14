@@ -1,4 +1,6 @@
-# Refactoring
+---
+title: Refactoring
+---
 
 .Synopsis
 Restructuring source code to improve its internal structure without changing its external behaviour.
@@ -10,8 +12,6 @@ Restructuring source code to improve its internal structure without changing its
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Refactoring was popularized by [Martin Fowler](http://martinfowler.com/refactoring/) and aims at improving source code quality.

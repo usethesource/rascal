@@ -1,4 +1,7 @@
-# Synthesis
+---
+title: Synthesis
+details: [[Synthesis-Workflow]],![Synthesis,Workflow]((define-synthesis.png))
+---
 
 .Synopsis
 Strategies to synthesise results.
@@ -8,12 +11,6 @@ Strategies to synthesise results.
 .Types
 
 .Function
-
-.Details
-
-
-[[Synthesis-Workflow]]
-![Synthesis Workflow]((define-synthesis.png))
 
 .Description
 Results are synthesized as shown in the Figure ((Synthesis-Workflow)) above. This consists of the following steps:

@@ -1,4 +1,6 @@
-# NonAbstractJavaFunction
+---
+title: NonAbstractJavaFunction
+---
 
 .Synopsis
 A function declared with the `java` modifier has a Rascal body.
@@ -10,8 +12,6 @@ A function declared with the `java` modifier has a Rascal body.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Rascal functions can be implemented in Java. This is the case for many functions in the standard library.

@@ -1,4 +1,6 @@
-# Index Out Of Bounds
+---
+title: Index Out Of Bounds
+---
 
 .Synopsis
 Index is out of bounds.
@@ -10,8 +12,6 @@ Index is out of bounds.
 
 .Usage
 `import Exception;` (only needed when `IndexOutOfBounds` is used in `catch`)
-
-.Details
 
 .Description
 Subscription is possible on various ordered types, including [list]((Rascal:List-Subscription)),

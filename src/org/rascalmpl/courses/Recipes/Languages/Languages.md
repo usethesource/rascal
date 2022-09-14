@@ -1,4 +1,6 @@
-# Languages
+---
+title: Languages
+---
 
 .Synopsis
 Definitions of several languages and their tools.
@@ -8,8 +10,6 @@ Definitions of several languages and their tools.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

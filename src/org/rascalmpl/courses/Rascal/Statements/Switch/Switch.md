@@ -23,8 +23,6 @@ default: ...
 
 .Function
 
-.Details
-
 .Description
 
 A switch statement is similar to a switch statement in C or Java.

@@ -1,4 +1,6 @@
-# Evaluate
+---
+title: Evaluate
+---
 
 .Synopsis
 Evaluate a Pico program.
@@ -10,8 +12,6 @@ Evaluate a Pico program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

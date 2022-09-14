@@ -12,8 +12,6 @@ Deep match in an abstract pattern.
 
 .Function
 
-.Details
-
 .Description
 A descendant pattern
 performs a deep match of the pattern _Pat_. In other words, it matches when any element of the subject at any depth

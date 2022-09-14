@@ -21,8 +21,6 @@ Join two list relation values.
 
 .Function
 
-.Details
-
 .Description
 ListRelation resulting from the natural join of the list relation values of the two arguments.
 This list relation contains tuples that are the result from concatenating the elements from both arguments.

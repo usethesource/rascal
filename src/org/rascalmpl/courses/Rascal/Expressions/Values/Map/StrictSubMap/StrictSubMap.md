@@ -18,8 +18,6 @@ Strict submap operator on map values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if all key/value pairs in the map value of _Exp_~1~ occur in the map value _Exp_~2~
 and the values of _Exp_~1~ and _EXp_~2~ are not equal, and `false` otherwise.

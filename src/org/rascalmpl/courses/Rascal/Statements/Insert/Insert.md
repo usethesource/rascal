@@ -13,8 +13,6 @@ Insert a value in a tree during a ((Statements-Visit)).
 
 .Function
 
-.Details
-
 .Description
 An insert statement may only occur in the action part of a ((Pattern With Action)), more precisely in
 a case in a ((Expressions-Visit)) expression. The value matched by the pattern of this case is replaced by the value of _Exp_.

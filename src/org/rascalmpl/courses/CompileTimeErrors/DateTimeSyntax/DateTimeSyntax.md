@@ -1,4 +1,6 @@
-# DateTimeSyntax
+---
+title: DateTimeSyntax
+---
 
 .Synopsis
 A datetime value is syntactically incorrect.
@@ -10,8 +12,6 @@ A datetime value is syntactically incorrect.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

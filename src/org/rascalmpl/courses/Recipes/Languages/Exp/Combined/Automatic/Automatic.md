@@ -1,4 +1,6 @@
-# Automatic
+---
+title: Automatic
+---
 
 .Synopsis
 Use implode to translate an Exp parse tree to an abstract syntax tree.
@@ -8,8 +10,6 @@ Use implode to translate an Exp parse tree to an abstract syntax tree.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

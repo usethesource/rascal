@@ -1,4 +1,6 @@
-# Bold
+---
+title: Bold
+---
 
 .Synopsis
 Create *bold* text.
@@ -11,8 +13,6 @@ Create *bold* text.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

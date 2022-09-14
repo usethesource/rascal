@@ -1,4 +1,6 @@
-# Measuring Java
+---
+title: Measuring Java
+---
 
 .Synopsis
 A few steps using the M3 model to compute basic metrics for a Java project in Eclipse
@@ -10,8 +12,6 @@ A few steps using the M3 model to compute basic metrics for a Java project in Ec
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# Derivative
+---
+title: Derivative
+---
 
 .Synopsis
 Symbolic differentiation.
@@ -8,8 +10,6 @@ Symbolic differentiation.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Computing the http://en.wikipedia.org/wiki/Differentiation_(mathematics)[derivative] of an expression with respect to some variable is a classical calculus problem. Loosely speaking, a derivative can be thought of as how much one quantity is changing in response to changes in some other quantity; for example, the derivative of the position of a moving object with respect to time is the object's instantaneous velocity.

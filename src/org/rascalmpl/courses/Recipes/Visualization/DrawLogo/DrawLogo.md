@@ -1,4 +1,6 @@
-# Draw a Logo
+---
+title: Draw a Logo
+---
 
 .Synopsis
 Draw the Rascal logo.
@@ -8,8 +10,6 @@ Draw the Rascal logo.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

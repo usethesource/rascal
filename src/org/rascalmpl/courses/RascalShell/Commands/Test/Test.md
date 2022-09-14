@@ -1,4 +1,6 @@
-# Test Command
+---
+title: Test Command
+---
 
 .Synopsis
 Run tests.

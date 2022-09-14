@@ -1,4 +1,6 @@
-# No Layout
+---
+title: No Layout
+---
 
 .Synopsis
 A version of Exp based on concrete syntax.
@@ -8,8 +10,6 @@ A version of Exp based on concrete syntax.
 .Types
 
 .Function
-
-.Details
 
 .Description
 We describe howto write a grammar for Exp and how to use it to implement an evaluator.

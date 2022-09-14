@@ -1,4 +1,6 @@
-# Value
+---
+title: Value
+---
 
 .Synopsis
 Values of type `value`.
@@ -9,8 +11,6 @@ Values of type `value`.
 `value`
 
 .Function
-
-.Details
 
 .Description
 Value stands for all possible Rascal values and is represented by the type `value`.

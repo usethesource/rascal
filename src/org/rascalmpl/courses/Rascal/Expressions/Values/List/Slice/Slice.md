@@ -26,8 +26,6 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 
 .Function
 
-.Details
-
 .Description
 List slicing uses the integer values of _Exp_~2~ and _Exp_~4~ to determine the `begin` (*inclusive*) and `end` (*exclusive*)
 of a slice from the list value _L_ of _Exp_~1~. Negative indices count from the end of the list backwards.

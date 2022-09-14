@@ -1,4 +1,6 @@
-# Typechecker
+---
+title: Typechecker
+---
 
 .Synopsis
 Checks the type rules for a source language.
@@ -10,8 +12,6 @@ Checks the type rules for a source language.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

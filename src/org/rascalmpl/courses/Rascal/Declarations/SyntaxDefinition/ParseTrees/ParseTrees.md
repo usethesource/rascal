@@ -1,4 +1,6 @@
-# Parse Trees
+---
+title: Parse Trees
+---
 
 .Synopsis
 An algebraic data-type for parse trees; produced by all parsers generated from syntax definitions.
@@ -8,8 +10,6 @@ An algebraic data-type for parse trees; produced by all parsers generated from s
 .Types
 
 .Function
-
-.Details
 
 .Description
 

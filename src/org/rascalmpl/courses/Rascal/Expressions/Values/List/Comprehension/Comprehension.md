@@ -19,8 +19,6 @@ A list comprehension generates a list value.
 
 .Function
 
-.Details
-
 .Description
 A list comprehension consists of a number of contributing expressions _Exp_~1~, _Exp_~2~, ... and a number of
 generators _Gen_~1~, _Gen_~2~, _Gen_~3~, ... that are evaluated as described in ((Expressions-Comprehensions)).

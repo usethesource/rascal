@@ -19,8 +19,6 @@ Less than or equal operator on string values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the string value of _Exp_~1~ is lexicographically less
 than the string value of _Exp_~2~ or if both string are equal, and `false` otherwise.

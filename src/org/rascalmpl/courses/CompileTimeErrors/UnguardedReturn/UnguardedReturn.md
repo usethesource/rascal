@@ -1,4 +1,6 @@
-# UnguardedReturn
+---
+title: UnguardedReturn
+---
 
 .Synopsis
 A return statement occurs outside a function body.
@@ -10,8 +12,6 @@ A return statement occurs outside a function body.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A [return]((Rascal:Statements-Return)) statement is used to return a value from a function.

@@ -1,4 +1,6 @@
-# UnsupportedSubscript
+---
+title: UnsupportedSubscript
+---
 
 .Synopsis
 A subscript is applied to a value that does not support it.
@@ -10,8 +12,6 @@ A subscript is applied to a value that does not support it.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Subscription is available for values of various types including: 

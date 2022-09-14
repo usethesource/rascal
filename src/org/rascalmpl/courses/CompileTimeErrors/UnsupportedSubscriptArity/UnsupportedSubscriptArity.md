@@ -1,4 +1,6 @@
-# UnsupportedSubscriptArity
+---
+title: UnsupportedSubscriptArity
+---
 
 .Synopsis
 Wrong number of subscripts is used. 
@@ -10,8 +12,6 @@ Wrong number of subscripts is used.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Subscription is available for values of various types including: 

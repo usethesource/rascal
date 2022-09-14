@@ -1,4 +1,6 @@
-# Parse
+---
+title: Parse
+---
 
 .Synopsis
 Parse a Func program from a string or a file.
@@ -8,8 +10,6 @@ Parse a Func program from a string or a file.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Parsing uses the syntax rules for a given start non-terminnal to parse a string and turn it into a parse tree.

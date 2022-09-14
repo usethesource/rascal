@@ -12,8 +12,6 @@ List in abstract pattern.
 
 .Function
 
-.Details
-
 .Description
 
 A list pattern matches a list value (the subject), provided that _Pat_~1~, _Pat_~2~, ..., _Pat_~n~ match the elements of that list in order. 

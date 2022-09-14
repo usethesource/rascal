@@ -1,4 +1,6 @@
-# ParseTree
+---
+title: ParseTree
+---
 
 .Synopsis
 Detailed represention of the concrete syntactic structure of a program.
@@ -10,8 +12,6 @@ Detailed represention of the concrete syntactic structure of a program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A parse tree is a detailed and very precise represention of the concrete syntactic structure of a program.

@@ -19,8 +19,6 @@ Transitive closure on binary list relation values.
 
 .Function
 
-.Details
-
 .Description
 Returns the transitive closure of a binary listrelation.
 Transitive closure is defined by repeated composition of a relation.

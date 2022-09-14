@@ -1,4 +1,6 @@
-# Markup
+---
+title: Markup
+---
 
 .Synopsis
 Markup directives for creating concept pages.
@@ -8,8 +10,6 @@ Markup directives for creating concept pages.
 .Types
 
 .Function
-
-.Details
 
 .Description
 The _MarkedText_ in each section of a concept is plain text.

@@ -1,4 +1,6 @@
-# Ambiguity Detection
+---
+title: Ambiguity Detection
+---
 
 .Synopsis
 Ambiguity detection helps to find ambiguities in syntax definitions.
@@ -8,8 +10,6 @@ Ambiguity detection helps to find ambiguities in syntax definitions.
 .Types
 
 .Function
-
-.Details
 
 .Description
 AmbiDexter is a tool that analyzes ((Syntax Definition))s, including their ((Disambiguation))s, to try and determine which ambiguities it contains. 

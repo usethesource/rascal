@@ -1,4 +1,6 @@
-# QuestionMarkup
+---
+title: QuestionMarkup
+---
 
 .Synopsis
 Mark up for interactive questions.
@@ -8,8 +10,6 @@ Mark up for interactive questions.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

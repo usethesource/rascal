@@ -19,8 +19,6 @@ Concatenate two strings.
 
 .Function
 
-.Details
-
 .Description
 
 Concatenates the string values of _Exp_~1~ and _Exp_~2~.

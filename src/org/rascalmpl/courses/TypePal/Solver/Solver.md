@@ -1,4 +1,6 @@
-# Solver
+---
+title: Solver
+---
 
 .Synopsis
 A `Solver` tries to solve the constraints in a `TModel`; unsolved constraints produce error messages

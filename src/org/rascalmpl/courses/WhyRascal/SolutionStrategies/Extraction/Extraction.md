@@ -1,4 +1,7 @@
-# Extraction
+---
+title: Extraction
+details: [[Extraction-Workflow]],![Extraction,Workflow]((define-extraction.png))
+---
 
 .Synopsis
 Strategies to extract facts from software systems.
@@ -8,12 +11,6 @@ Strategies to extract facts from software systems.
 .Types
 
 .Function
-
-.Details
-
-
-[[Extraction-Workflow]]
-![Extraction Workflow]((define-extraction.png))
 
 .Description
  

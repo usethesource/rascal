@@ -19,8 +19,6 @@ The less than or equal operator on location values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the location value of _Exp_~1~ is textually contained
 in the location value of _Exp_~2~, and `false` otherwise.

@@ -12,8 +12,6 @@ Labelled abstract pattern.
 
 .Function
 
-.Details
-
 .Description
 
 A labelled pattern matches the same values as _Pat_, but has as side-effect that the matched value is assigned to _Var_.

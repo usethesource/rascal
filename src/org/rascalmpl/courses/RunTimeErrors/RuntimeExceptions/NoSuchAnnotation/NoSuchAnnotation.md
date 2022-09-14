@@ -1,4 +1,6 @@
-# No Such Annotation
+---
+title: No Such Annotation
+---
 
 .Synopsis
 Annotation without a value.
@@ -13,8 +15,6 @@ Annotation without a value.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 An [annotation]((Rascal:Declarations-Annotation)) can be associated with any node value

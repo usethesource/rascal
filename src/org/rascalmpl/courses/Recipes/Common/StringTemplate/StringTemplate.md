@@ -1,4 +1,6 @@
-# String Template
+---
+title: String Template
+---
 
 .Synopsis
 Using string templates to generate code.
@@ -8,8 +10,6 @@ Using string templates to generate code.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Many websites and code generators use template-based code generation. They start from a text template that contains embedded variables and code. The template is "executed" by replacing the embedded variables and code by their string value. Languages like PHP and Ruby are popular for this feature. Let's see how we can do this in Rascal. 

@@ -1,4 +1,6 @@
-# Load AST
+---
+title: Load AST
+---
 
 .Synopsis
 Parse Func program from string or file and convert to an abstract syntax tree.
@@ -8,8 +10,6 @@ Parse Func program from string or file and convert to an abstract syntax tree.
 .Types
 
 .Function
-
-.Details
 
 .Description
 To simplify later processing, Func programs are converted to an abstract syntax tree.

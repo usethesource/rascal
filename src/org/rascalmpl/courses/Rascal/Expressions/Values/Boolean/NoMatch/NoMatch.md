@@ -20,8 +20,6 @@ Negated [Boolean Match] operator.
 
 .Function
 
-.Details
-
 .Description
 See ((Pattern Matching)) for an introduction to pattern matching and ((Patterns)) for a complete description.
 

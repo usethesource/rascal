@@ -1,4 +1,6 @@
-# Pretty
+---
+title: Pretty
+---
 
 .Synopsis
 A Lisp pretty printer.
@@ -10,8 +12,6 @@ A Lisp pretty printer.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 The purpose of a pretty printer is to convert an internal structure to text.

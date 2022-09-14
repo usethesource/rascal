@@ -12,8 +12,6 @@ Typed, labelled, abstract pattern.
 
 .Function
 
-.Details
-
 .Description
 
 A typed, labelled, pattern matches when the subject value has type _Type_ and _Pat_ matches. 

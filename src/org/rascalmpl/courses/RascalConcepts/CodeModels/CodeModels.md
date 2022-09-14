@@ -1,4 +1,6 @@
-# Code Models
+---
+title: Code Models
+---
 
 .Synopsis
 Code models are abstract representations of source code
@@ -10,8 +12,6 @@ Code models are abstract representations of source code
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

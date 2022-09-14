@@ -1,4 +1,6 @@
-# Equation Solving
+---
+title: Equation Solving
+---
 
 .Synopsis
 Solving equations by fixed-point iteration.
@@ -8,8 +10,6 @@ Solving equations by fixed-point iteration.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Many problems can be solved by forms of _constraint solving_. 

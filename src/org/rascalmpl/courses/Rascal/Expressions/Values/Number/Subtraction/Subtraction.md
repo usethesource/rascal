@@ -21,8 +21,6 @@ Subtract two numeric values.
 
 .Function
 
-.Details
-
 .Description
 Yields the numerical result of subtracting the value of _Exp_~2~ from the value of _Exp_~1~.
 

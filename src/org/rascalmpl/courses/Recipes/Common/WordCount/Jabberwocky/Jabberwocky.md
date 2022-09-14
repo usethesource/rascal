@@ -1,4 +1,6 @@
-# Jabberwocky
+---
+title: Jabberwocky
+---
 
 .Synopsis
 Lewis Carroll's well-known poem.
@@ -8,8 +10,6 @@ Lewis Carroll's well-known poem.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

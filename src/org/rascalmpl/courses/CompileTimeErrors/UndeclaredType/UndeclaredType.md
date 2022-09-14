@@ -1,4 +1,6 @@
-# UndeclaredType
+---
+title: UndeclaredType
+---
 
 .Synopsis
 Use of a type that has not been declared.
@@ -10,8 +12,6 @@ Use of a type that has not been declared.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A type has to be declared before it can be used.

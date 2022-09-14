@@ -16,8 +16,6 @@ Declare the priority of operators.
 
 .Function
 
-.Details
-
 .Description
 Priority declarations define a partial ordering between the productions _within a single non-terminal_. The feature is specifically designed to fit with the semantics of expression sub-languages embedded in programming languages. There exist other mechanisms for ((Disambiguation)), if ((Disambiguation-Priority)) does not work for you.
 

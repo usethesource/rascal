@@ -15,8 +15,6 @@ Assign but replace if value is not defined.
        
 .Usage
 
-.Details
-
 .Description
 
 First the value of _Exp_~1~ is determined and if that is defined it is assigned to _Assignable_. 

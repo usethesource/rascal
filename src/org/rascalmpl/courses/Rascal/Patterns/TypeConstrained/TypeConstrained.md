@@ -13,8 +13,6 @@ Type constrained abstract pattern.
 
 .Function
 
-.Details
-
 .Description
 
 A type constrained pattern matches provided that the subject has type _Type_ and _Pat_ matches. This can be handy in case of ambiguity (say more than one constructor with the same name), or in case the pattern is completely general. See an example below:

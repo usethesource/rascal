@@ -1,4 +1,6 @@
-# Domain Specific Language
+---
+title: Domain Specific Language
+---
 
 .Synopsis
 Programming language targeted for a particular application domain.
@@ -10,8 +12,6 @@ Programming language targeted for a particular application domain.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

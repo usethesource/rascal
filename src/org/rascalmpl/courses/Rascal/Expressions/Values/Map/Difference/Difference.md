@@ -19,8 +19,6 @@ The difference between two maps.
 
 .Function
 
-.Details
-
 .Description
 The result is the difference of the two map values of _Exp_~1~ and _Exp_~2~,
 i.e. a map with all pairs in _Exp_~1~ that do have a key that does not occur in _Exp_~2~.

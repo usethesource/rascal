@@ -1,4 +1,6 @@
-# UndeclaredAnnotation
+---
+title: UndeclaredAnnotation
+---
 
 .Synopsis
 An annotation is used that has not been declared.
@@ -10,8 +12,6 @@ An annotation is used that has not been declared.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 An [annotation]((Rascal:Declarations-Annotation)) can be used to add information to an instance of an

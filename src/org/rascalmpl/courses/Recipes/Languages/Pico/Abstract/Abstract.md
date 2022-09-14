@@ -1,4 +1,6 @@
-# Abstract
+---
+title: Abstract
+---
 
 .Synopsis
 Abstract syntax for Pico.
@@ -10,8 +12,6 @@ Abstract syntax for Pico.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

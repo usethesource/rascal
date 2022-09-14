@@ -1,4 +1,6 @@
-# MetaProgramming
+---
+title: MetaProgramming
+---
 
 .Synopsis
 Analysis or transformation of one program by another program.
@@ -10,8 +12,6 @@ Analysis or transformation of one program by another program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 All programs have data as input and produce other data as output.

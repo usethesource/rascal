@@ -1,4 +1,6 @@
-# With Layout
+---
+title: With Layout
+---
 
 .Synopsis
 Defines a concrete syntax for Exp with layout.
@@ -8,8 +10,6 @@ Defines a concrete syntax for Exp with layout.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

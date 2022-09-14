@@ -12,8 +12,6 @@ End the execution of a while, do or for loop.
 
 .Function
 
-.Details
-
 .Description
 A `break` statement is only allowed inside the body of a ((While)), ((Do)) or ((For)) statement
 and is associated with the innermost loop statement in which it is contained.

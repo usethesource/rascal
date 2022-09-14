@@ -1,4 +1,6 @@
-# Arithmetic Exception
+---
+title: Arithmetic Exception
+---
 
 .Synopsis
 An arithmetic exception occurred.
@@ -8,8 +10,6 @@ An arithmetic exception occurred.
        
 .Usage
 `import Exception;` (only needed when `ArithmeticException` is used in `catch`)
-
-.Details
 
 .Description
 This error is generated when an illegal arithmetic operation occurs or when

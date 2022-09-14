@@ -1,4 +1,6 @@
-# ModuleImport
+---
+title: ModuleImport
+---
 
 .Synopsis
 A Rascal module could not be imported.
@@ -10,8 +12,6 @@ A Rascal module could not be imported.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

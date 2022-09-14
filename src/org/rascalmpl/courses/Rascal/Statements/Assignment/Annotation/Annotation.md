@@ -15,8 +15,6 @@ Assign to an annotation. This feature is deprecated.
        
 .Usage
 
-.Details
-
 .Description
 
 The value _V_ of _Assignable_ is determined and should be of a type that has an annotation _Name_.

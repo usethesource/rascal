@@ -13,8 +13,6 @@ Declare the import a module.
 
 .Function
 
-.Details
-
 .Description
 An import has as effect that all public entities declared in module _QualifiedName_ are made available to the importing module. Circular imports are allowed. All publicly visible entities in the imported module become available in the importing module.
 

@@ -19,8 +19,6 @@ Less than operator on node values.
 
 .Function
 
-.Details
-
 .Description
 Comparison on nodes is defined by a lexicographic ordering. Node `N = F(N~1~, ..., N~n~)` is less than node 
 `N = G(M~1~, ..., M~m~)` when:

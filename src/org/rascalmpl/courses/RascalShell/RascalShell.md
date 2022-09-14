@@ -1,11 +1,10 @@
-# Rascal Shell
+---
+title: Rascal Shell
+details: REPL,Completion,History,Commands,Keyboard
+---
 
 .Synopsis
 The interactive Rascal commandline shell
-
-.Details
-
-REPL Completion History Commands Keyboard
 
 .Description
 

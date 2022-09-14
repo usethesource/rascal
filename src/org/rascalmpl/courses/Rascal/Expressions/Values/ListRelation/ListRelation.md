@@ -22,8 +22,6 @@ List relations are lists of tuples with relational calculus operators defined on
 
 .Function
 
-.Details
-
 .Description
 
 A list relation is a list of elements with the following property:

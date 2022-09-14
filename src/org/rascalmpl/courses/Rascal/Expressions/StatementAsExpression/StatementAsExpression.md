@@ -1,4 +1,6 @@
-# Statement as Expression
+---
+title: Statement as Expression
+---
 
 .Synopsis
 Statements that have a value and can be used as expressions.
@@ -8,8 +10,6 @@ Statements that have a value and can be used as expressions.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Several forms of statements produce a value and can be used as expression. 

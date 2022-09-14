@@ -1,4 +1,6 @@
-# UndeclaredModuleProvider
+---
+title: UndeclaredModuleProvider
+---
 
 .Synopsis
 A scheme is used in a location for wich no provider has been registered.
@@ -10,8 +12,6 @@ A scheme is used in a location for wich no provider has been registered.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

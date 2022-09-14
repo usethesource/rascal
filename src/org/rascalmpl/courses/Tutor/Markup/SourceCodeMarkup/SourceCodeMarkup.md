@@ -1,4 +1,7 @@
-# Source Code Markup
+---
+title: Source Code Markup
+details: RemoteConceptMapping
+---
 
 .Synopsis
 Mark up in Rascal source code.
@@ -10,9 +13,6 @@ Mark up in Rascal source code.
 .Function
        
 .Usage
-
-.Details
-RemoteConceptMapping
 
 .Description
 

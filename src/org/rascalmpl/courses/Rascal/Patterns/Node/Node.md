@@ -1,4 +1,6 @@
-# Node pattern
+---
+title: Node pattern
+---
 
 .Synopsis
 Node in abstract pattern.
@@ -8,8 +10,6 @@ Node in abstract pattern.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# Immutable Values
+---
+title: Immutable Values
+---
 
 .Synopsis
 Immutable values.
@@ -8,8 +10,6 @@ Immutable values.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Values are the basic building blocks of a language and the type of values determines how they may be used.

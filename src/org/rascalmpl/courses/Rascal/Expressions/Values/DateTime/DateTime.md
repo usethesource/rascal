@@ -19,8 +19,6 @@ Date and time values.
 
 .Function
 
-.Details
-
 .Description
 Date, time, and datetime values are represented by the `datetime` type.
 `datetime` literals start with a `$` and are made up of either a date, given in year, month, day of month order; 

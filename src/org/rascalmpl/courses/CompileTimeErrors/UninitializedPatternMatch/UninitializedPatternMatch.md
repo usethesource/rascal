@@ -1,4 +1,6 @@
-# UninitializedPatternMatch
+---
+title: UninitializedPatternMatch
+---
 
 .Synopsis
 Pattern matching has not been properly initialized.
@@ -10,8 +12,6 @@ Pattern matching has not been properly initialized.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 [Pattern matching]((RascalConcepts:PatternMatching)) requires two ingredients:

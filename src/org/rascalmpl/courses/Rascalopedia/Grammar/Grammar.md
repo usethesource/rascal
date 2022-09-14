@@ -1,4 +1,6 @@
-# Grammar
+---
+title: Grammar
+---
 
 .Synopsis
 

@@ -1,4 +1,7 @@
-# Rascal Language Reference
+---
+title: Rascal Language Reference
+details: Declarations,Patterns,Expressions,Statements
+---
 
 .Synopsis
 Reference manual for the Rascal meta-programming language. 
@@ -8,10 +11,6 @@ Reference manual for the Rascal meta-programming language.
 .Types
 
 .Function
-
-.Details
-
-Declarations Patterns Expressions Statements
 
 .Description
 

@@ -20,8 +20,6 @@ Transitive closure on binary relation values.
 
 .Function
 
-.Details
-
 .Description
 Returns the transitive closure of a binary relation.
 Transitive closure is defined by repeated composition of a relation.

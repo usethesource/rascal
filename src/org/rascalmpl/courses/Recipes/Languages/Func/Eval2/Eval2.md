@@ -1,4 +1,6 @@
-# Eval2
+---
+title: Eval2
+---
 
 .Synopsis
 Like Eval1 but with support for sequences and assignments.
@@ -9,8 +11,6 @@ Like Eval1 but with support for sequences and assignments.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Interpreter Eval2 supports the following features of Func: 

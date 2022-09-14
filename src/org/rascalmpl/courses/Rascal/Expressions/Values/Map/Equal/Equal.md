@@ -18,8 +18,6 @@ Equality operator on maps.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments contain the same key/value pairs, and `false` otherwise.
 

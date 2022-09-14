@@ -1,4 +1,6 @@
-# ModuleNameMismatch
+---
+title: ModuleNameMismatch
+---
 
 .Synopsis
 Module name and file name are different.
@@ -10,8 +12,6 @@ Module name and file name are different.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A Rascal module has a name (the name that follows the `module` keyword) and it is stored in a file.

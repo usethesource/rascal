@@ -1,4 +1,6 @@
-# Assembly
+---
+title: Assembly
+---
 
 .Synopsis
 Assembly language for Pico.
@@ -10,8 +12,6 @@ Assembly language for Pico.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

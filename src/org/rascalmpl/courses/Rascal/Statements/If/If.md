@@ -25,8 +25,6 @@ Conditional statement.
 
 .Function
 
-.Details
-
 .Description
 The test _Exp_ is evaluated and its outcome determines the statement to be executed: 
 _Statement_~1~ if _Exp_ yields `true` and _Statement_~2~ otherwise. 

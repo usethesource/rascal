@@ -1,4 +1,6 @@
-# Pattern Matching
+---
+title: Pattern Matching
+---
 
 .Synopsis
 Pattern matching.
@@ -8,8 +10,6 @@ Pattern matching.
 .Types
 
 .Function
-
-.Details
 
 .Description
 
