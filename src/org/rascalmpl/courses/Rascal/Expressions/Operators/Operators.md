@@ -21,8 +21,8 @@ All operators are summarized in the following table. They are listed from highes
 to lowest precedence. In other words, operators listed earlier in the table bind stronger.
  
 
-| Operator                          | See                                           | Short Description |
-| --- | --- | --- |
+| Operator | See  | Short Description |
+| ---      | ---  | ---               |
 | `Exp . Name` |
 | ((Location-FieldSelection)), |
   ((DateTime-FieldSelection)), |

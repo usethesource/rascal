@@ -73,7 +73,7 @@ _Auto-indent_: Expressions that get interpolated in a string will be auto-indent
 The following operators are defined for Strings:
 (((TOC)))
 
-There are also [library functions]((Library:String)) available for Strings.
+There are also [library functions]((Library:module:String)) available for Strings.
 
 #### Examples
 

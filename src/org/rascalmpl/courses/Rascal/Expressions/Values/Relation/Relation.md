@@ -39,7 +39,7 @@ An n-ary relations with m tuples is denoted by
 where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
 Since relations are a form of set all operations (see ((Values-Set))) and functions
-(see ((Prelude-Set))) are also applicable to relations.
+(see ((Library:Set))) are also applicable to relations.
 
 The following additional operators are provided for relations:
 (((TOC)))

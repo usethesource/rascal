@@ -38,7 +38,7 @@ An n-ary list relation with m tuples is denoted by
 where the _E_~ij~ are expressions that yield the desired element type _T_~i~.
 
 Since list relations are a form of list all operations (see ((Values-List))) and functions
-(see ((Library:List))) are also applicable to relations.
+(see ((Library:module:List))) are also applicable to relations.
 
 The following additional operators are provided for list relations:
 (((TOC)))

@@ -41,17 +41,17 @@ The value returned by the function is used as value of the function call.
 For the keyword parameters a similar evaluation produces values for each expression and those values
 are bound to the respective names. 
 * The order of keyword parameters is irrelevant in the call syntax, as opposed to the order of the positional parameters. 
-* Notably, values are _also_ bound for the keyword parameters which are _not listed_ in the call site. For those values, _default_ expressions are evaluation which are retrieved from the ((Function)) signature. 
-* For ((Function))s those default parameters are computed and bound at the time of calling the function
+* Notably, values are _also_ bound for the keyword parameters which are _not listed_ in the call site. For those values, _default_ expressions are evaluation which are retrieved from the ((Declarations-Function)) signature. 
+* For ((Declarations-Function))s those default parameters are computed and bound at the time of calling the function
 * For ((AlgebraicDataType)) constructors, the missing default parameters are computed, lazily, at the moment of ((FieldProjection)).
 
 For more information:
-* see ((Function)) for more details about function declarations.
+* see ((Declarations-Function)) for more details about function declarations.
 * see ((AlgebraicDataType)) for more details about constructor declarations.
 
-In case of ((Overloading)), where there a more definitions of the same function (the same name and argument arity), there is a selection process called "dynamic dispatch". The functions are tried in arbitrary order,
-and if their signature [matches]((Matching)), and their body does not ((Fail)), then the return value of that function is used. Otherwise, the next function alternative is tried until a succesful alternative is found. 
-If the pattern ((Matching)) of the signature is non-unitary, it involves backtracking, then a single function
+In case of [function overloading]((Declarations-Function)), where there a more definitions of the same function (the same name and argument arity), there is a selection process called "dynamic dispatch". The functions are tried in arbitrary order,
+and if their signature [matches]((PatternMatching)), and their body does not ((Fail)), then the return value of that function is used. Otherwise, the next function alternative is tried until a succesful alternative is found. 
+If the match of the signature is non-unitary, it involves backtracking, then a single function
 may be tried many times.
 
 If the name of the function in the call is

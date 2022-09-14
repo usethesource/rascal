@@ -121,7 +121,7 @@ bottom-up visit(e){
 ```
 
 More examples can, for instance, be found in Recipes, see [ColoredTrees]((Recipes:Common-ColoredTrees)), 
-[WordReplacement]((Recipes:Common-WordReplacement)), [CountConstructors]((Recipes:CommonCountConstructors)), 
+[WordReplacement]((Recipes:Common-WordReplacement)), [CountConstructors]((Recipes:Common-CountConstructors)), 
 and [Derivative]((Recipes:Common-Derivative)).
 
 #### Benefits
