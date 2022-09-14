@@ -56,8 +56,8 @@ rel[str, str] createConceptIndex(loc src)
     }
   + // Now follow the index entries for image files:
     { <"<f.parent.file>-<f.file>", "/assets/<capitalize(src.file)><relativize(src, f)>">,
-      <f.file, "/assets/<capitalize(src.file)><relativize(src, f)>">,
-      <"<capitalize(src.file)>:<f.file>", "/assets/<capitalize(src.file)><relativize(src, f)>">
+      <f.file, "/assets/<capitalize(src.file)><relativize(src, f).path>">,
+      <"<capitalize(src.file)>:<f.file>", "/assets/<capitalize(src.file)><relativize(src, f).path>">
     |  loc f <- find(src, isImageFile)
     }
   + // Here come the index entries for Rascal modules and declarations:

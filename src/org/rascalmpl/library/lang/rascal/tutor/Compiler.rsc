@@ -269,6 +269,10 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
         if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
+        // or we check if its one of the details of the current concept
+        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"])) {
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+        }
 
         return [
                   err(warning("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
