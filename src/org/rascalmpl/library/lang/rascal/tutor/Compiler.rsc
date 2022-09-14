@@ -171,7 +171,7 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   // this uses another nested directory listing to construct information for the (((TOC))) embedded in the current document:
   order = [ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}];
 
-  list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, order) + [empty()];
+  list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, order) + [Output::empty()];
 
   // turn A/B/B.md into A/B/index.md for better URLs in the end result (`A/B/`` is better than `A/B/B.html`)
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
