@@ -1,6 +1,6 @@
 ---
 title: Rascal Shell
-details: REPL,Completion,History,Commands,Keyboard
+details: REPL,RascalShell:Completion,History,Commands,Keyboard
 ---
 
 #### Synopsis

@@ -44,7 +44,7 @@ it has to be prefixed by the splice operator `*`.
 The following operators are provided on list:
 (((TOC)))
 
-There are also [library functions]((Library:List)) available for List.
+There are also [library functions]((Library:module:List)) available for List.
 
 #### Examples
 
