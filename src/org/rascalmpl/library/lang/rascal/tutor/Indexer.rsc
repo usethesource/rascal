@@ -47,7 +47,7 @@ rel[str, str] createConceptIndex(loc src)
       <"<capitalize(src.file)>:<capitalize(cf.file)>", fr>,
 
       // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
-      *{<"<capitalize(src.file)>:<capitalize(f.parent.parent.file)>-<capitalize(cf.file)>", "/<src.file>.md<fr>"> | f.parent.path != "/", f.parent.file == cf.file},     
+      *{<"<capitalize(src.file)>:<capitalize(f.parent.parent.file)>-<capitalize(cf.file)>", "/<src.file><fr[1..][findFirst(fr[1..], "/")..]>"> | f.parent.path != "/", f.parent.file == cf.file},     
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
       <"<capitalize(src.file)>:<replaceAll(fr[1..][findFirst(fr[1..], "/")+1..], "/", "-")>", fr>
