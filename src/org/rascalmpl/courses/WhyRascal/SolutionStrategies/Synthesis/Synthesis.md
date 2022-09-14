@@ -1,6 +1,5 @@
 ---
 title: Synthesis
-details: [[Synthesis-Workflow]],![Synthesis,Workflow]((define-synthesis.png))
 ---
 
 .Synopsis
@@ -13,6 +12,9 @@ Strategies to synthesise results.
 .Function
 
 .Description
+
+![Synthesis,Workflow]((define-synthesis.png))
+
 Results are synthesized as shown in the Figure ((Synthesis-Workflow)) above. This consists of the following steps:
 
 *  Determine the results of the synthesis phase. Wide range of results is possible including:

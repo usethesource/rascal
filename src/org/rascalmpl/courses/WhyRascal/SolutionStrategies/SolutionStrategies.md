@@ -1,6 +1,6 @@
 ---
 title: Solution Strategies
-details: Extraction,Analysis,Synthesis,[[Problem-Solving-Workflow]],![Problem,Solving,Workflow]((problem-solving.png))
+details: Extraction,Analysis,Synthesis
 ---
 
 .Synopsis
@@ -13,6 +13,10 @@ Strategies to solve problems in various domains using Rascal.
 .Function
 
 .Description
+
+
+![Problem-solving workflow]((problem-solving.png))
+
 Before you study more complicated examples, it is useful to discuss some general problem solving 
 strategies that are relevant in Rascal's application domain.
 
