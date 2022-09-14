@@ -1,10 +1,10 @@
-# ListRelation Transitive Closure
+---
+title: "ListRelation Transitive Closure"
+keywords: "+"
+---
 
 .Synopsis
 Transitive closure on binary list relation values.
-
-.Index
-+
 
 .Syntax
 `Exp +`

@@ -1,10 +1,10 @@
-# Map in
+---
+title: "Map in"
+keywords: "in"
+---
 
 .Synopsis
 Membership test on the keys of a map.
-
-.Index
-in
 
 .Syntax
 `Exp~1~ in Exp~2~`

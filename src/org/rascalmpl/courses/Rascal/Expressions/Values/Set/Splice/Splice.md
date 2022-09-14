@@ -1,10 +1,10 @@
-# Set Splice
+---
+title: "Set Splice"
+keywords: "*"
+---
 
 .Synopsis
 Splice the elements of a set in an enclosing set.
-
-.Index
-*
 
 .Syntax
 

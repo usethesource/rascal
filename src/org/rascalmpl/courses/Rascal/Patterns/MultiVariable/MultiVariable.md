@@ -1,10 +1,10 @@
-# MultiVariable Pattern
+---
+title: "MultiVariable Pattern"
+keywords: "*"
+---
 
 .Synopsis
 Multi-variable (also known as Splice-variable) in abstract pattern.
-
-.Index
-*
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# ListRelation FieldSelection
+---
+title: "ListRelation FieldSelection"
+keywords: "."
+---
 
 .Synopsis
 Select a field (column) from a list relation value.
-
-.Index
-.
 
 .Syntax
 `Exp . Name`

@@ -1,10 +1,10 @@
-# Number Subtraction
+---
+title: "Number Subtraction"
+keywords: "-"
+---
 
 .Synopsis
 Subtract two numeric values.
-
-.Index
--
 
 .Syntax
 `Exp~1~ - Exp~2~`

@@ -1,10 +1,10 @@
-# Set StrictSubSet
+---
+title: "Set StrictSubSet"
+keywords: "<"
+---
 
 .Synopsis
 Strict subset operator on set values.
-
-.Index
-<
 
 .Syntax
 `Exp~1~ < Exp~2~`

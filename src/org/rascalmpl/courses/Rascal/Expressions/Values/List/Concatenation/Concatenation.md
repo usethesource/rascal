@@ -1,10 +1,10 @@
-# List Concatenation
+---
+title: "List Concatenation"
+keywords: "+"
+---
 
 .Synopsis
 Concatenate two lists.
-
-.Index
-+
 
 .Syntax
 `Exp~1~ + Exp~2~`

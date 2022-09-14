@@ -1,10 +1,10 @@
-# Visit
+---
+title: "Visit"
+keywords: "visit,case,default,top-down,top-down-break,bottom-up,bottom-up-break,innermost,outermost"
+---
 
 .Synopsis
 Visit the elements in a tree or value.
-
-.Index
-visit case default top-down top-down-break bottom-up bottom-up-break innermost outermost
 
 .Syntax
 ```rascal

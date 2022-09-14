@@ -1,10 +1,10 @@
-# Node GreaterThan
+---
+title: "Node GreaterThan"
+keywords: ">"
+---
 
 .Synopsis
 Greater than operator on node values.
-
-.Index
->
 
 .Syntax
 `Exp~1~ > Exp~2~`

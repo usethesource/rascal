@@ -1,10 +1,10 @@
-# ListRelation Join
+---
+title: "ListRelation Join"
+keywords: "join"
+---
 
 .Synopsis
 Join two list relation values.
-
-.Index
-join
 
 .Syntax
 `Exp~1~ join Exp~2~`

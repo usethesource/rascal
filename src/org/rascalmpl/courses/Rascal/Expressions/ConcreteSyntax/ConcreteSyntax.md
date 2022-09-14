@@ -1,10 +1,10 @@
-# Concrete Syntax
+---
+title: "Concrete Syntax"
+keywords: "`,(,)"
+---
 
 .Synopsis
 Concrete syntax is a notation for patterns that match parse trees and expressions that generate them.
-
-.Index
-` ( )
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# Node Slice
+---
+title: "Node Slice"
+keywords: "[,..,]"
+---
 
 .Synopsis
 Retrieve a slice of a node's argument list.
-
-.Index
-[ .. ]
 
 .Syntax
 

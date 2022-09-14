@@ -1,10 +1,10 @@
-# Boolean And
+---
+title: "Boolean And"
+keywords: "&&"
+---
 
 .Synopsis
 Boolean _and_ operator.
-
-.Index
-&&
 
 .Syntax
 `Exp~1~ && Exp~2~`

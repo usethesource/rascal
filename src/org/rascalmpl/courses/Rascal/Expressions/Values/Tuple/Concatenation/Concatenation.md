@@ -1,10 +1,10 @@
-# Tuple Concatenation
+---
+title: "Tuple Concatenation"
+keywords: "+"
+---
 
 .Synopsis
 Concatenate two tuple values.
-
-.Index
-+
 
 .Syntax
 `Exp~1~ + Exp~2~`

@@ -1,10 +1,10 @@
-# Relation CartesianProduct
+---
+title: "Relation CartesianProduct"
+keywords: "*"
+---
 
 .Synopsis
 Cartesian product of two relation values.
-
-.Index
-*
 
 .Syntax
 `Exp~1~ * Exp~2~`

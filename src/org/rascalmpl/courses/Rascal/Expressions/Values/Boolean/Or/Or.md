@@ -1,10 +1,10 @@
-# Boolean Or
+---
+title: "Boolean Or"
+keywords: "||"
+---
 
 .Synopsis
 The _or_ operator on Boolean values.
-
-.Index
-||
 
 .Syntax
 `Exp~1~ || Exp~2~`

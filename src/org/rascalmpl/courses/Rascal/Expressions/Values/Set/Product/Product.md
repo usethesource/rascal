@@ -1,10 +1,10 @@
-# Set Product
+---
+title: "Set Product"
+keywords: "*"
+---
 
 .Synopsis
 The product of two set values.
-
-.Index
-*
 
 .Syntax
 `Exp~1~ * Exp~2~`

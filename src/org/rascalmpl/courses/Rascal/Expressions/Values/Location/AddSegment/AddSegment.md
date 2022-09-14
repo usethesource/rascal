@@ -1,10 +1,10 @@
-# Location AddSegment
+---
+title: "Location AddSegment"
+keywords: "+"
+---
 
 .Synopsis
 Locations can be concatenated with strings to add segments to the path component
-
-.Index
-+
 
 .Syntax
 `Loc + Str`

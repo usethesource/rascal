@@ -1,10 +1,10 @@
-# ListRelation Reflexive Transitive Closure
+---
+title: "ListRelation Reflexive Transitive Closure"
+keywords: "*"
+---
 
 .Synopsis
 The reflexive transitive closure of a binary list relation.
-
-.Index
-*
 
 .Syntax
 `Exp *`

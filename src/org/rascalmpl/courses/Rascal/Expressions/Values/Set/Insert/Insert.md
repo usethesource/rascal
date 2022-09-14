@@ -1,10 +1,10 @@
-# Set Insert
+---
+title: "Set Insert"
+keywords: "+"
+---
 
 .Synopsis
 Add an element to a set.
-
-.Index
-+
 
 .Syntax
 `Exp~1~ + Exp~2~`

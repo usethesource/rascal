@@ -1,10 +1,10 @@
-# Fail
+---
+title: "Fail"
+keywords: "fail"
+---
 
 .Synopsis
 Let the current alternative of a pattern match fail.
-
-.Index
-fail
 
 .Syntax
 `fail;`

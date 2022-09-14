@@ -1,10 +1,10 @@
-# Map Difference
+---
+title: "Map Difference"
+keywords: "-"
+---
 
 .Synopsis
 The difference between two maps.
-
-.Index
--
 
 .Syntax
 `Exp~1~ - Exp~2~`

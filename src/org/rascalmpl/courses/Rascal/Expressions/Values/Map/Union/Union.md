@@ -1,10 +1,10 @@
-# Map Union
+---
+title: "Map Union"
+keywords: "+"
+---
 
 .Synopsis
 Union of two maps.
-
-.Index
-+
 
 .Syntax
 `Exp~1~ + Exp~2~`

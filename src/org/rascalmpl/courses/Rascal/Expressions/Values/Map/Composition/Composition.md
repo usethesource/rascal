@@ -1,10 +1,10 @@
-# Map Composition
+---
+title: "Map Composition"
+keywords: "o"
+---
 
 .Synopsis
 Composition of two map values.
-
-.Index
-o
 
 .Syntax
 `Exp~1~ o Exp~2~`

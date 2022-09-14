@@ -1,10 +1,10 @@
-# Slice
+---
+title: "Slice"
+keywords: "[,..,],="
+---
 
 .Synopsis
 Assign to a slice of a list or string.
-
-.Index
-[ .. ] =
 
 .Syntax
 

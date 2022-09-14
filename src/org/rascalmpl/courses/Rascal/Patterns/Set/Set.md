@@ -1,10 +1,10 @@
-# Set Pattern
+---
+title: "Set Pattern"
+keywords: "{,}"
+---
 
 .Synopsis
 Set in abstract pattern.
-
-.Index
-{ }
 
 .Syntax
 

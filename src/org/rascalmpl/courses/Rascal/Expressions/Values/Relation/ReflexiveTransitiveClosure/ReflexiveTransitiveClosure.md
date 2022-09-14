@@ -1,10 +1,10 @@
-# Relation ReflexiveTransitiveClosure
+---
+title: "Relation ReflexiveTransitiveClosure"
+keywords: "*"
+---
 
 .Synopsis
 The reflexive transitive closure of a binary relation.
-
-.Index
-*
 
 .Syntax
 `Exp *`

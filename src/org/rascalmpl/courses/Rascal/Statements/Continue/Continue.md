@@ -1,10 +1,10 @@
-# Continue
+---
+title: "Continue"
+keywords: "continue"
+---
 
 .Synopsis
 Continue with the next iteration of while, do or for loop.
-
-.Index
-continue
 
 .Syntax
 

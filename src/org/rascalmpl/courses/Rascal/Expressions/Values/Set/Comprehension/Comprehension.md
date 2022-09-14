@@ -1,10 +1,10 @@
-# Set Comprehension
+---
+title: "Set Comprehension"
+keywords: "{,|,}"
+---
 
 .Synopsis
 A set comprehension generates a set value.
-
-.Index
-{ | }
 
 .Syntax
 `{ Exp~1~, Exp~2~, ... | Gen~1~, Gen~2~, ... }`

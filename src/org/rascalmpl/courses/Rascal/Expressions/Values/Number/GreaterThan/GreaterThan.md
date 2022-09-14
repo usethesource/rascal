@@ -1,7 +1,7 @@
-# Number GreaterThan
-
-.Index
->
+---
+title: "Number GreaterThan"
+keywords: ">"
+---
 
 .Synopsis
 Greater than operator on numeric values.

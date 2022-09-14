@@ -1,10 +1,10 @@
-# Subscription
+---
+title: "Subscription"
+keywords: "[,],="
+---
 
 .Synopsis
 Assign a single element of a structured value.
-
-.Index
-[ ] =
 
 .Syntax
 

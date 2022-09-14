@@ -1,11 +1,11 @@
-# Annotation
+---
+title: "Annotation"
+keywords: "@,="
+---
 
 .Synopsis
 
 Assign to an annotation. This feature is deprecated.
-
-.Index
-@ =
 
 .Syntax
 

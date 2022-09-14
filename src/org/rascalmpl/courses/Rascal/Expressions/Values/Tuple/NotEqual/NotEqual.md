@@ -1,10 +1,10 @@
-# Tuple NotEqual
+---
+title: "Tuple NotEqual"
+keywords: "!="
+---
 
 .Synopsis
 Not equal operator on tuple values.
-
-.Index
-!=
 
 .Syntax
 `Exp~1~ != Exp~2~`

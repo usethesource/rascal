@@ -1,10 +1,10 @@
-# Boolean Negation
+---
+title: "Boolean Negation"
+keywords: "!"
+---
 
 .Synopsis
 The _not_ operator on Boolean values.
-
-.Index
-!
 
 .Syntax
 `! Exp`

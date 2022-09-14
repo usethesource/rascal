@@ -1,10 +1,10 @@
-# Field Projection
+---
+title: "Field Projection"
+keywords: "<,>"
+---
 
 .Synopsis
 Projection of tuple.
-
-.Index
-< >
 
 .Syntax
 `Exp < Field~1~, Field~2~ ... >`

@@ -1,10 +1,10 @@
-# String LessThanOrEqual
+---
+title: "String LessThanOrEqual"
+keywords: "<="
+---
 
 .Synopsis
 Less than or equal operator on string values.
-
-.Index
-<=
 
 .Syntax
 `Exp~1~ <= Exp~2~`

@@ -1,10 +1,10 @@
-# Tuple GreaterThanOrEqual
+---
+title: "Tuple GreaterThanOrEqual"
+keywords: ">="
+---
 
 .Synopsis
 Greater than or equal operator on tuple values.
-
-.Index
->=
 
 .Syntax
 `Exp~1~ >= Exp~2~`

@@ -1,13 +1,13 @@
-# Switch
+---
+title: "Switch"
+keywords: "switch,case,default"
+---
 
 .Synopsis
 
 The switch statement is a control flow statement
 where the next block is selected by pattern matching
 against a number of `case` patterns. 
-
-.Index
-switch case default
 
 .Syntax
 ```rascal

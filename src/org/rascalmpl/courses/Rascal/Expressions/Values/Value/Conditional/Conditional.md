@@ -1,10 +1,10 @@
-# Value Conditional
+---
+title: "Value Conditional"
+keywords: "?,:"
+---
 
 .Synopsis
 Conditional expression on values.
-
-.Index
-? :
 
 .Syntax
 `Exp~1~ ? Exp~2~ : Exp~3~`

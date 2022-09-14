@@ -1,10 +1,10 @@
-# Append
+---
+title: "Append"
+keywords: "append"
+---
 
 .Synopsis
 Append an element to the list value produced by various loop statements.
-
-.Index
-append
 
 .Syntax
 `append Exp`

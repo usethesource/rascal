@@ -1,10 +1,10 @@
-# Boolean Match
+---
+title: "Boolean Match"
+keywords: ":="
+---
 
 .Synopsis
 Match a pattern against an expression.
-
-.Index
-:=
 
 .Syntax
 `Pat := Exp`

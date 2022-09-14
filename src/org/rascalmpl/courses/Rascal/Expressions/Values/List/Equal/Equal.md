@@ -1,10 +1,10 @@
-# List Equal
+---
+title: "List Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equality on lists.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`

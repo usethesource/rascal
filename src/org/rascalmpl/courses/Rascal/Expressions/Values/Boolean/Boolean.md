@@ -1,10 +1,10 @@
-# Boolean
+---
+title: "Boolean"
+keywords: "true,false"
+---
 
 .Synopsis
 Boolean values.
-
-.Index
-true false
 
 .Syntax
 `true`, `false`

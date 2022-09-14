@@ -1,10 +1,10 @@
-# DateTime GreaterThanOrEqual
+---
+title: "DateTime GreaterThanOrEqual"
+keywords: ">="
+---
 
 .Synopsis
 Greater than or equal operator on datetime values.
-
-.Index
->=
 
 .Syntax
 `Exp~1~ >= Exp~2~`

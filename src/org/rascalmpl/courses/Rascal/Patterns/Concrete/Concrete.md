@@ -1,10 +1,10 @@
-# Concrete Patterns
+---
+title: "Concrete Patterns"
+keywords: "(,),`,<,>"
+---
 
 .Synopsis
 Concrete patterns.
-
-.Index
-( ) ` < > 
 
 .Syntax
 

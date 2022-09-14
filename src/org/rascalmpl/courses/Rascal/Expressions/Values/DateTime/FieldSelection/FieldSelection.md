@@ -1,10 +1,10 @@
-# DateTime Field Selection
+---
+title: "DateTime Field Selection"
+keywords: "."
+---
 
 .Synopsis
 Select a field from a datetime value.
-
-.Index
-.
 
 .Syntax
 `Exp . Name`

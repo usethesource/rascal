@@ -1,10 +1,10 @@
-# Location
+---
+title: "Location"
+keywords: "|,(,)"
+---
 
 .Synopsis
 (Source code) location values.
-
-.Index
-| ( )
 
 .Syntax
 

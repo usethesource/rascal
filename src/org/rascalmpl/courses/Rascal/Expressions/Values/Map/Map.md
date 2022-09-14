@@ -1,10 +1,10 @@
-# Map
+---
+title: "Map"
+keywords: "(,:,)"
+---
 
 .Synopsis
 Map values.
-
-.Index
-( : )
 
 .Syntax
 `( KeyExp~1~ : ValExp~1~, KeyExp~2~ : ValExp~2~, ... )`

@@ -1,10 +1,10 @@
-# String Slice
+---
+title: "String Slice"
+keywords: "[,..,]"
+---
 
 .Synopsis
 Retrieve a slice of a string.
-
-.Index
-[ .. ]
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# Multiple
+---
+title: "Multiple"
+keywords: "<,>,="
+---
 
 .Synopsis
 Assign to multiple assignables.
-
-.Index
-< > =
 
 .Syntax
 

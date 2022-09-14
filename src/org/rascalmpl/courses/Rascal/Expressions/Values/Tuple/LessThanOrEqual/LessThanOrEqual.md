@@ -1,10 +1,10 @@
-# Tuple LessThanOrEqual
+---
+title: "Tuple LessThanOrEqual"
+keywords: "<="
+---
 
 .Synopsis
 Less than or equal operator on tuple values.
-
-.Index
-<=
 
 .Syntax
 `Exp~1~ <= Exp~2~`

@@ -1,10 +1,10 @@
-# Location LessThan
+---
+title: "Location LessThan"
+keywords: "<"
+---
 
 .Synopsis
 The less than operator on location values.
-
-.Index
-<
 
 .Syntax
 `Exp~1~ < Exp~2~`

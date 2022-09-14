@@ -1,10 +1,10 @@
-# Number Division
+---
+title: "Number Division"
+keywords: "/"
+---
 
 .Synopsis
 Division on numeric values.
-
-.Index
-/
 
 .Syntax
 `Exp~1~ / Exp~2~`

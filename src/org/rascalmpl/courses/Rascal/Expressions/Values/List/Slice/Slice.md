@@ -1,10 +1,10 @@
-# List Slice
+---
+title: "List Slice"
+keywords: "[,..,]"
+---
 
 .Synopsis
 Retrieve a slice of a list.
-
-.Index
-[ .. ]
 
 .Syntax
 

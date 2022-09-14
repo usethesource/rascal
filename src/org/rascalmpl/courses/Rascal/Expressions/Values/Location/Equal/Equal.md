@@ -1,10 +1,10 @@
-# Location Equal
+---
+title: "Location Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equality operator on locations.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`

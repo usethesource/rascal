@@ -1,10 +1,10 @@
-# Set in
+---
+title: "Set in"
+keywords: "in"
+---
 
 .Synopsis
 Membership test on set values.
-
-.Index
-in
 
 .Syntax
 `Exp~1~ in Exp~2~`

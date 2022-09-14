@@ -1,10 +1,10 @@
-# DateTime Equal
+---
+title: "DateTime Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equality on datetime values.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`

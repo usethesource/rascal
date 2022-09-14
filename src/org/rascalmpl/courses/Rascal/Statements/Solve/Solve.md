@@ -1,10 +1,10 @@
-# Solve
+---
+title: "Solve"
+keywords: "solve"
+---
 
 .Synopsis
 Solve a set of equalities by fixed-point iteration.
-
-.Index
-solve
 
 .Syntax
 `solve(Var~1~, Var~2~, ..., Var~n~; Exp) Statement;`

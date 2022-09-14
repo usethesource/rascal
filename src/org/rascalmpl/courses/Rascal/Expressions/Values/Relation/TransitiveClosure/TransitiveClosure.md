@@ -1,10 +1,10 @@
-# Relation TransitiveClosure
+---
+title: "Relation TransitiveClosure"
+keywords: "+"
+---
 
 .Synopsis
 Transitive closure on binary relation values.
-
-.Index
-+
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# Type Constraints
+---
+title: "Type Constraints"
+keywords: "<:,&"
+---
 
 .Synopsis
 Type constraints restrict the acceptable type for parameters.
-
-.Index
-<: &
 
 .Syntax
 `& Name <: Type`

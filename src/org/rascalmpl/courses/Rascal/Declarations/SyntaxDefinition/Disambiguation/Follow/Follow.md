@@ -1,10 +1,10 @@
-# Follow Declaration
+---
+title: "Follow Declaration"
+keywords: ">>,!>>"
+---
 
 .Synopsis
 A conditional ((Symbol)), constraining the characters that can immediately follow a symbol in the input source text.
-
-.Index
->> !>>
 
 .Syntax
 

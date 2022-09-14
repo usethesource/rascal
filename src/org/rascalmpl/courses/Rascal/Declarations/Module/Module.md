@@ -1,10 +1,10 @@
-# Module Declaration
+---
+title: "Module Declaration"
+keywords: "module"
+---
 
 .Synopsis
 Declare a module.
-
-.Index
-module
 
 .Syntax
 ```rascal

@@ -1,10 +1,10 @@
-# Map Subscription
+---
+title: "Map Subscription"
+keywords: "[,]"
+---
 
 .Synopsis
 Retrieve a value by its key in map.
-
-.Index
-[ ]
 
 .Syntax
 `Exp~1~ [ Exp~2~ ]`

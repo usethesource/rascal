@@ -1,10 +1,10 @@
-# Return
+---
+title: "Return"
+keywords: "return"
+---
 
 .Synopsis
 Return a value as result of a [Function].
-
-.Index
-return
 
 .Syntax
 

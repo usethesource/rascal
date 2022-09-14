@@ -1,7 +1,7 @@
-# Boolean Any
-
-.Index
-any
+---
+title: "Boolean Any"
+keywords: "any"
+---
 
 .Synopsis
 Any combination of argument values is true.

@@ -1,10 +1,10 @@
-# Relation FieldSelection
+---
+title: "Relation FieldSelection"
+keywords: "."
+---
 
 .Synopsis
 Select a field (column) from a relation value.
-
-.Index
-.
 
 .Syntax
 `Exp . Name`

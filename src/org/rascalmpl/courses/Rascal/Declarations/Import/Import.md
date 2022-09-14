@@ -1,10 +1,10 @@
-# Import
+---
+title: "Import"
+keywords: "import"
+---
 
 .Synopsis
 Declare the import a module.
-
-.Index
-import
 
 .Syntax
 `import QualifiedName;`

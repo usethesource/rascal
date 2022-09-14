@@ -1,10 +1,10 @@
-# Set SubSet
+---
+title: "Set SubSet"
+keywords: "<="
+---
 
 .Synopsis
 Subset operator on set values.
-
-.Index
-<=
 
 .Syntax
 `Exp~1~ <= Exp~2~`

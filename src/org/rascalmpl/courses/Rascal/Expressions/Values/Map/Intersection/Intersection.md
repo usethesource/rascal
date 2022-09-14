@@ -1,10 +1,10 @@
-# Map Intersection
+---
+title: "Map Intersection"
+keywords: "&"
+---
 
 .Synopsis
 Intersection of two maps.
-
-.Index
-&
 
 .Syntax
 `Exp~1~ & Exp~2~`

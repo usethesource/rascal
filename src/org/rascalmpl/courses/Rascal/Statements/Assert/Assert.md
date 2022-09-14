@@ -1,10 +1,10 @@
-# Assert
+---
+title: "Assert"
+keywords: "assert"
+---
 
 .Synopsis
 An executable assertion.
-
-.Index
-assert
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# String Concatenation
+---
+title: "String Concatenation"
+keywords: "+"
+---
 
 .Synopsis
 Concatenate two strings.
-
-.Index
-+
 
 .Syntax
 `Exp~1~ + Exp~2~`

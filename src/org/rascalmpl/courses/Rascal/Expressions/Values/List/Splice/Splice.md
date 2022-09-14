@@ -1,10 +1,10 @@
-# List Splice
+---
+title: "List Splice"
+keywords: "*"
+---
 
 .Synopsis
 Splice the elements of a list in an enclosing list.
-
-.Index
-*
 
 .Syntax
 

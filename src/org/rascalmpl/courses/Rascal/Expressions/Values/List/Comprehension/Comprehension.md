@@ -1,10 +1,10 @@
-# List Comprehension
+---
+title: "List Comprehension"
+keywords: "[,|,]"
+---
 
 .Synopsis
 A list comprehension generates a list value.
-
-.Index
-[ | ]
 
 .Syntax
 `[ Exp~1~, Exp~2~, ... | Gen~1~, Gen~2~, ... ]`

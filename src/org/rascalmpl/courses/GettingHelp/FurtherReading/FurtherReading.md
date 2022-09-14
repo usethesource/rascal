@@ -1,10 +1,10 @@
-# Further Reading
+---
+title: "Further Reading"
+keywords: "help"
+---
 
 .Synopsis
 How to continue reading the Rascal documentation
-
-.Index
-help
 
 .Description
 

@@ -1,10 +1,10 @@
-# List SuperList
+---
+title: "List SuperList"
+keywords: ">="
+---
 
 .Synopsis
 The super list operator on lists.
-
-.Index
->=
 
 .Syntax
 `Exp~1~ >= Exp~2~`

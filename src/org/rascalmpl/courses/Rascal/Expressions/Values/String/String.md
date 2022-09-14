@@ -1,10 +1,10 @@
-# String
+---
+title: "String"
+keywords: "",',<,>,\,\n,\t,\r,\b,\f,\u,\U,hex,if,else,for,while,do"
+---
 
 .Synopsis
 String values.
-
-.Index
-" ' < > \ \n \t \r \b \f \u \U hex if else for while do
 
 .Syntax
 `"StringChar~1~StringChar~2~..."`

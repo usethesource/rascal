@@ -1,10 +1,10 @@
-# Node LessThan
+---
+title: "Node LessThan"
+keywords: "<"
+---
 
 .Synopsis
 Less than operator on node values.
-
-.Index
-<
 
 .Syntax
 `Exp~1~ < Exp~2~`

@@ -1,10 +1,10 @@
-# DateTime LessThan
+---
+title: "DateTime LessThan"
+keywords: "<"
+---
 
 .Synopsis
 Less than operator on datetime values.
-
-.Index
-<
 
 .Syntax
 `Exp~1~ < Exp~2~`

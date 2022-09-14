@@ -1,10 +1,10 @@
-# Map notin
+---
+title: "Map notin"
+keywords: "notin"
+---
 
 .Synopsis
 Negated membership test on the keys of a map.
-
-.Index
-notin
 
 .Syntax
 `Exp~1~ notin Exp~2~`

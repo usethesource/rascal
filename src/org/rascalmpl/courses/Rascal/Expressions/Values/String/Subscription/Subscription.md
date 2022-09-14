@@ -1,10 +1,10 @@
-# String Subscription
+---
+title: "String Subscription"
+keywords: "[,]"
+---
 
 .Synopsis
 Retrieve a substring via its index.
-
-.Index
-[ ]
 
 .Syntax
 `Exp~1~ [ Exp~2~ ]`

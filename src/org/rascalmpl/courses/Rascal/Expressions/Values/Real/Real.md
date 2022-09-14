@@ -1,10 +1,10 @@
-# Real
+---
+title: "Real"
+keywords: "real"
+---
 
 .Synopsis
 Real values.
-
-.Index
-real
 
 .Syntax
 

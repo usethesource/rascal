@@ -1,10 +1,10 @@
-# Reserve Declaration
+---
+title: "Reserve Declaration"
+keywords: "\"
+---
 
 .Synopsis
 Reserve is a conditional ((Symbol)), constraining the set of strings that a symbol may produce.
-
-.Index
-\
 
 .Syntax
 

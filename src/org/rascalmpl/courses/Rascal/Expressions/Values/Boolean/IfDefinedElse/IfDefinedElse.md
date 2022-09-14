@@ -1,10 +1,10 @@
-# Boolean IfDefinedElse
+---
+title: "Boolean IfDefinedElse"
+keywords: "?"
+---
 
 .Synopsis
 Test whether expression has a defined value, otherwise provide alternative.
-
-.Index
-?
 
 .Syntax
 `Exp~1~ ? Exp~2~`

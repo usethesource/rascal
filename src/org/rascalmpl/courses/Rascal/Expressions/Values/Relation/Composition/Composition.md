@@ -1,10 +1,10 @@
-# Relation Composition
+---
+title: "Relation Composition"
+keywords: "o"
+---
 
 .Synopsis
 Composition of two relation values.
-
-.Index
-o
 
 .Syntax
 `Exp~1~ o Exp~2~`

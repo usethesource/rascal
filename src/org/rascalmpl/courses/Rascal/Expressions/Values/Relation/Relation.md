@@ -1,10 +1,10 @@
-# Relation
+---
+title: "Relation"
+keywords: "{,},rel"
+---
 
 .Synopsis
 Relation values.
-
-.Index
-{ } rel
 
 .Syntax
 `{ < Exp~11~, Exp~12~, ... > , < Exp~21~, Exp~22~, ... > , ... }`

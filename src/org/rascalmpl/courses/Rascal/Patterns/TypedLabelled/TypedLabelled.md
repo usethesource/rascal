@@ -1,10 +1,10 @@
-# Typed and Labelled Pattern
+---
+title: "Typed and Labelled Pattern"
+keywords: ":"
+---
 
 .Synopsis
 Typed, labelled, abstract pattern.
-
-.Index
-:
 
 .Syntax
 

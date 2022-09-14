@@ -1,10 +1,10 @@
-# ReifiedTypes
+---
+title: "ReifiedTypes"
+keywords: "#"
+---
 
 .Synopsis
 Types can be represented by values
-
-.Index
-#
 
 .Syntax
 

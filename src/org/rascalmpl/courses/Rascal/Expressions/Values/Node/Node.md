@@ -1,10 +1,10 @@
-# Node
+---
+title: "Node"
+keywords: "(,)"
+---
 
 .Synopsis
 Node values.
-
-.Index
-( )
 
 .Syntax
 

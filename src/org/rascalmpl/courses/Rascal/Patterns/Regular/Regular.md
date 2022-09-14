@@ -1,10 +1,10 @@
-# Regular Expression Pattern
+---
+title: "Regular Expression Pattern"
+keywords: "/,\,[,],^,-,.,|,?,*,+,{,},$"
+---
 
 .Synopsis
 Regular expression patterns.
-
-.Index
-/ \ [ ] ^ - . | ? * + { } $
 
 .Syntax
 

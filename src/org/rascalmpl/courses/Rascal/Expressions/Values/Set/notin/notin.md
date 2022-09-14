@@ -1,10 +1,10 @@
-# Set notin
+---
+title: "Set notin"
+keywords: "notin"
+---
 
 .Synopsis
 Negated membership test on set values.
-
-.Index
-notin
 
 .Syntax
 `Exp~1~ notin Exp~2~`

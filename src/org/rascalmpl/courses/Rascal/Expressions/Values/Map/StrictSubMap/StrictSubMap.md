@@ -1,10 +1,10 @@
-# Map StrictSubMap
+---
+title: "Map StrictSubMap"
+keywords: "<"
+---
 
 .Synopsis
 Strict submap operator on map values.
-
-.Index
-<
 
 .Syntax
 `Exp~1~ < Exp~2~`

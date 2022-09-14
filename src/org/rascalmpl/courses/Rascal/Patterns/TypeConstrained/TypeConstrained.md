@@ -1,11 +1,11 @@
-# Type Constrained Pattern
+---
+title: "Type Constrained Pattern"
+keywords: "[,]"
+---
 
 .Synopsis
 
 Type constrained abstract pattern.
-
-.Index
-[ ]
 
 .Syntax
 

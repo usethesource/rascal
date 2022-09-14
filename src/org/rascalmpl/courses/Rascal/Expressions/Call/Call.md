@@ -1,12 +1,11 @@
-# Call
+---
+title: "Call"
+keywords: "(,)"
+---
 
 .Synopsis
 
 Functions and constructors can be called or invoked in a uniform style.
-
-.Index
-
-( )
 
 .Syntax
 

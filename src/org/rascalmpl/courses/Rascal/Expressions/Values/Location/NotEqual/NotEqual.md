@@ -1,10 +1,10 @@
-# NotEqual
+---
+title: "NotEqual"
+keywords: "!="
+---
 
 .Synopsis
 The not equal operator on location values.
-
-.Index
-!=
 
 .Syntax
 `Exp~1~ != Exp~2~`

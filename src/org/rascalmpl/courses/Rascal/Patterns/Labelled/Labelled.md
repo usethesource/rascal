@@ -1,10 +1,10 @@
-# Labelled Pattern
+---
+title: "Labelled Pattern"
+keywords: ":"
+---
 
 .Synopsis
 Labelled abstract pattern.
-
-.Index
-:
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# List Append
+---
+title: "List Append"
+keywords: "+"
+---
 
 .Synopsis
 Append an element at the end of a list
-
-.Index
-+
 
 .Syntax
 

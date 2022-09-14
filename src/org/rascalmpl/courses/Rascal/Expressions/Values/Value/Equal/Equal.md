@@ -1,10 +1,10 @@
-# Value Equal
+---
+title: "Value Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equal operator on values.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`
