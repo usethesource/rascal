@@ -5,7 +5,7 @@ details: Syntax,Runtime,Parse,Pretty,Eval,Test
 
 #### Synopsis
 
-A lisp interpreter in Rascal.
+A Lisp interpreter in Rascal.
 
 #### Syntax
 

@@ -260,17 +260,23 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
                   *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
       }
-      case {a:/^#<plink:.*$>/, b:/^\/[^#]+#<qlink:.*$>/}:
+      case {/^#<plink:.*$>/, b:/^\/[^#]+#<qlink:.*$>/}:
          if (plink == qlink) {
             return compileMarkdown(["<prefix>[<addSpaces(qlink)>](<b>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
-      case {_, _, *_}:
+      case {_, _, *_}: {
+        // ambiguous resolution, first try and resolve within the current course:
+        if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+        }
+
         return [
                   err(warning("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
                               cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
                                     '    <k> resolves to <v><}>")),
                   *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
+      }
   }
 
   return [err(warning("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
