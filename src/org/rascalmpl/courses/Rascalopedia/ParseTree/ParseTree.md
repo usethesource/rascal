@@ -24,8 +24,6 @@ It may even be so detailed that it contains every space, comment and parenthesis
 A parse tree for the sentence 
 ![]((example-text.png))
 
-
-
 ![]((parse-tree.png))
 
 
