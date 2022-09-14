@@ -21,7 +21,7 @@ formats the source code of programs. Alternative names are _formatter_ or _beaut
 Pretty printers differ in the inputs they accept:
 
 *  The source text itself.
-*  A ((ParseTree-ParseTree)) that corresponds to the source text. This variant is also called _unparser_.
+*  A ((ParseTree)) that corresponds to the source text. This variant is also called _unparser_.
 *  An ((Abstract Syntax Tree)) that corresponds to the source text.
 
 
