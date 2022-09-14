@@ -14,7 +14,7 @@ Actions are functions that are called when parse trees are constructed (right af
 
 #### Description
 
-A so-called ((Action)) is a normal rascal ((Function Declaration)) that overloads a ((Syntax Definition)). 
+A so-called ((Action)) is a normal rascal ((Function Declarations)) that overloads a ((SyntaxDefinition)). 
 A ((Syntax Definition)), very similar to ((Algebraic Data Type)) definitions, defines a constructor for a parse tree node. 
 This constructor is the default function, and when it is overloaded by a non-default function this overloaded function will be tried first. 
 You can overload any labeled ((Syntax Definition)) using the name of an alternative.

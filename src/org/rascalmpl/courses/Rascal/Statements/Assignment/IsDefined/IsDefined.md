@@ -23,8 +23,8 @@ Otherwise, the value of _Exp_~2~ is assigned to _Assignable_.
 Values which can be undefined are:
 * in ((Values-Map))s where the key is _not_ set
 * values of ((Annotation Declarations)) which are not present.
-* values of ((Declaratons-Function))'s keyword parameters which have not been provided, but are set to default.
-* values of ((Constructor))'s keyword parameters which have not been provided, but are computed by defaults.
+* values of ((Declarations-Function))'s keyword parameters which have not been provided, but are set to default.
+* values of ((Values-Constructor))'s keyword parameters which have not been provided, but are computed by defaults.
 
 No other values can be used in an undefined state, so the ? operator does not make sense on undefined or uninitialized variables for example.
 

@@ -39,9 +39,9 @@ The expression is the basic unit of evaluation and may consist of the ingredient
 
 *  A ((Expressions-Visit)) expression.
 
-*  A ((Boolean Any)) expression.
+*  A ((Boolean-Any)) expression.
 
-*  An ((Boolean All)) expression.
+*  An ((Boolean-All)) expression.
 
 *  Some statements like ((If)), ((For)), ((While)) and ((Do)) can also be used in expressions, see ((Statement as Expression)).
 

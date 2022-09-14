@@ -1,6 +1,6 @@
 ---
 title: Declarations
-details: Module,Import,Program,StaticTyping,AlgebraicDataType,Variable,Function,SyntaxDefinition,Alias,Annotation,Tag
+details: Module,Import,Program,StaticTyping,AlgebraicDataType,Declarations-Variable,Function,SyntaxDefinition,Alias,Declarations-Annotation,Tag
 ---
 
 #### Synopsis
