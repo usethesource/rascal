@@ -1,10 +1,10 @@
-# Pattern With Action
+---
+title: "Pattern With Action"
+keywords: "=>,:"
+---
 
 .Synopsis
 A pattern with an associated action that is executed on a successful match.
-
-.Index
-=> :
 
 .Syntax
 

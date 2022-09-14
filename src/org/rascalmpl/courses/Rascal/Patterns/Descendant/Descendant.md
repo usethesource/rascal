@@ -1,10 +1,10 @@
-# Descendant Pattern
+---
+title: "Descendant Pattern"
+keywords: "/"
+---
 
 .Synopsis
 Deep match in an abstract pattern.
-
-.Index
-/
 
 .Syntax
 

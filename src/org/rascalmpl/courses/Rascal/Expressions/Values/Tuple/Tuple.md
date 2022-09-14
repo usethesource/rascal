@@ -1,10 +1,10 @@
-# Tuple
+---
+title: "Tuple"
+keywords: "<,>"
+---
 
 .Synopsis
 Tuple values.
-
-.Index
-< >
 
 .Syntax
 `< Exp~1~, Exp~2~, ... >`

@@ -1,10 +1,10 @@
-# DateTime NotEqual
+---
+title: "DateTime NotEqual"
+keywords: "!="
+---
 
 .Synopsis
 Not equal operator on datetime values.
-
-.Index
-!=
 
 .Syntax
 `Exp~1~ != Exp~2~`

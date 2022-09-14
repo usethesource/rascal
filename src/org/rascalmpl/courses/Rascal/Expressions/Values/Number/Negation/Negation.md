@@ -1,10 +1,10 @@
-# Number Negation
+---
+title: "Number Negation"
+keywords: "-"
+---
 
 .Synopsis
 Negate a numeric value.
-
-.Index
--
 
 .Syntax
 `- Exp`

@@ -1,10 +1,10 @@
-# Tuple Subscription
+---
+title: "Tuple Subscription"
+keywords: "[,]"
+---
 
 .Synopsis
 Retrieve a tuple field by its index position.
-
-.Index
-[ ]
 
 .Syntax
 `Exp~1~ [ Exp~2~ ]`

@@ -1,10 +1,10 @@
-#  Tuple Equal
+---
+title: "Tuple Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equality operator on tuple values.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`

@@ -1,10 +1,10 @@
-# Set StrictSuperSet
+---
+title: "Set StrictSuperSet"
+keywords: ">"
+---
 
 .Synopsis
 Strict superset operator on set values.
-
-.Index
->
 
 .Syntax
 `Exp~1~ > Exp~2~`

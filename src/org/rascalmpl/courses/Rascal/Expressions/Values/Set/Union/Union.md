@@ -1,10 +1,10 @@
-# Set Union
+---
+title: "Set Union"
+keywords: "+"
+---
 
 .Synopsis
 Union of two set values.
-
-.Index
-+
 
 .Syntax
 

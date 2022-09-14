@@ -1,10 +1,10 @@
-# Syntax Definition
+---
+title: "Syntax Definition"
+keywords: "start,lexical,layout,keyword,assoc,left,right,non-assoc"
+---
 
 .Synopsis
 Syntax Definitions allow the definition of parsers for programming languages, domain-specific languages and data formats.
-
-.Index
-start lexical layout keyword assoc left right non-assoc
 
 .Syntax
 

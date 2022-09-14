@@ -1,10 +1,10 @@
-# Set Difference
+---
+title: "Set Difference"
+keywords: "-"
+---
 
 .Synopsis
 The difference between two sets.
-
-.Index
--
 
 .Syntax
 `Exp~1~ - Exp~2~`

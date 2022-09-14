@@ -1,10 +1,10 @@
-# Map Equal
+---
+title: "Map Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equality operator on maps.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`

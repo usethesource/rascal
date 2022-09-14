@@ -1,11 +1,11 @@
-# Algebraic Data Type
+---
+title: "Algebraic Data Type"
+keywords: "data"
+---
 
 
 .Synopsis
 Define a user-defined type (Algebraic Data Type).
-
-.Index
-data
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# List StrictSubList
+---
+title: "List StrictSubList"
+keywords: "<"
+---
 
 .Synopsis
 The strict sublist operator on lists.
-
-.Index
-<
 
 .Syntax
 `Exp~1~ < Exp~2~`

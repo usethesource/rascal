@@ -1,10 +1,10 @@
-# Number
+---
+title: "Number"
+keywords: "int,real,num"
+---
 
 .Synopsis
 Numeric values.
-
-.Index
-int real num
 
 .Syntax
 

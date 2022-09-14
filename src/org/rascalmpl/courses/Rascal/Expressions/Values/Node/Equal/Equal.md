@@ -1,10 +1,10 @@
-# Node Equal
+---
+title: "Node Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equal operator on node values.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`

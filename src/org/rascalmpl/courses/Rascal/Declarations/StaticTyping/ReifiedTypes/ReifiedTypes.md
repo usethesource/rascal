@@ -1,10 +1,10 @@
-# Reified Types
+---
+title: "Reified Types"
+keywords: "#,type,&"
+---
 
 .Synopsis
 Reified types are types that can be used as values.
-
-.Index
-# type &
 
 .Syntax
 `# Name`

@@ -1,10 +1,10 @@
-# Help at the command line
+---
+title: "Help at the command line"
+keywords: "help"
+---
 
 .Synopsis
 Get help when using Rascal at the command line (CLI, REPL)
-
-.Index
-help
 
 .Description
 

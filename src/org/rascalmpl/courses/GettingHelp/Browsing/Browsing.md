@@ -1,10 +1,10 @@
-# Browsing Documentation
+---
+title: "Browsing Documentation"
+keywords: "help"
+---
 
 .Synopsis
 Browsing the Rascal documentation
-
-.Index
-help
 
 .Description
 

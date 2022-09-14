@@ -1,10 +1,10 @@
-#  Tuple FieldSelection
+---
+title: "Tuple FieldSelection"
+keywords: "."
+---
 
 .Synopsis
 Select a field from a tuple by its field name.
-
-.Index
-.
 
 .Syntax
 `Exp . Name`

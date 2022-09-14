@@ -1,10 +1,10 @@
-# String GreaterThanOrEqual
+---
+title: "String GreaterThanOrEqual"
+keywords: ">="
+---
 
 .Synopsis
 Greater than or equal operator on string values.
-
-.Index
->=
 
 .Syntax
 `Exp~1~ >= Exp~2~`

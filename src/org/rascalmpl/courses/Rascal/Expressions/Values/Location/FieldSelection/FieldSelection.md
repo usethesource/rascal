@@ -1,10 +1,10 @@
-# Location FieldSelection
+---
+title: "Location FieldSelection"
+keywords: "."
+---
 
 .Synopsis
 Field selection on locations.
-
-.Index
-.
 
 .Syntax
 `Exp . Name`

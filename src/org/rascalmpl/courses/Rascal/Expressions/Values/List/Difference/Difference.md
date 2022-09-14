@@ -1,10 +1,10 @@
-# List Difference
+---
+title: "List Difference"
+keywords: "-"
+---
 
 .Synopsis
 The difference between two lists.
-
-.Index
--
 
 .Syntax
 `Exp~1~ - Exp~2~`

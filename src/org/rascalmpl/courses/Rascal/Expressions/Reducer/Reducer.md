@@ -1,10 +1,10 @@
-# Reducer
+---
+title: "Reducer"
+keywords: "(,|,),it"
+---
 
 .Synopsis
 Reduce generated values to a single value.
-
-.Index
-( | ) it
 
 .Syntax
 `( InitExp | RedExp | Gen~1~, Gen~2~, ... )`

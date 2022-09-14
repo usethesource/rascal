@@ -1,11 +1,11 @@
-# Throw
+---
+title: "Throw"
+keywords: "throw"
+---
 
 .Synopsis
 
 Throw any value as an exception up the call stack.
-
-.Index
-throw
 
 .Syntax
 `throw Exp`

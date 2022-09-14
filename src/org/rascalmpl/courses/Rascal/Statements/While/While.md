@@ -1,12 +1,12 @@
-# While
+---
+title: "While"
+keywords: "while"
+---
 
 
 
 .Synopsis
 While loop.
-
-.Index
-while
 
 .Syntax
 `while ( Exp ) Statement;`

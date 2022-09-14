@@ -1,10 +1,10 @@
-# Block
+---
+title: "Block"
+keywords: "{,},;"
+---
 
 .Synopsis
 Group statements into a block.
-
-.Index
-{ } ;
 
 .Syntax
 `{ Statement~1~; ... ; Statement~n~ }`

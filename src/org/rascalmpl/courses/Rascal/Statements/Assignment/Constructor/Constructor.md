@@ -1,10 +1,10 @@
-# Constructor
+---
+title: "Constructor"
+keywords: "="
+---
 
 .Synopsis
 Assign to constructor.
-
-.Index
-=
 
 .Syntax
 

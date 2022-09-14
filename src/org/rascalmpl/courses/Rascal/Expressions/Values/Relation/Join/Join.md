@@ -1,10 +1,10 @@
-# Relation Join
+---
+title: "Relation Join"
+keywords: "join"
+---
 
 .Synopsis
 Join two relation values.
-
-.Index
-join
 
 .Syntax
 `Exp~1~ join Exp~2~`

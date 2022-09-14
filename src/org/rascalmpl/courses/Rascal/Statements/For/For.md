@@ -1,10 +1,10 @@
-# For
+---
+title: "For"
+keywords: "for"
+---
 
 .Synopsis
 For loop.
-
-.Index
-for
 
 .Syntax
 `for ( Exp~1~ , Exp~2~ , ... , Exp~n~ ) Statement;`

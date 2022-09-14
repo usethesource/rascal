@@ -1,10 +1,10 @@
-# List StrictSuperList
+---
+title: "List StrictSuperList"
+keywords: ">"
+---
 
 .Synopsis
 The strict super list operator on lists.
-
-.Index
->
 
 .Syntax
 `Exp~1~ > Exp~2~`

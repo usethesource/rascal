@@ -1,10 +1,10 @@
-# Integer
+---
+title: "Integer"
+keywords: "int"
+---
 
 .Synopsis
 Integer values.
-
-.Index
-int
 
 .Syntax
 sequence of digits of arbitrary length.

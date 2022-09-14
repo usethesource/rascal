@@ -1,10 +1,10 @@
-# Help in the Integrated Development Environment (IDE)
+---
+title: "Help in the Integrated Development Environment (IDE)"
+keywords: "help"
+---
 
 .Synopsis
 Get help when using Rascal in the IDE
-
-.Index
-help
 
 .Description
 

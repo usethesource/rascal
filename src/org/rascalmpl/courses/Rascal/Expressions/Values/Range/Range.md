@@ -1,10 +1,10 @@
-# Range
+---
+title: "Range"
+keywords: "[,..,]"
+---
 
 .Synopsis
 Numeric range of values.
-
-.Index
-[ .. ]
 
 .Syntax
 

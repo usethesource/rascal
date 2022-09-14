@@ -1,10 +1,10 @@
-# Location GreaterThan
+---
+title: "Location GreaterThan"
+keywords: ">"
+---
 
 .Synopsis
 The greater than operator on location values.
-
-.Index
->
 
 .Syntax
 `Exp~1~ > Exp~2~`

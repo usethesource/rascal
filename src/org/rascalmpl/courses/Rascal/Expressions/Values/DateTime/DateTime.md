@@ -1,10 +1,10 @@
-# DateTime
+---
+title: "DateTime"
+keywords: "$,date,datetime,time"
+---
 
 .Synopsis
 Date and time values.
-
-.Index
-$ date datetime time
 
 .Syntax
 

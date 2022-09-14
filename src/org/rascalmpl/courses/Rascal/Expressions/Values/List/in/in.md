@@ -1,10 +1,10 @@
-# List in
+---
+title: "List in"
+keywords: "in"
+---
 
 .Synopsis
 Membership test on list elements.
-
-.Index
-in
 
 .Syntax
 `Exp~1~ in Exp~2~`

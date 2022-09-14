@@ -1,10 +1,10 @@
-# List
+---
+title: "List"
+keywords: "[,]"
+---
 
 .Synopsis
 List values.
-
-.Index
-[ ]
 
 .Syntax
 `[ Exp~1~, Exp~2~, ... ]`

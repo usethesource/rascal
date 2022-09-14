@@ -1,10 +1,10 @@
-# Boolean All
+---
+title: "Boolean All"
+keywords: "all"
+---
 
 .Synopsis
 All argument expressions are true.
-
-.Index
-all
 
 .Syntax
 `all ( Exp~1~, Exp~2~, ... )`

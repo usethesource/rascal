@@ -1,10 +1,10 @@
-# Type Parameters
+---
+title: "Type Parameters"
+keywords: "&"
+---
 
 .Synopsis
 Type parameters enable parameterized types.
-
-.Index
-&
 
 .Syntax
 `& Name`

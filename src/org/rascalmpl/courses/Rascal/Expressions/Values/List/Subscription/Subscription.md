@@ -1,10 +1,10 @@
-# List Subscription
+---
+title: "List Subscription"
+keywords: "[,]"
+---
 
 .Synopsis
 Retrieve a list element via its index.
-
-.Index
-[ ]
 
 .Syntax
 `Exp~1~ [ Exp~2~ ]`

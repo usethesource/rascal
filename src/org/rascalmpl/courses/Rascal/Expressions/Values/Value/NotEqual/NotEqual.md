@@ -1,10 +1,10 @@
-# Value NotEqual
+---
+title: "Value NotEqual"
+keywords: "!="
+---
 
 .Synopsis
 Not equal operator on values.
-
-.Index
-!=
 
 .Syntax
 `Exp~1~ != Exp~2~`

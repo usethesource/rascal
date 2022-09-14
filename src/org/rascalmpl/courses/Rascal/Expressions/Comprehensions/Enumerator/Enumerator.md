@@ -1,10 +1,10 @@
-# Enumerator
+---
+title: "Enumerator"
+keywords: "<-"
+---
 
 .Synopsis
 Enumerate all values in a given subject value.
-
-.Index
-<-
 
 .Syntax
 `Pattern <- Exp`

@@ -1,10 +1,10 @@
-# List notin
+---
+title: "List notin"
+keywords: "notin"
+---
 
 .Synopsis
 Negated membership test on lists.
-
-.Index
-notin
 
 .Syntax
 `Exp~1~ notin Exp~2~`

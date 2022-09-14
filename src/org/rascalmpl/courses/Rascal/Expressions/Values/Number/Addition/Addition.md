@@ -1,7 +1,7 @@
-# Number Addition
-
-.Index
-+
+---
+title: "Number Addition"
+keywords: "+"
+---
 
 .Synopsis
 Addition on numeric values.

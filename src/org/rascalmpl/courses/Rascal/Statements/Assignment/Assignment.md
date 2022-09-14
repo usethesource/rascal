@@ -1,10 +1,10 @@
-# Assignment
+---
+title: "Assignment"
+keywords: "=,+=,-=,*=,/=,?=,[,..,],.,?,@"
+---
 
 .Synopsis
 Assign a value to a variable or more complex data structure.
-
-.Index
-= += -= *= /= ?= [ .. ] . ? @
 
 .Syntax
 `Assignable AssignmentOp Exp`

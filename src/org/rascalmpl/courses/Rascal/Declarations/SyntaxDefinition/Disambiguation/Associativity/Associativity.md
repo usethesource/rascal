@@ -1,10 +1,10 @@
-# Associativity Declaration
+---
+title: "Associativity Declaration"
+keywords: "left,right,assoc,non-assoc"
+---
 
 .Synopsis
 Define associativity of operators
-
-.Index
-left right assoc non-assoc
 
 .Syntax
 

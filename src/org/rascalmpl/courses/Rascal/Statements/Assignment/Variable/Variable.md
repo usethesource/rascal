@@ -1,10 +1,10 @@
-# Variable
+---
+title: "Variable"
+keywords: "="
+---
 
 .Synopsis
 Assign to a variable.
-
-.Index
-=
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# Number Conditional
+---
+title: "Number Conditional"
+keywords: "?,:"
+---
 
 .Synopsis
 Conditional expression for numeric values.
-
-.Index
-? :
 
 .Syntax
 `Exp~1~ ? Exp~2~ : Exp~3~`

@@ -1,10 +1,10 @@
-# Try Catch
+---
+title: "Try Catch"
+keywords: "try,catch,finally"
+---
 
 .Synopsis
 Try to execute a statement and catch resulting exceptions.
-
-.Index
-try catch finally
 
 .Syntax
 ```rascal

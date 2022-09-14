@@ -1,10 +1,10 @@
-# List Product
+---
+title: "List Product"
+keywords: "*"
+---
 
 .Synopsis
 Compute the product of two lists.
-
-.Index
-*
 
 .Syntax
 `Exp~1~ * Exp~2~`

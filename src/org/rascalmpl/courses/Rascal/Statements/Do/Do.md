@@ -1,10 +1,10 @@
-# Do
+---
+title: "Do"
+keywords: "do,while"
+---
 
 .Synopsis
 Repeat statements while condition holds.
-
-.Index
-do while
 
 .Syntax
 `do Statement while ( Exp );`

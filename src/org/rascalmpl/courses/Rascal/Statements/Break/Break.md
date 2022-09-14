@@ -1,10 +1,10 @@
-# Break
+---
+title: "Break"
+keywords: "break"
+---
 
 .Synopsis
 End the execution of a while, do or for loop.
-
-.Index
-break
 
 .Syntax
 

@@ -1,10 +1,10 @@
-# Function Declaration
+---
+title: "Function Declaration"
+keywords: "public,private,java,test,default,&"
+---
 
 .Synopsis
 Declare a function.
-
-.Index
-public private java test default &
 
 .Syntax
 

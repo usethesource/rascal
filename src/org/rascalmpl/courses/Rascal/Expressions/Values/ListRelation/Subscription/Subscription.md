@@ -1,10 +1,10 @@
-# ListRelation Subscription
+---
+title: "ListRelation Subscription"
+keywords: "[,]"
+---
 
 .Synopsis
 Indexing of a list relation via tuple values.
-
-.Index
-[ ]
 
 .Syntax
 

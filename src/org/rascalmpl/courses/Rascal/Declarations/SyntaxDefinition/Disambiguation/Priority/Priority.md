@@ -1,10 +1,10 @@
-# Priority Declaration
+---
+title: "Priority Declaration"
+keywords: ">,|"
+---
 
 .Synopsis
 Declare the priority of operators.
-
-.Index
-> |
 
 .Syntax
 

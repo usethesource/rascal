@@ -1,10 +1,10 @@
-# If
+---
+title: "If"
+keywords: "if,else"
+---
 
 .Synopsis
 Conditional statement.
-
-.Index
-if else
 
 .Syntax
 

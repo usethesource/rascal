@@ -1,10 +1,10 @@
-# Getting Started with Rascal
+---
+title: "Getting Started with Rascal"
+keywords: "help"
+---
 
 .Synopsis
 First steps using Rascal
-
-.Index
-help
 
 .Description
 

@@ -1,10 +1,10 @@
-# Field Assignment
+---
+title: "Field Assignment"
+keywords: "[,=,]"
+---
 
 .Synopsis
 Assignment to a field of a tuple or datatype.
-
-.Index
-[ = ]
 
 .Syntax
 `Exp~1~ [ Name = Exp~2~ ]`

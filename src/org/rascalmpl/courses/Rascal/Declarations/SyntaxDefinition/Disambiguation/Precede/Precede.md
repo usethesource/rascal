@@ -1,10 +1,10 @@
-# Precede Declaration
+---
+title: "Precede Declaration"
+keywords: "<<,!<<"
+---
 
 .Synopsis
 A conditional ((Symbol)), constraining the characters that can immediately precede a symbol in the input source text.
-
-.Index
-<< !<<
 
 .Syntax
 

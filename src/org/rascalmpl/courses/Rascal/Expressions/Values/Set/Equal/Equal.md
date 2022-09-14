@@ -1,10 +1,10 @@
-# Set Equal
+---
+title: "Set Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equal operator on set values.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`

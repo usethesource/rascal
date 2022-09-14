@@ -1,10 +1,10 @@
-# Insert
+---
+title: "Insert"
+keywords: "insert"
+---
 
 .Synopsis
 Insert a value in a tree during a ((Statements-Visit)).
-
-.Index
-insert
 
 .Syntax
 `insert Exp;`

@@ -1,10 +1,10 @@
-# List Pattern
+---
+title: "List Pattern"
+keywords: "[,]"
+---
 
 .Synopsis
 List in abstract pattern.
-
-.Index
-[ ]
 
 .Syntax
 

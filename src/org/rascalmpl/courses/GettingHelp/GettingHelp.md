@@ -1,10 +1,10 @@
-# Getting Help
+---
+title: "Getting Help"
+keywords: "tutorial,newbie,faq,question,beginner,doc,documentation"
+---
 
 .Synopsis
 Getting help when working with Rascal
-
-.Index
-tutorial newbie faq question beginner doc documentation
 
 .Details
 CommandLine IDE Browsing

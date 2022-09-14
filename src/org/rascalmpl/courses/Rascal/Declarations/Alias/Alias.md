@@ -1,10 +1,10 @@
-# Alias Declaration
+---
+title: "Alias Declaration"
+keywords: "alias"
+---
 
 .Synopsis
 Declare an alias for a type.
-
-.Index
-alias
 
 .Syntax
 `alias Name  = Type;`

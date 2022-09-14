@@ -1,10 +1,10 @@
-# Number Remainder
+---
+title: "Number Remainder"
+keywords: "%"
+---
 
 .Synopsis
 Remainder of two integer values.
-
-.Index
-%
 
 .Syntax
 `Exp~1~ % Exp~2~`

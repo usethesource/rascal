@@ -1,10 +1,10 @@
-# Number LessThan
+---
+title: "Number LessThan"
+keywords: "<"
+---
 
 .Synopsis
 Less than operator on numeric values.
-
-.Index
-<
 
 .Syntax
 `Exp~1~ < Exp~2~`

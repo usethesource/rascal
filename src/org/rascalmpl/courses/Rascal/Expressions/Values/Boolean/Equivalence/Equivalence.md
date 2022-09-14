@@ -1,10 +1,10 @@
-# Boolean Equivalence
+---
+title: "Boolean Equivalence"
+keywords: "<==>"
+---
 
 .Synopsis
 The _equivalence_ operator on Boolean values.
-
-.Index
-<==>
 
 .Syntax
 `Exp~1~ <==> Exp~2~`

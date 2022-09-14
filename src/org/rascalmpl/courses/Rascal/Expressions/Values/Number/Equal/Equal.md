@@ -1,7 +1,7 @@
-# Number Equal
-
-.Index
-==
+---
+title: "Number Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equality operator on numeric values.

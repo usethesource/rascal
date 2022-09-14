@@ -1,10 +1,10 @@
-# Node Subscription
+---
+title: "Node Subscription"
+keywords: "[,]"
+---
 
 .Synopsis
 Retrieve an argument of a node via its index.
-
-.Index
-[ ]
 
 .Syntax
 `Exp~1~ [ Exp~2~ ]`

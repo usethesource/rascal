@@ -1,10 +1,10 @@
-# Boolean NoMatch
+---
+title: "Boolean NoMatch"
+keywords: "!:="
+---
 
 .Synopsis
 Negated [Boolean Match] operator.
-
-.Index
-!:=
 
 .Syntax
 `Pat !:= Exp`

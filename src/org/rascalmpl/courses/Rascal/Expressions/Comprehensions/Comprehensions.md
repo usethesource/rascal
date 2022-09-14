@@ -1,10 +1,10 @@
-# Comprehensions
+---
+title: "Comprehensions"
+keywords: "[,],{,},(,),|,<-"
+---
 
 .Synopsis
 Comprehensions provide a concise notation to conditionally generate new values.
-
-.Index
-[ ] { } ( ) | <- 
 
 .Syntax
 

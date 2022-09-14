@@ -1,10 +1,10 @@
-# String Equal
+---
+title: "String Equal"
+keywords: "=="
+---
 
 .Synopsis
 Equality operator on string values.
-
-.Index
-==
 
 .Syntax
 `Exp~1~ == Exp~2~`

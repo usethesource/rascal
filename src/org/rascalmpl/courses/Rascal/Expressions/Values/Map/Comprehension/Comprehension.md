@@ -1,10 +1,10 @@
-# Map Comprehension
+---
+title: "Map Comprehension"
+keywords: "(,|,)"
+---
 
 .Synopsis
 A map comprehension generates a map value.
-
-.Index
-( | )
 
 .Syntax
 `( Exp~1~ : Exp~2~ | Gen~1~, Gen~2~, ... )`

@@ -1,12 +1,11 @@
-# ListRelation
+---
+title: "ListRelation"
+keywords: "[,],<,>"
+---
 
 .Synopsis
 
 List relations are lists of tuples with relational calculus operators defined on them.
-
-.Index
-
-[ ] < >
 
 .Syntax
 

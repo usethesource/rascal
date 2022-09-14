@@ -1,10 +1,10 @@
-# Boolean IsDefined
+---
+title: "Boolean IsDefined"
+keywords: "?"
+---
 
 .Synopsis
 Test whether the value of an expression is defined.
-
-.Index
-?
 
 .Syntax
 `Exp ?`

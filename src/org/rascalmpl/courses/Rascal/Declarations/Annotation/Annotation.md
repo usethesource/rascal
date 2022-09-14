@@ -1,11 +1,11 @@
-# Annotation Declaration
+---
+title: "Annotation Declaration"
+keywords: "anno,@"
+---
 
 .Synopsis
 
 Declare an annotation type for nodes. This feature is deprecated; please use ((Keyword Fields)) instead.
-
-.Index
-anno @
 
 .Syntax
 `anno AnnoType OnType @ Name`

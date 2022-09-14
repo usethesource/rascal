@@ -1,10 +1,10 @@
-# Set Intersection
+---
+title: "Set Intersection"
+keywords: "&"
+---
 
 .Synopsis
 Intersection of two sets.
-
-.Index
-&
 
 .Syntax
 `Exp~1~ & Exp~2~`

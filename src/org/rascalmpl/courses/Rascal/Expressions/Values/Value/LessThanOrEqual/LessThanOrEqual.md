@@ -1,10 +1,10 @@
-# Value LessThanOrEqual
+---
+title: "Value LessThanOrEqual"
+keywords: "<="
+---
 
 .Synopsis
 Less than or equal operator on values.
-
-.Index
-<=
 
 .Syntax
 `Exp~1~ <= Exp~2~`

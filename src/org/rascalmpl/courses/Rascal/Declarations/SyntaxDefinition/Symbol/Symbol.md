@@ -1,10 +1,10 @@
-# Symbol
+---
+title: "Symbol"
+keywords: "",',[,],!,-,||,&&,(,),?,+,*,{,},|,(),^,@,>>,!>>,<<,!<<,\"
+---
 
 .Synopsis
 The symbols that can occur in a syntax definition.
-
-.Index
-" ' [ ] ! - || && ( ) ? + * { } | () ^ @ >> !>> << !<< \
 
 .Syntax
 

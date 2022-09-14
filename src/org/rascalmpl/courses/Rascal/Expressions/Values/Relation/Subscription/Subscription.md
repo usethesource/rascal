@@ -1,17 +1,10 @@
-# Relation Subscription
+---
+title: "Relation Subscription"
+keywords: "[,],##,Syntax,*,`Exp0_,[,Exp~1~,,Exp~2~,,...,Exp~n~]`,*,`Exp0_,[,Exp~1~]`"
+---
 
 ## Synopsis
 Indexing of a relation via tuple values.
-
-.Index
-
-[ ]
-
-## Syntax
-
-*  `Exp0_ [ Exp~1~, Exp~2~, ... Exp~n~]`
-
-*  `Exp0_ [ Exp~1~]`
 
 .Types
 

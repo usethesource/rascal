@@ -1,10 +1,10 @@
-# Tuple Pattern
+---
+title: "Tuple Pattern"
+keywords: "<,>"
+---
 
 .Synopsis
 Tuple in abstract pattern.
-
-.Index
-< >
 
 .Syntax
 
