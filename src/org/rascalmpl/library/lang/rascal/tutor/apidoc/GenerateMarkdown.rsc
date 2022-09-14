@@ -12,7 +12,7 @@ import lang::rascal::tutor::Compiler;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
 import lang::rascal::tutor::Names;
 
-@synopsis{Generate markdown documentation from the declaration extracted from a Rascal module.}
+@synopsis{Generate markdown documentation from the declarations extracted from a Rascal module.}
 @description{
     This function takes Rascal files as input, first extracts all declarations including their
     embedded (markdown) documentation tags, and then generates on-the-fly the output markdown
@@ -27,7 +27,7 @@ import lang::rascal::tutor::Names;
 list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, CommandExecutor exec, Index ind) {
     dinfo = extractInfo(moduleLoc);
 
-    dtls = dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]);
+    dtls = sort(dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]));
 
     // TODO: this overloading collection should happen in ExtractInfo
     res = [];
@@ -60,12 +60,14 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
 
 list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
-        out("## module <d.moduleName> {#<fragment(d.moduleName)>}"),
-        empty(),
-        out("### Usage"),
-        empty(),
+        out("---"),
+        out("title: \"<d.moduleName>\""),
+        out("---"),
+        Output::empty(),
+        out("#### Usage"),
+        Output::empty(),
         out("`import <replaceAll(d.name, "/", "::")>;`"),
-        empty(),
+        Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls),
         out("")
     ];
@@ -73,9 +75,9 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
 list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
         out("## function <d.name> {<fragment(d.moduleName)>-<d.name>}"),
-        empty(),
+        Output::empty(),
         *[out("* `<removeNewlines(ov)>`") | ov <- overloads],
-        empty(),
+        Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
     ];
    
@@ -115,7 +117,7 @@ default list[Output] declInfo2Doc(str parent, DeclarationInfo d, list[str] overl
 list[Output] tags2Markdown(list[DocTag] tags, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
     = [
         // every doc tag has its own header title, except the "doc" tag which may contain them all (backward compatibility)
-        *(l != "doc" ? [out("### <capitalize(l)>"), empty()] : []),
+        *(l != "doc" ? [out("#### <capitalize(l)>"), empty()] : []),
         
         // here is where we get the origin information into the right place for error reporting:
         *compileMarkdown(split("\n", c), s.begin.line, s.offset, pcfg, exec, ind, dtls),

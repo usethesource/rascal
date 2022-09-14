@@ -169,7 +169,7 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
 
 list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
   // this uses another nested directory listing to construct information for the (((TOC))) embedded in the current document:
-  order = [ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}];
+  order = sort([ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}]);
 
   list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, order) + [Output::empty()];
 
