@@ -47,12 +47,12 @@ Following imports, a module may contain declarations (in arbitrary order, but a 
 occur directly following the imports) for:
 
 *  ((Syntax Definition))
-*  ((Variable Declaration))
-*  ((Function Declaration))
+*  ((Variable Declarations))
+*  ((Function Declarations))
 *  ((Algebraic Data Type))
-*  ((Alias Declaration))
-*  ((Annotation Declaration))
-*  ((Tag Declaration))
+*  ((Alias Declarations))
+*  ((Annotation Declarations))
+*  ((Tag Declarations))
 
 
 Each declaration may contain a `private` or `public` keyword that determines 
@@ -82,7 +82,7 @@ include::{LibDir}demo/basic/Hello.rsc[tags=module]
 ```
 
                 
-It defines a module with the name `demo::basic::Hello` and imports the [IO]((Library:IO)) library.
+It defines a module with the name `demo::basic::Hello` and imports the [IO]((Library:module:IO)) library.
 Finally, it declares the `hello` function.
 
 The actual source of this module can be found in `library/demo/basic/Hello.rsc` in the Rascal sources.

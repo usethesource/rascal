@@ -19,13 +19,13 @@ A set pattern matches a set value (the subject), provided that _Pat_~1~, _Pat_~2
 (recall that the elements of a set are unordered and do not contain duplicates).
 Completely analogous to list patterns, there are special cases when one of the patterns _Pat_~i~ is
 
-*  a ((Variable Declaration Pattern)) with a type that is identical to the element type of the subject set: the variable is matched with one value  in the subject set.
+*  a ((VariableDeclaration Patterns)) with a type that is identical to the element type of the subject set: the variable is matched with one value  in the subject set.
 
-*  a ((MultiVariable Pattern)), with an optional element type that is identical to the element type of the subject set: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
+*  a ((MultiVariable Patterns)), with an optional element type that is identical to the element type of the subject set: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
 
-*  a ((Pattern Variable)), where the variable has been declared with a set type, but not initialized, outside the pattern: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
+*  a ((Patterns Variable)), where the variable has been declared with a set type, but not initialized, outside the pattern: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
 
-*  a ((Variable Pattern)), where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with one value in the subject set.
+*  a ((Variable Patterns)), where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with one value in the subject set.
 
 
 

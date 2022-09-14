@@ -5,7 +5,7 @@ keywords: "anno,@"
 
 #### Synopsis
 
-Declare an annotation type for nodes. This feature is deprecated; please use ((Keyword Fields)) instead.
+Declare an annotation type for nodes. This feature is deprecated; please use ((KeywordFields)) instead.
 
 #### Syntax
 

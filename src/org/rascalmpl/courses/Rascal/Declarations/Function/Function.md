@@ -105,7 +105,7 @@ The _Modifiers_ affect _visibility_ and _special behaviour_ of functions:
         by the unit test framework, by typing `:test` at the command line, see ((Help)).
    **  `default` declares an alternative for an overloaded function that will only be tried after 
         all non-default alternatives have been tried. Note that ((Algebraic Data Type))s and ((Syntax Definition))s 
-        _implicitly_ define `default` functions that may be overloaded by normal ((Function Declaration))s.
+        _implicitly_ define `default` functions that may be overloaded by normal ((Function Declarations))s.
 
 
 #### Examples

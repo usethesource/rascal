@@ -18,7 +18,7 @@ There are several ways of defining ((Disambiguation)) in Rascal.
 There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from ((Syntax Definition))s.
 
 *  The first way is to add disambiguation declarations to the ((Syntax Definition)). You can choose from:
-   **  [Priorities]((Declaration-Priority))s, which can be used to define the relative priority in expression languages
+   **  [Priorities]((Declarations-Priority))s, which can be used to define the relative priority in expression languages
    **  ((Associativity))s, which can be used to define relative associativity between operators of 
        expression languages
    **  ((Follow)) constraints, which can be used to implement longest match using lookahead
@@ -27,7 +27,7 @@ There are generally three ways of removing ambiguity from parse forests that are
        to implement keyword reservation
 *  The second way is to add ((Action))s that will be triggered just after parsing and allow you to trim a parse forest 
    using any information necessary.
-*  The third way is use the ((Statement-Visit)) statement on a parse tree and implement your own filter post-parsing time, 
+*  The third way is use the ((Statements-Visit)) statement on a parse tree and implement your own filter post-parsing time, 
    or any other kind of program that processes ((Parse Trees)).
 
 #### Examples

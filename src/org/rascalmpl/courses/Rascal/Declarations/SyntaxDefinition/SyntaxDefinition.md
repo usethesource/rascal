@@ -44,7 +44,7 @@ There are four kinds of non-terminals that can be defined with slightly differen
 
 *  _Lexical_ non-terminals are just like _syntax_ non-terminals, very much like _syntax_ non-terminals. 
    However, the definition of a lexical is _not_ modified with interleaved layout non-terminals. 
-   And, the structure of lexicals is not traversed by the [visit statement]((Statement-Visit)) and equality is checked between lexicals 
+   And, the structure of lexicals is not traversed by the [visit statement]((Statements-Visit)) and equality is checked between lexicals 
    by checking the characters (not its structure) for equality. 
 
 *  _Layout_ non-terminals are just like _syntax_ non-terminals as well. However, they are used to preprocess all _syntax_ definitions in the same module scope (see above).
