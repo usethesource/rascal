@@ -1,4 +1,6 @@
-# Syntax
+---
+title: Syntax
+---
 
 .Synopsis
 Part of the synopsis that summarizes syntax introduced by this concept.
@@ -12,8 +14,6 @@ _MarkedText_
 .Types
 
 .Function
-
-.Details
 
 .Description
 The syntax section is intended to describe syntactic aspects of language constructs.

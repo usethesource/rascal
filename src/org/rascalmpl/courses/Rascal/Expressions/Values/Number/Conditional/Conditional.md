@@ -21,8 +21,6 @@ Conditional expression for numeric values.
 
 .Function
 
-.Details
-
 .Description
 If the value of _Exp_ is `true` then the value of _Exp_~1~ else the value of _Exp_~2~.
 

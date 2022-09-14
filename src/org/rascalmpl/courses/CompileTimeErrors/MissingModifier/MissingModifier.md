@@ -1,4 +1,6 @@
-# MissingModifier
+---
+title: MissingModifier
+---
 
 .Synopsis
 A modifier is missing in a declaration.
@@ -10,8 +12,6 @@ A modifier is missing in a declaration.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

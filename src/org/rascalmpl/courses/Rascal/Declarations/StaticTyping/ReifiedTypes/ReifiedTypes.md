@@ -14,8 +14,6 @@ Reified types are types that can be used as values.
 
 .Function
 
-.Details
-
 .Description
 Usually one declares functions that have arguments that have a type that corresponds to one of the many forms of values in Rascal.
 In exceptional circumstances it is desirable to define functions that have a type itself as argument. 

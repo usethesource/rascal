@@ -20,8 +20,6 @@ Equality operator on locations.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments are identical and `false` otherwise.
 

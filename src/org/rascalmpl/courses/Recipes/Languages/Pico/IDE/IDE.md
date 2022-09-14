@@ -1,4 +1,6 @@
-# IDE
+---
+title: IDE
+---
 
 .Synopsis
 An Integrated Development Environment for Pico.
@@ -10,8 +12,6 @@ An Integrated Development Environment for Pico.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

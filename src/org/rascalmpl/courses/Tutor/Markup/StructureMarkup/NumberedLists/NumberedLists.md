@@ -1,4 +1,6 @@
-# Numbered Lists
+---
+title: Numbered Lists
+---
 
 .Synopsis
 A (possibly nested) list of numbered points.
@@ -15,8 +17,6 @@ A (possibly nested) list of numbered points.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Numbered Lists create, possibly nested, lists of numbered points.

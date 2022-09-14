@@ -1,4 +1,6 @@
-# Command History
+---
+title: Command History
+---
 
 .Synopsis
 Use the command history.

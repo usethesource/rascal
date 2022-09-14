@@ -19,8 +19,6 @@ Subset operator on set values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the value of SetExp~1~ is a subset of the value of SetExp~2~, and `false` otherwise.
 

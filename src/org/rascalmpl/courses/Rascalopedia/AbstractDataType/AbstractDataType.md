@@ -1,4 +1,6 @@
-# AbstractDataType
+---
+title: AbstractDataType
+---
 
 .Synopsis
 A definition of a data type.
@@ -10,8 +12,6 @@ A definition of a data type.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 An [Abstract Data Type](http://en.wikipedia.org/wiki/Abstract_data_type) is a mathematical description of a structure

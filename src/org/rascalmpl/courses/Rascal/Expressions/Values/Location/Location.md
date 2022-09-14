@@ -28,8 +28,6 @@ The part following the second pipe symbol (`|`) is optional.
 
 .Function
 
-.Details
-
 .Description
 Location values are represented by the type `loc` and serve the following purposes:
 

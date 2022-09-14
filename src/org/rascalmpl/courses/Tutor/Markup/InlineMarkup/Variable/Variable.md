@@ -1,4 +1,6 @@
-# Variable
+---
+title: Variable
+---
 
 .Synopsis
 Markup for a variable.
@@ -13,8 +15,6 @@ Markup for a variable.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Variables in text and code are represented by ((Italic)) markup. 

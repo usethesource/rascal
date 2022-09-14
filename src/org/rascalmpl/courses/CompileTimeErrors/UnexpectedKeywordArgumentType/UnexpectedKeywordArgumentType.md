@@ -1,4 +1,6 @@
-# UnexpectedKeywordArgumentType
+---
+title: UnexpectedKeywordArgumentType
+---
 
 .Synopsis
 The actual value of a keyword argument is not compatible with its declared type.
@@ -10,8 +12,6 @@ The actual value of a keyword argument is not compatible with its declared type.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Functions may be declared to have keyword parameters. Each keyword parameters has a type, a name and a default value.

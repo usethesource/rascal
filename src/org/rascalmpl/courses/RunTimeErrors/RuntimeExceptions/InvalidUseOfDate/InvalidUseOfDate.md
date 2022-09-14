@@ -1,4 +1,6 @@
-# Invalid Use Of Date
+---
+title: Invalid Use Of Date
+---
 
 .Synopsis
 Invalid of of a date at runtime

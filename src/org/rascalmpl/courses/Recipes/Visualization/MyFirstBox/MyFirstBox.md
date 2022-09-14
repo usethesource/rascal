@@ -1,4 +1,6 @@
-# My First Box
+---
+title: My First Box
+---
 
 .Synopsis
 Drawing a box in many variations.
@@ -8,8 +10,6 @@ Drawing a box in many variations.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

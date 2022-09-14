@@ -15,8 +15,6 @@ Multi-variable (also known as Splice-variable) in abstract pattern.
 
 .Function
 
-.Details
-
 .Description
 
 A multi-variable is an abbreviation for a variable declaration pattern.

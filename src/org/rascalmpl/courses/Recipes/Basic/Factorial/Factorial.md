@@ -1,4 +1,6 @@
-# Factorial
+---
+title: Factorial
+---
 
 .Synopsis
 Compute the factorial function.
@@ -8,8 +10,6 @@ Compute the factorial function.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

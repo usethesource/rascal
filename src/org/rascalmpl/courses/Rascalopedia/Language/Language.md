@@ -1,4 +1,6 @@
-# Language
+---
+title: Language
+---
 
 .Synopsis
 The set of strings defined by a ((Rascalopedia:Grammar)).
@@ -10,8 +12,6 @@ The set of strings defined by a ((Rascalopedia:Grammar)).
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

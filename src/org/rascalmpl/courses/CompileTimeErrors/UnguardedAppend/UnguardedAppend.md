@@ -1,4 +1,6 @@
-# UnguardedAppend
+---
+title: UnguardedAppend
+---
 
 .Synopsis
 Append statement occurs outside a for/while statement.
@@ -10,8 +12,6 @@ Append statement occurs outside a for/while statement.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 The [append]((Rascal:Statements-Append)) statement can be used inside a loop statement.

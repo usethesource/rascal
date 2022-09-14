@@ -1,4 +1,6 @@
-# RegExp Syntax Error
+---
+title: RegExp Syntax Error
+---
 
 .Synopsis
 Syntax error in regular expression at run time

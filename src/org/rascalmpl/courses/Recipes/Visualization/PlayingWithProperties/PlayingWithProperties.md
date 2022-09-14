@@ -1,4 +1,6 @@
-# Playing With Properties
+---
+title: Playing With Properties
+---
 
 .Synopsis
 Illustrate the effect of various figure properties.
@@ -8,8 +10,6 @@ Illustrate the effect of various figure properties.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

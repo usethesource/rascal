@@ -1,4 +1,6 @@
-# UnsupportedOperation
+---
+title: UnsupportedOperation
+---
 
 .Synopsis
 Attempt to apply a operation to a value for which the operation is not defined.
@@ -10,8 +12,6 @@ Attempt to apply a operation to a value for which the operation is not defined.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 This error is generated when an unsupported operation is applied to (a combination of) values.

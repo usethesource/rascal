@@ -21,8 +21,6 @@ Relation values.
 
 .Function
 
-.Details
-
 .Description
 A relation is a set of elements with the following property:
 

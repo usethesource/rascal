@@ -1,4 +1,6 @@
-# Inline Markup
+---
+title: Inline Markup
+---
 
 .Synopsis
 
@@ -9,8 +11,6 @@ Markup directives used in input lines.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

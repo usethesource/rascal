@@ -14,8 +14,6 @@ Assign a single element of a structured value.
        
 .Usage
 
-.Details
-
 .Description
 Let _V_ be the current value of _Assignable_. The value of _Exp_~1~ is used as index in _V_ and 
 the value of _Exp_~2~ replaces the original value at that index position. 

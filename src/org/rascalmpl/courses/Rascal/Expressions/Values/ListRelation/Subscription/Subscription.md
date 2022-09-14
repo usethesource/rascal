@@ -31,8 +31,6 @@ Indexing of a list relation via tuple values.
 
 .Function
 
-.Details
-
 .Description
 ListRelation resulting from subscription of a ListRelation _Exp_~0~.
 

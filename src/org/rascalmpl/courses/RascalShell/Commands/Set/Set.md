@@ -1,4 +1,6 @@
-# Set Command
+---
+title: Set Command
+---
 
 .Synopsis
 Set parameters that control options of RascalShell.

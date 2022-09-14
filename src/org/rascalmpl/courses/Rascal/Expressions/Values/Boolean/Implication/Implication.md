@@ -20,8 +20,6 @@ The _implication_ operator on Boolean values.
 
 .Function
 
-.Details
-
 .Description
 The _implication_ operator on Boolean values defined as follows:
 

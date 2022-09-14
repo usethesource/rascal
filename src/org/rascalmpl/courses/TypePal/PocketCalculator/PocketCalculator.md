@@ -1,4 +1,6 @@
-# A Calculator Language
+---
+title: A Calculator Language
+---
   
 .Synopsis
 Calc illustraties the basic facilities of TypePal

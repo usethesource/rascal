@@ -1,4 +1,6 @@
-# Table of Contents
+---
+title: Table of Contents
+---
 
 .Synopsis
 Generate a local table of contents of current concept.
@@ -10,8 +12,6 @@ Generate a local table of contents of current concept.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

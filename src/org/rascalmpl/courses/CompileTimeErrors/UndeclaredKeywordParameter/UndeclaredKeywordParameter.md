@@ -1,4 +1,6 @@
-# UndeclaredKeywordParameter
+---
+title: UndeclaredKeywordParameter
+---
 
 .Synopsis
 A function is called with a keyword parameter that was not declared in the function's declaration.
@@ -10,8 +12,6 @@ A function is called with a keyword parameter that was not declared in the funct
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Rascal functions may have keyword parameters. This error is generated when a function call uses an undeclared keyword parameter.

@@ -1,4 +1,6 @@
-# Runtime
+---
+title: Runtime
+---
 
 .Synopsis
 The runtime representation of Lisp programs and data.
@@ -10,8 +12,6 @@ The runtime representation of Lisp programs and data.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 There are several aspects of the runtime representation of Lisp programs and Lisp data

@@ -19,8 +19,6 @@ Not equal operator on set values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments are unequal sets and `false` otherwise.
 

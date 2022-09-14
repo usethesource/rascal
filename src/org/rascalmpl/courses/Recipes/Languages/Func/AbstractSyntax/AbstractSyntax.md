@@ -1,4 +1,6 @@
-# Abstract Syntax
+---
+title: Abstract Syntax
+---
 
 .Synopsis
 The abstract syntax for Func.
@@ -8,8 +10,6 @@ The abstract syntax for Func.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

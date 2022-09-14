@@ -20,8 +20,6 @@ Composition of two list relation values.
 
 .Function
 
-.Details
-
 .Description
 Returns the composition of two binary list relations.
 

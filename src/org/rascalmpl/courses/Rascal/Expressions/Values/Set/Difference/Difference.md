@@ -21,8 +21,6 @@ The difference between two sets.
 
 .Function
 
-.Details
-
 .Description
 If both _Exp_~1~ and _Exp_~2~ have a set as value, the result is the difference of these two set values. 
 If _Exp_~2~ does not have a set as value, it is first converted to a set before the difference is computed.

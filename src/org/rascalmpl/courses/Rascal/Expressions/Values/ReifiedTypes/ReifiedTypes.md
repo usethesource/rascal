@@ -14,8 +14,6 @@ Types can be represented by values
        
 .Usage
 
-.Details
-
 .Description
 
 The type reify expression operator has two functions in one go:

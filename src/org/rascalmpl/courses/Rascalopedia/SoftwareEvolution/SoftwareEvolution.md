@@ -1,4 +1,6 @@
-# Software Evolution
+---
+title: Software Evolution
+---
 
 .Synopsis
 Understanding and managing the continuous change of software.
@@ -10,8 +12,6 @@ Understanding and managing the continuous change of software.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

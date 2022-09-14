@@ -1,4 +1,6 @@
-# Visiting
+---
+title: Visiting
+---
 
 .Synopsis
 Visiting tree structures and arbitrary values.
@@ -8,8 +10,6 @@ Visiting tree structures and arbitrary values.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Visiting the elements of a data structure is one of the most common operations in our domain 

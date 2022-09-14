@@ -19,8 +19,6 @@ Greater than operator on tuple values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if 
 

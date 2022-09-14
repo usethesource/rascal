@@ -1,4 +1,6 @@
-# Uninit
+---
+title: Uninit
+---
 
 .Synopsis
 Find unitialized variables in a Pico program.
@@ -10,8 +12,6 @@ Find unitialized variables in a Pico program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

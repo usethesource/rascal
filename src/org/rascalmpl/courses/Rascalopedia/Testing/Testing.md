@@ -1,4 +1,6 @@
-# Testing
+---
+title: Testing
+---
 
 .Synopsis
 Determine that the quality and functionality of software.
@@ -10,8 +12,6 @@ Determine that the quality and functionality of software.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# Metrics
+---
+title: Metrics
+---
 
 .Synopsis
 Computing 
@@ -10,8 +12,6 @@ Computing
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

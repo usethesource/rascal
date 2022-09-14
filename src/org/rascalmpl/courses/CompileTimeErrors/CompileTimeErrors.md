@@ -1,4 +1,6 @@
-# Compile Time Errors
+---
+title: Compile Time Errors
+---
 
 .Synopsis
 All errors that can occur during compilation of a Rascal program.

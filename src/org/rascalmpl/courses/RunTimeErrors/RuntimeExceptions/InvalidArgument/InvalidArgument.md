@@ -1,4 +1,6 @@
-# Invalid Argument
+---
+title: Invalid Argument
+---
 
 .Synopsis
 A function or operation is applied to an invalid argument value.
@@ -8,8 +10,6 @@ A function or operation is applied to an invalid argument value.
        
 .Usage
 `import Exception;` (only needed when `InvalidArgument` is used in `catch`)
-
-.Details
 
 .Description
 This error is generated when a function or operation is applied to a value that it does not expect.

@@ -20,8 +20,6 @@ Negated membership test on lists.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the value of Exp~1~ does not occur as element in the value of Exp~2~ and `false` otherwise. 
 The type of _Exp_~1~ should be compatible with the element type of _Exp_~2~.

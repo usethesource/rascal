@@ -1,4 +1,6 @@
-# Command Completion
+---
+title: Command Completion
+---
 
 .Synopsis
 Context-dependent command completion.

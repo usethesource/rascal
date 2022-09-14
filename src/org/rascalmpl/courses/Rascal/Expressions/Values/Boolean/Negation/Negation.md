@@ -20,8 +20,6 @@ The _not_ operator on Boolean values.
 
 .Function
 
-.Details
-
 .Description
 The _not_ operator on Boolean values defined as follows:
 

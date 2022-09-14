@@ -1,4 +1,6 @@
-# IllegalQualifiedDeclaration
+---
+title: IllegalQualifiedDeclaration
+---
 
 .Synopsis
 Qualified names cannot be declared.
@@ -10,8 +12,6 @@ Qualified names cannot be declared.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 When the same name is declared in different modules, a qualified name can be used to refer to a specific version of that name.

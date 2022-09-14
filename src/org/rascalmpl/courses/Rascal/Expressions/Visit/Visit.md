@@ -20,8 +20,6 @@ default: ...
 
 .Function
 
-.Details
-
 .Description
 
 Visiting, recursively traversing, the nodes in a deeply nested data-structure is a very common task in the [EASY]((EASY)) domain. 

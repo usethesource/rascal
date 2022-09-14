@@ -13,8 +13,6 @@ Type parameters enable parameterized types.
 
 .Function
 
-.Details
-
 .Description
 A type parameter may occur at every syntactic position where a type is required and turns an ordinary type into a parameterized type.
 Parameterized types are used to define polymorphic functions and data types, i.e., functions and data types that are applicable for more than one type. Type parameters are bound to an actual type when the function or data type is applied and further uses of the type parameter are consistently replaced by the actual type.

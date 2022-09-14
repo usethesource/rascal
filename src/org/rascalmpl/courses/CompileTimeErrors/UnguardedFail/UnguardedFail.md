@@ -1,4 +1,6 @@
-# UnguardedFail
+---
+title: UnguardedFail
+---
 
 .Synopsis
 Use of `fail` statement outside a condtional context.
@@ -10,8 +12,6 @@ Use of `fail` statement outside a condtional context.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A [fail]((Rascal:Statements-Fail)) statement is only allowed inside conditional statements.

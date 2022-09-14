@@ -1,4 +1,6 @@
-# Statements
+---
+title: Statements
+---
 
 .Synopsis
 All Rascal statements.
@@ -8,8 +10,6 @@ All Rascal statements.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# Call Analysis
+---
+title: Call Analysis
+---
 
 .Synopsis
 Analyzing the call structure of an application.
@@ -8,9 +10,6 @@ Analyzing the call structure of an application.
 .Types
 
 .Function
-
-.Details
-
 
 .Description
 

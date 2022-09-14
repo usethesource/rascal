@@ -19,8 +19,6 @@ Less than or equal operator on tuple values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if 
 

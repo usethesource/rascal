@@ -1,4 +1,6 @@
-#  Doc Annotations
+---
+title: Doc Annotations
+---
 
 .Synopsis
 A doc annotation attaches an inline concept description to a Rascal declaration.
@@ -17,7 +19,9 @@ The name of this module is extracted.
 The header of the concept definition is automatically generated and consists of:
 
 ```
-# _Module name_
+---
+title: _Module name_
+---
 .Usage
 _Import declaration needed to use this module_
 ```

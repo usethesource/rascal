@@ -1,4 +1,6 @@
-# Function
+---
+title: Function
+---
 
 .Synopsis
 Part of the synopsis that describes function signatures introduced by this concept.
@@ -12,8 +14,6 @@ _MarkedText_
 .Types
 
 .Function
-
-.Details
 
 .Description
 

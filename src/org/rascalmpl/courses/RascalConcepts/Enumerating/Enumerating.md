@@ -1,4 +1,6 @@
-# Enumerating
+---
+title: Enumerating
+---
 
 .Synopsis
 Enumerating values.
@@ -8,8 +10,6 @@ Enumerating values.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Enumerating regards the enumeration of the values in a given (finite) domain, be it the elements in a list, the substrings of a string, 

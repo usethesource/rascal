@@ -18,8 +18,6 @@ Membership test on the keys of a map.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the value of Exp~1~ occurs as key in the map value of Exp~2~ and `false` otherwise. 
 The type of _Exp_~1~ should be compatible with the key type _TK_ of _Exp_~2~.

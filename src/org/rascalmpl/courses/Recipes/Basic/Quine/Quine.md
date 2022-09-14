@@ -1,4 +1,6 @@
-# Quine
+---
+title: Quine
+---
 
 .Synopsis
 A self-reproducing program.
@@ -8,8 +10,6 @@ A self-reproducing program.
 .Types
 
 .Function
-
-.Details
 
 .Description
 A http://en.wikipedia.org/wiki/Quine_(computing)[quine]

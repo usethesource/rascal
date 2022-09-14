@@ -1,4 +1,6 @@
-# ArgumentMismatch
+---
+title: ArgumentMismatch
+---
 
 .Synopsis
 The called signature does not match any defined function.
@@ -10,8 +12,6 @@ The called signature does not match any defined function.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

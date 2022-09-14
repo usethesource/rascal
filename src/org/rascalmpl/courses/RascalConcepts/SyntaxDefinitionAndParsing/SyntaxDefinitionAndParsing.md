@@ -1,4 +1,6 @@
-# Syntax Definition and Parsing
+---
+title: Syntax Definition and Parsing
+---
 
 .Synopsis
 Syntax definition and parser generation for new languages.

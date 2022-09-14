@@ -1,4 +1,6 @@
-# Control Structures
+---
+title: Control Structures
+---
 
 .Synopsis
 Success-directed control structures.
@@ -8,8 +10,6 @@ Success-directed control structures.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

@@ -21,8 +21,6 @@ Set values.
 
 .Function
 
-.Details
-
 .Description
 A set is an unordered sequence of values and has the following properties:
 

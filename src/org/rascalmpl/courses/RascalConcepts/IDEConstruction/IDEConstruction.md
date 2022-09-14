@@ -1,4 +1,6 @@
-# IDE Construction
+---
+title: IDE Construction
+---
 
 .Synopsis
 
@@ -9,8 +11,6 @@ Extend an IDE with interactive, language-specific, features (Eclipse or VSCode)
 .Types
 
 .Function
-
-.Details
 
 .Description
 

@@ -20,8 +20,6 @@ Intersection of two lists.
 
 .Function
 
-.Details
-
 .Description
 Returns the intersection of the two list values of  _Exp_~1~ and _Exp_~2~, i.e.,
 the list value of _Exp_~1~ with all elements removed that do not occur in the list value of _Exp_~2~.

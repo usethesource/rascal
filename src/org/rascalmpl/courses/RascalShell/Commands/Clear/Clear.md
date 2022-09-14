@@ -1,4 +1,6 @@
-# Clear Command
+---
+title: Clear Command
+---
 
 .Synopsis
 Clear all break points.

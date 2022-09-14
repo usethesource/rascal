@@ -1,4 +1,6 @@
-# ASF+SDF
+---
+title: ASF+SDF
+---
 
 .Synopsis
 Rascal explained for ASF+SDF programmers.
@@ -8,8 +10,6 @@ Rascal explained for ASF+SDF programmers.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

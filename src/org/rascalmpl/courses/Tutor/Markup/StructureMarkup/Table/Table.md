@@ -1,4 +1,6 @@
-# Table
+---
+title: Table
+---
 
 .Synopsis
 Mark up for a table.
@@ -15,8 +17,6 @@ Mark up for a table.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

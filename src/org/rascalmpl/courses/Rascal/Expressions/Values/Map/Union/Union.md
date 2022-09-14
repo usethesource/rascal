@@ -18,8 +18,6 @@ Union of two maps.
 
 .Function
 
-.Details
-
 .Description
 The result is the union of the two map values of _Exp_~1~ and _Exp_~2~.
 If they have a pair with the same key in common, that key will be associated

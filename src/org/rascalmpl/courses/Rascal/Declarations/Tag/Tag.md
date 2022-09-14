@@ -1,4 +1,6 @@
-# Tag Declaration
+---
+title: Tag Declaration
+---
 
 .Synopsis
 Tag declarations are not implemented (yet).
@@ -8,8 +10,6 @@ Tag declarations are not implemented (yet).
 .Types
 
 .Function
-
-.Details
 
 .Description
 

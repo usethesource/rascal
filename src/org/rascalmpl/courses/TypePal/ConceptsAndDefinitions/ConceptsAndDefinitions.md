@@ -1,4 +1,6 @@
-# Concepts and Definitions
+---
+title: Concepts and Definitions
+---
 
 .Synopsis
 The concepts and definitions used in TypePal.

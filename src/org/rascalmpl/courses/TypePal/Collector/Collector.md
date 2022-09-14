@@ -1,4 +1,6 @@
-# Collector
+---
+title: Collector
+---
 
 .Synopsis
 A `Collector` collects constraints from source code and produces an initial `TModel`.

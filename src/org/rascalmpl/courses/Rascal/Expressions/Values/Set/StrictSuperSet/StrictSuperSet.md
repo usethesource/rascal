@@ -19,8 +19,6 @@ Strict superset operator on set values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the value of Exp~1~ is a strict superset of the value of Exp~2~, and `false` otherwise.
 

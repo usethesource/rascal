@@ -19,8 +19,6 @@ Not equal operator on tuple values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both tuples are not identical and `false` otherwise.
 

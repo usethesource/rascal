@@ -1,4 +1,6 @@
-# InvalidDateTimeComparison
+---
+title: InvalidDateTimeComparison
+---
 
 .Synopsis
 Attempt to compare a date with a time.
@@ -10,8 +12,6 @@ Attempt to compare a date with a time.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 [datetime]((Rascal:Values-DateTime)) values may contain two components: date and time.

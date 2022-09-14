@@ -1,4 +1,6 @@
-# NoKeywordParameters
+---
+title: NoKeywordParameters
+---
 
 .Synopsis
 A function that is declared without keyword parameters is called with keyword parameters.
@@ -10,8 +12,6 @@ A function that is declared without keyword parameters is called with keyword pa
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Functions maybe declared with or without keyword parameters.

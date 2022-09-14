@@ -1,4 +1,6 @@
-# Ambiguity Diagnosis
+---
+title: Ambiguity Diagnosis
+---
 
 .Synopsis
 Ambiguity diagnosis suggests changes to syntax definitions to make them non-ambiguous.
@@ -8,8 +10,6 @@ Ambiguity diagnosis suggests changes to syntax definitions to make them non-ambi
 .Types
 
 .Function
-
-.Details
 
 .Description
 The `Ambiguity` library, a.k.a. DrAmbiguity, contains a diagnosis tool that can help you find the causes of ambiguous 

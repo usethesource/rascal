@@ -19,8 +19,6 @@ Composition of two relation values.
 
 .Function
 
-.Details
-
 .Description
 Returns the composition of two binary relations.
 

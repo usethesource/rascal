@@ -1,4 +1,6 @@
-# Callout
+---
+title: Callout
+---
 
 .Synopsis
 Create a numeric callout for the digits 1--9.
@@ -12,8 +14,6 @@ Create a numeric callout for the digits 1--9.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# IO
+---
+title: IO
+---
 
 .Synopsis
 An input/output operation caused an error.
@@ -10,8 +12,6 @@ An input/output operation caused an error.
        
 .Usage
 `import Exception;` (only needed when `IO` is used in `catch`)
-
-.Details
 
 .Description
 This error can be generated for many reasons.

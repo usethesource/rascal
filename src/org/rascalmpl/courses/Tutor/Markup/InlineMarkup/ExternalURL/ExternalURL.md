@@ -1,4 +1,6 @@
-# ExternalURL
+---
+title: ExternalURL
+---
 
 .Synopsis
 Refer to an external URL.
@@ -11,8 +13,6 @@ Refer to an external URL.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Creates a link to an external url _URL_.

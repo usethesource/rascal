@@ -1,4 +1,6 @@
-# Assertion Failed
+---
+title: Assertion Failed
+---
 
 .Synopsis
 An assertion in the Rascal code is false.
@@ -12,8 +14,6 @@ An assertion in the Rascal code is false.
 
        
 .Usage
-
-.Details
 
 .Description
 An [Assert]((Rascal:Assert)) statement can be used to check assumptions during the execution of a Rascal program.

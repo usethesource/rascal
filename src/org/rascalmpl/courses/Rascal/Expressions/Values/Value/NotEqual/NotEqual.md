@@ -19,8 +19,6 @@ Not equal operator on values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments are not identical and `false` otherwise.
 

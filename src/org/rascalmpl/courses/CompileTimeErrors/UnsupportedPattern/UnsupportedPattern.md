@@ -1,4 +1,6 @@
-# UnsupportedPattern
+---
+title: UnsupportedPattern
+---
 
 .Synopsis
 A pattern is used that is not supported.
@@ -10,10 +12,6 @@ A pattern is used that is not supported.
 .Function
        
 .Usage
-
-.Details
-
-
 
 .Description
 

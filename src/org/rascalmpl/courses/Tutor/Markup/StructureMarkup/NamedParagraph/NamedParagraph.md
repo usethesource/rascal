@@ -1,4 +1,6 @@
-# NamedParagraph
+---
+title: NamedParagraph
+---
 
 .Synopsis
 Mark up for a named paragraph.
@@ -12,8 +14,6 @@ Mark up for a named paragraph.
 .Types
 
 .Function
-
-.Details
 
 .Description
 A NamedParagraph produces a named paragraph of a level that is determined by the number of `#` characters preceding the _ParagraphName_.

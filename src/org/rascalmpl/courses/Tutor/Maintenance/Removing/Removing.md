@@ -1,4 +1,6 @@
-# Removing
+---
+title: Removing
+---
 
 .Synopsis
 Remove a concept from a course.
@@ -10,8 +12,6 @@ Remove a concept from a course.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 To remove a concept _C_:

@@ -1,4 +1,6 @@
-# Exp
+---
+title: Exp
+---
 
 .Synopsis
 The _hello world_ of syntax definition and language definition.
@@ -9,8 +11,6 @@ It illustrates how to define concrete and abstract syntax and how to use concret
 .Types
 
 .Function
-
-.Details
 
 .Description
 Our sample language Exp contains the following elements:

@@ -1,4 +1,6 @@
-# ParseTree
+---
+title: ParseTree
+---
 
 .Synopsis
 Visualize a parse tree.
@@ -8,8 +10,6 @@ Visualize a parse tree.
 .Types
 
 .Function
-
-.Details
 
 .Description
 A parse tree is a (usually large) internal representation of  a parsed text.

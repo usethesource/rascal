@@ -1,4 +1,6 @@
-# RascalTests
+---
+title: RascalTests
+---
 
 
 .Synopsis

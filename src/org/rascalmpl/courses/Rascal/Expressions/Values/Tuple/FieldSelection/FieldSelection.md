@@ -19,8 +19,6 @@ Select a field from a tuple by its field name.
 
 .Function
 
-.Details
-
 .Description
 Field selection applies to tuples with named elements.
 _Exp_ should evaluate to a tuple with field _Name_ and returns the value of that field.

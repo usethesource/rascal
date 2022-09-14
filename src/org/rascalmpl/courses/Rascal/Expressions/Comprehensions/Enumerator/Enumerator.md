@@ -13,8 +13,6 @@ Enumerate all values in a given subject value.
 
 .Function
 
-.Details
-
 .Description
 An enumerator generates all the values in a given subject value. 
 For elementary types (`bool`, `int`, `real`, `num`, `loc`, `datetime`, `str`) this is just a singleton.

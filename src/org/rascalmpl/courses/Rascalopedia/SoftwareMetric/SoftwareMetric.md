@@ -1,4 +1,6 @@
-# Software Metric
+---
+title: Software Metric
+---
 
 .Synopsis
 A metric to measure a source code property.
@@ -10,8 +12,6 @@ A metric to measure a source code property.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A software metric is a quantitative measure about source code.

@@ -20,8 +20,6 @@ Equality on datetime values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if both arguments are identical `datetime` values and `false` otherwise.
 

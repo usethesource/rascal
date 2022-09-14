@@ -1,4 +1,7 @@
-# Lisra
+---
+title: Lisra
+details: Syntax,Runtime,Parse,Pretty,Eval,Test
+---
 
 .Synopsis
 A lisp interpreter in Rascal.
@@ -10,9 +13,6 @@ A lisp interpreter in Rascal.
 .Function
        
 .Usage
-
-.Details
-Syntax Runtime Parse Pretty Eval Test
 
 .Description
 

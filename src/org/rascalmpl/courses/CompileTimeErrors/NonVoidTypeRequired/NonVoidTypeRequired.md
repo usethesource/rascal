@@ -1,4 +1,6 @@
-# NonVoidTypeRequired
+---
+title: NonVoidTypeRequired
+---
 
 .Synopsis
 
@@ -11,8 +13,6 @@ A type other than `void` is needed.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

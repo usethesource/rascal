@@ -1,4 +1,6 @@
-# The Extract-Analyze-SYnthesize (EASY) paradigm
+---
+title: The Extract-Analyze-SYnthesize (EASY) paradigm
+---
 
 .Synopsis
 Rascal excels in supporting the Extract-Analyze-SYnthesize (EASY) paradigm.

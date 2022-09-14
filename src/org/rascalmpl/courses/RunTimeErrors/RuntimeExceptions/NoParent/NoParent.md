@@ -1,4 +1,6 @@
-# No Parent
+---
+title: No Parent
+---
 
 .Synopsis
 Parent directory is missing in source location.

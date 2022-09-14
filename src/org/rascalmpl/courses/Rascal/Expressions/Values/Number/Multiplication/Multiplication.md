@@ -21,8 +21,6 @@ Multiply two numeric values.
 
 .Function
 
-.Details
-
 .Description
 Yields the result of multiplying the values of _Exp~1~_ and _Exp~2~_.
 

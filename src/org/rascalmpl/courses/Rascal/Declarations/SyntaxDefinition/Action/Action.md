@@ -1,4 +1,6 @@
-# Action
+---
+title: Action
+---
 
 .Synopsis
 Actions are functions that are called when parse trees are constructed (right after parsing).
@@ -8,8 +10,6 @@ Actions are functions that are called when parse trees are constructed (right af
 .Types
 
 .Function
-
-.Details
 
 .Description
 

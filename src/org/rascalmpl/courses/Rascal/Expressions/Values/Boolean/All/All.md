@@ -20,8 +20,6 @@ All argument expressions are true.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` when all combinations of values of _Exp_~i~ are true.
 

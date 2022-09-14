@@ -1,4 +1,6 @@
-# Compiler
+---
+title: Compiler
+---
 
 .Synopsis
 Tranform source code to an executable form.
@@ -10,8 +12,6 @@ Tranform source code to an executable form.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -19,8 +19,6 @@ _Declaration~n~_;
 
 .Function
 
-.Details
-
 .Description
 A module declaration consists of:
 

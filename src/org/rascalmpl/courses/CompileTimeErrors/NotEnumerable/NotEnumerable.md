@@ -1,4 +1,6 @@
-# NotEnumerable
+---
+title: NotEnumerable
+---
 
 .Synopsis
 A value that cannot be enumerated is used in an enumerator.
@@ -10,8 +12,6 @@ A value that cannot be enumerated is used in an enumerator.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 An [enumerator]((Rascal:Comprehensions-Enumerator)) like `int n <- V` is used in 

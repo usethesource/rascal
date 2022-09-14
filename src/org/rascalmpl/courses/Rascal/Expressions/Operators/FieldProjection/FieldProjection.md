@@ -13,8 +13,6 @@ Projection of tuple.
 
 .Function
 
-.Details
-
 .Description
 _Exp_ should evaluate to a tuple or relation, and _Field_~i~ should be a field name or an integer constant
  that refers to elements in the order in which they occur in the original value (counting from 0). 

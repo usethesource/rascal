@@ -1,4 +1,6 @@
-# UnitializedVariable
+---
+title: UnitializedVariable
+---
 
 .Synopsis
 Use of a variable that has not been initialized.
@@ -10,8 +12,6 @@ Use of a variable that has not been initialized.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A [variable]((Rascal:Declarations-Variable)) has to be initialized before it can be used.

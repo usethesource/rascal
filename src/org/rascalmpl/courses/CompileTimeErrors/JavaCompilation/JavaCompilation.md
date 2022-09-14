@@ -1,4 +1,6 @@
-# JavaCompilation
+---
+title: JavaCompilation
+---
 
 .Synopsis
 Compilation of generated Java code failed.
@@ -10,8 +12,6 @@ Compilation of generated Java code failed.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Some parts of the Rascal system generate Java code. Most notable is the parser generator.

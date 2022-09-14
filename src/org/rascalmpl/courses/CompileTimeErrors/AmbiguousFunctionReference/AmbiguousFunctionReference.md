@@ -1,4 +1,6 @@
-# AmbiguousFunctionReference
+---
+title: AmbiguousFunctionReference
+---
 
 .Synopsis
 An ambiguous function name
@@ -10,8 +12,6 @@ An ambiguous function name
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Warning: How to generate this error? 

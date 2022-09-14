@@ -23,8 +23,6 @@ List values.
 
 .Function
 
-.Details
-
 .Description
 A list is an ordered sequence of values and has the following properties:
 

@@ -19,8 +19,6 @@ Typed variable inside a concrete pattern: <_Type_ _Var_>
 
 .Function
 
-.Details
-
 .Description
 
 A concrete pattern is a pattern for matching a ((Parse Tree)). The notation of a concrete pattern is the *object language* itself, the language that the parse tree describes. 

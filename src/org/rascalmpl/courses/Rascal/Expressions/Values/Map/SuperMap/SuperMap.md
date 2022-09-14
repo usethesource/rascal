@@ -18,8 +18,6 @@ Supermap operator on map values.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if all key/value pairs in the map value of _Exp_~2~ occur in the map value _Exp_~1~
 or the values of _Exp_~1~ and _Exp_~2~ are equal, and `false` otherwise.

@@ -13,8 +13,6 @@ Repeat statements while condition holds.
 
 .Function
 
-.Details
-
 .Description
 _Statement_ is executed repeatedly, as long as the Boolean expression _Exp_ yields true. 
 Expression _Exp_ is executed from scratch in each repetition and only the first true value (if any) is used.

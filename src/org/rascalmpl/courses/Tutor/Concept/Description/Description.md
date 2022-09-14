@@ -1,4 +1,6 @@
-# Description
+---
+title: Description
+---
 
 .Synopsis
 Gives a concise explanation of a concept.
@@ -12,8 +14,6 @@ _MarkedText_
 .Types
 
 .Function
-
-.Details
 
 .Description
 The `Description` section gives a concise explanation of a concept.

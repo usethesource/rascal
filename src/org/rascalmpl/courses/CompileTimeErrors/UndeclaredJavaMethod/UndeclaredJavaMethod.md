@@ -1,4 +1,6 @@
-# UndeclaredJavaMethod
+---
+title: UndeclaredJavaMethod
+---
 
 .Synopsis
 Attempt to call a non-existing Java method.
@@ -10,8 +12,6 @@ Attempt to call a non-existing Java method.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

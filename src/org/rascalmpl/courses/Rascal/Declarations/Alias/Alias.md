@@ -13,8 +13,6 @@ Declare an alias for a type.
 
 .Function
 
-.Details
-
 .Description
 Everything can be expressed using the elementary types and values that are provided by Rascal. 
 However, for the purpose of documentation and readability it is sometimes better to use a descriptive name as type indication, rather than an elementary type.  The use of aliases is a good way to document your intentions. 

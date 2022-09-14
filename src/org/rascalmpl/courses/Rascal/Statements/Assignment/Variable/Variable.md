@@ -14,8 +14,6 @@ Assign to a variable.
        
 .Usage
 
-.Details
-
 .Description
 The expression _Exp_ is evaluated and its value is assigned to the variable _Var_.
 

@@ -16,8 +16,6 @@ Boolean values.
 
 .Function
 
-.Details
-
 .Description
 The Booleans are represented by the type `bool` which has two values: `true` and `false`.
 

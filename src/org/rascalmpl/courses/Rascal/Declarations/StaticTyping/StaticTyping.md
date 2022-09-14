@@ -1,4 +1,6 @@
-# StaticTyping
+---
+title: StaticTyping
+---
 
 .Synopsis
 The static type system of Rascal.
@@ -8,8 +10,6 @@ The static type system of Rascal.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before 

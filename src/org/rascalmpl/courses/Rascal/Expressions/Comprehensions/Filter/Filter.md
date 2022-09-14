@@ -1,4 +1,6 @@
-# Filter
+---
+title: Filter
+---
 
 .Synopsis
 Filter values in a ((List-Comprehension))], ((Set-Comprehension)) or ((Map-Comprehension)).
@@ -16,8 +18,6 @@ Filter values in a ((List-Comprehension))], ((Set-Comprehension)) or ((Map-Compr
 
 
 .Function
-
-.Details
 
 .Description
 A  filter is a boolean-valued expression. 

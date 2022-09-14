@@ -19,8 +19,6 @@ Here _Assoc_ is one of: `left`, `right`, `assoc` or `non-assoc`. See ((Syntax De
 
 .Function
 
-.Details
-
 .Description
 Using Associativity declarations we may disambiguate binary recursive operators. 
 

@@ -1,4 +1,6 @@
-# Variable Pattern
+---
+title: Variable Pattern
+---
 
 .Synopsis
 Variable in abstract pattern.
@@ -9,8 +11,6 @@ _Var_
 .Types
 
 .Function
-
-.Details
 
 .Description
 A variable pattern can act in two roles:

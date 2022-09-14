@@ -1,4 +1,6 @@
-# Pitfalls
+---
+title: Pitfalls
+---
 
 .Synopsis
 Comprehensive list of known shortcomings or usage problems of the concept.
@@ -12,8 +14,6 @@ _MarkedText_
 .Types
 
 .Function
-
-.Details
 
 .Description
 

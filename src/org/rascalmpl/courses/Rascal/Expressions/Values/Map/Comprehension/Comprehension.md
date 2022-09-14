@@ -19,8 +19,6 @@ A map comprehension generates a map value.
 
 .Function
 
-.Details
-
 .Description
 A map comprehension consists of a number of two contributing expressions _Exp_~1~ (for key values), 
 and _Exp_~2~ (the values associated with those key values) and a number of

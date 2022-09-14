@@ -1,4 +1,6 @@
-# Invalid Use Of Time
+---
+title: Invalid Use Of Time
+---
 
 .Synopsis
 Invalid use of a time value at runtime

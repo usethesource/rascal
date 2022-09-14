@@ -1,4 +1,6 @@
-# Case Distinction
+---
+title: Case Distinction
+---
 
 .Synopsis
 Case distinction via pattern matching.
@@ -8,8 +10,6 @@ Case distinction via pattern matching.
 .Types
 
 .Function
-
-.Details
 
 .Description
 The switch statement as known from C and Java is generalized: the subject value to switch on may be an 

@@ -12,8 +12,6 @@ Comprehensions provide a concise notation to conditionally generate new values.
 
 .Function
 
-.Details
-
 .Description
 Comprehensions are defined for the following types:
 

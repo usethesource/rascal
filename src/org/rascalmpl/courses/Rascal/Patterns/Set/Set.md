@@ -12,8 +12,6 @@ Set in abstract pattern.
 
 .Function
 
-.Details
-
 .Description
 
 A set pattern matches a set value (the subject), provided that _Pat_~1~, _Pat_~2~, ..., _Pat_~n~ match the elements of that set in *any* order

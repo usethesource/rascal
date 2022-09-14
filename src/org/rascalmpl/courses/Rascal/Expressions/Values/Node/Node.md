@@ -22,8 +22,6 @@ Node values.
 
 .Function
 
-.Details
-
 .Description
 
 Values of type `node` represent untyped trees and are constructed as follows:

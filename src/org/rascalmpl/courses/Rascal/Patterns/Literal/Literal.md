@@ -1,4 +1,6 @@
-# Literal Pattern
+---
+title: Literal Pattern
+---
 
 .Synopsis
 Literal in abstract pattern.
@@ -8,8 +10,6 @@ Literal in abstract pattern.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

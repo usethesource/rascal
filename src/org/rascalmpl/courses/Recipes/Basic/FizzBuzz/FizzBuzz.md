@@ -1,4 +1,6 @@
-# FizzBuzz
+---
+title: FizzBuzz
+---
 
 .Synopsis
 We solve a well-known job interview puzzle.
@@ -8,8 +10,6 @@ We solve a well-known job interview puzzle.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

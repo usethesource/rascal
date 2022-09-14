@@ -1,4 +1,6 @@
-# Bottles Of Beer
+---
+title: Bottles Of Beer
+---
 
 .Synopsis
 A Rascal version of a generator for the _99 Bottles of Beer_ song.
@@ -8,8 +10,6 @@ A Rascal version of a generator for the _99 Bottles of Beer_ song.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Programs that generate the lyrics for the song _99 Bottles of Beer_ are a popular way to compare programming languages.

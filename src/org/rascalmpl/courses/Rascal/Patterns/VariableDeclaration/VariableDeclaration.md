@@ -1,4 +1,6 @@
-# Variable Declaration Pattern
+---
+title: Variable Declaration Pattern
+---
 
 .Synopsis
 Variable declaration in abstract pattern.
@@ -8,8 +10,6 @@ Variable declaration in abstract pattern.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

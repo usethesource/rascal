@@ -1,4 +1,6 @@
-# Visualization
+---
+title: Visualization
+---
 
 .Synopsis
 Recipes for creating visualizations.
@@ -8,8 +10,6 @@ Recipes for creating visualizations.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

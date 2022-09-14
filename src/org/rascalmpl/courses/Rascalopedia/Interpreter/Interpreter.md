@@ -1,4 +1,6 @@
-# Interpreter
+---
+title: Interpreter
+---
 
 .Synopsis
 Directly execute the statements of a program.
@@ -10,8 +12,6 @@ Directly execute the statements of a program.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

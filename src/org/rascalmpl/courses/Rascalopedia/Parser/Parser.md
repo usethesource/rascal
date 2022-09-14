@@ -1,4 +1,6 @@
-# Parser
+---
+title: Parser
+---
 
 .Synopsis
 Check that a text adheres to the rules of a language (and return a ((ParseTree-ParseTree))).
@@ -10,8 +12,6 @@ Check that a text adheres to the rules of a language (and return a ((ParseTree-P
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -1,4 +1,7 @@
-# Analysis
+---
+title: Analysis
+details: [[Analysis-Workflow]],![Analysis,Workflow]((define-analysis.png))
+---
 
 .Synopsis
 Strategies to analyze software systems.
@@ -8,12 +11,6 @@ Strategies to analyze software systems.
 .Types
 
 .Function
-
-.Details
-
-
-[[Analysis-Workflow]]
-![Analysis Workflow]((define-analysis.png))
 
 .Description
 The analysis workflow is shown in the figure ((Analysis-Workflow)) below and consists of two steps:

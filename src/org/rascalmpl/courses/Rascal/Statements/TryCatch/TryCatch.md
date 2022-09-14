@@ -21,8 +21,6 @@ finally: _Statement~3~_;
 
 .Function
 
-.Details
-
 .Description
 
 A try catch statement has as purpose to catch any [Exceptions]((Library:module:Exception)) that are raised 

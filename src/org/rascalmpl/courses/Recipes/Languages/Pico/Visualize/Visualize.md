@@ -1,4 +1,6 @@
-# Visualize
+---
+title: Visualize
+---
 
 .Synopsis
 Visualize Pico Control Flow Graphs.
@@ -10,8 +12,6 @@ Visualize Pico Control Flow Graphs.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

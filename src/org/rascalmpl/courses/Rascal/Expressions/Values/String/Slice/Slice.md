@@ -8,8 +8,12 @@ Retrieve a slice of a string.
 
 .Syntax
 
-#  `Exp~1~ [ Exp~2~ .. Exp~4~]`
-#  `Exp~1~ [ Exp~2~ , Exp3 .. Exp~4~]`
+---
+title: `Exp~1~ [ Exp~2~ .. Exp~4~]`
+---
+---
+title: `Exp~1~ [ Exp~2~ , Exp3 .. Exp~4~]`
+---
 
 
 where _Exp_~2~ and _Exp_~4~ are optional.
@@ -23,8 +27,6 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 
 
 .Function
-
-.Details
 
 .Description
 A String slice is similar to a list ((List-Slice)) and uses the integer values of _Exp_~2~ and _Exp_~4~ to determine the `begin` (*inclusive*) and `end` (*exclusive*)

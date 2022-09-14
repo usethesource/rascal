@@ -56,8 +56,29 @@ list[str] convertSections([str first:/^#\s+<title:.*>$/, *str rest2, /^\s*\.Inde
         *rest3
     ];    
 
+list[str] convertSections([str first:/^#\s+<title:.*>$/, *str rest2, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str rest3])
+    = [
+        "---",
+        "title: <title>",
+        "---",
+        *convertSections(rest2),
+        nextHeader,
+        *rest3
+    ];      
+
 list[str] words(list[str] input) = [ *words(line) | line <- input];
 list[str] words(str input) = [w | /<w:\S+>/ := input];
+
+list[str] convertSections(["---", *str headers, "---", *str otherStuff, /^\s*\.Details/, *str detailsLines, str nextHeader:/^\s*\.[A-Z][a-z]*/, *str moreStuff])
+    = [
+        "---",
+        *headers,
+        *(words(detailsLines) != [] ? ["details: <intercalate(",", words(detailsLines))>"] :[]),
+        "---",
+        *otherStuff,
+        nextHeader,
+        *moreStuff
+    ];    
 
 /*
 

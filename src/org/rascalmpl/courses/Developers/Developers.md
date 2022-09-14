@@ -1,12 +1,11 @@
-# Developers manual
+---
+title: Developers manual
+details: TutorCompiler
+---
 
 .Synopsis
 
 Contains tips, tricks and howto's on the development of Rascal itself.
-
-.Details
-
-TutorCompiler
 
 .Description
 

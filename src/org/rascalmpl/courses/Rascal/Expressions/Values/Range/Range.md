@@ -15,8 +15,6 @@ Numeric range of values.
 
 .Function
 
-.Details
-
 .Description
 Ranges are a shorthand for describing lists of integers from 
 _Exp_~1~ up to (exclusive) _Exp_~3~ with increments of 1.

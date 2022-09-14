@@ -1,4 +1,6 @@
-# UnexpectedType
+---
+title: UnexpectedType
+---
 
 .Synopsis
 A value of a different type was expected.
@@ -10,8 +12,6 @@ A value of a different type was expected.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 This error signals an incompatibility between expected type and actual type.

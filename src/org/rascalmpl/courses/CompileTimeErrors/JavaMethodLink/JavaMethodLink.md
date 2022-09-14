@@ -1,4 +1,6 @@
-# JavaMethodLink
+---
+title: JavaMethodLink
+---
 
 .Synopsis
 Cannot link to a Java method.
@@ -10,8 +12,6 @@ Cannot link to a Java method.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Rascal functions can be implemented in Java. This is the case for many functions in the standard library.

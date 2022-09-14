@@ -21,8 +21,6 @@ Division on numeric values.
 
 .Function
 
-.Details
-
 .Description
 Yields the result of dividing the value of _Exp~1~_ by the value of _Exp~2~_.
 

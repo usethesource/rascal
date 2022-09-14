@@ -1,4 +1,6 @@
-# Authoring
+---
+title: Authoring
+---
 
 .Synopsis
 Creating and writing a course for the Rascal Tutor.
@@ -8,8 +10,6 @@ Creating and writing a course for the Rascal Tutor.
 .Types
 
 .Function
-
-.Details
 
 .Description
 The life cycle of a course consists of the following steps:

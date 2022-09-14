@@ -1,4 +1,6 @@
-# Recipes
+---
+title: Recipes
+---
 
 .Synopsis
 Recipes for writing Rascal programs.
@@ -8,8 +10,6 @@ Recipes for writing Rascal programs.
 .Types
 
 .Function
-
-.Details
 
 .Description
 These _Rascal Recipes_ are a work-in-progress but will gradually evolve into a collection of basic Rascal language examples and use cases.

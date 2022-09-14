@@ -1,4 +1,6 @@
-# Language Definition
+---
+title: Language Definition
+---
 
 .Synopsis
 Description of all aspects of a language.
@@ -10,8 +12,6 @@ Description of all aspects of a language.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 A language definition defines all relevant aspects of a programming language or ((Domain Specific Language)) and includes:

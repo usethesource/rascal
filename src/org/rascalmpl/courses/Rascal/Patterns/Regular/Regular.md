@@ -12,8 +12,6 @@ Regular expression patterns.
 
 .Function
 
-.Details
-
 .Description
 Regular expressions are used to match a string value and to decompose it in parts and also to compose new strings. Regular expression patterns bind variables of type `str` when the match succeeds, otherwise they do not bind anything. 
 They can occur in cases of visit and switch statements, 

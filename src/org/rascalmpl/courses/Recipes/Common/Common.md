@@ -1,4 +1,6 @@
-# Common
+---
+title: Common
+---
 
 .Synopsis
 Solutions for some common tasks.
@@ -8,8 +10,6 @@ Solutions for some common tasks.
 .Types
 
 .Function
-
-.Details
 
 .Description
 We discuss the following tasks:

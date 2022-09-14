@@ -1,4 +1,6 @@
-# Bubble
+---
+title: Bubble
+---
 
 .Synopsis
 Variout styles to write bubble sort.
@@ -8,8 +10,6 @@ Variout styles to write bubble sort.
 .Types
 
 .Function
-
-.Details
 
 .Description
 [Bubble sort](http://en.wikipedia.org/wiki/Bubble_sort) is a classical (albeit not the most efficient) technique to sort lists of values.

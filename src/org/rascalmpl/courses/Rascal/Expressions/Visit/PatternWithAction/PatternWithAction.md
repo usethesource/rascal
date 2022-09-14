@@ -15,8 +15,6 @@ A pattern with an associated action that is executed on a successful match.
 
 .Function
 
-.Details
-
 .Description
 Patterns can be used in various contexts, but a common context is a PatternWithAction, 
 which in its turn, may be used in various statements such ((Switch)) and ((Expressions-Visit)).

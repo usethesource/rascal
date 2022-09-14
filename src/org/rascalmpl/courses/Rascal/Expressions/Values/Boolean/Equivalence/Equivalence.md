@@ -20,8 +20,6 @@ The _equivalence_ operator on Boolean values.
 
 .Function
 
-.Details
-
 .Description
 The _equivalence_ operator on Boolean values defined as follows:
 

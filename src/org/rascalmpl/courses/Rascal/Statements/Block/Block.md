@@ -13,8 +13,6 @@ Group statements into a block.
 
 .Function
 
-.Details
-
 .Description
 A _block_ consists of a sequence of statements separated by semi-colons.
 

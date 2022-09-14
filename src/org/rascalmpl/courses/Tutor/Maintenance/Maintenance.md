@@ -1,4 +1,6 @@
-# Maintenance
+---
+title: Maintenance
+---
 
 .Synopsis
 How to maintain a course.
@@ -10,8 +12,6 @@ How to maintain a course.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

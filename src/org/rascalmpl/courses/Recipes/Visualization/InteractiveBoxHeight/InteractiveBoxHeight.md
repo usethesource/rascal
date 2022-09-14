@@ -1,4 +1,6 @@
-# Interactive Box Height
+---
+title: Interactive Box Height
+---
 
 .Synopsis
 Control the height of a box with user input.
@@ -8,8 +10,6 @@ Control the height of a box with user input.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

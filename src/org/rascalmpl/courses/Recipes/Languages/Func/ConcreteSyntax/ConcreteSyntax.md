@@ -1,4 +1,6 @@
-# Concrete Syntax
+---
+title: Concrete Syntax
+---
 
 .Synopsis
 The concrete syntax of Func.
@@ -8,8 +10,6 @@ The concrete syntax of Func.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

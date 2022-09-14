@@ -19,8 +19,6 @@ The sublist operator on lists.
 
 .Function
 
-.Details
-
 .Description
 Yields `true` if the value of Exp~1~ is equal to or a sublist of the value of Exp~2~,  and `false` otherwise.
 

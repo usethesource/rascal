@@ -1,4 +1,6 @@
-# Syntax
+---
+title: Syntax
+---
 
 .Synopsis
 The textual syntax of Lisp.
@@ -10,8 +12,6 @@ The textual syntax of Lisp.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -19,8 +19,6 @@ Join two relation values.
 
 .Function
 
-.Details
-
 .Description
 Relation resulting from the natural join of the relation values of the two arguments.
 This relation contains tuples that are the result from concatenating the elements from both arguments.

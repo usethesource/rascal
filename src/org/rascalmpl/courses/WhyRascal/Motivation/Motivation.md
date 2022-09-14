@@ -1,4 +1,6 @@
-# Motivation
+---
+title: Motivation
+---
 
 .Synopsis
 The distinguishing features of Rascal and how they solve real problems.
@@ -8,8 +10,6 @@ The distinguishing features of Rascal and how they solve real problems.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

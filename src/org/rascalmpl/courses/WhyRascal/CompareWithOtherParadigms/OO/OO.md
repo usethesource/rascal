@@ -1,4 +1,6 @@
-# Object-Oriented and Imperative Languages
+---
+title: Object-Oriented and Imperative Languages
+---
 
 .Synopsis
 Rascal explained for OO and imperative programmers.
@@ -8,8 +10,6 @@ Rascal explained for OO and imperative programmers.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

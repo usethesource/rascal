@@ -19,8 +19,6 @@ Tuple values.
 
 .Function
 
-.Details
-
 .Description
 A tuple is a sequence of elements with the following properties:
 

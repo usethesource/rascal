@@ -1,4 +1,6 @@
-# Concrete
+---
+title: Concrete
+---
 
 .Synopsis
 Various versions of Exp based on concrete syntax.
@@ -8,8 +10,6 @@ Various versions of Exp based on concrete syntax.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

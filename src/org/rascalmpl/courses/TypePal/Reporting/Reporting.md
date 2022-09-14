@@ -1,4 +1,6 @@
-# Reporting
+---
+title: Reporting
+---
 
 .Synopsis
 How to format and report errors, warnings and info messages.

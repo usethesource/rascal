@@ -24,8 +24,6 @@ where _Exp_~2~ and _Exp_~4~ are optional.
 
 .Function
 
-.Details
-
 .Description
 A Node slice is similar to a list ((List-Slice)) and uses the integer values of _Exp_~2~ and _Exp_~4~ to determine the `begin` (*inclusive*) and `end` (*exclusive*)
 of a slice from the children of the node value _ND_ of _Exp_~1~. Negative indices count from the end of the list of children backwards.

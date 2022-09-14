@@ -20,10 +20,6 @@ Locations can be concatenated with strings to add segments to the path component
 
 .Function
 
-.Details
-
-
-
 .Description
 
 Adds a segment to the path component of a location.

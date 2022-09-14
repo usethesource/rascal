@@ -1,4 +1,6 @@
-# Hello
+---
+title: Hello
+---
 
 .Synopsis
 Variations on the ubiquitous _Hello World_ example.
@@ -8,8 +10,6 @@ Variations on the ubiquitous _Hello World_ example.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

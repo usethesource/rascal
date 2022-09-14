@@ -1,4 +1,6 @@
-# Empty List
+---
+title: Empty List
+---
 
 .Synopsis
 Illegal operation on an empty list.
@@ -10,8 +12,6 @@ Illegal operation on an empty list.
        
 .Usage
 `import Exception;` (only needed when `EmptyList` is used in `catch`)
-
-.Details
 
 .Description
 Rascal provides many operations and functions on lists, see [list values]((Rascal:Values-List)) 

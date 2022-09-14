@@ -1,4 +1,6 @@
-# Typecheck
+---
+title: Typecheck
+---
 
 .Synopsis
 Typechecker for Pico programs.
@@ -10,8 +12,6 @@ Typechecker for Pico programs.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

@@ -19,8 +19,6 @@ Concatenate two tuple values.
 
 .Function
 
-.Details
-
 .Description
 Returns a tuple consisting of the concatenation of the tuple elements of _Exp_~1~ and _Exp_~2~.
 

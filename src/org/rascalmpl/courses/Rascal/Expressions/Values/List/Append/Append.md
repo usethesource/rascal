@@ -19,8 +19,6 @@ Append an element at the end of a list
 
 .Function
 
-.Details
-
 .Description
 
 The operator `+` appends an element at the end of a list. The `+` is one of those ((Operators)) which are overloaded. It can also mean ((List-Insert)) or ((List-Concatenation)) for example.

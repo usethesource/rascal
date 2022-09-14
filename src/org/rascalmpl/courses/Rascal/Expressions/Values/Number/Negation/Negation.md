@@ -20,8 +20,6 @@ Negate a numeric value.
 
 .Function
 
-.Details
-
 .Description
 Yields the negated values of _Exp_.
 

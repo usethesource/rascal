@@ -18,8 +18,6 @@ Composition of two map values.
 
 .Function
 
-.Details
-
 .Description
 Returns the composition of two maps.
 

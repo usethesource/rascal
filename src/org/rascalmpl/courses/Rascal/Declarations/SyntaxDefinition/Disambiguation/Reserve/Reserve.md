@@ -17,8 +17,6 @@ where a _constraint_ is any character class, a literal or a keyword non-terminal
 
 .Function
 
-.Details
-
 .Description
 
 .Examples

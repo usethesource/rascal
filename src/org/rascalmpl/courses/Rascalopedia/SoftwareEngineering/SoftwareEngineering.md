@@ -1,4 +1,6 @@
-# Software Engineering
+---
+title: Software Engineering
+---
 
 .Synopsis
 Discpline of design, building and maintaining software.
@@ -10,8 +12,6 @@ Discpline of design, building and maintaining software.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 [Software engineering](http://en.wikipedia.org/wiki/Software_engineering) is the discipline that encompasses all aspects

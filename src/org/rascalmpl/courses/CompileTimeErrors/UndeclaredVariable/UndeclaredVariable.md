@@ -1,4 +1,6 @@
-# UndeclaredVariable
+---
+title: UndeclaredVariable
+---
 
 .Synopsis
 
@@ -11,8 +13,6 @@ Use of a variable that has not been declared.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

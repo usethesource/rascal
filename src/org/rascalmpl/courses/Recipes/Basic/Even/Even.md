@@ -1,4 +1,6 @@
-# Even
+---
+title: Even
+---
 
 .Synopsis
 Produce a list of even numbers.
@@ -8,8 +10,6 @@ Produce a list of even numbers.
 .Types
 
 .Function
-
-.Details
 
 .Description
 

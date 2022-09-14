@@ -21,8 +21,6 @@ Addition on numeric values.
 
 .Function
 
-.Details
-
 .Description
 Yields the numerical sum of the values of _Exp_~1~ and _Exp_~2~.
 

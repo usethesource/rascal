@@ -23,9 +23,6 @@ where each sentence is a string over the language generated from `Nonterminal`. 
 .Function
 
 
-.Details
-
-
 .Description
 A concrete syntax fragment allows the programmer to write patterns and expressions in the language that is currently analyzed, 
 transformed or generated. The ((Concrete Syntax)) feature is derived from ((Syntax Definition))s. 

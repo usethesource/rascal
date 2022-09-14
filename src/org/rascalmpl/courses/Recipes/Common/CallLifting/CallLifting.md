@@ -1,4 +1,6 @@
-# Call Lifting
+---
+title: Call Lifting
+---
 
 .Synopsis
 Lift procedure calls to component calls.
@@ -8,8 +10,6 @@ Lift procedure calls to component calls.
 .Types
 
 .Function
-
-.Details
 
 .Description
 A frequently occurring problem is that we know the call relation of a system but that we want to understand it at the component level rather than at the procedure level. If it is known to which component each procedure belongs, it is possible to lift the call relation to the component level. Actual lifting amounts to translating each call between procedures by a call between components. 

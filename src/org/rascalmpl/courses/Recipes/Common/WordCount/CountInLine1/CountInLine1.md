@@ -1,4 +1,6 @@
-# CountInLine1
+---
+title: CountInLine1
+---
 
 .Synopsis
 Count words in a line.
@@ -8,9 +10,6 @@ Count words in a line.
 .Types
 
 .Function
-
-.Details
-
 
 .Description
 

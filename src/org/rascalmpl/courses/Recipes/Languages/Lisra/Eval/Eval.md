@@ -1,4 +1,6 @@
-# Eval
+---
+title: Eval
+---
 
 .Synopsis
 A Lisp interpreter.
@@ -10,8 +12,6 @@ A Lisp interpreter.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

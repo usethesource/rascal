@@ -1,4 +1,6 @@
-# Choice
+---
+title: Choice
+---
 
 .Synopsis
 Multiple-choice question.
@@ -14,8 +16,6 @@ _GoodOrBad_~2~: _Choice_~2~
 .Types
 
 .Function
-
-.Details
 
 .Description
 Asks a multiple-choice questions described by _MarkedText_.

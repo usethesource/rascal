@@ -1,4 +1,6 @@
-# Values
+---
+title: Values
+---
 
 .Synopsis
 The different types of values.

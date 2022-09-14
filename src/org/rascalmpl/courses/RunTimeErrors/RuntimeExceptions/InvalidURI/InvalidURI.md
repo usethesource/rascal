@@ -1,4 +1,6 @@
-# Invalid URI
+---
+title: Invalid URI
+---
 
 .Synopsis
 An invalid URI is created at runtime.

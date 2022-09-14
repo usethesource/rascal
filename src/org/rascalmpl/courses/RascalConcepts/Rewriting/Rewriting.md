@@ -1,4 +1,6 @@
-# Rewriting
+---
+title: Rewriting
+---
 
 .Synopsis
 Rewriting using pattern-directed invocation
@@ -8,8 +10,6 @@ Rewriting using pattern-directed invocation
 .Types
 
 .Function
-
-.Details
 
 .Description
 

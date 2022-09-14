@@ -1,4 +1,6 @@
-# Squares
+---
+title: Squares
+---
 
 .Synopsis
 Print a list of squares
@@ -8,8 +10,6 @@ Print a list of squares
 .Types
 
 .Function
-
-.Details
 
 .Description
 

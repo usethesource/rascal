@@ -1,4 +1,6 @@
-# TypePal Configuration
+---
+title: TypePal Configuration
+---
   
 .Synopsis
 Configuration options for TypePal

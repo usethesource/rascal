@@ -1,4 +1,6 @@
-# Static Semantics
+---
+title: Static Semantics
+---
 
 .Synopsis
 Description of the properties of a program that can be determined/checked before it is executed.
@@ -10,8 +12,6 @@ Description of the properties of a program that can be determined/checked before
 .Function
        
 .Usage
-
-.Details
 
 .Description
 The static semantics of a program describe all properties that can be determined before the program is executed.

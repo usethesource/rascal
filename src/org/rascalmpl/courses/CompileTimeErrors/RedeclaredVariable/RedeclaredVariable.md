@@ -1,4 +1,6 @@
-# RedeclaredVariable
+---
+title: RedeclaredVariable
+---
 
 .Synopsis
 A variable with the same name has been declared in the same scope.
@@ -10,8 +12,6 @@ A variable with the same name has been declared in the same scope.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Remedy: rename one of the variables.

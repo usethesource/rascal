@@ -1,4 +1,6 @@
-# Eval1
+---
+title: Eval1
+---
 
 .Synopsis
 Like Eval0 but with support for let-expressions.
@@ -9,8 +11,6 @@ Like Eval0 but with support for let-expressions.
 .Types
 
 .Function
-
-.Details
 
 .Description
 Interpreter Eval1 supports the following features of Func: 

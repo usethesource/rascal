@@ -1,4 +1,6 @@
-# Adding
+---
+title: Adding
+---
 
 .Synopsis
 Add a concept to a course
@@ -10,8 +12,6 @@ Add a concept to a course
 .Function
        
 .Usage
-
-.Details
 
 .Description
 

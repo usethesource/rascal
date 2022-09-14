@@ -1,4 +1,7 @@
-# Concept
+---
+title: Concept
+details: _ConceptNames_,```,```
+---
 
 .Synopsis
 A _concept_ is the basic building block of a course.
@@ -27,11 +30,6 @@ _MarkedText_
 ```
 .Function
 _MarkedText_
-```
-
-```
-.Details
-_ConceptNames_
 ```
 
 ```

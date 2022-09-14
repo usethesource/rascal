@@ -19,8 +19,6 @@ Retrieve an argument of a node via its index.
 
 .Function
 
-.Details
-
 .Description
 Node subscription uses the integer value of _Exp_~2~ as index in the argument list of the node value of _Exp_~1~.
 The value of _Exp_~2~ should be greater or equal 0 and less than the number of arguments of the node.

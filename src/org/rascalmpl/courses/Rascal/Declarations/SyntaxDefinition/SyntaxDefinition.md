@@ -29,8 +29,6 @@ where _Associativity_ is nothing, or one of `assoc`, `left`, `right` or `non-ass
 
 .Function
 
-.Details
-
 .Description
 Rascal supports full context-free grammars for syntax definition. It generates scannerless parsers from these definitions. 
 These parsers produce ((Parse Trees)) that can be further processed by Rascal using ((Concrete Syntax)) fragments

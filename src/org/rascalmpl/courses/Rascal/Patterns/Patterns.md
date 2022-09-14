@@ -1,4 +1,6 @@
-# Patterns
+---
+title: Patterns
+---
 
 .Synopsis
 Patterns are a notation for pattern matching used to detect if a value has a certain shape, 
@@ -31,8 +33,6 @@ This is the complete list:
 .Types
 
 .Function
-
-.Details
 
 .Description
 

@@ -1,4 +1,6 @@
-# RedeclaredType
+---
+title: RedeclaredType
+---
 
 .Synopsis
 A type with the same name has been declared before.
@@ -10,8 +12,6 @@ A type with the same name has been declared before.
 .Function
        
 .Usage
-
-.Details
 
 .Description
 Some declarations introduce new type names. Most important are an 

@@ -14,8 +14,6 @@ Throw any value as an exception up the call stack.
 
 .Function
 
-.Details
-
 .Description
 
 A throw statement causes the immediate abortion of the execution of the current function with _Exp_ \'s value as exception value.

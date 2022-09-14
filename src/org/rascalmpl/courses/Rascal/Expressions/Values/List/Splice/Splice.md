@@ -22,8 +22,6 @@ Splice the elements of a list in an enclosing list.
        
 .Usage
 
-.Details
-
 .Description
 The operator `*` splices the elements of a list in an enclosing list.
 
