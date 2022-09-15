@@ -1,6 +1,8 @@
 ---
-title: "Getting Started with Rascal"
-keywords: "help"
+title: Getting Started with Rascal
+keywords:
+  - help
+
 ---
 
 #### Synopsis

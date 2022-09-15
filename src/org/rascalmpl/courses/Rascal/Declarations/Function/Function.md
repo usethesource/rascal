@@ -1,6 +1,13 @@
 ---
-title: "Function Declaration"
-keywords: "public,private,java,test,default,&"
+title: Function Declaration
+keywords:
+  - public
+  - private
+  - java
+  - test
+  - default
+  - &
+
 ---
 
 #### Synopsis

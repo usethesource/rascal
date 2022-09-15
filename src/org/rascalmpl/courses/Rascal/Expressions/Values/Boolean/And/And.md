@@ -1,6 +1,8 @@
 ---
-title: "Boolean And"
-keywords: "&&"
+title: Boolean And
+keywords:
+  - &&
+
 ---
 
 #### Synopsis

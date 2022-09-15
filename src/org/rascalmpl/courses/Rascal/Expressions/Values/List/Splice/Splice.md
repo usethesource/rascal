@@ -1,6 +1,8 @@
 ---
-title: "List Splice"
-keywords: "*"
+title: List Splice
+keywords:
+  - *
+
 ---
 
 #### Synopsis

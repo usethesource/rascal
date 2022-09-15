@@ -1,6 +1,8 @@
 ---
-title: "Tuple LessThan"
-keywords: "<"
+title: Tuple LessThan
+keywords:
+  - <
+
 ---
 
 #### Synopsis

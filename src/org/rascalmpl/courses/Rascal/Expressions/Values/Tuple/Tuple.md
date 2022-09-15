@@ -1,6 +1,9 @@
 ---
-title: "Tuple"
-keywords: "<,>"
+title: Tuple
+keywords:
+  - <
+  - >
+
 ---
 
 #### Synopsis

@@ -1,6 +1,9 @@
 ---
-title: "If"
-keywords: "if,else"
+title: If
+keywords:
+  - if
+  - else
+
 ---
 
 #### Synopsis

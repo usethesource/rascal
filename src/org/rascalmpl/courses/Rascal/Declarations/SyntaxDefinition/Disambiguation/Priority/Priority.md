@@ -1,6 +1,9 @@
 ---
-title: "Priority Declaration"
-keywords: ">,|"
+title: Priority Declaration
+keywords:
+  - >
+  - |
+
 ---
 
 #### Synopsis

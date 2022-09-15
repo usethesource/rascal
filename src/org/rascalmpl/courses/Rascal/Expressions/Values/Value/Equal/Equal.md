@@ -1,6 +1,8 @@
 ---
-title: "Value Equal"
-keywords: "=="
+title: Value Equal
+keywords:
+  - ==
+
 ---
 
 #### Synopsis

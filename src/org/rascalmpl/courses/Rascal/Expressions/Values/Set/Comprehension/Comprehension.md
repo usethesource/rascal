@@ -1,6 +1,10 @@
 ---
-title: "Set Comprehension"
-keywords: "{,|,}"
+title: Set Comprehension
+keywords:
+  - {
+  - |
+  - }
+
 ---
 
 #### Synopsis

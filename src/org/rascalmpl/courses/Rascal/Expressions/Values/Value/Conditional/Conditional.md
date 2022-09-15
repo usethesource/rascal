@@ -1,6 +1,9 @@
 ---
-title: "Value Conditional"
-keywords: "?,:"
+title: Value Conditional
+keywords:
+  - ?
+  - :
+
 ---
 
 #### Synopsis

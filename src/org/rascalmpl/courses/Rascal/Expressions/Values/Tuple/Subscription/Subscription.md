@@ -1,6 +1,9 @@
 ---
-title: "Tuple Subscription"
-keywords: "[,]"
+title: Tuple Subscription
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

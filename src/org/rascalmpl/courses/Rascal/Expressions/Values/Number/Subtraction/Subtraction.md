@@ -1,6 +1,8 @@
 ---
-title: "Number Subtraction"
-keywords: "-"
+title: Number Subtraction
+keywords:
+  - -
+
 ---
 
 #### Synopsis

@@ -1,6 +1,9 @@
 ---
-title: "Map Subscription"
-keywords: "[,]"
+title: Map Subscription
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

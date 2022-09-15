@@ -1,6 +1,15 @@
 ---
-title: "Comprehensions"
-keywords: "[,],{,},(,),|,<-"
+title: Comprehensions
+keywords:
+  - [
+  - ]
+  - {
+  - }
+  - (
+  - )
+  - |
+  - <-
+
 ---
 
 #### Synopsis

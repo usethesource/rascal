@@ -1,6 +1,8 @@
 ---
-title: "Number Remainder"
-keywords: "%"
+title: Number Remainder
+keywords:
+  - %
+
 ---
 
 #### Synopsis

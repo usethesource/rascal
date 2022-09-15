@@ -1,6 +1,11 @@
 ---
-title: "Reducer"
-keywords: "(,|,),it"
+title: Reducer
+keywords:
+  - (
+  - |
+  - )
+  - it
+
 ---
 
 #### Synopsis

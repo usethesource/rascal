@@ -1,6 +1,10 @@
 ---
-title: "Multiple"
-keywords: "<,>,="
+title: Multiple
+keywords:
+  - <
+  - >
+  - =
+
 ---
 
 #### Synopsis

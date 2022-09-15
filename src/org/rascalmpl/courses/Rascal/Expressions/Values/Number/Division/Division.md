@@ -1,6 +1,8 @@
 ---
-title: "Number Division"
-keywords: "/"
+title: Number Division
+keywords:
+  - /
+
 ---
 
 #### Synopsis

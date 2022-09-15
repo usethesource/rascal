@@ -1,6 +1,10 @@
 ---
-title: "Node Slice"
-keywords: "[,..,]"
+title: Node Slice
+keywords:
+  - [
+  - ..
+  - ]
+
 ---
 
 #### Synopsis

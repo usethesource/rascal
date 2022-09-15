@@ -1,6 +1,9 @@
 ---
-title: "List"
-keywords: "[,]"
+title: List
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

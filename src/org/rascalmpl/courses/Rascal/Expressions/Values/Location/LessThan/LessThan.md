@@ -1,6 +1,8 @@
 ---
-title: "Location LessThan"
-keywords: "<"
+title: Location LessThan
+keywords:
+  - <
+
 ---
 
 #### Synopsis

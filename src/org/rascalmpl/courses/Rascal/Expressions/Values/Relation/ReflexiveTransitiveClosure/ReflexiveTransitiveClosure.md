@@ -1,6 +1,8 @@
 ---
-title: "Relation ReflexiveTransitiveClosure"
-keywords: "*"
+title: Relation ReflexiveTransitiveClosure
+keywords:
+  - *
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "Value GreaterThan"
-keywords: ">"
+title: Value GreaterThan
+keywords:
+  - >
+
 ---
 
 #### Synopsis

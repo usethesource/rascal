@@ -1,6 +1,8 @@
 ---
-title: "Tuple GreaterThanOrEqual"
-keywords: ">="
+title: Tuple GreaterThanOrEqual
+keywords:
+  - >=
+
 ---
 
 #### Synopsis

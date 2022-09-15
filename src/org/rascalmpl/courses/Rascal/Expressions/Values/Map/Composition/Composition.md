@@ -1,6 +1,8 @@
 ---
-title: "Map Composition"
-keywords: "o"
+title: Map Composition
+keywords:
+  - o
+
 ---
 
 #### Synopsis

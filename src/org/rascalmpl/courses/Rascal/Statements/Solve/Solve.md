@@ -1,6 +1,8 @@
 ---
-title: "Solve"
-keywords: "solve"
+title: Solve
+keywords:
+  - solve
+
 ---
 
 #### Synopsis

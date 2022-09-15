@@ -1,6 +1,9 @@
 ---
-title: "Pattern With Action"
-keywords: "=>,:"
+title: Pattern With Action
+keywords:
+  - =>
+  - :
+
 ---
 
 #### Synopsis

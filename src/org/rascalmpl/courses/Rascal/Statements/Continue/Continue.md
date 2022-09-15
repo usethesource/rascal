@@ -1,6 +1,8 @@
 ---
-title: "Continue"
-keywords: "continue"
+title: Continue
+keywords:
+  - continue
+
 ---
 
 #### Synopsis

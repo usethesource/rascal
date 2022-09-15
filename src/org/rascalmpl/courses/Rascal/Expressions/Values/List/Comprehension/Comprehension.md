@@ -1,6 +1,10 @@
 ---
-title: "List Comprehension"
-keywords: "[,|,]"
+title: List Comprehension
+keywords:
+  - [
+  - |
+  - ]
+
 ---
 
 #### Synopsis

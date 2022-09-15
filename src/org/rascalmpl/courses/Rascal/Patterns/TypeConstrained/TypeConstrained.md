@@ -1,6 +1,9 @@
 ---
-title: "Type Constrained Pattern"
-keywords: "[,]"
+title: Type Constrained Pattern
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

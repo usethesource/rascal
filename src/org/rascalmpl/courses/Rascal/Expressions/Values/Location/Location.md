@@ -1,6 +1,10 @@
 ---
-title: "Location"
-keywords: "|,(,)"
+title: Location
+keywords:
+  - |
+  - (
+  - )
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "While"
-keywords: "while"
+title: While
+keywords:
+  - while
+
 ---
 
 

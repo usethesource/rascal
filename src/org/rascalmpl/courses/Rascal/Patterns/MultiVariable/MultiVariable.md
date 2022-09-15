@@ -1,6 +1,8 @@
 ---
-title: "MultiVariable Pattern"
-keywords: "*"
+title: MultiVariable Pattern
+keywords:
+  - *
+
 ---
 
 #### Synopsis

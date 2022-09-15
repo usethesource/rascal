@@ -1,6 +1,8 @@
 ---
-title: "Relation CartesianProduct"
-keywords: "*"
+title: Relation CartesianProduct
+keywords:
+  - *
+
 ---
 
 #### Synopsis

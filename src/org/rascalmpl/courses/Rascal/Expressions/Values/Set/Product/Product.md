@@ -1,6 +1,8 @@
 ---
-title: "Set Product"
-keywords: "*"
+title: Set Product
+keywords:
+  - *
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "Node LessThan"
-keywords: "<"
+title: Node LessThan
+keywords:
+  - <
+
 ---
 
 #### Synopsis

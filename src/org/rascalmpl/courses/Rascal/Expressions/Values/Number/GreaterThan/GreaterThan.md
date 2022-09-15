@@ -1,6 +1,8 @@
 ---
-title: "Number GreaterThan"
-keywords: ">"
+title: Number GreaterThan
+keywords:
+  - >
+
 ---
 
 #### Synopsis

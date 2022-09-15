@@ -1,6 +1,8 @@
 ---
-title: "Location GreaterThanOrEqual"
-keywords: ">="
+title: Location GreaterThanOrEqual
+keywords:
+  - >=
+
 ---
 
 #### Synopsis

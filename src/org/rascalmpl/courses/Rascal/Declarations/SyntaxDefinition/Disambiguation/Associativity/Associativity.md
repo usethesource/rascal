@@ -1,6 +1,11 @@
 ---
-title: "Associativity Declaration"
-keywords: "left,right,assoc,non-assoc"
+title: Associativity Declaration
+keywords:
+  - left
+  - right
+  - assoc
+  - non-assoc
+
 ---
 
 #### Synopsis

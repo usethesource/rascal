@@ -1,6 +1,8 @@
 ---
-title: "Boolean Negation"
-keywords: "!"
+title: Boolean Negation
+keywords:
+  - !
+
 ---
 
 #### Synopsis

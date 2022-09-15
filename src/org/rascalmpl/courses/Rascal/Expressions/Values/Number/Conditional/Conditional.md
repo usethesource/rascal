@@ -1,6 +1,9 @@
 ---
-title: "Number Conditional"
-keywords: "?,:"
+title: Number Conditional
+keywords:
+  - ?
+  - :
+
 ---
 
 #### Synopsis

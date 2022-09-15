@@ -1,6 +1,8 @@
 ---
-title: "ListRelation Composition"
-keywords: "o"
+title: ListRelation Composition
+keywords:
+  - o
+
 ---
 
 #### Synopsis

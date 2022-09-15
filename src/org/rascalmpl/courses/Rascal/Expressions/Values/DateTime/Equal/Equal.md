@@ -1,6 +1,8 @@
 ---
-title: "DateTime Equal"
-keywords: "=="
+title: DateTime Equal
+keywords:
+  - ==
+
 ---
 
 #### Synopsis

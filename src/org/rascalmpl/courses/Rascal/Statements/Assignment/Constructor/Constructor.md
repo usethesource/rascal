@@ -1,6 +1,8 @@
 ---
-title: "Constructor"
-keywords: "="
+title: Constructor
+keywords:
+  - =
+
 ---
 
 #### Synopsis

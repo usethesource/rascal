@@ -1,6 +1,8 @@
 ---
-title: "ListRelation Join"
-keywords: "join"
+title: ListRelation Join
+keywords:
+  - join
+
 ---
 
 #### Synopsis

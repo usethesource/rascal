@@ -1,6 +1,8 @@
 ---
-title: "Descendant Pattern"
-keywords: "/"
+title: Descendant Pattern
+keywords:
+  - /
+
 ---
 
 #### Synopsis

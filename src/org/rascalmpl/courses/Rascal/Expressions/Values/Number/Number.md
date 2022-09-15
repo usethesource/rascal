@@ -1,6 +1,10 @@
 ---
-title: "Number"
-keywords: "int,real,num"
+title: Number
+keywords:
+  - int
+  - real
+  - num
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "Set NotEqual"
-keywords: "!="
+title: Set NotEqual
+keywords:
+  - !=
+
 ---
 
 #### Synopsis

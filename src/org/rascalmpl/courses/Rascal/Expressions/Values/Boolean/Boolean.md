@@ -1,6 +1,9 @@
 ---
-title: "Boolean"
-keywords: "true,false"
+title: Boolean
+keywords:
+  - true
+  - false
+
 ---
 
 #### Synopsis

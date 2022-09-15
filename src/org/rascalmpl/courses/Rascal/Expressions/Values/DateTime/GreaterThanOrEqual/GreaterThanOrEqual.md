@@ -1,6 +1,8 @@
 ---
-title: "DateTime GreaterThanOrEqual"
-keywords: ">="
+title: DateTime GreaterThanOrEqual
+keywords:
+  - >=
+
 ---
 
 #### Synopsis

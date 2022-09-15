@@ -1,6 +1,8 @@
 ---
-title: "Type Parameters"
-keywords: "&"
+title: Type Parameters
+keywords:
+  - &
+
 ---
 
 #### Synopsis

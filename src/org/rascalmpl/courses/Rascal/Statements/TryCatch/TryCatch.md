@@ -1,6 +1,10 @@
 ---
-title: "Try Catch"
-keywords: "try,catch,finally"
+title: Try Catch
+keywords:
+  - try
+  - catch
+  - finally
+
 ---
 
 #### Synopsis

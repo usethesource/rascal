@@ -1,6 +1,8 @@
 ---
-title: "Fail"
-keywords: "fail"
+title: Fail
+keywords:
+  - fail
+
 ---
 
 #### Synopsis

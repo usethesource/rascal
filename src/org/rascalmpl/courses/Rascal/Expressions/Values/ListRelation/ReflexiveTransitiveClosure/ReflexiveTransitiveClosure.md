@@ -1,6 +1,8 @@
 ---
-title: "ListRelation Reflexive Transitive Closure"
-keywords: "*"
+title: ListRelation Reflexive Transitive Closure
+keywords:
+  - *
+
 ---
 
 #### Synopsis

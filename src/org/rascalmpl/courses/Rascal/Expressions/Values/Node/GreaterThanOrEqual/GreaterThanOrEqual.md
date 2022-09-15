@@ -1,6 +1,8 @@
 ---
-title: "Node GreaterThanOrEqual"
-keywords: ">="
+title: Node GreaterThanOrEqual
+keywords:
+  - >=
+
 ---
 
 #### Synopsis

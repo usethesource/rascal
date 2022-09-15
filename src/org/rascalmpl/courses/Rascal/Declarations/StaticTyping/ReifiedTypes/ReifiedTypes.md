@@ -1,6 +1,10 @@
 ---
-title: "Reified Types"
-keywords: "#,type,&"
+title: Reified Types
+keywords:
+  - #
+  - type
+  - &
+
 ---
 
 #### Synopsis

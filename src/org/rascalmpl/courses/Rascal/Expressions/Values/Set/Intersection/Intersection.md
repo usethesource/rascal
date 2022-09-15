@@ -1,6 +1,8 @@
 ---
-title: "Set Intersection"
-keywords: "&"
+title: Set Intersection
+keywords:
+  - &
+
 ---
 
 #### Synopsis

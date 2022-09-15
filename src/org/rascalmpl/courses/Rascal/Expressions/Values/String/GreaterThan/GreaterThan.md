@@ -1,6 +1,8 @@
 ---
-title: "String GreaterThan"
-keywords: ">"
+title: String GreaterThan
+keywords:
+  - >
+
 ---
 
 #### Synopsis

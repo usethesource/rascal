@@ -1,6 +1,19 @@
 ---
-title: "Assignment"
-keywords: "=,+=,-=,*=,/=,?=,[,..,],.,?,@"
+title: Assignment
+keywords:
+  - =
+  - +=
+  - -=
+  - *=
+  - /=
+  - ?=
+  - [
+  - ..
+  - ]
+  - .
+  - ?
+  - @
+
 ---
 
 #### Synopsis

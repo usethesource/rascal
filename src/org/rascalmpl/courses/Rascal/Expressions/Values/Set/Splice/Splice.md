@@ -1,6 +1,8 @@
 ---
-title: "Set Splice"
-keywords: "*"
+title: Set Splice
+keywords:
+  - *
+
 ---
 
 #### Synopsis
