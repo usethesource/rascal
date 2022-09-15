@@ -1,7 +1,7 @@
 ---
 title: Number Multiplication
 keywords:
-  - *
+  - "*"
 
 ---
 

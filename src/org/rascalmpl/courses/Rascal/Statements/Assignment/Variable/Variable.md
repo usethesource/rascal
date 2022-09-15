@@ -1,7 +1,7 @@
 ---
 title: Variable
 keywords:
-  - =
+  - "="
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: DateTime GreaterThan
 keywords:
-  - >
+  - ">"
 
 ---
 

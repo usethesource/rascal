@@ -1,9 +1,9 @@
 ---
 title: Field Assignment
 keywords:
-  - [
-  - =
-  - ]
+  - "["
+  - "="
+  - "]"
 
 ---
 

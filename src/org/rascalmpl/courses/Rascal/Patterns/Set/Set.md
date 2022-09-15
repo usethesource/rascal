@@ -1,8 +1,8 @@
 ---
 title: Set Pattern
 keywords:
-  - {
-  - }
+  - "{"
+  - "}"
 
 ---
 

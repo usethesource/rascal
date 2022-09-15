@@ -1,8 +1,8 @@
 ---
 title: Priority Declaration
 keywords:
-  - >
-  - |
+  - ">"
+  - "|"
 
 ---
 

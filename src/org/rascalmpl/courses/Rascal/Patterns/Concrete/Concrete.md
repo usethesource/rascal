@@ -1,11 +1,11 @@
 ---
 title: Concrete Patterns
 keywords:
-  - (
-  - )
-  - `
-  - <
-  - >
+  - "("
+  - ")"
+  - "`"
+  - "<"
+  - ">"
 
 ---
 

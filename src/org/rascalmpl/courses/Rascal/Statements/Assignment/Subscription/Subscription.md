@@ -1,9 +1,9 @@
 ---
 title: Subscription
 keywords:
-  - [
-  - ]
-  - =
+  - "["
+  - "]"
+  - "="
 
 ---
 

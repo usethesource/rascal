@@ -1,7 +1,7 @@
 ---
 title: Descendant Pattern
 keywords:
-  - /
+  - "/"
 
 ---
 

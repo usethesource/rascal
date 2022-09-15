@@ -1,7 +1,7 @@
 ---
 title: Tuple Concatenation
 keywords:
-  - +
+  - "+"
 
 ---
 

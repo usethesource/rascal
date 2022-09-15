@@ -1,7 +1,7 @@
 ---
 title: Typed and Labelled Pattern
 keywords:
-  - :
+  - ":"
 
 ---
 

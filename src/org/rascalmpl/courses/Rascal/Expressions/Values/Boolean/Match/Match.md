@@ -1,7 +1,7 @@
 ---
 title: Boolean Match
 keywords:
-  - :=
+  - ":="
 
 ---
 

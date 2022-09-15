@@ -1,8 +1,8 @@
 ---
 title: Annotation
 keywords:
-  - @
-  - =
+  - "@"
+  - "="
 
 ---
 

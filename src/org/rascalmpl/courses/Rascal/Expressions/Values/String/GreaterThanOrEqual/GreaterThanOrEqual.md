@@ -1,7 +1,7 @@
 ---
 title: String GreaterThanOrEqual
 keywords:
-  - >=
+  - ">="
 
 ---
 

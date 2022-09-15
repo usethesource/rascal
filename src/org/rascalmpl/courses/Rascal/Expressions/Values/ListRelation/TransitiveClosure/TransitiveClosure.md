@@ -1,7 +1,7 @@
 ---
 title: ListRelation Transitive Closure
 keywords:
-  - +
+  - "+"
 
 ---
 

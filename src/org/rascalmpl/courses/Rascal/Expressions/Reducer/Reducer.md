@@ -1,9 +1,9 @@
 ---
 title: Reducer
 keywords:
-  - (
-  - |
-  - )
+  - "("
+  - "|"
+  - ")"
   - it
 
 ---

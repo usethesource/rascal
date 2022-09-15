@@ -1,7 +1,7 @@
 ---
 title: ListRelation Reflexive Transitive Closure
 keywords:
-  - *
+  - "*"
 
 ---
 

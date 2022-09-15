@@ -1,7 +1,7 @@
 ---
 title: DateTime
 keywords:
-  - $
+  - "$"
   - date
   - datetime
   - time

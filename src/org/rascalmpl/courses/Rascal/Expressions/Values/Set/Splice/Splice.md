@@ -1,8 +1,7 @@
 ---
 title: Set Splice
 keywords:
-  - *
-
+  - ""*""
 ---
 
 #### Synopsis

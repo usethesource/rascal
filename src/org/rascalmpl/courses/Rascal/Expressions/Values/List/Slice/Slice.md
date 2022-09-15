@@ -1,9 +1,9 @@
 ---
 title: List Slice
 keywords:
-  - [
-  - ..
-  - ]
+  - "["
+  - ".."
+  - "]"
 
 ---
 

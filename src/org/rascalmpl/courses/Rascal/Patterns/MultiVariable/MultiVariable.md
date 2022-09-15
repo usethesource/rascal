@@ -1,7 +1,7 @@
 ---
 title: MultiVariable Pattern
 keywords:
-  - *
+  - "*"
 
 ---
 
