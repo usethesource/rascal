@@ -39,7 +39,7 @@ The mechanism of concete patterns gives a good notation for matching complex str
  
 So, you could say that ((Concrete Patterns)) are a short notation for otherwise highly complex ((Node Patterns)) on ((Library:module:ParseTree)).  Note that the ((TypedVariable))s in a concrete pattern can
 only occur in the pattern at the location where the code for a full non-terminal of the ((Syntax Definition)) would be. The structure of a concrete pattern follows the structure of the 
-grammar in the ((Syntax Definition)) and the types of the ((Variable Pattern))s are the syntax non-terminals of the ((Syntax Definition)).  
+grammar in the ((SyntaxDefinition)) and the types of the ((Patterns-Variable))s are the syntax non-terminals of the ((Syntax Definition)).  
 
 Inside concrete syntax patterns, layout is ignored while pattern matching. So parse trees which have different whitespace and comments but are otherwise the same will match anyway.
 

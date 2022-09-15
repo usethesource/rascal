@@ -4,7 +4,7 @@ title: Program
 
 #### Synopsis
 
-A Rascal program consists of a number of ((Module Declaration))s.
+A Rascal program consists of a number of ((Declarations-Module))s.
 
 #### Syntax
 
