@@ -55,7 +55,7 @@ rel[str, str] createConceptIndex(loc src)
     | loc f <- find(src, isConceptFile), fr := localLink(src, f), cf := f[extension=""]
     }
   + // Now follow the index entries for image files:
-    { <"<f.parent.file>-<f.file>", "/assets/<capitalize(src.file)><relativize(src, f)>">,
+    { <"<f.parent.file>-<f.file>", "/assets/<capitalize(src.file)><relativize(src, f).path>">,
       <f.file, "/assets/<capitalize(src.file)><relativize(src, f).path>">,
       <"<capitalize(src.file)>:<f.file>", "/assets/<capitalize(src.file)><relativize(src, f).path>">
     |  loc f <- find(src, isImageFile)
