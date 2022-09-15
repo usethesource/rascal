@@ -1,6 +1,9 @@
 ---
-title: "String Subscription"
-keywords: "[,]"
+title: String Subscription
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

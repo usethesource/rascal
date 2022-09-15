@@ -1,6 +1,8 @@
 ---
-title: "List Product"
-keywords: "*"
+title: List Product
+keywords:
+  - *
+
 ---
 
 #### Synopsis

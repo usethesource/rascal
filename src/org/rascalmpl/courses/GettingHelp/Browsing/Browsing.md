@@ -1,6 +1,8 @@
 ---
-title: "Browsing Documentation"
-keywords: "help"
+title: Browsing Documentation
+keywords:
+  - help
+
 ---
 
 #### Synopsis

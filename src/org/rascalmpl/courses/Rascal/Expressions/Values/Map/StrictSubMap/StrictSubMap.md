@@ -1,6 +1,8 @@
 ---
-title: "Map StrictSubMap"
-keywords: "<"
+title: Map StrictSubMap
+keywords:
+  - <
+
 ---
 
 #### Synopsis

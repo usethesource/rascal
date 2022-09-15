@@ -1,6 +1,25 @@
 ---
-title: "String"
-keywords: "",',<,>,\,\n,\t,\r,\b,\f,\u,\U,hex,if,else,for,while,do"
+title: String
+keywords:
+  - "
+  - '
+  - <
+  - >
+  - \
+  - \n
+  - \t
+  - \r
+  - \b
+  - \f
+  - \u
+  - \U
+  - hex
+  - if
+  - else
+  - for
+  - while
+  - do
+
 ---
 
 #### Synopsis

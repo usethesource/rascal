@@ -1,6 +1,8 @@
 ---
-title: "Real"
-keywords: "real"
+title: Real
+keywords:
+  - real
+
 ---
 
 #### Synopsis

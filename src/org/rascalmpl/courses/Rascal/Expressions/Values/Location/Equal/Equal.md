@@ -1,6 +1,8 @@
 ---
-title: "Location Equal"
-keywords: "=="
+title: Location Equal
+keywords:
+  - ==
+
 ---
 
 #### Synopsis

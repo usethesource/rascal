@@ -1,6 +1,10 @@
 ---
-title: "String Slice"
-keywords: "[,..,]"
+title: String Slice
+keywords:
+  - [
+  - ..
+  - ]
+
 ---
 
 #### Synopsis

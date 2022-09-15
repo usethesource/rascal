@@ -1,6 +1,8 @@
 ---
-title: "Relation Composition"
-keywords: "o"
+title: Relation Composition
+keywords:
+  - o
+
 ---
 
 #### Synopsis

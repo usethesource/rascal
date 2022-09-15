@@ -1,6 +1,8 @@
 ---
-title: "Map Intersection"
-keywords: "&"
+title: Map Intersection
+keywords:
+  - &
+
 ---
 
 #### Synopsis

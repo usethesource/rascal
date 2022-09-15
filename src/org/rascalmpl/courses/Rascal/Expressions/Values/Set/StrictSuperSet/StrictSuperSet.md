@@ -1,6 +1,8 @@
 ---
-title: "Set StrictSuperSet"
-keywords: ">"
+title: Set StrictSuperSet
+keywords:
+  - >
+
 ---
 
 #### Synopsis

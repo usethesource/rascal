@@ -1,6 +1,8 @@
 ---
-title: "Boolean Equivalence"
-keywords: "<==>"
+title: Boolean Equivalence
+keywords:
+  - <==>
+
 ---
 
 #### Synopsis

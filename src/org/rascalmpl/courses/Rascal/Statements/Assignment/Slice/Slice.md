@@ -1,6 +1,11 @@
 ---
-title: "Slice"
-keywords: "[,..,],="
+title: Slice
+keywords:
+  - [
+  - ..
+  - ]
+  - =
+
 ---
 
 #### Synopsis

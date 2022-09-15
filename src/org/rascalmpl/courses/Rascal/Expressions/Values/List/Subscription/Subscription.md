@@ -1,6 +1,9 @@
 ---
-title: "List Subscription"
-keywords: "[,]"
+title: List Subscription
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

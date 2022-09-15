@@ -1,6 +1,8 @@
 ---
-title: "Relation Join"
-keywords: "join"
+title: Relation Join
+keywords:
+  - join
+
 ---
 
 #### Synopsis

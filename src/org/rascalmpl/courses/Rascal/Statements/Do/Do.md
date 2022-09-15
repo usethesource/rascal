@@ -1,6 +1,9 @@
 ---
-title: "Do"
-keywords: "do,while"
+title: Do
+keywords:
+  - do
+  - while
+
 ---
 
 #### Synopsis

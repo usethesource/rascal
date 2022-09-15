@@ -1,6 +1,8 @@
 ---
-title: "NotEqual"
-keywords: "!="
+title: NotEqual
+keywords:
+  - !=
+
 ---
 
 #### Synopsis

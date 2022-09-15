@@ -1,6 +1,24 @@
 ---
-title: "Relation Subscription"
-keywords: "[,],##,Syntax,*,`Exp0_,[,Exp~1~,,Exp~2~,,...,Exp~n~]`,*,`Exp0_,[,Exp~1~]`"
+title: Relation Subscription
+keywords:
+  - [
+  - ]
+  - ##
+  - Syntax
+  - *
+  - `Exp0_
+  - [
+  - Exp~1~
+  - 
+  - Exp~2~
+  - 
+  - ...
+  - Exp~n~]`
+  - *
+  - `Exp0_
+  - [
+  - Exp~1~]`
+
 ---
 
 ## Synopsis

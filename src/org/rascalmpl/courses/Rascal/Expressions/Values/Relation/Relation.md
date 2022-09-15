@@ -1,6 +1,10 @@
 ---
-title: "Relation"
-keywords: "{,},rel"
+title: Relation
+keywords:
+  - {
+  - }
+  - rel
+
 ---
 
 #### Synopsis

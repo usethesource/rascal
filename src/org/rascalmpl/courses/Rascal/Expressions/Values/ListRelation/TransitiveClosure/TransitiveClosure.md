@@ -1,6 +1,8 @@
 ---
-title: "ListRelation Transitive Closure"
-keywords: "+"
+title: ListRelation Transitive Closure
+keywords:
+  - +
+
 ---
 
 #### Synopsis

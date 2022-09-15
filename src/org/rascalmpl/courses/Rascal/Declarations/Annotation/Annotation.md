@@ -1,6 +1,9 @@
 ---
-title: "Annotation Declaration"
-keywords: "anno,@"
+title: Annotation Declaration
+keywords:
+  - anno
+  - @
+
 ---
 
 #### Synopsis

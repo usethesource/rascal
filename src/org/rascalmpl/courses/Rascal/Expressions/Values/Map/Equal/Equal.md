@@ -1,6 +1,8 @@
 ---
-title: "Map Equal"
-keywords: "=="
+title: Map Equal
+keywords:
+  - ==
+
 ---
 
 #### Synopsis

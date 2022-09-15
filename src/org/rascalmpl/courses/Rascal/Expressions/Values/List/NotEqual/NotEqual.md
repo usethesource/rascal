@@ -1,6 +1,8 @@
 ---
-title: "List NotEqual"
-keywords: "!="
+title: List NotEqual
+keywords:
+  - !=
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "Node GreaterThan"
-keywords: ">"
+title: Node GreaterThan
+keywords:
+  - >
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "Number Negation"
-keywords: "-"
+title: Number Negation
+keywords:
+  - -
+
 ---
 
 #### Synopsis

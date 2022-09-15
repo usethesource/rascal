@@ -1,6 +1,8 @@
 ---
-title: "For"
-keywords: "for"
+title: For
+keywords:
+  - for
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "String NotEqual"
-keywords: "!="
+title: String NotEqual
+keywords:
+  - !=
+
 ---
 
 #### Synopsis

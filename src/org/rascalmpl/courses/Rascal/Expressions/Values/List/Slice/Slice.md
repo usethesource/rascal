@@ -1,6 +1,10 @@
 ---
-title: "List Slice"
-keywords: "[,..,]"
+title: List Slice
+keywords:
+  - [
+  - ..
+  - ]
+
 ---
 
 #### Synopsis

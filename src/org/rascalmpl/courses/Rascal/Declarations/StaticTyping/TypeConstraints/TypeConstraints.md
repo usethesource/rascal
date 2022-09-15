@@ -1,6 +1,9 @@
 ---
-title: "Type Constraints"
-keywords: "<:,&"
+title: Type Constraints
+keywords:
+  - <:
+  - &
+
 ---
 
 #### Synopsis

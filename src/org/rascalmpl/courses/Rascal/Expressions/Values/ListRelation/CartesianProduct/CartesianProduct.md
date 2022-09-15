@@ -1,6 +1,8 @@
 ---
-title: "ListRelation CartesianProduct"
-keywords: "*"
+title: ListRelation CartesianProduct
+keywords:
+  - *
+
 ---
 
 #### Synopsis

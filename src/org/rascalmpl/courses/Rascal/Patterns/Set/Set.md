@@ -1,6 +1,9 @@
 ---
-title: "Set Pattern"
-keywords: "{,}"
+title: Set Pattern
+keywords:
+  - {
+  - }
+
 ---
 
 #### Synopsis

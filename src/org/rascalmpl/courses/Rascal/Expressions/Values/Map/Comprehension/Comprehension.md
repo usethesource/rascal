@@ -1,6 +1,10 @@
 ---
-title: "Map Comprehension"
-keywords: "(,|,)"
+title: Map Comprehension
+keywords:
+  - (
+  - |
+  - )
+
 ---
 
 #### Synopsis

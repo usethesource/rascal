@@ -1,6 +1,10 @@
 ---
-title: "Field Assignment"
-keywords: "[,=,]"
+title: Field Assignment
+keywords:
+  - [
+  - =
+  - ]
+
 ---
 
 #### Synopsis

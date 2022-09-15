@@ -1,6 +1,8 @@
 ---
-title: "Integer"
-keywords: "int"
+title: Integer
+keywords:
+  - int
+
 ---
 
 #### Synopsis

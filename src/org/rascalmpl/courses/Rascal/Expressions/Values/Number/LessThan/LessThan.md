@@ -1,6 +1,8 @@
 ---
-title: "Number LessThan"
-keywords: "<"
+title: Number LessThan
+keywords:
+  - <
+
 ---
 
 #### Synopsis

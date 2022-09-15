@@ -1,6 +1,16 @@
 ---
-title: "Visit"
-keywords: "visit,case,default,top-down,top-down-break,bottom-up,bottom-up-break,innermost,outermost"
+title: Visit
+keywords:
+  - visit
+  - case
+  - default
+  - top-down
+  - top-down-break
+  - bottom-up
+  - bottom-up-break
+  - innermost
+  - outermost
+
 ---
 
 #### Synopsis

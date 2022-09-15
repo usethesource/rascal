@@ -1,6 +1,8 @@
 ---
-title: "Number NotEqual"
-keywords: "!="
+title: Number NotEqual
+keywords:
+  - !=
+
 ---
 
 #### Synopsis

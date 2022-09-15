@@ -1,6 +1,8 @@
 ---
-title: "Tuple NotEqual"
-keywords: "!="
+title: Tuple NotEqual
+keywords:
+  - !=
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "List Intersection"
-keywords: "&"
+title: List Intersection
+keywords:
+  - &
+
 ---
 
 #### Synopsis

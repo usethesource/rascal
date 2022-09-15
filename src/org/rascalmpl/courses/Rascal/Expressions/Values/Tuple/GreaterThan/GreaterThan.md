@@ -1,6 +1,8 @@
 ---
-title: "Tuple GreaterThan"
-keywords: ">"
+title: Tuple GreaterThan
+keywords:
+  - >
+
 ---
 
 #### Synopsis

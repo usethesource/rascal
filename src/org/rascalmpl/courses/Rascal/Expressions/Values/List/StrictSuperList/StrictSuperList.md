@@ -1,6 +1,8 @@
 ---
-title: "List StrictSuperList"
-keywords: ">"
+title: List StrictSuperList
+keywords:
+  - >
+
 ---
 
 #### Synopsis

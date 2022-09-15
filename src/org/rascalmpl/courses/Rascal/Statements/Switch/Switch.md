@@ -1,6 +1,10 @@
 ---
-title: "Switch"
-keywords: "switch,case,default"
+title: Switch
+keywords:
+  - switch
+  - case
+  - default
+
 ---
 
 #### Synopsis

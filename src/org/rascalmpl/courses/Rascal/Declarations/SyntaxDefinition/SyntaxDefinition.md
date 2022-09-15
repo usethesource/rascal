@@ -1,6 +1,15 @@
 ---
-title: "Syntax Definition"
-keywords: "start,lexical,layout,keyword,assoc,left,right,non-assoc"
+title: Syntax Definition
+keywords:
+  - start
+  - lexical
+  - layout
+  - keyword
+  - assoc
+  - left
+  - right
+  - non-assoc
+
 ---
 
 #### Synopsis

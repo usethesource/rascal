@@ -1,6 +1,8 @@
 ---
-title: "Map StrictSuperMap"
-keywords: ">"
+title: Map StrictSuperMap
+keywords:
+  - >
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "Module Declaration"
-keywords: "module"
+title: Module Declaration
+keywords:
+  - module
+
 ---
 
 #### Synopsis

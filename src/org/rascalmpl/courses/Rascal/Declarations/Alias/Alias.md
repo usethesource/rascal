@@ -1,6 +1,8 @@
 ---
-title: "Alias Declaration"
-keywords: "alias"
+title: Alias Declaration
+keywords:
+  - alias
+
 ---
 
 #### Synopsis

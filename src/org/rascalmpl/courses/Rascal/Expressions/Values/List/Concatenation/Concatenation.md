@@ -1,6 +1,8 @@
 ---
-title: "List Concatenation"
-keywords: "+"
+title: List Concatenation
+keywords:
+  - +
+
 ---
 
 #### Synopsis

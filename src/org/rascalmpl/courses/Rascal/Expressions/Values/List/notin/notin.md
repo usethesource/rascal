@@ -1,6 +1,8 @@
 ---
-title: "List notin"
-keywords: "notin"
+title: List notin
+keywords:
+  - notin
+
 ---
 
 #### Synopsis

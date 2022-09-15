@@ -1,6 +1,8 @@
 ---
-title: "Number Multiplication"
-keywords: "*"
+title: Number Multiplication
+keywords:
+  - *
+
 ---
 
 #### Synopsis

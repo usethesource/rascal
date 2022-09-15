@@ -1,6 +1,8 @@
 ---
-title: "Node Equal"
-keywords: "=="
+title: Node Equal
+keywords:
+  - ==
+
 ---
 
 #### Synopsis

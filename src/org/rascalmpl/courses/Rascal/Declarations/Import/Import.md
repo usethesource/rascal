@@ -1,6 +1,8 @@
 ---
-title: "Import"
-keywords: "import"
+title: Import
+keywords:
+  - import
+
 ---
 
 #### Synopsis

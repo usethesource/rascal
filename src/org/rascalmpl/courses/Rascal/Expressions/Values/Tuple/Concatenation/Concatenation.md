@@ -1,6 +1,8 @@
 ---
-title: "Tuple Concatenation"
-keywords: "+"
+title: Tuple Concatenation
+keywords:
+  - +
+
 ---
 
 #### Synopsis

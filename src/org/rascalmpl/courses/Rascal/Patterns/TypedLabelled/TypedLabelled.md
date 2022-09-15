@@ -1,6 +1,8 @@
 ---
-title: "Typed and Labelled Pattern"
-keywords: ":"
+title: Typed and Labelled Pattern
+keywords:
+  - :
+
 ---
 
 #### Synopsis

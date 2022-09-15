@@ -1,6 +1,8 @@
 ---
-title: "List Equal"
-keywords: "=="
+title: List Equal
+keywords:
+  - ==
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "Help at the command line"
-keywords: "help"
+title: Help at the command line
+keywords:
+  - help
+
 ---
 
 #### Synopsis

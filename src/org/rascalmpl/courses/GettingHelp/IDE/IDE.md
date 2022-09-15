@@ -1,6 +1,8 @@
 ---
-title: "Help in the Integrated Development Environment (IDE)"
-keywords: "help"
+title: Help in the Integrated Development Environment (IDE)
+keywords:
+  - help
+
 ---
 
 #### Synopsis

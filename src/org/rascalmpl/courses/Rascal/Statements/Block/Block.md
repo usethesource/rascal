@@ -1,6 +1,10 @@
 ---
-title: "Block"
-keywords: "{,},;"
+title: Block
+keywords:
+  - {
+  - }
+  - ;
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "String Equal"
-keywords: "=="
+title: String Equal
+keywords:
+  - ==
+
 ---
 
 #### Synopsis

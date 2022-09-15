@@ -1,6 +1,8 @@
 ---
-title: "Variable"
-keywords: "="
+title: Variable
+keywords:
+  - =
+
 ---
 
 #### Synopsis

@@ -1,6 +1,11 @@
 ---
-title: "DateTime"
-keywords: "$,date,datetime,time"
+title: DateTime
+keywords:
+  - $
+  - date
+  - datetime
+  - time
+
 ---
 
 #### Synopsis

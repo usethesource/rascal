@@ -1,6 +1,8 @@
 ---
-title: "String LessThan"
-keywords: "<"
+title: String LessThan
+keywords:
+  - <
+
 ---
 
 #### Synopsis

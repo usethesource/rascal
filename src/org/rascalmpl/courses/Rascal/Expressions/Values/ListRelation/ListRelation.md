@@ -1,6 +1,11 @@
 ---
-title: "ListRelation"
-keywords: "[,],<,>"
+title: ListRelation
+keywords:
+  - [
+  - ]
+  - <
+  - >
+
 ---
 
 #### Synopsis

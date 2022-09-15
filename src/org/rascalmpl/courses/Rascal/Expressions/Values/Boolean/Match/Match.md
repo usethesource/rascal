@@ -1,6 +1,8 @@
 ---
-title: "Boolean Match"
-keywords: ":="
+title: Boolean Match
+keywords:
+  - :=
+
 ---
 
 #### Synopsis

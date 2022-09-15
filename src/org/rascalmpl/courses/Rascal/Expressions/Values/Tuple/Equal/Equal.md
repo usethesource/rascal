@@ -1,6 +1,8 @@
 ---
-title: "Tuple Equal"
-keywords: "=="
+title: Tuple Equal
+keywords:
+  - ==
+
 ---
 
 #### Synopsis

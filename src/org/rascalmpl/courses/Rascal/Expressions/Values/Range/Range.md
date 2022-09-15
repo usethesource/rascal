@@ -1,6 +1,10 @@
 ---
-title: "Range"
-keywords: "[,..,]"
+title: Range
+keywords:
+  - [
+  - ..
+  - ]
+
 ---
 
 #### Synopsis

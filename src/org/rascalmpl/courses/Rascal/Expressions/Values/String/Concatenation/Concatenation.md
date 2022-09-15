@@ -1,6 +1,8 @@
 ---
-title: "String Concatenation"
-keywords: "+"
+title: String Concatenation
+keywords:
+  - +
+
 ---
 
 #### Synopsis

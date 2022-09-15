@@ -1,6 +1,8 @@
 ---
-title: "DateTime Field Selection"
-keywords: "."
+title: DateTime Field Selection
+keywords:
+  - .
+
 ---
 
 #### Synopsis

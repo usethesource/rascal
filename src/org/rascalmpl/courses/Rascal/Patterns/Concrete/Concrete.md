@@ -1,6 +1,12 @@
 ---
-title: "Concrete Patterns"
-keywords: "(,),`,<,>"
+title: Concrete Patterns
+keywords:
+  - (
+  - )
+  - `
+  - <
+  - >
+
 ---
 
 #### Synopsis

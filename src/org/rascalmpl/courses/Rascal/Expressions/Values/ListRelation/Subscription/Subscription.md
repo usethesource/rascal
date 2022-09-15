@@ -1,6 +1,9 @@
 ---
-title: "ListRelation Subscription"
-keywords: "[,]"
+title: ListRelation Subscription
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

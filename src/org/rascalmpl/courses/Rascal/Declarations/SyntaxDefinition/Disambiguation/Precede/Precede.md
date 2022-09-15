@@ -1,6 +1,9 @@
 ---
-title: "Precede Declaration"
-keywords: "<<,!<<"
+title: Precede Declaration
+keywords:
+  - <<
+  - !<<
+
 ---
 
 #### Synopsis

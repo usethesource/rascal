@@ -1,6 +1,9 @@
 ---
-title: "Annotation"
-keywords: "@,="
+title: Annotation
+keywords:
+  - @
+  - =
+
 ---
 
 #### Synopsis

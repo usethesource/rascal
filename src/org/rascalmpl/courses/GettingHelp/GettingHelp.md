@@ -1,6 +1,14 @@
 ---
-title: "Getting Help"
-keywords: "tutorial,newbie,faq,question,beginner,doc,documentation"
+title: Getting Help
+keywords:
+  - tutorial
+  - newbie
+  - faq
+  - question
+  - beginner
+  - doc
+  - documentation
+
 details: CommandLine,IDE,Browsing
 ---
 

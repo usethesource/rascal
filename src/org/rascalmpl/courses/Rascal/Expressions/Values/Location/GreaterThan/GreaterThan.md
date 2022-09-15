@@ -1,6 +1,8 @@
 ---
-title: "Location GreaterThan"
-keywords: ">"
+title: Location GreaterThan
+keywords:
+  - >
+
 ---
 
 #### Synopsis

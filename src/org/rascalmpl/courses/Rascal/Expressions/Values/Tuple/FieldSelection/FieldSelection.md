@@ -1,6 +1,8 @@
 ---
-title: "Tuple FieldSelection"
-keywords: "."
+title: Tuple FieldSelection
+keywords:
+  - .
+
 ---
 
 #### Synopsis

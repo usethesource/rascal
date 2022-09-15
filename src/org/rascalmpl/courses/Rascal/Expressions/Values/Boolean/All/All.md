@@ -1,6 +1,8 @@
 ---
-title: "Boolean All"
-keywords: "all"
+title: Boolean All
+keywords:
+  - all
+
 ---
 
 #### Synopsis

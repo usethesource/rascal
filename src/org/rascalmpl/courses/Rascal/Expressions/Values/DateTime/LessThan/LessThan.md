@@ -1,6 +1,8 @@
 ---
-title: "DateTime LessThan"
-keywords: "<"
+title: DateTime LessThan
+keywords:
+  - <
+
 ---
 
 #### Synopsis

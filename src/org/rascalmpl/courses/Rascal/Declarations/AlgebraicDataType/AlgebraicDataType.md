@@ -1,6 +1,8 @@
 ---
-title: "Algebraic Data Type"
-keywords: "data"
+title: Algebraic Data Type
+keywords:
+  - data
+
 ---
 
 

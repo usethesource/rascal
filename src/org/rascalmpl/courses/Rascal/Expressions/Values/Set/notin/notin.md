@@ -1,6 +1,8 @@
 ---
-title: "Set notin"
-keywords: "notin"
+title: Set notin
+keywords:
+  - notin
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
-title: "Reserve Declaration"
-keywords: "\"
+title: Reserve Declaration
+keywords:
+  - \
+
 ---
 
 #### Synopsis

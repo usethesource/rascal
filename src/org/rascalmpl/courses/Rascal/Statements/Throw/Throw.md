@@ -1,6 +1,8 @@
 ---
-title: "Throw"
-keywords: "throw"
+title: Throw
+keywords:
+  - throw
+
 ---
 
 #### Synopsis

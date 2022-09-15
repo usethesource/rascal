@@ -1,6 +1,9 @@
 ---
-title: "List Pattern"
-keywords: "[,]"
+title: List Pattern
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

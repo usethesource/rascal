@@ -1,6 +1,8 @@
 ---
-title: "Set Union"
-keywords: "+"
+title: Set Union
+keywords:
+  - +
+
 ---
 
 #### Synopsis

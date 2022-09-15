@@ -1,6 +1,8 @@
 ---
-title: "Boolean Or"
-keywords: "||"
+title: Boolean Or
+keywords:
+  - ||
+
 ---
 
 #### Synopsis

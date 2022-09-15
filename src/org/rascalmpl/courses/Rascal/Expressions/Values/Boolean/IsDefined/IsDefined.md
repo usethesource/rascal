@@ -1,6 +1,8 @@
 ---
-title: "Boolean IsDefined"
-keywords: "?"
+title: Boolean IsDefined
+keywords:
+  - ?
+
 ---
 
 #### Synopsis

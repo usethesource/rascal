@@ -1,6 +1,9 @@
 ---
-title: "Tuple Pattern"
-keywords: "<,>"
+title: Tuple Pattern
+keywords:
+  - <
+  - >
+
 ---
 
 #### Synopsis

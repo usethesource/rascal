@@ -1,6 +1,8 @@
 ---
-title: "Enumerator"
-keywords: "<-"
+title: Enumerator
+keywords:
+  - <-
+
 ---
 
 #### Synopsis

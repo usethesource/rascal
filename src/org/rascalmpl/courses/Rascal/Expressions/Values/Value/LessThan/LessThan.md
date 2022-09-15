@@ -1,6 +1,8 @@
 ---
-title: "Value LessThan"
-keywords: "<"
+title: Value LessThan
+keywords:
+  - <
+
 ---
 
 #### Synopsis

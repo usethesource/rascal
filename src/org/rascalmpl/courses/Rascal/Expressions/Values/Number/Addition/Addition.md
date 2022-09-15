@@ -1,6 +1,8 @@
 ---
-title: "Number Addition"
-keywords: "+"
+title: Number Addition
+keywords:
+  - +
+
 ---
 
 #### Synopsis

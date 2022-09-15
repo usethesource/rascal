@@ -1,6 +1,8 @@
 ---
-title: "Boolean Implication"
-keywords: "==>"
+title: Boolean Implication
+keywords:
+  - ==>
+
 ---
 
 #### Synopsis

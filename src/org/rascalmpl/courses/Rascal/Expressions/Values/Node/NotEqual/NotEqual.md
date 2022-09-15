@@ -1,6 +1,8 @@
 ---
-title: "Node NotEqual"
-keywords: "!="
+title: Node NotEqual
+keywords:
+  - !=
+
 ---
 
 #### Synopsis

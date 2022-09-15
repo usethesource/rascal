@@ -1,6 +1,8 @@
 ---
-title: "Append"
-keywords: "append"
+title: Append
+keywords:
+  - append
+
 ---
 
 #### Synopsis

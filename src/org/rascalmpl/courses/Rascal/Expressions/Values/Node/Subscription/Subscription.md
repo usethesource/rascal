@@ -1,6 +1,9 @@
 ---
-title: "Node Subscription"
-keywords: "[,]"
+title: Node Subscription
+keywords:
+  - [
+  - ]
+
 ---
 
 #### Synopsis

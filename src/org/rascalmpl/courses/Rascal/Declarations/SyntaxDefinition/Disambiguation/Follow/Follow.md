@@ -1,6 +1,9 @@
 ---
-title: "Follow Declaration"
-keywords: ">>,!>>"
+title: Follow Declaration
+keywords:
+  - >>
+  - !>>
+
 ---
 
 #### Synopsis

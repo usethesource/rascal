@@ -1,6 +1,8 @@
 ---
-title: "Further Reading"
-keywords: "help"
+title: Further Reading
+keywords:
+  - help
+
 ---
 
 #### Synopsis

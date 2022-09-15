@@ -1,6 +1,8 @@
 ---
-title: "Return"
-keywords: "return"
+title: Return
+keywords:
+  - return
+
 ---
 
 #### Synopsis

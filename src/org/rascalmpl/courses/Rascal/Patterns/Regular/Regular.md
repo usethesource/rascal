@@ -1,6 +1,21 @@
 ---
-title: "Regular Expression Pattern"
-keywords: "/,\,[,],^,-,.,|,?,*,+,{,},$"
+title: Regular Expression Pattern
+keywords:
+  - /
+  - \
+  - [
+  - ]
+  - ^
+  - -
+  - .
+  - |
+  - ?
+  - *
+  - +
+  - {
+  - }
+  - $
+
 ---
 
 #### Synopsis
