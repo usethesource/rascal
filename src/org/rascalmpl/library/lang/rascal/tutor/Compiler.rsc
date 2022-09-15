@@ -168,10 +168,12 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
    return [e | err(e) <- output];
 }
 
+@synopsis{This uses another nested directory listing to construct information for the (((TOC))) embedded in the current document.}
+list[str] createDetailsList(loc m, PathConfig pcfg) 
+  = sort([ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}]);
 
 list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
-  // this uses another nested directory listing to construct information for the (((TOC))) embedded in the current document:
-  order = sort([ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}]);
+  order = createDetailsList(m, pcfg);
 
   list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, order) + [Output::empty()];
 
@@ -293,6 +295,10 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
   try {
     model = unsetRec(loadYAML(trim(intercalate("\n", header))));
     dtls = [dtl | mapping(m) := model, scalar(str dtl) <- (m[scalar("details")]?sequence([])).\list];
+
+    if (dtls == []) {
+      dtls = createDetailsList(pcfg.currentFile, pcfg);
+    }
 
     return [
       details(dtls),
