@@ -1,7 +1,7 @@
 ---
 title: Set StrictSubSet
 keywords:
-  - <
+  - "<"
 
 ---
 

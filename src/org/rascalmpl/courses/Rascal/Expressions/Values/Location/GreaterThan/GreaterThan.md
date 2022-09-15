@@ -1,7 +1,7 @@
 ---
 title: Location GreaterThan
 keywords:
-  - >
+  - ">"
 
 ---
 

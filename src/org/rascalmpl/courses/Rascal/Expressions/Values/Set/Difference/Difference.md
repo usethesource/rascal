@@ -1,8 +1,7 @@
 ---
 title: Set Difference
 keywords:
-  - -
-
+  - "-"
 ---
 
 #### Synopsis

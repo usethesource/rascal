@@ -1,10 +1,10 @@
 ---
 title: ListRelation
 keywords:
-  - [
-  - ]
-  - <
-  - >
+  - "["
+  - "]"
+  - "<"
+  - ">"
 
 ---
 

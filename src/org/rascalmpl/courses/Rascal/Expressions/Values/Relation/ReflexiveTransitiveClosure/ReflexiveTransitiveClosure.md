@@ -1,7 +1,7 @@
 ---
 title: Relation ReflexiveTransitiveClosure
 keywords:
-  - *
+  - "*"
 
 ---
 

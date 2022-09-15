@@ -6,7 +6,7 @@ keywords:
   - java
   - test
   - default
-  - &
+  - "&"
 
 ---
 

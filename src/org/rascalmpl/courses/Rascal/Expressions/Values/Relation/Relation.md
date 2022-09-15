@@ -1,8 +1,8 @@
 ---
 title: Relation
 keywords:
-  - {
-  - }
+  - "{"
+  - "}"
   - rel
 
 ---

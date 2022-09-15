@@ -1,8 +1,8 @@
 ---
 title: Tuple Pattern
 keywords:
-  - <
-  - >
+  - "<"
+  - ">"
 
 ---
 

@@ -1,8 +1,8 @@
 ---
 title: Follow Declaration
 keywords:
-  - >>
-  - !>>
+  - ">>"
+  - "!>>"
 
 ---
 

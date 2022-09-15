@@ -1,7 +1,7 @@
 ---
 title: Boolean Negation
 keywords:
-  - !
+  - "!"
 
 ---
 

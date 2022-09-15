@@ -1,9 +1,9 @@
 ---
 title: Reified Types
 keywords:
-  - #
+  - "#"
   - type
-  - &
+  - "&"
 
 ---
 

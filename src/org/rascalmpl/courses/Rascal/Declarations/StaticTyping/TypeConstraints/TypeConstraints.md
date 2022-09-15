@@ -1,8 +1,8 @@
 ---
 title: Type Constraints
 keywords:
-  - <:
-  - &
+  - "<:"
+  - "&"
 
 ---
 

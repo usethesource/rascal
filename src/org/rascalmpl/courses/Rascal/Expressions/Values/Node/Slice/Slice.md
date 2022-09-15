@@ -1,10 +1,9 @@
 ---
 title: Node Slice
 keywords:
-  - [
-  - ..
-  - ]
-
+  - ""[""
+  - ""..""
+  - ""]""
 ---
 
 #### Synopsis

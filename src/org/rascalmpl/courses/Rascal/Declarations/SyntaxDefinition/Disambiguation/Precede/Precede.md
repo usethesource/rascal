@@ -1,8 +1,8 @@
 ---
 title: Precede Declaration
 keywords:
-  - <<
-  - !<<
+  - "<<"
+  - "!<<"
 
 ---
 

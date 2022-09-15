@@ -1,8 +1,8 @@
 ---
 title: List Subscription
 keywords:
-  - [
-  - ]
+  - "["
+  - "]"
 
 ---
 

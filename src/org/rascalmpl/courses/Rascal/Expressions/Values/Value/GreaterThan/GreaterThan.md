@@ -1,7 +1,7 @@
 ---
 title: Value GreaterThan
 keywords:
-  - >
+  - ">"
 
 ---
 

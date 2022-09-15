@@ -1,9 +1,8 @@
 ---
 title: String Subscription
 keywords:
-  - [
-  - ]
-
+  - ""[""
+  - ""]""
 ---
 
 #### Synopsis

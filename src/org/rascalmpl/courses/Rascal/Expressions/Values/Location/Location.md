@@ -1,9 +1,9 @@
 ---
 title: Location
 keywords:
-  - |
-  - (
-  - )
+  - "|"
+  - "("
+  - ")"
 
 ---
 

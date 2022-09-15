@@ -1,8 +1,8 @@
 ---
 title: ListRelation Subscription
 keywords:
-  - [
-  - ]
+  - "["
+  - "]"
 
 ---
 

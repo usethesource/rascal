@@ -1,7 +1,7 @@
 ---
 title: List Intersection
 keywords:
-  - &
+  - "&"
 
 ---
 

@@ -1,10 +1,9 @@
 ---
 title: Set Comprehension
 keywords:
-  - {
-  - |
-  - }
-
+  - ""{""
+  - ""|""
+  - ""}""
 ---
 
 #### Synopsis

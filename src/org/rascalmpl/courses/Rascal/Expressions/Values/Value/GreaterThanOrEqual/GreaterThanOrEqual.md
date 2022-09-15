@@ -1,7 +1,7 @@
 ---
 title: Value GreaterThanOrEqual
 keywords:
-  - >=
+  - ">="
 
 ---
 

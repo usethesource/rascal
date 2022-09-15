@@ -1,10 +1,9 @@
 ---
 title: Range
 keywords:
-  - [
-  - ..
-  - ]
-
+  - ""[""
+  - ""..""
+  - ""]""
 ---
 
 #### Synopsis

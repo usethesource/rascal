@@ -2,7 +2,7 @@
 title: Annotation Declaration
 keywords:
   - anno
-  - @
+  - "@"
 
 ---
 

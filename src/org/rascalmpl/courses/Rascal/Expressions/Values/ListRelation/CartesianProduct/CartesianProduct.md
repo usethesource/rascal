@@ -1,7 +1,7 @@
 ---
 title: ListRelation CartesianProduct
 keywords:
-  - *
+  - "*"
 
 ---
 

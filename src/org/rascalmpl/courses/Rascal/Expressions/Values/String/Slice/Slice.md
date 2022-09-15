@@ -1,9 +1,9 @@
 ---
 title: String Slice
 keywords:
-  - [
-  - ..
-  - ]
+  - "["
+  - ".."
+  - "]"
 
 ---
 
