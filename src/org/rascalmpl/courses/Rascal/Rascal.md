@@ -29,7 +29,7 @@ You can find more (accessible) information related to Rascal here:
 *  [Why Rascal]((WhyRascal)): gives the motivation for the Rascal language and describes various usage scenarios.
 *  [Getting Started]((GettingStarted)) describes how to download, install and start Rascal.
 *  [Getting Help]((GettingHelp)) shows how to use the help facilties and search the documentation. 
-   See [Further Reading]((GettingHelp:GettingHelp-FurtherReading)) for a reading guide.
+   See [Further Reading]((GettingHelp:FurtherReading)) for a reading guide.
 *  Library functies are described in [Rascal Libraries]((Libraries)).
 *  We do not maintain a list of frequently asked questions (faq) but 
    use [StackOverflow](http://stackoverflow.com/questions/tagged/rascal) instead.

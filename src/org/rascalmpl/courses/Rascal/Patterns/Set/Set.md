@@ -26,9 +26,9 @@ Completely analogous to list patterns, there are special cases when one of the p
 
 *  a ((MultiVariable Patterns)), with an optional element type that is identical to the element type of the subject set: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
 
-*  a ((Patterns Variable)), where the variable has been declared with a set type, but not initialized, outside the pattern: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
+*  a ((Patterns-Variable)), where the variable has been declared with a set type, but not initialized, outside the pattern: set matching is applied and the variable can match an arbitrary number (in arbitrary order) of elements of the subject set.
 
-*  a ((Variable Patterns)), where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with one value in the subject set.
+*  a ((Patterns-Variable)), where the variable has been declared with a type equal to the element type of the subject, but not initialized, outside the pattern: the variable is matched with one value in the subject set.
 
 
 
