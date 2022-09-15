@@ -1,8 +1,8 @@
 ---
 title: Pattern With Action
 keywords:
-  - ""=>""
-  - "":""
+  - "=>"
+  - ":"
 ---
 
 #### Synopsis
