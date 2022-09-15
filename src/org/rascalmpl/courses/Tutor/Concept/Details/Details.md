@@ -1,6 +1,8 @@
 ---
 title: Details
-details: 
+details:
+  - 
+
 ---
 
 .Synopsis
@@ -11,7 +13,11 @@ Explicitly order the subconcepts of the current concept.
 
 ```
 ---
-details: Detail~1~, Detail~2~, ...
+details:
+  - Detail~1~
+  -  Detail~2~
+  -  ...
+
 ---
 ```
 
@@ -37,7 +43,19 @@ Its `Details` meta-data is therefore:
 ```
 ---
 title: Concept
-details: Name,Details,Syntax,Types,Function,Synopsis,Description,Examples,Benefits,Pitfalls,Questions
+details:
+  - Name
+  - Details
+  - Syntax
+  - Types
+  - Function
+  - Synopsis
+  - Description
+  - Examples
+  - Benefits
+  - Pitfalls
+  - Questions
+
 ---
 ```
 

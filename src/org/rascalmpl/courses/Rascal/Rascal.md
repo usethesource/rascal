@@ -1,6 +1,11 @@
 ---
 title: Rascal Language Reference
-details: Declarations,Patterns,Expressions,Statements
+details:
+  - Declarations
+  - Patterns
+  - Expressions
+  - Statements
+
 ---
 
 #### Synopsis

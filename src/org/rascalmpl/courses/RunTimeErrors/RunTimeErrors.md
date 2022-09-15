@@ -1,6 +1,9 @@
 ---
 title: Runtime Errors 
-details: RuntimeExceptions,OtherRuntimeErrors
+details:
+  - RuntimeExceptions
+  - OtherRuntimeErrors
+
 ---
 
 #### Synopsis

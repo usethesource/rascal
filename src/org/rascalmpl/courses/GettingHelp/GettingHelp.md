@@ -9,7 +9,11 @@ keywords:
   - doc
   - documentation
 
-details: CommandLine,IDE,Browsing
+details:
+  - CommandLine
+  - IDE
+  - Browsing
+
 ---
 
 #### Synopsis
