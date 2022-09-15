@@ -1,6 +1,10 @@
 ---
 title: Solution Strategies
-details: Extraction,Analysis,Synthesis
+details:
+  - Extraction
+  - Analysis
+  - Synthesis
+
 ---
 
 #### Synopsis

@@ -1,6 +1,8 @@
 ---
 title: Developers manual
-details: TutorCompiler
+details:
+  - TutorCompiler
+
 ---
 
 #### Synopsis

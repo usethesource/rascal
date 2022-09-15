@@ -1,6 +1,11 @@
 ---
 title: Why Rascal
-details: Motivation,EASY,SolutionStrategies,CompareWithOtherParadigms
+details:
+  - Motivation
+  - EASY
+  - SolutionStrategies
+  - CompareWithOtherParadigms
+
 ---
 
 #### Synopsis

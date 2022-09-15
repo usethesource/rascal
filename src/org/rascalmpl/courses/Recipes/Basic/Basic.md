@@ -1,6 +1,10 @@
 ---
 title: Basic
-details: Hello,Factorial,Squares
+details:
+  - Hello
+  - Factorial
+  - Squares
+
 ---
 
 #### Synopsis

@@ -1,6 +1,18 @@
 ---
 title: Concept
-details: Name,Synopsis,Syntax,Types,Function,Details,Description,Examples,Benefits,Pitfalls,Questions
+details:
+  - Name
+  - Synopsis
+  - Syntax
+  - Types
+  - Function
+  - Details
+  - Description
+  - Examples
+  - Benefits
+  - Pitfalls
+  - Questions
+
 ---
 
 .Synopsis

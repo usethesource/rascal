@@ -1,6 +1,13 @@
 ---
 title: Lisra
-details: Syntax,Runtime,Parse,Pretty,Eval,Test
+details:
+  - Syntax
+  - Runtime
+  - Parse
+  - Pretty
+  - Eval
+  - Test
+
 ---
 
 #### Synopsis
