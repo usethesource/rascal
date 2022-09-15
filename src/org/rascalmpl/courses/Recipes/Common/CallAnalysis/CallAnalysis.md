@@ -32,7 +32,7 @@ Let's see how these questions can be answered using Rascal.
 Consider the following call graph (a box represents a procedure and an arrow represents a call from one procedure to another procedure):
 
 
-![]((CallAnalysis-calls.png))
+![]((CallAnalysis-CallAnalysis-calls.png))
 
 
 ```rascal-shell

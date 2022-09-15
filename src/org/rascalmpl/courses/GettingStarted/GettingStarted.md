@@ -37,6 +37,6 @@ NOTE: Add a screenshot
 
 Where to go from here: 
 have a look at [Getting Help]((GettingHelp)) and in particular 
-[further reading]((GettingHelp:GettingHelp-FurtherReading))
+[further reading]((GettingHelp:FurtherReading))
 or just click  the RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] 
 at the top left of each Tutor page.

@@ -20,4 +20,4 @@ We give various answers to these questions:
   and describe some application domains.
 * ((WhyRascal-EASY)) can be used in many Rascal applications.
 * We have also collected ((Solution Strategies)) for a wide range of problems.
-* Last but not least we give a quick ((Comparison with other Paradigms)).
+* Last but not least we give a quick [comparison with other paradigms]((Compare With Other Paradigms)).

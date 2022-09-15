@@ -168,7 +168,7 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
    return [e | err(e) <- output];
 }
 
-@synopsis{This uses another nested directory listing to construct information for the (((TOC))) embedded in the current document.}
+@synopsis{This uses another nested directory listing to construct information for the TOC embedded in the current document.}
 list[str] createDetailsList(loc m, PathConfig pcfg) 
   = sort([ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}]);
 

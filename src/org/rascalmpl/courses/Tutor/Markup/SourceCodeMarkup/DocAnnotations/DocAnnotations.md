@@ -4,7 +4,7 @@ title: Doc Annotations
 
 #### Synopsis
 
-A doc annotation attaches an inline concept description to a Rascal declaration.
+A `doc` annotation attaches an inline concept description to a Rascal declaration.
 
 #### Description
 

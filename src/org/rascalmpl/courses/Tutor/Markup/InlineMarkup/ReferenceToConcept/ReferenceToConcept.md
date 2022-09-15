@@ -8,10 +8,12 @@ Refer to a concept in this course or another course.
 
 #### Syntax
 
+``````
 * `(( DisplayName ))`
 * `(( ParentConceptName-ConceptName ))`
 * `\[LinkText]((Course))`
 * `\[LinkText]((Course:ParentConceptName-ConceptName))`
+``````
 
 #### Types
 

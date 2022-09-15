@@ -77,7 +77,7 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 | ((Expressions-Selection)) |
 | Value of annotation _Name_ of _Exp_'s value |
 | `Exp~1~ [@ Name = Exp~2~]` |
-| ((Annotations)) |
+| ((Annotation)) |
 | Assign value of _Exp_~2~ to annotation _Name_ of _Exp_~1~'s value |
 | `Exp~1~ o Exp~2~` |
 | ((Relation-Composition)), |

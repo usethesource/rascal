@@ -1,8 +1,7 @@
 ---
 title: Number Negation
 keywords:
-  - -
-
+  - "-"
 ---
 
 #### Synopsis

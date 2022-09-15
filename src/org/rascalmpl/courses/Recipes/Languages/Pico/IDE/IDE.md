@@ -51,7 +51,7 @@ As can be seen in the editor above, we get an error since we made a typo (missin
 Now it turns out that we had erroneously used the `+` operator on strings (it should be `||`). We correct it:
 
 
-![]((Screenshot3.png))
+![]((IDE-Screenshot3.png))
 
 
 Now we get a warning that variable `n` is not initialized. We correct it and get an error-free and warning-free program:
