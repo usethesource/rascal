@@ -57,11 +57,12 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
     return res;
 }
 
+private map[str,str] escapes = ("\\": "\\\\", "\"": "\\\"");
 
 list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
         out("---"),
-        out("title: \"<d.moduleName>\""),
+        out("title: \"<escape(d.moduleName, escapes)>\""),
         out("---"),
         Output::empty(),
         out("#### Usage"),

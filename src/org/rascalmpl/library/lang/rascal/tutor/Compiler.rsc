@@ -301,46 +301,18 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
       out("---"),
       *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
     ];
-  }
-  catch IllegalTypeArgument(str x, str y): {
-     return [
-      err(error("Could not process YAML header: <x>, <y>", pcfg.currentFile)),
-      out("---"),
-      *[out(l) | l <- header],
-      out("---"),
-      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
-    ];
-  }
-  catch IllegalArgument(value i): {
-     return [
-      err(error("Could not process YAML header: <i>", pcfg.currentFile)),
-      out("---"),
-      *[out(l) | l <- header],
-      out("---"),
-      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
-    ];
-  }
-  catch IO(str msg): {
+  } 
+  catch value e: {
+    switch(e) {
+       case IllegalTypeArgument(str x, str y)     : e = "<x>, <y>";
+       case IllegalArgument(value i)              : e = "<i>";
+       case IO(str msg)                           : e = "<msg>";
+       case Java(str class, str msg)              : e = "<class>: <msg>";
+       case Java(str class, str msg, value cause) : e = "<class>: <msg>, caused by: <cause>";
+    }
+
     return [
-      err(error("Could not process YAML header: <msg>", pcfg.currentFile)),
-      out("---"),
-      *[out(l) | l <- header],
-      out("---"),
-      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
-    ];
-  }
-  catch Java(str class, str msg): {
-    return [
-      err(error("Could not process YAML header, <class>: <msg>", pcfg.currentFile)),
-      out("---"),
-      *[out(l) | l <- header],
-      out("---"),
-      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
-    ];
-  }
-  catch Java(str class, str msg, value cause): {
-    return [
-      err(error("Could not process YAML header, <class>: <msg>, caused by: <cause>", pcfg.currentFile)),
+      err(error("Could not process YAML header: <e>", pcfg.currentFile)),
       out("---"),
       *[out(l) | l <- header],
       out("---"),

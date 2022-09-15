@@ -70,7 +70,8 @@ data RuntimeException =
      | IndexOutOfBounds(int index)
      | IllegalArgument()                        
      | IllegalArgument(value v)                 
-     | IllegalArgument(value v, str message)    
+     | IllegalArgument(value v, str message)  
+     | IllegalTypeArgument(str cls, str message)  
      
      | ImplodeError(str message)
      //| InvalidArgument()

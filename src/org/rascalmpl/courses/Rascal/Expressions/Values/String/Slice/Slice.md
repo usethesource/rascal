@@ -16,7 +16,7 @@ Retrieve a slice of a string.
 * `Exp~1~ [ Exp~2~ .. Exp~4~]`
 * `Exp~1~ [ Exp~2~ , Exp3 .. Exp~4~]`
 
-where `_Exp_~2~` and `_Exp_~4~` are optional.
+where `Exp~2~` and `Exp~4~` are optional.
 
 #### Types
 

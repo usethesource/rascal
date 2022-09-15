@@ -1,8 +1,8 @@
 ---
 title: Boolean
 keywords:
-  - true
-  - false
+  - "true"
+  - "false"
 
 ---
 
