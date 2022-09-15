@@ -17,12 +17,12 @@ title: Measuring Classes
 
 #### Examples
 
-```rascal-shell
-```
+
 First we import the basic data types for representing Java. The model is called _M3_, and its definition is split acros a generic
 language independent module called [Rascal:analysis/m3/Core] and a Java specific part called [Rascal:lang/java/m3/Core]. Have a look at the documentation 
 of these modules later. For now we will go through using them in a few examples.
-```rascal-shell,continue
+
+```rascal-shell
 import lang::java::m3::Core;
 ```
 Then we import the API for extracting an M3 model from an Eclipse project. 
@@ -31,7 +31,7 @@ import lang::java::jdt::m3::Core;
 ```
 Calling the following function generates an enormous value representing everything the Eclipse Java compiler knows about this project:
 ```rascal-shell,continue
-myModel = createM3FromEclipseProject(|project://example-project|);
+myModel = createM3FromEclipseProject(|project://rascal|);
 ```
 Next, let's focus on the _containment_ relation. This defines what parts of the source code are parts of which other parts:
 ```rascal-shell,continue
