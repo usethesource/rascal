@@ -60,6 +60,12 @@ rel[str, str] createConceptIndex(loc src)
       <"<capitalize(src.file)>:<f.file>", "/assets/<capitalize(src.file)><relativize(src, f).path>">
     |  loc f <- find(src, isImageFile)
     }
+  + {
+     <"<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
+     <"<capitalize(src.file)>:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
+     <"<capitalize(src.file)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>
+    | loc f <- find(src, isDirectory), fr := localDirLink(src, f)
+  }
   + // Here come the index entries for Rascal modules and declarations:
     {  // `((getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
       *{<"<item.kind>:<item.name>","<moduleFragment(item.moduleName)>/#<item.name>">, <item.name, "<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
