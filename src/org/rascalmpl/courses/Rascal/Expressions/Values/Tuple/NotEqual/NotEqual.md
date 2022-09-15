@@ -1,8 +1,7 @@
 ---
 title: Tuple NotEqual
 keywords:
-  - !=
-
+  - "!="
 ---
 
 #### Synopsis

@@ -23,6 +23,7 @@ import Message;
 import Exception;
 import IO;
 import String;
+import Node;
 import List;
 import Relation;
 import Location;
@@ -31,6 +32,7 @@ import util::Reflective;
 import util::FileSystem;
 
 import lang::xml::IO;
+import lang::yaml::Model;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
 import lang::rascal::tutor::apidoc::GenerateMarkdown;
 import lang::rascal::tutor::apidoc::ExtractInfo;
@@ -50,7 +52,7 @@ public PathConfig defaultConfig
     |project://rascal/src/org/rascalmpl/courses/CompileTimeErrors|,
     |project://rascal/src/org/rascalmpl/courses/Test|,
     |project://rascal/src/org/rascalmpl/courses/RascalConcepts|,
-    |project://rascal/src/org/rascalmpl/courses/TypePal|,
+    // |project://rascal/src/org/rascalmpl/courses/TypePal|,
     |project://rascal/src/org/rascalmpl/courses/Recipes|,
     |project://rascal/src/org/rascalmpl/courses/Tutor|,
     |project://rascal/src/org/rascalmpl/courses/GettingStarted|,
@@ -169,7 +171,7 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
 
 list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
   // this uses another nested directory listing to construct information for the (((TOC))) embedded in the current document:
-  order = sort([ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | exists(m.parent), d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}]);
+  order = sort([ "<pcfg.currentRoot.file>:<fragment(pcfg.currentRoot, d)[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}]);
 
   list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, order) + [Output::empty()];
 
@@ -286,12 +288,66 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
   return [err(warning("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
 }
 
-list[Output] compileMarkdown([firstLine:/^details:<dtlsLine:.*>$/, *str otherMetaData, "---", *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = [
-    details([trim(word) | word <- split(",", trim(dtlsLine)), trim(word) != ""]),
-    out(firstLine),
-    *compileMarkdown([*otherMetaData, "---", *rest], line + 1, offset + size(firstLine), pcfg, exec, ind, [trim(word) | word <- split(",", trim(dtlsLine)), trim(word) != ""])
-  ];
+@synopsis{extract what's needed from the header and print it back}
+list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+  try {
+    model = unsetRec(loadYAML(trim(intercalate("\n", header))));
+    dtls = [dtl | mapping(m) := model, scalar(str dtl) <- (m[scalar("details")]?sequence([])).\list];
+
+    return [
+      details(dtls),
+      out("---"),
+      *[out(l) | l <- header],
+      out("---"),
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
+    ];
+  }
+  catch IllegalTypeArgument(str x, str y): {
+     return [
+      err(error("Could not process YAML header: <x>, <y>", pcfg.currentFile)),
+      out("---"),
+      *[out(l) | l <- header],
+      out("---"),
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
+    ];
+  }
+  catch IllegalArgument(value i): {
+     return [
+      err(error("Could not process YAML header: <i>", pcfg.currentFile)),
+      out("---"),
+      *[out(l) | l <- header],
+      out("---"),
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
+    ];
+  }
+  catch IO(str msg): {
+    return [
+      err(error("Could not process YAML header: <msg>", pcfg.currentFile)),
+      out("---"),
+      *[out(l) | l <- header],
+      out("---"),
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
+    ];
+  }
+  catch Java(str class, str msg): {
+    return [
+      err(error("Could not process YAML header, <class>: <msg>", pcfg.currentFile)),
+      out("---"),
+      *[out(l) | l <- header],
+      out("---"),
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
+    ];
+  }
+  catch Java(str class, str msg, value cause): {
+    return [
+      err(error("Could not process YAML header, <class>: <msg>, caused by: <cause>", pcfg.currentFile)),
+      out("---"),
+      *[out(l) | l <- header],
+      out("---"),
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
+    ];
+  }
+}
 
 @synopsis{Removes empty sections in the middle of a document}
 list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, nextSection:/^\s*#\s+.*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
