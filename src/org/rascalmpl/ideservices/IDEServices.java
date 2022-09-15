@@ -58,10 +58,18 @@ public interface IDEServices extends IRascalMonitor {
   }
 
   /**
-   * Registers a new language definition with the surrounding IDE
+   * Registers a new language definition with the surrounding IDE. Multiple registries for the same language are supported, registration order determines priority.
    * @param language
    */
   default void registerLanguage(IConstructor language) {
+    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
+  }
+
+  /**
+   * Unregisters a language definition with the surrounding IDE. Can be partial if module & function are not empty strings.
+   * @param language
+   */
+  default void unregisterLanguage(IConstructor language) {
     throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
   }
 
