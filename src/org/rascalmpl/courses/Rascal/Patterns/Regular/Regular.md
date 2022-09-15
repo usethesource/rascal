@@ -2,11 +2,11 @@
 title: Regular Expression Pattern
 keywords:
   - "/"
-  - "\"
+  - "\\"
   - "["
   - "]"
   - "^"
-  - -
+  - "-"
   - "."
   - "|"
   - "?"

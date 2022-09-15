@@ -1,6 +1,9 @@
 ---
 title: Concrete Syntax
-keywords: `,(,)
+keywords: 
+  - "`"
+  - "("
+  - ")"
 ---
 
 #### Synopsis

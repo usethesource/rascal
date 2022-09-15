@@ -1,19 +1,20 @@
 ---
 title: String
 keywords:
-  - """
+  - "\""
   - "'"
   - "<"
   - ">"
   - "\"
-  - \n
-  - \t
-  - \r
-  - \b
-  - \f
-  - \u
-  - \U
-  - hex
+  - "\\n"
+  - "\\t"
+  - "\\r"
+  - "\\b"
+  - "\\f"
+  - "\\u"
+  - "\\U"
+  - hexademical
+  - escape
   - if
   - else
   - for
