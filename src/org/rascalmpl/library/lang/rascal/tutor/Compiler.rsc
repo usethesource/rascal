@@ -135,7 +135,7 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind)
 }
 
 list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind) {
-    indexFiles = {(d + "<d.file>")[extension="concept"], (d + "<d.file>")[extension="md"], (d + "index.md")};
+    indexFiles = {(d + "<d.file>")[extension="md"], (d + "index.md")};
 
     return [
       *(((i <- indexFiles) && exists(i)) ? compile(i, pcfg, exec, ind) : generateIndexFile(d, pcfg)), 
@@ -146,9 +146,9 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
 list[Message] generateIndexFile(loc d, PathConfig pcfg) {
   try {
     writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, d).path + "index.md",
-      "# <replaceAll("/", "::", relativize(pcfg.currentRoot, d).path[1..])>
+      "# <replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::")>
       '
-      '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}) {>
+      '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
       '   * [<e[extension=""].file>](<capitalize(pcfg.currentRoot.file)>/<relativize(pcfg.currentRoot, e).path>)<}>");
     return [];
   } catch IO(msg): {

@@ -8,6 +8,10 @@ str localLink(loc root, loc concept) = (concept.file == "index.md" || concept.pa
   : "/<capitalize(root.file)><relativize(root, concept)[extension="md"]>"
   ;
 
+str localDirLink(loc root, loc dir) 
+  = "/<capitalize(root.file)><(relativize(root, dir) + "index.md").path>";  
+
+
 str fragment(loc concept) = stripDoubleEnd("/<capitalize(concept[extension=""].path[1..])>");
 str fragment(loc root, loc concept) = stripDoubleEnd(fragment(relativize(root, concept)));
 str moduleFragment(str moduleName) = "<replaceAll(moduleName, "::", "/")>";

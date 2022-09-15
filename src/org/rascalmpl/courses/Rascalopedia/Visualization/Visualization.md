@@ -27,7 +27,6 @@ in a visual form. There are several subareas:
 
 #### Examples
 
-See ((Recipes:Visualization)).
 
 ## Scientific visualization
 
