@@ -1,9 +1,9 @@
 ---
 title: Lisra
 details:
-  - Syntax
+  - Lisra-Syntax
   - Runtime
-  - Parse
+  - Lisra-Parse
   - Pretty
   - Eval
   - Test

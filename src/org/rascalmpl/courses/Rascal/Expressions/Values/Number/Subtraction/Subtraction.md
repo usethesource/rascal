@@ -1,8 +1,7 @@
 ---
 title: Number Subtraction
 keywords:
-  - -
-
+  - "-"
 ---
 
 #### Synopsis

@@ -14,7 +14,7 @@ Strategies to analyze software systems.
 
 #### Description
 
-The analysis workflow is shown in the figure ((Analysis-Workflow)) below and consists of two steps:
+The analysis workflow is shown in the figure below and consists of two steps:
 
 *  Determine the results that are needed for the synthesis phase.
 

@@ -29,7 +29,7 @@ Typed variable inside a concrete pattern: <_Type_ _Var_>
 #### Description
 
 A concrete pattern is a pattern for matching a ((Library:module:ParseTree)). The notation of a concrete pattern is the *object language* itself, the language that the parse tree describes. 
-In other words, you can use a code example to match parsed code using a concrete pattern. These concrete code examples can contain ((Variable Pattern))s like the other ((Patterns)).
+In other words, you can use a code example to match parsed code using a concrete pattern. These concrete code examples can contain ((Variable Patterns))s like the other ((Patterns)).
 
 The mechanism of concete patterns gives a good notation for matching complex structures such as a ((Library:module:ParseTree)), and it works in a simple manner:
    
@@ -37,7 +37,7 @@ The mechanism of concete patterns gives a good notation for matching complex str
    * the pattern example code is parsed using the *same* parser; this generates parse trees with ((Variable Patterns))s.
    * the parse tree with the ((Variable Patterns))s is matches against the parse tree of the input code, similarly to the way ((Node Patterns)) work.     
  
-So, you could say that ((Concrete Patterns)) are a short notation for otherwise highly complex ((Node Patterns)) on ((Library:module:ParseTree)).  Note that the ((TypedVariables)) in a concrete pattern can
+So, you could say that ((Concrete Patterns)) are a short notation for otherwise highly complex ((Node Patterns)) on ((Library:module:ParseTree)).  Note that the ((TypedVariable))s in a concrete pattern can
 only occur in the pattern at the location where the code for a full non-terminal of the ((Syntax Definition)) would be. The structure of a concrete pattern follows the structure of the 
 grammar in the ((Syntax Definition)) and the types of the ((Variable Pattern))s are the syntax non-terminals of the ((Syntax Definition)).  
 
@@ -62,7 +62,7 @@ Some observations about this example:
 
 ** Notice how the non-terminals `Exp` and `Id` from the ((Syntax Definition)) become types for the pattern.
 
-** When this example pattern actually matches the variable `a` is bound and can be used again like any other ((Variable Pattern)). 
+** When this example pattern actually matches the variable `a` is bound and can be used again like any other ((Variable Patterns)). 
 
 
 A full example of concrete patterns can be found in [WithLayout]((Recipes:Concrete-WithLayout)).
