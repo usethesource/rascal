@@ -1,6 +1,6 @@
 ---
 title: Rascal Concepts
-details: StaticTyping,Datatypes,ImmutableValues,Enumerating,Comprehensions,PatternMatching,ControlStructures,CaseDistinction,Visiting,Enumerators,Functions,SyntaxDefinitionAndParsing,Rewriting,IDEConstruction,CodeModels,EquationSolving
+details: StaticTyping,Datatypes,ImmutableValues,Enumerating,Comprehensions,PatternMatching,ControlStructures,CaseDistinction,Visiting,Functions,SyntaxDefinitionAndParsing,Rewriting,IDEConstruction,CodeModels,EquationSolving
 ---
 
 #### Synopsis
