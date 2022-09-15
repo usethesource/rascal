@@ -3,30 +3,20 @@ title: Relation Subscription
 keywords:
   - "["
   - "]"
-  - "##"
-  - Syntax
-  - "*"
-  - `Exp0_
-  - "["
-  - Exp~1~
-  - 
-  - Exp~2~
-  - 
-  - "..."
-  - Exp~n~]`
-  - "*"
-  - `Exp0_
-  - "["
-  - Exp~1~]`
-
 ---
 
-## Synopsis
+#### Syntax
+
+* `Exp~0~ [Exp~1~, Exp~2~, ..., Exp~n~]`
+* `Exp~0~ [Exp~1~]`
+
+#### Synopsis
+
 Indexing of a relation via tuple values.
 
 #### Types
 
-### Single Value Variant 1
+##### Single Value Variant 1
 
 |     |     |     |     |     |
 | --- | --- | --- | --- | --- |
@@ -34,7 +24,7 @@ Indexing of a relation via tuple values.
 | `rel[T~1~, T~2~, ... T~m~]`    | `int`     |  `int`    | ... | `rel[T~n~, _T~n+1~_, ... T~m~]`  |
 
 
-### Set of Values Variant 
+##### Set of Values Variant 
 
 | `Exp~0~`                         | `Exp~1~`     | `Exp~0~ [ Exp~1~ ]`             |
 | --- | --- | --- |
@@ -42,11 +32,11 @@ Indexing of a relation via tuple values.
 
 
 
-## Description
+#### Description
 
 Relation resulting from subscription of a relation _Exp_~0~.
 
-### Single Value Variant
+##### Single Value Variant
 
 Subscription with the index values of _Exp_~1~, _Exp_~2~, .... 
 The result is a relation with all tuples that have these index values as first elements 
@@ -54,7 +44,7 @@ with the index values removed from the tuple.
 If the resulting tuple has only a single element, a set is returned instead of a relation. 
 A wildcard `_` as index value matches all possible values at that index position.
 
-### Set of Values Variant 
+##### Set of Values Variant 
 
 Subscription with a set of the index values of _Exp_~1~.
 The result is a relation with all tuples that have these index values as first element
