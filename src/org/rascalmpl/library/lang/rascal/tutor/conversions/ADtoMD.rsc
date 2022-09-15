@@ -95,9 +95,14 @@ str convertLine(/^keywords: \"<stuff:.*>\"\s*$/)
     '<for (k <- split(",", stuff)) {>  - <k>
     '<}>";
 
+str convertLine(/^details: <stuff:.*>\s*$/)
+  = "details:
+    '<for (k <- split(",", stuff)) {>  - <k>
+    '<}>";    
+
 str convertLine(/^title: \"<stuff:.*>\"\s*$/)
   = "title: <stuff>";
-      
+
 default str convertLine(str line) = line;
 
 str extractTitle(/title=\"<t:[^\"]+>\"/) = t;
