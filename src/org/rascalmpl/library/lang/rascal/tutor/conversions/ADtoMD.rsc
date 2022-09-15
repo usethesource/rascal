@@ -90,6 +90,14 @@ str convertLine(/^<prefix:.*>`<prequote:[^`]*>_<italics:[A-Za-z0-9~]+>_<postquot
 str convertLine(/^<prefix:.*>http\:\/\/<url:[^\[\(\)]+>\[<label:[^\]\(\)]+>\]<postfix:.*$>/)
   = convertLine("<prefix>[<label>](http://<url>)<postfix>");
 
+str convertLine(/^keywords: \"<stuff:.*>\"\s*$/)
+  = "keywords:
+    '<for (k <- split(",", stuff)) {>  - <k>
+    '<}>";
+
+str convertLine(/^title: \"<stuff:.*>\"\s*$/)
+  = "title: <stuff>";
+      
 default str convertLine(str line) = line;
 
 str extractTitle(/title=\"<t:[^\"]+>\"/) = t;
