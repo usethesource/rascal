@@ -106,6 +106,12 @@ str convertLine(/^title: \"<stuff:.*>\"\s*$/)
 str convertLine(/^\ \ \-\ \"\"<thing:[^A-Za-z0-9\-\_\ \t\"]+>\"\"\s*$/)
   = "  - \"<thing>\"";
 
+str convertLine(/^\ \ \-\ true\s*$/)
+  = "  - \"true\"";  
+
+str convertLine(/^\ \ \-\ false\s*$/)
+  = "  - \"false\"";  
+
 default str convertLine(str line) = line;
 
 str extractTitle(/title=\"<t:[^\"]+>\"/) = t;
