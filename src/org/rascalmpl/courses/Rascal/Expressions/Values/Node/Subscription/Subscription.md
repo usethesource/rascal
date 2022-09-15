@@ -1,8 +1,8 @@
 ---
 title: Node Subscription
 keywords:
-  - ""[""
-  - ""]""
+  - "["
+  - "]"
 ---
 
 #### Synopsis

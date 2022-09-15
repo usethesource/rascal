@@ -1,7 +1,7 @@
 ---
 title: Set Intersection
 keywords:
-  - ""&""
+  - "&"
 ---
 
 #### Synopsis

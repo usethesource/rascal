@@ -1,8 +1,8 @@
 ---
 title: Node
 keywords:
-  - ""(""
-  - "")""
+  - "("
+  - ")"
 ---
 
 #### Synopsis

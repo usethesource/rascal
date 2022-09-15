@@ -1,8 +1,8 @@
 ---
 title: Set
 keywords:
-  - ""{""
-  - ""}""
+  - "{"
+  - "}"
 ---
 
 #### Synopsis
