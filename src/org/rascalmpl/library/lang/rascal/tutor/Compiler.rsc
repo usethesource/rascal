@@ -193,6 +193,15 @@ list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], i
       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, dtls)
     ];
 
+@synopsis{skip double quoted blocks}
+list[Output] compileMarkdown([str first:/^\s*``````/, *block, str second:/^``````/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+  = [ 
+      out(first), 
+      *[out(b) | b <-block], 
+      out(second), 
+      *compileMarkdown(rest, line, offset, pcfg, exec, ind, dtls)
+  ];
+
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [ Output::empty(), // must have an empty line

@@ -74,6 +74,13 @@ public class TutorCommandExecutor {
     }
 
     public void reset() {
+        try {
+            // make sure previously unterminated commands are cleared up
+            repl.handleInput("", new HashMap<>(), new HashMap<>());
+        }
+        catch (InterruptedException e) {
+           // nothing needed
+        }
         repl.cleanEnvironment();
     }
 
