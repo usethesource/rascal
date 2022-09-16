@@ -5,7 +5,6 @@ details:
   - Patterns
   - Expressions
   - Statements
-
 ---
 
 #### Synopsis

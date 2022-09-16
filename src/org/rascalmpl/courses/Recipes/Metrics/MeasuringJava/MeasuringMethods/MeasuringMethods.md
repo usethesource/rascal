@@ -22,7 +22,7 @@ cp = getProjectPathConfig(|project://rascal|).javaCompilerPath;
 ```
 
 Now we can extract our overview model, using the classpath we derived:
-```rascal-shell
+```rascal-shell,continue
 myModel = createM3FromDirectory(|project://rascal|, classPath=cp);
 ```
 Now let's focus on the methods
@@ -44,23 +44,24 @@ How many words in this method?
 ```
 let's get its AST
 ```rascal-shell,continue
-methodFiles = myModel.declarations[|java+method:///org/rascalmpl/ast/Assignable/isVariable()|]
-// now we know what file to look in, parse it:
+methodFiles = myModel.declarations[|java+method:///org/rascalmpl/ast/Assignable/isVariable()|];
+
+// Now we know what file to look in, parse it:
 fileAST = createASTFromFile(|project://rascal/src/org/rascalmpl/ast/Assignable.java|, true, classPath=cp);
 
 // one of the declarations in this file is the method we wanted to see:
-methodAST = ();
-if (/Declaration d := fileAST, d.decl ==|java+method:///org/rascalmpl/ast/Assignable/isVariable()|) {
-    methodAST = d;
-}
+methodASTs = {d | /Declaration d := fileAST, d.decl == |java+method:///org/rascalmpl/ast/Assignable/isVariable()|};
 ```
+
+If `methodASTs` would have been an empty set, then the [search pattern]((PatternMatching)) `/Declaration d` or the condition `d.decl == ...` would have failed on this example. But it didn't! It found exactly one match.
+
 Now we count the number of expressions:
 ```rascal-shell,continue
-(0 | it + 1 | /Expression _ := methodAST)
+(0 | it + 1 | /Expression _ := methodASTs)
 ```
 or give us the locations of all expressions:
 ```rascal-shell,continue
-[m.src | /Expression m := methodAST]
+[m.src | /Expression m := methodASTs]
 ```
 the size should be the same, right?
 ```rascal-shell,continue
@@ -76,6 +77,7 @@ size([m.src | /Expression m := methodAST]) == (0 | it + 1 | /Expression _ := met
 * ((PatternMatching)) is a very powerful way of exploring and changing ASTs
 * AST and M3 models exist for other programming languages than Java. Your skills developed here may transfer to there.
 * AST and M3 creation is fully based on reusing the Eclipse JDT compiler stack, which has a high quality and can also recover from local errors in input files.
+* ((Location)) values like `|java+method:///org/rascalmpl/ast/Statement/VariableDeclaration/clone()|` that occur in ASTs and M3 relations are _clickable_ in the terminal window and will take you to the source code identified by the URI (and the offset).
 
 #### Pitfalls
 

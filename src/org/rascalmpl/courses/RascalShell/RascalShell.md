@@ -1,7 +1,7 @@
 ---
 title: Rascal Shell
 details:
-  - REPL
+  - RascalShell:REPL
   - RascalShell:Completion
   - History
   - Commands
