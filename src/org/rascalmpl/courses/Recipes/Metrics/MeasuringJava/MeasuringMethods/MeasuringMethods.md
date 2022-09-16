@@ -45,10 +45,8 @@ How many words in this method?
 let's get its AST
 ```rascal-shell,continue
 methodFiles = myModel.declarations[|java+method:///org/rascalmpl/ast/Assignable/isVariable()|];
-
 // Now we know what file to look in, parse it:
 fileAST = createASTFromFile(|project://rascal/src/org/rascalmpl/ast/Assignable.java|, true, classPath=cp);
-
 // one of the declarations in this file is the method we wanted to see:
 methodASTs = {d | /Declaration d := fileAST, d.decl == |java+method:///org/rascalmpl/ast/Assignable/isVariable()|};
 ```
@@ -73,11 +71,11 @@ size([m.src | /Expression m := methodASTs]) == (0 | it + 1 | /Expression _ := me
 
 * The method AST contains all structural/syntactic information about a method and its signature. They are defined in the ((java::m3::AST)) module.
 * every node in the AST has been annotated with a `src` field to explain where exactly in the file it came from
-* when name and type resolution is `true` for ((createAstFromFile)), the `decl` fields on given nodes point to the resolved qualified names of a reference. These qualified names coincide with the overview ((M3)) model contents. 
+* when name and type resolution is `true` for ((createAstFromFile)), the `decl` fields on given nodes point to the resolved qualified names of a reference. These qualified names coincide with the overview ((Core-M3)) model contents. 
 * ((PatternMatching)) is a very powerful way of exploring and changing ASTs
 * AST and M3 models exist for other programming languages than Java. Your skills developed here may transfer to there.
 * AST and M3 creation is fully based on reusing the Eclipse JDT compiler stack, which has a high quality and can also recover from local errors in input files.
-* ((Location)) values like `|java+method:///org/rascalmpl/ast/Statement/VariableDeclaration/clone()|` that occur in ASTs and M3 relations are _clickable_ in the terminal window and will take you to the source code identified by the URI (and the offset).
+* ((Values-Location)) values like `|java+method:///org/rascalmpl/ast/Statement/VariableDeclaration/clone()|` that occur in ASTs and M3 relations are _clickable_ in the terminal window and will take you to the source code identified by the URI (and the offset).
 
 #### Pitfalls
 

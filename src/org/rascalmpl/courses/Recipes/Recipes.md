@@ -32,7 +32,6 @@ The following features are covered:
 *  IDE extensions.
 *  Visualization.
 
-
 #### Examples
 
 #### Benefits
