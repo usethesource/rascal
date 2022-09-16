@@ -4,7 +4,8 @@ title: Metrics
 
 #### Synopsis
 
-Computing 
+Computing metrics is one of Rascal's first applications. Metrics take source code as input and 
+provide numerical output.
 
 #### Syntax
 
@@ -15,6 +16,8 @@ Computing
 #### Usage
 
 #### Description
+
+(((TOC)))
 
 #### Examples
 
