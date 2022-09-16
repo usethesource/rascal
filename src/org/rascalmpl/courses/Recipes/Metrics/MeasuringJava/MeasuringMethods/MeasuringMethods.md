@@ -66,7 +66,7 @@ or give us the locations of all expressions:
 the size should be the same, right?
 ```rascal-shell,continue
 import List;
-size([m.src | /Expression m := methodAST]) == (0 | it + 1 | /Expression _ := methodAST)
+size([m.src | /Expression m := methodASTs]) == (0 | it + 1 | /Expression _ := methodASTs)
 ```
 
 #### Benefits

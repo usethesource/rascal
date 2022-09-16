@@ -8,12 +8,10 @@ keywords:
   - beginner
   - doc
   - documentation
-
 details:
   - CommandLine
-  - IDE
+  - GettingHelp:IDE
   - Browsing
-
 ---
 
 #### Synopsis

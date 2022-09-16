@@ -11,8 +11,6 @@ details:
   - Examples
   - Benefits
   - Pitfalls
-  - Questions
-
 ---
 
 .Synopsis
