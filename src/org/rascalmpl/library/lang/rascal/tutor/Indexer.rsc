@@ -52,7 +52,7 @@ rel[str, str] createConceptIndex(loc src)
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
       <"<capitalize(src.file)>:<replaceAll(fr[1..][findFirst(fr[1..], "/")+1..], "/", "-")>", fr>
 
-    | loc f <- find(src, isConceptFile), fr := localLink(src, f), cf := f[extension=""]
+    | loc f <- find(src, isConceptFile), f.file != "index.md", fr := localLink(src, f), cf := f[extension=""]
     }
   + // Now follow the index entries for image files:
     { <"<f.parent.file>-<f.file>", "/assets/<capitalize(src.file)><relativize(src, f).path>">,
@@ -60,7 +60,7 @@ rel[str, str] createConceptIndex(loc src)
       <"<capitalize(src.file)>:<f.file>", "/assets/<capitalize(src.file)><relativize(src, f).path>">
     |  loc f <- find(src, isImageFile)
     }
-  + {
+  + { // these are links to packages/folders/directories via module path prefixes, like `analysis::m3`
      <"<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
      <"<capitalize(src.file)>:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
      <"<capitalize(src.file)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>
