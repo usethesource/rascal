@@ -43,6 +43,15 @@ Turn trace off and execute the same function:
 fac(5)
 ```
 
+#### Benefits
+
+* `profiling` provides an accurate and non-invasive profile using a stack sampling method. With high probability the operations that appear to be taking the most time are indeed a bottleneck.
+* `tracing` is helpful to see which of the overloaded functions have been called and what their result was.
+
 #### Pitfalls
 
 * The `set` command is completely unrelated to Rascal's built-in `set` type.
+* `tracing` is expensive because of the high amount of IO it generates. Better use with care on small examples.
+* `profiling` gives insight into the Rascal program's behavior but not necessarily in the underlying cost of interpreting a 
+Rascal program.
+* `errors` is a window into the implementation of Rascal rather than the notion of Rascal programs as they run. It is used for developers of the compiler and interpreter.

@@ -39,5 +39,9 @@ are parse tree formats (including the one used by Rascal) that preserve all text
 
 #### Benefits
 
+* parse trees are nice for grammar debugging, because they are an executing trace of the parsing algorithm.
+* parse trees are good for source-to-source transformation, because they do not a priori remove important details such as whitespace indentation and source code comments. A transformation based on parse trees is sometimes called "high fidelity" because of this.
+
 #### Pitfalls
 
+* parse trees are sometimes hard to read in abstract form, due to their inherent low-level of detail and complexity. When confronted with a large one, it's best to first try and minimize the input sentence before trying to debug a parse tree.

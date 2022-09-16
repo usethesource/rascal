@@ -21,7 +21,7 @@ _MarkedText_
 #### Description
 
 Gives a number of simple but complete examples to illustrate the concepts and its variations.
-Running examples (using ((Screen))) are preferred.
+Running examples are preferred.
 
 #### Examples
 
