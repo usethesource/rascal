@@ -50,12 +50,11 @@ public PathConfig defaultConfig
   srcs=[
     |project://rascal/src/org/rascalmpl/courses/Rascalopedia|,
     |project://rascal/src/org/rascalmpl/courses/CompileTimeErrors|,
-    |project://rascal/src/org/rascalmpl/courses/Test|,
     |project://rascal/src/org/rascalmpl/courses/RascalConcepts|,
-    // |project://rascal/src/org/rascalmpl/courses/TypePal|,
     |project://rascal/src/org/rascalmpl/courses/Recipes|,
     |project://rascal/src/org/rascalmpl/courses/Tutor|,
     |project://rascal/src/org/rascalmpl/courses/GettingStarted|,
+    |project://rascal/src/org/rascalmpl/courses/GettingHelp|,
     |project://rascal/src/org/rascalmpl/courses/WhyRascal|,
     |project://rascal/src/org/rascalmpl/courses/Rascal|,
     |project://rascal/src/org/rascalmpl/courses/TutorHome|,
@@ -149,7 +148,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg) {
       "# <replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::")>
       '
       '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
-      '   * [<e[extension=""].file>](<capitalize(pcfg.currentRoot.file)>/<relativize(pcfg.currentRoot, e).path>)<}>");
+      '   * [<e[extension=""].file>](<capitalize(pcfg.currentRoot.file)><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
     return [];
   } catch IO(msg): {
     return [error(msg, d)];
@@ -264,10 +263,11 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
                   *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
       }
-      case {/^#<plink:.*$>/, b:/^\/[^#]+#<qlink:.*$>/}:
+      case {str plink, b:/<qlink:.*>\/index\.md/}:
          if (plink == qlink) {
-            return compileMarkdown(["<prefix>[<addSpaces(qlink)>](<b>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+            return compileMarkdown(["<prefix>[<addSpaces(link)>](<plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
+     
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
         if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
