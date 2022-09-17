@@ -368,6 +368,10 @@ public class URIUtil {
 	}
 
 	public static ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
+		if (outside.equals(inside)) {
+			return URIUtil.correctLocation("relative", "", "/");
+		}
+
 		if (!isParentOf(outside, inside)) {
 			return inside;
 		}
