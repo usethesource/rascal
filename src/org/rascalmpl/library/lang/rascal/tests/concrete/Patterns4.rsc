@@ -41,3 +41,23 @@ test bool optPresent(){
     }
     return false; 
 }
+
+bool absent((Question) `question <QValue? v>`){
+    bool b = true;
+    for((QValue) `[<QConst const>]` <- v){
+       b = false;
+    }
+    return b;
+}
+
+test bool optAbsentInParameter() = absent([Question] "question");
+
+bool present((Question) `question <QValue? v>`){
+    bool b = false;
+    for((QValue) `[<QConst const>]` <- v){
+       b = const := [QConst] "x-x";
+    }
+    return b;
+}
+
+test bool optPresentInParameter() = present([Question] "question [x-x]");
