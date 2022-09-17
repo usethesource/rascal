@@ -425,13 +425,13 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       // otherwise just inline the html
       append(out("\<div class=\"rascal-html-output\"\>"));
       for (htmlLine <- split("\n", html)) {
-        append OUT : out("\> <trim(htmlLine)>");
+        append OUT : out("  <htmlLine>");
       }
       append OUT : out("\</div\>");
     }
     else if (result != "") {
       for (str resultLine <- split("\n", result)) {
-        append OUT : out(trim(resultLine));
+        append OUT : out(resultLine);
       }
     } 
 
