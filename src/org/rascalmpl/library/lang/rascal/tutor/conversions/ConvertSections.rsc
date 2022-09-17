@@ -31,11 +31,10 @@ list[str] convertSections([str first:/^\s*\[source,rascal<rest1:.*>]\s*$/, /---/
     ];
 
 /*
-[source,subs="quotes"]
-----
+```
 image::_File_[]
 image::_File_[_AlternateName_, _Width_, _Height_, link=_URI_]
-----
+```
 */
 list[str] convertSections([str first:/^\s*\[source[^\]]*\]\s*$/, /---/, *str block, /----*<postfix:[^\-]*>/, *str rest2])
     = [

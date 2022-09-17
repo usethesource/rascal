@@ -7,7 +7,9 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @doc{
-# Prelude
+---
+title: Prelude
+---
 .Synopsis
 Definition of the Rascal standard prelude.
 

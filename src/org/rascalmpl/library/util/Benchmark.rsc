@@ -11,10 +11,11 @@
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Functions for time measurement and benchmarking.
 
-.Description
+#### Description
 
 The `Benchmark` library provides the following functions:
 (((TOC)))

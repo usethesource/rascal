@@ -33,7 +33,8 @@ module lang::xml::DOM
 import Node;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Datatypes for representing an instance of the DOM.
 }
 
@@ -75,25 +76,29 @@ public Node toXML(node x)
 public default Node toXML(value x) = charData("<x> ");
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Auxiliary constructor for XML attribute without namespace.
 }
 public Node attribute(str name, str text) = attribute(none(), name, text);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Auxiliary constructor for XML element without namespace.
 }
 public Node element(str name, list[Node] kids) = element(none(), name, kids);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Parse an XML document and return a DOM instance.
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 Read the sample note file, parse it, and construct a DOM instance.
 ```rascal-shell
 import IO;
@@ -110,10 +115,11 @@ As expected, the result is of type ((lang::xml::DOM::Node)).
 public java Node parseXMLDOM(str src);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Parse an XML document and trim it (remove layout).
 
-.Examples
+#### Examples
 
 Read the sample note file, parse it, and construct a DOM instance (using `parseXMLDOMTrim`).
 ```rascal-shell
@@ -129,10 +135,12 @@ Compare this with the output of ((parseXMLDOM)).
 public java Node parseXMLDOMTrim(str src);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a DOM instance to a raw XML string.
 
-.Examples
+#### Examples
+
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 ```rascal-shell
 import IO;
@@ -148,10 +156,12 @@ Apart from an extra XML header, the original source file `F` and the output `S` 
 public java str xmlRaw(Node x);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a DOM instance to a compact XML string (with minimal white space).
 
-.Examples
+#### Examples
+
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 ```rascal-shell
 import IO;
@@ -167,10 +177,11 @@ The output `S` of `xmlCompact` is a version of the original source file `F` with
 public java str xmlCompact(Node x);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a DOM instance to a pretty printed XML string.
 
-.Examples
+#### Examples
 
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 

@@ -1,8 +1,9 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 Intermediate Language and Basic Algorithms for object flow analysis
   
-.Description
+#### Description
   
 The object flow language from the Tonella and Potrich book 
 "Reverse Engineering Object Oriented Code" is an intermediate

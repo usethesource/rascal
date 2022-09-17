@@ -6,7 +6,8 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @doc{
-.Synopsis
+#### Synopsis
+
 (de)serialization of JSON values. 
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}

@@ -1,5 +1,6 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 AST model for HTML5 including pretty printer
 }
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
