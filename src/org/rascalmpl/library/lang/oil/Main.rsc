@@ -1,8 +1,9 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 Object Instantiation Language (OIL) for building Java objects at run-time.
 
-.Description
+#### Description
 
 The OIL language is an abstract language which can be considered
 a small sub-set of the Java language. It allows one to build objects
@@ -20,11 +21,11 @@ function directly from Java. The ((interpret)) function is used to debug
 an OIL expression and eventually we use the ((interpret)) method directly
 from Java.
 
-.Benefits
+#### Benefits
 
 *  OIL is made to avoid having to write Java when reusing a Java library.
 
-.Pitfalls
+#### Pitfalls
 
 *  The OIL language is experimental and not used much. It is unfinished and there may be bugs.
 } 
@@ -43,9 +44,10 @@ data Exp  = \new(str class, list[Exp] arguments, list[Exp] calls)
 
 @javaClass{org.rascalmpl.library.lang.oil.Interpreter}
 @doc{
-.Synopsis
+#### Synopsis
+
 convert an OIL expression to a Java object
-.Description
+#### Description
 
 Uses the Java reflection API and the current classpath to produce 
 a Java object, interpreting the expressions, and then calls the

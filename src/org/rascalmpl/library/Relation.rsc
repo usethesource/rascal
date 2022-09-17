@@ -8,10 +8,11 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @doc{
-.Synopsis
+#### Synopsis
+
 Library functions for relations.
 
-.Description
+#### Description
 
 For operators on relations see [Relation]((Rascal:Values-Relation)) in the Rascal Language Reference.
 
@@ -21,10 +22,12 @@ The following functions are defined for relations:
 module Relation
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Return the set of all elements in any tuple in a relation.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 carrier({<1,10>, <2,20>});
@@ -51,13 +54,16 @@ public set[&T]  carrier (rel[&T,&T,&T,&T,&T] R)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 A relation restricted to certain element values in tuples.
 
-.Description
+#### Description
+
 Returns relation `R` restricted to tuples with elements in set `S`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 carrierR({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
@@ -84,22 +90,27 @@ public rel[&T,&T,&T,&T,&T] carrierR (rel[&T,&T,&T,&T,&T] R, set[&T] S)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 A relation excluding tuples that contain certain element values.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 carrierX({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
 ```}
 @doc{
-.Synopsis
+#### Synopsis
+
 A relation excluded tuples containing certain values.
 
-.Description
+#### Description
+
 Returns relation `R` excluding tuples with some element in `S`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 carrierX({<1,10>, <2,20>, <3,30>}, {10, 1, 20});
@@ -127,15 +138,18 @@ public rel[&T,&T,&T,&T,&T] carrierX (rel[&T,&T,&T,&T,&T] R, set[&T] S)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Complement of a relation.
 
-.Description
+#### Description
+
 Given a relation `R` a new relation `U` can be constructed that contains
 all possible tuples with element values that occur at corresponding tuple positions in `R`.
 The function `complement` returns the complement of `R` relative to `U`, in other words: `U - R`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 ```
@@ -171,10 +185,12 @@ public rel[&T0, &T1, &T2, &T3, &T4] complement(rel[&T0, &T1, &T2, &T3, &T4] R)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Domain of a  relation: a set consisting of the first element of each tuple.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 domain({<1,10>, <2,20>});
@@ -201,13 +217,16 @@ public set[&T0] domain (rel[&T0,&T1,&T2,&T3,&T4] R)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Relation restricted to certain domain elements.
 
-.Description
+#### Description
+
 Restriction of a relation `R` to tuples with first element in `S`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 domainR({<1,10>, <2,20>, <3,30>}, {3, 1});
@@ -233,13 +252,16 @@ public rel[&T0,&T1,&T2,&T3,&T4] domainR (rel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Relation excluding certain domain values.
 
-.Description
+#### Description
+
 Relation `R` excluded tuples with first element in `S`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 domainX({<1,10>, <2,20>, <3,30>}, {3, 1});
@@ -265,10 +287,11 @@ public rel[&T0,&T1,&T2,&T3,&T4] domainX (rel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Make sets of elements in the domain that relate to the same element in the range.
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import Relation;
@@ -281,10 +304,12 @@ public set[set[&U]] groupDomainByRange(rel[&U dom, &T ran] input) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Make sets of elements in the range that relate to the same element in the domain.
 
-.Description
+#### Description
+
 ```rascal-shell
 import Relation;
 skins = {<"bird", "feather">, <"dog", "fur">, <"tortoise", "shell">, <"human", "skin">, <"fish", "scale">, <"lizard", "scale">, <"crab", "shell">, <"cat", "fur">};
@@ -296,13 +321,16 @@ public set[set[&T]] groupRangeByDomain(rel[&U dom, &T ran] input) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 The identity relation.
 
-.Description
+#### Description
+
 The identity relation for set `S`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 ident({"mon", "tue", "wed"});
@@ -313,10 +341,12 @@ public rel[&T, &T] ident (set[&T] S)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Invert the tuples in a relation.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 invert({<1,10>, <2,20>});
@@ -342,10 +372,12 @@ public rel[&T4, &T3, &T2, &T1, &T0] invert (rel[&T0, &T1, &T2, &T3, &T4] R)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 The range (i.e., all but the first element of each tuple) of a relation.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 range({<1,10>, <2,20>});
@@ -372,13 +404,16 @@ public rel[&T1,&T2,&T3,&T4] range (rel[&T0,&T1,&T2,&T3,&T4] R)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Relation restricted to certain range values.
 
-.Description
+#### Description
+
 Restriction of binary relation `R` to tuples with second element in set `S`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 rangeR({<1,10>, <2,20>, <3,30>}, {30, 10});
@@ -389,13 +424,16 @@ public rel[&T0,&T1] rangeR (rel[&T0,&T1] R, set[&T2] S)
 }
 
 @doc{ 
-.Synopsis
+#### Synopsis
+
 Relation excluding certain range values.
 
-.Description
+#### Description
+
 Restriction of binary relation `R` to tuples with second element not in set `S`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 rangeX({<1,10>, <2,20>, <3,30>}, {30, 10});
@@ -406,13 +444,16 @@ public rel[&T0,&T1] rangeX (rel[&T0,&T1] R, set[&T2] S)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Indexes a binary relation as a map
 
-.Description
+#### Description
+
 Converts a binary relation to a map of the domain to a set of the range.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Relation;
 index({<1,10>, <2,20>, <3,30>, <30,10>});

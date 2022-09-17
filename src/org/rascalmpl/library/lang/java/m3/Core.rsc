@@ -96,7 +96,8 @@ java M3 createM3FromSingleClass(loc jarClass, str className);
 java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = [|system:///|]);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
 }
 M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7", list[loc] classPath = []) {

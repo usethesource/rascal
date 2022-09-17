@@ -8,10 +8,11 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @doc{
-.Synopsis
+#### Synopsis
+
 Library functions for nodes.
 
-.Description
+#### Description
 
 For operators on nodes see [Node]((Rascal:Values-Node)) in the Rascal Language Reference.
 
@@ -21,10 +22,12 @@ The following functions are defined for nodes:
 module Node
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the number of children of a node.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Node;
 arity("f"(10, "abc"));
@@ -35,10 +38,12 @@ arity("f"(10, "abc", false));
 public java int arity(node T);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get the children of a node.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Node;
 getChildren("f"(10, "abc"));
@@ -48,10 +53,12 @@ getChildren("f"(10, "abc"));
 public java list[value] getChildren(node T);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get the keyword parameters of a node.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Node;
 getKeywordParameters("f"(10, "abc", height=0));
@@ -64,10 +71,12 @@ public java map[str,value] getKeywordParameters(node T);
 public map[str, value] getAnnotations(node T) = getKeywordParameters(T);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Set the keyword parameters of a node.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Node;
 setKeywordParameters("f"(10, "abc"), ("height":0));
@@ -81,10 +90,12 @@ public &T <: node setAnnotations(&T <: node x, map[str,value] keywordParameters)
   = setKeywordParameters(x, keywordParameters);
   
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the name of a node.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Node;
 getName("f"(10, "abc"));
@@ -94,10 +105,12 @@ getName("f"(10, "abc"));
 public java str getName(node T);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Create a node given its function name and arguments.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Node;
 makeNode("f", [10, "abc"]);
@@ -107,7 +120,8 @@ makeNode("f", [10, "abc"]);
 public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Reset a specific keyword parameter back to their default on a node.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -117,7 +131,8 @@ public java &T <: node unset(&T <: node x, str keywordParameter);
 public &T <: node delAnnotation(&T <:  node x, str keywordParameter) = unset(x, keywordParameter); 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Reset a set of keyword parameters back to their default on a node.
 }
 public &T <: node unset(&T <: node x, set[str] keywordParameters){
@@ -129,7 +144,8 @@ public &T <: node unset(&T <: node x, set[str] keywordParameters){
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Reset all keyword parameters back to their default.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -139,7 +155,8 @@ public java &T <: node unset(&T <: node x);
 public &T <: node delAnnotations(&T <: node x) = unset(x);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Recursively reset all keyword parameters of the node and its children back to their default.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -149,7 +166,8 @@ public java &T unsetRec(&T x);
 public &T delAnnotationsRec(&T x) = unsetRec(x);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Recursively reset a specific keyword parameter of the node and its children back to its default.
 }
 public &T unsetRec(&T x, str keywordParameter) = visit(x) { 
@@ -157,7 +175,8 @@ public &T unsetRec(&T x, str keywordParameter) = visit(x) {
 };
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Recursively reset a selected set of keyword parameters of the node and its children back to their default.
 }
 public &T <: node unsetRec(&T <: node x, set[str] keywordParameters) = visit(x) { 
@@ -170,10 +189,12 @@ public java node arbNode();
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a node to a string.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Node;
 F = "f"(10, "abc", color="red", size="large");
@@ -185,10 +206,12 @@ public java str toString(node T);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a node to an indented string.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import Node;
 F = "f"(10, "abc", color="red", size="large");

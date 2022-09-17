@@ -7,22 +7,25 @@
 }
 @contributor{Atze van der Ploeg - ploeg@cwi.nl - CWI}
 @doc{
-.Synopsis
+#### Synopsis
+
 Represent an optional value.
 }
 module util::Maybe
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Data type to represent an optional value.
 
-.Types
+#### Types
 
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-.Examples
+#### Examples
+
 ```rascal
 Maybe[int] linearSearch(list[int] l, int toFind) {
    for(i <- index(l)){

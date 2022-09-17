@@ -1,5 +1,6 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 defines AST node types for Java
 }
 module lang::java::m3::AST
@@ -197,10 +198,12 @@ set[loc] findRoots(set[loc] folders) {
 }
       
 @doc{
-.Synopsis
+#### Synopsis
+
 Creates AST from a file
 
-.Description
+#### Description
+
 }
 public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
     result = createAstsFromFiles({file}, collectBindings, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
@@ -211,10 +214,12 @@ public Declaration createAstFromFile(loc file, bool collectBindings, bool errorR
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Creates AST from a file
 
-.Description
+#### Description
+
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");

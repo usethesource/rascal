@@ -1,8 +1,9 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 a symbolic representation for types that occur in programming languages.
 
-.Description
+#### Description
 
 M3 provides a general mechanism to associate types, symbolically, with source code artifacts or even run-time artifacts.
 
@@ -18,12 +19,12 @@ You will find an interesting examples in [lang::java::m3::TypeSymbol].
 
 
 
-.Benefits
+#### Benefits
 
 *  symbolic types can be analyzed and manipulated symbolically, i.e. to instatiate parametrized types.
 *  symbolic types can be used directly as constraint variables.
 
-.Pitfalls
+#### Pitfalls
 
 *  If you import extensions to this M3 model for two different languages, ambiguity and other confusion may arise 
 because the subtype and lub functions of the two languages will merge.

@@ -1,13 +1,14 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 Provides the library of stemmers written in the Snowball languages, and compiled to Java, which are
 distributed with Lucene as a Rascal module.
 
-.Description
+#### Description
 
 See http://snowball.tartarus.org[the Snowball homepage] for more informations
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import analysis::text::stemming::Snowball;
@@ -41,10 +42,11 @@ data Language
   ;
   
 @doc{
-.Synopsis 
+#### Synopsis
+
 Stemming algorithms from the Tartarus Snowball (http://snowball.tartarus.org[the Snowball homepage] for different languages. 
 
-.Description
+#### Description
 
 This library wrapped into a single function supports Armenian, Basque, Catalan, Danish,
 Dutch, English, Finnish, French, German, Hungarian, Irish, Italian, Lithuanian, Norwegian, Portugese,
@@ -55,10 +57,11 @@ java str stem(str word, Language lang=english());
 
 @javaClass{org.rascalmpl.library.analysis.text.stemming.Snowball}
 @doc{
-.Synopsis
+#### Synopsis
+
 Kraaij-Pohlmann is a well-known stemmer for the Dutch language. 
 
-.Description
+#### Description
 
 See http://snowball.tartarus.org/algorithms/kraaij_pohlmann/stemmer.html
 }
@@ -66,10 +69,11 @@ java str kraaijPohlmannStemmer(str word);
 
 @javaClass{org.rascalmpl.library.analysis.text.stemming.Snowball}
 @doc{
-.Synopsis
+#### Synopsis
+
 Porter stemming is a "standard" stemming algorithm for English of sorts.
 
-.Description
+#### Description
 
 See http://snowball.tartarus.org/algorithms/porter/stemmer.html for more information. 
 }
@@ -77,10 +81,11 @@ java str porterStemmer(str word);
 
 @javaClass{org.rascalmpl.library.analysis.text.stemming.Snowball}
 @doc{
-.Synopsis
+#### Synopsis
+
 Lovins designed the first stemmer according to the Tartarus website.
 
-.Description
+#### Description
 
 See http://snowball.tartarus.org/algorithms/lovins/stemmer.html
 }
