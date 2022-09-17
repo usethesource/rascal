@@ -46,7 +46,7 @@ let's get its AST
 ```rascal-shell,continue
 methodFiles = myModel.declarations[|java+method:///org/rascalmpl/ast/Assignable/isVariable()|];
 // Now we know what file to look in, parse it:
-fileAST = createASTFromFile(|project://rascal/src/org/rascalmpl/ast/Assignable.java|, true, classPath=cp);
+fileAST = createAstFromFile(|project://rascal/src/org/rascalmpl/ast/Assignable.java|, true, classPath=cp);
 // one of the declarations in this file is the method we wanted to see:
 methodASTs = {d | /Declaration d := fileAST, d.decl == |java+method:///org/rascalmpl/ast/Assignable/isVariable()|};
 ```
@@ -69,7 +69,7 @@ size([m.src | /Expression m := methodASTs]) == (0 | it + 1 | /Expression _ := me
 
 #### Benefits
 
-* The method AST contains all structural/syntactic information about a method and its signature. They are defined in the ((java::m3::AST)) module.
+* The method AST contains all structural/syntactic information about a method and its signature. They are defined in the ((lang::java::m3::AST)) module.
 * every node in the AST has been annotated with a `src` field to explain where exactly in the file it came from
 * when name and type resolution is `true` for ((createAstFromFile)), the `decl` fields on given nodes point to the resolved qualified names of a reference. These qualified names coincide with the overview ((Core-M3)) model contents. 
 * ((PatternMatching)) is a very powerful way of exploring and changing ASTs
