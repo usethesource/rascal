@@ -63,7 +63,7 @@ map[loc class, int fieldCount] numberOfFieldsPerClass = (cl:numberOfFields(cl, m
 ```
 what is the ratio between fields and methods for each class?
 ```rascal-shell,continue
-(cl : (numberOfFieldsPerClass[cl] * 1.0) / (numberOfMethodsPerClass[cl] * 1.0) | cl <- classes(myModel))
+(cl : (numberOfFieldsPerClass[cl]?0 * 1.0) / (numberOfMethodsPerClass[cl]?0 * 1.0) | cl <- classes(myModel))
 ```
 
 #### Benefits
