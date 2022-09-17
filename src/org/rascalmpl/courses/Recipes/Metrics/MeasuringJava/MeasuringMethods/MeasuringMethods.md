@@ -8,47 +8,44 @@ We demonstrate how to extract interesting and accurate information about Java me
 
 #### Examples
 
+```rascal-prepare
+import IO;
+copy(|zip+testdata:///m3/snakes-and-ladders-project-source.zip!/|, |tmp:///snakes-and-ladders|, recursive=true)
+```
+
 ```rascal-shell
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 ```
 
-To be able to resolve all classes properly, we first collect a classpath. The 
-((getProjectPathConfig)) function uses the Maven `pom.xml` file to find out what the
-dependencies of the current rascal project are:
-```rascal-shell,continue
-import util::Reflective;
-cp = getProjectPathConfig(|project://rascal|).javaCompilerPath;
-```
-
 Now we can extract our overview model, using the classpath we derived:
 ```rascal-shell,continue
-myModel = createM3FromDirectory(|project://rascal|, classPath=cp);
+myModel = createM3FromDirectory(|tmp:///snakes-and-ladders/src|);
 ```
-Now let's focus on the methods
+Now let's focus on the methods:
 ```rascal-shell,continue
 myMethods = methods(myModel);
 ```
 What is the source code for any given method?
 ```rascal-shell,continue
 import IO;
-methodSrc = readFile(|java+method:///org/rascalmpl/ast/Assignable/isVariable()|);
+methodSrc = readFile(|java+method:///snakes/Square/landHereOrGoHome()|);
 ```
 Let's print it for readability's sake:
 ```rascal-shell,continue
 println(methodSrc)
 ```
-How many words in this method?
+How many words in this method? Let's use a regex :-)
 ```rascal-shell,continue
 (0 | it + 1 | /\W+/ := methodSrc)
 ```
-let's get its AST
+But now, let's get its AST
 ```rascal-shell,continue
-methodFiles = myModel.declarations[|java+method:///org/rascalmpl/ast/Assignable/isVariable()|];
+methodFiles = myModel.declarations[|java+method:///snakes/Square/landHereOrGoHome()|];
 // Now we know what file to look in, parse it:
-fileAST = createAstFromFile(|project://rascal/src/org/rascalmpl/ast/Assignable.java|, true, classPath=cp);
+fileAST = createAstFromFile(|tmp:///snakes-and-ladders/src/snakes/Square.java|, true);
 // one of the declarations in this file is the method we wanted to see:
-methodASTs = {d | /Declaration d := fileAST, d.decl == |java+method:///org/rascalmpl/ast/Assignable/isVariable()|};
+methodASTs = {d | /Declaration d := fileAST, d.decl == |java+method:///snakes/Square/landHereOrGoHome()|};
 ```
 
 If `methodASTs` would have been an empty set, then the [search pattern]((PatternMatching)) `/Declaration d` or the condition `d.decl == ...` would have failed on this example. But it didn't! It found exactly one match.
@@ -69,6 +66,7 @@ size([m.src | /Expression m := methodASTs]) == (0 | it + 1 | /Expression _ := me
 
 #### Benefits
 
+* Click on any of the printed source ((Location))s in the terminal and the IDE brings you to the file.
 * The method AST contains all structural/syntactic information about a method and its signature. They are defined in the ((lang::java::m3::AST)) module.
 * every node in the AST has been annotated with a `src` field to explain where exactly in the file it came from
 * when name and type resolution is `true` for ((createAstFromFile)), the `decl` fields on given nodes point to the resolved qualified names of a reference. These qualified names coincide with the overview [M3]((lang::java::m3::Core)) model contents. 

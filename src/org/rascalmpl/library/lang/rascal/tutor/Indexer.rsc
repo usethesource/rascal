@@ -70,17 +70,17 @@ rel[str, str] createConceptIndex(loc src)
     {  // `((getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
       *{<"<item.kind>:<item.name>","<moduleFragment(item.moduleName)>/#<item.name>">, <item.name, "<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
      
-      // `((Library:getDefaultPathConfig))` -> `/Library.md#util-Reflective-getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
-         <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
+      // `((Library:getDefaultPathConfig))` -> `/Library/util-Reflective-getDefaultPathConfig`
+      *{<"<capitalize(src.file)>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/<item.moduleName>-<item.name>" >,
+         <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/<item.moduleName>-<item.name>" > | item.name?},
 
       // `((util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
-      *{<"<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
-        <"<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
+      *{<"<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/<item.moduleName>-<item.name>" >,
+        <"<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
 
       // ((Library:util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
-         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>.md/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
+      *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>#<item.moduleName>-<item.name>" >,
+         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
 
       // ((Set)) -> `#Set`
       *{<item.moduleName, "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>" >, <"module:<item.moduleName>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>" > | item is moduleInfo},

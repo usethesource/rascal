@@ -42,24 +42,38 @@ First we import the basic data types for representing Java. The model is called 
 language independent module called [Rascal:analysis/m3/Core] and a Java specific part called [Rascal:lang/java/m3/Core]. Have a look at the documentation 
 of these modules later. For now we will go through using them in a few examples.
 
+```rascal-prepare
+import IO;
+copy(|zip+testdata:///m3/snakes-and-ladders-project-source.zip!/|, |tmp:///snakes-and-ladders|, recursive=true)
+```
+
 ```rascal-shell
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 ```
 
-To be able to resolve all classes properly, we first collect a classpath. The 
-((getProjectPathConfig)) function uses the Maven `pom.xml` file to find out what the
-dependencies of the current rascal project are:
+"Snakes and Ladders" is an example Java project of which we have stored the source code in `|tmp:///snakes-and-ladders/src|`
 ```rascal-shell,continue
-import util::Reflective;
-cp = getProjectPathConfig(|project://rascal|).javaCompilerPath;
+|tmp:///snakes-and-ladders/src/snakes/|.ls
 ```
 
 Now we can extract our overview model, using the classpath we derived:
 ```rascal-shell,continue
-myModel = createM3FromDirectory(|project://rascal|, classPath=cp);
+myModel = createM3FromDirectory(|tmp:///snakes-and-ladders/src|);
 ```
 
+Some projects have extensive classpaths which the M3 extractor requires for accurate Java analysis.
+You can use this code to extract a classpath if the project is a Maven project:
+
+```rascal-shell,continue
+import util::Reflective;
+cp = getProjectPathConfig(|tmp:///snakes-and-ladders|).classloaders
+```
+
+and then pass it into the M3 extractor (this project does not have dependencies)
+```rascal-shell,continue
+myModel = createM3FromDirectory(|tmp:///snakes-and-ladders/src|, classPath=cp);
+```
 
 #### Benefits
 

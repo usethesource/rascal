@@ -211,6 +211,13 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, dtls)
     ];
 
+@synopsis{execute _rascal-shell-prepare_ blocks on the REPL}
+list[Output] compileMarkdown([str first:/^\s*```rascal-prepare<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+  = [
+      *compileRascalShellPrepare(block, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, dtls)
+    ];
+
 @synopsis{inline an itemized list of details (collected from the .Details section)}
 list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [
@@ -428,6 +435,39 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       }
     } 
 
+    lineOffsetHere +=1;
+  }
+}
+
+@synopsis{Prepare blocks run the REPL but show no input or output}
+list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
+  if (!isContinued) {
+    exec.reset();
+  }
+
+  lineOffsetHere = 0;
+  return OUT:for (str line <- block) {
+    output = exec.eval(line);
+    result = output["text/plain"]?"";
+    stderr = output["application/rascal+stderr"]?"";
+    stdout = output["application/rascal+stdout"]?"";
+    html   = output["text/html"]?"";
+
+    if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
+      for (errLine <- split("\n", stderr)) {
+        append OUT : out(errLine);
+      }
+
+      append out(":::danger");
+      append OUT : out("Rascal code execution failed (unexpectedly) during compilation of this documentation.");
+      append OUT : out("\<pre\>");
+      for (errLine <- split("\n", stderr)) {
+          append OUT : out(errLine);
+      }
+      append OUT : out("\</pre\>");
+      append OUT : err(error("Code execution failed in prepare block", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
+    }
+     
     lineOffsetHere +=1;
   }
 }
