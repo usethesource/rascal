@@ -1,8 +1,9 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 mapping all of Java to the object flow language
 
-.Description
+#### Description
 
 More information can be found in ((analysis::flow::ObjectFlow)).
 }

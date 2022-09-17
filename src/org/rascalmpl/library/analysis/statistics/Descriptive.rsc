@@ -6,15 +6,17 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @doc{
-.Synopsis
+#### Synopsis
+
 Descriptive Statistics.
 
-.Description
+#### Description
+
 Provides the following univariate (single variable) statistics functions:
 
 (((TOC)))
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import analysis::statistics::Descriptive;
@@ -40,10 +42,11 @@ import util::Math;
 import List;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Geometric mean of data values.
 
-.Description
+#### Description
 
 Computes the http://en.wikipedia.org/wiki/Geometric_mean[geometric mean] of the given data values.
 }
@@ -62,10 +65,11 @@ real geometricMean([num hd, *num tl]) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Kurtosis of data values.
 
-.Description
+#### Description
 
 Computes the http://en.wikipedia.org/wiki/Kurtosis[kurtosis] of the given data values.
 Kurtosis is a measure of the "peakedness" of a distribution.
@@ -81,10 +85,11 @@ real kurtosis(list[num] values:[_, *_]) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Kurtosis excess of data values.
 
-.Description
+#### Description
 
 Computes the http://en.wikipedia.org/wiki/Kurtosis[kurtosis excess] of the given data values.
 Kurtosis excess is a measure of the "peakedness" of a distribution corrected such that a normal distribution will be 0.
@@ -92,16 +97,18 @@ Kurtosis excess is a measure of the "peakedness" of a distribution corrected suc
 real kurtosisExcess(list[num] values) = kurtosis(values) - 3;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Largest data value.
 }
 (&T <: num) max([(&T <: num) h, *(&T <: num) t]) = (h | it < n ? n : it | n <- t);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Arithmetic mean of data values.
 
-.Description
+#### Description
 
 Computes the http://en.wikipedia.org/wiki/Arithmetic_mean[arithmetic mean] of the data values.
 }
@@ -109,15 +116,17 @@ real mean(list[num] nums:[_, *_]) = toReal(sum(nums)) / size(nums);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Median of data values.
 
-.Description
+#### Description
 
 Returns the http://en.wikipedia.org/wiki/Median[median] of the available values.
 This is the same as the 50th ((percentile)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import analysis::statistics::Descriptive;
 median([1,2,5,7,8]);
@@ -139,16 +148,18 @@ private list[&T] middle(list[&T] nums) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Smallest data value.
 }
 (&T <: num) min([(&T <: num) h, *(&T <: num) t]) = (h | it > n ? n : it | n <- t);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Percentile of data values.
 
-.Description
+#### Description
 
 Returns the `p`th http://en.wikipedia.org/wiki/Percentile[percentile] of the data values.
  0 < `p` <= 100 should hold.
@@ -165,10 +176,12 @@ Returns the `p`th http://en.wikipedia.org/wiki/Percentile[percentile] of the dat
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Variance of data values.
 
-.Description
+#### Description
+
 Computes the http://en.wikipedia.org/wiki/Variance[variance] of the data values.
 It measures how far a set of numbers is spread out.
 }
@@ -185,20 +198,24 @@ num variance([num hd, *num tl]) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Skewness of data values.
 
-.Description
+#### Description
+
 Returns the http://en.wikipedia.org/wiki/Skewness[skewness] of the available values. Skewness is a measure of the asymmetry of a given distribution.
 }
 real skewness(list[num] values:[_, *_]) 
 	= centralMoment(values, order=3) / pow(centralMoment(values, order=2), 3/2);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Standard deviation of data values.
 
-.Description
+#### Description
+
 Computes the http://en.wikipedia.org/wiki/Standard_deviation[standard deviation]
 of the data values. It shows how much variation exists from the average (mean, or expected value). 
 }
@@ -210,13 +227,15 @@ real standardDeviation(list[num] values) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum of data values.
 }
 public (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- tl);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum of the squares of data values.
 }
 (&T <:num) sumsq(list[&T <:num] values) = sum([ n * n | n <- values]);

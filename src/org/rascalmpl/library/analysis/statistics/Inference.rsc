@@ -6,10 +6,11 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @doc{
-.Synopsis
+#### Synopsis
+
 Statistical inference methods.
 
-.Description
+#### Description
 
 The following functions are provided:
 (((TOC)))
@@ -17,14 +18,15 @@ The following functions are provided:
 module analysis::statistics::Inference
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Chi-square coefficient of data values.
 
-.Description
+#### Description
 
 Compute the http://en.wikipedia.org/wiki/Chi-square_statistic[ChiSquare statistic] comparing observed and expected frequency counts.
 
-.Examples
+#### Examples
 
 Consider an example from the web page mentioned above.
 To test the hypothesis that a random sample of 100 people has been drawn from a population in which men and women are equal in frequency, the observed number of men and women would be compared to the theoretical frequencies of 50 men and 50 women. If there were 44 men in the sample and 56 women, then we have the following:
@@ -39,10 +41,11 @@ chiSquare([<50, 44>, <50, 56>])
 public java num chiSquare(lrel[num expected, int observed] values);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Chi-square test on data values.
 
-.Description
+#### Description
 
 Perform a http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test[Chi-square test] comparing
 expected and observed frequency counts. There are two forms of this test:
@@ -60,10 +63,11 @@ public java num chiSquareTest(lrel[num expected, int observed] values);
 public java bool chiSquareTest(lrel[num expected, int observed] values, real alpha);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 T-test on sample data.
 
-.Description
+#### Description
 
 Perform http://en.wikipedia.org/wiki/Student's_t-test[student's t-test].
 The test is provided in three variants:
@@ -86,7 +90,8 @@ Returns true iff the null hypothesis that the means are equal can be rejected wi
 *  Performs a two-sided t-test evaluating the null hypothesis that the mean of the population from which sample is drawn equals `mu`.
 Returns true iff the null hypothesis can be rejected with confidence 1 - `alpha`. To perform a 1-sided test, use `alpha` * 2.
 
-.Examples
+#### Examples
+
 We use the data from the following http://web.mst.edu/~psyworld/texample.htm#1[example] to illustrate the t-test.
 First, we compute the t-statistic using the formula given above.
 ```rascal-shell
@@ -124,10 +129,11 @@ public java bool tTest(num mu, list[num] sample, num alpha);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Analysis of Variance (ANOVA) f-value.
 
-.Description
+#### Description
 
 Perform http://en.wikipedia.org/wiki/Analysis_of_variance[Analysis of Variance test]
 also described http://www.statsoft.com/textbook/anova-manova/[here].
@@ -146,10 +152,11 @@ are as defined http://faculty.vassar.edu/lowry/ch13pt1.html[here].
 public java num anovaFValue(list[list[num]] categoryData);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Analysis of Variance (ANOVA) p-value.
 
-.Description
+#### Description
 
 Perform http://en.wikipedia.org/wiki/Analysis_of_variance[Analysis of Variance test]
 also described http://www.statsoft.com/textbook/anova-manova/[here].
@@ -161,10 +168,11 @@ where `F` is the ((anovaFValue)).
 public java num anovaPValue(list[list[num]] categoryData);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Analysis of Variance (ANOVA) test.
 
-.Description
+#### Description
 
 Perform http://en.wikipedia.org/wiki/Analysis_of_variance[Analysis of Variance test]
 also described http://www.statsoft.com/textbook/anova-manova/[here].
@@ -179,10 +187,11 @@ public java bool anovaTest(list[list[num]] categoryData, num alpha);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Gini coefficient.
 
-.Description
+#### Description
 
 Computes the http://en.wikipedia.org/wiki/Gini_coefficient[Gini coefficient]
 that measures the inequality among values in a frequency distribution.
@@ -191,7 +200,8 @@ The Gini coefficient is computed using Deaton's formula and returns a
 value between 0 (completely equal distribution) and
 1 (completely unequal distribution).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import analysis::statistics::Inference;
 ```

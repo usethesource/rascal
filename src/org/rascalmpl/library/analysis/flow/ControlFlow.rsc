@@ -1,8 +1,9 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 Intermediate notation for control flow graphs
 
-.Description
+#### Description
 
 Control flow graphs are a unifying concept for units of executable
 code in programming languages. This module defines a common
@@ -14,10 +15,11 @@ then downstream analyses and visualizations are accurate.
 module analysis::flow::ControlFlow
 
 @doc{
-.Synopsis
+#### Synopsis
+
 control points in source code
 
-.Description
+#### Description
 
 Control points in executable units of code are either straightline
 code (block), or forks. Each executable unit has an entry and an exit
@@ -33,10 +35,11 @@ data ControlNode
   ;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 identify control edges
 
-.Description
+#### Description
 
 A control edge goes from ControlEdge to ControlEdge and is identified
 by the condition which activates it. For normal structured control

@@ -6,10 +6,11 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @doc{
-.Synopsis
+#### Synopsis
+
 Frequency distributions.
 
-.Description
+#### Description
 
 Counting the frequency of events is usually the first step in statistical analysis of raw data.
 It involves choosing what are the events to count, how to group them in certain
@@ -24,10 +25,12 @@ module analysis::statistics::Frequency
 import util::Math;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Compute a distribution: count how many times events are mapped to which bucket.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import analysis::statistics::Frequency;
 distribution({<"chicken","animal">,<"bear","animal">,<"oak","plant">,<"tulip","plant">});
@@ -69,15 +72,16 @@ public map[&T <: num, int] distribution(map[&U event, &T <: num bucket] input, &
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Cumulative frequency of values less than or equal to a given value.
 
-.Description
+#### Description
 
 Returns the cumulative frequency of values less than or equal to a given numeric or string value.
 Returns 0 if the value is not comparable to the values set.
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import analysis::statistics::Frequency;
@@ -94,10 +98,12 @@ public java int cumFreq(list[value] values, num n);
 public java int cumFreq(list[value] values, str s);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Cumulative percentage of values less than or equal to a given value.
 
-.Description
+#### Description
+
 Returns the cumulative percentage of values less than or equal to v (as a proportion between 0 and 1).
 
 ```rascal-shell
@@ -115,12 +121,15 @@ public java num cumPct(list[value] values, num n);
 public java num cumPct(list[value] values, str s);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Percentage of values that are equal to a given value.
 
-.Description
+#### Description
+
 Returns the percentage of values that are equal to v (as a proportion between 0 and 1).
-.Examples
+#### Examples
+
 ```rascal-shell
 import analysis::statistics::Frequency;
 D = [1, 2, 1, 1, 3, 5];

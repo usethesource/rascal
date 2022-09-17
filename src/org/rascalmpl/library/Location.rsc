@@ -8,10 +8,11 @@
 @contributor{Paul Klint - Paul.Klint@swat.engineering - SWAT.engineering}
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Library functions for source locations.
 
-.Description
+#### Description
 
 For a description of source locations see [Location]((Rascal:Values-Location)) in the Rascal Language Reference.
 
@@ -30,10 +31,12 @@ import String;
 import Exception;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Extracts a path relative to a parent location. 
 
-.Description
+#### Description
+
 So from `x:///a/b`` and `x:///a/b/c`` this makes `relative:///c`.
 If the outside does not envelop the inside, then the original loc is returned.
 }
@@ -41,7 +44,8 @@ If the outside does not envelop the inside, then the original loc is returned.
 java loc relativize(loc outside, loc inside);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Check that two locations refer to the same file.
 }    
 bool isSameFile(loc l, loc r)
@@ -51,14 +55,17 @@ bool isSameFile(loc l, loc r)
     ;
     
 @doc{
-.Synopsis
+#### Synopsis
+
 Compare two location values lexicographically.
 
-.Description
+#### Description
+
 When the two locations refer to different files, their paths are compared as string.
 When they refer to the same file, their offsets are compared when present.
 
-.Pittfalls
+#### Pittfalls
+
 This ordering regards the location value itself as opposed to the text it refers to.
 }
 bool isLexicallyLess(loc l, loc r)
@@ -67,17 +74,20 @@ bool isLexicallyLess(loc l, loc r)
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get the textual content a location refers to.
 }
 str getContent(loc l)
     = readFile(l);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Is a location textually (strictly) contained in another location?
 
-.Description
+#### Description
+
 Strict containment between two locations `inner` and `outer` holds when
 
 
@@ -100,10 +110,12 @@ bool isStrictlyContainedIn(loc inner, loc outer){
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Is a location textually contained in another location?
 
-.Description
+#### Description
+
 Containment between two locations `inner` and `outer` holds when
 
 
@@ -123,34 +135,40 @@ bool isContainedIn(loc inner, loc outer){
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Begins a location's text before (but may overlap with) another location's text?
 }
 bool beginsBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset < r.offset;
     
 @doc{
-.Synopsis
+#### Synopsis
+
 Begins and ends a location's text before another location's text?
 
-.Description
+#### Description
+
 `isBefore(l, r)` holds when `l` 's text occurs textually before `r` 's text.
 }
 bool isBefore(loc l, loc r)
     = isSameFile(l, r)  && l.offset + l.length <= r.offset;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Occurs a location's text _immediately_ before another location's text?
 
-.Description
+#### Description
+
 `isImmediatelyBefore(l, r)` holds when `l` 's text occurs textually before, and is adjacent to, `r` 's text.
 }
 bool isImmediatelyBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset + l.length == r.offset;
  
  @doc{
-.Synopsis
+#### Synopsis
+
 Begins a location's text after (but may overlap with) another location's text?
 
 Description
@@ -161,21 +179,24 @@ bool beginsAfter(loc l, loc r)
     = isSameFile(l, r) && l.offset > r.offset;
        
 @doc{
-.Synopsis
+#### Synopsis
+
 Is a location's text completely after another location's text?
 }
 bool isAfter(loc l, loc r)
     = isBefore(r, l);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Is a location's text _immediately_ after another location's text?
 }
 bool isImmediatelyAfter(loc l, loc r)
     = isImmediatelyBefore(r, l);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Refer two locations to text that overlaps?
 }
 bool isOverlapping(loc l, loc r)
@@ -184,10 +205,12 @@ bool isOverlapping(loc l, loc r)
                           );
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Compute a location that textually covers the text of a list of locations.
 
-.Description
+#### Description
+
 Create a new location that refers to the smallest text area that overlaps with the text of the given locations.
 The given locations should all refer to the same file but they may be overlapping or be contained in each other.
 }

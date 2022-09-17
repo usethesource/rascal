@@ -10,10 +10,11 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Vadim Zaytsev - vadim@grammarware.net - UvA}
 @doc{
-.Synopsis
+#### Synopsis
+
 Library functions for lists.
 
-.Description
+#### Description
 
 For operators on lists see [List]((Rascal:Values-List)) in the Rascal Language Reference.
 
@@ -27,10 +28,12 @@ import Map;
 import IO;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Concatenate a list of lists.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 concat([]);
@@ -44,14 +47,17 @@ public list[&T] concat(list[list[&T]] xxs)
   = [*xs | list[&T] xs <- xxs];
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Delete an element from a list.
 
-.Description
+#### Description
+
 Delete the `n`-th element from a list. A new list without the `n`-th element is returned as result.
 The `IndexOutOfBounds` exception is thrown when n is not a valid index.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 delete([1, 2, 3], 1);
@@ -61,11 +67,13 @@ delete(["zebra", "elephant", "snake", "owl"], 2);
 public java list[&T] delete(list[&T] lst, int n);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get the distribution of the elements of the list. That
 is how often does each element occur in the list? 
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 distribution([4,4,4,3,1,2,1,1,3,4]);
@@ -81,14 +89,17 @@ public map[&T element, int occurs] distribution(list[&T] lst) {
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Drop elements from the head of a list.
 
-.Description
+#### Description
+
 Drop `n` elements (or `size(lst)` elements if `size(lst) < n`) from the head of `lst`.
 See ((List-take)) to get elements from the head of a list].
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 drop(2, [5, 1, 7, 3]);
@@ -114,13 +125,16 @@ public list[&T] dup(list[&T] lst)
 public java &T elementAt(list[&T] lst, int index); 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Pick a random element from a list.
 
-.Description
+#### Description
+
 Get an arbitrary element from a list. See ((List-takeOneFrom)) for a function that also removes the selected element.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 getOneFrom(["zebra", "elephant", "snake", "owl"]);
@@ -131,27 +145,31 @@ getOneFrom(["zebra", "elephant", "snake", "owl"]);
 public java &T getOneFrom(list[&T] lst);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Pick first element from a list.
 
-.Description
+#### Description
+
 Get the first element from a list. As opposed to ((List-getOneFrom)) this function always returns the same (first) list element.
 }
 public &T getFirstFrom([&T f, *&T _]) = f;
 public &T getFirstFrom(list[&T] _ :[]) { throw EmptyList(); }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get the first element(s) from a list.
 
-.Description
+#### Description
 
 * Returns the first element of a list or throws `EmptyList` when the list is empty. 
   This is identical to ((List-top)).
 * Returns the first `n` elements of a list or throws `IndexOutOfBounds` when the list is too short. 
   This is similar to ((take)).
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 import List;
 ```
@@ -182,13 +200,16 @@ public java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Split a list in a head and a tail.
 
-.Description
+#### Description
+
 This function is identical to ((List-pop)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 headTail([3, 1, 4, 5]);
@@ -200,34 +221,41 @@ public tuple[&T, list[&T]] headTail([&T h, *&T t]) = <h, t>;
 public tuple[&T, list[&T]] headTail(list[&T] _:[]) { throw EmptyList(); }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 A list of legal index values of a list.
 
-.Description
+#### Description
+
 Returns a list of all legal index values for a given list `lst`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 index([1, 3, 5]);
 index(["zebra", "elephant", "snake", "owl"]);
 ```
 
-.Benefits
+#### Benefits
+
 This function is useful in [for]((Rascal:Statements-For)) loops over lists.
 }
 public list[int] index(list[&T] lst) = upTill(size(lst));
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Index of first occurrence of an element in a list.
 
-.Description
+#### Description
+
 Return index of first occurrence of `elt` in `lst`, or `-1` if `elt` is not found.
 Also see ((List-lastIndexOf)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 indexOf([3, 1, 4, 5], 4);
@@ -243,13 +271,16 @@ public int indexOf(list[&T] lst, &T elt) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Insert an element at a specific position in a list.
 
-.Description
+#### Description
+
 Returns a new list with the value of `elm` inserted at index position `n` of the old list.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 import List;
 insertAt([1,2,3], 1, 5);
@@ -263,10 +294,12 @@ insertAt([1,2,3], 10, 5);
 public java list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Join a list of values into a string separated by a separator.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 intercalate("/", [3]);
@@ -278,10 +311,12 @@ public str intercalate(str sep, list[value] l) =
 	(isEmpty(l)) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Intersperses a list of values with a separator.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 intersperse(", ", ["a","b","c"]);
@@ -293,13 +328,16 @@ public list[&T] intersperse(&T sep, list[&T] xs) =
   (isEmpty(xs))? [] : ([head(xs)] | it + [sep,x] | x <- tail(xs));
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Test whether a list is empty.
 
-.Description
+#### Description
+
 Returns `true` when a list is empty and `false` otherwise.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 isEmpty([]);
@@ -309,13 +347,16 @@ isEmpty([1, 2, 3]);
 public java bool isEmpty(list[&T] lst);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Return the last element of a list, if any.
 
-.Description
+#### Description
+
 Also see ((List-tail)) that returns a list of one or more of the last elements of a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 last([1]);
@@ -327,13 +368,16 @@ public &T last([*&T _, &T l]) = l;
 public &T last(list[&T] _:[]) { throw EmptyList(); }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Return index of last occurrence of elt in lst, or -1 if elt is not found.
 
-.Description
+#### Description
+
 Also see ((List-indexOf)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 lastIndexOf([3, 1, 4, 5, 4], 4);
@@ -348,13 +392,16 @@ public int lastIndexOf(list[&T] lst, &T elt) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Apply a function to all list elements and return list of results.
 
-.Description
+#### Description
+
 Apply a function `fn` to each element of `lst` and return the list of results.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 int incr(int x) { return x + 1; }
@@ -363,10 +410,12 @@ mapper([1, 2, 3, 4], incr);
 public list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the largest element in a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 max([1, 3, 5, 2, 4]);
@@ -376,15 +425,17 @@ public &T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t);
 public &T max(list[&T] _:[]) { throw EmptyList(); }
 	
 @doc{
-.Synopsis
+#### Synopsis
+
 Merge the elements of two sorted lists into one list.
 
-.Description
+#### Description
+
 Merge the elements of two sorted lists into one list using the built-in ordering between values.
 Optional, a comparison function `lessOrEqual` may be given for a user-defined ordering between values.
 
 
-.Examples
+#### Examples
 
 ```rascal-shell
 import List;
@@ -423,10 +474,12 @@ public list[&T] merge(list[&T] left, list[&T] right, bool (&T a, &T b) lessOrEqu
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the smallest element in a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 min([1, 3, 5, 2, 4]);
@@ -436,15 +489,18 @@ public &T min([&T h, *&T t]) = (h | e < it ? e : it | e <- t);
 public &T min(list[&T] _: []) { throw EmptyList(); }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Mix the elements of two lists.
 
-.Description
+#### Description
+
 Let n be the minimum of the length of the two lists `l` and `r`.
 `mix` returns a list in which the first `n` elements are taken alternately from the left and the right list,
 followed by the remaining elements of the longest list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 mix([3, 1, 7, 5, 9], [15, 25, 35]);
@@ -458,10 +514,12 @@ public list[&T] mix(list[&T] l, list[&T] r){
 	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
 }
 @doc{
-.Synopsis
+#### Synopsis
+
 Compute all permutations of a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 permutations([1,2,3]);
@@ -474,13 +532,16 @@ private set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
 	{ [e] + rest | e <- b, rest <- permutationsBag(removeFromBag(b,e))};
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Pop top element from list, return a tuple.
-.Description
+#### Description
+
 This function is identical to ((headTail)).
 Also see ((List-push)) and ((List-top)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 pop([3, 1, 4, 5]);
@@ -490,10 +551,12 @@ pop(["zebra", "elephant", "snake", "owl"]);
 public tuple[&T, list[&T]] pop(list[&T] lst) = headTail(lst);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Return all but the last element of a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 prefix([3, 1, 4, 5]);
@@ -504,13 +567,16 @@ prefix(["zebra", "elephant", "snake", "owl"]);
 public java list[&T] prefix(list[&T] lst) ;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Push an element in front of a list.
 
-.Description
+#### Description
+
 Also see ((List-pop)) and ((List-top)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 push(7, [3, 1, 4, 5]);
@@ -519,22 +585,26 @@ push("eagle", ["zebra", "elephant", "snake", "owl"]);
 public list[&T] push(&T elem, list[&T] lst) = [elem] + lst;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Apply a function to successive elements of list and combine the results (__deprecated__).
 
-.Description
+#### Description
+
 Apply the function `fn` to successive elements of list `lst` starting with `unit`.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 int add(int x, int y) { return x + y; }
 reducer([10, 20, 30, 40], add, 0); 
 ```
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+#### Pitfalls
+
 WARNING:
 This function is *deprecated*, use a [reducer]((Rascal:Expressions-Reducer)) instead.
 }
@@ -557,13 +627,16 @@ private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b,
 	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Reverse a list.
 
-.Description
+#### Description
+
 Returns a list with the elements of `lst` in reverse order.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 reverse([1,4,2,3]);
@@ -573,10 +646,12 @@ reverse(["zebra", "elephant", "snake", "owl"]);
 public java list[&T] reverse(list[&T] lst);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the number of elements in a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 size([20, 10, 30]);
@@ -586,16 +661,19 @@ size(["zebra", "elephant", "snake", "owl"]);
 public java int size(list[&T] lst);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Compute a sublist of a list.
 
-.Description
+#### Description
+
 Returns a sublist of `lst` from index `start` of length `len`.
 
 NOTE: In most cases it is better to use the built-in [slice]((Rascal:List-Slice)) notation,
 see the example below.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 slice([10, 20, 30, 40, 50, 60], 2, 3);
@@ -612,16 +690,19 @@ WARNING: In the slice notation the upper bound is exclusive.
 public java list[&T] slice(list[&T] lst, int begin, int len);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sort the elements of a list.
 
-.Description
+#### Description
+
 Sort the elements of a list:
 
 *  Use the built-in ordering on values to compare list elements.
 *  Give an additional `lessThan` function that will be used to compare elements.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 import String;
@@ -637,10 +718,11 @@ public list[&T] sort(list[&T] lst) =
 public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
 @doc{
-.Synopsis 
+#### Synopsis
+
 Check whether a list is sorted or not.
 
-.Description
+#### Description
 
 Checks whether or not a list is sorted by searching for any out-of-order elements.
 The empty list is defined to be "sorted" and what sorted means is defined the
@@ -651,13 +733,16 @@ public bool isSorted(list[&T] l, bool (&T a, &T b) less = bool (&T a, &T b) { re
  = !any([*_, &T a, &T b, *_] := l, less(b, a));
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Shuffle a list.
 
-.Description
+#### Description
+
 Returns a random (unbiased) shuffled list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 shuffle([1,4,2,3]);
@@ -668,13 +753,16 @@ shuffle(["zebra", "elephant", "snake", "owl"]);
 public java list[&T] shuffle(list[&T] l);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Shuffle a list with a seed.
 
-.Description
+#### Description
+
 Returns a random (unbiased) shuffled list, every call with the same seed shuffles in the same order.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 shuffle([1,2,3,4]);
@@ -687,10 +775,12 @@ shuffle([1,2,3,4], 1);
 public java list[&T] shuffle(list[&T] l, int seed);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Split a list into two halves.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 split([3, 1, 4, 5, 7]);
@@ -702,10 +792,12 @@ public tuple[list[&T],list[&T]] split(list[&T] l) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum the elements of a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 sum([3, 1, 4, 5]);
@@ -715,15 +807,17 @@ public (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- t
 public (&T <:num) sum(list[&T] _: []) { throw EmptyList(); }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get the tail element(s) from a list.
 
-.Description
+#### Description
 
 *  Return a list consisting of all but the first element of `lst`.
 *  Return a list consisting of the last `n` elements of `lst`.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 ```
 All but first element:
@@ -750,14 +844,17 @@ public list[&T] tail(list[&T] _:[]) { throw EmptyList(); }
 public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBounds;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get number of elements from the head of a list.
 
-.Description
+#### Description
+
 Get `n` elements (or `size(lst)` elements if `size(lst) < n`) from the head of the list.
 See ((List-drop)) to remove elements from the head of a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 take(2, [3, 1, 4, 5]);
@@ -768,10 +865,12 @@ take(2, ["zebra", "elephant", "snake", "owl"]);
 public java list[&T] take(int n, list[&T] lst);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Remove an arbitrary element from a list, returns the element and the modified list.
 
-.Description
+#### Description
+
 Select an arbitrary element from `lst`, and return a tuple consisting of:
 
 *  the selected element, and 
@@ -780,7 +879,8 @@ Select an arbitrary element from `lst`, and return a tuple consisting of:
 
 See ((List-getOneFrom)) to only selected an element from a list.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 takeOneFrom([10,20,30,40,50]);
@@ -794,10 +894,12 @@ takeOneFrom(["zebra", "elephant", "snake", "owl"]);
 public java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Take elements from the front of the list as long as a predicate is true.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 bool isEven(int a) = a mod 2 == 0;
@@ -812,20 +914,24 @@ public list[&T] takeWhile(list[&T] lst, bool (&T a) take) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a list of pairs to a map; first elements are associated with a set of second elements.
 
-.Description
+#### Description
+
 Convert a list of tuples to a map in which the first element of each tuple is 
 associated with the set of second elements from all tuples with the same first element. Keys should be unique.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 toMap([<1,10>, <1, 11>, <2, 20>, <3, 30>, <3, 31>]);
 ```
 
-.Pitfalls
+#### Pitfalls
+
 `toMap` collects all values in tuples with the same first value in a set.
 Contrast this with `toMapUnique` that associates each first tuple value with the second tuple value,
 but imposes the constraint that those keys are unique.}
@@ -833,13 +939,16 @@ but imposes the constraint that those keys are unique.}
 public java map[&A,list[&B]] toMap(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a list of tuples to a map; result must be a map.
 
-.Description
+#### Description
+
 Convert a list of tuples to a map; result must be a map.
 
-.Examples
+#### Examples
+
 ```rascal-shell,error
 import List;
 toMapUnique([<1,10>, <2, 20>, <3, 30>]);
@@ -849,20 +958,24 @@ Let's explore an error case:
 toMapUnique([<1,10>, <1, 11>, <2, 20>, <3, 30>]);
 ```
 
-.Pitfalls
+#### Pitfalls
+
 The keys in a map are unique by definition.
 `toMapUnique` throws a `MultipleKey` exception when the list contains more than one tuple with the same first value.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Take the top element of a list.
-.Description
+#### Description
+
 This function is identical to ((List-head)).
 Also see ((List-pop)) and ((List-push)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 top([3, 1, 4, 5]);
@@ -871,13 +984,16 @@ top(["zebra", "elephant", "snake", "owl"]);
 public &T top([&T t, *&T _]) = t;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a list to a relation.
-.Description
+#### Description
+
   Convert a list to relation, where each tuple encodes which elements are followed by each other.
   This function will return an empty relation for empty lists and for singleton lists.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 toRel([3, 1, 4, 5]);
@@ -888,13 +1004,16 @@ public rel[&T,&T] toRel(list[&T] lst) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a list to a set.
 
-.Description
+#### Description
+
 Convert `lst` to a set.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 toSet([10, 20, 30, 40]);
@@ -910,13 +1029,16 @@ s = {*l};
 public java set[&T] toSet(list[&T] lst);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a list to a string.
 
-.Description
+#### Description
+
 Convert `lst` to a string.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 toString([10, 20, 30]);
@@ -927,13 +1049,16 @@ public java str toString(list[&T] lst);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a list to an indented string.
 
-.Description
+#### Description
+
 Convert `lst` to a indented string.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 itoString([10, 20, 30]);
@@ -945,14 +1070,16 @@ public java str itoString(list[&T] lst);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Make a pair (triple) of lists from a list of pairs (triples).
 
-.Description
+#### Description
 
 Also see ((List-unzip3));
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 unzip2([<3,"thirty">, <1,"ten">, <4,"forty">]);
@@ -966,12 +1093,15 @@ public tuple[list[&T],list[&U],list[&V]] unzip3(list[tuple[&T,&U,&V]] lst) =
 	<[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Returns the list 0,1..n-1.
-.Description
+#### Description
+
 Returns the list `0`, `1`, .., `n-1`, this is slightly faster than `[0..n]`, since the returned values are shared.
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 upTill(10);
@@ -980,14 +1110,16 @@ upTill(10);
 public java list[int] upTill(int n);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Make a list of pairs from two (three) lists of the same length.
 
-.Description
+#### Description
 
 Also see ((List-unzip3)).
 
-.Examples
+#### Examples
+
 ```rascal-shell
 import List;
 zip2([3, 1, 4], ["thirty", "ten", "forty"]);
