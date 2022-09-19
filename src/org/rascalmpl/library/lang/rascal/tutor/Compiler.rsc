@@ -120,6 +120,7 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind)
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {  
+          println("copying <src> to < pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path>");
           copy(src, pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path);
           
           return [];
@@ -138,7 +139,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
 
     return [
       *(((i <- indexFiles) && exists(i)) ? compile(i, pcfg, exec, ind) : generateIndexFile(d, pcfg)), 
-      *[*compile(s, pcfg, exec, ind) | s <- d.ls, !(s in indexFiles), isDirectory(s) || s.extension in {"md","rsc"}]
+      *[*compile(s, pcfg, exec, ind) | s <- d.ls, !(s in indexFiles), isDirectory(s) || s.extension in {"md","rsc","png","jpg","svg","jpeg", "html", "js"}]
     ];
 }
 
