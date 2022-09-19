@@ -66,7 +66,7 @@ size([m.src | /Expression m := methodASTs]) == (0 | it + 1 | /Expression _ := me
 
 #### Benefits
 
-* Click on any of the printed source ((Location))s in the terminal and the IDE brings you to the file.
+* Click on any of the printed source ((Rascal:Location))s in the terminal and the IDE brings you to the file.
 * The method AST contains all structural/syntactic information about a method and its signature. They are defined in the ((lang::java::m3::AST)) module.
 * every node in the AST has been annotated with a `src` field to explain where exactly in the file it came from
 * when name and type resolution is `true` for ((createAstFromFile)), the `decl` fields on given nodes point to the resolved qualified names of a reference. These qualified names coincide with the overview [M3]((lang::java::m3::Core)) model contents. 

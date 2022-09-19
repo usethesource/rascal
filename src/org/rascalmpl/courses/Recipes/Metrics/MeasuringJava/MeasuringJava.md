@@ -67,12 +67,12 @@ You can use this code to extract a classpath if the project is a Maven project:
 
 ```rascal-shell,continue
 import util::Reflective;
-cp = getProjectPathConfig(|tmp:///snakes-and-ladders|).classloaders
+cp = getProjectPathConfig(|tmp:///snakes-and-ladders|).classloaders;
 ```
 
 and then pass it into the M3 extractor (this project does not have dependencies)
 ```rascal-shell,continue
-myModel = createM3FromDirectory(|tmp:///snakes-and-ladders/src|, classPath=cp);
+myModel = createM3FromDirectory(|tmp:///snakes-and-ladders/src, classPath=cp|);
 ```
 
 #### Benefits
