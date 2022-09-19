@@ -37,7 +37,7 @@ The mechanism of concete patterns gives a good notation for matching complex str
    * the pattern example code is parsed using the *same* parser; this generates parse trees with ((Variable Patterns))s.
    * the parse tree with the ((Variable Patterns))s is matches against the parse tree of the input code, similarly to the way ((Node Patterns)) work.     
  
-So, you could say that ((Concrete Patterns)) are a short notation for otherwise highly complex ((Node Patterns)) on ((Library:module:ParseTree)).  Note that the ((TypedVariable))s in a concrete pattern can
+So, you could say that ((Concrete Patterns)) are a short notation for otherwise highly complex ((Node Patterns)) on ((Library:module:ParseTree)).  Note that the ((Patterns-VariableDeclaration))s in a concrete pattern can
 only occur in the pattern at the location where the code for a full non-terminal of the ((Syntax Definition)) would be. The structure of a concrete pattern follows the structure of the 
 grammar in the ((SyntaxDefinition)) and the types of the ((Patterns-Variable))s are the syntax non-terminals of the ((Syntax Definition)).  
 
