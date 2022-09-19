@@ -23,11 +23,11 @@ demo::lang::Pico::Plugin
 ```
 
                 
-*  First the name of the language and its file name extension are defined (image:{images}/1.png).
-*  Next the connection with the parser (image:{images}/2.png), checkers (image:{images}/3.png), evaluator (image:{images}/4.png),
-  compiler (image:{images}/5.png), and visualizer (image:{images}/6.png) are defined.
-*  (image:{images}/7.png) combines the above into a set of contributions to the Pico IDE.
-*  The actual creation of the Pico IDE is done by `registerPico` (image:{images}/8.png) that:
+*  First the name of the language and its file name extension are defined (1)
+*  Next the connection with the parser (2), checkers (3), evaluator (4),
+  compiler (5), and visualizer (6) are defined.
+*  (7) combines the above into a set of contributions to the Pico IDE.
+*  The actual creation of the Pico IDE is done by `registerPico` (8) that:
    **  Registers the Pico language with name, file name extension and Parser. Whenever a user clicks on
        a `.pico` file an editor will opened and the parsed file will be displayed in it.
    **  Registers _annotators_ for Pico programs. Annotators run whenever a change is made to a Pico program in an open editor.

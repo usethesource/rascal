@@ -33,7 +33,7 @@ Let's first label the syntax rules of the Exp grammar with constructor names:
 demo::lang::Exp::Combined::Automatic::Syntax
 ```
             
-Observe that at image:{images}/1.png[], image:{images}/2.png[] and image:{images}/3.png[] these labels have been added.
+Observe that at 1, 2, 3 these labels have been added.
 
 It is good practice to introduce separate modules for parsing and for the conversion itself:
 

@@ -60,7 +60,7 @@ println("\"" + escape(greeting, ("\"": "\\\"")) + "\"");
 ```
 And indeed, the two quotes are now properly escaped.
 
-This is exactly what happens at image:{images}/4.png[] in the definition of `quine`:
+This is exactly what happens at line 4 in the definition of `quine`:
 ```rascal
 println("\"" + escape(program, ("\"" : "\\\"", "\\" : "\\\\")) + "\";");
 ```

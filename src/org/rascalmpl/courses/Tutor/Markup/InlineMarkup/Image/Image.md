@@ -8,10 +8,7 @@ Include an image.
 
 #### Syntax
 
-```
-image::_File_[]
-image::_File_[_AlternateName_, _Width_, _Height_, link=_URI_]
-```
+(((TODO-image syntax has changed)))
 
 #### Types
 
