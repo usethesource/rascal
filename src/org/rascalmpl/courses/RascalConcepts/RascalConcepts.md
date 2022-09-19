@@ -1,11 +1,11 @@
 ---
 title: Rascal Concepts
 details:
-  - StaticTyping
+  - RascalConcepts:RascalConcepts-StaticTyping
   - Datatypes
   - ImmutableValues
   - Enumerating
-  - Comprehensions
+  - RascalConcepts-Comprehensions
   - PatternMatching
   - ControlStructures
   - CaseDistinction
