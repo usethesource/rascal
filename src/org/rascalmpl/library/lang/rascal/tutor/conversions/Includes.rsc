@@ -46,12 +46,12 @@ void fixModuleIncludes() {
 void fixModuleIncludes(loc f) {
     lines = readFileLines(f);
 
-    writeFile(f, intercalate("\n", fixIncludes(readFileLines(f))));
+    writeFile(f, intercalate("\n", fixIncludes(readFileLines(f) + [""])));
 }
 
 //  l:/include::\{LibDir\}<path:[^\]]+>\[tags=module\]/ <- readFileLines(f)) {
 
-list[str] fixIncludes(["```rascal",  l:/include::\{LibDir\}<path:[^\]]+>\[tags=module\]/, "```", *str tail])
+list[str] fixIncludes(["```rascal",  l:/include::\{LibDir\}<path:[^\]]+>\.rsc\[tags=module\]/, "```", *str tail])
     = ["```rascal-include",
         replaceAll(path, "/", "::"),
         "```",
