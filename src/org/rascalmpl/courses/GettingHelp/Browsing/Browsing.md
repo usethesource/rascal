@@ -20,6 +20,8 @@ results (actual results may differ):
 
 ![]((search-results-while.png))
 
+(((TODO-this is not up-to-date)))
+
 In the right pane you find the search results,
 most relevant first (this happpens to be the
 description of the `while` statement).
@@ -27,7 +29,7 @@ Each result consists of a clickable link and
 a synopsis of the information to be found there.
 
 In the top left corner, you find a search box
-for new searches and the RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] that
+for new searches and the RascalTutor logo 
 will bring you back to the Tutor home page.
 
 All Rascal documentation is organized

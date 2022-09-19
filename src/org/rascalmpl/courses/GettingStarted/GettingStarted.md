@@ -2,7 +2,6 @@
 title: Getting Started with Rascal
 keywords:
   - help
-
 ---
 
 #### Synopsis
@@ -35,8 +34,8 @@ In the Eclipse version, Rascal modules can be edited and a command console is al
 
 NOTE: Add a screenshot
 
+(((TODO-this is not up-to-date)))
+
 Where to go from here: 
 have a look at [Getting Help]((GettingHelp)) and in particular 
 [further reading]((GettingHelp:FurtherReading))
-or just click  the RascalTutor logo image:/images/rascal-tutor-small.png[width="40",heigth="40"] 
-at the top left of each Tutor page.
