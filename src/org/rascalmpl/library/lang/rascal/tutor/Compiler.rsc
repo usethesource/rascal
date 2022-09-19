@@ -1,3 +1,4 @@
+@bootstrapParser
 @synopsis{compiles .rsc and .md files to markdown by executing Rascal-specific code and inlining its output}
 @description{
   This compiler collects .rsc files and .md files from a PathConfig's srcs folders.
@@ -30,6 +31,7 @@ import Location;
 import ParseTree;
 import util::Reflective;
 import util::FileSystem;
+import ValueIO;
 
 import lang::xml::IO;
 import lang::yaml::Model;
@@ -39,6 +41,8 @@ import lang::rascal::tutor::apidoc::ExtractInfo;
 import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Names;
 import lang::rascal::tutor::Output;
+import lang::rascal::tutor::Includer;
+import lang::rascal::\syntax::Rascal;
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 data Message(str cause="");
@@ -203,23 +207,35 @@ list[Output] compileMarkdown([str first:/^\s*``````/, *block, str second:/^`````
       *compileMarkdown(rest, line, offset, pcfg, exec, ind, dtls)
   ];
 
+@synopsis{include Rascal code from Rascal source files}
+list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str components, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+  return[ 
+      Output::empty(), // must have an empty line
+      out("```rascal"),
+      *[*prepareModuleForInclusion(item, /includeHeaders/ := rest1, /includeTests/ := rest1, pcfg) | item <- components],
+      Output::empty(),
+      out("```"),
+      *compileMarkdown(rest2, line + 1 + size(components) + 1, offset + length(first) + length(components), pcfg, exec, ind, dtls)
+    ];
+}
+
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [ Output::empty(), // must have an empty line
       out("```rascal-shell"),
       *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls)
     ];
 
 @synopsis{execute _rascal-shell-prepare_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-prepare<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [
       *compileRascalShellPrepare(block, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + (0 | it + size(b) | b <- block), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls)
     ];
 
-@synopsis{inline an itemized list of details (collected from the .Details section)}
+@synopsis{inline an itemized list of details (collected from the details YAML section in the header)}
 list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [
      *[*compileMarkdown(["* ((<d>))"], line, offset, pcfg, exec, ind, []) | d <- dtls],
@@ -231,22 +247,21 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
       | dtls == [] 
     ];
 
-// @synopsis{inline files literally, in Rascal loc notation, but do not compile further from there. Works only if positioned on a line by itself.}
-// list[Output] compileMarkdown([str first:/^\s*\(\(include\:\s+\|<url:[^\|]+>|<post:\(?[^\)]*?\)?>\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
-//   try {
-//     return [
-//       *[out(l) | str l <- split("\n", readFile(readTextValueString(#loc, "|<url>|<post>")))],
-//       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
-//     ];
-//   }
-//   catch value x: {
-//     return [
-//       err(error("Could not read <url> for inclusion: <x>", pcfg.currentFile(offset, 1, <line, 1>, <line, 2>))),
-//       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
-//     ];
-//   }
-
-// }
+@synopsis{inline example files literally, in Rascal loc notation, but do not compile further from there. Works only if positioned on a line by itself.}
+list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+  try {
+    return [
+      *[out(l) | str l <- split("\n", readFile(readTextValueString(#loc, "|<url>|")))],
+      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+    ];
+  }
+  catch value x: {
+    return [
+      err(error("Could not read <url> for inclusion: <x>", pcfg.currentFile(offset, 1, <line, 1>, <line, 2>))),
+      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+    ];
+  }
+}
 
 @synopsis{implement subscript syntax for letters and numbers and dashes and underscores}
 list[Output] compileMarkdown([/^<prefix:.*>~<words:[A-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
@@ -325,7 +340,7 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
       out("---"),
       *[out(l) | l <- header],
       out("---"),
-      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + length(header), pcfg, exec, ind, dtls)
     ];
   } 
   catch value e: {
@@ -342,14 +357,14 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
       out("---"),
       *[out(l) | l <- header],
       out("---"),
-      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + (0 | it + size(x) | x <- header), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + length(header), pcfg, exec, ind, dtls)
     ];
   }
 }
 
 @synopsis{Removes empty sections in the middle of a document}
 list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, nextSection:/^\s*#\s+.*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown([nextSection, *rest], line + 1 + size(emptySection), offset + size(first) + (0 | it + size(l) | l <- emptySection), pcfg, exec, ind, dtls)
+  = compileMarkdown([nextSection, *rest], line + 1 + size(emptySection), offset + size(first) + length(emptySection), pcfg, exec, ind, dtls)
     when !(/\S/ <- emptySection);
 
 @synopsis{Removes empty sections at the end of a document}
@@ -488,5 +503,5 @@ private list[str] filterErrors([/^Generating parser/, *str rest]) = filterErrors
 private default list[str] filterErrors([str head, *str tail]) = [head, *filterErrors(tail)];
 private list[str] filterErrors([]) = [];
 
-
-
+private int length(list[str] lines) = (0 | it + size(l) | str l <- lines);
+private int length(str line) = size(line);
