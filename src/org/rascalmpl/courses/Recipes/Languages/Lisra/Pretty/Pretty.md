@@ -19,8 +19,8 @@ A Lisp pretty printer.
 The purpose of a pretty printer is to convert an internal structure to text.
 We define here the simplest possible solution:
 
-```rascal
-include::{LibDir}demo/lang/Lisra/Pretty.rsc[tags=module]
+```rascal-include
+demo::lang::Lisra::Pretty
 ```
 
                 

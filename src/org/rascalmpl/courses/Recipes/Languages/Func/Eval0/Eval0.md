@@ -36,8 +36,8 @@ Interpreter Eval0 supports the following features of Func:
 #### Examples
 
 Here is the code for Eval0:
-```rascal
-include::{LibDir}demo/lang/Func/Eval0.rsc[tags=module]
+```rascal-include
+demo::lang::Func::Eval0
 ```
 
 Some points to note:

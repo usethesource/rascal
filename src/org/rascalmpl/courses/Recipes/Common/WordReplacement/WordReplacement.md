@@ -19,8 +19,8 @@ and section titles are properly capitalized. Here is how to do this.
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/common/WordReplacement.rsc[tags=module]
+```rascal-include
+demo::common::WordReplacement
 ```
 
                 

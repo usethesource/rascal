@@ -24,8 +24,8 @@ and an if-then-else statement creates a decision point (its test) that connects 
 The exits of each branch are connected to the exit of the if-then-else statement as a whole.
 
 A control flow graph for Pico programs can be created as follows:
-```rascal
-include::{LibDir}demo/lang/Pico/ControlFlow.rsc[tags=module]
+```rascal-include
+demo::lang::Pico::ControlFlow
 ```
 
                 

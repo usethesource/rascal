@@ -41,8 +41,8 @@ of an extra environment for <name, value> bindings.
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/lang/Func/Eval1.rsc[tags=module]
+```rascal-include
+demo::lang::Func::Eval1
 ```
 
                 

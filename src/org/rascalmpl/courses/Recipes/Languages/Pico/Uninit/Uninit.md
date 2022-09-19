@@ -23,8 +23,8 @@ This means that there is a path in the control flow graph from the entry point o
 to a specific use of a variable, where that path does not contain a definition of that variable.
 
 This can be computed as follows:
-```rascal
-include::{LibDir}demo/lang/Pico/Uninit.rsc[tags=module]
+```rascal-include
+demo::lang::Pico::Uninit
 ```
 
                 

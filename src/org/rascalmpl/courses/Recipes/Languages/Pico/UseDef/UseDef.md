@@ -21,8 +21,8 @@ Compute use-def information for the variables in a Pico program.
 The _definitions_ of a variable are the source code locations where a variable gets a value.
 The _uses_ of a variable are the location where the value of that variable is used.
 Both concepts are relevant for program analysis and are defined here.
-```rascal
-include::{LibDir}demo/lang/Pico/UseDef.rsc[tags=module]
+```rascal-include
+demo::lang::Pico::UseDef
 ```
 
                 

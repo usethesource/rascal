@@ -20,8 +20,8 @@ We describe howto write a grammar for Exp and how to use it to implement an eval
 #### Examples
 
 Here is the grammar for Exp:
-```rascal
-include::{LibDir}demo/lang/Exp/Concrete/NoLayout/Syntax.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Concrete::NoLayout::Syntax
 ```
 
 Notes:
@@ -38,8 +38,8 @@ Notes:
 
 
 Now that the grammar is in place we want to use it to build an evaluator. Here is how:
-```rascal
-include::{LibDir}demo/lang/Exp/Concrete/NoLayout/Eval.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Concrete::NoLayout::Eval
 ```
 
 Notes:

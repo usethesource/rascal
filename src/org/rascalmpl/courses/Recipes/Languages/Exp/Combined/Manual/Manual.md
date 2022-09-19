@@ -18,8 +18,8 @@ An Exp evaluator that uses a manually written conversion from parse tree to abst
 
 First we define a `parse` function for Exp:
 
-```rascal
-include::{LibDir}demo/lang/Exp/Combined/Manual/Parse.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Combined::Manual::Parse
 ```
 
 and test it:
@@ -29,8 +29,8 @@ parseExp("2+3");
 ```
 
 Next, we define a `load` function:
-```rascal
-include::{LibDir}demo/lang/Exp/Combined/Manual/Load.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Combined::Manual::Load
 ```
 
 Some comments:
@@ -52,8 +52,8 @@ loadExp("2+3");
 
 
 What remains is to write the interpreter using the above components:
-```rascal
-include::{LibDir}demo/lang/Exp/Combined/Manual/Eval.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Combined::Manual::Eval
 ```
 
                 

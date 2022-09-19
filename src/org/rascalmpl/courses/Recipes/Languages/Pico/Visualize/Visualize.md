@@ -21,8 +21,8 @@ the information provided here maybe inaccurate or even incorrect.
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/lang/Pico/Visualize.rsc[tags=module]
+```rascal-include
+demo::lang::Pico::Visualize
 ```
 
 <1> We want to include the text of expressions in the relevant Figure nodes, this is achieved by `make`.

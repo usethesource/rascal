@@ -39,8 +39,8 @@ The main additions are the address and dereference operators.
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/lang/Func/Eval3.rsc[tags=module]
+```rascal-include
+demo::lang::Func::Eval3
 ```
 
                 

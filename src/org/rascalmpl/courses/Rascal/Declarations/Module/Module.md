@@ -79,8 +79,8 @@ Each module resides in a separate file with extension `.rsc`.
 
 Here is the `Hello` module:
 
-```rascal
-include::{LibDir}demo/basic/Hello.rsc[tags=module]
+```rascal-include
+demo::basic::Hello
 ```
 
                 

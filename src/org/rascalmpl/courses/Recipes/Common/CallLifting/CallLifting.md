@@ -39,8 +39,8 @@ In other words: a call between two procedures will be lifted to
 a call between the components to which each procedure belongs.
 
 Here is a solution:
-```rascal
-include::{LibDir}demo/common/Lift.rsc[tags=module]
+```rascal-include
+demo::common::Lift
 ```
 
 And we can use it as follows:

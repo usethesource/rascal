@@ -20,8 +20,8 @@ Also see [sort]((Library:List-sort)) for a more efficient library function for s
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/basic/Bubble.rsc[tags=module]
+```rascal-include
+demo::basic::Bubble
 ```
                 
 `sort1` is a classic, imperative style, implementation of bubble sort: it iterates over consecutive pairs of elements and

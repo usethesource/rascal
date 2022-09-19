@@ -27,8 +27,8 @@ given a number of fields (with a name and a type)
 how can we generate a Java class with getters and setters for those fields?
 
 Here is a solution:
-```rascal
-include::{LibDir}demo/common/StringTemplate.rsc[tags=module]
+```rascal-include
+demo::common::StringTemplate
 ```
 
                 

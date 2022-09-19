@@ -25,8 +25,8 @@ In real applications this becomes relevant when counting, for instance, statemen
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/common/CountConstructors.rsc[tags=module]
+```rascal-include
+demo::common::CountConstructors
 ```
 
                 

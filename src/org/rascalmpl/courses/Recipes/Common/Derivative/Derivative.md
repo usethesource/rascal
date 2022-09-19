@@ -29,8 +29,8 @@ We present here rules for determining the derivative `dE/dX` of simple expressio
 
 Here is our solution followed by a list of explanations:
 
-```rascal
-include::{LibDir}demo/common/Derivative.rsc[tags=module]
+```rascal-include
+demo::common::Derivative
 ```
 
 <1> Define a data type `Exp` to represent expressions.

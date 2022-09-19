@@ -17,8 +17,8 @@ Count words in a line.
 #### Examples
 
 A slighly more involved manner of using regular matching in a loop.
-```rascal
-include::{LibDir}demo/common/WordCount/CountInLine2.rsc[tags=module]
+```rascal-include
+demo::common::WordCount::CountInLine2
 ```
 
                 

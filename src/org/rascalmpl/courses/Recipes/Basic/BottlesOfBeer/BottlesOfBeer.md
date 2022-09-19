@@ -21,8 +21,8 @@ and the lyrics can be found [here](http://99-bottles-of-beer.net/lyrics.html).
 #### Examples
 
 Here is our version:
-```rascal
-include::{LibDir}demo/basic/Bottles.rsc[tags=module]
+```rascal-include
+demo::basic::Bottles
 ```
 
                 

@@ -3,6 +3,9 @@ module lang::rascal::tutor::Names
 import String;
 import Location;
 
+data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
+data Message(str cause="");
+
 str localLink(loc root, loc concept) = (concept.file == "index.md" || concept.parent.file == concept[extension=""].file) 
   ? "/<capitalize(root.file)><relativize(root, concept.parent).path>"
   : "/<capitalize(root.file)><relativize(root, concept)[extension="md"]>"

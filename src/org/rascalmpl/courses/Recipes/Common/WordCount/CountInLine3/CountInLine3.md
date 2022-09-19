@@ -17,8 +17,8 @@ Count words in a line.
 #### Examples
 
 Here is a clever, albeit rather dense, solution that illustrates several Rascal concepts.
-```rascal
-include::{LibDir}demo/common/WordCount/CountInLine3.rsc[tags=module]
+```rascal-include
+demo::common::WordCount::CountInLine3
 ```
 
                 

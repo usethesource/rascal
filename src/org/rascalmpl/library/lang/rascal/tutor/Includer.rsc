@@ -4,9 +4,11 @@ module lang::rascal::tutor::Includer
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascal::tutor::Output;
+import lang::rascal::tutor::Names;
 import util::Reflective;
 import String;
 import Message;
+
 
 list[Output] prepareModuleForInclusion(str moduleName, bool includeHeaders, bool includeTests, PathConfig pcfg) {
     try {
