@@ -54,8 +54,8 @@ hello();
 
 The summit of hello-engineering can be reached by placing all the above in a separate module:
 
-```rascal
-include::{LibDir}demo/basic/Hello.rsc[tags=module]
+```rascal-include
+demo::basic::Hello
 ```
 
 This module should be placed in `<project dir>/src/demo/basic/Hello.rsc`.

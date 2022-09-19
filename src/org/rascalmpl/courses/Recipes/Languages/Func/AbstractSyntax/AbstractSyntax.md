@@ -17,8 +17,8 @@ The abstract syntax for Func.
 #### Examples
 
 Here is the abstract syntax for Func:
-```rascal
-include::{LibDir}demo/lang/Func/AST.rsc[tags=module]
+```rascal-include
+demo::lang::Func::AST
 ```
 
                 

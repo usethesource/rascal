@@ -16,8 +16,8 @@ The concrete syntax of Func.
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/lang/Func/Func.rsc[tags=module]
+```rascal-include
+demo::lang::Func::Func
 ```
 
                 

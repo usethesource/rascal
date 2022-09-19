@@ -16,8 +16,8 @@ Lewis Carroll's well-known poem.
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/common/WordCount/Jabberwocky.rsc[tags=module]
+```rascal-include
+demo::common::WordCount::Jabberwocky
 ```
 
                 

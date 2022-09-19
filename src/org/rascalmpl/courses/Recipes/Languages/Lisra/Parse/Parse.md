@@ -19,8 +19,8 @@ Parsing a Lisp expression.
 Given the Lisp ((Lisra-Syntax)), we can now apply it to parse textual Lisp expressions
 and convert them to the runtime representation `Lval`.
 
-```rascal
-include::{LibDir}demo/lang/Lisra/Parse.rsc[tags=module]
+```rascal-include
+demo::lang::Lisra::Parse
 ```
 
                 

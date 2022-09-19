@@ -40,8 +40,8 @@ The main additions are local side effects and the sequence operator.
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/lang/Func/Eval2.rsc[tags=module]
+```rascal-include
+demo::lang::Func::Eval2
 ```
 
                 

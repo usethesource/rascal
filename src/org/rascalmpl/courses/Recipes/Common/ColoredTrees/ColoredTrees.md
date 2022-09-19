@@ -25,8 +25,8 @@ Our trees can have red and black nodes and we want to perform the following oper
 #### Examples
 
 The definition of ColoredTrees is as follows:
-```rascal
-include::{LibDir}demo/common/ColoredTrees.rsc[tags=module]
+```rascal-include
+demo::common::ColoredTrees
 ```
        
 <1> We define the data type of `ColoredTrees` with constructors `leaf`, `red` and `black`.

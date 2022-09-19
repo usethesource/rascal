@@ -27,8 +27,8 @@ by appropriately labelling concrete rules with constructor names of the abstract
 
 Here is the code for the `load` funcion:
 
-```rascal
-include::{LibDir}demo/lang/Func/Load.rsc[tags=module]
+```rascal-include
+demo::lang::Func::Load
 ```
 
                 

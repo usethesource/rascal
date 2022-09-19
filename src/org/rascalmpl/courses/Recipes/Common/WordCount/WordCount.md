@@ -34,8 +34,8 @@ We split the problem in two parts:
 The main task of `wordCount` is to loop over all lines and to add the word counts per line.
 
 
-```rascal
-include::{LibDir}demo/common/WordCount/WordCount.rsc[tags=module]
+```rascal-include
+demo::common::WordCount::WordCount
 ```
 
                 

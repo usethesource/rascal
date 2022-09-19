@@ -19,8 +19,8 @@ Evaluate a Pico program.
 #### Examples
 
 A complete evaluator (interpreter) for Pico is defined below.
-```rascal
-include::{LibDir}demo/lang/Pico/Eval.rsc[tags=module]
+```rascal-include
+demo::lang::Pico::Eval
 ```
 
                 

@@ -24,15 +24,15 @@ In Rascal, the major difference between lexical syntax and non-lexical syntax is
 
 
 The following example extends the grammar for `Exp` in ((No Layout)) with a layout definition:
-```rascal
-include::{LibDir}demo/lang/Exp/Concrete/WithLayout/Syntax.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Concrete::WithLayout::Syntax
 ```
 
 <1> Using the `layout` definition, we define that the `Whitespace` non-terminal is used _in between every symbol_ of the `syntax` productions in the current module.
 
 And now we can use spaces in our definition of the eval function as well:
-```rascal
-include::{LibDir}demo/lang/Exp/Concrete/WithLayout/Eval.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Concrete::WithLayout::Eval
 ```
 
 Note that [Pattern Matching]((RascalConcepts:PatternMatching)) will _ignore_ all trees in layout positions, such that the parse tree of "1 + \\n1" will match against `<Exp e1> + <Exp e2>`. The same goes for equality on parse trees.

@@ -17,8 +17,8 @@ Print a list of squares
 #### Examples
 
 How can we print a list of squares? Here is a solution:
-```rascal
-include::{LibDir}demo/basic/Squares.rsc[tags=module]
+```rascal-include
+demo::basic::Squares
 ```
            
 <1> The [IO]((Library:module:IO)) module is imported since we want to print things using `println`.

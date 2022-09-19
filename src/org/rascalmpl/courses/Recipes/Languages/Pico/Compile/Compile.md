@@ -20,8 +20,8 @@ Compile a Pico program to assembly language.
 
 The Pico compiler translates Pico programs to ((Pico-Assembly)) language programs.
 
-```rascal
-include::{LibDir}demo/lang/Pico/Compile.rsc[tags=module]
+```rascal-include
+demo::lang::Pico::Compile
 ```
 
                 

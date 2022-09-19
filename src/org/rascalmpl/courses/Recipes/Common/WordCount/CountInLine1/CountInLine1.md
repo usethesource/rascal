@@ -19,8 +19,8 @@ Count words in a line.
 We count words using a regular expression match in a for loop.
 Each time that the pattern `/[a-zA-Z0-9_]+/` matches, the body of the loop is executed
 and `count` is incremented.
-```rascal
-include::{LibDir}demo/common/WordCount/CountInLine1.rsc[tags=module]
+```rascal-include
+demo::common::WordCount::CountInLine1
 ```
 
                 

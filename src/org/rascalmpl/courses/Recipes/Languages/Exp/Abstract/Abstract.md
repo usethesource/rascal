@@ -26,8 +26,8 @@ Abstract syntax has the following properties:
 #### Examples
 
 The abstract syntax for Exp looks like this:
-```rascal
-include::{LibDir}demo/lang/Exp/Abstract/Syntax.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Abstract::Syntax
 ```
 
                 
@@ -38,8 +38,8 @@ include::{LibDir}demo/lang/Exp/Abstract/Syntax.rsc[tags=module]
 
 Given the abstract syntax for Exp, we can define an interpreter that evaluates
 expressions:
-```rascal
-include::{LibDir}demo/lang/Exp/Abstract/Eval.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Abstract::Eval
 ```
 
            

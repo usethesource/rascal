@@ -29,8 +29,8 @@ Rascal provides pattern-directed dispatch: a function with the same name
 can have complete patterns as arguments. When called, a pattern match determines which
 variant of the function will be called. This is used extensively in the definitions below:
 
-```rascal
-include::{LibDir}demo/lang/Lisra/Eval.rsc[tags=module]
+```rascal-include
+demo::lang::Lisra::Eval
 ```
 
                 

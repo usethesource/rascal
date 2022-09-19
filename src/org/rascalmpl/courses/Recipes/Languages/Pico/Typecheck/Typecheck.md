@@ -35,8 +35,8 @@ Recall the following properties of Pico that are relevant for type checking:
 
 The type checker is going to check these rules and will produce an error message when they are violated.
 
-```rascal
-include::{LibDir}demo/lang/Pico/Typecheck.rsc[tags=module]
+```rascal-include
+demo::lang::Pico::Typecheck
 ```
 
                 

@@ -27,8 +27,8 @@ Solutions to FizzBuzz in various languages are available [here](http://www.geeks
 #### Examples
 
 Here are a few possible Rascal solutions:
-```rascal
-include::{LibDir}demo/basic/FizzBuzz.rsc[tags=module]
+```rascal-include
+demo::basic::FizzBuzz
 ```
 
 ```rascal-shell

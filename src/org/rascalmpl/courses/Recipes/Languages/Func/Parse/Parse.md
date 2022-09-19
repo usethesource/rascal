@@ -21,8 +21,8 @@ The work horse is the [parse]((Library:ParseTree-parse)) function that is availa
 #### Examples
 
 Here is how to parse Func programs from a string or file:
-```rascal
-include::{LibDir}demo/lang/Func/Parse.rsc[tags=module]
+```rascal-include
+demo::lang::Func::Parse
 ```
 
                 

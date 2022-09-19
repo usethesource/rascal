@@ -24,8 +24,8 @@ that have to be described:
 *  The way the interpreter returns its results (see `Result` below).
 
 
-```rascal
-include::{LibDir}demo/lang/Lisra/Runtime.rsc[tags=module]
+```rascal-include
+demo::lang::Lisra::Runtime
 ```
 
                 

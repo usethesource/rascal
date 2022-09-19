@@ -18,8 +18,8 @@ An Integrated Development Environment for Pico.
 
 #### Examples
 
-```rascal
-include::{LibDir}demo/lang/Pico/Plugin.rsc[tags=module]
+```rascal-include
+demo::lang::Pico::Plugin
 ```
 
                 

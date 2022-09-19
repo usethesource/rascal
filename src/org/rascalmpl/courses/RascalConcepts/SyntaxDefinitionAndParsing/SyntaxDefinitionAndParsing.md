@@ -47,8 +47,8 @@ Here are some examples:
 
 The EXP language can be defined as follows:
 
-```rascal
-include::{LibDir}demo/lang/Exp/Concrete/WithLayout/Syntax.rsc[tags=module]
+```rascal-include
+demo::lang::Exp::Concrete::WithLayout::Syntax
 ```
 
                 
