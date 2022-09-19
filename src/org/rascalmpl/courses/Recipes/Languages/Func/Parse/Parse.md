@@ -28,7 +28,7 @@ demo::lang::Func::Parse
                 
 Let's try this on example `F0.func`:
 ```rascal
-include::{LibDir}demo/lang/Func/programs/F0.func[]
+((|project://rascal/src/org/rascalmpl/library/demo/lang/Func/programs/F0.func|))
 ```
 
 First, we try the version with a string argument:

@@ -27,7 +27,7 @@ Learning about quines, is about learning how to quote and escape symbols in stri
 #### Examples
 
 ```rascal
-include::{LibDir}demo/basic/Quine.rsc[]
+demo::basic::Quine
 ```
 
                 

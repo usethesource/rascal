@@ -54,7 +54,7 @@ demo::lang::Func::Eval1
 
 Let's try this with F1:
 ```rascal
-include::{LibDir}demo/lang/Func/programs/F1.func[]
+((|project://rascal/src/org/rascalmpl/library/demo/lang/Func/programs/F1.func|))
 ```
 
 The result:
