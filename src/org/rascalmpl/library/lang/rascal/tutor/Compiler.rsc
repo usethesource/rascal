@@ -44,8 +44,7 @@ import lang::rascal::tutor::Output;
 import lang::rascal::tutor::Includer;
 import lang::rascal::\syntax::Rascal;
 
-data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
-data Message(str cause="");
+
 
 
 public PathConfig defaultConfig
@@ -61,7 +60,6 @@ public PathConfig defaultConfig
     |project://rascal/src/org/rascalmpl/courses/GettingHelp|,
     |project://rascal/src/org/rascalmpl/courses/WhyRascal|,
     |project://rascal/src/org/rascalmpl/courses/Rascal|,
-    |project://rascal/src/org/rascalmpl/courses/TutorHome|,
     |project://rascal/src/org/rascalmpl/courses/RascalTests|,
     |project://rascal/src/org/rascalmpl/courses/RascalShell|,
     |project://rascal/src/org/rascalmpl/courses/RunTimeErrors|,
