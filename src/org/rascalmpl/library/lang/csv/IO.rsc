@@ -87,7 +87,7 @@ Reading the values in fields is straightforward, except for the case that the te
 Given is the follwing file `ex1.csv`:
 
 ```rascal
-include::{LibDir}Libraries/lang/csv/ex1.csv[]
+((|project://rascal/src/org/rascalmpl/library/lang/csv/ex1.csv|))
 ```
 
 We can read it in various ways:
@@ -154,12 +154,12 @@ The result of both calls to writeCSV are included below:
 
 `ex1a.csv` (with a header line and default separator `,`):
 ```rascal
-include::|tmp:///ex1a.csv|[]
+((|tmp:///ex1a.csv|))
 ```
 
 `ex1b.csv` (without a header line with separator `;`):
 ```rascal
-|tmp:///ex1b.csv|
+((|tmp:///ex1b.csv|))
 ```
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}

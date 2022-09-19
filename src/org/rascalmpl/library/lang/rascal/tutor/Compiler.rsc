@@ -245,6 +245,18 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
       | dtls == [] 
     ];
 
+@synopsis{inline an itemized list of details (collected from the details YAML section in the header)}
+list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TODO<msg:[^\)]*>\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+  = [
+     out(":::caution"),
+     out("There is a \"TODO\" in the documentation source:"),
+     out("msg"),
+     out(first),
+     out(":::"),
+     err(warning("TODO: <trim(msg)>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))),
+     *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+    ];
+
 @synopsis{inline example files literally, in Rascal loc notation, but do not compile further from there. Works only if positioned on a line by itself.}
 list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   try {
