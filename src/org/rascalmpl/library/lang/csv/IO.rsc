@@ -87,7 +87,7 @@ Reading the values in fields is straightforward, except for the case that the te
 Given is the follwing file `ex1.csv`:
 
 ```rascal
-((|project://rascal/src/org/rascalmpl/library/lang/csv/ex1.csv|))
+((|project://rascal/src/org/rascalmpl/library/lang/csv/examples/ex1.csv|))
 ```
 
 We can read it in various ways:
