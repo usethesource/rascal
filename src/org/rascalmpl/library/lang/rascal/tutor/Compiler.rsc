@@ -122,7 +122,6 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind)
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {  
-          println("copying <src> to < pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path>");
           copy(src, pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path);
           
           return [];
