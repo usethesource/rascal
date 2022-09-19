@@ -67,11 +67,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.TimeZone;
-import com.ibm.icu.util.ULocale;
-
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -99,7 +94,13 @@ import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
+import com.ibm.icu.util.ULocale;
+
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.ICollection;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IExternalValue;
@@ -117,6 +118,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
@@ -127,7 +129,6 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.visitors.BottomUpTransformer;
 import io.usethesource.vallang.visitors.IValueVisitor;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
@@ -2249,24 +2250,127 @@ public class Prelude {
     }
 
 	public IValue unsetRec(IValue val) {
-		return val.accept(new BottomUpTransformer<>(new IdentityVisitor<RuntimeException>() {
+		return val.accept(new IdentityVisitor<RuntimeException>() {
 			@Override
 			public IValue visitConstructor(IConstructor o) throws RuntimeException {
-				return unset(o);
+				return visitNode(o);
 			}
-			@Override
-			public IValue visitNode(INode o) throws RuntimeException {
-				return unset(o);
-			}
+
 			@Override
 			public IValue visitExternal(IExternalValue o) throws RuntimeException {
 				if (o instanceof INode) {
-					return unset((INode)o);
+					return visitNode((INode)o);
 				}
 				return o;
 			}
-		}, rascalValues));
+
+			@Override
+			public IValue visitNode(INode o) throws RuntimeException {
+				if (o.mayHaveKeywordParameters()) {
+					o = o.asWithKeywordParameters().unsetAll();
+				}
+				for (int c = 0; c < o.arity(); c++) {
+					var old = o.get(c);
+					var replaced = old.accept(this);
+					if (replaced != old) {
+						o = o.set(c, replaced);
+					}
+				}
+				return o;
+			}
+
+			@Override
+			public IValue visitMap(IMap o) throws RuntimeException {
+				var changedEntries = values.mapWriter();
+				var entries = o.entryIterator();
+				while (entries.hasNext()) {
+					var ent = entries.next();
+					var key = ent.getKey();
+					var value = ent.getValue();
+					var newKey = key.accept(this);
+					var newValue = value.accept(this);
+					if (newKey != key) {
+						// the key changed
+						// so we remove it from the map, and schedule it for later addition
+						o = o.removeKey(key);
+						changedEntries.put(newKey, newValue);
+					}
+					else if (value != newValue) {
+						changedEntries.put(key, newValue);
+					}
+				}
+				var changes = changedEntries.done();
+				if (changes.isEmpty()) {
+					return o;
+				}
+				return o.join(changes);
+			}
+
+			@Override
+			public IValue visitList(IList o) throws RuntimeException {
+				IListWriter newList = null;
+				for (int i = 0; i < o.length(); i++) {
+					var elem = o.get(i);
+					var newElem = elem.accept(this);
+					if (newList != null) {
+						newList.append(newElem);
+					}
+					else if (elem != newElem) {
+						newList = values.listWriter();
+						for (int s = 0; s < i; s++) {
+							newList.append(o.get(s));
+						}
+						newList.append(newElem);
+					}
+				}
+				return newList == null ? o : newList.done();
+			}
+
+			@Override
+			public IValue visitSet(ISet o) throws RuntimeException {
+				var removed = values.setWriter();
+				var added = values.setWriter();
+				for (var ent : o) {
+					var newEnt = ent.accept(this);
+					if (newEnt != ent) {
+						removed.append(ent);
+						added.append(newEnt);
+					}
+				}
+				var finalRemoved = removed.done();
+				if (finalRemoved.isEmpty()) {
+					return o;
+				}
+				var finalAdded = added.done();
+				if (finalRemoved.equals(o)) {
+					// all entries are rewritten
+					return finalAdded;
+				}
+				return o.subtract(finalRemoved).union(finalAdded);
+			}
+
+			@Override
+			public IValue visitTuple(ITuple o) throws RuntimeException {
+				IValue[] newChildren = null;
+				for (int c = 0; c < o.arity(); c++) {
+					var old = o.get(c);
+					var replaced = old.accept(this);
+					if (newChildren != null) {
+						newChildren[c] = replaced;
+					}
+					else if (replaced != old) {
+						newChildren = new IValue[o.arity()];
+						for (int s = 0; s < c; s++) {
+							newChildren[s] = o.get(s);
+						}
+						newChildren[c] = replaced;
+					}
+				}
+				return newChildren == null ? o : values.tuple(newChildren);
+			}
+		});
 	}
+
     
     public INode arbNode() {
         return (INode) createRandomValue(TypeFactory.getInstance().nodeType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
