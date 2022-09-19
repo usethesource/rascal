@@ -56,7 +56,7 @@ Some points to note:
 
 Let's try this on example `F0`:
 ```rascal
-include::{LibDir}demo/lang/Func/programs/F0.func[]
+((|project://rascal/src/org/rascalmpl/library/demo/lang/Func/programs/F0.func|))
 ```
 
                 

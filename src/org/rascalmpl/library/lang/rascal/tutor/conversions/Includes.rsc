@@ -51,6 +51,11 @@ void fixModuleIncludes(loc f) {
 
 //  l:/include::\{LibDir\}<path:[^\]]+>\[tags=module\]/ <- readFileLines(f)) {
 
+list[str] fixIncludes([/include::\{LibDir\}<path:[^\]]+>\[\]/, *str tail])
+    = [ *["((<lo>))" | lo := |project://rascal/src/org/rascalmpl/library/| + path],
+        *fixIncludes(tail)
+    ];
+
 list[str] fixIncludes(["```rascal",  l:/include::\{LibDir\}<path:[^\]]+>\.rsc\[tags=module\]/, "```", *str tail])
     = ["```rascal-include",
         replaceAll(path, "/", "::"),
