@@ -24,7 +24,8 @@ Describes an image to be included:
 * _Height_ is the rewuired height of the image in pixels.
 * When `link` is present, it turns the image in a link to the given _URI_.
 
-For further styling of images, see http://asciidoctor.org/docs/user-manual/#images.
+    
+(((TODO:For further styling of images, see http://asciidoctor.org/docs/user-manual/#images.)))
 
 #### Examples
 

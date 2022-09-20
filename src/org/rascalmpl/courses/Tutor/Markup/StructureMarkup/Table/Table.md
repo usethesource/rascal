@@ -8,11 +8,11 @@ Mark up for a table.
 
 #### Syntax
 
-```
+``````
 | _Header_~1~ | _Header_~2~ | ... |
-``` | 
 | _Entry_~11~  | _Entry_~12~  | ... |
 | _Entry_~21~  | _Entry_~22~  | ... |
+``````
 
 ----
 
@@ -24,19 +24,18 @@ Mark up for a table.
 
 The simplest table starts and ends with `|===`, each row is separetd by an empty line and each column starts with `|`.
 There are, hwoever, other formats and options to specify the formatting of cells and columns.
-See http://asciidoctor.org/docs/user-manual/#tables for details.
+(((TODO:See http://asciidoctor.org/docs/user-manual/#tables for details.)))
 
 #### Examples
 
 ##  Example 1 
 
-```rascal
+``````
 | A  | B  | C |
 | --- | --- | --- |
 | 11 | 12 | 13 |
 | 21 | 22 | 23 |
-
-```
+``````
 
 gives:
 
@@ -48,6 +47,7 @@ gives:
 
 ##  Example 2 
 
+(((TODO)))
 A column specification may precede the table and specifies the number of columns with default alignment (left) and with
 specified alignment: left (`<`), centered (`^`) or right (`>`).
 
