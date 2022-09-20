@@ -33,6 +33,9 @@ This assessment software is still experimental; please bear with us and take the
 
 __Be aware: in the web version, there are no questions visible: use the Eclipse version instead__
 
+(((TODO: new tutor compiler does not compile questions to js yet)))
+
+``````
 Questions:
 
 QChoice: Sets can be used to represent a sequence of values when
@@ -131,7 +134,7 @@ public bool isPalindrome(list[str] words){
 }
 test: isPalindrome(["a", "b", "b", "a"]) == true;
 
-
+``````
 
 
 

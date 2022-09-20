@@ -15,8 +15,7 @@
 
   For (nested) folders in the srcs folders, which do not contain an `index.md` file, or
   a <name>.md file where the name is equal to the name of the current folder, a fresh index.md
-  file is generated which ${includes} all the (generated) .md files of the current folder and the index.md
-  file of every nested folder.
+  file is generated.
 }
 module lang::rascal::tutor::Compiler
 
