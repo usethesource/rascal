@@ -5,7 +5,6 @@ details:
   - EASY
   - SolutionStrategies
   - CompareWithOtherParadigms
-
 ---
 
 #### Synopsis
