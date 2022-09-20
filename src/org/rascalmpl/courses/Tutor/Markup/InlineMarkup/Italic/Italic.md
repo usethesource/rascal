@@ -9,7 +9,7 @@ Create _italic_ text.
 #### Syntax
 
 ```
-_ _Text_ _
+_Text_
 ```
 
 #### Types
@@ -20,7 +20,7 @@ _ _Text_ _
 
 #### Examples
 
-`\italic` gives: _italic_.
+* `_italic_` gives _italic_.
 
 #### Benefits
 
