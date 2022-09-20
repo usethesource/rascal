@@ -28,7 +28,7 @@ A list item ends with:
 *  an empty line.
 
 Bullet Lists and ((Numbered Lists)) can be mixed.
-See http://asciidoctor.org/docs/user-manual/#unordered-lists for the precise rules.
+(((TODO:See http://asciidoctor.org/docs/user-manual/#unordered-lists for the precise rules.)))
 
 #### Examples
 
