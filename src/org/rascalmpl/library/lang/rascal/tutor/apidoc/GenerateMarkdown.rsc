@@ -77,7 +77,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
     [
         out("## function <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
-        *[out("* `<removeNewlines(ov)>`") | ov <- overloads],
+        *[out("* ``<removeNewlines(ov)>``") | ov <- overloads],
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
     ];

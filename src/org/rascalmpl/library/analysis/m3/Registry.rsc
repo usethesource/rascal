@@ -15,7 +15,7 @@ import IO;
 @doc{
 #### Synopsis
 
-register an M3 model for a certain project name.
+Register an M3 model for a certain project name.
 
 #### Description
 
@@ -27,7 +27,7 @@ a specific language.
 
 #### Benefits
 
-*  this enables qualified names as [Location]s to be hyperlinks in the IDE
+*  this enables qualified names as ((Values-Location))s to be hyperlinks in the IDE
 
 #### Pitfalls
 
