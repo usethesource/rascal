@@ -8,11 +8,14 @@ Mark up for admonitions.
 
 #### Syntax
 
-* `NOTE: MarkedText`
-* `TIP: MarkedText`
-* `IMPORTANT: MarkedText`
-* `CAUTION: MarkedText`
-* `WARNING: MarkedText`
+The general scheme is:
+* `:::label␤ MarkedText ␤:::`, where `␤` represents a newline character and label is one of:
+   * `note`
+   * `tip`
+   * `info`
+   * `caution`
+   * `danger`
+
 
 #### Types
 
@@ -24,25 +27,65 @@ An admonition is remark that should draw the reader's attention.
 
 #### Examples
 
-The input
+``````
+:::note 
+This is a note
+:::
+``````
 
-`NOTE: This is a note.`
+:::note
+This is a note
+:::
 
-gives
+``````
+:::tip 
+MarkedText
+:::
+``````
 
-NOTE: This is a note.
+:::tip 
+what a great tip!
+:::
 
-The input:
+``````
+:::info 
+MarkedText
+:::
+``````
 
-`WARNING: Use warnings sparingly.`
+:::info 
+Some more information here.
+:::
 
-will give:
+``````
+:::caution 
+MarkedText
+:::
+``````
 
-WARNING: Use warnings sparingly.
+:::caution 
+Careful now..
+:::
+
+
+``````
+:::danger 
+MarkedText
+:::
+``````
+
+``````
+:::danger 
+alarm!
+:::
+``````
 
 #### Benefits
 
+* If used sparingly admonitions can draw the user's attention to important parts in your documentation.
+* The tutor compiler uses admonitions to mark problems (errors and warnings) with the links or the code contents of the documentations.
+
 #### Pitfalls
 
-An admonition should start at the begin of a line and the `:` should be followed by a single space.
-
+* Too many admonitions clutters the documentation and inspires "alarm fatique"
+* Better use the `#### Pitfalls` and `#### Benefits` sections to group information that is meant to alert the reader to positive/negative information.

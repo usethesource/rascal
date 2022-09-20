@@ -8,9 +8,11 @@ A (possible nested) list of bullet points.
 
 #### Syntax
 
+Here `␠` is used to mark a space character:
+
 *  `* MarkedText`
-*  `** MarkedText`
-*  `\*** MarkedText`
+*  `␠␠␠* MarkedText`
+*  `␠␠␠␠␠␠* MarkedText`
 *  ...
 
 #### Types
@@ -27,8 +29,7 @@ A list item ends with:
 *  the start of a new list item.
 *  an empty line.
 
-Bullet Lists and ((Numbered Lists)) can be mixed.
-(((TODO:See http://asciidoctor.org/docs/user-manual/#unordered-lists for the precise rules.)))
+((Bullet List))s and ((Numbered List))s can be mixed.
 
 #### Examples
 
@@ -49,21 +50,21 @@ The input
 
 ```
 * First item.
-  ** First subitem.
-  ** Second subitem.
+   * First subitem.
+   * Second subitem.
 * Second item.
 ```
 
 will produce:
 
 *  First item.
-   **  First subitem.
-   **  Second subitem.
+   *  First subitem.
+   *  Second subitem.
 *  Second item.
 
 #### Benefits
 
 #### Pitfalls
 
-An empty line is required before and after a BulletList.
+* An empty line is required _after_ a ((BulletList)).
 
