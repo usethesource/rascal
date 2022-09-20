@@ -43,7 +43,7 @@ Horizontal rule:
 * `code`
 * `in code: italics`
 
-<toc Test 2>
+(((TOC)))
 
 # Benefits
 
