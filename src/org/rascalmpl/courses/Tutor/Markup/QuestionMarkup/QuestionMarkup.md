@@ -14,7 +14,7 @@ Mark up for interactive questions.
 
 #### Description
 
-WARNING: The specification of questions is being redesigned; The information provided here is outdated.
+(((TODO The specification of questions is being redesigned; The information provided here is outdated.)))
 
 The following types of questions are supported:
 

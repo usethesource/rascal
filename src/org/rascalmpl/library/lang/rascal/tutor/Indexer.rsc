@@ -68,11 +68,12 @@ rel[str, str] createConceptIndex(loc src)
   }
   + // Here come the index entries for Rascal modules and declarations:
     {  // `((getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
-      *{<"<item.kind>:<item.name>","<moduleFragment(item.moduleName)>/#<item.name>">, <item.name, "<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
+      *{<"<item.kind>:<item.name>","/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/#<item.name>">, 
+        <item.name, "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
      
       // `((Library:getDefaultPathConfig))` -> `/Library/util-Reflective-getDefaultPathConfig`
       *{<"<capitalize(src.file)>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/<item.moduleName>-<item.name>" >,
-         <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/<item.moduleName>-<item.name>" > | item.name?},
+        <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/<item.moduleName>-<item.name>" > | item.name?},
 
       // `((util::Reflective::getDefaultPathConfig))` -> `#util-Reflective-getDefaultPathConfig`
       *{<"<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>/<item.moduleName>-<item.name>" >,

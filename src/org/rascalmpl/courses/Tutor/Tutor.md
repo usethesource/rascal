@@ -39,6 +39,7 @@ An _author_ of a course can:
 * Inspect the warnings that are generated for the whole course in order to 
   control the quality of the concept descriptions.
 
+  (((TODO:fix asciidoctor ref)))
 The actual markup used is an extension of _AsciiDoc_, see http://asciidoctor.org and
 in most cases we directly refer to 
 
