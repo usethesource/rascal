@@ -35,7 +35,7 @@ import util::Math;
   ```rascal-shell
   import util::Progress;
   
-  int total = 100000; 
+  int total = 10; 
   pb = progressBar(total, length = 15, limit = 100);
   
   for (i <- [0..total]) {
@@ -80,7 +80,7 @@ tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Pr
   
   sp = spinner();
   
-  while (n := arbInt(100000), n != 1) {
+  while (n := arbInt(100), n != 1) {
     sp("<n>");
   }
   ```  
