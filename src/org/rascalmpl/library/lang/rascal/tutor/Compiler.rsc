@@ -146,8 +146,9 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
 
 list[Message] generateIndexFile(loc d, PathConfig pcfg) {
   try {
+    title = replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::");
     writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, d).path + "index.md",
-      "# <replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::")>
+      "# <if (trim(title) == "") {><capitalize(pcfg.currentRoot.file)><} else {><title><}>
       '
       '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
       '   * [<e[extension=""].file>](<capitalize(pcfg.currentRoot.file)><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
