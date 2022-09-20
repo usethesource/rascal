@@ -9,7 +9,7 @@ import util::Reflective;
 @resource{sdf}
 @synopsis{Converts an SDF2 module to a Rascal module}
 @description{ 
-The `sdf`` uri scheme works like this:
+The `sdf` uri scheme works like this:
 `sdf:///<modulename>`
 
 The default Rascal search path is used to resolve the 
