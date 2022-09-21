@@ -1,8 +1,5 @@
 ---
 title: Source Code Markup
-details:
-  - RemoteConceptMapping
-
 ---
 
 #### Synopsis

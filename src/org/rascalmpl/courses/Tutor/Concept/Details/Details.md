@@ -2,37 +2,36 @@
 title: Details
 ---
 
-.Synopsis
+#### Synopsis
 
-Explicitly order the subconcepts of the current concept.
+Explicitly list and _order_ the subconcepts of the current concept.
 
-.Syntax
+#### Syntax
+
+Details are provided in the YAML header of the markdown file.
 
 ```
 ---
 details:
   - Detail~1~
-  -  Detail~2~
-  -  ...
-
+  - Detail~2~
+  - ...
 ---
 ```
 
-.Types
-
-.Function
-
-.Description
+#### Description
 
 To fully describe a concept, subconcepts (or details) are needed.
 When the `details` meta-data header is empty, subconcepts will be listed
-alphabetically in the details section of the generated HTML file.
+alphabetically in the (derived) outline of the documentation.
 
 This alphabetical order can be influenced by explicitly stating concepts in the details meta-data header..
 The effect is that the concepts listed there will be shown first, followed by the unmentioned subconcepts
 in alphabetical order.
 
-.Examples
+The details declaration also influences the order and contents of the ((TableOfContents)) markup.
+
+#### Examples
 
 In ((Concept)) we want to order the details in the order as they appear in the concept description.
 Its `Details` meta-data is therefore:
