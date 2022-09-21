@@ -29,7 +29,7 @@ A list item ends with:
 *  the start of a new list item.
 *  an empty line.
 
-((Bullet List))s and ((Numbered List))s can be mixed.
+
 
 #### Examples
 
@@ -64,7 +64,9 @@ will produce:
 
 #### Benefits
 
+* ((BulletLists)) and ((NumberedLists)) can be nested under eachother.
+
 #### Pitfalls
 
-* An empty line is required _after_ a ((BulletList)).
+* An empty line is required _after_ ((BulletLists)).
 

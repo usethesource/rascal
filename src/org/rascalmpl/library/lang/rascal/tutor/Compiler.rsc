@@ -110,7 +110,7 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind)
     // new concept, new execution environment:
     exec.reset();
 
-    if (isDirectory(src)) {
+    if (isDirectory(src), src.file != "internal") {
         return compileDirectory(src, pcfg, exec, ind);
     }
     else if (src.extension == "rsc") {
@@ -288,10 +288,10 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
   switch (resolution) {
       case {u}: 
         if (/\[<title:[A-Za-z-0-9\ ]*>\]$/ := prefix) {
-          return compileMarkdown(["<prefix[..-(size(title)+2)]>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix[..-(size(title)+2)]>[<title>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         else {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
       case { }: {
         if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
@@ -306,20 +306,20 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
       }
       case {str plink, b:/<qlink:.*>\/index\.md/}:
          if (plink == qlink) {
-            return compileMarkdown(["<prefix>[<addSpaces(link)>](<plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+            return compileMarkdown(["<prefix>[<addSpaces(link)>](./<plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
         if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[./<addSpaces(link)>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         // or we check if its one of the details of the current concept
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
 
         return [
