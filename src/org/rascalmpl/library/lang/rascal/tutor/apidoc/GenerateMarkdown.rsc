@@ -25,36 +25,42 @@ import lang::rascal::tutor::Names;
     of the tutor compiler.
 }
 list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, CommandExecutor exec, Index ind) {
-    dinfo = extractInfo(moduleLoc);
+    try {
+        dinfo = extractInfo(moduleLoc);
 
-    dtls = sort(dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]));
+        dtls = sort(dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]));
 
-    // TODO: this overloading collection should happen in ExtractInfo
-    res = [];
-    int i = 0;
-    while (i < size(dinfo)) {
-        j = i + 1;
-        list[str] overloads = [];
+        // TODO: this overloading collection should happen in ExtractInfo
+        res = [];
+        int i = 0;
+        while (i < size(dinfo)) {
+            j = i + 1;
+            list[str] overloads = [];
 
-        if (dinfo[i] has name) {
-           overloads = [dinfo[i].signature];
-           
-           // TODO: this only collects consecutive overloads. if a utility function interupts the flow,
-           // then we do not get to see the other overloads with the current group. Rewrite to use a "group-by" query.
-           // Also this looses any additional documentation tags for anything but the first overloaded declaration
-           
-           while (j < size(dinfo) && dinfo[i].name == dinfo[j].name) {
-                // this loops eats the other declarations with the same name (if consecutive!)
-                overloads += dinfo[j].signature;
-                j += 1;
-           }
+            if (dinfo[i] has name) {
+            overloads = [dinfo[i].signature];
+            
+            // TODO: this only collects consecutive overloads. if a utility function interupts the flow,
+            // then we do not get to see the other overloads with the current group. Rewrite to use a "group-by" query.
+            // Also this looses any additional documentation tags for anything but the first overloaded declaration
+            
+            while (j < size(dinfo) && dinfo[i].name == dinfo[j].name) {
+                    // this loops eats the other declarations with the same name (if consecutive!)
+                    overloads += dinfo[j].signature;
+                    j += 1;
+            }
+            }
+
+            res += declInfo2Doc(parent, dinfo[i], overloads, pcfg, exec, ind, dinfo[i] is moduleInfo? dtls : []);
+            i = j;
         }
 
-        res += declInfo2Doc(parent, dinfo[i], overloads, pcfg, exec, ind, dinfo[i] is moduleInfo? dtls : []);
-        i = j;
+        return res;
     }
-
-    return res;
+    catch Java(_,_):
+      return [err(error("parse error in source file", moduleLoc))];
+    catch ParseError(loc l):
+        return [err(error("parse error in source file", l))];
 }
 
 private map[str,str] escapes = ("\\": "\\\\", "\"": "\\\"");
