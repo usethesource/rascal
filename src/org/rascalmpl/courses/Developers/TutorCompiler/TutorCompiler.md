@@ -1,10 +1,9 @@
-# Tutor Compiler
 
-# Synopsis
+#### Synopsis
 
 How to compile, run and test the tutor compiler.
 
-# Description
+#### Description
 
 The tutor compiler translates Rascal modules and Markdown files to Docusaurus Markdown files. The main features are:
 
@@ -19,7 +18,7 @@ The tutor compiler translates Rascal modules and Markdown files to Docusaurus Ma
 
 The tutor compiler is located here: [src/org/rascalmpl/library/lang/rascal/tutor](https://github.com/usethesource/rascal/tree/main/src/org/rascalmpl/library/lang/rascal/tutor), with each main feature in a sub-folder. You will find the main compiler file in `Compiler.rsc`. Some of the tutor compiler is written in Java, in particular the interface with the REPL (See `lang/rascal/tutor/repl/TutorCommandExecutor.java`.
 
-## Compile and run the Rascal interpreter
+#### Examples
 
 * clone the rascal project first: `git clone git@github.com:usethesource/rascal.git`
 * compile it, but skip the type-checking of the library: `mvn -Drascal.compile.skip -DskipTests package`
@@ -29,8 +28,6 @@ The tutor compiler is located here: [src/org/rascalmpl/library/lang/rascal/tutor
    4. use `java -jar target/rascal-<version>-SNAPSHOT.jar`
 
  
-## Taking the doc compiler for a spin
-
 Note that it's indeed best to run the rascal REPL as described above, otherwise you might miss fixes in the Java-implemented part of the tutor, or other related changes in the interpreter that needed fixing to build the tutor.
 
 So start a Rascal REPL first. At least you need these three modules loaded:
@@ -59,6 +56,6 @@ compile(pcfg);
 
 Afterwards you will find all the generated files in `./target/classes/doc/` including an `index.value` file for later reference, and you can use a mark-down editor or compiler to further process the .md files. Note that these markdown files are _generated_, so they should be processed downstream automatically rather than by hand. Nevertheless while debugging it can be useful to explore what has been generated manually using a markdown editor.
 
-## Conversion scripts
+#### Pitfalls
 
-In `src/org/rascalmpl/library/lang/rascal/tutor` you will find "throwaway" scripts for translating asciidoctor markdown notation to docusaurus markdown notation. Sometimes it requires running the same script twice or three times to see the desired effects. This is because some rules generate the input for other rules to be transformed again.
+* In `src/org/rascalmpl/library/lang/rascal/tutor` you will find "throwaway" scripts for translating asciidoctor markdown notation to docusaurus markdown notation. Sometimes it requires running the same script twice or three times to see the desired effects. This is because some rules generate the input for other rules to be transformed again.
