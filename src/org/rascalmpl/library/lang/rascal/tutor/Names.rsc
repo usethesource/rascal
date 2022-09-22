@@ -29,8 +29,17 @@ str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/)
 
 default str removeSpaces(str s) = s;
 
-str addSpaces(/^<prefix:.*[a-z0-9]><postfix:[A-Z].+>/) =
-  addSpaces("<prefix> <uncapitalize(postfix)>");
+// remove Course:module: prefixes
+str addSpaces(/^<prefix:[^:]+>:<postfix:[^:].*>$/)
+  = addSpaces(postfix);
+
+// select final function name if present
+str addSpaces(/^<prefix:.+>::<name:[^:]+>$/)
+  = name; // no recursion to avoid splitting function names
+
+// split and uncapitalize CamelCase
+str addSpaces(/^<prefix:[A-Za-z0-9\ ]+[a-z0-9]><postfix:[A-Z].+>/) =
+  addSpaces("<uncapitalize(prefix)> <uncapitalize(postfix)>");
 
 default str addSpaces(str s) = split("-", s)[-1];
 
