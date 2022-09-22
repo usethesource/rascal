@@ -1,4 +1,4 @@
-package org.rascalmpl.library.lang.json.io;
+package org.rascalmpl.library.lang.json.internal;
 
 import java.io.IOException;
 
