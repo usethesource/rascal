@@ -145,12 +145,15 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
 
 list[Message] generateIndexFile(loc d, PathConfig pcfg) {
   try {
+    p2r = pathToRoot(pcfg.currentRoot, d);
     title = replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::");
     writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, d).path + "index.md",
-      "# <if (trim(title) == "") {><capitalize(pcfg.currentRoot.file)><} else {><title><}>
+      "---
+      'title: <if (trim(title) == "") {><capitalize(pcfg.currentRoot.file)><} else {><title><}>
+      '---
       '
       '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
-      '   * [<e[extension=""].file>](/docs/<capitalize(pcfg.currentRoot.file)><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
+      '   * [<e[extension=""].file>](<p2r>/<capitalize(pcfg.currentRoot.file)><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
     return [];
   } catch IO(msg): {
     return [error(msg, d)];
@@ -240,7 +243,7 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
     ]
     +
     [
-      err(warning("TOC is empty. .Details section is missing?", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>)))
+      err(warning("TOC is empty. details section is missing from header?", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>)))
       | dtls == [] 
     ];
 
@@ -284,11 +287,11 @@ list[Output] compileMarkdown([/^<prefix:.*>^<words:[A-Z0-9\-_0-9]+>^<postfix:.*>
 @synopsis{resolve ((links)) and [labeled]((links))}
 list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   resolution = ind[removeSpaces(link)];
-  docsFolder = "/docs"; // TODO: parametrize in pathConfig?
+  p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
 
   switch (resolution) {
       case {u}: {
-        u = /^\/assets/ := u ? u : "<docsFolder><u>";
+        u = /^\/assets/ := u ? u : "<p2r><u>";
         if (/\[<title:[A-Za-z-0-9\ ]*>\]$/ := prefix) {
           
           return compileMarkdown(["<prefix[..-(size(title)+2)]>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
@@ -310,22 +313,22 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
       }
       case {str plink, b:/<qlink:.*>\/index\.md/}:
          if (plink == qlink) {
-            return compileMarkdown(["<prefix>[<addSpaces(link)>](<docsFolder>/<plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+            return compileMarkdown(["<prefix>[<addSpaces(link)>](<p2r><plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
         if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<docsFolder><u>";
+          u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[./<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<docsFolder><u>";
+          u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         // or we check if its one of the details of the current concept
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<docsFolder><u>";
+          u = /^\/assets/ := u ? u : "<p2r><u>";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
 
@@ -379,13 +382,14 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
 }
 
 @synopsis{Removes empty sections in the middle of a document}
-list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, nextSection:/^\s*#\s+.*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, nextSection:/^\s*#+\s+.*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
   = compileMarkdown([nextSection, *rest], line + 1 + size(emptySection), offset + size(first) + length(emptySection), pcfg, exec, ind, dtls)
     when !(/\S/ <- emptySection);
 
 @synopsis{Removes empty sections at the end of a document}
 list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, /^\s*$/], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
   = [] when !(/\S/ <- emptySection);
+
 
 
 @synopsis{this is when we have processed all the input lines}

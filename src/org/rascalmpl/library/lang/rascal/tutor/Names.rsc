@@ -2,6 +2,8 @@ module lang::rascal::tutor::Names
 
 import String;
 import Location;
+import List;
+import IO;
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 data Message(str cause="");
@@ -31,3 +33,12 @@ str addSpaces(/^<prefix:.*[a-z0-9]><postfix:[A-Z].+>/) =
   addSpaces("<prefix> <uncapitalize(postfix)>");
 
 default str addSpaces(str s) = split("-", s)[-1];
+
+@synopsis{produces `"../../.."` for pathToRoot(|aap:///a/b|, |aap:///a/b/c/d|)  }
+str pathToRoot(loc root, loc src) 
+  = "..<for (e <- split("/", relativize(root, src).path), e != "") {>/..<}>"
+  when isDirectory(src);
+
+str pathToRoot(loc root, loc src) 
+  = pathToRoot(root, src.parent)
+  when isFile(src);  
