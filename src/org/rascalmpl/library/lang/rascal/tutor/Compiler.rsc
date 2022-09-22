@@ -150,7 +150,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg) {
       "# <if (trim(title) == "") {><capitalize(pcfg.currentRoot.file)><} else {><title><}>
       '
       '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
-      '   * [<e[extension=""].file>](<capitalize(pcfg.currentRoot.file)><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
+      '   * [<e[extension=""].file>](/docs/<capitalize(pcfg.currentRoot.file)><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
     return [];
   } catch IO(msg): {
     return [error(msg, d)];
@@ -284,15 +284,19 @@ list[Output] compileMarkdown([/^<prefix:.*>^<words:[A-Z0-9\-_0-9]+>^<postfix:.*>
 @synopsis{resolve ((links)) and [labeled]((links))}
 list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   resolution = ind[removeSpaces(link)];
+  docsFolder = "/docs"; // TODO: parametrize in pathConfig?
 
   switch (resolution) {
-      case {u}: 
+      case {u}: {
+        u = /^\/assets/ := u ? u : "<docsFolder><u>";
         if (/\[<title:[A-Za-z-0-9\ ]*>\]$/ := prefix) {
-          return compileMarkdown(["<prefix[..-(size(title)+2)]>[<title>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          
+          return compileMarkdown(["<prefix[..-(size(title)+2)]>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         else {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
+      }
       case { }: {
         if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
             // give this a second chance, in reverse
@@ -306,20 +310,23 @@ list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)
       }
       case {str plink, b:/<qlink:.*>\/index\.md/}:
          if (plink == qlink) {
-            return compileMarkdown(["<prefix>[<addSpaces(link)>](./<plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+            return compileMarkdown(["<prefix>[<addSpaces(link)>](<docsFolder>/<plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
         if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          return compileMarkdown(["<prefix>[./<addSpaces(link)>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          u = /^\/assets/ := u ? u : "<docsFolder><u>";
+          return compileMarkdown(["<prefix>[./<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          u = /^\/assets/ := u ? u : "<docsFolder><u>";
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         // or we check if its one of the details of the current concept
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](./<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          u = /^\/assets/ := u ? u : "<docsFolder><u>";
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
 
         return [
