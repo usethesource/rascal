@@ -63,6 +63,8 @@ rel[str, str] createConceptIndex(loc src)
   + { // these are links to packages/folders/directories via module path prefixes, like `analysis::m3`
      <"<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
      <"<capitalize(src.file)>:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
+     <"<capitalize(src.file)>:<replaceAll(relativize(src, f).path[1..], "/", "-")>", fr>,
+     <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "-"))>", fr>,
      <"<capitalize(src.file)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "::"))>", fr>
     | loc f <- find(src, isDirectory), /\/internal\// !:= f.path, fr := localDirLink(src, f)
