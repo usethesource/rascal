@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 import java.util.function.Function;
 
-import org.rascalmpl.library.lang.json.io.JsonValueWriter;
+import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
