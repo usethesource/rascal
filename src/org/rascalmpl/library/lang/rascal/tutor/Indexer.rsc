@@ -85,7 +85,7 @@ rel[str, str] createConceptIndex(loc src)
          <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
 
       // ((Set)) -> `/Library/Set`
-      *{<item.moduleName, "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>" >, <"module:<item.moduleName>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md" > | item is moduleInfo},
+      *{<item.moduleName, "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md" >, <"module:<item.moduleName>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md" > | item is moduleInfo},
 
       // `((Library:Set))` -> `/Library/Set`
       *{<"<capitalize(src.file)>:<item.moduleName>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md" >,
