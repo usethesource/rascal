@@ -31,6 +31,6 @@ To instantiate an IDE for a language implemented using Rascal, use the following
 *  Define a parse function for the language.
 *  Register the language with Eclipse or VScode.
 
-You find more information on these topics in the [Rascal Eclipse](/Eclipse.md) and [Rascal Language Servers](/RascalLanguageServers.md) documentation.
+You find more information on these topics in the [Rascal Eclipse](http://github.com/usethesource/rascal-eclipse) and [Rascal Language Servers](http://github.com/usethesource/rascal-language-servers) documentation.
 
 
