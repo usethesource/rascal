@@ -34,7 +34,7 @@ These are the entry points to the entire library:
 
 * The standard library comes with "batteries included", a number of reusable data-types and data-structures for building code analysis and manipulation tools. See for example ((analysis::m3::Core)).
 * Utility functions are sorted per data-type. So if you need something that operates on ((Rascal:Values-List))then look in the ((Library:module:List)) module of the library. For ((Rascal:Values-Set)) look in ((Library:module:Set)), etc.
-* To process [CSV]((lang::csv)), [XML](lang::xml)), [JSON](lang::json), [YAML](lang::yaml) you will find utilities here, even support to access [SQL]((resource::jdbc::JDBC)) databases via JDBC.
+* To process [CSV]((lang::csv)), [XML]((lang::xml)), [JSON]((lang::json)), [YAML]((lang::yaml)) you will find utilities here, even support to access [SQL]((resource::jdbc::JDBC)) databases via JDBC.
 
 #### Pitfalls
 
