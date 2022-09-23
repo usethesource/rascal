@@ -7,24 +7,21 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
+@synopsis{Demo of printing a table of squares}
 module demo::basic::Squares
 
 import IO; // <1>
 
-// Print a table of squares
-
-void squares(int N){
-  println("Table of squares from 1 to <N>\n"); // <2>
-  for(int I <- [1 .. N + 1])
+@synopsis{Print a table of squares using a for loop and single line string templates}
+void squares(int n) {
+  println("Table of squares from 1 to <n>\n"); // <2>
+  for (int I <- [1 .. n + 1])
       println("<I> squared = <I * I>");        // <3>
 }
 
-// a solution with a multi line string template:
-
+@synopsis{a solution with one multi line string template}
 str squaresTemplate(int N) // <4>
   = "Table of squares from 1 to <N>
     '<for (int I <- [1 .. N + 1]) {>
     '  <I> squared = <I * I><}>";
-// end::module[]
+
