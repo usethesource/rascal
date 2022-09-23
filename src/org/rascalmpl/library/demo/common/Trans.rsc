@@ -9,8 +9,11 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module demo::common::Trans
 
-// Compute transitive closure: R+ = R + (R o R) + (R o R o R) + ...
-
+@synopsis{Compute transitive closure: R+ = R + (R o R) + (R o R o R) + ...}
+@description{
+  This demo can be also implemented by `R+` but here
+  we want to demonstrate the use of the ((Statements-Solve)) statement.
+}
 rel[int,int] trans(rel[int,int] R){
   rel[int,int] T = R;
 	

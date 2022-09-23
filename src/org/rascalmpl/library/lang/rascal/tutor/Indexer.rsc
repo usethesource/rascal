@@ -95,6 +95,8 @@ rel[str, str] createConceptIndex(loc src)
 
       | loc f <- find(src, "rsc"), list[DeclarationInfo] inf := safeExtract(f), item <- inf
     }
+    +
+    {<capitalize(src.file), "/<capitalize(src.file)>/">}
     ;
 
 private bool isConceptFile(loc f) = f.extension in {"md"};

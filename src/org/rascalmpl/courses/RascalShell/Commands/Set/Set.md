@@ -1,5 +1,9 @@
 ---
 title: Set Command
+keywords:
+  - set
+  - tracing
+  - profiling
 ---
 
 #### Synopsis
@@ -33,14 +37,14 @@ Turn `tracing` on and execute a function:
 ```rascal-shell
 import demo::basic::Factorial;
 :set tracing true
-fac(5)
+fac1(5)
 ```
 
 Turn trace off and execute the same function:
 
 ```rascal-shell,continue
 :set tracing false
-fac(5)
+fac1(5)
 ```
 
 #### Benefits
