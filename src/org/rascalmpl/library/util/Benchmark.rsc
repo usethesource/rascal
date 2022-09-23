@@ -71,7 +71,7 @@ import demo::basic::Factorial;
 Here we measure time by using separate calls to `cpuTime` before and after a call to `fac`.
 ```rascal-shell,continue
 before = cpuTimeNow();
-fac(50);
+fac1(50);
 cpuTimeNow() - before;
 ```
 
@@ -146,7 +146,7 @@ Here we measure time by using separate calls to `sytemTime` before and after a c
 
 ```rascal-shell,continue
 before = systemTimeNow();
-fac(50);
+fac1(50);
 systemTimeNow() - before;
 ```
 }
@@ -160,7 +160,7 @@ import util::Benchmark;
 import demo::basic::Factorial;
 systemTimeOf(
    void() { 
-      fac(50); 
+      fac1(50); 
    } 
 );
 ```
@@ -191,7 +191,7 @@ import demo::basic::Factorial;
 Here we measure time by using separate calls to `userTime` before and after a call to `fac`.
 ```rascal-shell,continue
 before = userTimeNow();
-fac(50);
+fac1(50);
 userTimeNow() - before;
 ```
 
@@ -206,7 +206,7 @@ import util::Benchmark;
 import demo::basic::Factorial;
 userTimeOf(
    void() {
-      fac(50); 
+      fac1(50); 
    } 
 );
 ```
@@ -245,10 +245,10 @@ We measure two calls to the factorial function with arguments `100`, respectivel
 ```rascal-shell,continue
 benchmark(
    ("fac100" : void() {
-                  fac(100);
+                  fac1(100);
                }, 
    "fac200" :  void() {
-                  fac(200);
+                  fac1(200);
                }) 
    );
 ```
@@ -257,10 +257,10 @@ We can do the same using ((userTimeNow)) that returns nanoseconds:
 ```rascal-shell,continue
 benchmark( 
    ("fac100" : void() {
-                  fac(100);
+                  fac1(100);
             }, 
    "fac200" : void() {
-                  fac(200);
+                  fac1(200);
             })
    , userTimeOf);
 ```

@@ -6,19 +6,20 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
+@synopsis{Typical code example: FizzBuzz}
 module demo::basic::FizzBuzz
 
 import IO; 
 
-void fizzbuzz() {
+@synopsis{fizzbuzz1 revolves around ternary conditions}
+void fizzbuzz1() {
    for (int n <- [1 .. 101]){
       fb = ((n % 3 == 0) ? "Fizz" : "") + ((n % 5 == 0) ? "Buzz" : "");
       println((fb == "") ?"<n>" : fb);
    }
 }
 
+@synopsis{fizzbuzz2 embraces pattern matching and the switch statement}
 void fizzbuzz2() {
   for (n <- [1..101]) 
     switch(<n % 3 == 0, n % 5 == 0>) {
@@ -29,12 +30,18 @@ void fizzbuzz2() {
     }
 }
  
+@synopsis{fizzbuzz3 uses classical structured if-then-else} 
 void fizzbuzz3() {
   for (n <- [1..101]) {
-    if (n % 3 == 0) print("Fizz");
-    if (n % 5 == 0) print("Buzz");
-    else if (n % 3 != 0) print(n);
+    if (n % 3 == 0) {
+      print("Fizz");
+    }
+    if (n % 5 == 0) {
+      print("Buzz");
+    } else if (n % 3 != 0) {
+      print(n);
+    }
     println("");
   }
 }
-// end::module[]
+

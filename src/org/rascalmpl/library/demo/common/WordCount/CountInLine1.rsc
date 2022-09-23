@@ -7,18 +7,18 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
+@synopsis{Count words in a string}
 module demo::common::WordCount::CountInLine1
 
-int countInLine1(str S){
+@synopsis{regular expressions in a for loop}
+int countInLine1(str s) {
   int count = 0;
-  for(/[a-zA-Z0-9_]+/ := S){
-       count += 1;
+  for (/[a-zA-Z0-9_]+/ := s) {
+    count += 1;
   }
   return count;
 }
-// end::module[]
+
 
 test bool tstCountInLine1a() = countInLine1("") == 0;
 
