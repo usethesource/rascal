@@ -33,7 +33,7 @@ demo::basic::FizzBuzz
 
 ```rascal-shell
 import demo::basic::FizzBuzz;
-fizzbuzz();
+fizzbuzz1();
 ```
 
 #### Benefits
