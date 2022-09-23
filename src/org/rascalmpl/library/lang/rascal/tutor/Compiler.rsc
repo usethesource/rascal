@@ -477,18 +477,15 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       }
 
       if (!allowErrors) {
+        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
         append OUT : out("```");      
-        append out(":::danger");
+        append OUT : out(":::danger");
         append OUT : out("Rascal code execution failed (unexpectedly) during compilation of this documentation.");
-        append OUT : out("\<pre\>");
+        append OUT : out(":::");
+        append OUT : out("```rascal-shell");
         for (errLine <- split("\n", stderr)) {
            append OUT : out(errLine);
         }
-        append OUT : out("\</pre\>");
-        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
-        append OUT : out(":::");
-        append OUT : Output::empty();
-        append OUT : out("```rascal-shell");
       }
     }
 
