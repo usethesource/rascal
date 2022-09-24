@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Pico::Syntax
 
 import ParseTree;
@@ -52,4 +51,3 @@ public start[Program] program(str s) {
 public start[Program] program(str s, loc l) {
   return parse(#start[Program], s, l);
 } 
-// end::module[]

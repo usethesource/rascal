@@ -14,7 +14,7 @@ A version of Exp based on abstract syntax.
 
 #### Description
 
-The [abstract syntax](http://en.wikipedia.org/wiki/Abstract_syntax) for a language is a
+The [abstract syntax]((AbstractSyntaxTree)) for a language is a
 data type that is used to represent programs in the language in an _abstract_ form.
 Abstract syntax has the following properties:
 
@@ -30,14 +30,14 @@ The abstract syntax for Exp looks like this:
 demo::lang::Exp::Abstract::Syntax
 ```
 
-                
-<1> Defines integer constants, e.g., `con(123)`.
-<2> Defines multiplication, e.g., `mul(con(2),con(3))`.
-<3> Defines addition, e.g., `add(con(2),con(3))`.
-
+* Line 4 defines integer constants, e.g., `con(123)`.
+* Line 5 defines multiplication, e.g., `mul(con(2),con(3))`.
+* Line 6 defines addition, e.g., `add(con(2),con(3))`.
 
 Given the abstract syntax for Exp, we can define an interpreter that evaluates
-expressions:
+expressions. An interpreter, in this case, is a function that takes `Exp` as input
+and produces `int` as output:
+
 ```rascal-include
 demo::lang::Exp::Abstract::Eval
 ```

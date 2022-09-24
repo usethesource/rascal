@@ -164,8 +164,10 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg) {
 list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
    list[Output] output = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
 
+   previous="not empty";
+
    writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
-      "<for (out(x) <- output) {><x>
+      "<for (out(x) <- output) { if (trim(previous) == "", trim(x) == "") { continue; } previous = x;><x>
       '<}>"
    );
 
@@ -184,8 +186,9 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   // turn A/B/B.md into A/B/index.md for better URLs in the end result (`A/B/`` is better than `A/B/B.html`)
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
 
+  previous = "non empty";
   writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
-      "<for (out(x) <- output) {><x>
+      "<for (out(x) <- output) { if (trim(previous) == "", trim(x) == "") { continue; } previous = x;><x>
       '<}>"
   );
 
@@ -211,7 +214,7 @@ list[Output] compileMarkdown([str first:/^\s*``````/, *block, str second:/^`````
 list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str components, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   return[ 
       Output::empty(), // must have an empty line
-      out("```rascal"),
+      out("```rascal <rest1>"),
       *[*prepareModuleForInclusion(item, /includeHeaders/ := rest1, /includeTests/ := rest1, pcfg) | item <- components],
       Output::empty(),
       out("```"),
@@ -222,7 +225,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [ Output::empty(), // must have an empty line
-      out("```rascal-shell"),
+      out("```rascal-shell <rest1>"),
       *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
       *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls)
@@ -276,11 +279,11 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str
 }
 
 @synopsis{implement subscript syntax for letters and numbers and dashes and underscores}
-list[Output] compileMarkdown([/^<prefix:.*>~<words:[A-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+list[Output] compileMarkdown([/^<prefix:.*>~<words:[a-zA-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
   = compileMarkdown(["<prefix>\<sub\><words>\</sub\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
 @synopsis{implement superscript syntax for letters and numbers and dashes and underscores}
-list[Output] compileMarkdown([/^<prefix:.*>^<words:[A-Z0-9\-_0-9]+>^<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+list[Output] compileMarkdown([/^<prefix:.*>^<words:[a-zA-Z0-9\-_0-9]+>^<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
   = compileMarkdown(["<prefix>\<sup\><words>\</sup\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
 
@@ -305,7 +308,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-
                   *compileMarkdown(["<prefix>_(<title>) <link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
               ];
       }
-      case {str plink, b:/<qlink:.*>\/index\.md/}:
+      case {str plink, /<qlink:.*>\/index\.md/}:
          if (plink == qlink) {
             return compileMarkdown(["<prefix>[<title>](<p2r><plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
