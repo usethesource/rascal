@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Func::Eval3
 
 // pointers into the stack
@@ -150,6 +149,5 @@ Result3 eval3(assign(deref(Exp lvalue), Exp e), Env env, PEnv penv, Mem mem) {
   mem[addr] = v;
   return <mem, v>;
 }
-// end::module[]
 
 

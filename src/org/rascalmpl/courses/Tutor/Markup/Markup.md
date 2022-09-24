@@ -19,9 +19,11 @@ Some characters or text strings are used to influence the markup of the text
 and follow the conventions of (((TODO:http://asciidoctor.org.)))
 We distinguish:
 
-*  __Structure markup__ influences the structure of the text.
-*  __Inline markup__ influences the markup for characters or words.
-*  __Source code markup__ to define concepts in Rascal source code.
+*  ((StructureMarkup)) influences the structure of the text.
+*  ((InlineMarkup)) influences the markup for characters or words.
+*  ((SourceCodeMarkup)) to define concepts in Rascal source code.
+*  ((QuestionMarkup)) defines interactive tutorial questions.
+
 
 #### Examples
 

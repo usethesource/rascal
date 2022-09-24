@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Func::Eval1
 
 // using env, allowing let
@@ -59,5 +58,4 @@ int eval1(let(list[Binding] bindings, Exp exp), Env env, PEnv penv) { // <3>
    env += ( b.var : eval1(b.exp, env, penv) | b <- bindings );  
    return eval1(exp, env, penv);  
 }
-// end::module[]
 

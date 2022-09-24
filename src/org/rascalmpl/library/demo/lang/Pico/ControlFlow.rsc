@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Pico::ControlFlow
 
 import analysis::graphs::Graph;
@@ -7,10 +6,11 @@ import demo::lang::Pico::Load;
 import List;
 
 public data CFNode // <1>
-	= entry(loc location)
-	| exit()
-	| choice(loc location, EXP exp)
-	| statement(loc location, STATEMENT stat);
+    = entry(loc location)
+    | exit()
+    | choice(loc location, EXP exp)
+    | statement(loc location, STATEMENT stat)
+    ;
 
 alias CFGraph = tuple[set[CFNode] entry, Graph[CFNode] graph, set[CFNode] exit]; // <2>
 
@@ -54,5 +54,4 @@ CFGraph cflowProgram(PROGRAM P:program(list[DECL] _, list[STATEMENT] Series)){ /
 }
 
 public CFGraph cflowProgram(str txt) = cflowProgram(load(txt)); // <8>
-// end::module[]
 

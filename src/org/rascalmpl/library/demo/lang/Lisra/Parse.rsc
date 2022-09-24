@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Lisra::Parse
 
 import Prelude;
@@ -7,12 +6,10 @@ import demo::lang::Lisra::Runtime;
 
 Lval parse(str txt) = build(parse(#LispExp, txt)); // <1>
 
-// Build Abstract Synax Tree: Transform a LispExp to an Lval
-
+@synopsis{Build Abstract Syntax Tree: Transform a LispExp to an Lval}
 Lval build((LispExp)`<IntegerLiteral il>`) = Integer(toInt("<il>"));      // <2>
 Lval build((LispExp)`<AtomExp at>`)        = Atom("<at>");                // <3>
 Lval build((LispExp)`( <LispExp* lst> )`)  = List([build(l) | l <- lst]); // <4>
-// end::module[]
 
 test bool build1() = build((LispExp) `42`) == Integer(42);
 test bool build2() = build((LispExp) `abc`) == Atom("abc");
