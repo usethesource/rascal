@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Pico::Compile
 
 import Prelude;
@@ -8,8 +7,7 @@ import demo::lang::Pico::Load;
 
 alias Instrs = list[Instr]; // <1>
 
-// compile Expressions.
-
+@synopsis{Compile expressions to stackmachine instructions}
 Instrs compileExp(natCon(int N)) = [pushNat(N)]; // <2>
 
 Instrs compileExp(strCon(str S)) = [pushStr(substring(S,1,size(S)-1))];
@@ -88,5 +86,4 @@ public Instrs compileProgram(PROGRAM P){ // <8>
 }
 
 public Instrs compileProgram(str txt) = compileProgram(load(txt));
-// end::module[]
 

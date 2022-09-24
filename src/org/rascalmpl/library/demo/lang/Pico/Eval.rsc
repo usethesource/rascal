@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Pico::Eval
 
 import demo::lang::Pico::Abstract;
@@ -80,5 +79,4 @@ public VENV evalProgram(PROGRAM P){
 }
 
 public VENV evalProgram(str txt) = evalProgram(load(txt));
-// end::module[]
     
