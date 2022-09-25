@@ -290,7 +290,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
 
   switch (resolution) {
-      case {u}: {
+      case {str u}: {
         u = /^\/assets/ := u ? u : "<p2r><u>/";
         return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
       }
@@ -301,27 +301,22 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-
         }
 
         return [
-                  err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-                  *compileMarkdown(["<prefix>_(<title>) <link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
-              ];
+            err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+            *compileMarkdown(["<prefix>_(<title>) <link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+        ];
       }
-      case {str plink, /<qlink:.*>\/index\.md/}:
-         if (plink == qlink) {
-            return compileMarkdown(["<prefix>[<title>](<p2r><plink>/)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
-         }  else fail;
-     
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
-        if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
+        if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>/";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
-        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
+        else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
+          u = /^\/assets/ := u ? u : "<p2r><u>/";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         // or we check if its one of the details of the current concept
-        else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
+        else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>/";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
@@ -345,7 +340,7 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
 
   switch (resolution) {
       case {u}: {
-        u = /^\/assets/ := u ? u : "<p2r><u>";
+        u = /^\/assets/ := u ? u : "<p2r><u>/";
         return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
       }
       case { }: {
@@ -361,22 +356,22 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
       }
       case {str plink, b:/<qlink:.*>\/index\.md/}:
          if (plink == qlink) {
-            return compileMarkdown(["<prefix>[<addSpaces(link)>](<p2r><plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+            return compileMarkdown(["<prefix>[<addSpaces(link)>](<p2r><plink>/)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
         if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
+          u = /^\/assets/ := u ? u : "<p2r><u>/";
           return compileMarkdown(["<prefix>[./<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
+          u = /^\/assets/ := u ? u : "<p2r><u>/";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         // or we check if its one of the details of the current concept
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
+          u = /^\/assets/ := u ? u : "<p2r><u>/";
           return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
 
