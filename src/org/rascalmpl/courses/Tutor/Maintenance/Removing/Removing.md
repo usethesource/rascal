@@ -25,5 +25,7 @@ To remove a concept _C_:
 
 #### Benefits
 
+* If there are dangling links to the course, the compiler will produce an exact error for each reference.
+
 #### Pitfalls
 

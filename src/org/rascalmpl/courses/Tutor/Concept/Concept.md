@@ -13,79 +13,48 @@ details:
   - Pitfalls
 ---
 
-.Synopsis
-A _concept_ is the basic building block of a course.
+#### Synopsis
 
-.Syntax
+A _concept_ is the basic building block of a course. 
 
-```
-# _ConceptName_
-```
+#### Syntax
 
-```
-.Synopsis
-_MarkedText_
-```
+* `module a/b/Concept` in `a/b/Concept.rsc`
+* Or a file `a/b/Concept/Concept.md`, `a/b/Concept/index.md`:
+   ``````
+   ---
+   title: Concept Title
+   keywords:
+      - keyword1
+      - keyword2
+   ---
 
-```
-.Syntax
-_MarkedText_
-```
+   #### Synopsis
+   
+   This is the synopsis.
 
-```
-.Types
-_MarkedText_
-```
+   #### Description
 
-```
-.Function
-_MarkedText_
-```
+   #### Types
 
-```
-.Description
-_MarkedText_
-```
+   #### Function
 
-```
-.Examples
-_MarkedText_
-```
+   #### Examples
 
-```
-.Benefits
-_MarkedText_
-```
+   #### Benefits
 
+   #### Pitfalls
+   ``````
 
-```
-.Pitfalls
-_MarkedText_
-```
+All sections are optional, but not the title header. It is always recommended to have at least a Synopsis and some Examples. Empty sections are removed by the preprocessor.
 
-The first two sections (Name and Synopsis) are mandatory, the others are optional.
-It is recommended to give examples.
+#### Description
 
-.Types
-
-.Function
-
-.Description
 A concept describes a separate entity (idea, artefact, function, rule) that is relevant in the scope of the course in which it appears.
-It consists of 11 named sections that are described separately. 
+It consists of the named sections above that are described separately. 
 Each section starts with a keyword that should appear at the begin of a line.
-The first two sections (Name and Synopsis) are mandatory,
 
 Here is a brief summary of the sections of a concept:
 (((TOC)))
 
-
-.Examples
-
-.Benefits
-
-.Pitfalls
-
-* Note that all section names start with a period, e.g., `.Examples`.
-* No space is allowed before the section name.
 

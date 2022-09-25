@@ -36,3 +36,4 @@ They may be followed by one or more subscripts (enclosed by `~` and `~`) or supe
 
 #### Pitfalls
 
+* ((TODO:This feature is broken currently. The italics do not work in code fragments and subscripts are broken as well.))

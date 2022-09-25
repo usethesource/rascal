@@ -10,9 +10,9 @@ Create inline code fragments.
 
 #### Syntax
 
-```
-\`MarkedText`
-```
+``````
+`MarkedText`
+``````
 
 #### Types
 
@@ -25,7 +25,8 @@ Inside the _MarkedText_, other markup can be used.
 
 #### Examples
 
-` `if` ` --- that is ` followed by `if` followed by ` --- gives `if`.
+* `` `if` ``  gives `if`.
+* to escape backquotes simply surround by more: ``` `` `if` `` ```
 
 #### Benefits
 

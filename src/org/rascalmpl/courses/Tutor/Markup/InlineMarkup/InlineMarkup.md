@@ -4,7 +4,7 @@ title: Inline Markup
 
 #### Synopsis
 
-Markup directives used in input lines.
+Markup directives used in input text.
 
 #### Syntax
 
@@ -14,9 +14,7 @@ Markup directives used in input lines.
 
 #### Description
 
-For convenience we summarize the most commonn inline markup elements.
-
-(((TODO:See http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/ for more details.)))
+For convenience we summarize the most common inline markup elements. See <https://docusaurus.io/docs/markdown-features> for all the supported features.
 
 (((TOC)))
 
