@@ -69,13 +69,13 @@ x + 1
 
 With `error` you can show an error message without the build failing:
 ``````
-```rascal-shell error
+```rascal-shell,error
 int x = 1;
 y + y;
 ```
 ``````
 
-```rascal-shell
+```rascal-shell,error
 int x = 1;
 y + y;
 ```
@@ -102,7 +102,7 @@ y + y
 ``````
 
 ```rascal-shell,continue
-x + x
+y + y
 ```
 
 Simply using `rascal` as a language does not have all these effects:

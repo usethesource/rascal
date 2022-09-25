@@ -4,7 +4,7 @@ title: Table
 
 #### Synopsis
 
-Mark up for a table.
+Mark up for tables.
 
 #### Syntax
 
@@ -15,6 +15,15 @@ Mark up for a table.
 | _Entry_~21~  | _Entry_~22~  | ... |
 ``````
 
+The "column specification", that's the line with the dashes, may also contain hints for
+left, right and centered aligment:
+
+``````
+| _Header_~1~ | _Header_~2~ | ... |
+| :---- | :---: | ---: |
+| _Entry_~11~  | _Entry_~12~  | ... |
+| _Entry_~21~  | _Entry_~22~  | ... |
+``````
 ----
 
 #### Types
@@ -23,9 +32,7 @@ Mark up for a table.
 
 #### Description
 
-The simplest table starts and ends with `|`, each row is separated by an empty line and each column starts with `|`.
-There are, hwoever, other formats and options to specify the formatting of cells and columns.
-(((TODO:See http://asciidoctor.org/docs/user-manual/#tables for details.)))
+Tables follow the [standard markdown syntax](https://www.markdownguide.org/extended-syntax/#tables) for tables.
 
 #### Examples
 
@@ -48,54 +55,28 @@ gives:
 
 ##  Example 2 
 
-(((TODO)))
-A column specification may precede the table and specifies the number of columns with default alignment (left) and with
-specified alignment: left (`<`), centered (`^`) or right (`>`).
 
-```rascal
-[cols="1*,^,1*"]
+``````
 | A  | B  | C |
-| --- | --- | --- |
-| 11 | 12 | 13 |
+|:--- | ---:|:---:|
+| 1111 | 1221 | 1331 |
 | 21 | 22 | 23 |
-
-```
+``````
 
 gives (with column B centered):
 
-[cols="1*,^,1*"]
 | A  | B  | C |
-| --- | --- | --- |
-| 11 | 12 | 13 |
+|:--- | ---:|:---:|
+| 1111 | 1221 | 1331 |
 | 21 | 22 | 23 |
 
 
 ##  Example 3 
 
 ```rascal
-[cols="2*,>"]
-| A  | B  | C |
-| --- | --- | --- |
-| 11 | 12 | 13 |
-| 21 | 22 | 23 |
-
-```
-
-gives (with column C right-aligned):
-
-[cols="2*,>"]
-| A  | B  | C |
-| --- | --- | --- |
-| 11 | 12 | 13 |
-| 21 | 22 | 23 |
-
-
-##  Example 4 
-
-```rascal
 | Operator    | Description |
 | --- | --- |
-| `A \| B` | Or operator |
+| `A &#124; B` | Or operator |
 
 ```
 
@@ -103,12 +84,13 @@ gives (note the escaped `|` character in one table entry):
 
 | Operator    | Description |
 | --- | --- |
-| `A \| B` | Or operator |
+| `A &#124; B` | Or operator |
 
 
 #### Benefits
 
-Table formatting are versatile and include, sizing, subtables, column spans, and more, see  http://asciidoctor.org/docs/user-manual/#tables.
+* Standard markdown syntax for tables
 
 #### Pitfalls
 
+* Watch out for escaping that `|` character!
