@@ -164,10 +164,8 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg) {
 list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
    list[Output] output = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
 
-   previous="not empty";
-
    writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
-      "<for (out(x) <- output) { if (trim(previous) == "", trim(x) == "") { continue; } previous = x;><x>
+      "<for (out(x) <- output) {><x>
       '<}>"
    );
 
@@ -176,7 +174,7 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
 
 @synopsis{This uses another nested directory listing to construct information for the TOC embedded in the current document.}
 list[str] createDetailsList(loc m, PathConfig pcfg) 
-  = sort([ "<capitalize(pcfg.currentRoot.file)>:<if (d.extension == "rsc") {>module:<}><replaceAll(fragment(pcfg.currentRoot, d), "/", "-")[1..]>" | d <- m.parent.ls, isDirectory(d) || d.extension in {"rsc", "md"}]);
+  = sort([ "<capitalize(pcfg.currentRoot.file)>:<if (d.extension == "rsc") {>module:<}><replaceAll(fragment(pcfg.currentRoot, d), "/", "-")[1..]>" | d <- m.parent.ls, m != d, isDirectory(d) || d.extension in {"rsc", "md"}]);
 
 list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
   order = createDetailsList(m, pcfg);
@@ -186,22 +184,21 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   // turn A/B/B.md into A/B/index.md for better URLs in the end result (`A/B/`` is better than `A/B/B.html`)
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
 
-  previous = "non empty";
   writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
-      "<for (out(x) <- output) { if (trim(previous) == "", trim(x) == "") { continue; } previous = x;><x>
+      "<for (out(x) <- output) {><x>
       '<}>"
   );
 
   return [e | err(e) <- output];
 }
 
-@synopsis{make sure to tag all section headers with the right fragment id for concept linking}
+@synopsis{Make sure to tag all section headers with the right fragment id for concept linking}
 list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [ out("## <title> {<fragment(pcfg.currentRoot, pcfg.currentFile)>}"),
       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, dtls)
     ];
 
-@synopsis{skip double quoted blocks}
+@synopsis{Skip double quoted blocks}
 list[Output] compileMarkdown([str first:/^\s*``````/, *block, str second:/^``````/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [ 
       out(first), 
@@ -210,7 +207,7 @@ list[Output] compileMarkdown([str first:/^\s*``````/, *block, str second:/^`````
       *compileMarkdown(rest, line, offset, pcfg, exec, ind, dtls)
   ];
 
-@synopsis{include Rascal code from Rascal source files}
+@synopsis{Include Rascal code from Rascal source files}
 list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str components, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   return[ 
       Output::empty(), // must have an empty line
@@ -262,7 +259,7 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TODO<msg:[^\)]*>\s*\)\)\)\
      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
     ];
 
-@synopsis{inline example files literally, in Rascal loc notation, but do not compile further from there. Works only if positioned on a line by itself.}
+@synopsis{Inline example files literally, in Rascal loc notation, but do not compile further from there. Works only if positioned on a line by itself.}
 list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   try {
     return [
@@ -278,23 +275,23 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str
   }
 }
 
-@synopsis{implement subscript syntax for letters and numbers and dashes and underscores}
-list[Output] compileMarkdown([/^<prefix:.*>~<words:[a-zA-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown(["<prefix>\<sub\><words>\</sub\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+// @synopsis{Implement subscript syntax for letters and numbers and dashes and underscores}
+// list[Output] compileMarkdown([/^<prefix:.*>~<words:[a-zA-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+//   = compileMarkdown(["<prefix>\<Text style=\"{{fontSize: 15, lineHeight: 37}}\"\><words>\</Text\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
-@synopsis{implement superscript syntax for letters and numbers and dashes and underscores}
-list[Output] compileMarkdown([/^<prefix:.*>^<words:[a-zA-Z0-9\-_0-9]+>^<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown(["<prefix>\<sup\><words>\</sup\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+// @synopsis{Implement superscript syntax for letters and numbers and dashes and underscores}
+// list[Output] compileMarkdown([/^<prefix:.*>\^<words:[a-zA-Z0-9\-_0-9]+>\^<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+//   = compileMarkdown(["<prefix>\<Text style=\"{{fontSize: 15, lineHeight: 18}}\"\><words>\</Text\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
 
-@synopsis{resolve [labeled]((links))}
+@synopsis{Resolve [labeled]((links))}
 list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   resolution = ind[removeSpaces(link)];
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
 
   switch (resolution) {
       case {u}: {
-        u = /^\/assets/ := u ? u : "<p2r><u>";
+        u = /^\/assets/ := u ? u : "<p2r><u>/";
         return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
       }
       case { }: {
@@ -310,13 +307,13 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-
       }
       case {str plink, /<qlink:.*>\/index\.md/}:
          if (plink == qlink) {
-            return compileMarkdown(["<prefix>[<title>](<p2r><plink>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+            return compileMarkdown(["<prefix>[<title>](<p2r><plink>/)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
          }  else fail;
      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
         if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
+          u = /^\/assets/ := u ? u : "<p2r><u>/";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
@@ -325,7 +322,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-
         }
         // or we check if its one of the details of the current concept
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
-          u = /^\/assets/ := u ? u : "<p2r><u>";
+          u = /^\/assets/ := u ? u : "<p2r><u>/";
           return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
         }
 
@@ -341,7 +338,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-
   return [err(error("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
 }
 
-@synopsis{resolve unlabeled ((links))}
+@synopsis{Resolve unlabeled links}
 default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
   resolution = ind[removeSpaces(link)];
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
