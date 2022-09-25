@@ -35,29 +35,98 @@ rel[str, str] createConceptIndex(list[loc] srcs)
 @synopsis{creates a lookup table for concepts nested in a folder}
 rel[str, str] createConceptIndex(loc src)
   = // first we collect index entries for concept names, each file is one concept which
-    // can be linked to in 6 different ways ranging from very short but likely inaccurate to
-    // rather long, but guaranteed to be exact:
-    { 
-      // `((StrictSuperSetSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
-      <cf.file, endsWith(fr, "/") ? fr[..-1] : fr>,
+    // can be linked to in many different ways ranging from very short (handy but inexact) to very long (guaranteed to be exact.)
 
-      // `((Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
-      *{<"<f.parent.parent.file>-<cf.file>", fr> | f.parent.path != "/", f.parent.file == cf.file, f.parent != src},
+    // First we handle the root concept
+    {
+      <capitalize(src.file), "/<capitalize(src.file)>/index.md">
+    }
+    +
+    // Then we handle the cases where the concept name is the same as the folder it is nested in:
+    {
+      // `((StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <cf.file                            , fr>,
 
-      // `((Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
-      *{<"<replaceAll(fr[1..][findFirst(fr[1..], "/")+1..], "/", "-")>", fr>},
+      // `((Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<f.parent.parent.file>-<cf.file>", fr>,
 
-      // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
+      // `((Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <replaceAll(capitalize(relativize(src, f.parent).path)[1..], "/", "-"), fr>,
+
+      // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
       <"<capitalize(src.file)>:<capitalize(cf.file)>", fr>,
 
-      // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
-      *{<"<capitalize(src.file)>:<capitalize(f.parent.parent.file)>-<capitalize(cf.file)>", "/<src.file><fr[1..][findFirst(fr[1..], "/")..]>"> | f.parent.path != "/", f.parent.file == cf.file},     
+      // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<capitalize(src.file)>:<f.parent.parent.file>-<cf.file>", fr>,
 
-      // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
-      <"<capitalize(src.file)>:<replaceAll(fr[1..][findFirst(fr[1..], "/")+1..], "/", "-")>", fr>
+      // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f.parent).path)[1..], "/", "-")>", fr>
 
-    | loc f <- find(src, isConceptFile), f.file != "index.md", fr := localLink(src, f), cf := f[extension=""]
+    | loc f <- find(src, isConceptFile)
+      , f.parent?
+      , f.parent.path != "/"
+      , f.parent != src
+      , f.parent.file == f[extension=""].file
+      , fr := "/<capitalize(src.file)>/<fragment(src, f)>"
+      , cf := f[extension=""]
     }
+    +
+    // Then we handle the extra markdown files, that don't keep to the Concept/Concept.md rule
+    {
+      // `((StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <cf.file                            , fr>,
+
+      // `((Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<f.parent.file>-<cf.file>", fr>,
+
+      // `((Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <replaceAll(capitalize(relativize(src, cf).path)[1..], "/", "-"), fr>,
+
+      // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<capitalize(src.file)>:<capitalize(cf.file)>", fr>,
+
+      // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<capitalize(src.file)>:<f.parent.file>-<cf.file>", fr>,
+
+      // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, cf).path)[1..], "/", "-")>", fr>
+
+    | loc f <- find(src, isConceptFile)
+      , f.parent?
+      , f.parent.path != "/"
+      , f.parent != src
+      , f.parent.file != f[extension=""].file
+      , fr := "/<capitalize(src.file)>/<fragment(src, f)>"
+      , cf := f[extension=""]
+    }
+    +
+    // Then we handle all folders. We assume all folders have an index.md (generated or manually provided) 
+    // This may generate some links exactly the same as above, and add some new ones.
+    + 
+    {
+      // `((StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <f.file                            , fr>,
+
+      // `((Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<f.parent.file>-<f.file>", fr>,
+
+      // `((Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <replaceAll(capitalize(relativize(src, f).path)[1..], "/", "-"), fr>,
+
+      // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<capitalize(src.file)>:<capitalize(f.file)>", fr>,
+
+      // `((Rascal:Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<capitalize(src.file)>:<f.parent.file>-<f.file>", fr>,
+
+      // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
+      <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f).path)[1..], "/", "-")>", fr>
+    | loc f <- find(src, isDirectory)
+    , fr := "/<capitalize(src.file)>/<fragment(src, f)>"
+    , f != src
+    }
+    +
+
   + // Now follow the index entries for image files:
     { <"<f.parent.file>-<f.file>", "/assets/<capitalize(src.file)><relativize(src, f).path>">,
       <f.file, "/assets/<capitalize(src.file)><relativize(src, f).path>">,
@@ -71,9 +140,12 @@ rel[str, str] createConceptIndex(loc src)
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "-"))>", fr>,
      <"<capitalize(src.file)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "::"))>", fr>
-    | loc f <- find(src, isDirectory), /\/internal\// !:= f.path, fr := localDirLink(src, f)
+    | loc f <- find(src, isDirectory)
+      , /\/internal\// !:= f.path
+      , f != src
+      , fr := "/<capitalize(src.file)>/<fragment(src, f)>"
   }
-  + // Here come the index entries for Rascal modules and declarations:
+  + // Finally, the index entries for Rascal modules and declarations, as extracted from the source code:
     {  // `((getDefaultPathConfig))` -> `Libary/util/Reflective#getDefaultPathConfig`
       *{<"<item.kind>:<item.name>","/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>">, 
         <item.name, "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
@@ -99,8 +171,6 @@ rel[str, str] createConceptIndex(loc src)
 
       | loc f <- find(src, "rsc"), list[DeclarationInfo] inf := safeExtract(f), item <- inf
     }
-    +
-    {<capitalize(src.file), "/<capitalize(src.file)>">}
     ;
 
 private bool isConceptFile(loc f) = f.extension in {"md"};
