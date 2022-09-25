@@ -83,6 +83,19 @@ public void defaultCompile() {
   lastErrors = errors;
 }
 
+public void compileOne(loc root, loc src, PathConfig pcfg) {
+  pcfg.currentRoot = root;
+  pcfg.currentFile = src;
+  inx = readConceptIndex(pcfg);
+
+  errors = compile(src, pcfg, createExecutor(pcfg), inx);
+
+  for (e <- errors) {
+    println("<e.at>: <e.msg><if (e.cause?) {>
+            '    <e.cause><}>");
+  }
+}
+
 public void onlyAPICompile() {
  errors = compile(onlyAPIconfig);
 
@@ -467,7 +480,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     html   = output["text/html"]?"";
 
     if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
-      for (allowErrors, errLine <- split("\n", stderr)) {
+      for (allowErrors, str errLine <- split("\n", stderr)) {
         append OUT : out(errLine);
       }
 

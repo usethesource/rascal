@@ -13,6 +13,10 @@ import lang::rascal::tutor::Names;
 
 public alias Index = rel[str reference, str url];
 
+Index readConceptIndex(PathConfig pcfg) {
+  return readBinaryValueFile(#Index, pcfg.bin + "index.value");
+}
+
 Index createConceptIndex(PathConfig pcfg) {
     ind = createConceptIndex(pcfg.srcs);
 
