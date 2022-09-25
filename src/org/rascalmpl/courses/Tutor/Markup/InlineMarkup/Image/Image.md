@@ -31,25 +31,25 @@ Or, if you need more configurability, like dimensions:
 
 Tutor offers the simple Markdown image syntax plus referencing images in a course. 
 If you need more flexibility, simply use the HTML `<img>` tag.
+
 #### Examples
 
-
 ``````
-![]((dandelion.jpg))
+![alt]((dandelion.jpg))
 ``````
 
 will produce:
 
-![]((dandelion.jpg))
+![alt]((dandelion.jpg))
 
-or we could use an `img` tag:
+or we could use an `img` tag with a full path to the file in the assets folder:
 ``````
-<img src="((dandelion.jpg))" width="100px">
+<img src="/assets/Tutor/Markup/InlineMarkup/Image/dandelion.jpg" width="100px">
 ``````
 
 which produces this:
 
-<img src="((dandelion.jpg))" width="100px">
+<img src="/assets/Tutor/Markup/InlineMarkup/Image/dandelion.jpg" width="100px">
 
 Finally, have a look at the ((Library:module:Content)) library module and the ((Markup-Listing)) feature to generate
 images using Rascal code at Tutor compile time.
