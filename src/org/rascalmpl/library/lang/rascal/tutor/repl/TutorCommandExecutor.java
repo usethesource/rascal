@@ -82,6 +82,8 @@ public class TutorCommandExecutor {
            // nothing needed
         }
         repl.cleanEnvironment();
+        shellStandardOutput.reset();
+        shellErrorOutput.reset();
     }
 
     public String getPrompt() {
