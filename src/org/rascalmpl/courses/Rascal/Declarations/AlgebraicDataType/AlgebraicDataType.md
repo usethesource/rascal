@@ -87,7 +87,7 @@ example.origin
 A parametrized data-type can be useful at times. The following
 also demonstrates an overloaded function:
 
-```rascal-shell
+```rascal-shell,continue
 data SortedList[&T] = sorted(list[&T] lst);
 SortedList[&T] sorted([*&T a, &T e, *&T b, &T f, *&T c]) = sorted([*a, f, *b, e, *c]) when f < e;
 sorted([3,2,1])
@@ -99,6 +99,21 @@ by swapping elements that are out of order using [list matching]((Patterns-List)
 Since `SortedList` is type-parametrized it works on any kind of type:
 ```rascal-shell,continue
 sorted(["tic", "tac", "toe"])
+```
+
+More direct usage of overloaded constructors and functions is "normalizing rewrite rules". 
+Here we use an axiomatic definition of `conj` and `disj` to rewrite all applications of `conj` to `tt` or `ff`:
+
+```rascal-shell,continue
+Bool conj(ff(), Bool _) = ff();
+Bool conj(tt(), Bool b) = b;
+Bool disj(tt(), Bool _) = tt();
+Bool disj(ff(), Bool b) = b;
+```
+
+Now let's try it out:
+```rascal-shell,continue
+disj(conj(tt(),tt()), ff())
 ```
 
 #### Benefits
