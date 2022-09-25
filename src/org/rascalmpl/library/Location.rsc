@@ -43,6 +43,16 @@ If the outside does not envelop the inside, then the original loc is returned.
 @javaClass{org.rascalmpl.library.Prelude}
 java loc relativize(loc outside, loc inside);
 
+@synopsis{Find the first `haystack` folder the `needle` can be found in and relativize it, or fail.}
+loc relativize(list[loc] haystack, loc needle) {
+    if (h <- haystack, loc r := relativize(h, needle), r != needle) {
+        return r;
+    }
+    else {
+        fail relativize;
+    }
+}
+
 @doc{
 #### Synopsis
 

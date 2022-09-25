@@ -8,7 +8,20 @@ Include an image.
 
 #### Syntax
 
-(((TODO-image syntax has changed)))
+This is the general Markdown syntax:
+``````
+![alt text](url)
+``````
+
+With the double brackets you can search for an image in the tutor index:
+``````
+![alt text]((Link))
+``````
+
+Or, if you need more configurability, like dimensions:
+``````
+<img src="((Link))" width="200px">
+``````
 
 #### Types
 
@@ -16,49 +29,33 @@ Include an image.
 
 #### Description
 
-Describes an image to be included:
-
-* _File_ is the name of the image file.
-* _AlternateName_ is the alternate name of the image.
-* _Width_ is the required width (in pixels) of the image.
-* _Height_ is the rewuired height of the image in pixels.
-* When `link` is present, it turns the image in a link to the given _URI_.
-
-    
-(((TODO:For further styling of images, see http://asciidoctor.org/docs/user-manual/#images.)))
-
+Tutor offers the simple Markdown image syntax plus referencing images in a course. 
+If you need more flexibility, simply use the HTML `<img>` tag.
 #### Examples
 
-##  Example 1 
-```
+
+``````
 ![]((dandelion.jpg))
-```
+``````
+
 will produce:
 
 ![]((dandelion.jpg))
 
-##  Example 2 
-```
-![]((dandelion.jpg))
-```
+or we could use an `img` tag:
+``````
+<img src="((dandelion.jpg))" width="100px">
+``````
 
-![]((dandelion.jpg))
+which produces this:
 
-produces a reduced image floating at the right.
+<img src="((dandelion.jpg))" width="100px">
 
-##  Example 3 
-
-And, finally,
-```
-![]((dandelion.jpg))
-```
-produces a clickable image that links back to the source of the image.
-
-![]((dandelion.jpg))
-
-Try it!
+Finally, have a look at the ((Library:module:Content)) library module and the ((Markup-Listing)) feature to generate
+images using Rascal code at Tutor compile time.
 
 #### Benefits
 
 #### Pitfalls
 
+* Don't forget a sensible alt text. It makes the documentation much more accessible.

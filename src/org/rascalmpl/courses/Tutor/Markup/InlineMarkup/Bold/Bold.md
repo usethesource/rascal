@@ -8,9 +8,9 @@ Create *bold* text.
 
 #### Syntax
 
-```
-\*_Text_*
-```
+``````
+*Text*
+``````
 
 #### Types
 

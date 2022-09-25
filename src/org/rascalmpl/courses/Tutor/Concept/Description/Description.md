@@ -4,7 +4,7 @@ title: Description
 
 #### Synopsis
 
-Gives a concise explanation of a concept.
+Gives a clear and concise explanation of a concept.
 
 #### Syntax
 

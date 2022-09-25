@@ -36,7 +36,7 @@ Tables follow the [standard markdown syntax](https://www.markdownguide.org/exten
 
 #### Examples
 
-##  Example 1 
+##### Example 1 
 
 ``````
 | A  | B  | C |
@@ -53,7 +53,7 @@ gives:
 | 21 | 22 | 23 |
 
 
-##  Example 2 
+#####  Example 2 
 
 
 ``````
@@ -71,20 +71,21 @@ gives (with column B centered):
 | 21 | 22 | 23 |
 
 
-##  Example 3 
+#####  Example 3 
 
-```rascal
-| Operator    | Description |
-| --- | --- |
-| `A &#124; B` | Or operator |
-
-```
+``````
+| Operator   | Description |
+| ---        | ---         |
+| `A | B`    | Or operator |
+| A &#124; B | Or operator |
+``````
 
 gives (note the escaped `|` character in one table entry):
 
 | Operator    | Description |
-| --- | --- |
-| `A &#124; B` | Or operator |
+| ---        | --- |
+| `A | B`    | Or operator |
+| A &#124; B | Or operator |
 
 
 #### Benefits

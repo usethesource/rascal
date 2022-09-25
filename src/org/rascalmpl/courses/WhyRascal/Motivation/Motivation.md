@@ -18,11 +18,25 @@ _Meta-programs_ are programs that analyze, transform or generate other programs.
 
 The _range of programs_ to which meta-programming can be applied is large: from programs in standard languages like C and Java to domain-specific languages for describing high-level system models or applications in specialized areas like gaming or finance. In some cases, even test results or performance data are used as input for meta-programs.
 
-The _range of kinds of meta programs_ that can be applied is also large. There are simple meta programs that generate boilerplate code from a list of items. There are complex meta programs that reverse engineer and statically analyse a big software system before visualizing the results. The point of Rascal is that in all these kinds of meta programs one needs similar operations and similar data-types. 
+The _range of kinds of meta programs_ that can be applied is also large. There are simple meta programs that generate boilerplate code from a list of items. There are complex meta programs that reverse engineer and statically analyse a big software system before visualizing the results. When writing all these kinds of meta programs one needs similar operations and similar data-types. 
 
-The _point of Rascal_ is to provide a reusable set of primitives to build and manipulate program representations. The point is _not_ to be or provide a unified representation of programs to let generic algorithms operate on. In meta programming the devil is often in the details. Rascal makes sure to not a priori abstract from the important details programming language syntax and semantics.
+The _point of Rascal_ is to provide an easy-to-use and easy-to=-combine set of primitives to build and manipulate program representations. The point is _not_ to be or provide a unified representation of programs to let generic algorithms operate on. In meta programming the devil is often in the details. Rascal makes sure to not a priori abstract from the important details programming language syntax and semantics. Instead we make sure it is easy
+to address every important detail.
 
 _Rascal is a domain specific programming language_. We emphasize programming here because Rascal is intended as an engineering tool for programmers that need to construct meta programs. Rascal programs allow running, inspecting, debugging, tracing, profiling, etc. just as normal programs do. The skills of any good programmer are enough to easily write good Rascal programs.
+
+The unique selling point of Rascal is _linguistic integration_ of all the tools you need to make meta-programming effective:
+* higher-order type-parameterized functions and algebraic data-types
+* immutable (builtin) data collections: lists, sets, maps, relations, trees.
+* structured programming with exceptions: if, for, while, break, continue, throw, try-catch.
+* syntax definition and parser generation
+* abstract syntax definition and reading in ASTs from external sources
+* extensive pattern matching and subsitution primitives
+* generic recursive traversal primitives
+* relational calculus, list, set and map comprehensions, and reducers
+* fixed point computations
+* lexically scoped backtracking
+* modular extensibility of syntax, data and functions (!) (no expression problem)
 
 #### Examples
 

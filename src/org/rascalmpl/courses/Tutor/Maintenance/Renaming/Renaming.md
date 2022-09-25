@@ -19,13 +19,15 @@ How to rename a concept.
 To rename a concept _C_ to _D_:
 
 *  Rename _C_ to _D_ using the commands of the version control system.
-*  Rename `D/C.concept` to `D/D.concept` using the version control system.
-*  Open `D/D.concept` in a text editor and change the display name on the first line `# Old Display Name` to `# New Display Name`.
+*  Rename `D/C.md` to `D/D.md` using the version control system, or keep `D/index.md`
+*  Open `D/D.md` in a text editor and change the title `title: Old Display Name` to `title: New Display Name`.
 *  Recompile the course.
 
 #### Examples
 
 #### Benefits
+
+* If there are dangling links to the course, the compiler will produce an exact error for each reference.
 
 #### Pitfalls
 

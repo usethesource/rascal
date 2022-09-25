@@ -4,7 +4,7 @@ title: Listing
 
 #### Synopsis
 
-Include some source code in the document
+Include some executing source code examples in the document
 
 #### Syntax
 
@@ -178,6 +178,8 @@ int fac(int n) {
 ```
 
 #### Benefits
+
+* Code examples that run at documentation compile-time are "always" tested and correct when deployed.
 
 #### Pitfalls
 

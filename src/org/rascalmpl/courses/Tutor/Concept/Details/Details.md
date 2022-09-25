@@ -36,7 +36,7 @@ The details declaration also influences the order and contents of the ((TableOfC
 In ((Concept)) we want to order the details in the order as they appear in the concept description.
 Its `Details` meta-data is therefore:
 
-```
+``````
 ---
 title: Concept
 details:
@@ -51,11 +51,15 @@ details:
   - Benefits
   - Pitfalls
   - Questions
-
 ---
-```
+``````
 
-.Benefits
+#### Benefits
 
-.Pitfalls
+* With details you can choose an order for the subconcepts
+* The Tutor compiler will warn about missing or additional elements in the details list.
+
+#### Pitfalls
+
+* You can forget to add a new concept to the list, or remove an old one from it. 
 

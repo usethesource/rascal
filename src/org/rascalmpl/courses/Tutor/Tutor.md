@@ -17,10 +17,12 @@ The Rascal Tutor compiler can be used to create, maintain and follow (interactiv
 The RascalTutor is an interactive ((Authoring)) and learning environment intended to create and follow interactive courses related to the Rascal language.
 It is based on the following principles and ideas:
 
+* [Write]((Authoring)) standard Markdown in normal files and folders that can be edited using any Markdown editor.
+* Generates Docusauris Markdown files in a file hierarchy that can be included easily in a static markdown website.
 * The basic notion is a ((Concept)). Each concept has a _name_ and contains a fixed set of subsections that describe it.
 * A course is a _concept tree_:
   The central subject of the course is the root of the concept tree, and all subtrees further explain their parent concept.
-* A Rascal code module is a ((Concept)) to the tuturo compiler as well, in order to provide ((API)) documentation for every Rascal module. The declarations it contains are not sub-concepts but rather sub-sections of that concept.
+* A Rascal code module is a ((Concept)) to the tutur compiler as well, in order to provide ((API)) documentation for every Rascal module. The declarations it contains are not sub-concepts but rather sub-sections of that concept.
 * A folder with Rascal modules is also a ((Concept). If it has an `index.md` file this is used to document it, otherwise an `index.md` file is generated.
 
 A _student_ using a course can:
@@ -57,7 +59,7 @@ The following topics will be described here:
 
 #### Benefits
 
-* The tutor compiler generates docusaurus-compatible markdown, which is generally just commonmark unless people write text that depends on docusaurus-specific extensions. This means that downstream processing can be done by many different Markdown tools.
+* The tutor compiler generates docusaurus-compatible markdown, which is general Markdown unless people write text that depends on docusaurus-specific extensions. This means that downstream processing can be done by many different Markdown tools.
 * The input syntax is also very close to standard Markdown, so typical Markdown editors will do a good job in helping you write documentation. We also selected the `.md` extension for this purpose.
 * The tutor compiler allows to include runnable code examples that must succeed in order for to the documentation to be released. This makes the documentation another source of valuable tests for the documented Rascal code, and it guarantees that users can copy paste from the examples without hazard.
 * **privacy** Tutor does not send or retain information about the user at the server side. Even interactive question answering and the progress that is measured are stored client-side only.
