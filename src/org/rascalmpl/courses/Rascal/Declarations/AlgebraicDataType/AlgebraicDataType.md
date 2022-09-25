@@ -41,13 +41,13 @@ data _Type_(_KeywordType1_ _KeywordType1_ = _KeywordDefaultExp1_, ...);
 
 The user-defined types in Rascal are either concrete ((SyntaxDefinition))s, ((Declarations-Alias))es, or ((AlgebraicDataType))s ("ADTs"). We use ADTs to define the shapes of structured, hierarchical data, that can also be recursive. Many think of ADTs as tree-like data-structures, others think of them as many-sorted algebraic signatures, and then again the concept of a "case class" from object-oriented programming also comes very close.
 
-In Rascal, algebraic data types have to be declared first by listing for each type a number of ((Value-Constructor))s, and then values can be constructed using ((Expressions-Call)) to the declared constructor functions.
+In Rascal, algebraic data types have to be declared first by listing for each type a number of ((Values-Constructor))s, and then values can be constructed using ((Expressions-Call)) to the declared constructor functions.
 
 Constructor declarations are very much like function signatures:
 * They have positional parameters with types
 * They have keyword parameters with types and default values.
 
-However, unlike function signatures, constructor signatures can not have ((Patterns)) as parameters. Only ((Pattern-Variable))s are allowed.
+However, unlike function signatures, constructor signatures can not have ((Patterns)) as parameters. Only ((Patterns-Variable))s are allowed.
 
 Algebraic data-types can have type parameters, such as ((util::Maybe)) for more generically applicable data-structures.
 
@@ -72,13 +72,16 @@ data Bool
  
 Terms of type `Bool` can be constructed using the defined constructors:
 ```rascal-shell,continue
-conj(tt(),ff());
+example = conj(tt(),ff());
+example.L
+example.R
 ```
 
 Now let's add a "common" keyword field:
-```rascal,continue
+```rascal-shell,continue
 data Bool(loc origin=|unknown:///|);
-tt(origin=|home:///MyDocuments/test.bool|)
+example = tt(origin=|home:///MyDocuments/test.bool|);
+example.origin
 ```
 
 A parametrized data-type can be useful at times. The following
@@ -96,6 +99,7 @@ by swapping elements that are out of order using [list matching]((Patterns-List)
 Since `SortedList` is type-parametrized it works on any kind of type:
 ```rascal-shell,continue
 sorted(["tic", "tac", "toe"])
+```
 
 #### Benefits
 

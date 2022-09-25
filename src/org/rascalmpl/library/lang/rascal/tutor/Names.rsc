@@ -8,21 +8,16 @@ import IO;
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 data Message(str cause="");
 
-str localLink(loc root, loc concept) = (concept.file == "index.md" || concept.parent.file == concept[extension=""].file) 
-  ? "/<capitalize(root.file)><relativize(root, concept.parent).path>"
-  : "/<capitalize(root.file)><relativize(root, concept)[extension="md"]>"
-  ;
 
-str localDirLink(loc root, loc dir) 
-  = "/<capitalize(root.file)><(relativize(root, dir)).path>";  
+default str fragment(loc root, loc concept) = capitalize(relativize(root, concept).path)[1..];
+      
+str fragment(loc root, loc concept) = fragment(root, concept + "index.md")
+  when isDirectory(concept) || root == concept;
 
+str fragment(loc root, loc concept) = fragment(root, concept.parent + "index.md")
+  when concept.parent?, concept.parent.file == concept[extension=""].file;
 
-str fragment(loc concept) = stripDoubleEnd("/<capitalize(concept[extension=""].path[1..])>");
-str fragment(loc root, loc concept) = stripDoubleEnd(fragment(relativize(root, concept)));
 str moduleFragment(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
-
-str stripDoubleEnd(/<prefix:.*>\/<a:[^\/]+>\/<b:[^\-]+>$/) = "<prefix>/<b>" when a == b;
-default str stripDoubleEnd(str x) = x;
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
   = removeSpaces("<prefix><capitalize(postfix)>");
