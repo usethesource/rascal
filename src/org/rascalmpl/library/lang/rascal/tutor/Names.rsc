@@ -14,7 +14,7 @@ str localLink(loc root, loc concept) = (concept.file == "index.md" || concept.pa
   ;
 
 str localDirLink(loc root, loc dir) 
-  = "/<capitalize(root.file)><(relativize(root, dir) + "index.md").path>";  
+  = "/<capitalize(root.file)><(relativize(root, dir)).path>";  
 
 
 str fragment(loc concept) = stripDoubleEnd("/<capitalize(concept[extension=""].path[1..])>");

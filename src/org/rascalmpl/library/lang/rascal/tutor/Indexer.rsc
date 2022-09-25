@@ -34,13 +34,13 @@ rel[str, str] createConceptIndex(loc src)
     // can be linked to in 6 different ways ranging from very short but likely inaccurate to
     // rather long, but guaranteed to be exact:
     { 
-      // `((StrictSuperSetSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
-      <cf.file, fr>,
+      // `((StrictSuperSetSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
+      <cf.file, endsWith(fr, "/") ? fr[..-1] : fr>,
 
-      // `((Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
+      // `((Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
       *{<"<f.parent.parent.file>-<cf.file>", fr> | f.parent.path != "/", f.parent.file == cf.file, f.parent != src},
 
-      // `((Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet``
+      // `((Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
       *{<"<replaceAll(fr[1..][findFirst(fr[1..], "/")+1..], "/", "-")>", fr>},
 
       // `((Rascal:StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet`
@@ -96,7 +96,7 @@ rel[str, str] createConceptIndex(loc src)
       | loc f <- find(src, "rsc"), list[DeclarationInfo] inf := safeExtract(f), item <- inf
     }
     +
-    {<capitalize(src.file), "/<capitalize(src.file)>/">}
+    {<capitalize(src.file), "/<capitalize(src.file)>">}
     ;
 
 private bool isConceptFile(loc f) = f.extension in {"md"};

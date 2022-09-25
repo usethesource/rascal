@@ -11,7 +11,7 @@ The tutor compiler translates Rascal modules and Markdown files to Docusaurus Ma
 * Indexing sub-concepts and resolving links to them (internally)
 * Implementing local tables of contents for listing nested subconcepts in the parent file
 * Collecting and linking local image files
-* Supporting subscripts and superscripts as in `Type~1~` and `Type^21^` by translation to Unicode
+* Supporting subscripts and superscripts as in `Type~1~` and `Type^21^` by translation MDX Text tags.
 * Collecting Rascal source modules and the function and data declarations in them to generating API documentations in markdown notation
 * Running `rascal-shell` blocks on the Rascal REPL and collecting resulting HTML visualizations as screenshots (unfinished)
 * Executing the questions DSL to produce embedded interactive questions (unfinished)

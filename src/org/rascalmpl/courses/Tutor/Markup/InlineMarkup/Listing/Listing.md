@@ -26,14 +26,15 @@ int fac(int n) {
 
 #### Description
 
-You can use the triple backquotes to encapsulate a piece of literal source text. The language name indicates
+* You can use the triple backquotes to encapsulate a piece of literal source text. The language name indicates
 which syntax highlighter to use.
-
-If you use `rascal-shell` as a language name, then the code is executed line-by-line by a Rascal shell
-and the output is collected. With `rascal-prepare` the code is executed in the current environment but no output is shown.
-Finally using `rascal-include` you can include modules from disk that are on the current search path.
-
-The "magic comments" `highlight-next-line`, `highlight-start`, and `highlight-end` give you a way to highlight
+   * If you use `rascal-shell` as a language name, then the code is executed line-by-line by a Rascal shell
+and the output is collected. 
+   * With `rascal-prepare` the code is executed in the current environment but no output is shown.
+   * Finally using `rascal-include` you can include modules from disk that are on the current search path.
+   * Either `rascal-shell`, `rascal-prepare` or `rascal-include` code with an unexpected error in it will _fail_ the documentation build and an error message will be reported. The build will continue to find other issues and compile all the other files.
+   * Using the `error` label to a code block, an error will be expected and simply rendered to the user. This is to demonstrate error messages to the reader.
+* The "magic comments" `highlight-next-line`, `highlight-start`, and `highlight-end` give you a way to highlight
 selected lines in the code. Also you can use ranges like this `{1,4--6,9}`.
 
 Use `showLineNumbers` to render line numbers in the code examples.
@@ -56,7 +57,7 @@ Using `continue` you can continue where you've left off:
 
 ``````
 ```rascal-shell,continue
-x + x
+x + 1
 ```
 ``````
 
@@ -64,6 +65,19 @@ Which results in:
 
 ```rascal-shell,continue
 x + 1
+```
+
+With `error` you can show an error message without the build failing:
+``````
+```rascal-shell error
+int x = 1;
+y + y;
+```
+``````
+
+```rascal-shell
+int x = 1;
+y + y;
 ```
 
 Or you could prepare something in "secretly":
@@ -74,16 +88,16 @@ int x = 1;
 ``````
 
 ```rascal-prepare
-int x = 1;
+int y = 1;
 ```
 
-And then use it later. This is nice for generating data or modules to import
-without bothering the reader with the details. Of course it is not smart to
-hide essential notions from the user.
+Nothing is shown; the `prepare` block is executed but hidden from view. Then use the context it created later. This is nice for generating example data in files or modules to import
+without bothering the reader with the details. Watch out: it is not smart to
+hide essential notions from the user. This feature is only for preparing a lesson, not to destroy it...
 
 ``````
 ```rascal-shell,continue
-x + x
+y + y
 ```
 ``````
 
@@ -122,7 +136,7 @@ int fac(int n) {
 ```
 ``````
 
-```rascal {2--7} showLineNumbers
+```rascal {2-7} showLineNumbers
 int fac(int n) {
     if (n <= 0) {
         return 1;

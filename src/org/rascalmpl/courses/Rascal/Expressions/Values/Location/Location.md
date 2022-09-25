@@ -92,24 +92,21 @@ The elements of a location value can be accessed and modified using the standard
 
 * `end.line`, `end.column` end line and column of text area.
 
-
-Supported protocols are:
+These are the supported protocol schemes:
 
 | Scheme name and pattern | Description |
 | --- | --- |
-| `http://host:port/path?query#fragment`      | access a remote file via the web. |
-| `file:///path`                                      | access a local file on the file system. |
-| `cwd:///path`                                       | access the current working directory (the directory from which Rascal was started). |
-| `home:///path`                                      | access the home directory of the user. |
-| `std:///path`                                       | access the Rascal standard library.  |
-| `tmp:///path`                                       | access the temporay file directory.  |
-| `jar:url!/[entry]`                                | access any entry in a zip file (or a jar)  |
-| `rascal://qualifiedModulename`                      | access the source code of a Rascal module name  |
-| `project://projectName/projectRelativePath`       | access a project in the current instance of Eclipse.  |
-| `bundleresource://bundleId/bundleRelativePath`    | access OSGI bundles. Only active in Eclipse context  |
-
-
-#### Examples
+| `file:///<path>` | for absolute file names in the OS filesystem | 
+| `project://<projectName>/<path>` | relative to an IDEs workspace, the authority part is a project name and `/` is the root of the source project. Only in an IDE context you can find other projects with this. When running standalone on the commandline or using Maven only the current project is resolved. |
+| `target://<authprojectNameprojectNameority>/<path>` | relative to an IDEs workspace, the authority part is a project name, and the `/` is the root of the binary target path. For example Java's `.class` files end up there |
+| `tmp:///<path>` | finds the OS's folder for temporary files |
+| `home:///<path>` | finds the current user's home folder |
+| `cwd:///<path>` | finds the OS's current working directory |
+| `std:///<path>` | resolves to the (installed) location of the Rascal standard library | 
+| `zip+<scheme>://<authority>/<pathToZip>!/<pathInsideZip` | is for reading and writing into zip archives |
+| `jar+<scheme>://<authority>/<pathToZip>!/<pathInJar` | is for reading and writing into jar archives |
+| `plugin://<bundleName>/<path>` | resolves to the an Eclipse plugin (extracted) resource location, it resolves via an OSGI `bundleresource://` |
+| `bundleresource://<bundleId>/<path>` | resolves to the an OSGI bundle (extracted) resource location. This resolves to a `jar+file://<filePath>!/<pathInJar>` often but could also resolve to a filesystem location depending on the configuration options of the bundle. |
 
 Locations with specific position information should always be generated automatically but for the curious here is an example:
 ```rascal-shell
@@ -119,15 +116,6 @@ Note that this is equivalent to using the `home` scheme:
 ```rascal-shell
 |home://pico.trm|(0,1,<2,3>,<4,5>)
 ```
-
-<!--
-//FIXME: This throws exceptions
-//Accessing a file `src/HelloWorld.java` in a project with the name `example-project` in the currently running Eclipse is done as follows:
-//[source,rascal-shell]
-//----
-//|project://example-project/src/HelloWorld.java|
-//---- -->
-
 
 You could read a webpage:
 
@@ -141,13 +129,7 @@ Addition on locations creates longer paths:
 x = |tmp://myTempDirectory|;
 x += "myTempFile.txt";
 ```
-<!--
-//FIXME: this throws exceptions
-//Check the contents of a folder:
-//[source,rascal-shell]
-//----
-//|project://example-project/src|.ls
-//---- -->
+
 
 #### Benefits
 
