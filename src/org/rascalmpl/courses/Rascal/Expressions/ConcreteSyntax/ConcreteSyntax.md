@@ -37,10 +37,10 @@ For any non-terminal defined in a ((Syntax Definition)), you may use ((Concrete 
 
 #### Benefits
 
-*  Easy notation for complex structures
+* Easy notation for complex structures
+* The leading Nonterminal always scopes the right parser to run.
+* Source-to-source transformations are easy with concrete syntax patterns.
 
 #### Pitfalls
 
-*  Since Rascal currently has no type-checker, the disambiguation of concrete syntax fragments is done heuristically which may lead to surprises.
-*  The disambiguation of embedded concrete syntax fragments may change in the near future.
 
