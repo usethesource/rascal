@@ -285,9 +285,20 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str
   }
 }
 
-@synopsis{Implement subscript syntax for letters and numbers and dashes and underscores}
-list[Output] compileMarkdown([/^<prefix:.*>~<words:[a-zA-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown(["<prefix>\<Text style=\"{{fontSize: 15, lineHeight: 37}}\"\><words>\</Text\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+@synopsis{implement subscript syntax for [aeh-pr-vx] (the subscript alphabet is incomplete in unicode)}
+list[Output] compileMarkdown([/^<prefix:.*>~<digits:[aeh-pr-vx0-9\(\)+\-]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><subscripts["<char(ch)>"]><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+
+@synopsis{detect unsupported subscripts}
+list[Output] compileMarkdown([/^<prefix:.*>~<digits:[^~]*[^aeh-pr-vx0-9]+[^~]*>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = [
+    err(error("Unsupported subscript character in <digits>", pcfg.currentFile(offset, 1, <line, 1>, <line, 2>))),
+    *compileMarkdown(["<prefix><digits><postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+  ];
+
+// @synopsis{Implement subscript syntax for letters and numbers and dashes and underscores}
+// list[Output] compileMarkdown([/^<prefix:.*>~<words:[a-zA-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+//   = compileMarkdown(["<prefix>\<Text style=\"{{fontSize: 15, lineHeight: 37}}\"\><words>\</Text\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
 // @synopsis{Implement superscript syntax for letters and numbers and dashes and underscores}
 // list[Output] compileMarkdown([/^<prefix:.*>\^<words:[a-zA-Z0-9\-_0-9]+>\^<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
@@ -574,3 +585,55 @@ private list[str] filterErrors([]) = [];
 
 private int length(list[str] lines) = (0 | it + size(l) | str l <- lines);
 private int length(str line) = size(line);
+
+private map[str, str] subscripts 
+  =  (  
+        "0" : "\u2080",
+        "1" : "\u2081",
+        "2" : "\u2082",
+        "3" : "\u2083",
+        "4" : "\u2084",
+        "5" : "\u2085",
+        "6" : "\u2086",
+        "7" : "\u2087",
+        "8" : "\u2088",
+        "9" : "\u2089",
+        "+" : "\u208A",
+        "-" : "\u208B",
+        "(" : "\u208C",
+        ")" : "\u208D",
+        "a" : "\u2090",
+        "e" : "\u2091",
+        "h" : "\u2095",
+        "i" : "\u1d62",
+        "j" : "\u2c7c",
+        "k" : "\u2096",
+        "l" : "\u2097",
+        "m" : "\u2098",
+        "n" : "\u2099",
+        "o" : "\u2092",
+        "p" : "\u209a",
+        "r" : "\u1d63",
+        "s" : "\u209b",
+        "t" : "\u209c",
+        "u" : "\u1d64",
+        "v" : "\u1d65",
+        "x" : "\u2093",
+        "A" : "\u2090",
+        "E" : "\u2091",
+        "H" : "\u2095",
+        "I" : "\u1d62",
+        "J" : "\u2c7c",
+        "K" : "\u2096",
+        "L" : "\u2097",
+        "M" : "\u2098",
+        "N" : "\u2099",
+        "O" : "\u2092",
+        "P" : "\u209a",
+        "R" : "\u1d63",
+        "S" : "\u209b",
+        "T" : "\u209c",
+        "U" : "\u1d64",
+        "V" : "\u1d65",
+        "X" : "\u2093"
+  );
