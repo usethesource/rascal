@@ -44,5 +44,5 @@ The content of the header paragraphs is either directly derived from source code
 
 #### Pitfalls 
 
-* This approach requires that functions with the same name are grouped together in the source file. (((TODO-want to group definitions by name in the documentation)))
+* This approach requires that functions with the same name are grouped together in the source file. 
 * You need to run the tutor compiler before errors in the documentation tags are detected.

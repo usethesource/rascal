@@ -1,7 +1,8 @@
 ---
 title: Concept
 details:
-  - Name
+  - Title
+  - Keywords
   - Synopsis
   - Syntax
   - Types
