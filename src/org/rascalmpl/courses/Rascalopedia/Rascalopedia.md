@@ -1,5 +1,6 @@
 ---
 title: Rascalopedia
+sidebar_position: 6
 ---
 
 #### Synopsis

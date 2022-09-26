@@ -1,5 +1,6 @@
 ---
 title: Getting Help
+sidebar_position: 2
 keywords:
   - tutorial
   - newbie
