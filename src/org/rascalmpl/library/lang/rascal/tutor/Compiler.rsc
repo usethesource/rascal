@@ -150,6 +150,10 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind)
 list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind) {
     indexFiles = {(d + "<d.file>")[extension="md"], (d + "index.md")};
 
+    if (!exists(d)) {
+      return [error("Course does not exist <d>", d)];
+    }
+
     return [
       *(((i <- indexFiles) && exists(i)) ? compile(i, pcfg, exec, ind) : generateIndexFile(d, pcfg)), 
       *[*compile(s, pcfg, exec, ind) | s <- d.ls, !(s in indexFiles), isDirectory(s) || s.extension in {"md","rsc","png","jpg","svg","jpeg", "html", "js"}]
@@ -170,7 +174,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg) {
     return [];
   } catch IO(msg): {
     return [error(msg, d)];
-  }
+  } 
 }
 
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
@@ -265,7 +269,7 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TODO<msg:[^\)]*>\s*\)\)\)\
   = [
      out(":::caution"),
      out("There is a \"TODO\" in the documentation source:"),
-     out("msg"),
+     out("\t<msg>"),
      out(first),
      out(":::"),
      err(warning("TODO: <trim(msg)>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))),

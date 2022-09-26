@@ -43,8 +43,6 @@ Horizontal rule:
 * `code`
 * `in code: italics`
 
-(((TOC)))
-
 # Benefits
 
 # Pitfalls
