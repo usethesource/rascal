@@ -59,7 +59,6 @@ public PathConfig defaultConfig
     |project://rascal/src/org/rascalmpl/courses/GettingHelp|,
     |project://rascal/src/org/rascalmpl/courses/WhyRascal|,
     |project://rascal/src/org/rascalmpl/courses/Rascal|,
-    |project://rascal/src/org/rascalmpl/courses/RascalTests|,
     |project://rascal/src/org/rascalmpl/courses/RascalShell|,
     |project://rascal/src/org/rascalmpl/courses/RunTimeErrors|,
     |project://rascal/src/org/rascalmpl/courses/Developers|,
