@@ -16,6 +16,3 @@ keywords:
 1. To know everything about every detail of Rascal syntax and semantics, the [Rascal reference manual]((Rascal)) applies.
 1. The full standard ((Library)) is documented [here]((Library)).
 
-#### Libraries
-
-(((TODO)))
