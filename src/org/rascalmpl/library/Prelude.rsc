@@ -56,6 +56,5 @@ extend ParseTree;
 extend Relation;
 extend Set;
 extend String; 
-extend Traversal;
 extend Type;
 extend ValueIO;  
