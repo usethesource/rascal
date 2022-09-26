@@ -29,7 +29,7 @@ demo::lang::Pico::UseDef
 Recall that `Occurrence` was introduced in ((Pico-Abstract)); it is a parameterized container to associate
 program entities with their location.
 
-<1> The function `usesExp` computes a set of occurrences (uses) of Pico identifiers in a given statement:
+* The function `usesExp` computes a set of occurrences (uses) of Pico identifiers in a given statement:
     * If the expression is itself an identifier, then a singleton set containing that identifier and the statement is returned.
     * If the expression is composite, all its containing identifiers are collected using a descendant (deep) match 
        (`/`, see [Rascal:Descendant]))  in `/u:id(PicoId Id) \<- e`. 
@@ -37,11 +37,11 @@ program entities with their location.
        so that we can access the whole expression that was matched and retrieve its 
        location information (`u@location`) when we are adding a <location, identifier> pair to the set of occurrences.
        
-<2> `useStat` extracts uses from all statement variants.
+* `useStat` extracts uses from all statement variants.
 
-<3> The function `uses` simply applies `usesStats` to the statement part of its program argument.
+* The function `uses` simply applies `usesStats` to the statement part of its program argument.
 
-<4> The function `defs`  has a Pico program as argument and returns a set of occurrences (definitions) of Pico identifiers.
+* The function `defs`  has a Pico program as argument and returns a set of occurrences (definitions) of Pico identifiers.
     The definition consists of a single set comprehension that consists of the following parts:
 
     *  ` ... \<- P. stats` enumerates all statements in the program.
