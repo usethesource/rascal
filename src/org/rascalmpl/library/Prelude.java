@@ -2515,7 +2515,10 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
-						return ast.asWithKeywordParameters().setParameter("location", loc);
+						String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
+						  "location" : "src";
+						
+						return ast.asWithKeywordParameters().setParameter(locLabel, loc);
 					}
 					catch (Backtrack b) {
 					    failReason = b;
@@ -2692,7 +2695,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args));
-				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
+				return ast.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2710,9 +2713,12 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args);
 					IConstructor ast = makeConstructor(store, type, constructorName, implodedArgs);
+					String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
+						  "location" : "src";
+
 					return ast
 					        .asWithKeywordParameters()
-					        .setParameter("location", loc)
+					        .setParameter(locLabel, loc)
 					        .asWithKeywordParameters()
 					        .setParameter("comments", comments);
 				}
