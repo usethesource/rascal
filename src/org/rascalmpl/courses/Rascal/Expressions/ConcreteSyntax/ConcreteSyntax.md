@@ -12,11 +12,11 @@ Concrete syntax is a notation for patterns that match parse trees and expression
 
 #### Syntax
 
-*  `(Nonterminal) `sentence``
-*  ` `sentence` `
+``````
+`(Nonterminal) `sentence``
+``````
 
-
-where each sentence is a string over the language generated from `Nonterminal`. This language is extended in the following way. Each non-terminal reachable `X` from _Non_-terminal has an added alternative to allow nested Rascal ((Patterns)) inside of concrete syntax fragments:
+Where each `sentence` is a string over the language generated from `Nonterminal`. This language is extended in the following way. Each non-terminal reachable `X` from _Non_-terminal has an added alternative to allow nested Rascal ((Patterns)) inside of concrete syntax fragments:
 
 *  `syntax X = "<" Pattern p ">";`
 

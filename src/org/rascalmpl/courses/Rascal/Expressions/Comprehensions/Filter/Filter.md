@@ -4,15 +4,13 @@ title: Filter
 
 #### Synopsis
 
-Filter values in a ((List-Comprehension))], ((Set-Comprehension)) or ((Map-Comprehension)).
+Filter values in a [list comprehension]((List-Comprehension)), [set comprehension]((Set-Comprehension)) or [map comprehension]((Map-Comprehension)).
 
 #### Syntax
 
 `Exp`
 
 #### Types
-
-//
 
 | `Exp`  |
 | --- |
