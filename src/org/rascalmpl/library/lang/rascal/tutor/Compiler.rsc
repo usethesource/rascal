@@ -208,12 +208,6 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   return [e | err(e) <- output];
 }
 
-// @synopsis{Make sure to tag all section headers with the right fragment id for concept linking}
-// list[Output] compileMarkdown([str first:/^\s*#\s*<title:[^#].*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
-//   = [ out("## <title> {<fragment(pcfg.currentRoot, pcfg.currentFile)>}"),
-//       *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, dtls)
-//     ];
-
 @synopsis{Skip double quoted blocks}
 list[Output] compileMarkdown([str first:/^\s*``````/, *block, str second:/^``````/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
   = [ 
@@ -291,9 +285,9 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str
   }
 }
 
-// @synopsis{Implement subscript syntax for letters and numbers and dashes and underscores}
-// list[Output] compileMarkdown([/^<prefix:.*>~<words:[a-zA-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-//   = compileMarkdown(["<prefix>\<Text style=\"{{fontSize: 15, lineHeight: 37}}\"\><words>\</Text\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+@synopsis{Implement subscript syntax for letters and numbers and dashes and underscores}
+list[Output] compileMarkdown([/^<prefix:.*>~<words:[a-zA-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+  = compileMarkdown(["<prefix>\<Text style=\"{{fontSize: 15, lineHeight: 37}}\"\><words>\</Text\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
 
 // @synopsis{Implement superscript syntax for letters and numbers and dashes and underscores}
 // list[Output] compileMarkdown([/^<prefix:.*>\^<words:[a-zA-Z0-9\-_0-9]+>\^<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
@@ -366,14 +360,17 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         }
 
         return [
-                  err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-                  *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
-              ];
+          err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
+          *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+        ];
       }
       case {str plink, /<qlink:.*>\/index\.md/}:
-         if (plink == qlink) {
-            return compileMarkdown(["<prefix>[<addSpaces(link)>](<p2r><plink>/)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
-         }  else fail;
+        if (plink == qlink) {
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<p2r><plink>/)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+        }  
+        else {
+          fail;
+        }
      
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
@@ -392,11 +389,11 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         }
 
         return [
-                  err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
-                              cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
-                                    '    <k> resolves to <v><}>")),
-                  *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
-              ];
+            err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
+                      cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
+                            '    <k> resolves to <v><}>")),
+            *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+        ];
       }
   }
 
@@ -448,8 +445,6 @@ list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySectio
 @synopsis{Removes empty sections at the end of a document}
 list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, /^\s*$/], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
   = [] when !(/\S/ <- emptySection);
-
-
 
 @synopsis{this is when we have processed all the input lines}
 list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _, Index _, list[str] _) = [];
@@ -569,8 +564,6 @@ list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int li
 
 list[str] skipEmpty([/^s*$/, *str rest]) = skipEmpty(rest);
 default list[str] skipEmpty(list[str] lst) = lst;
-
-
 
 private str filterErrors(str errorStream) = intercalate("\n", filterErrors(split("\n", errorStream)));
 
