@@ -29,13 +29,11 @@ respectively, their direct children are enumerated. An enumerator is evaluated a
 *  The elements of _V_ are enumerated one by one.
 
 *  Each element value is matched against the pattern _Pattern_. There are two cases:
-
-   ** The match succeeds, any variables in _Pattern_ are bound, and the next generator in the comprehension is evaluated. 
+   * The match succeeds, any variables in _Pattern_ are bound, and the next generator in the comprehension is evaluated. 
       The variables that are introduced by an enumerator are only available to generators that appear later (i.e., to the right) 
       in the comprehension. When this enumerator is the last generator in the comprehension,
       the contributing expressions of the comprehension are evaluated.
-
-   ** The match fails, no variables are bound. If _V_ has more elements, a next element is tried. 
+   * The match fails, no variables are bound. If _V_ has more elements, a next element is tried. 
       Otherwise, a previous generator (i.e., to the left) is tried. If this enumerator is the first generator in the comprehension,
       the evaluation of the comprehension is complete.
 

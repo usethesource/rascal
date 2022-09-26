@@ -15,11 +15,10 @@ Functions and constructors can be called or invoked in a uniform style.
 * function call with positional parameters `Name ( Exp~1~, Exp~2~, ... )`
 * function call with keyword parameters `Name (Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)`
 * function call with both positional and keyword parameters `Name (Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)`
-* function calls with computed functions `Exp ( Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...) 
+* function calls with computed functions `Exp ( Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)` 
 
 #### Types
 
-//
 
 | `Exp~1~`  | `Exp~2~` | ... | `Name ( Exp~1~, Exp~2~, ... )`  |
 | --- | --- | --- | --- |
