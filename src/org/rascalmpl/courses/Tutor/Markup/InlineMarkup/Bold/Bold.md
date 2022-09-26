@@ -20,7 +20,7 @@ Create *bold* text.
 
 #### Examples
 
-`\*bold*` gives *bold*.
+`*bold*` gives *bold*.
 
 #### Benefits
 

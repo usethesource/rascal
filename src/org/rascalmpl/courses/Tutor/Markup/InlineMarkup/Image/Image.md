@@ -20,8 +20,10 @@ With the double brackets you can search for an image in the tutor index:
 
 Or, if you need more configurability, like dimensions:
 ``````
-<img src="((Link))" width="200px">
+<img src="url" width="200px"/>
 ``````
+
+
 
 #### Types
 
@@ -49,9 +51,9 @@ or we could use an `img` tag with a full path to the file in the assets folder:
 
 which produces this:
 
-<img src="/assets/Tutor/Markup/InlineMarkup/Image/dandelion.jpg" width="100px">
+<img src="/assets/Tutor/Markup/InlineMarkup/Image/dandelion.jpg" width="100px"/>
 
-Finally, have a look at the ((Library:module:Content)) library module and the ((Markup-Listing)) feature to generate
+Finally, have a look at the ((Library:module:Content)) library module and the listing feature to generate
 images using Rascal code at Tutor compile time.
 
 #### Benefits
