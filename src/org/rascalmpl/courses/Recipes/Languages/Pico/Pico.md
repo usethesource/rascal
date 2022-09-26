@@ -16,8 +16,8 @@ The classical toy language, including a specialized IDE.
 
 #### Description
 
-Pico is a toy language that has been used as example over the years in many projects and disguishes,
-Pico has a single purpose in life: being so simple that specifications of every possible language aspect are so simple that they fit on a few pages. It can be summarized as follows:
+Pico is a toy language that has been used as example over the years in many projects and disguises.
+Pico has a single purpose in life: being so simple that specifications (or implementations) of every possible language aspect are so simple that they fit on a few pages. It can be summarized as follows:
 
 *  There are two types: natural numbers and strings.
 
@@ -43,14 +43,16 @@ The following aspects of the Pico language will be discussed:
 Here is a -- not so simple -- Pico program that computes the factorial function:
 
 
-```rascal
-begin declare input : natural, // <1>
+```rascal,lineNumbers
+// highlight-next-line
+begin declare input : natural, 
               output : natural,           
               repnr : natural,
               rep : natural;
       input := 14;
       output := 1;
-      while input - 1 do // <2>
+// highlight-next-line
+      while input - 1 do 
           rep := output;
           repnr := input;
           while repnr - 1 do
@@ -64,12 +66,13 @@ end
 
 Notes:
 	
-<1> Pico programs do not have input/output statements, so we use variables for that purpose.
-<2> Pico has no multiplication operator so we have to simulate it with repeated addition (yes, simplicity comes at a price!).
-
-
+* Pico programs do not have input/output statements, so we use variables for that purpose.
+* Pico has no multiplication operator so we have to simulate it with repeated addition. Simplicity comes at a price.
 
 #### Benefits
 
+* Pico is such a small, but functionally complete, language that it is easy to demonstrate how to specify its syntax and semantics.
+
 #### Pitfalls
 
+* Pico is a small programming language, not really a domain specific language. Some aspects of DSL design and implementation are not demonstrated by Pico.

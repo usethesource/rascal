@@ -20,7 +20,7 @@ For developers on Rascal itself or experimental libraries, who want to work with
 
 #### Running Rascal: starting a terminal with a read-eval-print-loop
 
-1. On the Unix or Windows commandline, simply start a ((RascalShell)) by: `java rascal-<version>.jar`
+1. On the Unix or Windows commandline, simply start a ((RascalShell)) by: `java -jar rascal-<version>.jar`
 2. In VScode, in the command palette type `Rascal` and select `Create Rascal Terminal`
 3. In Eclipse, from the button bar select the button with the Rascal logo.
 4. With Maven, create a pom.xml which includes the above plugin and type: `mvn rascal:console`
