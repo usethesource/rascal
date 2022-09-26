@@ -1,9 +1,9 @@
 ---
 title: Runtime Errors 
+sidebar_position: 9
 details:
   - RuntimeExceptions
   - OtherRuntimeErrors
-
 ---
 
 #### Synopsis

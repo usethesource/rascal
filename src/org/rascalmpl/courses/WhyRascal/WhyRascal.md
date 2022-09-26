@@ -1,5 +1,6 @@
 ---
 title: Why Rascal
+sidebar_position: 9
 details:
   - Motivation
   - EASY

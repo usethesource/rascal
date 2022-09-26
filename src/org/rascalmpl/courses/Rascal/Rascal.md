@@ -1,5 +1,6 @@
 ---
 title: Rascal Language Reference
+sidebar_position: 7
 details:
   - Declarations
   - Patterns

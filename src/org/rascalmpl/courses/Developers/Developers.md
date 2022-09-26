@@ -1,5 +1,6 @@
 ---
 title: Developers manual
+sidebar_position: 10
 details:
   - TutorCompiler
 ---

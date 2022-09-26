@@ -1,5 +1,6 @@
 ---
 title: Rascal Concepts
+sidebar_position: 5
 details:
   - RascalConcepts:RascalConcepts-StaticTyping
   - Datatypes

@@ -1,5 +1,6 @@
 ---
 title: Compile Time Errors
+sidebar_position: 8
 ---
 
 #### Synopsis
