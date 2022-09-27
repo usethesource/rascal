@@ -42,6 +42,8 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -99,7 +101,6 @@ import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
 import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.ICollection;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IExternalValue;
@@ -117,7 +118,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
@@ -128,7 +128,6 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.visitors.IValueVisitor;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
@@ -1218,12 +1217,15 @@ public class Prelude {
 		try {
 			final MessageDigest md = MessageDigest.getInstance("MD5");
 			final StandardTextWriter writer = new StandardTextWriter();
-			Charset UTF8 = Charset.forName("UTF-8");
+			final CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder()
+				.onMalformedInput(CodingErrorAction.REPLACE)
+				.onUnmappableCharacter(CodingErrorAction.REPLACE)
+				;
 			writer.write(value, new Writer() {
 				@Override
 				public void write(char[] cbuf, int off, int len) throws IOException {
 					CharBuffer cb = CharBuffer.wrap(cbuf, off, len);
-					ByteBuffer bb = UTF8.encode(cb); 
+					ByteBuffer bb = encoder.encode(cb); 
 					md.update(bb);
 				}
 
@@ -1236,7 +1238,7 @@ public class Prelude {
 
 			byte[] hash = md.digest();
 
-			StringBuffer result = new StringBuffer(hash.length * 2);
+			StringBuilder result = new StringBuilder(hash.length * 2);
         	for (int i = 0; i < hash.length; i++) {
             	result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
         	}
