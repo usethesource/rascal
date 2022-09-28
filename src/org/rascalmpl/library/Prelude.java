@@ -1159,8 +1159,6 @@ public class Prelude {
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){
-		byte[] hash;
-		
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             boolean useInputStream = !URIResolverRegistry.getInstance().supportsReadableFileChannel(sloc);
@@ -1195,8 +1193,7 @@ public class Prelude {
                     }
                 }
             }
-			
-			hash = md.digest();
+			return translateHash(md);
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}catch(IOException ioex){
@@ -1204,14 +1201,19 @@ public class Prelude {
 		} catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"));
 		}
-        
-        StringBuffer result = new StringBuffer(hash.length * 2);
-        for (int i = 0; i < hash.length; i++) {
-            result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-        }
-        return values.string(result.toString());
-
 	}
+
+	private IString translateHash(MessageDigest md) {
+		byte[] hash = md.digest();
+
+		StringBuilder result = new StringBuilder(hash.length * 2);
+		for (int i = 0; i < hash.length; i++) {
+			result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+		}
+		
+		return values.string(result.toString());
+	}
+
 
 	public IValue md5Hash(IValue value){
 		try {
@@ -1235,15 +1237,7 @@ public class Prelude {
 				@Override
 				public void close() throws IOException { }
 			});
-
-			byte[] hash = md.digest();
-
-			StringBuilder result = new StringBuilder(hash.length * 2);
-        	for (int i = 0; i < hash.length; i++) {
-            	result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-        	}
-			
-        	return values.string(result.toString());
+			return translateHash(md);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
