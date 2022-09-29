@@ -22,7 +22,10 @@ two functions `push` and `pop` and axioms that define them. At the implementatio
 can be implemented using a list, array or something else.
 
 In functional languages, and also in Rascal, abstract datatypes (or ADTs for short)
-are used to define new data types. Well-known examples are http://en.wikipedia.org/wiki/Stack_(data_structure)[stack] and http://en.wikipedia.org/wiki/Tree_(data_structure)[tree].
+are used to define new data types. Well-known examples are [stack](http://en.wikipedia.org/wiki/Stack_(data_structure)) and [tree](http://en.wikipedia.org/wiki/Tree_(data_structure), but for these we may use the builtin's ((Values-List)) and ((Values-Nodes)). In Rascal it is more natural to use them to define symbolic representations of domains, such as:
+* the abstract syntax of logical formulas
+* representations of complex run-time or static types
+* abstract syntax trees of programming languages and domain specific languages
 
 See [Algebraic Data Types]((Rascal:Declarations-AlgebraicDataType)) and 
 [Constructors]((Rascal:Values-Constructor)) in the [Rascal Language Reference]((Rascal)).
