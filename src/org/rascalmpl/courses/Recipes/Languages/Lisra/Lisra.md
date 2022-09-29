@@ -30,7 +30,7 @@ Popular word has that all large applications evolve until they include a Lisp in
 
 We will closely follow and *reuse parts of* Peter Norvig's excellent page
 on [Lispy](http://norvig.com/lispy.html), a Lisp interpreter written in Python.
-The Lisp variant to be implemented is the following subset of the http://en.wikipedia.org/wiki/Scheme_(programming_language)[Scheme]
+The Lisp variant to be implemented is the following subset of the [Scheme](http://en.wikipedia.org/wiki/Scheme_(programming_language))
  language:
 
 

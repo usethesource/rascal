@@ -14,7 +14,7 @@ Symbolic differentiation.
 
 #### Description
 
-Computing the http://en.wikipedia.org/wiki/Differentiation_(mathematics)[derivative] of an expression with respect to some variable is a classical calculus problem. Loosely speaking, a derivative can be thought of as how much one quantity is changing in response to changes in some other quantity; for example, the derivative of the position of a moving object with respect to time is the object's instantaneous velocity.
+Computing the [derivativa](http://en.wikipedia.org/wiki/Differentiation_(mathematics)) of an expression with respect to some variable is a classical calculus problem. Loosely speaking, a derivative can be thought of as how much one quantity is changing in response to changes in some other quantity; for example, the derivative of the position of a moving object with respect to time is the object's instantaneous velocity.
 
 We present here rules for determining the derivative `dE/dX` of simple expressions `E` for a given variable `X`. Recall that for number `N`, variables `X` and `Y`, and expressions `E1` and `E2` the following rules apply:
 

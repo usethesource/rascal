@@ -9,7 +9,7 @@ Keybord shortcuts.
 #### Description
 
 When handling console input, RascalShell supports a subset of the shortcuts provided by
-https://en.wikipedia.org/wiki/GNU_Readline[GNU Readline]
+[GNU readline](https://en.wikipedia.org/wiki/GNU_Readline)
 
 Some convenient shortcuts are:
 
@@ -22,4 +22,6 @@ Some convenient shortcuts are:
 | `Ctrl+k`  | Kill remainder of line after cursor. |
 | `Ctrl+l`  | Clear screen. |
 
- 
+#### Benefits
+
+* ((RascalShell)) is built on top of [JLine](https://github.com/jline)
