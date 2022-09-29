@@ -24,7 +24,7 @@ Chi-square coefficient of data values.
 
 #### Description
 
-Compute the http://en.wikipedia.org/wiki/Chi-square_statistic[ChiSquare statistic] comparing observed and expected frequency counts.
+Compute the [ChiSquare statistic](http://en.wikipedia.org/wiki/Chi-square_statistic) comparing observed and expected frequency counts.
 
 #### Examples
 
@@ -47,7 +47,7 @@ Chi-square test on data values.
 
 #### Description
 
-Perform a http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test[Chi-square test] comparing
+Perform a [chi-square test](http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test) comparing
 expected and observed frequency counts. There are two forms of this test:
 
 *  Returns the _observed significance level_, or p-value, associated with a Chi-square goodness of fit test 
@@ -69,7 +69,7 @@ T-test on sample data.
 
 #### Description
 
-Perform http://en.wikipedia.org/wiki/Student's_t-test[student's t-test].
+Perform [student's t-test](http://en.wikipedia.org/wiki/Student's_t-test)
 The test is provided in three variants:
 
 *  Returns the _observed significance level_, or _p-value_, associated with a two-sample, two-tailed t-test comparing the means of the input samples. The number returned is the smallest significance level at which one can reject the null hypothesis that the two means are equal in favor of the two-sided alternative that they are different. For a one-sided test, divide the returned value by 2. 
@@ -135,10 +135,10 @@ Analysis of Variance (ANOVA) f-value.
 
 #### Description
 
-Perform http://en.wikipedia.org/wiki/Analysis_of_variance[Analysis of Variance test]
-also described http://www.statsoft.com/textbook/anova-manova/[here].
+Perform [Analysis of Variance test](http://en.wikipedia.org/wiki/Analysis_of_variance)
+also described [here](http://www.statsoft.com/textbook/anova-manova/)
 
-Compute the F statistic -- also known as http://en.wikipedia.org/wiki/F-test[F-test] -- using the definitional formula
+Compute the F statistic -- also known as [F-test](http://en.wikipedia.org/wiki/F-test) -- using the definitional formula
    `F = msbg/mswg`
 where
 
@@ -146,7 +146,7 @@ where
 *  `mswg` = within group mean square.
 
 
-are as defined http://faculty.vassar.edu/lowry/ch13pt1.html[here].
+are as defined [here](http://faculty.vassar.edu/lowry/ch13pt1.html)
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num anovaFValue(list[list[num]] categoryData);
@@ -158,8 +158,8 @@ Analysis of Variance (ANOVA) p-value.
 
 #### Description
 
-Perform http://en.wikipedia.org/wiki/Analysis_of_variance[Analysis of Variance test]
-also described http://www.statsoft.com/textbook/anova-manova/[here].
+Perform [Analysis of Variance test](http://en.wikipedia.org/wiki/Analysis_of_variance)
+also described [here](http://www.statsoft.com/textbook/anova-manova/)
 
 Computes the exact p-value using the formula `p = 1 - cumulativeProbability(F)`
 where `F` is the ((anovaFValue)).
@@ -174,8 +174,8 @@ Analysis of Variance (ANOVA) test.
 
 #### Description
 
-Perform http://en.wikipedia.org/wiki/Analysis_of_variance[Analysis of Variance test]
-also described http://www.statsoft.com/textbook/anova-manova/[here].
+Perform [Analysis of Variance](http://en.wikipedia.org/wiki/Analysis_of_variance)
+also described [here](http://www.statsoft.com/textbook/anova-manova/)
 
 Returns true iff the estimated p-value is less than `alpha` (0 < `alpha` <= 0.5).
 
@@ -193,7 +193,7 @@ Gini coefficient.
 
 #### Description
 
-Computes the http://en.wikipedia.org/wiki/Gini_coefficient[Gini coefficient]
+Computes the [Gini Coefficient](http://en.wikipedia.org/wiki/Gini_coefficient)
 that measures the inequality among values in a frequency distribution.
 
 The Gini coefficient is computed using Deaton's formula and returns a

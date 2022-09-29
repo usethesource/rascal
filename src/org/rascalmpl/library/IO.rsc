@@ -601,7 +601,7 @@ If you do not know, we try to detect this. This detection is explained below:
 
 *  If the implementation of the used scheme in the [location]((Rascal:Values-Location)) 
    (e.g.,`|project:///|`) defines the charset of the file then this is used.
-*  Otherwise if the file contains a UTF8/16/32 http://en.wikipedia.org/wiki/Byte_order_mark[BOM], 
+*  Otherwise if the file contains a UTF8/16/32 [BOM](http://en.wikipedia.org/wiki/Byte_order_mark),
    then this is used.
 *  As a last resort the IO library uses heuristics to determine if UTF-8 or UTF-32 could work:
    **  Are the first 32 bytes valid UTF-8? Then use UTF-8.
