@@ -16,7 +16,7 @@ Markup directives for creating concept pages.
 
 The _MarkedText_ in each section of a concept is plain text.
 Some characters or text strings are used to influence the markup of the text
-and follow the conventions of (((TODO:http://asciidoctor.org.)))
+and follow the conventions of <docusaurus.io>
 We distinguish:
 
 *  ((StructureMarkup)) influences the structure of the text.

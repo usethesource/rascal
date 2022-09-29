@@ -29,7 +29,7 @@ Examples of software metrics are:
   The larger the size, the more is needed to build and maintain it.
 *  [Cyclomatic complexity](http://en.wikipedia.org/wiki/Cyclomatic_complexity) measures logical complexity of code.
   Software components with a high cyclomatic complexity are hard to understand and maintain.
-* http://en.wikipedia.org/wiki/Coupling_(computer_science)[Coupling] measures the coupling between software components.
+* [Coupling](http://en.wikipedia.org/wiki/Coupling_(computer_science)) measures the coupling between software components.
   High coupling indicates problems in the structure of a system.
 
 #### Benefits
