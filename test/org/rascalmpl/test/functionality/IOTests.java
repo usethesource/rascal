@@ -17,6 +17,16 @@ package org.rascalmpl.test.functionality;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.IEvaluator;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -24,8 +34,6 @@ import io.usethesource.vallang.io.ATermReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-
 import junit.framework.TestCase;
 
 public class IOTests extends TestCase {
@@ -105,5 +113,101 @@ public class IOTests extends TestCase {
 		}
 	}
 
+	private final IEvaluator<Result<IValue>> setupWatchEvaluator() {
+		return setupWatchEvaluator(false);
+	}
+	private final IEvaluator<Result<IValue>> setupWatchEvaluator(boolean debug) {
+		var heap = new GlobalEnvironment();
+		var root = heap.addModule(new ModuleEnvironment("___test___", heap));
+		var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
+		
+		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+		
+		evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+		evaluator.addRascalSearchPath(URIUtil.rootLocation("benchmarks"));
+		executeCommand(evaluator, "import IO;");
+		executeCommand(evaluator, "int trig = 0;");
+		executeCommand(evaluator, "void triggerWatch(LocationChangeEvent tp) { trig = trig + 1; " + (debug? "println(tp);": "") + " }");
+		return evaluator;
+	}
+
+	private static IValue executeCommand(IEvaluator<Result<IValue>> eval, String command) {
+		var result = eval.eval(null, command, URIUtil.rootLocation("stdin"));
+		if (result.getStaticType().isBottom()) {
+			return null;
+		}
+		return result.getValue();
+	}
+
+	private static boolean executeBooleanExpression(IEvaluator<Result<IValue>> eval, String expr) {
+		var result = executeCommand(eval, expr);
+		if (result instanceof IBool) {
+			return ((IBool)result).getValue();
+		}
+		return false;
+	}
 	
+
+	public void testWatch() throws InterruptedException {
+		var evalTest = setupWatchEvaluator();
+		executeCommand(evalTest, "writeFile(|tmp:///a/make-dir.txt|, \"hi\");");
+		executeCommand(evalTest, "watch(|tmp:///a/|, true, triggerWatch);");
+		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
+		Thread.sleep(100); // give it some time to trigger the watch callback
+		
+		assertTrue("Watch should have been triggered", executeBooleanExpression(evalTest, "trig > 0"));
+	}
+
+	public void testWatchNonRecursive() throws InterruptedException {
+		var evalTest = setupWatchEvaluator();
+		executeCommand(evalTest, "watch(|tmp:///a/test-watch.txt|, false, triggerWatch);");
+		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
+		Thread.sleep(100); // give it some time to trigger the watch callback
+		assertTrue("Watch should have been triggered", executeBooleanExpression(evalTest, "trig > 0"));
+	}
+
+	public void testWatchDelete() throws InterruptedException {
+		var evalTest = setupWatchEvaluator();
+		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
+		executeCommand(evalTest, "watch(|tmp:///a/|, true, triggerWatch);");
+		executeCommand(evalTest, "remove(|tmp:///a/test-watch.txt|);");
+		Thread.sleep(100); // give it some time to trigger the watch callback
+		assertTrue("Watch should have been triggered for delete", executeBooleanExpression(evalTest, "trig > 0"));
+	}
+	
+
+	public void testWatchSingleFile() throws InterruptedException {
+		var evalTest = setupWatchEvaluator(true);
+		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch-a.txt|, \"making it exist\");"); 
+		executeCommand(evalTest, "watch(|tmp:///a/test-watch-a.txt|, false, triggerWatch);");
+		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"bye\");");
+		executeCommand(evalTest, "remove(|tmp:///a/test-watch.txt|);");
+		Thread.sleep(100); // give it some time to trigger the watch callback
+		assertTrue("Watch should not have triggered anything", executeBooleanExpression(evalTest, "trig == 0"));
+	}
+
+	public void testUnwatchStopsEvents() throws InterruptedException {
+		var evalTest = setupWatchEvaluator(false);
+		executeCommand(evalTest, "watch(|tmp:///a/|, true, triggerWatch);");
+		Thread.sleep(10); 
+		executeCommand(evalTest, "unwatch(|tmp:///a/|, true, triggerWatch);");
+		Thread.sleep(100); // give it some time to trigger the watch callback
+		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
+		executeCommand(evalTest, "remove(|tmp:///a/test-watch.txt|);");
+		Thread.sleep(100); // give it some time to trigger the watch callback
+		assertTrue("Watch should not have triggered anything", executeBooleanExpression(evalTest, "trig == 0"));
+	}
+
+	public void testUnwatchStopsEventsUnrecursive() throws InterruptedException {
+		var evalTest = setupWatchEvaluator(false);
+		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
+		executeCommand(evalTest, "watch(|tmp:///a/test-watch.txt|, false, triggerWatch);");
+		Thread.sleep(10); 
+		executeCommand(evalTest, "unwatch(|tmp:///a/test-watch.txt|, false, triggerWatch);");
+		Thread.sleep(100); // give it some time to trigger the watch callback
+		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
+		executeCommand(evalTest, "remove(|tmp:///a/test-watch.txt|);");
+		Thread.sleep(100); // give it some time to trigger the watch callback
+		assertTrue("Watch should not have triggered anything", executeBooleanExpression(evalTest, "trig == 0"));
+	}
 }
