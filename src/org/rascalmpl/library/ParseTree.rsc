@@ -18,7 +18,7 @@ Library functions for parse trees.
 
 #### Description
 
-A _concrete syntax tree_ or http://en.wikipedia.org/wiki/Parse_tree[parse tree] is an ordered, rooted tree that 
+A _concrete syntax tree_ or [parse tree](http://en.wikipedia.org/wiki/Parse_tree) is an ordered, rooted tree that 
 represents the syntactic structure of a string according to some formal grammar. 
 
 Most Rascal users will encounter parse trees in the form of concrete values.
@@ -572,7 +572,7 @@ Given a grammar for a language, its sentences can be parsed and the result is a 
 and the results are achieved by traversing and matching them using concrete patterns.
 
 In other cases, the further processing of parse trees is better done in a more abstract form.
-The http://en.wikipedia.org/wiki/Abstract_syntax[abstract syntax] for a language is a
+The [abstract syntax](http://en.wikipedia.org/wiki/Abstract_syntax) for a language is a
 data type that is used to represent programs in the language in an _abstract_ form.
 Abstract syntax has the following properties:
 

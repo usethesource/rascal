@@ -69,13 +69,14 @@ set[set[&T]] stronglyConnectedComponents(Graph[&T] g){
     return components;
 }
 
-/*
- * Tarjan's algorithm for computing strongly connected components in a graph
- * Returns 
- * - a set of strongly connected components (sets of vertices)
- * - the topological sort of vertices even for cyclic graphs)
- * See https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
- */
+@synopsis{Compute the strongly connected components in a graph and return also the topologically sorted elements}
+@description{
+Tarjan's algorithm for computing strongly connected components in a graph
+Returns :
+* a set of strongly connected components (sets of vertices)
+* the topological sort of vertices even for cyclic graphs)
+* See <https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm>
+}
 tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] ag){
     Graph[&T] g = ag;           // Make a copy, since compiler cannot yet handle parameters that are also externalRefs of an inner function
     int index = 0;              // depth-first search node number counter
@@ -303,7 +304,7 @@ Determine the connected components of a graph.
 
 #### Description
 
-Returns the http://en.wikipedia.org/wiki/Connected_component_(graph_theory)[connected components] of Graph `G`, as sets of nodes. All nodes within one component are all reachable from one another, there are no paths between two nodes from different components. The graph is assumed to be undirected.
+Returns the [connected components](http://en.wikipedia.org/wiki/Connected_component_(graph_theory) of Graph `G`, as sets of nodes. All nodes within one component are all reachable from one another, there are no paths between two nodes from different components. The graph is assumed to be undirected.
 
 #### Examples
 

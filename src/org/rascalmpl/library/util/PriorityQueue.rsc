@@ -21,7 +21,7 @@ A `PriorityQueue` datatype and associated functions.
 #### Description
 
 Priority queues maintain (priority, value) pairs in sorted order. They are implemented using a
-http://en.wikipedia.org/wiki/Binomial_heap[Binomial Heap]. Priority queue are, for instance, used to implement shortest path algorithms.
+[Binomial heap](http://en.wikipedia.org/wiki/Binomial_heap) Priority queue are, for instance, used to implement shortest path algorithms.
 
 Provides the following functions:
 (((TOC)))
