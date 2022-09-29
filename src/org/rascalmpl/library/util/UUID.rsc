@@ -8,7 +8,7 @@ generates a unique identifier shaped as a `loc`
 
 #### Description
 
-This function generates a UUID, see http://en.wikipedia.org/wiki/Universally_unique_identifier.
+This function generates a UUID, see <http://en.wikipedia.org/wiki/Universally_unique_identifier>.
 Since UUIDs are useful to assign an opaque and unique identity to data, the function returns
 a ((Expressions-Values-Location)) (which is the preferred representation for encoding identities in Rascal)
 

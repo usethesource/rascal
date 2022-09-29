@@ -12,14 +12,20 @@ import  analysis::graphs::Graph;
 import Set;
 import Relation;
 
-// McCabe Complexity (also Cyclomatic Complexity) is a measure for source code
-// complexity, see http://en.wikipedia.org/wiki/Cyclomatic_complexity
-// or McCabe's original article:
-// T.J. McCabe, A Complexity Measure, IEEE Transactions on Software Engineering,
-// Vol. 2, No. 4, p. 308 (1976)
-// It is defined as a metric on the control flow graph:
-//   number_of_edges - number_of_nodes + 2
 
+@synopsis{Compute the cyclomatic complexity of a graph}
+@description{
+
+McCabe Complexity (also Cyclomatic Complexity) is a measure for source code
+complexity, see <http://en.wikipedia.org/wiki/Cyclomatic_complexity>
+or McCabe's original article:
+> T.J. McCabe, A Complexity Measure, IEEE Transactions on Software Engineering,
+> Vol. 2, No. 4, p. 308 (1976)
+
+It is defined as a metric on the control flow graph:
+  `number_of_edges - number_of_nodes + 2`
+
+}
 public int cyclomaticComplexity(Graph[&T] CFG){
     return size(CFG) - size(carrier(CFG)) + 2;
 }

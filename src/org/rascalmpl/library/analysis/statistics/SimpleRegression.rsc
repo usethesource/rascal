@@ -25,8 +25,8 @@ import Exception;
 Intercept of regression line.
 #### Description
 
-Returns the http://en.wikipedia.org/wiki/Root_of_a_function[intercept] of the estimated regression line.
-The least squares estimate of the intercept is computed using these http://www.xycoon.com/estimation4.htm[normal equations].
+Returns the [interce](http://en.wikipedia.org/wiki/Root_of_a_function) of the estimated regression line.
+The least squares estimate of the intercept is computed using these [normal equations](http://www.xycoon.com/estimation4.htm)
 }
 
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
@@ -87,7 +87,7 @@ public java num regressionSumSquares(list[tuple[num,num]] values) throws Illegal
 Coefficient of determination.
 #### Description
 
-Returns the http://en.wikipedia.org/wiki/Coefficient_of_determination[coefficient of determination] usually denoted r__^2^.
+Returns the [coefficient of determination](http://en.wikipedia.org/wiki/Coefficient_of_determination) usually denoted r__^2^.
 It provides a measure of how well future outcomes are likely to be predicted by the regression model.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
@@ -105,7 +105,7 @@ Specifically, the returned value is the smallest alpha such that the slope confi
 #### Pitfalls
 
 The validity of this statistic depends on the assumption that the observations included in the model are drawn from a 
-http://en.wikipedia.org/wiki/Bivariate_normal_distribution[Bivariate Normal Distribution].
+[Bivariate Normal Distribution](http://en.wikipedia.org/wiki/Bivariate_normal_distribution).
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num significance(lrel[num,num] values) throws IllegalArgument;
@@ -138,8 +138,8 @@ The 95% confidence interval is
 
 #### Pitfalls
 
-The validity of this statistic depends on the assumption that the observations included in the model are drawn from a 
-http://en.wikipedia.org/wiki/Bivariate_normal_distribution[Bivariate Normal Distribution].
+* The validity of this statistic depends on the assumption that the observations included in the model are drawn from a 
+[Bivariate Normal Distribution](http://en.wikipedia.org/wiki/Bivariate_normal_distribution)
 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}

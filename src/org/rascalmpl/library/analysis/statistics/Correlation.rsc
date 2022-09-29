@@ -12,7 +12,7 @@ Correlation between data values.
 
 #### Description
 
-Compute the http://en.wikipedia.org/wiki/Correlation[correlation] between pairs of data values.
+Compute the [correlation](http://en.wikipedia.org/wiki/Correlation) between pairs of data values.
 Correlation measures the statistical relationship between two sets of data.
 
 The following functions are provided:
@@ -27,7 +27,7 @@ Pearson product-moment correlation coefficient.
 
 #### Description
 
-Compute the http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient[Pearson product-moment correlation coefficient].
+Compute the [Pearson product-moment correlation coefficient](http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient).
 It is a measure of the strength of the linear dependence between two variables.
 
 #### Pitfalls
@@ -61,7 +61,7 @@ Spearman's rank correlation coefficient.
 
 #### Description
 
-Compute http://en.wikipedia.org/wiki/Spearman's_rank_correlation_coefficient[Spearman's rank correlation coefficient].
+Compute [Spearman's rank correlation coefficient](http://en.wikipedia.org/wiki/Spearman's_rank_correlation_coefficient).
 The correlation between the data values is computed by first performing a rank transformation
 on the data values using a natural ranking and then computing ((PearsonsCorrelation)).
 
@@ -79,7 +79,7 @@ Covariance of data values.
 
 #### Description
 
-Computes the http://en.wikipedia.org/wiki/Covariance[covariance] between the `x` and `y` values.
+Computes the [covariance](http://en.wikipedia.org/wiki/Covariance) between the `x` and `y` values.
 
 #### Examples
 

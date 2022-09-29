@@ -48,7 +48,7 @@ Geometric mean of data values.
 
 #### Description
 
-Computes the http://en.wikipedia.org/wiki/Geometric_mean[geometric mean] of the given data values.
+Computes the [geometric mean](http://en.wikipedia.org/wiki/Geometric_mean) of the given data values.
 }
 real geometricMean([num hd, *num tl]) {
 	if (tl == []) {
@@ -71,7 +71,7 @@ Kurtosis of data values.
 
 #### Description
 
-Computes the http://en.wikipedia.org/wiki/Kurtosis[kurtosis] of the given data values.
+Computes the [kurtosis](http://en.wikipedia.org/wiki/Kurtosis) of the given data values.
 Kurtosis is a measure of the "peakedness" of a distribution.
 }
 real kurtosis(list[num] values:[_, *_]) {
@@ -91,7 +91,7 @@ Kurtosis excess of data values.
 
 #### Description
 
-Computes the http://en.wikipedia.org/wiki/Kurtosis[kurtosis excess] of the given data values.
+Computes the [kurtosis excess](http://en.wikipedia.org/wiki/Kurtosis) of the given data values.
 Kurtosis excess is a measure of the "peakedness" of a distribution corrected such that a normal distribution will be 0.
 }
 real kurtosisExcess(list[num] values) = kurtosis(values) - 3;
@@ -110,8 +110,8 @@ Arithmetic mean of data values.
 
 #### Description
 
-Computes the http://en.wikipedia.org/wiki/Arithmetic_mean[arithmetic mean] of the data values.
-}
+Computes the [arithmetic mean](http://en.wikipedia.org/wiki/Arithmetic_mean) of the data values.
+
 real mean(list[num] nums:[_, *_]) = toReal(sum(nums)) / size(nums);
 
 
@@ -122,7 +122,7 @@ Median of data values.
 
 #### Description
 
-Returns the http://en.wikipedia.org/wiki/Median[median] of the available values.
+Returns the [median](http://en.wikipedia.org/wiki/Median) of the available values.
 This is the same as the 50th ((percentile)).
 
 #### Examples
@@ -161,7 +161,7 @@ Percentile of data values.
 
 #### Description
 
-Returns the `p`th http://en.wikipedia.org/wiki/Percentile[percentile] of the data values.
+Returns the `p`th [percentile](http://en.wikipedia.org/wiki/Percentile) of the data values.
  0 < `p` <= 100 should hold.
 
 }
@@ -182,7 +182,7 @@ Variance of data values.
 
 #### Description
 
-Computes the http://en.wikipedia.org/wiki/Variance[variance] of the data values.
+Computes the [variance](http://en.wikipedia.org/wiki/Variance) of the data values.
 It measures how far a set of numbers is spread out.
 }
 num variance([num hd, *num tl]) {
@@ -204,7 +204,7 @@ Skewness of data values.
 
 #### Description
 
-Returns the http://en.wikipedia.org/wiki/Skewness[skewness] of the available values. Skewness is a measure of the asymmetry of a given distribution.
+Returns the [skewness](http://en.wikipedia.org/wiki/Skewness) of the available values. Skewness is a measure of the asymmetry of a given distribution.
 }
 real skewness(list[num] values:[_, *_]) 
 	= centralMoment(values, order=3) / pow(centralMoment(values, order=2), 3/2);
@@ -216,7 +216,7 @@ Standard deviation of data values.
 
 #### Description
 
-Computes the http://en.wikipedia.org/wiki/Standard_deviation[standard deviation]
+Computes the [standard deviation](http://en.wikipedia.org/wiki/Standard_deviation)
 of the data values. It shows how much variation exists from the average (mean, or expected value). 
 }
 real standardDeviation(list[num] values) {
