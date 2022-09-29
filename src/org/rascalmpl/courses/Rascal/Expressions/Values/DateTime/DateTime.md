@@ -81,9 +81,6 @@ kind of value is stored in a variable of type `datetime`.
 The following operators are defined for DateTime:
 (((TOC)))
 
-The following functions are defined for DateTime:
-loctoc::[Rascal/Libraries/Prelude/DateTime,1]
-
 There are also [library functions]((Library:DateTime)) available for DateTime.
 
 #### Examples

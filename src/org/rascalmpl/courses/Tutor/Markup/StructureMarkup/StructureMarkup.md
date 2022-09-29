@@ -14,8 +14,9 @@ Markup for structured text entities.
 
 #### Description
 
-The follwing structured markup is supported:
-loctoc::[]
+The following structured markup is supported:
+
+(((TOC)))
 
 #### Examples
 
