@@ -111,7 +111,7 @@ Arithmetic mean of data values.
 #### Description
 
 Computes the [arithmetic mean](http://en.wikipedia.org/wiki/Arithmetic_mean) of the data values.
-
+}
 real mean(list[num] nums:[_, *_]) = toReal(sum(nums)) / size(nums);
 
 
