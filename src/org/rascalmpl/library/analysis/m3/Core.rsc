@@ -7,7 +7,7 @@ M3 common source code model represent facts extracted from source code for use i
 
 The M3 ((Library:analysis::m3::Core)) defines basic concepts such as:
 
-*  qualified names: we use [$Values/Location]s to model qualified names for each programming language
+*  qualified names: we use ((Values-Location))s to model qualified names for each programming language
 *  containment: which artifacts are contained in which other artifacts
 *  declarations: where artifacts are defined
 *  uses: where declared artifacts are used
@@ -17,7 +17,7 @@ From this ((Library:analysis::m3::Core)) is supposed to be extended with feature
 
 #### Benefits
 
-*  Qualified names in the shape of [$Values/Location]s are a uniform and generic way of identifying source code artifacts, that can be extended across languages, projects, and versions.
+*  Qualified names in the shape of ((Values-Location)) are a uniform and generic way of identifying source code artifacts, that can be extended across languages, projects, and versions.
 *  M3 helps standardizing the shape of facts we extract from source code for all different languages, limiting the element of surprise.
 *  When we use M3 for many languages, common IDE features are made reusable (such as clicking from an extracted fact to the code that generated it).
 *  Some downstream analyses may be reusable between different languages if they all map to M3.

@@ -8,7 +8,7 @@
 @doc{
 #### Synopsis
 
-AST model for YAML (loosely based on the serialization model of http://www.yaml.org/spec/1.2/spec.html)
+AST model for YAML (loosely based on the serialization model of <http://www.yaml.org/spec/1.2/spec.html>)
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl (CWI)}
 module lang::yaml::Model
