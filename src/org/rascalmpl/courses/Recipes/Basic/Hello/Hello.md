@@ -4,13 +4,16 @@ title: Hello
 
 The "Hello" example shows where to put your code such that it can do _something_. In this
 case all we do is print `Hello World...`. After you know where to put code such that it
-can be executed, can replace the silly example with more useful things.
+can be executed, you can replace the slightly silly example with more useful things.
 
 ##  `hello` on command line, a.k.a. ((RascalShell))
 
+The place to get Rascal code executed _immediately_ is the ((RascalShell)) prompt.
+[Here]((GettingStarted)) is how to get it started.
 
-We demonstrate hello via an interactive session with the Rascal system. First we get the prompt `rascal>` that shows that Rascal is ready for our input. 
-Next, we import the library module [IO]((Library:module:IO)) since hello world requires printing. Rascal responds with the feedback `ok` so we know that all went well. Finally, we call `println` and proudly observe our first Rascal output!
+When you have it up and running, it shows the prompt `rascal>` that indicates that Rascal is ready for our input. 
+
+Next, we import the library module [IO]((Library:module:IO)) since we will require a function from that library. Rascal responds with the feedback `ok` so we know that all went well. Now we can call `println` and proudly observe our first Rascal output:
 ```rascal-shell
 import IO;
 println("Hello world, this is my first Rascal program");

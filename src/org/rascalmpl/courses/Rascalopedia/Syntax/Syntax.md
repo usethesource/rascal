@@ -34,7 +34,7 @@ According to the [Merriam-Webster](http://www.merriam-webster.com/dictionary/syn
 *  _Computers_:  the grammatical rules and structural patterns governing the ordered use of appropriate words and symbols for issuing commands, writing code, etc., in a particular software application or programming language.
 
 
-http://en.wikipedia.org/wiki/Syntax_(programming_languages[Wikipedia] says:  the syntax of a programming language is the
+[Wikipedia](http://en.wikipedia.org/wiki/Syntax_(programming_languages)) says:  the syntax of a programming language is the
 set of rules that define the combinations of symbols that are considered to be correctly structured programs in that language.
 
 In linguistics, a ((Rascalopedia:Grammar)) is a concept that includes syntax.
