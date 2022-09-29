@@ -1,8 +1,4 @@
-@doc{
-#### Synopsis
-
-defines AST node types for Java
-}
+@synopsis{AST node declarations for Java}
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
@@ -10,6 +6,7 @@ extend analysis::m3::Core; // necessary for initializing EclipseJavaCompiler cla
 extend lang::java::m3::TypeSymbol; // necessary for initializing EclipseJavaCompiler class to express type annotations
 
 import util::FileSystem;
+import util::Reflective;
 import IO;
 import String;
 import List;
@@ -213,24 +210,15 @@ public Declaration createAstFromFile(loc file, bool collectBindings, bool errorR
     throw "Unexpected number of ASTs returned from <file>";
 }
 
-@doc{
-#### Synopsis
-
-Creates AST from a file
-
-#### Description
-
-}
+@synopsis{Creates AST from a file using Eclipse JDT compiler}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
-@doc{
-  Creates ASTs from an input string
-}
+@synopsis{Creates AST from a string using Eclipse JDT compiler}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
-@doc{Creates ASTs from a project}
+@doc{Creates a set ASTs for all Java source files in a project using Eclipse's JDT compiler}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
@@ -238,5 +226,25 @@ public set[Declaration] createAstsFromDirectory(loc project, bool collectBinding
     
     classPaths = [ j | j <- find(project, "jar"), isFile(j) ];
     sourcePaths = getPaths(project, "java");
-    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);;
+    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);
 }
+
+@doc{Creates a set ASTs for all Java source files in a Maven project using Eclipse's JDT compiler}
+@description{
+This function uses ((util::Reflective-getProjectPathConfig)), which inspects a `pom.xml` to 
+compute the dependencies and concrete locations of jar files that a Maven project depends on.
+}
+public set[Declaration] createAstsFromMavenProject(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
+    if (!exists(project + "pom.xml")) {
+      throw IO("pom.xml not found");
+    }
+
+    if (!(isDirectory(project))) {
+      throw "<project> is not a valid directory";
+    }
+    
+    classPaths = getProjectPathConfig(project).javaCompilerPath;
+    sourcePaths = getPaths(project, "java");
+    return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);
+}
+
