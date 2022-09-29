@@ -1,10 +1,10 @@
 ---
-title: AbstractDataType
+title: Abstract Data Type
 ---
 
 #### Synopsis
 
-A definition of a data type.
+A definition of a data type where the interface, in terms of initial creation and further operations on the data, is clearly separated from its implementation details "behind" its interface.
 
 #### Syntax
 
@@ -33,21 +33,7 @@ you as a programmer do not have to understand how they are implemented under-the
 
 #### Examples
 
-## Abstract Data Types in Daily Life
-
-*  A stack of trays in the local cafetaria: ![]((dispenser.jpg))
-   [credit](http://www.thermo-box.co.uk/fimi-food-transport-and-handling-products/self-levelling-heated-and-unheated-plate-and-tray-systems.html)
-
-*  A tree:
-   ![]((tree.jpg))
-   [credit](http://free-extras.com/images/tree-569.htm)
-
-*  Coral:
-   ![]((coral.jpg))
-   [credit](http://blog.enn.com/?p=476)
-
-
-## Abstract Data Types in computer science
+## Abstract Data Types in Computer Science
 
 *  The run-time stack of a programming language interpreter.
 *  A search tree.
@@ -56,9 +42,22 @@ you as a programmer do not have to understand how they are implemented under-the
 
 ## Algebraic Types in Rascal
 
-*  A tree data type:
+*  An algebraic type for trees with integer leafs and labeled internal nodes:
 ```rascal
-data MyTree = leaf(int n) | tree(str name, MyTree left, MyTree right);
+data MyTree 
+   = leaf(int n) 
+   | tree(str name, MyTree left, MyTree right);
+```
+
+* An algebraic type for boolean formulas :
+```rascal
+data Formula 
+   = and(Formula l, Formula r)
+   | or(Formula l, Formula r)
+   | not(Formula n)
+   | \true()
+   | \false()
+   ;
 ```
 
 #### Benefits
