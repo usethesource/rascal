@@ -4,7 +4,11 @@ details:
   - Hello
   - Factorial
   - Squares
-
+  - Even
+  - Bubble
+  - BottlesOfBeer
+  - FizzBuzz
+  - Quine
 ---
 
 #### Synopsis
