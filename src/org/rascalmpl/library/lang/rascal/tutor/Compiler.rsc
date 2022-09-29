@@ -117,7 +117,7 @@ list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Ind
   = compileDirectory(root, pcfg[currentRoot=root], exec, ind);
   
 list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
-    println("\rcompiling <src> at position");
+    println("\rcompiling <src> at sidebar_positions");
 
     // new concept, new execution environment:
     exec.reset();
@@ -532,9 +532,6 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     }
 
     if (stdout != "") {
-      append OUT : out(line);
-      line = "";
-
       for (outLine <- split("\n", stdout)) {
         append OUT : out("<outLine>");
       }
