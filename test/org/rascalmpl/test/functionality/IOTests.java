@@ -159,7 +159,7 @@ public class IOTests extends TestCase {
 	}
 
 	public void testWatchNonRecursive() throws InterruptedException {
-		var evalTest = setupWatchEvaluator();
+		var evalTest = setupWatchEvaluator(true);
 		executeCommand(evalTest, "watch(|tmp:///a/test-watch.txt|, false, triggerWatch);");
 		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
 		Thread.sleep(100); // give it some time to trigger the watch callback
@@ -177,7 +177,7 @@ public class IOTests extends TestCase {
 	
 
 	public void testWatchSingleFile() throws InterruptedException {
-		var evalTest = setupWatchEvaluator(true);
+		var evalTest = setupWatchEvaluator();
 		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch-a.txt|, \"making it exist\");"); 
 		executeCommand(evalTest, "watch(|tmp:///a/test-watch-a.txt|, false, triggerWatch);");
 		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"bye\");");
@@ -187,7 +187,7 @@ public class IOTests extends TestCase {
 	}
 
 	public void testUnwatchStopsEvents() throws InterruptedException {
-		var evalTest = setupWatchEvaluator(false);
+		var evalTest = setupWatchEvaluator();
 		executeCommand(evalTest, "watch(|tmp:///a/|, true, triggerWatch);");
 		Thread.sleep(10); 
 		executeCommand(evalTest, "unwatch(|tmp:///a/|, true, triggerWatch);");
@@ -199,7 +199,7 @@ public class IOTests extends TestCase {
 	}
 
 	public void testUnwatchStopsEventsUnrecursive() throws InterruptedException {
-		var evalTest = setupWatchEvaluator(false);
+		var evalTest = setupWatchEvaluator();
 		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
 		executeCommand(evalTest, "watch(|tmp:///a/test-watch.txt|, false, triggerWatch);");
 		Thread.sleep(10); 

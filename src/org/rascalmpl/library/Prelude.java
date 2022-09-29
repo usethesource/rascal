@@ -3800,6 +3800,7 @@ public class Prelude {
 	private static final class ReleasableCallback implements Consumer<ISourceLocationChanged> {
 		private final WeakReference<IFunction> target;
 		private final ISourceLocation src;
+		private final ISourceLocation srcResolved;
 		private final boolean recursive;
 		private final int hash;
 
@@ -3808,6 +3809,7 @@ public class Prelude {
 
 		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
 			this.src = src;
+			this.srcResolved = safeResolve(src);
 			this.recursive = recursive;
 			this.target = new WeakReference<>(target);
 			this.hash = src.hashCode() + 7 * target.hashCode();
@@ -3815,8 +3817,30 @@ public class Prelude {
 			this.store = store;
 		}
 
+		private static ISourceLocation safeResolve(ISourceLocation src) {
+			try {
+ 				var result = URIResolverRegistry.getInstance().logicalToPhysical(src);
+				if (result != null) {
+					return result;
+				}
+				return src;
+			} catch (IOException e) {
+				return src;
+			}
+		}
+
+		private boolean exactMatch(ISourceLocation loc) {
+			return loc.equals(src) || (srcResolved != src && loc.equals(srcResolved));
+		}
+
 		@Override
 		public void accept(ISourceLocationChanged e) {
+			if (!recursive && !exactMatch(e.getLocation())) {
+				// if we are not recursive, and changes come in for something that's not what we requested
+				// for example due to the backend only supporting directory level watches
+				// we just ignore it
+				return;
+			}
 			IFunction callback = target.get();
 			if (callback == null) {
 				try {
