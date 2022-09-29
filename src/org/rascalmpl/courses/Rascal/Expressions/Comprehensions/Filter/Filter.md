@@ -4,7 +4,7 @@ title: Filter
 
 #### Synopsis
 
-Filter values in a [list comprehension]((List-Comprehension)), [set comprehension]((Set-Comprehension)) or [map comprehension]((Map-Comprehension)).
+Filter values in a [list comprehension]((List-Comprehension)), [set comprehension]((Set-Comprehension)) or [map comprehension]((Map-Comprehension)), a ((Reducer)), and in the conditions of ((Statements-For)), ((Statements-While)) and ((Statements-If)).
 
 #### Syntax
 
