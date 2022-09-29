@@ -117,7 +117,7 @@ list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Ind
   = compileDirectory(root, pcfg[currentRoot=root], exec, ind);
   
 list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
-    println("\rcompiling <src> at sidebar_positions");
+    println("\rcompiling <src>");
 
     // new concept, new execution environment:
     exec.reset();
@@ -158,7 +158,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
 
     if (i <- indexFiles && exists(i)) {
       // this can only be a markdown file (see above)
-      list[Output] output = compileMarkdown(i, pcfg, exec, ind, sidebar_position=sidebar_position);
+      list[Output] output = compileMarkdown(i, pcfg[currentFile=i], exec, ind, sidebar_position=sidebar_position);
 
       i.file = (i.file == i.parent[extension="md"].file) ? "index.md" : i.file;
 
@@ -174,6 +174,9 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
         nestedDtls = xxx;
       }
     }
+    else {
+      generateIndexFile(d, pcfg, sidebar_position=sidebar_position);
+    }
 
     return [
       *[e | err(e) <- output],
@@ -186,14 +189,15 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
     ];
 }
 
-list[Message] generateIndexFile(loc d, PathConfig pcfg) {
+list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1) {
   try {
     p2r = pathToRoot(pcfg.currentRoot, d);
     title = replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::");
     writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, d).path + "index.md",
       "---
       'title: <if (trim(title) == "") {><capitalize(pcfg.currentRoot.file)><} else {><title><}>
-      '---
+      '<if (sidebar_position != -1) {>sidebar_position: <sidebar_position>
+      '<}>---
       '
       '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
       '* [<e[extension=""].file>](<p2r>/<capitalize(pcfg.currentRoot.file)><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
