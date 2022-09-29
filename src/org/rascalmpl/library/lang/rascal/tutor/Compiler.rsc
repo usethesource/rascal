@@ -116,20 +116,20 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
 list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileDirectory(root, pcfg[currentRoot=root], exec, ind);
   
-list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind) {
-    println("\rcompiling <src>");
+list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
+    println("\rcompiling <src> at position");
 
     // new concept, new execution environment:
     exec.reset();
 
     if (isDirectory(src), src.file != "internal") {
-        return compileDirectory(src, pcfg, exec, ind);
+        return compileDirectory(src, pcfg, exec, ind, sidebar_position=sidebar_position);
     }
     else if (src.extension == "rsc") {
         return compileRascalFile(src, pcfg[currentFile=src], exec, ind);
     }
     else if (src.extension in {"md"}) {
-        return compileMarkdownFile(src, pcfg, exec, ind);
+        return compileMarkdownFile(src, pcfg, exec, ind, sidebar_position=sidebar_position);
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {  
@@ -146,16 +146,43 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind)
     }
 }
 
-list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind) {
+list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
     indexFiles = {(d + "<d.file>")[extension="md"], (d + "index.md")};
 
     if (!exists(d)) {
       return [error("Course does not exist <d>", d)];
     }
 
+    output = [];
+    nestedDtls = [];
+
+    if (i <- indexFiles && exists(i)) {
+      // this can only be a markdown file (see above)
+      list[Output] output = compileMarkdown(i, pcfg, exec, ind, sidebar_position=sidebar_position);
+
+      i.file = (i.file == i.parent[extension="md"].file) ? "index.md" : i.file;
+
+      writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, i)[extension="md"].path,
+          "<for (out(x) <- output) {><x>
+          '<}>"
+      );
+
+      if (details(list[str] xxx) <- output) {
+        // here we give the details list declared in `details` header
+        // on to compute the right sidebar_positions down for the nested
+        // concepts
+        nestedDtls = xxx;
+      }
+    }
+
     return [
-      *(((i <- indexFiles) && exists(i)) ? compile(i, pcfg, exec, ind) : generateIndexFile(d, pcfg)), 
-      *[*compile(s, pcfg, exec, ind) | s <- d.ls, !(s in indexFiles), isDirectory(s) || s.extension in {"md","rsc","png","jpg","svg","jpeg", "html", "js"}]
+      *[e | err(e) <- output],
+      *[*compile(s, pcfg, exec, ind, sidebar_position=sp) 
+        | s <- d.ls
+        , !(s in indexFiles)
+        , isDirectory(s) || s.extension in {"md","rsc","png","jpg","svg","jpeg", "html", "js"}
+        , int sp := indexOf(nestedDtls, capitalize(s[extension=""].file))
+      ]
     ];
 }
 
@@ -192,10 +219,10 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
 list[str] createDetailsList(loc m, PathConfig pcfg) 
   = sort([ "<capitalize(pcfg.currentRoot.file)>:<if (isDirectory(d), !exists(d + "index.md"), !exists((d + d.file)[extension="md"])) {>package:<}><if (d.extension == "rsc") {>module:<}><replaceAll(relativize(pcfg.currentRoot, d)[extension=""].path[1..], "/", "-")>" | d <- m.parent.ls, m != d, d.file != "index.md", isDirectory(d) || d.extension in {"rsc", "md"}]);
 
-list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
+list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
   order = createDetailsList(m, pcfg);
 
-  list[Output] output = compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, order) + [Output::empty()];
+  list[Output] output = compileMarkdown(m, pcfg[currentFile=m], exec, ind, order, sidebar_position=sidebar_position) + [Output::empty()];
 
   // turn A/B/B.md into A/B/index.md for better URLs in the end result (`A/B/`` is better than `A/B/B.html`)
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
@@ -208,48 +235,54 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   return [e | err(e) <- output];
 }
 
+list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
+  order = createDetailsList(m, pcfg);
+
+  return compileMarkdown(readFileLines(m), 1, 0, pcfg[currentFile=m], exec, ind, order, sidebar_position=sidebar_position) + [Output::empty()];
+}
+
 @synopsis{Skip double quoted blocks}
-list[Output] compileMarkdown([str first:/^\s*``````/, *block, str second:/^``````/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+list[Output] compileMarkdown([str first:/^\s*``````/, *block, str second:/^``````/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [ 
       out(first), 
       *[out(b) | b <-block], 
       out(second), 
-      *compileMarkdown(rest, line, offset, pcfg, exec, ind, dtls)
+      *compileMarkdown(rest, line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
   ];
 
 @synopsis{Include Rascal code from Rascal source files}
-list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str components, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str components, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   return[ 
       Output::empty(), // must have an empty line
       out("```rascal <rest1>"),
       *[*prepareModuleForInclusion(item, /includeHeaders/ := rest1, /includeTests/ := rest1, pcfg) | item <- components],
       Output::empty(),
       out("```"),
-      *compileMarkdown(rest2, line + 1 + size(components) + 1, offset + length(first) + length(components), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest2, line + 1 + size(components) + 1, offset + length(first) + length(components), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
 }
 
 @synopsis{execute _rascal-shell_ blocks on the REPL}
-list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [ Output::empty(), // must have an empty line
       out("```rascal-shell <rest1>"),
       *compileRascalShell(block, /error/ := rest1, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
       out("```"),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
 
 @synopsis{execute _rascal-shell-prepare_ blocks on the REPL}
-list[Output] compileMarkdown([str first:/^\s*```rascal-prepare<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+list[Output] compileMarkdown([str first:/^\s*```rascal-prepare<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [
       *compileRascalShellPrepare(block, /continue/ := rest1, line+1, offset + size(first) + 1, pcfg, exec, ind),
-      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + size(first) + length(block), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
 
 @synopsis{inline an itemized list of details (collected from the details YAML section in the header)}
-list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [
      *[*compileMarkdown(["* ((<d>))"], line, offset, pcfg, exec, ind, []) | d <- dtls],
-     *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+     *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [], sidebar_position=sidebar_position)
     ]
     +
     [
@@ -258,7 +291,7 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TOC\s*\)\)\)\s*$/, *str re
     ];
 
 @synopsis{inline an itemized list of details (collected from the details YAML section in the header)}
-list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TODO<msg:[^\)]*>\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls)
+list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TODO<msg:[^\)]*>\s*\)\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [
      out(":::caution"),
      out("There is a \"TODO\" in the documentation source:"),
@@ -266,87 +299,78 @@ list[Output] compileMarkdown([str first:/^\s*\(\(\(\s*TODO<msg:[^\)]*>\s*\)\)\)\
      out(first),
      out(":::"),
      err(warning("TODO: <trim(msg)>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))),
-     *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+     *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [], sidebar_position=sidebar_position)
     ];
 
 @synopsis{Inline example files literally, in Rascal loc notation, but do not compile further from there. Works only if positioned on a line by itself.}
-list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+list[Output] compileMarkdown([str first:/^\s*\(\(\|<url:[^\|]+>\|\)\)\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   try {
     return [
       *[out(l) | str l <- split("\n", readFile(readTextValueString(#loc, "|<url>|")))],
-      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [], sidebar_position=sidebar_position)
     ];
   }
   catch value x: {
     return [
       err(error("Could not read <url> for inclusion: <x>", pcfg.currentFile(offset, 1, <line, 1>, <line, 2>))),
-      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [])
+      *compileMarkdown(rest, line + 1, offset + size(first), pcfg, exec, ind, [], sidebar_position=sidebar_position)
     ];
   }
 }
 
 @synopsis{implement subscript syntax for [aeh-pr-vx] (the subscript alphabet is incomplete in unicode)}
-list[Output] compileMarkdown([/^<prefix:.*>~<digits:[aeh-pr-vx0-9\(\)+\-]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><subscripts["<char(ch)>"]><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+list[Output] compileMarkdown([/^<prefix:.*>~<digits:[aeh-pr-vx0-9\(\)+\-]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) 
+  = compileMarkdown(["<prefix><for (ch <- chars(digits)) {><subscripts["<char(ch)>"]><}><postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
 
 @synopsis{detect unsupported subscripts}
-list[Output] compileMarkdown([/^<prefix:.*>~<digits:[^~]*[^aeh-pr-vx0-9]+[^~]*>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+list[Output] compileMarkdown([/^<prefix:.*>~<digits:[^~]*[^aeh-pr-vx0-9]+[^~]*>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) 
   = [
     err(error("Unsupported subscript character in <digits>", pcfg.currentFile(offset, 1, <line, 1>, <line, 2>))),
-    *compileMarkdown(["<prefix><digits><postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+    *compileMarkdown(["<prefix><digits><postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
   ];
 
-// @synopsis{Implement subscript syntax for letters and numbers and dashes and underscores}
-// list[Output] compileMarkdown([/^<prefix:.*>~<words:[a-zA-Z0-9\-_0-9]+>~<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-//   = compileMarkdown(["<prefix>\<Text style=\"{{fontSize: 15, lineHeight: 37}}\"\><words>\</Text\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
-
-// @synopsis{Implement superscript syntax for letters and numbers and dashes and underscores}
-// list[Output] compileMarkdown([/^<prefix:.*>\^<words:[a-zA-Z0-9\-_0-9]+>\^<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-//   = compileMarkdown(["<prefix>\<Text style=\"{{fontSize: 15, lineHeight: 18}}\"\><words>\</Text\><postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
-
-
 @synopsis{Resolve [labeled]((links))}
-list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   resolution = ind[removeSpaces(link)];
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
 
   switch (resolution) {
       case {str u}: {
         u = /^\/assets/ := u ? u : "<p2r><u>";
-        return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+        return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
       }
       case { }: {
         if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
             // give this a second chance, in reverse
-            return compileMarkdown(["<prefix>[<title>]((<secondWord>-<firstWord>))<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+            return compileMarkdown(["<prefix>[<title>]((<secondWord>-<firstWord>))<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
         return [
             err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-            *compileMarkdown(["<prefix>_(<title>) <link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+            *compileMarkdown(["<prefix>_(<title>) <link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
         ];
       }
       case {_, _, *_}: {
         // ambiguous resolution, first try and resolve within the current course:
         if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
         else if ({str u} := ind["<capitalize(pcfg.currentRoot.file)>:<fragment(pcfg.currentRoot, pcfg.currentFile)>-<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<title>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
         return [
                   err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
                               cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
                                     '    <k> resolves to <v><}>")),
-                  *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+                  *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
               ];
       }
   }
@@ -355,29 +379,29 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-
 }
 
 @synopsis{Resolve unlabeled links}
-default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   resolution = ind[removeSpaces(link)];
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
 
   switch (resolution) {
       case {u}: {
         u = /^\/assets/ := u ? u : "<p2r><u>";
-        return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+        return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
       }
       case { }: {
         if (/^<firstWord:[A-Za-z0-9\-\.\:]+>\s+<secondWord:[A-Za-z0-9\-\.\:]+>/ := link) {
             // give this a second chance, in reverse
-            return compileMarkdown(["<prefix>((<secondWord>-<firstWord>))<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+            return compileMarkdown(["<prefix>((<secondWord>-<firstWord>))<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
         return [
           err(error("Broken concept link: <link>", pcfg.currentFile(offset, 1, <line,0>,<line,1>))),
-          *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+          *compileMarkdown(["<prefix>_<link> (broken link)_<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
         ];
       }
       case {str plink, /<qlink:.*>\/index\.md/}:
         if (plink == qlink) {
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<p2r><plink>/)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls); 
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<p2r><plink>/)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position); 
         }  
         else {
           fail;
@@ -387,23 +411,23 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
         // ambiguous resolution, first try and resolve within the current course:
         if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[./<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[./<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>-<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
         // or we check if its one of the details of the current concept
         else if ({u} := ind["<capitalize(pcfg.currentRoot.file)>:<capitalize(pcfg.currentFile[extension=""].file)>-<removeSpaces(link)>"]) {
           u = /^\/assets/ := u ? u : "<p2r><u>";
-          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls);
+          return compileMarkdown(["<prefix>[<addSpaces(link)>](<u>)<postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position);
         }
 
         return [
             err(error("Ambiguous concept link: <removeSpaces(link)> resolves to all of these: <for (r <- resolution) {><r> <}>", pcfg.currentFile(offset, 1, <line,0>,<line,1>),
                       cause="Please choose from the following options to disambiguate: <for (<str k, str v> <- rangeR(ind, ind[removeSpaces(link)]), {_} := ind[k]) {>
                             '    <k> resolves to <v><}>")),
-            *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls)
+            *compileMarkdown(["<prefix> **broken:<link> (ambiguous)** <postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
         ];
       }
   }
@@ -411,8 +435,8 @@ default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\
   return [err(error("Unexpected state of link resolution for <link>: <resolution>", pcfg.currentFile(offset, 1, <line,0>,<line,1>)))];
 }
 
-@synopsis{extract what's needed from the header and print it back}
-list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) {
+@synopsis{extract what's needed from the header and print it back, also set sidebar_position}
+list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   try {
     model = unsetRec(loadYAML(trim(intercalate("\n", header))));
     dtls = [dtl | mapping(m) := model, scalar(str dtl) <- (m[scalar("details")]?sequence([])).\list];
@@ -425,8 +449,9 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
       details(dtls),
       out("---"),
       *[out(l) | l <- header],
+      *[out("sidebar_position: <sidebar_position>") | sidebar_position != -1],
       out("---"),
-      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + length(header), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + length(header), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
   } 
   catch value e: {
@@ -443,28 +468,28 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
       out("---"),
       *[out(l) | l <- header],
       out("---"),
-      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + length(header), pcfg, exec, ind, dtls)
+      *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + length(header), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
   }
 }
 
 @synopsis{Removes empty sections in the middle of a document}
-list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, nextSection:/^\s*#+\s+.*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
-  = compileMarkdown([nextSection, *rest], line + 1 + size(emptySection), offset + size(first) + length(emptySection), pcfg, exec, ind, dtls)
+list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, nextSection:/^\s*#+\s+.*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) 
+  = compileMarkdown([nextSection, *rest], line + 1 + size(emptySection), offset + size(first) + length(emptySection), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     when !(/\S/ <- emptySection);
 
 @synopsis{Removes empty sections at the end of a document}
-list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, /^\s*$/], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, /^\s*$/], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) 
   = [] when !(/\S/ <- emptySection);
 
 @synopsis{this is when we have processed all the input lines}
 list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _, Index _, list[str] _) = [];
 
 @synopsis{all other lines are simply copied to the output stream}
-default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) 
   = [
       out(head),
-      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec, ind, dtls)
+      *compileMarkdown(tail, line + 1, offset + size(head) + 1, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
 
 list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContinued, int lineOffset, int offset, PathConfig pcfg, CommandExecutor exec, Index _) {
