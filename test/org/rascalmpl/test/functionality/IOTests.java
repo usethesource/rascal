@@ -159,7 +159,7 @@ public class IOTests extends TestCase {
 	}
 
 	public void testWatchNonRecursive() throws InterruptedException {
-		var evalTest = setupWatchEvaluator(true);
+		var evalTest = setupWatchEvaluator();
 		executeCommand(evalTest, "watch(|tmp:///a/test-watch.txt|, false, triggerWatch);");
 		executeCommand(evalTest, "writeFile(|tmp:///a/test-watch.txt|, \"hi\");");
 		Thread.sleep(100); // give it some time to trigger the watch callback
