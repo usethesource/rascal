@@ -16,6 +16,7 @@ import Set;
 import List;
 
 import util::FileSystem;
+import util::Reflective;
 
 data M3(
 	rel[loc from, loc to] extends = {},            // classes extending classes and interfaces extending interfaces
@@ -96,7 +97,7 @@ java M3 createM3FromSingleClass(loc jarClass, str className);
 java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = [|system:///|]);
 
 @synopsis{Globs for jars, class files and java files in a directory and tries to compile all source files into an M3 model}
-M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includedJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
+M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
@@ -123,7 +124,7 @@ M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includedJ
 }
 
 @synopsis{Globs for jars, class files and java files in a directory and tries to compile all source files into an M3 model}
-M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includedJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
+M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
     if (!exists(project + "pom.xml")) {
       throw IO("pom.xml not found");
     }
@@ -146,6 +147,16 @@ M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includ
     return result;
 }
 
+@synopsis{Extract an M3 model from all the class files in a jar}
+@description{
+We use ((createM3FromJar)) to extract an initial M3 model and 
+then a number of steps enrich the M3 towards a model that could
+have come from the original source. 
+
+In particular:
+* `typeDependency` is enriched by adding `extends` and `implements`
+* `methodOverrides` is recovered from `extends` and `implements`, but restricted to the actual overriden methods.
+}
 M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
   M3 model = createM3FromJarFile(jarFile, classPath = classPath);
     
@@ -160,6 +171,7 @@ M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
 		model.methodOverrides += {<m, getMethodSignature(m)> | m <- methodContainment[from]} 
 			o {<getMethodSignature(m), m> | m <- methodContainment[to]};
 	}
+
 	return model;
 }
 
