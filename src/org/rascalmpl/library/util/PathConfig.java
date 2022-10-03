@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -647,10 +648,28 @@ public class PathConfig {
         }
     }
 
+    private static final String dependencyPluginGroup = "org.apache.maven.plugins";
+    private static final String dependencyPluginArtifact = "maven-dependency-plugin";
+    private static final String dependencyPluginVersion = "2.8";
+
     private static void installNecessaryMavenPlugins(String mvnCommand) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=org.apache.maven.plugins",
-                "-DartifactId=maven-dependency-plugin", "-Dversion=2.8");
+            var quickPath = 
+                Paths.get(System.getProperty("user.home" ), 
+                    ".m2", "repository",
+                    dependencyPluginGroup.replace(".", File.separator),
+                    dependencyPluginArtifact,
+                    dependencyPluginVersion,
+                    dependencyPluginArtifact + "-" + dependencyPluginVersion + ".jar"
+                    );
+
+            if (quickPath.toFile().exists()) {
+                // we find that the jar is already there, so no need to trigger maven just to ask it to install the file
+                return;
+            }
+            
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=" + dependencyPluginGroup,
+                "-DartifactId=" + dependencyPluginArtifact, "-Dversion=" + dependencyPluginVersion);
 
             Process process = processBuilder.start();
             if (process.waitFor() != 0) {
