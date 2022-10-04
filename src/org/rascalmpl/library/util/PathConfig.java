@@ -8,18 +8,19 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.maven.cli.CliRequest;
 import org.apache.maven.cli.MavenCli;
+import org.codehaus.plexus.classworlds.ClassWorld;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -612,14 +613,16 @@ public class PathConfig {
 
             var maven = new MavenCli();
             try (var output = new ByteArrayOutputStream()) {
-                Properties originalProperties = System.getProperties();
-                // due to limitation in MavenCli, we have to set a global property.
-                System.setProperty(MavenCli.MULTIMODULE_PROJECT_DIRECTORY, manifestRoot.getPath());
+                var oldOut = System.out;
+                var oldErr = System.err;
                 try (var out = new PrintStream(output, false, StandardCharsets.UTF_8)) {
-                    maven.doMain(new String[] {"-o", "dependency:build-classpath", "-DincludeScope=compile"}, manifestRoot.getPath(), out, out);
+                    System.setOut(out);
+                    System.setErr(out);
+                    maven.doMain(buildRequest(new String[] {"-o", "dependency:build-classpath", "-DincludeScope=compile"}, manifestRoot));
                 }
                 finally {
-                    System.setProperties(originalProperties );
+                    System.setOut(oldOut);
+                    System.setErr(oldErr);
                 }
                 var mavenOutput = new String(output.toByteArray(), StandardCharsets.UTF_8);
                 var match = FIND_CLASS_PATH.matcher(mavenOutput);
@@ -635,13 +638,30 @@ public class PathConfig {
                             return null;
                         }
                     })
-                    .filter(e -> e != null)
+                    .filter(Objects::nonNull)
                     .collect(vf.listWriter());
             }
         }
-        catch (IOException | RuntimeException e) {
+        catch (IOException | RuntimeException | ReflectiveOperationException e) {
             return vf.list();
         }
+    }
+
+    private static void setField(CliRequest req, String fieldName, Object value)  throws ReflectiveOperationException {
+        var field = CliRequest.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(req, value);
+    }
+
+    private static CliRequest buildRequest(String[] args, ISourceLocation manifestRoot) throws ReflectiveOperationException {
+        // we need to set a field that the default class doesn't set
+        // it's a work around around a bug in the MavenCli code
+        var cons = CliRequest.class.getDeclaredConstructor(String[].class, ClassWorld.class);
+        cons.setAccessible(true);
+        var result = cons.newInstance(args, null);
+        setField(result, "workingDirectory", manifestRoot.getPath());
+        setField(result, "multiModuleProjectDirectory", new File(manifestRoot.getPath()));
+        return result;
     }
 
 
