@@ -1,12 +1,13 @@
 package org.rascalmpl.library.util;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,8 +15,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.apache.maven.cli.MavenCli;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -582,6 +586,10 @@ public class PathConfig {
         }
     }
 	
+
+    private static final Pattern FIND_CLASS_PATH = Pattern.compile("org.apache.maven.plugin.dependency.fromDependencies.BuildClasspathMojo - Dependencies classpath:\\s+(.+)$", Pattern.MULTILINE);
+
+
     /**
      * See if there is a pom.xml and extract the compile-time classpath from a mvn run
      * if there is such a file.
@@ -602,25 +610,22 @@ public class PathConfig {
                 return vf.list();
             }
 
-            String mvnCommand = computeMavenCommandName();
+            var maven = new MavenCli();
+            try (var output = new ByteArrayOutputStream()) {
+                Properties originalProperties = System.getProperties();
+                // due to limitation in MavenCli, we have to set a global property.
+                System.setProperty(MavenCli.MULTIMODULE_PROJECT_DIRECTORY, manifestRoot.getPath());
+                try (var out = new PrintStream(output, false, StandardCharsets.UTF_8)) {
+                    maven.doMain(new String[] {"-o", "dependency:build-classpath", "-DincludeScope=compile"}, manifestRoot.getPath(), out, out);
+                }
+                finally {
+                    System.setProperties(originalProperties );
+                }
+                var mavenOutput = new String(output.toByteArray(), StandardCharsets.UTF_8);
+                var match = FIND_CLASS_PATH.matcher(mavenOutput);
+                var foundClassPath = match.find() ? match.group(1) : "";
 
-            installNecessaryMavenPlugins(mvnCommand);
-
-            // Note how we try to do this "offline" using the "-o" flag
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-o", "dependency:build-classpath",
-                "-DincludeScope=compile");
-            processBuilder.directory(new File(manifestRoot.getPath()));
-
-            Process process = processBuilder.start();
-
-            try (BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-
-                process.waitFor();
-
-                return processOutputReader.lines()
-                    .filter(line -> !line.startsWith("["))
-                    .filter(line -> !line.contains("-----"))
-                    .flatMap(line -> Arrays.stream(line.split(File.pathSeparator)))
+                return Arrays.stream(foundClassPath.split(File.pathSeparator) )
                     .filter(fileName -> new File(fileName).exists())
                     .map(elem -> {
                         try {
@@ -634,52 +639,11 @@ public class PathConfig {
                     .collect(vf.listWriter());
             }
         }
-        catch (IOException | InterruptedException e) {
+        catch (IOException | RuntimeException e) {
             return vf.list();
         }
     }
 
-    private static String computeMavenCommandName() {
-        if (System.getProperty("os.name", "generic").startsWith("Windows")) {
-            return "mvn.cmd";
-        }
-        else {
-            return "mvn";
-        }
-    }
-
-    private static final String dependencyPluginGroup = "org.apache.maven.plugins";
-    private static final String dependencyPluginArtifact = "maven-dependency-plugin";
-    private static final String dependencyPluginVersion = "2.8";
-
-    private static void installNecessaryMavenPlugins(String mvnCommand) {
-        try {
-            var quickPath = 
-                Paths.get(System.getProperty("user.home" ), 
-                    ".m2", "repository",
-                    dependencyPluginGroup.replace(".", File.separator),
-                    dependencyPluginArtifact,
-                    dependencyPluginVersion,
-                    dependencyPluginArtifact + "-" + dependencyPluginVersion + ".jar"
-                    );
-
-            if (quickPath.toFile().exists()) {
-                // we find that the jar is already there, so no need to trigger maven just to ask it to install the file
-                return;
-            }
-            
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=" + dependencyPluginGroup,
-                "-DartifactId=" + dependencyPluginArtifact, "-Dversion=" + dependencyPluginVersion);
-
-            Process process = processBuilder.start();
-            if (process.waitFor() != 0) {
-                throw new IOException("mvn dependency:get returned non-zero");
-            } 
-        }
-        catch (IOException | InterruptedException e) {
-            System.err.println("[WARNING] Could not install exec-maven-plugin; classpath resolution may be incomplete hereafter: " + e.getMessage());
-        }
-    }
 
     public ISourceLocation getBin() {
         return bin;
