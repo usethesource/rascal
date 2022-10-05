@@ -158,7 +158,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
 
     if (i <- indexFiles && exists(i)) {
       // this can only be a markdown file (see above)
-      list[Output] output = compileMarkdown(i, pcfg[currentFile=i], exec, ind, sidebar_position=sidebar_position);
+      output = compileMarkdown(i, pcfg[currentFile=i], exec, ind, sidebar_position=sidebar_position);
 
       i.file = (i.file == i.parent[extension="md"].file) ? "index.md" : i.file;
 
