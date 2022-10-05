@@ -113,16 +113,21 @@ public interface IDEServices extends IRascalMonitor {
     boolean isError = type.equals("error");
     boolean isWarning = type.equals("warning");
 
-    ISourceLocation loc = (ISourceLocation) msg.get("at");
+    String locString = "unknown location";
     int col = 0;
     int line = 0;
-    if(loc.hasLineColumn()) {
-      col = loc.getBeginColumn();
-      line = loc.getBeginLine();
+   
+    if (msg.has("at")) {
+      ISourceLocation loc = (ISourceLocation) msg.get("at");
+      locString = loc.top().toString().substring(1, loc.top().toString().length() - 1);
+      if (loc.hasLineColumn()) {
+        col = loc.getBeginColumn();
+        line = loc.getBeginLine();
+      }
     }
 
     String output
-    = loc
+    = locString
     + ":"
     + String.format("%04d", line)
     + ":"
