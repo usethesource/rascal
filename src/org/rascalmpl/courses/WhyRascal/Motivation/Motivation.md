@@ -42,16 +42,20 @@ The unique selling point of Rascal is _linguistic integration_ of all the tools 
 
 Typical applications of Rascal are:
 
-*  Refactoring of Java source code.
-*  Analyzing PHP code.
-*  Searching for buffer overflows in C code.
-*  Analyzing the version history of a large software project.
-*  Implementing a _domain-specific language_ (DSL) for describing games or business processes.
+*  Empirical methods in Software Engineering research: metrics, statistics, impact analysis
+*  Design and Implementing of _domain-specific languages_ (DSLs);
+*  Design and Implementing of Programming Languages;
 *  Writing compilers.
+*  Construction of Software Refactorings, ad-hoc or reusable;
+*  Analyzing Legacy Software: Reverse-engineering
+*  Renovating Legacy Software: Re-engineering
+*  Software Verification
+*  Model Driven Engineering: model-to-code, code-to-model, model verification, test code generation
+*  Debugging
 
 All these cases involve a form of meta-programming: software programs (in a wide sense) are the objects-of-interest 
-that are being analyzed, transformed or generated. 
-Rascal can be applied in domains ranging from compiler construction and implementing domain-specific languages to constraint solving and software renovation.
+that are being analyzed, transformed or generated. More often than not, other sources of information (other than source code) are applied in metaprogramming.
+Rascal is very generic: it can be applied in domains ranging from compiler construction and implementing domain-specific languages to constraint solving and software renovation.
 
 Since representation of information is central to the approach, Rascal provides a rich set of built-in data types. 
 To support extraction and analysis, parsing and advanced pattern matching are provided. 
