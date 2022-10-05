@@ -22,7 +22,7 @@ println("Hello world, this is my first Rascal program");
 ##  `hello` as function 
 
 As the command above, a piece of code is not _reusable_. To be able to use some code again and 
-again, the best way is to wrap it in a ((Declaration-Function)), and then call it:d call it:
+again, the best way is to wrap it in a ((Declarations-Function)), and then call it:d call it:
 ```rascal-shell
 import IO;
 void hello() {
