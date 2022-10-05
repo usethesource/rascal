@@ -22,7 +22,7 @@ What are the differences between ASF+SDF and Rascal? What are the commonalities?
   Regarding functionality, old ASF+SDF specifications could, in principle, be transformed into Rascal programs using a conversion tool.
   We do not provide such a tool since it turns out to be better to redesign your specification from scratch to profit most
   from all the new features in Rascal.
-
+  
 *  Rascal uses its own syntax definition notation that is richer than SDF. It also uses its own parser generation and parsing technology.
   Parser generation is currently somewhat slower than for SDF, the generated parsers are, however, 
   substantially faster than SDF-based parsers.
