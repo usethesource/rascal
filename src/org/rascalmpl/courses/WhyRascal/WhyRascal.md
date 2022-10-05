@@ -6,6 +6,14 @@ details:
   - EASY
   - SolutionStrategies
   - CompareWithOtherParadigms
+keywords:
+  - why
+  - "why another programming language"
+  - database
+  - metaprogramming
+  - meta-programming
+  - wysiwyg
+  - provenance
 ---
 
 #### Synopsis
@@ -27,7 +35,7 @@ We give various answers to these questions:
 * *No more databases/programming language separation*: Rascal integrates all data-types and operators that you need for meta-programming; files/strings, trees/hierarchies, tables/graphs/relations, and its easy to move between representations. Rascal has more powerful query operators than SQL and more powerfull pattern matching than Haskell.
 * *Full data and code provenance*: Rascal has source location origins of every thing you analyze and transform made explicit via URI locations.
 * *WYSIWYG*: The What You See Is What You Get paradigm means that all data in memory has a unique printed, readable, form that explains _everything_ about it.  
-* *Fun and easy* Rascal is a fun language to make meta programs in, and that most programmers learn it easily.
+* *Fun and easy*: Rascal is a fun language to make meta programs in, and that most programmers learn it easily.
 * *Safe*: Even beginner programmers like Rascal as a first language, and complex programs stay safe because of data immutability and a helpful type system;
 * *Down to earth*: Simple things are kept simple in Rascal, while complex problems can also be solved.
 
