@@ -499,7 +499,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					else if (!ext.isEmpty()) {
 						path = path.substring(0, index) + (!ext.startsWith(".") ? "." : "") + ext;
 					}
-					else {
+					else if (index != -1) {
 						path = path.substring(0, index);
 					}
 				}

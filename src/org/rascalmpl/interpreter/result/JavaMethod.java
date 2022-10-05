@@ -145,7 +145,7 @@ public class JavaMethod extends NamedFunction {
 			oActuals = addCtxActual(oActuals);
 		}
 
-		if (callTracing) {
+		if (eval.getCallTracing()) {
 			printStartTrace(actuals);
 		}
 
@@ -184,8 +184,8 @@ public class JavaMethod extends NamedFunction {
 		finally {
 		   
 		    
-			if (callTracing) {
-				callNesting--;
+			if (eval.getCallTracing()) {
+				eval.decCallNesting();
 			}
 			ctx.unwind(old);
 		}

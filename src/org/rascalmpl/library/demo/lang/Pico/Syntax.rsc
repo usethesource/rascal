@@ -1,10 +1,11 @@
-// tag::module[]
 module demo::lang::Pico::Syntax
 
 import ParseTree;
 
-lexical Id  = [a-z][a-z0-9]* !>> [a-z0-9];
+lexical Id = [a-z][a-z0-9]* !>> [a-z0-9];
+
 lexical Natural = [0-9]+ ;
+
 lexical String = "\"" ![\"]*  "\"";
 
 layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
@@ -45,11 +46,10 @@ syntax Expression
           )
   ;
 
-public start[Program] program(str s) {
+start[Program] program(str s) {
   return parse(#start[Program], s);
 }
 
-public start[Program] program(str s, loc l) {
+start[Program] program(str s, loc l) {
   return parse(#start[Program], s, l);
 } 
-// end::module[]

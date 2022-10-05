@@ -81,10 +81,10 @@ public int fac(int N) {
 public void measure()
 {
     int n = 20;
-	begin = realTime();
+	begin = realTimeNow();
 	for(int i <- [1 .. 10000])
 	    fac(n);
-	used = (realTime() - begin)/1000;
+	used = (realTimeNow() - begin)/1000;
 		
 	println("10000 x fac(<n>) <used> seconds)");
 }

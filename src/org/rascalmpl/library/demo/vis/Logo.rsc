@@ -7,8 +7,6 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Jeroen van den Bos - Jeroen.van.den.Bos@cwi.nl (CWI)}
-//START
-// tag::module[]
 module demo::vis::Logo
 
 //import vis::Figure;
@@ -282,4 +280,3 @@ module demo::vis::Logo
 //void renderLogo() {
 //  render(logo());
 //}
-// end::module[]

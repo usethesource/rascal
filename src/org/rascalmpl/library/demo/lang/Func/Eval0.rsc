@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Func::Eval0
 
 // No let

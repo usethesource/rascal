@@ -184,7 +184,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                     throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
                 }
 
-                if (staticFunctionType.isBottom()) {
+                if (staticFunctionType.getReturnType().isBottom()) {
                     return ResultFactory.nothing();
                 }
                 else if (returnValue == null) {
@@ -263,7 +263,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleEmpty());
 
         // Funny diamond issue with multiple interface inheritance requires double cast to avoid compiler error here.
-        Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) (Class<?>) RascalParser.class;
+        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) (Class<?>) RascalParser.class;
 
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");

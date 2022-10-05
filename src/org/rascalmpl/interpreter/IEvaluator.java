@@ -104,6 +104,9 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public void notifyConstructorDeclaredListeners();
 	
 	
+	public int getCallNesting();
+	public boolean getCallTracing();
+	public void setCallTracing(boolean val);
 	
 	public Environment pushEnv(Statement s);
 

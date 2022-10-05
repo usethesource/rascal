@@ -19,6 +19,7 @@ package org.rascalmpl.library;
 import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -1500,7 +1501,7 @@ public class Prelude {
 		return w.done();
 	}
 	
-    public IString uuencode(ISourceLocation sloc) {
+    public IString readBase64(ISourceLocation sloc) {
         int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
         
@@ -1521,6 +1522,18 @@ public class Prelude {
             }
             
             return values.string(result.toString());
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
+
+	public void writeBase64(ISourceLocation sloc, IString contents) {
+        int BUFFER_SIZE = 3 * 512;
+        Base64.Decoder decoder = Base64.getDecoder();
+        
+        try  (BufferedOutputStream out = new BufferedOutputStream(URIResolverRegistry.getInstance().getOutputStream(sloc, false), BUFFER_SIZE); ) {
+			out.write(decoder.decode(contents.getValue()));
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -2498,7 +2511,10 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
-						return ast.asWithKeywordParameters().setParameter("location", loc);
+						String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
+						  "location" : "src";
+						
+						return ast.asWithKeywordParameters().setParameter(locLabel, loc);
 					}
 					catch (Backtrack b) {
 					    failReason = b;
@@ -2675,7 +2691,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args));
-				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
+				return ast.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2693,9 +2709,12 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args);
 					IConstructor ast = makeConstructor(store, type, constructorName, implodedArgs);
+					String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
+						  "location" : "src";
+
 					return ast
 					        .asWithKeywordParameters()
-					        .setParameter("location", loc)
+					        .setParameter(locLabel, loc)
 					        .asWithKeywordParameters()
 					        .setParameter("comments", comments);
 				}
