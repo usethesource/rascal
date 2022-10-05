@@ -6,44 +6,49 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @doc{
-.Synopsis
+#### Synopsis
+
 Statistical methods for simple regression.
 
-.Description
+#### Description
 
 The following functions are provided:
-loctoc::[1]
+(((TOC)))
 }
 module analysis::statistics::SimpleRegression
 
 import Exception;
 
 @doc{
-.Synopsis
-Intercept of regression line.
-.Description
+#### Synopsis
 
-Returns the http://en.wikipedia.org/wiki/Root_of_a_function[intercept] of the estimated regression line.
-The least squares estimate of the intercept is computed using these http://www.xycoon.com/estimation4.htm[normal equations].
+Intercept of regression line.
+#### Description
+
+Returns the [interce](http://en.wikipedia.org/wiki/Root_of_a_function) of the estimated regression line.
+The least squares estimate of the intercept is computed using these [normal equations](http://www.xycoon.com/estimation4.htm)
 }
 
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num intercept(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Standard error of intercept estimate.
-.Description
+#### Description
+
 Returns the http://www.xycoon.com/standarderrorb0.htm[standard error of the intercept estimate], usually denoted s(b0).
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num interceptStdErr(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum of squared errors divided by the degrees of freedom.
 
-.Description
+#### Description
 
 Returns the sum of squared errors divided by the degrees of freedom, usually abbreviated MSE.
 }
@@ -51,21 +56,24 @@ Returns the sum of squared errors divided by the degrees of freedom, usually abb
 public java num meanSquareError(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Pearson's product-moment correlation coefficient.
 
-.Description
+#### Description
+
 Computes Pearson's product-moment correlation coefficient.
-More functions related to this coefficient can be found in <<Correlation>>.
+More functions related to this coefficient can be found in ((module:analysis::statistics::Correlation)).
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num R(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum of squared deviations of the predicted y values about their mean.
 
-.Description
+#### Description
 
 Returns the sum of squared deviations of the predicted y values about their mean (which equals the mean of y).
 This is usually abbreviated SSR or http://www.xycoon.com/SumOfSquares.htm[SSM].
@@ -74,35 +82,40 @@ This is usually abbreviated SSR or http://www.xycoon.com/SumOfSquares.htm[SSM].
 public java num regressionSumSquares(list[tuple[num,num]] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
-Coefficient of determination.
-.Description
+#### Synopsis
 
-Returns the http://en.wikipedia.org/wiki/Coefficient_of_determination[coefficient of determination] usually denoted r__^2^.
+Coefficient of determination.
+#### Description
+
+Returns the [coefficient of determination](http://en.wikipedia.org/wiki/Coefficient_of_determination) usually denoted r__^2^.
 It provides a measure of how well future outcomes are likely to be predicted by the regression model.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num RSquare(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Significance of the slope correlation.
-.Description
+#### Description
 
 Returns the significance level of the slope (equiv) correlation.
 Specifically, the returned value is the smallest alpha such that the slope confidence interval with significance level equal to alpha does not include 0. On regression output, this is often denoted Prob(|t| > 0)
 
-.Pitfalls
+#### Pitfalls
+
 The validity of this statistic depends on the assumption that the observations included in the model are drawn from a 
-http://en.wikipedia.org/wiki/Bivariate_normal_distribution[Bivariate Normal Distribution].
+[Bivariate Normal Distribution](http://en.wikipedia.org/wiki/Bivariate_normal_distribution).
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num significance(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Slope of regression line.
-.Description
+#### Description
+
 Returns the slope of the estimated regression line.
 The least squares estimate of the slope is computed using the http://www.xycoon.com/estimation4.htm[normal equations].
 The slope is sometimes denoted b1.
@@ -111,10 +124,11 @@ The slope is sometimes denoted b1.
 public java num slope(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 The 95% slope confidence interval.
 
-.Description
+#### Description
 
 Returns the half-width of a 95% confidence interval for the slope estimate.
 The 95% confidence interval is
@@ -122,18 +136,20 @@ The 95% confidence interval is
 (slope - slopeConfidenceInterval, slope + slopeConfidenceInterval)
 
 
-.Pitfalls
-The validity of this statistic depends on the assumption that the observations included in the model are drawn from a 
-http://en.wikipedia.org/wiki/Bivariate_normal_distribution[Bivariate Normal Distribution].
+#### Pitfalls
+
+* The validity of this statistic depends on the assumption that the observations included in the model are drawn from a 
+[Bivariate Normal Distribution](http://en.wikipedia.org/wiki/Bivariate_normal_distribution)
 
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num slopeConfidenceInterval(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Standard error of slope estimate.
-.Description
+#### Description
 
 Returns the http://www.xycoon.com/standarderrorb0.htm[standard error of the slope estimate], usually denoted s(b1).
 }
@@ -141,9 +157,10 @@ Returns the http://www.xycoon.com/standarderrorb0.htm[standard error of the slop
 public java num slopeStdErr(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum of cross products of observations.
-.Description
+#### Description
 
 Returns the sum of crossproducts, x__~i~*y__~i~.
 }
@@ -151,9 +168,10 @@ Returns the sum of crossproducts, x__~i~*y__~i~.
 public java num sumOfCrossProducts(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum of squared errors.
-.Description
+#### Description
 
 Returns the sum of squared errors (SSE) associated with the regression model.
 The sum is computed using the computational formula
@@ -168,9 +186,10 @@ The return value is constrained to be non-negative, i.e., if due to rounding err
 public java num sumSquaredErrors(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum of squared deviations.
-.Description
+#### Description
 
 Returns the sum of squared deviations of the y values about their mean.
 This is defined as http://www.xycoon.com/SumOfSquares.htm[SSTO].
@@ -180,10 +199,11 @@ This is defined as http://www.xycoon.com/SumOfSquares.htm[SSTO].
 public java num totalSumSquares(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum of squared deviations of x values about their mean.
 
-.Description
+#### Description
 
 Returns the sum of squared deviations of the x values about their mean.
 }
@@ -191,9 +211,10 @@ Returns the sum of squared deviations of the x values about their mean.
 public java num XSumSquares(lrel[num,num] values) throws IllegalArgument;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Predict a value.
-.Description
+#### Description
 
 Returns the "predicted" `y` value associated with the supplied `x` value, based on regression model derived from the provided data values:
 

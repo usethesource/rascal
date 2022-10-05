@@ -26,11 +26,13 @@ public alias Extracted = rel[Production father, Associativity rule, Production c
 public alias DoNotNest = rel[Production father, int position, Production child];
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Extract which productions are not to be nested under which other productions, at given 
 recursive positions in the parents' defining symbols list.
 
-.Description
+#### Description
+
 This DoNotNest relation is generated from the grammar using the > priority definitions,
 the associativity groups and the ! restriction operator. 
 

@@ -14,7 +14,7 @@ import String;
 
 @doc{
   A good old ASCII table in order to convert numbers < 128 to readable (properly escaped) string
-  characters. For instance, ascii<<10>> maps to the string "\\n".
+  characters. For instance, ascii((10)) maps to the string "\\n".
 }
 public list[str] ascii =
 [

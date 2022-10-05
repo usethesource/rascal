@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::common::CountConstructors
 
 import Node;
@@ -37,7 +36,6 @@ map[str,int] count(node N){ // <1>
 }
 
 map[str,int] countRelevant(node N, set[str] relevant) = domainR(count(N), relevant); // <6>
-// end::module[]
 
 test bool tstCount() =  count(CT) == ("red":2, "leaf":5, "black":2);
 test bool tstCountRelevant() = countRelevant(CT, {"leaf"}) == ("leaf" : 5);

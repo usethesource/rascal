@@ -5,11 +5,8 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-	Synopsis: Wrapper around the Microsoft Z3 solver. Lets you execute SMT statements (as SMTLIBv2 AST commands) and returns the found answer (if any). 
-}
+@synopsis{Wrapper around the Microsoft Z3 solver. Lets you execute SMT statements (as SMTLIBv2 AST commands) and returns the found answer (if any).}
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
-
 module lang::smtlib2::\solve::Z3
 
 import String;
@@ -24,7 +21,7 @@ import lang::smtlib2::command::response::Ast;
 
 @doc{
 	Starts the Z3 solver.
-	To run the solver the path to Z3 needs to be configure either by adding the -Dsolver.z3.path=<local.path.to.z3> to your eclipse.ini configuration or by supplying it 
+	To run the solver the path to Z3 needs to be configure either by adding the `-Dsolver.z3.path=<local.path.to.z3>` to your eclipse.ini configuration or by supplying it 
 	when you call the solver using the keyword parameter 'pathToZ3'
 }
 PID startZ3(str pathToZ3 = getSystemProperty("solver.z3.path")) { 
