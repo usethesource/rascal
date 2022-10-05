@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Lisra::Runtime
 
 import Prelude;
@@ -29,5 +28,3 @@ public Lval TRUE  = Atom("#t"); // <5>
 public Lval FALSE = Atom("#f");
 
 alias Result = tuple[Lval val, Env env]; // <6>
-// end::module[]
-     

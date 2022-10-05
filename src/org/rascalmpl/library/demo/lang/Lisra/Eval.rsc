@@ -1,16 +1,16 @@
-// tag::module[]
 module demo::lang::Lisra::Eval
 
 import Prelude;
 import demo::lang::Lisra::Parse;
 import demo::lang::Lisra::Runtime;
 
-Lval eval(Lval x) = eval(x, [()]).val;
-
-// Evaluate an Lval in a given environment and return a Result.
-
+@synopsis{Parse and Evaluate an expression in an empty environment}
 Result eval(str exp) = eval(parse(exp),  [()]);
 
+@synopsis{Evaluate an Lval in an empty environment}
+Lval eval(Lval x) = eval(x, [()]).val;
+
+@synopsis{Evaluate an Lval in a given environment and return a Result}
 Result eval(Integer(int x), Env e) = <Integer(x), e>; // <1>
 
 Result eval(var:Atom(str name), Env e) { // <2>
@@ -85,4 +85,3 @@ default Result apply(Lval a,     list[Lval] b, Env e) { // <12>
   println("Cannot apply <a> to <b> using <e>");
   return <FALSE, e>;
 }
-// end::module[]

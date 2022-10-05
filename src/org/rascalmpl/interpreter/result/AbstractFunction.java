@@ -75,10 +75,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	
 	
-	protected static int callNesting = 0;
-	protected static boolean callTracing = false;
-	
-	// TODO: change arguments of these constructors to use EvaluatorContexts
 	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Type functionType, Type dynamicFunctionType, List<KeywordFormal> initializers, boolean varargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
@@ -124,10 +120,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	@Override
 	public int getArity() {
 		return staticFunctionType.getArity();
-	}
-	
-	public static void setCallTracing(boolean value){
-		callTracing = value;
 	}
 	
 	public boolean isPatternDispatched() {
@@ -262,7 +254,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	
 	private void printNesting(StringBuilder b) {
-		for (int i = 0; i < callNesting; i++) {
+		for (int i = 0; i < ctx.getCallNesting(); i++) {
 			b.append('>');
 		}
 	}
@@ -305,7 +297,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		printHeader(b, actuals);
 		eval.getOutPrinter().println(b.toString());
 		eval.getOutPrinter().flush();
-		callNesting++;
+		eval.incCallNesting();
 	}
 
 	private String moduleName() {
@@ -318,7 +310,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	protected void printExcept(Throwable e) {
-		if (callTracing) {
+		if (eval.getCallTracing()) {
 			StringBuilder b = new StringBuilder();
 			b.append("except>");
 			printNesting(b);
@@ -334,7 +326,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	protected void printEndTrace(IValue result) {
-		if (callTracing) {
+		if (eval.getCallTracing()) {
 			StringBuilder b = new StringBuilder();
 			b.append("return>");
 			printNesting(b);

@@ -8,27 +8,27 @@
 @unfinished
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl}
 @doc{
-.Synopsis
+#### Synopsis
+
 Rascal's type system, implemented in Rascal itself.
 
-.Description
+#### Description
 
 The goal of this module is to provide:
 
 *  reflection capabilities that are useful for deserialization and validation of data, and 
-*  to provide the basic building blocks for syntax trees (see <<Prelude-ParseTree>>)
+*  to provide the basic building blocks for syntax trees (see ((module:ParseTree)))
 
 The following definition is built into Rascal:
-[source,rascal]
-----
+```rascal
 data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-----
+```
 
 The `#` operator will always produce a value of `type[&T]`, where `&T` is bound to the type that was reified.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Type;
 #int
 #rel[int,int]
@@ -37,7 +37,7 @@ data B = t();
 syntax A = "a";
 #A;
 type(\int(),())
-----
+```
     
 The following functions are provided on types:
 }
@@ -47,10 +47,12 @@ module Type
 import List;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 A Symbol represents a Rascal Type.
 
-.Description
+#### Description
+
 Symbols are values that represent Rascal's types. These are the atomic types.
 We define here:
 
@@ -59,8 +61,8 @@ We define here:
 <3>  Composite types.
 <4>  Parameters that represent a type variable.
 
-In <<Prelude-ParseTree>>, see <<ParseTree-Symbol>>, 
-Symbols will be further extended with the symbols that may occur in a ParseTree.
+In ((module:ParseTree)), see ((ParseTree-Symbol)), 
+Symbols will be further extended with the symbols that may occur in a parse tree.
 }  
 data Symbol    // <1>
      = \int()
@@ -102,10 +104,12 @@ data Symbol // <4>
      ;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 A production in a grammar or constructor in a data type.
 
-.Description
+#### Description
+
 Productions represent abstract (recursive) definitions of abstract data type constructors and functions:
 
 * `cons`: a constructor for an abstract data type.
@@ -113,7 +117,7 @@ Productions represent abstract (recursive) definitions of abstract data type con
 * `choice`: the choice between various alternatives.
 * `composition`: composition of two productions.
 
-In ParseTree, see <<ParseTree-Production>>, 
+In ParseTree, see ((ParseTree-Production)), 
 Productions will be further extended and will be used to represent productions in syntax rules.
 }  
 data Production
@@ -123,7 +127,8 @@ data Production
      ;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Attributes register additional semantics annotations of a definition. 
 }
 data Attr 
@@ -131,7 +136,8 @@ data Attr
      ;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Transform a function with varargs (`...`) to a normal function with a list argument.
 }
 public Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
@@ -140,10 +146,12 @@ public Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
 // The following normalization rules canonicalize grammars to prevent arbitrary case distinctions later
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Normalize the choice between alternative productions.
 
-.Description
+#### Description
+
 Nested choice is flattened.
 }
 public Production choice(Symbol s, set[Production] choices) {
@@ -184,13 +192,15 @@ public Production choice(Symbol s, set[Production] choices) {
 //       \func(ret, name, parameters + [<\list(varArg), varLabel>]);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Subtype on types.
 }       
 public bool subtype(type[&T] t, type[&U] u) = subtype(t.symbol, u.symbol);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 This function documents and implements the subtype relation of Rascal's type system. 
 }
 public bool subtype(Symbol s, s) = true;
@@ -279,43 +289,48 @@ public default bool subtype(list[Symbol] l, list[Symbol] r) = size(l) == 0 && si
 //}
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Check if two types are comparable, i.e., have a common supertype.
 }
 public bool comparable(Symbol s, Symbol t) = subtype(s,t) || subtype(t,s); 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Check if two types are equivalent.
 }
 public bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Structural equality between values. 
 
-.Description
+#### Description
+
 The difference is that no implicit coercions are done between values of incomparable types, such as == does for
 int, real and rat.
 
-.Examples
+#### Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import Type;
 1 == 1.0
 eq(1,1.0)
-----
+```
 }
 @javaClass{org.rascalmpl.library.Type}
 public java bool eq(value x, value y);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 The least-upperbound (lub) between two types.
 
-.Description
+#### Description
+
 This function documents and implements the lub operation in Rascal's type system. 
 }
 public Symbol lub(Symbol s, s) = s;
@@ -426,10 +441,12 @@ private list[Symbol] addParamLabels(list[Symbol] l, list[str] s) = [ Symbol::\pa
 private default list[Symbol] addParamLabels(list[Symbol] l, list[str] s) { throw "Length of symbol list and label list much match"; } 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 The greatest lower bound (glb) between two types.
 
-.Description
+#### Description
+
 This function documents and implements the glb operation in Rascal's type system. 
 }
 public Symbol glb(Symbol s, s) = s;
@@ -528,10 +545,11 @@ public &T typeCast(type[&T] typ, value v) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Instantiate an ADT constructor of a given type with the given children and optional keyword arguments.
 
-.Description
+#### Description
 
 This function will build a constructor if the definition exists and throw an exception otherwise.
 }
@@ -542,34 +560,36 @@ public java &T make(type[&T] typ, str name, list[value] args);
 public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
  
 @doc{
-.Synopsis
+#### Synopsis
+
 Returns the dynamic type of a value as a reified type.
 
-.Description
+#### Description
 
 As opposed to the # operator, which produces the type of a value statically, this
 function produces the dynamic type of a value, represented by a symbol.
 
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Type;
 value x = 1;
 typeOf(x)
-----
+```
 
-.Pitfalls
+#### Pitfalls
 
 *  Note that the `typeOf` function does not produce definitions, like the 
-   link:/Rascal#Values-ReifiedTypes[reify] operator `#` does, 
+   [reify]((Rascal:Values-ReifiedTypes)) operator `#` does, 
    since values may escape the scope in which they've been constructed leaving their contents possibly undefined.
 }
 @javaClass{org.rascalmpl.library.Type}
 public java Symbol typeOf(value v);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is an int.
 }
 public bool isIntType(Symbol::\alias(_,_,Symbol at)) = isIntType(at);
@@ -579,7 +599,8 @@ public bool isIntType(Symbol::\int()) = true;
 public default bool isIntType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a bool.
 }
 public bool isBoolType(Symbol::\alias(_,_,Symbol at)) = isBoolType(at);
@@ -589,7 +610,8 @@ public bool isBoolType(Symbol::\bool()) = true;
 public default bool isBoolType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a real.
 }
 public bool isRealType(Symbol::\alias(_,_,Symbol at)) = isRealType(at);
@@ -599,7 +621,8 @@ public bool isRealType(Symbol::\real()) = true;
 public default bool isRealType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a rational.
 }
 public bool isRatType(Symbol::\alias(_,_,Symbol at)) = isRatType(at);
@@ -609,7 +632,8 @@ public bool isRatType(Symbol::\rat()) = true;
 public default bool isRatType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a string.
 }
 public bool isStrType(Symbol::\alias(_,_,Symbol at)) = isStrType(at);
@@ -619,7 +643,8 @@ public bool isStrType(Symbol::\str()) = true;
 public default bool isStrType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a num.
 }
 public bool isNumType(Symbol::\alias(_,_,Symbol at)) = isNumType(at);
@@ -629,7 +654,8 @@ public bool isNumType(Symbol::\num()) = true;
 public default bool isNumType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a node.
 }
 public bool isNodeType(Symbol::\alias(_,_,Symbol at)) = isNodeType(at);
@@ -640,7 +666,8 @@ public bool isNodeType(Symbol::\adt(_,_)) = true;
 public default bool isNodeType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a void.
 }
 public bool isVoidType(Symbol::\alias(_,_,Symbol at)) = isVoidType(at);
@@ -650,7 +677,8 @@ public bool isVoidType(Symbol::\void()) = true;
 public default bool isVoidType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a value.
 }
 public bool isValueType(Symbol::\alias(_,_,Symbol at)) = isValueType(at);
@@ -660,7 +688,8 @@ public bool isValueType(Symbol::\value()) = true;
 public default bool isValueType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a loc.
 }
 public bool isLocType(Symbol::\alias(_,_,Symbol at)) = isLocType(at);
@@ -670,7 +699,8 @@ public bool isLocType(Symbol::\loc()) = true;
 public default bool isLocType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a `datetime`.
 }
 public bool isDateTimeType(Symbol::\alias(_,_,Symbol at)) = isDateTimeType(at);
@@ -680,7 +710,8 @@ public bool isDateTimeType(Symbol::\datetime()) = true;
 public default bool isDateTimeType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a set.
 }
 public bool isSetType(Symbol::\alias(_,_,Symbol at)) = isSetType(at);
@@ -691,7 +722,8 @@ public bool isSetType(Symbol::\rel(_)) = true;
 public default bool isSetType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a relation.
 }
 public bool isRelType(Symbol::\alias(_,_,Symbol at)) = isRelType(at);
@@ -702,7 +734,8 @@ public bool isRelType(Symbol::\set(Symbol tp)) = true when isTupleType(tp);
 public default bool isRelType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a list relation.
 }
 public bool isListRelType(Symbol::\alias(_,_,Symbol at)) = isListRelType(at);
@@ -713,7 +746,8 @@ public bool isListRelType(Symbol::\list(Symbol tp)) = true when isTupleType(tp);
 public default bool isListRelType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a tuple.
 }
 public bool isTupleType(Symbol::\alias(_,_,Symbol at)) = isTupleType(at);
@@ -723,7 +757,8 @@ public bool isTupleType(Symbol::\tuple(_)) = true;
 public default bool isTupleType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a list.
 }
 public bool isListType(Symbol::\alias(_,_,Symbol at)) = isListType(at);
@@ -734,7 +769,8 @@ public bool isListType(Symbol::\lrel(_)) = true;
 public default bool isListType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a list relation.
 }
 public bool isListRelType(Symbol::\alias(_,_,Symbol at)) = isListRelType(at);
@@ -744,7 +780,8 @@ public bool isListRelType(Symbol::\lrel(_)) = true;
 public default bool isListRelType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a map.
 }
 public bool isMapType(Symbol::\alias(_,_,Symbol at)) = isMapType(at);
@@ -754,7 +791,8 @@ public bool isMapType(Symbol::\map(_,_)) = true;
 public default bool isMapType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a bag (bags are not yet implemented).
 }
 public bool isBagType(Symbol::\alias(_,_,Symbol at)) = isBagType(at);
@@ -764,7 +802,8 @@ public bool isBagType(Symbol::\bag(_)) = true;
 public default bool isBagType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is an Abstract Data Type (ADT).
 }
 public bool isADTType(Symbol::\alias(_,_,Symbol at)) = isADTType(at);
@@ -775,7 +814,8 @@ public bool isADTType(Symbol::\reified(_)) = true;
 public default bool isADTType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a constructor.
 }
 public bool isConstructorType(Symbol::\alias(_,_,Symbol at)) = isConstructorType(at);
@@ -785,7 +825,8 @@ public bool isConstructorType(Symbol::\cons(Symbol _,str _,list[Symbol] _)) = tr
 public default bool isConstructorType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is an alias.
 }
 public bool isAliasType(Symbol::\alias(_,_,_)) = true;
@@ -794,7 +835,8 @@ public bool isAliasType(Symbol::\label(_,Symbol lt)) = isAliasType(lt);
 public default bool isAliasType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a function.
 }
 public bool isFunctionType(Symbol::\alias(_,_,Symbol at)) = isFunctionType(at);
@@ -804,7 +846,8 @@ public bool isFunctionType(Symbol::\func(_,_,_)) = true;
 public default bool isFunctionType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is a reified type.
 }
 public bool isReifiedType(Symbol::\alias(_,_,Symbol at)) = isReifiedType(at);
@@ -814,7 +857,8 @@ public bool isReifiedType(Symbol::\reified(_)) = true;
 public default bool isReifiedType(Symbol _) = false;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine if the given type is an type variable (parameter).
 }
 public bool isTypeVar(Symbol::\parameter(_,_)) = true;

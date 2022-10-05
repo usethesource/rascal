@@ -5,7 +5,6 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-// tag::module[]
 module demo::vis::VisADT
 
 //import vis::Figure;
@@ -33,4 +32,3 @@ module demo::vis::VisADT
 //	tree(ellipse(fillColor(color)), [visColoredTree(left), visColoredTree(right)]);
 //
 //ColoredTree  rb = red(black(leaf(1), red(leaf(2),leaf(3))), green(leaf(3), leaf(4)));
-// end::module[]
