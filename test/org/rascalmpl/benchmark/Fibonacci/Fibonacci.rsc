@@ -29,10 +29,10 @@ public bool testFibonacci()
 
 public bool measure()
 {
-	begin = realTimeNow();
+	begin = realTime();
 	n = 15;
 	result = fib(n);
-	used = realTimeNow() - begin;
+	used = realTime() - begin;
 		
 	println("fib(<n>) = <result>  (<used> millis)");
 	return true;
