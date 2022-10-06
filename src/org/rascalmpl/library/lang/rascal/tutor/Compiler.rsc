@@ -82,30 +82,6 @@ public void defaultCompile() {
   lastErrors = errors;
 }
 
-public void compileOne(loc root, loc src, PathConfig pcfg) {
-  pcfg.currentRoot = root;
-  pcfg.currentFile = src;
-  inx = readConceptIndex(pcfg);
-
-  errors = compile(src, pcfg, createExecutor(pcfg), inx);
-
-  for (e <- errors) {
-    println("<e.at>: <e.msg><if (e.cause?) {>
-            '    <e.cause><}>");
-  }
-}
-
-public void onlyAPICompile() {
- errors = compile(onlyAPIconfig);
-
-  for (e <- errors) {
-    println("<e.at>: <e.msg><if (e.cause?) {>
-            '    <e.cause><}>");
-  }
-
-  lastErrors = errors;
-}
-
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
   ind = createConceptIndex(pcfg);
@@ -482,6 +458,13 @@ list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySectio
   = compileMarkdown([nextSection, *rest], line + 1 + size(emptySection), offset + size(first) + length(emptySection), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     when !(/\S/ <- emptySection);
 
+@synopsis{Divide the work over sections to avoid stackoverflows}
+list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str body, nextSection:/^\s*#+\s+.*$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) 
+  = [
+    *compileMarkdown([first, *body], line + 1, offset + length(first) + 1, pcfg, exec, ind, dtls, sidebar_position=sidebar_position),
+    *compileMarkdown([nextSection, *rest], line + 1 + size(body), offset + length(first) + 1 + length(body), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
+  ] when /\S/ <- body;
+
 @synopsis{Removes empty sections at the end of a document}
 list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySection, /^\s*$/], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) 
   = [] when !(/\S/ <- emptySection);
@@ -536,7 +519,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     }
 
     if (stdout != "") {
-      for (outLine <- split("\n", stdout)) {
+      for (outLine <- split("\n", stdout)[..500]) {
         append OUT : out("<outLine>");
       }
     }
