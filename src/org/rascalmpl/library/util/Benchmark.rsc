@@ -70,9 +70,9 @@ import demo::basic::Factorial;
 ```
 Here we measure time by using separate calls to `cpuTime` before and after a call to `fac`.
 ```rascal-shell,continue
-before = cpuTimeNow();
+before = cpuTime();
 fac1(50);
-cpuTimeNow() - before;
+cpuTime() - before;
 ```
 
 See also ((cpuTimeOf)) for a more convenient way of measuring the time spent during a block of code.
@@ -81,7 +81,7 @@ See also ((cpuTimeOf)) for a more convenient way of measuring the time spent dur
 * The timings shown above may be significantly influenced by the documentation compilation process
 }
 @javaClass{org.rascalmpl.library.util.Benchmark}
-public java int cpuTimeNow();
+public java int cpuTime();
 
 @javaClass{org.rascalmpl.library.util.Benchmark}
 @synopsis{Returns wall clock time in _milliseconds_ since the Unix epoch}
@@ -90,9 +90,9 @@ Returns the difference, measured in milliseconds, between the current time and m
 }
 @pitfalls{
    * The actual accuracy of the time may be not as good as a millisecond. This depends on OS and hardware specifics.
-   * Note that the resolution is _milliseconds_ here, while ((cpuTimeNow)) produces nanosecond resolution.
+   * Note that the resolution is _milliseconds_ here, while ((cpuTime)) produces nanosecond resolution.
 }
-public java int realTimeNow();
+public java int realTime();
 
 @synopsis{Return nanoseconds clock time of the JVM's high resolution clock.}
 @description{
@@ -112,17 +112,17 @@ public java int realTimeNow();
 > nanosecond resolution (that is, how frequently the value changes).
 }
 @javaClass{org.rascalmpl.library.util.Benchmark}
-public java int getNanoTimeNow();
+public java int getNanoTime();
 
-@synopsis{Synonym for ((realTimeNow))}
+@synopsis{Synonym for ((realTime))}
 @javaClass{org.rascalmpl.library.util.Benchmark}
-public java int getMilliTimeNow();
+public java int getMilliTime();
 
-@synopsis{Measure the exact running time of a block of code, using ((cpuTimeNow)).}
+@synopsis{Measure the exact running time of a block of code, using ((cpuTime)).}
 public int cpuTimeOf(void () block) {
-   int then = cpuTimeNow();
+   int then = cpuTime();
    block();
-   return cpuTimeNow() - then;
+   return cpuTime() - then;
 }
 
 @synopsis{System time in nanoseconds (10^-9^ sec).}
@@ -132,7 +132,7 @@ Returns the CPU time that the current thread has executed in system mode in nano
 * Current system time in nanoseconds (10^-9^ sec) since the start of the thread that runs the code that calls this function.
 * The returned value is of nanoseconds precision but not necessarily nanoseconds accuracy.
 * CPU time is the number of CPU cycles times the OS-registered clock speed.
-* The other [CPU time]((cpuTimeNow)), next to [System time]((systemTimeNow)) is spent in [User time]((userTimeNow)).
+* The other [CPU time]((cpuTime)), next to [System time]((systemTime)) is spent in [User time]((userTime)).
 }
 @examples{
 We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
@@ -145,15 +145,15 @@ import demo::basic::Factorial;
 Here we measure time by using separate calls to `sytemTime` before and after a call to `fac`.
 
 ```rascal-shell,continue
-before = systemTimeNow();
+before = systemTime();
 fac1(50);
-systemTimeNow() - before;
+systemTime() - before;
 ```
 }
 @javaClass{org.rascalmpl.library.util.Benchmark}
-public java int systemTimeNow();
+public java int systemTime();
 
-@synopsis{Measure the exact running time of a block of code, using ((systemTimeNow)).}
+@synopsis{Measure the exact running time of a block of code, using ((systemTime)).}
 @examples{
  ```rascal-shell
 import util::Benchmark;
@@ -166,9 +166,9 @@ systemTimeOf(
 ```
 }
 public int systemTimeOf(void () block) {
-   int then = systemTimeNow();
+   int then = systemTime();
    block();
-   return systemTimeNow() - then;
+   return systemTime() - then;
 }
 
 @javaClass{org.rascalmpl.library.util.Benchmark}
@@ -179,7 +179,7 @@ Returns the CPU time that the current thread has executed in user mode in nanose
 * The returned value is of nanoseconds precision but not necessarily nanoseconds accuracy.
 * As distinguished from ((DateTime-now)) which returns the wall clock time since the Unix epoch.
 * CPU time is the number of CPU cycles times the OS-registered clock speed.
-* The other [CPU time]((cpuTimeNow)), next to [user time]((userTimeNow)) is spent in [system time]((systemTimeNow)).
+* The other [CPU time]((cpuTime)), next to [user time]((userTime)) is spent in [system time]((systemTime)).
 }
 @examples{
 We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
@@ -190,13 +190,13 @@ import demo::basic::Factorial;
 ```
 Here we measure time by using separate calls to `userTime` before and after a call to `fac`.
 ```rascal-shell,continue
-before = userTimeNow();
+before = userTime();
 fac1(50);
-userTimeNow() - before;
+userTime() - before;
 ```
 
 }
-public java int userTimeNow();
+public java int userTime();
 
 @synopsis{Measure the exact running time of a block of code in nanoseconds, doc combined with previous function.}
 @example{
@@ -212,9 +212,9 @@ userTimeOf(
 ```
 }
 public int userTimeOf(void () block) {
-   int then = userTimeNow();
+   int then = userTime();
    block();
-   return userTimeNow() - then;
+   return userTime() - then;
 }
 
 @synopsis{Measure the exact running time of a block of code in milliseconds, doc included in previous function.}
@@ -222,9 +222,9 @@ public int userTimeOf(void () block) {
 * watch out this is measured in milliseconds, not nanoseconds
 }
 public int realTimeOf(void () block) {
-   int then = realTimeNow();
+   int then = realTime();
    block();
-   return realTimeNow() - then;
+   return realTime() - then;
 }
 
 @synopsis{Utility to measure and compare the execution time a set of code blocks}
@@ -241,7 +241,7 @@ import demo::basic::Factorial;
 ```
 
 We measure two calls to the factorial function with arguments `100`, respectively, `200` 
-(using by default ((realTimeNow)) that returns milliseconds):
+(using by default ((realTime)) that returns milliseconds):
 ```rascal-shell,continue
 benchmark(
    ("fac100" : void() {
@@ -253,7 +253,7 @@ benchmark(
    );
 ```
 
-We can do the same using ((userTimeNow)) that returns nanoseconds:
+We can do the same using ((userTime)) that returns nanoseconds:
 ```rascal-shell,continue
 benchmark( 
    ("fac100" : void() {
