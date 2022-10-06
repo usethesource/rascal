@@ -86,8 +86,10 @@ public void defaultCompile() {
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
   ind = createConceptIndex(pcfg);
   
-  return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
-} 
+  return [*compileCourse(dropSlash(src), pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
+}
+
+loc dropSlash(loc src) = src.file == "" ? src[path=src.path[..-1]] : src;
 
 list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileDirectory(root, pcfg[currentRoot=root], exec, ind);
@@ -646,3 +648,4 @@ private map[str, str] subscripts
         "V" : "\u1d65",
         "X" : "\u2093"
   );
+  
