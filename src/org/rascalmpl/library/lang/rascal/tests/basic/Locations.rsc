@@ -439,3 +439,22 @@ test bool isCover3(int f, int t){
    u = cover([l, l, l, l]);
    return report(l, l, l == u);
 }
+
+test bool trailingSlashFile1() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    return withSlash.file == withoutSlash.file;
+}
+
+test bool trailingSlashFile2() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    withoutSlash.file = "libs";
+    withSlash.file = "libs";
+
+    return withSlash.file == withoutSlash.file
+        && withSlash.parent == withoutSlash.parent
+        ;
+}
