@@ -75,6 +75,8 @@ test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).pa
 test bool testWindowsParent(str s) = s == "" || (|file:///c:/| + replaceAll(s,"/","_")).parent == |file:///c:/|;
 test bool testFile(loc l, str s) {
 	s = replaceAll(s, "/","_");
+    if (s == "")
+      return true;
 	return (l + s).file == s;
 }
 
