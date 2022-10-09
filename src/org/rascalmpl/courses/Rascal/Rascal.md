@@ -39,7 +39,7 @@ You can find more (accessible) information about programming in Rascal here:
 
 *  We show examples for each Rascal language construct described here.
 *  You can find many simple code examples in [Recipes]((Recipes)). 
-*  The [Rascal Libraries]((Libraries)) contain examples for most functions. 
+*  The [Rascal Libraries]((Library)) contain examples for most functions. 
 
 #### Benefits
 
