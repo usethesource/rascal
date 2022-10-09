@@ -33,31 +33,6 @@ The tutor compiler is located here: [src/org/rascalmpl/library/lang/rascal/tutor
  
 Note that it's indeed best to run the rascal REPL as described above, otherwise you might miss fixes in the Java-implemented part of the tutor, or other related changes in the interpreter that needed fixing to build the tutor.
 
-So start a Rascal REPL first. At least you need these three modules loaded:
-
-```rascal-shell
-import IO;
-import util::Reflective;
-import lang::rascal::tutor::Compiler;
-```
-
-Then we create the configuration for running the compiler, using the `PathConfig` data-type from `util::Reflective`:
-
-```rascal-shell,continue
-pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/lang/rascal/tutor/examples/Test|] , bin=|tmp:///rascal-tmp/doc|);
-```
-
-As you can see we used a singleton list to select the Test course subfolder, but you could also have listed many directories at the same time. That is necessary for the final product because then the compiler knows how to resolve cross-references between the courses in that list. The compiler will filter this list and select only subfolders, and start from each folder to generate a single `.md` file. 
-
-Another way to link between courses is via `PathConfig.libs`. The jars in that list, or folders, will  be searched for an `doc/index.value` file which contains all the concepts provided by that library. 
-
-Now we run the compiler:
-
-```rascal-shell,continue
-compile(pcfg);
-```
-
-Afterwards you will find all the generated files in `./target/classes/doc/` including an `index.value` file for later reference, and you can use a mark-down editor or compiler to further process the .md files. Note that these markdown files are _generated_, so they should be processed downstream automatically rather than by hand. Nevertheless while debugging it can be useful to explore what has been generated manually using a markdown editor.
 
 #### Pitfalls
 
