@@ -18,6 +18,8 @@ local.properties
 target/
 bin/
 bootstrap/
+pom.xml.releaseBackup
+release.properties
 
 .DS_Store
 /.apt_generated/
