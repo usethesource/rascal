@@ -1,1 +1,0 @@
-[tvQuestion("Test","1",valueOfExpr(),details(" Fill in the missing function name!\n",["import List;"],"","","","(\<L\>) == \<H\>",false,true,[<"L",list(arb(0,[int(-20,20),str()]),0,5)>],[<"H","reverse(\<L\>) ">],void(),"reverse"))]
