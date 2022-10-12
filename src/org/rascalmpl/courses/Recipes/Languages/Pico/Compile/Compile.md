@@ -24,16 +24,15 @@ The Pico compiler translates Pico programs to ((Pico-Assembly)) language program
 demo::lang::Pico::Compile
 ```
 
-                
 Notes:
 
-* We introduce `Instrs` as an alias for a list of assembly language instructions.
-* The compiler consists of the functions `compileExp`, `compileStat`, `compileStats`, `compileDecls` and `compileProgram`.
+<1> We introduce `Instrs` as an alias for a list of assembly language instructions.
+<2> The compiler consists of the functions `compileExp`, `compileStat`, `compileStats`, `compileDecls` and `compileProgram`.
     They all have a program fragment as argument and return the corresponding list of instructions.
-* When compiling expressions, note how _list splicing_ (see [Rascal:Values/List]) is used to insert the instructions that are generated for the operands of an operator into the list of instructions for the whole expression.
-* In order to conveniently write code generators for statements, we introduce a unique label generator. The global variable `nLabel` contains
+<3> When compiling expressions, note how _list splicing_ (see [Rascal:Values/List]) is used to insert the instructions that are generated for the operands of an operator into the list of instructions for the whole expression.
+<4> In order to conveniently write code generators for statements, we introduce a unique label generator. The global variable `nLabel` contains
     the index of the last generated label and `nextLabel` uses this to generate a new, unique label.
-* Consider code generation for an if-the-else statement:
+<5> Consider code generation for an if-the-else statement:
     *  Two fresh labels mark the start of the code for the else part (`elseLab`) and the end of the whole statement (`endLab`).
     *  The code that is generated consists of the following:
         *  Code for the test.
@@ -41,9 +40,9 @@ Notes:
         *  Code for the then-part and a jump to the end of the statement.
         *  Code for the else-part that starts with the label `elsePart`.
         *  The label `endLab` that marks the end of the code for the if-then-else statement.
-*  Compiling a list of statements conveniently uses a list comprehension and list splicing.
-*  Compiling declarations allocates memory locations of the appropriate type for each declared variable.
-*   `compileProgram` compiles a gives Pico program to assembly language.
+<6>  Compiling a list of statements conveniently uses a list comprehension and list splicing.
+<7>  Compiling declarations allocates memory locations of the appropriate type for each declared variable.
+<8>   `compileProgram` compiles a gives Pico program to assembly language.
 
 Here is an example:
 ```rascal-shell
