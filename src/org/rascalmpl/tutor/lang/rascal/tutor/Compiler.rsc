@@ -43,30 +43,27 @@ import lang::rascal::tutor::Output;
 import lang::rascal::tutor::Includer;
 import lang::rascal::\syntax::Rascal;
 
-
-
-
 public PathConfig defaultConfig
   = pathConfig(
-  bin=|target://rascal/doc|,
+  bin=|home:///git/rascal/target/classes/doc|,
   srcs=[
-    |project://rascal/src/org/rascalmpl/courses/Rascalopedia|,
-    |project://rascal/src/org/rascalmpl/courses/CompileTimeErrors|,
-    |project://rascal/src/org/rascalmpl/courses/RascalConcepts|,
-    |project://rascal/src/org/rascalmpl/courses/Recipes|,
-    |project://rascal/src/org/rascalmpl/courses/Tutor|,
-    |project://rascal/src/org/rascalmpl/courses/GettingStarted|,
-    |project://rascal/src/org/rascalmpl/courses/GettingHelp|,
-    |project://rascal/src/org/rascalmpl/courses/WhyRascal|,
-    |project://rascal/src/org/rascalmpl/courses/Rascal|,
-    |project://rascal/src/org/rascalmpl/courses/RascalShell|,
-    |project://rascal/src/org/rascalmpl/courses/RunTimeErrors|,
-    |project://rascal/src/org/rascalmpl/courses/Developers|,
-    |project://rascal/src/org/rascalmpl/library|
+    |home:///git/rascal/src/org/rascalmpl/courses/Rascalopedia|,
+    |home:///git/rascal/src/org/rascalmpl/courses/CompileTimeErrors|,
+    |home:///git/rascal/src/org/rascalmpl/courses/RascalConcepts|,
+    |home:///git/rascal/src/org/rascalmpl/courses/Recipes|,
+    |home:///git/rascal/src/org/rascalmpl/courses/Tutor|,
+    |home:///git/rascal/src/org/rascalmpl/courses/GettingStarted|,
+    |home:///git/rascal/src/org/rascalmpl/courses/GettingHelp|,
+    |home:///git/rascal/src/org/rascalmpl/courses/WhyRascal|,
+    |home:///git/rascal/src/org/rascalmpl/courses/Rascal|,
+    |home:///git/rascal/src/org/rascalmpl/courses/RascalShell|,
+    |home:///git/rascal/src/org/rascalmpl/courses/RunTimeErrors|,
+    |home:///git/rascal/src/org/rascalmpl/courses/Developers|,
+    |home:///git/rascal/src/org/rascalmpl/library|
   ]);
 
 public PathConfig onlyAPIconfig
-  = defaultConfig[srcs=[|project://rascal/src/org/rascalmpl/library|]];
+  = defaultConfig[srcs=[|home:///git/rascal/src/org/rascalmpl/library|]];
 
 public list[Message] lastErrors = [];
 
@@ -86,10 +83,8 @@ public void defaultCompile() {
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
   ind = createConceptIndex(pcfg);
   
-  return [*compileCourse(dropSlash(src), pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
+  return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
 }
-
-loc dropSlash(loc src) = src.file == "" ? src[path=src.path[..-1]] : src;
 
 list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) 
   = compileDirectory(root, pcfg[currentRoot=root], exec, ind);
@@ -312,10 +307,14 @@ list[Output] compileMarkdown([/^<prefix:.*>~<digits:[^~]*[^aeh-pr-vx0-9]+[^~]*>~
   ];
 
 @synopsis{Resolve [labeled]((links))}
-list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]+>\]\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
+list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   resolution = ind[removeSpaces(link)];
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
 
+  if (trim(title) == "") {
+    title = link;
+  }
+  
   switch (resolution) {
       case {str u}: {
         u = /^\/assets/ := u ? u : "<p2r><u>";
@@ -438,7 +437,7 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
   } 
   catch value e: {
     switch(e) {
-       case IllegalTypeArgument(str x, str y)     : e = "<x>, <y>";
+      //  case IllegalTypeArgument(str x, str y)     : e = "<x>, <y>";
        case IllegalArgument(value i)              : e = "<i>";
        case IO(str msg)                           : e = "<msg>";
        case Java(str class, str msg)              : e = "<class>: <msg>";
