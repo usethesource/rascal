@@ -136,7 +136,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
       i.file = (i.file == i.parent[extension="md"].file) ? "index.md" : i.file;
 
       writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, i)[extension="md"].path,
-          "<for (out(x) <- output) {><x>
+          "<for (line(x) <- output) {><x>
           '<}>"
       );
 
@@ -185,7 +185,7 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
    list[Output] output = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
 
    writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
-      "<for (out(x) <- output) {><x>
+      "<for (line(x) <- output) {><x>
       '<}>"
    );
 
@@ -205,7 +205,7 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
 
   writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
-      "<for (out(x) <- output) {><x>
+      "<for (line(x) <- output) {><x>
       '<}>"
   );
 
