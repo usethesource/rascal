@@ -6,7 +6,7 @@ import demo::lang::Pico::Load;
 import List;
 
 // highlight-next-line
-data CFNode 
+data CFNode // <1>
     = entry(loc location)
     | exit()
     | choice(loc location, EXP exp)
@@ -14,16 +14,16 @@ data CFNode
     ;
 
 // highlight-next-line
-alias CFGraph = tuple[set[CFNode] entry, Graph[CFNode] graph, set[CFNode] exit]; 
+alias CFGraph = tuple[set[CFNode] entry, Graph[CFNode] graph, set[CFNode] exit]; // <2>
 
 // highlight-next-line
-CFGraph cflowStat(s:asgStat(PicoId Id, EXP Exp)) { 
+CFGraph cflowStat(s:asgStat(PicoId Id, EXP Exp)) { // <3> 
    S = statement(s.src, s);
    return <{S}, {}, {S}>;
 }
 
 // highlight-next-line
-CFGraph cflowStat(ifElseStat(EXP Exp,                  
+CFGraph cflowStat(ifElseStat(EXP Exp,                   // <4>             
                               list[STATEMENT] Stats1,
                               list[STATEMENT] Stats2)) {
    CF1 = cflowStats(Stats1); 
@@ -33,14 +33,14 @@ CFGraph cflowStat(ifElseStat(EXP Exp,
 }
 
 // highlight-next-line
-CFGraph cflowStat(whileStat(EXP Exp, list[STATEMENT] Stats)) { 
+CFGraph cflowStat(whileStat(EXP Exp, list[STATEMENT] Stats)) {  // <5>
    CF = cflowStats(Stats); 
    E = {choice(Exp.src, Exp)}; 
    return < E, (E * CF.entry) + CF.graph + (CF.exit * E), E >;
 }
 
 // highlight-next-line
-CFGraph cflowStats(list[STATEMENT] Stats) { 
+CFGraph cflowStats(list[STATEMENT] Stats) { // <6>
   if(size(Stats) == 1) {
      return cflowStat(Stats[0]);
   }
@@ -52,7 +52,7 @@ CFGraph cflowStats(list[STATEMENT] Stats) {
 }
 
 // highlight-next-line
-CFGraph cflowProgram(PROGRAM P:program(list[DECL] _, list[STATEMENT] Series)) { 
+CFGraph cflowProgram(PROGRAM P:program(list[DECL] _, list[STATEMENT] Series)) { // <7>
    CF = cflowStats(Series);
    Entry = entry(P.src);
    Exit  = exit();
@@ -61,5 +61,5 @@ CFGraph cflowProgram(PROGRAM P:program(list[DECL] _, list[STATEMENT] Series)) {
 }
 
 // highlight-next-line
-CFGraph cflowProgram(str txt) = cflowProgram(load(txt)); 
+CFGraph cflowProgram(str txt) = cflowProgram(load(txt)); // <8>
 
