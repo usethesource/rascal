@@ -36,7 +36,7 @@ e.prompt()
 // finish the command we started
 e.eval(")")
 }
-@javaClass{org.rascalmpl.library.lang.rascal.tutor.repl.TutorCommandExecutorCreator}
+@javaClass{lang.rascal.tutor.repl.TutorCommandExecutorCreator}
 java CommandExecutor createExecutor(PathConfig pcfg);
 
 test bool executorSmokeTest() {
