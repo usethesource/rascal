@@ -31,13 +31,13 @@ demo::lang::Pico::ControlFlow
                 
 Notes:
 
-* First we define a data type `CFNODE` that represents the various elements of a control flow graph:
+<1> First we define a data type `CFNODE` that represents the various elements of a control flow graph:
     *  `entry`: the entry point of the program.
     *  `exit` the exit point of the program.
     *  `choice`: a decision point in the control flow.
     *  `statement`: a statement in the control flow.
 
-* Next we define `CFGRAPH` , an alias for a tuple consisting of the following three elements:
+<2> Next we define `CFGRAPH` , an alias for a tuple consisting of the following three elements:
     *  `entry`: the set of entry nodes of the graph.
     *  `graph`: the actual graph of `CFNODE`s.
     *  `exit`: the set of exit nodes.
@@ -45,11 +45,11 @@ Notes:
    The computation of the control flow graph is defined by the functions 
   `cflowStat`, `cflowStats`, `cflowDecls` and `cflowProgram`.
 
-* The control flow of an assignment statement is computed by wrapping
+<3> The control flow of an assignment statement is computed by wrapping
     the assignment statement as a `CFNODE` and return a `CFGRAPH` with the assignment
     statement as entry and exit node, and no internal connections.
 
-* The control flow of an if-then-else statement is computed as follows:
+<4> The control flow of an if-then-else statement is computed as follows:
     *  First the control flows of the then part and the else part are computed,
         yielding `CF1` and `CF2`.
     *  Next a set `E` is created that consist of a the test of the if-then-else statement
@@ -61,18 +61,18 @@ Notes:
              (`CF1.graph + CF2.graph`).
         *  The union of exit nodes of both branches (`CF1.exit + CF2.exit`).
 
-* The control flow of  while-statement is computed in a similar fashion,
+<5> The control flow of  while-statement is computed in a similar fashion,
     except that the exit of the loop body has to be connected with the entry
     of the while loop.
 
-* The control flow graph for a series of statements is obtained by connecting
+<6> The control flow graph for a series of statements is obtained by connecting
     the exits and entries of consecutive statements.
 
-* The control flow graph of a complete program is obtained by
+<7> The control flow graph of a complete program is obtained by
     creating an entry and an exit node and connecting them to the graph of
     the statements of the program.
 
-* Shows the steps from text to control flow graph.
+<8> Shows the steps from text to control flow graph.
 
 We can now create a CFG for a small Pico program:
 ```rascal-shell
