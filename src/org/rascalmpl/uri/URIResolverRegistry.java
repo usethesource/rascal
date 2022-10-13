@@ -720,7 +720,7 @@ public class URIResolverRegistry {
 		}
 
 		String[] results = resolver.list(uri);
-		if (result == null) {
+		if (results == null) {
 			throw new FileNotFoundException(uri.toString());
 		}
 
