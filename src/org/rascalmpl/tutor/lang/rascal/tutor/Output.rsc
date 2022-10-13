@@ -13,17 +13,17 @@ data Output
   ;
 
 
-@synopsis{single line comment with a lonely callout}
-Output out(/^<pre:.*><t:\/\*\/\s*\<\s*[0-9]\s*\>><post:\s*\*\/\s*>$/) = out("<pre> <callout(t)> <post>");
-
 @synopsis{multi line comment with a lonely callout}
-Output out(/^<pre:.*><t:\/\/\s*\<\s*[0-9]\s*\>><post:\s*>$/) = out("<pre> <callout(t)> <post>");
+Output out(/^<pre:.*><t:\/\*\s*\<\s*[0-9]+\s*\>\s*\*\/><post:\s*>$/) = out("<pre> <callout(t)> <post>");
+
+@synopsis{single line comment with a lonely callout}
+Output out(/^<pre:.*><t:\/\/\s*\<\s*[0-9]+\s*\>><post:\s*>$/) = out("<pre> <callout(t)> <post>");
 
 @synopsis{bullets with callouts}
-Output out(/^<pre:\s*\*>\s+<t:\<\s*[0-9]\s*\>><post:.*>$/) = out("<pre><callout(trim(t))><post>");
+Output out(/^<pre:\s*\*>\s+<t:\<\s*[0-9]+\s*\>><post:.*>$/) = out("<pre><callout(trim(t))><post>");
 
 @synopsis{callouts as bullets}
-Output out(/^<pre:\s*><t:\<\s*[0-9]\s*\>><post:.*>$/) = out("<pre>*<callout(trim(t))><post>");
+Output out(/^<pre:\s*><t:\<\s*[0-9]+\s*\>><post:.*>$/) = out("<pre>*<callout(trim(t))><post>");
 
 default Output out(str output) = line(output);
 
