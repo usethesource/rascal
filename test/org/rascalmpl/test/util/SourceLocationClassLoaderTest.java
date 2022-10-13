@@ -20,7 +20,25 @@ import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
 
 public class SourceLocationClassLoaderTest {
-    
+    private IValueFactory vf = IRascalValueFactory.getInstance();
+
+    private IList getVallangRascalLoadersList() throws URISyntaxException {
+        ISourceLocation vallang = vallangJarLocation();
+        ISourceLocation rascal = rascalTargetClassesLocation();
+        IList loaders = vf.list(vallang, rascal);
+        return loaders;
+    }
+
+    private ISourceLocation rascalTargetClassesLocation() {
+        return URIUtil.correctLocation("lib", "rascal","");
+    }
+
+    private ISourceLocation vallangJarLocation() throws URISyntaxException {
+        URL url = IValueFactory.class.getProtectionDomain().getCodeSource().getLocation();
+        ISourceLocation vallang = URIUtil.createFromURI(url.toURI().toString());
+        return vallang;
+    }
+
     @Test
     public void testSystemClassLoading() {
         IValueFactory vf = IRascalValueFactory.getInstance();
@@ -40,23 +58,22 @@ public class SourceLocationClassLoaderTest {
     @Test
     public void testComplexClassLoading() {
         try {
-            IValueFactory vf = IRascalValueFactory.getInstance();
-            URL url = IValueFactory.class.getProtectionDomain().getCodeSource().getLocation();
-            ISourceLocation vallang = URIUtil.createFromURI(url.toURI().toString());
-            ISourceLocation rascal = URIUtil.correctLocation("lib", "rascal","");
-            IList loaders = vf.list(vallang, rascal);
+            IList loaders = getVallangRascalLoadersList();
           
-            System.err.println("loaders: " + loaders);
-            System.err.println("physical loaders: " 
-                + loaders.stream().map(l -> {
-                    try {
-                        return URIResolverRegistry.getInstance().logicalToPhysical((ISourceLocation) l);
-                    }
-                    catch (IOException e) {
-                        return l;
-                    }
-                }).collect(vf.listWriter()));
-            
+            SourceLocationClassLoader cl = new SourceLocationClassLoader(loaders, System.class.getClassLoader());
+    
+            assertTrue(cl.loadClass("org.rascalmpl.values.IRascalValueFactory") != null);
+        }
+        catch (URISyntaxException | ClassNotFoundException | NoSuchMethodError e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testReversedComplexClassLoading() {
+        try {
+            IList loaders = getVallangRascalLoadersList().reverse();
+          
             SourceLocationClassLoader cl = new SourceLocationClassLoader(loaders, System.class.getClassLoader());
     
             assertTrue(cl.loadClass("org.rascalmpl.values.IRascalValueFactory") != null);
