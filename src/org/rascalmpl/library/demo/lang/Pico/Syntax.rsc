@@ -2,21 +2,21 @@ module demo::lang::Pico::Syntax
 
 import ParseTree;
 
-lexical Id = [a-z][a-z0-9]* !>> [a-z0-9];
+lexical Id = [a-z][a-z0-9]* !>> [a-z0-9]; // <1>
 
-lexical Natural = [0-9]+ ;
+lexical Natural = [0-9]+ ; // <1>
 
-lexical String = "\"" ![\"]*  "\"";
+lexical String = "\"" ![\"]*  "\""; // <1>
 
-layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
+layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%]; // <2>
 
-lexical WhitespaceAndComment 
+lexical WhitespaceAndComment // <2>
    = [\ \t\n\r]
-   | @category="Comment" ws2: "%" ![%]+ "%"
-   | @category="Comment" ws3: "%%" ![\n]* $
+   | @category="Comment" ws2: "%" ![%]+ "%" // <3>
+   | @category="Comment" ws3: "%%" ![\n]* $ // <3>
    ;
 
-start syntax Program 
+start syntax Program // <4>
    = program: "begin" Declarations decls {Statement  ";"}* body "end" ;
 
 syntax Declarations 
@@ -35,7 +35,7 @@ syntax Statement
    | whileStat: "while" Expression cond "do" {Statement ";"}* body "od"
   ;  
      
-syntax Expression 
+syntax Expression // <5>
    = id: Id name
    | strCon: String string
    | natCon: Natural natcon
@@ -46,10 +46,10 @@ syntax Expression
           )
   ;
 
-start[Program] program(str s) {
+/*<6>*/ start[Program] program(str s) {
   return parse(#start[Program], s);
 }
 
-start[Program] program(str s, loc l) {
+/*<6>*/ start[Program] program(str s, loc l) {
   return parse(#start[Program], s, l);
 } 
