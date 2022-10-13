@@ -718,7 +718,13 @@ public class URIResolverRegistry {
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
-		return resolver.list(uri);
+
+		String[] results = resolver.list(uri);
+		if (result == null) {
+			throw new FileNotFoundException(uri.toString());
+		}
+
+		return results;
 	}
 
 	/**
