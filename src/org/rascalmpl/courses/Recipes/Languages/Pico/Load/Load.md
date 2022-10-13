@@ -33,7 +33,7 @@ see [RuntimeException]((Library:module:Exception)).
 <2>  `parse(#start[Program], txt)`: parse `txt` according to the non-terminal `Program`.
    * Note that `#start[Program]` is a _reified type_. The `#` operator turns a type literal into an ordinary Rascal value, whiich is then used by the `parse` function to generate a parser.
    * We use `#start[Program]` instead of directly `#Program` because the automatic `start` rule accepts whitespace before and after the program. See [reified types]((Rascal:Values-ReifiedTypes)) for more information about reifying types and grammars.
-   & The `parse` function returns a ((ParseTree)) of the input program.
+   & The `parse` function returns a ((Rascalopedia:ParseTree)) of the input program.
 
 <3>  `implode(#PROGRAM, parse(#Program, txt))`: transform the parse returned by `parse` into an abstract syntax tree of type `PROGRAM`. The [$Rascal:implode] function performs the automatic mapping between elements in the parse tree and their counterpart in the abstract syntax.
 

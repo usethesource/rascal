@@ -27,12 +27,12 @@ This can be computed as follows:
 demo::lang::Pico::Uninit
 ```
 
-((TODO:this description does not fit the example anymore))
+(((TODO:this description does not fit the example anymore)))
                 
 <1> First, we determine the variable definitions of the program, and its control flow graph.
 <2> Next we ask for every use of a variable the question: can it be reached from the entries
     of the program without encountering a definition? This determined as follows:
-    *  `rangeR(D, {occ.item})` is the set of definition for the variable were are looking at. See ((Rascal:Relation-rangeR)).
+    *  `rangeR(D, {occ.item})` is the set of definition for the variable were are looking at. See ((Library:Relation-rangeR)).
     *  `reachX` determines the reachability in a graph while excluding certain nodes, see [Rascal:Graph/reachX]. Here
         `reachX(CFG.graph, CFG.entry, rangeR(D, {occ.item}))` determines the nodes in the graph that can be reached from the
          entry point of the program without passing a definition of the current variable.
