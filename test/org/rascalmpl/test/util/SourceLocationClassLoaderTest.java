@@ -46,13 +46,22 @@ public class SourceLocationClassLoaderTest {
             ISourceLocation rascal = URIUtil.correctLocation("lib", "rascal","");
             IList loaders = vf.list(vallang, rascal);
           
-            System.err.println(URIResolverRegistry.getInstance().logicalToPhysical((ISourceLocation) loaders.get(0)));
-            System.err.println(URIResolverRegistry.getInstance().logicalToPhysical((ISourceLocation) loaders.get(1)));
+            System.err.println("loaders: " + loaders);
+            System.err.println("physical loaders: " 
+                + loaders.stream().map(l -> {
+                    try {
+                        return URIResolverRegistry.getInstance().logicalToPhysical((ISourceLocation) l);
+                    }
+                    catch (IOException e) {
+                        return l;
+                    }
+                }).collect(vf.listWriter()));
+            
             SourceLocationClassLoader cl = new SourceLocationClassLoader(loaders, System.class.getClassLoader());
     
             assertTrue(cl.loadClass("org.rascalmpl.values.IRascalValueFactory") != null);
         }
-        catch (URISyntaxException | IOException | ClassNotFoundException | NoSuchMethodError e) {
+        catch (URISyntaxException | ClassNotFoundException | NoSuchMethodError e) {
             fail(e.getMessage());
         }
     }
