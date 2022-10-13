@@ -5,14 +5,14 @@ import demo::lang::Pico::Abstract;
 import demo::lang::Pico::Load;
 
 // highlight-next-line
-alias TENV = tuple[ map[PicoId, TYPE] symbols, list[tuple[loc l, str msg]] errors]; 
+alias TENV = tuple[ map[PicoId, TYPE] symbols, list[tuple[loc l, str msg]] errors]; // <1>
 
 // highlight-next-line
-TENV addError(TENV env, loc l, str msg) = env[errors = env.errors + <l, msg>]; 
+TENV addError(TENV env, loc l, str msg) = env[errors = env.errors + <l, msg>]; // <2>
 
 // highlight-next-line
-str required(TYPE t, str got) = "Required <getName(t)>, but got <got>"; 
-str required(TYPE t1, TYPE t2) = required(t1, getName(t2));
+str required(TYPE t, str got) = "Required <getName(t)>, but got <got>"; // <3>
+str required(TYPE t1, TYPE t2) = required(t1, getName(t2));             // <3>
 
 @synopsis{Checking Expressions}
 TENV checkExp(exp:natCon(int N), TYPE req, TENV env) = // <4>
@@ -69,7 +69,7 @@ TENV checkStat(stat:whileStat(EXP Exp,
 
 @synopsis{Check a list of statements}
 // highlight-next-line
-TENV checkStats(list[STATEMENT] Stats1, TENV env) { 
+TENV checkStats(list[STATEMENT] Stats1, TENV env) { // <11>
   for(S <- Stats1){
       env = checkStat(S, env);
   }
@@ -78,15 +78,15 @@ TENV checkStats(list[STATEMENT] Stats1, TENV env) {
   
 @synopsis{Check declarations}
 // highlight-next-line
-TENV checkDecls(list[DECL] Decls) = 
+TENV checkDecls(list[DECL] Decls) = // <12>
     <( Id : tp | decl(PicoId Id, TYPE tp) <- Decls), []>;
 
 @synopsis{Check a Pico program}
 // highlight-next-line
-TENV checkProgram(program(list[DECL] Decls, list[STATEMENT] Series)) { 
+TENV checkProgram(program(list[DECL] Decls, list[STATEMENT] Series)) {  // <13>
     return checkStats(Series, checkDecls(Decls));
 }
 
 // highlight-next-line
-list[tuple[loc l, str msg]] checkProgram(str txt) = checkProgram(load(txt)).errors;
+list[tuple[loc l, str msg]] checkProgram(str txt) = checkProgram(load(txt)).errors; // <14>
     

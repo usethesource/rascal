@@ -12,14 +12,12 @@ set[CFNode] defNodes(PicoId Id, set[Occurrence] Defs) =
    {statement(occ.stat.src, occ.stat) | Occurrence occ <- Defs, occ.name == Id};
 
 set[Occurrence] uninitProgram(PROGRAM P) {
-   // highlight-start
-   D = defs(P); 
-   CFG = cflowProgram(P); 
+   D = defs(P); // <1>
+   CFG = cflowProgram(P); // <1>
    return { occ | occ <- uses(P), 
                   any(CFNode N <- reachX(CFG.graph, CFG.entry, defNodes(occ.name, D)),
                       N has location && occ.src <= N.location) 
           }; 
-   // highlight-end
 }
 
 set[Occurrence] uninitProgram(str txt) = uninitProgram(load(txt)); 

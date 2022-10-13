@@ -26,15 +26,16 @@ demo::lang::Pico::Load
                 
 Notes:
 
-*  The function `load` takes a string as argument (supposedly the source code of a Pico program) and returns a value of type `PROGRAM`,
+<1>  The function `load` takes a string as argument (supposedly the source code of a Pico program) and returns a value of type `PROGRAM`,
 the abstract syntax tree of the input program. In case the input program is syntactically incorrect, a `ParseError` exception will be thrown,
 see [RuntimeException]((Library:module:Exception)).
 
-*  `parse(#Program, txt)`: parse `txt` according to the non-terminal `Program`. Note that `#Program` is a _reified type_, i.e., the type `Program` is represented as an ordinary Rascal value and passed as argument to the `parse` function,
-see [reified types]((Rascal:Values-ReifiedTypes)).
-The `parse` function returns a parse tree of the input program.
+<2>  `parse(#start[Program], txt)`: parse `txt` according to the non-terminal `Program`.
+   * Note that `#start[Program]` is a _reified type_. The `#` operator turns a type literal into an ordinary Rascal value, whiich is then used by the `parse` function to generate a parser.
+   * We use `#start[Program]` instead of directly `#Program` because the automatic `start` rule accepts whitespace before and after the program. See [reified types]((Rascal:Values-ReifiedTypes)) for more information about reifying types and grammars.
+   & The `parse` function returns a ((ParseTree)) of the input program.
 
-*  `implode(#PROGRAM, parse(#Program, txt))`: transform the parse returned by `parse` into an abstract syntax tree of type `PROGRAM`. The [$Rascal:implode] function performs the automatic mapping between elements in the parse tree and their counterpart in the abstract syntax.
+<3>  `implode(#PROGRAM, parse(#Program, txt))`: transform the parse returned by `parse` into an abstract syntax tree of type `PROGRAM`. The [$Rascal:implode] function performs the automatic mapping between elements in the parse tree and their counterpart in the abstract syntax.
 
 
 The function `load` can be used as follows:

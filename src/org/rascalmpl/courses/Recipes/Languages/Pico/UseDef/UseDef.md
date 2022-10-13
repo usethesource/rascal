@@ -25,23 +25,23 @@ Both concepts are relevant for program analysis and are defined here.
 demo::lang::Pico::UseDef
 ```
 
-                
-Recall that `Occurrence` was introduced in ((Pico-Abstract)); it is a parameterized container to associate
-program entities with their location.
+(((TODO: should we not use locations more directly in our examples?)))
 
-* The function `usesExp` computes a set of occurrences (uses) of Pico identifiers in a given statement:
+Recall that `Occurrence` was introduced in ((Pico-Abstract)); it is a parameterized container to associate program entities with their location.
+
+<1> The function `usesExp` computes a set of occurrences (uses) of Pico identifiers in a given statement:
     * If the expression is itself an identifier, then a singleton set containing that identifier and the statement is returned.
     * If the expression is composite, all its containing identifiers are collected using a descendant (deep) match 
-       (`/`, see [Rascal:Descendant]))  in `/u:id(PicoId Id) \<- e`. 
+       (`/`, see ((Rascal:Descendant)) )   in `/u:id(PicoId Id) \<- e`. 
         Note that we use a labeled pattern `u:id(PicoId Id)`,
        so that we can access the whole expression that was matched and retrieve its 
        location information (`u@location`) when we are adding a <location, identifier> pair to the set of occurrences.
        
-* `useStat` extracts uses from all statement variants.
+<2> `useStat` extracts uses from all statement variants.
 
-* The function `uses` simply applies `usesStats` to the statement part of its program argument.
+<3> The function `uses` simply applies `usesStats` to the statement part of its program argument.
 
-* The function `defs`  has a Pico program as argument and returns a set of occurrences (definitions) of Pico identifiers.
+<4> The function `defs`  has a Pico program as argument and returns a set of occurrences (definitions) of Pico identifiers.
     The definition consists of a single set comprehension that consists of the following parts:
 
     *  ` ... \<- P. stats` enumerates all statements in the program.
