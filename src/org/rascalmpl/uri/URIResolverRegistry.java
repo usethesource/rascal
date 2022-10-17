@@ -718,7 +718,13 @@ public class URIResolverRegistry {
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
-		return resolver.list(uri);
+
+		String[] results = resolver.list(uri);
+		if (results == null) {
+			throw new FileNotFoundException(uri.toString());
+		}
+
+		return results;
 	}
 
 	/**
@@ -764,6 +770,10 @@ public class URIResolverRegistry {
 	private void copyFile(ISourceLocation source, ISourceLocation target, boolean overwrite) throws IOException {
 		if (exists(target) && !overwrite) {
 			throw new IOException("file exists " + source);
+		}
+
+		if (exists(target) && overwrite) {
+			remove(target, false);
 		}
 		
 		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {

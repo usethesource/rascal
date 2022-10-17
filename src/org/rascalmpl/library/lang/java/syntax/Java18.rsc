@@ -13,11 +13,11 @@ This Java grammar is based on the following references:
 * https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
 * Rascal Java15 grammar
 
-.Benefits
+#### Benefits
 
 * the grammar is well-annotated with the source information
 
-.Pitfalls
+#### Pitfalls
 
 * the grammar contains too many non-terminals for the expression sub-language (priorities and associativities
 are still encoded with non-terminals)

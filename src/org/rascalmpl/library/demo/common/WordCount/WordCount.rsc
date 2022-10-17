@@ -7,8 +7,12 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
+@synopsis{demonstrates different ways of counting words in a string}
+@description{
+This not only demonstrates counting words using regular expressions and pattern matching with backtracking,
+but also highlights the use of functions as parameters to other functions (higher-order functions)
+and the concept of ((Reducer))s.
+}
 module demo::common::WordCount::WordCount
 
 import demo::common::WordCount::CountInLine1;
@@ -17,19 +21,41 @@ import demo::common::WordCount::CountInLine3;
 import demo::common::WordCount::Jabberwocky;
 
 import String;
+import List;
 
-// wordCount takes a list of strings and a count function
-// that is applied to each line. The total number of words is returned
 
+@synopsis{Count the total amount of words in a list of strings}
+@description{
+wordCount takes a list of strings and a `countInLine` function
+that is applied to each line. The total number of words is returned
+}
 int wordCount(list[str] input, int (str s) countInLine)
 {
   count = 0;
-  for(str line <- input){ // <1>
+  for (str line <- input){ // <1>
      count += countInLine(line); // <2>
   }
   return count;
 }
-// end::module[]
+
+@synopsis{Count the total amount of words in a list of strings}
+@description{
+wordCountReduce takes a list of strings and a `countInLine` function
+that is applied to each line. The total number of words is returned.
+It uses a ((Reducer)) instead of a for loop for brevity.
+}
+int wordCountReduce(list[str] input, int (str s) countInline)
+  = (0 | it + countInline(line) | str line <- input);
+
+@synopsis{Count the total amount of words in a list of strings}
+@description{
+wordCountMapSum takes a list of strings and a `countInLine` function
+that is applied to each line. The total number of words is returned.
+It uses a traditional -in functional programming- `map` ((List::mapper) and ((List::sum)) functions from the ((Library)).
+}
+int wordCountMapSum(list[str] input, int (str s) countInLine)
+  = sum(mapper(input, countInLine));
+
 
 test bool tstWordCount1() = wordCount(Jabberwocky, countInLine1) == wordCount(Jabberwocky, countInLine2);
 

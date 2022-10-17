@@ -21,10 +21,12 @@ public data Exception
   ; 
  
 @doc{
-.Synopsis
+#### Synopsis
+
 Evaluate a (list of) Rascal commands and return the value of the last command.
 
-.Description
+#### Description
+
 Evaluate a command or a list of commands and return the value of the last command that is executed.
 
 Note that a command can be one of:
@@ -36,20 +38,19 @@ Note that a command can be one of:
 *  SyntaxDefinition
    
 
-The notable exclusion are <<Expressions>>. An Expression is not allowed as a command to the eval function. You can easily make
+The notable exclusion are ((Expressions)). An Expression is not allowed as a command to the eval function. You can easily make
 a Statement from an Expression by adding a semi-colon.
  
 An optional `duration` argument may be present to limit the time
 (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
 
-.Examples
+#### Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import util::Eval;
 eval("2 * 3;");
 eval(["X = 2 * 3;", "X + 5;"]);
-----
+```
 
 }
 // --- eval with default duration (1000 ms)
@@ -78,21 +79,23 @@ public Result[value] eval(list[str] commands, int duration) = eval(#value, comma
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Evaluate a (list of) Rascal commands and return the type of the last command.
 
-.Description
+#### Description
+
 Evaluate a command or a list of commands and return the type of the value of the last command that is executed.
 An optional `duration` argument may be present to limit the time
 (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import util::Eval;
 evalType("2 * 3;");
 evalType("[1, 2, 3];");
-----
+```
 }
 // --- evalType with default duration (1000 ms)
 

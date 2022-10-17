@@ -27,7 +27,8 @@ set[loc] find(loc f, bool (loc) filt)
 set[loc] find(loc f, str ext) = find(f, bool (loc l) { return l.extension == ext; });
 
 @doc{
-.Synopsis
+#### Synopsis
+
 lists all files recursively ignored files and directories starting with a dot.
 }
 set[loc] visibleFiles(loc l) {

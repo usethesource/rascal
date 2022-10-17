@@ -56,6 +56,11 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public Environment getCurrentEnvt();
 	public void setCurrentEnvt(Environment environment);
 	
+	public int getCallNesting();
+	public void incCallNesting();
+	public void decCallNesting();
+	public boolean getCallTracing();
+
 	public void pushEnv();
 	public void pushEnv(String name);
 	public void unwind(Environment old);

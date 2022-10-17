@@ -7,8 +7,6 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
 module demo::common::ColoredTrees
 
 // Define ColoredTrees with red and black nodes and integer leaves
@@ -54,6 +52,5 @@ ColoredTree makeGreen(ColoredTree t) {
      case red(l, r) => green(l, r) // <5>
    };
 }
-// end::module[]
 
 test bool tstMakeGreen() = makeGreen(rb) == green(black(leaf(1),green(leaf(2),leaf(3))),black(leaf(3),leaf(4)));

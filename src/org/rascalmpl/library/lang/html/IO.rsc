@@ -11,3 +11,7 @@ module lang::html::IO
 
 @javaClass{org.rascalmpl.library.lang.html.IO}
 public java node readHTMLFile(loc file);
+
+@javaClass{org.rascalmpl.library.lang.html.IO}
+public java node readHTMLString(str content);
+

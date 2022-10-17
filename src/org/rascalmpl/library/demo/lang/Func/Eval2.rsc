@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Func::Eval2
 
 // local side effects, returning env
@@ -103,6 +102,5 @@ Result2 eval2(seq(Exp lhs, Exp rhs), Env env, PEnv penv)  {  // <4>
   <env, _> = eval2(lhs, env, penv);
   return eval2(rhs, env, penv);
 }
-// end::module[]
 
 

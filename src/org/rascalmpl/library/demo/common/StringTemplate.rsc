@@ -9,35 +9,30 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-//START
-// tag::module[]
 module demo::common::StringTemplate
 
 import String;
 import List;
 
-// Capitalize the first character of a string
-
-str capitalize(str s) { // <1>
-  return toUpperCase(substring(s, 0, 1)) + substring(s, 1);
-}
-
-// Helper function to generate a setter
+@synopsis{Capitalize the first character of a string}
+str capitalize(str s) = "<toUpperCase(s[0])><s[1..]>";
+  
+@synopsis{Helper function to generate a setter}
 private str genSetter(map[str,str] fields, str x) {
   return "public void set<capitalize(x)>(<fields[x]> <x>) {
          '  this.<x> = <x>;
          '}";
 }
 
-// Helper function to generate a getter
+@synopsis{Helper function to generate a getter}
 private str genGetter(map[str,str] fields, str x) {
   return "public <fields[x]> get<capitalize(x)>() {
          '  return <x>;
          '}";
 }
 
-// Generate a class with given name and fields.
-// The field names are processed in sorted order.
+@synopsis{Generate a class with given name and fields.
+ The field names are processed in sorted order.}
 str genClass(str name, map[str,str] fields) { // <2>
   return 
     "public class <name> {
@@ -55,7 +50,7 @@ map[str, str] fields = (
   );
   
 str cperson = 
-  // Do not change a single space in the string below!
+  // Do not change a single space in the string below! (for testing purposes)
   "public class Person {
     '  
     '  private String address;
@@ -80,7 +75,6 @@ str cperson =
     '    return name;
     '  }
     '}";
-// end::module[]
 
 test bool tstGenClass() =
     genClass("Person", fields) == cperson;

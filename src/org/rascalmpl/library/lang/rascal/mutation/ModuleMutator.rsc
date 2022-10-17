@@ -12,20 +12,21 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 }
 @bootstrapParser
 @doc{
-.Synopsis
+#### Synopsis
+
 Mutant Generator for Rascal modules
 
-.Description
+#### Description
+
   Rascal module. The use case is to test how good the tests are for such a module. The tests
   should be able to find the bugs we introduce using the mutators.
   
 Examples
 
-[source,rascal]
-----
+```rascal
 import lang::rascal::mutation::ModuleMutator;
 mutate(|project://rascal/src/org/rascalmpl/library/lang/rascal/format/Grammar.rsc|, mutations=5)
-----
+```
 }
 @contributor{Cleverton Hentz}
 @contributor{Jurgen Vinju}

@@ -75,6 +75,8 @@ test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).pa
 test bool testWindowsParent(str s) = s == "" || (|file:///c:/| + replaceAll(s,"/","_")).parent == |file:///c:/|;
 test bool testFile(loc l, str s) {
 	s = replaceAll(s, "/","_");
+    if (s == "")
+      return true;
 	return (l + s).file == s;
 }
 
@@ -438,4 +440,23 @@ test bool isCover3(int f, int t){
    l = getLoc(f, t);
    u = cover([l, l, l, l]);
    return report(l, l, l == u);
+}
+
+test bool trailingSlashFile1() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    return withSlash.file == withoutSlash.file;
+}
+
+test bool trailingSlashFile2() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    withoutSlash.file = "libs";
+    withSlash.file = "libs";
+
+    return withSlash.file == withoutSlash.file
+        && withSlash.parent == withoutSlash.parent
+        ;
 }

@@ -9,17 +9,18 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @doc{
-.Synopsis
+#### Synopsis
+
 Library functions for sets.
 
-.Usage
+#### Usage
 
-.Description
+#### Description
 
-For operators on sets see link:/Rascal#Values-Set[Set] in the Rascal Language Reference.
+For operators on sets see [Set]((Rascal:Values-Set)) in the Rascal Language Reference.
 
 The following functions are defined for sets:
-loctoc::[1]
+(((TOC)))
 }
 module Set
 
@@ -28,65 +29,61 @@ import List;
 import util::Math;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Classify elements in a set.
 
-.Examples
+#### Examples
+
 We classify animals by their number of legs.
-[source,rascal-shell]
-----
+```rascal-shell
 import Set;
-----
+```
 Create a map from animals to number of legs.
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millepede": 1000, "crab": 8, "cat": 4);
-----
+```
 Define function `nLegs` that returns the number of legs for each animal (or `0` when the animal is unknown):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 int nLegs(str animal){
     return legs[animal] ? 0;
 }
-----
+```
 Now classify a set of animals:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 classify({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, nLegs);
-----
+```
 }
 public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) = toMap({<getClass(e),e> | e <- input});
 
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Group elements in a set given an equivalence function.
 
-.Examples
+#### Examples
+
 We classify animals by their number of legs.
-[source,rascal-shell]
-----
+```rascal-shell
 import Set;
-----
+```
 Create a map from animals to number of legs.
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 legs = ("bird": 2, "dog": 4, "human": 2, "snake": 0, "spider": 8, "millepede": 1000, "crab": 8, "cat": 4);
-----
+```
 Define function `nLegs` that returns the number of legs fro each animal (or `0` when the animal is unknown):
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 int nLegs(str animal){
     return legs[animal] ? 0;
 }
 bool similar(str a, str b) = nLegs(a) == nLegs(b);
-----
+```
 Now group a set of animals:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 group({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}, similar);
-----
+```
 WARNING: check compiler.
 }
 public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
@@ -101,15 +98,16 @@ public set[set[&T]] group(set[&T] input, bool (&T a, &T b) similar) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Map set elements to a fixed index.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 index({"elephant", "zebra", "snake"});
-----}
+```}
 public map[&T,int] index(set[&T] s) {
   sl = toList(s);
   return (sl[i] : i | i <- index(sl));
@@ -120,78 +118,85 @@ public map[&T,int] index(set[&T] s) {
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Test whether a set is empty.
 
-.Description
+#### Description
+
 Yields `true` if `s` is empty, and `false` otherwise.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 isEmpty({1, 2, 3});
 isEmpty({});
-----}
+```}
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(set[&T] st);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Apply a function to all set elements and return set of results.
 
-.Description
+#### Description
+
 Return a set obtained by applying function `fn` to all elements of set `s`.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 int incr(int x) { return x + 1; }
 mapper({1, 2, 3, 4}, incr);
-----}
+```}
 public set[&U] mapper(set[&T] st, &U (&T) fn)
 {
   return {fn(elm) | &T elm <- st};
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the largest element of a set.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 max({1, 3, 5, 2, 4});
 max({"elephant", "zebra", "snake"});
-----}
+```}
 public &T max(set[&T] st) {
 	<h,t> = takeOneFrom(st);
 	return (h | e > it ? e : it | e <- t);
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Smallest element of a set.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 min({1, 3, 5, 2, 4});
 min({"elephant", "zebra", "snake"});
-----}
+```}
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the smallest element of a set.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 min({1, 3, 5, 4, 2});
-----
+```
 }
 public &T min(set[&T] st) {
 	<h,t> = takeOneFrom(st);
@@ -199,18 +204,20 @@ public &T min(set[&T] st) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the powerset of a set.
 
-.Description
+#### Description
+
 Returns a set with all subsets of `s`.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 power({1,2,3,4});
-----}
+```}
 public set[set[&T]] power(set[&T] st)
 {
   // the power set of a set of size n has 2^n-1 elements 
@@ -237,37 +244,42 @@ public set[set[&T]] power(set[&T] st)
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 The powerset (excluding the empty set) of a set value.
 
-.Description
+#### Description
+
 Returns all subsets (excluding the empty set) of `s`.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 power1({1,2,3,4});
-----}
+```}
 public set[set[&T]] power1(set[&T] st) = power(st) - {{}};
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Apply a function to successive elements of a set and combine the results (__deprecated__).
 
-.Description
+#### Description
+
 Apply the function `fn` to successive elements of set `s` starting with `unit`.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 int add(int x, int y) { return x + y; }
 reducer({10, 20, 30, 40}, add, 0); 
-----
+```
 
-.Pitfalls
-WARNING: This function is *deprecated*, use a link:/Rascal#Expressions-Reducer[reducer] instead.
+#### Pitfalls
+
+WARNING: This function is *deprecated*, use a [reducer]((Rascal:Expressions-Reducer)) instead.
 }
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
 	(unit | fn(it,elm) | elm <- st);
@@ -275,17 +287,18 @@ public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
 public &T reducer(set[&T] _:{}) { throw EmptySet(); }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Determine the number of elements in a set.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 size({1,2,3,4});
 size({"elephant", "zebra", "snake"});
 size({});
-----}
+```}
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(set[&T] st);
 
@@ -298,174 +311,190 @@ public (&T <:num) sum(set[(&T <:num)] _:{}) {
 		");
 }
 @doc{
-.Synopsis
+#### Synopsis
+
 Sum the elements of a set.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 sum({3, 1, 4, 5});
 sum({3, 1.5, 4, 5});
-----}
+```}
 public default (&T <:num) sum({(&T <: num) e, *(&T <: num) r})
 	= (e | it + i | i <- r);
 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Pick an arbitrary element from a set.
 
-.Description
+#### Description
 
-.Examples
+#### Examples
 
-[source,rascal-shell]
-----
+```rascal-shell
 import Set;
 getOneFrom({"elephant", "zebra", "snake"});
 getOneFrom({"elephant", "zebra", "snake"});
 getOneFrom({"elephant", "zebra", "snake"});
 getOneFrom({"elephant", "zebra", "snake"});
-----}
+```}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T getOneFrom(set[&T] st);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get "first" element from a set.
 
-.Description
+#### Description
+
 Get "first" element of a set. Of course, sets are unordered and do not have a first element.
 However, we may assume that sets are internally ordered in some way and this ordering is reproducible.
 Applying `getFirstFrom` on the same set will always returns the same element.
 
-.Benefits
+#### Benefits
+
 This function helps to make set-based code more deterministic, for instance, for testing purposes.
 }
 public &T getFirstFrom({&T f, *&T _}) = f;
 public &T getFirstFrom(set[&T] _:{}) { throw EmptySet(); }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Remove an arbitrary element from a set, returns the element and a set without that element.
 
-.Description
-Remove an arbitrary element from set `s` and return a tuple consisting of the element and a set without that element.
- Also see <<Set-getOneFrom>>.
+#### Description
 
-.Examples
-[source,rascal-shell]
-----
+Remove an arbitrary element from set `s` and return a tuple consisting of the element and a set without that element.
+ Also see ((Set-getOneFrom)).
+
+#### Examples
+
+```rascal-shell
 import Set;
 takeOneFrom({1, 2, 3, 4});
 takeOneFrom({1, 2, 3, 4});
 takeOneFrom({1, 2, 3, 4});
-----
+```
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java tuple[&T, set[&T]] takeOneFrom(set[&T] st);
 
  @doc{
-.Synopsis
+#### Synopsis
+
 Remove "first" element from a set, returns the element and a set without that element.
 
-.Description
+#### Description
+
 element of a set.
 }
 public tuple[&T, set[&T]] takeFirstFrom({&T f, *&T r}) = <f, r>;  
 public tuple[&T, set[&T]] takeFirstFrom(set[&T] _:{}) { throw EmptySet(); }  
  
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a set to a list.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 toList({1, 2, 3, 4});
 toList({"elephant", "zebra", "snake"});
-----
+```
 Note that the same result can be obtained using splicing:
-[source,rascal-shell,continue]
-----
+```rascal-shell,continue
 s = {1,2,3,4};
 l = [*s];
-----
+```
 
-.Pitfalls
+#### Pitfalls
+
 Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting list.}
 public list[&T] toList(set[&T] st) = [*st];
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a set of tuples to a map; each key is associated with a set of values.
 
-.Description
+#### Description
+
 Convert a set of tuples to a map in which the first element of each tuple 
 is associated with the set of second elements of all tuples with the same first element.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 toMap({<"a", 1>, <"b", 2>, <"a", 10>});
-----}
+```}
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,set[&B]] toMap(rel[&A, &B] st);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a set of tuples to a map (provided that there are no multiple keys).
 
-.Description
+#### Description
+
 Convert a set of tuples to a map. The result should be a legal map (i.e., without multiple keys).
 
-.Examples
-[source,rascal-shell,error]
-----
+#### Examples
+
+```rascal-shell,error
 import Set;
 toMapUnique({<"a", 1>, <"b", 2>, <"c", 10>});
-----
+```
 Now explore an erroneous example:
-[source,rascal-shell,continue,error]
-----
+```rascal-shell,continue,error
 toMapUnique({<"a", 1>, <"b", 2>, <"a", 10>});
-----}
+```}
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&A,&B] toMapUnique(rel[&A, &B] st) throws MultipleKey;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a set to a string.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 toString({1, 2, 3});
 toString({"elephant", "zebra", "snake"});
-----
+```
 
-.Pitfalls
+#### Pitfalls
+
 Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting string.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(set[&T] st);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Convert a set to an indented string.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 toString({1, 2, 3});
 toString({"elephant", "zebra", "snake"});
-----
+```
 
-.Pitfalls
+#### Pitfalls
+
 Recall that the elements of a set are unordered and that there is no guarantee in which order the set elements will be placed in the resulting string.
 
 }
@@ -474,7 +503,8 @@ public java str itoString(set[&T] st);
 
 
 @doc{ 
-.Synopsis
+#### Synopsis
+
 Sort the elements of a set.
 
 Sort the elements of a set:
@@ -488,16 +518,16 @@ This function `lessThan` (<) function should implement a strict partial order, m
 *  is anti-symmetric, i.e. never `a < b && b < a`.
 *  is transitive, i.e. if `a < b` and `b < c` then `a < c`.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import Set;
 import String;
 sort({10, 4, -2, 11, 100, 5});
 fruits = {"mango", "strawberry", "pear", "pineapple", "banana", "grape", "kiwi"};
 sort(fruits);
 sort(fruits, bool(str a, str b){ return size(a) > size(b); });
-----}
+```}
 public list[&T] sort(set[&T] s) =
 	sort(s, bool (&T a,&T b) { return a < b; } );
 	
@@ -507,7 +537,7 @@ public java list[&T] sort(set[&T] l, bool (&T a, &T b) less) ;
 @doc{
 .Synopsis Produce the smallest `k` elements of a set as sorted by the `less` function
 
-.Description
+#### Description
 
 This function is fast if `k` is relatively small, say 10 out of a 1000 elements.
 It operates in O(n*k) time where n is the size of the set.
@@ -523,13 +553,15 @@ public java list[&T] top(int k, set[&T] l, bool (&T a, &T b) less) ;
 public list[&T] top(int k, set[&T] l) = top(k, l, bool (&T a, &T b) { return a < b; });
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Flatten a set of sets into a single set.  
 }
 public set[&T] union(set[set[&T]] sets) = {*s | s <- sets};
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Compute the Jaccard similarity between two sets.
 }
 real jaccard(set[value] x, set[value] y) = (1. * size(x & y)) / size(x + y);

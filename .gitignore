@@ -18,6 +18,8 @@ local.properties
 target/
 bin/
 bootstrap/
+pom.xml.releaseBackup
+release.properties
 
 .DS_Store
 /.apt_generated/
@@ -25,3 +27,6 @@ bootstrap/
 dependency-reduced-pom.xml
 .ipynb_checkpoints
 .vscode/settings.json
+
+*.iml
+.idea/
