@@ -45,7 +45,7 @@ then the transitive closure R+ can be defined as
 ```rascal-shell
 {<1,2>, <2,3>, <3,4>}+;
 ```
-We can also simply (but not necessarily efficiently) define transitive closure ourselves:
+We can also define transitive closure ourselves (this is not faster):
 ```rascal-shell,continue
 rel[int,int] tclosure(rel[int,int] R) {
    tc = R;

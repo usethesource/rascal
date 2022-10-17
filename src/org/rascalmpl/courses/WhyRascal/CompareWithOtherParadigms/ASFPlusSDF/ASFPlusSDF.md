@@ -49,7 +49,7 @@ What are the differences between ASF+SDF and Rascal? What are the commonalities?
 
 *  Rascal has native support for traversals, instead of the add-on it used to be in ASF+SDF. The visit statement is comparable to a traversal function in ASF+SDF, and is as type-safe as the traversal function, but it is more programmeable.
 
-*  Instead of accumulator values of traversal functions in ASF+SDF, Rascal simply supports lexically scoped variables that can be updated using assignments.
+*  Instead of accumulator values of traversal functions in ASF+SDF, Rascal supports lexically scoped variables that can be updated using assignments.
 
 *  Rascal natively supports specific expressions and datatypes for relational calculus, all borrowed directly from RScript.
 

@@ -43,7 +43,7 @@ int triple(int x) { return 3 * x; }
 int f(int x, int (int) multi){ return multi(x); }
 ```
 
-The functions `double` and `triple` simply multiply their argument with a constant. 
+The functions `double` and `triple` multiply their argument with a constant. 
 Function `f` is, however, more interesting. 
 It takes an integer `x` and a function `multi` (with integer argument and integer result) as argument and 
 applies multi to its own argument. `f(5, triple)` will hence return `15`. 

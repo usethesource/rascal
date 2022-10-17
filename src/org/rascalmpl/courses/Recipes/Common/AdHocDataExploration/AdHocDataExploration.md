@@ -17,7 +17,7 @@ Using Rascal to explore an interesting data space.
 The problem we will look at comes from mathematics, and has a precise analytical solution, but
 let's use Rascal to explore the state space, and see how it can help us to build intuition.
 
-As you know, Rascal supports arbitrarily large numbers cleanly and simply, unlike more traditional 
+As you know, Rascal supports arbitrarily large numbers internally (without additional libraries), unlike more traditional 
 languages like C or Java.  For example, if you want to compute 1000!, then it's a simple matter of
 calling `fact(1000)` at the command line.  Let's use this definition of factorial:
 
