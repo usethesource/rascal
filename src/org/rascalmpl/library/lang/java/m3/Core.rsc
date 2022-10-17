@@ -94,7 +94,7 @@ java M3 createM3FromJarClass(loc jarClass, list[loc] classPath = []);
 java M3 createM3FromSingleClass(loc jarClass, str className);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = [|system:///|]);
+java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
 
 @synopsis{Globs for jars, class files and java files in a directory and tries to compile all source files into an M3 model}
 M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
