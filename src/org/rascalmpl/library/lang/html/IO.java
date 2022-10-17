@@ -28,20 +28,23 @@ import javax.swing.text.html.parser.ParserDelegator;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 
-import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 
 public class IO {
     private final IValueFactory factory;
+    private final TypeStore store;
 
-    public IO(IValueFactory factory) {
+    public IO(IValueFactory factory, TypeStore store) {
         this.factory = factory;
+        this.store = store;
     }
     
-
     public IValue readHTMLString(IString string) {
         try (Reader reader = new StringReader(string.getValue())) {
             Constructor cons = new Constructor();
@@ -65,11 +68,11 @@ public class IO {
     }
     
     private class Constructor extends ParserCallback {
-        private Stack<java.util.List<IValue>> stack = new Stack<java.util.List<IValue>>();
-        private Stack<java.util.Map<java.lang.String,IValue>> attributes = new Stack<java.util.Map<java.lang.String, IValue>>();
+        private Stack<java.util.List<IConstructor>> stack = new Stack<>();
+        private Stack<java.util.Map<java.lang.String,IValue>> attributes = new Stack<>();
         
         public Constructor() {
-            stack.push(new ArrayList<IValue>(1));
+            stack.push(new ArrayList<>(1));
         }
         
         public IValue getValue() {
@@ -78,7 +81,8 @@ public class IO {
         
         @Override
         public void handleStartTag(Tag t, MutableAttributeSet a, int pos) {
-            stack.push(new ArrayList<IValue>(1));
+            stack.push(new ArrayList<>(1));
+            System.out.println("pushing :" + toString());
             storeAttributes(a);
         }
         
@@ -87,29 +91,37 @@ public class IO {
             for (Enumeration<?> names = set.getAttributeNames(); names.hasMoreElements(); ) {				
                 Object label = names.nextElement();
                 Object value = set.getAttribute(label);
-                attributes.peek().put(label.toString(), factory.string(value.toString()));
+                if (!"_implied_".equals(label)) {
+                    attributes.peek().put(label.toString(), factory.string(value.toString()));
+                }
             }
         }
 
         @Override
         public void handleEndTag(Tag t, int pos) {
-            java.util.List<IValue> kids = stack.pop();
+            java.util.List<IConstructor> kids = stack.pop();
             IValue[] a = new IValue[kids.size()];
             kids.toArray(a);
-            INode node = factory.node(t.toString(), factory.list(a));
+            Type cons = store.lookupConstructor(store.lookupAbstractDataType("HTMLElement"), t.toString()).iterator().next();
+            IConstructor node = factory.constructor(cons, factory.list(a));
             node = node.asWithKeywordParameters().setParameters(attributes.pop());
             stack.peek().add(node);
         }
         
         @Override
         public void handleSimpleTag(Tag t, MutableAttributeSet a, int pos) {
-            INode node = factory.node(t.toString());
+            Type cons = store.lookupConstructor(store.lookupAbstractDataType("HTMLElement"), t.toString()).iterator().next();
+            IConstructor node = factory.constructor(cons, factory.list());
+            System.out.println(cons);
             stack.peek().add(node);
         }
         
         @Override
         public void handleText(char[] data, int pos) {
-            stack.peek().add(factory.node("text", factory.string(new java.lang.String(data))));
+            Type cons = store.lookupConstructor(store.lookupAbstractDataType("HTMLElement"), "text").iterator().next();
+            IConstructor node = factory.constructor(cons, factory.string(new java.lang.String(data)));
+           
+            stack.peek().add(node);
         }
     }
 }

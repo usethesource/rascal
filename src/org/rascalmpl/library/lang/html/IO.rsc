@@ -8,10 +8,11 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::html::IO
 
+extend lang::html::AST;
 
 @javaClass{org.rascalmpl.library.lang.html.IO}
-public java node readHTMLFile(loc file);
+public java HTMLElement readHTMLFile(loc file);
 
 @javaClass{org.rascalmpl.library.lang.html.IO}
-public java node readHTMLString(str content);
+public java HTMLElement readHTMLString(str content);
 
