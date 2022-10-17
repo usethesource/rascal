@@ -1,15 +1,17 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 Content provides access to the content server of the Rascal terminal for viewing interactive HTML output.
 }
 module Content
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Content wraps the HTTP Request/Response API to support interactive visualization types
 on the terminal <<Rascal.REPL>>.  
 
-.Description
+#### Description
 
 Values wrapped in a `Content` wrapper will be displayed by interactive
 Rascal applications such as the IDE, the REPL terminal and the documentation pages. 
@@ -40,19 +42,22 @@ data Content
   ;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Directly serve a static html page
 }
 Content html(str html) = content(response(html));
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Directly serve the contents of a file
 }
 Content file(loc src) = content(response(src));
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Directly serve the contents of a string as plain text
 }
 Content text(str text) = content(plain(text));
@@ -60,16 +65,17 @@ Content text(str text) = content(plain(text));
 alias Body = value (type[value] expected);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Request values represent what a browser is asking for, most importantly the URL path.
 
-.Description
+#### Description
 
 A request value also contains the full HTTP headers, the URL parameters as a `map[str,str]`
 and possibly uploaded content, also coded as a map[str,str]. From the constructor type,
 `put` or `get` you can see what kind of HTTP request it was. 
 
-.Pitfalls 
+#### Pitfalls
 
 * Note that `put` and `post` have not been implemented yet in the REPL server. 
 }
@@ -82,10 +88,11 @@ data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str
   ;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 A response encodes what is send back from the server to the browser client.
 
-.Description
+#### Description
 
 The three kinds of responses, encode either content that is already a `str`,
 some file which is streamed directly from its source location or a jsonResponse
@@ -98,38 +105,44 @@ data Response
   ;
   
 @doc{
-.Synopsis
+#### Synopsis
+
 Utility to quickly render a string as HTML content
 }  
 Response response(str content)                    = response(ok(), "text/html", (), content);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Utility to quickly report an HTTP error with a user-defined message
 }
 Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Utility to quickly make a plaintext response.
 }
 Response plain(str text) = response(ok(), "text/plain", (), text);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Utility to serve a file from any source location.
 }
 Response response(loc f)                          = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Utility to quickly serve any rascal value as a json text. This comes in handy for
 asynchronous HTTP requests from Javascript.
 }
 default  Response response(value val, map[str,str] header = ())             = jsonResponse(ok(), header, val);
   
 @doc{
-.Synopsis
+#### Synopsis
+
 Encoding of HTTP status
 }  
 data Status 
@@ -149,7 +162,8 @@ data Status
   ; 
 
 @doc{
-.Synopsis
+#### Synopsis
+
 A static map with default MIME interpretations for particular file extensions.
 }  
 public map[str extension, str mimeType] mimeTypes = (

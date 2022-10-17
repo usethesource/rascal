@@ -216,4 +216,10 @@ test bool writeFileOffsetStart(Encoding enc, str a, str b) {
 }
 
 
+test bool md5ValueTest() = md5Hash("test") == "303b5c8988601647873b4ffd247d83cb"; // "test" as md5sum (yes, nested quotes)
+
+test bool md5FileTest() {
+	writeFile(aFile, "test");
+	return md5HashFile(aFile) == "098f6bcd4621d373cade4e832627b4f6"; // test as md5sum
+}
 

@@ -5,7 +5,6 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-// tag::module[]
 module demo::vis::Higher
 
 //import vis::Figure;
@@ -22,4 +21,3 @@ module demo::vis::Higher
 //	               box(width(100), vresizable(false), vsize(num(){return H;}), fillColor("red"))
 //	             ], shrink(0.5), resizable(false));
 //}
-// end::module[]

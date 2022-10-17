@@ -132,6 +132,38 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      */
     private volatile boolean interrupt = false;
 
+    /**
+     * State to manage call tracing
+     */
+    private int callNesting = 0;
+	private boolean callTracing = false;
+
+    @Override
+    public int getCallNesting() {
+       return callNesting;
+    }
+
+    @Override
+    public boolean getCallTracing() {
+        return callTracing;
+    }
+
+    @Override
+    public void setCallTracing(boolean callTracing) {
+        this.callTracing = callTracing;
+    }
+
+    @Override
+    public void incCallNesting() {
+        callNesting++;
+    }
+
+    @Override
+    public void decCallNesting() {
+        callNesting--;
+    }
+
+
     private JavaBridge javaBridge; //  sharable if synchronized
 
     /**
@@ -1380,7 +1412,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void updateProperties() {
         Evaluator.doProfiling = config.getProfilingProperty();
 
-        AbstractFunction.setCallTracing(config.getTracingProperty());
+        setCallTracing(config.getTracingProperty());
     }
 
     public Configuration getConfiguration() {

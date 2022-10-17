@@ -85,8 +85,49 @@ public class PathConfig {
 		javaCompilerPath = defaultJavaCompilerPath;
 		classloaders = defaultClassloaders;
 	}
+
+    public PathConfig(IConstructor pcfg) throws IOException {
+        this(
+            srcs(pcfg), 
+            libs(pcfg), 
+            bin(pcfg), 
+            courses(pcfg), 
+            javaCompilerPath(pcfg), 
+            classloaders(pcfg)
+        );
+    }
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) throws IOException {
+	private static IList classloaders(IConstructor pcfg) {
+        return getListValueFromConstructor(pcfg, defaultClassloaders, "classloaders");
+    }
+
+    private static IList javaCompilerPath(IConstructor pcfg) {
+        return getListValueFromConstructor(pcfg, defaultJavaCompilerPath, "javaCompilerPath");
+    }
+
+    private static IList courses(IConstructor pcfg) {
+        return getListValueFromConstructor(pcfg, defaultCourses, "courses");
+    }
+
+    private static IList getListValueFromConstructor(IConstructor pcfg, List<ISourceLocation> def, String label) {
+        IList val = (IList) pcfg.asWithKeywordParameters().getParameter(label);
+        return val == null ? def.stream().collect(vf.listWriter()) : val;
+    }
+
+    private static ISourceLocation bin(IConstructor pcfg) {
+        ISourceLocation val = (ISourceLocation) pcfg.asWithKeywordParameters().getParameter("bin");
+        return val == null ? defaultBin : val;
+    }
+
+    private static IList libs(IConstructor pcfg) {
+        return getListValueFromConstructor(pcfg, Arrays.asList(defaultStd), "libs");
+    }
+
+    private static IList srcs(IConstructor pcfg) {
+        return getListValueFromConstructor(pcfg, Collections.emptyList(), "srcs");
+    }
+
+    public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) throws IOException {
 		this(srcs, libs, bin, defaultCourses);
 	}
 	

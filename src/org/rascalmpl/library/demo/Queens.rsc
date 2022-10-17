@@ -9,14 +9,14 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Atze van der Ploeg - <ploeg@cwi.nl>}
-
+@synopsis{Experiments with the 8-queens puzzle in Rascal}
+@description{
+See: 
+* <http://en.wikipedia.org/wiki/Eight_queens_puzzle>
+* <http://en.wikipedia.org/wiki/Eight_queens_puzzle_solutions>
+}
 module demo::Queens
 
-/*
- * Experiments with the 8-queens puzzle.
- * See: http://en.wikipedia.org/wiki/Eight_queens_puzzle
- * http://en.wikipedia.org/wiki/Eight_queens_puzzle_solutions
- */
 
 import List;
 import util::Math;
