@@ -135,11 +135,21 @@ public class SourceLocationClassLoader extends ClassLoader {
     
     @Override
     public URL getResource(String name) {
+        if (stack.contains(new SearchItem(this, name))) {
+            return null;
+        }
+
         for (ClassLoader l : path) {
-            URL url = l.getResource(name);
-            
-            if (url != null) {
-                return url;
+            try {
+                stack.push(new SearchItem(this, name));
+                URL url = l.getResource(name);
+                
+                if (url != null) {
+                    return url;
+                }
+            }
+            finally {
+                stack.pop();
             }
         }
         
