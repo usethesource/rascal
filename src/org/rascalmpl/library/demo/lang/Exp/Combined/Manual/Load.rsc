@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Exp::Combined::Manual::Load
 
 import demo::lang::Exp::Concrete::WithLayout::Syntax; // <1>
@@ -16,4 +15,3 @@ demo::lang::Exp::Abstract::Syntax::Exp load((Exp)`<Exp e1> + <Exp e2>`)
        = add(load(e1), load(e2)); 
 demo::lang::Exp::Abstract::Syntax::Exp load((Exp)`( <Exp e> )`) 
        = load(e);                    
-// end::module[]

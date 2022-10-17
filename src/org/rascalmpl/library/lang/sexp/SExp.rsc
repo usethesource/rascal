@@ -1,5 +1,6 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 AST model for S-Expressions.
 }
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}

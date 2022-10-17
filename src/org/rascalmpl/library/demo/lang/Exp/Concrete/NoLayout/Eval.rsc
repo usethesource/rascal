@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Exp::Concrete::NoLayout::Eval
 import demo::lang::Exp::Concrete::NoLayout::Syntax;
 
@@ -11,7 +10,6 @@ int eval((Exp)`<IntegerLiteral l>`) = toInt("<l>");       // <3>
 int eval((Exp)`<Exp e1>*<Exp e2>`) = eval(e1) * eval(e2); // <4>
 int eval((Exp)`<Exp e1>+<Exp e2>`) = eval(e1) + eval(e2); // <5>
 int eval((Exp)`(<Exp e>)`) = eval(e);                     // <6>
-// end::module[]
 
 test bool tstEval1() = eval("7") == 7;
 test bool tstEval2() = eval("7*3") == 21;

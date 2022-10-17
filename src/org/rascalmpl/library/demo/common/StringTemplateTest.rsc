@@ -9,7 +9,6 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-//START
 module demo::common::StringTemplateTest
 
 import demo::common::StringTemplate;
@@ -21,7 +20,7 @@ public  map[str, str] fields = (
   );
   
 public str cperson = 
-  // Do not change a single space in the string below!
+  // Do not change a single space in the string below! (for testing purposes)
   "public class Person {
     '  
     '  private String address;

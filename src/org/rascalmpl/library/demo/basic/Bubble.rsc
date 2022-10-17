@@ -7,20 +7,26 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
+@synopsis{Variations on Bubble Sort}
+@description{
+Rascal allows for very different programming styles, ranging 
+from classical procedural style with structured programming 
+constructor to pure function programming and algebraic specification.
+
+In this demo we show how the "Bubble Sort" algorithm can 
+be implemented in Rascal in different ways. None is a priori
+"better" than the other. Just different. Pick your poison!
+}
 module demo::basic::Bubble
 
 import List;
 
-// Variations on Bubble sort
-
-// sort1: uses list indexing and a for-loop
-
+@synopsis{sort1: uses list indexing, a for-loop and a (complex) assignment}
 list[int] sort1(list[int] numbers) { 
   if (size(numbers) > 0) {
      for (int i <- [0 .. size(numbers)-1]) {
        if (numbers[i] > numbers[i+1]) {
+         // interesting destructuring bind:
          <numbers[i], numbers[i+1]> = <numbers[i+1], numbers[i]>;
          return sort1(numbers);
        }
@@ -29,8 +35,7 @@ list[int] sort1(list[int] numbers) {
   return numbers;
 }
 
-// sort2: uses list matching and switch
-
+@synopsis{sort2 uses list matching, a switch and recursion instead of assignment}
 list[int] sort2(list[int] numbers) {
   switch(numbers){
     case [*int nums1, int p, int q, *int nums2]:
@@ -43,31 +48,39 @@ list[int] sort2(list[int] numbers) {
    }
 }
 
-// sort3: uses list matching and while
-
+@synopsis{sort3: uses list matching, while and an assignment}
 list[int] sort3(list[int] numbers) {
   while ([*int nums1, int p, *int nums2, int q, *int nums3] := numbers && p > q)
         numbers = nums1 + [q] + nums2 + [p] + nums3;
   return numbers;
 }
 
-// sort4: using recursion instead of iteration, and splicing instead of concat
-list[int] sort4([*int nums1, int p, *int nums2, int q, *int nums3]) {
-  if (p > q) 
-    return sort4([*nums1, q, *nums2, p, *nums3]); 
-  else 
-    fail sort4;
+@synopsis{sort4: uses list matching, solve, list concatentation, and assignment}
+list[int] sort4(list[int] numbers) {
+  solve (numbers) {
+    if ([*int nums1, int p, *int nums2, int q, *int nums3] := numbers && p > q)
+      numbers = nums1 + [q] + nums2 + [p] + nums3;
+  }
+  return numbers;
 }
 
-default list[int] sort4(list[int] x) = x;
+@synopsis{sort5: using recursion instead of iteration, and splicing instead of concat}
+list[int] sort5([*int nums1, int p, *int nums2, int q, *int nums3]) {
+  if (p > q) 
+    return sort5([*nums1, q, *nums2, p, *nums3]); 
+  else 
+    fail sort5;
+}
 
-// sort5: inlines the condition into a when:
-list[int] sort5([*int nums1, int p, *int nums2, int q, *int nums3]) 
+default list[int] sort5(list[int] x) = x;
+
+@synopsis{sort6: inlines the condition into a when, and uses overloading with a default function.}
+list[int] sort6([*int nums1, int p, *int nums2, int q, *int nums3]) 
   = sort5([*nums1, q, *nums2, p, *nums3])
   when p > q; 
 
-default list[int] sort5(list[int] x) = x;
-// end::module[]
+default list[int] sort6(list[int] x) = x;
+
 
 bool isSorted(list[int] lst) = !any(int i <- index(lst), int j <- index(lst), (i < j) && (lst[i] > lst[j]));
 
@@ -78,11 +91,9 @@ test bool sorted1d() = isSorted([-10, 20, 30]);
 test bool sorted1e() = !isSorted([10, 20, -30]);
 
 test bool sorted2(list[int] lst) = isSorted(sort2(lst));
-
 test bool sorted3(list[int] lst) = isSorted(sort3(lst));
-
 test bool sorted4(list[int] lst) = isSorted(sort4(lst));
-
 test bool sorted5(list[int] lst) = isSorted(sort5(lst));
+test bool sorted6(list[int] lst) = isSorted(sort6(lst));
 
 

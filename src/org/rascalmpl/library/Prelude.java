@@ -19,6 +19,7 @@ package org.rascalmpl.library;
 import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -42,6 +43,8 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -99,7 +102,6 @@ import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
 import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.ICollection;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IExternalValue;
@@ -117,7 +119,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWriter;
 import io.usethesource.vallang.exceptions.FactParseError;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
@@ -128,7 +129,6 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRa
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import io.usethesource.vallang.visitors.IValueVisitor;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
@@ -1160,8 +1160,6 @@ public class Prelude {
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){
-		byte[] hash;
-		
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             boolean useInputStream = !URIResolverRegistry.getInstance().supportsReadableFileChannel(sloc);
@@ -1196,8 +1194,7 @@ public class Prelude {
                     }
                 }
             }
-			
-			hash = md.digest();
+			return translateHash(md);
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}catch(IOException ioex){
@@ -1205,25 +1202,33 @@ public class Prelude {
 		} catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"));
 		}
-        
-        StringBuffer result = new StringBuffer(hash.length * 2);
-        for (int i = 0; i < hash.length; i++) {
-            result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-        }
-        return values.string(result.toString());
-
 	}
+
+	private IString translateHash(MessageDigest md) {
+		byte[] hash = md.digest();
+
+		StringBuilder result = new StringBuilder(hash.length * 2);
+		for (int i = 0; i < hash.length; i++) {
+			result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+		}
+		
+		return values.string(result.toString());
+	}
+
 
 	public IValue md5Hash(IValue value){
 		try {
 			final MessageDigest md = MessageDigest.getInstance("MD5");
 			final StandardTextWriter writer = new StandardTextWriter();
-			Charset UTF8 = Charset.forName("UTF-8");
+			final CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder()
+				.onMalformedInput(CodingErrorAction.REPLACE)
+				.onUnmappableCharacter(CodingErrorAction.REPLACE)
+				;
 			writer.write(value, new Writer() {
 				@Override
 				public void write(char[] cbuf, int off, int len) throws IOException {
 					CharBuffer cb = CharBuffer.wrap(cbuf, off, len);
-					ByteBuffer bb = UTF8.encode(cb); 
+					ByteBuffer bb = encoder.encode(cb); 
 					md.update(bb);
 				}
 
@@ -1233,15 +1238,7 @@ public class Prelude {
 				@Override
 				public void close() throws IOException { }
 			});
-
-			byte[] hash = md.digest();
-
-			StringBuffer result = new StringBuffer(hash.length * 2);
-        	for (int i = 0; i < hash.length; i++) {
-            	result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-        	}
-			
-        	return values.string(result.toString());
+			return translateHash(md);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1504,7 +1501,7 @@ public class Prelude {
 		return w.done();
 	}
 	
-    public IString uuencode(ISourceLocation sloc) {
+    public IString readBase64(ISourceLocation sloc) {
         int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
         
@@ -1525,6 +1522,18 @@ public class Prelude {
             }
             
             return values.string(result.toString());
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
+
+	public void writeBase64(ISourceLocation sloc, IString contents) {
+        int BUFFER_SIZE = 3 * 512;
+        Base64.Decoder decoder = Base64.getDecoder();
+        
+        try  (BufferedOutputStream out = new BufferedOutputStream(URIResolverRegistry.getInstance().getOutputStream(sloc, false), BUFFER_SIZE); ) {
+			out.write(decoder.decode(contents.getValue()));
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -2502,7 +2511,10 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
-						return ast.asWithKeywordParameters().setParameter("location", loc);
+						String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
+						  "location" : "src";
+						
+						return ast.asWithKeywordParameters().setParameter(locLabel, loc);
 					}
 					catch (Backtrack b) {
 					    failReason = b;
@@ -2679,7 +2691,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args));
-				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
+				return ast.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2697,9 +2709,12 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args);
 					IConstructor ast = makeConstructor(store, type, constructorName, implodedArgs);
+					String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
+						  "location" : "src";
+
 					return ast
 					        .asWithKeywordParameters()
-					        .setParameter("location", loc)
+					        .setParameter(locLabel, loc)
 					        .asWithKeywordParameters()
 					        .setParameter("comments", comments);
 				}

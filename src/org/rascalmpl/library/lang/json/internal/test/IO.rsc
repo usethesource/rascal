@@ -1,4 +1,4 @@
-module lang::json::io::\test::IO
+module lang::json::internal::\test::IO
 
 import lang::json::IO;
 

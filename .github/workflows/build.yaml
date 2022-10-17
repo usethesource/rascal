@@ -35,7 +35,7 @@ jobs:
 
       - name: Test if release # just to be extra sure for a release
         if: startsWith(github.ref, 'refs/tags/v')
-        run: mvn -Drascal.test.memory=4 -Drascal.compile.skip test 
+        run: mvn -Drascal.test.memory=4 -Drascal.compile.skip -Drascal.tutor.skip test 
 
       - name: Attach artifact
         id: build-artifact
@@ -93,7 +93,7 @@ jobs:
 
       - name: Run Tests
         # single quotes to help windows deal with argument splitting
-        run: mvn -B '-Drascal.compile.skip' '-Drascal.test.memory=4' test
+        run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=4' test
 
       - uses: codecov/codecov-action@v1
         with:

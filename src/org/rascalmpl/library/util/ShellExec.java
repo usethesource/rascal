@@ -47,7 +47,7 @@ public class ShellExec {
 	}
 
 	public IInteger createProcess(IString processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
-		return createProcessInternal(processCommand,arguments,envVars,workingDir);
+		return createProcessInternal(processCommand, arguments, envVars, workingDir);
 	}
 
 	private IString toString(IValue o) {
@@ -61,6 +61,9 @@ public class ShellExec {
 				}
 
 				return vf.string(new File(p.getURI()).getAbsolutePath());
+			}
+			else if (o.getType().isString()) {
+				return (IString) o;
 			}
 			else {
 				return vf.string(o.toString());
@@ -161,6 +164,7 @@ public class ShellExec {
 				throw RuntimeExceptionFactory.permissionDenied(vf.string("Modifying environment variables is not allowed on this machine."), null, null);
 			}
 			
+			workingDir = URIResolverRegistry.getInstance().logicalToPhysical(workingDir);
 			File cwd = null;
 			if (workingDir != null && workingDir.getScheme().equals("file")) {
 				cwd = new File(workingDir.getPath());
