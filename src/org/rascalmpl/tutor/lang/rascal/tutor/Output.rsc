@@ -14,7 +14,7 @@ data Output
 
 
 @synopsis{multi line comment with a lonely callout}
-Output out(/^<pre:.*><t:\/\*\s*\<\s*[0-9]+\s*\>\s*\*\/><post:\s*>$/) = out("<pre> <callout(t)> <post>");
+Output out(/<pre:.*><t:\/\*\s*\<\s*[0-9]*\s*\>\s*\*\/><post:.*>/) = out("<pre> <callout(t)> <post>");
 
 @synopsis{single line comment with a lonely callout}
 Output out(/^<pre:.*><t:\/\/\s*\<\s*[0-9]+\s*\>><post:\s*>$/) = out("<pre> <callout(t)> <post>");
