@@ -20,7 +20,7 @@ x = 1
 ```
 
 The reason is that it expects a `;` after every ((Statements-Assignment)).
-To cancel the entire command, simply provide an empty line:
+To cancel the entire command, provide an empty line:
 
 ```rascal-shell,continue
 

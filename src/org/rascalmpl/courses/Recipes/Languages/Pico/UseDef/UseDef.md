@@ -39,7 +39,7 @@ Recall that `Occurrence` was introduced in ((Pico-Abstract)); it is a parameteri
        
 <2> `useStat` extracts uses from all statement variants.
 
-<3> The function `uses` simply applies `usesStats` to the statement part of its program argument.
+<3> The function `uses` applies `usesStats` to the statement part of its program argument.
 
 <4> The function `defs`  has a Pico program as argument and returns a set of occurrences (definitions) of Pico identifiers.
     The definition consists of a single set comprehension that consists of the following parts:

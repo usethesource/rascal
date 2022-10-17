@@ -102,6 +102,6 @@ See ((analysis::m3::Core)) for the definition of the language-independent relati
 
 * Inaccurate query results are possible even though the M3 models are 100% accurate. 
    * M3 models are *initial* in the sense that they contain what can be statically derived from the source code in terms of declarations and relations. 
-   * Analyses based directly on this information can still be *inaccurate*; simply because they represent harder questions.
+   * Analyses based directly on this information can still be *inaccurate*; because they represent harder questions.
    * For example, a Java call graph produced by the relation composition `myModel.methodInvocation o myModel.methodOverrides` shows _all_ possible concrete methods that could be invoked via virtual method invocation (over-approximation), but it skips all the invokes constructed via reflection (under-aproximation). In that sense this query is both incomplete and unsound, however useful it may be.
 * Java still has the most complete M3 model in the Rascal ecosystem, so when you move to other languages prepare to extract more information from AST models instead.

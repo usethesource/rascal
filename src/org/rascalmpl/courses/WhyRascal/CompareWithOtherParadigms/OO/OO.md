@@ -23,7 +23,7 @@ How does Rascal differ from an OO language or an imperative language?
 
 *  Objects in an OO language (class instances) can have mutable local state (i.e, each object can have instance variables 
   that can be modified after object creation). In Rascal all values are immutable after creation. Sharing a value does 
-  not introduce a coupling like in OO, simply because changes are only visible to the code that changes the values.
+  not introduce a coupling like in OO, because changes are only visible to the code that changes the values.
   Without mutability it is easy to combine stages of programs that perform different tasks.
 
 *  Rascal does provide a mechanism for introducing user-defined types. 

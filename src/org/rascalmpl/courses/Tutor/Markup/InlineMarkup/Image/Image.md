@@ -32,7 +32,7 @@ Or, if you need more configurability, like dimensions:
 #### Description
 
 Tutor offers the simple Markdown image syntax plus referencing images in a course. 
-If you need more flexibility, simply use the HTML `<img>` tag.
+If you need more flexibility, use the HTML `<img>` tag.
 
 #### Examples
 

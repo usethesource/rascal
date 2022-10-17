@@ -33,7 +33,7 @@ and the output is collected.
    * With `rascal-prepare` the code is executed in the current environment but no output is shown.
    * Finally using `rascal-include` you can include modules from disk that are on the current search path.
    * Either `rascal-shell`, `rascal-prepare` or `rascal-include` code with an unexpected error in it will _fail_ the documentation build and an error message will be reported. The build will continue to find other issues and compile all the other files.
-   * Using the `error` label to a code block, an error will be expected and simply rendered to the user. This is to demonstrate error messages to the reader.
+   * Using the `error` label to a code block, an error will be expected and printed back to the user. This is to demonstrate error messages to the reader.
 * The "magic comments" `highlight-next-line`, `highlight-start`, and `highlight-end` give you a way to highlight
 selected lines in the code. Also you can use ranges like this `{1,4--6,9}`.
 
