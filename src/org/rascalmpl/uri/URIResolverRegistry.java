@@ -771,6 +771,10 @@ public class URIResolverRegistry {
 		if (exists(target) && !overwrite) {
 			throw new IOException("file exists " + source);
 		}
+
+		if (exists(target) && overwrite) {
+			remove(target, false);
+		}
 		
 		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
 			try (FileChannel from = getReadableFileChannel(source)) {
