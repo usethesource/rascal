@@ -114,6 +114,7 @@ public class IO {
             DOMSource source = new DOMSource(elem.getFirstChild());
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
+            
             transformer.transform(source, result);
 
             return factory.string(writer.toString());
@@ -140,7 +141,7 @@ public class IO {
 
             TransformerFactory tFactory = TransformerFactory.newInstance();
             Transformer transformer = tFactory.newTransformer();
-            DOMSource source = new DOMSource(elem);
+            DOMSource source = new DOMSource(elem.getFirstChild());
             StreamResult result = new StreamResult(out);
             transformer.transform(source, result);
 
