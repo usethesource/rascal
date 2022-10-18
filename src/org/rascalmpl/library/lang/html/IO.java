@@ -17,6 +17,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.HTML.Tag;
 import javax.swing.text.html.HTMLEditorKit.ParserCallback;
 import javax.swing.text.html.parser.ParserDelegator;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,6 +40,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.validation.SchemaFactory;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -47,6 +50,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLDOMImplementation;
 import org.w3c.dom.html.HTMLDocument;
+import org.xml.sax.SAXException;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -104,8 +108,10 @@ public class IO {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
+            // dbf.setSchema(SchemaFactory.newDefaultInstance().newSchema(new URL("http://www.w3.org/1999/xhtml")));
+            
             Document doc = db.newDocument();
-
+            
             Element elem = doc.createElement("html");
             createDocument(doc, cons, elem);
 
@@ -133,6 +139,7 @@ public class IO {
     public void writeHTMLFile(ISourceLocation file, IConstructor cons) {
         try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(file, false)) {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            // dbf.setSchema(SchemaFactory.newDefaultInstance().newSchema(new URL("http://www.w3.org/1999/xhtml")));
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.newDocument();
             
