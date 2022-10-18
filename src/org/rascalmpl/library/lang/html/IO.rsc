@@ -9,10 +9,39 @@
 module lang::html::IO
 
 extend lang::html::AST;
+import Content;
 
 @javaClass{org.rascalmpl.library.lang.html.IO}
-public java HTMLElement readHTMLFile(loc file);
+@synopsis{Parse a HTML file and return an HTMLElement AST}
+@description{
+This function uses Java's EditorKit HTML parser which is robust
+against errors in the HTML, and complete in the sense that it supports all of HTML.
+}
+java HTMLElement readHTMLFile(loc file);
+
+@synopsis{Parse a HTML string and return an HTMLElement AST}
+@description{
+This function uses Java's EditorKit HTML parser which is robust
+against errors in the HTML, and complete in the sense that it supports all of HTML.
+}
+@javaClass{org.rascalmpl.library.lang.html.IO}
+java HTMLElement readHTMLString(str content);
 
 @javaClass{org.rascalmpl.library.lang.html.IO}
-public java HTMLElement readHTMLString(str content);
+@synopsis{Pretty-print the HTMLElement AST to a string}
+@description{
+This function uses w3c's XML DOM functionality to 
+yield a syntactically correct XHTML string.
+}
+java str writeHTMLString(HTMLElement dom);
 
+@synopsis{Pretty-print the HTMLElement AST to a string}
+@description{
+This function uses w3c's XML DOM functionality to 
+yield a syntactically correct XHTML file.
+}
+@javaClass{org.rascalmpl.library.lang.html.IO}
+java void writeHTMLFile(loc file, HTMLElement dom);
+
+@synopsis{Convenience function to visualize an HTMLElement tree in the browser}
+Content serve(HTMLElement elem) = html(writeHTMLString(elem));
