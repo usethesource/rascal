@@ -1,27 +1,36 @@
 module lang::html::AST
 
+@synopsis{Abstract Syntax for HTML}
+@description{
+This is HTML5 encoded like so:
+* element tags are constructor names of type `HTMLElement`
+* all tags have a list of HTMLElement as children, except the `void` tags that do not have any parameters
+* attributes are keyword parameters of type `str`
+* unknown tags (such as SVG) are mapped to `unknownElement` nodes and their children are not included.
+}
 data HTMLElement
     = a(list[HTMLElement] elems)
     | abbr(list[HTMLElement] elems)
     | address(list[HTMLElement] elems)
-    | area(list[HTMLElement] elems)
+    | area()
     | article(list[HTMLElement] elems)
     | aside(list[HTMLElement] elems)
     | audio(list[HTMLElement] elems)
     | b(list[HTMLElement] elems)
-    | base(list[HTMLElement] elems)
+    | base()
     | bdi(list[HTMLElement] elems)
     | bdo(list[HTMLElement] elems)
     | blockquote(list[HTMLElement] elems)
     | body(list[HTMLElement] elems)
-    | br(list[HTMLElement] elems)
+    | br()
     | button(list[HTMLElement] elems)
     | canvas(list[HTMLElement] elems)
     | caption(list[HTMLElement] elems)
     | cite(list[HTMLElement] elems)
     | code(list[HTMLElement] elems)
-    | col(list[HTMLElement] elems)
+    | col()
     | colgroup(list[HTMLElement] elems)
+    | command()
     | \data(list[HTMLElement] elems)
     | datalist(list[HTMLElement] elems)
     | dd(list[HTMLElement] elems)
@@ -33,7 +42,7 @@ data HTMLElement
     | dl(list[HTMLElement] elems)
     | dt(list[HTMLElement] elems)
     | em(list[HTMLElement] elems)
-    | embed(list[HTMLElement] elems)
+    | embed()
     | fieldset(list[HTMLElement] elems)
     | figcaption(list[HTMLElement] elems)
     | figure(list[HTMLElement] elems)
@@ -48,25 +57,25 @@ data HTMLElement
     | head(list[HTMLElement] elems)
     | header(list[HTMLElement] elems)
     | hgroup(list[HTMLElement] elems)
-    | hr(list[HTMLElement] elems)
+    | hr()
     | html(list[HTMLElement] elems)
     | i(list[HTMLElement] elems)
     | iframe(list[HTMLElement] elems)
-    | img(list[HTMLElement] elems)
-    | input(list[HTMLElement] elems)
+    | img()
+    | input()
     | ins(list[HTMLElement] elems)
     | kbd(list[HTMLElement] elems)
-    | keygen(list[HTMLElement] elems)
+    | keygen()
     | label(list[HTMLElement] elems)
     | legend(list[HTMLElement] elems)
     | li(list[HTMLElement] elems)
-    | link(list[HTMLElement] elems)
+    | link()
     | main(list[HTMLElement] elems)
     | \map(list[HTMLElement] elems)
     | mark(list[HTMLElement] elems)
     | menu(list[HTMLElement] elems)
     | menuitem(list[HTMLElement] elems)
-    | meta(list[HTMLElement] elems)
+    | meta()
     | meter(list[HTMLElement] elems)
     | nav(list[HTMLElement] elems)
     | noscript(list[HTMLElement] elems)
@@ -76,7 +85,7 @@ data HTMLElement
     | option(list[HTMLElement] elems)
     | output(list[HTMLElement] elems)
     | p(list[HTMLElement] elems)
-    | param(list[HTMLElement] elems)
+    | param()
     | pre(list[HTMLElement] elems)
     | progress(list[HTMLElement] elems)
     | q(list[HTMLElement] elems)
@@ -89,7 +98,7 @@ data HTMLElement
     | section(list[HTMLElement] elems)
     | select(list[HTMLElement] elems)
     | small(list[HTMLElement] elems)
-    | source(list[HTMLElement] elems)
+    | source()
     | span(list[HTMLElement] elems)
     | strong(list[HTMLElement] elems)
     | style(list[HTMLElement] elems)
@@ -107,12 +116,13 @@ data HTMLElement
     | time(list[HTMLElement] elems)
     | title(list[HTMLElement] elems)
     | tr(list[HTMLElement] elems)
-    | track(list[HTMLElement] elems)
+    | track()
     | u(list[HTMLElement] elems)
     | ul(list[HTMLElement] elems)
+    | unknownElement(list[HTMLElement] elems) // <1>
     | var(list[HTMLElement] elems)
     | video(list[HTMLElement] elems)
-    | wbr(list[HTMLElement] elems)
+    | wbr()
     | text(str contents)
     ;
 
@@ -172,7 +182,7 @@ data HTMLElement(
     str hreflang  = "",
     str http  = "",
     str icon  = "",
-    str id  = "",
+    str id = "",
     str inlist  = "",
     str ismap  = "",
     str itemid  = "",

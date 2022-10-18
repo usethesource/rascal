@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.Stack;
 
 import javax.swing.text.MutableAttributeSet;
@@ -39,13 +40,19 @@ import io.usethesource.vallang.type.TypeStore;
 public class IO {
     private final IValueFactory factory;
     private final TypeStore store;
+    private final Type HTMLElement;
 
     public IO(IValueFactory factory, TypeStore store) {
         this.factory = factory;
         this.store = store;
+        this.HTMLElement = store.lookupAbstractDataType("HTMLElement");
     }
     
     public IValue readHTMLString(IString string) {
+        if (string.length() == 0) {
+            throw RuntimeExceptionFactory.io("empty HTML document");
+        }
+
         try (Reader reader = new StringReader(string.getValue())) {
             Constructor cons = new Constructor();
             new ParserDelegator().parse(reader, cons, true);
@@ -76,13 +83,15 @@ public class IO {
         }
         
         public IValue getValue() {
+            if (stack.isEmpty()) {
+                throw RuntimeExceptionFactory.io("HTML has unbalanced brackets");
+            }
             return stack.peek().get(0);
         }
         
         @Override
         public void handleStartTag(Tag t, MutableAttributeSet a, int pos) {
             stack.push(new ArrayList<>(1));
-            System.out.println("pushing :" + toString());
             storeAttributes(a);
         }
         
@@ -102,25 +111,54 @@ public class IO {
             java.util.List<IConstructor> kids = stack.pop();
             IValue[] a = new IValue[kids.size()];
             kids.toArray(a);
-            Type cons = store.lookupConstructor(store.lookupAbstractDataType("HTMLElement"), t.toString()).iterator().next();
-            IConstructor node = factory.constructor(cons, factory.list(a));
-            node = node.asWithKeywordParameters().setParameters(attributes.pop());
-            stack.peek().add(node);
+
+            try {   
+                Type cons = store.lookupConstructor(HTMLElement, t.toString()).iterator().next();
+                IConstructor node = cons.getArity() == 1 
+                    ? factory.constructor(cons, factory.list(a))
+                    : factory.constructor(cons)
+                    ;
+                node = node.asWithKeywordParameters().setParameters(attributes.pop());
+                stack.peek().add(node);
+            }
+            catch (NoSuchElementException e) {
+                Type cons = store.lookupConstructor(HTMLElement, "unknownElement").iterator().next();
+                IConstructor node = factory.constructor(cons, a);
+                // drop attributes
+                
+                node = node.asWithKeywordParameters().setParameters(attributes.pop());
+                node = node.asWithKeywordParameters().setParameter("unknownTag", factory.string(t.toString()));
+
+                stack.peek().add(node);
+            }
         }
         
         @Override
         public void handleSimpleTag(Tag t, MutableAttributeSet a, int pos) {
-            Type cons = store.lookupConstructor(store.lookupAbstractDataType("HTMLElement"), t.toString()).iterator().next();
-            IConstructor node = factory.constructor(cons, factory.list());
-            System.out.println(cons);
-            stack.peek().add(node);
+            storeAttributes(a);
+            try {
+                Type cons = store.lookupConstructor(HTMLElement, t.toString()).iterator().next();
+                IConstructor node = cons.getArity() == 1
+                    ? factory.constructor(cons, factory.list())
+                    : factory.constructor(cons)
+                    ;
+                node = node.asWithKeywordParameters().setParameters(attributes.pop());
+                stack.peek().add(node);
+            }
+            catch (NoSuchElementException e) {
+                Type cons = store.lookupConstructor(HTMLElement, "unknownElement").iterator().next();
+                IConstructor node = factory.constructor(cons);
+                
+                node = node.asWithKeywordParameters().setParameters(attributes.pop());
+                node = node.asWithKeywordParameters().setParameter("tag", factory.string(t.toString()));
+                stack.peek().add(node);
+            }
         }
-        
+
         @Override
         public void handleText(char[] data, int pos) {
-            Type cons = store.lookupConstructor(store.lookupAbstractDataType("HTMLElement"), "text").iterator().next();
-            IConstructor node = factory.constructor(cons, factory.string(new java.lang.String(data)));
-           
+            Type cons = store.lookupConstructor(HTMLElement, "text").iterator().next();
+            IConstructor node = factory.constructor(cons, factory.string(new java.lang.String(data)));           
             stack.peek().add(node);
         }
     }
