@@ -161,8 +161,7 @@ public class IO {
         }
         else if (cons.getName().equals("text")) {
             // text nodes are flattened into the element, no recursion required
-            // TODO: what if there are multiple text contents?
-            elem.setTextContent(((IString) cons.get(0)).getValue());
+            elem.appendChild(doc.createTextNode(((IString) cons.get(0)).getValue()));
         }
         else {
             // normal elements require recursion
