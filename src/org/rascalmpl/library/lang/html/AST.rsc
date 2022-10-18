@@ -1,28 +1,29 @@
+@synopsis{Plain Algebraic Datatype for HTML}
 module lang::html::AST
 
 @synopsis{Abstract Syntax for HTML}
 @description{
-This is HTML5 encoded like so:
-* element tags are constructor names of type `HTMLElement`
-* all tags have a list of HTMLElement as children, except the `void` tags that do not have any parameters
-* attributes are keyword parameters of type `str`
-* unknown tags (such as SVG) are mapped to `unknownElement` nodes and their children are not included.
+This is HTML encoded like so:
+* <1> element tags are constructor names of type `HTMLElement`
+* <2> all tags have a list of HTMLElement as children, except the `void` tags that do not have any parameters
+* <3> attributes are keyword parameters of type `str`
+* <4> unknown tags (such as SVG) are mapped to `unknownElement` nodes and their children are not included.
 }
-data HTMLElement
+data HTMLElement // <1>
     = a(list[HTMLElement] elems)
     | abbr(list[HTMLElement] elems)
     | address(list[HTMLElement] elems)
-    | area()
+    | area() // <2>
     | article(list[HTMLElement] elems)
     | aside(list[HTMLElement] elems)
     | audio(list[HTMLElement] elems)
     | b(list[HTMLElement] elems)
-    | base()
+    | base() // <2>
     | bdi(list[HTMLElement] elems)
     | bdo(list[HTMLElement] elems)
     | blockquote(list[HTMLElement] elems)
     | body(list[HTMLElement] elems)
-    | br()
+    | br() // <2>
     | button(list[HTMLElement] elems)
     | canvas(list[HTMLElement] elems)
     | caption(list[HTMLElement] elems)
@@ -119,14 +120,14 @@ data HTMLElement
     | track()
     | u(list[HTMLElement] elems)
     | ul(list[HTMLElement] elems)
-    | unknownElement(list[HTMLElement] elems) // <1>
+    | unknownElement(list[HTMLElement] elems) // <4>
     | var(list[HTMLElement] elems)
     | video(list[HTMLElement] elems)
     | wbr()
     | text(str contents)
     ;
 
-data HTMLElement(
+data HTMLElement( // <3>
     str abbr  = "",
     str about  = "",
     str accept  = "",
