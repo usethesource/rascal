@@ -111,7 +111,7 @@ public class IO {
 
             TransformerFactory tFactory = TransformerFactory.newInstance();
             Transformer transformer = tFactory.newTransformer();
-            DOMSource source = new DOMSource(elem);
+            DOMSource source = new DOMSource(elem.getFirstChild());
             StringWriter writer = new StringWriter();
             StreamResult result = new StreamResult(writer);
             transformer.transform(source, result);
