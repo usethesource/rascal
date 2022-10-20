@@ -18,31 +18,33 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.HTML.Tag;
 import javax.swing.text.html.HTMLEditorKit.ParserCallback;
 import javax.swing.text.html.parser.ParserDelegator;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
+import org.jdom2.Attribute;
+import org.jdom2.Content;
+import org.jdom2.DocType;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Text;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -53,7 +55,10 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 
+
 public class IO {
+    private static final String XHTML_DTD_LOCATION = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd";
+    private static final String XHTML_CONTENT_ID = "-//W3C//DTD XHTML 1.0 Strict//EN";
     private final IValueFactory factory;
     private final TypeStore store;
     private final Type HTMLElement;
@@ -94,35 +99,22 @@ public class IO {
      * Produces a HTML string output from an HTMLElement AST.
      * 
      * Why go through all the trouble of building a DOM? The only reason is compliance.
-     * Escapes, encodings, etc. all are maintained by these classes from org.w3c.dom.
+     * Escapes, encodings, etc. all are maintained by these classes from org.jdom.
      */
     public IString writeHTMLString(IConstructor cons) {
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            // dbf.setSchema(SchemaFactory.newDefaultInstance().newSchema(new URL("http://www.w3.org/1999/xhtml")));
-            
-            Document doc = db.newDocument();
-            
-            Element elem = doc.createElement("html");
-            createDocument(doc, cons, elem);
+        try (StringWriter out = new StringWriter()) {
+            Document doc = createHTMLDocument(cons);
+           
+            new XMLOutputter(Format.getPrettyFormat()).output(doc, out);
 
-            TransformerFactory tFactory = TransformerFactory.newInstance();
-            Transformer transformer = tFactory.newTransformer();
-            DOMSource source = new DOMSource(elem.getFirstChild());
-            StringWriter writer = new StringWriter();
-            StreamResult result = new StreamResult(writer);
-            
-            transformer.transform(source, result);
-
-            return factory.string(writer.toString());
+            return factory.string(out.toString());
         }
-        catch (ParserConfigurationException | TransformerException e) {
+        catch (IOException e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
         }
     }
 
-     /**
+    /**
      * Produces a HTML string output from an HTMLElement AST.
      * 
      * Why go through all the trouble of building a DOM? The only reason is compliance.
@@ -130,57 +122,87 @@ public class IO {
      */
     public void writeHTMLFile(ISourceLocation file, IConstructor cons) {
         try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(file, false)) {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            // dbf.setSchema(SchemaFactory.newDefaultInstance().newSchema(new URL("http://www.w3.org/1999/xhtml")));
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.newDocument();
+            Document doc = createHTMLDocument(cons);
             
-            Element elem = doc.createElement("html");
-            createDocument(doc, cons, elem);
-
-            TransformerFactory tFactory = TransformerFactory.newInstance();
-            Transformer transformer = tFactory.newTransformer();
-            DOMSource source = new DOMSource(elem.getFirstChild());
-            StreamResult result = new StreamResult(out);
-            transformer.transform(source, result);
-
-            return;
-        }
-        catch (ParserConfigurationException | TransformerException e) {
-            throw RuntimeExceptionFactory.io(e.getMessage());
+            new XMLOutputter(Format.getPrettyFormat()).output(doc, out);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
         }
     }
+
+    /**
+     * Translates a constructor tree to a jdom DOM tree, adding nodes where necessary to complete a html element.
+     */
+    private Document createHTMLDocument(IConstructor cons) throws IOException {
+        return new Document(completeDocument(createElement(cons)),
+                new DocType("html", XHTML_CONTENT_ID, XHTML_DTD_LOCATION));
+    }
     
-    private void createDocument(Document doc, IConstructor cons, Node elem) {
-        if (cons.getConstructorType().getArity() == 0) {
-            // nullary node does not require recursion
-            elem.appendChild(createElement(doc, cons));
+    /**
+     * If this is not a complete HTML document, then we add nodes to
+     * wrap it until it is.
+     * @param createElement
+     * @return
+     */
+    private Element completeDocument(Content content) throws IOException {
+        if (content instanceof Element) {
+            Element elem = (Element) content;
+            
+            switch (elem.getName()) {
+                case "html":
+                    return elem;
+                case "body":
+                    return new Element("html").addContent(elem);
+                case "head":
+                    return new Element("html").addContent(elem);
+                case "meta":
+                    return completeDocument(new Element("head").addContent(elem));
+                default:
+                    return completeDocument(new Element("body").addContent(elem));
+            } 
         }
-        else if (cons.getName().equals("text")) {
-            // text nodes are flattened into the element, no recursion required
-            elem.appendChild(doc.createTextNode(((IString) cons.get(0)).getValue()));
+        else if (content instanceof Text) {
+            return completeDocument(new Element("p").addContent(content));
         }
         else {
-            // normal elements require recursion
-            Element e = createElement(doc, cons);
-            elem.appendChild(e);
-
-            for (IValue child : (IList) cons.get(0)) {
-                createDocument(doc, (IConstructor) child, e);
-            }
+            throw new IOException("unknown element encountered");
         }
     }
 
-    private Element createElement(Document doc, IConstructor cons) {
-        Element elem = doc.createElement(cons.getName());
-        Map<String, IValue> params = cons.asWithKeywordParameters().getParameters();
-        for (Entry<String,IValue> entry : params.entrySet()) {
-            elem.setAttribute(entry.getKey(), ((IString) entry.getValue()).getValue());
+    private Content createElement(IConstructor cons) {
+        if (cons.getConstructorType().getArity() == 0) {
+            // nullary nodes do not require recursion
+            return emptyElementWithAttributes(cons);
+        } 
+        else if (cons.getName().equals("text")) {
+            // text nodes are flattened into the parent element, no recursion required
+            return new Text(((IString) cons.get(0)).getValue());
         }
-        return elem;
+        else {
+            // normal elements require recursion
+            Element e = new Element(cons.getName()).setAttributes(createAttributes(cons.asWithKeywordParameters().getParameters()));
+
+            for (IValue child : (IList) cons.get(0)) {
+                e.addContent(createElement((IConstructor) child));
+            }
+
+            return e;
+        }
+    }
+
+    private Element emptyElementWithAttributes(IConstructor cons) {
+        return new Element(cons.getName()).setAttributes(createAttributes(cons.asWithKeywordParameters().getParameters()));
+    }
+
+    private Collection<? extends Attribute> createAttributes(Map<String, IValue> parameters) {
+        Set<Attribute> attributes = new HashSet<>();
+        
+        for (Entry<String,IValue> entry : parameters.entrySet()) {
+            attributes.add(new Attribute(entry.getKey(), ((IString) entry.getValue()).getValue()));
+        }
+
+        return attributes;
     }
 
     private class Constructor extends ParserCallback {
