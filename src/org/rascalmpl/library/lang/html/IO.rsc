@@ -6,6 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@synopsis{Provides read and write functionality for HTMLElements defined in ((lang::html::AST))}
 module lang::html::IO
 
 extend lang::html::AST;
@@ -30,14 +31,14 @@ java HTMLElement readHTMLString(str content);
 @javaClass{org.rascalmpl.library.lang.html.IO}
 @synopsis{Pretty-print the HTMLElement AST to a string}
 @description{
-This function uses w3c's XML DOM functionality to 
+This function uses jdom's XML DOM functionality to 
 yield a syntactically correct XHTML string.
 }
 java str writeHTMLString(HTMLElement dom);
 
 @synopsis{Pretty-print the HTMLElement AST to a string}
 @description{
-This function uses w3c's XML DOM functionality to 
+This function uses jdom's XML DOM functionality to 
 yield a syntactically correct XHTML file.
 }
 @javaClass{org.rascalmpl.library.lang.html.IO}
