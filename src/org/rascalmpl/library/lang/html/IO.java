@@ -143,9 +143,10 @@ public class IO {
      * Escapes, encodings, etc. all are maintained by these classes from org.jdom.
      */
     public IString writeHTMLString(IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax ) {
-        try (StringWriter out = new StringWriter()) {
+        try {
             Document doc = createHTMLDocument(cons);
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
+            
             return factory.string(doc.outerHtml());
         }
         catch (IOException e) {
