@@ -14,33 +14,28 @@ package org.rascalmpl.library.lang.html;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Stack;
-
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.html.HTML.Tag;
-import javax.swing.text.html.HTMLEditorKit.ParserCallback;
-import javax.swing.text.html.parser.ParserDelegator;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.Document.OutputSettings;
+import org.jsoup.nodes.Document.OutputSettings.Syntax;
+import org.jsoup.nodes.Entities.EscapeMode;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -56,12 +51,16 @@ public class IO {
     private final TypeStore store;
     private final Type HTMLElement;
     private final Type textConstructor;
+    private final Type dataConstructor;
+    private final Type htmlConstructor;
 
     public IO(IValueFactory factory, TypeStore store) {
         this.factory = factory;
         this.store = store;
         this.HTMLElement = store.lookupAbstractDataType("HTMLElement");
         this.textConstructor = store.lookupConstructor(HTMLElement, "text").iterator().next();
+        this.dataConstructor = store.lookupConstructor(HTMLElement, "data").iterator().next();
+        this.htmlConstructor = store.lookupConstructor(HTMLElement, "html").iterator().next();
     }
     
     public IValue readHTMLString(IString string) {
@@ -69,18 +68,14 @@ public class IO {
             throw RuntimeExceptionFactory.io("empty HTML document");
         }
 
-        try (Reader reader = new StringReader(string.getValue())) {
-            Constructor cons = new Constructor();
-            new ParserDelegator().parse(reader, cons, true);
-            return cons.getValue();
-        } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(factory.string(e.getMessage()));
-        }
+        Document doc = Jsoup.parse(string.getValue(), "http://localhost");
+            
+        return toConstructorTree(doc);        
     }
 
-    public IValue readHTMLFile(ISourceLocation file, IString encoding) {
+    public IValue readHTMLFile(ISourceLocation file) {
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(file)) {
-            Document doc = Jsoup.parse(reader, encoding.getValue(), file.getURI().toString());
+            Document doc = Jsoup.parse(reader, "UTF-8", file.getURI().toString());
             
             return toConstructorTree(doc);
         } catch (MalformedURLException e) {
@@ -91,13 +86,18 @@ public class IO {
     }
 
     private IValue toConstructorTree(Document doc) {
-        Type cons = store.lookupConstructor(HTMLElement, "html").iterator().next();
-        return factory.constructor(cons, toConstructorTree(doc.head()), toConstructorTree(doc.body()));
+        return factory.constructor(htmlConstructor, factory.list(toConstructorTree(doc.head()), toConstructorTree(doc.body())));
     }
 
     private IValue toConstructorTree(Node node) {
         if (node instanceof TextNode) {
             return toTextConstructor((TextNode) node);
+        }
+        else if (node instanceof DataNode) {
+            return toDataConstructor((DataNode) node);
+        }
+        else {
+            assert node instanceof Element;
         }
         
         Element elem = (Element) node;
@@ -110,11 +110,20 @@ public class IO {
         }
 
         IListWriter w = factory.listWriter();
-        for (Node n : elem.children()) {
+        for (Node n : elem.childNodes()) {
             w.append(toConstructorTree(n));
         }
 
-        return factory.constructor(cons, w.done());
+        if (cons.getArity() > 0) {
+            return factory.constructor(cons, new IValue[] { w.done() }, kws);
+        }
+        else {
+            return factory.constructor(cons, new IValue[0], kws);
+        }
+    }
+
+    private IValue toDataConstructor(DataNode node) {
+        return factory.constructor(dataConstructor, factory.string(node.getWholeData()));
     }
 
     private IValue toTextConstructor(TextNode elem) {
@@ -127,10 +136,10 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from org.jdom.
      */
-    public IString writeHTMLString(IConstructor cons) {
+    public IString writeHTMLString(IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax ) {
         try (StringWriter out = new StringWriter()) {
             Document doc = createHTMLDocument(cons);
-           
+            doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             return factory.string(doc.outerHtml());
         }
         catch (IOException e) {
@@ -144,9 +153,10 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from org.w3c.dom.
      */
-    public void writeHTMLFile(ISourceLocation file, IConstructor cons) {
+    public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax ) {
         try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(file, false)) {
             Document doc = createHTMLDocument(cons);
+            doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             out.write(doc.outerHtml().getBytes("UTF-8"));
         }
         catch (IOException e) {
@@ -154,13 +164,41 @@ public class IO {
         }
     }
 
+    private OutputSettings createOutputSettings(String charset, String escapeMode, boolean outline, boolean prettyPrint, int indentAmount,
+        int maxPaddingWidth, String syntax) {
+        return new OutputSettings()
+            .charset(charset)
+            .escapeMode(EscapeMode.valueOf(escapeMode.replaceAll("Mode", "")))
+            .outline(outline)
+            .prettyPrint(prettyPrint)
+            .indentAmount(indentAmount)
+            .maxPaddingWidth(maxPaddingWidth)
+            .syntax(Syntax.valueOf(syntax.replaceAll("Syntax", "")));
+    }
+
     /**
      * Translates a constructor tree to a jdom DOM tree, adding nodes where necessary to complete a html element.
      */
     private Document createHTMLDocument(IConstructor cons) throws IOException {
         Document doc = new Document("http://localhost");
-        doc.appendChild(createElement(cons));
-        return doc;
+
+        Node node = normalise(cons, createElement(cons));
+        
+        doc.appendChild(node);
+        return doc.normalise();
+    }
+
+    private Node normalise(IConstructor cons, Node elem) {
+        switch (cons.getName()) {
+            case "html":
+                return elem;
+            case "head":
+                return new Element("html").appendChild(elem);
+            case "body":
+                return new Element("html").appendChild(elem);   
+            default:
+                return new Element("html").appendChild(new Element("body").appendChild(elem));
+        }
     }
 
     private Node createElement(IConstructor cons) {
@@ -171,6 +209,10 @@ public class IO {
         else if (cons.getName().equals("text")) {
             // text nodes are flattened into the parent element, no recursion required
             return new TextNode(((IString) cons.get(0)).getValue());
+        }
+        else if (cons.getName().equals("data")) {
+            // data nodes are flattened into the parent element, no recursion required
+            return new DataNode(((IString) cons.get(0)).getValue());
         }
         else {
             // normal elements require recursion
@@ -192,98 +234,5 @@ public class IO {
         }
 
         return elem;
-    }
-
-    private class Constructor extends ParserCallback {
-        private Stack<java.util.List<IConstructor>> stack = new Stack<>();
-        private Stack<java.util.Map<java.lang.String,IValue>> attributes = new Stack<>();
-        
-        public Constructor() {
-            stack.push(new ArrayList<>(1));
-        }
-        
-        public IValue getValue() {
-            if (stack.isEmpty()) {
-                throw RuntimeExceptionFactory.io("HTML has unbalanced brackets");
-            }
-            return stack.peek().get(0);
-        }
-        
-        @Override
-        public void handleStartTag(Tag t, MutableAttributeSet a, int pos) {
-            stack.push(new ArrayList<>(1));
-            storeAttributes(a);
-        }
-        
-        private void storeAttributes(MutableAttributeSet set) {
-            attributes.push(new HashMap<java.lang.String,IValue>());
-            for (Enumeration<?> names = set.getAttributeNames(); names.hasMoreElements(); ) {				
-                Object label = names.nextElement();
-                Object value = set.getAttribute(label);
-                if (!"_implied_".equals(label)) {
-                    // _implied_ is used as a dummy attribute by the EditorKit HTML parser
-                    // that we are using here. It leaks a bit and so we ignore it here.
-                    attributes.peek().put(label.toString(), factory.string(value.toString()));
-                }
-            }
-        }
-
-        @Override
-        public void handleEndTag(Tag t, int pos) {
-            java.util.List<IConstructor> kids = stack.pop();
-            IValue[] a = new IValue[kids.size()];
-            kids.toArray(a);
-
-            try {   
-                Type cons = store.lookupConstructor(HTMLElement, t.toString()).iterator().next();
-                System.out.println("cons: " + cons);
-                IConstructor node = cons.getArity() == 1 
-                    ? factory.constructor(cons, factory.list(a))
-                    : factory.constructor(cons)
-                    ;
-                node = node.asWithKeywordParameters().setParameters(attributes.pop());
-                System.out.println("node: " + node);
-                stack.peek().add(node);
-            }
-            catch (NoSuchElementException e) {
-                Type cons = store.lookupConstructor(HTMLElement, "unknownElement").iterator().next();
-                IConstructor node = factory.constructor(cons, a);
-                // drop attributes
-                
-                node = node.asWithKeywordParameters().setParameters(attributes.pop());
-                node = node.asWithKeywordParameters().setParameter("unknownTag", factory.string(t.toString()));
-
-                stack.peek().add(node);
-            }
-        }
-        
-        @Override
-        public void handleSimpleTag(Tag t, MutableAttributeSet a, int pos) {
-            storeAttributes(a);
-            try {
-                Type cons = store.lookupConstructor(HTMLElement, t.toString()).iterator().next();
-                IConstructor node = cons.getArity() == 1
-                    ? factory.constructor(cons, factory.list())
-                    : factory.constructor(cons)
-                    ;
-                node = node.asWithKeywordParameters().setParameters(attributes.pop());
-                stack.peek().add(node);
-            }
-            catch (NoSuchElementException e) {
-                Type cons = store.lookupConstructor(HTMLElement, "unknownElement").iterator().next();
-                IConstructor node = factory.constructor(cons);
-                
-                node = node.asWithKeywordParameters().setParameters(attributes.pop());
-                node = node.asWithKeywordParameters().setParameter("tag", factory.string(t.toString()));
-                stack.peek().add(node);
-            }
-        }
-
-        @Override
-        public void handleText(char[] data, int pos) {
-            Type cons = store.lookupConstructor(HTMLElement, "text").iterator().next();
-            IConstructor node = factory.constructor(cons, factory.string(new java.lang.String(data)));           
-            stack.peek().add(node);
-        }
     }
 }
