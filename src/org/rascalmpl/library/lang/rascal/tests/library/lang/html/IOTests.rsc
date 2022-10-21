@@ -1,6 +1,7 @@
 module lang::rascal::tests::library::lang::html::IOTests
 
 import lang::html::IO;
+import String;
 
 private loc exampleHTML = |project://rascal/src/org/rascalmpl/library/lang/html/examples/example.html|;
 
@@ -12,9 +13,3 @@ test bool partialDocumentsAreCompletedOnRead()
 
 test bool partialDocumentsAreCompletedOnWrite() 
     = /html/ := writeHTMLString(p([text("paragraaf")]));
-
-test bool roundtripExample() {
-    HTMLElement tested = readHTMLFile(|project://rascal/src/org/rascalmpl/library/lang/html/examples/example.html|);
-    
-    return readHTMLString(writeHTMLString(tested)) == tested;
-}
