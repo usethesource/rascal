@@ -6,8 +6,9 @@ module lang::html::AST
 This is HTML encoded like so:
 * <1> element tags are constructor names of type `HTMLElement`
 * <2> all tags have a list of HTMLElement as children, except the `void` tags that do not have any parameters
-* <3> attributes are keyword parameters of type `str`
-* <4> unknown tags (such as SVG) are mapped to `unknownElement` nodes and their children are not included.
+* <3> text nodes and data nodes (which are invisible in HTML) have the \data or text constructor
+* <4> attributes are keyword parameters of type `str`
+* <5> unknown tags (such as SVG) are mapped to `unknownElement` nodes and their children are not included.
 }
 data HTMLElement // <1>
     = a(list[HTMLElement] elems)
@@ -32,7 +33,7 @@ data HTMLElement // <1>
     | col()
     | colgroup(list[HTMLElement] elems)
     | command()
-    | \data(list[HTMLElement] elems)
+    | \data(str dataContent)    // <3>
     | datalist(list[HTMLElement] elems)
     | dd(list[HTMLElement] elems)
     | del(list[HTMLElement] elems)
@@ -110,6 +111,7 @@ data HTMLElement // <1>
     | tbody(list[HTMLElement] elems)
     | td(list[HTMLElement] elems)
     | template(list[HTMLElement] elems)
+    | text(str contents)                     // <3>
     | textarea(list[HTMLElement] elems)
     | tfoot(list[HTMLElement] elems)
     | th(list[HTMLElement] elems)
@@ -120,14 +122,14 @@ data HTMLElement // <1>
     | track()
     | u(list[HTMLElement] elems)
     | ul(list[HTMLElement] elems)
-    | unknownElement(list[HTMLElement] elems) // <4>
+    | unknownElement(list[HTMLElement] elems) // <5>
     | var(list[HTMLElement] elems)
     | video(list[HTMLElement] elems)
     | wbr()
-    | text(str contents)
+    
     ;
 
-data HTMLElement( // <3>
+data HTMLElement( // <4>
     str abbr  = "",
     str about  = "",
     str accept  = "",
