@@ -392,9 +392,14 @@
                 <version>1.31</version>
             </dependency>
             <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>1.15.3</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom2</artifactId>
-                <version>2.0.6</version>
+                <version>2.0.6.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
