@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
@@ -41,6 +42,7 @@ import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -833,6 +835,20 @@ public class URIResolverRegistry {
 		else {
 			return res;
 		}
+	}
+
+	/**
+	 * Return a character Writer for the given uri, using the given character encoding.
+	 * 
+	 * @param uri       file to write to or append to
+	 * @param encoding  how to encode individual characters @see Charset
+	 * @param append    whether to append or start at the beginning.
+	 * @return
+	 * @throws IOException 
+	 */
+	public Writer getCharacterWriter(ISourceLocation uri, String encoding, boolean append) throws IOException {
+		uri = safeResolve(uri);
+		return new UnicodeOutputStreamWriter(getOutputStream(uri, append), encoding);
 	}
 
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
