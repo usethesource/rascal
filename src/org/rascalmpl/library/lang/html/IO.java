@@ -15,10 +15,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.xml.transform.URIResolver;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
@@ -157,10 +160,11 @@ public class IO {
      * Escapes, encodings, etc. all are maintained by these classes from org.w3c.dom.
      */
     public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax ) {
-        try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(file, false)) {
+        
+        try (Writer out = URIResolverRegistry.getInstance().getCharacterWriter(file, charset.getValue(), false)) {
             Document doc = createHTMLDocument(cons);
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
-            out.write(doc.outerHtml().getBytes("UTF-8"));
+            out.write(doc.outerHtml());
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
