@@ -29,7 +29,7 @@ data HTMLSyntax
 This function uses [JSoup's](http://www.jsoup.org) HTML parser which is robust
 against errors in the HTML, and complete in the sense that it supports all of HTML.
 }
-java HTMLElement readHTMLFile(loc file);
+java HTMLElement readHTMLFile(loc file, loc base=file);
 
 @synopsis{Parse a HTML string and return an HTMLElement AST}
 @description{
@@ -37,7 +37,7 @@ This function uses [JSoup's](http://www.jsoup.org) HTML parser which is robust
 against errors in the HTML, and complete in the sense that it supports all of HTML.
 }
 @javaClass{org.rascalmpl.library.lang.html.IO}
-java HTMLElement readHTMLString(str content);
+java HTMLElement readHTMLString(str content, loc base=|http://localhost|);
 
 @javaClass{org.rascalmpl.library.lang.html.IO}
 @synopsis{Pretty-print the HTMLElement AST to a string}

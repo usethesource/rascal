@@ -30,6 +30,8 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.nodes.Document.OutputSettings;
 import org.jsoup.nodes.Document.OutputSettings.Syntax;
 import org.jsoup.nodes.Entities.EscapeMode;
+import org.jsoup.parser.ParseSettings;
+import org.jsoup.parser.Parser;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 
@@ -63,19 +65,20 @@ public class IO {
         this.htmlConstructor = store.lookupConstructor(HTMLElement, "html").iterator().next();
     }
     
-    public IValue readHTMLString(IString string) {
+    public IValue readHTMLString(IString string, ISourceLocation base) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty HTML document");
         }
 
-        Document doc = Jsoup.parse(string.getValue(), "http://localhost");
+        Document doc = Jsoup.parse(string.getValue(), base.getURI().toString());
             
         return toConstructorTree(doc);        
     }
 
-    public IValue readHTMLFile(ISourceLocation file) {
+    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base) {
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(file)) {
-            Document doc = Jsoup.parse(reader, "UTF-8", file.getURI().toString());
+            Parser htmlParser = Parser.htmlParser().settings(new ParseSettings(false, false));
+            Document doc = Jsoup.parse(reader, "UTF-8", base.getURI().toString(), htmlParser);
             
             return toConstructorTree(doc);
         } catch (MalformedURLException e) {
