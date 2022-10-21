@@ -1,12 +1,9 @@
-@doc{
-#### Synopsis
-
-AST model for HTML5 including pretty printer
-}
+@synopsis{DOM-based AST model for HTML5 including pretty printer}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::html5::DOM
 
 import List;
+import Content;
 
 data HTML5Node = html5node(str name, list[value] kids);
 data HTML5Attr = html5attr(str name, value val);
@@ -428,13 +425,17 @@ str nodeToString(str n, set[HTML5Attr] attrs, list[value] kids) {
       return s;
 }
   
-public HTML5Node example 
+private HTML5Node example 
   = html(head(title("something")), body(
       ul(li("bla"), 
           li("foo", 3, img(href("someref"))))));
-  
+
+@synopsis{pretty print HTML5Node DOM to a string}
 str toString(HTML5Node x) {
   attrs = { k | HTML5Attr k <- x.kids };
   kids = [ k | value k <- x.kids, !(HTML5Attr _ := k) ];
   return nodeToString(x.name, attrs, kids); 
 }
+
+@synopsis{convenience function to render the HTML5Node dom tree in the browser}
+public Content serve(HTML5Node x) = html(toString(x));

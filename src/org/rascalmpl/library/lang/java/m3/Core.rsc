@@ -117,7 +117,7 @@ M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includeJa
     registerProject(project, result);
     
     if (includeJarModels) {
-      results = composeJavaM3(project, {result, *{createM3FromJar(j, classPaths) |  j <- classPaths}});
+      results = composeJavaM3(project, {result, *{createM3FromJar(j, classPath=classPaths) |  j <- classPaths}});
     }
     
     return result;
@@ -141,7 +141,7 @@ M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includ
     registerProject(project, result);
     
     if (includeJarModels) {
-      results = composeJavaM3(project, {result, *{createM3FromJar(j, classPaths) |  j <- classPaths}});
+      results = composeJavaM3(project, {result, *{createM3FromJar(j, classPath=classPaths) |  j <- classPaths}});
     }
     
     return result;
