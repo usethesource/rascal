@@ -94,7 +94,7 @@ Else the same method of deciding the character set is used as in ((readFile)).
 *  The same encoding pitfalls as the ((readFile)) function.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java void appendToFile(loc file, value V...)
+public java void appendToFile(loc file, value V..., str charset="UTF-8")
 throws PathNotFound, IO;
 
 @doc{
@@ -113,9 +113,9 @@ Append a textual representation of some values to an existing or a newly created
 
 Files are encoded using the charset provided.
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java void appendToFileEnc(loc file, str charset, value V...)
-throws PathNotFound, IO;
+@deprecated{Use `appendToFile(file, charset="UTF-8")` instead.}
+public void appendToFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
+  = appendToFile(file, V, charset=charset);
 
 @doc{
 #### Synopsis
@@ -254,7 +254,7 @@ iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java void iprintToFile(loc file, value arg); 
+public java void iprintToFile(loc file, value arg, str charset="UTF-8"); 
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str iprintToString(value arg);
@@ -619,22 +619,17 @@ the first 32 bytes of the file are not valid UTF-8.
 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str readFile(loc file)
+public java str readFile(loc file, str charset="UTF-8")
 throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
-
-Read the contents of a location and return it as string value.
-
-#### Description
-
+@synopsis{Read the contents of a location and return it as string value.}
+@description{
 Return the contents (decoded using the Character set supplied) of a file location as a single string.
 Also see ((readFileLinesEnc)).
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java str readFileEnc(loc file, str charset)
-throws PathNotFound, IO;
+@deprecated{Use `readFile(file, charset="UTF-8")` instead.}
+public str readFileEnc(loc file, str charset) throws PathNotFound, IO
+  = readFile(file, charset=charset);
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str readBase64(loc file)
@@ -681,7 +676,7 @@ Look at ((readFile)) to understand how this function chooses the character set. 
   you might get an decoding error or just strange looking characters (see ((readFile))).
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[str] readFileLines(loc file)
+public java list[str] readFileLines(loc file, str charset="UTF-8")
 throws PathNotFound, IO;
 
 @synopsis{Writes a list of strings to a file, where each separate string is ended with a newline}
@@ -691,24 +686,21 @@ throws PathNotFound, IO;
 @pitfalls{
   * if the individual elements of the list also contain newlines, the output may have more lines than list elements
 }
-public void writeFileLines(loc file, list[str] lines) {
+public void writeFileLines(loc file, list[str] lines, str charset="UTF-8") {
   writeFile(file, "<for (str line <- lines) {><line>
-                  '<}>");
+                  '<}>",
+                  charset=charset);
 }
 
-@doc{
-#### Synopsis
-
-Read the contents of a file location and return it as a list of strings.
-
-#### Description
-
+@synopsis{Read the contents of a file location and return it as a list of strings.}
+@description{
 Return the contents (decoded using the Character set supplied) of a file location as a list of lines.
 Also see ((readFileLines)).
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java list[str] readFileLinesEnc(loc file, str charset)
-throws PathNotFound, IO;
+@deprecated{Use `readFileLines(file, charset="UTF-8")` instead.}
+public list[str] readFileLinesEnc(loc file, str charset)
+throws PathNotFound, IO
+  = readFileLines(file, charset=charset);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
@@ -731,14 +723,10 @@ Write a textual representation of some values to a file:
 Files are encoded in UTF-8, in case this is not desired, use ((writeFileEnc)).
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java void writeFile(loc file, value V...)
+public java void writeFile(loc file, value V..., str charset="UTF-8")
 throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
-
-Write a list of bytes to a file.
-}
+@synopsis{Write a list of bytes to a file.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeFileBytes(loc file, list[int] bytes)
 throws PathNotFound, IO;
@@ -759,9 +747,9 @@ Write a textual representation of some values to a file:
 
 Files are encoded using the charset provided.
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java void writeFileEnc(loc file, str charset, value V...)
-throws PathNotFound, IO;
+@deprecated{Use `writeFile(file, charset="UTF-8")` instead.}
+public void writeFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
+  = writeFile(file, V, charset=charset);
 
 @doc{
 #### Synopsis
