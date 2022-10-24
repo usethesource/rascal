@@ -931,13 +931,13 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void iprintToFile(ISourceLocation sloc, IValue arg) {
+	public void iprintToFile(ISourceLocation sloc, IValue arg, IString charset) {
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		StringWriter sw = new StringWriter();
 
 		try {
 			w.write(arg, sw);
-			writeFile(sloc, values.list(values.string(sw.toString())));
+			writeFile(sloc, values.list(values.string(sw.toString())), charset);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
 		}
@@ -1119,31 +1119,21 @@ public class Prelude {
 		return w.done();
 	} 
 	
-	public IString readFile(ISourceLocation sloc){
-	    return readFile(values, trackIO, sloc);
+	public IString readFile(ISourceLocation sloc, IString charset, IBool inferCharset) {
+	    return readFile(values, trackIO, sloc, charset.getValue(), inferCharset.getValue());
 	}
 	
-	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc){
+	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc, String charset, boolean inferCharset){
 		if(trackIO) System.err.println("readFile: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
+
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+
+		try (Reader reader = inferCharset ? reg.getCharacterReader(sloc) : reg.getCharacterReader(sloc, charset);){
 			return values.string(consumeInputStream(reader));
 		} 
 		catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
-	}
-	
-	public IString readFileEnc(ISourceLocation sloc, IString charset){
-		if(trackIO) System.err.println("readFileEnc: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
-			return values.string(consumeInputStream(reader));
-		} 
-		catch (FileNotFoundException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc);
-		} 
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
@@ -1271,22 +1261,19 @@ public class Prelude {
 	        setLastModified(sloc, System.currentTimeMillis());
 	    }
 	    else {
-	        writeFile(sloc, values.list(values.string("")));
+	        writeFile(sloc, values.list(values.string("")), values.string("UTF-8"));
 	    }
 	}
 	
-	public void writeFile(ISourceLocation sloc, IList V) {
-		writeFile(sloc, V, false);
+	public void writeFile(ISourceLocation sloc, IList V, IString charset) {
+		writeFile(sloc, V, false, charset, values.bool(false));
 	}
 	
-	public void writeFileEnc(ISourceLocation sloc, IString charset, IList V) {
-		writeFileEnc(sloc, charset, V, false);
-	}
-	
-	private void writeFile(ISourceLocation sloc, IList V, boolean append){
+	private void writeFile(ISourceLocation sloc, IList V, boolean append, IString charset, IBool inferCharset){
 		if(trackIO) System.err.println("writeFile: " + sloc);
-		IString charset = values.string("UTF8");
-		if (append) {
+	
+		// if inferCharset we overwrite the given charset (which is usually the default in that case)
+		if (append && inferCharset.getValue()) {
 			charset = detectCharSet(sloc);
 		}
 		
@@ -1425,17 +1412,13 @@ public class Prelude {
 		return;
 	}
 	
-	public void appendToFile(ISourceLocation sloc, IList V){
-		writeFile(sloc, V, true);
+	public void appendToFile(ISourceLocation sloc, IList V, IString charset, IBool inferCharset){
+		writeFile(sloc, V, true, charset, inferCharset);
 	}
 	
-	public void appendToFileEnc(ISourceLocation sloc, IString charset, IList V){
-		writeFileEnc(sloc, charset, V, true);
-	}
-	
-	public IList readFileLines(ISourceLocation sloc){
+	public IList readFileLines(ISourceLocation sloc, IString charset){
 		if(trackIO) System.err.println("readFileLines: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc)) {
+		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())) {
 			return consumeInputStreamLines(reader);
 		}
 		catch (MalformedURLException e) {
@@ -1449,22 +1432,6 @@ public class Prelude {
 		} 
 	}
 	
-	public IList readFileLinesEnc(ISourceLocation sloc, IString charset){
-		if(trackIO) System.err.println("readFileLinesEnc: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc,charset.getValue())) {
-			return consumeInputStreamLines(reader);
-		}
-		catch (MalformedURLException e) {
-		    throw RuntimeExceptionFactory.malformedURI(sloc.toString());
-		}
-		catch (FileNotFoundException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc);
-		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
-	}
-
 	private IList consumeInputStreamLines(Reader in) throws IOException {
 		try (BufferedReader buf = new BufferedReader(in)) {
 			String line = null;
@@ -3542,7 +3509,18 @@ public class Prelude {
 			return values.integer(f.length());
 		}
 		else {
-			return values.integer(((IString) readFile(g)).getValue().getBytes().length);
+			try (InputStream in = URIResolverRegistry.getInstance().getInputStream(g)) {
+				long total = 0;
+				byte[] buffer = new byte[2048];
+				int block;
+				while ((block = in.read(buffer)) != -1) {
+					total += block;
+				}
+				return values.integer(total);
+			}
+			catch (IOException e) {
+				throw RuntimeExceptionFactory.io(e.getMessage());
+			}
 		}
 	}
 	
