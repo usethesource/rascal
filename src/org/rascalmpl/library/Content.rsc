@@ -109,14 +109,14 @@ data Response
 
 Utility to quickly render a string as HTML content
 }  
-Response response(str content)                    = response(ok(), "text/html", (), content);
+Response response(str content, map[str,str] header = ()) = response(ok(), "text/html", header, content);
 
 @doc{
 #### Synopsis
 
 Utility to quickly report an HTTP error with a user-defined message
 }
-Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
+Response response(Status status, str explanation, map[str,str] header = ()) = response(status, "text/plain", header, explanation);
 
 @doc{
 #### Synopsis
@@ -130,7 +130,7 @@ Response plain(str text) = response(ok(), "text/plain", (), text);
 
 Utility to serve a file from any source location.
 }
-Response response(loc f)                          = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
+Response response(loc f, map[str,str] header = ()) = fileResponse(f, mimeTypes[f.extension]?"text/plain", header);
 
 @doc{
 #### Synopsis
