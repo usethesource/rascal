@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2015 CWI
+  Copyright (c) 2009-2022 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -10,13 +10,8 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@doc{
-#### Synopsis
-
-Library functions for input/output.
-
-#### Description
-
+@synopsis{Library functions for input/output.}
+@description{
 The following input/output functions are defined:
 (((TOC)))
 }
@@ -24,13 +19,8 @@ module IO
 
 import Exception;
 
-@doc{
-#### Synopsis
-
-register a logical file scheme including the resolution method via a table.
-
-#### Description
-
+@synopsis{Register a logical file scheme including the resolution method via a table.}
+@description{
 Logical source location schemes, such as `|java+interface://JRE/java/util/List|` are used for
 precise qualified names of artifacts while abstracting from their physical location in a specific part
 of a file on disk or from some webserver or source repository location.
@@ -38,15 +28,12 @@ of a file on disk or from some webserver or source repository location.
 Using this function you can create your own schemes. The authority field is used for scoping the 
 names you wish to resolve to certain projects. This way one name can resolve to different locations 
 in different projects.
-
-
-#### Benefits
-
+}
+@benefits{
 *  Logical source locations are supported by IDE features such as hyperlinks
 *  Logical source locations are supported by all IO functions as well
-
-#### Pitfalls
-
+}
+@pitfalls{
 *  repeated calls to registerLocations for the same `scheme` and `authority` will overwrite the `m` map.
 *  the registry is an intentional memory leak; so make sure you use it wisely.
 *  when the files references by the physical locations are being written to (edited, removed), then you
@@ -55,13 +42,8 @@ may expect problems. The registry is not automatically invalidated.
 @javaClass{org.rascalmpl.library.Prelude}
 java void registerLocations(str scheme, str authority, map[loc logical, loc physical] m);
 
-@doc{
-#### Synopsis
-
-undo the effect of [registerLocations]
-
-#### Description
-
+@doc{Undo the effect of ((registerLocations))}
+@description{
 For debugging or for memory management you may wish to remove a lookup table.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -70,13 +52,8 @@ java void unregisterLocations(str scheme, str authority);
 @javaClass{org.rascalmpl.library.Prelude}
 java loc resolveLocation(loc l);
 
-@doc{
-#### Synopsis
-
-Append a value to a file.
-
-#### Description
-
+@synopsis{Append a value to a file.}
+@description{
 Append a textual representation of some values to an existing or a newly created file:
 
 *  If a value is a simple string, the quotes are removed and the contents are de-escaped.
@@ -84,26 +61,18 @@ Append a textual representation of some values to an existing or a newly created
 *  All other values are printed as-is.
 *  Each value is terminated by a newline character.
 
-#### Encoding
-
 The existing file can be stored using any character set possible, if you know the character set, please use ((appendToFileEnc)).
 Else the same method of deciding the character set is used as in ((readFile)).
-
-#### Pitfalls
-
+}
+@pitfalls{
 *  The same encoding pitfalls as the ((readFile)) function.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void appendToFile(loc file, value V..., str charset="UTF-8")
 throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
-
-Append a value to a file.
-
-#### Description
-
+@synopsis{Append a value to a file.}
+@description{
 Append a textual representation of some values to an existing or a newly created file:
 
 *  If a value is a simple string, the quotes are removed and the contents are de-escaped.
@@ -113,39 +82,24 @@ Append a textual representation of some values to an existing or a newly created
 
 Files are encoded using the charset provided.
 }
-@deprecated{Use `appendToFile(file, charset="UTF-8")` instead.}
+@deprecated{Use `appendToFile(file, V, charset="UTF-8")` instead.}
 public void appendToFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
   = appendToFile(file, V, charset=charset);
 
-@doc{
-#### Synopsis
-
-Returns all available character sets.
-}
+@synopsis{Returns all available character sets.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[str] charsets();
 
-@doc{
-#### Synopsis
-
-Returns whether this charset can be used for encoding (use with ((writeFile)))
-}
+@synopsis{Returns whether this charset can be used for encoding (use with ((writeFile)))}
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[str] canEncode(str charset);
 
-
-@doc{
-#### Synopsis
-
-Print a value and return true.
-
-#### Description
-
+@synopsis{Print a value and return true.}
+@description{
 Print a value and return `true`. This is useful for debugging complex Boolean expressions or comprehensions.
 The only difference between this function and ((IO-println)) is that its return type is `bool` rather than `void`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 bprintln("Hello World");
@@ -157,20 +111,14 @@ public bool bprintln(value arg)
   return true;
 }
 
-@doc{
-#### Synopsis
-
-Check whether a given location exists.
-
-#### Description
-
-Check whether a certain location exists, i.e., whether an actual file is associated with it.
-
-#### Examples
+@synopsis{Check whether a given location exists.}
+@description{Check whether a certain location exists, i.e., whether an actual file is associated with it.}
+@examples{
 
 ```rascal-shell
 import IO;
 ```
+
 Does the library file `IO.rsc` exist?
 ```rascal-shell,continue
 exists(|std:///IO.rsc|);
@@ -180,13 +128,8 @@ exists(|std:///IO.rsc|);
 public java bool exists(loc file);
 
 
-@doc{
-#### Synopsis
-
-Find a named file in a list of locations.
-
-#### Examples
-
+@synopsis{Find a named file in a list of locations.}
+@examples{
 ```rascal-shell
 import IO;
 ```
@@ -202,31 +145,20 @@ public loc find(str name, list[loc] path) throws PathNotFound {
   throw PathNotFound({dir + "/<name>" | dir <- path});
 }
 
-@doc{
-#### Synopsis
-
-Check whether a given location is a directory.
-
-#### Description
-
+@synopsis{Check whether a given location is a directory.}
+@description{
 Check whether the location `file` is a directory.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isDirectory(loc file);
 
-@doc{
-#### Synopsis
-
-Print an indented representation of a value.
-
-#### Description
-
+@synopsis{Print an indented representation of a value.}
+@description{
 See ((IO-iprintExp)) for a version that returns its argument as result
 and ((IO-iprintln)) for a version that adds a newline
 and ((IO-iprintToFile)) for a version that prints to a file.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
@@ -235,19 +167,13 @@ iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprint(value arg, int lineLimit = 1000); 
 
-@doc{
-#### Synopsis
-
-Print an indented representation of a value to the specified location.
-
-#### Description
-
+@synopsis{Print an indented representation of a value to the specified location.}
+@description{
 See ((IO-iprint)) for a version that displays the result on the console
 and ((IO-iprintExp)) for a version that returns its argument as result
 and ((IO-iprintln)) for a version that adds a newline.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
