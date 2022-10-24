@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2015 CWI
+  Copyright (c) 2009-2022 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
+@contributor{Jurgen Vinju - Jurgen.Vinju@cwi.nl (CWI)}
 
 @synopsis{Functions for reading and writing XML files to and from a "DOM" representation.}
 @description{
@@ -38,7 +39,7 @@ import Node;
 Datatypes for representing an instance of the DOM.
 }
 
-data Node 
+data Node(map[str key, str val] attrs = ()) 
     = document(Node root)
     | attribute(Namespace namespace, str name, str text)
 	  | element(Namespace namespace, str name, list[Node] children)
@@ -55,14 +56,12 @@ data Namespace
      | none()
      ;
 
-anno map[str key,str val] node@attrs; 
-
 public value implode(document(Node root)) = implode(root);
 public value implode(element(Namespace _, str name, list[Node] kids)) {
   result = name ([implode(e) | e <- kids, !(e is attribute)]);
   
   if (attribute(_,_,_) <- kids) 
-    result@attrs = (k:v | attribute(_,k,v) <- kids);
+    result.attrs = (k:v | attribute(_,k,v) <- kids);
   
   return result;
 }

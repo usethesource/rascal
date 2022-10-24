@@ -61,9 +61,9 @@ void run_evaltree17(int max) {
 }
 
 int main(int max) {
-  println("evalsym17(<max>): <cpuTime( () { run_evalsym17(max); }) / (1000 * 1000)> msec");
-  println("evalexp17(<max>): <cpuTime( () { run_evalexp17(max); })  / (1000 * 1000)> msec");
-  println("evaltree17(<max>): <cpuTime( () { run_evaltree17(max); })  / (1000 * 1000)> msec");
+  println("evalsym17(<max>): <cpuTimeOf( () { run_evalsym17(max); }) / (1000 * 1000)> msec");
+  println("evalexp17(<max>): <cpuTimeOf( () { run_evalexp17(max); })  / (1000 * 1000)> msec");
+  println("evaltree17(<max>): <cpuTimeOf( () { run_evaltree17(max); })  / (1000 * 1000)> msec");
   return 0;
 }
   
