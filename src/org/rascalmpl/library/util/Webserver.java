@@ -210,7 +210,7 @@ public class Webserver {
             private IString getRawContent(Map<String, String> parms, String contentParamName) throws URISyntaxException {
                 String path = parms.get(contentParamName);
                 if (path != null && !path.isEmpty()) {
-                    return Prelude.readFile(vf, false, URIUtil.createFileLocation(path));
+                    return Prelude.readFile(vf, false, URIUtil.createFileLocation(path), "UTF-8", true);
                 }
                 else {
                     // empty content is a valid response.
