@@ -84,13 +84,13 @@ jobs:
         run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=4' test
 
       - uses: codecov/codecov-action@v2
-        continue-on-error: true # sometimes this one fails, that should stop a build
+        continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
           token: e8b4481a-d178-4148-a4ff-502906390512
 
       - name: Publish Test Report on github action
         if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
-        continue-on-error: true # sometimes this one fails, that should stop a build
+        continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         uses: scacap/action-surefire-report@v1
         with:
           check_name: "Test Report - ${{ runner.os }}"
