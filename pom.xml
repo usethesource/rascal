@@ -157,13 +157,14 @@
                                 <goal>package</goal>
                             </goals>
                         </execution>
-                        <execution>
+                        <!--<execution> commented because tutor bootstrap is broken due to the changes to IO and not having configured the classloader of the Tutor REPL 
                             <id>default-cli</id> 
                             <phase>compile</phase>
                             <goals>
                                 <goal>tutor</goal>
                             </goals>
                             <configuration>
+                                <enableStandardLibrary>false</enableStandardLibrary>
                                 <errorsAsWarnings>false</errorsAsWarnings>
                                 <bin>${project.build.outputDirectory}</bin>
                                 <srcs>
@@ -182,7 +183,7 @@
                                     <src>${project.basedir}/src/org/rascalmpl/library</src>
                                 </srcs>
                             </configuration>
-                        </execution>
+                        </execution> -->
                     </executions>
                 </plugin> 
                 <plugin>
