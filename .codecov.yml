@@ -1,3 +1,11 @@
 coverage:
   precision: 0
-
+  status:
+    project:
+      default:
+        # basic
+        target: auto
+        threshold: 1% # we accept a bit fluctuation, as we run random tests
+        base: auto 
+        paths: 
+          - "src"
