@@ -1411,7 +1411,7 @@ public class Prelude {
 		return;
 	}
 	
-	public void appendToFile(ISourceLocation sloc, IList V, IString charset){
+	public void appendToFile(ISourceLocation sloc, IList V, IString charset, IBool inferCharset){
 		writeFile(sloc, V, true, charset);
 	}
 	
