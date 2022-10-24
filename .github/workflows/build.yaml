@@ -83,7 +83,7 @@ jobs:
         # single quotes to help windows deal with argument splitting
         run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=4' test
 
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
           token: e8b4481a-d178-4148-a4ff-502906390512
