@@ -1119,13 +1119,16 @@ public class Prelude {
 		return w.done();
 	} 
 	
-	public IString readFile(ISourceLocation sloc, IString charset) {
-	    return readFile(values, trackIO, sloc, charset.getValue());
+	public IString readFile(ISourceLocation sloc, IString charset, IBool inferCharset) {
+	    return readFile(values, trackIO, sloc, charset.getValue(), inferCharset.getValue());
 	}
 	
-	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc, String charset){
+	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc, String charset, boolean inferCharset){
 		if(trackIO) System.err.println("readFile: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset);){
+
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+
+		try (Reader reader = inferCharset ? reg.getCharacterReader(sloc) : reg.getCharacterReader(sloc, charset);){
 			return values.string(consumeInputStream(reader));
 		} 
 		catch(FileNotFoundException e){
