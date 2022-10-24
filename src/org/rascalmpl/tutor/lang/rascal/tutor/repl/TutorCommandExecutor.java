@@ -22,6 +22,7 @@ import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
+import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -43,6 +44,7 @@ public class TutorCommandExecutor {
                 Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
                 eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
                 eval.setMonitor(services);
+                eval.addClassLoader(new SourceLocationClassLoader(pcfg.getClassloaders(), System.class.getClassLoader()));
                 return eval;
             }
         };
