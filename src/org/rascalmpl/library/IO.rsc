@@ -71,7 +71,7 @@ Else the same method of deciding the character set is used as in ((readFile)).
 *  The same encoding pitfalls as the ((readFile)) function.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java void appendToFile(loc file, value V..., str charset=DEFAULT_CHARSET)
+public java void appendToFile(loc file, value V..., str charset=DEFAULT_CHARSET, bool inferCharset=!(charset?))
 throws PathNotFound, IO;
 
 @synopsis{Append a value to a file.}
