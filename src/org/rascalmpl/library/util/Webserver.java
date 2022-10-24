@@ -160,15 +160,15 @@ public class Webserver {
                     case GET:
                         return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
                     case PUT:
-                        return vf.constructor(put, new IValue[]{vf.string(path), getContent(files, "content", "UTF-8")}, kws);
+                        return vf.constructor(put, new IValue[]{vf.string(path), getContent(files, "content")}, kws);
                     case POST:
-                        return vf.constructor(post, new IValue[]{vf.string(path), getContent(files, "postData", "UTF-8")}, kws);
+                        return vf.constructor(post, new IValue[]{vf.string(path), getContent(files, "postData")}, kws);
                     default:
                         throw new IOException("Unhandled request " + method);
                 }
             }
 
-            protected IValue getContent(Map<String, String> parms, String contentParamName, String charset) throws IOException {
+            protected IValue getContent(Map<String, String> parms, String contentParamName) throws IOException {
                 return vf.function(functionType, (argValues, keyArgValues) -> {
                     try {
                         TypeStore store = new TypeStore();
@@ -176,7 +176,7 @@ public class Webserver {
 
                         if (topType.isString()) {
                             // if #str is requested we literally provide the content
-                            return getRawContent(parms, contentParamName, charset);
+                            return getRawContent(parms, contentParamName);
                         }
                         else {
                             // otherwise the content is parsed as JSON and validated against the given type
@@ -207,10 +207,10 @@ public class Webserver {
                 }
             }
 
-            private IString getRawContent(Map<String, String> parms, String contentParamName, String charset) throws URISyntaxException {
+            private IString getRawContent(Map<String, String> parms, String contentParamName) throws URISyntaxException {
                 String path = parms.get(contentParamName);
                 if (path != null && !path.isEmpty()) {
-                    return Prelude.readFile(vf, false, URIUtil.createFileLocation(path), charset);
+                    return Prelude.readFile(vf, false, URIUtil.createFileLocation(path), "UTF-8", true);
                 }
                 else {
                     // empty content is a valid response.
