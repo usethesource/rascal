@@ -1261,12 +1261,12 @@ public class Prelude {
 	        setLastModified(sloc, System.currentTimeMillis());
 	    }
 	    else {
-	        writeFile(sloc, values.list(values.string("")), values.string("UTF-8"), values.bool(true));
+	        writeFile(sloc, values.list(values.string("")), values.string("UTF-8"));
 	    }
 	}
 	
-	public void writeFile(ISourceLocation sloc, IList V, IString charset, IBool inferCharset) {
-		writeFile(sloc, V, false, charset, inferCharset);
+	public void writeFile(ISourceLocation sloc, IList V, IString charset) {
+		writeFile(sloc, V, false, charset, values.bool(false));
 	}
 	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IString charset, IBool inferCharset){
