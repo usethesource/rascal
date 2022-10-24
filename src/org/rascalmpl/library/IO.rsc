@@ -87,7 +87,7 @@ Files are encoded using the charset provided.
 }
 @deprecated{Use `appendToFile(file, V, charset=DEFAULT_CHARSET)` instead.}
 public void appendToFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
-  = appendToFile(file, V, charset=charset);
+  = appendToFile(file, V, charset=charset, inferCharset=false);
 
 @synopsis{Returns all available character sets.}
 @javaClass{org.rascalmpl.library.Prelude}

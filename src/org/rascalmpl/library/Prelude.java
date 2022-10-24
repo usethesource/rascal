@@ -1261,18 +1261,19 @@ public class Prelude {
 	        setLastModified(sloc, System.currentTimeMillis());
 	    }
 	    else {
-	        writeFile(sloc, values.list(values.string("")), values.string("UTF-8"));
+	        writeFile(sloc, values.list(values.string("")), values.string("UTF-8"), values.bool(true));
 	    }
 	}
 	
-	public void writeFile(ISourceLocation sloc, IList V, IString charset) {
-		writeFile(sloc, V, false, charset);
+	public void writeFile(ISourceLocation sloc, IList V, IString charset, IBool inferCharset) {
+		writeFile(sloc, V, false, charset, inferCharset);
 	}
 	
-	private void writeFile(ISourceLocation sloc, IList V, boolean append, IString charset){
+	private void writeFile(ISourceLocation sloc, IList V, boolean append, IString charset, IBool inferCharset){
 		if(trackIO) System.err.println("writeFile: " + sloc);
 	
-		if (append) {
+		// if inferCharset we overwrite the given charset (which is usually the default in that case)
+		if (append && inferCharset.getValue()) {
 			charset = detectCharSet(sloc);
 		}
 		
@@ -1412,7 +1413,7 @@ public class Prelude {
 	}
 	
 	public void appendToFile(ISourceLocation sloc, IList V, IString charset, IBool inferCharset){
-		writeFile(sloc, V, true, charset);
+		writeFile(sloc, V, true, charset, inferCharset);
 	}
 	
 	public IList readFileLines(ISourceLocation sloc, IString charset){
