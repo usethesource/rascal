@@ -52,6 +52,7 @@ These built-in datatypes are closely related to each other:
 #### Examples
 
 Here are some examples of the built-in data types:
+
 | _Type_                    | _Examples_ |
 | --- | --- |
 | `bool`                    | `true`, `false` |
