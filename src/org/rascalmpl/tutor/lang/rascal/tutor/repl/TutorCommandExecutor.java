@@ -16,6 +16,10 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.Prelude;
@@ -95,14 +99,22 @@ public class TutorCommandExecutor {
     public Map<String, String> eval(String line) throws InterruptedException, IOException {
         Map<String, InputStream> output = new HashMap<>();
         Map<String, String> result = new HashMap<>();
-        
-        repl.handleInput(line, output, new HashMap<>());
+        Map<String, String> metadata = new HashMap<>();
+
+        repl.handleInput(line, output, metadata);
 
         for (String mimeType : output.keySet()) {
             InputStream content = output.get(mimeType);
 
-            if (mimeType.startsWith("text/")) {
+            if (mimeType.startsWith("text/plain")) {
                 result.put(mimeType, Prelude.consumeInputStream(new InputStreamReader(content, StandardCharsets.UTF_8)));
+            }
+            else if (metadata.get("URL") != null) {
+                WebDriver driver = new FirefoxDriver();
+                driver.manage().window().maximize();
+                driver.get(metadata.get("URL"));
+                TakesScreenshot screenshot = (TakesScreenshot) driver;
+                result.put("application/rascal+screenshot", screenshot.getScreenshotAs(OutputType.BASE64));
             }
             else {
                 result.put(mimeType, uuencode(content));

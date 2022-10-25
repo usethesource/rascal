@@ -45,25 +45,10 @@ import lang::rascal::\syntax::Rascal;
 
 public PathConfig defaultConfig
   = pathConfig(
-  bin=|home:///git/rascal/target/classes/doc|,
+  bin=|target://rascal-tutor/docs|,
   srcs=[
-    |home:///git/rascal/src/org/rascalmpl/courses/Rascalopedia|,
-    |home:///git/rascal/src/org/rascalmpl/courses/CompileTimeErrors|,
-    |home:///git/rascal/src/org/rascalmpl/courses/RascalConcepts|,
-    |home:///git/rascal/src/org/rascalmpl/courses/Recipes|,
-    |home:///git/rascal/src/org/rascalmpl/courses/Tutor|,
-    |home:///git/rascal/src/org/rascalmpl/courses/GettingStarted|,
-    |home:///git/rascal/src/org/rascalmpl/courses/GettingHelp|,
-    |home:///git/rascal/src/org/rascalmpl/courses/WhyRascal|,
-    |home:///git/rascal/src/org/rascalmpl/courses/Rascal|,
-    |home:///git/rascal/src/org/rascalmpl/courses/RascalShell|,
-    |home:///git/rascal/src/org/rascalmpl/courses/RunTimeErrors|,
-    |home:///git/rascal/src/org/rascalmpl/courses/Developers|,
-    |home:///git/rascal/src/org/rascalmpl/library|
+    |project://rascal-tutor/src/lang/rascal/tutor/examples/Test|
   ]);
-
-public PathConfig onlyAPIconfig
-  = defaultConfig[srcs=[|home:///git/rascal/src/org/rascalmpl/library|]];
 
 public list[Message] lastErrors = [];
 
@@ -499,7 +484,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     result = output["text/plain"]?"";
     stderr = output["application/rascal+stderr"]?"";
     stdout = output["application/rascal+stdout"]?"";
-    html   = output["text/html"]?"";
+    shot   = output["application/rascal+screenshot"]?"";
 
     if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
       for (allowErrors, str errLine <- split("\n", stderr)) {
@@ -525,20 +510,11 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       }
     }
 
-    if (html != "") {
-      // unwrap an iframe if this is an iframe
-      xml = readXML(html);
-
-      if ("iframe"(_, src=/\"http:\/\/localhost:<port:[0-9]+>\"/) := xml) {
-        html = readFile(|http://localhost:<port>/index.html|);
-      }
-
-      // otherwise just inline the html
-      append(out("\<div class=\"rascal-html-output\"\>"));
-      for (htmlLine <- split("\n", html)) {
-        append OUT : out("  <htmlLine>");
-      }
-      append OUT : out("\</div\>");
+    if (shot != "") {
+      checksum = md5Sum(shot);
+      targetFile = (pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile) + checksum)[extension="png"];
+      writeBase64(targetFile, shot);
+      append(out("![screenshot](<relativize(pcfg.bin, targetFile)>)"));
     }
     else if (result != "") {
       for (str resultLine <- split("\n", result)) {
