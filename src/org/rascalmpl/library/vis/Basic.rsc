@@ -28,6 +28,7 @@ import IO;
 import ValueIO;
 import List;
 import Set;
+import Map;
 
 Content showValue(value v) 
     = content(md5Hash(v), valueServer(v));
@@ -74,32 +75,32 @@ default HTMLElement toHTML(set[value] l)
 
 HTMLElement toHTML(rel[value,value] r)
     = div([
-        b([text("<type(typeOf(r), ())>")]), 
+        b([text("<type(typeOf(r), ())> <sampled(r, 100)>")]), 
         table([
             tr([
                 td([toHTML(a)]),
                 td([toHTML(b)])
             ])
-            | <a,b> <- r
+            | <a,b> <- sample(r, 100)
         ], border="1")
     ]);
 
 HTMLElement toHTML(rel[value,value,value] r)
     = div([
-        b([text("<type(typeOf(r), ())>")]), 
+        b([text("<type(typeOf(r), ())> <sampled(r, 100)>")]), 
         table([
             tr([
                 td([toHTML(a)]),
                 td([toHTML(b)]),
                 td([toHTML(c)])
             ])
-            | <a,b,c> <- r
+            | <a,b,c> <- sample(r, 100)
         ], border="1")
     ]);
 
 HTMLElement toHTML(rel[value,value,value,value] r)
     = div([
-        b([text("<type(typeOf(r), ())>")]), 
+        b([text("<type(typeOf(r), ())> <sampled(r, 100)>")]), 
         table([
             tr([
                 td([toHTML(a)]),
@@ -107,19 +108,19 @@ HTMLElement toHTML(rel[value,value,value,value] r)
                 td([toHTML(c)]),
                 td([toHTML(d)])
             ])
-            | <a,b,c,d> <- r
+            | <a,b,c,d> <- sample(r, 100)
         ], border="1")
     ]);
 
 HTMLElement toHTML(map[value,value] m)
     = div([
-        b([text("<type(typeOf(m), ())>")]), 
+        b([text("<type(typeOf(m), ())> <sampled(m, 100)>")]), 
         table([
             tr([
                 td([toHTML(k)]),
                 td([toHTML(m[k])])
             ])
-            | m <- m
+            | k <- sample(m, 100)
         ], border="1")
     ]);
 
@@ -162,6 +163,7 @@ HTMLElement toHTML(t:<value a, value bb, value c, value d>)
 HTMLElement toHTML(Tree t:appl(Production p, list[Tree] args)) 
     = div([
         text(topProd2rascal(p)),
+        *(t@\loc? ? [toHTML(t@\loc)] : []),
         ul([
             li([toHTML(a)])
             | a <- args
@@ -186,8 +188,8 @@ HTMLElement toHTML(node n)
         *[
             table([
                 tr([
-                    td([toHTML(k)]),
-                    td([toHTML(kws[k])])
+                    td([toHTML(k)], style="vertical-align:top"),
+                    td([toHTML(kws[k])], style="vertical-align:top")
                 ])
                 | k <- kws
             ], border="1")
@@ -214,3 +216,9 @@ private str sampled(list[value] s, int count)
 
 private list[&T] sample(list[&T] corpus, int count) 
   = corpus[..count];
+
+private str sampled(map[value,value] s, int count) 
+    = size(s) > count ? "sampled <count>/<size(s)>" : "";
+
+private map[&T,&U] sample(map[&T,&U] corpus, int count) 
+  = (k : v | <k,v> <- sample(toRel(corpus), count)); 
