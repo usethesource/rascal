@@ -22,9 +22,12 @@ import lang::rascal::format::Grammar;
 import ParseTree;
 import Node;
 import util::IDEServices;
+import util::Math;
 import Content;
 import IO;
 import ValueIO;
+import List;
+import Set;
 
 Content showValue(value v) 
     = content(md5Hash(v), valueServer(v));
@@ -52,21 +55,22 @@ HTMLElement toHTML(loc l) = a([text("<l>")], href="#", onclick="fetch(\"/editor?
 
 HTMLElement toHTML(list[value] l)
     = div([
-        b([text("<type(typeOf(l), ())>")]), 
+        b([text("<type(typeOf(l), ())> (<sampled(l, 100)>)")]), 
         ul([
             li([toHTML(e)])
-            | e <- l
+            | e <- sample(l, 100)
         ])
     ]);
 
 default HTMLElement toHTML(set[value] l)
     = div([
-        b([text("<type(typeOf(l), ())>")]), 
+        b([text("<type(typeOf(l), ())> (<sampled(l, 100)>)")]), 
         ul([
             li([toHTML(e)])
-            | e <- l
+            | e <- sample(l, 100)
         ])
     ]);
+
 
 HTMLElement toHTML(rel[value,value] r)
     = div([
@@ -119,36 +123,36 @@ HTMLElement toHTML(map[value,value] m)
         ], border="1")
     ]);
 
-HTMLElement toHTML(t:<value a, value b>) 
+HTMLElement toHTML(t:<value a, value bb>) 
     = div([
             b([text("<type(typeOf(t), ())>")]), 
             table([
                 tr([
                     td([toHTML(a)]),
-                    td([toHTML(b)])
+                    td([toHTML(bb)])
                 ])
             ], border="1")
     ]);
 
-HTMLElement toHTML(t:<value a, value b, value c>) 
+HTMLElement toHTML(t:<value a, value bb, value c>) 
     = div([
             b([text("<type(typeOf(t), ())>")]), 
             table([
                 tr([
                     td([toHTML(a)]),
-                    td([toHTML(b)]),
+                    td([toHTML(bb)]),
                     td([toHTML(c)])
                 ])
             ], border="1")
     ]);
 
-HTMLElement toHTML(t:<value a, value b, value c, value d>) 
+HTMLElement toHTML(t:<value a, value bb, value c, value d>) 
     = div([
             b([text("<type(typeOf(t), ())>")]), 
             table([
                 tr([
                     td([toHTML(a)]),
-                    td([toHTML(b)]),
+                    td([toHTML(bb)]),
                     td([toHTML(c)]),
                     td([toHTML(d)])
                 ])
@@ -197,3 +201,16 @@ HTMLElement toHTML(node n)
 
 default HTMLElement toHTML(value x:!set[value] _) // set is also a default to avoid clashing with rel
     = text("<x>");
+
+private str sampled(set[value] s, int count) 
+    = size(s) > count ? "sampled <count>/<size(s)>" : "";
+
+private set[&T] sample(set[&T] corpus, int count) 
+  = { l[arbInt(S)] | _ <- [0..count]}
+  when l := [*corpus], S := size(l);
+
+private str sampled(list[value] s, int count) 
+    = size(s) > count ? "head <count>/<size(s)>" : "";
+
+private list[&T] sample(list[&T] corpus, int count) 
+  = corpus[..count];
