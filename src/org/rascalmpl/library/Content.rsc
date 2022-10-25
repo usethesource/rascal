@@ -60,7 +60,7 @@ Content file(loc src) = content(response(src));
 
 Directly serve the contents of a string as plain text
 }
-Content text(str text) = content(plain(text));
+Content plainText(str text) = content(plain(text));
 
 alias Body = value (type[value] expected);
 
