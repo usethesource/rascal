@@ -22,10 +22,33 @@ import lang::rascal::format::Grammar;
 import ParseTree;
 import Node;
 import util::IDEServices;
+import Content;
+import IO;
+import ValueIO;
+
+Content showValue(value v) 
+    = content(md5Hash(v), valueServer(v));
+
+Response (Request) valueServer(value v) {
+    Response reply(get(/^\/editor/, parameters=pms)) {
+        if (pms["src"]?) {
+            edit(readTextValueString(#loc, pms["src"]));
+            return response(writeHTMLString(text("done")));
+        }
+
+        return response(writeHTMLString(text("could not edit <pms>")));
+    }
+
+    default Response reply(get(_)) {
+        return response(writeHTMLString(toHTML(v)));
+    }
+
+    return reply;
+}
 
 HTMLElement toHTML(num i) = text("<i>");
 HTMLElement toHTML(str s) = pre([p([text(s)])]);
-HTMLElement toHTML(loc l) = a([text("<l>")], href="/link?src=<l>");
+HTMLElement toHTML(loc l) = a([text("<l>")], href="#", onclick="fetch(\"/editor?src=<l>\")");
 
 HTMLElement toHTML(list[value] l)
     = div([
