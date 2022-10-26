@@ -17,6 +17,8 @@ jobs:
     needs: [tests]
     runs-on: ubuntu-latest
     steps:
+      - uses: browser-actions/setup-geckodriver@latest
+      - run: geckodriver --version  
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
@@ -25,7 +27,7 @@ jobs:
           cache: 'maven'
 
       - name: Compile & Bootstrap
-        run: mvn -B compile '-Drascal.tutor.skip'
+        run: mvn -B compile -Dwebdriver.gecko.driver=geckodriver
 
       - name: Test if release # just to be extra sure for a release
         if: startsWith(github.ref, 'refs/tags/v')
