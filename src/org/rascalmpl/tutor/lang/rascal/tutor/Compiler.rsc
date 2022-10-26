@@ -32,7 +32,6 @@ import util::Reflective;
 import util::FileSystem;
 import ValueIO;
 
-import lang::xml::IO;
 import lang::yaml::Model;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
 import lang::rascal::tutor::apidoc::GenerateMarkdown;
@@ -46,6 +45,7 @@ import lang::rascal::\syntax::Rascal;
 public PathConfig defaultConfig
   = pathConfig(
   bin=|target://rascal-tutor/docs|,
+  libs=[|lib://rascal|],
   srcs=[
     |project://rascal-tutor/src/lang/rascal/tutor/examples/Test|
   ]);
@@ -485,6 +485,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     stderr = output["application/rascal+stderr"]?"";
     stdout = output["application/rascal+stdout"]?"";
     shot   = output["application/rascal+screenshot"]?"";
+    png    = output["image/png"]?"";
 
     if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
       for (allowErrors, str errLine <- split("\n", stderr)) {
@@ -511,10 +512,13 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     }
 
     if (shot != "") {
-      checksum = md5Sum(shot);
-      targetFile = (pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile) + checksum)[extension="png"];
+      loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
+      targetFile.file = targetFile.file + "_screenshot_<lineOffset>.png";
+      println("screenshot at <targetFile>");
       writeBase64(targetFile, shot);
-      append(out("![screenshot](<relativize(pcfg.bin, targetFile)>)"));
+      append OUT: out("```");
+      append OUT: out("![image](<relativize(pcfg.bin, targetFile)>)");
+      append OUT: out("```rascal-shell");
     }
     else if (result != "") {
       for (str resultLine <- split("\n", result)) {

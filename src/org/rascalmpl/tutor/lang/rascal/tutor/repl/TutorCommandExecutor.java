@@ -20,6 +20,8 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.Prelude;
@@ -36,6 +38,7 @@ public class TutorCommandExecutor {
     private final RascalInterpreterREPL repl;
     private final ByteArrayOutputStream shellStandardOutput;
     private final ByteArrayOutputStream shellErrorOutput;
+    private final FirefoxDriver browser;
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         shellStandardOutput = new ByteArrayOutputStream();
@@ -48,13 +51,15 @@ public class TutorCommandExecutor {
                 Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
                 eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
                 eval.setMonitor(services);
-                eval.addClassLoader(new SourceLocationClassLoader(pcfg.getClassloaders(), System.class.getClassLoader()));
+                // eval.addClassLoader(new SourceLocationClassLoader(pcfg.getClassloaders(), System.class.getClassLoader()));
                 return eval;
             }
         };
 
         repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, null);
         repl.setMeasureCommandTime(false); 
+
+        this.browser = getBrowser();
     }
 
     private String javaCompilerPathAsString(IList javaCompilerPath) {
@@ -109,22 +114,55 @@ public class TutorCommandExecutor {
             if (mimeType.startsWith("text/plain")) {
                 result.put(mimeType, Prelude.consumeInputStream(new InputStreamReader(content, StandardCharsets.UTF_8)));
             }
-            else if (metadata.get("URL") != null) {
-                WebDriver driver = new FirefoxDriver();
-                driver.manage().window().maximize();
-                driver.get(metadata.get("URL"));
-                TakesScreenshot screenshot = (TakesScreenshot) driver;
-                result.put("application/rascal+screenshot", screenshot.getScreenshotAs(OutputType.BASE64));
-            }
             else {
                 result.put(mimeType, uuencode(content));
             }
+            
+            FirefoxDriver browser = getBrowser();
+            if (metadata.get("url") != null && browser != null) {
+                try {
+                    browser.get(metadata.get("url"));
+                    String screenshot = browser.getScreenshotAs(OutputType.BASE64);
+                    result.put("application/rascal+screenshot", screenshot);
+                }
+                catch (Throwable e) {
+                    shellErrorOutput.write(e.getMessage().getBytes("UTF-8"));
+                }
+            } 
         }
 
         result.put("application/rascal+stdout", getPrintedOutput());
         result.put("application/rascal+stderr", getErrorOutput());
 
         return result;
+    }
+
+    private FirefoxDriver getBrowser() {
+        if (this.browser != null) {
+            return browser;
+        }
+
+        FirefoxOptions options = new FirefoxOptions()
+            .setAcceptInsecureCerts(true)
+            .setHeadless(true)
+            ;
+
+        // System.setProperty("webdriver.gecko.driver", "/Users/jurgenv/Downloads/geckodriver");
+
+        if (System.getProperty("webdriver.gecko.driver") == null) {
+            return null;
+        }
+
+        FirefoxProfile profile = options.getProfile();
+        profile.setPreference("layout.css.devPixelsPerPx", "10");
+
+        options = options.setProfile(profile);
+
+        
+        FirefoxDriver driver = new FirefoxDriver(options);
+        driver.manage().window().maximize();
+        
+        return driver;
     }
 
     public String uuencode(InputStream content) throws IOException {
