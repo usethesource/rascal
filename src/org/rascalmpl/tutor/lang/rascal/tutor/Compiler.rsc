@@ -514,10 +514,10 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     if (shot != "") {
       loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
       targetFile.file = targetFile.file + "_screenshot_<lineOffset>.png";
-      println("screenshot at <targetFile>");
+      println("screenshot <targetFile>");
       writeBase64(targetFile, shot);
       append OUT: out("```");
-      append OUT: out("![image](<relativize(pcfg.bin, targetFile)>)");
+      append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
       append OUT: out("```rascal-shell");
     }
     else if (result != "") {

@@ -16,6 +16,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -122,7 +123,11 @@ public class TutorCommandExecutor {
             if (metadata.get("url") != null && browser != null) {
                 try {
                     browser.get(metadata.get("url"));
-                    String screenshot = browser.getScreenshotAs(OutputType.BASE64);
+                    browser.manage().window().maximize();
+                    
+                    String screenshot = browser.findElement(By.tagName("body"))
+                        .getScreenshotAs(OutputType.BASE64);
+
                     result.put("application/rascal+screenshot", screenshot);
                 }
                 catch (Throwable e) {
@@ -154,7 +159,7 @@ public class TutorCommandExecutor {
         }
 
         FirefoxProfile profile = options.getProfile();
-        profile.setPreference("layout.css.devPixelsPerPx", "10");
+        profile.setPreference("layout.css.devPixelsPerPx", "3");
 
         options = options.setProfile(profile);
 
