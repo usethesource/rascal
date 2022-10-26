@@ -20,14 +20,15 @@ a browser window such that we can visualize the result:
 
 ```rascal-shell
 import demo::vis::StaticSite;
+import lang::html::IO;
 characters = {"Sneezy", "Sleepy", "Dopey", "Doc", "Happy", "Bashful", "Grumpy"};
-serve(characters * characters);
+serve(table(characters * characters));
 ```
 
 To get this effect we used the following library modules:
 * ((lang::html::AST)) contains the HTML abstract syntax tree definition
 * ((lang::html::IO)) knows how to pretty-print HTML
-* ((Rascal:module:Content)) provides access to the builtin application server of the Rascal REPL
+* ((Library:module:Content)) provides access to the builtin application server of the Rascal REPL
 }
 module demo::vis::StaticSite
 
