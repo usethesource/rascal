@@ -476,3 +476,42 @@ test bool trailingSlashRelativize1()
 test bool trailingSlashRelativize2() 
     = relativize(|file:///library|, |file:///library/|)
         == relativize(|file:///library|, |file:///library|);
+
+test bool extensionSetWithMoreDots1()
+    = |file:///a.txt/b|[extension="aap"] == |file:///a.txt/b.aap|;
+
+test bool extensionSetWithMoreDots2()
+    = |file:///a.txt/b.noot|[extension="aap"] == |file:///a.txt/b.aap|;
+
+test bool extensionSetWithSlash()
+    = |file:///a/b.noot/|[extension="aap"] == |file:///a/b.aap/|;
+
+test bool extensionSetWithSlashAndMoreDots()
+    = |file:///a.txt/b.noot/|[extension="aap"] == |file:///a.txt/b.aap/|;
+
+test bool extensionGetWithMoreDot1() 
+    = |file:///a.txt/b|.extension == "";
+
+test bool extensionGetWithMoreDots2()
+    = |file:///a.txt/b.noot|.extension == "noot";
+
+test bool extensionGetWithSlash()
+    = |file:///a/b.noot/|.extension == "noot";
+
+test bool extensionGetSimple()
+    = |file:///a/b.noot|.extension == "noot";
+
+test bool extensionGetRoot()
+    = |file:///b.noot|.extension == "noot";
+
+test bool extensionGetNoRoot()
+    = |file:///b|.extension == "";
+
+test bool extensionNoPath()
+    = |file:///|.extension == "";
+
+test bool extensionSetRoot()
+    = |file:///b.noot|[extension="aap"] == |file:///b.aap|;
+
+test bool extensionSetSimple()
+    = |file:///a/b.noot|[extension="aap"] == |file:///a/b.aap|;
