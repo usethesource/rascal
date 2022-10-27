@@ -368,6 +368,20 @@ public class URIUtil {
 	}
 
 	public static ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
+		// first we normalize trailing slashes, since "relativize" does not consider them meaningful
+		// while ISourceLocation does.
+		try {
+			if (outside.getPath().endsWith(URI_PATH_SEPARATOR)) {
+				outside = changePath(outside, outside.getPath().substring(0, outside.getPath().length() - 1));
+			}
+			if (inside.getPath().endsWith(URI_PATH_SEPARATOR)) {
+				inside = changePath(inside, inside.getPath().substring(0, inside.getPath().length() - 1));
+			}
+		}
+		catch (URISyntaxException e) {
+			// can not happen by removing only a slash
+		}
+
 		if (outside.equals(inside)) {
 			return URIUtil.correctLocation("relative", "", "/");
 		}
