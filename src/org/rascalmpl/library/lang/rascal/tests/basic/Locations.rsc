@@ -26,7 +26,7 @@ str createValidScheme(str s) {
 }
 
 @expected{MalFormedURI}
-test bool noOpaqueURI2() = loc l := |home:://this:is:opaque|;
+test bool noOpaqueURI2() = loc _ := |home:://this:is:opaque|;
 
 test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  createValidScheme(s);
 test bool canChangeScheme2(loc l, str s) { l.scheme = createValidScheme(s); return l.scheme ==  createValidScheme(s); }
@@ -460,3 +460,19 @@ test bool trailingSlashFile2() {
         && withSlash.parent == withoutSlash.parent
         ;
 }
+
+test bool testRelativize() 
+    = relativize(|file:///a/b|, |file:///a/b/c.txt|)
+        == |relative:///c.txt|;
+
+test bool testFailedRelativize()
+    = relativize(|file:///b/b|, |file:///a/b/c.txt|)
+        == |file:///a/b/c.txt|;
+
+test bool trailingSlashRelativize1() 
+    = relativize(|file:///library/|, |file:///library|)
+        == relativize(|file:///library/|, |file:///library/|);
+
+test bool trailingSlashRelativize2() 
+    = relativize(|file:///library|, |file:///library/|)
+        == relativize(|file:///library|, |file:///library|);
