@@ -24,7 +24,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 
 public class URIUtil {
-	private static final String URI_PATH_SEPARATOR = "/";
+	public static final String URI_PATH_SEPARATOR = "/";
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	/**
 	 * Create a new URI, non-encoded input is assumed.
