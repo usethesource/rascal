@@ -1,12 +1,12 @@
 package org.rascalmpl.test.util;
 
-import java.io.IOException;
-import java.net.URL;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.junit.Test;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -14,10 +14,6 @@ import org.rascalmpl.values.IRascalValueFactory;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
 
 public class SourceLocationClassLoaderTest {
     private IValueFactory vf = IRascalValueFactory.getInstance();
