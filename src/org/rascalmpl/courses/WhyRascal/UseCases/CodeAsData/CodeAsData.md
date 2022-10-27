@@ -1,4 +1,4 @@
 ---
-title: Code is Data: Analyzing Code with Rascal
+title: "Code is Data: Analyzing Code with Rascal"
 ---
 
