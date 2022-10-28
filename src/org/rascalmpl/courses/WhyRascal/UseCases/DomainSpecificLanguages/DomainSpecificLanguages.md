@@ -23,17 +23,17 @@ module Syntax
 extend lang::std::Layout;
 extend lang::std::Id;
 
-start syntax Machine = machine: State+ states; // <1>
-syntax State = @Foldable state: "state" Id name Trans* out; // <1>
-syntax Trans = trans: Id event ":" Id to; // <2>
+start syntax Machine = machine: State+ states;    // <1>
+syntax State = state: "state" Id name Trans* out; // <1>
+syntax Trans = trans: Id event ":" Id to;         // <2>
 ```
 
 ```rascal-prepare
 extend lang::std::Layout;
 extend lang::std::Id;
-start syntax Machine = machine: State+ states; // <1>
-syntax State = @Foldable state: "state" Id name Trans* out; // <1>
-syntax Trans = trans: Id event ":" Id to; // <2>
+start syntax Machine = machine: State+ states;    // <1>
+syntax State = state: "state" Id name Trans* out; // <1>
+syntax Trans = trans: Id event ":" Id to;         // <2>
 ```
 
 * <1> A state machine consists of a number of named state declarations
@@ -172,6 +172,12 @@ str compile(Machine m) =
 ```
 
 String templates allow arbitrary Rascal values and control-flow constructs to be interpolated in string literals. Note how this code does not use concrete matching, but instead uses the labels defined in the grammar (i.e., `states`, `out`, `event`, and `to`).
+
+Let's have a look at the output of `compile`:
+```rascal-shell,continue
+import IO;
+println(compile(myMachine))
+```
 
 And that's it! A complete DSL in 36 lines of code. Of course, the parser and the `unreachable` and `compile` functions can be connected to the IDE. This provides custom syntax highlighting, error-marking and automatic building in state machine editors.
 
