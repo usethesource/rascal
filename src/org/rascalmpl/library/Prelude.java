@@ -1325,7 +1325,6 @@ public class Prelude {
 		try {
 			sloc = reg.logicalToPhysical(sloc);
 
-
 			if (sloc.hasOffsetLength()) {
 				try {
 					prefix = new UnicodeOffsetLengthReader(reg.getCharacterReader(sloc.top(), charset.getValue()), 0, sloc.getOffset() + ( append ? sloc.getLength()  : 0 ));
