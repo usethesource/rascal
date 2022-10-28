@@ -25,9 +25,9 @@ This is a recipe for computing basic or more advanced metrics from a Java projec
 
 Now we will follow the [EASY]((EASY)) paradigm:
 
-*  a library will be used to _parse_ the Java code generating [Rascalopedia:AbstractSyntaxTree]
-*  the same library will generate a [Rascal:Values/Relation]al model to represent interesting facts between Java source code artifacts
-*  then we can write queries over the generated trees and relations using [Rascal:Expressions].
+*  a library will be used to _parse_ the Java code generating ((Rascalopedia:AbstractSyntaxTree))
+*  the same library will generate a ((Rascal:Values/Relation))al model to represent interesting facts between Java source code artifacts
+*  then we can write queries over the generated trees and relations using ((Rascal:Expressions)).
 
 
 These are a number of recipes for measuring different things about Java:
@@ -39,7 +39,7 @@ These are a number of recipes for measuring different things about Java:
 
 
 First we import the basic data types for representing Java. The model is called _M3_, and its definition is split acros a generic
-language independent module called [Rascal:analysis/m3/Core] and a Java specific part called [Rascal:lang/java/m3/Core]. Have a look at the documentation 
+language independent module called ((Library:module:analysis::m3::Core)) and a Java specific part called ((Library:module:lang::java::m3::Core)). Have a look at the documentation 
 of these modules later. For now we will go through using them in a few examples.
 
 ```rascal-prepare
@@ -57,7 +57,7 @@ import lang::java::m3::AST;
 |tmp:///snakes-and-ladders/src/snakes/|.ls
 ```
 
-Now we can extract our overview model, using the classpath we derived:
+Now we can extract our overview model:
 ```rascal-shell,continue
 myModel = createM3FromDirectory(|tmp:///snakes-and-ladders/src|);
 ```

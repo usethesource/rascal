@@ -1,5 +1,5 @@
 ---
-title: Source to Source transformations with Rascal
+title: Source to Source transformations
 ---
 
 Rascal is particularly good for source-to-source transformation. There are many forms of 
