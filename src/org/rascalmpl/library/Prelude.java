@@ -1128,7 +1128,7 @@ public class Prelude {
 	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc, String charset, boolean inferCharset){
 		if(trackIO) System.err.println("readFile: " + sloc);
 
-		URIResolverRegistry reg = REGISTRY;
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
 		try (Reader reader = inferCharset ? reg.getCharacterReader(sloc) : reg.getCharacterReader(sloc, charset);){
 			return values.string(consumeInputStream(reader));
@@ -3598,7 +3598,7 @@ public class Prelude {
 	        loc = URIUtil.changeScheme(loc, loc.getScheme().replace("compressed+", ""));
 	    }
 	    IInteger result = values.integer(0);
-	    try (InputStream in = REGISTRY.getInputStream(loc)) {
+	    try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
 	        final byte[] buffer = new byte[FILE_BUFFER_SIZE];
 	        int read;
 	        while ((read = in.read(buffer, 0, buffer.length)) != -1) {
@@ -3701,7 +3701,7 @@ public class Prelude {
     
 	static public void writeTextValueFile(IValueFactory values, boolean trackIO, ISourceLocation loc, IValue value){
 		if(trackIO) System.err.println("writeTextValueFile: " + loc);
-		try (Writer out = new OutputStreamWriter(REGISTRY.getOutputStream(loc, false), StandardCharsets.UTF_8)) {
+		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
 			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
@@ -3817,7 +3817,7 @@ public class Prelude {
 			IFunction callback = target.get();
 			if (callback == null) {
 				try {
-					REGISTRY.unwatch(src, recursive, this);
+				    URIResolverRegistry.getInstance().unwatch(src, recursive, this);
 				}
 				catch (IOException ex) {
 					// swallow our own unregister
