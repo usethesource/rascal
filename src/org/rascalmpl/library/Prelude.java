@@ -132,7 +132,9 @@ import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
-	private static final int FILE_BUFFER_SIZE = 8 * 1024;
+    private static final int FILE_BUFFER_SIZE = 8 * 1024;
+	
+    protected final URIResolverRegistry REGISTRY = URIResolverRegistry.getInstance();
 	protected final IValueFactory values;
 	protected final IRascalValueFactory rascalValues;
 	private final Random random;
@@ -1021,14 +1023,14 @@ public class Prelude {
 	}
 
 	public IValue exists(ISourceLocation sloc) {
-		IValue result =  values.bool(URIResolverRegistry.getInstance().exists(sloc));
+		IValue result =  values.bool(REGISTRY.exists(sloc));
 		if(trackIO) System.err.println("exists: " + sloc + " => " + result);
 		return result;
 	}
 	
 	public IValue lastModified(ISourceLocation sloc) {
 		try {
-		    IValue result = values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		    IValue result = values.datetime(REGISTRY.lastModified(sloc));
 		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
 			return result;
 		} catch(FileNotFoundException e){
@@ -1041,7 +1043,7 @@ public class Prelude {
 
 	public IValue created(ISourceLocation sloc) {
 		try {
-		    IValue result = values.datetime(URIResolverRegistry.getInstance().created(sloc));
+		    IValue result = values.datetime(REGISTRY.created(sloc));
 		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
 			return result;
 		} catch(FileNotFoundException e){
@@ -1058,7 +1060,7 @@ public class Prelude {
 	
 	private void setLastModified(ISourceLocation sloc, long timestamp) {
         try {
-            URIResolverRegistry.getInstance().setLastModified(sloc, timestamp);
+            REGISTRY.setLastModified(sloc, timestamp);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1066,16 +1068,16 @@ public class Prelude {
     }
 	
 	public IBool isDirectory(ISourceLocation sloc) {
-		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
+		return values.bool(REGISTRY.isDirectory(sloc));
 	}
 	
 	public IBool isFile(ISourceLocation sloc) {
-		return values.bool(URIResolverRegistry.getInstance().isFile(sloc));
+		return values.bool(REGISTRY.isFile(sloc));
 	}
 	
 	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
-			URIResolverRegistry.getInstance().remove(sloc, recursive.getValue());
+			REGISTRY.remove(sloc, recursive.getValue());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1084,7 +1086,7 @@ public class Prelude {
 	
 	public void mkDirectory(ISourceLocation sloc) {
 	  try {
-	    URIResolverRegistry.getInstance().mkDirectory(sloc);
+	    REGISTRY.mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
 	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1093,7 +1095,7 @@ public class Prelude {
 	
 	public IList listEntries(ISourceLocation sloc) {
 		try {
-			String [] entries = URIResolverRegistry.getInstance().listEntries(sloc);
+			String [] entries = REGISTRY.listEntries(sloc);
 			if (entries == null) {
 			    throw RuntimeExceptionFactory.illegalArgument(sloc);
 			}
@@ -1126,7 +1128,7 @@ public class Prelude {
 	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc, String charset, boolean inferCharset){
 		if(trackIO) System.err.println("readFile: " + sloc);
 
-		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+		URIResolverRegistry reg = REGISTRY;
 
 		try (Reader reader = inferCharset ? reg.getCharacterReader(sloc) : reg.getCharacterReader(sloc, charset);){
 			return values.string(consumeInputStream(reader));
@@ -1152,9 +1154,9 @@ public class Prelude {
 	public IValue md5HashFile(ISourceLocation sloc){
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            boolean useInputStream = !URIResolverRegistry.getInstance().supportsReadableFileChannel(sloc);
+            boolean useInputStream = !REGISTRY.supportsReadableFileChannel(sloc);
             if (!useInputStream) {
-                try (FileChannel file = URIResolverRegistry.getInstance().getReadableFileChannel(sloc)) {
+                try (FileChannel file = REGISTRY.getReadableFileChannel(sloc)) {
                     ByteBuffer contents = null;
                     if (file.size() > FILE_BUFFER_SIZE) {
                         try {
@@ -1175,7 +1177,7 @@ public class Prelude {
                 }
             }
             if (useInputStream) {
-                try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
+                try (InputStream in = REGISTRY.getInputStream(sloc)) {
                     byte[] buf = new byte[FILE_BUFFER_SIZE];
                     int count;
 
@@ -1240,7 +1242,7 @@ public class Prelude {
 	
 	public void copy(ISourceLocation source, ISourceLocation target, IBool recursive, IBool overwrite) {
 		try {
-			URIResolverRegistry.getInstance().copy(source, target, recursive.getValue(), overwrite.getValue());
+			REGISTRY.copy(source, target, recursive.getValue(), overwrite.getValue());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1249,7 +1251,7 @@ public class Prelude {
 
 	public void move(ISourceLocation source, ISourceLocation target, IBool overwrite) {
 		try {
-			URIResolverRegistry.getInstance().rename(source, target, overwrite.getValue());
+			REGISTRY.rename(source, target, overwrite.getValue());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1257,7 +1259,7 @@ public class Prelude {
 	}
 
 	public void touch(ISourceLocation sloc) {
-	    if (URIResolverRegistry.getInstance().exists(sloc)) {
+	    if (REGISTRY.exists(sloc)) {
 	        setLastModified(sloc, System.currentTimeMillis());
 	    }
 	    else {
@@ -1284,8 +1286,8 @@ public class Prelude {
 		IString charset;
 		// in case the file already has a encoding, we have to correctly append that.
 		Charset detected = null;
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc);){
-			detected = URIResolverRegistry.getInstance().getCharset(sloc);
+		try (InputStream in = REGISTRY.getInputStream(sloc);){
+			detected = REGISTRY.getCharset(sloc);
 			if (detected == null) {
 				
 				detected = UnicodeDetector.estimateCharset(in);
@@ -1311,7 +1313,7 @@ public class Prelude {
 	}
 	
 	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append){
-		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+		URIResolverRegistry reg = REGISTRY;
 
 		if (!Charset.forName(charset.getValue()).canEncode()) {
 		    throw RuntimeExceptionFactory.illegalArgument(charset);
@@ -1396,7 +1398,7 @@ public class Prelude {
 	}
 	
 	public void writeFileBytes(ISourceLocation sloc, IList blist){
-		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(sloc, false)) {
+		try (OutputStream out = REGISTRY.getOutputStream(sloc, false)) {
 			Iterator<IValue> iter = blist.iterator();
 			while (iter.hasNext()){
 				IValue ival = iter.next();
@@ -1418,7 +1420,7 @@ public class Prelude {
 	
 	public IList readFileLines(ISourceLocation sloc, IString charset){
 		if(trackIO) System.err.println("readFileLines: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())) {
+		try (Reader reader = REGISTRY.getCharacterReader(sloc, charset.getValue())) {
 			return consumeInputStreamLines(reader);
 		}
 		catch (MalformedURLException e) {
@@ -1448,7 +1450,7 @@ public class Prelude {
 		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
+		try (InputStream in = REGISTRY.getInputStream(sloc)) {
 			byte bytes[] = new byte[FILE_BUFFER_SIZE];
 			int read;
 
@@ -1472,7 +1474,7 @@ public class Prelude {
         int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
         
-        try  (BufferedInputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(sloc), BUFFER_SIZE); ) {
+        try  (BufferedInputStream in = new BufferedInputStream(REGISTRY.getInputStream(sloc), BUFFER_SIZE); ) {
             StringBuilder result = new StringBuilder();
             byte[] chunk = new byte[BUFFER_SIZE];
             int len = 0;
@@ -1499,7 +1501,7 @@ public class Prelude {
         int BUFFER_SIZE = 3 * 512;
         Base64.Decoder decoder = Base64.getDecoder();
         
-        try  (BufferedOutputStream out = new BufferedOutputStream(URIResolverRegistry.getInstance().getOutputStream(sloc, false), BUFFER_SIZE); ) {
+        try  (BufferedOutputStream out = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
 			out.write(decoder.decode(contents.getValue()));
         }
         catch (IOException e) {
@@ -3299,7 +3301,7 @@ public class Prelude {
 	}
 
 	public IString toBase64(ISourceLocation file) {
-	    try (InputStream in = URIResolverRegistry.getInstance().getInputStream(file)) {
+	    try (InputStream in = REGISTRY.getInputStream(file)) {
 	        return values.string(toBase64(in, 1024));
 	    }
 	    catch (IOException e) {
@@ -3509,7 +3511,7 @@ public class Prelude {
 			return values.integer(f.length());
 		}
 		else {
-			try (InputStream in = URIResolverRegistry.getInstance().getInputStream(g)) {
+			try (InputStream in = REGISTRY.getInputStream(g)) {
 				long total = 0;
 				byte[] buffer = new byte[2048];
 				int block;
@@ -3528,9 +3530,8 @@ public class Prelude {
 		if (monitor instanceof IDEServices) {
 			((IDEServices) monitor).registerLocations(scheme, auth, map);
 		}
-		else {
-			URIResolverRegistry.getInstance().registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
-		}
+		
+		REGISTRY.registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
 	}
 	
 	public void unregisterLocations(IString scheme, IString auth) {
@@ -3538,13 +3539,13 @@ public class Prelude {
 			((IDEServices) monitor).unregisterLocations(scheme, auth);
 		}
 		else {
-			URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
+			REGISTRY.unregisterLogical(scheme.getValue(), auth.getValue());
 		}
 	}
 	
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
 		try {
-			return URIResolverRegistry.getInstance().logicalToPhysical(loc);
+			return REGISTRY.logicalToPhysical(loc);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc);
 		}
@@ -3579,7 +3580,7 @@ public class Prelude {
 	}
 
     private IValueInputStream constructValueReader(ISourceLocation loc) throws IOException {
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+        URIResolverRegistry registry = REGISTRY;
         if (registry.supportsReadableFileChannel(loc)) {
             FileChannel channel = registry.getReadableFileChannel(loc);
             if (channel != null) {
@@ -3598,7 +3599,7 @@ public class Prelude {
 	        loc = URIUtil.changeScheme(loc, loc.getScheme().replace("compressed+", ""));
 	    }
 	    IInteger result = values.integer(0);
-	    try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
+	    try (InputStream in = REGISTRY.getInputStream(loc)) {
 	        final byte[] buffer = new byte[FILE_BUFFER_SIZE];
 	        int read;
 	        while ((read = in.read(buffer, 0, buffer.length)) != -1) {
@@ -3613,7 +3614,7 @@ public class Prelude {
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, StandardCharsets.UTF_8)) {
+		try (Reader in = REGISTRY.getCharacterReader(loc, StandardCharsets.UTF_8)) {
 			return new StandardTextReader().read(values, store, start, in);
 		}
 		catch (FactParseError e) {
@@ -3662,7 +3663,7 @@ public class Prelude {
     }
 
     private IValueOutputStream constructValueWriter(ISourceLocation loc, CompressionRate compression) throws IOException {
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+        URIResolverRegistry registry = REGISTRY;
         if (registry.supportsWritableFileChannel(loc)) {
             FileChannel channel = registry.getWriteableFileChannel(loc, false);
             if (channel != null) {
@@ -3701,7 +3702,7 @@ public class Prelude {
     
 	static public void writeTextValueFile(IValueFactory values, boolean trackIO, ISourceLocation loc, IValue value){
 		if(trackIO) System.err.println("writeTextValueFile: " + loc);
-		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
+		try (Writer out = new OutputStreamWriter(REGISTRY.getOutputStream(loc, false), StandardCharsets.UTF_8)) {
 			new StandardTextWriter().write(value, out);
 		}
 		catch (IOException e) {
@@ -3817,7 +3818,7 @@ public class Prelude {
 			IFunction callback = target.get();
 			if (callback == null) {
 				try {
-					URIResolverRegistry.getInstance().unwatch(src, recursive, this);
+					REGISTRY.unwatch(src, recursive, this);
 				}
 				catch (IOException ex) {
 					// swallow our own unregister
@@ -3896,7 +3897,7 @@ public class Prelude {
 			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
 			if (registered.add(wrappedCallback)) {
 				// it wasn't registered before, so let's register it
-				URIResolverRegistry.getInstance().watch(src, recursive.getValue(), wrappedCallback);
+				REGISTRY.watch(src, recursive.getValue(), wrappedCallback);
 			}
 		}
 		catch (IOException e) {
@@ -3911,7 +3912,7 @@ public class Prelude {
 			for (ReleasableCallback rc: registered) {
 				// we do a linear scan, as we cannot do a lookup since we want to get the original reference
 				if (rc.recursive == isRecursive && callback.equals(rc.target.get())) {
-					URIResolverRegistry.getInstance().unwatch(src, isRecursive, rc);
+					REGISTRY.unwatch(src, isRecursive, rc);
 					registered.remove(rc);
 					return;
 				}
