@@ -26,13 +26,13 @@ Response (Request) scatterplotServer(rel[num,num] v, str title="Scatterplot") {
     // returns the data to load in the scatter plot as a JSON object
     Response reply(get(/^\/data/)) {
         return response((
-            "data": (
+            
                 "datasets": [
                     (
                         "data": [("x":x, "y":y) | <x,y> <- v]
                     )
                 ]
-            )
+            
         ));
     }
 
