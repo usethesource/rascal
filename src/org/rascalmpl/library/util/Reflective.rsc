@@ -336,7 +336,8 @@ private str emptyModule() = "module Main
                             '";
 
 private str rascalMF(str name) 
-  = "Project-Name: <name>
+  = "Manifest-Version: 0.0.1
+    'Project-Name: <name>
     'Source: src/main/rascal
     'Require-Libraries: 
     ";
