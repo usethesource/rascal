@@ -59,16 +59,14 @@ public class IO {
 
 
 	public IString toJSON(IValue value, IBool compact) {
-		// System.err.println("hallo");
 		IValueAdapter adap = new IValueAdapter(compact.getValue());
-		// System.err.println(adap);
 		Gson gson = new GsonBuilder()
 		.registerTypeAdapter(IValue.class, adap)
 		.enableComplexMapKeySerialization()
 		.setDateFormat(DateFormat.LONG)
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
-		.disableHtmlEscaping()  // Bert Lisser
+		.disableHtmlEscaping() 
 		.create();
 		try {
 			String json = gson.toJson(value, new TypeToken<IValue>() {}.getType());
