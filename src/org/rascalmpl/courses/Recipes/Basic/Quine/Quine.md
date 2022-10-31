@@ -73,7 +73,11 @@ import demo::basic::Quine;
 quine();
 ```
 If you follow this output line-by-line you will see that it
-is identical to the original source code of module `Quine`.
+is identical to the original source code of module `Quine`:
+
+```rascal-include
+demo::basic::Quine
+```
 
 #### Benefits
 
