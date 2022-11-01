@@ -11,7 +11,14 @@ For loop.
 
 #### Syntax
 
-`for ( Exp~1~ , Exp~2~ , ... , Exp~n~ ) Statement;`
+```rascal
+for (Exp~1~ , Exp~2~, ..., Exp~n~) 
+  Statement
+
+for (Exp~1~ , Exp~2~, ..., Exp~n~) {
+  Statements
+}
+```
 
 #### Types
 

@@ -5,15 +5,20 @@ keywords:
 
 ---
 
-
-
 #### Synopsis
 
 While loop.
 
 #### Syntax
 
-`while ( Exp ) Statement;`
+```rascal
+while (Exp)
+  Statement
+
+while (Exp) {
+  Statements
+}
+```
 
 #### Types
 

@@ -12,8 +12,26 @@ Conditional statement.
 
 #### Syntax
 
-*  `if ( Exp ) Statement;`
-*  `if ( Exp ) Statement~1~ else Statement~2~;`
+```rascal
+if (Exp)
+  Statement
+
+if (Exp) {
+  Statements
+}
+
+if (Exp) 
+  Statement~1~ 
+else 
+  Statement~2~
+
+if (Exp) {
+  Statements~1~
+}
+else {
+  Statements~2~
+}
+```
 
 #### Types
 

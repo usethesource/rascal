@@ -12,7 +12,15 @@ Repeat statements while condition holds.
 
 #### Syntax
 
-`do Statement while ( Exp );`
+```rascal
+do 
+  Statement 
+while (Exp);
+
+do {
+  Statements
+} while (Exp);
+```
 
 #### Types
 
