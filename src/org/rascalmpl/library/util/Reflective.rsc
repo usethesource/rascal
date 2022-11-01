@@ -332,6 +332,7 @@ private str emptyModule() = "module Main
                             '
                             'int main(int testArgument=0) {
                             '    println(\"argument: \<testArgument\>\");
+                            '    return testArgument;
                             '}
                             '";
 
