@@ -13,7 +13,13 @@ Group statements into a block.
 
 #### Syntax
 
-`{ Statement~1~; ... ; Statement~n~ }`
+```rascal
+{ 
+  Statement~1~
+  ...
+  Statement~n~
+}
+```
 
 #### Types
 
@@ -21,7 +27,8 @@ Group statements into a block.
 
 #### Description
 
-A _block_ consists of a sequence of statements separated by semi-colons.
+A _block_ consists of a sequence of statements. Some statements end in semi-colons (`;`) while
+some don't. The general rule is that every statement that does not end in a `}` should end in a `;`.
 
 Since a block is itself a statement, it may be used in all places where a statement is required. 
 A block also introduces a new scope and variables that are declared in the block are local to that block. 
