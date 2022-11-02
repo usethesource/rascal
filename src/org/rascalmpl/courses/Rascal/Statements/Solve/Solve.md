@@ -11,9 +11,26 @@ Solve a set of equalities by fixed-point iteration.
 
 #### Syntax
 
-`solve(Var~1~, Var~2~, ..., Var~n~; Exp) Statement;`
+```rascal
+solve(Var~1~, Var~2~, ..., Var~n~)
+  Statement
+
+solve(Var~1~, Var~2~, ..., Var~n~; Exp)
+  Statement
+
+solve(Var~1~, Var~2~, ..., Var~n~) {
+  Statements
+}
+
+solve(Var~1~, Var~2~, ..., Var~n~; Exp) {
+  Statements
+}
+```
 
 #### Types
+
+* Var~1~ to Var~n~ can be any type
+* Exp is an `int`
 
 #### Function
 
@@ -44,11 +61,18 @@ For a given relation `R` this can be expressed as follows:
 rel[int,int] R = {<1,2>, <2,3>, <3,4>};
 T = R;
 solve (T) {
-          T = T + (T o R);
-        }
+  T = T + (T o R);
+}
 ```
 
 #### Benefits
 
+* in combination with the relational calculus operators and setcomprehensions, `solve` provides the power of any data-log-like query
+* `solve` fits nicely into the structured programming paradigm, it avoids writing complex while loops and conditionals.
+* the efficiency of `solve` floats on persistent data-structures for sets and relations under-the-hood.
+
 #### Pitfalls
 
+* `solve` encapsulates fixed-point computations in a lexical scope that is not openly extensible
+* `solve` typically runs the code block once too often for optimality, only to check that nothing has changed
+* when `solve` reaches the iteration bound, the state of the variables may be well-defined by the code block, but the final fixedpoint has probably not been reached and no exception is thrown to indicate this. If you need to distinguish reaching a fixedpoint from reaching the bound, you should use your own counter and increment it inside of the block.
