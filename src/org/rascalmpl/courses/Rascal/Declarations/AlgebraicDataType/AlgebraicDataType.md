@@ -2,11 +2,17 @@
 title: Algebraic Data Type
 keywords:
   - data
+  - algebraic datatype
+  - algebraic data type
+  - algebraic data-type
   - struct
   - record
   - keywords
   - term
   - AST
+  - decoration
+  - annotation
+  - keyword fields
 ---
 
 #### Synopsis

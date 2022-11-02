@@ -19,7 +19,7 @@ or all the nodes in a tree.
 Each value that is enumerated is first matched against a pattern before it can possibly contribute to the result of 
 the enumerator. An enumerator yields `true` as long as it has generated a new value, and `false` otherwise.
 
-See [Enumerator]((Rascal:Comprehensions-Enumerator)) for details.
+See [Enumerator]((Rascal:Boolean-Enumerator)) for details.
 
 #### Examples
 

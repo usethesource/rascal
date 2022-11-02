@@ -2,6 +2,8 @@
 title: Annotation Declaration
 keywords:
   - anno
+  - attributes
+  - decorations
   - "@"
 
 ---

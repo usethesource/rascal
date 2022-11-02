@@ -16,22 +16,41 @@ Declare a function.
 
 #### Syntax
 
-*  `Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ ) Body`
-*  `Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ Type~0~ Name~0~... ) Body`
-*  `Modifiers Type Name( Pattern~1~, ..., Pattern~n~) Body`
-*  `Modifiers Type Name( Pattern~1~, ..., Pattern~n~, Type~0~ Name~0~...) Body`
-
+```rascal
+Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ ) Body
+Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ Type~0~ Name~0~... ) Body
+Modifiers Type Name( Pattern~1~, ..., Pattern~n~) Body
+Modifiers Type Name( Pattern~1~, ..., Pattern~n~, Type~0~ Name~0~...) Body
+```
 
 where `Body` is one of:
 
-*  `{ Statements }`
-*  `throws Exception~1~, Exception~2~, ... { Statements }`
-*  `= Expression;`
+```rascal
+{ 
+   Statements
+}
 
+throws Exception~1~, ..., Exception~n~
+
+= Expression;
+```
 
 and where `Modifiers` may be:
 
-*  `("public" | "private")? ("java" | "test" | "default")?`
+```rascal
+public
+private
+default
+java
+test
+
+public java
+private java
+public test
+private test
+public default
+private default
+```
 
 #### Types
 
