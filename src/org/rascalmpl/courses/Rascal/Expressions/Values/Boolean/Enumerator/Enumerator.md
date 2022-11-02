@@ -1,8 +1,10 @@
 ---
 title: Enumerator
 keywords:
-  - <-
-
+   - enumerator
+   - generator
+   - iterator
+   - "<-"
 ---
 
 #### Synopsis
@@ -36,6 +38,7 @@ respectively, their direct children are enumerated. An enumerator is evaluated a
    * The match fails, no variables are bound. If _V_ has more elements, a next element is tried. 
       Otherwise, a previous generator (i.e., to the left) is tried. If this enumerator is the first generator in the comprehension,
       the evaluation of the comprehension is complete.
+* the value of an enumerator expression is `true` while the Pattern succeeds and turns into `false` when it finally fails. Intermediate failures for elements of the generated subject sequence are ignore. So the expression's value follows the pattern `true*, false`; first it is true zero or more times and then it is false once.
 
 Type information is used to check the validity of an enumerator and guard you against mistakes.
 An impossible enumerator like 
