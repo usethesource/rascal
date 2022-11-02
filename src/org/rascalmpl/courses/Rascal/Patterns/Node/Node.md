@@ -8,14 +8,31 @@ Node in abstract pattern.
 
 #### Syntax
 
+```rascal
+Pat ~1~ ( Pat~2~, ..., Pat~n~)
+
+Name (Pat~2~, ..., Pat~m~)
+
+Pat ~1~ ( Pat~12~, ..., Pat~1n~, KeywordLabel~1~ = Pat~22~, ..., KeywordLabel~n~ = Pat~2n~)
+
+Name ( Pat~12~, ..., Pat~1n~, KeywordLabel~1~ = Pat~22~, ..., KeywordLabel~n~ = Pat~2n~)
+```
+
 #### Types
 
 #### Function
 
 #### Description
 
-A node pattern matches a node value or a datatype value, provided that _Name_ matches with the constructor symbol of that value 
-and _Pat_~1~, _Pat_~2~, ..., _Pat_~n~  match the children of that value in order.
+A node pattern matches a node value or a datatype value, provided that _Name_ matches with the constructor symbol of that value and _Pat_~2~, _Pat_~2~, ..., _Pat_~n~  match the children of that value in order. 
+
+The label of a node can also be a Pattern itself (Pat~1~), in which case it must be of type `str`
+
+Nodes may have keyword fields which can be matched via the literal KeywordLabel and a respective pattern for each field.
+
+Note that during matching the keyword fields which are not listed in the pattern are ignored. This means that their presence or absence in the subject does not influence the match. When a keyword
+field _is_ mentioned in the match pattern, then the match will fail or succeeed if the respective
+pattern fails or succeeds.
 
 #### Examples
 
