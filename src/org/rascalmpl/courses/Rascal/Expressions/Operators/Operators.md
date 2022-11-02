@@ -8,6 +8,15 @@ The Rascal operators.
 
 #### Syntax
 
+Some example operators:
+
+```rascal
+Exp + Exp
+Exp [ Exp ]
+! Exp
+Exp in Exp
+```
+
 #### Types
 
 #### Function
