@@ -2,7 +2,6 @@
 title: Labelled Pattern
 keywords:
   - ":"
-
 ---
 
 #### Synopsis
@@ -11,13 +10,17 @@ Labelled abstract pattern.
 
 #### Syntax
 
+```rascal
+Var : Pat
+```
+
 #### Types
 
 #### Function
 
 #### Description
 
-A labelled pattern matches the same values as _Pat_, but has as side-effect that the matched value is assigned to _Var_.
+A labelled pattern matches the same values as _Pat_, but has as side-effect that the matched value is assigned to _Var_. Note that there is also ((TypedLabelled)) with very similar syntax and semantics.
 
 #### Examples
 

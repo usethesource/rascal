@@ -1,6 +1,9 @@
 ---
 title: Regular Expression Pattern
 keywords:
+  - regular expressions
+  - characters
+  - character classes
   - "/"
   - "\\\\"
   - "["
@@ -23,6 +26,10 @@ keywords:
 Regular expression patterns.
 
 #### Syntax
+
+```rascal
+/ RegularExpression /
+```
 
 #### Types
 
