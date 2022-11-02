@@ -11,7 +11,9 @@ Insert a value in a tree during a ((Statements-Visit)).
 
 #### Syntax
 
-`insert Exp;`
+```rascal
+insert Exp;
+```
 
 #### Types
 
