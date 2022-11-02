@@ -16,16 +16,16 @@ str required(TYPE t1, TYPE t2) = required(t1, getName(t2));             // <3>
 
 @synopsis{Checking Expressions}
 TENV checkExp(exp:natCon(int N), TYPE req, TENV env) = // <4>
-  req == natural() ? env : addError(env, exp.src, required(req, "natural"));
+  req := natural() ? env : addError(env, exp.src, required(req, "natural"));
 
 TENV checkExp(exp:strCon(str S), TYPE req, TENV env) =
- req == string() ? env : addError(env, exp.src, required(req, "string"));
+ req := string() ? env : addError(env, exp.src, required(req, "string"));
 
 TENV checkExp(exp:id(PicoId Id), TYPE req, TENV env) { // <5>
   if(!env.symbols[Id]?)
      return addError(env, exp.src, "Undeclared variable <Id>");
   tpid = env.symbols[Id];
-  return req == tpid ? env : addError(env, exp.src, required(req, tpid));
+  return req := tpid ? env : addError(env, exp.src, required(req, tpid));
 }
 
 TENV checkExp(exp:add(EXP E1, EXP E2), TYPE req, TENV env) = // <6>
