@@ -24,7 +24,9 @@ Name ( Pat~12~, ..., Pat~1n~, KeywordLabel~1~ = Pat~22~, ..., KeywordLabel~n~ = 
 
 #### Description
 
-A node pattern matches a node value or a datatype value, provided that _Name_ matches with the constructor symbol of that value and _Pat_~2~, _Pat_~2~, ..., _Pat_~n~  match the children of that value in order. Any variables bound by nested patterns are available from left to right.
+A node pattern matches a ((Values-Node)) value or a ((Values-Constructor)) value, provided that _Name_ matches with the constructor symbol of that value and _Pat_~2~, _Pat_~2~, ..., _Pat_~n~  match the children of that value in order. Any variables bound by nested patterns are available from left to right. 
+
+If _Name_ identifies a ((Values-Constructor)) of an ((AlgebraicDataType)) then not only the name must match but also the arity and the declared types of the children of the constructor and its keyword parameters.
 
 The label of a node can also be a Pattern itself (Pat~1~), in which case it must be of type `str`
 

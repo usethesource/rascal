@@ -22,7 +22,7 @@ List in abstract pattern.
 
 #### Description
 
-A list pattern matches a list value (the subject), provided that _Pat_~1~, _Pat_~2~, ..., _Pat_~n~ match the elements of that list in order. We've made Pat~3~ a ((MultiVariable Pattern)) to illustrate that those are to be expected often in list patterns.
+A list pattern matches a list value (the subject), provided that _Pat_~1~, _Pat_~2~, ..., _Pat_~n~ match the elements of that list in order. We've made Pat~3~ a ((MultiVariable Patterns)) to illustrate that those are to be expected often in list patterns.
 
 Special cases exist when one of the patterns _Pat_~i~ is
 
