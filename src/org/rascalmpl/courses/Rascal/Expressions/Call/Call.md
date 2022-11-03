@@ -59,7 +59,7 @@ are bound to the respective names.
 * The order of keyword parameters is irrelevant in the call syntax, as opposed to the order of the positional parameters. 
 * Notably, values are _also_ bound for the keyword parameters which are _not listed_ in the call site. For those values, _default_ expressions are evaluation which are retrieved from the ((Declarations-Function)) signature. 
 * For ((Declarations-Function))s those default parameters are computed and bound at the time of calling the function
-* For ((AlgebraicDataType)) constructors, the missing default parameters are computed, lazily, at the moment of ((FieldProjection)).
+* For ((AlgebraicDataType)) constructors, the missing default parameters are computed, lazily, at the moment of ((Constructor-FieldSelection)).
 
 For more information:
 * see ((Declarations-Function)) for more details about function declarations.

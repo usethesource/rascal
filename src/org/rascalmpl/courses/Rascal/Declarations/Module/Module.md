@@ -12,25 +12,33 @@ Declare a module.
 #### Syntax
 
 ```rascal
-module _Name_
-_Imports_;
-_Declaration~1~_;
+module Package::Name // <1>
+
+Import~1~ // <2>
+Extend~1~ 
 ...
-_Declaration~n~_;
+Import~n~
+Extend~n~
+
+SyntaxDefinition~1~ // <3>
+...
+SyntaxDefinition~2~
+
+Declaration~1~ // <4>
+...
+Declaration~n~
 ```
-
-#### Types
-
-#### Function
 
 #### Description
 
 A module declaration consists of:
 
-*  A module name.
-*  Zero or more imports;
-*  Zero or more declarations.
+* <1>  A module name consisting of `::`-separated package names followed by `::Name`
+* <2> Zero or more ((Import))s or ((Extend))s
+* <3> Zero or more ((SyntaxDefinition))s
+* <4> Zero or more declarations of ((Declarations-Variable))s, ((Function))s or ((AlgebraicDataType))s
 
+The ((Import)), ((Extend)) and ((SyntaxDefinition)) are positioned at the top of the module because they are used internally to generate parsers for the ((ConcreteSyntax)), ((Patterns)) and ((Expressions)) used in ((Declarations-Variable))s, ((Function))s and ((AlgebraicDataType))s.
 
 The module name _Name_ will be used when the current module is imported in another module. 
 A module name is in general a qualified name of the form:
