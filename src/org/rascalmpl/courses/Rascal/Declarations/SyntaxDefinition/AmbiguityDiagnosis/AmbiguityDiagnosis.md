@@ -33,6 +33,6 @@ diagnose(t); // for any t of which you know it contains an ambiguity
 #### Pitfalls
 
 *  DrAmbiguity does not scale to large parse trees, so please first make your example smaller.
-*  DrAmbiguity proposes several [Disambiguation]s for each ambiguity, only few of which make sense from a language design point of view!
+*  DrAmbiguity proposes several ((Disambiguation))s for each ambiguity, only few of which make sense from a language design point of view!
 *  DrAmbiguity is now only a library function, while it should be integrated into the Rascal IDE
 

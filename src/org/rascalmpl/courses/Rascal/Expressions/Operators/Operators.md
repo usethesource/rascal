@@ -37,8 +37,8 @@ to lowest precedence. In other words, operators listed earlier in the table bind
 |              | [DateTime fields]((DateTime-FieldSelection)) |
 |              | [Tuple fields]((Tuple-FieldSelection))  |
 |              | [Relation columns]((Relation-FieldSelection)) |
-| `Exp~1~ [ Name = Exp~2~ ]` |  ((FieldAssignment))   |  Change value of named field of structured value |
-| `Exp < field~1~, ... >` | ((FieldProjection)) |  Select fields from relation or structured value |
+| `Exp~1~ [ Name = Exp~2~ ]` |  ((Node-FieldAssignment)) ((Constructor-FieldAssignment)) ((Tuple-FieldAssignment))  |  Change value of named field of structured value |
+| `Exp < field~1~, ... >` | ((Relation-FieldProjection)), ((Tuple-FieldProjection)) |  Select fields from relation or structured value |
 | `Exp is Name` |                        | Check if `Exp` has name `Name` |
 |               | ((Library:ParseTree)), |
 |               | ((Expressions-ConcreteSyntax)), |
