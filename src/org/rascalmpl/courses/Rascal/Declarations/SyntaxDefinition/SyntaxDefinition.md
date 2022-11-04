@@ -56,7 +56,7 @@ Here _Associativity_ is nothing, or one of `assoc`, `left`, `right` or `non-asso
 * <2> a `Name` provides the algebraic constructor name for an abstract syntax definition derived from this grammar
 * <3> an ((Associativity)) group is not only a short-hand, but also derives the cross product associativity rule between all members of the group.
 * <4> this is the normal BNF-like rule alternative combinator
-* <5> this defines a transitively closed ((Priority) relation for all left- or right-recursive binary or unary expression operators (see ((Priority)) )
+* <5> this defines a transitively closed ((Priority)) relation for all left- or right-recursive binary or unary expression operators (see ((Priority)) )
 
 #### Description
 
