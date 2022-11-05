@@ -46,14 +46,14 @@ public data MuFunction =
                 muFunction(str name,                        // Function name as in source text
                            str uniqueName,                  // Function name made unique with position information in file
                            AType ftype,                     // Function type
-                           list[MuExp] formals,             // List of muVar's representing the formals
+                           list[MuExp] formals,             // List of muVar's representing the positional formals described by the function type
+                           list[MuExp] extendedFormalVars,  // List of muVar's representing the positional formals described by the function type and all nested formals (as occur in patterns)
                            lrel[str name, AType atype, MuExp defaultExp] kwpDefaults, 
                            str scopeIn,                     // Name of current scope (concatenion of surrounding unique function names)
-                           bool isVarArgs,                  // Has is variable arguments?
+                           bool isVarArgs,                  // Has it variable arguments?
                            bool isPublic,                   // Is it public?
                            bool isMemo,                     // Is it a memo function?
                            set[MuExp] externalRefs,         // References to variables in outer scope
-                           set[MuExp] externalFormalRefs,   // Formal parameters referenced by inner functions
                            set[MuExp] localRefs,            // references to local variables from visits
                            set[MuExp] keywordParameterRefs, // References to keyword parameters
                            loc src,                         // Source code of this function
@@ -180,7 +180,7 @@ public data MuExp =
           | muGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)
           | muGuardedGetKwField(AType resultType, AType consType, MuExp exp, str fieldName, str moduleName)
 
-          | muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl)
+          | muSetField(AType resultType, AType baseType, MuExp baseExp, value fieldIdentity, MuExp repl)    /* order */
           
           // Conditionals and iterations
                     														
@@ -202,10 +202,10 @@ public data MuExp =
           | muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont)
          
           // Backtracking
-          
-          | muExists(str btscope, MuExp exp)
-          | muAll(str btscope, MuExp exp)
                                                                 // Enter a backtracking scope
+          | muExists(str btscope, MuExp exp)                    // One execution of exp succeeds
+          | muAll(str btscope, MuExp exp)                       // All executions of exp succeed
+ 
           | muSucceed(str btscope, str comment="")              // Succeed in current backtracking scope
           | muFail(str label, str comment="")                   // Fail in current backtracking scope                      
           
@@ -269,9 +269,9 @@ public data MuExp =
           | muNotNativeBool(MuExp exp)
         
           // Operations on lists
-          | muSubscript(MuExp exp, MuExp idx)
-          | muSubList(MuExp lst, MuExp from, MuExp len)
-          | muConcreteSubList(MuExp lst, MuExp from, MuExp len, MuExp delta)
+          | muSubscript(MuExp exp, MuExp idx) /* order */
+          | muSubList(MuExp lst, MuExp from, MuExp len) /* order */
+          | muConcreteSubList(MuExp lst, MuExp from, MuExp len, MuExp delta) /* order */
           
           // Regular expressions
           | muRegExpCompile(MuExp regExp, MuExp subject)
@@ -317,8 +317,13 @@ data MuCase = muCase(int fingerprint, MuExp exp);
 
 // ==== Checks ================================================================
 
-MuExp muVar(str name, str _fuid, int _pos, AType _atype){
+MuExp muVar(str name, str fuid, int pos, AType atype){
     assert !isEmpty(name);
+    if(atype.label?){
+    u_atype = unsetRec(atype, "alabel");
+    if(atype != u_atype)
+        return muVar(name, fuid, pos, u_atype);
+    }
     fail;
 }
 
@@ -492,8 +497,8 @@ bool exitViaReturn1(muMemoReturn0(_,_))
     = true;
 bool exitViaReturn1(muMemoReturn1(_,_,_)) 
     = true;
-bool exitViaReturn1(muThrow(_,_)) 
-    = true;
+//bool exitViaReturn1(muThrow(_,_)) 
+//    = true;
 
 //bool exitViaReturn1(muFail(str label)) 
 //    = false;
@@ -546,15 +551,19 @@ bool exitViaReturn1(muForRangeInt(str label, MuExp var, int ifirst, int istep, M
     =  exitViaReturn(body) && exitViaReturn(falseCont);
             
 bool exitViaReturn1( muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)) {
-    return all(c <- cases, exitViaReturn(c.exp)) && exitViaReturn(defaultExp);
+    returnViaDefault = exitViaReturn(defaultExp);
+    return all(c <- cases, exitViaReturn(c.exp) || returnViaDefault);
 }
 
 bool exitViaReturn1( muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)) {
-    return all(c <- cases, exitViaReturn(c.exp)) && exitViaReturn(defaultExp);
+    returnViaDefault = exitViaReturn(defaultExp);
+    return all(c <- cases, exitViaReturn(c.exp) || returnViaDefault);
 }
 
 bool exitViaReturn1(muTry(MuExp exp, MuCatch \catch, MuExp \finally))
-    = /*exitViaReturn(exp) && */exitViaReturn(\catch.body) || exitViaReturn(\finally);
+
+    = (exitViaReturn(exp) && exitViaReturn(\catch.body)) || exitViaReturn(\finally);
+   // = /*exitViaReturn(exp) && */exitViaReturn(\catch.body) || exitViaReturn(\finally);
 
 bool exitViaReturn1(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) 
     = exitViaReturn(body);
@@ -644,10 +653,10 @@ bool noSequentialExit(m:muMemoReturn1(_,_,_)) {
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muThrow(_,_)){ 
-    res = true;
-    return reportResult(m, res);
-}
+//bool noSequentialExit(m: muThrow(_,_)){ 
+//    res = true;
+//    return reportResult(m, res);
+//}
 
 bool noSequentialExit(m: muExists(str enter, MuExp exp)){
     res = noFailOrSucceed(enter, exp) && noSequentialExit(exp);// || exitViaReturn(exp);
@@ -727,14 +736,15 @@ bool noSequentialExit(m: muVisit(str visitName, MuExp subject, list[MuCase] case
 }
 
 bool noSequentialExit(m: muTry(MuExp exp, MuCatch \catch, MuExp \finally)){
-    res = noSequentialExit(exp) && noSequentialExit(\catch.body) && noSequentialExit(\finally);
+    res = (noSequentialExit(exp) && noSequentialExit(\catch.body)) || noSequentialExit(\finally);
+    //res = noSequentialExit(exp) && noSequentialExit(\catch.body) && noSequentialExit(\finally);
     return reportResult(m, res);
 }
 
-//bool noSequentialExit(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) {
-//    res = noSequentialExit(body);
-//    return reportResult(body, res);
-//}
+bool noSequentialExit(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) {
+    res = noSequentialExit(body);
+    return reportResult(body, res);
+}
 
 bool noSequentialExit(muThrow(MuExp exp, loc src))
     = true;
@@ -897,7 +907,7 @@ MuExp removeDeadCode(MuExp exp)
     
 MuExp removeDeadCode(MuExp exp, list[str] entered){
     res =  top-down-break visit(exp){
-        case mb: muBlock([*MuExp pre, MuExp exp2, *MuExp post]) => muBlock([*pre, exp2]) 
+        case muBlock([*MuExp pre, MuExp exp2, *MuExp post]) => muBlock([*pre, exp2]) 
              when !isEmpty(post), 
                   noSequentialExit(exp2)
                   //muSucceedSwitchCase(_) := post[-1] ? noSequentialExit(exp2) : exitViaReturn(exp2), bprintln("muBlock removes: <post> from <mb>")
@@ -972,9 +982,9 @@ MuExp muReturn1(AType t, muThrow(MuExp exp, loc src)){
 }    
 
 // ---- muFail ----------------------------------------------------------------
-MuExp muFail(str label){
-    fail;
-}
+//MuExp muFail(str label){
+//    fail;
+//}
     
 // ---- muFailReturn ----------------------------------------------------------
 
@@ -1418,8 +1428,8 @@ bool shouldFlatten(MuExp arg)
        || muInsert( AType _tp, MuExp _exp) := arg
        //|| muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl) := arg
        || muSetField(AType _resultType, AType _baseType, MuExp _baseExp, value _fieldIdentity, MuExp _repl) := arg
-       || muExists(_btscope, MuExp _exp) := arg 
-       || muAll(_btscope, MuExp _exp) := arg 
+       || muExists(str _btscope, MuExp _exp) := arg 
+       || muAll(str _btscope, MuExp _exp) := arg 
        || muIfElse(_cond, _thenPart, _elsePart) := arg 
        || muWhileDo(str _ab, MuExp _cond, MuExp _body) := arg
        || muBlock(_elems) := arg 
@@ -1588,7 +1598,7 @@ MuExp muConInit(MuExp var, MuExp exp)
 
 MuExp muInsert(AType t, MuExp arg)
     = muValueBlock(t, auxVars + pre + muInsert(t, flatArgs[0]))
-    when <true, auxVars, pre, flatArgs> := flattenArgs([arg]);
+    when <true, auxVars, pre, flatArgs> := flattenArgs([arg]) && !isEmpty(pre);
     
 // muVisit
 MuExp muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)

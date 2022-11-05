@@ -94,13 +94,19 @@ void generateAllFieldGetters(loc module_scope){
 private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields){
 
     adtName = adtType.adtName;
+    if(adtName == "AType"){
+       println("generateGettersForAdt: AType");
+    }
     /*
      * Create getters for common keyword fields of this data type
      */
     seen = {};
     for(<kwType, defaultExp> <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp@\loc, module_scope)){
         seen += kwType;
-        str kwFieldName = unescape(kwType.label);
+        str kwFieldName = unescape(kwType.alabel);
+        if(kwFieldName == "alabel"){
+            println("generateGettersForAdt: alabel");
+        }
         if(asubtype(adtType, treeType)){
             if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when .src is gone
         }
@@ -112,7 +118,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         
         defExprCode = promoteVarsToFieldReferences(translate(defaultExp), adtType, adtVar);
         body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /*
@@ -125,10 +131,10 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
        /*
         * Create constructor=specific getters for each keyword field
         */
-       consName = consType.label;
+       consName = consType.alabel;
        
        for(<kwType, defaultExp> <- consType.kwFields, isContainedIn(defaultExp@\loc, module_scope)){
-            str kwFieldName = kwType.label;
+            str kwFieldName = kwType.alabel;
             kwfield2cons += <kwFieldName, kwType, consType>;
             str fuid = getGetterNameForKwpField(consType, kwFieldName);
             str getterName = unescapeAndStandardize("$getkw_<adtName>_<consName>_<kwFieldName>");
@@ -138,7 +144,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
             
             defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar);
             body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", false, true, false, {}, {}, {}, {}, getModuleScope(), [], (), body));               
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
        }
     }
     
@@ -154,13 +160,13 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         returnType = lubList(conses<0>);
         getterType = afunc(returnType, [adtType], []);
         adtVar = muVar(adtName, fuid, 0, adtType);
-        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(consType.label), size(consType.fields), adtVar),
+        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(consType.alabel), size(consType.fields), adtVar),
                               muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName, findDefiningModule(getLoc(consType.kwFields[0].defaultExp)))))
                        | <kwType, consType> <- conses, isContainedIn(getLoc(consType.kwFields[0].defaultExp), module_scope)
                        ]
                        + muFailReturn(returnType)
                       );
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], "", false, true, false, {}, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /*
@@ -225,11 +231,11 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                                          afunc(abool(),[],[]),
                                          [],
                                          [],
+                                         [],
                                          inScope, 
                                          false, 
                                          true,
                                          false,
-                                         {},
                                          {},
                                          {},
                                          {},
@@ -256,7 +262,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       my_btscopes = getBTScopesParams([ft | ft <- fd.signature.parameters.formals.formals], fname);
       mubody = muBlock([]);
       if(ttags["javaClass"]?){
-         params = [ muVar(ftype.formals[i].label, fuid, i, ftype.formals[i]) | i <- [ 0 .. nformals] ];
+         params = [ muVar(ftype.formals[i].alabel, fuid, i, ftype.formals[i]) | i <- [ 0 .. nformals] ];
          mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, params, fuid));
       } else if(body_expression == dummy_body_expression){ // statements are present in body
           if(!isEmpty(body)){
@@ -285,20 +291,22 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       }
       
       leaveSignatureSection();
-      externals = getExternalRefs(formalVars, tbody, fuid);
-      
+      externals = getExternalRefs(tbody, fuid);
+      extendedFormalVars = getExtendedFunctionFormals(fd.src, fuid);
+      localRefs = getLocalRefs(tbody);
+       
       addFunctionToModule(muFunction(prettyPrintName(fd.signature.name), 
                                      fuid, 
       								 ftype,
       								 formalVars,
+      								 extendedFormalVars,
       								 kwps,
       								 inScope,
       								 isVarArgs, 
       								 isPub,
       								 isMemo,
       								 externals,
-      								 {ev | ev <- externals, ev in formalVars},
-      								 getLocalRefs(tbody),
+      								 localRefs,
       								 getKeywordParameterRefs(tbody, fuid),
       								 fd.src, 
       								 tmods, 
@@ -352,10 +360,10 @@ default bool hasParameterName(Pattern p, int i) = false;
  * Get all variables that are assigned inside a visit but are not locally introduced in that visit
  */
 set[MuExp] getAssignedInVisit(list[MuCase] cases, MuExp def)
-    = { unsetRec(v, "label") | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str name, str scope, int _, AType _), MuExp _) := exp, !(/muVarInit(v, _) := exp)};
+    = { v1 | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str name, str scope, int _, AType t), MuExp _) := exp, !(/muVarInit(v, _) := exp), t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 
 /*
- * Get all assigned variables in all visit that need to be treated as reference variables
+ * Get all assigned variables in all visits that need to be treated as reference variables
  */
 set[MuExp] getLocalRefs(MuExp exp)
     = { *getAssignedInVisit(cases, defaultExp) | /muVisit(str _, MuExp _, list[MuCase] cases, MuExp defaultExp, VisitDescriptor _) := exp };
@@ -363,15 +371,15 @@ set[MuExp] getLocalRefs(MuExp exp)
 /*
  * Get all variables that have been introduced outside the given function scope
  */
-set[MuExp] getExternalRefs(list[MuExp] formals, MuExp exp, str fuid){
-   res = { unsetRec(v, "label") | /v:muVar(str _, str fuid2, int _, AType _) := exp, fuid2 != fuid, fuid2 != ""/*, v notin formals*/};
+set[MuExp] getExternalRefs(MuExp exp, str fuid){
+   res = { v1 | /v:muVar(str _, str fuid2, int _, AType t) := exp, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
    return res;
 }
 /*
- * Get allkeyword variables that have introduced outside the given function scope
+ * Get all keyword variables that have introduced outside the given function scope
  */
 set[MuExp] getKeywordParameterRefs(MuExp exp, str fuid)
-    = { unsetRec(v, "label") | /v:muVarKwp(str _, str fuid2, AType _) := exp, fuid2 != fuid };
+    = { unsetRec(v, "alabel") | /v:muVarKwp(str _, str fuid2, AType _) := exp, fuid2 != fuid };
     
 /********************************************************************/
 /*                  Translate keyword parameters                    */
@@ -429,8 +437,8 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      str fuid = topFunctionScope();
      my_btscopes = getBTScopesParams(formalsList, fname);
      
-     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), getType(formalsList[i]))
-                                                                                    : muVar(pname, fuid, -i, getType(formalsList[i]))   
+     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), unsetRec(getType(formalsList[i]), "alabel"))
+                                                                                    : muVar(pname, fuid, -i, unsetRec(getType(formalsList[i]), "alabel"))   
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];
      leaveSignatureSection();

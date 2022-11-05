@@ -46,7 +46,8 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     
    	
    	try {
-        //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
+        //if(verbose) 
+        println("compile: Compiling <qualifiedModuleName>");
        	<tm, muMod> = r2mu(M, tm, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
         tmodels[qualifiedModuleName] = tm;
         
@@ -56,7 +57,9 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         writeFile(classFile, the_class);
         println("Written: <classFile>");
         
-        writeFile(testClassFile, the_test_class);
+        if(!isEmpty(the_test_class)){
+            writeFile(testClassFile, the_test_class);
+        }
         
         writeBinaryValueFile(constantsFile, constants);
         println("Written: <constantsFile>");    
@@ -86,12 +89,11 @@ list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|norel
     errors = [];
     start_comp = cpuTime();
     for(mname <- modules){
-    
        errors += compile1(mname, modules[mname], tmodels, moduleLocs, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
     }
     
     comp_time = (cpuTime() - start_comp)/1000000;
-    if(verbose) println("Compiling <qualifiedModuleName>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
+    /*if(verbose)*/ println("Compiling <qualifiedModuleName>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
 	
     return errors;
 }

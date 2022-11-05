@@ -43,7 +43,7 @@ public class ATypeFactory {
 
 	// avoid
 	public final Type AType_avoid = $TF.constructor($TS, AType, "avoid");
-	public final Type AType_avoid_lab = $TF.constructor($TS, AType, "avoid", str, "label");
+	public final Type AType_avoid_lab = $TF.constructor($TS, AType, "avoid", str, "alabel");
 	public final boolean $is_avoid(Type t) { return t == AType_avoid || t == AType_avoid_lab; }
 
 	public IConstructor $avoid() { return $VF.constructor(AType_avoid); }
@@ -52,7 +52,7 @@ public class ATypeFactory {
 
 	// abool
 	public final Type AType_abool = $TF.constructor($TS, AType, "abool");
-	public final Type AType_abool_lab = $TF.constructor($TS, AType, "abool", str, "label");
+	public final Type AType_abool_lab = $TF.constructor($TS, AType, "abool", str, "alabel");
 	public final boolean $is_abool(Type t) { return t == AType_abool || t == AType_abool_lab; }
 
 	public IConstructor $abool() { return $VF.constructor(AType_abool); }
@@ -61,7 +61,7 @@ public class ATypeFactory {
 
 	// aint
 	public final Type AType_aint = $TF.constructor($TS, AType, "aint");
-	public final Type AType_aint_lab = $TF.constructor($TS, AType, "aint", str, "label");
+	public final Type AType_aint_lab = $TF.constructor($TS, AType, "aint", str, "alabel");
 	public final boolean $is_aint(Type t) { return t == AType_aint || t == AType_aint_lab; }
 	
 	public IConstructor $aint() { return $VF.constructor(AType_aint); }
@@ -70,7 +70,7 @@ public class ATypeFactory {
 
 	// areal
 	public final Type AType_areal = $TF.constructor($TS, AType, "areal");
-	public final Type AType_areal_lab = $TF.constructor($TS, AType, "areal", str, "label");
+	public final Type AType_areal_lab = $TF.constructor($TS, AType, "areal", str, "alabel");
 	public final boolean $is_areal(Type t) { return t == AType_areal || t == AType_areal_lab; }
 
 	public IConstructor $areal() { return $VF.constructor(AType_areal); }
@@ -79,7 +79,7 @@ public class ATypeFactory {
 
 	// arat
 	public final Type AType_arat = $TF.constructor($TS, AType, "arat");
-	public final Type AType_arat_lab = $TF.constructor($TS, AType, "arat", str, "label");
+	public final Type AType_arat_lab = $TF.constructor($TS, AType, "arat", str, "alabel");
 	public final boolean $is_arat(Type t) { return t == AType_arat || t == AType_arat_lab; }
 
 	public IConstructor $arat() { return $VF.constructor(AType_arat); }
@@ -88,7 +88,7 @@ public class ATypeFactory {
 
 	// anum	
 	public final Type AType_anum = $TF.constructor($TS, AType,  "anum");
-	public final Type AType_anum_lab = $TF.constructor($TS, AType,  "anum", str, "label");
+	public final Type AType_anum_lab = $TF.constructor($TS, AType,  "anum", str, "alabel");
 	public final boolean $is_anum(Type t) { return t == AType_anum || t == AType_anum_lab; }
 
 	public IConstructor $anum() { return $VF.constructor(AType_anum); }
@@ -97,7 +97,7 @@ public class ATypeFactory {
 
 	// astr
 	public final Type AType_astr = $TF.constructor($TS, AType,  "astr");
-	public final Type AType_astr_lab = $TF.constructor($TS, AType,  "astr", str, "label");
+	public final Type AType_astr_lab = $TF.constructor($TS, AType,  "astr", str, "alabel");
 	public final boolean $is_astr(Type t) { return t == AType_astr || t == AType_astr_lab; }
 
 	public IConstructor $astr() { return $VF.constructor(AType_astr); }
@@ -106,7 +106,7 @@ public class ATypeFactory {
 
 	// aloc
 	public final Type AType_aloc = $TF.constructor($TS, AType,  "aloc");
-	public final Type AType_aloc_lab = $TF.constructor($TS, AType,  "aloc", str, "label");
+	public final Type AType_aloc_lab = $TF.constructor($TS, AType,  "aloc", str, "alabel");
 	public final boolean $is_aloc(Type t) { return t == AType_aloc || t == AType_aloc_lab; }
 
 	public IConstructor $aloc() { return $VF.constructor(AType_aloc); }
@@ -115,7 +115,7 @@ public class ATypeFactory {
 
 	// adatetime
 	public final Type AType_adatetime = $TF.constructor($TS, AType,  "adatetime");
-	public final Type AType_adatetime_lab = $TF.constructor($TS, AType,  "adatetime", str, "label");
+	public final Type AType_adatetime_lab = $TF.constructor($TS, AType,  "adatetime", str, "alabel");
 	public final boolean $is_adatetime(Type t) { return t == AType_adatetime || t == AType_adatetime_lab; }
 
 	public IConstructor $adatetime() { return $VF.constructor(AType_adatetime); }
@@ -124,7 +124,7 @@ public class ATypeFactory {
 
 	// alist
 	public final Type AType_alist = $TF.constructor($TS, AType, "alist", AType, "elmType");
-	public final Type AType_alist_lab = $TF.constructor($TS, AType, "alist", AType, "elmType", str, "label");
+	public final Type AType_alist_lab = $TF.constructor($TS, AType, "alist", AType, "elmType", str, "alabel");
 	public final boolean $is_alist(Type t) { return t == AType_alist || t == AType_alist_lab; }
 
 	public IConstructor $alist(IConstructor t) { return $VF.constructor(AType_alist, t); }
@@ -133,7 +133,7 @@ public class ATypeFactory {
 
 	// abag
 	public final Type AType_abag = $TF.constructor($TS, AType, "abag", AType, "elmType");
-	public final Type AType_abag_lab = $TF.constructor($TS, AType, "abag", AType, "elmType", str, "label");
+	public final Type AType_abag_lab = $TF.constructor($TS, AType, "abag", AType, "elmType", str, "alabel");
 	public final boolean $is_abag(Type t) { return t == AType_abag || t == AType_abag_lab; }
 
 	public IConstructor $abag(IConstructor t) { return $VF.constructor(AType_abag, t); }
@@ -142,7 +142,7 @@ public class ATypeFactory {
 
 	// aset
 	public final Type AType_aset = $TF.constructor($TS, AType, "aset", AType, "elmType");
-	public final Type AType_aset_lab = $TF.constructor($TS, AType, "aset", AType, "elmType", str, "label");
+	public final Type AType_aset_lab = $TF.constructor($TS, AType, "aset", AType, "elmType", str, "alabel");
 	public final boolean $is_aset(Type t) { return t == AType_aset || t == AType_aset_lab; }
 
 	public IConstructor $aset(IConstructor t) { return $VF.constructor(AType_aset, t); }
@@ -151,7 +151,7 @@ public class ATypeFactory {
 
 	// arel
 	public final Type AType_arel = $TF.constructor($TS, AType, "arel", AType, "elmType");
-	public final Type AType_arel_lab = $TF.constructor($TS, AType, "arel", AType, "elmType", str, "label");
+	public final Type AType_arel_lab = $TF.constructor($TS, AType, "arel", AType, "elmType", str, "alabel");
 	public final boolean $is_arel(Type t) { return t == AType_arel || t == AType_arel_lab; }
 
 	public IConstructor $arel(IConstructor[] ts) { return $VF.constructor(AType_arel, ts); }
@@ -164,7 +164,7 @@ public class ATypeFactory {
 
 	// alrel
 	public final Type AType_alrel = $TF.constructor($TS, AType, "alrel",AType, "elmType");
-	public final Type AType_alrel_lab = $TF.constructor($TS, AType, "alrel",AType, "elmType", str, "label");
+	public final Type AType_alrel_lab = $TF.constructor($TS, AType, "alrel",AType, "elmType", str, "alabel");
 	public final boolean $is_alrel(Type t) { return t == AType_alrel || t == AType_alrel_lab; }
 
 	public IConstructor $alrel(IConstructor[] ts) { return $VF.constructor(AType_alrel, ts); }
@@ -177,7 +177,7 @@ public class ATypeFactory {
 
 	// atuple
 	public final Type AType_atuple = $TF.constructor($TS, AType, "atuple", AType, "elmType");
-	public final Type AType_atuple_lab = $TF.constructor($TS, AType, "atuple", AType, "elmType", str, "label");
+	public final Type AType_atuple_lab = $TF.constructor($TS, AType, "atuple", AType, "elmType", str, "alabel");
 	public final boolean $is_atuple(Type t) { return t == AType_atuple || t == AType_atuple_lab; }
 
 	public IConstructor $atuple(IConstructor[] ts) { return $VF.constructor(AType_atuple, ts); }
@@ -190,7 +190,7 @@ public class ATypeFactory {
 
 	// amap
 	public final Type AType_amap = $TF.constructor($TS, AType, "amap", AType, "from", AType, "to");
-	public final Type AType_amap_lab = $TF.constructor($TS, AType, "amap", AType, "from", AType, "to", str, "label");
+	public final Type AType_amap_lab = $TF.constructor($TS, AType, "amap", AType, "from", AType, "to", str, "alabel");
 	public final boolean $is_amap(Type t) { return t == AType_amap || t == AType_amap_lab; }
 
 	public IConstructor $amap(IConstructor k, IConstructor v) { return $VF.constructor(AType_amap, k, v); }
@@ -198,16 +198,16 @@ public class ATypeFactory {
 	public IConstructor $amap(IConstructor k, IConstructor v, String label) { return $amap(k, v, $VF.string(label)); }
 
 	// afunc
-	public final Type AType_afunc = $TF.constructor($TS, AType, "afunc", AType, "ret", $TF.listType(AType), "formals", $TF.listType(Keyword), "kwFormals");
-	public final Type AType_afunc_lab = $TF.constructor($TS, AType, "afunc", AType, "ret", $TF.listType(AType), "formals", $TF.listType(Keyword), "kwFormals", str, "label");
-	public final boolean $is_afunc(Type t) { return t == AType_afunc || t == AType_afunc_lab; }
-	//TODO: bool varArgs=false, str deprecationMessage="", bool isConcreteArg=false, int abstractFingerprint=0, int concreteFingerprint=0)
-	
-	public IConstructor $afunc(IConstructor ret, IList formals, IList keywords) { return $VF.constructor(AType_afunc, formals, keywords); }
+//	public final Type AType_afunc = $TF.constructor($TS, AType, "afunc", AType, "ret", $TF.listType(AType), "formals", $TF.listType(Keyword), "kwFormals");
+//	public final Type AType_afunc_lab = $TF.constructor($TS, AType, "afunc", AType, "ret", $TF.listType(AType), "formals", $TF.listType(Keyword), "kwFormals", str, "alabel");
+//	public final boolean $is_afunc(Type t) { return t == AType_afunc || t == AType_afunc_lab; }
+//	//TODO: bool varArgs=false, str deprecationMessage="", bool isConcreteArg=false, int abstractFingerprint=0, int concreteFingerprint=0)
+//	
+//	public IConstructor $afunc(IConstructor ret, IList formals, IList keywords) { return $VF.constructor(AType_afunc, formals, keywords); }
 
 	// anode
 	public final Type AType_anode = $TF.constructor($TS, AType,  "anode");
-	public final Type AType_anode_lab = $TF.constructor($TS, AType,  "anode", str, "label");
+	public final Type AType_anode_lab = $TF.constructor($TS, AType,  "anode", str, "alabel");
 	public final boolean $is_anode(Type t) { return t == AType_anode || t == AType_anode_lab; }
 
 	public IConstructor $anode() { return $VF.constructor(AType_anode); }
@@ -216,7 +216,7 @@ public class ATypeFactory {
 
 	// aadt
 	public final Type AType_aadt = $TF.constructor($TS, AType, "aadt", str, "name", $TF.listType(AType), "parameters");
-	public final Type AType_aadt_lab = $TF.constructor($TS, AType, "aadt", str, "name", $TF.listType(AType), "parameters", str, "label");
+	public final Type AType_aadt_lab = $TF.constructor($TS, AType, "aadt", str, "name", $TF.listType(AType), "parameters", str, "alabel");
 	public final boolean $is_aadt(Type t) { return t == AType_aadt || t == AType_aadt_lab; }
 
 	public IConstructor $aadt(IString adtName, IList parameters, IConstructor syntaxRole) { return $VF.constructor(AType_aadt, adtName, parameters, syntaxRole); }
@@ -225,7 +225,7 @@ public class ATypeFactory {
 
 	// acons
 	public final Type AType_acons = $TF.constructor($TS, AType, "acons", AType, "aadt", $TF.listType(AType), "fields", $TF.listType(Keyword), "kwFields");
-	public final Type AType_acons_lab = $TF.constructor($TS, AType, "acons", AType, "aadt", $TF.listType(AType), "fields", $TF.listType(Keyword), "kwFields", str, "label");
+	public final Type AType_acons_lab = $TF.constructor($TS, AType, "acons", AType, "aadt", $TF.listType(AType), "fields", $TF.listType(Keyword), "kwFields", str, "alabel");
 	public final boolean $is_acons(Type t) { return t == AType_acons || t == AType_acons_lab; }
 
 	public IConstructor $acons(IConstructor adt, IList fields, IList kwFields) { return $VF.constructor(AType_acons, adt, fields, kwFields); }
@@ -234,7 +234,7 @@ public class ATypeFactory {
 
 	// aprod
 	public final Type AType_aprod = $TF.constructor($TS, AType,  "aprod", AProduction, "production");
-	public final Type AType_aprod_lab = $TF.constructor($TS, AType,  "aprod", AProduction, "production", str, "label");
+	public final Type AType_aprod_lab = $TF.constructor($TS, AType,  "aprod", AProduction, "production", str, "alabel");
 	public final boolean $is_aprod(Type t) { return t == AType_aprod || t == AType_aprod_lab; }
 
 	public IConstructor $aprod(IConstructor production) { return $VF.constructor(AType_aprod, production); }
@@ -243,7 +243,7 @@ public class ATypeFactory {
 
 	// aparameter
 	public final Type AType_aparameter = $TF.constructor($TS, AType, "aparameter", str , "pname", AType, "bound");
-	public final Type AType_aparameter_lab = $TF.constructor($TS, AType, "aparameter", str , "pname", AType, "bound", str, "label");
+	public final Type AType_aparameter_lab = $TF.constructor($TS, AType, "aparameter", str , "pname", AType, "bound", str, "alabel");
 	public final boolean $is_aparameter(Type t) { return t == AType_aparameter || t == AType_aparameter_lab; }
 
 	public IConstructor $aparameter(IString pname, IConstructor bound) { return $VF.constructor(AType_aparameter, pname, bound); }
@@ -251,7 +251,7 @@ public class ATypeFactory {
 	// areified
 	
 	public final Type AType_areified = $TF.constructor($TS, AType, "areified", AType, "atype");
-	public final Type AType_areified_lab = $TF.constructor($TS, AType, "areified", AType, "atype", str, "label");
+	public final Type AType_areified_lab = $TF.constructor($TS, AType, "areified", AType, "atype", str, "alabel");
 	public final boolean $is_areified(Type t) { return t == AType_areified || t == AType_areified_lab; }
 
 	public IConstructor $areified(IConstructor t) { return $VF.constructor(AType_areified, t); }
@@ -260,7 +260,7 @@ public class ATypeFactory {
 
 	// avalue
 	public final Type AType_avalue = $TF.constructor($TS, AType,  "avalue");
-	public final Type AType_avalue_lab = $TF.constructor($TS, AType,  "avalue", str, "label");
+	public final Type AType_avalue_lab = $TF.constructor($TS, AType,  "avalue", str, "alabel");
 	public final boolean $is_avalue(Type t) { return t == AType_avalue || t == AType_avalue_lab; }
 
 	public IConstructor $avalue() { return $VF.constructor(AType_avalue); }

@@ -287,13 +287,12 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
                                  muBlock([]),
                                  normalize=toStat);
     } else {
-        btscopes = getBTScopesAnd(conds, ifName, btscopes);
         resume = getResume(normalizeAnd(conds)[-1], btscopes);
         enterLabelled(label, ifName, resume);
         thenCode = translate(thenStatement, btscopes);
-        //if(hasSequentialExit(thenCode)){            // TODO: when is this needed?
-        //    thenCode = muBlock([thenCode, muFail(ifName)]);
-        //}
+        if(hasSequentialExit(thenCode)){            
+            thenCode = muBlock([thenCode, muFail(ifName)]); // fail to potential backtracking alternative
+        }
         code = muExists(ifName, 
                        translateAndConds(btscopes, 
                                          conds, 
@@ -342,13 +341,16 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
                                  elseCode, 
                                  normalize=toStat);
     } else {
-        btscopes = getBTScopesAnd(conds, ifName, btscopes);
         resume = getResume(normalizeAnd(conds)[-1], btscopes);
         enterLabelled(label, ifName, resume);
         thenCode = translate(thenStatement, btscopes);
-        //if(thenCode !:= muBlock([]) && hasSequentialExit(thenCode)){
-        //    thenCode = muBlock([thenCode, muFail(ifName)]);
-        //}
+        if(hasSequentialExit(thenCode)){
+            //println("if-then-else, then has sequential exit:");
+            //println(thenStatement);
+            //println("---");
+            //iprintln(thenCode);
+            thenCode = muBlock([thenCode, muFail(ifName)]); // fail to potential backtracking alternative
+        }
     
         code = muExists(ifName, 
                         translateAndConds(btscopes, 
@@ -449,8 +451,9 @@ map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, 
             if(!noSequentialExit(statCode)){
                 statCode = muBlock([statCode, succeedCase]);
             }
-            table[key] += [ muIf(muValueIsComparable(switchVal, getType(pwa.pattern)),
-                                        muExists(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes,
+            patType = getType(pwa.pattern);
+            table[key] += [ muIf(muValueIsComparable(switchVal, patType),
+                                        muExists(caseLabel, translatePat(pwa.pattern, patType, switchVal, btscopes,
                                                                         muBlock([*stringVisitUpdate, statCode]),
                                                                         muBlock([]))))
                           ]; 
@@ -460,9 +463,10 @@ map[int, list[MuExp]] addPatternWithActionCode(str switchName, MuExp switchVal, 
             statCode = translate(pwa.statement, btscopes1);
             if(!noSequentialExit(statCode)){
                 statCode = muBlock([statCode, succeedCase]);
-            }                                   
-            table[key] += [ muIf(muValueIsComparable(switchVal, getType(pwa.pattern)), 
-                                        muExists(caseLabel, translatePat(pwa.pattern, getType(switchVal), switchVal, btscopes1,
+            }  
+            patType = getType(pwa.pattern);                                 
+            table[key] += [ muIf(muValueIsComparable(switchVal, patType), 
+                                        muExists(caseLabel, translatePat(pwa.pattern, patType, switchVal, btscopes1,
                                                statCode,
                                                muBlock([]))))
                           ];   
@@ -907,6 +911,9 @@ MuExp translateReturn(AType resultType, Expression expression, BTSCOPES btscopes
    	    return res;                    
     } else
     if(isConditional(expression) /*&& !backtrackFree(expression)*/){
+        while((Expression) `( <Expression expression1> )` := expression){
+            expression = expression1;
+        }
         btscopes1 = getBTScopes(expression, nextTmp("RET"));
         res = muBlock([ muExists(getEnter(expression, btscopes1), 
                                 translateBool(expression.condition, btscopes1, muReturn1(resultType, translate(expression.thenExp)), muBlock([]))),

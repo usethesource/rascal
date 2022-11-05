@@ -510,8 +510,8 @@ void checkComparisonOp(str op, Expression current, Collector c){
 }
 
 private AType _computeComparisonType(Tree current, AType t1, AType t2, Solver s){
-    if(t1.label?) t1 = unset(t1, "label");      // TODO: do this for all operators?
-    if(t2.label?) t2 = unset(t2, "label");
+    if(t1.alabel?) t1 = unset(t1, "alabel");      // TODO: do this for all operators?
+    if(t2.alabel?) t2 = unset(t2, "alabel");
     if(comparable(t1, t2) || (isNumericType(t1) && isNumericType(t2)))
        return abool();
         

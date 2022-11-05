@@ -11,7 +11,7 @@ module lang::rascalcore::grammar::definition::Layout
 //import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-//import IO;
+import IO;
 
 
 // TODO: The following two functions were defined local to activeLayout
@@ -45,10 +45,13 @@ import lang::rascalcore::check::ATypeUtils;
 @doc{intersperses layout symbols in all non-lexical productions}
 public AGrammar layouts(AGrammar g, AType l, set[AType] others) {
   
-  return top-down-break visit (g) {
+  res = top-down-break visit (g) {
     case p: prod(\start(aadt(_, list[AType] _, contextFreeSyntax())), [x]) => p[atypes=[l, x, l]]
+       
     case p: prod(aadt(_, list[AType] _, contextFreeSyntax()), list[AType] lhs) => p[atypes=intermix(lhs, l, others)]
   }
+  //iprintln(res);
+  return res;
 } 
 
 list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
@@ -67,7 +70,7 @@ list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
   return syms;
 }
 
-private AType inheritLabel(AType x, AType y) = (x.label?) ? y[label=x.label] : y;
+private AType inheritLabel(AType x, AType y) = (x.alabel?) ? y[alabel=x.alabel] : y;
  
 private AType regulars(AType s, AType l, set[AType] others) {
   return visit(s) {

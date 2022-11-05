@@ -94,7 +94,7 @@ AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* mod
     src = getLoc(current);
     p = isEmpty(m2a) ? prod(adtType, args, src=src) : prod(adtType, args, attributes=m2a, src=src);
     if(name != ""){
-        p.label = name;
+        p.alabel = name;
     }
     
     forbidConsecutiveLayout(current, args, s);
@@ -157,8 +157,8 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                     //fields = cprod has atypes ? [ t | sym <- cprod.atypes, tsym := s.getType(sym), t := removeConditional(tsym), isNonTerminalType(t)]
                     //                          : [];          
                     def = \start(sdef) := def ? sdef : def;
-                    //def = \start(sdef) := def ? sdef : unset(def, "label");
-                    return acons(def, fields, [], label=unescape("<name>"));
+                    //def = \start(sdef) := def ? sdef : unset(def, "alabel");
+                    return acons(def, fields, [], alabel=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
             }));
         collect(symbols, c);
@@ -187,15 +187,15 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector 
 }
 
 private AProduction associativity(AType nt, nothing(), AProduction p) = p;
-private default AProduction associativity(AType nt, just(Associativity a), AProduction p) = associativity(nt, a, {p});
+private default AProduction associativity(AType nt, just(AAssociativity a), AProduction p) = associativity(nt, a, {p});
 
 void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
     asc = Associativity::\left();
     switch("<ass>"){
-    case "assoc":       asc = Associativity::\left();
-    case "left":        asc = Associativity::\left();
-    case "non-assoc":   asc = Associativity::\non-assoc();
-    case "right":       asc = Associativity::\right();
+    case "assoc":       asc = AAssociativity::aleft();
+    case "left":        asc = AAssociativity::aleft();
+    case "non-assoc":   asc = AAssociativity::\a-non-assoc();
+    case "right":       asc = AAssociativity::aright();
     }
     
     if(<Tree adt, list[KeywordFormal] _, loc _> := c.top(currentAdt)){

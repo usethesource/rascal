@@ -50,8 +50,10 @@ data JGenie
         void(set[MuExp] evars) addExternalRefs,
         bool (MuExp exp) isExternalRef,
         void(set[MuExp] lvars) addLocalRefs,
-        //bool(MuExp lvar) isLocalRef,
+        bool(MuExp lvar) isLocalRef,
         bool(MuExp var) isRef,
+        bool (MuExp var)varHasLocalScope,
+        bool (MuExp var)varHasGlobalScope,
         str(str prefix) newTmp,
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
@@ -92,7 +94,7 @@ JGenie makeJGenie(MuModule m,
     set[loc] extending = currentTModel.paths[currentModuleScope, extendPath()];
     rel[loc, loc] importedByExtend = {<i, e> | e <- extending, i <- currentTModel.paths[e, importPath()]};
     str functionName = "$UNKNOWN";
-    MuFunction function = muFunction("", "", avalue(), [], [], "", false, true, false, {}, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
+    MuFunction function = muFunction("", "", avalue(), [], [], [], "", false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
     
     map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs | fun <- range(muFunctions), fun.scopeIn != "");
@@ -179,13 +181,13 @@ JGenie makeJGenie(MuModule m,
     bool b = false;
     @memo
     str _getATypeAccessor(AType t){
-        t1 = unsetR(t, "label");
-        tlabel = t.label? ? getUnqualifiedName(t.label) : "";
+        t1 = unsetR(t, "alabel");
+        tlabel = t.alabel? ? getUnqualifiedName(t.alabel) : "";
         
         defs = {};
         for(Define def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId())){
-            //!isConstructorType(t1) || def.defInfo.atype.label == t.label
-            if((isConstructorType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.label == tlabel) ||
+            //!isConstructorType(t1) || def.defInfo.atype.alabel == t.alabel
+            if((isConstructorType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.alabel == tlabel) ||
                (aadt(adtName,ps1,_) := t1 && aadt(adtName,ps2,_) := def.defInfo.atype && asubtype(ps1, ps2))){
                 defs += def;
             }
@@ -220,7 +222,7 @@ JGenie makeJGenie(MuModule m,
                         return baseName;
                     } else {
                         return def.scope in importScopes ? "<_getImportedModuleName(def.defined)>.<baseName>"
-                                                         : "<isClosureName(baseName) ? "" : ""/*"$me."*/><baseName>";
+                                                         : "<isClosureName(baseName) ? "" : "$me."><baseName>";
                     }
                  }
             }
@@ -252,9 +254,6 @@ JGenie makeJGenie(MuModule m,
                 break;
             }
         }
-        if(name == "head"){
-            println("head");
-        }
        
         if(isSyntheticFunctionName(name)){
             return name;
@@ -266,15 +265,15 @@ JGenie makeJGenie(MuModule m,
             return "<scopeIn>_<name>";
         }
         
-        //if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
-        //    for(d <- srcs){
-        //        def = currentTModel.definitions[d];
-        //        if(isConstructorType(def.defInfo.atype)){
-        //            return name;
-        //        }
-        //    }
-        //    return "$me.<name>";
-        //}
+        if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
+            for(d <- srcs){
+                def = currentTModel.definitions[d];
+                if(isConstructorType(def.defInfo.atype)){
+                    return name;
+                }
+            }
+            return "$me.<name>";
+        }
         //
         //return "$me.<name>";
         
@@ -408,7 +407,7 @@ JGenie makeJGenie(MuModule m,
     AType setScopeInfoType = afunc(
           avoid(),
           [
-            aloc(label="scope"),
+            aloc(alabel="scope"),
             aadt(
               "ScopeRole",
               [],
@@ -419,7 +418,7 @@ JGenie makeJGenie(MuModule m,
     
     str _shareType(AType atype){
         //println("%%%%% shareType: <atype>");
-        //atype = unsetR(atype, "label");
+        //atype = unsetR(atype, "alabel");
         couter = "";
         if(type2id[atype]?){
             return type2id[atype];
@@ -540,10 +539,11 @@ JGenie makeJGenie(MuModule m,
     }
     
     bool _isExternalRef(MuExp var) 
-        = var in function.externalRefs //externalRefs               // it is an external reference
-          && var.pos != -1                  // not a global variable
+        = var in function.externalRefs          // it is an external reference
+          && var.pos != -1                      // not a global variable
+ //         && var.fuid != function.uniqueName    // not a local variable of the current function
           
-          //&& (function.scopeIn == "" ? var notin unsetRec(function.formals, "label")
+          //&& (function.scopeIn == "" ? var notin unsetRec(function.formals, "alabel")
           //                           : var.fuid == function.scopeIn)
                                      
           //&& (!(function.scopeIn == "" && var in function.formals)
@@ -557,7 +557,14 @@ JGenie makeJGenie(MuModule m,
     
     private bool _isLocalRef(MuExp var) = var in localRefs;
     
-    bool _isRef(MuExp var) { var1 = unsetRec(var, "label"); return _isExternalRef(var1) || _isLocalRef(var1); }
+    //bool _isRef(MuExp var) {
+    //    return _isExternalRef(var) || _isLocalRef(var);
+    //}
+    
+    bool _isRef(MuExp var) { var1 = unsetRec(var, "alabel"); return _isExternalRef(var1) || _isLocalRef(var1); }
+    
+    bool _varHasLocalScope(MuExp var) = var.pos >= 0 && var.fuid == function.uniqueName;
+    bool _varHasGlobalScope(MuExp var) = var.pos < 0;
     
     str _newTmp(str prefix){
         ntmps += 1;
@@ -616,8 +623,10 @@ JGenie makeJGenie(MuModule m,
                 _addExternalRefs,
                 _isExternalRef,
                 _addLocalRefs,
-              //  _isLocalRef,
+                _isLocalRef,
                 _isRef,
+                _varHasLocalScope,
+                _varHasGlobalScope,
                 _newTmp,
                 _addImportedLibrary,
                 _getImportedLibraries,

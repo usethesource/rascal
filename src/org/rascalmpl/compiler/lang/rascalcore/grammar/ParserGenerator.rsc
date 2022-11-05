@@ -210,12 +210,12 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            '    
            '  // Item declarations
            '	<for (AType s <- (newItems<0>), isNonTerminalType(s)) {
-               s = unset(s, "label");
+               s = unset(s, "alabel");
 	           items = newItems[s];
 	          
 	           map[AProduction prods, list[Item] items] alts = ();
 	           for(Item item <- items) {
-		         AProduction prod = unsetRec(item.production, {"label", "src"});
+		         AProduction prod = unsetRec(item.production, {"alabel", "src"});
 		    
 		         if (prod in alts) {
 			       alts[prod] = alts[prod] + item;
@@ -291,7 +291,7 @@ int getItemId(AType s, int pos, prod(AType u,list[AType] _)) {
 
 AType getType(AProduction p) = getType(p.def);
 AType getType(conditional(AType s, set[ACondition] cs)) = getType(s);
-default AType getType(AType s) = unsetRec(s, {"id", "label"});
+default AType getType(AType s) = unsetRec(s, {"id", "alabel"});
 
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
@@ -444,7 +444,7 @@ public str ciliterals2ints(list[AType] chars){
 
 public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int dot){
     if (sym.label?)  // ignore labels 
-      sym = unset(sym, "label");
+      sym = unset(sym, "alabel");
       
     itemId = sym.id;
     assert itemId != 0;
@@ -470,7 +470,7 @@ public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int d
       
       sym = sym.symbol;
       if (sym.label?)  // ignore labels 
-        sym = unset(sym, "label");
+        sym = unset(sym, "alabel");
     }
     
     filters = "";
@@ -572,7 +572,7 @@ public str escId(str s){
 
 public str sym2name(AType s){
     //return value2id(unset(s, "label"));
-     res = aadt(x, [], contextFreeSyntax()) := s ? "<x>" :  value2id(unset(s, "label"));
+     res = aadt(x, [], contextFreeSyntax()) := s ? "<x>" :  value2id(unset(s, "alabel"));
      //println("sym2name: <s> ==\> <res>");
      return res;
 }
@@ -596,7 +596,7 @@ str v2i(value v){
 }
 default str xxv2i(value v) {
     switch (v) {
-        case AType u : if(u.label? && !isEmpty(u.label)) return escId(u.label) + "_" + xxv2i(unset(u, "label"));else fail;
+        case AType u : if(u.label? && !isEmpty(u.label)) return escId(u.label) + "_" + xxv2i(unset(u, "alabel"));else fail;
         case \start(AType s) : return "start__<xxv2i(s)>";
         case s:aadt(nm, list[AType] args, layoutSyntax()) :  
             return "layouts_<escId(nm)>";

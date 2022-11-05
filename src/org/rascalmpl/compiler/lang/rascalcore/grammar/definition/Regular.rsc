@@ -57,7 +57,7 @@ public AGrammar makeRegularStubs(AGrammar g) {
 }
 
 public set[AProduction] makeRegularStubs(set[AProduction] prods) {
-  return {regular(reg) | /AProduction p:prod(_,_) <- prods, sym <- p.asymbols, reg <- getRegular(sym) };
+  return {regular(reg) | /AProduction p:prod(_,_) <- prods, sym <- p.atypes, reg <- getRegular(sym) };
 }
 
 private set[AType] getRegular(AType s) = { t | /AType t := s, isRegular(t) }; 

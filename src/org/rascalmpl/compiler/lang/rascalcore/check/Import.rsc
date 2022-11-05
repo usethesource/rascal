@@ -326,7 +326,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         m1.store[key_common_keyword_fields]   
             = tm.store[key_common_keyword_fields] ? [];
         
-        m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes || tup.from in filteredModuleScopePaths };
+        m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
         //m1.paths = tm.paths; //{ tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope };
         //iprintln(m1.paths);
         
@@ -365,6 +365,9 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         //
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
         try {
+            if(!isEmpty(m1.messages)){
+                iprintln(m1.messages);
+            }
             writeBinaryValueFile(tplLoc, m1);
             println("Written: <tplLoc>");
         } catch _: {

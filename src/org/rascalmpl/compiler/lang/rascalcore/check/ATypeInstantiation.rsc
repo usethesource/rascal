@@ -183,16 +183,16 @@ AType instantiateRascalTypeParams(amap(AType md, AType mr), Bindings bindings)
 AType instantiateRascalTypeParams(abag(AType et), Bindings bindings) 
     = abag(instantiateRascalTypeParams(et,bindings));
 AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings bindings)
-    = pt.label? ? bindings[s][label=pt.label] : bindings[s] when s in bindings && asubtype(bindings[s],t);
+    = pt.alabel? ? bindings[s][alabel=pt.alabel] : bindings[s] when s in bindings && asubtype(bindings[s],t);
 AType instantiateRascalTypeParams(aparameter(str s, AType t), Bindings bindings) 
     = invalidInstantiation(s,t,bindings[s]) when s in bindings && !asubtype(bindings[s],t);
 AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings bindings) 
     = pt when s notin bindings;
 AType instantiateRascalTypeParams(a: aadt(str s, list[AType] ps, SyntaxRole sr), Bindings bindings) 
     = aadt(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], sr);
-AType instantiateRascalTypeParams(acons(AType a, /*str name,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields, label=consName), Bindings bindings) = 
-    //acons(instantiateRascalTypeParams(a,bindings), /*name,*/ [<fn, instantiateRascalTypeParams(ft,bindings)> | <fn, ft> <- fields], [<fn, instantiateRascalTypeParams(ft,bindings), de> | <fn, ft, de> <- kwFields], label=consName);
-    acons(instantiateRascalTypeParams(a,bindings), /*name,*/ [instantiateRascalTypeParams(ft,bindings) | ft <- fields], [<instantiateRascalTypeParams(ft,bindings), de> | <ft, de> <- kwFields], label=consName);
+AType instantiateRascalTypeParams(acons(AType a, /*str name,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields, alabel=consName), Bindings bindings) = 
+    //acons(instantiateRascalTypeParams(a,bindings), /*name,*/ [<fn, instantiateRascalTypeParams(ft,bindings)> | <fn, ft> <- fields], [<fn, instantiateRascalTypeParams(ft,bindings), de> | <fn, ft, de> <- kwFields], alabel=consName);
+    acons(instantiateRascalTypeParams(a,bindings), /*name,*/ [instantiateRascalTypeParams(ft,bindings) | ft <- fields], [<instantiateRascalTypeParams(ft,bindings), de> | <ft, de> <- kwFields], alabel=consName);
     
 AType instantiateRascalTypeParams(aalias(str s, list[AType] ps, AType at), Bindings bindings)
     = aalias(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], instantiateRascalTypeParams(at,bindings));
@@ -207,7 +207,7 @@ AType instantiateRascalTypeParams(\iter-seps(AType s, list[AType] seps), Binding
 AType instantiateRascalTypeParams(\iter-star-seps(AType s, list[AType] seps), Bindings bindings) = \iter-star-seps(instantiateRascalTypeParams(s,bindings),seps);
 AType instantiateRascalTypeParams(\opt(AType s), Bindings bindings) = \opt(instantiateRascalTypeParams(s,bindings));
 AType instantiateRascalTypeParams(\conditional(AType s, set[ACondition] conds), Bindings bindings) = \conditional(instantiateRascalTypeParams(s,bindings),conds);
-//AType instantiateRascalTypeParams(\prod(AType def, list[AType] asymbols, set[Attr] attributes=attrs, set[SyntaxKind] syntaxKind=sk, loc src=src), Bindings bindings)
+//AType instantiateRascalTypeParams(\prod(AType def, list[AType] asymbols, set[AAttr] attributes=attrs, set[SyntaxKind] syntaxKind=sk, loc src=src), Bindings bindings)
 //    = \prod(instantiateRascalTypeParams(def, bindings), asymbols, attributes=attrs, syntaxKind = sk, src=src);
 default AType instantiateRascalTypeParams(AType t, Bindings bindings) {
     return t;
@@ -228,7 +228,7 @@ AType xxInstantiateRascalTypeParameters(Tree selector, AType t, Bindings binding
         return visit(t) { case param:aparameter(str pname, AType bound): {
                                 if(bindings[pname]?){
                                     if(asubtype(bindings[pname], bound)){
-                                        repl = param.label? ? bindings[pname][label=param.label] :  bindings[pname]; //TODO simplified for compiler
+                                        repl = param.alabel? ? bindings[pname][alabel=param.alabel] :  bindings[pname]; //TODO simplified for compiler
                                         insert repl;
                                     }
                                     else {

@@ -166,7 +166,7 @@ default AType rascalInstantiateTypeParameters(Tree selector, AType formalType, A
 //    else
 //        return visit(t) { case param:aparameter(str pname, AType bound):
 //                                if(asubtype(bindings[pname], bound)){
-//                                    insert param.label? ? bindings[pname][label=param.label] :  bindings[pname];
+//                                    insert param.alabel? ? bindings[pname][alabel=param.alabel] :  bindings[pname];
 //                               }
 //                                else 
 //                                    s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
@@ -354,8 +354,8 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     try {
     matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
     for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, d1.defined != d2.defined){
-        for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.label == fld2.label, !isEmpty(fld1.label), !comparable(fld1, fld2)){
-            msgs = [ warning("Field `<fld1.label>` is declared with different types in constructors `<d1.id>` and `<d2.id>` for `<t1.adt.adtName>`", d1.defined)
+        for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.alabel == fld2.alabel, !isEmpty(fld1.alabel), !comparable(fld1, fld2)){
+            msgs = [ warning("Field `<fld1.alabel>` is declared with different types in constructors `<d1.id>` and `<d2.id>` for `<t1.adt.adtName>`", d1.defined)
                    ];
             s.addMessages(msgs);
         }

@@ -73,7 +73,7 @@ default bool backtrackFree(Pattern p) = !isMultiVar(p);
 /*                  BacktrackFree for Concrete Patterns   == Tree    */
 /*********************************************************************/
 
-bool backtrackFreeConcrete(Tree::appl(prod(label("concrete",sort("Pattern")),[label("concrete",lex("Concrete"))], {}),[Tree concrete1])){
+bool backtrackFreeConcrete(appl(prod(label("concrete",sort("Pattern")),[label("concrete",lex("Concrete"))], {}),[Tree concrete1])){
     if(appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree concrete2]) := concrete1){
         for(/appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole _]) := concrete2){
             //println("hole: <hole>, type: <holeType>");
@@ -83,19 +83,19 @@ bool backtrackFreeConcrete(Tree::appl(prod(label("concrete",sort("Pattern")),[la
     return true;
 } 
 
-bool backtrackFreeConcrete(Tree::appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole])){
+bool backtrackFreeConcrete(appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole])){
     return !isIterSymbol(holeType);
 }
 
-bool backtrackFreeConcrete(Tree::appl(prod(_, [lit(_)],{}), [Tree_])) {
+bool backtrackFreeConcrete(appl(prod(_, [lit(_)],{}), [Tree_])) {
     return true;   
 }
 
-bool backtrackFreeConcrete(Tree::appl(prod(_, [cilit(_)],{}), [Tree_])) {
+bool backtrackFreeConcrete(appl(prod(_, [cilit(_)],{}), [Tree_])) {
     return true;   
 }
 
-bool backtrackFreeConcrete(Tree::appl(prod(_, [\char-class(_)],{}), [Tree_])) {
+bool backtrackFreeConcrete(appl(prod(_, [\char-class(_)],{}), [Tree_])) {
     return true;   
 }
 
@@ -103,17 +103,19 @@ bool backtrackFreeConcrete(Tree::char(_)) {
     return true;   
 }
 
-bool backtrackFreeConcrete(Tree::appl(prod(layouts(_), [_],{}), [Tree_])) {
+bool backtrackFreeConcrete(appl(prod(layouts(_), [_],{}), [Tree_])) {
     return true;   
 }
 
-bool backtrackFreeConcrete(Tree::appl(prod(Symbol def, list[Symbol] symbols, {}), list[Tree] args)) {
+bool backtrackFreeConcrete(appl(prod(Symbol def, list[Symbol] symbols, {}), list[Tree] args)) {
     for(/appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole _hole]) := symbols){
             //println("hole: <hole>, type: <holeType>");
             if(isIterSymbol(holeType)) return false;
         } 
     return true;  
 }
+
+default bool backtrackFreeConcrete(Tree _) = true;
 
 // Some utilities
 

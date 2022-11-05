@@ -29,7 +29,7 @@ import String;
 
 str unescape(str s) = replaceAll(s, "\\", "");
 
-AType removeLabels(AType t) = unsetRec(t, "label");
+AType removeLabels(AType t) = unsetRec(t, "alabel");
 
 // ---- print atypes ----------------------------------------------------------
 
@@ -40,7 +40,7 @@ str prettyAType(areal()) = "real";
 str prettyAType(arat()) = "rat";
 str prettyAType(astr()) = "str";
 str prettyAType(anum()) = "num";
-str prettyAType(anode(list[AType fieldType] fields)) = isEmpty(fields) ? "node" : "node(<intercalate(", ", ["<prettyAType(ft)> <ft.label> = ..." | ft <- fields])>)";
+str prettyAType(anode(list[AType fieldType] fields)) = isEmpty(fields) ? "node" : "node(<intercalate(", ", ["<prettyAType(ft)> <ft.alabel> = ..." | ft <- fields])>)";
 str prettyAType(avoid()) = "void";
 str prettyAType(avalue()) = "value";
 str prettyAType(aloc()) = "loc";
@@ -53,7 +53,7 @@ str prettyAType(arel(AType ts)) = "rel[<prettyAType(ts)>]";
 str prettyAType(alrel(AType ts)) = "lrel[<prettyAType(ts)>]";
 
 str prettyAType(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
-                = "<prettyAType(ret)>(<intercalate(",", [prettyAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, _> <- kwFormals])>)";
+                = "<prettyAType(ret)>(<intercalate(",", [prettyAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.alabel>=..." | <ft, _> <- kwFormals])>)";
 
 str prettyAType(aalias(str aname, [], AType aliased)) = "alias <aname> = <prettyAType(aliased)>";
 str prettyAType(aalias(str aname, ps, AType aliased)) = "alias <aname>[<prettyAType(ps)>] = <prettyAType(aliased)>" when size(ps) > 0;
@@ -66,7 +66,7 @@ str prettyAType(aadt(str s, ps, SyntaxRole _)) = "<s>[<prettyAType(ps)>]" when s
 str prettyAType(t: acons(AType adt, /*str consName,*/ 
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
-                 = "<prettyAType(adt)>::<t.label>(<intercalate(", ", ["<prettyAType(ft)><ft.label? ? " <ft.label>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, _> <- kwFields])>)";
+                 = "<prettyAType(adt)>::<t.alabel>(<intercalate(", ", ["<prettyAType(ft)><ft.alabel? ? " <ft.alabel>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.alabel>=..." | <ft, _> <- kwFields])>)";
 
 str prettyAType(amodule(str mname)) = "module <mname>";         
 str prettyAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyAType(t)>";
@@ -78,15 +78,15 @@ str prettyAType(overloadedAType(rel[loc, IdRole, AType] overloads))
 
 str prettyAType(list[AType] atypes) = intercalate(", ", [prettyAType(t) | t <- atypes]);
 
-str prettyAType(Keyword kw) = "<prettyAType(kw.fieldType) <kw.fieldType.label/*fieldName*/> = <kw.defaultExp>";
+str prettyAType(Keyword kw) = "<prettyAType(kw.fieldType) <kw.fieldType.alabel/*fieldName*/> = <kw.defaultExp>";
 
 // non-terminal symbols
 str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyAType(s)> : (<intercalate(", ", [ prettyAType(f) | f <- fs ])>)"; //TODO others
 
 // terminal symbols
-str prettyAType(AType::\lit(str string)) = string;
-str prettyAType(AType::\cilit(str string)) = string;
-str prettyAType(cc: \char-class(list[ACharRange] ranges)) { 
+str prettyAType(AType::alit(str string)) = string;
+str prettyAType(AType::acilit(str string)) = string;
+str prettyAType(cc: \achar-class(list[ACharRange] ranges)) { 
     return cc == anyCharType ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
 }
 
@@ -109,16 +109,17 @@ private str prettyPrintCond(ACondition::\not-follow(AType symbol)) = "!\>\> <pre
 private str prettyPrintCond(ACondition::\precede(AType symbol)) = "<prettyAType(symbol)> \<\<";
 private str prettyPrintCond(ACondition::\not-precede(AType symbol)) = "<prettyAType(symbol)> !\<\<";
 private str prettyPrintCond(ACondition::\delete(AType symbol)) = "???";
-private str prettyPrintCond(ACondition::\at-column(int column)) = "@<column>";
-private str prettyPrintCond(ACondition::\begin-of-line()) = "^";
-private str prettyPrintCond(ACondition::\end-of-line()) = "$";
-private str prettyPrintCond(ACondition::\except(str label)) = "!<label>";
+private str prettyPrintCond("a-at-column"(int column)) = "@<column>";
+private str prettyPrintCond("a-begin-of-line"()) = "^";
+private str prettyPrintCond("a-end-of-line"()) = "$";
+private str prettyPrintCond("a-except"(str label)) = "!<label>";
 
 @doc{Rascal abstract types to classic Symbols}
 Symbol atype2symbol(AType tp){
+    //println("atype2symbol: <tp>");
     res = atype2symbol1(tp);
-    a = tp.label?;
-    return a ? Symbol::\label(tp.label, res) : res;
+    a = tp.alabel?;
+    return a ? Symbol::\label(tp.alabel, res) : res;
 }
 
 Symbol atype2symbol1(aint()) = \int();
@@ -160,7 +161,7 @@ Symbol atype2symbol1(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [
 Symbol atype2symbol1(t: acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
- = Symbol::cons(atype2symbol(adt), t.label, [atype2symbol(f) | f <- fields]); // we loose kw fields here
+ = Symbol::cons(atype2symbol(adt), t.alabel, [atype2symbol(f) | f <- fields]); // we loose kw fields here
 
 Symbol atype2symbol1(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2symbol(t));
 Symbol atype2symbol1(areified(AType t)) = Symbol::reified(atype2symbol(t));
@@ -182,9 +183,11 @@ Symbol atype2symbol1(Keyword kw) = atype2symbol(kw.fieldType);
 Symbol atype2symbol1(\prod(AType s, list[AType] _)) = atype2symbol(s);
 
 // terminal symbols
-Symbol atype2symbol1(AType::\lit(str string)) = Symbol::\lit(string);
-Symbol atype2symbol1(AType::\cilit(str string)) = Symbol::\cilit(string);
-Symbol atype2symbol1(\char-class(list[ACharRange] ranges)) = Symbol::\char-class([range(r.begin, r.end) | r <- ranges ]);
+Symbol atype2symbol1(alit(str string)) = Symbol::\lit(string);
+Symbol atype2symbol1(acilit(str string)) = Symbol::\cilit(string);
+//Symbol atype2symbol1("lit"(str string)) = Symbol::\lit(string);
+//Symbol atype2symbol1("cilit"(str string)) = Symbol::\cilit(string);
+Symbol atype2symbol1(\achar-class(list[ACharRange] ranges)) = Symbol::\char-class([range(r.begin, r.end) | r <- ranges ]);
 
 Symbol atype2symbol1(\start(AType symbol)) = Symbol::\start(atype2symbol(symbol));
 
@@ -203,7 +206,7 @@ Symbol atype2symbol1(aprod(p:prod(AType def, list[AType] atypes))) {
     return atype2symbol(def);
 //    t0 = atypes[0];
 //    s0 = atype2symbol(t0);
-//    res = Symbol::cons(atype2symbol(def), p.label, [s0]);
+//    res = Symbol::cons(atype2symbol(def), p.alabel, [s0]);
 //    return res;
 ////    res = Production::prod(atype2symbol(def), [ atype2symbol(t) | t <- atypes, bprintln(t) ]);   //atype2symbol(def);
 }
@@ -217,10 +220,17 @@ private Condition acond2cond(ACondition::\not-follow(AType symbol)) = Condition:
 private Condition acond2cond(ACondition::\precede(AType symbol)) = Condition::\precede(atype2symbol(symbol));
 private Condition acond2cond(ACondition::\not-precede(AType symbol)) = Condition::\not-precede(atype2symbol(symbol));
 private Condition acond2cond(ACondition::\delete(AType symbol)) = Condition::\delete(atype2symbol(symbol));
-private Condition acond2cond(ACondition::\at-column(int column)) = Condition::\at-column(column);
-private Condition acond2cond(ACondition::\begin-of-line()) = Condition::\begin-of-line();
-private Condition acond2cond(ACondition::\end-of-line()) = Condition::\end-of-line();
-private Condition acond2cond(ACondition::\except(str label)) = Condition::\except(label);
+private Condition acond2cond("a-at-column"(int column)) = Condition::\at-column(column);
+private Condition acond2cond("a-begin-of-line"()) = Condition::\begin-of-line();
+private Condition acond2cond("a-end-of-line"()) = Condition::\end-of-line();
+private Condition acond2cond("a-except"(str label)) = Condition::\except(label);
+
+//private default Condition acond2cond("at-column"(int column)) = Condition::\at-column(column);
+//private default Condition acond2cond("begin-of-line"()) = Condition::\begin-of-line();
+//private default Condition acond2cond("end-of-line"()) = Condition::\end-of-line();
+//private default Condition acond2cond("except"(str label)) = Condition::\except(label);
+
+
 
 map[Symbol, Production] adefinitions2definitions(map[AType sort, AProduction def] defs) { 
     res = (atype2symbol(k) : aprod2prod(defs[k]) | k <- defs);
@@ -240,14 +250,15 @@ default Production aprod2prod(AType t) {
   throw "internal error: do not know how to translate a <t> to a production rule?!";
 }
 
-Production aprod2prod(p:AProduction::prod(AType lhs, list[AType] atypes, attributes=set[Attr] as))
-  = Production::prod((p.label?) ? Symbol::label(p.label, atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], as); 
+Production aprod2prod(p:AProduction::prod(AType lhs, list[AType] atypes, attributes=set[AAttr] as))
+  = Production::prod((p.alabel?) ? Symbol::label(p.alabel, atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], { aattr2attr(a) | a <- as }
+  ); 
   
 Production aprod2prod(AProduction::choice(AType def, set[AProduction] alts)) 
   = Production::choice(atype2symbol(def), {aprod2prod(p) | p <- alts});  
   
-Production aprod2prod(AProduction::\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
-  = Production::\associativity(atype2symbol(def), \assoc, {aprod2prod(a) | a <- alternatives});
+Production aprod2prod(AProduction::\associativity(AType def, AAssociativity \assoc, set[AProduction] alternatives))
+  = Production::\associativity(atype2symbol(def), AAssociativity2Associativity(\assoc), {aprod2prod(a) | a <- alternatives});
   
 Production aprod2prod(AProduction::priority(AType def, list[AProduction] alts)) 
   = Production::priority(atype2symbol(def), [aprod2prod(p) | p <- alts]);
@@ -257,14 +268,21 @@ Production aprod2prod(AProduction::reference(AType def, str cons))
     
 Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] kwFields)) {
     //res = Production::\cons(atype2symbol(adt), [atype2symbol(f) | f <- fields], [atype2symbol(g) | g <- kwFields], {});
-    //if(a.label?) res = Symbol::label(a.label, res);
-    res = Production::\cons((a.label?) ? Symbol::label(a.label, atype2symbol(adt)) : atype2symbol(adt), 
+    //if(a.alabel?) res = Symbol::label(a.alabel, res);
+    res = Production::\cons((a.alabel?) ? Symbol::label(a.alabel, atype2symbol(adt)) : atype2symbol(adt), 
                             [atype2symbol(f) | f <- fields], 
-                            [Symbol::label(g.fieldType.label, atype2symbol(g.fieldType)) | g <- kwFields], {});
+                            [Symbol::label(g.fieldType.alabel, atype2symbol(g.fieldType)) | g <- kwFields], {});
     return res;
 }
 
+Attr aattr2attr(atag(value \tag)) = Attr::\tag(\tag);
+Attr aattr2attr(\aassoc(AAssociativity \assoc)) = Attr::\assoc(AAssociativity2Associativity(\assoc));
+Attr aattr2attr(\abracket()) = Attr::\bracket();
 
+Associativity AAssociativity2Associativity(aleft()) = Associativity::\left();
+Associativity AAssociativity2Associativity(aright()) = Associativity::\right();
+Associativity AAssociativity2Associativity(aassoc()) = Associativity::\assoc();
+Associativity AAssociativity2Associativity(\a-non-assoc()) = Associativity::\non-assoc();
     
 //////////////////////////////////////////////////////////////////////////////////    
  
@@ -289,7 +307,7 @@ AType symbol2atype1(\loc()) = aloc();
 AType symbol2atype1(\datetime()) = adatetime();
 
 AType symbol2atype1(Symbol::label(str label, symbol)){
-    return symbol2atype(symbol)[label=label];
+    return symbol2atype(symbol)[alabel=label];
 }
 
 AType symbol2atype1(\set(Symbol symbol)) = aset(symbol2atype(symbol));
@@ -300,7 +318,7 @@ AType symbol2atype1(\list(Symbol symbol)) = alist(symbol2atype(symbol));
 AType symbol2atype1(\map(Symbol from, Symbol to)) = amap(symbol2atype(from), symbol2atype(to));
 AType symbol2atype1(\bag(Symbol symbol)) = abag(symbol2atype(symbol));
 AType symbol2atype1(\adt(str name, list[Symbol] parameters)) = aadt(name, symbol2atype(parameters), dataSyntax());
-AType symbol2atype1(\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbol2atype(\adt), symbol2atype(parameters), [])[label=name];
+AType symbol2atype1(\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbol2atype(\adt), symbol2atype(parameters), [])[alabel=name];
 
      //| \alias(str name, list[Symbol] parameters, Symbol aliased)
      //| \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
@@ -332,7 +350,7 @@ AType symbol2atype1(Symbol::\parameterized-lex(str name, list[Symbol] parameters
 //str symbol2atype1(\assoc(Associativity \assoc),  map[AType, set[AType]] defs) 
 //    = "assoc(<symbol2atype(\assoc, defs)>)";
 //str symbol2atype1(\bracket(),  map[AType, set[AType]] defs)
-//    = "bracket())";
+//    = "abracket())";
 
 // ---- Tree ------------------------------------------------------------------
 
@@ -344,7 +362,7 @@ AType symbol2atype1(Symbol::\parameterized-lex(str name, list[Symbol] parameters
 //    = "cycle(<atype2IValue(asymbol, defs)>, <value2IValue(cycleLength)>)";
 //
 //str symbol2atype1(amb(set[Tree] alternatives), map[AType, set[AType]] defs)
-//    = "amb(<symbol2atype(alternatives,defs)>)";
+//    = "aamb(<symbol2atype(alternatives,defs)>)";
  
 //AType symbol2atype1(char(int character))
 //    = char(character);
@@ -392,14 +410,17 @@ AProduction symbol2atype1(Production::regular(Symbol def))
     
 // ---- AType to Symbol for parse trees ----------------------------------------
 
+list[Symbol] nonLayout(list[Symbol] separators)
+    = [s | s <- separators,  \layouts(str _) !:= s ];
+
 AType symbol2atype1(Symbol::lit(str string))
-    = AType::lit(string);
+    = AType::alit(string);
 
 AType symbol2atype1(Symbol::cilit(str string))
-    = AType::cilit(string);
+    = AType::acilit(string);
 
 AType symbol2atype1(Symbol::\char-class(list[CharRange] ranges))
-    = AType::\char-class([ charrange2acharrange(r) | r <- ranges ]);    
+    = AType::\achar-class([ charrange2acharrange(r) | r <- ranges ]);    
  
 AType symbol2atype1(Symbol::\empty())
     = AType::empty();     
@@ -414,10 +435,10 @@ AType symbol2atype1(Symbol::\iter-star(Symbol symbol))
     = AType::\iter-star(symbol2atype(symbol));   
 
 AType symbol2atype1(Symbol::\iter-seps(Symbol symbol, list[Symbol] separators))
-    = AType::\iter-seps(symbol2atype(symbol), symbol2atype(separators));
+    = AType::\iter-seps(symbol2atype(symbol), symbol2atype(nonLayout(separators)));
     
 AType symbol2atype1(Symbol::\iter-star-seps(Symbol symbol, list[Symbol] separators))
-    = AType::\iter-star-seps(symbol2atype(symbol), symbol2atype(separators));   
+    = AType::\iter-star-seps(symbol2atype(symbol), symbol2atype(nonLayout(separators)));   
     
 AType symbol2atype1(Symbol::\alt(set[Symbol] alternatives)){
     return  AType::alt(symbol2atype(alternatives));  
@@ -458,16 +479,16 @@ ACondition condition2acondition(Condition::\delete(Symbol symbol))
     = ACondition::delete(symbol2atype(symbol)); 
     
 ACondition condition2acondition(Condition::\at-column(int column))
-    = ACondition::\at-column(column);  
+    = ACondition::\a-at-column(column);  
     
 ACondition condition2acondition(Condition::\begin-of-line())
-    = ACondition::\begin-of-line();
+    = ACondition::\a-begin-of-line();
     
 ACondition condition2acondition(Condition::\end-of-line())
-    = ACondition::\end-of-line(); 
+    = ACondition::\a-end-of-line(); 
     
 ACondition condition2acondition(Condition::\except(str label))
-    = ACondition::except(label); 
+    = ACondition::\a-except(label); 
     
 set[ACondition] condition2acondition(set[Condition] conditions)
     = { condition2acondition(cond) | Condition cond <- conditions };
@@ -478,11 +499,11 @@ set[ACondition] condition2acondition(set[Condition] conditions)
 // ---- utilities
 
 @doc{Unwraps parameters and conditionals from a type.}
-AType unwrapType(p: aparameter(_,tvb)) = p.label? ? unwrapType(tvb)[label=p.label] : unwrapType(tvb);
+AType unwrapType(p: aparameter(_,tvb)) = p.alabel? ? unwrapType(tvb)[alabel=p.alabel] : unwrapType(tvb);
 AType unwrapType(\conditional(AType sym,  set[ACondition] _)) = unwrapType(sym);
 default AType unwrapType(AType t) = t;
 
-bool allLabelled(list[AType] tls) = size(tls) == size([tp | tp <- tls, !isEmpty(tp.label)]);
+bool allLabelled(list[AType] tls) = size(tls) == size([tp | tp <- tls, !isEmpty(tp.alabel)]);
 
 bool isArithType(AType t) = isIntType(t) || isRealType(t) || isRatType(t) || isNumType(t);
 
@@ -581,7 +602,7 @@ AType makeNodeType() = anode([]);
 
 @doc{Get the keywords of a node as a tuple.}
 AType getNodeFieldsAsTuple(AType t) {
-    if (anode(flds) := unwrapType(t)) return atuple(atypeList([ tp | tp <- flds, !isEmpty(tp.label) ]));
+    if (anode(flds) := unwrapType(t)) return atuple(atypeList([ tp | tp <- flds, !isEmpty(tp.alabel) ]));
     throw rascalCheckerInternalError("getNodeFieldsAsTuple called with unexpected type <prettyAType(t)>");
 }  
 
@@ -695,9 +716,9 @@ default bool isRelType(AType _) = false;
 @doc{Ensure that sets of tuples are treated as relations.}
 AType aset(AType t) = arel(atypeList(getTupleFields(t))) when isTupleType(t);
 
-@doc{Create a new rel type, given the element types of the fields. Check any given labels for consistency.}
+@doc{Create a new rel type, given the element types of the fields. Check any given alabels for consistency.}
 AType makeRelType(AType elementTypes...) {
-    set[str] labels = { tp.label | tp <- elementTypes, !isEmpty(tp.label) };
+    set[str] labels = { tp.alabel | tp <- elementTypes, !isEmpty(tp.alabel) };
     if (size(labels) == 0 || size(labels) == size(elementTypes))
         return arel(atypeList(elementTypes));
     else
@@ -716,25 +737,25 @@ AType getRelElementType(AType t) {
 
 bool hasField(AType t, str name){
     switch(unwrapType(t)){
-        case arel(atypeList(tls)): return any(tp <- tls, tp.label == name);
-        case alrel(atypeList(tls)): return any(tp <- tls, tp.label == name);
-        case atuple(atypeList(tls)): return any(tp <- tls, tp.label == name);
-        case amap(dm, rng): return dm.label == name || rng.label == name;
-        case acons(_,list[AType] cts,_): return any(tp <- cts, tp.label == name);
+        case arel(atypeList(tls)): return any(tp <- tls, tp.alabel == name);
+        case alrel(atypeList(tls)): return any(tp <- tls, tp.alabel == name);
+        case atuple(atypeList(tls)): return any(tp <- tls, tp.alabel == name);
+        case amap(dm, rng): return dm.alabel == name || rng.alabel == name;
+        case acons(_,list[AType] cts,_): return any(tp <- cts, tp.alabel == name);
     }
     return false;
 }
 
 @doc{Get whether the rel has field names or not.}
 bool relHasFieldNames(AType t) {
-    if (arel(atypeList(tls)) := unwrapType(t)) return size(tls) == size([tp | tp <- tls, !isEmpty(tp.label)]);
+    if (arel(atypeList(tls)) := unwrapType(t)) return size(tls) == size([tp | tp <- tls, !isEmpty(tp.alabel)]);
     throw rascalCheckerInternalError("relHasFieldNames given non-Relation type <prettyAType(t)>");
 }
 
 @doc{Get the field names of the rel fields.}
 list[str] getRelFieldNames(AType t) {
     if (arel(atypeList(tls)) := unwrapType(t)){
-        return [tp.label | tp <- tls];
+        return [tp.alabel | tp <- tls];
     }
     throw rascalCheckerInternalError("getRelFieldNames given non-Relation type <prettyAType(t)>");
 }
@@ -762,7 +783,7 @@ AType alist(AType t) = alrel(atypeList(getTupleFields(t))) when isTupleType(t);
 
 @doc{Create a new list rel type, given the element types of the fields. Check any given labels for consistency.}
 AType makeListRelType(AType elementTypes...) {
-    set[str] labels = { tp.label | tp <- elementTypes, !isEmpty(tp.label) };
+    set[str] labels = { tp.alabel | tp <- elementTypes, !isEmpty(tp.alabel) };
     if (size(labels) == 0 || size(labels) == size(elementTypes)) 
         return alrel(atypeList(elementTypes));
     else
@@ -782,7 +803,7 @@ AType getListRelElementType(AType t) {
 @doc{Get the field names of the list rel fields.}
 list[str] getListRelFieldNames(AType t) {
     if (alrel(atypeList(tls)) := unwrapType(t)){
-        return [tp.label | tp <- tls];
+        return [tp.alabel | tp <- tls];
     }
     throw rascalCheckerInternalError("getListRelFieldNames given non-List-Relation type <prettyAType(t)>");
 }
@@ -806,9 +827,9 @@ default bool isTupleType(AType _) = false;
 
 @doc{Create a new tuple type, given the element types of the fields. Check any given labels for consistency.}
 AType makeTupleType(AType elementTypes...) {
-    set[str] labels = { tp.label | tp <- elementTypes, !isEmpty(tp.label) };
+    set[str] labels = { tp.alabel | tp <- elementTypes, !isEmpty(tp.alabel) };
     if(size(labels) > 0 && size(labels) != size(elementTypes))
-        elementTypes = [unset(e, "label") | e <- elementTypes];
+        elementTypes = [unset(e, "alabel") | e <- elementTypes];
     return atuple(atypeList(elementTypes));
     //else
     //    throw rascalCheckerInternalError("For tuple types, either all fields much be given a distinct label or no fields should be labeled."); 
@@ -816,7 +837,7 @@ AType makeTupleType(AType elementTypes...) {
 
 @doc{Indicate if the given tuple has a field of the given name.}
 bool tupleHasField(AType t, str fn) {
-    return atuple(atypeList(tas)) := unwrapType(t) && fn in { tp.label | tp <- tas, tp.label? } ;
+    return atuple(atypeList(tas)) := unwrapType(t) && fn in { tp.alabel | tp <- tas, tp.alabel? } ;
 }
 
 @doc{Indicate if the given tuple has a field with the given field offset.}
@@ -828,7 +849,7 @@ bool tupleHasField(AType t, int fn) {
 AType getTupleFieldType(AType t, str fn) {
     if (atuple(atypeList(tas)) := unwrapType(t)) {
         for(tp <- tas){
-            if(tp.label == fn) return tp;
+            if(tp.alabel == fn) return tp;
         }
         throw rascalCheckerInternalError("Tuple <prettyAType(t)> does not have field <fn>");
     }
@@ -862,7 +883,7 @@ int getTupleFieldCount(AType t) = size(getTupleFields(t));
 
 @doc{Does this tuple have field names?}
 bool tupleHasFieldNames(AType t) {
-    if (atuple(atypeList(tas)) := unwrapType(t)) return size(tas) == size([tp | tp <- tas, !isEmpty(tp.label)]);
+    if (atuple(atypeList(tas)) := unwrapType(t)) return size(tas) == size([tp | tp <- tas, !isEmpty(tp.alabel)]);
     throw rascalCheckerInternalError("tupleHasFieldNames given non-Tuple type <prettyAType(t)>");
 }
 
@@ -870,7 +891,7 @@ bool tupleHasFieldNames(AType t) {
 list[str] getTupleFieldNames(AType t) {
     if (atuple(atypeList(tls)) := unwrapType(t)) {
         if (allLabelled(tls)) {
-            return [tp.label | tp <- tls];
+            return [tp.alabel | tp <- tls];
         }
         throw rascalCheckerInternalError("getTupleFieldNames given tuple type without field names: <prettyAType(t)>");        
     }
@@ -922,12 +943,12 @@ default bool isMapType(AType x) = false;
 
 @doc{Create a new map type, given the types of the domain and range. Check to make sure field names are used consistently.}
 AType makeMapType(AType domain, AType range) {
-    if(!isEmpty(domain.label) && !isEmpty(range.label)){
-        if(domain.label != range.label) return amap(domain, range);
-        throw rascalCheckerInternalError("The field names of the map domain and range must be distinct; found `<domain.label>`");
+    if(!isEmpty(domain.alabel) && !isEmpty(range.alabel)){
+        if(domain.alabel != range.alabel) return amap(domain, range);
+        throw rascalCheckerInternalError("The field names of the map domain and range must be distinct; found `<domain.alabel>`");
     }
-    else if(!isEmpty(domain.label)) return amap(unset(domain,"label"),range);
-    else if(!isEmpty(range.label)) return amap(domain,unset(range, "label"));
+    else if(!isEmpty(domain.alabel)) return amap(unset(domain,"alabel"),range);
+    else if(!isEmpty(range.alabel)) return amap(domain,unset(range, "alabel"));
     return amap(domain, range);
 }
 
@@ -958,7 +979,7 @@ bool mapHasFieldNames(AType t) = tupleHasFieldNames(getMapFieldsAsTuple(t));
 @doc{Get the field names from the map fields.}
 list[str] getMapFieldNames(AType t) {
     if ([dm, rng] := getMapFields(t)) {
-        return [ dm.label, rng.label ];
+        return [ dm.alabel, rng.alabel ];
     }
     throw rascalCheckerInternalError("getMapFieldNames given map type without field names: <prettyAType(t)>");        
 }
@@ -1143,7 +1164,7 @@ default int getArity(AType t) {
 list[AType] getFormals(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = formals;
 list[AType] getFormals(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = fields;
 list[AType] getFormals(aprod(prod(AType def, list[AType] atypes))) = [t | t <- atypes, isADTType(t)];
-list[AType] getFormals(aprod(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))) = getFormals(aprod(getFirstFrom(alternatives)));
+list[AType] getFormals(aprod(\associativity(AType def, AAssociativity \assoc, set[AProduction] alternatives))) = getFormals(aprod(getFirstFrom(alternatives)));
 list[AType] getFormals(overloadedAType(rel[loc, IdRole, AType] overloads)) = (getFormals(getFirstFrom(overloads<2>)) | alubList(it, getFormals(tp) )| tp <- overloads<2>);
 default list[AType] getFormals(AType t){
     iprintln(t);
@@ -1153,7 +1174,7 @@ default list[AType] getFormals(AType t){
 AType getResult(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
 AType getResult(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
 AType getResult(aprod(prod(AType def, list[AType] atypes))) = def;
-AType getResult(aprod(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))) = getResult(aprod(getFirstFrom(alternatives)));
+AType getResult(aprod(\associativity(AType def, AAssociativity \assoc, set[AProduction] alternatives))) = getResult(aprod(getFirstFrom(alternatives)));
 AType getResult(overloadedAType(rel[loc, IdRole, AType] overloads)) = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>);
 
 default AType getResult(AType t){
@@ -1206,17 +1227,17 @@ AType getRascalTypeParamBound(AType t) {
 set[AType] collectRascalTypeParams(AType t) {
     
     return { rt | / AType rt : aparameter(_,_) := t };
-    //return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
+    //return { unset(rt, "alabel") | / AType rt : aparameter(_,_) := t }; // TODO: "alabel" is unset to enable subset check later, reconsider
 }
 
 @doc{Get all the type parameters inside a given type.}
 set[AType] collectAndUnlabelRascalTypeParams(AType t) {
-   return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
+   return { unset(rt, "alabel") | / AType rt : aparameter(_,_) := t }; // TODO: "alabel" is unset to enable subset check later, reconsider
 }
 
 @doc{Get all the type parameters inside a given set of productions.}
 set[AType] collectAndUnlabelRascalTypeParams(set[AProduction] prods) {
-   return { unset(rt, "label") | / AType rt : aparameter(_,_) := prods }; // TODO: "label" is unset to enable subset check later, reconsider
+   return { unset(rt, "alabel") | / AType rt : aparameter(_,_) := prods }; // TODO: "alabel" is unset to enable subset check later, reconsider
 }
 
 @doc{Provide an initial type map from the type parameters in the type to void.}
@@ -1304,9 +1325,9 @@ bool isLexicalType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax(); // 
 bool isLexicalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isLexicalType(adt);
 bool isLexicalType(AType::\start(AType ss)) = isLexicalType(ss);
 
-bool isLexicalType(AType:\lit(str string)) = true;
-bool isLexicalType(AType:\cilit(str string)) = true;
-bool isLexicalType(AType:\char-class(list[ACharRange] ranges)) = true;
+bool isLexicalType(AType:alit(str string)) = true;
+bool isLexicalType(AType:acilit(str string)) = true;
+bool isLexicalType(AType:\achar-class(list[ACharRange] ranges)) = true;
    
 bool isLexicalType(AType::\iter(AType s)) = isLexicalType(s);
 bool isLexicalType(AType::\iter-star(AType s)) = isLexicalType(s);
@@ -1321,14 +1342,14 @@ bool isLexicalType(AType t) = false;
 @doc{Synopsis: Determine if the given type is a terminal symbol (a literal or character class).}
 bool isTerminalType(aparameter(_,AType tvb)) = isTerminalType(tvb);
 bool isTerminalType(AType::\conditional(AType ss,_)) = isTerminalType(ss);
-bool isTerminalType(lit(_)) = true;
-bool isTerminalType(cilit(_)) = true;
-bool isTerminalType(\char-class(_)) = true;
+bool isTerminalType(alit(_)) = true;
+bool isTerminalType(acilit(_)) = true;
+bool isTerminalType(\achar-class(_)) = true;
 default bool isTerminalType(AType _) = false;
 
 // char-class
 
-bool isCharClass(\char-class(list[ACharRange] ranges)) = true;
+bool isCharClass(\achar-class(list[ACharRange] ranges)) = true;
 default bool isCharClass(AType tp) = false;
 
 bool isAnyCharType(aparameter(_,AType tvb)) = isAnyCharType(tvb);
@@ -1374,6 +1395,7 @@ bool isIterType(AType::\iter(_)) = true;
 bool isIterType(AType::\iter-star(_)) = true;
 bool isIterType(AType::\iter-seps(_,_)) = true;
 bool isIterType(AType::\iter-star-seps(_,_)) = true;
+bool isIterType(AType::\opt(_)) = true;
 default bool isIterType(AType _) = false;    
 
 AType getIterElementType(aparameter(_,AType tvb)) = getIterElementType(tvb);
@@ -1381,6 +1403,7 @@ AType getIterElementType(AType::\iter(AType i)) = i;
 AType getIterElementType(AType::\iter-star(AType i)) = i;
 AType getIterElementType(AType::\iter-seps(AType i,_)) = i;
 AType getIterElementType(AType::\iter-star-seps(AType i,_)) = i;
+AType getIterElementType(AType::\opt(AType i)) = i;
 default AType getIterElementType(AType i) {
     throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type");
 }
@@ -1443,7 +1466,7 @@ AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalTyp
 
 AType stripStart(aprod(AProduction production)) = production.def;
 
-AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
+AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.alabel? ? s[alabel=cnd.alabel] : s;
 default AType removeConditional(AType s) = s;
 
 //@doc{Determine the size of a concrete list}
@@ -1453,7 +1476,7 @@ default AType removeConditional(AType s) = s;
 //int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
 //int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
 //
-//int size(appl(prod(Symbol symbol, list[Symbol] symbols, set[Attr] attributes), list[Tree] args)) = 
+//int size(appl(prod(Symbol symbol, list[Symbol] symbols, set[AAttr] attributes), list[Tree] args)) = 
 //    \label(str _, Symbol symbol1) := symbol && [Symbol _] := symbols
 //    ? size(appl(Production::prod(symbol1, symbols, {}), args))
 //    : size(args[0]);

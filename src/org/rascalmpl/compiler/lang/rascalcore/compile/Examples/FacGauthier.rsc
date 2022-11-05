@@ -19,4 +19,4 @@ public int fibonacci (int n) {
 
 int main() = work();
 
-int work() = cpuTime( (){ fibonacci(14); });
+int work() = cpuTimeOf( (){ fibonacci(14); });

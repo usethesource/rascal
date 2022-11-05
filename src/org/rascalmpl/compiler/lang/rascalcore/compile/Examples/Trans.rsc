@@ -70,8 +70,8 @@ rel[int,int] build(int n) = {<arbInt(3000), arbInt(3000)> | i <- [0..n]};
 
 value measure(){
     r = build(100000);
-    println("r+:        <cpuTime((){ r+; })/1000000>");
-    println("trans0(r): <cpuTime((){ trans0(r); })/1000000>");
-    println("trans1(r):  <cpuTime((){ trans1(r); })/1000000>");
+    println("r+:        <cpuTimeOf((){ r+; })/1000000>");
+    println("trans0(r): <cpuTimOf((){ trans0(r); })/1000000>");
+    println("trans1(r):  <cpuTimOf((){ trans1(r); })/1000000>");
     return true;
 }

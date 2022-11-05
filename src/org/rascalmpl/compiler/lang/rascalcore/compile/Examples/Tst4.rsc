@@ -1,5 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-import lang::rascalcore::compile::Examples::Tst2;
+import Type;
 
-test bool tstHead(list[&T] L) = head(L) == L;
+data A = common();
+
+data B = common();
+
+//data A = common();
+
+value main() = < typeOf(A::common()), typeOf(B::common()), typeOf(common())>;

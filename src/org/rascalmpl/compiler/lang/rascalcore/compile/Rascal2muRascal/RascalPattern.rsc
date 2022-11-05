@@ -485,23 +485,23 @@ MuExp translateParsedConcretePattern(t:Tree::char(int i),
 
 // ---- concrete lists
 
-private MuExp translateParsedConcretePattern(t:Tree::appl(p:Production::regular(s:Symbol::iter(Symbol elem)), list[Tree] args),       
+private MuExp translateParsedConcretePattern(t:appl(p:Production::regular(s:Symbol::iter(Symbol elem)), list[Tree] args),       
                         AType patType, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
       return translateConcreteListPat(t, symbol2atype(s), subjectType, subject, btscopes, trueCont, falseCont, restore=restore, delta=1);
 }
 
-private MuExp translateParsedConcretePattern(t:Tree::appl(p:Production::regular(s:Symbol::\iter-star(Symbol elem)), list[Tree] args),
+private MuExp translateParsedConcretePattern(t:appl(p:Production::regular(s:Symbol::\iter-star(Symbol elem)), list[Tree] args),
                         AType patType, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
     return translateConcreteListPat(t, symbol2atype(s), subjectType, subject, btscopes, trueCont, falseCont, restore=restore, delta=1);
 }
    
-private MuExp translateParsedConcretePattern(t:Tree::appl(p:Production::regular(s:Symbol::\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args),
+private MuExp translateParsedConcretePattern(t:appl(p:Production::regular(s:Symbol::\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args),
                         AType patType, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) { 
 
     return translateConcreteListPat(t, symbol2atype(s), subjectType, subject, btscopes, trueCont, falseCont, restore=restore, delta=1+size(seps));
 }
 
-private MuExp translateParsedConcretePattern(t:Tree::appl(p:Production::regular(s:Symbol::\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args),
+private MuExp translateParsedConcretePattern(t:appl(p:Production::regular(s:Symbol::\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args),
                        AType patType, AType subjectType,  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
     return translateConcreteListPat(t, symbol2atype(s), subjectType, subject, btscopes, trueCont, falseCont, restore=restore, delta=1+size(seps));
 }
@@ -515,7 +515,7 @@ default AType getTypeTree(Tree t){
     throw t;
 }
                                              
-private MuExp translateParsedConcretePattern(t:Tree::appl(prod:Production::regular(Symbol::\seq(list[Symbol] symbols)), list[Tree] args),
+private MuExp translateParsedConcretePattern(t:appl(prod:Production::regular(Symbol::\seq(list[Symbol] symbols)), list[Tree] args),
                        AType patType, AType subjectType,  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
    body = trueCont;
    str fuid = topFunctionScope();
@@ -526,6 +526,15 @@ private MuExp translateParsedConcretePattern(t:Tree::appl(prod:Production::regul
                        ]);
    }   
    return muIfElse(muEqual(muCon(prod), muTreeGetProduction(subject)), body, falseCont);         
+}
+
+// ---- opt 
+
+private MuExp translateParsedConcretePattern(t:appl(prod:Production::regular(s:Symbol::opt(Symbol symbol)), list[Tree] args),
+                       AType patType, AType subjectType,  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
+   
+    body = translateParsedConcretePattern(args[0], symbol2atype(symbol), getType(subject), subject, btscopes, trueCont, falseCont, restore=restore);
+    return muIfElse(muEqual(muCon(prod), muTreeGetProduction(subject)), body, falseCont);             
 }
                        
 // ---- any parse tree
@@ -541,7 +550,7 @@ default MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] 
    str fuid = topFunctionScope();
    for (int i <- reverse(index(args))) {
        if(!isLayoutPat(args[i])){
-           subject_arg = muTmpIValue(nextTmp("subject_arg<i>"), fuid, getTypeTree(args[i]));
+           subject_arg = muTmpIValue(nextTmp("subject_arg<i>"), fuid, getTypeTree(args[i]));   
            body = muBlock([ muConInit(subject_arg, muSubscript(muTreeGetArgs(subjectExp), muCon(i))),
                             translateParsedConcretePattern(args[i], symbol2atype(prod has symbols ? prod.symbols[i] : prod.def), getType(subject_arg), subject_arg, btscopes, body, falseCont, restore=restore)
                           ]);
@@ -554,7 +563,7 @@ default MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] 
 bool isConcreteHole(t:appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole hole])) = true;
 default bool isConcreteHole(Tree t) = false;
 
-Symbol getConcreteHoleSymbol(Tree::appl(Production::prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole _]))
+Symbol getConcreteHoleSymbol(appl(Production::prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole _]))
     = holeType;
 
 loc getConcreteHoleVarLoc(h: appl(Production _prod, list[Tree] args)) {
@@ -592,7 +601,7 @@ str getConcreteHoleName(appl(Production _prod, list[Tree] args)){
 
 bool isLayoutPat(Tree pat) = appl(Production::prod(Symbol::layouts(_), _, _), _) := pat;
 
-//bool isSeparator(Tree pat, AType sep) = Tree::appl(Production::prod(sep, _, _), _) := pat;
+//bool isSeparator(Tree pat, AType sep) = appl(Production::prod(sep, _, _), _) := pat;
 
 
 //// Is a symbol an iterator type?
@@ -887,7 +896,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
     	   }
     	   ppname = prettyPrintName(name);
     	   <fuid, pos> = getVariableScope(ppname, name@\loc);
-    	   var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+    	   var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname]);
     	   return var == subjectExp ? trueCont : muBlock([muVarInit(var, subjectExp), trueCont]);
        }
        check = inSignatureSection() ? muValueIsComparable(subjectExp, trType) : muValueIsSubtypeOf(subjectExp, trType);
@@ -896,7 +905,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
        }
        ppname = prettyPrintName(name);
        <fuid, pos> = getVariableScope(ppname, name@\loc);
-       var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+       var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname]);
        return var == subjectExp ? muIfElse(check, trueCont, falseCont)
                                 : muIfElse(check, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
     } else {
@@ -907,7 +916,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
             }
             ppname = prettyPrintName(name);
             <fuid, pos> = getVariableScope(ppname, name@\loc);
-            var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+            var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname]);
             return var == subjectExp ? muIfElse(muMatchAndBind(subjectExp, trType), trueCont, falseCont)
                                      : muIfElse(muMatchAndBind(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
         
@@ -917,7 +926,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
             }
             ppname = prettyPrintName(name);
             <fuid, pos> = getVariableScope(ppname, name@\loc);
-            var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+            var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname]);
             return var == subjectExp ? muIfElse(muValueIsSubtypeOfInstantiatedType(subjectExp, trType), trueCont, falseCont)
                                      : muIfElse(muValueIsSubtypeOfInstantiatedType(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
         }
@@ -986,13 +995,13 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    subjectInit = /*subjectAssigned ? [] : */muConInit(subject, subjectExp);
    if(expression is qualifiedName){
       qname = "";
-      if(expType.label?){
-        qname = expType.label;
+      if(expType.alabel?){
+        qname = expType.alabel;
       } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := expType,
-                any(<_, _, tp> <- overloads, tp.label?)){
+                any(<_, _, tp> <- overloads, tp.alabel?)){
         for(<_, _, tp> <- overloads){
-            if(tp.label?){
-                qname = tp.label; break;
+            if(tp.alabel?){
+                qname = tp.alabel; break;
             }
         }
       } else {
@@ -2202,7 +2211,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
     str fuid = ""; int pos=0;           // TODO: this keeps type checker happy, why?
     <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
     ppname = prettyPrintName(name);
-    var = muVar(ppname, fuid, pos, trType[label=ppname]);
+    var = muVar(ppname, fuid, pos, trType/*[alabel=ppname]*/);
     trueCont2 = trueCont;
     if(subjectExp != var){
         trueCont2 =  muValueBlock(avalue(), [ /*subjectAssigned ? muAssign(var, subjectExp) :*/ muVarInit(var, subjectExp), trueCont ]);
@@ -2267,17 +2276,17 @@ default value translatePatternAsConstant(Pattern p){
   throw "Not a constant pattern: <p>";
 }
 
-value translateConcretePatternAsConstant(p:Tree::appl(Production::prod(sort(str A),[Symbol::lit(str litA)],{}),[Tree::appl(prod(Symbol::lit(litA),[\char-class([CharRange::range(int charA,charA)])], {}),[Tree::char(charA)])])) {
+value translateConcretePatternAsConstant(p:appl(Production::prod(sort(str A),[Symbol::lit(str litA)],{}),[appl(prod(Symbol::lit(litA),[\char-class([CharRange::range(int charA,charA)])], {}),[Tree::char(charA)])])) {
     return p;
 }
 value translateConcretePatternAsConstant(p:Production::prod(Symbol::lit(str charA),[\char-class([CharRange::range(int charA,charA)])],{})) {
     return p;
 }
-value translateConcretePatternAsConstant(p:Tree::appl(Production::prod(Symbol::sort(str A), [Symbol::lit(str Alit)], {}),[appl(prod(lit(Alit), [\char-class([CharRange::range(int charA, charA)])], {}), [Tree::char(charA)])])) {
+value translateConcretePatternAsConstant(p:appl(Production::prod(Symbol::sort(str A), [Symbol::lit(str Alit)], {}),[appl(prod(lit(Alit), [\char-class([CharRange::range(int charA, charA)])], {}), [Tree::char(charA)])])) {
     return p; 
 }
 
-value translateConcretePatternAsConstant(p:Tree::appl(Production::regular(Symbol::\iter-seps(sort(str A),[Symbol::layouts(str Alayout)])), [arg])){
+value translateConcretePatternAsConstant(p:appl(Production::regular(Symbol::\iter-seps(sort(str A),[Symbol::layouts(str Alayout)])), [arg])){
     translateConcretePatternAsConstant(arg);
     return p;
 }

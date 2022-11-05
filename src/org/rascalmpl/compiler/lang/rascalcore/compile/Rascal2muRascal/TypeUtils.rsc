@@ -91,6 +91,7 @@ map[UID, Define]  getDefinitions() = definitions;
                          
 map[UID,int]  position_in_container = ();           // Position of variable in containing function or module
 map[UID,set[Define]] vars_per_scope = ();           // The variables introduced per scope
+map[UID, list[Define]] vars_per_fun = ();           // Variables (including formals) per function;
 
 set[UID] functions = {};                            // Declared functions
 
@@ -148,6 +149,7 @@ public void resetScopeExtraction() {
     definitions = ();
     position_in_container = ();
     vars_per_scope = ();
+    vars_per_fun = ();
     functions = {};
     constructors = {};
     adt_constructors = ();
@@ -261,6 +263,8 @@ void extractScopes(TModel tm){
     
     if([*set[AType] adts] := tm.store[key_ADTs]){
         ADTs = adts[0];
+    } else if({} := tm.store[key_ADTs]){
+        ADTs = {};
     } else {
         throw "`ADTs` has incorrect format in store";
     }
@@ -268,7 +272,7 @@ void extractScopes(TModel tm){
     if([lrel[AType,KeywordFormal] common] := tm.store[key_common_keyword_fields]){
         //println("Common keyword parameters");
         //iprintln(common);
-        adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[label="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
+        adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[alabel="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
         adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
     }
     
@@ -281,7 +285,7 @@ void extractScopes(TModel tm){
             case constructorId(): {
                  constructors += def.defined;
                  consType = getDefType(def.defined);
-                 consName = consType.label;
+                 consName = consType.alabel;
                  consAdtType = consType.adt;
                  adt_uses_type += { <consName, consAdtType, unsetRec(fieldType)> | /AType fieldType := consType.fields }
                                   + { <consName, consAdtType, unsetRec(kwFieldType)> | /AType kwFieldType := consType.kwFields };
@@ -343,6 +347,8 @@ void extractScopes(TModel tm){
         
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
         formals = [v | v <- vars, is_formal(v)];
+        
+        vars_per_fun[fun] = formals;
         //outer_formals = [v | v <- formals, is_outer_formal(v) ];
         //non_formals = [v | v <- vars, !is_formal(v)];
     
@@ -458,7 +464,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         adtType = getStartNonTerminalType(adtType);
         is_start = true;
     }
-    fieldType = fieldType[label=fieldName];
+    fieldType = fieldType[alabel=fieldName];
     if(adtType in domain(getBuiltinFieldMap())){
         res = <"", adtType /*getBuiltinFieldMap()[adtType][fieldName]*/, false>;
         return res;
@@ -476,7 +482,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
                 <constructors, fieldType> = 
                     visit(<constructors, fieldType>) { 
                         case p:aparameter(pname, _): { repl = adtType.parameters[pnames[pname]];
-                                                            if(p.label?) repl = repl[label=p.label];
+                                                            if(p.alabel?) repl = repl[alabel=p.alabel];
                                                             insert repl;
                                                           }
                     };
@@ -488,7 +494,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     // Positonal or kw field of constructor?
     for(AType consType <-  constructors){
         for(declaredFieldType <- consType.fields){
-            if(declaredFieldType.label == fieldName && asubtype(fieldType, declaredFieldType)){
+            if(declaredFieldType.alabel == fieldName && asubtype(fieldType, declaredFieldType)){
                 return <"", consType,false>;
             }
         }
@@ -502,7 +508,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     // Common kw field of the ADT?
     
     for(Keyword kw <- adt_common_keyword_fields[adtType] ? []){
-        if("<kw.fieldType.label>" == fieldName){
+        if("<kw.fieldType.alabel>" == fieldName){
             return <findDefiningModule(getLoc(kw.defaultExp)), adtType, true>;
         }
     }
@@ -511,7 +517,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     if(grammar.rules[adtType]?){
         productions = grammar.rules[adtType].alternatives;
         for(prod(AType _, list[AType] atypes) <- productions){
-            for(a <- atypes, a.label?, a.label == fieldName){
+            for(a <- atypes, a.alabel?, a.alabel == fieldName){
                 return <"", is_start ? \start(a) : a, false>;
             }
         }
@@ -523,7 +529,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
             return <"ParseTree", aloc(), true>;
         }
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
-            if("<kw.fieldType.label>" == fieldName){
+            if("<kw.fieldType.alabel>" == fieldName){
                 return <findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType) : adtType, true>;
             }
         }
@@ -539,6 +545,11 @@ alias KeywordParamMap = map[str kwName, AType kwType];
 KeywordParamMap getKeywords(Parameters parameters){
     KeywordFormals kwfs = parameters.keywordFormals;
     return ("<kwf.name>" : kwtp | kwf <- kwfs.keywordFormalList, kwtp := getType(kwf));
+}
+
+list[MuExp] getExtendedFunctionFormals(loc funsrc, str scopeName){
+    vars = vars_per_fun[funsrc];
+    return  [muVar(var.id, scopeName, i, unsetRec(getTypeFromDef(var), "alabel")) | i <- index(vars), var := vars[i]];
 }
 
 tuple[str fuid, int pos] getVariableScope(str name, loc l) {
@@ -575,7 +586,7 @@ int getPositionInScope(str _name, loc l){
 // Create unique symbolic names for functions, constructors and productions
 
 str getGetterNameForKwpField(AType tp, str fieldName)
-    =  unescapeAndStandardize(tp is acons ? "$getkw_<tp.adt.adtName>_<tp.label>_<fieldName>"
+    =  unescapeAndStandardize(tp is acons ? "$getkw_<tp.adt.adtName>_<tp.alabel>_<fieldName>"
                                           : "$getkw_<tp.adtName>_<fieldName>");
 
 str convert2fuid(UID uid) {
@@ -683,7 +694,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     }
       
     definitions = ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
-                  | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, adt1 := unset(uninstantiate(adt), "label")
+                  | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, adt1 := unset(uninstantiate(adt), "alabel")
                   );             
     
     if(syntax_type){
@@ -697,7 +708,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
                
         //definitions[definedLayouts] = { aprod(my_grammar_rules[definedLayouts]) };
         if(is_start){
-            definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[label="top"], definedLayouts]) })) });
+            definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[alabel="top"], definedLayouts]) })) });
         }
     }
    
@@ -752,23 +763,10 @@ MuExp mkVar(str name, loc l) {
   name_type = getType(l);
   defs = useDef[l];
   if(size(defs) > 1){
-    assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions or constructors can have multiple definitions" ;
-    //println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
-    fname = definitions[getFirstFrom(defs)].id;
-    ftype = unsetRec(getType(l));
-    orgFtype = ftype;
-    //println("orgFtype = <orgFtype>");
-    //if(overloadedAType(rel[loc, IdRole, AType] overloads) := ftype){
-    //   arities = { size(getFormals(tp)) | tp <- overloads<2> };
-    //   //assert size(arities) == 1;
-    //   ar = getFirstFrom(arities);
-    //   resType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>);
-    //   formalsTypes = [avoid() | i <- [0 .. ar]];
-    //   
-    //   formalsTypes = (formalsTypes | alubList(it, getFormals(tp)) | tp <- overloads<2>);
-    //   ftype = afunc(resType, formalsTypes, []);
-    //}
-    return muOFun([definitions[d].defined | d <- defs], ftype);
+    if(all(d <- defs, definitions[d].idRole in {functionId(), constructorId()})){ //: "Only functions or constructors can have multiple definitions" ;
+        ftype = unsetRec(getType(l));
+        return muOFun([definitions[d].defined | d <- defs], ftype);
+    }
   }
   
   Define def;
@@ -814,9 +812,7 @@ MuExp mkVar(str name, loc l) {
   
   }
   if(def.idRole == functionId()){ 
-    //tp = getType(l);
-    //if(uid in overloadedFunctions) return muOFun(overloadedTypeResolver[unsetRec(getType(l))]);
-    return muFun(uid, name_type); //muFun1(functions_and_constructors_to_fuid[uid]);
+    return muFun(uid, name_type);
   }
   throw "End of mkVar reached for <uqname> at <l>: <def>";
 }
@@ -871,8 +867,8 @@ public tuple[set[AType], set[AProduction]] getReachableTypes(AType subjectType, 
     }
 }
 private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
-    desiredPatternTypes = { unset(s, "label") | /AType s := patternTypes};
-    desiredSubjectTypes = { unset(s, "label") | /AType s := subjectType};
+    desiredPatternTypes = { unset(s, "alabel") | /AType s := patternTypes};
+    desiredSubjectTypes = { unset(s, "alabel") | /AType s := subjectType};
     desiredTypes = desiredSubjectTypes + desiredPatternTypes;
     
     if(any(t <- desiredTypes, isSyntaxType(t) || /*isLexicalType(t) ||*/ asubtype(t, aadt("Tree",[], dataSyntax())))){
@@ -897,10 +893,10 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
         } else if(any(AType t <- desiredTypes, asubtype(t, to))){
             descend_into += {from, to};
         } else if(c:acons(AType \adtsym, list[AType] _, list[Keyword] _) := from  && // TODO: check
-                            (\adtsym in patternTypes || c.label in consNames)){
+                            (\adtsym in patternTypes || c.alabel in consNames)){
                   descend_into += {from, to};   
         } else if(c:acons(AType \adtsym, list[AType] _, list[Keyword] _) := to  && 
-                            (\adtsym in patternTypes || c.label in consNames)){
+                            (\adtsym in patternTypes || c.alabel in consNames)){
                   descend_into += {from, to};        
         }
         ;
@@ -911,7 +907,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     }
     tuples = { atuple(symbols) | sym <- descend_into, arel(symbols) := sym || alrel(symbols) := sym };
     descend_into += tuples;
-    descend_into = {sym | sym <- descend_into/*, label(_,_) !:= sym*/ };
+    descend_into = {sym | sym <- descend_into/*, alabel(_,_) !:= sym*/ };
     //println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
     
     return <descend_into, {}>;

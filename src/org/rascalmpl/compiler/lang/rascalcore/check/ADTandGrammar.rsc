@@ -41,6 +41,9 @@ void addCommonKeywordFields(Solver s){
     for(Define def <- definitions, def.idRole == dataId()){
         try {
             adtType = s.getType(def);
+            if(adtType.adtName == "AType"){
+                println("addCommonKeywordFields: AType");
+            }
             commonKeywordNames = commonKeywordFieldNames[adtType]<0>;
             for(kwf <- def.defInfo.commonKeywordFields){
                 fieldName = "<kwf.name>";
@@ -69,10 +72,10 @@ void addCommonKeywordFields(Solver s){
             consType = s.getType(def);
             set[str] commonFieldNames = domain(adt_common_keyword_fields_name_and_kwf[consType.adt] ? ());
             for(fld <- consType.fields){
-               if(fld.label in commonFieldNames){
-                    kwf = adt_common_keyword_fields_name_and_kwf[consType.adt][fld.label];
-                    msgs = [ Message::warning("Common keyword field `<fld.label>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.label>`", getLoc(kwf)),
-                             Message::warning ("Field `<fld.label>` of constructor `<consType.label>` overlaps with common keyword field of data type `<consType.adt.adtName>`", def.defined)
+               if(fld.alabel in commonFieldNames){
+                    kwf = adt_common_keyword_fields_name_and_kwf[consType.adt][fld.alabel];
+                    msgs = [ Message::warning("Common keyword field `<fld.alabel>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.alabel>`", getLoc(kwf)),
+                             Message::warning ("Field `<fld.alabel>` of constructor `<consType.alabel>` overlaps with common keyword field of data type `<consType.adt.adtName>`", def.defined)
                            ];
                     s.addMessages(msgs);
                 }
@@ -86,11 +89,11 @@ void addCommonKeywordFields(Solver s){
     for(Define def <- definitions, def.idRole == constructorId()){
         try {
             consType = s.getType(def);
-            if(consType.label == "type") continue; // TODO: where is the duplicate?
+            if(consType.alabel == "type") continue; // TODO: where is the duplicate?
             conses_so_far = adt_constructors[consType.adt];
-            //for(<AType c, Define cdef> <- conses_so_far, c.label == consType.label, cdef.defined != def.defined, comparable(c.fields, consType.fields)){
-            //    msgs = [ Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", def.defined),
-            //             Message::error("Duplicate/comparable constructor `<consType.label>` of data type `<consType.adt.adtName>`", cdef.defined)
+            //for(<AType c, Define cdef> <- conses_so_far, c.alabel == consType.alabel, cdef.defined != def.defined, comparable(c.fields, consType.fields)){
+            //    msgs = [ Message::error("Duplicate/comparable constructor `<consType.alabel>` of data type `<consType.adt.adtName>`", def.defined),
+            //             Message::error("Duplicate/comparable constructor `<consType.alabel>` of data type `<consType.adt.adtName>`", cdef.defined)
             //           ];
             //    s.addMessages(msgs);
             //}
@@ -103,7 +106,7 @@ void addCommonKeywordFields(Solver s){
 
 list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args]; 
 
-bool isManualLayout(AProduction p) = (p has attributes && \tag("manual"()) in p.attributes);
+bool isManualLayout(AProduction p) = (p has attributes && atag("manual"()) in p.attributes);
 
 TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,TModel] tmodels){
     try {
@@ -175,21 +178,21 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         // Add start symbols
         
         for(AType adtType <- allStarts){
-            syntaxDefinitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[label="top"], definedLayout]) });
+            syntaxDefinitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[alabel="top"], definedLayout]) });
         }
         
         // Add auxiliary rules for instantiated syntactic ADTs outside the grammar rules
         facts = tm.facts;
-        allADTs = { unset(adt, "label") | loc k <- facts, /AType adt:aadt(str _, list[AType] _, _) := facts[k] }; 
+        allADTs = { unset(adt, "alabel") | loc k <- facts, /AType adt:aadt(str _, list[AType] _, _) := facts[k] }; 
         
-        instantiated_in_grammar = { unset(adt, "label") | /adt:aadt(str _, list[AType] parameters, SyntaxRole _) := syntaxDefinitions,
+        instantiated_in_grammar = { unset(adt, "alabel") | /adt:aadt(str _, list[AType] parameters, SyntaxRole _) := syntaxDefinitions,
                                           !isEmpty(parameters), all(p <- parameters, !isTypeParameter(p)) 
                                   };
         
-        instantiated = { unset(adt, "label") | AType adt <- allADTs, !isEmpty(adt.parameters), all(p <- adt.parameters, !isTypeParameter(p))  
+        instantiated = { unset(adt, "alabel") | AType adt <- allADTs, !isEmpty(adt.parameters), all(p <- adt.parameters, !isTypeParameter(p))  
                        };
         instantiated_outside = instantiated - instantiated_in_grammar;
-        parameterized_uninstantiated_ADTs = { unset(adt, "label") | adt <- allADTs, adt.syntaxRole != dataSyntax(), params := getADTTypeParameters(adt), 
+        parameterized_uninstantiated_ADTs = { unset(adt, "alabel") | adt <- allADTs, adt.syntaxRole != dataSyntax(), params := getADTTypeParameters(adt), 
                                                   !isEmpty(params), all(p <- params, isTypeParameter(p)) 
                                           };
        

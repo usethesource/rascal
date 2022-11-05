@@ -4,6 +4,7 @@ import IO;
 import String;
 import Set;
 import List;
+import Map;
 import util::Reflective;
 import lang::rascalcore::compile::Compile;
 import util::FileSystem;
@@ -78,9 +79,9 @@ void generateTestSources(PathConfig pcfg) {
                      "analysis::m3::Registry",
                      "analysis::m3::TypeSymbol"];  
 
-   //for (m <- libraryModules) {
-   //  safeCompile(m, testConfig, (int d) { durations[m] = d; });
-   //}
+   for (m <- libraryModules) {
+     safeCompile(m, testConfig, (int d) { durations[m] = d; });
+   }
      
    testFolder = |std:///lang/rascal/tests|;
    
@@ -105,7 +106,8 @@ void generateTestSources(PathConfig pcfg) {
    println("Compiled <n> test modules");
    println("<size(exceptions)> failed to compile: <exceptions>");
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
-   
+   secs = sum(range(durations))/1000000000;
+   println("Time: <secs/60> minutes");
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
@@ -117,7 +119,7 @@ void testCompile(str \module) {
 
 str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
    try {
-     measure(cpuTime(() {    
+     measure(cpuTimeOf(() {    
        compile(\module, pcfg);
      }));
      return "";

@@ -99,7 +99,7 @@ str atype2idpart(AType t, JGenie jg) {
     }
                                                   
     str convert(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields)){
-        ext = "<getJavaName(adt.adtName, completeId=false)><t.label? ? "_" + getJavaName(getUnqualifiedName(t.label), completeId=false) : "">_<intercalate("_", [convert(f) | f <- fields])>";
+        ext = "<getJavaName(adt.adtName, completeId=false)><t.alabel? ? "_" + getJavaName(getUnqualifiedName(t.alabel), completeId=false) : "">_<intercalate("_", [convert(f) | f <- fields])>";
         //return "<useAccessor ? jg.getATypeAccessor(t) : ""><ext>";
         return ext;
     }
@@ -148,8 +148,8 @@ str atype2idpart(AType t, JGenie jg) {
 ///*  Convert an AType to an IValue (i.e., reify the AType)                    */
 ///*****************************************************************************/
 //
-//str lab(AType t) = t.label? ? value2IValue(t.label) : "";
-//str lab2(AType t) = t.label? ? ", <value2IValue(t.label)>" : "";
+//str lab(AType t) = t.alabel? ? value2IValue(t.alabel) : "";
+//str lab2(AType t) = t.alabel? ? ", <value2IValue(t.alabel)>" : "";
 //
 //bool isBalanced(str s){
 //    pars = 0;
@@ -177,7 +177,7 @@ str atype2idpart(AType t, JGenie jg) {
 //    return res; 
 //}
 //
-//str lbl(AType at) = at.label? ? "(\"<at.label>\"" : "(";
+//str lbl(AType at) = at.alabel? ? "(\"<at.alabel>\"" : "(";
 //
 //str atype2IValue1(at:avoid(), _)              = "$avoid<lbl(at)>)";
 //str atype2IValue1(at:abool(), _)              = "$abool<lbl(at)>)";
@@ -314,7 +314,7 @@ str atype2idpart(AType t, JGenie jg) {
 //private str attr2IValue1(\assoc(Associativity \assoc)) 
 //    = "assoc(<assoc2IValue(\assoc)>)";
 //private str attr2IValue1(\bracket())
-//    = "bracket())";
+//    = "abracket())";
 
 // ---- Tree ------------------------------------------------------------------
 
@@ -761,7 +761,7 @@ default str value2outertype(AType t) = "IValue";
 AType setScopeInfoType = afunc(
           avoid(),
           [
-            aloc(label="scope"),
+            aloc(alabel="scope"),
             aadt(
               "ScopeRole",
               [],
@@ -789,8 +789,8 @@ str atype2vtype(aset(AType t), JGenie jg, bool inTest=false) = "$TF.setType(<ref
 str atype2vtype(atuple(AType ts), JGenie jg, bool inTest=false) = "$TF.tupleType(<atype2vtype(ts, jg, inTest=inTest)>)";
 
 str atype2vtype(amap(AType d, AType r), JGenie jg, bool inTest=false) {
-    return (d.label? && d.label != "_")
-             ? "$TF.mapType(<refType(d, jg, inTest)>, \"<d.label>\", <refType(r, jg, inTest)>, \"<r.label>\")"
+    return (d.alabel? && d.alabel != "_")
+             ? "$TF.mapType(<refType(d, jg, inTest)>, \"<d.alabel>\", <refType(r, jg, inTest)>, \"<r.alabel>\")"
              : "$TF.mapType(<refType(d, jg, inTest)>,<refType(r, jg, inTest)>)";
 }
 str atype2vtype(arel(AType t), JGenie jg, bool inTest=false) = "$TF.setType($TF.tupleType(<atype2vtype(t, jg,inTest=inTest)>))";
@@ -798,8 +798,8 @@ str atype2vtype(alrel(AType t), JGenie jg, bool inTest=false) = "$TF.listType($T
 
 str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), JGenie jg, bool inTest=false){
     vformals = isEmpty(formals) ? "$TF.tupleEmpty()" 
-                                : ( (!isEmpty(formals) && all(AType t <- formals, t.label?)) 
-                                        ? "$TF.tupleType(<intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.label>\""] | AType t <- formals])>)"
+                                : ( (!isEmpty(formals) && all(AType t <- formals, t.alabel?)) 
+                                        ? "$TF.tupleType(<intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.alabel>\""] | AType t <- formals])>)"
                                         : "$TF.tupleType(<intercalate(", ", [ refType(t, jg, inTest) | AType t <- formals])>)"                                        
                                 );
     vkwformals = isEmpty(kwFormals) ? "$TF.tupleEmpty()" 
@@ -828,15 +828,15 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, layoutSyntax()), JGe
 str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields), JGenie jg, bool inTest=false){
-    res = "$TF.constructor(<jg.getATypeAccessor(c)>$TS, <jg.shareType(adt)>, \"<c.label>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.label>\""] | t <- fields])>)";
+    res = "$TF.constructor(<jg.getATypeAccessor(c)>$TS, <jg.shareType(adt)>, \"<c.alabel>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.alabel>\""] | t <- fields])>)";
     return res;
 }
 str atype2vtype(aparameter(str pname, AType bound), JGenie jg, bool inTest=false) = "$TF.parameterType(\"<pname>\", <refType(bound, jg, inTest)>)";
 
 
 str atype2vtype(atypeList(list[AType] atypes), JGenie jg, bool inTest=false)
-    = (atypes[0].label? && atypes[0].label != "_")
-         ? intercalate(", ", [*[refType(t, jg, inTest), "\"<t.label>\""] | t <- atypes])
+    = (atypes[0].alabel? && atypes[0].alabel != "_")
+         ? intercalate(", ", [*[refType(t, jg, inTest), "\"<t.alabel>\""] | t <- atypes])
          : intercalate(", ", [refType(t, jg, inTest) | t <- atypes]);
                        
 str atype2vtype(areified(AType atype), JGenie jg, bool inTest=false) {

@@ -81,7 +81,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
 
     private Class<IGTD<IConstructor, ITree, ISourceLocation>> generateParser(IMap grammar) {
         try {
-        	System.err.println("generateParser: " + grammar.hashCode() +": " + grammar);
+        	//System.err.println("generateParser: " + grammar.hashCode() +": " + grammar);
             return getParserGenerator().getNewParser(rex, URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
         } 
         catch (ExceptionInInitializerError e) {
@@ -280,7 +280,7 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
         protected IValue parse(IValue start, IString input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, ISet filters, ParserGenerator generator) {
             Type reified = start.getType();
             IConstructor grammar = checkPreconditions(start, reified);
-            System.err.println("parse uses grammar:"); System.err.println(grammar);
+            //System.err.println("parse uses grammar:"); System.err.println(grammar);
             if (origin == null) {
                 origin = URIUtil.rootLocation("unknown");
             }

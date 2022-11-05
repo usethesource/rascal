@@ -102,9 +102,9 @@ JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)   
 JCode transPrim("create_set", AType r, [AType a], list[str] args, JGenie jg)              = "$VF.set(<intercalate(", ", args)>)";
 JCode transPrim("create_map", AType r, [AType a, AType b], list[str] args, JGenie jg)     = "$buildMap(<intercalate(", ", args)>)";
 JCode transPrim("create_loc", aloc(), [AType a], [str uri], JGenie jg)                    = "$create_aloc(<uri>)";
-JCode transPrim("create_loc_with_offset", aloc(), [aloc()], [str l, str off, str len], JGenie jg)
+JCode transPrim("create_loc_with_offset", aloc(), [aloc(), aint(), aint()], [str l, str off, str len], JGenie jg)
                                                                                           = "$create_aloc_with_offset(<intercalate(", ", [l, castArg(aint(), off), castArg(aint(), len)])>)";
-JCode transPrim("create_loc_with_offset_and_begin_end", aloc(), [aloc()], [str l, str off, str len, str bgn, str end], JGenie jg)
+JCode transPrim("create_loc_with_offset_and_begin_end", aloc(), [aloc(),aint(), aint(),_,_], [str l, str off, str len, str bgn, str end], JGenie jg)
                                                                                           = "$create_aloc_with_offset_and_begin_end(<intercalate(", ", [l, castArg(aint(), off), castArg(aint(), len), bgn, end])>)";
 
 JCode transPrim("create_tuple", AType r, list[AType] argTypes, list[str] args, JGenie jg) = "$VF.tuple(<intercalate(", ", args)>)";
@@ -549,9 +549,9 @@ list[str] transPrimArgs("update", AType r, [AType a], [MuExp x, MuExp y, MuExp z
                                                                                          = [ trans(x,jg), trans2NativeStr(y,jg), trans(z, jg) ]
                                                                                            when isADTType(a);
                                                                                 
-JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$alist_update(<castArg(a,x)>,<y>,<z>)"   
+JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$alist_update(<y>,<z>,<castArg(a,x)>)"    /* order */
                                                                                           when isListLikeType(a);
-JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$amap_update(<castArg(a,x)>,<y>,<z>)"    
+JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$amap_update(<y>,<z>, <castArg(a,x)>)"    /* order */
                                                                                           when isMapType(a);
-JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$atuple_update(<castArg(a,x)>,<y>,<z>)" 
+JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$atuple_update(<y>,<z>,<castArg(a,x)>)"  /* order */
                                                                                           when isTupleType(a);

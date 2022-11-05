@@ -37,7 +37,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     
     for(f <- functions, isEmpty(f.scopeIn), isContainedIn(f.src, mscope),
                                             !(//"test" in f.modifiers 
-                                              isSyntheticFunctionName(f.name) 
+                                                isSyntheticFunctionName(f.name) 
                                              || isMainName(f.name))
        ){
         signatures += <f.name, getArity(f.ftype), f.ftype>;
