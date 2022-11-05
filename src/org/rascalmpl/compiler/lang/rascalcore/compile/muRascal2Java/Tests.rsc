@@ -20,6 +20,12 @@ import String;
 
 str generateTestClass(str packageName, str className, list[MuFunction] functions, JGenie jg){
     //jg.generatingTests(true);
+    
+    testMethods = "<for(f <- functions){>
+                  '    <generateTestMethod(f, className, jg)><}>
+                  ";
+    if(isEmpty(testMethods)) return "";
+    
     res  = "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import java.util.*;
            'import java.util.stream.Stream;
@@ -45,13 +51,12 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            '    final GenerateActuals generator = new GenerateActuals(5, 5, 10);
            '
            '    public <className>Tests(){
-           '        super(new RascalExecutionContext(System.in, System.out, System.err, null, null));
+           '        super(new RascalExecutionContext(System.in, System.out, System.err, null, null, <packageName>.<className>.class));
            '        ModuleStore store = new ModuleStore();
            '        store.importModule(<className>.class, this.rex, <className>::new);   
            '        $me = store.getModule(<className>.class);                     
            '    }
-           '    <for(f <- functions){>
-           '    <generateTestMethod(f, className, jg)><}>
+           '    <testMethods>
            '}\n";
     //jg.generatingTests(false);
     return res;

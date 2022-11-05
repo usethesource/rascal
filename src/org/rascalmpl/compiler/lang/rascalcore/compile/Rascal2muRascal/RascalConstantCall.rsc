@@ -51,8 +51,8 @@ private MuExp tcc("lub", [muCon(AType lhs), muCon(AType rhs)]) = muCon(alub(lhs,
 
 private MuExp tcc("appl", [muCon(Production prod), muCon(list[Tree] args)]) = muCon(ParseTree::appl(prod, args));
 private MuExp tcc("cycle", [muCon(Symbol symbol), muCon(int cycleLength)]) = muCon(ParseTree::cycle(symbol, cycleLength));
-private MuExp tcc("char", [muCon(int character)]) = muCon(ParseTree::char(character));
-private MuExp tcc("amb",  [muCon(set[Tree] alternatives)]) = muCon(ParseTree::amb(alternatives));
+private MuExp tcc("achar", [muCon(int character)]) = muCon(ParseTree::char(character));
+private MuExp tcc("aamb",  [muCon(set[Tree] alternatives)]) = muCon(ParseTree::amb(alternatives));
 
 // Production
 
@@ -64,17 +64,17 @@ private MuExp tcc("reference", [muCon(Symbol def), muCon(str cons)]) = muCon(Par
 private MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternatives)]) = muCon(Type::\choice(def, alternatives));
 
 // Attr
-private MuExp tcc("tag", [muCon(value \tag)]) = muCon(ParseTree::\tag(\tag));
-private MuExp tcc("bracket", []) = muCon(ParseTree::\bracket());
-private MuExp tcc("assoc", [muCon(ParseTree::Associativity \asssoc)]) = muCon(ParseTree::\assoc(\asssoc));
+private MuExp tcc("atag", [muCon(value \tag)]) = muCon(ParseTree::\tag(\tag));
+private MuExp tcc("abracket", []) = muCon(ParseTree::\bracket());
+private MuExp tcc("aassoc", [muCon(ParseTree::Associativity \asssoc)]) = muCon(ParseTree::\assoc(\asssoc));
 
 
 // Associativity
 
-private MuExp tcc("left", []) = muCon(ParseTree::\left());
-private MuExp tcc("right", []) = muCon(ParseTree::\right());
-private MuExp tcc("assoc", []) = muCon(ParseTree::\assoc());
-private MuExp tcc("non-assoc", []) = muCon(ParseTree::\non-assoc());
+private MuExp tcc("aleft", []) = muCon(ParseTree::\left());
+private MuExp tcc("aright", []) = muCon(ParseTree::\right());
+private MuExp tcc("aassoc", []) = muCon(ParseTree::\assoc());
+private MuExp tcc("a-non-assoc", []) = muCon(ParseTree::\non-assoc());
 
 // CharRange
 private MuExp tcc("range", [muCon(begin), muCon(end)]) = muCon(ParseTree::range(begin, end));
@@ -120,9 +120,9 @@ private MuExp tcc("keywords", [muCon(str name)]) = muCon(ParseTree::keywords(nam
 private MuExp tcc("parameterized-sort", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
 private MuExp tcc("parameterized-lex", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
 
-private MuExp tcc("lit", [muCon(str string)]) = muCon(ParseTree::lit(string));
-private MuExp tcc("cilit", [muCon(str string)]) = muCon(ParseTree::cilit(string));
-private MuExp tcc("char-class", [muCon(list[CharRange] ranges)]) = muCon(ParseTree::\char-class(ranges));
+private MuExp tcc("alit", [muCon(str string)]) = muCon(ParseTree::lit(string));
+private MuExp tcc("acilit", [muCon(str string)]) = muCon(ParseTree::cilit(string));
+private MuExp tcc("achar-class", [muCon(list[CharRange] ranges)]) = muCon(ParseTree::\char-class(ranges));
 private MuExp tcc("empty", []) = muCon(ParseTree::empty());
 private MuExp tcc("opt", [muCon(Symbol symbol)]) = muCon(ParseTree::opt(symbol));
 
@@ -142,10 +142,10 @@ private MuExp tcc("not-follow", [muCon(Symbol symbol)]) = muCon(ParseTree::\not-
 private MuExp tcc("precede", [muCon(Symbol symbol)]) = muCon(ParseTree::precede(symbol));
 private MuExp tcc("not-precede", [muCon(Symbol symbol)]) = muCon(ParseTree::\not-precede(symbol));
 private MuExp tcc("delete", [muCon(Symbol symbol)]) = muCon(ParseTree::delete(symbol));
-private MuExp tcc("at-column", [muCon(int column)]) = muCon(ParseTree::\at-column(column));
-private MuExp tcc("begin-of-line", []) = muCon(ParseTree::\begin-of-line());
-private MuExp tcc("end-of-line", []) = muCon(ParseTree::\end-of-line());
-private MuExp tcc("except", [muCon(str label)]) = muCon(ParseTree::except(label));
+private MuExp tcc("a-at-column", [muCon(int column)]) = muCon(ParseTree::\at-column(column));
+private MuExp tcc("a-begin-of-line", []) = muCon(ParseTree::\begin-of-line());
+private MuExp tcc("a-end-of-line", []) = muCon(ParseTree::\end-of-line());
+private MuExp tcc("a-except", [muCon(str label)]) = muCon(ParseTree::except(label));
 
 // Grammar
 

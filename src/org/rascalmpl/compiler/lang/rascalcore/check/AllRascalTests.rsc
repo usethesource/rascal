@@ -289,14 +289,14 @@ private lrel[str,str] partial_results = [];
 
 alias TestResults = tuple[list[value] crashes, set[map[str,list[Message]] msgs] msgsPerModule];
 
-TestResults runTests(list[str] names, str base){
+TestResults runTests(list[str] names, str base, PathConfig pcfg){
  all_test_msgs = {};
  list[value] crashes = [];
  for(tst <- names){
       try {
           prog = base == "" ? tst : (base + "::" + tst);
           println("TYPECHECKING <prog>");
-          mname2msgs = filterErrors(checkModules([prog], rascalTypePalConfig()));
+          mname2msgs = filterErrors(checkModules([prog], rascalTypePalConfig(), pcfg));
           iprintln(mname2msgs);
           all_test_msgs += mname2msgs;
       } catch value e:
@@ -318,17 +318,17 @@ set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(
   list[value] all_crashes = [];
   //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   
-  TestResults res = runTests(basicTests, "lang::rascal::tests::basic");
+  TestResults res = runTests(basicTests, "lang::rascal::tests::basic", pcfg);
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
-  res = runTests(functionalityTests, "lang::rascal::tests::functionality");
+  res = runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg);
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
-  res = runTests(libraryTests, "lang::rascal::tests::library");
+  res = runTests(libraryTests, "lang::rascal::tests::library", pcfg);
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
-  res = runTests(importTests, "lang::rascal::tests::imports");
+  res = runTests(importTests, "lang::rascal::tests::imports", pcfg);
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
-  res = runTests(extendTests, "lang::rascal::tests::extends"); 
+  res = runTests(extendTests, "lang::rascal::tests::extends", pcfg); 
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
-  res = runTests(files_with_tests, "");
+  res = runTests(files_with_tests, "", pcfg);
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   
   //res = runTests(typeTests, "lang::rascalcore::check::tests");
@@ -341,47 +341,47 @@ set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(
    return all_msgs;
 }
 
-tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, PathConfig pcfg= pathConfig(   
-        srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
-                |project://typepal/src|,
-                |project://rascal/src/org/rascalmpl/library|
-               ])){
-    
-    <_, msgs> = checkModules([qualifiedModuleName], rascalTypePalConfig());
-    iprintln(msgs);       
-    mTplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
-    mOrgModel = readBinaryValueFile(#TModel, mTplLoc);
-    
-    differences = ();
-   
-    base = "lang::rascal::tests::basic";
-    names = basicTests;
-    for(tst <- names){
-      try {
-        if(exists(mTplLoc)){
-            remove(mTplLoc);
-        }
-      } catch e: println("@@@@ while removing <mTplLoc>: <e> @@@@");
-      try {
-          prog = base == "" ? tst : (base + "::" + tst);
-          println("TYPECHECKING <prog>");
-          <_, msgs> = checkModules([prog], rascalTypePalConfig());
-          iprintln(msgs);
-          if(exists(mTplLoc)){
-              mNewModel = readBinaryValueFile(#TModel, mTplLoc);
-              df = diff(mOrgModel, mNewModel);
-              if(!isEmpty(df)){
-                println("**** diff for <tst>");
-                println(df);
-                differences[prog] = mNewModel;
-              }
-          }
-      } catch e:
-        println("@@@@ EXCEPTION: <e> @@@@@@");
-  }
-  println("<size(names)> modules; <size(differences)> differences");
-  return <mOrgModel, differences>;
-}
+//tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, PathConfig pcfg= pathConfig(   
+//        srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
+//                |project://typepal/src|,
+//                |project://rascal/src/org/rascalmpl/library|
+//               ])){
+//    
+//    <_, msgs> = checkModules([qualifiedModuleName], rascalTypePalConfig(), pcfg);
+//    iprintln(msgs);       
+//    mTplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
+//    mOrgModel = readBinaryValueFile(#TModel, mTplLoc);
+//    
+//    differences = ();
+//   
+//    base = "lang::rascal::tests::basic";
+//    names = basicTests;
+//    for(tst <- names){
+//      try {
+//        if(exists(mTplLoc)){
+//            remove(mTplLoc);
+//        }
+//      } catch e: println("@@@@ while removing <mTplLoc>: <e> @@@@");
+//      try {
+//          prog = base == "" ? tst : (base + "::" + tst);
+//          println("TYPECHECKING <prog>");
+//          <_, msgs> = checkModules([prog], rascalTypePalConfig(), pcfg);
+//          iprintln(msgs);
+//          if(exists(mTplLoc)){
+//              mNewModel = readBinaryValueFile(#TModel, mTplLoc);
+//              df = diff(mOrgModel, mNewModel);
+//              if(!isEmpty(df)){
+//                println("**** diff for <tst>");
+//                println(df);
+//                differences[prog] = mNewModel;
+//              }
+//          }
+//      } catch e:
+//        println("@@@@ EXCEPTION: <e> @@@@@@");
+//  }
+//  println("<size(names)> modules; <size(differences)> differences");
+//  return <mOrgModel, differences>;
+//}
 
 bool blacklisted(str qualifiedModuleName){
     //for(s <- {//"lang::rascal::types", "experiments::Compiler", "lang::rascal::boot", "lang::rascal::tests::types" , "experiments::tutor3", "lang::java::patterns", "lang::sdf2", "lang::box", "Sudoku

@@ -15,7 +15,7 @@ import lang::rascalcore::check::AType;
 import String;
 
 public AGrammar literals(AGrammar g) {
-    lts = {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g};
+    lts = {literal(s) | /lit(s) <- g} + {ciliteral(s) | /acilit(s) <- g};
   return compose(g, grammar({}, lts));
 }
 
@@ -24,17 +24,17 @@ public AProduction ciliteral(str s) = prod(cilit(s), cistr2syms(s));
 
 public list[AType] str2syms(str x) {
   if (x == "") return [];
-  return [\char-class([arange(c,c)]) | i <- [0..size(x)], int c:= charAt(x,i)]; 
+  return [\achar-class([arange(c,c)]) | i <- [0..size(x)], int c:= charAt(x,i)]; 
 }
 
 list[AType] cistr2syms(str x) {
   return for (i <- [0..size(x)], int c:= charAt(x,i)) {
      if (c >= 101 && c <= 132) // A-Z
-        append \char-class([arange(c,c),arange(c+40,c+40)]);
+        append \achar-class([arange(c,c),arange(c+40,c+40)]);
      else if (c >= 141 && c <= 172) // a-z
-        append \char-class([arange(c,c),arange(c-40,c-40)]);
+        append \achar-class([arange(c,c),arange(c-40,c-40)]);
      else 
-        append \char-class([arange(c,c)]);
+        append \achar-class([arange(c,c)]);
   } 
 }
 

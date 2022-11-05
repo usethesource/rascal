@@ -864,7 +864,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			path = path + "/";
 		}
 		path = path.concat(s.getValue());
-		return $aloc_field_update(sloc, "path", $VF.string(path));
+		return $aloc_field_update("path", $VF.string(path), sloc);
 	}
 	
 	public final ITuple $atuple_add_atuple(final ITuple t1, final ITuple t2) {
@@ -1309,7 +1309,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 						path += "/";
 					}
 				}
-				v = $aloc_field_update(sloc, "path", $VF.string(path));
+				v = $aloc_field_update("path", $VF.string(path), sloc);
 			} else {
 				throw RuntimeExceptionFactory.noParent(sloc);
 			}
@@ -1672,7 +1672,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- field_update ------------------------------------------------------
 
-	public final ISourceLocation $aloc_field_update(final ISourceLocation sloc, final String field, final IValue repl) {		
+	public final ISourceLocation $aloc_field_update(final String field, final IValue repl, final ISourceLocation sloc) {		
 		Type replType = repl.getType();
 
 		int iLength = sloc.hasOffsetLength() ? sloc.getLength() : -1;
@@ -1935,7 +1935,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 
-	public final IDateTime $adatetime_field_update(final IDateTime dt, final String field, final IValue repl) {
+	public final IDateTime $adatetime_field_update(final String field, final IValue repl, final IDateTime dt) {
 		// Individual fields
 		int year = dt.getYear();
 		int month = dt.getMonthOfYear();
@@ -2034,9 +2034,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 	
-	public final INode $anode_field_update(final INode nd, final String fieldName, IValue repl) {
+	public final INode $anode_field_update(final String fieldName, IValue repl, final INode nd) {
 		if(nd.getType().isAbstractData()) {
-			return $aadt_field_update((IConstructor) nd, fieldName, repl);
+			return $aadt_field_update(fieldName, repl, (IConstructor) nd);
 		}
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 			return nd.asWithKeywordParameters().setParameter(fieldName, repl);
@@ -2049,7 +2049,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 	
-	public final IConstructor $aadt_field_update(final IConstructor cons, final String fieldName, IValue repl) {
+	public final IConstructor $aadt_field_update(final String fieldName, IValue repl, final IConstructor cons) {
 
 		Type consType = cons.getConstructorType();
 
@@ -2095,9 +2095,13 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public final boolean $aadt_has_field(final IConstructor cons, final String fieldName, Type... consesWithField) {
 		
 		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-			// TODO: keyword parameter of Tree
-			FieldResult res = TreeAdapter.getLabeledField((ITree) cons, fieldName);
-			if(res != null) return true;
+			FieldResult fldres = TreeAdapter.getLabeledField((ITree) cons, fieldName);
+			if(fldres != null) {
+				return true;
+			}
+			if(cons.asWithKeywordParameters().getParameter(fieldName) != null) {
+				return true;
+			}
 		}
 		
 		Type consType = cons.getConstructorType();
@@ -3591,8 +3595,20 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 	
+	public final IValue $amap_subscript(String name, final IMap map, final IValue idx) {
+		IValue v = map.get(idx);
+//		System.err.println("$amap_subscript on " + name + ":\nmap:"); for(IValue k : map) System.err.println("\t" + k + " => " + map.get(k));
+//		System.err.println("result: " + idx + " => " + v);
+		if(v == null) {
+			throw RuntimeExceptionFactory.noSuchKey(idx);
+		}
+		return v;
+	}
+	
 	public final IValue $amap_subscript(final IMap map, final IValue idx) {
 		IValue v = map.get(idx);
+//		System.err.println("$amap_subscript:\nmap:"); for(IValue k : map) System.err.println("\t" + k + " => " + map.get(k));
+//		System.err.println("result: " + idx + " => " + v);
 		if(v == null) {
 			throw RuntimeExceptionFactory.noSuchKey(idx);
 		}
@@ -4046,8 +4062,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			if(from >= actual_len) {
 				return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, $VF.list());
 			}
-			IList args = TreeAdapter.getArgs(tree).sublist(from, adjusted_len);
-			for(int i = 0; i < args.size(); i++) System.err.println(args.get(i));
 			return org.rascalmpl.values.parsetrees.TreeAdapter.setArgs(tree, org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree).sublist(from, adjusted_len));
 		}
 		throw RuntimeExceptionFactory.illegalArgument(tree);
@@ -4129,7 +4143,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * 
 	 */
 
-	public final IList $alist_update(final IList lst, int n, final IValue v) {
+	public final IList $alist_update(int n, final IValue v, final IList lst) {
 		if(n < 0){
 			n = lst.length() + n;
 		}
@@ -4145,7 +4159,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * Update map element
 	 * 
 	 */
-	public final IMap $amap_update(IMap map, IValue key, IValue v) {
+	
+	public final IMap $amap_update(final IValue key, final IValue v, final IMap map) {	
 		return map.put(key, v);
 	}
 
@@ -4154,7 +4169,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 * 
 	 */
 
-	public final ITuple $atuple_update(final ITuple tup, final int n, final IValue v) {
+	public final ITuple $atuple_update(final int n, final IValue v, final ITuple tup) {
 		try {
 			return tup.set(n, v);
 		} catch (IndexOutOfBoundsException e){

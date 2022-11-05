@@ -60,8 +60,8 @@ private MuExp compose(Expression e){
   return isFunctionType(lhsType) || isOverloadedAType(lhsType) ? translateComposeFunction(e) : infix("compose", e);
 }
 
-//str getFunctionName(af:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = af.label;
-//str getFunctionName(ovl: overloadedAType(rel[loc, IdRole, AType] overloads)) = getFirstFrom(overloads)[2].label;
+//str getFunctionName(af:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = af.alabel;
+//str getFunctionName(ovl: overloadedAType(rel[loc, IdRole, AType] overloads)) = getFirstFrom(overloads)[2].alabel;
 //str getFunctionName(AType t) {
 //    throw "getFunctionName: <t>";
 //}
@@ -124,7 +124,7 @@ private MuExp translateAddFunction(Expression e){
  
   leaveFunctionScope();
   funType = afunc(resType, lhsFormals, []);
-  fun = muFunction(add_name, add_name, funType, lactuals, [], scopeId, false, false, false, getExternalRefs([], body, add_fuid), {}, {}, {}, e@\loc, [], (), body);
+  fun = muFunction(add_name, add_name, funType, lactuals, [], [], scopeId, false, false, false, getExternalRefs(body, add_fuid), {}, {}, e@\loc, [], (), body);
   loc uid = declareGeneratedFunction(add_name, add_fuid, funType, e@\loc);
   addFunctionToModule(fun);  
   addDefineAndType(<currentFunctionDeclaration(), add_name, add_name, functionId(), e@\loc, defType(funType)>, funType);
@@ -453,16 +453,16 @@ private MuExp translateConcreteExpression(t:appl(prod(Symbol::label("$MetaHole",
 
 // Four cases of lists are detected to be able to implement splicing
 // splicing is different for separated lists from normal lists
-private MuExp translateConcreteExpression(t:Tree::appl(p:Production::regular(s:Symbol::iter(Symbol elem)), list[Tree] args))
+private MuExp translateConcreteExpression(t:appl(p:Production::regular(s:Symbol::iter(Symbol elem)), list[Tree] args))
   = muTreeAppl(muCon(p), translateConcreteExpressionList(elem, args, t@\loc), t@\loc);
 
-private MuExp translateConcreteExpression(t:Tree::appl(p:Production::regular(s:Symbol::\iter-star(Symbol elem)), list[Tree] args))
+private MuExp translateConcreteExpression(t:appl(p:Production::regular(s:Symbol::\iter-star(Symbol elem)), list[Tree] args))
   = muTreeAppl(muCon(p), translateConcreteExpressionList(elem, args, t@\loc), t@\loc); 
    
-private MuExp translateConcreteExpression(t:Tree::appl(p:Production::regular(s:Symbol::\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
+private MuExp translateConcreteExpression(t:appl(p:Production::regular(s:Symbol::\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
   = muTreeAppl(muCon(p), translateConcreteExpressionSeparatedList(elem, seps, args, t@\loc), t@\loc);
 
-private MuExp translateConcreteExpression(t:Tree::appl(p:Production::regular(s:Symbol::\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
+private MuExp translateConcreteExpression(t:appl(p:Production::regular(s:Symbol::\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args))
   = muTreeAppl(muCon(p), translateConcreteExpressionSeparatedList(elem, seps, args, t@\loc), t@\loc); 
 
 private MuExp translateConcreteExpression(char(int i)) =  muTreeChar(i);
@@ -657,13 +657,13 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
                                    "$CLOSURE_<uid.begin.line>A<uid.offset>", 
                                    ftype, 
                                    formalVars,
+                                   [],
                                    kwps,
                                    surrounding, 
   								   isVarArgs, 
   								   false,
   								   false,
-  								   getExternalRefs(formalVars, funBody, fuid),  // << TODO
-  								   {},
+  								   getExternalRefs(funBody, fuid),  // << TODO
   								   getLocalRefs(funBody),
   								   {},
   								   e@\loc,
@@ -1159,6 +1159,10 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
    return access;
 }
 
+MuExp translateBool(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
+    return muIfExp(translate(e), trueCont, falseCont);
+}
+
 // -- slice expression ----------------------------------------------
 
 MuExp translate ((Expression) `<Expression expression> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`) =
@@ -1207,6 +1211,10 @@ MuExp translate (e:(Expression) `<Expression expression> . <Name field>`) {
     
     
     return muGetField(getType(e), getType(expression), translate(expression), ufield);   
+}
+
+MuExp translateBool(e:(Expression) `<Expression expression> . <Name field>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
+    return muIfExp(translate(e), trueCont, falseCont);
 }
 
 // -- field update expression ---------------------------------------
@@ -1334,8 +1342,8 @@ MuExp translate ((Expression) `<Expression expression> has <Name name>`) {
         // Determine set of constructors with the desired field                                    
         constructors = getConstructorsMap()[tp] ? {};
         consesWithField = {c | c:acons(AType _adt, list[AType] fields, list[Keyword] kwFields) <- constructors,
-                               (!isEmpty(fields) && any(f <- fields, f.label == uname)) ||
-                               (!isEmpty(kwFields) && any(kwf <- kwFields, kwf.fieldType.label == uname))
+                               (!isEmpty(fields) && any(f <- fields, f.alabel == uname)) ||
+                               (!isEmpty(kwFields) && any(kwf <- kwFields, kwf.fieldType.alabel == uname))
                            };
         //if(isEmpty(consesWithField)){
         //    return muCon(false);    // It is statically known that there is no constructor with desired field
@@ -1414,6 +1422,10 @@ MuExp translate(e: (Expression) `<Expression lhs> ? <Expression rhs>`) {
                             muIfExp(muIsDefinedValue(guarded),  muGetDefinedValue(guarded, getType(lhs)), translate(rhs))
                           ]);
 }
+
+MuExp translateBool(e:(Expression) `<Expression lhs> ? <Expression rhs>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
+    = translateIfDefinedOtherwise(muBlock([translate(lhs), trueCont]), muBlock([translate(rhs), falseCont]));
+    
 
 public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc _src) {
     str fuid = topFunctionScope();
@@ -2150,7 +2162,7 @@ BTINFO getBTInfo(Expression e:(Expression) `<Expression condition> ? <Expression
     return registerBTScope(e, btscope1, btscopes1);
 }
 
-MuExp translate((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) {
+MuExp translate(e: (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`) {
 	btscopes = getBTScopes(condition, nextTmp("COND"));
 	res = translateBool(condition, btscopes,  translate(thenExp), translate(elseExp));
 	return res;
@@ -2182,7 +2194,7 @@ default MuExp translate(Expression e) {
     //return muExists(getEnter(e, btscopes), translateBool(e, btscopes, muSucceed(getEnter(e,btscopes)), muFail(getResume(e, btscopes))));
 }
 
-default MuExp translateBool(Expression e, str _btscope, MuExp _trueCont, MuExp _falseCont) {
+default MuExp translateBool(Expression e, BTSCOPES _btscopes, MuExp _trueCont, MuExp _falseCont) {
     println(e);
     throw "TRANSLATEBOOL, MISSING CASE FOR EXPRESSION: <e>";
 }

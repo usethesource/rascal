@@ -15,34 +15,34 @@ import ValueIO;
 import util::Maybe;
  
 @doc{adds an attribute to all productions it can find}
-public AProduction attribute(AProduction p, Attr a) = p[attributes=p.attributes+{a}];
+public AProduction attribute(AProduction p, AAttr a) = p[attributes=p.attributes+{a}];
 
 // TODO: the result set is always empty it seems. FixMe!
-public set[Attr] mods2attrs(ProdModifier* mods) = {mod2attr(m) | ProdModifier m <- mods};
+public set[AAttr] mods2attrs(ProdModifier* mods) = {mod2attr(m) | ProdModifier m <- mods};
  
-public Attr mod2attr(ProdModifier m) {
+public AAttr mod2attr(ProdModifier m) {
   switch (m) {
-    case \associativity(\left())                : return \assoc(Associativity::\left());
-    case \associativity(\right())               : return \assoc(Associativity::\right());
-    case \associativity(\nonAssociative())      : return \assoc(\non-assoc());
-    case \associativity(\associative())         : return \assoc(\assoc());
-    case \bracket()                             : return \bracket();
-    case \tag(\default(Name n, TagString s))    : return \tag("<n>"("<s>"));
-    case \tag(\empty(Name n))                   : return \tag("<n>"()); 
+    case \associativity(\left())                : return \aassoc(AAssociativity::aleft());
+    case \associativity(\right())               : return \aassoc(AAssociativity::aright());
+    case \associativity(\nonAssociative())      : return \aassoc(\a-non-assoc());
+    case \associativity(\associative())         : return \aassoc(\aassoc());
+    case \bracket()                             : return \abracket();
+    case \tag(\default(Name n, TagString s))    : return \atag("<n>"("<s>"));
+    case \tag(\empty(Name n))                   : return \atag("<n>"()); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  
-                                                : return \tag("<n>"("<unescapeLiteral(l)>"));
+                                                : return \atag("<n>"("<unescapeLiteral(l)>"));
     case \tag(\expression(Name n, literal(Literal l)))
-                                                : return \tag("<n>"("<unescapeLiteral("<l>")>"));
+                                                : return \atag("<n>"("<unescapeLiteral("<l>")>"));
     case \tag(\expression(Name n, Expression e))     
-                                                : return \tag("<n>"( readTextValueString("<e>")));                                       
+                                                : return \atag("<n>"( readTextValueString("<e>")));                                       
     default: { rprintln(m); throw "mod2attr, missed a case <m>"; }
   }
 }
 
-Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
+Maybe[AAssociativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
 
-Maybe[Associativity] mod2assoc(\associativity(\left()))           = just(Associativity::\left());
-Maybe[Associativity] mod2assoc(\associativity(\right()))          = just(Associativity::\right());
-Maybe[Associativity] mod2assoc(\associativity(\associative()))    = just(Associativity::\left());
-Maybe[Associativity] mod2assoc(\associativity(\nonAssociative())) = just(Associativity::\non-assoc());
-default Maybe[Associativity] mod2assoc(ProdModifier _)            = nothing();
+Maybe[AAssociativity] mod2assoc(\associativity(\left()))           = just(AAssociativity::aleft());
+Maybe[AAssociativity] mod2assoc(\associativity(\right()))          = just(AAssociativity::aright());
+Maybe[AAssociativity] mod2assoc(\associativity(\associative()))    = just(AAssociativity::aleft());
+Maybe[AAssociativity] mod2assoc(\associativity(\nonAssociative())) = just(AAssociativity::\a-non-assoc());
+default Maybe[AAssociativity] mod2assoc(ProdModifier _)            = nothing();

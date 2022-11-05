@@ -53,7 +53,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
 }
     
 AType(Solver) makeFieldType(str fieldName, Tree fieldType)
-    = AType(Solver s) { return s.getType(fieldType)[label=fieldName]; };
+    = AType(Solver s) { return s.getType(fieldType)[alabel=fieldName]; };
 
 void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <KeywordFormals keywordArguments> )`, Collector c){
     formals = getFormals(current);
@@ -115,9 +115,9 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
                 AType(Solver s){
                     adtType = s.getType(adt);
-                    kwFormalTypes = [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals /*+ commonKwFormals*/];
-                    formalTypes = [f is named ? s.getType(f)[label=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
-                    return acons(adtType, formalTypes, kwFormalTypes)[label=prettyPrintName(name)];
+                    kwFormalTypes = [<s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals /*+ commonKwFormals*/];
+                    formalTypes = [f is named ? s.getType(f)[alabel=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
+                    return acons(adtType, formalTypes, kwFormalTypes)[alabel=prettyPrintName(name)];
                 }));
             c.fact(current, name);
              // The standard rules would declare arguments and kwFormals as variableId();

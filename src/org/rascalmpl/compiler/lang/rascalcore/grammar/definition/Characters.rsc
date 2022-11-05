@@ -25,22 +25,22 @@ data ACharRange = \empty-range();
 ACharRange \new-range(int from, int to) = from <= to ? arange(from, to) : \empty-range();
  
 public AType \new-char-class(list[ACharRange] ranges) 
-  = \char-class(([] | union(it, [r]) | r <- ranges));
+  = \achar-class(([] | union(it, [r]) | r <- ranges));
   
-//test bool testFlip() = \new-char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
-//test bool testMerge() = \new-char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);
-//test bool testEnvelop() = \new-char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
-//test bool testEnvelop2() = \new-char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
+//test bool testFlip() = \new-char-class([range(2,2), range(1,1)]) == \achar-class([range(1,2)]);
+//test bool testMerge() = \new-char-class([range(3,4), range(2,2), range(1,1)]) == \achar-class([range(1,4)]);
+//test bool testEnvelop() = \new-char-class([range(10,20), range(15,20), range(20,30)]) == \achar-class([range(10,30)]);
+//test bool testEnvelop2() = \new-char-class([range(10,20), range(10,19), range(20,30)]) == \achar-class([range(10,30)]);
 
-public AType complement(\char-class(list[ACharRange] r1)) =
-  \char-class([ r | r <- complement(r1), !(r is \empty-range)]);
+public AType complement(\achar-class(list[ACharRange] r1)) =
+  \achar-class([ r | r <- complement(r1), !(r is \empty-range)]);
   
 public default AType  complement(AType s) {
   throw "unsupported symbol for character class complement: <s>";
 }
   
-public AType difference(\char-class(list[ACharRange] r1), \char-class(list[ACharRange] r2)){
-    res = \char-class([r | r <- difference(r1,r2), !(r is \empty-range)]);
+public AType difference(\achar-class(list[ACharRange] r1), \achar-class(list[ACharRange] r2)){
+    res = \achar-class([r | r <- difference(r1,r2), !(r is \empty-range)]);
     return res;
 }
 
@@ -48,15 +48,15 @@ public default AType  difference(AType s, AType t) {
   throw "unsupported symbols for  character class difference: <s> and <t>";
 }
 
-public AType union(\char-class(list[ACharRange] r1), \char-class(list[ACharRange] r2))
- = \char-class([ r | r <- union(r1,r2), !(r is \empty-range)]);
+public AType union(\achar-class(list[ACharRange] r1), \achar-class(list[ACharRange] r2))
+ = \achar-class([ r | r <- union(r1,r2), !(r is \empty-range)]);
  
 public default AType  union(AType s, AType t) {
   throw "unsupported symbols for union: <s> and <t>";
 }
 
-public AType intersection(\char-class(list[ACharRange] r1), \char-class(list[ACharRange] r2)) 
- = \char-class([ r | r <- intersection(r1,r2), !(r is \empty-range)]);
+public AType intersection(\achar-class(list[ACharRange] r1), \achar-class(list[ACharRange] r2)) 
+ = \achar-class([ r | r <- intersection(r1,r2), !(r is \empty-range)]);
 
 public default AType  intersection(AType s, AType t) {
   throw "unsupported symbols for intersection: <s> and <t>";
@@ -325,20 +325,20 @@ public list[ACharRange] difference(list[ACharRange] l, list[ACharRange] r) {
   throw "did not expect to end up here! <l> - <r>";
 }
 
-//test bool testComp() = complement(\char-class([])) == \char-class([range(1,16777215)]);
-//test bool testComp2() = complement(\char-class([range(0,0)])) == \char-class([range(1,16777215)]);
-//test bool testComp3() = complement(\char-class([range(1,1)])) == \char-class([range(2,16777215)]);
-//test bool testComp4() = complement(\char-class([range(10,20), range(30,40)])) == \char-class([range(1,9),range(21,29),range(41,16777215)]);
-//test bool testComp5() = complement(\char-class([range(10,35), range(30,40)])) == \char-class([range(1,9),range(41,16777215)]);
+//test bool testComp() = complement(\achar-class([])) == \achar-class([range(1,16777215)]);
+//test bool testComp2() = complement(\achar-class([range(0,0)])) == \achar-class([range(1,16777215)]);
+//test bool testComp3() = complement(\achar-class([range(1,1)])) == \achar-class([range(2,16777215)]);
+//test bool testComp4() = complement(\achar-class([range(10,20), range(30,40)])) == \achar-class([range(1,9),range(21,29),range(41,16777215)]);
+//test bool testComp5() = complement(\achar-class([range(10,35), range(30,40)])) == \achar-class([range(1,9),range(41,16777215)]);
 //
-//test bool testUnion1() = union(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([range(10,20), range(30,40)]);
-//test bool testUnion2() = union(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(10,40)]);
+//test bool testUnion1() = union(\achar-class([range(10,20)]), \achar-class([range(30, 40)])) == \achar-class([range(10,20), range(30,40)]);
+//test bool testUnion2() = union(\achar-class([range(10,25)]), \achar-class([range(20, 40)])) == \achar-class([range(10,40)]);
 // 
-//test bool testInter1() = intersection(\char-class([range(10,20)]), \char-class([range(30, 40)])) == \char-class([]);
-//test bool testInter2() = intersection(\char-class([range(10,25)]), \char-class([range(20, 40)])) == \char-class([range(20, 25)]);
+//test bool testInter1() = intersection(\achar-class([range(10,20)]), \achar-class([range(30, 40)])) == \achar-class([]);
+//test bool testInter2() = intersection(\achar-class([range(10,25)]), \achar-class([range(20, 40)])) == \achar-class([range(20, 25)]);
 //
-//test bool testDiff1() = difference(\char-class([range(10,30)]), \char-class([range(20,25)])) == \char-class([range(10,19), range(26,30)]);
-//test bool testDiff2() = difference(\char-class([range(10,30), range(40,50)]), \char-class([range(25,45)])) ==\char-class( [range(10,24), range(46,50)]);
+//test bool testDiff1() = difference(\achar-class([range(10,30)]), \achar-class([range(20,25)])) == \achar-class([range(10,19), range(26,30)]);
+//test bool testDiff2() = difference(\achar-class([range(10,30), range(40,50)]), \achar-class([range(25,45)])) ==\achar-class( [range(10,24), range(46,50)]);
 
 public AType cc2ranges(Class cc) {
    switch(cc) {

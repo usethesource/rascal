@@ -49,6 +49,14 @@ import util::Reflective;
 import util::FileSystem;
 import analysis::graphs::Graph;
 
+// Duplicate in lang::rascalcore::compile::util::Names, factor out
+data PathConfig(
+    loc generatedSources=|unknown:///|,
+    loc resources = |unknown:///|,
+    loc testResources =|unknown:///|
+);
+
+
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int _ <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
@@ -73,18 +81,18 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
                 //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
                 //SymbolType = aadt("Symbol", [], dataSyntax());
                 //ProductionType = aadt("Production", [], dataSyntax());
-                //symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
-                //definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
-                //c.define("type", constructorId(), mkTree(3), defType(acons(typeType, [symbolField, definitionsField], [], label="type")));
+                //symbolField = SymbolType[alabel="symbol"]; //<"symbol", SymbolType>;
+                //definitionsField = amap(SymbolType, ProductionType)[alabel="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
+                //c.define("type", constructorId(), mkTree(3), defType(acons(typeType, [symbolField, definitionsField], [], alabel="type")));
                 // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
             } else {
                 //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
                 //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
                 SymbolType = aadt("AType", [], dataSyntax());
                 AProductionType = aadt("AProduction", [], dataSyntax());
-                atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
-                definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
-                //c.define("atype", constructorId(), mkTree(3), defType(acons(typeType, [atypeField, definitionsField], [], label="type")));
+                atypeField = SymbolType[alabel="symbol"]; //<"symbol", SymbolType>;
+                definitionsField = amap(SymbolType, AProductionType)[alabel="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
+                //c.define("atype", constructorId(), mkTree(3), defType(acons(typeType, [atypeField, definitionsField], [], alabel="type")));
                 // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
             }
         c.leaveScope(tree);

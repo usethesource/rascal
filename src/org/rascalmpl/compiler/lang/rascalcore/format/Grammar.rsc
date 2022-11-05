@@ -106,7 +106,7 @@ public str attr2mod(Attr a) {
 
 public str symbol2rascal(AType sym) {
     if(!isEmpty(sym.label)){
-       return "<symbol2rascal(unset(sym, "label"))> <sym.label>"; 
+       return "<symbol2rascal(unset(sym, "alabel"))> <sym.label>"; 
     } 
   switch (sym) {
     
@@ -117,9 +117,9 @@ public str symbol2rascal(AType sym) {
     // Type incorrect, PK
     //case \parameter(x) :
     //    return "&" + replaceAll(x, "-", "_");
-    case lit(x) :
+    case alit(x) :
     	return "\"<escape(x)>\"";
-    case cilit(x) :
+    case acilit(x) :
     	return "\'<escape(x)>\'";
    
     case \char-class(x) : 
@@ -173,13 +173,13 @@ public str symbol2rascal(AType sym) {
         return "<symbol2rascal(s)> \<\< <symbol2rascal(s)> ";
     case conditional(s, {\not-precede(t)}) :
         return "<symbol2rascal(s)> !\<\< <symbol2rascal(s)> ";    
-    case conditional(s, {\at-column(int i)}) :
+    case conditional(s, {"a-at-column"(int i)}) :
         return "<symbol2rascal(s)>@<i>";
-    case conditional(s, {\begin-of-line()}) :
+    case conditional(s, {"a-begin-of-line"()}) :
         return "^<symbol2rascal(s)>";
-    case conditional(s, {\end-of-line()}) :
+    case conditional(s, {"a-end-of-line"()}) :
         return "<symbol2rascal(s)>$";
-    case conditional(s, {\except(str x)}) :
+    case conditional(s, {"a-except"(str x)}) :
         return "<symbol2rascal(s)>!<x>";
     case conditional(s, {}): {
         println("WARNING: empty conditional <sym>");

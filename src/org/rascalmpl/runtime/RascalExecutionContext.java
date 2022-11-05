@@ -1,16 +1,27 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.util.List;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.Traverse;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.project.ProjectURIResolver;
+import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 
 public class RascalExecutionContext implements IRascalMonitor {
@@ -31,7 +42,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 			PrintStream outstream,
 			PrintStream errstream, 
 			PathConfig pcfg, 
-			IDEServices ideServices
+			IDEServices ideServices,
+			Class<?> clazz
 			){
 		
 		currentModuleName = "UNDEFINED";
@@ -46,6 +58,38 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
 		$TRAVERSE = new Traverse($RVF);
+		
+		ISourceLocation projectRoot = inferProjectRoot(clazz);
+	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	    String projectName = new RascalManifest().getProjectName(projectRoot);
+	    reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+	    reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+	    
+	    String projectPath =  projectRoot.getPath();
+	    String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-2);
+	    
+		try {
+			ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
+			String[]entries = URIResolverRegistry.getInstance().listEntries(projectsDir);
+			if (entries != null) {
+				System.err.print("INFO adding projects: ");
+				for(String entryName : entries) {
+					if(entryName.charAt(0) != '.' && !(entryName.equals("pom-parent") || entryName.equals("bin") || entryName.equals("src") || entryName.equals("META-INF"))) {
+						ISourceLocation entryRoot = $RVF.sourceLocation(projectsDir.getScheme(), projectsDir.getAuthority(), projectsDir.getPath() + "/" + entryName);
+						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
+							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
+							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
+							System.err.print(entryName + " ");
+						}
+					}
+				}
+				System.err.println("");
+			}
+		} catch (IOException e) {
+			return;
+		} catch (URISyntaxException e) {
+			return;
+		}
 	}
 	
 	IRascalValueFactory getRascalRuntimeValueFactory() { return $RVF; }
@@ -105,4 +149,41 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public void warning(String message, ISourceLocation src) {
 		ideServices.warning(message,  src);;
 	}
+	
+	 public static ISourceLocation inferProjectRoot(Class<?> clazz) {
+	        try {
+	            String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
+	            if (file.endsWith(".jar")) {
+	                throw new IllegalArgumentException("can not run Rascal JUnit tests from within a jar file");
+	            }
+
+	            File current = new File(file);
+	            
+	            while (current != null && current.exists() && current.isDirectory()) {
+	                if (new File(current, "META-INF/RASCAL.MF").exists()) {
+	                    // this is perhaps the copy of RASCAL.MF in a bin/target folder;
+	                    // it would be better to find the source RASCAL.MF such that tests
+	                    // are run against the sources of test files rather than the ones accidentally
+	                    // copied to the bin folder.
+	                    
+	                    // TODO: if someone knows how to parametrize this nicely instead of hard-coding the
+	                    // mvn project setup, I'm all ears. It has to work from both the Eclipse JUnit runner 
+	                    // and MVN surefire calling contexts. 
+	                    if (current.getName().equals("classes") && current.getParentFile().getName().equals("target")) {
+	                        current = current.getParentFile().getParentFile();
+	                        continue; // try again in the source folder
+	                    }
+	                    
+	                    return URIUtil.createFileLocation(current.getAbsolutePath());
+	                }
+	                current = current.getParentFile();
+	            }
+	        }
+	        catch (URISyntaxException e) {
+	            System.err.println("[ERROR] can not infer project root:" + e);
+	            return null;
+	        }
+	        
+	        return null;
+	    }
 }

@@ -47,7 +47,7 @@ str varName(muVar(str name, str _fuid, int pos, AType _)){ // duplicate, see Cod
 //str atype2istype(str e, AType t, JGenie jg) = "<e>.getType().comparable(<jg.shareType(t)>)";
 
 str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads), JGenie jg)
-    = intercalate(" || ", ["<e>).getConstructorType().equivalent(<atype2vtype(tp, jg)>" | <_, _, tp> <- overloads]);
+    = "<e> instanceof IConstructor && <intercalate(" || ", ["((IConstructor)<e>).getConstructorType().equivalent(<atype2vtype(tp, jg)>)" | <_, _, tp> <- overloads])>";
  
 //str atype2istype(str e, t:acons(AType adt, list[AType] fields, list[Keyword] kwFields), JGenie jg) 
 //    = "<e>.getConstructorType().comparable(<jg.shareType(t)>)";
@@ -100,16 +100,16 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
         // Group all functions of same name and arity by scope
         set[Define] defs = functions_and_constructors[<fname, farity>];
         
-        resolvers += generateResolver(moduleName, fname, defs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, loc2module, jg);
-        //defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
-        //                                            return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
-        //                                                   || a.scope in module_scopes && b.scope in module_scopes
-        //                                                   ;
-        //                                      });
+        //resolvers += generateResolver(moduleName, fname, defs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, loc2module, jg);
+        defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
+                                                    return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
+                                                           || a.scope in module_scopes && b.scope in module_scopes
+                                                           ;
+                                              });
         // ... and generate a resolver for each group
-        //for(sdefs <- defs_in_disjoint_scopes){
-        //    resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, loc2module, jg);
-        //}
+        for(sdefs <- defs_in_disjoint_scopes){
+            resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, loc2module, jg);
+        }
     }
     return resolvers;
 }
@@ -171,8 +171,12 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
    
     if(all(def <- relevant_fun_defs, def in local_fun_defs, def.scope notin module_scopes)){
         for(def <- relevant_fun_defs, isContainedIn(def.defined, module_scope)){
-            fun = loc2muFunction[def.defined];
-            inner_scope = "<fun.scopeIn>_";
+           if(loc2muFunction[def.defined]?){
+                fun = loc2muFunction[def.defined];
+                inner_scope = "<fun.scopeIn>_";
+           } else {
+                println("<def.defined> not found");
+            }
             break;
         }
         //def = getOneFrom(relevant_fun_defs);

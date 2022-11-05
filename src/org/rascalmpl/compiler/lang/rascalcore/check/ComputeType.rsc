@@ -290,7 +290,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
         kwName = prettyPrintName(kwa.name);
         
         for(<ft, _> <- kwFormals){
-           fn = ft.label;
+           fn = ft.alabel;
            if(kwName == fn){
               ift = ft;
               if(!isEmpty(bindings)){
@@ -303,7 +303,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            } 
         }
-        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.label>`" | < AType ft, Expression _> <- kwFormals]);
+        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.alabel>`" | < AType ft, Expression _> <- kwFormals]);
         switch(size(kwFormals)){
         case 0: availableKws ="; no other keyword parameters available";
         case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -322,7 +322,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
         kwName = prettyPrintName(kwa.name);
         
         for(<ft, _> <- kwFormals){
-           fn = ft.label;
+           fn = ft.alabel;
            if(kwName == fn){
               ift = ft;
               if(!isEmpty(bindings)){
@@ -335,7 +335,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
               continue next_arg;
            } 
         }
-        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.label>`" | <AType ft, Expression _> <- kwFormals]);
+        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.alabel>`" | <AType ft, Expression _> <- kwFormals]);
         switch(size(kwFormals)){
         case 0: availableKws ="; no other keyword parameters available";
         case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -348,11 +348,11 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
 }
 
 list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
-    return [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
+    return [<s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
 }
 
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) =
-     [ <s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
+     [ <s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
      
 list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <_, _, adt> <- overloads ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
@@ -404,18 +404,18 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
         if(isStartNonTerminalType(containerType)){
            return computeFieldTypeWithADT(getStartNonTerminalType(containerType), field, scope, s);
         } else if(isIterType(containerType)){
-            if(containerType.label == fieldName){
+            if(containerType.alabel == fieldName){
                 return makeListType(getIterElementType(containerType));
             }
         } else if(isSeqType(containerType)){
             for(tp <- getSeqTypes(containerType)){
-                if(tp.label == fieldName){
+                if(tp.alabel == fieldName){
                     return tp;
                 }
             }
         } else if(isAltType(containerType)){
             for(tp <- getAltTypes(containerType)){
-                if(tp.label == fieldName){
+                if(tp.alabel == fieldName){
                     return tp;
                 }
             }
@@ -874,7 +874,7 @@ private AType getPatternType0(current: (Pattern) `[ <{Pattern ","}* elements0> ]
 // ---- typed variable pattern
 
 private AType getPatternType0(current:( Pattern) `<Type tp> <Name name>`, AType subjectType, loc scope, Solver s){
-    return s.getType(tp)[label=unescape("<name>")];
+    return s.getType(tp)[alabel=unescape("<name>")];
 }
 
 // ---- qualifiedName pattern: QualifiedName
@@ -892,9 +892,9 @@ private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType s
           //clearBindings();
        }
        s.requireComparable(nameType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, nameType));
-       return nameType[label=unescape("<name>")];
+       return nameType[alabel=unescape("<name>")];
     } else
-       return subjectType[label=unescape("<name>")];
+       return subjectType[alabel=unescape("<name>")];
 }
 
 // ---- multiVariable pattern: QualifiedName*
@@ -977,7 +977,7 @@ private AType getPatternType0(current: (Pattern) `\< <{Pattern ","}* elements1> 
         elmTypes = getTupleFieldTypes(subjectType);
         if(size(pats) == size(elmTypes)){
            if(tupleHasFieldNames(subjectType)){
-             res = atuple(atypeList([getPatternType(pats[i], elmTypes[i], scope, s)[label= elmTypes[i].label] | int i <- index(pats)]));
+             res = atuple(atypeList([getPatternType(pats[i], elmTypes[i], scope, s)[alabel= elmTypes[i].alabel] | int i <- index(pats)]));
              return res;
            } else {
              return atuple(atypeList([getPatternType(pats[i], elmTypes[i], scope, s) | int i <- index(pats)]));
@@ -1113,7 +1113,7 @@ AType computePatternNodeTypeWithKwArgs(Tree current, (KeywordArguments[Pattern])
     nodeFieldTypes = [];
     nextKW:
        for(ft <- fields){
-           fn = ft.label;
+           fn = ft.alabel;
            for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
                kwName = prettyPrintName(kwa.name);
                if(kwName == fn){
@@ -1130,7 +1130,7 @@ AType computePatternNodeTypeWithKwArgs(Tree current, (KeywordArguments[Pattern])
 // ---- variable becomes pattern
 
 private AType getPatternType0(current: (Pattern) `<Name name> : <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
-    return getPatternType(pattern, subjectType, scope, s)[label=unescape("<name>")];
+    return getPatternType(pattern, subjectType, scope, s)[alabel=unescape("<name>")];
 }
 
 // ---- typed variable becomes
@@ -1139,7 +1139,7 @@ private AType getPatternType0(current: (Pattern) `<Type tp> <Name name> : <Patte
     declaredType = s.getType(name);
     patType = getPatternType(pattern, subjectType, scope, s);
     s.requireComparable(patType, declaredType, error(current, "Incompatible type in assignment to variable %q, expected %t, found %t", name, declaredType, patType));
-    return declaredType[label=unescape("<name>")];
+    return declaredType[alabel=unescape("<name>")];
 }
 
 // ---- descendant pattern

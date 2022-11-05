@@ -159,9 +159,9 @@ Expression makeKeywordDefaultExpression(Type annoType, Collector c){
     case (Type) `map[<TypeArg _>,<TypeArg _>]`: res = (Expression) `()`;
     case (Type) `rel[<{TypeArg ","}+ _>]`: res = (Expression) `{}`;
     case (Type) `lrel[<{TypeArg ","}+ _>]`: res = (Expression) `[]`;
-    case (Type) `Message`: {
-            ;//res = (Expression) `error("AUTOMATICALLY GENERATED DEFAULT MESSAGE", |error:///|)`;
-        }
+    //case (Type) `Message`: {
+    //        ;//res = (Expression) `error("AUTOMATICALLY GENERATED DEFAULT MESSAGE", |error:///|)`;
+    //    }
     default: {
         println("WARNING: makeKeywordDefaultExpression: <annoType>");
         }
@@ -214,7 +214,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     kwformalName = prettyPrintName(name);
     DefInfo dt;
     try {
-         dt = defType(c.getType(kwType)[label=kwformalName]);
+         dt = defType(c.getType(kwType)[alabel=kwformalName]);
     } catch TypeUnavailable(): {
          dt = defType([kwType], makeFieldType(kwformalName, kwType));
     }
@@ -293,7 +293,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                     ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
                 }
              }
-             dt = defType(ft[label=unescape("<fname>")]);
+             dt = defType(ft[alabel=unescape("<fname>")]);
       
         } catch TypeUnavailable():{
             //  Delayed computation of the function type if some types are anot yet available
@@ -329,7 +329,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                         ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
                     }
                  }
-                 return ft[label=unescape("<fname>")];
+                 return ft[alabel=unescape("<fname>")];
              });
         }
         dt.vis = getVis(decl.visibility, publicVis());
@@ -403,7 +403,7 @@ void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c)
 }
 
 //AType anonymizeFunctionTypes(AType t){
-//    res = visit (t){ case afunc(ret, formalsList, kwformalsList) => afunc(unsetRec(ret, "label"), formalsList, kwformalsList) }
+//    res = visit (t){ case afunc(ret, formalsList, kwformalsList) => afunc(unsetRec(ret, "alabel"), formalsList, kwformalsList) }
 //    return res;
 //}
 
@@ -434,7 +434,7 @@ void collect(Signature signature, Collector c){
         creturnType = c.getType(returnType);
         cparameters = c.getType(parameters);
         formalsList = atypeList(elems) := cparameters ? elems : [cparameters];
-        kwformalsList = [<c.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
+        kwformalsList = [<c.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
         //c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
         c.fact(signature, updateBounds(afunc(creturnType, formalsList, kwformalsList), minimizeBounds(tvbounds, c)));
         return;
@@ -450,9 +450,9 @@ void collect(Signature signature, Collector c){
 }
 
 AType updateBounds(AType t, map[str,AType] bounds){
-    return visit(t) {case aparameter(pname, bnd, label=L) : {
+    return visit(t) {case aparameter(pname, bnd, alabel=L) : {
                             bnd = bounds[pname] ? avalue();
-                            insert isEmpty(L) ? aparameter(pname, bnd) : aparameter(pname, bnd, label=L);
+                            insert isEmpty(L) ? aparameter(pname, bnd) : aparameter(pname, bnd, alabel=L);
                         }
                     };
 }
@@ -595,7 +595,7 @@ void collect(Parameters parameters, Collector c){
                 
                 int last = size(formalTypes) -1;
                 if(parameters is varArgs){
-                    formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
+                    formalTypes[last] = alist(unset(formalTypes[last], "alabel"), alabel=formalTypes[last].alabel);
                 }
                 c.fact(parameters, atypeList(formalTypes));
                 for(int i <- index(formals)){
@@ -609,7 +609,7 @@ void collect(Parameters parameters, Collector c){
                         s.pop(inFormals);
                         int last = size(formalTypes) -1;
                         if(parameters is varArgs){
-                            formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
+                            formalTypes[last] = alist(unset(formalTypes[last], "alabel"), alabel=formalTypes[last].alabel);
                         }
                         for(int i <- index(formals)){
                             checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
@@ -709,7 +709,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
             if(!isRascalTypeParam(ptype)){
                   s.report(error(typeVars[i], "Only type parameter allowed, found %t", ptype));
             }
-            append ptype; //unset(ptype, "label"); // TODO: Erase labels to enable later subset check
+            append ptype; //unset(ptype, "alabel"); // TODO: Erase alabels to enable later subset check
         }
         
         return aalias(aliasName, params, s.getType(base));

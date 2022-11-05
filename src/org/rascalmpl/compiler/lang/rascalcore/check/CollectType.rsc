@@ -78,10 +78,10 @@ void collect(current: (TypeArg) `<Type tp>`, Collector c){
 void collect(current: (TypeArg) `<Type tp> <Name name>`, Collector c){
     collect(tp, c);
     try {
-        c.fact(name, c.getType(tp)[label=unescape("<name>")]);
+        c.fact(name, c.getType(tp)[alabel=unescape("<name>")]);
     } catch TypeUnavailable(): {
         c.calculate("TypeArg <name>", name, [tp], AType(Solver s){
-           return (s.getType(tp)[label=unescape("<name>")]);
+           return (s.getType(tp)[alabel=unescape("<name>")]);
          });
     }
     c.fact(current, name);
@@ -150,14 +150,14 @@ void collect(current:(Type)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- map
 
 tuple[list[FailMessage] msgs, AType atype] handleMapFields({TypeArg ","}+ tas, AType dt, AType rt){
-    if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label != rt.label) { 
+    if (!isEmpty(dt.alabel) && !isEmpty(rt.alabel) && dt.alabel != rt.alabel) { 
         return <[], makeMapType(dt, rt)>;
-    } else if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label == rt.label) {
-        return <[error(tas,"Non-well-formed map type, labels must be distinct")], makeMapType(unset(dt, "label"),unset(rt,"label"))>;
-    } else if (!isEmpty(dt.label) && isEmpty(rt.label)) {
-        return <[warning(tas, "Field name `<dt.label>` ignored, field names must be provided for both fields or for none")], makeMapType(unset(dt, "label"),rt)>;
-    } else if (isEmpty(dt.label) && !isEmpty(rt.label)) {
-        return <[warning(tas, "Field name `<rt.label>` ignored, field names must be provided for both fields or for none")], makeMapType(dt, unset(rt, "label"))>;
+    } else if (!isEmpty(dt.alabel) && !isEmpty(rt.alabel) && dt.alabel == rt.alabel) {
+        return <[error(tas,"Non-well-formed map type, labels must be distinct")], makeMapType(unset(dt, "alabel"),unset(rt,"alabel"))>;
+    } else if (!isEmpty(dt.alabel) && isEmpty(rt.alabel)) {
+        return <[warning(tas, "Field name `<dt.alabel>` ignored, field names must be provided for both fields or for none")], makeMapType(unset(dt, "alabel"),rt)>;
+    } else if (isEmpty(dt.alabel) && !isEmpty(rt.alabel)) {
+        return <[warning(tas, "Field name `<rt.alabel>` ignored, field names must be provided for both fields or for none")], makeMapType(dt, unset(rt, "alabel"))>;
     } else {
         return <[], makeMapType(dt,rt)>;
     }
@@ -191,7 +191,7 @@ void collect(current:(Type)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- rel
 
 tuple[list[FailMessage] msgs, AType atype] handleRelFields({TypeArg ","}+ tas, list[AType] fieldTypes){
-    labelsList = [tp.label | tp <- fieldTypes];
+    labelsList = [tp.alabel | tp <- fieldTypes];
     nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
     distinctLabels = toSet(nonEmptyLabels);
     if (size(fieldTypes) == size(distinctLabels)){
@@ -199,9 +199,9 @@ tuple[list[FailMessage] msgs, AType atype] handleRelFields({TypeArg ","}+ tas, l
     } else if(size(distinctLabels) == 0) {
         return <[], makeRelType(fieldTypes)>;
     } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-        return <[error(tas, "Non-well-formed relation type, labels must be distinct")], makeRelType([unset(tp, "label") | tp <- fieldTypes])>;
+        return <[error(tas, "Non-well-formed relation type, labels must be distinct")], makeRelType([unset(tp, "alabel") | tp <- fieldTypes])>;
     } else if (size(distinctLabels) > 0) {
-        return <[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeRelType([unset(tp, "label") | tp <- fieldTypes])>;
+        return <[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeRelType([unset(tp, "alabel") | tp <- fieldTypes])>;
     }
     return <[], avoid()>;
 }
@@ -226,7 +226,7 @@ void collect(current:(Type)`rel [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- lrel
 
 tuple[list[FailMessage] msgs, AType atype] handleListRelFields({TypeArg ","}+ tas, list[AType] fieldTypes){
-    labelsList = [tp.label | tp <- fieldTypes];
+    labelsList = [tp.alabel | tp <- fieldTypes];
     nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
     distinctLabels = toSet(nonEmptyLabels);
     if (size(fieldTypes) == size(distinctLabels)){
@@ -234,9 +234,9 @@ tuple[list[FailMessage] msgs, AType atype] handleListRelFields({TypeArg ","}+ ta
     } else if(size(distinctLabels) == 0) {
         return <[], makeListRelType(fieldTypes)>;
     } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-        return <[error(tas, "Non-well-formed list relation type, labels must be distinct")], makeListRelType([unset(tp, "label") | tp <- fieldTypes])>;
+        return <[error(tas, "Non-well-formed list relation type, labels must be distinct")], makeListRelType([unset(tp, "alabel") | tp <- fieldTypes])>;
     } else if (size(distinctLabels) > 0) {
-        return <[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeListRelType([unset(tp, "label") | tp <- fieldTypes])>;
+        return <[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeListRelType([unset(tp, "alabel") | tp <- fieldTypes])>;
     }
     return <[], avoid()>;
 }
@@ -261,7 +261,7 @@ void collect(current:(Type)`lrel [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- tuple
 
 tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas, list[AType] fieldTypes){
-    labelsList = [tp.label | tp <- fieldTypes];
+    labelsList = [tp.alabel | tp <- fieldTypes];
     nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
     distinctLabels = toSet(nonEmptyLabels);
     msgs = [];
@@ -275,9 +275,9 @@ tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas,
     } else if(size(distinctLabels) == 0) {
         return <msgs, makeTupleType(fieldTypes)>;
     } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-        return <msgs+[error(tas, "Non-well-formed tuple type, labels must be distinct")], makeTupleType([unset(tp, "label") | tp <- fieldTypes])>;
+        return <msgs+[error(tas, "Non-well-formed tuple type, labels must be distinct")], makeTupleType([unset(tp, "alabel") | tp <- fieldTypes])>;
     } else if (size(distinctLabels) > 0) {
-        return <msgs+[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeTupleType([unset(tp, "label") | tp <- fieldTypes])>;
+        return <msgs+[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeTupleType([unset(tp, "alabel") | tp <- fieldTypes])>;
     } 
     return <[], avoid()>; 
 }
@@ -288,18 +288,12 @@ void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
     try {
         <msgs, result> = handleTupleFields(tas, [c.getType(ta) | ta <- targs]);
         for(m <- msgs) c.report(m);
-        if(isTupleType(result) && getTupleFieldCount(result) == 6 && !getTupleFields(result)[5].label?){
-            println(result);
-        }
         c.fact(current, result);
     } catch TypeUnavailable():{
         c.calculate("tuple type", current, targs, 
             AType(Solver s){
                 <msgs, result> = handleTupleFields(tas, [s.getType(ta) | ta <- targs]);
                 for(m <- msgs) s.report(m);
-                 if(isTupleType(result) && getTupleFieldCount(result) == 6 && !getTupleFields(result)[5].label?){
-                    println(result);
-                }
                 return result;
             });
     }
@@ -308,8 +302,8 @@ void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- type
 
 tuple[list[FailMessage] msgs, AType atype] handleTypeField({TypeArg ","}+ tas, AType fieldType){  
-    if (!isEmpty(fieldType.label)) {
-        return <[warning(tas, "Field name `<fieldType.label>` ignored")], areified(fieldType)>;
+    if (!isEmpty(fieldType.alabel)) {
+        return <[warning(tas, "Field name `<fieldType.alabel>` ignored")], areified(fieldType)>;
     } else {
         return <[], areified(fieldType)>;
     } 
@@ -339,7 +333,7 @@ void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- function type ---------------------------------------------------------
 
 AType(Solver _) makeGetTypeArg(TypeArg targ)
-    = AType(Solver s) { return s.getType(targ.\type)[label="<targ.name>"]; };
+    = AType(Solver s) { return s.getType(targ.\type)[alabel="<targ.name>"]; };
     
 tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* _, AType returnType, list[AType] argTypes){  
     return <[], afunc(returnType, argTypes, [])>;
@@ -356,7 +350,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
             argType = c.getType(targ.\type);
             c.fact(targ, argType);
             if(targ has name) {
-                labelledArgType = argType[label="<targ.name>"];
+                labelledArgType = argType[alabel="<targ.name>"];
                 resolvedArgTypes += labelledArgType;
                 c.define("<targ.name>", formalId(), targ.name, defType(labelledArgType));
                 c.fact(targ, argType);
@@ -515,7 +509,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
     // TODO require symbol is nonterminal
     c.define(un, fieldId(), n, defType([symbol], AType(Solver s){ 
-        return getSyntaxType(symbol, s)[label=un]; }));
+        return getSyntaxType(symbol, s)[alabel=un]; }));
     c.fact(current, n);
     collect(symbol, c);
 }
@@ -527,11 +521,11 @@ void collect(current:(Sym) `<Class cc>`, Collector c){
 }
 
 void collect(current:(Sym) `<StringConstant l>`, Collector c){
-    c.fact(current, AType::lit(unescapeLiteral(l)));
+    c.fact(current, AType::alit(unescapeLiteral(l)));
 }
 
 void collect(current:(Sym) `<CaseInsensitiveStringConstant l>`, Collector c){
-    c.fact(current, AType::cilit(unescapeLiteral(l)));
+    c.fact(current, AType::acilit(unescapeLiteral(l)));
 }
 
 // ---- regular expressions
@@ -619,24 +613,24 @@ void collect(current:(Sym) `()`, Collector c){
 // ---- conditionals
 
 void collect(current:(Sym) `<Sym symbol> @ <IntegerLiteral column>`, Collector c){
-    c.calculate("column", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\at-column(toInt("<column>")) }); });
+    c.calculate("column", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\a-at-column(toInt("<column>")) }); });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `<Sym symbol> $`, Collector c){
-    c.calculate("end-of-line", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\end-of-line() }); });
+    c.calculate("end-of-line", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\a-end-of-line() }); });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `^ <Sym symbol>`, Collector c){
-    c.calculate("begin-of-line", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\begin-of-line() }); });
+    c.calculate("begin-of-line", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\a-begin-of-line() }); });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
     // TODO: c.use(n, {productionId()});
     un = unescape("<n>");
-    c.calculate("except", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\except(un) }); });
+    c.calculate("except", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\a-except(un) }); });
     collect(symbol, c);
 }
     

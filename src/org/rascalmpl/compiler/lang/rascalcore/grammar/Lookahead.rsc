@@ -182,7 +182,7 @@ private AGrammar removeLabels(AGrammar G) {
 }
 
 private AType removeLabel(AType s) {
-  return s.label? ? unset(s, "label") : s;
+  return s.label? ? unset(s, "alabel") : s;
 }
 
 private list[AType] removeLabels(list[AType] syms) {
@@ -190,7 +190,7 @@ private list[AType] removeLabels(list[AType] syms) {
 }
 
 private set[AType] usedSymbols(AGrammar G){
-   return { s |  AProduction p:prod(_,_/*,_*/) <- G.productions, /AType s <- p.asymbols };
+   return { s |  AProduction p:prod(_,_/*,_*/) <- G.productions, /AType s <- p.atypes };
 }
 
 private set[AType] definedSymbols(AGrammar G) {
@@ -252,7 +252,7 @@ public SymbolUse follow(AGrammar G,  SymbolUse FIRST){
    
    rel[AType, AType] F = {<S, eoi()> | AType S <- G.starts};
    
-   for (AProduction p <- G.productions, [_*, current, symbols*] := p.asymbols) {
+   for (AProduction p <- G.productions, [_*, current, symbols*] := p.atypes) {
        if (current in defSymbols) {
           flw =  first(symbols, FIRST);
           if (empty() in flw || isEmpty(symbols)) {

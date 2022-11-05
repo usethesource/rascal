@@ -176,14 +176,6 @@ void collect(current: (PathTail) `<MidPathChars mid> <Expression expression> <Pa
 
  void collect(current: (PathTail) `<PostPathChars post>`, Collector c){
  }
- 
- void checkSupportedByParserGenerator(Tree t, Collector c){
-    c.require("implemented by parsergenerator", t, [t], void(Solver s){
-        tp = s.getType(t);
-        if(isNonParameterizedNonTerminalType(tp)) return;
-        s.report(warning(t, "%t is possibly not yet supported by parsergenerator", tp));
-    });
- }
 
 // ---- Concrete literals
 
@@ -272,7 +264,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
             AType(Solver s){ return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll); });
             
         dt = defType(returnType + formals, AType(Solver s){
-                return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll)[label=clos_name]; 
+                return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll)[alabel=clos_name]; 
              });
        
         c.defineInScope(parentScope, clos_name, functionId(), current, dt); 
@@ -502,7 +494,7 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
             AType(Solver s){
                 checkNonVoid(from, s, "Key of map comprehension");
                 checkNonVoid(to, s, "Value of map comprehension");
-                return makeMapType(unset(s.getType(from), "label"), unset(s.getType(to), "label"));
+                return makeMapType(unset(s.getType(from), "alabel"), unset(s.getType(to), "alabel"));
             });
          
         collectGenerators(res, gens, c);
@@ -614,7 +606,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 s.requireEqual(actuals[0], aint(), error(actuals[0], "Argument should be of type `int`, found %t", actuals[0]));
                 if(actuals[0] is literal){
                     chr = toInt("<actuals[0]>");
-                    return \char-class([arange(chr, chr)]);
+                    return \achar-class([arange(chr, chr)]);
                 } else
                     return anyCharType;
             }
@@ -678,9 +670,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
             
             if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
-               if(texp.deprecationMessage? && c.getConfig().warnDeprecated){
-                    s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
-               }
+               // TODO; texp can get type value and then texp.deprecationMessage does not exist
+               //if(texp.deprecationMessage? && c.getConfig().warnDeprecated){
+               //     s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
+               //}
                 return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
             }
             if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
@@ -710,15 +703,15 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
 
 private void checkOverloadedSyntaxConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){
     for(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2, isSyntaxType(ovl1.atype), isSyntaxType(ovl2.atype)){
-        s.report(error(current, "Use non-terminal name as qualifier to resolve overloaded syntactic constructor %q", ovl1.atype.label));
+        s.report(error(current, "Use non-terminal name as qualifier to resolve overloaded syntactic constructor %q", ovl1.atype.alabel));
     }
 
 }
 
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){
-    filteredOverloads = {};
+    rel[loc, IdRole, AType] filteredOverloads = {};
     prevFormals = [];
-    identicalFormals = [true | int _ <- [0 .. arity]];
+    list[bool] identicalFormals = [true | int _ <- [0 .. arity]];
     
     for(ovl:<_, _, tp> <- overloads){                       
         if(ft:afunc(AType _, list[AType] formals, list[Keyword] _) := tp){
@@ -862,7 +855,7 @@ private list[AType] computeExpressionKwArgs((KeywordArguments[Expression]) `<Key
     return for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
                 kwName = prettyPrintName(kwa.name);
                 kwType = s.getType(kwa.expression);
-                append kwType[label=kwName];
+                append kwType[alabel=kwName];
             }  
 }
 
@@ -1105,7 +1098,7 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
 
     // Keep the field names if all fields are named and if we have unique names
     if (!(size(subscripts) > 1 && size(subscripts) == size(fieldNames) && size(fieldNames) == size(toSet(fieldNames)))) {
-        subscripts = [ unset(tp, "label") | tp <- subscripts ];
+        subscripts = [ unset(tp, "alabel") | tp <- subscripts ];
     }
     
     if (isRelType(base)) {

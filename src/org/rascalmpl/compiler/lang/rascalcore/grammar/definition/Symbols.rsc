@@ -24,7 +24,7 @@ default AType striprec(AType s_ori) = visit(s_ori) {
 ////default AType striprec(AType s) = visit(s) { case AType t => strip(t) };
 
 AType strip(conditional(AType s, set[ACondition] _)) = strip(s);
-default AType strip(AType s) = s.label? ? unset(s, "label") : s;
+default AType strip(AType s) = s.label? ? unset(s, "alabel") : s;
 
 //public bool match(AType checked, AType referenced) {
 //  while (checked is conditional || checked is label)
@@ -35,7 +35,7 @@ default AType strip(AType s) = s.label? ? unset(s, "label") : s;
 //  return referenced == checked;
 //} 
 
-public AType delabel(AType s) = visit(s) { case AType t => unset(t, "label") when t.label? };
+public AType delabel(AType s) = visit(s) { case AType t => unset(t, "alabel") when t.label? };
 
 public AType sym2AType(Sym sym) {
   switch (sym) {
@@ -44,9 +44,9 @@ public AType sym2AType(Sym sym) {
     case \start(Nonterminal n) : 
         return \start(AType::aadt("<n>", [], dataSyntax));
     case literal(StringConstant l): 
-      return AType::lit(unescapeLiteral(l));
+      return AType::alit(unescapeLiteral(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
-      return AType::cilit(unescapeLiteral(l));
+      return AType::acilit(unescapeLiteral(l));
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
         return AType::aadt("<n>",separgs2ATypes(syms), dataSyntax()); 
     case labeled(Sym s, NonterminalLabel n) : 
@@ -72,23 +72,23 @@ public AType sym2AType(Sym sym) {
     case sequence(Sym first, Sym+ sequence) : 
       return seq([sym2AType(first)] + [sym2AType(elem) | elem <- sequence]);
     case startOfLine(Sym s) : 
-      return conditional(sym2AType(s), {\begin-of-line()});
+      return conditional(sym2AType(s), {ACondition::\a-begin-of-line()});
     case endOfLine(Sym s) : 
-      return conditional(sym2AType(s), {\end-of-line()});
+      return conditional(sym2AType(s), {ACondition::\a-end-of-line()});
     case column(Sym s, IntegerLiteral i) : 
-      return conditional(sym2AType(s), {\at-column(toInt("<i>"))}); 
+      return conditional(sym2AType(s), {ACondition::\a-at-column(toInt("<i>"))}); 
     case follow(Sym s, Sym r) : 
-      return conditional(sym2AType(s), {\follow(sym2AType(r))});
+      return conditional(sym2AType(s), {ACondition::\follow(sym2AType(r))});
     case notFollow(Sym s, Sym r) : 
-      return conditional(sym2AType(s), {\not-follow(sym2AType(r))});
+      return conditional(sym2AType(s), {ACondition::\not-follow(sym2AType(r))});
     case precede(Sym s, Sym r) : 
-      return conditional(sym2AType(r), {\precede(sym2AType(s))});
+      return conditional(sym2AType(r), {ACondition::\precede(sym2AType(s))});
     case notPrecede(Sym s, Sym r) : 
-      return conditional(sym2AType(r), {\not-precede(sym2AType(s))});
+      return conditional(sym2AType(r), {ACondition::\not-precede(sym2AType(s))});
     case unequal(Sym s, Sym r) : 
-      return conditional(sym2AType(s), {\delete(sym2AType(r))});
+      return conditional(sym2AType(s), {ACondition::\delete(sym2AType(r))});
     case except(Sym s, NonterminalLabel n):
-      return conditional(sym2AType(s), {\except("<n>")});
+      return conditional(sym2AType(s), {ACondition::\a-except("<n>")});
     default: 
       throw "sym2AType, missed a case <sym>";
   }

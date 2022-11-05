@@ -1,7 +1,8 @@
 @bootstrapParser
 module lang::rascalcore::check::AType
 
-extend analysis::typepal::AType;
+extend analysis::typepal::TypePal;
+//extend analysis::typepal::AType;
 import analysis::typepal::Exception;
 
 import lang::rascal::\syntax::Rascal;
@@ -17,7 +18,7 @@ import String;
 
 alias Keyword     = tuple[AType fieldType, Expression defaultExp];
    
-data AType (str label = "")
+data AType (str alabel = "")
     =  
        avoid()
      | abool()
@@ -95,8 +96,8 @@ data AProduction
 .Synopsis
 Attributes register additional semantics annotations of a definition. 
 }
-data Attr 
-     = \tag(value \tag) 
+data AAttr 
+     = atag(value \tag) 
      ;
 
 @doc{
@@ -107,10 +108,7 @@ Normalize the choice between alternative productions.
 Nested choice is flattened.
 }
 public AProduction choice(AType s, set[AProduction] choices){
-    //if(size(choices) == 1) return getFirstFrom(choices);
-    if(!any(choice(AType _, set[AProduction] _)  <- choices)){
-       fail;
-    } else {   
+    if(any(choice(AType _, set[AProduction] _)  <- choices)){
         // TODO: this does not work in interpreter and typechecker crashes on it (both related to the splicing)
         //return choice(s, { *(choice(Symbol t, set[AProduction] b) := ch ? b : {ch}) | ch <- choices });
         changed = false;
@@ -125,10 +123,9 @@ public AProduction choice(AType s, set[AProduction] choices){
         }
         if(changed){
             return choice(s, new_choices);
-        } else {
-            fail;
         }
    }
+   fail;
 }
 
 // ---- Parse Tree
@@ -136,8 +133,8 @@ public AProduction choice(AType s, set[AProduction] choices){
 data Tree 
      = appl(AProduction aprod, list[Tree] args, loc src=|unknown:///|) // <1>
      | cycle(AType atype, int cycleLength)  // <2>
-     | amb(set[Tree] alternatives) // <3> 
-     | char(int character) // <4>
+     | aamb(set[Tree] alternatives) // <3> 
+     | achar(int character) // <4>
      ;
      
 public /*const*/ AType treeType = aadt("Tree", [], dataSyntax());
@@ -194,13 +191,13 @@ construct ordered and un-ordered compositions, and associativity groups.
     for extending priority chains and such.
 } 
 data AProduction 
-     = prod(AType def, list[AType] atypes, set[Attr] attributes={}, loc src=|unknown:///|, str label = "") // <1>
+     = prod(AType def, list[AType] atypes, set[AAttr] attributes={}, loc src=|unknown:///|, str alabel = "") // <1>
      | regular(AType def) // <2>
      ;
      
 data AProduction 
      = \priority(AType def, list[AProduction] choices) // <5>
-     | \associativity(AType def, Associativity \assoc, set[AProduction] alternatives) // <6>
+     | \associativity(AType def, AAssociativity \assoc, set[AProduction] alternatives) // <6>
      | \reference(AType def, str cons) // <7>
      ;
 
@@ -214,9 +211,9 @@ An `Attr` (attribute) documents additional semantics of a production rule. Neith
 brackets are processed by the parser generator. Rather downstream processors are
 activated by these. Associativity is a parser generator feature though. 
 }
-data Attr 
-     = \assoc(Associativity \assoc)
-     | \bracket()
+data AAttr 
+     = \aassoc(AAssociativity \assoc)
+     | \abracket()
      ;
 
 @doc{
@@ -227,11 +224,11 @@ Associativity attribute.
 
 Associativity defines the various kinds of associativity of a specific production.
 }  
-data Associativity 
-     = \left()
-     | \right() 
-     | \assoc() 
-     | \non-assoc()
+data AAssociativity 
+     = aleft()
+     | aright() 
+     | aassoc() 
+     | \a-non-assoc()
      ;
 
 @doc{
@@ -248,7 +245,7 @@ alias ACharClass = list[ACharRange];
 
 public /*const*/ int minUniCode = 1;
 public /*const*/int maxUniCode = 0x10FFFF;
-public /*const*/ AType anyCharType = \char-class([arange(minUniCode, maxUniCode)]);
+public /*const*/ AType anyCharType = \achar-class([arange(minUniCode, maxUniCode)]);
 
 @doc{
 .Synopsis
@@ -293,9 +290,9 @@ AType \parameterized-lex(str sname, list[AType] parameters)
 
 // These are the terminal symbols (isTerminalType)
 data AType 
-     = \lit(str string)   // <8>
-     | \cilit(str string) // <9>
-     | \char-class(list[ACharRange] ranges) // <10>
+     = alit(str string)   // <8>
+     | acilit(str string) // <9>
+     | \achar-class(list[ACharRange] ranges) // <10>
      ;
     
 // These are the regular expressions.
@@ -331,10 +328,10 @@ data ACondition
      | \precede(AType atype)
      | \not-precede(AType atype)
      | \delete(AType atype)
-     | \at-column(int column) 
-     | \begin-of-line()  
-     | \end-of-line()  
-     | \except(str label)
+     | \a-at-column(int column) 
+     | \a-begin-of-line()  
+     | \a-end-of-line()  
+     | \a-except(str label)
      ;
 
 
@@ -355,22 +352,22 @@ Normalization of associativity.
 * Nested (equal) associativity is flattened.
 * Priority under an associativity group defaults to choice.
 }
-AProduction associativity(AType s, Associativity as, {*AProduction a, choice(AType t, set[AProduction] b)}) 
+AProduction associativity(AType s, AAssociativity as, {*AProduction a, choice(AType t, set[AProduction] b)}) 
   = associativity(s, as, a+b); 
             
-AProduction associativity(AType rhs, Associativity a, {associativity(rhs, Associativity b, set[AProduction] alts), *AProduction rest})  
+AProduction associativity(AType rhs, AAssociativity a, {associativity(rhs, AAssociativity b, set[AProduction] alts), *AProduction rest})  
   = associativity(rhs, a, rest + alts); // the nested associativity, even if contradictory, is lost
 
-AProduction associativity(AType s, Associativity as, {AProduction a, priority(AType t, list[AProduction] b)}) 
+AProduction associativity(AType s, AAssociativity as, {AProduction a, priority(AType t, list[AProduction] b)}) 
   = associativity(s, as, {a, *b}); 
 
 // deprecated; remove after bootstrap
-AProduction associativity(AType rhs, Associativity a, set[AProduction] rest)
+AProduction associativity(AType rhs, AAssociativity a, set[AProduction] rest)
   = associativity(rhs, a, withAssoc + withNewAssocs)
-  when  withoutAssoc := {p | AProduction p:prod(_,_) <- rest, !(\assoc(_) <- p.attributes)},
+  when  withoutAssoc := {p | AProduction p:prod(_,_) <- rest, !(\aassoc(_) <- p.attributes)},
         withoutAssoc != {},
         withAssoc := rest - withoutAssoc,
-        withNewAssocs := {p[attributes = p.attributes + {\assoc(a)}] | AProduction p <- withoutAssoc}
+        withNewAssocs := {p[attributes = p.attributes + {\aassoc(a)}] | AProduction p <- withoutAssoc}
         ;
         
 // ---- end ParseTree
@@ -401,8 +398,8 @@ public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
   return grammar(starts, rules);
 } 
            
-AGrammar grammar(type[&T <: Tree] sym)
-    = grammar({sym.symbol}, sym.definitions);
+//AGrammar grammar(type[&T <: Tree] sym)
+//    = grammar({sym.symbol}, sym.definitions);
 
   
 @doc{
@@ -472,11 +469,11 @@ This function documents and implements the subtype relation of Rascal's type sys
 
 bool asubtype(AType s, s) = true;
 
-//default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unset(s, "label") , unset(t, "label")) : s == t;
+//default bool asubtype(AType s, AType t) = (s.alabel? || t.alabel?) ? asubtype(unset(s, "alabel") , unset(t, "alabel")) : s == t;
 
 default bool asubtype(AType s, AType t) {
-    if(s.label? || t.label?) 
-        return asubtype(unset(s, "label") , unset(t, "label")); 
+    if(s.alabel? || t.alabel?) 
+        return asubtype(unset(s, "alabel") , unset(t, "alabel")); 
     else 
         return s == t;
 }
@@ -541,9 +538,9 @@ bool asubtype(AType::\iter-seps(AType s, list[AType] seps), anode(_)) = true;
 bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", [], _)) = true;
 bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), anode(_)) = true;
 
-bool asubtype(AType::\lit(_), aadt("Tree", [], _)) = true;
-bool asubtype(AType::\cilit(_), aadt("Tree", [], _)) = true;
-bool asubtype(AType::\char-class(_), aadt("Tree", [], _)) = true;
+bool asubtype(AType::alit(_), aadt("Tree", [], _)) = true;
+bool asubtype(AType::acilit(_), aadt("Tree", [], _)) = true;
+bool asubtype(AType::\achar-class(_), aadt("Tree", [], _)) = true;
 
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
 // bool subtype(AType s, \opt(AType t)) = subtype(s,t);
@@ -593,16 +590,16 @@ bool asubtype(areified(AType s), anode(_)) = true;
 bool asubtype(anode(list[AType] l), anode(list[AType] r)) = l <= r;
 
 // Character classes and char
-bool asubtype(l:\char-class(_), r:\char-class(_)) {
-    return  l.ranges == r.ranges || (difference(r, l) != \char-class([]));
+bool asubtype(l:\achar-class(_), r:\achar-class(_)) {
+    return  l.ranges == r.ranges || (difference(r, l) != \achar-class([]));
 }
-bool asubtype(l:\char-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
+bool asubtype(l:\achar-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
 
-bool asubtype(\char(int c), \char-class(list[ACharRange] ranges)) {
+bool asubtype(achar(int c), \achar-class(list[ACharRange] ranges)) {
     res = difference(ranges, [arange(c,c)]) == [arange(c,c)];
     return res;
 }
-bool asubtype(l:\char-class(list[ACharRange] _), \char(int c)) = l == \char-class([arange(c,c)]);
+bool asubtype(l:\achar-class(list[ACharRange] _), achar(int c)) = l == \achar-class([arange(c,c)]);
 
 // Utilities
 
@@ -714,8 +711,8 @@ AType alub(AType l, tvar(s)) {
 
 AType alub(AType s, s) = s;
 default AType alub(AType s, AType t)
-    = (s.label? || t.label?) ? (s.label == t.label)  ? alub(unset(s, "label") , unset(t, "label"))[label=s.label]
-                                                     : alub(unset(s, "label"), unset(t, "label"))
+    = (s.alabel? || t.alabel?) ? (s.alabel == t.alabel)  ? alub(unset(s, "alabel") , unset(t, "alabel"))[alabel=s.alabel]
+                                                     : alub(unset(s, "alabel"), unset(t, "alabel"))
                              : avalue();
 
 AType alub(atypeList(ts1), atypeList(ts2)) = atypeList(alubList(ts1, ts2));
@@ -771,7 +768,7 @@ AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp
 AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
 
 AType addADTLabel(AType a1, AType a2, AType adt){
-  if(a1.label? && a1.label == a2.label) adt = adt[label=a1.label];
+  if(a1.alabel? && a1.alabel == a2.alabel) adt = adt[alabel=a1.alabel];
   return adt;
 }
 
@@ -812,9 +809,9 @@ AType alub(AType l, aparameter(str _, AType bound)) = alub(l, bound) when aparam
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
 
-AType alub(l:\char-class(_), r:\char-class(_)) = union(l, r);
-AType alub(l:aadt("Tree", _, _), \char-class(_)) = l;
-AType alub(\char-class(_), r:aadt("Tree", _, _)) = r;
+AType alub(l:\achar-class(_), r:\achar-class(_)) = union(l, r);
+AType alub(l:aadt("Tree", _, _), \achar-class(_)) = l;
+AType alub(\achar-class(_), r:aadt("Tree", _, _)) = r;
  
 // TODO: missing lub of iter/iter-plus relation here.
 // TODO: missing lub of aadt("Tree", _, _) with all non-terminal types such as seq, opt, iter
