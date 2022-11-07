@@ -83,7 +83,9 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
     [
         out("## function <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
-        *[out("* ``<removeNewlines(ov)>``") | ov <- overloads],
+        out("```rascal"),
+        *[out(ov), empty() | ov <- overloads, str defLine <- split("\n", ov)],
+        out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
     ];
@@ -113,7 +115,9 @@ list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathCo
     [
         out("## alias <d.name> {<fragment(d.moduleName)>-<d.name>}"),
         empty(),
-        *[out("* `<removeNewlines(ov)>`") | ov <- overloads],
+        out("```rascal"),
+        *[out(removeNewlines(ov)), empty() | ov <- overloads],
+        out("```"),
         empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
     ];
