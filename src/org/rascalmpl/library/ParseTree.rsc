@@ -11,13 +11,8 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 
-@doc{
-#### Synopsis
-
-Library functions for parse trees.
-
-#### Description
-
+@synopsis{Library functions for parse trees.}
+@description{
 A _concrete syntax tree_ or [parse tree](http://en.wikipedia.org/wiki/Parse_tree) is an ordered, rooted tree that 
 represents the syntactic structure of a string according to some formal grammar. 
 
@@ -35,9 +30,7 @@ while the leaf nodes are labeled by terminals (characters) of the grammar.
 *  Trees can be annotated in various ways, see features for [IDE construction]((RascalConcepts:IDEConstruction)).
    Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
 
-
-Parse trees are usually analyzed and constructed using 
-[concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax))
+Parse trees are usually analyzed and constructed using [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax))
 and [concrete syntax patterns]((Rascal:Patterns-Concrete)).
  
 _Advanced users_ may want to create tools that analyze any parse tree, regardless of the 
@@ -58,7 +51,6 @@ characters (`char`), which have an integer index in the UTF8 table.
 *  Some internal nodes encode ambiguity (`amb`) by pointing to a set of 
 alternative `Tree` nodes.
 
-
 The `Production` and `Symbol` types are an abstract notation for rules in 
 [syntax definitions]((Rascal:Declarations-SyntaxDefinition)),
 while the `Tree` type is the actual notation for parse trees. 
@@ -72,19 +64,17 @@ You can analyze and manipulate parse trees in three ways:
 and [concrete syntax patterns]((Rascal:Patterns-Concrete)).
 *  Using [actions]((Rascal:SyntaxDefinition-Action)).
 
-
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
 Each such a non-terminal type has `Tree` as its immediate super-type.
+}
+@examples{
 
-#### Examples
-
-// the following definition
 ```rascal-shell
 import ParseTree;
 syntax A = "a";
 // will make the following succeed:
-parse(#A,"a") == 
-appl(
+t = parse(#A,"a");
+t := appl(
   prod(
     sort("A"),
     [lit("a")],
@@ -106,8 +96,8 @@ import ParseTree;
 lexical B= myB:"b";
 lexical C = myC:"c" B bLabel;
 // Will make the following succeed:
-parse(#C,"cb") == 
-appl(
+t = parse(#C,"cb");
+t := appl(
   prod(
     label(
       "myC",
@@ -141,18 +131,17 @@ appl(
 
 Here you see that the alternative name is a label around the first argument of `prod` while argument labels become 
 labels in the list of children of a `prod`.
-
-#### Examples
-
-#### Benefits
-
-#### Pitfalls
-
-For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
-for the type of [source locations]((Rascal:Values-Location)).
-Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
-
-The following functions and data types are declared for ParseTrees:
+}
+@benefits{
+* Parse trees have all the necessary information in them for high-fidelity source code analysis and transformation
+* Parse trees contain full definitions of the grammar rules that it applies
+* Parse trees can always be "unparsed" to source text again
+}
+@pitfalls{
+* For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
+for the type of [source locations]((Rascal:Values-Location)). Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
+* We are in transition from deprecating the annotation `@\loc` with the keyword field `.src=|unknown:///|`. Currently the
+run-time already uses `.src` while the source code still uses `@\loc`.
 }
 
 module ParseTree
