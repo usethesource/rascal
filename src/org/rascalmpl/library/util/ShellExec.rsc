@@ -7,29 +7,16 @@
 }
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 
-@doc{
-#### Synopsis
-
-Execute and manage external processes.
-}
+@synopsis{Execute and manage external processes.}
 module util::ShellExec
 
-@doc{
-#### Synopsis
-
-Start a new external process.
-}
+@synopsis{Start a new external process.}
 @deprecrated{Use the createProcess function that takes `loc` for processCommand for better portability behavior between operating systems.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] envVars = ());
 
-@doc{
-#### Synopsis
-
-Start a new external process.
-
-#### Description
-
+@synopsis{Start a new external process.}
+@description{
 The file schemes that are allowed for the `processCommand`` are limited to the `file:///` schemes
 and all logical schemes that directly resolve to `file:///` such as `cwd:///` and `tmp:///`.
 
@@ -42,11 +29,7 @@ For environment variables in `envVars` the same treatment is given to convert va
 @javaClass{org.rascalmpl.library.util.ShellExec}
 java PID createProcess(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] envVars = ());
 
-@doc{
-#### Synopsis
-
-start, run and kill an external process returning its output as a string.
-}
+@synopis{start, run and kill an external process returning its output as a string.}
 @deprecrated{Use the `exec`` function that takes `loc` for processCommand for better portability behavior between operating systems.}
 str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
@@ -82,102 +65,52 @@ tuple[str output, int exitCode] execWithCode(loc processCommand, loc workingDir=
 }
 
 
-@doc{
-#### Synopsis
-
-Kill a running process, or a zombie process (a process which is not alive yet not killed)
-}
+@synopsis{Kill a running process, or a zombie process (a process which is not alive yet not killed)}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java int killProcess(PID processId, bool force=false);
 
-@doc{
-#### Synopsis
-
-Check whether a process is still alive
-}
+@synopsis{Check whether a process is still alive}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java bool isAlive(PID processId);
 
-@doc{
-#### Synopsis
-
-Check whether a process is still registered but not actually running anymore. A zombie process may be cleaned up using killProcess.
-}
+@synopsis{Check whether a process is still registered but not actually running anymore. A zombie process may be cleaned up using killProcess.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java bool isZombie(PID processId);
 
-@doc{
-#### Synopsis
-
-Waits for the process to exit and then returns its return code. This is a blocking operation.
-}
+@synopsis{Waits for the process to exit and then returns its return code. This is a blocking operation.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java int exitCode(PID processId);
 
-@doc{
-#### Synopsis
-
-Read from an existing process's output stream. This is non-blocking.
-}
+@synopsis{Read from an existing process's output stream. This is non-blocking.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readFrom(PID processId);
 
-@doc{
-#### Synopsis
-
-Read from an existing process's output stream with a given wait timeout. Some processes are a little slower in producing output. The wait is used to give the process some extra time in producing output. This is non-blocking apart from the waiting.
-}
+@synopsis{Read from an existing process's output stream with a given wait timeout. Some processes are a little slower in producing output. The wait is used to give the process some extra time in producing output. This is non-blocking apart from the waiting.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readWithWait(PID processId, int wait);
 
-@doc{
-#### Synopsis
-
-Read from an existing process's error output stream. This is non-blocking.
-}
+@synopsis{Read from an existing process's error output stream. This is non-blocking.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readFromErr(PID processId);
 
-@doc{
-#### Synopsis
-
-Read from an existing process's error output stream. This blocks until a full line is read and
-waits for one second maximally for this line to appear.
-}
+@synopsis{Read from an existing process's error output stream. This blocks until a full line is read and waits for one second maximally for this line to appear.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readLineFromErr(PID processId, int wait=200, int maxTries=5);
 
-@doc{
-#### Synopsis
-
-Read the entire stream from an existing process's output stream. This is blocking.
-}
+@synopsis{Read the entire stream from an existing process's output stream. This is blocking.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readEntireStream(PID processId);
 
-@doc{
-#### Synopsis
-
-Read the entire error stream from an existing process's output stream. This is blocking.
-}
+@synopsis{Read the entire error stream from an existing process's output stream. This is blocking.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java str readEntireErrStream(PID processId);
 
-@doc{
-#### Synopsis
-
-Write to an existing process's input stream.
-}
+@synopsis{Write to an existing process's input stream.}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java void writeTo(PID processId, str msg);
 
-@doc{
-#### Synopsis
-
-Process Identifiers (PID).
-
-#### Description
-
+@synopsis{Process Identifiers (PID).}
+@description{
 A PID is returned by ((createProcess)) and is required for any further interaction with the created process.
 }
 public alias PID = int;
