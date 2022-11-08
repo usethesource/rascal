@@ -55,7 +55,7 @@ rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">,
 Now we are in a good position to start asking some questions.
 
 __How many calls occur in this system?__
-We use the function ((Library::Set-size)) to determine the number of elements in a set or relation.
+We use the function ((Library:Set-size)) to determine the number of elements in a set or relation.
 Since each tuple in the `Calls` relation represents a call between procedures, the number of tuples is equal
 to the number of calls.
 ```rascal-shell,continue
@@ -82,7 +82,7 @@ The next step in the analysis is to determine which entry points this applicatio
 not called themselves. Entry points are useful since they define the external interface of a system and may also be used as guidance to
 split a system in parts. The top of a relation contains those left-hand sides of tuples in a relation that do not occur in any 
 right-hand side. When a relation is viewed as a graph, its top corresponds to the root nodes of that graph. Similarly, the bottom of a 
-relation corresponds to the leaf nodes of the graph. See the module called  ((Library::analysis::graphs::Graph)) for more details. Using this knowledge, the entry
+relation corresponds to the leaf nodes of the graph. See the module called  ((Library:analysis::graphs::Graph)) for more details. Using this knowledge, the entry
 points can be computed by determining the top of the Calls relation:
 ```rascal-shell,continue
 top(Calls);
