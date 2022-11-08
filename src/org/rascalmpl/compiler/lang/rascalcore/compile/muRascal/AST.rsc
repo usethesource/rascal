@@ -1551,8 +1551,12 @@ AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = getRes
 default AType getResultType(AType t) = t;
      
 MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
-    = muValueBlock(getResultType(atype), auxVars + pre + muOCall(fun, atype, flatArgs, kwargs, src))
-when <true, auxVars, pre, flatArgs> := flattenArgs(args), !isEmpty(pre);
+    = muValueBlock(getResultType(atype), auxVars1 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src))
+when <b1, auxVars1, pre1, flatArgs1> := flattenArgs(args), 
+     <b2, auxVars2, pre2, flatArgs2> := flattenArgs(kwargs<1>),
+     !(isEmpty(pre1) && isEmpty(pre2)),
+     b1 || b2,
+     kwargs2 := [<kwargs[i].kwpName, flatArgs2[i]> | i <- index(kwargs)];
 
 MuExp muPrim(str op, AType result, list[AType] details, list[MuExp] args, loc src)
     = muValueBlock(result, auxVars + pre + muPrim(op, result, details, flatArgs, src))
