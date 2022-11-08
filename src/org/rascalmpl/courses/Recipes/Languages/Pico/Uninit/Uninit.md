@@ -33,7 +33,7 @@ demo::lang::Pico::Uninit
 <2> Next we ask for every use of a variable the question: can it be reached from the entries
     of the program without encountering a definition? This determined as follows:
     *  `rangeR(D, {occ.item})` is the set of definition for the variable were are looking at. See ((Library:Relation-rangeR)).
-    *  `reachX` determines the reachability in a graph while excluding certain nodes, see [Rascal:Graph/reachX]. Here
+    *  `reachX` determines the reachability in a graph while excluding certain nodes, see ((Library:Graph-reachX)). Here
         `reachX(CFG.graph, CFG.entry, rangeR(D, {occ.item}))` determines the nodes in the graph that can be reached from the
          entry point of the program without passing a definition of the current variable.
     *  `any(CFNode N <- reachX( ... ), N has location && occ.location \<= N.location)` yields true if there is such a reachable node

@@ -89,7 +89,7 @@ The alternative of a defined syntax type may be labeled or not as well. With the
 *  The `is` operator is defined for labeled alternatives (see ((Operators))).
 *  The `has` operator is defined for labeled ((Symbol))s in the right-hand side (see ((Operators))).
 *  ((Action)) functions can be written to override the construction of a parse tree, using the label of an alternative as the function name
-*  [implode] uses labeled alternatives to map to an ((Algebraic Data Type))
+*  ((Library:ParseTree-implode)) uses labeled alternatives to map to an ((Algebraic Data Type))
 
 
 Alternatives can be combined in a single ((Syntax Definition)) using the `|`, `>` and associativity combinators.
