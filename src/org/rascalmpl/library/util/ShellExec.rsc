@@ -19,6 +19,8 @@ java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] a
 @description{
 The file schemes that are allowed for the `processCommand`` are limited to the `file:///` schemes
 and all logical schemes that directly resolve to `file:///` such as `cwd:///` and `tmp:///`.
+`PATH:///` is also a handy scheme for `processCommand` since it searches for the binary/script
+in the underlying system's search path.
 
 The arguments to `args` given are all converted to strings before passing them into the command.
 Special treatment is given to `loc` arguments, which are first resolved to `file:///` schemes and
@@ -38,6 +40,7 @@ str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[
    return result;
 }
 
+@synopis{start, run and kill an external process returning its output as a string.}
 str exec(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
    result = readEntireStream(pid);
@@ -55,6 +58,7 @@ tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=
     return <result, exitCode(pid)>;
 }
 
+@synopis{start, run and kill an external process returning its output as a string with an exit code.}
 tuple[str output, int exitCode] execWithCode(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] env = ()) {
     pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
     result = readEntireStream(pid);
