@@ -73,7 +73,7 @@ enum OptionType {INT, STR, BOOL, LOCS, LOC};
 public class CommandOptions {
     private static final String CLASSLOADERS_PATH_CONFIG_OPTION = "classloaders";
     private static final String JAVA_COMPILER_PATH_PATH_CONFIG_OPTION = "javaCompilerPath";
-    private static final String COURSES_PATH_CONFIG_OPTION = "courses";
+    private static final String IGNORES_PATH_CONFIG_OPTION = "ignores";
     private static final String BIN_PATH_CONFIG_OPTION = "bin";
     private static final String LIB_PATH_CONFIG_OPTION = "lib";
     private static final String PROJECT_PATH_CONFIG_OPTION = "project";
@@ -238,7 +238,7 @@ public class CommandOptions {
 	/****************************************************************************/
 	
 	/**
-	 * Command has one Module (Rascal Module, Course, ...) as argument
+	 * Command has one Module (Rascal Module, Concept file, ...) as argument
 	 * @param helpText describes the role of the single module argument
 	 * @return this CommandOptions
 	 */
@@ -546,8 +546,8 @@ public class CommandOptions {
 		return vf.list(getDefaultStdLocation());
 	}
 	
-	public IList getDefaultCourses(){
-		return PathConfig.getDefaultCoursesList();
+	public IList getDefaultIgnores(){
+		return PathConfig.getDefaultIgnoresList();
 	}
 
 	public ISourceLocation getDefaultRelocLocation(){
@@ -568,7 +568,7 @@ public class CommandOptions {
             return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
                 getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
                 getCommandLocOption(BIN_PATH_CONFIG_OPTION),
-                getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
+                getCommandLocsOption(IGNORES_PATH_CONFIG_OPTION),
                 getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
                 getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
         }
@@ -600,9 +600,9 @@ public class CommandOptions {
         .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
         .help("Add new lib location, use multiple --lib arguments for multiple locations")
 
-        .locsOption(COURSES_PATH_CONFIG_OPTION)
-        .locsDefault(PathConfig.getDefaultCoursesList())
-        .help("Add new courses location, use multiple --courses arguments for multiple locations")
+        .locsOption(IGNORES_PATH_CONFIG_OPTION)
+        .locsDefault(PathConfig.getDefaultIgnoresList())
+        .help("Add new ignored locations, use multiple --ignores arguments for multiple locations")
         
         .locsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION)
         .locsDefault(PathConfig.getDefaultJavaCompilerPathList())

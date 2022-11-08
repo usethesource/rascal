@@ -40,7 +40,7 @@ data RascalConfigMode
 data PathConfig 
     // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] courses = [|courses:///|], // List of locations to search for course source files
+               list[loc] ignores = [],              // List of locations to ignore from the source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
                list[loc] libs = [|lib://rascal/|],          // List of directories to search source for derived files
                list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
