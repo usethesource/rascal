@@ -16,7 +16,7 @@ An algebraic data-type for parse trees; produced by all parsers generated from s
 
 Below is the full definition of `Tree` and `Production` and `Symbol`. A parse tree is a nested tree structure of type `Tree`. 
 
-*  Most internal nodes are applications (`appl`) of a `Production` to a list of children `Tree` nodes. `Production` is the abstract representation of a [SyntaxDefinition] rule, which consists of a definition of an alternative for a `Symbol` by a list of `Symbols`.
+*  Most internal nodes are applications (`appl`) of a `Production` to a list of children `Tree` nodes. `Production` is the abstract representation of a ((SyntaxDefinition)) rule, which consists of a definition of an alternative for a `Symbol` by a list of `Symbols`.
 *  The leaves of a parse tree are always
 characters (`char`), which have an integer index in the UTF8 table. 
 
@@ -44,7 +44,7 @@ Each such a non-terminal type has `Tree` as its immediate super-type.
 ```rascal
 // the following definition
 syntax A = "a";
-// would make the following [Test] succeed:
+// would make the following test succeed:
 test a() = parse(#A,"a") ==  
 appl(prod(
     sort("A"), 

@@ -22,8 +22,8 @@ This error is generated when `fail` is used outside a conditional context.
 Remedies:
 
 *  Surround the `fail` statement by a conditional conditional statement.
-*  Replace the `fail` statement by a [Rascal:Throw] statement.
-*  replace the `fail` statement by a [Rascal:Return] statement.
+*  Replace the `fail` statement by a ((Rascal:Throw)) statement.
+*  replace the `fail` statement by a ((Rascal:Return)) statement.
 
 #### Examples
 

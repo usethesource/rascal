@@ -39,7 +39,7 @@ parse(F0);
 ```
 This must be defined as success: we get the original program and its parse tree back.
 Next, we try the same from a file. We use the scheme `std` that refers to files that reside in the Rascal library.
-See [$Rascal:Expressions/Values/Location] for further details on other schemes.
+See ((Rascal:Values-Location)) for further details on other schemes.
 ```rascal-shell,continue
 parse(|std:///demo/lang/Func/programs/F0.func|);
 ```

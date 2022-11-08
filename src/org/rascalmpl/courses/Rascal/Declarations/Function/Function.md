@@ -113,7 +113,7 @@ There are some restrictions however:
 **  They range over different alternatives of a ((Syntax Definition))
 **  And note that deep matches using the `/` alternative are considered to be of type `value` and therefore overlap with all other patterns.
 *  Overlapping patterns are allowed if the one alternative has the `default` modified while the other does not.
-*  If a function is fallible, it uses the `fail` statement to back-track to a different alternative, then there must be a `default` alternative defined which can handle the general case. An [AlgebraicDataType] or a [SyntaxDefinition] with the same name and return type counts as a `default` alternative.
+*  If a function is fallible, it uses the `fail` statement to back-track to a different alternative, then there must be a `default` alternative defined which can handle the general case. An ((AlgebraicDataType)) or a ((SyntaxDefinition)) with the same name and return type counts as a `default` alternative.
 *  `default` functions may not fail.
 
 
