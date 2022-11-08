@@ -125,7 +125,7 @@ set[str] javaKeywords = {
 
 str getJavaName(str fname, bool completeId = true){
     res = completeId && fname in javaKeywords ? "$<fname>" : replaceAll(replaceAll(fname, "-", "_"), "\\", "");
-    return res;
+    return res == "_" ? "$_" : res; //single _ not allowed since Java9
 }
 
 str module2class(str qname){
