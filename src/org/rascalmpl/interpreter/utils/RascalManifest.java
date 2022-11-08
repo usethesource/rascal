@@ -38,7 +38,6 @@ public class RascalManifest {
     public static final String DEFAULT_MAIN_MODULE = "Plugin";
     public static final String DEFAULT_MAIN_FUNCTION = "main";
     public static final String DEFAULT_SRC = "src";
-    public static final String DEFAULT_COURSES = "courses";
     protected static final String SOURCE = "Source";
     protected static final String META_INF = "META-INF";
     public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
