@@ -7,6 +7,7 @@ details:
   - Expressions
   - Statements
   - Tests
+  - Errors
 ---
 
 #### Synopsis
