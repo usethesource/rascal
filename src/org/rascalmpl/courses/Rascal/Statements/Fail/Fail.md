@@ -11,7 +11,11 @@ Let the current alternative of a pattern match fail.
 
 #### Syntax
 
-`fail;`
+```rascal
+fail;
+
+fail Label;
+```
 
 #### Types
 
@@ -27,7 +31,10 @@ A `fail` statement is only allowed in statements that are controlled by the outc
 *  The formal parameter declaration of a ((Function Declarations)).
 
 
-The `fail` statement is associated with the innermost pattern match by which it is controlled.
+The `fail` statement is associated with the innermost pattern match by which it is controlled, unless
+it has a label. ((For)), ((While)) and ((If)) can have a label that `fail` can jump to, and
+_function names_ can be used to fail the entire application of a function match. A failed function
+would backtrack to the next overloaded candidate.
 
 When `fail` is executed:
 
@@ -61,5 +68,8 @@ sort([10, 1, 5, 3]);
 
 #### Benefits
 
+* fail offers direct programmeable influence on backtracking behavior
+
 #### Pitfalls
 
+* fail breaks stack-trace-based debugging because the failed call may have been in the past.

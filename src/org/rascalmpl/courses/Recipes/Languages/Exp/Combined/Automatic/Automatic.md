@@ -62,8 +62,8 @@ demo::lang::Exp::Combined::Automatic::Load
 Notes:
 
 <1> We also need the `parse` function, as defined above.
-<2> We also need the abstract syntax as already defined earlier in [Exp/Abstract].
-<3> We need [Rascal:ParseTree] since it provides the [Rascal:implode] function.
+<2> We also need the abstract syntax as already defined earlier in ((Exp-Abstract)).
+<3> We need ((Library:ParseTree)) since it provides the ((Library:ParseTree-implode)) function.
 
 
 Let's try it:

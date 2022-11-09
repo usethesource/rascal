@@ -1,5 +1,10 @@
 ---
-title: Filter
+title: Filter Expression
+keywords:
+    - comprehensions
+    - generators
+    - filters
+    - when
 ---
 
 #### Synopsis

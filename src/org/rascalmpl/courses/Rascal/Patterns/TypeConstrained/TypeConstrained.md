@@ -12,15 +12,27 @@ Type constrained abstract pattern.
 
 #### Syntax
 
+```rascal
+[Type] Pattern
+```
+
 #### Types
 
 #### Function
 
 #### Description
 
-A type constrained pattern matches provided that the subject has type _Type_ and _Pat_ matches. This can be handy in case of ambiguity (say more than one constructor with the same name), or in case the pattern is completely general. See an example below:
+A type constrained pattern matches provided that the subject has type _Type_ and _Pattern_ matches. This can be handy in case of ambiguity (say more than one constructor with the same name), or in case the pattern is completely general. See an example below:
 
+There are special cases in which the type constrained pattern calls a parser or validator for the given type:
+
+* if the subject is of type `str` and the Type is a syntax non-terminal the string is parsed using the non-terminal
+* if the subject is of type `loc` and the Type is a syntax non-terminal the contents of the resource that the subject location is referring to is parsed using the non-terminal
+
+
+:::warning
 Warning: This does not seem to work properly. There is a bug.
+:::
 
 #### Examples
 

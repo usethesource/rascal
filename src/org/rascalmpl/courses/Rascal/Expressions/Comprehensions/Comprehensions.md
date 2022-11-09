@@ -1,6 +1,9 @@
 ---
 title: Comprehensions
 keywords:
+  - comprehensions
+  - query
+  - filter
   - "["
   - "]"
   - "{"
@@ -18,6 +21,13 @@ Comprehensions provide a concise notation to conditionally generate new values.
 
 #### Syntax
 
+```rascal
+[ Exp~1~, ..., Exp~n~ | Exp~n+1~, ..., Exp~n+m~]
+{ Exp~1~, ..., Exp~n~ | Exp~n+1~, ..., Exp~n+m~}
+( Exp~1~ : Exp~2~ | Exp~3~, ..., Exp~n+m~)
+( Exp~1~ | Exp~2~ | Exp~3~, ..., Exp~n+m~)
+```
+
 #### Types
 
 #### Function
@@ -34,9 +44,9 @@ Comprehensions are defined for the following types:
 
 The syntax varies slightly for each type, but comprehensions have the following common elements:
 
-*  A _generator_ can come in two flavours:
-**  an _enumerator_ that generates all the values in some subject value.
-**  a _filter_ that performs an arbitrary test on previously generated values.
+*  Generators can come in two flavours:
+   * ((Boolean-Enumerator)) that generates all the values in some subject value.
+   * ((Boolean-Filter)) that performs an arbitrary test on previously generated values.
 
 *  One or more _contributing expressions_ that are added to the list, set or map that is being constructed.
 

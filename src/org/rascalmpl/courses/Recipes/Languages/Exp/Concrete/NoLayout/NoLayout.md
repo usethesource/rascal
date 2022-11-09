@@ -44,7 +44,7 @@ demo::lang::Exp::Concrete::NoLayout::Eval
 
 Notes:
 
-<1> We import [Rascal:ParseTree] because we will need the `parse` function below.
+<1> We import ((Library:ParseTree)) because we will need the `parse` function below.
 <2> The main function `eval` that evaluates an expression as string to an integer. It proceeds in two steps:
     *  `parse(#Exp, txt)` parses the given `txt` according to non-terminal `Exp` as defined by the grammar.
         The result is a parse tree.

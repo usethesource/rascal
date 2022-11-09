@@ -11,7 +11,9 @@ Declare the import a module.
 
 #### Syntax
 
-`import QualifiedName;`
+```rascal
+import QualifiedName;
+```
 
 #### Types
 

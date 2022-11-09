@@ -11,7 +11,22 @@ For loop.
 
 #### Syntax
 
-`for ( Exp~1~ , Exp~2~ , ... , Exp~n~ ) Statement;`
+```rascal
+for (Exp~1~ , Exp~2~, ..., Exp~n~) 
+  Statement
+
+for (Exp~1~ , Exp~2~, ..., Exp~n~) {
+  Statements
+}
+
+Label: for (Exp~1~ , Exp~2~, ..., Exp~n~) 
+  Statement
+
+Label: for (Exp~1~ , Exp~2~, ..., Exp~n~) {
+  Statements
+}
+
+```
 
 #### Types
 
@@ -27,12 +42,16 @@ The for loop will iterate over the cartesian product of all the generating expre
 By default, the value of a for statement is the empty list. In general, 
 the value of a for statement consists of all values contributed by ((Statements-Append)) statements that are executed during the repeated execution of its body Statement.
 
+For loops maybe be labeled for the benefit of labeled versions of ((Continue)), ((Break)) and ((Fail)).
+
 #### Examples
 
 ```rascal-shell
 import IO;
-for(int n <- [1 .. 5]) println("n = <n>");
-for(int n <- [1 .. 5]) append n * n;
+for(int n <- [1 .. 5])  
+  println("n = <n>");
+for(int n <- [1 .. 5]) 
+  append n * n;
 ```
 
 #### Benefits

@@ -9,7 +9,10 @@ keywords:
   - left
   - right
   - non-assoc
-
+  - grammar
+  - context-free grammar
+  - scanner
+  - regular expressions
 ---
 
 #### Synopsis
@@ -18,26 +21,42 @@ Syntax Definitions allow the definition of parsers for programming languages, do
 
 #### Syntax
 
-*  `Start syntax Nonterminal = Alternatives;`
-*  `lexical Nonterminal = Alternatives;`
-*  `layout Nonterminal = Alternatives;`
-*  `keyword Nonterminal = Alternatives;`
+```rascal
+start syntax Nonterminal = Alternatives;
 
+lexical Nonterminal = Alternatives;
+
+layout Nonterminal = Alternatives;
+
+keyword Nonterminal = Alternatives;
+```
 
 where _Start_ is either `start` or nothing, and _Alternatives_ are one of:
 
-*  `Tags Associativity Symbols`
-*  `Tags Associativity Name : Symbols`
-*  `Associativity ( Alternatives )`
-*  `Alternatives~1~ | Alternatives~2~`  
-*  `Alternatives~1~ > Alternatives~2~`  
+```rascal
+Tags           Symbols         
+Tags left      Symbols          // <1>
+Tags right     Symbols          // <1>
+Tags non-assoc Symbols          // <1>
+Tags left      Name : Symbols   // <2>
+Tags right     Name : Symbols   // <2>
+Tags non-assoc Name : Symbols   // <2>
+left      ( Alternatives )      // <3>
+right     ( Alternatives )      // <3>
+non-assoc ( Alternatives )      // <3>
 
+Alternatives~1~ | Alternatives~2~   // <4>
 
-where _Associativity_ is nothing, or one of `assoc`, `left`, `right` or `non-assoc`, and _Tags_ are a possibly empty list of tags.
+Alternatives~1~ > Alternatives~2~   // <5>
+```
 
-#### Types
+Here _Associativity_ is nothing, or one of `assoc`, `left`, `right` or `non-assoc`, and _Tags_ are a possibly empty list of ((Tag))s.
 
-#### Function
+* <1> for binary recursive expression operators, ((Associativity)) disambiguates and chooses binding to the `left`, `right`, or `non-assoc` (demanding brackets)
+* <2> a `Name` provides the algebraic constructor name for an abstract syntax definition derived from this grammar
+* <3> an ((Associativity)) group is not only a short-hand, but also derives the cross product associativity rule between all members of the group.
+* <4> this is the normal BNF-like rule alternative combinator
+* <5> this defines a transitively closed ((Priority)) relation for all left- or right-recursive binary or unary expression operators (see ((Priority)) )
 
 #### Description
 
@@ -70,7 +89,7 @@ The alternative of a defined syntax type may be labeled or not as well. With the
 *  The `is` operator is defined for labeled alternatives (see ((Operators))).
 *  The `has` operator is defined for labeled ((Symbol))s in the right-hand side (see ((Operators))).
 *  ((Action)) functions can be written to override the construction of a parse tree, using the label of an alternative as the function name
-*  [implode] uses labeled alternatives to map to an ((Algebraic Data Type))
+*  ((Library:ParseTree-implode)) uses labeled alternatives to map to an ((Algebraic Data Type))
 
 
 Alternatives can be combined in a single ((Syntax Definition)) using the `|`, `>` and associativity combinators.

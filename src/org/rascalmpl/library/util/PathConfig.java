@@ -47,14 +47,14 @@ public class PathConfig {
 	
 	private final List<ISourceLocation> srcs;		// List of locations to search for source files
 	private final List<ISourceLocation> libs;     // List of (library) locations to search for derived files
-	private final List<ISourceLocation> courses; 	// List of (library) locations to search for course source files
+	private final List<ISourceLocation> ignores; 	// List of (library) locations to ignore while compiling
 	private final List<ISourceLocation> javaCompilerPath;     // List of (library) locations to use for the compiler path of generated parsers
 	private final List<ISourceLocation> classloaders;     // List of (library) locations to use to bootstrap classloaders from
     
 	private final ISourceLocation bin;  // Global location for derived files outside projects or libraries
 
 	private static ISourceLocation defaultStd;
-	private static List<ISourceLocation> defaultCourses;
+	private static List<ISourceLocation> defaultIgnores;
 	private static List<ISourceLocation> defaultJavaCompilerPath;
 	private static List<ISourceLocation> defaultClassloaders;
 	private static ISourceLocation defaultBin;
@@ -69,7 +69,7 @@ public class PathConfig {
 		    // Defaults should be in sync with util::Reflective
 			defaultStd =  vf.sourceLocation("lib", "rascal", "");
 			defaultBin = vf.sourceLocation("tmp", "", "default-rascal-bin");
-			defaultCourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
+			defaultIgnores = Collections.emptyList();
 			defaultJavaCompilerPath = computeDefaultJavaCompilerPath();
 			defaultClassloaders = computeDefaultClassLoaders();
 		} catch (URISyntaxException e) {
@@ -79,7 +79,7 @@ public class PathConfig {
 	
 	public PathConfig() {
 		srcs = Collections.emptyList();
-		courses = defaultCourses;
+		ignores = defaultIgnores;
 		bin = defaultBin;
 		libs = Arrays.asList(defaultStd);
 		javaCompilerPath = defaultJavaCompilerPath;
@@ -91,7 +91,7 @@ public class PathConfig {
             srcs(pcfg), 
             libs(pcfg), 
             bin(pcfg), 
-            courses(pcfg), 
+            ignores(pcfg), 
             javaCompilerPath(pcfg), 
             classloaders(pcfg)
         );
@@ -105,8 +105,8 @@ public class PathConfig {
         return getListValueFromConstructor(pcfg, defaultJavaCompilerPath, "javaCompilerPath");
     }
 
-    private static IList courses(IConstructor pcfg) {
-        return getListValueFromConstructor(pcfg, defaultCourses, "courses");
+    private static IList ignores(IConstructor pcfg) {
+        return getListValueFromConstructor(pcfg, defaultIgnores, "ignores");
     }
 
     private static IList getListValueFromConstructor(IConstructor pcfg, List<ISourceLocation> def, String label) {
@@ -128,20 +128,20 @@ public class PathConfig {
     }
 
     public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) throws IOException {
-		this(srcs, libs, bin, defaultCourses);
+		this(srcs, libs, bin, defaultIgnores);
 	}
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses) throws IOException {
-	    this(srcs, libs, bin, courses, defaultJavaCompilerPath);
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores) throws IOException {
+	    this(srcs, libs, bin, ignores, defaultJavaCompilerPath);
 	}
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath) throws IOException {
-        this(srcs, libs, bin, courses, javaCompilerPath, defaultClassloaders);
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores, List<ISourceLocation> javaCompilerPath) throws IOException {
+        this(srcs, libs, bin, ignores, javaCompilerPath, defaultClassloaders);
     }
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders) throws IOException {
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders) throws IOException {
 		this.srcs = dedup(srcs);
-		this.courses = dedup(courses);
+		this.ignores = dedup(ignores);
 		this.libs = dedup(libs);
 		this.bin = bin;
 		this.javaCompilerPath = dedup(javaCompilerPath);
@@ -152,34 +152,34 @@ public class PathConfig {
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
-        this.courses = defaultCourses;
+        this.ignores = defaultIgnores;
         this.javaCompilerPath = defaultJavaCompilerPath;
         this.classloaders = defaultClassloaders;
     }
 	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses) throws IOException{
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores) throws IOException{
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
-        this.courses = initializeLocList(courses);
+        this.ignores = initializeLocList(ignores);
         this.javaCompilerPath = defaultJavaCompilerPath;
         this.classloaders = defaultClassloaders;
     }
 	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, IList javaCompilerPath) throws IOException{
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, IList javaCompilerPath) throws IOException{
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
-        this.courses = initializeLocList(courses);
+        this.ignores = initializeLocList(ignores);
         this.javaCompilerPath = initializeLocList(javaCompilerPath);
         this.classloaders = defaultClassloaders;
     }
 	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, IList javaCompilerPath, IList classloaders) throws IOException {
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, IList javaCompilerPath, IList classloaders) throws IOException {
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
-        this.courses = initializeLocList(courses);
+        this.ignores = initializeLocList(ignores);
         this.javaCompilerPath = initializeLocList(javaCompilerPath);
         this.classloaders = initializeLocList(classloaders);
     }
@@ -188,11 +188,11 @@ public class PathConfig {
         return (ISourceLocation) new StandardTextReader().read(vf, new StringReader(recLib));
     }
 	
-    public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, IList javaCompilerPath, IList classloaders, ISourceLocation repo) throws IOException{
+    public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, IList javaCompilerPath, IList classloaders, ISourceLocation repo) throws IOException{
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
-        this.courses = initializeLocList(courses);
+        this.ignores = initializeLocList(ignores);
         this.javaCompilerPath = initializeLocList(javaCompilerPath);
         this.classloaders = initializeLocList(classloaders);
     }
@@ -293,8 +293,8 @@ public class PathConfig {
         return  convertLocs(defaultJavaCompilerPath);
     }
 	
-	public static IList getDefaultCoursesList() {
-	    return convertLocs(defaultCourses);
+	public static IList getDefaultIgnoresList() {
+	    return convertLocs(defaultIgnores);
 	}
 	
 	public static IList getDefaultClassloadersList() {
@@ -307,8 +307,8 @@ public class PathConfig {
 	    return w.done();
     }
 
-    public static List<ISourceLocation> getDefaultCourses(){
-	    return  Collections.unmodifiableList(defaultCourses);
+    public static List<ISourceLocation> getDefaultIgnores(){
+	    return  Collections.unmodifiableList(defaultIgnores);
 	}
 	
 	public static List<ISourceLocation> getDefaultClassloaders() {
@@ -335,7 +335,7 @@ public class PathConfig {
 		List<ISourceLocation> extendedsrcs = new ArrayList<ISourceLocation>(srcs);
 		extendedsrcs.add(dir);
 		try {
-            return new PathConfig(extendedsrcs, libs, bin, courses, javaCompilerPath, classloaders);
+            return new PathConfig(extendedsrcs, libs, bin, ignores, javaCompilerPath, classloaders);
         }
         catch (IOException e) {
             assert false;
@@ -347,7 +347,7 @@ public class PathConfig {
 	    List<ISourceLocation> extended = new ArrayList<ISourceLocation>(javaCompilerPath);
         extended.add(dir);
         try {
-            return new PathConfig(srcs, libs, bin, courses, extended, classloaders);
+            return new PathConfig(srcs, libs, bin, ignores, extended, classloaders);
         }
         catch (IOException e) {
             assert false;
@@ -359,7 +359,7 @@ public class PathConfig {
         List<ISourceLocation> extended = new ArrayList<ISourceLocation>(classloaders);
         extended.add(dir);
         try {
-            return new PathConfig(srcs, libs, bin, courses, javaCompilerPath, extended);
+            return new PathConfig(srcs, libs, bin, ignores, javaCompilerPath, extended);
         }
         catch (IOException e) {
             assert false;
@@ -367,57 +367,20 @@ public class PathConfig {
         }
     }
 	
-	public IList getCourses() {
-	    return vf.list(courses.toArray(new IValue[0]));
+	public IList getIgnores() {
+	    return vf.list(ignores.toArray(new IValue[0]));
 	}
 	
-	public PathConfig addCourseLoc(ISourceLocation dir) {
-		List<ISourceLocation> extendedcourses = new ArrayList<ISourceLocation>(courses);
-		extendedcourses.add(dir);
+	public PathConfig addIgnoreLoc(ISourceLocation dir) {
+		List<ISourceLocation> extendedignores = new ArrayList<ISourceLocation>(ignores);
+		extendedignores.add(dir);
 		try {
-            return new PathConfig(srcs, libs, bin, extendedcourses, javaCompilerPath, classloaders);
+            return new PathConfig(srcs, libs, bin, extendedignores, javaCompilerPath, classloaders);
         }
         catch (IOException e) {
             assert false;
             return this;
         }
-	}
-	
-	public ISourceLocation getCourseLoc(String courseName) throws URISyntaxException, IOException{
-		for(ISourceLocation dir : courses){
-			ISourceLocation fileLoc = vf.sourceLocation(dir.getScheme(), dir.getAuthority(), dir.getPath() + "/" + courseName);
-			if(URIResolverRegistry.getInstance().exists(fileLoc)){
-		    	return fileLoc;
-		    }
-		}
-		throw new IOException("Course " + courseName + " not found");
-	}
-	
-	private boolean isCourse(String name){
-		return name.matches("[A-Z][A-Za-z0-9]*$");
-	}
-	
-	private String fileName(ISourceLocation loc){
-		String[] parts = loc.getPath().split("/");
-		return parts[parts.length - 1];
-	}
-	
-	public List<String> listCourseEntries() throws IOException{
-		URIResolverRegistry reg = URIResolverRegistry.getInstance();
-		ArrayList<String> courseList = new ArrayList<>();
-		for(ISourceLocation dir : courses){
-			if(reg.exists(dir)){
-				for(ISourceLocation entry : reg.list(dir)){
-					if(reg.isDirectory(entry)){
-						String name = fileName(entry);
-						if(isCourse(name)){
-							courseList.add(name);
-						}
-					}
-				}
-			}
-		}
-		return courseList;
 	}
 	
 	public IList getLibs() {
@@ -427,7 +390,7 @@ public class PathConfig {
 	public PathConfig addLibLoc(ISourceLocation dir) throws IOException {
 		List<ISourceLocation> extendedlibs = new ArrayList<ISourceLocation>(libs);
 		extendedlibs.add(dir);
-		return new PathConfig(srcs, extendedlibs, bin, courses, javaCompilerPath, classloaders);
+		return new PathConfig(srcs, extendedlibs, bin, ignores, javaCompilerPath, classloaders);
 	}
 	
     /**
@@ -820,7 +783,7 @@ public class PathConfig {
 	    Map<String, IValue> config = new HashMap<>();
 
 	    config.put("srcs", getSrcs());
-	    config.put("courses", getCourses());
+	    config.put("ignores", getIgnores());
 	    config.put("bin", getBin());
 	    config.put("libs", getLibs());
 	    config.put("javaCompilerPath", getJavaCompilerPath());
@@ -832,8 +795,8 @@ public class PathConfig {
 	public String toString(){
 	  StringWriter w = new StringWriter();
       w.append("srcs:      ").append(getSrcs().toString()).append("\n")
+       .append("ignores:   ").append(getIgnores().toString()).append("\n")
        .append("libs:      ").append(getLibs().toString()).append("\n")
-       .append("courses:   ").append(getCourses().toString()).append("\n")
        .append("bin:       ").append(getBin().toString()).append("\n")
        .append("classpath: ").append(getJavaCompilerPath().toString()).append("\n")
        .append("loaders:   ").append(getClassloaders().toString()).append("\n")

@@ -15,12 +15,15 @@ Try to execute a statement and catch resulting exceptions.
 
 ```rascal
 try
-   _Statement~1~_;
-catch _PatternWithAction~1~_;
-catch _PatternWithAction~2~_;
-...
-catch: _Statement~2~_;
-finally: _Statement~3~_;
+   Statement~1~
+catch Pattern~1~ :
+  Statement~2~
+catch Pattern~2~ : {
+  Statements
+}
+catch: 
+  Statement~3~
+finally: Statement~4~
 ```
 
 #### Types
@@ -41,11 +44,11 @@ These exceptions may caused by:
 Note that all elements of the try catch statement are optional but that at least one has to be present. 
 Their meaning is as follows:
 
-*  If a pattern of some _PatternWithAction~i~_ matches, the corresponding action is executed.
+*  If a _Pattern_ matches, the corresponding action is executed. This is a statement after the `:` which can be a ((Block))
 
-*  Otherwise, _Statement~2~_ is executed (when present).
+*  Otherwise, the default `catch:` executes _Statement~3~_.
 
-*  Before leaving the try catch statement _Statement~3~_ is always executed (when present).
+*  If a `finally` is present, before leaving the try catch statement _Statement~4~_ is _always_ executed (when present). This is true also when the code is terminated with ((Return)), ((Break)), ((Continue)) or ((Fail)).
 
 #### Examples
 

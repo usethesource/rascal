@@ -2,7 +2,7 @@
 title: Throw
 keywords:
   - throw
-
+  - exception
 ---
 
 #### Synopsis
@@ -11,7 +11,9 @@ Throw any value as an exception up the call stack.
 
 #### Syntax
 
-`throw Exp`
+```rascal
+throw Exp;
+```
 
 #### Types
 

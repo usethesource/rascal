@@ -29,7 +29,7 @@ This error is generated when the `java` keyword is missing.
 Remedy: Contact the Rascal developers:
 
 *  Ask a question on StackOverflow using the [Rascal Stackoverflow Tag](http://stackoverflow.com/questions/tagged/rascal).
-*  Read the currently open issues at the Rascal's https://github.com/usethesource/rascal/issues?state=open[Issue Tracker on Github]. If your problem has not yet been reported by someone else, please report it here.
+*  Read the currently open issues at the Rascal's [Issue Tracker on Github](https://github.com/usethesource/rascal/issues?state=open). If your problem has not yet been reported by someone else, please report it here.
 
 
 If you are an expert developer and have implemented your own extension in Java, please check your own extension code first.
