@@ -5,15 +5,20 @@ keywords:
 
 ---
 
-
-
 #### Synopsis
 
 While loop.
 
 #### Syntax
 
-`while ( Exp ) Statement;`
+```rascal
+while (Exp)
+  Statement
+
+while (Exp) {
+  Statements
+}
+```
 
 #### Types
 
@@ -35,17 +40,21 @@ of its body _Statement_.
 ```rascal-shell
 import IO;
 int n = 3;
-while( n > 0 ) { println("n = <n>"); n -= 1; }
+while( n > 0 ) { 
+  println("n = <n>"); n -= 1; 
+}
 ```
 Now build a list result using the `append` statement:
 ```rascal-shell,continue
 n = 3;
-while (n > 0) { append n * n; n -= 1; }
+while (n > 0) { 
+  append n * n; n -= 1; 
+}
 ```
 
 Just to be sure, a ((List-Comprehension)) is the superior way to write this:
 ```rascal-shell
-[n * n | n <- [3 .. 1]];
+[n * n | n <- [3 .. 0]];
 ```
 
 #### Benefits

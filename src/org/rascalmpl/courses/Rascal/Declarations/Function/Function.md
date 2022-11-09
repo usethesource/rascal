@@ -16,22 +16,41 @@ Declare a function.
 
 #### Syntax
 
-*  `Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ ) Body`
-*  `Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ Type~0~ Name~0~... ) Body`
-*  `Modifiers Type Name( Pattern~1~, ..., Pattern~n~) Body`
-*  `Modifiers Type Name( Pattern~1~, ..., Pattern~n~, Type~0~ Name~0~...) Body`
-
+```rascal
+Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ ) Body
+Modifiers Type Name( Type~1~ Var~1~, ..., Type~n~ Var~n~ Type~0~ Name~0~... ) Body
+Modifiers Type Name( Pattern~1~, ..., Pattern~n~) Body
+Modifiers Type Name( Pattern~1~, ..., Pattern~n~, Type~0~ Name~0~...) Body
+```
 
 where `Body` is one of:
 
-*  `{ Statements }`
-*  `throws Exception~1~, Exception~2~, ... { Statements }`
-*  `= Expression;`
+```rascal
+{ 
+   Statements
+}
 
+throws Exception~1~, ..., Exception~n~
+
+= Expression;
+```
 
 and where `Modifiers` may be:
 
-*  `("public" | "private")? ("java" | "test" | "default")?`
+```rascal
+public
+private
+default
+java
+test
+
+public java
+private java
+public test
+private test
+public default
+private default
+```
 
 #### Types
 
@@ -94,7 +113,7 @@ There are some restrictions however:
 **  They range over different alternatives of a ((Syntax Definition))
 **  And note that deep matches using the `/` alternative are considered to be of type `value` and therefore overlap with all other patterns.
 *  Overlapping patterns are allowed if the one alternative has the `default` modified while the other does not.
-*  If a function is fallible, it uses the `fail` statement to back-track to a different alternative, then there must be a `default` alternative defined which can handle the general case. An [AlgebraicDataType] or a [SyntaxDefinition] with the same name and return type counts as a `default` alternative.
+*  If a function is fallible, it uses the `fail` statement to back-track to a different alternative, then there must be a `default` alternative defined which can handle the general case. An ((AlgebraicDataType)) or a ((SyntaxDefinition)) with the same name and return type counts as a `default` alternative.
 *  `default` functions may not fail.
 
 

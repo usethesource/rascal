@@ -39,7 +39,7 @@ demo::common::WordCount::WordCount
 ```
 
                 
-<1> An [enumerator]((Rascal:Comprehensions-Enumerator)) is used to generated all the lines in the list of lines.
+<1> An [enumerator]((Rascal:Boolean-Enumerator)) is used to generated all the lines in the list of lines.
 <2> The argument function `countInLine` is applied to count the number of words in each line.
 
 Let's now do some experiments using the ((Jabberwocky)) poem by Lewis Carrol as input.

@@ -11,6 +11,10 @@ Deep match in an abstract pattern.
 
 #### Syntax
 
+```rascal
+/ Pattern 
+```
+
 #### Types
 
 #### Function
@@ -18,7 +22,7 @@ Deep match in an abstract pattern.
 #### Description
 
 A descendant pattern
-performs a deep match of the pattern _Pat_. In other words, it matches when any element of the subject at any depth
+performs a deep match of the pattern _Pattern_. In other words, it matches when any element of the subject at any depth
 that matches _Pat_ and is used to match, for instance, tree nodes at an arbitrary distance from the root.
 
 #### Examples

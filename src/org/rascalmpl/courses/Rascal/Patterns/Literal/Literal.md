@@ -8,6 +8,13 @@ Literal in abstract pattern.
 
 #### Syntax
 
+```rascal
+"string"
+123
+1.0
+|http://www.rascal-mpl.org|
+```
+
 #### Types
 
 #### Function

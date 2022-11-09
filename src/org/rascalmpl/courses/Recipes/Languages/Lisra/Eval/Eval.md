@@ -39,7 +39,7 @@ We now explain the different cases in more detail:
 <1> An integer constant evaluates to itself. Note how `Integer(int x)` is used as first
     argument of this `eval` function. It is a pattern that describes that the constructor `Integer`
     with an `int` argument `x` is to be matched.
-<2> An atom evaluates to the value to which it is bound or to itself. `find` (see [Runtime]) is used
+<2> An atom evaluates to the value to which it is bound or to itself. `find` (see ((Lisra-Runtime))) is used
     to search for the atom in question. The first argument is `var:Atom(str name)`, a pattern that matches
     an `Atom`. The `var:` prefix binds the complete atom to a variable `var` to be used in the body of the function.
 <3> A quoted list evaluates to itself. The pattern `List([Atom("quote"), exp*])` matches a `List` constructor

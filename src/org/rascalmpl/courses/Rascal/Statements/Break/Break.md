@@ -11,6 +11,12 @@ End the execution of a while, do or for loop.
 
 #### Syntax
 
+```rascal
+break;
+
+break Label;
+```
+
 #### Types
 
 #### Function
@@ -20,6 +26,9 @@ End the execution of a while, do or for loop.
 A `break` statement is only allowed inside the body of a ((While)), ((Do)) or ((For)) statement
 and is associated with the innermost loop statement in which it is contained.
 Its effect is to end the execution of the loop.
+
+In case of nested loops, break can also fail to an outer loop if the loop is labeled with `Label`
+and the break as well.
 
 Also see ((Continue)) and ((Fail)).
 

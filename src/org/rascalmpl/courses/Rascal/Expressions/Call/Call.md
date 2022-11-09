@@ -1,9 +1,13 @@
 ---
 title: Call
 keywords:
+  - call
+  - call function
+  - constructor
+  - invoke
+  - invoke function
   - "("
   - ")"
-
 ---
 
 #### Synopsis
@@ -12,10 +16,20 @@ Functions and constructors can be called or invoked in a uniform style.
 
 #### Syntax
 
-* function call with positional parameters `Name ( Exp~1~, Exp~2~, ... )`
-* function call with keyword parameters `Name (Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)`
-* function call with both positional and keyword parameters `Name (Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)`
-* function calls with computed functions `Exp ( Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)` 
+Call with positional parameters:
+```rascal
+Name ( Exp~1~, Exp~2~, ... )
+```
+
+Call with keyword parameters:
+```rascal
+Name (Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)
+```
+
+Call with both positional and keyword parameters:
+```rascal
+Name (Exp~1~, Exp~2~, ..., Name~1~ = Exp~1~, Name~2~ = Exp~2~, ...)
+```
 
 #### Types
 
@@ -45,7 +59,7 @@ are bound to the respective names.
 * The order of keyword parameters is irrelevant in the call syntax, as opposed to the order of the positional parameters. 
 * Notably, values are _also_ bound for the keyword parameters which are _not listed_ in the call site. For those values, _default_ expressions are evaluation which are retrieved from the ((Declarations-Function)) signature. 
 * For ((Declarations-Function))s those default parameters are computed and bound at the time of calling the function
-* For ((AlgebraicDataType)) constructors, the missing default parameters are computed, lazily, at the moment of ((FieldProjection)).
+* For ((AlgebraicDataType)) constructors, the missing default parameters are computed, lazily, at the moment of ((Constructor-FieldSelection)).
 
 For more information:
 * see ((Declarations-Function)) for more details about function declarations.

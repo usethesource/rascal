@@ -11,8 +11,11 @@ An executable assertion.
 
 #### Syntax
 
-*  `assert Exp~1~`
-*  `assert Exp~1~ : Exp~2~`
+```rascal
+assert Exp;
+
+assert Exp~1~ : Exp~2~;
+```
 
 #### Types
 
