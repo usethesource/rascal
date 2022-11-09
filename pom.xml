@@ -169,7 +169,6 @@
                                 <bin>${project.build.outputDirectory}</bin>
                                 <srcs>
                                     <src>${project.basedir}/src/org/rascalmpl/courses/Rascalopedia</src>
-                                    <src>${project.basedir}/src/org/rascalmpl/courses/CompileTimeErrors</src>,
                                     <src>${project.basedir}/src/org/rascalmpl/courses/RascalConcepts</src>
                                     <src>${project.basedir}/src/org/rascalmpl/courses/Recipes</src>
                                     <src>${project.basedir}/src/org/rascalmpl/courses/Tutor</src>
@@ -178,7 +177,6 @@
                                     <src>${project.basedir}/src/org/rascalmpl/courses/WhyRascal</src>
                                     <src>${project.basedir}/src/org/rascalmpl/courses/Rascal</src>
                                     <src>${project.basedir}/src/org/rascalmpl/courses/RascalShell</src>
-                                    <src>${project.basedir}/src/org/rascalmpl/courses/RunTimeErrors</src>
                                     <src>${project.basedir}/src/org/rascalmpl/courses/Developers</src>
                                     <src>${project.basedir}/src/org/rascalmpl/library</src>
                                 </srcs>
