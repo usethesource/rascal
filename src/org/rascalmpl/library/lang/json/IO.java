@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.internal.IValueAdapter;
 import org.rascalmpl.library.lang.json.internal.JSONReadingTypeVisitor;
@@ -47,10 +48,12 @@ import com.ibm.icu.text.DateFormat;
 
 public class IO {
 	private final IValueFactory values;
+	private final IRascalMonitor monitor;
 
-	public IO(IValueFactory values) {
+	public IO(IValueFactory values, IRascalMonitor monitor) {
 		super();
 		this.values = values;
+		this.monitor = monitor;
 	}
 	
 	public IString toJSON(IValue value) {
@@ -95,15 +98,13 @@ public class IO {
     }
     
 	
-	public IValue readJSON(IValue type, ISourceLocation loc, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool lenient) {
+	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
       try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
 		in.setLenient(lenient.getValue());
-        return new JsonValueReader(values, store)
-            .setConstructorsAsObjects(implicitConstructors.getValue())
-            .setNodesAsObjects(implicitNodes.getValue())
+        return new JsonValueReader(values, store, monitor)
             .setCalendarFormat(dateTimeFormat.getValue())
             .read(in, start);
       }
@@ -122,17 +123,15 @@ public class IO {
 	      
 	      try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
 			in.setLenient(lenient.getValue());
-	        return new JsonValueReader(values, store)
-	            .setConstructorsAsObjects(implicitConstructors.getValue())
-	            .setNodesAsObjects(implicitNodes.getValue())
+	        return new JsonValueReader(values, store, monitor)
 	            .setCalendarFormat(dateTimeFormat.getValue())
 	            .read(in, start);
 	      }
 	      catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	      }
 	      catch (NullPointerException e) {
-	        throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
+	        throw RuntimeExceptionFactory.io(values.string("NPE"));
 	      }
 	    }
 	
@@ -143,8 +142,6 @@ public class IO {
 	        }
 	        
 	        new JsonValueWriter()
-	        .setConstructorsAsObjects(implicitConstructors.getValue())
-	        .setNodesAsObjects(implicitNodes.getValue())
 	        .setCalendarFormat(dateTimeFormat.getValue())
 	        .setDatesAsInt(dateTimeAsInt.getValue())
 	        .setUnpackedLocations(unpackedLocations.getValue())
@@ -162,12 +159,10 @@ public class IO {
 	            out.setIndent("        ".substring(0, indent.intValue() % 9));
 	        }
 	        new JsonValueWriter()
-	        .setConstructorsAsObjects(implicitConstructors.getValue())
-	        .setNodesAsObjects(implicitNodes.getValue())
-	        .setCalendarFormat(dateTimeFormat.getValue())
-	        .setDatesAsInt(dateTimeAsInt.getValue())
-	        .setUnpackedLocations(unpackedLocations.getValue())
-	        .write(out, value);
+	        	.setCalendarFormat(dateTimeFormat.getValue())
+	        	.setDatesAsInt(dateTimeAsInt.getValue())
+	        	.setUnpackedLocations(unpackedLocations.getValue())
+	        	.write(out, value);
 
 	        return values.string(string.toString());
 	    } catch (IOException e) {
