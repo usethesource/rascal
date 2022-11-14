@@ -206,6 +206,12 @@ public class JsonValueWriter {
 
       @Override
       public Void visitConstructor(IConstructor o) throws IOException {
+        if (o.getConstructorType().getArity() == 0) {
+          // enums!
+          out.value(o.getName());
+          return null;
+        }
+
         out.beginObject();
         int i = 0;
         for (IValue arg : o) {
