@@ -134,14 +134,10 @@ public class REPLContentServer extends NanoHTTPD {
         IWithKeywordParameters<? extends IConstructor> kws = cons.asWithKeywordParameters();
 
         IValue dtf = kws.getParameter("dateTimeFormat");
-        IValue ics = kws.getParameter("implicitConstructors");
-        IValue ipn = kws.getParameter("implicitNodes");
         IValue dai = kws.getParameter("dateTimeAsInt");
 
         JsonValueWriter writer = new JsonValueWriter()
             .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-            .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
-            .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
             .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
         try {
