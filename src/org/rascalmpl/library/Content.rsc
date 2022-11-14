@@ -101,7 +101,7 @@ which involves a handy, automatic, encoding of Rascal values into json values.
 data Response 
   = response(Status status, str mimeType, map[str,str] header, str content)
   | fileResponse(loc file, str mimeType, map[str,str] header)
-  | jsonResponse(Status status, map[str,str] header, value val, bool implicitConstructors = true,  bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+  | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
   ;
   
 @doc{
