@@ -117,7 +117,7 @@ public class IO {
       }
     }
 	
-	public IValue parseJSON(IValue type, IString src, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool lenient) {
+	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
 	      
@@ -135,7 +135,7 @@ public class IO {
 	      }
 	    }
 	
-	public void writeJSON(ISourceLocation loc, IValue value, IBool implicitConstructors, IBool implicitNodes, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
+	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
 	    try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
 	        if (indent.intValue() > 0) {
 	            out.setIndent("        ".substring(0, indent.intValue() % 9));
@@ -151,7 +151,7 @@ public class IO {
 	    } 
 	}
 	
-	public IString asJSON(IValue value, IBool implicitConstructors, IBool implicitNodes, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
+	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
 	    StringWriter string = new StringWriter();
 
 	    try (JsonWriter out = new JsonWriter(string)) {
