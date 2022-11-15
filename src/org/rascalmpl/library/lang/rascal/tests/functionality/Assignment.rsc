@@ -1,4 +1,4 @@
- module lang::rascal::tests::functionality::Assignment
+module lang::rascal::tests::functionality::Assignment
   
 import Exception;
 
