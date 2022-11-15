@@ -212,3 +212,23 @@ test bool testUnInitAssignment10() {
   return false;
 }
 
+test bool testSetIfUndefinedKeyIssue1713() {
+  myKey = "testkey";
+  map[str, set[int]] tableSet = ();
+
+  // this would throw an exception (static)
+  tableSet[myKey]?{} += {1};
+
+  return tableSet == ("testkey":{1});
+}
+
+test bool testListIfUndefinedKeyIssue1713() {
+  myKey = "testkey";
+  map[str, list[int]] tableSet = ();
+
+  // this would throw an exception (static)
+  tableSet[myKey]?[] += [1];
+
+  return tableSet == ("testkey":[1]);
+}
+
