@@ -22,37 +22,93 @@ import IO;
 Content scatterplot(rel[num,num] v, str title="Scatterplot") 
     = content(md5Hash(v), scatterplotServer(v,title=title));
 
+data Chart 
+    = chart(
+        ChartType \type = scatter(),
+        ChartOptions options = chartOptions(),
+        ChartData \data = chartData()
+    );
+
+data ChartData 
+    = chartData(
+        list[ChartDataSet] datasets = []
+    );
+
+data ChartDataSet
+    = chartDataSet(
+        list[ChartDataPoint] \data = []
+    );
+
+data ChartDataPoint
+    = point(num x, num y);
+
+data ChartType
+    = scatter()
+    ;
+
+data ChartOptions  
+    = chartOptions(
+        bool responsive=true,
+        ChartPlugins plugins = chartPlugins()  
+    );
+
+data ChartPlugins
+    = chartPlugins(
+        ChartTitle title = chartTitle(),
+        ChartLegend legend = chartLegend()
+    );
+
+data ChartLegend   
+    = chartLegend(
+        LegendPosition position = top()
+    );
+
+data LegendPosition
+    = \top()
+    | \bottom()
+    | \left()
+    | \right()
+    ;
+
+data ChartTitle
+    = chartTitle(
+        str text="",
+        bool display = true
+    );
+
 Response (Request) scatterplotServer(rel[num,num] v, str title="Scatterplot") {
     // returns the data to load in the scatter plot as a JSON object
     Response reply(get(/^\/data/)) {
-        return response((
-            
-                "datasets": [
-                    (
-                        "data": [("x":x, "y":y) | <x,y> <- v]
+        return response(
+            chartData(
+                datasets=[
+                    chartDataSet(
+                        \data=[point(x,y) | <x,y> <- v]
                     )
                 ]
-            
-        ));
+            )
+        );
     }
 
     // returns the configuration to use for the scatter plot as a JSON object
     Response reply(get(/^\/config/)) {
-        return response((
-            "type": "scatter",
-            "options": (
-                "responsive": true,
-                "plugins": (
-                    "legend": (
-                        "position": "top"
-                    ),
-                    "title": (
-                        "display": true,
-                        "text": title
+        return response(
+            chart(
+                \type=scatter(),
+                options=chartOptions(
+                    responsive=true,
+                    plugins=chartPlugins(
+                        legend=chartLegend(
+                            position=top()
+                        ),
+                        title=chartTitle(
+                            display=true,
+                            text=title
+                        )
                     )
                 )
             )
-        ));
+        );
     }
     
     // returns the main page that also contains the callbacks for retrieving data and configuration
