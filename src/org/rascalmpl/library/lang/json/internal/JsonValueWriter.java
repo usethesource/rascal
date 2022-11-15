@@ -31,6 +31,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 import com.google.gson.stream.JsonWriter;
@@ -69,7 +70,7 @@ public class JsonValueWriter {
   public JsonValueWriter setUnpackedLocations(boolean setting) {
       this.unpackedLocations = setting;
       return this;
-    }
+  }
 
   public void write(JsonWriter out, IValue value) throws IOException {
     value.accept(new IValueVisitor<Void, IOException>() {
@@ -206,7 +207,7 @@ public class JsonValueWriter {
 
       @Override
       public Void visitConstructor(IConstructor o) throws IOException {
-        if (o.getConstructorType().getArity() == 0) {
+        if (o.getConstructorType().getArity() == 0 && !o.asWithKeywordParameters().hasParameters()) {
           // enums!
           out.value(o.getName());
           return null;
