@@ -391,8 +391,19 @@ public class Cases  {
 
 			if (alts != null) {
 				for (DefaultBlock c : alts) {
-					if (c.matchAndEval(eval, subject)) {
-						return true;
+					Environment old = eval.getCurrentEnvt();
+					try {
+						eval.pushEnv();
+						if (c.matchAndEval(eval, subject)) {
+							return true;
+						}
+					}
+					catch (Failure e) {
+						// just continue with the next case
+						continue;
+					}
+					finally {
+						eval.unwind(old);
 					}
 				}
 			}
