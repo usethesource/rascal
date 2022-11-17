@@ -407,17 +407,21 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> assignment(AssignableEvaluator __eval) {
-			if (getReceiver().isDefined(__eval.getEvaluator()).getValue().getValue()) {
-				return getReceiver().assignment(__eval);
+		public Result<IValue> assignment(AssignableEvaluator ae) {
+			if (getReceiver().isDefined(ae.getEvaluator()).getValue().getValue()) {
+				return getReceiver().assignment(ae);
 			}
 			else {
-				__eval.__setValue(__eval.newResult(this.getDefaultExpression()
-						.interpret((Evaluator) __eval.__getEval()), __eval
-						.__getValue()));
-				__eval.__setOperator(AssignmentOperator.Default);
-				return this.getReceiver().assignment(__eval);
+				ae.__setValue(ae.newResult(lubResult(this.getDefaultExpression()
+						.interpret((Evaluator) ae.__getEval()), ae
+						.__getValue(), ae), ae.__getValue()));
+				ae.__setOperator(AssignmentOperator.Default);
+				return this.getReceiver().assignment(ae);
 			}
+		}
+
+		private Result<IValue> lubResult(Result<IValue> newValue, Result<IValue> oldValue, AssignableEvaluator ae) {
+			return ResultFactory.makeResult(oldValue.getStaticType().lub(newValue.getStaticType()), newValue.getValue(), ae.__getEval());
 		}
 
 		@Override

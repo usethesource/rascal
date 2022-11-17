@@ -25,6 +25,7 @@ import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 
@@ -125,12 +126,12 @@ public class AssignableEvaluator {
 			}
 		
 			if (newValue.getValue().getType().isSubtypeOf(oldValue.getStaticType())) {
-				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getStaticType(), newValue.getValue(), this.__getEval());
+				newValue = ResultFactory.makeResult(oldValue.getStaticType(), newValue.getValue(), this.__getEval());
 				return newValue;
 			} else 	if (oldValue.hasInferredType()) {
 				// Be liberal here: if the user has not declared a variable explicitly
 				// we use the lub type for the new value.
-				newValue = org.rascalmpl.interpreter.result.ResultFactory.makeResult(oldValue.getStaticType().lub(newValue.getStaticType()), newValue.getValue(),this.__getEval());
+				newValue = ResultFactory.makeResult(oldValue.getStaticType().lub(newValue.getStaticType()), newValue.getValue(),this.__getEval());
 				newValue.setInferredType(true);
 				return newValue;
 			}
