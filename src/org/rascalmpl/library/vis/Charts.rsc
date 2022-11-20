@@ -49,7 +49,12 @@ data ChartData
         list[ChartDataSet] datasets = []
     );
 
-data ChartDataSet(str label="undefined")
+data ChartDataSet(
+    str label="undefined",
+    list[str] backgroundColor=[],
+    list[str] borderColor=[],
+    list[str] color=[]
+    )
     = chartDataSet(list[value] \data)
     ;
 
@@ -58,6 +63,22 @@ ChartDataSet chartDataSet(str label, rel[num,num] r)
     = chartDataSet([point(x,y) | <x,y> <- r],
         label=label
     );
+
+@synopsis{convert a binary list relation `lrel[num,num]` to a ChartDataSet}
+ChartDataSet chartDataSet(str label, lrel[num,num] r)
+    = chartDataSet([point(x,y) | <x,y> <- r],
+        label=label
+    );
+
+ChartData chartData(rel[str label, num val] v)
+    = chartData(
+        labels=[l | <l,_> <- v],
+        datasets=[
+            chartDataSet([n | <_, n> <- v],
+                backgroundColor=["red","blue"]
+            )
+        ]
+    );    
 
 data ChartDataPoint
     = point(num x, num y);
@@ -76,7 +97,8 @@ data ChartOptions
 data ChartPlugins
     = chartPlugins(
         ChartTitle title = chartTitle(),
-        ChartLegend legend = chartLegend()
+        ChartLegend legend = chartLegend(),
+        ChartColors colors = chartColors()
     );
 
 data ChartLegend   
@@ -95,6 +117,11 @@ data ChartTitle
     = chartTitle(
         str text="",
         bool display = true
+    );
+
+data ChartColors
+    = chartColors(
+        bool enabled = true
     );
 
 Response (Request) chartServer(Chart ch) {
@@ -129,6 +156,9 @@ Response(Request) barchartServer(rel[str,num] d, str title="Bar Chart")
                     title=chartTitle(
                         display=true,
                         text=title
+                    ),
+                    colors=chartColors(
+                        enabled=true
                     )
                 )
             )
@@ -148,11 +178,14 @@ Response(Request) scatterplotsServer(set[ChartDataSet] sets, str title="Scatterp
                 responsive=true,
                 plugins=chartPlugins(
                     legend=chartLegend(
-                        position=top()
+                        position=left()
                     ),
                     title=chartTitle(
                         display=true,
                         text=title
+                    ),
+                    colors=chartColors(
+                        enabled=true
                     )
                 )
             )
@@ -162,7 +195,8 @@ Response(Request) scatterplotsServer(set[ChartDataSet] sets, str title="Scatterp
 private HTMLElement plotHTML()
     = html([
         head([
-            script([], src="https://cdn.jsdelivr.net/npm/chart.js")
+            script([], src="https://cdn.jsdelivr.net/npm/chart.js"),
+            script([], src="https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors")
         ]),
         body([
             div([
@@ -171,8 +205,10 @@ private HTMLElement plotHTML()
             script([
                 \data(
                     "var container = document.getElementById(\'visualization\');
+                    'const autocolors = window[\'chartjs-plugin-autocolors\'];
+                    'Chart.register(autocolors);
                     'fetch(\'/chart\').then(resp =\> resp.json()).then(chart =\> {
-                    '   new Chart(container, chart);
+                    '   new Chart(container, chart);   
                     '})
                     '")
             ], \type="text/javascript")
