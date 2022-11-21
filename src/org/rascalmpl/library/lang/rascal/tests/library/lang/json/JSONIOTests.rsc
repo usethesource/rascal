@@ -1,15 +1,11 @@
 module lang::rascal::tests::library::lang::json::JSONIOTests
 
-import String;
 import lang::json::IO;
 import util::UUID;
 
 loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
 
 bool writeRead(type[&T] returnType, &T dt) {
-    if (!jsonFeaturesSupported(dt)) {
-        return true;
-    }
     json = toJSON(dt);
     return fromJSON(returnType, json) == dt;
 }
