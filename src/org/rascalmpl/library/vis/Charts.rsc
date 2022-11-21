@@ -11,10 +11,28 @@
 This modules provides a simple API to create charts for Rascal
 (numerical) data, based on [chart.js](https://chartjs.org/). 
 This library mirrors chart.js' JSON-based configuration API more or less one-to-one
-using ((AlgebraicDataType))s of Rascal. Documentation about chart.js should be easy
+using ((Declarations-AlgebraicDataType))s of Rascal. Documentation about chart.js should be easy
 to interpret.
 
 This module is quite new and may undergo some tweaks in the coming time.
+}
+@examples{
+```rascal-shell
+import vis::Charts;
+scatterChart([<x,x> | x <- [1..100]])
+```
+
+```rascal-shell-continue
+barChart([<"<x>",x> | x <- [1..100]])
+```
+
+```rascal-shell-continue
+lineChart([<"<x>",x> | x <- [1..100]])
+```
+
+```rascal-shell-continue
+pieChart([<"<x>",x> | x <- [1..100]])
+```
 }
 module vis::Charts
 
@@ -23,128 +41,115 @@ import Content;
 import Set;
 import List;
 
-@synopsis{A scatterplot from a binary numerical list relation.}
-@examples{
-```rascal-shell
-import vis::Charts;
-scatterChart([<x,y> | x <- [1..100], y <- [1..100]])
-```
-}
-Content scatterChart(lrel[num x,num y] v, str title="Scatterplot") 
-    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title));
+@synopsis{A scatterplot from a binary numerical relation.}
 
-@synopsis{A scatterplot from several binary numerical list relations.}
-Content scatterChart(list[str] labels, lrel[num x,num y] values ..., str title="Scatterplots")
-    = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title));
+Content scatterChart(lrel[num x,num y] v, str title="Scatterplot", ChartAutoColorMode colorMode=\dataset()) 
+    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode));
 
-@synopsis{A scatterplot from a binary numerical list relation.}
-Content scatterChart(rel[num x ,num y] v, str title="Scatterplot") 
-    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title));
+Content scatterChart(list[str] labels, lrel[num x,num y] values ..., str title="Scatterplots", ChartAutoColorMode colorMode=\dataset())
+    = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode));
 
-@synopsis{A scatterplot from several binary numerical list relations.}
-Content scatterChart(list[str] labels, rel[num x,num y] values ..., str title="Scatterplots")
-    = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title));
+Content scatterChart(rel[num x ,num y] v, str title="Scatterplot", ChartAutoColorMode colorMode=\dataset()) 
+    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode));
+
+Content scatterChart(list[str] labels, rel[num x,num y] values ..., str title="Scatterplots", ChartAutoColorMode colorMode=\dataset())
+    = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode));
 
 @synopsis{A bubblechart from a binary numerical list relation.}
 @pitfalls{
 * the radius is in raw pixels rather than scaled to the chart's axis
 }
-Content bubbleChart(lrel[num x,num y, num r] v, str title="Scatterplot") 
-    = content(title, chartServer(chartData(title, v), \type=bubble(), title=title));
+Content bubbleChart(lrel[num x,num y, num r] v, str title="Scatterplot", ChartAutoColorMode colorMode=\data()) 
+    = content(title, chartServer(chartData(title, v), \type=bubble(), title=title, colorMode=colorMode));
 
-@pitfalls{
-* the radius is in raw pixels rather than scaled to the chart's axis
-}
-@synopsis{A bubblechart from several binary numerical list relations.}
-Content bubbleChart(list[str] labels, lrel[num x,num y, num r] values ..., str title="Scatterplots")
-    = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title));
+Content bubbleChart(list[str] labels, lrel[num x,num y, num r] values ..., str title="Scatterplots", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode));
 
-@synopsis{A bubblechart from a binary numerical list relation.}
-@pitfalls{
-* the radius is in raw pixels rather than scaled to the chart's axis
-}
-Content bubbleChart(rel[num x,num y, num r] v, str title="Scatterplot") 
-    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title));
+Content bubbleChart(rel[num x,num y, num r] v, str title="Scatterplot", ChartAutoColorMode colorMode=\data()) 
+    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode));
 
-@synopsis{A bubblechart from several binary numerical list relations.}
-@pitfalls{
-* the radius is in raw pixels rather than scaled to the chart's axis
-}
-Content bubbleChart(list[str] labels, rel[num x,num y, num r] values ..., str title="Scatterplots")
-    = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title));    
+Content bubbleChart(list[str] labels, rel[num x,num y, num r] values ..., str title="Scatterplots", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode));    
 
-Content barChart(rel[str label, num val] values, str title="Bar Chart")
-    = content(title, chartServer(chartData(values), \type=\bar(), title=title));
+@synopsis{A bar chart from labeled numbers}
+Content barChart(rel[str label, num val] values, str title="Bar Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\bar(), title=title, colorMode=colorMode));
 
-Content barChart(lrel[str label, num val] values, str title="Bar Chart")
-    = content(title, chartServer(chartData(values), \type=\bar(), title=title));
+Content barChart(lrel[str label, num val] values, str title="Bar Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\bar(), title=title, colorMode=colorMode));
 
-Content barChart(list[str] labels, rel[str label, num val] values..., str title="Bar Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\bar(), title=title));
+Content barChart(list[str] labels, rel[str label, num val] values..., str title="Bar Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\bar(), title=title, colorMode=colorMode));
 
-Content barChart(list[str] labels, lrel[str label, num val] values..., str title="Bar Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\bar(), title=title));
+Content barChart(list[str] labels, lrel[str label, num val] values..., str title="Bar Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\bar(), title=title, colorMode=colorMode));
 
-Content lineChart(rel[str label, num val] values, str title="Line Chart")
-    = content(title, chartServer(chartData(values), \type=\line(), title=title));
+@synopsis{A line chart from labeled numbers}
+Content lineChart(rel[str label, num val] values, str title="Line Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\line(), title=title, colorMode=colorMode));
 
-Content lineChart(lrel[str label, num val] values, str title="Line Chart")
-    = content(title, chartServer(chartData(values), \type=\line(), title=title));
+Content lineChart(lrel[str label, num val] values, str title="Line Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\line(), title=title, colorMode=colorMode));
 
-Content lineChart(list[str] labels, rel[str label, num val] values..., str title="Line Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\line(), title=title));
+Content lineChart(list[str] labels, rel[str label, num val] values..., str title="Line Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\line(), title=title, colorMode=colorMode));
 
-Content lineChart(list[str] labels, lrel[str label, num val] values..., str title="Line Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\line(), title=title));
+Content lineChart(list[str] labels, lrel[str label, num val] values..., str title="Line Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\line(), title=title, colorMode=colorMode));
 
-Content polarAreaChart(rel[str label, num val] values, str title="Polar Area Chart")
-    = content(title, chartServer(chartData(values), \type=\polarArea(), title=title));
+@synopsis{A polar area chart from labeled numbers}
+Content polarAreaChart(rel[str label, num val] values, str title="Polar Area Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\polarArea(), title=title, colorMode=colorMode));
 
-Content polarAreaChart(lrel[str label, num val] values, str title="Polar Area Chart")
-    = content(title, chartServer(chartData(values), \type=\polarArea(), title=title));
+Content polarAreaChart(lrel[str label, num val] values, str title="Polar Area Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\polarArea(), title=title, colorMode=colorMode));
 
-Content polarAreaChart(list[str] labels, rel[str label, num val] values..., str title="Polar Area Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\polarArea(), title=title));
+Content polarAreaChart(list[str] labels, rel[str label, num val] values..., str title="Polar Area Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\polarArea(), title=title, colorMode=colorMode));
 
-Content polarAreaChart(list[str] labels, lrel[str label, num val] values..., str title="Polar Area Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\polarArea(), title=title));
+Content polarAreaChart(list[str] labels, lrel[str label, num val] values..., str title="Polar Area Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\polarArea(), title=title, colorMode=colorMode));
 
-Content radarChart(rel[str label, num val] values, str title="Radar Chart")
-    = content(title, chartServer(chartData(values), \type=\radar(), title=title));
+@synopsis{A radar chart from labeled numbers}
+Content radarChart(rel[str label, num val] values, str title="Radar Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\radar(), title=title, colorMode=colorMode));
 
-Content radarChart(lrel[str label, num val] values, str title="Radar Chart")
-    = content(title, chartServer(chartData(values), \type=\radar(), title=title));
+Content radarChart(lrel[str label, num val] values, str title="Radar Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\radar(), title=title, colorMode=colorMode));
 
-Content radarChart(list[str] labels, rel[str label, num val] values..., str title="Radar Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\radar(), title=title));
+Content radarChart(list[str] labels, rel[str label, num val] values..., str title="Radar Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\radar(), title=title, colorMode=colorMode));
 
-Content radarChart(list[str] labels, lrel[str label, num val] values..., str title="Radar Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\radar(), title=title));   
+Content radarChart(list[str] labels, lrel[str label, num val] values..., str title="Radar Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\radar(), title=title, colorMode=colorMode));   
 
-Content pieChart(rel[str label, num val] values, str title="Pie Chart")
-    = content(title, chartServer(chartData(values), \type=\pie(), title=title));
+@synopsis{A pie chart from labeled numbers}
+Content pieChart(rel[str label, num val] values, str title="Pie Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\pie(), title=title, colorMode=colorMode));
 
-Content pieChart(lrel[str label, num val] values, str title="Pie Chart")
-    = content(title, chartServer(chartData(values), \type=\pie(), title=title));
+Content pieChart(lrel[str label, num val] values, str title="Pie Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\pie(), title=title, colorMode=colorMode));
 
-Content pieChart(list[str] labels, rel[str label, num val] values..., str title="Pie Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title));
+Content pieChart(list[str] labels, rel[str label, num val] values..., str title="Pie Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title, colorMode=colorMode));
 
-Content pieChart(list[str] labels, lrel[str label, num val] values..., str title="Pie Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title));  
+Content pieChart(list[str] labels, lrel[str label, num val] values..., str title="Pie Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title, colorMode=colorMode));  
 
-Content doughnutChart(rel[str label, num val] values, str title="Doughnut Chart")
-    = content(title, chartServer(chartData(values), \type=\doughnut(), title=title));
+@synopsis{A dougnut chart from labeled numbers}
+Content doughnutChart(rel[str label, num val] values, str title="Doughnut Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\doughnut(), title=title, colorMode=colorMode));
 
-Content doughnutChart(lrel[str label, num val] values, str title="Doughnut Chart")
-    = content(title, chartServer(chartData(values), \type=\doughnut(), title=title));
+Content doughnutChart(lrel[str label, num val] values, str title="Doughnut Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(values), \type=\doughnut(), title=title, colorMode=colorMode));
 
-Content doughnutChart(list[str] labels, rel[str label, num val] values..., str title="Doughnut Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\doughnut(), title=title));
+Content doughnutChart(list[str] labels, rel[str label, num val] values..., str title="Doughnut Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\doughnut(), title=title, colorMode=colorMode));
 
-Content doughnutChart(list[str] labels, lrel[str label, num val] values..., str title="Doughnut Chart")
-    = content(title, chartServer(chartData(labels, values), \type=\doughnut(), title=title));       
+Content doughnutChart(list[str] labels, lrel[str label, num val] values..., str title="Doughnut Chart", ChartAutoColorMode colorMode=\data())
+    = content(title, chartServer(chartData(labels, values), \type=\doughnut(), title=title, colorMode=colorMode));       
 
+@synopsys{converts plain data sources into chart.js datasets}
 ChartDataSet chartDataSet(str label, rel[num x, num y] r)
     = chartDataSet([point(x,y) | <x,y> <- r],
         label=label
@@ -165,6 +170,7 @@ ChartDataSet chartDataSet(str label, lrel[num x,num y, num r] r)
         label=label
     );    
 
+@synopsys{converts plain data sources into the chart.js data representation}
 ChartData chartData(rel[str label, num val] v)
     = chartData(
         labels=[l | <l,_> <- v],
@@ -305,8 +311,19 @@ data ChartPlugins
     = chartPlugins(
         ChartTitle title = chartTitle(),
         ChartLegend legend = chartLegend(),
-        ChartColors colors = chartColors()
+        ChartColors colors = chartColors(),
+        ChartAutoColors autocolors = chartAutoColors()
     );
+
+data ChartAutoColors
+    = chartAutoColors(
+        ChartAutoColorMode \mode = \data()
+    );
+
+data ChartAutoColorMode 
+    = \data()
+    | \dataset()
+    ;
 
 data ChartLegend   
     = chartLegend(
@@ -337,11 +354,11 @@ A chart has a typical default layout that we can reuse for all kinds of chart ty
 provides the template and immediately instantiates the client and the server to start displaying the chart
 in a browser.
 }
-Response(Request) chartServer(ChartData \data, ChartType \type=\bar(), str title="Chart")
+Response(Request) chartServer(ChartData theData, ChartType \type=\bar(), str title="Chart", ChartAutoColorMode colorMode=\data())
     = chartServer(
         chart(
             \type=\type,
-            \data=\data,
+            \data=theData,
             options=chartOptions(
                 responsive=true,
                 plugins=chartPlugins(
@@ -354,6 +371,9 @@ Response(Request) chartServer(ChartData \data, ChartType \type=\bar(), str title
                     ),
                     colors=chartColors(
                         enabled=true
+                    ),
+                    autocolors=chartAutoColors(
+                        mode=colorMode
                     )
                 )
             )
@@ -379,9 +399,9 @@ Response (Request) chartServer(Chart ch) {
 }
 
 @synopsis{default HTML wrapper for a chart}
-HTMLElement plotHTML()
+private HTMLElement plotHTML()
     = html([
-        div([
+        div([ // put div here instead of `head` to work around issue
             script([], src="https://cdn.jsdelivr.net/npm/chart.js"),
             script([], src="https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors")
         ]),
@@ -399,7 +419,5 @@ HTMLElement plotHTML()
                     '})
                     '")
             ], \type="text/javascript")
-        ])
+        ], style="position: fixed; top:50%; left:50%; transform: translate(-50%, -50%); width:min(75%,800px);")
     ]);
-
-HTMLElement hhead(list[HTMLElement] elems) = HTMLElement::head(elems);
