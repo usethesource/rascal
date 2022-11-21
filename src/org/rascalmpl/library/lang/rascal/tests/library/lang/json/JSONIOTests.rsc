@@ -1,26 +1,10 @@
 module lang::rascal::tests::library::lang::json::JSONIOTests
 
 import String;
-import Node;
-import Type;
 import lang::json::IO;
 import util::UUID;
 
 loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
-
-bool jsonFeaturesSupported(value v) {
-    for (/num r := v, size("<r>") > 10) {
-         // json can only contain double precision video's
-         // so let's ignore the cases
-        return false;
-    }
-    for (/node n := v, getAnnotations(n) != ()) {
-         // json reader/writer can't handle annotations at the moment
-        return false;
-    }
-    return true;
-}    
-
 
 bool writeRead(type[&T] returnType, &T dt) {
     if (!jsonFeaturesSupported(dt)) {
@@ -30,9 +14,12 @@ bool writeRead(type[&T] returnType, &T dt) {
     return fromJSON(returnType, json) == dt;
 }
 	
-data DATA1 = f1(int n) | f1(int n, str s) | rec1(DATA1 d1, DATA1 d2);
-
-data DATA2 = f2(int n, str kw = "abc") | f2(int n, str s) | rec2(DATA2 d1, DATA2 d2, int n = 0);
+// only single constructors supported for now
+data DATA1 = data1(int n);
+data DATA2 = data2(str n);
+data DATA3 = data3(int n, str kw = "abc");
+data Enum = x() | y() | z();
+data DATA4 = data4(Enum e = x());
 
 test bool jsonWithBool1(bool dt) = writeRead(#bool, dt);
 test bool jsonWithInt1(int dt) = writeRead(#int, dt);
@@ -45,7 +32,7 @@ test bool jsonWithStr1(str dt) = writeRead(#str, dt);
 test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
 test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
 test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
-test bool jsonWithMap1(map[int, int]  dt) = writeRead(#map[int,int], dt);
+test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
 test bool jsonWithNode1(node  dt) = writeRead(#node, dt);
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
@@ -53,33 +40,8 @@ test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
 
 test bool jsonRandom1(value dt) = writeRead(#value, dt);
 
-data D 
-    = date(datetime dt)
-    | uri(loc l)
-    | string(str s)
-    | integer(int n)
-    | float(real r)
-    | lists(list[D] ls)
-    | maps(map[str,str] strmaps)
-    | maps2(map[str,D] dmaps)
-    | nested(D d1, D d2)
-    | kwparams(int x = 2, D d = integer(0))
-    ;
-    
-@ignore{Currently not working with datetimes not as ints}
-test bool jsonStreaming1(D dt) {
-    if (!jsonFeaturesSupported(dt)) {
-        return true;
-    }
-    writeJSON(targetFile, dt, dateTimeAsInt=false);
-    return readJSON(#D, targetFile) == dt;
-}
-
-test bool jsonStreaming2(D dt) {
-    if (!jsonFeaturesSupported(dt)) {
-        return true;
-    }
-    writeJSON(targetFile, dt, dateTimeAsInt=true);
-    return readJSON(#D, targetFile) == dt;
-}
+test bool json1() = writeRead(#DATA1, data1(123));
+test bool json2() = writeRead(#DATA2, data2("123"));
+test bool json3() = writeRead(#DATA3, data3(123,kw="123"));
+test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 
