@@ -17,6 +17,8 @@ jobs:
     needs: [tests]
     runs-on: ubuntu-latest
     steps:
+      - uses: browser-actions/setup-firefox@latest
+      - run: firefox --version
       - uses: browser-actions/setup-geckodriver@latest
       - run: geckodriver --version  
       - uses: actions/checkout@v3
