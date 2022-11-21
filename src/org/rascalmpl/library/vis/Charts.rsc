@@ -279,7 +279,7 @@ data ChartData
     );
 
 data ChartDataSet(
-        str label="undefined",
+        str label="",
         list[str] backgroundColor=[],
         list[str] borderColor=[],
         list[str] color=[]
