@@ -78,10 +78,10 @@ Content barChart(rel[str label, num val] values, str title="Bar Chart", ChartAut
 Content barChart(lrel[str label, num val] values, str title="Bar Chart", ChartAutoColorMode colorMode=\data())
     = content(title, chartServer(chartData(values), \type=\bar(), title=title, colorMode=colorMode));
 
-Content barChart(list[str] labels, rel[str label, num val] values..., str title="Bar Chart", ChartAutoColorMode colorMode=\data())
+Content barChart(list[str] labels, rel[str label, num val] values..., str title="Bar Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\bar(), title=title, colorMode=colorMode));
 
-Content barChart(list[str] labels, lrel[str label, num val] values..., str title="Bar Chart", ChartAutoColorMode colorMode=\data())
+Content barChart(list[str] labels, lrel[str label, num val] values..., str title="Bar Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\bar(), title=title, colorMode=colorMode));
 
 @synopsis{A line chart from labeled numbers}
@@ -91,10 +91,10 @@ Content lineChart(rel[str label, num val] values, str title="Line Chart", ChartA
 Content lineChart(lrel[str label, num val] values, str title="Line Chart", ChartAutoColorMode colorMode=\data())
     = content(title, chartServer(chartData(values), \type=\line(), title=title, colorMode=colorMode));
 
-Content lineChart(list[str] labels, rel[str label, num val] values..., str title="Line Chart", ChartAutoColorMode colorMode=\data())
+Content lineChart(list[str] labels, rel[str label, num val] values..., str title="Line Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\line(), title=title, colorMode=colorMode));
 
-Content lineChart(list[str] labels, lrel[str label, num val] values..., str title="Line Chart", ChartAutoColorMode colorMode=\data())
+Content lineChart(list[str] labels, lrel[str label, num val] values..., str title="Line Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\line(), title=title, colorMode=colorMode));
 
 @synopsis{A polar area chart from labeled numbers}
@@ -104,10 +104,10 @@ Content polarAreaChart(rel[str label, num val] values, str title="Polar Area Cha
 Content polarAreaChart(lrel[str label, num val] values, str title="Polar Area Chart", ChartAutoColorMode colorMode=\data())
     = content(title, chartServer(chartData(values), \type=\polarArea(), title=title, colorMode=colorMode));
 
-Content polarAreaChart(list[str] labels, rel[str label, num val] values..., str title="Polar Area Chart", ChartAutoColorMode colorMode=\data())
+Content polarAreaChart(list[str] labels, rel[str label, num val] values..., str title="Polar Area Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\polarArea(), title=title, colorMode=colorMode));
 
-Content polarAreaChart(list[str] labels, lrel[str label, num val] values..., str title="Polar Area Chart", ChartAutoColorMode colorMode=\data())
+Content polarAreaChart(list[str] labels, lrel[str label, num val] values..., str title="Polar Area Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\polarArea(), title=title, colorMode=colorMode));
 
 @synopsis{A radar chart from labeled numbers}
@@ -117,10 +117,10 @@ Content radarChart(rel[str label, num val] values, str title="Radar Chart", Char
 Content radarChart(lrel[str label, num val] values, str title="Radar Chart", ChartAutoColorMode colorMode=\data())
     = content(title, chartServer(chartData(values), \type=\radar(), title=title, colorMode=colorMode));
 
-Content radarChart(list[str] labels, rel[str label, num val] values..., str title="Radar Chart", ChartAutoColorMode colorMode=\data())
+Content radarChart(list[str] labels, rel[str label, num val] values..., str title="Radar Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\radar(), title=title, colorMode=colorMode));
 
-Content radarChart(list[str] labels, lrel[str label, num val] values..., str title="Radar Chart", ChartAutoColorMode colorMode=\data())
+Content radarChart(list[str] labels, lrel[str label, num val] values..., str title="Radar Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\radar(), title=title, colorMode=colorMode));   
 
 @synopsis{A pie chart from labeled numbers}
@@ -130,10 +130,10 @@ Content pieChart(rel[str label, num val] values, str title="Pie Chart", ChartAut
 Content pieChart(lrel[str label, num val] values, str title="Pie Chart", ChartAutoColorMode colorMode=\data())
     = content(title, chartServer(chartData(values), \type=\pie(), title=title, colorMode=colorMode));
 
-Content pieChart(list[str] labels, rel[str label, num val] values..., str title="Pie Chart", ChartAutoColorMode colorMode=\data())
+Content pieChart(list[str] labels, rel[str label, num val] values..., str title="Pie Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title, colorMode=colorMode));
 
-Content pieChart(list[str] labels, lrel[str label, num val] values..., str title="Pie Chart", ChartAutoColorMode colorMode=\data())
+Content pieChart(list[str] labels, lrel[str label, num val] values..., str title="Pie Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title, colorMode=colorMode));  
 
 @synopsis{A dougnut chart from labeled numbers}
