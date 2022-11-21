@@ -24,47 +24,53 @@ import Set;
 import List;
 
 @synopsis{A scatterplot from a binary numerical list relation.}
-Content scatterplot(lrel[num x,num y] v, str title="Scatterplot") 
+@examples{
+```rascal-shell
+import vis::Charts;
+scatterChart([<x,y> | x <- [1..100], y <- [1..100]])
+```
+}
+Content scatterChart(lrel[num x,num y] v, str title="Scatterplot") 
     = content(title, chartServer(chartData(title, v), \type=scatter(), title=title));
 
 @synopsis{A scatterplot from several binary numerical list relations.}
-Content scatterplot(list[str] labels, lrel[num x,num y] values ..., str title="Scatterplots")
+Content scatterChart(list[str] labels, lrel[num x,num y] values ..., str title="Scatterplots")
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title));
 
 @synopsis{A scatterplot from a binary numerical list relation.}
-Content scatterplot(rel[num x ,num y] v, str title="Scatterplot") 
+Content scatterChart(rel[num x ,num y] v, str title="Scatterplot") 
     = content(title, chartServer(chartData(title, v), \type=scatter(), title=title));
 
 @synopsis{A scatterplot from several binary numerical list relations.}
-Content scatterplot(list[str] labels, rel[num x,num y] values ..., str title="Scatterplots")
+Content scatterChart(list[str] labels, rel[num x,num y] values ..., str title="Scatterplots")
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title));
 
 @synopsis{A bubblechart from a binary numerical list relation.}
 @pitfalls{
 * the radius is in raw pixels rather than scaled to the chart's axis
 }
-Content bubblechart(lrel[num x,num y, num r] v, str title="Scatterplot") 
+Content bubbleChart(lrel[num x,num y, num r] v, str title="Scatterplot") 
     = content(title, chartServer(chartData(title, v), \type=bubble(), title=title));
 
 @pitfalls{
 * the radius is in raw pixels rather than scaled to the chart's axis
 }
 @synopsis{A bubblechart from several binary numerical list relations.}
-Content bubblechart(list[str] labels, lrel[num x,num y, num r] values ..., str title="Scatterplots")
+Content bubbleChart(list[str] labels, lrel[num x,num y, num r] values ..., str title="Scatterplots")
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title));
 
 @synopsis{A bubblechart from a binary numerical list relation.}
 @pitfalls{
 * the radius is in raw pixels rather than scaled to the chart's axis
 }
-Content bubblechart(rel[num x,num y, num r] v, str title="Scatterplot") 
+Content bubbleChart(rel[num x,num y, num r] v, str title="Scatterplot") 
     = content(title, chartServer(chartData(title, v), \type=scatter(), title=title));
 
 @synopsis{A bubblechart from several binary numerical list relations.}
 @pitfalls{
 * the radius is in raw pixels rather than scaled to the chart's axis
 }
-Content bubblechart(list[str] labels, rel[num x,num y, num r] values ..., str title="Scatterplots")
+Content bubbleChart(list[str] labels, rel[num x,num y, num r] values ..., str title="Scatterplots")
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title));    
 
 Content barChart(rel[str label, num val] values, str title="Bar Chart")
@@ -78,6 +84,66 @@ Content barChart(list[str] labels, rel[str label, num val] values..., str title=
 
 Content barChart(list[str] labels, lrel[str label, num val] values..., str title="Bar Chart")
     = content(title, chartServer(chartData(labels, values), \type=\bar(), title=title));
+
+Content lineChart(rel[str label, num val] values, str title="Line Chart")
+    = content(title, chartServer(chartData(values), \type=\line(), title=title));
+
+Content lineChart(lrel[str label, num val] values, str title="Line Chart")
+    = content(title, chartServer(chartData(values), \type=\line(), title=title));
+
+Content lineChart(list[str] labels, rel[str label, num val] values..., str title="Line Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\line(), title=title));
+
+Content lineChart(list[str] labels, lrel[str label, num val] values..., str title="Line Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\line(), title=title));
+
+Content polarAreaChart(rel[str label, num val] values, str title="Polar Area Chart")
+    = content(title, chartServer(chartData(values), \type=\polarArea(), title=title));
+
+Content polarAreaChart(lrel[str label, num val] values, str title="Polar Area Chart")
+    = content(title, chartServer(chartData(values), \type=\polarArea(), title=title));
+
+Content polarAreaChart(list[str] labels, rel[str label, num val] values..., str title="Polar Area Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\polarArea(), title=title));
+
+Content polarAreaChart(list[str] labels, lrel[str label, num val] values..., str title="Polar Area Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\polarArea(), title=title));
+
+Content radarChart(rel[str label, num val] values, str title="Radar Chart")
+    = content(title, chartServer(chartData(values), \type=\radar(), title=title));
+
+Content radarChart(lrel[str label, num val] values, str title="Radar Chart")
+    = content(title, chartServer(chartData(values), \type=\radar(), title=title));
+
+Content radarChart(list[str] labels, rel[str label, num val] values..., str title="Radar Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\radar(), title=title));
+
+Content radarChart(list[str] labels, lrel[str label, num val] values..., str title="Radar Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\radar(), title=title));   
+
+Content pieChart(rel[str label, num val] values, str title="Pie Chart")
+    = content(title, chartServer(chartData(values), \type=\pie(), title=title));
+
+Content pieChart(lrel[str label, num val] values, str title="Pie Chart")
+    = content(title, chartServer(chartData(values), \type=\pie(), title=title));
+
+Content pieChart(list[str] labels, rel[str label, num val] values..., str title="Pie Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title));
+
+Content pieChart(list[str] labels, lrel[str label, num val] values..., str title="Pie Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\pie(), title=title));  
+
+Content doughnutChart(rel[str label, num val] values, str title="Doughnut Chart")
+    = content(title, chartServer(chartData(values), \type=\doughnut(), title=title));
+
+Content doughnutChart(lrel[str label, num val] values, str title="Doughnut Chart")
+    = content(title, chartServer(chartData(values), \type=\doughnut(), title=title));
+
+Content doughnutChart(list[str] labels, rel[str label, num val] values..., str title="Doughnut Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\doughnut(), title=title));
+
+Content doughnutChart(list[str] labels, lrel[str label, num val] values..., str title="Doughnut Chart")
+    = content(title, chartServer(chartData(labels, values), \type=\doughnut(), title=title));       
 
 ChartDataSet chartDataSet(str label, rel[num x, num y] r)
     = chartDataSet([point(x,y) | <x,y> <- r],
@@ -222,6 +288,11 @@ data ChartType
     = scatter()
     | bar()
     | bubble()
+    | line()
+    | polarArea()
+    | radar()
+    | pie()
+    | doughnut()
     ;
 
 data ChartOptions  
