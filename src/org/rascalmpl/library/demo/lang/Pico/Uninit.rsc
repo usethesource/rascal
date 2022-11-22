@@ -1,4 +1,3 @@
-// tag::module[]
 module demo::lang::Pico::Uninit
 
 import demo::lang::Pico::Abstract;
@@ -9,17 +8,16 @@ import demo::lang::Pico::ControlFlow;
 
 import analysis::graphs::Graph;
 
-public set[CFNode] defNodes(PicoId Id, set[Occurrence] Defs) =
-   {statement(occ.stat@location, occ.stat) | Occurrence occ <- Defs, occ.name == Id};
+set[CFNode] defNodes(PicoId Id, set[Occurrence] Defs) =
+   {statement(occ.stat.src, occ.stat) | Occurrence occ <- Defs, occ.name == Id};
 
-public set[Occurrence] uninitProgram(PROGRAM P) {
+set[Occurrence] uninitProgram(PROGRAM P) {
    D = defs(P); // <1>
-   CFG = cflowProgram(P); // <2>
-   return { occ | occ <- uses(P), // <3>
+   CFG = cflowProgram(P); // <1>
+   return { occ | occ <- uses(P), 
                   any(CFNode N <- reachX(CFG.graph, CFG.entry, defNodes(occ.name, D)),
-                      N has location && occ.location <= N.location) 
-          }; // <4>
+                      N has location && occ.src <= N.location) 
+          }; 
 }
 
-public set[Occurrence] uninitProgram(str txt) = uninitProgram(load(txt)); // <5>
-// end::module[]
+set[Occurrence] uninitProgram(str txt) = uninitProgram(load(txt)); 

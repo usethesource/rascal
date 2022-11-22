@@ -11,7 +11,7 @@
      *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
      *   * Paul Klint - Paul.Klint@cwi.nl - CWI
      *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
-    *******************************************************************************/
+    */
 import Relation; 
     
 // carrier

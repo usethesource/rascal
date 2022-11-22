@@ -2,8 +2,6 @@ module lang::rascal::tests::concrete::Patterns1
 
 import ParseTree;
 
-syntax OptTestGrammar = A? a B b;
-
 syntax A = "a";
 syntax As0 = A* as0;
 syntax As1 = A+ as1;
@@ -345,9 +343,6 @@ test bool matchInsideSyntax2()
     = /A2 _ := [AB2]"AABBAA";
 
 value main() = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
- 
-test bool optionalNotPresentIsFalse() = !((A)`a` <- ([OptTestGrammar] "b").a);
-test bool optionalPresentIsTrue() = (A)`a` <- ([OptTestGrammar] "ab").a;
 
 // Calls with concrete parameters
 

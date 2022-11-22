@@ -1,8 +1,10 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 Character classes commonly known in the ASCII set
 
-.Description
+#### Description
+
 } 
 module lang::std::ASCII
 

@@ -31,11 +31,11 @@ set[Symbol] allLayouts(set[str] defs, GrammarDefinition def)
   + {sort(l) | m <- defs, def.modules[m]?, /prod(label(_,layouts(str l)),_,_) := def.modules[m]} 
   ;
 
-// TODO: The following two functions were defined local to activeLayout
+// TODO, REMOVE THIS: The following two functions were defined local to activeLayout
 // but this gives an not yet explained validation error  for the
 // function ids in the corresponding overloaded function
-bool isManual(set[Attr] as) = (\tag("manual"()) in as);
-bool isDefault(Symbol s) = (s == layouts("$default$"));
+//bool isManual(set[Attr] as) = (Attr::\tag("manual"()) in as);
+//bool isDefault(Symbol s) = (s == layouts("$default$"));
    
 @doc{computes which layout definitions are visible in a certain given module.
      if a module contains a layout definition, this overrides any imported layout definition
@@ -45,7 +45,8 @@ bool isDefault(Symbol s) = (s == layouts("$default$"));
      will just produce an arbitrary one if there are multiple definitions
 }
 Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
-
+    bool isManual(set[Attr] as) = (Attr::\tag("manual"()) in as);
+    bool isDefault(Symbol s) = (s == layouts("$default$"));
   
   if (/prod(l:layouts(_),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
     return l;
@@ -86,12 +87,15 @@ list[Symbol] intermix(list[Symbol] syms, Symbol l, set[Symbol] others) {
   return syms;
 }
 
+private bool sepInOthers(Symbol sep, set[Symbol] others)    // TODO: factored out due to compiler issue
+    = sep in others || (seq([a,_,b]) := sep && (a in others || b in others));
+
 private Symbol regulars(Symbol s, Symbol l, set[Symbol] others) {
   return visit(s) {
     case \iter(Symbol n) => \iter-seps(n, [l])
     case \iter-star(Symbol n) => \iter-star-seps(n, [l]) 
-    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
-    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
+    case \iter-seps(Symbol n, [Symbol sep]) => \iter-seps(n,[l,sep,l]) when !sepInOthers(sep, others)
+    case \iter-star-seps(Symbol n,[Symbol sep]) => \iter-star-seps(n, [l, sep, l]) when !sepInOthers(sep, others)
     case \seq(list[Symbol] elems) => \seq(intermix(elems, l, others))
   }
 }

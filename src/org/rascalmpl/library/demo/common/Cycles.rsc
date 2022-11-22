@@ -12,22 +12,22 @@ module demo::common::Cycles
 import Set;
 import Relation;
 
-rel[int, set[int]] cycles(rel[int,int] Graph) {
-	rel[int,int] Closure = Graph+;
-  	return { <N, Closure[N]> | int N <- carrier(Graph), <N, N> in Closure};
+rel[int, set[int]] cycles(rel[int,int] graph) {
+	rel[int,int] closure = graph+;
+  	return { <n, closure[n]> | int n <- carrier(graph), <n, n> in closure};
 }
 
-bool isProperCycle(rel[int,int] Graph, int N, set[int] C){
- 	rel[int,int] RC  = carrierR(Graph, C)+;
-    return all(int M <- C, <N, M> in RC && <M, N> in RC);
+bool isProperCycle(rel[int,int] graph, int n, set[int] C){
+ 	rel[int,int] RC  = carrierR(graph, C)+;
+    return all(int M <- C, <n, M> in RC && <M, n> in RC);
 }
 
-set[set[int]] subCycles (rel[int,int] Graph, int N, set[int] Cycle){
-	return { B | set[int] B <- power1(Cycle), N in B, isProperCycle(Graph, N, B) };
+set[set[int]] subCycles (rel[int,int] graph, int n, set[int] Cycle){
+	return { B | set[int] B <- power1(Cycle), n in B, isProperCycle(graph, n, B) };
 }
 
-rel[int, set[set[int]]] allSubCycles(rel[int,int] Graph, rel[int, set[int]] Cycles) {
-	return { <N, subCycles(Graph, N, B)> | <int N, set[int] B> <- Cycles};
+rel[int, set[set[int]]] allSubCycles(rel[int,int] graph, rel[int, set[int]] Cycles) {
+	return { <n, subCycles(graph, n, B)> | <int n, set[int] B> <- Cycles};
 }
 
 // Tests
@@ -44,11 +44,11 @@ rel[int, set[set[int]]] allSubCycles(rel[int,int] Graph, rel[int, set[int]] Cycl
 //                 7---+   
 
 
-private	rel[int, int] Graph = {<1,2>,<2,3>,<3,1>,<2,4>,<4,5>,<5,2>,<2,6>,<6,7>,<7,6>};
+private	rel[int, int] graph = {<1,2>,<2,3>,<3,1>,<2,4>,<4,5>,<5,2>,<2,6>,<6,7>,<7,6>};
 
 
 test bool t1() =
-  Graph+ ==
+  graph+ ==
 		{<1, 1>, <1, 2>, <1, 3>, <1, 4>, <1, 5>, <1, 6>, <1, 7>,
   	 	 <2, 1>, <2, 2>, <2, 3>, <2, 4>, <2, 5>, <2, 6>, <2, 7>,
   	 	 <3, 1>, <3, 2>, <3, 3>, <3, 4>, <3, 5>, <3, 6>, <3, 7>,
@@ -57,7 +57,7 @@ test bool t1() =
   	 	 <6, 6>, <6, 7>,
   		 <7, 6>, <7, 7>};
   		
-private rel[int, set[int]] Cycles = cycles(Graph);
+private rel[int, set[int]] Cycles = cycles(graph);
 
 test bool t2() =
   Cycles ==
@@ -70,7 +70,7 @@ test bool t2() =
   		 < 7,  {6, 7}> };
 
 test bool t3() =
-  allSubCycles(Graph, Cycles) ==
+  allSubCycles(graph, Cycles) ==
 		{< 1, { {1, 2, 3, 4, 5}, {1, 2, 3}} >,
   		 < 2, { {1, 2, 3, 4, 5}, {1, 2, 3}, {2, 4, 5}} >,
   		 < 3, { {1, 2, 3, 4, 5}, {1, 2, 3}} >,

@@ -157,7 +157,6 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         else if (result.getStaticType().isSubtypeOf(RascalValueFactory.Content) && !result.getStaticType().isBottom()) {
             // we have interactive output in HTML form to serve
             serveContent(result, output, metadata);
-            output.put("text/plain", stringStream("ok\n"));
             return;
         }
         else {
@@ -212,7 +211,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         
         metadata.put("url", URL);
 
-        output.put("text/plain", stringStream("Serving \'" + id + "\' at |" + URL + "|"));
+        output.put("text/plain", stringStream("Serving \'" + id + "\' at |" + URL + "|\n"));
         output.put("text/html", stringStream("<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ URL +"\"></iframe>"));
     }            
         

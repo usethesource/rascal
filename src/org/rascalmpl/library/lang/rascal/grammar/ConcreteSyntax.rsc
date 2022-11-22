@@ -45,7 +45,7 @@ public set[Production] holes(Grammar object) {
                  [ \char-class([range(0,0)]),
                    lit("<denormalize(nont)>"),lit(":"),iter(\char-class([range(48,57)])),
                    \char-class([range(0,0)])
-                 ],{\tag("holeType"(nont))})  
+                 ],{Attr::\tag("holeType"(nont))})  // TODO: added qualifier to help compiler
           | Symbol nont <- object.rules, quotable(nont)
           };
 }
@@ -75,24 +75,42 @@ private Symbol denormalize(Symbol s) = visit (s) {
 @doc{This is needed such that list variables can be repeatedly used as elements of the same list}
 private Symbol getTargetSymbol(Symbol sym) {
   switch(sym) {
-    case \iter(s) : return s;
-    case \iter-star(s) : return s;  
-    case \iter-seps(s, _) : return s; 
-    case \iter-star-seps(s, _) : return s; 
-    case \opt(s) : return s; 
+    case Symbol::\iter(s) : return s;
+    case Symbol::\iter-star(s) : return s;  
+    case Symbol::\iter-seps(s, _) : return s; 
+    case Symbol::\iter-star-seps(s, _) : return s; 
+    case Symbol::\opt(s) : return s; 
     default: return sym;
   } 
 }
 
+// TODO, rewritten quotable for the benefit of the compiler
+// Offending case:
+//data Symbol
+//        =  \lit()   
+//        | \parameter() 
+//        | \parameterized-lex(list[Symbol] parameters)
+//        ;
+//     
+//private bool quotable(Symbol x) { 
+//    return 
+//       \lit() := x 
+//       &&
+//       \parameterized-lex([\parameter()]) !:= x
+//       ;
+//}
+
 @doc{This decides for which part of the grammar we can write anti-quotes}
 private bool quotable(Symbol x) { 
-    return \lit(_) !:= x 
-       && \empty() !:= x
-       && \cilit(_) !:= x 
-       && \char-class(_) !:= x 
-       && \layouts(_) !:= x
-       && \keywords(_) !:= x
-       && \start(_) !:= x
-       && \parameterized-sort(_,[\parameter(_,_),*_]) !:= x
-       && \parameterized-lex(_,[\parameter(_,_),*_]) !:= x;
+    return 
+        !(\lit(_) := x 
+          || \empty() := x
+          || \cilit(_) := x 
+          || \char-class(_) := x 
+          || \layouts(_) := x
+          || \keywords(_) := x
+          || \start(_) := x
+          || \parameterized-sort(_,[\parameter(_,_),*_]) := x
+          || \parameterized-lex(_,[\parameter(_,_),*_]) := x
+         );
 }

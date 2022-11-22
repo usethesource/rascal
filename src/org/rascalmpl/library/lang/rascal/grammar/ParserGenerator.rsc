@@ -259,19 +259,18 @@ rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGramma
 
 int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set[Attr] _)) {
   switch (s) {
-    case \opt(t) : return t.id; 
-    case \iter(t) : return t.id;
-    case \iter-star(t) : return t.id; 
-    case \iter-seps(t,_) : if (pos == 0) return t.id; else fail;
-    case \iter-seps(_,ss) : if (pos > 0)  return ss[pos-1].id; else fail;
-    case \iter-star-seps(t,_) : if (pos == 0) return t.id; else fail;
-    case \iter-star-seps(_,ss) : if (pos > 0) return ss[pos-1].id; else fail;
-    case \seq(ss) : return ss[pos].id;
+    case Symbol::\opt(Symbol t) : return t.id; 
+    case Symbol::\iter(Symbol t) : return t.id;
+    case Symbol::\iter-star(Symbol t) : return t.id; 
+    case Symbol::\iter-seps(Symbol t,_) : if (pos == 0) return t.id; else fail;
+    case Symbol::\iter-seps(_,ss) : if (pos > 0)  return ss[pos-1].id; else fail;
+    case Symbol::\iter-star-seps(Symbol t,_) : if (pos == 0) return t.id; else fail;
+    case Symbol::\iter-star-seps(_,ss) : if (pos > 0) return ss[pos-1].id; else fail;
+    case Symbol::\seq(ss) : return ss[pos].id;
     // note the use of the label l from the third function parameter:
-    case \alt(aa) : if (a:conditional(_,{*_,except(l)}) <- aa) return a.id; 
+    case Symbol::\alt(aa) : if (a:conditional(_,{*_,except(l)}) <- aa) return a.id; 
     default: return s.id; // this should never happen, but let's make this robust
-  } 
-  throw "getItemId: no case for <s>";
+  }
 }
 
 

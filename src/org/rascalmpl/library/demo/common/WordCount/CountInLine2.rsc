@@ -7,10 +7,10 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
+@synopsis{Count words in a string}
 module demo::common::WordCount::CountInLine2
 
+@synopsis{use a while loop to slowly walk through the string word-by-word}
 int countInLine2(str S){
   int count = 0;
   

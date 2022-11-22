@@ -1,4 +1,12 @@
-// tag::module[]
+@license{
+  Copyright (c) 2009-2015 CWI
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Public License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/legal/epl-v10.html
+}
+@contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 module demo::common::Derivative
 
 data Exp = con(int n) // <1>
@@ -32,7 +40,7 @@ Exp simplify(Exp e){ // <6>
            case Exp e1 => simp(e1)
          }
 }
-// end::module[]
+
 
 test bool tstSimplity1() = simplify(mul(var("x"), add(con(3), con(5)))) == mul(var("x"), con(8));
 test bool tstSimplity2() = simplify(dd(E, var("x"))) == con(5);

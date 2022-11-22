@@ -7,25 +7,22 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
+@synopsis{Ackermann's function: a standard example of a double recursive function.
+See <http://en.wikipedia.org/wiki/Ackermann_function>}
 module demo::basic::Ackermann
 
-// Ackermann's function: a standard example of a double recursive function.
-// See http://en.wikipedia.org/wiki/Ackermann_function
-
-int ack(int m, int n)
-{
-	if(m == 0)
+@synopsis{Compute Ackermann's function}
+int ack(int m, int n) {
+	if (m == 0) {
 		return n + 1;
-	else if(n == 0) 
+	}
+	else if (n == 0) {
 		return ack(m - 1, 1);
-	else
+	}
+	else {
 		return ack(m - 1, ack(m, n - 1));
+	}
 }
-// end::module[]
-
-// Tests
 
 test bool t1() = ack(2,5) == 13;
 test bool t2() = ack(3,4) == 125;

@@ -157,9 +157,12 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 				} else {
 					eval.getCurrentModuleEnvironment().storeVariable(var.getName(), ResultFactory.nothing(declaredType));
 				}
+				
+				if (!getVisibility().isPublic()) {
+	                eval.getCurrentModuleEnvironment().markNamePrivate(Names.name(var.getName()));
+	            }
 			}
-
-			r.setPublic(this.getVisibility().isPublic());
+			
 			return r;
 		}
 	}

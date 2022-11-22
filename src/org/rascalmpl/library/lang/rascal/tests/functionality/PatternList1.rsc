@@ -84,7 +84,19 @@ test bool matchList45() = [*int _] := [1];
 test bool matchList46() = [*int _] := [1,2];
 test bool matchList47() = ([1, *int _, 10, *int _, 20] := [1,2,10,20]);
 
-test bool matchList48() {
+test bool matchList48() = [*x] := [];
+test bool matchList49() = [*x,*y] := [];
+test bool matchList50() = [*x,*y,*z] := [];
+
+test bool matchList51() = [*x,1] := [1];
+test bool matchList52() = [1,*y] := [1];
+test bool matchList53() = [*x,1,*y] := [1];
+
+test bool matchList54() = [*x,a] := [1] && a == 1;
+test bool matchList55() = [a,*y] := [1] && a == 1;
+test bool matchList56() = [*x,a,*y] := [1] && a == 1;
+
+test bool matchList60() {
 	res = [];
  	for([*int a, *int b, *int c, *int d] := [1,2,3,4,5,6]) { res = res + [[a,b,c,d]]; }
  	return res ==
@@ -594,7 +606,7 @@ test bool matchList48() {
 		    []
 		  ]
 		];
-}	
+}
 
 test bool matchListDynamic1() = [str s, int n] := ["a", 1];
 test bool matchListDynamic2() = [str _, int _] := ["a", 1];
