@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.internal.IValueAdapter;
 import org.rascalmpl.library.lang.json.internal.JSONReadingTypeVisitor;
@@ -47,10 +48,12 @@ import com.ibm.icu.text.DateFormat;
 
 public class IO {
 	private final IValueFactory values;
+	private final IRascalMonitor monitor;
 
-	public IO(IValueFactory values) {
+	public IO(IValueFactory values, IRascalMonitor monitor) {
 		super();
 		this.values = values;
+		this.monitor = monitor;
 	}
 	
 	public IString toJSON(IValue value) {
@@ -59,16 +62,14 @@ public class IO {
 
 
 	public IString toJSON(IValue value, IBool compact) {
-		// System.err.println("hallo");
 		IValueAdapter adap = new IValueAdapter(compact.getValue());
-		// System.err.println(adap);
 		Gson gson = new GsonBuilder()
 		.registerTypeAdapter(IValue.class, adap)
 		.enableComplexMapKeySerialization()
 		.setDateFormat(DateFormat.LONG)
 		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
 		.setVersion(1.0)
-		.disableHtmlEscaping()  // Bert Lisser
+		.disableHtmlEscaping() 
 		.create();
 		try {
 			String json = gson.toJson(value, new TypeToken<IValue>() {}.getType());
@@ -97,15 +98,13 @@ public class IO {
     }
     
 	
-	public IValue readJSON(IValue type, ISourceLocation loc, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool lenient) {
+	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
       try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
 		in.setLenient(lenient.getValue());
-        return new JsonValueReader(values, store)
-            .setConstructorsAsObjects(implicitConstructors.getValue())
-            .setNodesAsObjects(implicitNodes.getValue())
+        return new JsonValueReader(values, store, monitor)
             .setCalendarFormat(dateTimeFormat.getValue())
             .read(in, start);
       }
@@ -118,35 +117,31 @@ public class IO {
       }
     }
 	
-	public IValue parseJSON(IValue type, IString src, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool lenient) {
+	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
 	      
 	      try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
 			in.setLenient(lenient.getValue());
-	        return new JsonValueReader(values, store)
-	            .setConstructorsAsObjects(implicitConstructors.getValue())
-	            .setNodesAsObjects(implicitNodes.getValue())
+	        return new JsonValueReader(values, store, monitor)
 	            .setCalendarFormat(dateTimeFormat.getValue())
 	            .read(in, start);
 	      }
 	      catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	      }
 	      catch (NullPointerException e) {
-	        throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
+	        throw RuntimeExceptionFactory.io(values.string("NPE"));
 	      }
 	    }
 	
-	public void writeJSON(ISourceLocation loc, IValue value, IBool implicitConstructors, IBool implicitNodes, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
+	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
 	    try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
 	        if (indent.intValue() > 0) {
 	            out.setIndent("        ".substring(0, indent.intValue() % 9));
 	        }
 	        
 	        new JsonValueWriter()
-	        .setConstructorsAsObjects(implicitConstructors.getValue())
-	        .setNodesAsObjects(implicitNodes.getValue())
 	        .setCalendarFormat(dateTimeFormat.getValue())
 	        .setDatesAsInt(dateTimeAsInt.getValue())
 	        .setUnpackedLocations(unpackedLocations.getValue())
@@ -156,7 +151,7 @@ public class IO {
 	    } 
 	}
 	
-	public IString asJSON(IValue value, IBool implicitConstructors, IBool implicitNodes, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
+	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
 	    StringWriter string = new StringWriter();
 
 	    try (JsonWriter out = new JsonWriter(string)) {
@@ -164,12 +159,10 @@ public class IO {
 	            out.setIndent("        ".substring(0, indent.intValue() % 9));
 	        }
 	        new JsonValueWriter()
-	        .setConstructorsAsObjects(implicitConstructors.getValue())
-	        .setNodesAsObjects(implicitNodes.getValue())
-	        .setCalendarFormat(dateTimeFormat.getValue())
-	        .setDatesAsInt(dateTimeAsInt.getValue())
-	        .setUnpackedLocations(unpackedLocations.getValue())
-	        .write(out, value);
+	        	.setCalendarFormat(dateTimeFormat.getValue())
+	        	.setDatesAsInt(dateTimeAsInt.getValue())
+	        	.setUnpackedLocations(unpackedLocations.getValue())
+	        	.write(out, value);
 
 	        return values.string(string.toString());
 	    } catch (IOException e) {
