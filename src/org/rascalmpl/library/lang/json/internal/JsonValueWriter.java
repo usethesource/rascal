@@ -31,6 +31,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 import com.google.gson.stream.JsonWriter;
@@ -40,8 +41,6 @@ import com.google.gson.stream.JsonWriter;
  */
 public class JsonValueWriter {
   private ThreadLocal<SimpleDateFormat> format;
-  private boolean constructorsAsObjects = true;
-  private boolean nodesAsObjects = true;
   private boolean datesAsInts = true;
   private boolean unpackedLocations = false;
   
@@ -62,17 +61,7 @@ public class JsonValueWriter {
     };
     return this;
   }
-  
-  public JsonValueWriter setConstructorsAsObjects(boolean setting) {
-    this.constructorsAsObjects = setting;
-    return this;
-  }
-  
-  public JsonValueWriter setNodesAsObjects(boolean setting) {
-    this.nodesAsObjects = setting;
-    return this;
-  }
-  
+   
   public JsonValueWriter setDatesAsInt(boolean setting) {
     this.datesAsInts = setting;
     return this;
@@ -81,7 +70,7 @@ public class JsonValueWriter {
   public JsonValueWriter setUnpackedLocations(boolean setting) {
       this.unpackedLocations = setting;
       return this;
-    }
+  }
 
   public void write(JsonWriter out, IValue value) throws IOException {
     value.accept(new IValueVisitor<Void, IOException>() {
@@ -201,85 +190,42 @@ public class JsonValueWriter {
 
       @Override
       public Void visitNode(INode o) throws IOException {
-        if (nodesAsObjects) {
-          out.beginObject();
-          out.name(o.getName());
-          out.beginObject();
-          int i = 0;
-          for (IValue arg : o) {
-            out.name("arg" + i++); 
-            arg.accept(this);
-          }
-          for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {
-            out.name(e.getKey()); 
-            e.getValue().accept(this); 
-          }
-          out.endObject();
-          out.endObject();
+        out.beginObject();
+        int i = 0;
+        for (IValue arg : o) {
+          out.name("arg" + i++); 
+          arg.accept(this);
         }
-        else {
-          out.beginArray();
-          out.value(o.getName());
-          out.beginArray();
-          for (IValue arg : o) {
-            arg.accept(this);
-          }
-          out.endArray();
-          
-          if (o.asWithKeywordParameters().hasParameters()) {
-            out.beginObject();
-            for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {
-              out.name(e.getKey()); 
-              e.getValue().accept(this); 
-            }
-            out.endObject();
-          }
-          
-          out.endArray();
+        for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {
+          out.name(e.getKey()); 
+          e.getValue().accept(this); 
         }
+        out.endObject();
         
         return null;
       }
 
       @Override
       public Void visitConstructor(IConstructor o) throws IOException {
-        if (constructorsAsObjects) {
-          out.beginObject();
-          out.name(o.getName());
-          out.beginObject();
-          int i = 0;
-          for (IValue arg : o) {
-            out.name(o.getConstructorType().getFieldName(i));
-            arg.accept(this);
-            i++;
-          }
-          for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {
-            out.name(e.getKey()); 
-            e.getValue().accept(this); 
-          }
-          out.endObject();
-          out.endObject();
-        }
-        else {
-          out.beginArray();
+        if (o.getConstructorType().getArity() == 0 && !o.asWithKeywordParameters().hasParameters()) {
+          // enums!
           out.value(o.getName());
-          out.beginArray();
-          for (IValue arg : o) {
-            arg.accept(this);
-          }
-          out.endArray();
-          
-          if (o.asWithKeywordParameters().hasParameters()) {
-            out.beginObject();
-            for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {
-              out.name(e.getKey()); 
-              e.getValue().accept(this); 
-            }
-            out.endObject();
-          }
-          
-          out.endArray();
+          return null;
         }
+
+        out.beginObject();
+        int i = 0;
+        for (IValue arg : o) {
+          out.name(o.getConstructorType().getFieldName(i));
+          arg.accept(this);
+          i++;
+        }
+        for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {
+          out.name(e.getKey()); 
+          e.getValue().accept(this); 
+        }
+        out.endObject();
+        
         return null;
       }
 

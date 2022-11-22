@@ -20,11 +20,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
@@ -51,21 +51,21 @@ public class JsonValueReader {
   private final TypeStore store;
   private final IValueFactory vf;
   private ThreadLocal<SimpleDateFormat> format;
-  private boolean constructorsAsObjects = true;
-  private boolean nodesAsObjects = true;
+  private final IRascalMonitor monitor;
   
   /**
    * @param vf     factory which will be used to construct values
    * @param store  type store to lookup constructors of abstract data-types in and the types of keyword fields
    */
-  public JsonValueReader(IValueFactory vf, TypeStore store) {
+  public JsonValueReader(IValueFactory vf, TypeStore store, IRascalMonitor monitor) {
     this.vf = vf;
     this.store = store;
+    this.monitor = monitor;
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
   }
   
-  public JsonValueReader(IValueFactory vf) {
-    this(vf, new TypeStore());
+  public JsonValueReader(IValueFactory vf, IRascalMonitor monitor) {
+    this(vf, new TypeStore(), monitor);
   }
   
   /**
@@ -79,18 +79,6 @@ public class JsonValueReader {
         return new SimpleDateFormat(format);
       }
     };
-    return this;
-  }
-  
-  public JsonValueReader setConstructorsAsObjects(boolean setting) {
-    this.constructorsAsObjects = setting;
-    return this;
-  }
-  
-  
-  
-  public JsonValueReader setNodesAsObjects(boolean setting) {
-    this.nodesAsObjects = setting;
     return this;
   }
 
@@ -421,58 +409,28 @@ public class JsonValueReader {
       
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
-        return constructorsAsObjects ? implicitConstructor(type) : explicitConstructor(type);
-      }
-       
-      private IValue explicitConstructor(Type type) throws IOException {
-        in.beginArray(); // binary or ternary, first is cons, second is args, third is optional kwargs
-        String label = in.nextString();
-        Type cons = checkNameCons(type, label);
-        
-        // args
-        in.beginArray();
-        IValue[] args = new IValue[cons.getArity()];
-        for (int i = 0; i < cons.getArity(); i++) {
-          args[i] = read(in, cons.getFieldType(i));
-          if (args[i] == null) {
-            throw new IOException("Unexpected null argument: " + in.getPath());
-          }
-        }
-        in.endArray();
+        if (in.peek() == JsonToken.STRING) {
+          // enum!
+          Set<Type> enumCons = store.lookupConstructor(type, in.nextString());
 
-        Map<String,IValue> kwParams = new HashMap<>();
-        
-        if (in.peek() == JsonToken.BEGIN_OBJECT) {
-          in.beginObject();
+          for (Type candidate : enumCons) {
+            if (candidate.getArity() == 0) {
+                return vf.constructor(candidate);
+            }
+          }
           
-          while (in.hasNext()) {
-            String kwLabel = in.nextName();
-            Type kwType = store.getKeywordParameterType(cons, label);
-            
-            if (kwType == null) {
-              throw new IOException("Unknown field " + label + ":" + in.getPath());
-            }
-            
-            IValue val = read(in, kwType);
-
-            if (val != null) {
-              // null values are simply ignored
-              kwParams.put(kwLabel, val);
-            }
-          }
-          in.endObject();
+          throw new IOException("no nullary constructor found for " + type);
         }
 
-        in.endArray();
-        
-        return vf.constructor(cons, args, kwParams);
-        
-      }
+        assert in.peek() == JsonToken.BEGIN_OBJECT;
 
-      private IValue implicitConstructor(Type type) throws IOException {
+        Set<Type> alternatives = store.lookupAlternatives(type);
+        if (alternatives.size() > 1) {
+          monitor.warning("selecting arbitrary constructor for " + type, vf.sourceLocation(in.getPath()));
+        }
+        Type cons = alternatives.iterator().next();
+       
         in.beginObject();
-        String consName = in.nextName();
-        Type cons = checkNameCons(type, consName);
         IValue[] args = new IValue[cons.getArity()];
         Map<String,IValue> kwParams = new HashMap<>();
         
@@ -480,7 +438,6 @@ public class JsonValueReader {
           throw new IOException("For the object encoding constructors must have field names " + in.getPath());
         }
         
-        in.beginObject();
         while (in.hasNext()) {
           String label = in.nextName();
           if (cons.hasField(label)) {
@@ -505,7 +462,6 @@ public class JsonValueReader {
         }
           
         in.endObject();
-        in.endObject();
         
         for (int i = 0; i < args.length; i++) {
           if (args[i] == null) {
@@ -523,44 +479,6 @@ public class JsonValueReader {
       
       @Override
       public IValue visitNode(Type type) throws IOException {
-        return nodesAsObjects ? implicitNode() : explicitNode();
-      }
-      
-      private IValue explicitNode() throws IOException {
-        in.beginArray(); // binary or ternary, first is cons, second is args, third is optional kwargs
-        String label = in.nextString();
-        
-        // args
-        in.beginArray();
-        List<IValue> args = new LinkedList<>();
-        while (in.hasNext()) {
-          args.add(read(in, TF.valueType()));
-        }
-        in.endArray();
-
-        // kwargs
-        Map<String,IValue> kwParams = new HashMap<>();
-        
-        if (in.hasNext()) {
-          in.beginObject();
-          while (in.hasNext()) {
-            String kwLabel = in.nextName();
-            IValue val = read(in, TF.valueType());
-            
-            if (val != null) {
-              // null values are simply "not" set
-              kwParams.put(kwLabel, val);
-            }
-          }
-          in.endObject();
-        }
-
-        in.endArray();
-        
-        return vf.node(label, args.toArray(new IValue[args.size()]), kwParams);
-      }
-
-      private IValue implicitNode() throws IOException {
         in.beginObject();
         Map<String,IValue> kws = new HashMap<>();
         
@@ -648,19 +566,7 @@ public class JsonValueReader {
         }
         return false;
       }
-      
-      private Type checkNameCons(Type adt, String consName) throws IOException {
-        Set<Type> alternatives = store.lookupConstructor(adt, consName);
-        
-        if (alternatives.size() == 0) {
-          throw new IOException("No constructor with this name was declared for " + adt + ":" + in.getPath());
-        }
-        else if (alternatives.size() > 1) {
-          throw new IOException("Overloading of constructor names is not supported (" + adt + "):" + in.getPath());
-        }
-        
-        return alternatives.iterator().next();
-      }
+
     });
     
     return res;

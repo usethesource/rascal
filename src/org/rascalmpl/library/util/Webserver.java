@@ -181,13 +181,9 @@ public class Webserver {
                         else {
                             // otherwise the content is parsed as JSON and validated against the given type
                             IValue dtf = keyArgValues.get("dateTimeFormat");
-                            IValue ics = keyArgValues.get("implicitConstructors");
-                            IValue icn = keyArgValues.get("implicitNodes");
-
-                            return new JsonValueReader(vf, store)
+                         
+                            return new JsonValueReader(vf, store, monitor)
                                 .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                                .setConstructorsAsObjects((ics != null) ? ((IBool) ics).getValue() : true)
-                                .setNodesAsObjects((icn != null) ? ((IBool) icn).getValue() : true)
                                 .read(new JsonReader(getRawContentReader(parms, contentParamName)), topType);
                         }
                     } catch (IOException | URISyntaxException e) {
@@ -241,14 +237,10 @@ public class Webserver {
                 IWithKeywordParameters<? extends IConstructor> kws = cons.asWithKeywordParameters();
 
                 IValue dtf = kws.getParameter("dateTimeFormat");
-                IValue ics = kws.getParameter("implicitConstructors");
-                IValue ipn = kws.getParameter("implicitNodes");
                 IValue dai = kws.getParameter("dateTimeAsInt");
 
                 JsonValueWriter writer = new JsonValueWriter()
                     .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                    .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
-                    .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
                     .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
                 try {
