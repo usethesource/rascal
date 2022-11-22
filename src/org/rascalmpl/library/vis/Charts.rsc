@@ -34,6 +34,18 @@ lineChart([<"<x>",x> | x <- [1..100]])
 pieChart([<"<x>",x> | x <- [1..100]])
 ```
 }
+@benefits{
+* Easy to use for basic charting.
+* Uses ((ChartAutoColors)) extension for ease-of-use.
+* Support for 8 ((ChartType))s including multiple ((ChartDataSet))s in one chart.
+* This API is open to extension via adding common keyword parameters for supporting any extension to the basic chart.js configuration.
+* You can roll your own HTML or Server based on the building blocks in this module to include and use extensions, or to combine different charts in the same view.
+}
+@pitfalls{
+* Where `num` is asked, still `rat` values are _not_ supported.
+* All `real` values must stay within JVM's `double` datatype
+* All `int` values must fit within JVM's `long` datatype
+}
 module vis::Charts
 
 import lang::html::IO;
@@ -165,7 +177,7 @@ ChartDataSet chartDataSet(str label, lrel[num x,num y] r)
         label=label
     );
 
-ChartDataSet chartDataSet(str label, lrel[num x,num y, num r] r)
+ChartDataSet chartDataSet(str label, lrel[num x, num y, num r] r)
     = chartDataSet([point(x,y,r=rad) | <x,y,rad> <- r],
         label=label
     );    
@@ -237,14 +249,14 @@ ChartData chartData(list[str] labels, list[num] values...)
         datasets=[chartDataSet(v) | v <- values]
     );
 
-ChartData chartData(str label, lrel[num,num] values)
+ChartData chartData(str label, lrel[num x, num y] values)
     = chartData(
         datasets=[
             chartDataSet(label, values)
         ]
     );
 
-ChartData chartData(str label, lrel[num x,num y, num r] values)
+ChartData chartData(str label, lrel[num x, num y, num r] values)
     = chartData(
         datasets=[
             chartDataSet(label, values)
@@ -265,6 +277,7 @@ ChartData chartData(str label, rel[num x, num y, num r] values)
         ]
     );
     
+@synopsis{Toplevel chart structure}    
 data Chart 
     = chart(
         ChartType \type = scatter(),
@@ -272,12 +285,21 @@ data Chart
         ChartData \data = chartData()
     );
 
+@synopsis{Wrapper for a set of datasets, each with a label}
 data ChartData 
     = chartData(
         list[str]  labels=[],
         list[ChartDataSet] datasets = []
     );
 
+@synopsis{A dataset is a list of values to chart, with styling properties.}
+@description{
+The `data` field is a list of supported values, of which the constraints
+are not expressible by ((AlgebraicDataType))s. These are currently supported:
+
+* ((ChartDataPoint)), with an without a `r`adius
+* `num`, but within `double` precision (!) and no `rat`
+}
 data ChartDataSet(
         str label="",
         list[str] backgroundColor=[],
@@ -287,6 +309,7 @@ data ChartDataSet(
     = chartDataSet(list[value] \data)
     ;
 
+@synopsis{A data point is one of the types of values in a ChartDataSet}
 data ChartDataPoint
     = point(num x, num y, num r = 0);
 
