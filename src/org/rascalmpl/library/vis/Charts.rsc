@@ -295,7 +295,7 @@ data ChartData
 @synopsis{A dataset is a list of values to chart, with styling properties.}
 @description{
 The `data` field is a list of supported values, of which the constraints
-are not expressible by ((AlgebraicDataType))s. These are currently supported:
+are not expressible by ((Declarations-AlgebraicDataType))s. These are currently supported:
 
 * ((ChartDataPoint)), with an without a `r`adius
 * `num`, but within `double` precision (!) and no `rat`
