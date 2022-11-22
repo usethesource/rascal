@@ -7,11 +7,10 @@ the standard library, the online documentation and the type checker.
 Other relevant repositories:
 
 * https://github.com/usethesource/rascal-eclipse
+* https://github.com/usethesource/rascal-language-servers
 * https://github.com/usethesource/vallang
 
-Rascal is used in practice, but we consider it to be alpha software because we are still improving the language.
-
-Please visit http://www.rascal-mpl.org
+Please visit http://www.rascal-mpl.org for all information regarding Rascal.
 
 For questions use the [rascal tag on StackOverflow](http://stackoverflow.com/questions/tagged/rascal).
 

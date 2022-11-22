@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -74,7 +75,6 @@ public class ModuleEnvironment extends Environment {
 	private boolean initialized;
 	private boolean syntaxDefined;
 	private boolean bootstrap;
-	private Map<IMap,String> cachedParser = new HashMap<>();
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
 	
@@ -112,7 +112,6 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = env.syntaxDefined;
 		this.bootstrap = env.bootstrap;
 		this.resourceImporters = env.resourceImporters;
-		this.cachedParser = env.cachedParser;
 		this.deprecated = env.deprecated;
 	}
 
@@ -121,7 +120,6 @@ public class ModuleEnvironment extends Environment {
 		super.reset();
 		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
-		this.cachedParser = new HashMap<>();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
@@ -512,7 +510,7 @@ public class ModuleEnvironment extends Environment {
 			if (mod != null && mod.variableEnvironment != null) 
 				r = mod.variableEnvironment.get(name);
 			
-			if (r != null && r.isPublic()) {
+			if (r != null && !mod.isNamePrivate(name)) {
 				return mod.variableEnvironment;
 			}
 		}
@@ -556,7 +554,7 @@ public class ModuleEnvironment extends Environment {
 			var = variableEnvironment.get(name);
 		}
 		
-		if (var != null && var.isPublic()) {
+		if (var != null && !isNamePrivate(name)) {
 			return var;
 		}
 		
@@ -567,22 +565,20 @@ public class ModuleEnvironment extends Environment {
 		if (functionEnvironment != null) {
 			List<AbstractFunction> lst = functionEnvironment.get(name);
 			if (lst != null) {
-				for (AbstractFunction func : lst) {
-					if (func.isPublic()) {
-						collection.add(func);
-					}
+				if (!isNamePrivate(name)) {
+					collection.addAll(lst);
 				}
 			}
 		}
 	}
 	
 	private void getLocalPublicFunctions(Type returnType, String name, List<AbstractFunction> collection) {
-		if (functionEnvironment != null) {
+		if (functionEnvironment != null && !isNamePrivate(name)) {
 			List<AbstractFunction> lst = functionEnvironment.get(name);
 			
 			if (lst != null) {
 				for (AbstractFunction func : lst) {
-					if (func.isPublic() && returnType.isSubtypeOf(func.getReturnType())) {
+					if (returnType.isSubtypeOf(func.getReturnType())) {
 						collection.add(func);
 					}
 				}
@@ -918,26 +914,13 @@ public class ModuleEnvironment extends Environment {
 		return bootstrap;
 	}
 
-	// todo: bootstrap must go and use this
-	public void setCachedParser(IMap grammar, String cachedParser) {
-		this.cachedParser.put(grammar, cachedParser);
-	}
-	
-	public String getCachedParser(IMap grammar) {
-		return cachedParser.get(grammar);
-	}
-
-	public boolean hasCachedParser(IMap grammar) {
-		return cachedParser.containsKey(grammar);
-	}
-
 	@Override
-	protected boolean isNameFlagged(QualifiedName name, int flags) {
+	protected boolean isNameFlagged(QualifiedName name, Predicate<NameFlags> tester) {
 		String modulename = Names.moduleName(name);
 		String cons = Names.name(Names.lastName(name));
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				return isNameFlagged(cons, flags);
+				return isNameFlagged(cons, tester);
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
@@ -947,14 +930,14 @@ public class ModuleEnvironment extends Environment {
 				return false;
 			}
 			
-			return imported.isNameFlagged(cons, flags);
+			return imported.isNameFlagged(cons, tester);
 		}
 		
-		return isNameFlagged(cons, flags);
+		return isNameFlagged(cons, tester);
 	}
 
 	@Override
-	protected void flagName(QualifiedName name, int flags) {
+	protected void flagName(QualifiedName name, NameFlags flags) {
 		String modulename = Names.moduleName(name);
 		String cons = Names.name(Names.lastName(name));
 		if (modulename != null) {

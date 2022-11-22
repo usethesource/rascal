@@ -1,5 +1,6 @@
 @doc{
-.Synopsis
+#### Synopsis
+
 AST model for XForms v 2.0. 
 }
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}

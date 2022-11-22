@@ -98,9 +98,7 @@ public class JavaMethod extends NamedFunction {
 
 	@Override
 	public JavaMethod cloneInto(Environment env) {
-		JavaMethod jm = new JavaMethod(getEval(), getFunctionType(), getType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
-		jm.setPublic(isPublic());
-		return jm;
+		return new JavaMethod(getEval(), getFunctionType(), getType(), (FunctionDeclaration)getAst(), isDefault, isTest, hasVarArgs, env, javaBridge);
 	}
 	
 	@Override
@@ -147,7 +145,7 @@ public class JavaMethod extends NamedFunction {
 			oActuals = addCtxActual(oActuals);
 		}
 
-		if (callTracing) {
+		if (eval.getCallTracing()) {
 			printStartTrace(actuals);
 		}
 
@@ -186,8 +184,8 @@ public class JavaMethod extends NamedFunction {
 		finally {
 		   
 		    
-			if (callTracing) {
-				callNesting--;
+			if (eval.getCallTracing()) {
+				eval.decCallNesting();
 			}
 			ctx.unwind(old);
 		}

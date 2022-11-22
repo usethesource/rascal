@@ -1,11 +1,4 @@
-@doc{
-.Synopsis
-extends the M3 [$analysis/m3/Core] with Java specific concepts such as inheritance and overriding.
-
-.Description
-
-For a quick start, go find <<createM3FromEclipseProject>>.
-}
+@synopsis{Extends the M3 ((analysis::m3::Core)) with Java specific concepts such as inheritance and overriding.}
 module lang::java::m3::Core
 
 extend lang::java::m3::TypeSymbol;
@@ -23,6 +16,7 @@ import Set;
 import List;
 
 import util::FileSystem;
+import util::Reflective;
 
 data M3(
 	rel[loc from, loc to] extends = {},            // classes extending classes and interfaces extending interfaces
@@ -100,13 +94,10 @@ java M3 createM3FromJarClass(loc jarClass, list[loc] classPath = []);
 java M3 createM3FromSingleClass(loc jarClass, str className);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = [|system:///|]);
+java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
 
-@doc{
-.Synopsis
-globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
-}
-M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersion = "1.7", list[loc] classPath = []) {
+@synopsis{Globs for jars, class files and java files in a directory and tries to compile all source files into an M3 model}
+M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
@@ -122,15 +113,55 @@ M3 createM3FromDirectory(loc project, bool errorRecovery = false, str javaVersio
     }
     sourcePaths = getPaths(project, "java");
     M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, javaVersion = javaVersion));
+
     registerProject(project, result);
+    
+    if (includeJarModels) {
+      results = composeJavaM3(project, {result, *{createM3FromJar(j, classPath=classPaths) |  j <- classPaths}});
+    }
+    
     return result;
 }
 
-M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
-    M3 model = createM3FromJarFile(jarFile, classPath = classPath);
+@synopsis{Globs for jars, class files and java files in a directory and tries to compile all source files into an M3 model}
+M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
+    if (!exists(project + "pom.xml")) {
+      throw IO("pom.xml not found");
+    }
+
+    if (!(isDirectory(project))) {
+      throw "<project> is not a valid directory";
+    }
+
+    list[loc] classPaths = getProjectPathConfig(project).javaCompilerPath;
+
+    sourcePaths = getPaths(project, "java");
+    M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, javaVersion = javaVersion));
+
+    registerProject(project, result);
     
-    rel[loc,loc] dependsOn = model.extends + model.implements;
-    model.typeDependency = model.typeDependency + dependsOn;
+    if (includeJarModels) {
+      results = composeJavaM3(project, {result, *{createM3FromJar(j, classPath=classPaths) |  j <- classPaths}});
+    }
+    
+    return result;
+}
+
+@synopsis{Extract an M3 model from all the class files in a jar}
+@description{
+We use ((createM3FromJar)) to extract an initial M3 model and 
+then a number of steps enrich the M3 towards a model that could
+have come from the original source. 
+
+In particular:
+* `typeDependency` is enriched by adding `extends` and `implements`
+* `methodOverrides` is recovered from `extends` and `implements`, but restricted to the actual overriden methods.
+}
+M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
+  M3 model = createM3FromJarFile(jarFile, classPath = classPath);
+    
+  rel[loc,loc] dependsOn = model.extends + model.implements;
+  model.typeDependency = model.typeDependency + dependsOn;
 	
 	rel[loc from, loc to] candidates = rangeR((model.implements + model.extends), classes(model));
 	containment = domainR(model.containment, candidates.from) + domainR(model.containment, candidates.to);
@@ -140,6 +171,7 @@ M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
 		model.methodOverrides += {<m, getMethodSignature(m)> | m <- methodContainment[from]} 
 			o {<getMethodSignature(m), m> | m <- methodContainment[to]};
 	}
+
 	return model;
 }
 

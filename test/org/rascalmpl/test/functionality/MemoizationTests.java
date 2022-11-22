@@ -42,11 +42,16 @@ public class MemoizationTests extends TestFramework {
 	public void memoryIsReleasedTimeout() throws InterruptedException {
 	    prepare("int n = 0;");
 	    prepareMore("import util::Memo;");
-		prepareMore("@memo=expireAfter(seconds=1) int calc(int w) { n +=1; return n; }");
+		prepareMore("@memo=expireAfter(seconds=2) int calc(int w) { n +=1; return n; }");
 		assertTrue("Memo works", runTestInSameEvaluator("( true | it && calc(1) == 1 | i <- [0..100])"));
 		assertTrue("Memo works", runTestInSameEvaluator("calc(1) == 1"));
-		TimeUnit.SECONDS.sleep(11); // note should be more than the frequency of the cleanup thread
-		assertTrue("Entry should be cleared by now", runTestInSameEvaluator("calc(1) == 2"));
+		for (int t = 1; t < 10; t++) {
+			TimeUnit.SECONDS.sleep(t); 
+			if (runTestInSameEvaluator("calc(1) == 2")) {
+				return;
+			}
+		}
+		assertTrue("Memory should be cleared by now", false);
 	}
 
 	@Test
@@ -56,25 +61,37 @@ public class MemoizationTests extends TestFramework {
 		prepareMore("@memo=maximumSize(100) int calc(int w) { n +=1; return n; }");
 		assertTrue("Just storing something in range", runTestInSameEvaluator("( true | it && calc(i) == i + 1 | i <- [0..100])"));
 		assertTrue("Memo works", runTestInSameEvaluator("calc(1) == 2"));
-		prepareMore("for (i <- [0..100]) { calc(100 + i); }");
-		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
-		prepareMore("for (i <- [0..100]) { calc(i); }");
-		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
-		assertTrue("Memo should have been cleared", runTestInSameEvaluator("calc(1) != 2"));
+		assertTrue("Memo works", runTestInSameEvaluator("calc(2) == 3"));
+		// now we run a lot more calcs, so that the memo of old cases might be cleared
+		prepareMore("for (i <- [0..300]) { calc(100 + i); }");
+		for (int t = 0; t < 10; t++) {
+			TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
+			// note that since the Caffeine cache is smart, it might pin 1 and 2 longer, so we ask for another result that should have been cleared by now
+			if (runTestInSameEvaluator("calc("+(3 + t)+") != " + (4 + t))) {
+				return;
+			}
+		}
+		assertTrue("Memory should be cleared by now", false);
+
 	}
 
 	@Test
 	public void memoryIsReleasedCombination() throws InterruptedException {
 	    prepare("int n = 0;");
 	    prepareMore("import util::Memo;");
-		prepareMore("@memo={expireAfter(seconds=1),maximumSize(200)} int calc(int w) { n +=1; return n; }");
+		prepareMore("@memo={expireAfter(seconds=2),maximumSize(200)} int calc(int w) { n +=1; return n; }");
 		assertTrue("Memo works", runTestInSameEvaluator("( true | it && calc(i) == i + 1 | i <- [0..100])"));
 		assertTrue("Memo works", runTestInSameEvaluator("calc(1) == 2"));
 		prepareMore("for (i <- [0..100]) { calc(100 + i); }");
-		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
+		TimeUnit.SECONDS.sleep(2); // note should be more than the frequency of the cleanup thread
 		prepareMore("for (i <- [0..100]) { calc(200 + i); }");
-		TimeUnit.SECONDS.sleep(6); // note should be more than the frequency of the cleanup thread
-		assertTrue("Entry should be cleared by now", runTestInSameEvaluator("calc(1) != 2"));
+		for (int t = 1; t < 10; t++) {
+			TimeUnit.SECONDS.sleep(t); 
+			if (runTestInSameEvaluator("calc(1) != 2")) {
+				return;
+			}
+		}
+		assertTrue("Memory should be cleared by now", false);
 	}
 
 	@Test

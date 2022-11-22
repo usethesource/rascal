@@ -175,7 +175,7 @@ test bool matchInLoop1(){
 	cnt = 0;
 	for(int x <- lst){
 		switch(x){
-			case n: cnt += n;
+			case int n: cnt += n;
 		}
 	}
 	return cnt == (0 | it + x | x <- lst);
@@ -187,7 +187,7 @@ test bool matchInLoop2(){
 	i = 0;
 	while(i < size(lst)){
 		switch(lst[i]){
-			case n: cnt += n;
+			case int n: cnt += n;
 		}
 		i += 1;
 	}

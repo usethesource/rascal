@@ -5,6 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
+@bootstrapParser
 module lang::rascal::grammar::definition::Priorities
 
 extend ParseTree;
@@ -25,11 +26,13 @@ public alias Extracted = rel[Production father, Associativity rule, Production c
 public alias DoNotNest = rel[Production father, int position, Production child];
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Extract which productions are not to be nested under which other productions, at given 
 recursive positions in the parents' defining symbols list.
 
-.Description
+#### Description
+
 This DoNotNest relation is generated from the grammar using the > priority definitions,
 the associativity groups and the ! restriction operator. 
 
@@ -183,31 +186,39 @@ public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] 
 //TODO: compiler issues when  g.rules[s]? is inlined
 bool isdef(Grammar g, Symbol s) = g.rules[s]?;
 
+//TODO compiler issues when  find is local to except
+Maybe[Production] find(str c, Symbol s, Symbol t, Grammar g) {
+    rules = g.rules[t]?choice(s,{});
+    if(/Production q:prod(label(c,t),_,_) := rules) 
+        return just(q);
+    else {
+        return nothing();
+    }
+}
 
 public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
-  Maybe[Production] find(str c, Symbol t) = (/Production q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
   
   switch (s) {
     case \opt(conditional(t,cs)) : 
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
     case \iter-star(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
     case \iter(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)};
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
     case \iter-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
     case \iter-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
     case \iter-star-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,t)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};
+      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
     case \iter-star-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,u)};       
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};       
     case \alt(as) :
-      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(q) := find(c,t)};
+      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(q) := find(c,s,t,g)};
     case \seq(ss) :
-      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,t)};
+      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,s,t,g)};
      default: return {};
   }
 }

@@ -90,7 +90,10 @@ import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IBool;
@@ -98,6 +101,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -604,7 +608,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					TF.functionType(returnType, formals, kwParams).instantiate(__eval.getCurrentEnvt().getDynamicTypeBindings()),
 					kwd,
 					this.getParameters()
-					.isVarArgs(), false, false, false, this.getStatements(), env, __eval.__getAccumulators());
+					.isVarArgs(), false, false, this.getStatements(), env, __eval.__getAccumulators());
 		}
 
 		@Override
@@ -1057,6 +1061,20 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new GuardedPattern(eval, this, type, absPat);
 		}
 
+    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+        	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
+        	IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+
+        	return (ITree) parser.call(vf.string(new String(input)), location);
+    	}
+
+		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects) {
+        	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
+        	IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+
+        	return (ITree) parser.call(location, location);
+    	}
+
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			
@@ -1087,13 +1105,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IConstructor value = ((IRascalValueFactory) __eval.getValueFactory()).reifiedType(symbol, gr);
             
 				if (result.getStaticType().isString()) {
-					tree = __eval.parseObject(value, VF.set(),
-						this.getLocation(),
+					tree = parseObject(__eval, value, VF.set(), this.getLocation(),
 						((IString) result.getValue()).getValue().toCharArray(), true, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
-					tree = __eval.parseObject(__eval, value, VF.set(),
-							((ISourceLocation) result.getValue()), true, false);
+					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, false);
 				}
 				
 				assert tree != null; // because we checked earlier
@@ -2948,7 +2964,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				TF.functionType(TF.voidType(), formals, kwParams).instantiate(eval.getCurrentEnvt().getDynamicTypeBindings()),
 				kws, 
 				this.getParameters().isVarArgs(), 
-				false, 
 				false, 
 				false, 
 				this.getStatements0(), 

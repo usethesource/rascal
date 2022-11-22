@@ -205,3 +205,19 @@ test bool testNodeIsPositionalParameterDefined() = n0.i?;
 test bool testNodeIsKeywordParameterDefined() = n0.j?;
 test bool testNodeDefaultKeywordParameterIsNotDefined() = !n1.j?;
 
+test bool testUnset(node n) = getKeywordParameters(unset(n)) == ();
+
+test bool testUnsetRecNode(node v) = testUnsetRecValue(v);
+
+test bool testUnsetRecValue(value v) {
+  visit (unsetRec(v)) {
+    case node n : {
+      if (getKeywordParameters(n) != ()) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+test bool testUnsetRecInsideTuple() = testUnsetRecValue(<1, "a"(x=3)>);

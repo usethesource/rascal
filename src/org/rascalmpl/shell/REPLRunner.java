@@ -5,9 +5,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+import org.rascalmpl.ideservices.BasicIDEServices;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.ILanguageProtocol;
@@ -33,11 +36,11 @@ public class REPLRunner extends BaseREPL implements ShellRunner {
     public REPLRunner(InputStream stdin, OutputStream stderr, OutputStream stdout, Terminal term)
         throws IOException, URISyntaxException {
         super(makeInterpreter(stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term), null,
-            stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, null);
+            stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, new BasicIDEServices(new PrintWriter(stderr)));
     }
 
     public REPLRunner(ILanguageProtocol language) throws IOException, URISyntaxException {
-        super(language, null, null, null, null, true, true, new File(""), null, null);
+        super(language, null, null, null, null, true, true, new File(""), null, new BasicIDEServices(new PrintWriter(System.err)));
     }
 
     private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stderr, OutputStream stdout,
@@ -46,8 +49,10 @@ public class REPLRunner extends BaseREPL implements ShellRunner {
         RascalInterpreterREPL repl =
             new RascalInterpreterREPL(prettyPrompt, allowColors, getHistoryFile()) {
                 @Override
-                protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
-                    return ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
+                protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
+                    Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
+                    eval.setMonitor(services);
+                    return eval;
                 }
 
                 @Override

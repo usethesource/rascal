@@ -7,10 +7,11 @@
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @doc{
-.Synopsis
+#### Synopsis
+
 Library for Formal Concept Analysis
 
-.Description
+#### Description
 
 Formal Concept Analysis is a somewhat ubiquitous tool in software analysis projects. 
 It can be used to find latent groups of objects that share the same attributes in a dataset. 
@@ -35,7 +36,8 @@ public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Objec
 
                                                      
 @doc{
-.Synopsis
+#### Synopsis
+
 Computes Concept Lattice given the Object Attribute Relation.
 }
 public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribute] fc) {
@@ -44,7 +46,8 @@ public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribut
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Computes Dot Graph from Concept Lattice.
 }
 public DotGraph toDot(ConceptLattice[&Object, &Attribute] cl) {
@@ -170,7 +173,8 @@ Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], in
      
    
 @doc{
-.Synopsis
+#### Synopsis
+
 Write relation in `.dot` format.
 }    
 public str toDotString(ConceptLattice[&Object, &Attribute]  q) {

@@ -16,22 +16,22 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Scheduler;
 
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.util.SecondsTicker;
 
 /**
  * Cache of Rascal function results. <br/>
@@ -45,41 +45,9 @@ import io.usethesource.vallang.IValue;
  * @param <TResult> the type of values stored as result
  */
 public class ExpiringFunctionResultCache<TResult> {
-    /**
-     * Entries are inserted by the interpreter/compiler but cleared by the cleanup thread <br/>
-     * <br/>
-     * The keys in this map are bit special, we use a different class for lookup and for storing. 
-     * This is primarily to avoid allocation SoftReferences and a fresh map purely for lookup.
-     */
-    private final ConcurrentMap<Object, ResultRef<TResult>> entries;
-    
-    private static final ThreadLocal<Parameters> KEY_CACHE = new ThreadLocal<Parameters>() {
-        @Override
-        protected Parameters initialValue() {
-            return new Parameters();
-        }
-    };
 
-    /**
-     * A queue of all the SoftReferences cleared, we later iterate through them to cleanup the entries in the map
-     */
-    private final ReferenceQueue<Object> cleared;
-
-    /**
-     * Threshold for when to expire entries by time
-     */
-    private int secondsTimeout;
-
-    /**
-     * Cache of the oldest entry in the map, to avoid unneeded iterating of the entry map
-     */
-    private volatile int lastOldest = 0;
-    
-    /**
-     * Threshold for maximum entries in the cache
-     */
-    private int maxEntries;
-    
+    private final Cache<Object, TResult> entries;
+    private final ReferenceQueue<Parameters> cleared;
 
     /**
      * Construct a cache of function results that expire after (optional) certain thresholds
@@ -87,11 +55,29 @@ public class ExpiringFunctionResultCache<TResult> {
      * @param maxEntries starts clearing out entries after the table gets "full". <= 0 disables this threshold
      */
     public ExpiringFunctionResultCache(int secondsTimeout, int maxEntries) {
-        this.entries =  new ConcurrentHashMap<>();
-        this.cleared =  new ReferenceQueue<Object>();
-        this.secondsTimeout = secondsTimeout <= 0 ? Integer.MAX_VALUE : secondsTimeout;
-        this.maxEntries = maxEntries <= 0 ? Integer.MAX_VALUE : maxEntries;
-        Cleanup.Instance.register(this);
+        entries = configure(secondsTimeout, maxEntries)
+            .softValues()
+            .build();
+        this.cleared =  new ReferenceQueue<>();
+        ExpiringFunctionResultCache.scheduleCleanup(this);
+    }
+
+    private static Caffeine<Object, Object> configure(int secondsTimeout, int maxEntries) {
+        var result = Caffeine.newBuilder();
+        if (secondsTimeout > 0) {
+            result = result.ticker(ExpiringFunctionResultCache::simulateNanoTicks)
+                .expireAfterAccess(Duration.ofSeconds(secondsTimeout));
+        }
+        if (maxEntries > 0) {
+            result = result.maximumSize(maxEntries);
+        }
+        return result
+            .executor(Runnable::run)
+            .scheduler(Scheduler.systemScheduler());
+    }
+
+    private static long simulateNanoTicks() {
+        return TimeUnit.SECONDS.toNanos(SecondsTicker.current());
     }
     
     /**
@@ -101,17 +87,7 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return either cached result or null in case of no entry
      */
     public @Nullable TResult lookup(IValue[] args, @Nullable Map<String, IValue> kwParameters) {
-        Parameters key = KEY_CACHE.get().fill(args, kwParameters);
-        try {
-            ResultRef<TResult> result = entries.get(key);
-            if (result != null) {
-                return result.use();
-            }
-            return null;
-        }
-        finally  {
-            key.clear();
-        }
+        return entries.getIfPresent(Parameters.forLookup(args, kwParameters));
     }
     
     /**
@@ -122,137 +98,74 @@ public class ExpiringFunctionResultCache<TResult> {
      * @return
      */
     public TResult store(IValue[] args, @Nullable Map<String, IValue> kwParameters, TResult result) {
-        final Parameters key = new Parameters(args, kwParameters);
-        final ParametersRef keyRef = new ParametersRef(key, cleared);
-        final ResultRef<TResult> value = new ResultRef<>(result, keyRef, cleared);
-        while (true) {
-            // we "race" to insert our mapping
-            ResultRef<TResult> stored = entries.putIfAbsent(keyRef, value);
-            if (stored == null) {
-                // new entry, so we won the race
-                return result;
-            }
-            TResult otherResult = stored.use();
-            if (otherResult != null) {
-                // we officially lost the race
-                // other entry still had a valid value, so we return that instead
-                return otherResult;
-            }
-            // the entry has been cleared, so we need to remove it and try the race again
-            entries.remove(stored.key, stored);
-        }
+        return entries.get(
+            new ParametersRef(Parameters.forStorage(args, kwParameters), cleared), 
+            k -> result
+        );
     }
     
     /**
      * Clear entries and try to help GC with cleaning up memory
      */
     public void clear() {
-        entries.clear();
+        entries.invalidateAll();
     }
+
+    private static void scheduleCleanup(@UnknownInitialization ExpiringFunctionResultCache<?> cache) {
+        doCleanup(new WeakReference<>(cache));
+    }
+
+    private static void doCleanup(WeakReference<ExpiringFunctionResultCache<?>> cache) {
+        var actualCache = cache.get();
+        if (actualCache == null) {
+            return;
+        }
+        // we schedule the next run
+        CompletableFuture
+            .delayedExecutor(3, TimeUnit.SECONDS)
+            .execute(() -> doCleanup(cache));
+
+        // then we do the actual cleanup
+        synchronized (actualCache.cleared) {
+            Reference<?> gced;
+            while ((gced = actualCache.cleared.poll()) != null) {
+                actualCache.entries.invalidate(gced);
+            }
+        }
+    }
+
 
     /**
-     * Internal method only, used by cleanup thread
+     * Main class that joins both the positional and keyword parameters
+     * 
+     * It has two modes, one for lookup, and one for storage, only for storage do we copy the array
      */
-    private void cleanup() {
-        removePartiallyClearedEntries();
-        removeExpiredEntries();
-        removeOverflowingEntires();
-    }
-
-    private void removePartiallyClearedEntries() {
-        Map<ParametersRef, Object> toCleanup = new IdentityHashMap<>(); // we want reference equality, since it could be that both the key & the value are cleared in the same period
-        synchronized (cleared) {
-            Reference<?> gced;
-            while ((gced = cleared.poll()) != null) {
-                if (gced instanceof ParametersRef) {
-                    toCleanup.putIfAbsent((ParametersRef) gced, gced);
-                }
-                else if (gced instanceof ResultRef) {
-                    toCleanup.putIfAbsent(((ResultRef<?>) gced).key, gced);
-                }
-            }
-        }
-
-        toCleanup.keySet().forEach(entries::remove);
-    }
-
-
-    private void removeExpiredEntries() {
-        int currentTick = SecondsTicker.current();
-        int oldestTick = currentTick - secondsTimeout;
-        // to avoid iterating over all the values everytime, we keep around the oldest use we saw the last time we iterated
-        if (lastOldest < oldestTick) {
-            // there might be an expired entry (or it could have been cleared)
-            int newOldest = currentTick; // we calculate the oldest entry that is kept in the cache
-            Iterator<ResultRef<TResult>> it = entries.values().iterator();
-            while (it.hasNext()) {
-                ResultRef<TResult> cur = it.next();
-                int lastUsed = cur.lastUsed;
-
-                if (lastUsed < oldestTick) {
-                    it.remove();
-                }
-                else if (lastUsed < newOldest) {
-                    newOldest = lastUsed;
-                }
-            }
-            lastOldest = newOldest;
-        }
-    }
-
-    private void removeOverflowingEntires() {
-        int currentSize = entries.size();
-        if (currentSize >= maxEntries) {
-            long toRemove = (long)currentSize - (long)maxEntries; // use long to avoid integer overflow in max
-            toRemove += toRemove / 4; // always cleanout 25% more than needed
-            // we have to clear some entries, since we don't keep a sorted tree based on the usage
-            // we'll just randomly clear
-            Iterator<Entry<Object, ResultRef<TResult>>> it = entries.entrySet().iterator();
-            while (toRemove > 0 && it.hasNext()) {
-                it.next();
-                it.remove();
-                toRemove--;
-            }
-        }
-        
-    }
-
-
-
     private static class Parameters {
-        private int storedHash;
-        private IValue[] params;
-        private Map<String, IValue> keyArgs;
+        private final int storedHash;
+        private final IValue[] params;
+        private final Map<String, IValue> keyArgs;
 
         
-        public Parameters() {
-            
-        }
-        
-        public Parameters fill(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
-            if (keyArgs == null) {
-                keyArgs = Collections.emptyMap();
-            }
+        private Parameters(IValue[] params, Map<String, IValue> keyArgs) {
             this.params = params;
             this.keyArgs = keyArgs;
-            this.storedHash = (1 + (31 * Arrays.hashCode(params))) + keyArgs.hashCode();
-            return this;
-        }
-        
-        public void clear() {
-            params = null;
-            keyArgs = null;
+            this.storedHash = (1 + (31 * Arrays.hashCode(this.params))) + keyArgs.hashCode();
         }
 
-        public Parameters(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
-            IValue[] newParams = new IValue[params.length];
-            System.arraycopy(params, 0, newParams, 0, params.length);
+        public static Parameters forLookup(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
             if (keyArgs == null || keyArgs.isEmpty()) {
-                fill(newParams, Collections.emptyMap());
+                keyArgs = Collections.emptyMap();
             }
-            else {
-                fill(newParams, new HashMap<>(keyArgs));
+            return new Parameters(params, keyArgs);
+        }
+
+        public static Parameters forStorage(IValue[] params, @Nullable Map<String, IValue> keyArgs) {
+            if (keyArgs == null || keyArgs.isEmpty()) {
+                keyArgs = Collections.emptyMap();
             }
+            var newParams = new IValue[params.length];
+            System.arraycopy(params, 0, newParams, 0, params.length);
+            return new Parameters(newParams, keyArgs);
         }
         
         @Override
@@ -280,10 +193,13 @@ public class ExpiringFunctionResultCache<TResult> {
         }
     }
 
+    /** 
+     * Small SoftReference wrapper that adds equality, and supports comparing with the raw Parameters object so that both can be used in a get
+    */
     private static class ParametersRef extends SoftReference<Parameters> {
         private final int hashCode;
 
-        public ParametersRef(Parameters obj, ReferenceQueue<Object> queue) {
+        public ParametersRef(Parameters obj, ReferenceQueue<? super Parameters> queue) {
             super(obj, queue);
             this.hashCode = obj.storedHash;
         }
@@ -311,79 +227,4 @@ public class ExpiringFunctionResultCache<TResult> {
         
     }
 
-    private static class ResultRef<T> extends SoftReference<T> {
-        private volatile int lastUsed;
-        private final ParametersRef key;
-
-        public ResultRef(T obj, ParametersRef key, ReferenceQueue<Object> queue) {
-            super(obj, queue);
-            this.lastUsed = SecondsTicker.current();
-            this.key = key;
-        } 
-        
-        public T use() {
-            lastUsed = SecondsTicker.current();
-            return get();
-        }
-    }
-    
-
-    /**
-     * Cleanup singleton that wraps {@linkplain CleanupThread}
-     */
-    private static enum Cleanup {
-        Instance;
-
-        private final CleanupThread thread;
-
-        private Cleanup() {
-            thread = new CleanupThread();
-            thread.start();
-        }
-
-        public void register(@UnknownInitialization ExpiringFunctionResultCache<?> cache) {
-            thread.register(cache);
-        }
-
-    }
-
-    private static class CleanupThread extends Thread {
-        private final ConcurrentLinkedQueue<WeakReference<ExpiringFunctionResultCache<?>>> caches = new ConcurrentLinkedQueue<>();
-        
-        public CleanupThread() {
-            super("Cleanup Thread for " + ExpiringFunctionResultCache.class.getName());
-            setDaemon(true);
-        }
-
-        public void register(@UnknownInitialization ExpiringFunctionResultCache<?> cache) {
-            caches.add(new WeakReference<>(cache));
-        }
-        
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    TimeUnit.SECONDS.sleep(5);
-                } catch (InterruptedException e) {
-                    return;
-                }
-                try {
-                    Iterator<WeakReference<ExpiringFunctionResultCache<?>>> it = caches.iterator();
-                    while (it.hasNext()) {
-                        ExpiringFunctionResultCache<?> cur = it.next().get();
-                        if (cur == null) {
-                            it.remove();
-                        }
-                        else {
-                            cur.cleanup();
-                        }
-                    }
-                }
-                catch (Throwable e) {
-                    System.err.println("Cleanup thread failed with: " + e.getMessage());
-                    e.printStackTrace(System.err);
-                }
-            }
-        }
-    }
 }

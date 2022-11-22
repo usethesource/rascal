@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.21.1-SNAPSHOT</version>
+    <version>0.27.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>SNAPSHOT</tag>
   </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -31,8 +31,7 @@
         <lucence-version>7.5.0</lucence-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
-            <rascal.courses>--skipCourses</rascal.courses> <!-- Tutor compile is disabled by default, except if you pass: "-Drascal.courses= - - buildCourses" to maven (remove the spaces between the dashes) -->
-        </properties>
+    </properties>
 
 
         <build>
@@ -93,14 +92,6 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.2.0</version>
-                    <configuration>
-                        <additionalparam>-Xdoclint:none</additionalparam>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>buildnumber-maven-plugin</artifactId>
                     <version>1.4</version>
@@ -130,7 +121,7 @@
                 <plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
-                    <version>0.6.1</version>
+                    <version>0.10.3</version>
                     <configuration>
                         <errorsAsWarnings>true</errorsAsWarnings>
                         <bin>${project.build.outputDirectory}</bin>
@@ -166,47 +157,33 @@
                                 <goal>package</goal>
                             </goals>
                         </execution>
-                    </executions>
-                </plugin> 
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.4.0</version>
-                    <executions>
-                        <execution> <!--  compile the courses -->
-                            <configuration>
-                                <executable>java</executable>
-                                <classpathScope>compile</classpathScope>
-                                <workingDirectory>target/classes/</workingDirectory>
-                                <arguments>
-                                    <argument>-Xmx1G</argument>
-                                    <argument>-Dfile.encoding=UTF-8</argument>
-                                    <argument>-cp</argument>
-                                    <classpath />
-                                    <argument>-Dfile.encoding=UTF-8</argument>
-                                    <argument>org.rascalmpl.library.lang.rascal.tutor.CourseCompiler</argument>
-                                    <argument>--bin</argument>
-                                    <argument>${project.build.directory}/classes/boot</argument>
-                                    <argument>--src</argument>
-                                    <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                    <argument>--boot</argument>
-                                    <argument>${project.build.directory}/classes/boot</argument>
-                                    <argument>--lib</argument>
-                                    <argument>${project.build.directory}/classes/std</argument>
-                                    <argument>--course</argument>
-                                    <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
-                                    <argument>--all</argument>
-                                    <argument>${rascal.courses}</argument>
-                                </arguments>
-                            </configuration>
-                            <id>courses</id>
+                        <execution> 
+                            <id>default-cli</id> 
                             <phase>compile</phase>
                             <goals>
-                                <goal>exec</goal>
+                                <goal>tutor</goal>
                             </goals>
-                        </execution>
+                            <configuration>
+                                <enableStandardLibrary>false</enableStandardLibrary>
+                                <errorsAsWarnings>false</errorsAsWarnings>
+                                <bin>${project.build.outputDirectory}</bin>
+                                <srcs>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/Rascalopedia</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/RascalConcepts</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/Recipes</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/Tutor</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/GettingStarted</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/GettingHelp</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/WhyRascal</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/Rascal</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/RascalShell</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/courses/Developers</src>
+                                    <src>${project.basedir}/src/org/rascalmpl/library</src>
+                                </srcs>
+                            </configuration>
+                        </execution> 
                     </executions>
-                </plugin>
+                </plugin> 
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.0.0</version>
@@ -275,7 +252,7 @@
                     <version>2.5.3</version>
                     <configuration>
                         <tagNameFormat>v@{project.version}</tagNameFormat>
-                        <arguments>-Drascal.courses=--buildCourses -Drascal.boot=--validating</arguments>
+                        <arguments>-Drascal.compile.skip -DskipTests</arguments>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -364,7 +341,7 @@
             <dependency>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-p2-dependencies-repackaged</artifactId>
-                <version>0.5.0</version>
+                <version>0.6.0</version>
             </dependency>
 
             <!-- Regular POM Dependencies -->
@@ -376,7 +353,7 @@
             <dependency>
                 <groupId>io.usethesource</groupId>
                 <artifactId>vallang</artifactId>
-                <version>0.14.2</version>
+                <version>0.14.7</version>
             </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
@@ -401,7 +378,7 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.8.7</version>
+                <version>2.8.9</version>
             </dependency>
             <dependency>
                 <groupId>jline</groupId>
@@ -411,12 +388,17 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.26</version>
+                <version>1.31</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>1.15.3</version>
             </dependency>
             <dependency>
                 <groupId>org.jdom</groupId>
                 <artifactId>jdom2</artifactId>
-                <version>2.0.6</version>
+                <version>2.0.6.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
@@ -447,18 +429,6 @@
                 <groupId>com.ibm.icu</groupId>
                 <artifactId>icu4j</artifactId>
                 <version>69.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.asciidoctor</groupId>
-                <artifactId>asciidoctorj</artifactId>
-                <version>1.6.0-alpha.6</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.jruby</groupId>
-                <artifactId>jruby-complete</artifactId>
-                <version>9.1.15.0</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.beust</groupId>

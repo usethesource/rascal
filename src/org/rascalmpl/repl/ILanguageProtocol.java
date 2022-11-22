@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import org.rascalmpl.ideservices.IDEServices;
+
 
 public interface ILanguageProtocol {
 
@@ -35,7 +37,7 @@ public interface ILanguageProtocol {
      * @param stdout the output stream to write normal output to.
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
      */
-    void initialize(InputStream input, OutputStream stdout, OutputStream stderr);
+    void initialize(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services);
 
     /**
      * Will be called everytime a new prompt is printed.

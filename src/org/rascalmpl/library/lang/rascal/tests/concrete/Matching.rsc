@@ -1,6 +1,7 @@
 module lang::rascal::tests::concrete::Matching
 
 import List;
+import Node;
 import ParseTree;
 
 syntax A = a: "a";
@@ -54,7 +55,7 @@ test bool testFieldSelectC2(){
 @ignoreInterpreter{Feature is not implemented}
 test bool testConcreteListC1(){
     pt = parse(#C, "axaaa");
-    return c(A _, As as) := pt && as.alist[0] == [A]"a";
+    return c(A _, As as) := pt && unsetRec(as.alist[0]) == unsetRec([A]"a"); // unset src keywords
 }
 
 test bool testConcreteListC2(){
@@ -65,7 +66,7 @@ test bool testConcreteListC2(){
 @ignoreInterpreter{Feature is not implemented}
 test bool testConcreteListD1(){
     pt = parse(#Ds, "d,d");
-    return Ds ds := pt && ds.dlist[0] == [D]"d";
+    return Ds ds := pt && (unsetRec(ds.dlist[0]) == unsetRec([D]"d"));  // unset src keywords
 }
 
 test bool testConcreteListD2(){

@@ -28,6 +28,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import io.usethesource.vallang.type.TypeStore;
 
 /**
@@ -43,9 +44,13 @@ public class ReifiedType extends RascalType {
 		this.arg = arg;
 	}
 	
-	public static class Reifier implements TypeReifier {
+	public static class Reifier extends TypeReifier {
 
-        @Override
+        public Reifier(TypeValues symbols) {
+			super(symbols);
+		}
+
+		@Override
         public Type getSymbolConstructorType() {
             return symbols().typeSymbolConstructor("reified", symbols().symbolADT(), "symbol");
         }
@@ -81,13 +86,13 @@ public class ReifiedType extends RascalType {
 	}
 	
 	@Override
-	public TypeReifier getTypeReifier() {
-	    return new Reifier();
+	public TypeReifier getTypeReifier(TypeValues symbols) {
+	    return new Reifier(symbols);
 	}
 	
 	@Override
 	public Type asAbstractDataType() {
-		return getTypeReifier().symbols().symbolADT();
+		return getTypeReifier(TypeFactory.getInstance().cachedTypeValues()).symbols().symbolADT();
 	}
 	
 	@Override

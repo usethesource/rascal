@@ -21,7 +21,6 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,12 +31,6 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.values.parsetrees.ITree;
-
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.ISourceLocation;
 
 
 /**
@@ -64,10 +57,6 @@ public class GlobalEnvironment {
 	 */
 	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
 	
-	/** Keeping track of generated parsers */
-	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
-	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
-
 	private boolean bootstrapper;
 	
 	public void pushExtend(String module) {
@@ -87,8 +76,6 @@ public class GlobalEnvironment {
 		moduleLocations.clear();
 		locationModules.clear();
 		sourceResolvers.clear();
-		objectParsersForModules.clear();
-		rascalParsersForModules.clear();
 	}
 	
 	/**
@@ -193,34 +180,6 @@ public class GlobalEnvironment {
 		return current;
 	}
 	
-	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getObjectParser(String module, IMap productions) {
-		return getParser(objectParsersForModules, module, productions);
-	}
-	
-	/**
-	 * Retrieves a parser for a module.
-	 * 
-	 * @param module
-	 * @param productions
-	 */
-	private Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser(Map<String,ParserTuple> store, String module, IMap productions) {
-		ParserTuple parser = store.get(module);
-		if(parser != null && parser.getProductions().equals(productions)) {
-			return parser.getParser();
-		}
-		
-		return null;
-	}
-	
-	public void storeObjectParser(String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-		storeParser(objectParsersForModules, module, productions, parser);
-	}
-	
-	private static void storeParser(HashMap<String, ParserTuple> store, String module, IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-		ParserTuple newT = new ParserTuple(productions, parser);
-		store.put(module, newT);
-	}
-	
 	public Set<String> getImportingModules(String mod) {
 		Set<String> result = new HashSet<>();
 		
@@ -257,24 +216,6 @@ public class GlobalEnvironment {
 		
 		result.remove(mod);
 		return result;
-	}
-	
-	private static class ParserTuple {
-		private final IMap production;
-		private final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser;
-
-		public ParserTuple(IMap productions, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser) {
-			this.production = productions;
-			this.parser = parser;
-		}
-		
-		public IMap getProductions() {
-			return production;
-		}
-		
-		public Class<IGTD<IConstructor, ITree, ISourceLocation>> getParser() {
-			return parser;
-		}
 	}
 	
 	public AbstractFunction getResourceImporter(String resourceScheme) {

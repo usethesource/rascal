@@ -61,7 +61,6 @@ import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.exceptions.ImplementationError;
-import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -95,16 +94,15 @@ import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.io.InputConverter;
-import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.RascalFunctionValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
@@ -123,7 +121,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
-    private final IValueFactory vf; // sharable
+    private final RascalFunctionValueFactory vf; // sharable
     private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
     protected volatile Environment currentEnvt; // not sharable
 
@@ -133,6 +131,38 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * True if an interrupt has been signalled and we should abort execution
      */
     private volatile boolean interrupt = false;
+
+    /**
+     * State to manage call tracing
+     */
+    private int callNesting = 0;
+	private boolean callTracing = false;
+
+    @Override
+    public int getCallNesting() {
+       return callNesting;
+    }
+
+    @Override
+    public boolean getCallTracing() {
+        return callTracing;
+    }
+
+    @Override
+    public void setCallTracing(boolean callTracing) {
+        this.callTracing = callTracing;
+    }
+
+    @Override
+    public void incCallNesting() {
+        callNesting++;
+    }
+
+    @Override
+    public void decCallNesting() {
+        callNesting--;
+    }
+
 
     private JavaBridge javaBridge; //  sharable if synchronized
 
@@ -206,7 +236,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public Evaluator(IValueFactory vf, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
         super();
 
-        this.vf = vf;
+        this.vf = new RascalFunctionValueFactory(this);
         this.heap = heap;
         this.typeDeclarator = new TypeDeclarationEvaluator(this);
         this.currentEnvt = scope;
@@ -713,65 +743,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return func.call(getMonitor(), types, args, kwArgs).getValue();
     }
 
-    @Override	
-    public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
-        IConstructor startSort = (IConstructor) grammar.get("symbol");
-        IGTD<IConstructor, ITree, ISourceLocation> parser;
-        String name;
-        synchronized(this) {
-            parser = getObjectParser((IMap) grammar.get("definitions"));
-            name = getParserGenerator().getParserMethodName(startSort);
-        }
+    // @Override	
+    // public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+    //     RascalFunctionValueFactory vf = new RascalFunctionValueFactory(this);
+    //     IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
 
-        __setInterrupt(false);
-        IActionExecutor<ITree> exec = !filters.isEmpty() 
-            ? new RascalFunctionActionExecutor(filters, !hasSideEffects)
-            : new NoActionExecutor();
-
-        return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
-    }
-
-    @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects){
-        IRascalMonitor old = setMonitor(monitor);
-
-        try {
-            char[] input = getResourceContent(location);
-            return parseObject(startSort, filters, location, input, allowAmbiguity, hasSideEffects);
-        }
-        catch(IOException ioex){
-            throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-        }
-        finally{
-            setMonitor(old);
-        }
-    }
-
-    @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, boolean allowAmbiguity, boolean hasSideEffects) {
-        IRascalMonitor old = setMonitor(monitor);
-        try {
-            return parseObject(startSort, filters, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity, hasSideEffects);
-        }
-        finally {
-            setMonitor(old);
-        }
-    }
-
-    @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects) {
-        IRascalMonitor old = setMonitor(monitor);
-        try{
-            return parseObject(startSort, filters, loc, input.toCharArray(), allowAmbiguity, hasSideEffects);
-        }finally{
-            setMonitor(old);
-        }
-    }
-
-    private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IMap grammar){
-        ModuleEnvironment mod = (ModuleEnvironment) getCurrentEnvt().getRoot();
-        return org.rascalmpl.semantics.dynamic.Import.getParser(this, mod, getCurrentAST().getLocation(), grammar, false);
-    }
+    //     return (ITree) parser.call(vf.string(new String(input)), location);
+    // }
 
     @Override
     public IConstructor getGrammar(Environment env) {
@@ -824,7 +802,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             if (isBootstrapper()) {
                 throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
             }
-
 
             Evaluator self = this;
             job("Loading parser generator", () -> {
@@ -964,7 +941,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
+            ModuleEnvironment curMod = getCurrentModuleEnvironment();
+            IFunction parsers = parserForCurrentModule(vf, curMod);
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parsers, tree, location, getCurrentModuleEnvironment());
         }
 
         Command stat = new ASTBuilder().buildCommand(tree);
@@ -976,6 +955,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return eval(stat);
     }
 
+    private IFunction parserForCurrentModule(RascalFunctionValueFactory vf, ModuleEnvironment curMod) {
+        IConstructor dummy = vf.constructor(RascalFunctionValueFactory.Symbol_Empty); // I just need _any_ ok non-terminal
+        IMap syntaxDefinition = curMod.getSyntaxDefinition();
+        IMap grammar = (IMap) getParserGenerator().getGrammarFromModules(getMonitor(), curMod.getName(), syntaxDefinition).get("rules");
+        IConstructor reifiedType = vf.reifiedType(dummy, grammar);
+        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+    }
+
     private Result<IValue> evalMore(String command, ISourceLocation location)
         throws ImplementationError {
         __setInterrupt(false);
@@ -985,7 +972,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
+            IFunction parsers = parserForCurrentModule(vf, getCurrentModuleEnvironment());
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parsers, tree, location, getCurrentModuleEnvironment());
         }
 
         Commands stat = new ASTBuilder().buildCommands(tree);
@@ -1034,7 +1022,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
         ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
         if (!noBacktickOutsideStringConstant(command)) {
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
         }
 
         return tree;
@@ -1049,7 +1037,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
             if (!noBacktickOutsideStringConstant(commands)) {
-                tree = parseFragments(this, tree, location, getCurrentModuleEnvironment());
+                tree = parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
             }
 
             return tree;
@@ -1424,7 +1412,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void updateProperties() {
         Evaluator.doProfiling = config.getProfilingProperty();
 
-        AbstractFunction.setCallTracing(config.getTracingProperty());
+        setCallTracing(config.getTracingProperty());
     }
 
     public Configuration getConfiguration() {
@@ -1502,6 +1490,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override	
     public IValueFactory getValueFactory() {
         return __getVf();
+    }
+
+    @Override	
+    public RascalFunctionValueFactory getFunctionValueFactory() {
+        return (RascalFunctionValueFactory) __getVf();
     }
 
     public void setAccumulators(Accumulator accu) {
@@ -1688,7 +1681,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             for (AbstractFunction f : p.getSecond()) {
                 String module = ((ModuleEnvironment)f.getEnv()).getName();
                 
-                if (skipPrivate && !f.isPublic()) {
+                if (skipPrivate && env.isNamePrivate(f.getName())) {
                     continue;
                 }
                 
@@ -1700,7 +1693,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         boolean inQualifiedModule = env.getName().equals(qualifier) || qualifier.isEmpty();
         if (inQualifiedModule) {
             for (Entry<String, Result<IValue>> entry : env.getVariables().entrySet()) {
-                if (skipPrivate && !entry.getValue().isPublic()) {
+                if (skipPrivate && env.isNamePrivate(entry.getKey())) {
                     continue;
                 }
                 addIt(result, entry.getKey(), qualifier, partialIdentifier);
