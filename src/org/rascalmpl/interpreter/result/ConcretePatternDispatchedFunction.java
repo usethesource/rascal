@@ -81,11 +81,6 @@ public class ConcretePatternDispatchedFunction extends AbstractFunction {
 	}
 	
 	@Override
-	public boolean isPublic() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public boolean isConcretePatternDispatched() {
 		return true;
 	}

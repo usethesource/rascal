@@ -110,7 +110,7 @@ public class BaseREPL {
         else {
             this.errorWriter = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
         }
-        initialize(stdin, terminal.wrapOutIfNeeded(stdout) /*JURGEN LET OP reader.getOutput()*/, terminal.wrapOutIfNeeded(stderr));
+        initialize(stdin, terminal.wrapOutIfNeeded(stdout) /*JURGEN LET OP reader.getOutput()*/, terminal.wrapOutIfNeeded(stderr), ideServices);
         if (supportsCompletion()) {
             reader.addCompleter(new Completer(){
                 @Override
@@ -155,8 +155,8 @@ public class BaseREPL {
      * @throws IOException 
      * @throws URISyntaxException 
      */
-    protected void initialize(InputStream input, OutputStream stdout, OutputStream stderr) throws IOException, URISyntaxException {
-        language.initialize(input, stdout, stderr);
+    protected void initialize(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) throws IOException, URISyntaxException {
+        language.initialize(input, stdout, stderr, services);
     }
 
     /**

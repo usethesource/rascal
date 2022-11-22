@@ -1,10 +1,9 @@
-// tag::module[]
 module demo::lang::Pico::Assembly
 
 import demo::lang::Pico::Abstract;
 
-public data Instr =
-       dclNat(PicoId Id)    // Reserve a memory location for a natural variable
+data Instr 
+     = dclNat(PicoId Id)    // Reserve a memory location for a natural variable
      | dclStr(PicoId Id)    // Reserve a memory location for a string variable
      | pushNat(int intCon)  // Push integer constant on the stack
      | pushStr(str strCon)  // Push string constant on the stack
@@ -15,8 +14,7 @@ public data Instr =
      | sub2()               // Replace top two stack values by their difference
      | conc2()              // Replace top two stack values by their concatenation
      | label(str label)     // Associate a label with the next instruction
-     | go(str  label)       // Go to instruction with given label
+     | go(str label)        // Go to instruction with given label
      | gotrue(str label)    // Go to instruction with given label, if top equals 0
      | gofalse(str label)   // Go to instruction with given label, if top not equal to 0
      ;
-// tag::module[]     

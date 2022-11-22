@@ -91,7 +91,7 @@ public class NodePattern extends AbstractMatchingResult {
 			return;
 		}
 
-		if (!matchUPTR && RascalType.isNonterminal(subject.getStaticType()) && TreeAdapter.isAppl((ITree) subject.getValue())) {
+		if (!matchUPTR && RascalType.isNonterminal(subject.getDynamicType()) && TreeAdapter.isAppl((ITree) subject.getValue())) {
 			this.subject = new TreeAsNode((ITree) subject.getValue());
 		}
 		else {
@@ -99,7 +99,7 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		String sname = this.subject.getName();
-		if(qName != null){
+		if (qName != null){
 			if(!((org.rascalmpl.semantics.dynamic.QualifiedName.Default) qName).lastName().equals(sname)){
 				return;
 			}

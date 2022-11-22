@@ -5,24 +5,27 @@ extend Content;
 extend Message;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Open a browser for a given location.
 }
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
 java void browse(loc uri);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Open an editor for file at a given location.
 }
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
 java void edit(loc uri);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Let the IDE apply a list of document edits.
 
-.Description
+#### Description
 
 Asks the IDE to apply document edits as defined in the standard library module
 analysis::diff::edits::TextEdits, according to the semantics defined in
@@ -37,7 +40,8 @@ of refactoring and quick-fix features of the language service protocol.
 public java void applyDocumentsEdits(list[DocumentEdit] edits);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Asks the IDE to show a "browser window" with the given interactive Content.
 }
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 

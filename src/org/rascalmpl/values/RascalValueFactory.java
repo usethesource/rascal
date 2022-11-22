@@ -1597,7 +1597,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 				throws FactTypeUseException {
 			switch (index) {
 			case 0: return getInstance().appl((IConstructor) newChild, getArgs());
-			case 1: return getInstance().appl(production, newChild);
+			case 1: return getInstance().appl(production, (IList) newChild);
 			default: throw new IndexOutOfBoundsException();
 			}
 		}

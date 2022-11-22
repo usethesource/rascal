@@ -247,12 +247,20 @@ public class TreeAdapter {
 						}
 						break;
 					case "alt":
-						syms = SymbolAdapter.getSymbols(sym);
-						index = SymbolAdapter.indexOfLabel(syms, field);
-						if (index != -1) {
-							sym = SymbolAdapter.stripLabelsAndConditions((IConstructor) syms.get(index));
-							if (SymbolAdapter.isEqual(getType((ITree) args.get(0)), sym)) {
-								return new FieldResult(sym, (ITree) args.get(0));
+						ISet alts = SymbolAdapter.getAlternatives(sym);
+						for (IValue elt : alts) {
+							sym = (IConstructor) elt;
+
+							// first find a matching label in the alt symbol
+							if (SymbolAdapter.isLabel(sym) && SymbolAdapter.getLabel((IConstructor) elt).equals(field)) {
+								sym = SymbolAdapter.stripLabelsAndConditions(sym);
+						
+								// now find the tree with the type that matches the label in the args list
+								for (IValue arg : args) {
+									if (SymbolAdapter.isEqual(getType((ITree) arg), sym)) {
+										return new FieldResult(sym, (ITree) arg);
+									}
+								}
 							}
 						}
 						break;

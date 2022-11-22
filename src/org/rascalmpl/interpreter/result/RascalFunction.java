@@ -74,24 +74,24 @@ public class RascalFunction extends NamedFunction {
     private final IConstructor indexedProduction;
     private final List<KeywordFormal> initializers;
 
-    public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, boolean isPublic, Environment env, Stack<Accumulator> accumulators) {
+    public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Default func, boolean varargs, Environment env, Stack<Accumulator> accumulators) {
         this(func, eval,
             Names.name(func.getSignature().getName()),
             func.getSignature().typeOf(env, eval, false),
             func.getSignature().typeOf(env, eval, false).instantiate(env.getDynamicTypeBindings()),
             getFormals(func),
-            varargs, isDefault(func), hasTestMod(func.getSignature()), isPublic,
+            varargs, isDefault(func), hasTestMod(func.getSignature()),
             func.getBody().getStatements(), env, accumulators);
     }
 
-    public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Expression func, boolean varargs, boolean isPublic, Environment env,
+    public RascalFunction(IEvaluator<Result<IValue>> eval, FunctionDeclaration.Expression func, boolean varargs,  Environment env,
         Stack<Accumulator> accumulators) {
         this(func, eval,
             Names.name(func.getSignature().getName()),
             func.getSignature().typeOf(env, eval, false), 
             func.getSignature().typeOf(env, eval, false).instantiate(env.getDynamicTypeBindings()),
             getFormals(func),
-            varargs, isDefault(func), hasTestMod(func.getSignature()), isPublic, 
+            varargs, isDefault(func), hasTestMod(func.getSignature()), 
             Arrays.asList(new Statement[] { ASTBuilder.makeStat("Return", func.getLocation(), ASTBuilder.makeStat("Expression", func.getLocation(), func.getExpression()))}),
             env, accumulators);
     }
@@ -99,7 +99,7 @@ public class RascalFunction extends NamedFunction {
     @SuppressWarnings("unchecked")
     public RascalFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, String name, Type staticType, Type dynamicType,
         List<KeywordFormal> initializers,
-        boolean varargs, boolean isDefault, boolean isTest, boolean isPublic, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
+        boolean varargs, boolean isDefault, boolean isTest, List<Statement> body, Environment env, Stack<Accumulator> accumulators) {
         super(ast, eval, staticType, dynamicType, initializers, name, varargs, isDefault, isTest, env);
         this.body = body;
        
@@ -110,8 +110,6 @@ public class RascalFunction extends NamedFunction {
         this.indexedLabel = computeIndexedLabel(indexedPosition, ast);
         this.indexedProduction = computeIndexedProduction(indexedPosition, ast);
         this.initializers = initializers;
-        
-        setPublic(isPublic);
     }
 
     @Override
@@ -119,9 +117,7 @@ public class RascalFunction extends NamedFunction {
         AbstractAST clone = cloneAst();
         List<Statement> clonedBody = cloneBody();
         // TODO: accumulators are not cloned? @tvdstorm check this out:
-        RascalFunction rf = new RascalFunction(clone, getEval(), getName(), getFunctionType(), getType(), initializers, hasVarArgs(), isDefault(), isTest(), isPublic(), clonedBody, env, accumulators);
-        rf.setPublic(isPublic()); // TODO: should be in constructors
-        return rf;
+        return new RascalFunction(clone, getEval(), getName(), getFunctionType(), getType(), initializers, hasVarArgs(), isDefault(), isTest(), clonedBody, env, accumulators);
     }
 
     private AbstractAST cloneAst() {
@@ -262,12 +258,13 @@ public class RascalFunction extends NamedFunction {
 
         try {
             ctx.setCurrentAST(ast);
-            if (callTracing) {
+            if (eval.getCallTracing()) {
                 printStartTrace(actuals);
             }
 
             String label = isAnonymous() ? "Anonymous Function" : name;
             Environment environment = new Environment(declarationEnvironment, ctx.getCurrentEnvt(), currentAST != null ? currentAST.getLocation() : null, ast.getLocation(), label);
+            environment.markAsFunctionFrame();
             ctx.setCurrentEnvt(environment);
 
             IMatchingResult[] matchers = prepareFormals(ctx);
@@ -296,7 +293,7 @@ public class RascalFunction extends NamedFunction {
 //                    checkReturnTypeIsNotVoid(formals, actuals);
                     result = runBody();
                     result = storeMemoizedResult(actuals,keyArgValues, result);
-                    if (callTracing) {
+                    if (eval.getCallTracing()) {
                         printEndTrace(result.getValue());
                     }
                     return result;
@@ -361,20 +358,20 @@ public class RascalFunction extends NamedFunction {
             
             result = computeReturn(e, renamings, dynamicRenamings);
             storeMemoizedResult(actuals, keyArgValues, result);
-            if (callTracing) {
+            if (eval.getCallTracing()) {
                 printEndTrace(result.getValue());
             }
             return result;
         } 
         catch (Throwable e) {
-            if (callTracing) {
+            if (eval.getCallTracing()) {
                 printExcept(e);
             }
             throw e;
         }
         finally {
-            if (callTracing) {
-                callNesting--;
+            if (eval.getCallTracing()) {
+                eval.decCallNesting();
             }
             ctx.setCurrentEnvt(old);
             ctx.setAccumulators(oldAccus);

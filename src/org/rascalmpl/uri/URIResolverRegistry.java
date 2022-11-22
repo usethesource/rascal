@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
@@ -37,8 +38,10 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -56,6 +59,14 @@ public class URIResolverRegistry {
 	private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new ConcurrentHashMap<>();
 	private final Map<String, ISourceLocationWatcher> watchers = new ConcurrentHashMap<>();
 	private final Map<ISourceLocation, Set<Consumer<ISourceLocationChanged>>> watching = new ConcurrentHashMap<>();
+
+	// we allow the user to define (using -Drascal.fallbackResolver=fully.qualified.classname) a single class that will handle
+	// scheme's not statically registered. That class should implement at least one of these interfaces
+	private volatile @Nullable ISourceLocationInput fallbackInputResolver;
+	private volatile @Nullable ISourceLocationOutput fallbackOutputResolver;
+	private volatile @Nullable ILogicalSourceLocationResolver fallbackLogicalResolver;
+	private volatile @Nullable IClassloaderLocationResolver fallbackClassloaderResolver;
+	private volatile @Nullable ISourceLocationWatcher fallbackWatcher;
 
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -98,6 +109,10 @@ public class URIResolverRegistry {
 		try {
 			Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
 			Collections.list(resources).forEach(f -> loadServices(f));
+			var fallbackResolverClassName = System.getProperty("rascal.fallbackResolver");
+			if (fallbackResolverClassName != null) {
+				loadFallback(fallbackResolverClassName);
+			}
 		}
 		catch (IOException e) {
 			throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
@@ -120,6 +135,57 @@ public class URIResolverRegistry {
 		return Collections.unmodifiableSet(classloaderResolvers.keySet());
 	}
 
+	private Object constructService(String name) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SecurityException {
+		Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+
+		try {
+			return clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
+		}
+		catch (NoSuchMethodException e) {
+			return clazz.newInstance();
+		}
+	}
+
+	private void loadFallback(String fallbackClass) {
+		try {
+			Object instance = constructService(fallbackClass);
+			boolean ok = false;
+			if (instance instanceof ILogicalSourceLocationResolver) {
+				fallbackLogicalResolver = (ILogicalSourceLocationResolver) instance;
+				ok = true;
+			}
+
+			if (instance instanceof ISourceLocationInput) {
+				fallbackInputResolver = (ISourceLocationInput) instance;
+				ok = true;
+			}
+
+			if (instance instanceof ISourceLocationOutput) {
+				fallbackOutputResolver = (ISourceLocationOutput) instance;
+				ok = true;
+			}
+
+			if (instance instanceof IClassloaderLocationResolver) {
+				fallbackClassloaderResolver = (IClassloaderLocationResolver) instance;
+				ok = true;
+			}
+
+			if (instance instanceof ISourceLocationWatcher) {
+				fallbackWatcher = (ISourceLocationWatcher) instance;
+			}
+			if (!ok) {
+				System.err.println("WARNING: could not load fallback resolver " + fallbackClass
+					+ " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
+			}
+		}
+		catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException
+			| IllegalArgumentException | InvocationTargetException | SecurityException  e) {
+			System.err.println("WARNING: could not load resolver due to " + e.getMessage());
+			e.printStackTrace();
+		}
+
+	}
+
 	private void loadServices(URL nextElement) {
 		try {
 			for (String name : readConfigFile(nextElement)) {
@@ -130,15 +196,7 @@ public class URIResolverRegistry {
 					continue;
 				}
 
-				Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
-				Object instance;
-
-				try {
-					instance = clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
-				}
-				catch (NoSuchMethodException e) {
-					instance = clazz.newInstance();
-				}
+				Object instance = constructService(name);
 
 				boolean ok = false;
 
@@ -243,6 +301,11 @@ public class URIResolverRegistry {
 				// should do the notifications
 			}
 		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			this.out.write(b, off, len);
+		}
 	}
 
 	/**
@@ -263,75 +326,85 @@ public class URIResolverRegistry {
 		return result;
 	}
 
-	private ISourceLocation physicalLocation(ISourceLocation loc) throws IOException {
-		while (logicalResolvers.containsKey(loc.getScheme())) {
-			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
-			String auth = loc.hasAuthority() ? loc.getAuthority() : "";
-			ILogicalSourceLocationResolver resolver = map.get(auth);
-			ISourceLocation prev = loc;
-			boolean removedOffset = false;
+	private static ISourceLocation resolveAndFixOffsets(ISourceLocation loc, ILogicalSourceLocationResolver resolver, Iterable<ILogicalSourceLocationResolver> backups) throws IOException {
+		ISourceLocation prev = loc;
+		boolean removedOffset = false;
 
-			if (resolver != null) {
-				loc = resolver.resolve(loc);
-			}
+		if (resolver != null) {
+			loc = resolver.resolve(loc);
+		}
 
-			if (loc == null && prev.hasOffsetLength()) {
-				loc = resolver.resolve(URIUtil.removeOffset(prev));
-				removedOffset = true;
-			}
+		if (loc == null && prev.hasOffsetLength()) {
+			loc = resolver.resolve(URIUtil.removeOffset(prev));
+			removedOffset = true;
+		}
 
-			if (loc == null || prev.equals(loc)) {
-				for (ILogicalSourceLocationResolver backup : map.values()) {
-					removedOffset = false;
-					loc = backup.resolve(prev);
+		if (loc == null || prev.equals(loc)) {
+			for (ILogicalSourceLocationResolver backup : backups) {
+				removedOffset = false;
+				loc = backup.resolve(prev);
 
-					if (loc == null && prev.hasOffsetLength()) {
-						loc = backup.resolve(URIUtil.removeOffset(prev));
-						removedOffset = true;
-					}
-
-					if (loc != null && !prev.equals(loc)) {
-						break; // continue to offset/length handling below with found location
-					}
+				if (loc == null && prev.hasOffsetLength()) {
+					loc = backup.resolve(URIUtil.removeOffset(prev));
+					removedOffset = true;
 				}
-			}
 
-			if (loc == null || prev.equals(loc)) {
-				return null;
-			}
-
-			if (removedOffset || !loc.hasOffsetLength()) { // then copy the offset from the logical one
-				if (prev.hasLineColumn()) {
-					loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength(), prev.getBeginLine(),
-						prev.getEndLine(), prev.getBeginColumn(), prev.getEndColumn());
-				}
-				else if (prev.hasOffsetLength()) {
-					if (loc.hasOffsetLength()) {
-						loc = vf.sourceLocation(loc, prev.getOffset() + loc.getOffset(), prev.getLength());
-					}
-					else {
-						loc = vf.sourceLocation(loc, prev.getOffset(), prev.getLength());
-					}
-				}
-			}
-			else if (loc.hasLineColumn()) { // the logical location offsets relative to the physical offset, possibly
-											// including line numbers
-				if (prev.hasLineColumn()) {
-					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength(),
-						loc.getBeginLine() + prev.getBeginLine() - 1, loc.getEndLine() + prev.getEndLine() - 1,
-						loc.getBeginColumn(), loc.getEndColumn());
-				}
-				else if (prev.hasOffsetLength()) {
-					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
-				}
-			}
-			else if (loc.hasOffsetLength()) { // the logical location offsets relative to the physical one
-				if (prev.hasOffsetLength()) {
-					loc = vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+				if (loc != null && !prev.equals(loc)) {
+					break; // continue to offset/length handling below with found location
 				}
 			}
 		}
 
+		if (loc == null || prev.equals(loc)) {
+			return null;
+		}
+
+		if (removedOffset || !loc.hasOffsetLength()) { // then copy the offset from the logical one
+			if (prev.hasLineColumn()) {
+				return vf.sourceLocation(loc, prev.getOffset(), prev.getLength(), prev.getBeginLine(),
+					prev.getEndLine(), prev.getBeginColumn(), prev.getEndColumn());
+			}
+			else if (prev.hasOffsetLength()) {
+				if (loc.hasOffsetLength()) {
+					return vf.sourceLocation(loc, prev.getOffset() + loc.getOffset(), prev.getLength());
+				}
+				else {
+					return vf.sourceLocation(loc, prev.getOffset(), prev.getLength());
+				}
+			}
+		}
+		else if (loc.hasLineColumn()) { // the logical location offsets relative to the physical offset, possibly
+										// including line numbers
+			if (prev.hasLineColumn()) {
+				return vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength(),
+					loc.getBeginLine() + prev.getBeginLine() - 1, loc.getEndLine() + prev.getEndLine() - 1,
+					loc.getBeginColumn(), loc.getEndColumn());
+			}
+			else if (prev.hasOffsetLength()) {
+				return vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+			}
+		}
+		else if (loc.hasOffsetLength()) { // the logical location offsets relative to the physical one
+			if (prev.hasOffsetLength()) {
+				return vf.sourceLocation(loc, loc.getOffset() + prev.getOffset(), loc.getLength());
+			}
+		}
+		// otherwise we return the loc without any offsets
+		return loc;
+	}
+
+	private ISourceLocation physicalLocation(ISourceLocation loc) throws IOException {
+		ISourceLocation original = loc;
+		while (loc != null && logicalResolvers.containsKey(loc.getScheme())) {
+			Map<String, ILogicalSourceLocationResolver> map = logicalResolvers.get(loc.getScheme());
+			String auth = loc.hasAuthority() ? loc.getAuthority() : "";
+			ILogicalSourceLocationResolver resolver = map.get(auth);
+			loc = resolveAndFixOffsets(loc, resolver, map.values());
+		}
+		var fallBack = fallbackLogicalResolver;
+		if (fallBack != null) {
+			return resolveAndFixOffsets(loc == null ? original : loc, fallBack, Collections.emptyList());
+		}
 		return loc;
 	}
 
@@ -387,6 +460,7 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return inputResolvers.get(subScheme);
 			}
+			return fallbackInputResolver;
 		}
 		return result;
 	}
@@ -399,6 +473,7 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return classloaderResolvers.get(subScheme);
 			}
+			return fallbackClassloaderResolver;
 		}
 		return result;
 	}
@@ -411,16 +486,9 @@ public class URIResolverRegistry {
 				String subScheme = m.group(1);
 				return outputResolvers.get(subScheme);
 			}
+			return fallbackOutputResolver;
 		}
 		return result;
-	}
-
-	public boolean supportsInputScheme(String scheme) {
-		return getInputResolver(scheme) != null;
-	}
-
-	public boolean supportsOutputScheme(String scheme) {
-		return getOutputResolver(scheme) != null;
 	}
 
 	public boolean supportsHost(ISourceLocation uri) {
@@ -539,7 +607,9 @@ public class URIResolverRegistry {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 
-		if (isDirectory(uri)) {
+		// we need to keep it for the notifyWatcher call after removing
+		var isDir = isDirectory(uri);
+		if (isDir) {
 			if (recursive) {
 				for (ISourceLocation element : list(uri)) {
 					remove(element, recursive);
@@ -552,7 +622,7 @@ public class URIResolverRegistry {
 
 		out.remove(uri);
 		notifyWatcher(uri,
-			isDirectory(uri) ? ISourceLocationWatcher.directoryDeleted(uri) : ISourceLocationWatcher.fileDeleted(uri));
+			isDir ? ISourceLocationWatcher.directoryDeleted(uri) : ISourceLocationWatcher.fileDeleted(uri));
 	}
 
 	/**
@@ -649,7 +719,13 @@ public class URIResolverRegistry {
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
-		return resolver.list(uri);
+
+		String[] results = resolver.list(uri);
+		if (results == null) {
+			throw new FileNotFoundException(uri.toString());
+		}
+
+		return results;
 	}
 
 	/**
@@ -695,6 +771,10 @@ public class URIResolverRegistry {
 	private void copyFile(ISourceLocation source, ISourceLocation target, boolean overwrite) throws IOException {
 		if (exists(target) && !overwrite) {
 			throw new IOException("file exists " + source);
+		}
+
+		if (exists(target) && overwrite) {
+			remove(target, false);
 		}
 		
 		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
@@ -754,6 +834,20 @@ public class URIResolverRegistry {
 		else {
 			return res;
 		}
+	}
+
+	/**
+	 * Return a character Writer for the given uri, using the given character encoding.
+	 * 
+	 * @param uri       file to write to or append to
+	 * @param encoding  how to encode individual characters @see Charset
+	 * @param append    whether to append or start at the beginning.
+	 * @return
+	 * @throws IOException 
+	 */
+	public Writer getCharacterWriter(ISourceLocation uri, String encoding, boolean append) throws IOException {
+		uri = safeResolve(uri);
+		return new UnicodeOutputStreamWriter(getOutputStream(uri, append), encoding);
 	}
 
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
@@ -859,7 +953,7 @@ public class URIResolverRegistry {
 			loc = URIUtil.getParentLocation(loc);
 		}
 
-		ISourceLocationWatcher watcher = watchers.get(loc.getScheme());
+		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher);
 		if (watcher != null) {
 			watcher.watch(loc, callback);
 		}
@@ -890,7 +984,7 @@ public class URIResolverRegistry {
 			// watching directories (the native NEO file watchers are like that)
 			loc = URIUtil.getParentLocation(loc);
 		}
-		ISourceLocationWatcher watcher = watchers.get(loc.getScheme());
+		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher);
 		if (watcher != null) {
 			watcher.unwatch(loc, callback);
 		}

@@ -71,9 +71,7 @@ public class ConstructorFunction extends NamedFunction {
 
 	@Override
 	public ConstructorFunction cloneInto(Environment env) {
-		ConstructorFunction c = new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
-		c.setPublic(isPublic());
-		return c;
+		return new ConstructorFunction(getAst(), getEval(), env, constructorType, initializers);
 	}
 	
 	// TODO: refactor and make small. For now this does the job.

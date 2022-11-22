@@ -14,10 +14,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.library.lang.json.io.JsonValueWriter;
+import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
@@ -102,6 +103,7 @@ public class TermREPL {
         private final AbstractFunction completor;
         private final IValueFactory vf;
         private final AbstractFunction stacktrace;
+        private IDEServices services;
 
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
             IFunction handler, IFunction completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
@@ -144,10 +146,11 @@ public class TermREPL {
         }
 
         @Override
-        public void initialize(InputStream input, OutputStream stdout, OutputStream stderr) {
+        public void initialize(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
             this.stdout = stdout;
             this.stderr = stderr;
             this.input = input;
+            this.services = services;
         }
 
         @Override
@@ -236,14 +239,10 @@ public class TermREPL {
             IWithKeywordParameters<? extends IConstructor> kws = response.asWithKeywordParameters();
 
             IValue dtf = kws.getParameter("dateTimeFormat");
-            IValue ics = kws.getParameter("implicitConstructors");
-            IValue ipn = kws.getParameter("implicitNodes");
             IValue dai = kws.getParameter("dateTimeAsInt");
             
             JsonValueWriter writer = new JsonValueWriter()
                 .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
-                .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
                 .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();

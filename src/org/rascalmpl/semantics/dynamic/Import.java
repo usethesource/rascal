@@ -33,6 +33,7 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.SyntaxDefinition;
 import org.rascalmpl.ast.Tag;
 import org.rascalmpl.ast.TagString.Lexical;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -57,9 +58,6 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
-import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
@@ -67,7 +65,9 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
@@ -325,10 +325,6 @@ public abstract class Import {
 	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
 	        throw e;
 	    }
-	    catch (ParseError e) {
-	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-	        throw e;
-	    }
 	    catch (StaticError e) {
 	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
 	        throw e;
@@ -459,7 +455,21 @@ private static boolean isDeprecated(Module preModule){
       // parse the embedded concrete syntax fragments of the current module
       ITree result = tree;
       if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
-          result = parseFragments(eval, tree, location, env);
+          RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
+          IFunction parsers = null;
+          
+          if (env.getBootstrap()) {
+             parsers = vf.bootstrapParsers();
+          }
+          else {
+            IConstructor dummy = TreeAdapter.getType(tree); // I just need _any_ ok non-terminal
+            IMap syntaxDefinition = env.getSyntaxDefinition();
+            IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
+            IConstructor reifiedType = vf.reifiedType(dummy, grammar);
+            parsers = vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+          }
+      
+          result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
       }
 
       return result;
@@ -492,8 +502,6 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
 	  }
   }
   
-  
-
   /**
    * This function will reconstruct a parse tree of a module, where all nested concrete syntax fragments
    * have been parsed and their original flat literal strings replaced by fully structured parse trees.
@@ -502,16 +510,14 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
    * @param parser is the parser to use for the concrete literals
    * @return parse tree of a module with structured concrete literals, or parse errors
    */
-  public static ITree parseFragments(final IEvaluator<Result<IValue>> eval, IConstructor module, final ISourceLocation location, final ModuleEnvironment env) {
+  public static ITree parseFragments(final RascalFunctionValueFactory vf, final IRascalMonitor monitor, final IFunction parsers, IConstructor module, final ISourceLocation location, final ModuleEnvironment env) {
      return (ITree) module.accept(new IdentityTreeVisitor<ImplementationError>() {
-       final IValueFactory vf = eval.getValueFactory();
-       
        @Override
        public ITree visitTreeAppl(ITree tree)  {
          IConstructor pattern = getConcretePattern(tree);
          
          if (pattern != null) {
-           ITree parsedFragment = parseFragment(eval, env, (ITree) TreeAdapter.getArgs(tree).get(0), location);
+           ITree parsedFragment = parseFragment(vf, monitor, parsers, (ITree) TreeAdapter.getArgs(tree).get(0), location);
            return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
          }
          else {
@@ -544,101 +550,46 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
      });
   }
   
-  @SuppressWarnings("unchecked")
-  public static IGTD<IConstructor, ITree, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, ISourceLocation caller, IMap grammar, boolean force) {
-    if (currentModule.getBootstrap()) {
-      return new RascalParser();
-    }
-    
-    if (currentModule.hasCachedParser(grammar)) {
-      String className = currentModule.getCachedParser(grammar);
-      Class<?> clazz;
-      for (ClassLoader cl: eval.getClassLoaders()) {
-        try {
-          clazz = cl.loadClass(className);
-          return (IGTD<IConstructor, ITree, ISourceLocation>) clazz.newInstance();
-        } catch (ClassNotFoundException e) {
-          continue;
-        } catch (InstantiationException e) {
-          throw new ImplementationError("could not instantiate " + className + " to valid IGTD parser", e);
-        } catch (IllegalAccessException e) {
-          throw new ImplementationError("not allowed to instantiate " + className + " to valid IGTD parser", e);
-        }
-      }
-      throw new ImplementationError("class for cached parser " + className + " could not be found");
-    }
-
-    ParserGenerator pg = eval.getParserGenerator();
-    IMap definitions = grammar;
-    
-    String parserName = currentModule.getName() + "_" + Math.abs(grammar.hashCode());
-    Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(parserName, definitions);
-
-    if (parser == null || force) {
-        synchronized (eval) {
-          parser = eval.getHeap().getObjectParser(parserName, definitions);
-          if (parser == null || force) {
-            // TODO: this hashCode is not good enough!
-            parser = pg.getNewParser(eval, caller, parserName, definitions);
-            eval.getHeap().storeObjectParser(parserName, definitions, parser);
-          }
-        }
-    }
-
-    try {
-      return parser.newInstance();
-    } catch (InstantiationException e) {
-      throw new ImplementationError(e.getMessage(), e);
-    } catch (IllegalAccessException e) {
-      throw new ImplementationError(e.getMessage(), e);
-    } catch (ExceptionInInitializerError e) {
-      throw new ImplementationError(e.getMessage(), e);
-    }
-  }
-  
-  private static ITree parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree tree, ISourceLocation uri) {
-    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
+  private static ITree parseFragment(RascalFunctionValueFactory vf, IRascalMonitor monitor, IFunction parsers, ITree tree, ISourceLocation uri) {
+    ITree symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
     Map<String, ITree> antiquotes = new HashMap<>();
      
-    IMap syntaxDefinition = env.getSyntaxDefinition();
-    IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
-    IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(lit), grammar, false);
-    
     try {
-      String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);
-      DefaultNodeFlattener<IConstructor, ITree, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>();
-      UPTRNodeFactory nodeFactory = new UPTRNodeFactory(false);
+      IConstructor reifiedSym = vf.reifiedType(vf.sym2symbol(symTree), vf.map());
     
       SortedMap<Integer,Integer> corrections = new TreeMap<>();
-      char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes, corrections);
+      char[] input = replaceAntiQuotesByHoles(vf, lit, antiquotes, corrections);
       
-      ITree fragment = (ITree) parser.parse(parserMethodName, uri.getURI(), input, converter, nodeFactory);
+      ITree fragment = (ITree) parsers.call(reifiedSym, vf.string(new String(input)), uri);
       
       // Adjust locations before replacing the holes back to the original anti-quotes,
       // since these anti-quotes already have the right location (!).
-      fragment = (ITree) fragment.accept(new AdjustLocations(corrections, eval.getValueFactory()));
-      fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes, corrections);
+      fragment = (ITree) fragment.accept(new AdjustLocations(corrections, vf));
+      fragment = replaceHolesByAntiQuotes(vf, fragment, antiquotes, corrections);
       
       
       IConstructor prod = TreeAdapter.getProduction(tree);
       IConstructor sym = ProductionAdapter.getDefined(prod);
       sym = SymbolAdapter.delabel(sym); 
-      IValueFactory vf = eval.getValueFactory();
       prod = ProductionAdapter.setDefined(prod, vf.constructor(RascalValueFactory.Symbol_Label, vf.string("$parsed"), sym));
       return TreeAdapter.setProduction(TreeAdapter.setArg(tree, "parts", fragment), prod);
     }
-    catch (ParseError e) {
-      ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
-      eval.getMonitor().warning("parse error in concrete syntax: "+ src, src);
-      return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
-    }
-    catch (Ambiguous e) {
-        ISourceLocation ambLocation = e.getLocation();
+    catch (Throw e) {
+      IConstructor exception = (IConstructor) e.getException();
+
+      if (exception.getName().equals("ParseError")) {
+        ISourceLocation err = (ISourceLocation) exception.get(0);
+        ISourceLocation loc = TreeAdapter.getLocation(tree);        
+        ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset() + err.getOffset(), loc.getLength(), loc.getBeginLine() + err.getBeginLine() - 1, loc.getEndLine() + err.getEndLine() - 1, loc.getBeginColumn() + err.getBeginColumn(), loc.getBeginColumn() + err.getEndColumn());
+        monitor.warning("parse error in concrete syntax: "+ src, src);
+        return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
+      }
+      else if (exception.getName().equals("Ambiguity")) {
+        ISourceLocation ambLocation = (ISourceLocation) exception.get(0);
         ISourceLocation loc = TreeAdapter.getLocation(tree);
         ISourceLocation src = ambLocation.hasOffsetLength() 
-            ? eval.getValueFactory().sourceLocation(loc.top(), 
+            ? vf.sourceLocation(loc.top(), 
                 loc.getOffset() + ambLocation.getOffset() , 
                 loc.getLength(), 
                 loc.getBeginLine() + ambLocation.getBeginLine() - 1, 
@@ -646,20 +597,26 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
                 loc.getBeginColumn() + ambLocation.getBeginColumn(), 
                 loc.getBeginColumn() + ambLocation.getEndColumn()) 
             : loc;
-        
-        eval.getMonitor().warning("ambiguity in concrete syntax", src);
+
+        monitor.warning("ambiguity in concrete syntax", src);
         return (ITree) tree.asWithKeywordParameters().setParameter("parseError", src);
+      }
+      else {
+        ISourceLocation loc = TreeAdapter.getLocation(tree);   
+        monitor.warning("error while parsing concrete syntax: " + e.getException(), loc);
+        return (ITree) tree.asWithKeywordParameters().setParameter("parseError", loc);
+      }
     }
     catch (StaticError e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-      eval.getMonitor().warning(e.getMessage(), e.getLocation());
+      ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      monitor.warning(e.getMessage(), e.getLocation());
       return (ITree) tree.asWithKeywordParameters().setParameter("can not parse fragment due to " + e.getMessage(), src);
     }
     catch (UndeclaredNonTerminalException e) {
       ISourceLocation loc = TreeAdapter.getLocation(tree);
-      ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
-      eval.getMonitor().warning(e.getMessage(), src);
+      ISourceLocation src = vf.sourceLocation(loc.top(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getBeginColumn());
+      monitor.warning(e.getMessage(), src);
       return (ITree) tree.asWithKeywordParameters().setParameter("can not parse fragment due to " + e.getMessage(), src);
     }
   }
@@ -729,8 +686,7 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     }
   }
   
-  private static char[] replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, 
-  		ITree lit, Map<String, ITree> antiquotes, SortedMap<Integer, Integer> corrections ) {
+  private static char[] replaceAntiQuotesByHoles(RascalFunctionValueFactory vf, ITree lit, Map<String, ITree> antiquotes, SortedMap<Integer, Integer> corrections ) {
     IList parts = TreeAdapter.getArgs(lit);
     StringBuilder b = new StringBuilder();
     
@@ -775,7 +731,7 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
       	b.append('\\');
       }
       else if (cons.equals("hole")) {
-        String hole = createHole(eval, part, antiquotes);
+        String hole = createHole(vf, part, antiquotes);
         shift += partLen - hole.length();
 				offset += hole.length();
 				corrections.put(offset, shift);
@@ -786,22 +742,20 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     return b.toString().toCharArray();
   }
 
-  private static String createHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
-    String ph = ctx.getParserGenerator().createHole(part, antiquotes.size());
-    antiquotes.put(ph, part);
-    return ph;
+  private static String createHole(RascalFunctionValueFactory vf, ITree part, Map<String, ITree> antiquotes) {
+    IString ph = vf.createHole(part, vf.integer(antiquotes.size()));
+    antiquotes.put(ph.getValue(), part);
+    return ph.getValue();
   }
 
-  private static ITree replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, ITree fragment, 
-  		final Map<String, ITree> antiquotes, final SortedMap<Integer,Integer> corrections) {
+  private static ITree replaceHolesByAntiQuotes(final IValueFactory vf, ITree fragment, final Map<String, ITree> antiquotes, final SortedMap<Integer,Integer> corrections) {
       return (ITree) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
-        private final IValueFactory vf = eval.getValueFactory();
         
         @Override
         public ITree visitTreeAppl(ITree tree)  {
           String cons = TreeAdapter.getConstructorName(tree);
           if (cons == null || !cons.equals("$MetaHole") ) {
-            IListWriter w = eval.getValueFactory().listWriter();
+            IListWriter w = vf.listWriter();
             IList args = TreeAdapter.getArgs(tree);
             for (IValue elem : args) {
               w.append(elem.accept(this));

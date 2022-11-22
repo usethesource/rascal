@@ -9,42 +9,45 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @doc{
-.Synopsis
+#### Synopsis
+
 A `Message` datatype that represents messages in the IDE.
 
-.Syntax
+#### Syntax
 
-.Types
-[source,rascal]
-----
+#### Types
+
+```rascal
 data Message = error(str msg, loc at)
              | warning(str msg, loc at)
              | info(str msg, loc at);
-----
+```
 
 
 
-.Function
+#### Function
 
-.Details
+#### Details
 
-.Description
+#### Description
+
 Messages can be used to communicate information about source texts.
 They can be interpreted by IDEs to display type errors and warnings, etc.
 `Message` s are, for instance, used as annotations of
-link:/Rascal#Declarations-AlgebraicDataType[algebraic data type].
+[algebraic data type]((Rascal:Declarations-AlgebraicDataType)).
 A very common example is to annotate parse trees with messages.
 
 
-.Examples
+#### Examples
 
-.Benefits
+#### Benefits
 
 .Pitfalls}
 module Message
 
 @doc{
-.Description
+#### Description
+
 Messages can be used to communicate information about source texts.
 They can be interpreted by IDE's to display type errors and warnings, etc.
 }

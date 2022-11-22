@@ -266,7 +266,6 @@ public class JarConverter extends M3Converter {
             ISourceLocation classLogical = resolver.resolveBinding(classNode, null);
             ISourceLocation classPhysical = M3LocationUtil.makeLocation(compUnitPhysical, classReader.header, classReader.b.length);
             IConstructor cons = resolver.resolveType(classNode, null);
-            @SuppressWarnings("unchecked")
             List<AnnotationNode> annotations = composeAnnotations(classNode.visibleAnnotations, classNode.invisibleAnnotations);
 
             addToContainment(compUnitLogical, classLogical);
@@ -291,7 +290,6 @@ public class JarConverter extends M3Converter {
      */
     private void setInnerClassRelations(ClassNode classNode, ISourceLocation classLogical) {
         // cn.innerClasses and cn.outerClass are not providing consistent information. 
-        @SuppressWarnings("unchecked")
         List<InnerClassNode> innerClasses = classNode.innerClasses;
         
         if (innerClasses != null) {
@@ -322,7 +320,6 @@ public class JarConverter extends M3Converter {
      * @param classNode - class node where fields are declared
      * @param classLogical - class location
      */
-    @SuppressWarnings("unchecked")
     private void setFieldRelations(ClassNode classNode, ISourceLocation classLogical) {
         List<FieldNode> fields = classNode.fields;
         
@@ -356,7 +353,6 @@ public class JarConverter extends M3Converter {
      * @param classNode - class node where fields are declared
      * @param classLogical - class location
      */
-    @SuppressWarnings("unchecked")
     private void setMethodRelations(ClassNode classNode, ISourceLocation classLogical) {
         List<MethodNode> methods = classNode.methods;
         
@@ -400,7 +396,6 @@ public class JarConverter extends M3Converter {
         if (classReader != null) {
             ClassNode classNode = new ClassNode();
             classReader.accept(classNode, ClassReader.SKIP_DEBUG);
-            @SuppressWarnings("unchecked")
             List<MethodNode> superMethods = classNode.methods;
             
             if (superMethods != null) {
@@ -425,7 +420,6 @@ public class JarConverter extends M3Converter {
      * @param methodLogical - logical location of the method
      */
     private void setExceptionRelations(MethodNode methodNode, ISourceLocation methodLogical) {
-        @SuppressWarnings("unchecked")
         List<String> exceptions = methodNode.exceptions;
         
         for (String exception : exceptions) {
@@ -468,7 +462,6 @@ public class JarConverter extends M3Converter {
         InsnList instructions = methodNode.instructions;
         
         if(instructions != null) {
-            @SuppressWarnings("unchecked")
             ListIterator<AbstractInsnNode> iterator = instructions.iterator();
 
             while (iterator.hasNext()) {

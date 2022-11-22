@@ -50,7 +50,7 @@ import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class Cases  {
-	public static final List<String> IUPTR_NAMES = Arrays.asList("appl", "cycle", "amb", "char");
+	public static final List<String> IUPTR_NAMES = Arrays.asList("appl", "cycle", "amb", "char", "Tree::appl", "Tree::cycle", "Tree::char", "Tree::amb");
 	
 	private static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -218,8 +218,17 @@ public class Cases  {
 				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.parsetrees.ITree) value));
 				if (alts != null) {
 					for (CaseBlock c : alts) {
-						if (c.matchAndEval(eval, subject)) {
-							return true;
+						Environment old = eval.getCurrentEnvt();
+						try {
+							if (c.matchAndEval(eval, subject)) {
+								return true;
+							}
+						}
+						catch (Failure f) {
+							continue;
+						}
+						finally {
+							eval.unwind(old);
 						}
 					}
 				}
@@ -391,8 +400,19 @@ public class Cases  {
 
 			if (alts != null) {
 				for (DefaultBlock c : alts) {
-					if (c.matchAndEval(eval, subject)) {
-						return true;
+					Environment old = eval.getCurrentEnvt();
+					try {
+						eval.pushEnv();
+						if (c.matchAndEval(eval, subject)) {
+							return true;
+						}
+					}
+					catch (Failure e) {
+						// just continue with the next case
+						continue;
+					}
+					finally {
+						eval.unwind(old);
 					}
 				}
 			}

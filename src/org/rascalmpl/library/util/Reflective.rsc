@@ -40,7 +40,7 @@ data RascalConfigMode
 data PathConfig 
     // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] courses = [|courses:///|], // List of locations to search for course source files
+               list[loc] ignores = [],              // List of locations to ignore from the source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
                list[loc] libs = [|lib://rascal/|],          // List of directories to search source for derived files
                list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
@@ -49,6 +49,7 @@ data PathConfig
 
 data RascalManifest
   = rascalManifest(
+      str \Project-Name = "Project",
       str \Main-Module = "Plugin",
       str \Main-Function = "main", 
       list[str] Source = ["src"],
@@ -170,10 +171,12 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", 
 }
 
 @doc{   
-.Synopsis
+#### Synopsis
+
 Derive a location from a given module name for reading
 
-.Description
+#### Description
+
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
@@ -182,27 +185,28 @@ then the pair <true, F> is returned. Otherwise <false, some error location> is r
 
 For a source extension (typically "rsc" or "mu" but this can be configured) srcs is searched, otherwise binPath + libs.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import util::Reflective;
 getDerivedReadLoc("List", "rsc", pathConfig());
 getDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-----
+```
 
-.Benefits
+#### Benefits
+
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be read
 from locations in different, configurable, directories.
 }
 
-tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}){
+tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}, str rootDir = ""){
     fileName = makeFileName(qualifiedModuleName, extension=extension);
     //println("getDerivedReadLoc: <fileName>");
    
     if(extension in srcExtensions){
        for(loc dir <- pcfg.srcs){        // In a source directory?
-           fileLoc = dir + fileName;
+           fileLoc = dir + rootDir + fileName;
            if(exists(fileLoc)){
              //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc");
              return <true, fileLoc>;
@@ -211,7 +215,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     } else {
       for(loc dir <- pcfg.bin + pcfg.libs){   // In a bin or lib directory?
        
-        fileLoc = dir + fileName;
+        fileLoc = dir + rootDir + fileName;
         if(exists(fileLoc)){
            //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc>");
            return <true, fileLoc>;
@@ -223,30 +227,36 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
 }
 
 @doc{   
-.Synopsis
+#### Synopsis
+
 Derive a location from a given module name for writing
 
-.Description
+#### Description
+
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
 For source modules, a writable location cannot be derived.
 For other modules, a location for this path in bin will be returned.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import util::Reflective;
 getDerivedWriteLoc("List", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
-getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-----
+```
 
-.Benefits
+```rascal-shell,error
+getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "rsc", pathConfig());
+```
+
+#### Benefits
+
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be written
 to locations in separate, configurable, directories.
 }
-loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}){
+loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, set[str] srcExtensions = {"rsc", "mu"}, str rootDir = ""){
     if(extension in srcExtensions){
         throw "Cannot derive writable location for module <qualifiedModuleName> with extension <extension>";
     }
@@ -254,7 +264,7 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     fileNameBin = makeFileName(qualifiedModuleName, extension=extension);
     
     bin = pcfg.bin;
-    fileLocBin = bin + fileNameBin;
+    fileLocBin = bin + rootDir + fileNameBin;
     //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }
@@ -300,3 +310,99 @@ set[str] getRascalReservedIdentifiers() = { n | /lit(n) := #RascalKeywords.defin
     
 @javaClass{org.rascalmpl.library.util.Reflective}
 java str getRascalVersion();   
+
+@doc{Create a folder structure for an empty Rascal project with Maven support}
+void newRascalProject(loc folder, str name="my-project", str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
+    if (exists(folder)) {
+        throw "<folder> exists already. Please provide an non-existing and empty folder name";
+    }
+    mkDirectory(pomFile(folder).parent);
+    writeFile(pomFile(folder), pomXml(name, group, version));
+    mkDirectory(metafile(folder).parent);
+    writeFile(metafile(folder), rascalMF(name));
+    mkDirectory(folder + "src/main/rascal");
+    writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
+}
+
+private loc pomFile(loc folder) = folder + "pom.xml";
+
+private str emptyModule() = "module Main
+                            '
+                            'import IO;
+                            '
+                            'int main(int testArgument=0) {
+                            '    println(\"argument: \<testArgument\>\");
+                            '    return testArgument;
+                            '}
+                            '";
+
+private str rascalMF(str name) 
+  = "Manifest-Version: 0.0.1
+    'Project-Name: <name>
+    'Source: src/main/rascal
+    'Require-Libraries: 
+    ";
+
+private str pomXml(str name, str group, str version)  
+  = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
+    '  \<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+    '  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\>
+    '  \<modelVersion\>4.0.0\</modelVersion\>
+    '
+    '  \<groupId\><group>\</groupId\>
+    '  \<artifactId\><name>\</artifactId\>
+    '  \<version\><version>\</version\>
+    '
+    '  \<properties\>
+    '    \<project.build.sourceEncoding\>UTF-8\</project.build.sourceEncoding\>
+    '  \</properties\>
+    '
+    '  \<repositories\>
+    '    \<repository\>
+    '        \<id\>usethesource\</id\>
+    '        \<url\>https://releases.usethesource.io/maven/\</url\>
+    '    \</repository\>
+    '  \</repositories\>
+    '
+    '  \<pluginRepositories\>
+    '    \<pluginRepository\>
+    '       \<id\>usethesource\</id\>
+    '       \<url\>https://releases.usethesource.io/maven/\</url\>
+    '    \</pluginRepository\>
+    '  \</pluginRepositories\>
+    '
+    '  \<dependencies\>
+    '    \<dependency\>
+    '      \<groupId\>org.rascalmpl\</groupId\>
+    '      \<artifactId\>rascal\</artifactId\>
+    '      \<version\><getRascalVersion()>\</version\>
+    '    \</dependency\>
+    '  \</dependencies\>
+    '
+    '  \<build\>
+    '    \<plugins\>
+    '      \<plugin\>
+    '        \<groupId\>org.apache.maven.plugins\</groupId\>
+    '        \<artifactId\>maven-compiler-plugin\</artifactId\>
+    '        \<version\>3.8.0\</version\>
+    '        \<configuration\>
+    '          \<compilerArgument\>-parameters\</compilerArgument\> 
+    '          \<release\>11\</release\>
+    '        \</configuration\>
+    '      \</plugin\>
+    '      \<plugin\>
+    '        \<groupId\>org.rascalmpl\</groupId\>
+    '        \<artifactId\>rascal-maven-plugin\</artifactId\>
+    '        \<version\>0.8.2\</version\>
+    '        \<configuration\>
+    '          \<errorsAsWarnings\>true\</errorsAsWarnings\>
+    '          \<bin\>${project.build.outputDirectory}\</bin\>
+    '          \<srcs\>
+    '            \<src\>${project.basedir}/src/main/rascal\</src\>
+    '          \</srcs\>
+    '        \</configuration\>
+    '      \</plugin\>
+    '    \</plugins\>
+    '  \</build\>
+    '\</project\>
+    ";

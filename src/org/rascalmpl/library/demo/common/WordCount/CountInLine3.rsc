@@ -7,14 +7,13 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
-//START
-// tag::module[]
+@synopsis{Count words in a string}
 module demo::common::WordCount::CountInLine3
 
-int countInLine3(str S){
-  return (0 | it + 1 | /\w+/ := S);
+@synopsis{Use a ((Reducer)) to flip through all the possible matches and count them.}
+int countInLine3(str s) {
+  return (0 | it + 1 | /\w+/ := s);
 }
-// end::module[]
 
 test bool tstCountInLine3a() = countInLine3("") == 0;
 
