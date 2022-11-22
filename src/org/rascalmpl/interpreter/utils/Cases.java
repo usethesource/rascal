@@ -218,8 +218,17 @@ public class Cases  {
 				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.parsetrees.ITree) value));
 				if (alts != null) {
 					for (CaseBlock c : alts) {
-						if (c.matchAndEval(eval, subject)) {
-							return true;
+						Environment old = eval.getCurrentEnvt();
+						try {
+							if (c.matchAndEval(eval, subject)) {
+								return true;
+							}
+						}
+						catch (Failure f) {
+							continue;
+						}
+						finally {
+							eval.unwind(old);
 						}
 					}
 				}
