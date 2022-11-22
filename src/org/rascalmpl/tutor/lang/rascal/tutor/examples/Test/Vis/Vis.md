@@ -21,3 +21,4 @@ characters = {"Sneezy", "Sleepy", "Dopey", "Doc", "Happy", "Bashful", "Grumpy"};
 serve(table(characters * characters))
 ```
 
+

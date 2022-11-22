@@ -121,6 +121,8 @@ public class TutorCommandExecutor {
                 try {
                     browser.get(metadata.get("url"));
                     browser.manage().window().maximize();
+                    // waiting for a better solution 
+                    Thread.sleep(1000);    
 
                     String screenshot = browser.findElement(By.tagName("body"))
                         .getScreenshotAs(OutputType.BASE64);
