@@ -85,19 +85,14 @@ The execution of the cases has the following effect:
    The modified copy of the subject is ultimately returned by the visit expression.
 
 *  A PatternWithAction of the form `Pattern : Statement` executes `Statement` and this should lead to one of the following:
-
-   ** Execution of an Insert statement of the form `insert Exp~2~`.
+   * Execution of an Insert statement of the form `insert Exp~2~`.
       The value of _Exp_~2~ replaces the subtree of the subject that is currently being visited. 
       Once again, this modification takes place in a copy of the original subject (see above).
       Note that:
-
-      *** An insert statement may only occur in a PatternWithAction in a visit expression or a rule.
-
-      *** `Pattern => Exp` is equivalent to `Pattern : insert Exp;`.
-
-   ** Execution of a ((Fail)) statement: the next case is tried.
-
-   ** Execution of a ((Return)) statement that returns a value from the enclosing function.
+      * An insert statement may only occur in a PatternWithAction in a visit expression or a rule.
+      * `Pattern => Exp` is equivalent to `Pattern : insert Exp;`.
+   * Execution of a ((Fail)) statement: the next case is tried.
+   * Execution of a ((Return)) statement that returns a value from the enclosing function.
 
 The precise behaviour of the visit expression depends on the type of the subject:
 
