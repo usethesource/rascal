@@ -103,7 +103,6 @@ public class TermREPL {
         private final AbstractFunction completor;
         private final IValueFactory vf;
         private final AbstractFunction stacktrace;
-        private IDEServices services;
 
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
             IFunction handler, IFunction completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
