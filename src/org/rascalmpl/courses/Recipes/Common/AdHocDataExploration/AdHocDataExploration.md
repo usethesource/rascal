@@ -387,18 +387,16 @@ ok
 And we're done.  But what did we learn here?  Here's what I think:
 
 *  Explore the terrain, take notes, build intuition, develop theories, test them.
-**  Refine and repeat
-**  Double check!
+   *  Refine and repeat
+   *  Double check!
 
 *  Build infrastructure with natural "break points"
-**  Understandable is better than fast, esp. in the beginning
-**  The correct way is better than the easy way
-***  The correct way may be pretty easy too
+   *  Understandable is better than fast, esp. in the beginning
+   *  The correct way is better than the easy way
+   *  The correct way may be pretty easy too
 
 *  Document and later challenge your assumptions 
-**  Are you measuring what you think you are measuring?  How do you know?
-
-
+   *  Are you measuring what you think you are measuring?  How do you know?
 
 #### Examples
 
