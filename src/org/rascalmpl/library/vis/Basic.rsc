@@ -23,6 +23,7 @@ import ParseTree;
 import Node;
 import util::IDEServices;
 import util::Math;
+import util::Sampling;
 import Content;
 import IO;
 import ValueIO;
@@ -204,21 +205,11 @@ HTMLElement toHTML(node n)
 default HTMLElement toHTML(value x:!set[value] _) // set is also a default to avoid clashing with rel
     = text("<x>");
 
-private str sampled(set[value] s, int count) 
-    = size(s) > count ? "sampled <count>/<size(s)>" : "";
-
-private set[&T] sample(set[&T] corpus, int count) 
-  = { l[arbInt(S)] | _ <- [0..count]}
-  when l := [*corpus], S := size(l);
-
 private str sampled(list[value] s, int count) 
     = size(s) > count ? "head <count>/<size(s)>" : "";
 
-private list[&T] sample(list[&T] corpus, int count) 
-  = corpus[..count];
+private str sampled(set[value] s, int count) 
+    = size(s) > count ? "sampled <count>/<size(s)>" : "";
 
 private str sampled(map[value,value] s, int count) 
     = size(s) > count ? "sampled <count>/<size(s)>" : "";
-
-private map[&T,&U] sample(map[&T,&U] corpus, int count) 
-  = (k : v | <k,v> <- sample(toRel(corpus), count)); 
