@@ -149,7 +149,6 @@ public class TermREPL {
             this.stdout = stdout;
             this.stderr = stderr;
             this.input = input;
-            this.services = services;
         }
 
         @Override
