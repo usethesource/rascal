@@ -24,7 +24,7 @@ Index createConceptIndex(PathConfig pcfg) {
     writeBinaryValueFile(pcfg.bin + "index.value", ind);
 
     // read indices from projects we depend on, if present
-    ind += {*readBinaryValueFile(#rel[str,str], inx) | l <- pcfg.libs, inx := l + "doc" + "index.value", exists(inx)};
+    ind += {*readBinaryValueFile(#rel[str,str], inx) | l <- pcfg.libs, inx := l + "docs" + "index.value", exists(inx)};
 
     return ind;
 }
