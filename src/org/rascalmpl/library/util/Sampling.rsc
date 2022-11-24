@@ -28,6 +28,7 @@ expected `target` size, but most probably a little smaller or larger.
 }
 @examples{
 ```rascal-shell
+import util::Sampling;
 sample({"a","b","c","e","f","g","h","i","j","k"}, 4)
 sample({"a","b","c","e","f","g","h","i","j","k"}, 4)
 sample({"a","b","c","e","f","g","h","i","j","k"}, 4)
@@ -45,6 +46,7 @@ expected `target` size, but most probably a little smaller or larger.
 }
 @examples{
 ```rascal-shell
+import util::Sampling;
 sample([1..1000], 30)
 sample([1..1000], 30)
 sample([1..1000], 30)
