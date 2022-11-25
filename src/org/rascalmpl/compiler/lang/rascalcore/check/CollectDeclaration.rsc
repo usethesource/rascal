@@ -344,26 +344,26 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         if(decl is abstract){
             if("javaClass" in tagsMap){
                 if("java" notin modifiers){
-                    c.report(warning(decl, "Missing modifier `java`"));
+                    c.report(warning(decl.signature, "Missing modifier `java`"));
                 }
                 if("test" in modifiers){
-                    c.report(warning(decl, "Modifier `test` cannot be used for Java functions"));
+                    c.report(warning(decl.signature, "Modifier `test` cannot be used for Java functions"));
                 }
             } else {
                 c.report(warning(decl, "Empty function body"));
              }
         } else {
             if("javaClass" in tagsMap){
-                c.report(warning(decl, "Redundant tag `javaClass`"));
+                c.report(warning(decl.signature, "Redundant tag `javaClass`"));
             }
             if("java" in modifiers){
-                c.report(warning(decl, "Redundant modifier `java`"));
+                c.report(warning(decl.signature, "Redundant modifier `java`"));
             }
         }
         
         if(decl is \default){
             if(!myReturnsViaAllPath && "<signature.\type>" != "void"){
-                c.report(error(decl, "Missing return statement"));
+                c.report(error(decl.signature, "Missing return statement"));
             }
         }
         
