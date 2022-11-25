@@ -1,20 +1,26 @@
 package org.rascalmpl.library.util;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.apache.maven.cli.CliRequest;
+import org.apache.maven.cli.MavenCli;
+import org.codehaus.plexus.classworlds.ClassWorld;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -585,6 +591,10 @@ public class PathConfig {
         }
     }
 	
+
+    private static final Pattern FIND_CLASS_PATH = Pattern.compile("org.apache.maven.plugin.dependency.fromDependencies.BuildClasspathMojo - Dependencies classpath:\\s+(.+)$", Pattern.MULTILINE);
+
+
     /**
      * See if there is a pom.xml and extract the compile-time classpath from a mvn run
      * if there is such a file.
@@ -605,25 +615,24 @@ public class PathConfig {
                 return vf.list();
             }
 
-            String mvnCommand = computeMavenCommandName();
+            var maven = new MavenCli();
+            try (var output = new ByteArrayOutputStream()) {
+                var oldOut = System.out;
+                var oldErr = System.err;
+                try (var out = new PrintStream(output, false, StandardCharsets.UTF_8)) {
+                    System.setOut(out);
+                    System.setErr(out);
+                    maven.doMain(buildRequest(new String[] {"-o", "dependency:build-classpath", "-DincludeScope=compile"}, manifestRoot));
+                }
+                finally {
+                    System.setOut(oldOut);
+                    System.setErr(oldErr);
+                }
+                var mavenOutput = new String(output.toByteArray(), StandardCharsets.UTF_8);
+                var match = FIND_CLASS_PATH.matcher(mavenOutput);
+                var foundClassPath = match.find() ? match.group(1) : "";
 
-            installNecessaryMavenPlugins(mvnCommand);
-
-            // Note how we try to do this "offline" using the "-o" flag
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-o", "dependency:build-classpath",
-                "-DincludeScope=compile");
-            processBuilder.directory(new File(manifestRoot.getPath()));
-
-            Process process = processBuilder.start();
-
-            try (BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-
-                process.waitFor();
-
-                return processOutputReader.lines()
-                    .filter(line -> !line.startsWith("["))
-                    .filter(line -> !line.contains("-----"))
-                    .flatMap(line -> Arrays.stream(line.split(File.pathSeparator)))
+                return Arrays.stream(foundClassPath.split(File.pathSeparator) )
                     .filter(fileName -> new File(fileName).exists())
                     .map(elem -> {
                         try {
@@ -633,38 +642,32 @@ public class PathConfig {
                             return null;
                         }
                     })
-                    .filter(e -> e != null)
+                    .filter(Objects::nonNull)
                     .collect(vf.listWriter());
             }
         }
-        catch (IOException | InterruptedException e) {
+        catch (IOException | RuntimeException | ReflectiveOperationException e) {
             return vf.list();
         }
     }
 
-    private static String computeMavenCommandName() {
-        if (System.getProperty("os.name", "generic").startsWith("Windows")) {
-            return "mvn.cmd";
-        }
-        else {
-            return "mvn";
-        }
+    private static void setField(CliRequest req, String fieldName, Object value)  throws ReflectiveOperationException {
+        var field = CliRequest.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(req, value);
     }
 
-    private static void installNecessaryMavenPlugins(String mvnCommand) {
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=org.apache.maven.plugins",
-                "-DartifactId=maven-dependency-plugin", "-Dversion=2.8");
-
-            Process process = processBuilder.start();
-            if (process.waitFor() != 0) {
-                throw new IOException("mvn dependency:get returned non-zero");
-            } 
-        }
-        catch (IOException | InterruptedException e) {
-            System.err.println("[WARNING] Could not install exec-maven-plugin; classpath resolution may be incomplete hereafter: " + e.getMessage());
-        }
+    private static CliRequest buildRequest(String[] args, ISourceLocation manifestRoot) throws ReflectiveOperationException {
+        // we need to set a field that the default class doesn't set
+        // it's a work around around a bug in the MavenCli code
+        var cons = CliRequest.class.getDeclaredConstructor(String[].class, ClassWorld.class);
+        cons.setAccessible(true);
+        var result = cons.newInstance(args, null);
+        setField(result, "workingDirectory", manifestRoot.getPath());
+        setField(result, "multiModuleProjectDirectory", new File(manifestRoot.getPath()));
+        return result;
     }
+
 
     public ISourceLocation getBin() {
         return bin;
