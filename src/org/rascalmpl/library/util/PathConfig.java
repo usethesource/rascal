@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -452,7 +453,7 @@ public class PathConfig {
         Set<String> loaderSchemes = reg.getRegisteredClassloaderSchemes();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
         String projectName = manifest.getProjectName(manifestRoot);
-        
+        Set<String> libNames = new HashSet<>();
         IListWriter libsWriter = vf.listWriter();
         IListWriter srcsWriter = vf.listWriter();
         IListWriter classloaders = vf.listWriter();
@@ -467,6 +468,11 @@ public class PathConfig {
             try {
                 ISourceLocation jar = lib.startsWith("|") ? parseSourceLocation(lib) : URIUtil.getChildLocation(manifestRoot, lib);
                 ISourceLocation projectLoc = URIUtil.correctLocation("project", jar.getAuthority(), "/");
+
+                // needed to later filter the pom classpath
+                if (jar.getScheme().equals("lib")) {
+                    libNames.add(jar.getAuthority());
+                }
 
                 if (jar.getScheme().equals("lib") && reg.exists(projectLoc)) {
                     // library dependency to open peer project in the workspace
@@ -487,6 +493,37 @@ public class PathConfig {
                     classloaders.appendAll(childConfig.getClassloaders());
                 }
                 else if (jar != null && reg.exists(jar)) {
+                    // library dependency to something on the JVM's classpath but not to a peer project in the workspace
+                   
+                    if (mode == RascalConfigMode.INTERPETER) {
+                        // in interpreter mode we try and find the sources inside of the jar
+                        boolean foundSrc = false;
+                        for (String src : manifest.getSourceRoots(jar)) {
+                            ISourceLocation srcLib = URIUtil.getChildLocation(jar, src);
+                            if (reg.exists(srcLib)) {
+                                srcsWriter.append(srcLib);
+                                foundSrc = true;
+                            }
+                        }
+
+                        if (!foundSrc) {
+                            // if we could not find source roots, we default to the jar root
+                            srcsWriter.append(jar);
+                        }
+                    }
+                    else if (mode == RascalConfigMode.COMPILER) {
+                        // in compiler mode we expect .tpl and .class files at the root of the jar
+                        libsWriter.append(jar);
+                    }
+                    else {
+                        throw new IOException("unknown configuration mode: " + mode);
+                    }
+
+                    if (loaderSchemes.contains(jar.getScheme())) {
+                        classloaders.append(jar);
+                    }
+                }
+                 else if (jar != null && reg.exists(jar)) {
                     // library dependency to something on the JVM's classpath but not to a peer project in the workspace
                    
                     if (mode == RascalConfigMode.INTERPETER) {
@@ -542,17 +579,21 @@ public class PathConfig {
         classloaders.append(URIUtil.correctLocation("system", "", ""));
 
         IList mavenClasspath = getPomXmlCompilerClasspath(manifestRoot);
+       
+        for (IValue elem : mavenClasspath) {
+            ISourceLocation dep = (ISourceLocation) elem;
+
+            switch (mode) {
+                case INTERPETER:
+                    addJarToSearchPath(dep, libNames, srcsWriter);
+                    break;
+                case COMPILER:
+                    addJarToLibraryPath(dep, libNames, libsWriter);
+                    break;
+            }
+        }
 
         classloaders.appendAll(mavenClasspath);
-
-        // allow interpreters to load Rascal files from dependency jar files
-        if (mode == RascalConfigMode.INTERPETER) {
-            mavenClasspath.stream()
-                .map(e -> (ISourceLocation) e)
-                .forEach(p -> {
-                    addJarToSearchPath(p, srcsWriter);
-                });
-        }
         
         return new PathConfig(
                 srcsWriter.done(), 
@@ -563,18 +604,31 @@ public class PathConfig {
                 classloaders.done());
 	}
 
-    private static void addJarToSearchPath(ISourceLocation jar, IListWriter srcs) {
+    private static void addJarToSearchPath(ISourceLocation jar, Set<String> libNames, IListWriter srcs) {
         ISourceLocation prefix = RascalManifest.jarify(jar);
         
         RascalManifest mf = new RascalManifest();
         List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
+        String projectName = mf.getManifestProjectName(mf.manifest(jar));
 
-        if (roots != null) {
+        if (roots != null && projectName != null && libNames.contains(projectName)) {
             for (String root : roots) {
                 srcs.append(URIUtil.getChildLocation(prefix, root));
             }
         }
     }
+
+    private static void addJarToLibraryPath(ISourceLocation jar, Set<String> libNames, IListWriter libs) {
+        ISourceLocation prefix = RascalManifest.jarify(jar);
+        
+        RascalManifest mf = new RascalManifest();
+        String projectName = mf.getManifestProjectName(mf.manifest(jar));
+
+        if (projectName != null && libNames.contains(projectName)) {
+            libs.append(prefix);
+        }
+    }
+
     private static ISourceLocation setTargetScheme(ISourceLocation projectLoc) {
         try {
             return URIUtil.changeScheme(projectLoc, "target");
