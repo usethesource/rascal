@@ -33,8 +33,8 @@ import List;
 
 Content graph(lrel[str x, str y] v, str title="Graph") 
     = content(title, graphServer(cytoscape(
-        elements=[ *[\node(e) | e <- {*v<x>, *v<y>}],
-                   *[\edge(from,to) | <from,to> <- v]
+        elements=[ *[element(\node(e)) | e <- {*v<x>, *v<y>}],
+                   *[element(\edge(from,to,id="<from>-<to>")) | <from,to> <- v]
         ],
         style=[
             cytostyle(
@@ -70,6 +70,10 @@ data Cytoscape
     );
 
 data CytoElement 
+    = \element(CytoElementData \data)
+    ;
+
+data CytoElementData
     = \node(str id)
     | \edge(str source, str target, str id="")
     ;
@@ -122,7 +126,8 @@ private HTMLElement plotHTML()
                     "var container = document.getElementById(\'visualization\');
                     'fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
                     '   cs[\'container\'] = container; 
-                        var cytoscapeAPI = cytoscape(cs);  
+                    '   var cytoscapeAPI = cytoscape(cs);  
+                    '   cytoscapeAPI.resize();
                     '});
                     '")
             ], \type="text/javascript")
