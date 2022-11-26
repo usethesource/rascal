@@ -554,9 +554,6 @@ public class PathConfig {
                         classloaders.append(jar);
                     }
                 }
-                else {
-                    System.err.println("WARNING: could not resolve dependency on: " + lib + " because it does not seem to exist as a project or a library."); 
-                }
             }
             catch (StackOverflowError e) {
                 // cyclic project dependencies may cause a stackoverflow
