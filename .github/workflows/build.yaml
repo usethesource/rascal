@@ -38,6 +38,11 @@ jobs:
       - name: Attach artifact 
         id: build-artifact
         uses: SWAT-engineering/maven-full-artifacts-action@v2.0-rc1
+        with:
+          maven-options:
+            - '-Drascal.compile.skip'
+            - '-Drascal.tutor.skip'
+            - '-DskipTests'
 
       - name: Prepare Draft Release
         uses: softprops/action-gh-release@v1
