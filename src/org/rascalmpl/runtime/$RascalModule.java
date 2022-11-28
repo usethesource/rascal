@@ -860,8 +860,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final ISourceLocation $aloc_add_astr(final ISourceLocation sloc, final IString s) {
 		String path = sloc.hasPath() ? sloc.getPath() : "";
-		if(!path.endsWith("/")){
-			path = path + "/";
+		if(!path.endsWith(URIUtil.URI_PATH_SEPARATOR)){
+			path = path + URIUtil.URI_PATH_SEPARATOR;
 		}
 		path = path.concat(s.getValue());
 		return $aloc_field_update("path", $VF.string(path), sloc);
@@ -1290,23 +1290,27 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			break;
 
 		case "path":
-			v = $VF.string(sloc.hasPath() ? sloc.getPath() : "/");
+			v = $VF.string(sloc.hasPath() ? sloc.getPath() : URIUtil.URI_PATH_SEPARATOR);
 			break;
 
 		case "parent":
 			String path = sloc.getPath();
-			if (path.equals("") || path.equals("/")) {
+			if (path.equals("") || path.equals(URIUtil.URI_PATH_SEPARATOR)) {
 				throw RuntimeExceptionFactory.noParent(sloc);
 			}
-			int i = path.lastIndexOf("/");
+			// remove one or more /'s at the end
+			while (path.endsWith(URIUtil.URI_PATH_SEPARATOR)) {
+				path = path.substring(0, path.length() - URIUtil.URI_PATH_SEPARATOR.length());
+			}
+			int i = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
 
 			if (i != -1) {
 				path = path.substring(0, i);
 				if (sloc.getScheme().equalsIgnoreCase("file")) {
 					// there is a special case for file references to windows paths.
 					// the root path should end with a / (c:/ not c:)
-					if (path.lastIndexOf((int)'/') == 0 && path.endsWith(":")) {
-						path += "/";
+					if (path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR) == 0 && path.endsWith(":")) {
+						path += URIUtil.URI_PATH_SEPARATOR;
 					}
 				}
 				v = $aloc_field_update("path", $VF.string(path), sloc);
@@ -1317,11 +1321,15 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 		case "file": 
 			path = sloc.hasPath() ? sloc.getPath() : "";
+			
+			while(path.endsWith(URIUtil.URI_PATH_SEPARATOR)) {
+				path = path.substring(0, path.length() - URIUtil.URI_PATH_SEPARATOR.length());
+			}
 
-			i = path.lastIndexOf((int)'/');
+			i = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
 
 			if (i != -1) {
-				path = path.substring(i+1);
+				path = path.substring(i+URIUtil.URI_PATH_SEPARATOR.length());
 			}
 			v = $VF.string(path);	
 			break;
@@ -1348,12 +1356,26 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 		case "extension":
 			path = sloc.hasPath() ? sloc.getPath() : "";
-			i = path.lastIndexOf('.');
-			if (i != -1) {
-				v = $VF.string(path.substring(i + 1));
-			} else {
+			while(path.endsWith(URIUtil.URI_PATH_SEPARATOR)) {
+				path = path.substring(0, path.length() - 1);
+			}
+			int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
+			
+			if (slashIndex == -1) {
+				// empty path
 				v = $VF.string("");
 			}
+			else {
+				int j = path.substring(slashIndex).lastIndexOf((int)'.');
+
+				if (j != -1) {
+					v = $VF.string(path.substring(slashIndex + j + 1));
+				}
+				else {
+					v = $VF.string("");
+				}
+			}
+			
 			break;
 
 		case "fragment":
@@ -1733,20 +1755,30 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				break;
 
 			case "file": 
-				int i = path.lastIndexOf("/");
+				
+				boolean endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
+				path = endsWithSlash ? path.substring(0, path.length() - URIUtil.URI_PATH_SEPARATOR.length()) : path;
+
+				int i = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
 
 				if (i != -1) {
-					path = path.substring(0, i) + "/" + newStringValue;
+					path = path.substring(0, i) + URIUtil.URI_PATH_SEPARATOR + newStringValue;
 				}
 				else {
-					path = path + "/" + newStringValue;	
+					path = path + URIUtil.URI_PATH_SEPARATOR + newStringValue;	
 				}	
+				if (endsWithSlash) {
+					path += URIUtil.URI_PATH_SEPARATOR;
+				}
 				uriPartChanged = true;
 				break;
 
 			case "parent":
-				i = path.lastIndexOf("/");
+				i = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
 				String parent = newStringValue;
+				if (!parent.startsWith(URIUtil.URI_PATH_SEPARATOR)) {
+					parent = URIUtil.URI_PATH_SEPARATOR + parent;
+				}
 				if (i != -1) {
 					path = parent + path.substring(i);
 				}
@@ -1761,18 +1793,28 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 			case "extension":
 				String ext = newStringValue;
-
+				
+				endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
+				if (endsWithSlash) {
+					path = path.substring(0, path.length() - 1);
+				}
+			
 				if (path.length() > 1) {
-					int index = path.lastIndexOf('.');
+					int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
+					int index = path.substring(slashIndex).lastIndexOf('.');
 
 					if (index == -1 && !ext.isEmpty()) {
 						path = path + (!ext.startsWith(".") ? "." : "") + ext;
 					}
 					else if (!ext.isEmpty()) {
-						path = path.substring(0, index) + (!ext.startsWith(".") ? "." : "") + ext;
+						path = path.substring(0, slashIndex + index) + (!ext.startsWith(".") ? "." : "") + ext;
 					}
-					else {
-						path = path.substring(0, index);
+					else if (index != -1) {
+						path = path.substring(0, slashIndex + index);
+					}
+
+					if (endsWithSlash) {
+						path = path + URIUtil.URI_PATH_SEPARATOR;
 					}
 				}
 				uriPartChanged = true;
