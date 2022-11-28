@@ -35,7 +35,7 @@ sample({"a","b","c","e","f","g","h","i","j","k"}, 4)
 ```
 }
 set[&T] sample(set[&T] corpus, int target) 
-  = {e | int factor := size(corpus) / target, e <- corpus, arbInt(factor) == 0};
+  = {e | int factor := size(corpus) / target, e <- corpus, factor == 0 || arbInt(factor) == 0};
 
 @synopsis{Reduce the length of a list by selecting a uniformly distributed sample.}
 @description{
@@ -53,7 +53,7 @@ sample([1..1000], 30)
 ```
 }
 list[&T] sample(list[&T] corpus, int target) 
-  = [e | int factor := size(corpus) / target, e <- corpus, arbInt(factor) == 0];
+  = [e | int factor := size(corpus) / target, e <- corpus, factor == 0 || arbInt(factor) == 0];
 
 @synopsis{Reduce the size of a map by selecting a uniformly distributed sample.}
 @description{
@@ -62,4 +62,4 @@ with a probability of `1/(size(corpus) / target)`. This rapidly generates a new 
 expected `target` size, but most probably a little smaller or larger.
 }
 map[&T,&U] sample(map[&T,&U] corpus, int target) 
-  = (k : corpus[k] | int factor := size(corpus) / target, k <- corpus, arbInt(factor) == 0); 
+  = (k : corpus[k] | int factor := size(corpus) / target, k <- corpus, factor == 0 || arbInt(factor) == 0); 
