@@ -31,14 +31,20 @@ import List;
 import ParseTree;
  
 @synopsis{Pretty prints parse trees using ASCII art lines for edges.}
-str prettyTree(Tree t, bool literals=false, bool src=false) {
-  str nodeLabel(appl(prod(label(str l, sort(str nt)), _, _), _)) = "<l>:<nt>";
-  str nodeLabel(appl(prod(sort(str nt), as, _), _))              = "<nt>: <for (lit(str a) <- as) {><a> <}>";
-  str nodeLabel(amb(_) )                                         = "\u2756";
-  str nodeLabel(loc src)                                         = "<src>";
-  default str nodeLabel(Tree v)                                  = "<v>";
+str prettyTree(Tree t, bool src=false, bool literals=false, bool characters=true) {
+  bool include(appl(prod(lit(_),_,_),_), false, bool _)      = false;
+  bool include(appl(prod(cilit(_),_,_),_), false, bool _)    = false;
+  bool include(char(_), bool _, false)                       = false;
+  default bool include(Tree _, bool _, bool _)               = true;
 
-  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t.src> | src, t.src?] + [<"", k> | Tree k <- args[0,2..], (!literals) ==> appl(prod(lit(_),_,_),_) !:= k];
+  str nodeLabel(appl(prod(label(str l, Symbol nt), _, _), _)) = "<type(nt,())> = <l>: ";
+  str nodeLabel(appl(prod(Symbol nt, as, _), _))              = "<type(nt,())> = <for (a <- as[0,2..]) {><type(a,())> <}>";
+  str nodeLabel(appl(regular(Symbol nt), _))                  = "<type(nt,())>";
+  str nodeLabel(amb(_) )                                      = "❖";
+  str nodeLabel(loc src)                                      = "<src>";
+  default str nodeLabel(Tree v)                               = "<v>";
+
+  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t.src> | src, t.src?] + [<"", k> | Tree k <- args[0,2..], include(k, literals, characters)];
   lrel[str,value] edges(amb(set[Tree] alts))              = [<"", a> | Tree a <- alts];
   lrel[str,value] edges(loc _)                            = [];
   default lrel[str,value] edges(Tree _)                   = [];
