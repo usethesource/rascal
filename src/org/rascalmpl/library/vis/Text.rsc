@@ -29,22 +29,27 @@ module vis::Text
 import Node;
 import List;
 import ParseTree;
- 
+
 @synopsis{Pretty prints parse trees using ASCII art lines for edges.}
-str prettyTree(Tree t, bool src=false, bool literals=false, bool characters=true) {
-  bool include(appl(prod(lit(_),_,_),_), false, bool _)      = false;
-  bool include(appl(prod(cilit(_),_,_),_), false, bool _)    = false;
-  bool include(char(_), bool _, false)                       = false;
-  default bool include(Tree _, bool _, bool _)               = true;
+str prettyTree(Tree t, bool src=false, bool characters=true, bool \layout=false, bool literals=\layout) {
+  bool include(appl(prod(lit(_),_,_),_))      = literals;
+  bool include(appl(prod(cilit(_),_,_),_))    = literals;
+  bool include(appl(prod(\layouts(_),_,_),_)) = \layout;
+  bool include(char(_))                       = characters;
+  default bool include(Tree _)                = true;
 
   str nodeLabel(appl(prod(label(str l, Symbol nt), _, _), _)) = "<type(nt,())> = <l>: ";
-  str nodeLabel(appl(prod(Symbol nt, as, _), _))              = "<type(nt,())> = <for (a <- as[0,2..]) {><type(a,())> <}>";
+  str nodeLabel(appl(prod(Symbol nt, as, _), _))              = "<type(nt,())> = <for (a <- as) {><type(a,())> <}>";
   str nodeLabel(appl(regular(Symbol nt), _))                  = "<type(nt,())>";
+  str nodeLabel(char(32))                                     = "⎵";
+  str nodeLabel(char(10))                                     = "␤";
+  str nodeLabel(char(13))                                     = "↵"; 
+  str nodeLabel(char(9))                                      = "→";
   str nodeLabel(amb(_) )                                      = "❖";
   str nodeLabel(loc src)                                      = "<src>";
   default str nodeLabel(Tree v)                               = "<v>";
 
-  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t.src> | src, t.src?] + [<"", k> | Tree k <- args[0,2..], include(k, literals, characters)];
+  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t.src> | src, t.src?] + [<"", k> | Tree k <- args, include(k)];
   lrel[str,value] edges(amb(set[Tree] alts))              = [<"", a> | Tree a <- alts];
   lrel[str,value] edges(loc _)                            = [];
   default lrel[str,value] edges(Tree _)                   = [];
