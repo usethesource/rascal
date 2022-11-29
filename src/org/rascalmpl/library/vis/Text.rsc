@@ -29,24 +29,25 @@ module vis::Text
 import Node;
 import List;
 import ParseTree;
-import IO;
  
 @synopsis{Pretty prints parse trees using ASCII art lines for edges.}
-str prettyTree(Tree t) {
+str prettyTree(Tree t, bool src=false) {
   str nodeLabel(appl(prod(label(str l, sort(str nt)), _, _), _)) = "<l>:<nt>";
   str nodeLabel(appl(prod(sort(str nt), as, _), _))              = "<nt>: <for (lit(x) <- as) {><x> <}>";
   str nodeLabel(amb(_) )                                         = "🔶";
+  str nodeLabel(loc src)                                         = "<src>";
   default str nodeLabel(Tree v)                                  = "\"<v>\"";
 
-  lrel[str,value] edges(appl(_,  list[Tree] args)) = [<"", k> | Tree k <- args[0,2..]];
-  lrel[str,value] edges(amb(set[Tree] alts))       = [<"", a> | Tree a <- alts];
-  default lrel[str,value] edges(Tree _)            = [];
+  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t.src> | src, t.src?] + [<"", k> | Tree k <- args[0,2..]];
+  lrel[str,value] edges(amb(set[Tree] alts))              = [<"", a> | Tree a <- alts];
+  lrel[str,value] edges(loc _)                            = [];
+  default lrel[str,value] edges(Tree _)                   = [];
     
   return ppvalue(t, nodeLabel, edges);
 }
 
 @synopsis{Pretty prints nodes and ADTs using ASCII art for the edges.}
-str prettyNode(node n) {
+str prettyNode(node n, bool keywords=true) {
   str nodeLabel(list[value] _)       = "[]";
   str nodeLabel(set[value] _)        = "{}";
   str nodeLabel(map[value, value] _) = "()";
@@ -56,7 +57,7 @@ str prettyNode(node n) {
   lrel[str,value] edges(list[value] l)       = [<"", x> | value x <- l];
   lrel[str,value] edges(set[value] s)        = [<"", x> | value x <- s];
   lrel[str,value] edges(map[value, value] m) = [<"<x>", m[x]> | value x <- m];  
-  lrel[str,value] edges(node k)              = [<"", kid> | value kid <- getChildren(k)] + [<l, m[l]> | map[str,value] m := getKeywordParameters(k), str l <- m, bprintln(m)];
+  lrel[str,value] edges(node k)              = [<"", kid> | value kid <- getChildren(k)] + [<l, m[l]> | keywords, map[str,value] m := getKeywordParameters(k), str l <- m];
   default lrel[str,value] edges(value _)     = [];
     
   return ppvalue(n, nodeLabel, edges);
