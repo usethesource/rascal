@@ -228,6 +228,24 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 w.write("`");
             });
         }
+        else if (type.isString()) {
+            target.writeOutput(type, (StringWriter w) -> {
+                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
+                    indentedPrettyPrinter.write(value, wrt);
+                }
+                catch (IOLimitReachedException e) {
+                    // ignore since this is what we wanted
+                }
+                w.write("\n---\n");
+                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
+                    ((IString) value).write(wrt);
+                }
+                catch (IOLimitReachedException e) {
+                    // ignore since this is what we wanted
+                }
+                w.write("\n---");
+            });
+        }
         else {
             target.writeOutput(type, (StringWriter w) -> {
                 // limit both the lines and the characters
