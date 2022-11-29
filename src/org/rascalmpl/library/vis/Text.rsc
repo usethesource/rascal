@@ -28,7 +28,9 @@ module vis::Text
 
 import Node;
 import List;
+import ListRelation;
 import ParseTree;
+import Type;
 
 @synopsis{Pretty prints parse trees using ASCII art lines for edges.}
 str prettyTree(Tree t, bool src=false, bool characters=true, bool \layout=false, bool literals=\layout) {
@@ -60,15 +62,20 @@ str prettyTree(Tree t, bool src=false, bool characters=true, bool \layout=false,
 
 @synopsis{Pretty prints nodes and ADTs using ASCII art for the edges.}
 str prettyNode(node n, bool keywords=true) {
-  str nodeLabel(list[value] _)       = "[]";
-  str nodeLabel(set[value] _)        = "{}";
-  str nodeLabel(map[value, value] _) = "()";
+  str nodeLabel(list[value] _)       = "[…]";
+  str nodeLabel(set[value] _)        = "{…}";
+  str nodeLabel(map[value, value] _) = "(…)";
+  str nodeLabel(value t)             = "\<…\>" when typeOf(t) is \tuple;
   str nodeLabel(node k)              = getName(k);
   default str nodeLabel(value v)     = "<v>";
   
   lrel[str,value] edges(list[value] l)       = [<"", x> | value x <- l];
+  lrel[str,value] edges(value t)             = [<"", x> | value x <- carrier([t])] when typeOf(t) is \tuple;
   lrel[str,value] edges(set[value] s)        = [<"", x> | value x <- s];
-  lrel[str,value] edges(map[value, value] m) = [<"<x>", m[x]> | value x <- m];  
+  lrel[str,value] edges(map[str, value] m)   = [<"<x>", m[x]> | value x <- m];  
+  lrel[str,value] edges(map[num, value] m)   = [<"<x>", m[x]> | value x <- m];  
+  lrel[str,value] edges(map[loc, value] m)   = [<"<x>", m[x]> | value x <- m];  
+  lrel[str,value] edges(map[node, value] m)  = [<"key", x>, <"value", m[x]> | value x <- m];  
   lrel[str,value] edges(node k)              = [<"", kid> | value kid <- getChildren(k)] + [<l, m[l]> | keywords, map[str,value] m := getKeywordParameters(k), str l <- m];
   default lrel[str,value] edges(value _)     = [];
     
