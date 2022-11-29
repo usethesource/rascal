@@ -26,21 +26,21 @@ module vis::Graphs
 
 import lang::html::IO;
 import Content;
-import Set;
-import List;
+import IO;
 
 @synopsis{A scatterplot from a binary numerical relation.}
 
 Content graph(lrel[str x, str y] v, str title="Graph") 
     = content(title, graphServer(cytoscape(
-        elements=[ *[element(\node(e)) | e <- {*v<x>, *v<y>}],
-                   *[element(\edge(from,to,id="<from>-<to>")) | <from,to> <- v]
-        ],
+        elements=cytoElements(
+            [\node(e) | e <- {*v<x>, *v<y>}, bprintln("adding node <e>")],   
+            [\edge(from, to) | <from, to> <- v, bprintln("adding edge <from> - <to>")]
+        ),
         style=[
             cytostyle(
                 selector=\node(),
                 style=(
-                    "background-color" : "#666",
+                    "background-color" : "black",
                     "label" : "data(id)"
                 )
             ),
@@ -48,35 +48,34 @@ Content graph(lrel[str x, str y] v, str title="Graph")
                 selector=\edge(),
                 style=(
                     "width": "3",
-                    "line-color": "#ccc",
-                    "target-arrow-color": "#ccc",
+                    "line-color": "black",
+                    "target-arrow-color": "black",
                     "target-arrow-shape": "triangle",
                     "curve-style" : "bezier"
                 )
             )
         ],
         \layout=cytolayout(
-            name="grid",
-            rows=2
+            name="circle",
+            rows=1
         )
     )));
 
 
 data Cytoscape 
     = cytoscape(
-        list[CytoElement] elements = [],
+        CytoElements elements = cytoElements,
         list[CytoStyle] style=[],
         CytoLayout \layout = cytolayout()
     );
 
-data CytoElement 
-    = \element(CytoElementData \data)
+data CytoElements
+    = \cytoElements(list[CytoNode] nodes, list[CytoEdge] edges)
     ;
 
-data CytoElementData
-    = \node(str id)
-    | \edge(str source, str target, str id="")
-    ;
+data CytoNode = \node(str id);
+
+data CytoEdge = \edge(str source, str target, str id="");
 
 data CytoStyle
     = cytostyle(
@@ -123,8 +122,9 @@ private HTMLElement plotHTML()
             div([], id="visualization"),
             script([
                 \data(
-                    "var container = document.getElementById(\'visualization\');
-                    'fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
+                    "fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
+                    '   cytoscape.warnings(true);
+                    '   var container = document.getElementById(\'visualization\');
                     '   cs[\'container\'] = container; 
                     '   var cytoscapeAPI = cytoscape(cs);  
                     '   cytoscapeAPI.resize();
