@@ -296,4 +296,4 @@ on the heap.
 * GC only works for real garbage. So if there is an unrelated accidental memory leak somewhere, it may better to start a fresh JVM to measure the current functionality under scrutiny.
 }
 @javaClass{org.rascalmpl.library.util.Benchmark}
-public java int gc();
+public java void gc();
