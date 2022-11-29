@@ -32,19 +32,20 @@ import ParseTree;
 
 @synopsis{Pretty prints parse trees using ASCII art lines for edges.}
 str prettyTree(Tree t, bool src=false, bool characters=true, bool \layout=false, bool literals=\layout) {
-  bool include(appl(prod(lit(_),_,_),_))      = literals;
-  bool include(appl(prod(cilit(_),_,_),_))    = literals;
-  bool include(appl(prod(\layouts(_),_,_),_)) = \layout;
-  bool include(char(_))                       = characters;
-  default bool include(Tree _)                = true;
+  bool include(appl(prod(lit(_),_,_),_))                 = literals;
+  bool include(appl(prod(cilit(_),_,_),_))               = literals;
+  bool include(appl(prod(\layouts(_),_,_),_))            = \layout;
+  bool include(amb({*_, appl(prod(\layouts(_),_,_),_)})) = \layout;
+  bool include(char(_))                                  = characters;
+  default bool include(Tree _)                           = true;
 
   str nodeLabel(appl(prod(label(str l, Symbol nt), _, _), _)) = "<type(nt,())> = <l>: ";
   str nodeLabel(appl(prod(Symbol nt, as, _), _))              = "<type(nt,())> = <for (a <- as) {><type(a,())> <}>";
   str nodeLabel(appl(regular(Symbol nt), _))                  = "<type(nt,())>";
   str nodeLabel(char(32))                                     = "⎵";
-  str nodeLabel(char(10))                                     = "␤";
-  str nodeLabel(char(13))                                     = "↵"; 
-  str nodeLabel(char(9))                                      = "→";
+  str nodeLabel(char(10))                                     = "\\r";
+  str nodeLabel(char(13))                                     = "\\n"; 
+  str nodeLabel(char(9))                                      = "\\t";
   str nodeLabel(amb(_) )                                      = "❖";
   str nodeLabel(loc src)                                      = "<src>";
   default str nodeLabel(Tree v)                               = "<v>";
