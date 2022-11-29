@@ -31,14 +31,14 @@ import List;
 import ParseTree;
  
 @synopsis{Pretty prints parse trees using ASCII art lines for edges.}
-str prettyTree(Tree t, bool src=false) {
+str prettyTree(Tree t, bool literals=false, bool src=false) {
   str nodeLabel(appl(prod(label(str l, sort(str nt)), _, _), _)) = "<l>:<nt>";
-  str nodeLabel(appl(prod(sort(str nt), as, _), _))              = "<nt>: <for (lit(x) <- as) {><x> <}>";
-  str nodeLabel(amb(_) )                                         = "🔶";
+  str nodeLabel(appl(prod(sort(str nt), as, _), _))              = "<nt>: <for (lit(str a) <- as) {><a> <}>";
+  str nodeLabel(amb(_) )                                         = "\u2756";
   str nodeLabel(loc src)                                         = "<src>";
-  default str nodeLabel(Tree v)                                  = "\"<v>\"";
+  default str nodeLabel(Tree v)                                  = "<v>";
 
-  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t.src> | src, t.src?] + [<"", k> | Tree k <- args[0,2..]];
+  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t.src> | src, t.src?] + [<"", k> | Tree k <- args[0,2..], (!literals) ==> appl(prod(lit(_),_,_),_) !:= k];
   lrel[str,value] edges(amb(set[Tree] alts))              = [<"", a> | Tree a <- alts];
   lrel[str,value] edges(loc _)                            = [];
   default lrel[str,value] edges(Tree _)                   = [];
@@ -64,7 +64,7 @@ str prettyNode(node n, bool keywords=true) {
 }
 
 private str ppvalue(value e, str(value) nodeLabel, lrel[str,value](value) edges) 
-  = "<nodeLabel(e)>
+  = " <nodeLabel(e)>
     '<ppvalue_(e, nodeLabel, edges)>";
 
 private str ppvalue_(value e, str(value) nodeLabel, lrel[str,value](value) edges, str indent = "") {
