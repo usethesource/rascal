@@ -83,9 +83,9 @@ private str ppvalue_(value e, str(value) nodeLabel, lrel[str,value](value) edges
   lrel[str, value] kids = edges(e);
   int i = 0;
 
-  str indented(str last, str other) 
-    = "<indent> <i == size(kids) - 1 ? last : other> ";
+  str indented(str last, str other, bool doSpace) 
+    = "<indent> <if (i == size(kids) - 1) {><last><} else {><other><}><if (doSpace) {> <}>";
     
-  return "<for (<str l, value sub> <- kids) {><indented("└─", "├─")><l != "" ? "\u001b[34m─<l>→\u001b[0m ": ""><nodeLabel(sub)>
-         '<ppvalue_(sub, nodeLabel, edges, indent = indented(" ", "│"))><i +=1; }>";
+  return "<for (<str l, value sub> <- kids) {><indented("└─", "├─", l == "")><l != "" ? "─<l>─→ ": ""><nodeLabel(sub)>
+         '<ppvalue_(sub, nodeLabel, edges, indent = indented(" ", "│", true))><i +=1; }>";
 }
