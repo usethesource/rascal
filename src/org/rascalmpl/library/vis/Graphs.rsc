@@ -336,10 +336,10 @@ private HTMLElement plotHTML()
                     "fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
                     '   cs.container = document.getElementById(\'visualization\');
                     '   const cy = cytoscape(cs);
-                    '   cy.nodes().on(\'click\', function(event) {
-                    '       var n = event.target;
-                    '       if (n.editor !== undefined) {
-                    '           fetch(\'/editor?src=\' + n.editor);
+                    '   cy.on(\'tap\', \'node\', function (evt) {
+                    '       var n = evt.target;
+                    '       if (n.data(\'editor\') !== undefined) {
+                    '           fetch(\'/editor?src=|\' + n.data(\'editor\') + \'|\');
                     '       }
                     '   });
                     '});
