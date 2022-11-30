@@ -105,15 +105,54 @@ CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoEdgeStyleOf(selector=\edge(),
 CytoStyle defaultNodeStyle()
     = cytoNodeStyle(
         \background-color = "blue",
+        color             = "white",
+        \font-size        = "20pt",
+        \font-weight      = bold(),
         label             = "data(id)",
-        shape             = ellipse()
+        shape             =  \round-rectangle(),
+        \text-halign      = CytoHorizontalAlign::\center(),
+        \text-valign      = CytoVerticalAlign::\center()
     );
+
+data CytoFontWeight
+    = normal()
+    | lighter()
+    | bold()
+    | bolder()
+    ;
+
+data CytoHorizontalAlign
+    = left()
+    | center()
+    | right()
+    | auto()
+    ;
+
+data CytoVerticalAlign
+    = top()
+    | center()
+    | bottom()
+    | auto()
+    ;
+
 
 data CytoStyle
     = cytoNodeStyle(
-        str \background-color = "blue",
-        str label             = "data(id)",
-        CytoNodeShape shape   = circle()
+        str color               = "white",
+        str \text-opacity       = "100%",
+        str \font-family        = "",
+        str \font-size          = "12pt",
+        str \font-style         = "",
+        CytoFontWeight \font-weight = normal(),
+        str \background-color   = "blue",
+        str label               = "data(id)",
+        CytoNodeShape shape     = circle(),
+        CytoHorizontalAlign \text-halign = center(),
+        CytoVerticalAlign \text-valign = \top(),
+        CytoTextWrap \text-wrap = CytoTextWrap::none(),
+        str \text-max-width     = "100px",
+        CytoHorizontalAlign \text-justification = CytoHorizontalAlign::center(),
+        int \line-height        = 1
     )
     | cytoEdgeStyle(
         int width               = 3,
@@ -122,8 +161,16 @@ data CytoStyle
         str \source-arrow-color = "black",
         CytoArrowHeadStyle \target-arrow-shape = triangle(),
         CytoArrowHeadStyle \source-arrow-shape = none(),
-        CytoCurveStyle \curve-style = bezier()
+        CytoCurveStyle \curve-style = bezier(),
+        int \source-text-offset = 1,
+        int \target-text-offset = 1
     )
+    ;
+
+data CytoTextWrap
+    = none()
+    | wrap()
+    | ellipses()
     ;
 
 CytoStyle defaultEdgeStyle()
@@ -133,7 +180,7 @@ CytoStyle defaultEdgeStyle()
         \target-arrow-color = "black",
         \source-arrow-color = "black",
         \target-arrow-shape = triangle(),
-        \source-arrow-shape = none(),
+        \source-arrow-shape = CytoArrowHeadStyle::none(),
         \curve-style        = bezier()
     );
 
