@@ -6,9 +6,10 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@contributor{Tijs van der Storm - storm@cwi.nl - CWI}
 @synopsis{Simple data visualization using graphs}
 @description{
-This modules provides a simple API to create graph for Rascal
+This modules provides a simple API to create graph visuals for Rascal
 (relational) data, based on [Cytoscape.js](https://js.cytoscape.org/). 
 
 This module is quite new and may undergo some tweaks in the coming time.
@@ -28,54 +29,59 @@ import lang::html::IO;
 import Content;
 import IO;
 
-@synopsis{A scatterplot from a binary numerical relation.}
-
-Content graph(lrel[str x, str y] v, str title="Graph") 
+@synopsis{A graph plot from a binary relation.}
+Content graph(lrel[str x, str y] v, str title="Graph", CytoLayoutName \layout=circle(), map[str,str] nodeStyle=defaultNodeStyle(), map[str,str] edgeStyle=defaultEdgeStyle()) 
     = content(title, graphServer(cytoscape(
-        elements=cytoElements(
-            [\node(e) | e <- {*v<x>, *v<y>}, bprintln("adding node <e>")],   
-            [\edge(from, to) | <from, to> <- v, bprintln("adding edge <from> - <to>")]
-        ),
+        elements=graphData(v),        
         style=[
             cytostyle(
                 selector=\node(),
-                style=(
-                    "background-color" : "black",
-                    "label" : "data(id)"
-                )
+                style=nodeStyle
             ),
             cytostyle(
                 selector=\edge(),
-                style=(
-                    "width": "3",
-                    "line-color": "black",
-                    "target-arrow-color": "black",
-                    "target-arrow-shape": "triangle",
-                    "curve-style" : "bezier"
-                )
+                style=edgeStyle
             )
         ],
         \layout=cytolayout(
-            name="circle",
-            rows=1
+            name=\layout
         )
     )));
 
+map[str,str] defaultNodeStyle()
+    = (
+        "background-color" : "lightblue",
+        "label" : "data(id)"
+    );
+
+map[str,str] defaultEdgeStyle()
+    = (
+        "width": "3",
+        "line-color": "black",
+        "target-arrow-color": "black",
+        "target-arrow-shape": "triangle",
+        "curve-style" : "bezier"
+    );
+
+list[CytoData] graphData(lrel[str x, str y] v)
+    = [cytodata(\node(e)) | e <- {*v<x>, *v<y>}, bprintln("adding node <e>")] +
+      [cytodata(\edge("<from>-<to>", from, to)) | <from, to> <- v, bprintln("adding edge <from> - <to>")]
+      ;
 
 data Cytoscape 
     = cytoscape(
-        CytoElements elements = cytoElements,
+        list[CytoData] elements = [],
         list[CytoStyle] style=[],
         CytoLayout \layout = cytolayout()
     );
 
-data CytoElements
-    = \cytoElements(list[CytoNode] nodes, list[CytoEdge] edges)
-    ;
+data CytoData
+  = cytodata(CytoElement \data);
 
-data CytoNode = \node(str id);
-
-data CytoEdge = \edge(str source, str target, str id="");
+data CytoElement
+  = \node(str id)
+  | \edge(str id, str source, str target)
+  ;
 
 data CytoStyle
     = cytostyle(
@@ -90,9 +96,15 @@ data CytoSelector
 
 data CytoLayout
     = cytolayout(
-        str name = "grid",
-        int rows = 2
+        CytoLayoutName name = circle()
     );
+
+data CytoLayoutName
+    = grid()
+    | circle()
+    | breadthfirst()
+    | cose()
+    ;
 
 @synopsis{this is the main server generator for any graph value}
 @description{
@@ -115,21 +127,25 @@ Response (Request) graphServer(Cytoscape ch) {
 @synopsis{default HTML wrapper for a chart}
 private HTMLElement plotHTML()
     = html([
-        div([ // put div here instead of `head` to work around issue
-            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js")
+        head([ 
+            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.umd.js"),
+            style([\data("#visualization {
+                         '  width: 100%;
+                         '  height: 100%;
+                         '  position: absolute;
+                         '  top: 0px;
+                         'left: 0px;
+                         '}")])
         ]),
         body([
             div([], id="visualization"),
             script([
                 \data(
                     "fetch(\'/cytoscape\').then(resp =\> resp.json()).then(cs =\> {
-                    '   cytoscape.warnings(true);
-                    '   var container = document.getElementById(\'visualization\');
-                    '   cs[\'container\'] = container; 
-                    '   var cytoscapeAPI = cytoscape(cs);  
-                    '   cytoscapeAPI.resize();
+                    '   cs.container = document.getElementById(\'visualization\');
+                    '   cytoscape(cs);
                     '});
                     '")
             ], \type="text/javascript")
-        ], style="position: fixed; top:50%; left:50%; transform: translate(-50%, -50%); width:min(75%,800px);")
+        ])
     ]);
