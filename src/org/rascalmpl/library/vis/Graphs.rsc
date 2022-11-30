@@ -162,6 +162,8 @@ CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoEdgeStyleOf(selector=\edge(),
 
 CytoStyle defaultNodeStyle()
     = cytoNodeStyle(
+        width             = "label",
+        padding           = "10pt",
         \background-color = "blue",
         color             = "white",
         \font-size        = "20pt",
@@ -209,6 +211,8 @@ data CytoVerticalAlign
 
 data CytoStyle
     = cytoNodeStyle(
+        str width               = "label",
+        str padding             = "10pt",
         str color               = "white",
         str \text-opacity       = "100%",
         str \font-family        = "",
