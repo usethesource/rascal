@@ -42,7 +42,7 @@ Content graph(lrel[&T x, &T y] v, str title="Graph", CytoLayoutName \layout=cose
     )));
 
 default list[CytoData] graphData(lrel[&T x, &T y] v)
-    = [cytodata(\node("<e>")) | e <- {*v<x>, *v<y>}] +
+    = [cytodata(\node("<e>", label="<e>")) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge(from, to)) | <from, to> <- v]
       ;
 
@@ -85,8 +85,8 @@ data CytoData
   = cytodata(CytoElement \data);
 
 data CytoElement
-  = \node(str id)
-  | \edge(str source, str target, str id="<source>-<target>")
+  = \node(str id, str label=id)
+  | \edge(str source, str target, str id="<source>-<target>", str label="")
   ;
 
 data CytoStyleOf
@@ -108,10 +108,22 @@ CytoStyle defaultNodeStyle()
         color             = "white",
         \font-size        = "20pt",
         \font-weight      = bold(),
-        label             = "data(id)",
+        label             = "data(label)",
         shape             =  \round-rectangle(),
         \text-halign      = CytoHorizontalAlign::\center(),
         \text-valign      = CytoVerticalAlign::\center()
+    );
+
+CytoStyle defaultEdgeStyle()
+    = cytoEdgeStyle(
+        width               = 3,
+        \line-color         = "black",
+        \target-arrow-color = "black",
+        \source-arrow-color = "black",
+        \target-arrow-shape = triangle(),
+        \source-arrow-shape = CytoArrowHeadStyle::none(),
+        \curve-style        = bezier(),
+        \label              = "data(label)"
     );
 
 data CytoFontWeight
@@ -145,7 +157,7 @@ data CytoStyle
         str \font-style         = "",
         CytoFontWeight \font-weight = normal(),
         str \background-color   = "blue",
-        str label               = "data(id)",
+        str label               = "data(label)",
         CytoNodeShape shape     = circle(),
         CytoHorizontalAlign \text-halign = center(),
         CytoVerticalAlign \text-valign = \top(),
@@ -163,7 +175,8 @@ data CytoStyle
         CytoArrowHeadStyle \source-arrow-shape = none(),
         CytoCurveStyle \curve-style = bezier(),
         int \source-text-offset = 1,
-        int \target-text-offset = 1
+        int \target-text-offset = 1,
+        str label               = "data(label)"
     )
     ;
 
@@ -173,16 +186,7 @@ data CytoTextWrap
     | ellipses()
     ;
 
-CytoStyle defaultEdgeStyle()
-    = cytoEdgeStyle(
-        width               = 3,
-        \line-color         = "black",
-        \target-arrow-color = "black",
-        \source-arrow-color = "black",
-        \target-arrow-shape = triangle(),
-        \source-arrow-shape = CytoArrowHeadStyle::none(),
-        \curve-style        = bezier()
-    );
+
 
 data CytoCurveStyle
     = bezier()
