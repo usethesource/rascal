@@ -27,51 +27,57 @@ module vis::Graphs
 
 import lang::html::IO;
 import Content;
-import IO;
 
 @synopsis{A graph plot from a binary relation.}
-Content graph(lrel[str x, str y] v, str title="Graph", CytoLayoutName \layout=circle(), map[str,str] nodeStyle=defaultNodeStyle(), map[str,str] edgeStyle=defaultEdgeStyle()) 
+Content graph(lrel[&T x, &T y] v, str title="Graph", CytoLayoutName \layout=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
     = content(title, graphServer(cytoscape(
         elements=graphData(v),        
         style=[
-            cytostyle(
-                selector=\node(),
-                style=nodeStyle
-            ),
-            cytostyle(
-                selector=\edge(),
-                style=edgeStyle
-            )
+            cytoNodeStyleOf(nodeStyle),
+            cytoEdgeStyleOf(edgeStyle)
         ],
         \layout=cytolayout(
             name=\layout
         )
     )));
 
-map[str,str] defaultNodeStyle()
-    = (
-        "background-color" : "lightblue",
-        "label" : "data(id)"
-    );
-
-map[str,str] defaultEdgeStyle()
-    = (
-        "width": "3",
-        "line-color": "black",
-        "target-arrow-color": "black",
-        "target-arrow-shape": "triangle",
-        "curve-style" : "bezier"
-    );
-
-list[CytoData] graphData(lrel[str x, str y] v)
-    = [cytodata(\node(e)) | e <- {*v<x>, *v<y>}, bprintln("adding node <e>")] +
-      [cytodata(\edge("<from>-<to>", from, to)) | <from, to> <- v, bprintln("adding edge <from> - <to>")]
+default list[CytoData] graphData(lrel[&T x, &T y] v)
+    = [cytodata(\node("<e>")) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge(from, to)) | <from, to> <- v]
       ;
+
+data CytoNodeShape
+    = \ellipse()
+    | \triangle()
+    | \round-triangle()
+    | \rectangle()
+    | \round-rectangle()
+    | \bottom-round-rectangle()
+    | \cut-rectangle()
+    | \barrel()
+    | \rhomboid()
+    | \diamond()
+    | \round-diamond()
+    | \pentagon()
+    | \round-pentagon()
+    | \hexagon()
+    | \round-hexagon()
+    | \concave-hexagon()
+    | \heptagon()
+    | \round-heptagon()
+    | \octagon()
+    | \round-octagon()
+    | \star()
+    | \tag()
+    | \round-tag()
+    | \vee()
+    | \polygon()
+    ;
 
 data Cytoscape 
     = cytoscape(
         list[CytoData] elements = [],
-        list[CytoStyle] style=[],
+        list[CytoStyleOf] style=[],
         CytoLayout \layout = cytolayout()
     );
 
@@ -80,15 +86,81 @@ data CytoData
 
 data CytoElement
   = \node(str id)
-  | \edge(str id, str source, str target)
+  | \edge(str source, str target, str id="<source>-<target>")
   ;
 
-data CytoStyle
-    = cytostyle(
+data CytoStyleOf
+    = cytoNodeStyleOf(
         CytoSelector selector = \node(),
-        map[str,str] style = ()
+        CytoStyle style = cytoNodeStyle()
+    )
+    | cytoEdgeStyleOf(
+        CytoSelector selector = \edge(),
+        CytoStyle style = cytoEdgeStyle()
     );
 
+CytoStyleOf cytoNodeStyleOf(CytoStyle style) = cytoNodeStyleOf(selector=\node(), style=style);
+CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoEdgeStyleOf(selector=\edge(), style=style);
+
+CytoStyle defaultNodeStyle()
+    = cytoNodeStyle(
+        \background-color = "blue",
+        label             = "data(id)",
+        shape             = ellipse()
+    );
+
+data CytoStyle
+    = cytoNodeStyle(
+        str \background-color = "blue",
+        str label             = "data(id)",
+        CytoNodeShape shape   = circle()
+    )
+    | cytoEdgeStyle(
+        int width               = 3,
+        str \line-color         = "black",
+        str \target-arrow-color = "black",
+        str \source-arrow-color = "black",
+        CytoArrowHeadStyle \target-arrow-shape = triangle(),
+        CytoArrowHeadStyle \source-arrow-shape = none(),
+        CytoCurveStyle \curve-style = bezier()
+    )
+    ;
+
+CytoStyle defaultEdgeStyle()
+    = cytoEdgeStyle(
+        width               = 3,
+        \line-color         = "black",
+        \target-arrow-color = "black",
+        \source-arrow-color = "black",
+        \target-arrow-shape = triangle(),
+        \source-arrow-shape = none(),
+        \curve-style        = bezier()
+    );
+
+data CytoCurveStyle
+    = bezier()
+    | \unbundled-bezier()
+    | straight()
+    | segments()
+    | \straight-triangle()
+    | taxi()
+    | haystack()
+    ;
+    
+data CytoArrowHeadStyle
+    = triangle()
+    | \triangle-tee()
+    | \circle-triangle()
+    | \triangle-cross()
+    | \triangle-backcurve()
+    | vee()
+    | tee()
+    | square()
+    | circle()
+    | diamond()
+    | chevron()
+    | none()
+    ;
 data CytoSelector
     = \node()
     | \edge()
@@ -96,7 +168,7 @@ data CytoSelector
 
 data CytoLayout
     = cytolayout(
-        CytoLayoutName name = circle()
+        CytoLayoutName name = cose()
     );
 
 data CytoLayoutName
