@@ -31,26 +31,31 @@ import Content;
 import ValueIO;
 
 @synopsis{A graph plot from a binary list relation.}
-Content graph(lrel[&T x, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(graphData(v, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+Content graph(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 @synopsis{A graph plot from a ternary list relation where the middle column is the edge label.}
-Content graph(lrel[&T x, &L edge, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(graphData(v, nodeLabeler=nodeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+Content graph(lrel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 @synopsis{A graph plot from a binary relation.}
-Content graph(rel[&T x, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(graphData(v, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+Content graph(rel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 @synopsis{A graph plot from a ternary relation where the middle column is the edge label.}
-Content graph(rel[&T x, &L edge, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(graphData(v, nodeLabeler=nodeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+Content graph(rel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
-alias NodeLabeler[&T]=str (&T _id);
-alias EdgeLabeler[&T]=str (&T _source, &T _target);
+alias NodeLinker[&T] = loc (&T _id1);
+loc defaultNodeLinker(loc l) = l;
+default loc defaultNodeLinker(&T _) = |nothing:///|;
 
+alias NodeLabeler[&T]= str (&T _id2);
 str defaultNodeLabeler(&T v) = "<v>";
-str defaultEdgeLabeler(&T _source, &T _target) = "";
+
+alias EdgeLabeler[&T]= str (&T _source, &T _target);
+str defaultEdgeLabeler(&T _source, &T _target)  = "";
+
 
 Cytoscape cytoscape(list[CytoData] \data, \CytoLayoutName \layoutName=\cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle())
     = cytoscape(
@@ -64,43 +69,43 @@ Cytoscape cytoscape(list[CytoData] \data, \CytoLayoutName \layoutName=\cose(), C
         )
     );
 
-list[CytoData] graphData(rel[loc x, loc y] v, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[loc] edgeLabeler=defaultEdgeLabeler)
-    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=e)) | e <- {*v<x>, *v<y>}] +
+list[CytoData] graphData(rel[loc x, loc y] v, NodeLinker[loc] nodeLinker=defaultNodeLinker, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[loc] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=edgeLabeler(from, to))) | <from, to> <- v]
       ;
 
-default list[CytoData] graphData(rel[&T x, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
-    = [cytodata(\node("<e>", label=nodeLabeler(e))) | e <- {*v<x>, *v<y>}] +
+default list[CytoData] graphData(rel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker,  NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=edgeLabeler(from, to))) | <from, to> <- v]
       ;
 
-list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
-    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=e)) | e <- {*v<x>, *v<y>}] +
+list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>")) | <from, e, to> <- v]
       ;
 
-default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
-    = [cytodata(\node("<e>", label=nodeLabeler(e))) | e <- {*v<x>, *v<y>}] +
+default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>")) | <from, e, to> <- v]
       ;
 
-list[CytoData] graphData(lrel[loc x, loc y] v, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[loc] edgeLabeler=defaultEdgeLabeler)
-    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=e)) | e <- {*v<x>, *v<y>}] +
+list[CytoData] graphData(lrel[loc x, loc y] v, NodeLinker[loc] nodeLinker=defaultNodeLinker, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[loc] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=edgeLabeler(from, to))) | <from, to> <- v]
       ;
 
-default list[CytoData] graphData(lrel[&T x, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
-    = [cytodata(\node("<e>", label=nodeLabeler(e))) | e <- {*v<x>, *v<y>}] +
+default list[CytoData] graphData(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=edgeLabeler(from, to))) | <from, to> <- v]
       ;
 
-default list[CytoData] graphData(rel[loc x, &L edge, loc y] v, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
-    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=e)) | e <- {*v<x>, *v<y>}] +
+default list[CytoData] graphData(rel[loc x, &L edge, loc y] v, NodeLinker[loc] nodeLinker=defaultNodeLinker, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>")) | <from, e, to> <- v]
       ;
 
-default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
-    = [cytodata(\node("<e>", label=nodeLabeler(e))) | e <- {*v<x>, *v<y>}] +
+default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>")) | <from, e, to> <- v]
       ;
 
