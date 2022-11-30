@@ -37,7 +37,7 @@ jobs:
 
       - name: Attach artifact 
         id: build-artifact
-        uses: SWAT-engineering/maven-full-artifacts-action@v2
+        uses: SWAT-engineering/maven-full-artifacts-action@v1
         with:
           maven-options: |
             -Drascal.compile.skip
