@@ -28,22 +28,58 @@ module vis::Graphs
 import lang::html::IO;
 import Content;
 
+@synopsis{A graph plot from a binary list relation.}
+Content graph(lrel[&T x, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+
+@synopsis{A graph plot from a ternary list relation where the middle column is the edge label.}
+Content graph(lrel[&T x, &L edge, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLabeler=nodeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+
 @synopsis{A graph plot from a binary relation.}
-Content graph(lrel[&T x, &T y] v, str title="Graph", CytoLayoutName \layout=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(
-        elements=graphData(v),        
+Content graph(rel[&T x, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+
+@synopsis{A graph plot from a ternary relation where the middle column is the edge label.}
+Content graph(rel[&T x, &L edge, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayoutName \layoutName=cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLabeler=nodeLabeler), \layoutName=layoutName, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+
+alias NodeLabeler[&T]=str (&T _id);
+alias EdgeLabeler[&T]=str (&T _source, &T _target);
+
+str defaultNodeLabeler(&T v) = "<v>";
+str defaultEdgeLabeler(&T _source, &T _target) = "";
+
+Cytoscape cytoscape(list[CytoData] \data, \CytoLayoutName \layoutName=\cose(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle())
+    = cytoscape(
+        elements=\data,        
         style=[
             cytoNodeStyleOf(nodeStyle),
             cytoEdgeStyleOf(edgeStyle)
         ],
         \layout=cytolayout(
-            name=\layout
+            name=\layoutName
         )
-    )));
+    );
 
-default list[CytoData] graphData(lrel[&T x, &T y] v)
-    = [cytodata(\node("<e>", label="<e>")) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge(from, to)) | <from, to> <- v]
+default list[CytoData] graphData(rel[&T x, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge(from, to, label=edgeLabeler(from, to))) | <from, to> <- v]
+      ;
+
+default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge(from, to, label="<e>")) | <from, e, to> <- v]
+      ;
+
+default list[CytoData] graphData(lrel[&T x, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge(from, to, label=edgeLabeler(from, to))) | <from, to> <- v]
+      ;
+
+default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler)
+    = [cytodata(\node("<e>", label=nodeLabeler(e))) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge(from, to, label="<e>")) | <from, e, to> <- v]
       ;
 
 data CytoNodeShape
@@ -117,6 +153,7 @@ CytoStyle defaultNodeStyle()
 CytoStyle defaultEdgeStyle()
     = cytoEdgeStyle(
         width               = 3,
+        \color              = "red",
         \line-color         = "black",
         \target-arrow-color = "black",
         \source-arrow-color = "black",
@@ -169,6 +206,7 @@ data CytoStyle
     | cytoEdgeStyle(
         int width               = 3,
         str \line-color         = "black",
+        str color               = "red",
         str \target-arrow-color = "black",
         str \source-arrow-color = "black",
         CytoArrowHeadStyle \target-arrow-shape = triangle(),
