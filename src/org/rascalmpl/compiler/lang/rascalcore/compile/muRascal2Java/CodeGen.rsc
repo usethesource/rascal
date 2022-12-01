@@ -731,7 +731,8 @@ JCode trans(muVarInit(v: muVar(str name, str fuid, int pos, AType atype), MuExp 
                            : "<jtype> <varName(v, jg)> = null;\n";  
     } else {    
         return jg.isRef(v) ? "final ValueRef\<<jtype>\> <varName(v, jg)> = <newValueRef(name, atype, exp, jg)>;\n" //new ValueRef\<<jtype>\>(<transWithCast(atype,exp,jg)>);\n"
-                           : "<jtype> <varName(v, jg)> = (<jtype>)<parens(trans(exp, jg))>;\n";  
+                            : "<jtype> <varName(v, jg)> = <transWithCast(atype, exp, jg)>;\n";  
+                           //: "<jtype> <varName(v, jg)> = (<jtype>)<parens(trans(exp, jg))>;\n";  
     }
 }
 
@@ -1053,7 +1054,7 @@ JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str
         if(fieldName == "loc") fieldName = "src"; // TODO: remove when @\loc is gone
         adtName = "Tree";
     }
-    return "<prefix(moduleName,jg)>$getkw_<adtName>_<getJavaName(fieldName)>(<transWithCast(adtType, cons, jg)>)";
+    return "<prefix(moduleName,jg)>$getkw_<adtName>_<getJavaName(fieldName,completeId=false)>(<transWithCast(adtType, cons, jg)>)";
 }
 
 JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName, str moduleName), JGenie jg){
@@ -1063,8 +1064,8 @@ JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType
         adtName = "Tree";
     }
     isConsKwField = fieldName in {kwf.fieldType.alabel | kwf <- kwFields};
-    return isConsKwField ? "<prefix(moduleName,jg)>$getkw_<adtName>_<consType.alabel>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)"
-                         : "<prefix(moduleName,jg)>$getkw_<adtName>_<getJavaName(fieldName)>(<transWithCast(consType, cons, jg)>)";
+    return isConsKwField ? "<prefix(moduleName,jg)>$getkw_<adtName>_<consType.alabel>_<getJavaName(fieldName,completeId=false)>(<transWithCast(consType, cons, jg)>)"
+                         : "<prefix(moduleName,jg)>$getkw_<adtName>_<getJavaName(fieldName,completeId=false)>(<transWithCast(consType, cons, jg)>)";
 }
 // ---- muGetField ---------------------------------------------------------
 
@@ -1372,11 +1373,11 @@ JCode trans(muHasKwp(MuExp exp, str kwName), JGenie jg)
 
 JCode trans(muGetKwp(MuExp exp, AType atype, str kwpName), JGenie jg){
    if(acons(AType _, list[AType] _, list[Keyword] _) := atype){
-        return "$getkw_<atype.adtName>_<getJavaName(kwpName)>(<trans(exp, jg)>)";
+        return "$getkw_<atype.adtName>_<getJavaName(kwpName,completeId=false)>(<trans(exp, jg)>)";
    } else if(anode(_) := atype){
        return "<trans(exp, jg)>.asWithKeywordParameters().getParameter(\"<unescape(kwpName)>\")";
    } else if(aadt(str adtName, list[AType] _, SyntaxRole _) := atype){
-       return "$getkw_<adtName>_<getJavaName(kwpName)>(<trans(exp, jg)>)";
+       return "$getkw_<adtName>_<getJavaName(kwpName,completeId=false)>(<trans(exp, jg)>)";
    }
    throw "muGetKwp: <atype>, <kwpName>";
 }
@@ -1850,7 +1851,8 @@ JCode trans2NativeInt(muCon(int n), JGenie jg)
     = "<n>";
     
 default JCode trans2NativeInt(MuExp exp, JGenie jg)
-    = "<trans(exp, jg)><producesNativeInt(exp) ? "" : ".intValue()">";
+    = producesNativeInt(exp) ? trans(exp, jg) : "<transWithCast(aint(),exp, jg)>.intValue()";
+    //= "<trans(exp, jg)><producesNativeInt(exp) ? "" : ".intValue()">";
     
 JCode trans2IInteger(MuExp exp, JGenie jg)
     = producesNativeInt(exp) ? "$VF.integer(<trans(exp, jg)>)" : trans(exp, jg);

@@ -11,7 +11,6 @@ module lang::rascalcore::grammar::definition::Layout
 //import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-import IO;
 
 
 // TODO: The following two functions were defined local to activeLayout

@@ -256,6 +256,7 @@ void extractScopes(TModel tm){
     
     if([*AGrammar gs] := tm.store[key_grammar]){
         grammar = gs[0];
+        println("extractScopes:"); iprintln(grammar);
     } else {
         iprintln(tm.store[key_grammar]);
         throw "`grammar` has incorrect format in store";
@@ -268,10 +269,17 @@ void extractScopes(TModel tm){
     } else {
         throw "`ADTs` has incorrect format in store";
     }
+    
+    println("commonKeywordFields");
+    ckf = tm.store[key_common_keyword_fields];
+    if([*lrel[value a, value k] common] := ckf){
+        for(<AType tp, KeywordFormal dflt> <- common) println("<tp>, <dflt>");
+    }
    
-    if([lrel[AType,KeywordFormal] common] := tm.store[key_common_keyword_fields]){
-        //println("Common keyword parameters");
-        //iprintln(common);
+    if([*lrel[AType,KeywordFormal] commons] := tm.store[key_common_keyword_fields]){
+        common = commons[0];
+        println("Common keyword parameters");
+        iprintln(common);
         adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[alabel="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
         adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
     }
@@ -612,7 +620,7 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) 
 
 set[loc] getDefiningScopes(AType root)
     =  { definitions[defloc].scope 
-       | defloc <- definitions, 
+       | defloc <- definitions,
          getDefType(defloc) == root, 
          def := definitions[defloc], 
          def.idRole in syntaxRoles
@@ -642,7 +650,7 @@ set[AType] getAccessibleADTs(AType root){
 // Collect all types that are reachable from a given type
 
 map[AType,set[AType]] collectNeededDefs(AType t){
-    map[AType, set[AType]] definitions = ();
+    map[AType, set[AType]] my_definitions = ();
     my_grammar_rules = grammar.rules;
     list[AType] tparams = [];
     is_start = false;
@@ -665,10 +673,10 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     root_scopes = getDefiningScopes(base_t);
     accessible_scopes = root_scopes + (current_tmodel.paths<0,2>*)[root_scopes];
     
-    my_grammar_rules = (adt : grammar.rules[adt] 
-                       | adt <- grammar.rules
-                       , getDefiningScopes(adt) <= accessible_scopes
-                       );
+    //my_grammar_rules = (adt : grammar.rules[adt] 
+    //                   | adt <- grammar.rules
+    //                   , getDefiningScopes(adt) <= accessible_scopes
+    //                   );
     
     allADTs = { unsetRec(adt) | adt <- ADTs };
     if(syntax_type){
@@ -693,7 +701,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         return t;
     }
       
-    definitions = ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
+    my_definitions = ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
                   | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, adt1 := unset(uninstantiate(adt), "alabel")
                   );             
     
@@ -704,24 +712,24 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         //my_grammar_rules[definedLayouts] = grammar.rules[definedLayouts];
         my_grammar_rules = visit(my_grammar_rules) { case aadt(_, [], layoutSyntax()) => definedLayouts };  
         allADTs =  visit(allADTs) { case aadt(_, [], layoutSyntax()) => definedLayouts }; 
-        definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, my_grammar_rules[adt]? );
+        my_definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, my_grammar_rules[adt]? );
                
-        //definitions[definedLayouts] = { aprod(my_grammar_rules[definedLayouts]) };
+        //my_definitions[definedLayouts] = { aprod(my_grammar_rules[definedLayouts]) };
         if(is_start){
-            definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[alabel="top"], definedLayouts]) })) });
+            my_definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[alabel="top"], definedLayouts]) })) });
         }
     }
    
-    solve(definitions){
-        definitions = definitions + ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])} : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
-                                    | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := definitions,
+    solve(my_definitions){
+        my_definitions = my_definitions + ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])} : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
+                                    | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions,
                                       adt1 := uninstantiate(unsetRec(adt)),
                                       syntax_type ? syntaxRole != dataSyntax() : true,
-                                      !definitions[adt1]?,
+                                      !my_definitions[adt1]?,
                                       my_grammar_rules[adt1]?
                                 );
     }
-    return definitions;
+    return my_definitions;
 }
 
 /********************************************************************/

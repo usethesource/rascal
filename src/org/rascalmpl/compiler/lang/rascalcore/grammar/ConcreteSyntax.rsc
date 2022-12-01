@@ -90,9 +90,9 @@ private AType getTargetSymbol(AType sym) {
 @doc{This decides for which part of the grammar we can write anti-quotes}
 private bool quotable(AType x) { 
     //res = \lit(_) !:= x 
-    //    && \empty() !:= x
-    //    && \cilit(_) !:= x 
-    //    && \char-class(_) !:= x 
+    //    && \aempty() !:= x
+    //    && \acilit(_) !:= x 
+    //    && \achar-class(_) !:= x 
     //    && (aadt(_,list[AType] parameters, SyntaxRole sr) := x && (sr != contextFreeSyntax() || !isEmpty(parameters)))
     //    && \start(_) !:= x
     //    ;

@@ -105,7 +105,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         seen += kwType;
         str kwFieldName = unescape(kwType.alabel);
         if(kwFieldName == "alabel"){
-            println("generateGettersForAdt: alabel");
+            println("generateGettersForAdt: *** alabel ***");
         }
         if(asubtype(adtType, treeType)){
             if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when .src is gone

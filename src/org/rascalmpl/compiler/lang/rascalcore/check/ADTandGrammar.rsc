@@ -9,7 +9,7 @@ import lang::rascalcore::grammar::definition::Keywords;
   
 import lang::rascal::\syntax::Rascal;
 
-//import IO;
+import IO;
 import Node;
 import Set;
 import ListRelation;
@@ -36,6 +36,7 @@ void addCommonKeywordFields(Solver s){
     lrel[AType, KeywordFormal] commonKeywordFields = [];
     
     // Collect common keywords and check double declarations
+    for(Define def <- definitions, def.id == "AType") println(def);
   
     rel[AType,str,KeywordFormal] commonKeywordFieldNames = {};
     for(Define def <- definitions, def.idRole == dataId()){
@@ -61,6 +62,8 @@ void addCommonKeywordFields(Solver s){
             ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
       
     }
+    println("commonKeywordFields");
+    for(<tp, dflt> <- commonKeywordFields) println("<tp>, <dflt>");
     s.push(key_common_keyword_fields, commonKeywordFields);
     
     // Warn for overlapping declarations of common keyword fields and ordinary fields
@@ -222,7 +225,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         g = grammar(allStarts, syntaxDefinitions);
         g = layouts(g, definedLayout, allManualLayouts);
         g = expandKeywords(g);
-        g.rules += (AType::empty():choice(AType::empty(), {prod(AType::empty(),[])}));
+        g.rules += (AType::aempty():choice(AType::aempty(), {prod(AType::aempty(),[])}));
         tm.store[key_grammar] = [g];
         return tm;
     } catch TypeUnavailable(): {
@@ -242,7 +245,7 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
         for(AType adtType <- domain(allProductions), adtType notin allLiteral){
             for(prod(AType _, list[AType] asymbols) <- allProductions[adtType]){
                 for(sym <- asymbols){
-                    if(!(lit(_) := sym || cilit(_) := sym || aprod(prod(aadt(_,[],_),[lit(_)])) := sym || aprod(prod(aadt(_,[],_),[cilit(_)])) := sym || (aprod(prod(a:aadt(_,[],_),_)) := sym && a in allLiteral))){
+                    if(!(alit(_) := sym || acilit(_) := sym || aprod(prod(aadt(_,[],_),[alit(_)])) := sym || aprod(prod(aadt(_,[],_),[acilit(_)])) := sym || (aprod(prod(a:aadt(_,[],_),_)) := sym && a in allLiteral))){
                         continue forADT;
                     }
                 }
@@ -256,7 +259,7 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
                 tm.messages += [warning(size(asymbols) == 0 ? "One symbol needed in keyword declaration, found none" : "Keyword declaration should consist of one symbol", p.src)];
             }
             for(sym <- asymbols){
-                if(lit(_) := sym || cilit(_) := sym) continue;
+                if(alit(_) := sym || acilit(_) := sym) continue;
                 if(!isADTType(sym) || isADTType(sym) && sym notin allLiteral){
                     tm.messages += [warning(interpolate("Only literals allowed in keyword declaration, found %t", AType(Tree t) { return tm.facts[getLoc(t)]; }, [sym]), p.src) ];
                 }

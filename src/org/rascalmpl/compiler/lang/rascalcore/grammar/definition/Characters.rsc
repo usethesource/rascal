@@ -19,7 +19,7 @@ import lang::rascalcore::check::AType;
 import String;
 import List;
 
-data AType;
+//data AType;
 data ACharRange = \empty-range();
 
 ACharRange \new-range(int from, int to) = from <= to ? arange(from, to) : \empty-range();
@@ -39,12 +39,12 @@ public default AType  complement(AType s) {
   throw "unsupported symbol for character class complement: <s>";
 }
   
-public AType difference(\achar-class(list[ACharRange] r1), \achar-class(list[ACharRange] r2)){
-    res = \achar-class([r | r <- difference(r1,r2), !(r is \empty-range)]);
+public AType ccdifference(\achar-class(list[ACharRange] r1), \achar-class(list[ACharRange] r2)){
+    res = \achar-class([r | r <- ccdifference(r1,r2), !(r is \empty-range)]);
     return res;
 }
 
-public default AType  difference(AType s, AType t) {
+public default AType  ccdifference(AType s, AType t) {
   throw "unsupported symbols for  character class difference: <s> and <t>";
 }
 
@@ -69,7 +69,7 @@ public bool lessThan(ACharRange r1, ACharRange r2) {
   throw "unexpected ranges <r1> and <r2>";
 }
 
-public ACharRange difference(ACharRange l, ACharRange r) {
+public ACharRange ccdifference(ACharRange l, ACharRange r) {
   if (l == \empty-range() || r == \empty-range()) return l;
   
   if (arange(ls,le) := l, arange(rs,re) := r) {
@@ -158,7 +158,7 @@ public ACharRange intersect(ACharRange r1, ACharRange r2) {
 }
 
 public list[ACharRange] complement(list[ACharRange] s) {
-  return difference([arange(1,0x10FFFF)],s); // the 0 character is excluded
+  return ccdifference([arange(1,0x10FFFF)],s); // the 0 character is excluded
 }
 
 public list[ACharRange] intersection(list[ACharRange] l, list[ACharRange] r) {
@@ -272,7 +272,7 @@ public list[ACharRange] union(list[ACharRange] l, list[ACharRange] r) {
 // Precondition: both lists are ordered
 // Postcondition: resulting list is ordered
 
-public list[ACharRange] difference(list[ACharRange] l, list[ACharRange] r) {
+public list[ACharRange] ccdifference(list[ACharRange] l, list[ACharRange] r) {
   if (l == [] || r == []) return l;
   if (l == r) return [];
   
@@ -280,47 +280,47 @@ public list[ACharRange] difference(list[ACharRange] l, list[ACharRange] r) {
   <rhead,rtail> = <head(r), tail(r)>;
 
   if (lhead == \empty-range()) 
-    return difference(ltail, r);
+    return ccdifference(ltail, r);
 
   if (rhead == \empty-range()) 
-    return difference(l, rtail);
+    return ccdifference(l, rtail);
 
   // left beyond right
   // <-right-> --------
   // --------- <-left->
   if (lhead.begin > rhead.end) 
-    return difference(l,rtail); 
+    return ccdifference(l,rtail); 
 
   // left before right
   // <-left-> ----------
   // -------- <-right->
   if (lhead.end < rhead.begin) 
-    return lhead + difference(ltail,r);
+    return lhead + ccdifference(ltail,r);
 
   // inclusion of left into right
   // <--------right------->
   // ---------<-left->-----
   if (lhead.begin >= rhead.begin && lhead.end <= rhead.end) 
-    return difference(ltail,r); 
+    return ccdifference(ltail,r); 
 
   // inclusion of right into left
   // -------<-right->------->
   // <---------left--------->
   if (rhead.begin >= lhead.begin && rhead.end <= lhead.end) 
     return \new-range(lhead.begin,rhead.begin-1) 
-         + difference(\new-range(rhead.end+1,lhead.end)+ltail,rtail);
+         + ccdifference(\new-range(rhead.end+1,lhead.end)+ltail,rtail);
 
   // overlap on left side of right
   // <--left-------->----------
   // ---------<-----right----->
   if (lhead.end < rhead.end) 
-    return \new-range(lhead.begin,rhead.begin-1) + difference(ltail,r); 
+    return \new-range(lhead.begin,rhead.begin-1) + ccdifference(ltail,r); 
     
   // overlap on right side of right
   // -------------<---left---->
   // <----right------->--------
   if (lhead.begin > rhead.begin)
-    return difference(arange(rhead.end+1,lhead.end)+ltail, rtail);
+    return ccdifference(arange(rhead.end+1,lhead.end)+ltail, rtail);
 
   throw "did not expect to end up here! <l> - <r>";
 }
@@ -337,8 +337,8 @@ public list[ACharRange] difference(list[ACharRange] l, list[ACharRange] r) {
 //test bool testInter1() = intersection(\achar-class([range(10,20)]), \achar-class([range(30, 40)])) == \achar-class([]);
 //test bool testInter2() = intersection(\achar-class([range(10,25)]), \achar-class([range(20, 40)])) == \achar-class([range(20, 25)]);
 //
-//test bool testDiff1() = difference(\achar-class([range(10,30)]), \achar-class([range(20,25)])) == \achar-class([range(10,19), range(26,30)]);
-//test bool testDiff2() = difference(\achar-class([range(10,30), range(40,50)]), \achar-class([range(25,45)])) ==\achar-class( [range(10,24), range(46,50)]);
+//test bool testDiff1() = ccdifference(\achar-class([range(10,30)]), \achar-class([range(20,25)])) == \achar-class([range(10,19), range(26,30)]);
+//test bool testDiff2() = ccdifference(\achar-class([range(10,30), range(40,50)]), \achar-class([range(25,45)])) ==\achar-class( [range(10,24), range(46,50)]);
 
 public AType cc2ranges(Class cc) {
    switch(cc) {
@@ -347,7 +347,7 @@ public AType cc2ranges(Class cc) {
      case Class::\complement(Class c) : return complement(cc2ranges(c));
      case Class::\intersection(Class l, Class r) : return intersection(cc2ranges(l), cc2ranges(r));
      case Class::\union(Class l, Class r): return union(cc2ranges(l), cc2ranges(r));
-     case Class::\difference(Class l, Class r): return difference(cc2ranges(l), cc2ranges(r));
+     case Class::\ccdifference(Class l, Class r): return ccdifference(cc2ranges(l), cc2ranges(r));
      default: throw "cc2ranges, missed a case <cc>";
    }
 }

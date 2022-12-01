@@ -93,7 +93,7 @@ str prettyAType(cc: \achar-class(list[ACharRange] ranges)) {
 str prettyAType(\start(AType symbol)) = "start[<prettyAType(symbol)>]";
 
 // regular symbols
-str prettyAType(AType::\empty()) = "()";
+str prettyAType(AType::\aempty()) = "()";
 str prettyAType(\opt(AType symbol)) = "<prettyAType(symbol)>?";
 str prettyAType(\iter(AType symbol)) = "<prettyAType(symbol)>+";
 str prettyAType(\iter-star(AType symbol)) = "<prettyAType(symbol)>*";
@@ -122,16 +122,16 @@ Symbol atype2symbol(AType tp){
     return a ? Symbol::\label(tp.alabel, res) : res;
 }
 
-Symbol atype2symbol1(aint()) = \int();
-Symbol atype2symbol1(abool()) = \bool();
-Symbol atype2symbol1(areal()) = \real();
+Symbol atype2symbol1(aint()) = Symbol::\int();
+Symbol atype2symbol1(abool()) = Symbol::\bool();
+Symbol atype2symbol1(areal()) = Symbol::\real();
 Symbol atype2symbol1(arat()) = \rat();
 Symbol atype2symbol1(astr()) = \str();
-Symbol atype2symbol1(anum()) = \num();
-Symbol atype2symbol1(anode( list[AType fieldType] fields)) = \node();
-Symbol atype2symbol1(avoid()) = \void();
-Symbol atype2symbol1(avalue()) = \value();
-Symbol atype2symbol1(aloc()) = \loc();
+Symbol atype2symbol1(anum()) = Symbol::\num();
+Symbol atype2symbol1(anode( list[AType fieldType] fields)) = Symbol::\node();
+Symbol atype2symbol1(avoid()) = Symbol::\void();
+Symbol atype2symbol1(avalue()) = Symbol::\value();
+Symbol atype2symbol1(aloc()) = Symbol::\loc();
 Symbol atype2symbol1(adatetime()) = \datetime();
 Symbol atype2symbol1(alist(AType t)) = \list(atype2symbol(t));
 Symbol atype2symbol1(aset(AType t)) = \set(atype2symbol(t));
@@ -192,7 +192,7 @@ Symbol atype2symbol1(\achar-class(list[ACharRange] ranges)) = Symbol::\char-clas
 Symbol atype2symbol1(\start(AType symbol)) = Symbol::\start(atype2symbol(symbol));
 
 // regular symbols
-Symbol atype2symbol1(AType::\empty()) = Symbol::\empty();
+Symbol atype2symbol1(\aempty()) = Symbol::\empty();
 Symbol atype2symbol1(\opt(AType symbol)) = Symbol::\opt(atype2symbol(symbol));
 Symbol atype2symbol1(\iter(AType symbol)) = Symbol::\iter(atype2symbol(symbol));
 Symbol atype2symbol1(\iter-star(AType symbol)) = Symbol::\iter-star(atype2symbol(symbol));
@@ -423,7 +423,7 @@ AType symbol2atype1(Symbol::\char-class(list[CharRange] ranges))
     = AType::\achar-class([ charrange2acharrange(r) | r <- ranges ]);    
  
 AType symbol2atype1(Symbol::\empty())
-    = AType::empty();     
+    = AType::aempty();     
 
 AType symbol2atype1(Symbol::\opt(Symbol symbol))
     = AType::opt(symbol2atype(symbol));     
@@ -1296,7 +1296,7 @@ bool isNonTerminalType(AType::\iter(AType t)) = isNonTerminalType(t);
 bool isNonTerminalType(AType::\iter-star(AType t)) = isNonTerminalType(t);
 bool isNonTerminalType(AType::\iter-seps(AType t,_)) = isNonTerminalType(t);
 bool isNonTerminalType(AType::\iter-star-seps(AType t,_)) = isNonTerminalType(t);
-bool isNonTerminalType(AType::\empty()) = false;
+bool isNonTerminalType(AType::\aempty()) = false;
 bool isNonTerminalType(AType::\opt(AType t)) = isNonTerminalType(t);
 //bool isNonTerminalType(AType::\alt(set[AType] alternatives)) = any(a <- alternatives, isNonTerminalType(a));
 //bool isNonTerminalType(AType::\seq(list[AType] atypes)) = any(t <- atypes, isNonTerminalType(t));
@@ -1420,7 +1420,7 @@ default int getIterOrOptDelta(AType i) {
 
 // empty
 
-bool isEmpty(AType::empty()) = true;
+bool isEmpty(AType::aempty()) = true;
 default bool isEmpty(AType tp) = false;
 
 // opt

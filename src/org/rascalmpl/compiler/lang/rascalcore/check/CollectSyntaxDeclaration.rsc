@@ -190,7 +190,7 @@ private AProduction associativity(AType nt, nothing(), AProduction p) = p;
 private default AProduction associativity(AType nt, just(AAssociativity a), AProduction p) = associativity(nt, a, {p});
 
 void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
-    asc = Associativity::\left();
+    asc = AAssociativity::aleft();
     switch("<ass>"){
     case "assoc":       asc = AAssociativity::aleft();
     case "left":        asc = AAssociativity::aleft();

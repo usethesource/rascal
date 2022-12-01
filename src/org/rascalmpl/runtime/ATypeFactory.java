@@ -33,7 +33,7 @@ public class ATypeFactory {
 	public final Type AProduction = $TF.abstractDataType($TS, "AProduction");
 	public final Type SyntaxRole = $TF.abstractDataType($TS, "SyntaxRole");
 	public final Type Attr = $TF.abstractDataType($TS, "Attr");
-	public final Type Tree = $TF.abstractDataType($TS, "Tree");
+	public final Type ATree = $TF.abstractDataType($TS, "ATree");
 	public final Type ACharRange = $TF.abstractDataType($TS, "ACharRange");
 	public final Type ACondition = $TF.abstractDataType($TS, "ACondition");
 	private final Type str = $TF.stringType();	// convenience type
@@ -434,9 +434,9 @@ public class ATypeFactory {
 //	public IConstructor char_class(IList ranges) {  return $VF.constructor(AType_char_class, ranges); }
 //
 //	// empty
-//	public final Type AType_empty = $TF.constructor($TS, AType, "empty");
+//	public final Type AType_aempty = $TF.constructor($TS, AType, "aempty");
 //
-//	public IConstructor empty() {  return $VF.constructor(AType_empty); }
+//	public IConstructor aempty() {  return $VF.constructor(AType_aempty); }
 //
 //	// opt
 //	public final Type AType_opt = $TF.constructor($TS, AType, "opt", AType, "atype");
