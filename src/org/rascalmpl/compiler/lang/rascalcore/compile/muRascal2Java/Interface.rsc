@@ -47,7 +47,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     for(ext <- extends){
         escope = tmodels[ext].moduleLocs[ext];
         for(def <- tmodels[ext].defines, defType(AType tp) := def.defInfo, 
-            def.idRole == functionId() || def.idRole == constructorId(),
+            def.idRole == functionId() ,//|| def.idRole == constructorId(),
             def.scope == escope, //isContainedIn(def.defined, escope),
             !(tp has isTest && tp.isTest),
             !isNonTerminalType(tp), !isLexicalType(tp),

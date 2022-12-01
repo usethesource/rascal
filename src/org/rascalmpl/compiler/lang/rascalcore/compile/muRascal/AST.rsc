@@ -129,7 +129,7 @@ public data MuExp =
           | muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)       
                                                                 // Call an overloaded declared *Rascal function 
                                                                 // Compose fun1 o fun2, i.e., compute fun1(fun2(args))
-          | muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive
+          //| muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive, defined in Primitives
            
           | muCallJava(str name, str class, AType funType,
           			   list[MuExp] args, str enclosingFun)		// Call a Java method in given class
@@ -319,7 +319,7 @@ data MuCase = muCase(int fingerprint, MuExp exp);
 
 MuExp muVar(str name, str fuid, int pos, AType atype){
     assert !isEmpty(name);
-    if(atype.label?){
+    if(atype.alabel?){
     u_atype = unsetRec(atype, "alabel");
     if(atype != u_atype)
         return muVar(name, fuid, pos, u_atype);
@@ -1031,7 +1031,7 @@ MuExp muAssign(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
 
 MuExp insertAssignBool(MuExp var, MuExp exp, set[str] entered){
     return top-down-break visit(exp) { 
-                case muIfExp(cond, thenExp, elseExp) => muIfExp(cond, insertAssignBool(var, thenExp, entered), insertAssignBool(var, thenExp, entered))
+                case muIfExp(cond, thenExp, elseExp) => muIfExp(cond, insertAssignBool(var, thenExp, entered), insertAssignBool(var, elseExp, entered))
                 case muSucceed(enter) => muBlock([muAssign(var, muCon(true)), muSucceed(enter)]) when enter in entered
                 case muFail(enter) => muBlock([muAssign(var, muCon(false)), muFail(enter)])
                 case muExists(str enter1, MuExp exp1) => muExists(enter1, insertAssignBool(var, exp1, entered + enter1))
@@ -1551,7 +1551,7 @@ AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = getRes
 default AType getResultType(AType t) = t;
      
 MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
-    = muValueBlock(getResultType(atype), auxVars1 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src))
+    = muValueBlock(getResultType(atype), auxVars1 + auxVars2 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src))
 when <b1, auxVars1, pre1, flatArgs1> := flattenArgs(args), 
      <b2, auxVars2, pre2, flatArgs2> := flattenArgs(kwargs<1>),
      !(isEmpty(pre1) && isEmpty(pre2)),

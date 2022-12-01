@@ -18,13 +18,13 @@ import Node;
 
 
 default AType striprec(AType s_ori) = visit(s_ori) { 
-	case AType s => strip(s) when s.label?
+	case AType s => strip(s) when s.alabel?
 	case conditional(AType s, set[ACondition] _) => strip(s)
 };
 ////default AType striprec(AType s) = visit(s) { case AType t => strip(t) };
 
 AType strip(conditional(AType s, set[ACondition] _)) = strip(s);
-default AType strip(AType s) = s.label? ? unset(s, "alabel") : s;
+default AType strip(AType s) = s.alabel? ? unset(s, "alabel") : s;
 
 //public bool match(AType checked, AType referenced) {
 //  while (checked is conditional || checked is label)
@@ -35,7 +35,7 @@ default AType strip(AType s) = s.label? ? unset(s, "alabel") : s;
 //  return referenced == checked;
 //} 
 
-public AType delabel(AType s) = visit(s) { case AType t => unset(t, "alabel") when t.label? };
+public AType delabel(AType s) = visit(s) { case AType t => unset(t, "alabel") when t.alabel? };
 
 public AType sym2AType(Sym sym) {
   switch (sym) {
@@ -50,7 +50,7 @@ public AType sym2AType(Sym sym) {
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
         return AType::aadt("<n>",separgs2ATypes(syms), dataSyntax()); 
     case labeled(Sym s, NonterminalLabel n) : 
-      return sym2AType(s)[label="<n>"];
+      return sym2AType(s)[alabel="<n>"];
     case optional(Sym s)  : 
       return AType::opt(sym2AType(s));
     case characterClass(Class cc): 
@@ -58,7 +58,7 @@ public AType sym2AType(Sym sym) {
     case parameter(Nonterminal n) : 
       return AType::\aparameter("<n>", aadt("Tree", [], contextFreeSyntax()));
     case empty() : 
-      return AType::\empty();
+      return AType::\aempty();
     case alternative(Sym first, {Sym "|"}+ alts) : 
       return alt({sym2AType(first)} + {sym2AType(elem) | elem <- alts});
     case iterStar(Sym s)  : 

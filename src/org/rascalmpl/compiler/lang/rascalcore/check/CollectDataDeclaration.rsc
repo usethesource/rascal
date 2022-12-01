@@ -26,6 +26,12 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     userType = current.user;
     adtName = prettyPrintName(userType.name);
     commonKeywordParameterList = getCommonKwFormals(current);
+    if(adtName == "AType"){
+        println("dataDeclaration: <current>");
+    }
+    if(!isEmpty(commonKeywordParameterList)){
+        println("<adtName>: common keyword parameter");
+    }
     typeParameters = getTypeParameters(userType);
     
     dt = isEmpty(typeParameters) ? defType(aadt(adtName, [], dataSyntax()))

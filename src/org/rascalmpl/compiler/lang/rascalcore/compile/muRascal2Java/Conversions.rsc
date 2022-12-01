@@ -123,8 +123,9 @@ str atype2idpart(AType t, JGenie jg) {
     str convert(areified(AType atype))              = "reified_<convert(atype)>";
     str convert(avalue())                           = "value";
     
-    str convert(\lit(str s))                        = "lit(\"<s>\")";
-    str convert(\empty())                           = "empty";
+    str convert(\alit(str s))                       = "lit(\"<s>\")";
+    str convert(\acilit(str s))                     = "cilit(\"<s>\")";
+    str convert(\aempty())                          = "empty";
     str convert(\opt(AType atype))                  = "opt_<convert(atype)>";
     str convert(\iter(AType atype))                 = "iter_<convert(atype)>"; 
     str convert(\iter-star(AType atype))            = "iter_star_<convert(atype)>"; 
@@ -386,7 +387,7 @@ str atype2idpart(AType t, JGenie jg) {
 //private str atype2IValue1(AType::\char-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
 //    = "char_class(<tree2IValue(ranges, defs)>)";   
 // 
-//private str atype2IValue1(AType::\empty(), map[AType, set[AType]] defs)
+//private str atype2IValue1(AType::\aempty(), map[AType, set[AType]] defs)
 //    = "empty()";     
 //
 //private str atype2IValue1(AType::\opt(AType symbol), map[AType, set[AType]] defs)

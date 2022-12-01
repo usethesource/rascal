@@ -660,7 +660,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                         reportCallError(current, expression, actuals, keywordArguments, s);
                         return avalue();
                  } else {
-                    checkOverloadedSyntaxConstructors(expression, validOverloads, s);
+                    checkOverloadedConstructors(expression, validOverloads, s);
                     stexp = overloadedAType(validOverloads);
                     if(texp != stexp) s.specializedFact(expression, stexp);
                     //s.report(error(current, "Unresolved call to overloaded function defined as %t",  expression));
@@ -701,11 +701,14 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
     }
 }
 
-private void checkOverloadedSyntaxConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){
-    for(ovl1 <- overloads, ovl2 <- overloads, ovl1 != ovl2, isSyntaxType(ovl1.atype), isSyntaxType(ovl2.atype)){
-        s.report(error(current, "Use non-terminal name as qualifier to resolve overloaded syntactic constructor %q", ovl1.atype.alabel));
-    }
-
+private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){  
+    coverloads = [  ovl  | ovl <- overloads, isConstructorType(ovl.atype) ];
+    if(size(coverloads) > 1){
+        ovl1 = coverloads[0];
+        s.report(error(current, "Constructor %q is overloaded, use %v as qualifier to resolve it", 
+                             ovl1.atype.alabel, 
+                             intercalateOr(sort([ "<getResult(ovl.atype).adtName>" | ovl <- coverloads ]))));
+                             }
 }
 
 private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, AType] overloads, int arity){

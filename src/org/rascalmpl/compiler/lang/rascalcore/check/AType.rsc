@@ -9,6 +9,7 @@ import lang::rascal::\syntax::Rascal;
 //import lang::rascal::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Characters;
 
+import IO;
 import List;
 import Set;
 import Node;
@@ -130,10 +131,10 @@ public AProduction choice(AType s, set[AProduction] choices){
 
 // ---- Parse Tree
 
-data Tree 
-     = appl(AProduction aprod, list[Tree] args, loc src=|unknown:///|) // <1>
+data ATree 
+     = appl(AProduction aprod, list[ATree] args, loc src=|unknown:///|) // <1>
      | cycle(AType atype, int cycleLength)  // <2>
-     | aamb(set[Tree] alternatives) // <3> 
+     | aamb(set[ATree] alternatives) // <3> 
      | achar(int character) // <4>
      ;
      
@@ -297,7 +298,7 @@ data AType
     
 // These are the regular expressions.
 data AType
-     = \empty() // <11>
+     = \aempty() // <11>
      | \opt(AType atype)  // <12>
      | \iter(AType atype) // <13>
      | \iter-star(AType atype)  // <14>
@@ -591,12 +592,18 @@ bool asubtype(anode(list[AType] l), anode(list[AType] r)) = l <= r;
 
 // Character classes and char
 bool asubtype(l:\achar-class(_), r:\achar-class(_)) {
-    return  l.ranges == r.ranges || (difference(r, l) != \achar-class([]));
+    if(l.ranges == r.ranges) return true;
+    //println("asubtype: <l>, <r>");
+    //xxx = ccdifference;
+    if(ccdifference(r, l) == \achar-class([])) return false;
+    return true;
+    // TODO: original code (below) was not executed properly by Rascal interpreter:
+    //return  l.ranges == r.ranges || (ccdifference(r, l) != \achar-class([]));
 }
 bool asubtype(l:\achar-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
 
 bool asubtype(achar(int c), \achar-class(list[ACharRange] ranges)) {
-    res = difference(ranges, [arange(c,c)]) == [arange(c,c)];
+    res = ccdifference(ranges, [arange(c,c)]) == [arange(c,c)];
     return res;
 }
 bool asubtype(l:\achar-class(list[ACharRange] _), achar(int c)) = l == \achar-class([arange(c,c)]);

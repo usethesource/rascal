@@ -607,7 +607,7 @@ void collect(current:(Sym) `( <Sym first> <Sym+ sequence> )`, Collector c){
 }
 
 void collect(current:(Sym) `()`, Collector c){
-    c.fact(current, AType::empty());
+    c.fact(current, AType::aempty());
 }
 
 // ---- conditionals
@@ -682,7 +682,7 @@ void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
    c.calculate("unequal", current, [symbol, match], 
         AType(Solver s) { 
             t = s.getType(match);
-            if(lit(_) !:= t && (t has syntaxRole && t.syntaxRole != keywordSyntax())){
+            if(alit(_) !:= t && (t has syntaxRole && t.syntaxRole != keywordSyntax())){
                 s.report(error(match, "Exclude (`\\`) requires keywords as right argument, found %t", match));
             }
             return AType::conditional(s.getType(symbol), {ACondition::\delete(s.getType(match)) });

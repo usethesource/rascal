@@ -123,7 +123,7 @@ private MuExp tcc("parameterized-lex", [muCon(str name), muCon(list[Symbol] para
 private MuExp tcc("alit", [muCon(str string)]) = muCon(ParseTree::lit(string));
 private MuExp tcc("acilit", [muCon(str string)]) = muCon(ParseTree::cilit(string));
 private MuExp tcc("achar-class", [muCon(list[CharRange] ranges)]) = muCon(ParseTree::\char-class(ranges));
-private MuExp tcc("empty", []) = muCon(ParseTree::empty());
+private MuExp tcc("aempty", []) = muCon(ParseTree::empty());
 private MuExp tcc("opt", [muCon(Symbol symbol)]) = muCon(ParseTree::opt(symbol));
 
 private MuExp tcc("iter", [muCon(Symbol symbol)]) = muCon(ParseTree::iter(symbol));

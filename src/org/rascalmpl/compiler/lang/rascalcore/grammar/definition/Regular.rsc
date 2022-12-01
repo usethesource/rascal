@@ -70,4 +70,4 @@ public bool isRegular(\iter-seps(AType _, list[AType] _)) = true;
 public bool isRegular(\iter-star-seps(AType _, list[AType] _)) = true;
 public bool isRegular(alt(set[AType] _)) = true;
 public bool isRegular(seq(list[AType] _)) = true;
-public bool isRegular(empty()) = true;
+public bool isRegular(aempty()) = true;

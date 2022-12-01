@@ -260,30 +260,31 @@ JGenie makeJGenie(MuModule m,
         }
         
         scopeIn = definedInInnerScope(srcs);
+        jname = getJavaName(name);
         
         if(scopeIn != ""){
-            return "<scopeIn>_<name>";
+            return "<scopeIn>_<jname>";
         }
         
         if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
             for(d <- srcs){
                 def = currentTModel.definitions[d];
                 if(isConstructorType(def.defInfo.atype)){
-                    return name;
+                    return jname;
                 }
             }
-            return "$me.<name>";
+            return "$me.<jname>";
         }
         //
         //return "$me.<name>";
         
        for(ms <- sortedImportAndExtendScopes){
             if(any(d <- srcs, isContainedIn(d, ms))){
-                return "<ms in importScopes ? module2field(allLocs2Module[ms]) : "$me">.<name>";
+                return "<ms in importScopes ? module2field(allLocs2Module[ms]) : "$me">.<jname>";
             }
        }
        
-       return "$me.<name>";
+       return "$me.<jname>";
       
        //throw "_getAccessor: <name>, <srcs>";
     }
