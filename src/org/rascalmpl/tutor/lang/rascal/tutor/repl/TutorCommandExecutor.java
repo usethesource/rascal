@@ -42,7 +42,6 @@ public class TutorCommandExecutor {
         shellStandardOutput = new ByteArrayOutputStream();
         shellErrorOutput = new ByteArrayOutputStream();
         ByteArrayInputStream shellInputNotUsed = new ByteArrayInputStream("***this inputstream should not be used***".getBytes());
-
         repl = new RascalInterpreterREPL(false, false, null) {
             @Override
             protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
@@ -54,7 +53,8 @@ public class TutorCommandExecutor {
             }
         };
 
-        repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, null);
+        TutorIDEServices services = new TutorIDEServices();
+        repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, services);
         repl.setMeasureCommandTime(false); 
 
         this.browser = getBrowser();
