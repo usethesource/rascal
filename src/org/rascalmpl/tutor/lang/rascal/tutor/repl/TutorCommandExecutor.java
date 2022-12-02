@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -18,9 +19,11 @@ import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverLogLevel;
+import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.Prelude;
@@ -36,7 +39,9 @@ public class TutorCommandExecutor {
     private final RascalInterpreterREPL repl;
     private final ByteArrayOutputStream shellStandardOutput;
     private final ByteArrayOutputStream shellErrorOutput;
-    private final FirefoxDriver browser;
+    private final ChromeDriverService service;
+    private RemoteWebDriver driver; 
+
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         shellStandardOutput = new ByteArrayOutputStream();
@@ -52,12 +57,17 @@ public class TutorCommandExecutor {
                 return eval;
             }
         };
-
+ 
         TutorIDEServices services = new TutorIDEServices();
         repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, services);
         repl.setMeasureCommandTime(false); 
 
-        this.browser = getBrowser();
+        this.service = new ChromeDriverService.Builder()         
+            .usingDriverExecutable(new File(System.getProperty("webdriver.chrome.driver")))         
+            .usingAnyFreePort()         
+            .build();    
+
+        this.service.start();
     }
 
     private String javaCompilerPathAsString(IList javaCompilerPath) {
@@ -82,6 +92,7 @@ public class TutorCommandExecutor {
         return b.toString();
     }
 
+    
     public void reset() {
         try {
             // make sure previously unterminated commands are cleared up
@@ -116,7 +127,8 @@ public class TutorCommandExecutor {
                 result.put(mimeType, uuencode(content));
             }
             
-            FirefoxDriver browser = getBrowser();
+            RemoteWebDriver browser = getBrowser();
+
             if (metadata.get("url") != null && browser != null) {
                 try {
                     browser.get(metadata.get("url"));
@@ -141,30 +153,32 @@ public class TutorCommandExecutor {
         return result;
     }
 
-    private FirefoxDriver getBrowser() {
-        if (this.browser != null) {
-            return browser;
+    private RemoteWebDriver getBrowser() {
+        // System.setProperty("webdriver.gecko.driver", "/Users/jurgenv/Downloads/geckodriver");
+        if (this.driver != null) {
+            return this.driver;
         }
+        
 
-        FirefoxOptions options = new FirefoxOptions()
-            .setAcceptInsecureCerts(true)
+        ChromeOptions options = new ChromeOptions()
             .setHeadless(true)
+            .setBinary(System.getProperty("webdriver.chrome.browser"))
+            .addArguments("--user-data-dir=/tmp/rascal-config/google-chrome")
+            .setLogLevel(ChromeDriverLogLevel.OFF)
             ;
 
-        // System.setProperty("webdriver.gecko.driver", "/Users/jurgenv/Downloads/geckodriver");
-
-        if (System.getProperty("webdriver.gecko.driver") == null) {
-            return null;
-        }
-
-        FirefoxProfile profile = options.getProfile();
-        profile.setPreference("layout.css.devPixelsPerPx", "3");
-
-        options = options.setProfile(profile);
-
+        // ?ChromeProfile profile = options.getProfile();
+        // profile.setPreference("layout.css.devPixelsPerPx", "3");
+        // options = options.setProfile(profile);
         
-        FirefoxDriver driver = new FirefoxDriver(options);
+
+        RemoteWebDriver driver = new RemoteWebDriver(service.getUrl(), options);
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(3));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(5));
         driver.manage().window().maximize();
+        
+        this.driver = driver;
         
         return driver;
     }
