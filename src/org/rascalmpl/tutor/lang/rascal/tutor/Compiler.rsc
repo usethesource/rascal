@@ -75,6 +75,10 @@ list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Ind
   = compileDirectory(root, pcfg[currentRoot=root], exec, ind);
   
 list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
+    if (src in pcfg.ignores) {
+      return [info("skipped ignored location: <src>")];
+    }
+    
     println("\rcompiling <src>");
 
     // new concept, new execution environment:
