@@ -10,7 +10,7 @@
 @description{
 Unlike the module name suggests the Prelude module is _not_ automatically imported when Rascal is started.
 All it is, is a handy combination of extended modules that will provide the utility functions most
-Rascal programmers need in the ((RascalShell)) or when scripting a module.
+Rascal programmers need in the [RascalShell](/docs/RascalShell/) or when scripting a module.
 
 Prelude combines the following modules:
 
