@@ -28,6 +28,8 @@ jobs:
           cache: 'maven'
 
       - name: Compile & Bootstrap
+        env:
+          DISPLAY: ":99:0"
         run: mvn -B compile "-Dwebdriver.chrome.driver=`which chrome`" -Drascal.compile.skip
 
       - name: Test if release # just to be extra sure for a release
