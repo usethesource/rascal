@@ -65,7 +65,8 @@ Cytoscape cytoscape(list[CytoData] \data, \CytoLayoutName \layoutName=\cose(), C
             cytoEdgeStyleOf(edgeStyle)
         ],
         \layout=cytolayout(
-            name=\layoutName
+            name=\layoutName,
+            animate=false
         )
     );
 
@@ -288,7 +289,8 @@ data CytoSelector
 
 data CytoLayout
     = cytolayout(
-        CytoLayoutName name = cose()
+        CytoLayoutName name = cose(),
+        bool animate = false
     );
 
 data CytoLayoutName
@@ -335,7 +337,7 @@ private HTMLElement plotHTML()
                          '  height: 100%;
                          '  position: absolute;
                          '  top: 0px;
-                         'left: 0px;
+                         '  left: 0px;
                          '}")])
         ]),
         body([
