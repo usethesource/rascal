@@ -47,7 +47,7 @@ When `fail` is executed:
 
 #### Examples
 
-Here is an example taken from [Bubble]((Recipes:Bubble)). 
+Here is an example taken from [Bubble](/docs/recipes/basic/bubble/). 
 It uses a `fail` for the case that no unsorted element can be found in the list of numbers.
 As a result, the whole case fails and the default case is used.
 ```rascal-shell

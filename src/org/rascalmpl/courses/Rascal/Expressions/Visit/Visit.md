@@ -34,7 +34,7 @@ default: ...
 
 #### Description
 
-Visiting, recursively traversing, the nodes in a deeply nested data-structure is a very common task in the [EASY]((EASY)) domain. 
+Visiting, recursively traversing, the nodes in a deeply nested data-structure is a very common task in the [EASY](/docs/WhyRascal/EASY/) domain. 
 In many cases (but certainly not all) this data-structure is a syntax tree of some source code file 
 and the nodes correspond to expressions or statements. 
 
@@ -125,9 +125,9 @@ bottom-up visit(e){
          }
 ```
 
-More examples can, for instance, be found in Recipes, see [ColoredTrees]((Recipes:Common-ColoredTrees)), 
-[WordReplacement]((Recipes:Common-WordReplacement)), [CountConstructors]((Recipes:Common-CountConstructors)), 
-and [Derivative]((Recipes:Common-Derivative)).
+More examples can, for instance, be found in Recipes, see [ColoredTrees](/docs/Recipes/Common/ColoredTrees/), 
+[WordReplacement](/docs/Recipes/Common/WordReplacement/), [CountConstructors](/docs/Recipes/Common/CountConstructors/), 
+and [Derivative](/docs/recipes/common/derivative/).
 
 #### Benefits
 

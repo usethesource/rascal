@@ -66,7 +66,7 @@ For more information:
 * see ((AlgebraicDataType)) for more details about constructor declarations.
 
 In case of [function overloading]((Declarations-Function)), where there a more definitions of the same function (the same name and argument arity), there is a selection process called "dynamic dispatch". The functions are tried in arbitrary order,
-and if their signature [matches]((PatternMatching)), and their body does not ((Fail)), then the return value of that function is used. Otherwise, the next function alternative is tried until a succesful alternative is found. 
+and if their signature [matches](/docs/RascalConcepts/PatternMatching/), and their body does not ((Fail)), then the return value of that function is used. Otherwise, the next function alternative is tried until a succesful alternative is found. 
 If the match of the signature is non-unitary, it involves backtracking, then a single function
 may be tried many times.
 
