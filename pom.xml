@@ -121,7 +121,7 @@
                 <plugin>
                     <groupId>org.rascalmpl</groupId>
                     <artifactId>rascal-maven-plugin</artifactId>
-                    <version>0.11.1-SNAPSHOT</version>
+                    <version>0.11.1</version>
                     <configuration>
                         <errorsAsWarnings>true</errorsAsWarnings>
                         <bin>${project.build.outputDirectory}</bin>
