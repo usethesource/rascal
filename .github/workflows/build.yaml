@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: beta
       - run: which chrome
       - uses: nanasess/setup-chromedriver@v1
       - run: which chromedriver
