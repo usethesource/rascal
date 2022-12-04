@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: browser-actions/setup-chrome@latest
         with:
-          chrome-version: beta
+          chrome-version: 1047731
       - run: which chrome
       - uses: nanasess/setup-chromedriver@v1
       - run: which chromedriver
