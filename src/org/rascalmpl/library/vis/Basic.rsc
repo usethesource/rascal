@@ -206,7 +206,7 @@ default HTMLElement toHTML(value x:!set[value] _) // set is also a default to av
     = text("<x>");
 
 private str sampled(list[value] s, int count) 
-    = size(s) > count ? "head <count>/<size(s)>" : "";
+    = size(s) > count ? "sampled <count>/<size(s)>" : "";
 
 private str sampled(set[value] s, int count) 
     = size(s) > count ? "sampled <count>/<size(s)>" : "";
