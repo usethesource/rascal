@@ -14,7 +14,7 @@ env:
 jobs:
   builds:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
-      #  needs: [tests]
+      needs: [tests]
 
     runs-on: ubuntu-latest
     steps:
@@ -32,8 +32,6 @@ jobs:
           cache: 'maven'
 
       - name: Compile & Bootstrap
-        env:
-          DISPLAY: ":99:0"
         run: mvn -B compile -Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.browser=`which chrome` -Drascal.compile.skip
 
       - name: Test if release # just to be extra sure for a release
