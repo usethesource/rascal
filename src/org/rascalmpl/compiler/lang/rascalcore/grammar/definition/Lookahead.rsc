@@ -12,7 +12,7 @@ module lang::rascalcore::grammar::Lookahead
   
 import lang::rascalcore::grammar::definition::Regular;
 import lang::rascalcore::grammar::definition::Characters;
-import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeBase;
 import Node;
 import List;
 import Set; 
@@ -91,8 +91,8 @@ public AProduction optimizeLookaheads(AType rhs, set[AProduction] alts) {
         if ([overlapping*, post2*] := post, all(\o <- overlapping, intersect(r,\o) != \empty-range())) {
           // overlapping with existing ranges (contained in 'overlap')
           common = intersection(overlapping,[r]);
-          onlyR = ccdifference([r],overlapping);
-          onlyOverlapping = ccdifference(overlapping,[r]);
+          onlyR = difference([r],overlapping);
+          onlyOverlapping = difference(overlapping,[r]);
           l = pre + order(onlyR+common+onlyOverlapping) + post2;
         }
         else {
@@ -167,7 +167,7 @@ public set[AType] intersect(set[AType] u1, set[AType] u2) {
 
 public set[AType] diff(set[AType] u1, set[AType] u2) {
   if ({\char-class(r1), s1*} := u1, {\char-class(r2), s2*} := u2) {
-    return {\char-class(ccdifference(r1,r2))} + (s1 - s2);
+    return {\char-class(difference(r1,r2))} + (s1 - s2);
   }
   return u1 - u2;
 }

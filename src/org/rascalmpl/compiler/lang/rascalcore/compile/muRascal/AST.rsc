@@ -8,7 +8,7 @@ import Node;
 import ParseTree;
 import IO;
 
-import lang::rascalcore::check::AType;
+//import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::compile::muRascal::Primitives;
 //import lang::rascalcore::grammar::definition::Grammar;

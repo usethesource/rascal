@@ -132,6 +132,10 @@ list[MuExp] getExternalRefs(set[Define] relevant_fun_defs, map[loc, MuFunction] 
 str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, map[loc, str] loc2module, JGenie jg){
     module_scopes = domain(loc2module);
     
+    if(functionName == "N"){
+        println("generateResolver N");
+    }
+    
     set[Define] local_fun_defs = {def | def <- fun_defs, /**/isContainedIn(def.defined, module_scope)};
     
     nonlocal_fun_defs0 = 
@@ -143,9 +147,11 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
     set[Define] relevant_fun_defs = local_fun_defs + nonlocal_fun_defs;
     cons_defs = { cdef | cdef <- relevant_fun_defs, defType(AType tp) := cdef.defInfo, isConstructorType(tp) };
     
-    if(isEmpty(relevant_fun_defs)) return "";
+   
     
     relevant_fun_defs -= cons_defs;
+    
+    if(isEmpty(relevant_fun_defs)) return "";
   
     acons_adt = avoid();
     acons_fields = [];
@@ -243,7 +249,8 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
     extends = {<f, t> | <f, extendPath(), t> <- paths }+;
     
     bool funBeforeExtendedBeforeDefaultBeforeConstructor(Define a, Define b){
-        return    defType(AType ta) := a.defInfo 
+        return    a != b
+               && defType(AType ta) := a.defInfo 
                && defType(AType tb) := b.defInfo 
                && isFunctionType(ta) 
                && (isConstructorType(tb) 

@@ -9,7 +9,7 @@
 module lang::rascalcore::grammar::definition::Layout
 
 //import lang::rascalcore::grammar::definition::Grammar;
-import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeBase;
 import lang::rascalcore::check::ATypeUtils;
 
 

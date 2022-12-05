@@ -11,7 +11,7 @@ module lang::rascalcore::grammar::definition::Literals
 import lang::rascal::\syntax::Rascal;
 //import lang::rascalcore::grammar::definition::Grammar;
 //import ParseTree;
-import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeBase;
 import String;
 
 public AGrammar literals(AGrammar g) {

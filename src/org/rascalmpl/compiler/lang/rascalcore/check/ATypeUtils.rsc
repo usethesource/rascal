@@ -12,7 +12,7 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeUtils
 
-extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeRelations;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::BasicRascalConfig;
 
@@ -384,7 +384,7 @@ AType symbol2atype1(Symbol::\parameterized-lex(str name, list[Symbol] parameters
 //}
 
 AProduction symbol2atype1(Production::regular(Symbol def))
-    = AType::regular(symbol2atype(def));
+    = regular(symbol2atype(def));
 
 //str symbol2atype1(error(AProduction prod, int dot), map[AType, set[AType]] defs)
 //    = "error(<symbol2atype(prod, defs)>, <value2IValue(dot)>)";

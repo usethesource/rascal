@@ -15,7 +15,7 @@ module lang::rascalcore::grammar::ConcreteSyntax
 import ValueIO;
 import List;
 import IO;
-import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeBase;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Literals;

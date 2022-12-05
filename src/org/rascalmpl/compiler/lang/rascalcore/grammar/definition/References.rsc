@@ -7,7 +7,7 @@
 module lang::rascalcore::grammar::definition::References
 
 //extend lang::rascalcore::grammar::definition::Grammar;
-import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeBase;
 import Node;
 import lang::rascalcore::grammar::definition::Symbols;
 
