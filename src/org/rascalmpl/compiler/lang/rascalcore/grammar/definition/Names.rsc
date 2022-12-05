@@ -7,7 +7,7 @@
 }
 module lang::rascalcore::grammar::definition::Names
 
-import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeBase;
 //import lang::rascalcore::grammar::definition::Grammar;
 
 

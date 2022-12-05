@@ -11,7 +11,7 @@ import lang::rascalcore::grammar::definition::Literals;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascal::\syntax::Rascal;
 //import ParseTree;
-import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeBase;
 import String;
 //import IO;
 import Node;

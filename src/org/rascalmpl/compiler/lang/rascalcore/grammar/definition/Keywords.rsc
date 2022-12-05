@@ -7,7 +7,7 @@
 }
 module lang::rascalcore::grammar::definition::Keywords
 
-import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeBase;
 import lang::rascalcore::grammar::definition::Symbols;
 //import IO;
 import Node;

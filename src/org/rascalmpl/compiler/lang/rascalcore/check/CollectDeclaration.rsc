@@ -212,7 +212,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
 
 void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression expression>`, Collector c){
     kwformalName = prettyPrintName(name);
-    DefInfo dt;
+    DefInfo dt = noDefInfo();
     try {
          dt = defType(c.getType(kwType)[alabel=kwformalName]);
     } catch TypeUnavailable(): {
@@ -261,7 +261,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
         collect(decl.signature, c);
         
-        DefInfo dt;
+        DefInfo dt = noDefInfo();
         try { // try immediate computation of the function type if all types are already available
             ft = c.getType(decl.signature);
             if(signature.parameters is varArgs) {
