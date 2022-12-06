@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverLogLevel;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -36,11 +35,13 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 
 public class TutorCommandExecutor {
+    private static final String BROWSER_BINARY = System.getProperty("webdriver.chrome.browser");
+    private static final String DRIVER_BINARY = System.getProperty("webdriver.chrome.driver");
     private final RascalInterpreterREPL repl;
     private final ByteArrayOutputStream shellStandardOutput;
     private final ByteArrayOutputStream shellErrorOutput;
     private final ChromeDriverService service;
-    private RemoteWebDriver driver; 
+    private final RemoteWebDriver driver; 
 
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
@@ -58,16 +59,29 @@ public class TutorCommandExecutor {
             }
         };
  
-        TutorIDEServices services = new TutorIDEServices();
-        repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, services);
-        repl.setMeasureCommandTime(false); 
+        if (DRIVER_BINARY != null && BROWSER_BINARY != null) {
+            TutorIDEServices services = new TutorIDEServices();
+            repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, services);
+            repl.setMeasureCommandTime(false); 
 
-        this.service = new ChromeDriverService.Builder()         
-            .usingDriverExecutable(new File(System.getProperty("webdriver.chrome.driver")))         
-            .usingAnyFreePort()         
-            .build();    
+            this.service = new ChromeDriverService.Builder()         
+                .usingDriverExecutable(new File(DRIVER_BINARY))         
+                .usingAnyFreePort()         
+                .build();    
 
-        this.service.start();
+            this.service.start();
+            this.driver = getBrowser(service);
+        
+            // external browser and driver processes may still be running when we stop this VM:
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                driver.quit();
+                service.stop();
+            }));
+        }
+        else {
+            this.service = null;
+            this.driver = null;
+        }
     }
 
     private String javaCompilerPathAsString(IList javaCompilerPath) {
@@ -127,16 +141,14 @@ public class TutorCommandExecutor {
                 result.put(mimeType, uuencode(content));
             }
             
-            RemoteWebDriver browser = getBrowser();
-
-            if (metadata.get("url") != null && browser != null) {
+            if (metadata.get("url") != null && driver != null) {
                 try {
-                    browser.get(metadata.get("url"));
-                    browser.manage().window().maximize();
+                    driver.get(metadata.get("url"));
+                    driver.manage().window().maximize();
                     // waiting for a better solution 
                     Thread.sleep(1000);    
 
-                    String screenshot = browser.findElement(By.tagName("body"))
+                    String screenshot = driver.findElement(By.tagName("body"))
                         .getScreenshotAs(OutputType.BASE64);
 
                     result.put("application/rascal+screenshot", screenshot);
@@ -153,16 +165,14 @@ public class TutorCommandExecutor {
         return result;
     }
 
-    private RemoteWebDriver getBrowser() {
-        // System.setProperty("webdriver.gecko.driver", "/Users/jurgenv/Downloads/geckodriver");
-        if (this.driver != null) {
-            return this.driver;
+    private static RemoteWebDriver getBrowser(ChromeDriverService service) {
+        if (BROWSER_BINARY == null || DRIVER_BINARY == null) {
+            return null;
         }
-        
 
         ChromeOptions options = new ChromeOptions()
             .setHeadless(true)
-            .setBinary(System.getProperty("webdriver.chrome.browser"))
+            .setBinary(BROWSER_BINARY)
             .addArguments("--user-data-dir=/tmp/rascal-config/google-chrome")
             .setLogLevel(ChromeDriverLogLevel.OFF)
             ;
@@ -171,14 +181,11 @@ public class TutorCommandExecutor {
         // profile.setPreference("layout.css.devPixelsPerPx", "3");
         // options = options.setProfile(profile);
         
-
         RemoteWebDriver driver = new RemoteWebDriver(service.getUrl(), options);
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(3));
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
         driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(5));
         driver.manage().window().maximize();
-        
-        this.driver = driver;
         
         return driver;
     }
