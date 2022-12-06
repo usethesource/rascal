@@ -53,12 +53,8 @@ First a "pre-release" of the supporting compiler/typechecker tools must be done,
 - [ ] syntax highlighting in editor works
 - [ ] add dependency on another project by editing `RASCAL.MF`: `Required-Libraries: |lib://otherProject|`, import a module and test the type-checker as well as the interpreter for correct resolution
 - [ ] `import demo::lang::Pico::Plugin; registerPico();` and test the editor of the example pico files (syntax highlighting, menu options)
-- [ ] open tutor view and test the search box
-- [ ] open tutor view and test browsing the documentation
 - [ ] `import demo::lang::Pico::Plugin; rascal>:edit  demo::lang::Pico::Plugin`
 - [ ] edit a .concept file, save it and watch the preview in the Tutor Preview view
-- [ ] Tutor Preview "edit" button opens the corresponding concept file of the currently visited Concept URL
-- [ ] Tutor Preview Forward/Back/Refresh buttons work
 
 # Actual release
 
