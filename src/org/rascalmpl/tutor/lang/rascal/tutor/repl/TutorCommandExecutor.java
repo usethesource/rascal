@@ -74,8 +74,12 @@ public class TutorCommandExecutor {
         
             // external browser and driver processes may still be running when we stop this VM:
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                driver.quit();
-                service.stop();
+                if (driver != null) {
+                    driver.quit();
+                }
+                if (service != null) {
+                    service.stop();
+                }
             }));
         }
         else {
