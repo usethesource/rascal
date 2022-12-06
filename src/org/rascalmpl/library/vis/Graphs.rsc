@@ -100,7 +100,7 @@ default list[CytoData] graphData(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=d
       [cytodata(\edge("<from>", "<to>", label=edgeLabeler(from, to))) | <from, to> <- v]
       ;
 
-default list[CytoData] graphData(rel[loc x, &L edge, loc y] v, NodeLinker[loc] nodeLinker=defaultNodeLinker, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
+list[CytoData] graphData(rel[loc x, &L edge, loc y] v, NodeLinker[loc] nodeLinker=defaultNodeLinker, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler)
     = [cytodata(\node("<e>", label=nodeLabeler(e), editor=nodeLinker(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>")) | <from, e, to> <- v]
       ;
