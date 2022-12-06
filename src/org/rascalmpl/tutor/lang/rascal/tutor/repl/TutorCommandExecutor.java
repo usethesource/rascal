@@ -58,12 +58,12 @@ public class TutorCommandExecutor {
                 return eval;
             }
         };
+
+        TutorIDEServices services = new TutorIDEServices();
+        repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, services);
+        repl.setMeasureCommandTime(false); 
  
         if (DRIVER_BINARY != null && BROWSER_BINARY != null) {
-            TutorIDEServices services = new TutorIDEServices();
-            repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, services);
-            repl.setMeasureCommandTime(false); 
-
             this.service = new ChromeDriverService.Builder()         
                 .usingDriverExecutable(new File(DRIVER_BINARY))         
                 .usingAnyFreePort()         
