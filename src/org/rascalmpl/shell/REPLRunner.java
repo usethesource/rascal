@@ -63,8 +63,7 @@ public class REPLRunner extends BaseREPL implements ShellRunner {
                     try {
                         // Note that Desktop.isDesktopSupported can not be factored into a class constant because
                         // it may throw exceptions on headless machines which are ignored below.
-                        if ("true".equals(System.getProperty("rascal.useSystemBrowser"))
-                            && Desktop.isDesktopSupported()) {
+                        if (Desktop.isDesktopSupported()) {
                             for (String mimetype : output.keySet()) {
                                 if (!mimetype.contains("html") && !mimetype.startsWith("image/")) {
                                     continue;
