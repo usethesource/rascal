@@ -403,8 +403,8 @@ private HTMLElement plotHTML()
                     '       var n = evt.target;
                     '       if (n.data(\'editor\') !== undefined) {
                     '           fetch(\'/editor?\' + new URLSearchParams({
-                                    src: n.data(\'editor\')
-                                })) ;
+                    '                src: n.data(\'editor\')
+                    '           })) ;
                     '       }
                     '   });
                     '});
