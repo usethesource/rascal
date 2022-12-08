@@ -14,12 +14,7 @@ This modules provides a simple API to create graph visuals for Rascal
 
 This module is quite new and may undergo some tweaks in the coming time.
 }
-@examples{
-```rascal-shell
-import vis::Graphs;
-graph([<x,x+1> | x <- [1..100]] + [<100,1>])
-```
-}
+
 @benefits{
 * Easy to use for basic graph layouts.
 }
@@ -31,18 +26,54 @@ import Content;
 import ValueIO;
 
 @synopsis{A graph plot from a binary list relation.}
+@examples{
+```rascal-shell
+import vis::Graphs;
+graph([<x,x+1> | x <- [1..100]] + [<100,1>])
+graph([<x,x+1> | x <- [1..100]] + [<100,1>], \layout=\defaultCircleLayout())
+```
+
+Providing locations as node identities automatically transforms them to node links:
+```rascal-shell
+import vis::Graphs;
+import IO;
+d = [<|std:///|, e> | e <- |std:///|.ls];
+d += [<e,f> | <_, e> <- d, isDirectory(e), f <- e.ls];
+graph(d, \layout=defaultCoseLayout());
+// here we adapt the node labeler to show only the last file name in the path of the location:
+graph(d, \layout=defaultCoseLayout(), nodeLabeler=str (loc l) { return l.file; });
+```
+}
 Content graph(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
     = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 @synopsis{A graph plot from a ternary list relation where the middle column is the edge label.}
+@examples{
+```rascal-shell
+import vis::Graphs;
+graph([<x,2*x+1,x+1> | x <- [1..100]] + [<100,101,1>])
+```
+}
 Content graph(lrel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
     = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 @synopsis{A graph plot from a binary relation.}
+@examples{
+```rascal-shell
+import vis::Graphs;
+graph({<x,x+1> | x <- [1..100]} + {<100,1>})
+```
+}
 Content graph(rel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
     = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 @synopsis{A graph plot from a ternary relation where the middle column is the edge label.}
+@examples{
+```rascal-shell
+import vis::Graphs;
+graph({<x,2*x+1,x+1> | x <- [1..100]} + {<100,101,1>})
+```
+}
 Content graph(rel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
     = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
@@ -277,6 +308,7 @@ data CytoArrowHeadStyle
     | chevron()
     | none()
     ;
+    
 data CytoSelector
     = \node()
     | \edge()
@@ -287,6 +319,7 @@ data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
     | breadthfirstLayout(
         CytoLayoutName name = CytoLayoutName::breadthfirst(),
         num spacingFactor= 1,
+        list[str] roots = [],
         bool circle=false,
         bool grid=!circle,
         bool directed=false
@@ -336,7 +369,8 @@ CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, 
     ;
 
 CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, bool grid=!circle, bool directed=false)
-    = breadthfirstLayout(
+    = 
+    breadthfirstLayout(
         name=CytoLayoutName::breadthfirst(),
         animate=false,
         spacingFactor=spacingFactor,
