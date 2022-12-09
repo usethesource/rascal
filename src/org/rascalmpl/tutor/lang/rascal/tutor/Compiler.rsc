@@ -517,7 +517,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 
     if (shot != "") {
       loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
-      targetFile.file = targetFile.file + "_screenshot_<lineOffset>.png";
+      targetFile.file = targetFile.file + "_screenshot_<lineOffsetHere+lineOffset>.png";
       println("screenshot <targetFile>");
       writeBase64(targetFile, shot);
       append OUT: out("```");
