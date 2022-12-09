@@ -224,12 +224,9 @@ MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* _>/<RegExpModifier _
    matcher = muTmpMatcher(nextTmp("matcher"), fuid);
    found = muTmpBool(nextTmp("found"), fuid);
    btscope = nextLabel("REGEXP");
-   //println("inStringVisit() : <inStringVisit()>");
    code = [ muConInit(matcher, muRegExpCompile(buildRegExp, subject)),
-            //*( inStringVisit() ? [ muRegExpSetRegionInVisit(matcher) ]
-            //                   : [] ),
             muVarInit(found, muCon(true)),
-            muWhileDo("", found,
+            muDoWhile("", 
                       muBlock([ muAssign(found, muRegExpFind(matcher)),
                                 muIfElse(found,
                                     muBlock([ *[ muVarInit(vars[i], muRegExpGroup(matcher, i+1)) | i <- index(vars) ],
@@ -238,7 +235,8 @@ MuExp translateRegExpLiteral(re: (RegExpLiteral) `/<RegExp* _>/<RegExpModifier _
                                                trueCont
                                             ]),
                                     falseCont)
-                              ]))
+                              ]),
+                       found)
            
           ];
    return muValueBlock(abool(), code);
@@ -1009,9 +1007,11 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
       }
       fun_name = getUnqualifiedName(prettyPrintName(qname));
       code = muBlock([subjectInit, muIfElse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
+      return code;
    } else if(expression is literal){ // StringConstant
       fun_name = prettyPrintName("<expression>"[1..-1]); //TODO escapes in string
       code = muBlock([subjectInit, muIfElse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
+      return code;
     } else {
      fun_name_subject = muTmpIValue(nextTmp("fun_name_subject"), fuid, expType);
      code = muBlock([subjectInit,
