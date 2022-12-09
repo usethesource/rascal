@@ -109,6 +109,10 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind,
 }
 
 list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
+    if (d in pcfg.ignores) {
+      return [info("skipped ignored location: <d>")];
+    }
+    
     indexFiles = {(d + "<d.file>")[extension="md"], (d + "index.md")};
 
     if (!exists(d)) {
