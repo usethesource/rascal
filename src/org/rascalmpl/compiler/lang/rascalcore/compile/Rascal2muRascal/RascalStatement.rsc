@@ -707,7 +707,7 @@ MuExp translate((Statement) `<Label label> { <Statement+ statements> }`, BTSCOPE
 
 MuExp translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`, BTSCOPES btscopes) { 
     result = translateAssignment(s, btscopes);
-    //iprintln(result);
+    iprintln(result);
     return result;
 } 
 

@@ -276,7 +276,7 @@ void extractScopes(TModel tm){
         for(<AType tp, KeywordFormal dflt> <- common) println("<tp>, <dflt>");
     }
    
-    if([*lrel[AType,KeywordFormal] commons] := tm.store[key_common_keyword_fields]){
+    if([*lrel[AType,KeywordFormal] commons] := tm.store[key_common_keyword_fields], !isEmpty(commons)){
         common = commons[0];
         println("Common keyword parameters");
         iprintln(common);

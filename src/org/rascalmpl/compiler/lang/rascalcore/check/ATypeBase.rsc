@@ -2,14 +2,14 @@ module lang::rascalcore::check::ATypeBase
 
 
 extend analysis::typepal::TypePal;
-import analysis::typepal::Exception;
+//import analysis::typepal::Exception;
 
 import lang::rascal::\syntax::Rascal;
 
-import IO;
+//import IO;
 import List;
 import Set;
-import Node;
+//import Node;
 import String;
 
 alias Keyword     = tuple[AType fieldType, Expression defaultExp];
