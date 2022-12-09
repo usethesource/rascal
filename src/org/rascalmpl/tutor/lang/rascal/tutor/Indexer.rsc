@@ -147,27 +147,27 @@ rel[str, str] createConceptIndex(loc src)
   }
   + // Finally, the index entries for Rascal modules and declarations, as extracted from the source code:
     {  // `((getDefaultPathConfig))` -> `Libary/util/Reflective#getDefaultPathConfig`
-      *{<"<item.kind>:<item.name>","/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>">, 
-        <item.name, "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
+      *{<"<item.kind>:<item.name>","/<capitalize(src.file)>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>">, 
+        <item.name, "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
      
       // `((Library:getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
-        <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?},
+      *{<"<capitalize(src.file)>:<item.name>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>" >,
+        <"<capitalize(src.file)>:<item.kind>:<item.name>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>" > | item.name?},
 
       // `((util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
-      *{<"<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
-        <"<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
+      *{<"<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>" >,
+        <"<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
 
       // ((Library:util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
-      *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" >,
-         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md#<item.moduleName>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
+      *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>" >,
+         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>" > | item.name?, sep <- {"::", "/", "-"}},
 
       // ((Set)) -> `/Library/Set`
-      *{<item.moduleName, "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md" >, <"module:<item.moduleName>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md" > | item is moduleInfo},
+      *{<item.moduleName, "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" >, <"module:<item.moduleName>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" > | item is moduleInfo},
 
       // `((Library:Set))` -> `/Library/Set`
-      *{<"<capitalize(src.file)>:<item.moduleName>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md" >,
-         <"<capitalize(src.file)>:module:<item.moduleName>", "/<capitalize(src.file)>/<moduleFragment(item.moduleName)>.md" > | item is moduleInfo}
+      *{<"<capitalize(src.file)>:<item.moduleName>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" >,
+         <"<capitalize(src.file)>:module:<item.moduleName>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" > | item is moduleInfo}
 
       | loc f <- find(src, "rsc"), list[DeclarationInfo] inf := safeExtract(f), item <- inf
     }

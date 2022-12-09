@@ -17,7 +17,8 @@ str fragment(loc root, loc concept) = fragment(root, concept + "index.md")
 str fragment(loc root, loc concept) = fragment(root, concept.parent + "index.md")
   when concept.parent?, concept.parent.file == concept[extension=""].file;
 
-str moduleFragment(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
+str modulePath(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
+str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
   = removeSpaces("<prefix><capitalize(postfix)>");
