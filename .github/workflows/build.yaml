@@ -26,6 +26,7 @@ jobs:
         with:
           chromedriver-version: '107.0.5304.62'
       - run: which chromedriver
+      
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
