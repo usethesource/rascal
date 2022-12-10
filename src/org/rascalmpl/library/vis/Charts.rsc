@@ -19,19 +19,20 @@ This module is quite new and may undergo some tweaks in the coming time.
 @examples{
 ```rascal-shell
 import vis::Charts;
-scatterChart([<x,x> | x <- [1..100]])
+import util::Math;
+scatterChart([<x-arbInt(20),x+arbInt(20)> | x <- [1..100]])
 ```
 
 ```rascal-shell-continue
-barChart([<"<x>",x> | x <- [1..100]])
+barChart([<"<x>",x-arbInt(20)> | x <- [1..100]])
 ```
 
 ```rascal-shell-continue
-lineChart([<"<x>",x> | x <- [1..100]])
+lineChart([<"<x>",x+arbInt(20)> | x <- [1..100]])
 ```
 
 ```rascal-shell-continue
-pieChart([<"<x>",x> | x <- [1..100]])
+pieChart([<"<x>",x+arbInt(25)> | x <- [1..10]])
 ```
 }
 @benefits{
@@ -56,13 +57,13 @@ import List;
 @synopsis{A scatterplot from a binary numerical relation.}
 
 Content scatterChart(lrel[num x,num y] v, str title="Scatterplot", ChartAutoColorMode colorMode=\dataset()) 
-    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode));
+    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode, legend=false));
 
 Content scatterChart(list[str] labels, lrel[num x,num y] values ..., str title="Scatterplots", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode));
 
 Content scatterChart(rel[num x ,num y] v, str title="Scatterplot", ChartAutoColorMode colorMode=\dataset()) 
-    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode));
+    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode, legend=false));
 
 Content scatterChart(list[str] labels, rel[num x,num y] values ..., str title="Scatterplots", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode));
@@ -97,11 +98,11 @@ Content barChart(list[str] labels, lrel[str label, num val] values..., str title
     = content(title, chartServer(chartData(labels, values), \type=\bar(), title=title, colorMode=colorMode));
 
 @synopsis{A line chart from labeled numbers}
-Content lineChart(rel[str label, num val] values, str title="Line Chart", ChartAutoColorMode colorMode=\data())
-    = content(title, chartServer(chartData(values), \type=\line(), title=title, colorMode=colorMode));
+Content lineChart(rel[str label, num val] values, str title="Line Chart", ChartAutoColorMode colorMode=\dataset())
+    = content(title, chartServer(chartData(values), \type=\line(), title=title, colorMode=colorMode, legend=false));
 
-Content lineChart(lrel[str label, num val] values, str title="Line Chart", ChartAutoColorMode colorMode=\data())
-    = content(title, chartServer(chartData(values), \type=\line(), title=title, colorMode=colorMode));
+Content lineChart(lrel[str label, num val] values, str title="Line Chart", ChartAutoColorMode colorMode=\dataset())
+    = content(title, chartServer(chartData(values), \type=\line(), title=title, colorMode=colorMode, legend=false));
 
 Content lineChart(list[str] labels, rel[str label, num val] values..., str title="Line Chart", ChartAutoColorMode colorMode=\dataset())
     = content(title, chartServer(chartData(labels, values), \type=\line(), title=title, colorMode=colorMode));
@@ -350,7 +351,8 @@ data ChartAutoColorMode
 
 data ChartLegend   
     = chartLegend(
-        LegendPosition position = top()
+        LegendPosition position = top(),
+        bool display=true
     );
 
 data LegendPosition
@@ -377,7 +379,7 @@ A chart has a typical default layout that we can reuse for all kinds of chart ty
 provides the template and immediately instantiates the client and the server to start displaying the chart
 in a browser.
 }
-Response(Request) chartServer(ChartData theData, ChartType \type=\bar(), str title="Chart", ChartAutoColorMode colorMode=\data())
+Response(Request) chartServer(ChartData theData, ChartType \type=\bar(), str title="Chart", ChartAutoColorMode colorMode=\data(), bool legend=false)
     = chartServer(
         chart(
             \type=\type,
@@ -386,7 +388,8 @@ Response(Request) chartServer(ChartData theData, ChartType \type=\bar(), str tit
                 responsive=true,
                 plugins=chartPlugins(
                     legend=chartLegend(
-                        position=top()
+                        position=top(),
+                        display=legend
                     ),
                     title=chartTitle(
                         display=true,
@@ -398,7 +401,7 @@ Response(Request) chartServer(ChartData theData, ChartType \type=\bar(), str tit
                     autocolors=chartAutoColors(
                         mode=colorMode
                     )
-                )
+                ) 
             )
         )
     );
