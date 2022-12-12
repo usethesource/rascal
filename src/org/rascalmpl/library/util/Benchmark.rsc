@@ -63,7 +63,7 @@ int getMaxFreeMemory() = getMaxMemory() - getUsedMemory();
 * This number has nanoseconds resolution, but not necessarily nanosecond accuracy.
 }
 @examples{
-We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
+We use the `fac` function described in [Factorial](/docs/Recipes/Basic/Factorial/) as example:
 ```rascal-shell
 import util::Benchmark;
 import demo::basic::Factorial;
@@ -135,7 +135,7 @@ Returns the CPU time that the current thread has executed in system mode in nano
 * The other [CPU time]((cpuTime)), next to [System time]((systemTime)) is spent in [User time]((userTime)).
 }
 @examples{
-We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
+We use the `fac` function described in [Factorial](/docs/Recipes/Basic/Factorial/) as example:
 
 ```rascal-shell
 import util::Benchmark;
@@ -182,7 +182,7 @@ Returns the CPU time that the current thread has executed in user mode in nanose
 * The other [CPU time]((cpuTime)), next to [user time]((userTime)) is spent in [system time]((systemTime)).
 }
 @examples{
-We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
+We use the `fac` function described in [Factorial](/docs/Recipes/Basic/Factorial/) as example:
 
 ```rascal-shell
 import util::Benchmark;
@@ -234,7 +234,7 @@ Given is a map that maps strings (used as label to identify each case) to void-c
 An optional `duration` argument can be used to specify the function to perform the actual measurement. By default the function ((realTimeOf)) is used. A map of labels and durations is returned.
 }
 @examples{
-We use the `fac` function described in [Factorial]((Recipes:Basic-Factorial)) as example:
+We use the `fac` function described in [Factorial](/docs/Recipes/Basic/Factorial/) as example:
 ```rascal-shell
 import util::Benchmark;
 import demo::basic::Factorial;
@@ -289,7 +289,7 @@ on the heap.
 }
 @benefits{
 * This helps avoiding to restart the JVM, and optionally warming it up, for each individual measurement.
-* Long running terminal ((RascalShell-REPL))s can be rejuvenated on demand by a call to ((gc)).
+* Long running terminal [RascalShell-REPL](/docs/RascalShell/REPL/)s can be rejuvenated on demand by a call to ((gc)).
 }
 @pitfalls{
 * Although a GC cycle is triggered by this function, it guarantees nothing about the effect of this cycle in terms of completeness or precision in removing garbage from the heap.
