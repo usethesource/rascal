@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
@@ -71,20 +72,22 @@ public class TutorCommandExecutor {
 
             this.service.start();
             this.driver = getBrowser(service);
-        
-            // external browser and driver processes may still be running when we stop this VM:
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if (driver != null) {
-                    driver.quit();
-                }
-                if (service != null) {
-                    service.stop();
-                }
-            }));
         }
         else {
             this.service = null;
             this.driver = null;
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        if (driver != null) {
+            driver.quit();
+            driver = null;
+        }
+        if (service != null) {
+            service.stop();
+            service = null;
         }
     }
 
@@ -98,13 +101,13 @@ public class TutorCommandExecutor {
                 b.append(File.pathSeparatorChar);
             }
 
+            // this is the precondition
             assert loc.getScheme().equals("file");
-            String path = loc.getPath();
-            if (path.startsWith("/") && path.contains(":\\")) {
-                // a windows path should drop the leading /
-                path = path.substring(1);
+
+            // this is robustness in case of experimentation in pom.xml
+            if ("file".equals(loc.getScheme())) {
+                b.append(Paths.get(loc.getURI()).toAbsolutePath().toString());
             }
-            b.append(path);
         }
 
         return b.toString();
