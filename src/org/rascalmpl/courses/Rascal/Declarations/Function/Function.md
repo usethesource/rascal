@@ -128,7 +128,7 @@ The _Modifiers_ affect _visibility_ and _special behaviour_ of functions:
        `javaClass` annotation that determines where the Java implementation can be found.
    **  `test` declares that this is a test function. A test function is a boolean function (currently) without arguments. 
         It can be called as any other function. However, it can also be called automatically
-        by the unit test framework, by typing `:test` at the command line, see ((Help)).
+        by the unit test framework, by typing `:test` at the command line, see [Help](/docs/GettingHelp/CommandLine/).
    **  `default` declares an alternative for an overloaded function that will only be tried after 
         all non-default alternatives have been tried. Note that ((Algebraic Data Type))s and ((Syntax Definition))s 
         _implicitly_ define `default` functions that may be overloaded by normal ((Function Declarations))s.

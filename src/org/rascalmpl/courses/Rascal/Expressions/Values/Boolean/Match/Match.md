@@ -26,7 +26,7 @@ Match a pattern against an expression.
 
 #### Description
 
-See ((Pattern Matching)) for an introduction to pattern matching and ((Patterns)) for a complete description.
+See [Pattern Matching](/docs/RascalConcepts/PatternMatching/) for an introduction to pattern matching and ((Patterns)) for a complete description.
 
 #### Examples
 

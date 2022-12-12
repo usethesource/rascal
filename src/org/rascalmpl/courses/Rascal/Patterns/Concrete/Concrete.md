@@ -65,7 +65,7 @@ Some observations about this example:
 ** When this example pattern actually matches the variable `a` is bound and can be used again like any other ((Variable Patterns)). 
 
 
-A full example of concrete patterns can be found in [WithLayout]((Recipes:Concrete-WithLayout)).
+A full example of concrete patterns can be found in [WithLayout](/docs/recipes/languages/exp/concrete/withlayout/).
 
 #### Benefits
 
