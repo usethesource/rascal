@@ -26,14 +26,25 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
+import org.rascalmpl.uri.project.ProjectURIResolver;
+import org.rascalmpl.uri.project.TargetURIResolver;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class TutorCommandExecutor {
     private static final String BROWSER_BINARY = System.getProperty("webdriver.chrome.browser");
@@ -52,10 +63,33 @@ public class TutorCommandExecutor {
         repl = new RascalInterpreterREPL(false, false, null) {
             @Override
             protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
-                Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
+                GlobalEnvironment heap = new GlobalEnvironment();
+                ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
+                IValueFactory vf = ValueFactoryFactory.getValueFactory();
+                Evaluator eval = new Evaluator(vf, input, stderr, stdout, root, heap);
+
+                eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+                eval.setMonitor(services);        
                 eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
                 eval.setMonitor(services);
-                // eval.addClassLoader(new SourceLocationClassLoader(pcfg.getClassloaders(), System.class.getClassLoader()));
+
+                ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
+                String projectName = new RascalManifest().getProjectName(projectRoot);
+                URIResolverRegistry reg = URIResolverRegistry.getInstance();
+                reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+                reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+
+                for (IValue path : pcfg.getSrcs()) {
+                    eval.addRascalSearchPath((ISourceLocation) path); 
+                }
+    
+                for (IValue path : pcfg.getLibs()) {
+                    eval.addRascalSearchPath((ISourceLocation) path);
+                }
+    
+                ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
+                eval.addClassLoader(cl);
+
                 return eval;
             }
         };
@@ -79,6 +113,25 @@ public class TutorCommandExecutor {
         }
     }
 
+    private static ISourceLocation inferProjectRoot(ISourceLocation member) {
+        ISourceLocation current = member;
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        while (current != null && reg.exists(current) && reg.isDirectory(current)) {
+            if (reg.exists(URIUtil.getChildLocation(current, "META-INF/RASCAL.MF"))) {
+                return current;
+            }
+
+            if (URIUtil.getParentLocation(current).equals(current)) {
+                // we went all the way up to the root
+                return reg.isDirectory(member) ? member : URIUtil.getParentLocation(member);
+            }
+            
+            current = URIUtil.getParentLocation(current);
+        }
+
+        return current;
+    }
+    
     @Override
     protected void finalize() throws Throwable {
         if (driver != null) {

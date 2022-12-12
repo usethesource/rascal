@@ -11,6 +11,7 @@ data DeclarationInfo(
      loc docSrc = src)
      = moduleInfo        (str kind="module")
      | functionInfo      (str kind="function")
+     | testInfo          (str kind="test", str fullTest="")
      | constructorInfo   (str kind="constructor")
      | dataInfo          (str kind="data", list[str] overloads=[])
      | aliasInfo         (str kind="alias")

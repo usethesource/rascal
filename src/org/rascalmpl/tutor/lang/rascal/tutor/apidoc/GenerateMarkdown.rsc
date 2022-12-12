@@ -81,7 +81,7 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
 
 list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
-        out("## function <d.name> {<fragment(d.moduleName)>-<d.name>}"),
+        out("## function <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
         out("```rascal"),
         *[out(ov), empty() | ov <- overloads, str defLine <- split("\n", ov)],
@@ -96,7 +96,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
     
  list[Output] declInfo2Doc(str parent, d:dataInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
-        out("## data <d.name> {<fragment(d.moduleName)>-<d.name>}"),
+        out("## data <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         empty(),
         *[
             out("```rascal"),
@@ -113,7 +113,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
 
 list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
     [
-        out("## alias <d.name> {<fragment(d.moduleName)>-<d.name>}"),
+        out("## alias <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         empty(),
         out("```rascal"),
         *[out(removeNewlines(ov)), empty() | ov <- overloads],
@@ -143,7 +143,7 @@ public str basename(str cn){
   return (/^.*::<base:[A-Za-z0-9\-\_]+>$/ := cn) ? base : cn;
 }
 
-private str fragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
+
 
 str removeNewlines(str x) = visit(x) {
   case /\n/ => " "
