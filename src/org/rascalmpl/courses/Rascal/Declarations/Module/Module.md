@@ -87,15 +87,19 @@ Each module resides in a separate file with extension `.rsc`.
 
 Here is the `Hello` module:
 
-```rascal-include
-demo::basic::Hello
+```rascal
+module demo::basic::Hello
+
+import IO;
+
+void hello() {
+  println("Hello world!");
+}
 ```
 
                 
 It defines a module with the name `demo::basic::Hello` and imports the [IO]((Library:module:IO)) library.
 Finally, it declares the `hello` function.
-
-The actual source of this module can be found in `library/demo/basic/Hello.rsc` in the Rascal sources.
 
 More ways to write this example are discussed in the [Hello](/docs/Recipes/Basic/Hello/) example in [Recipes](/docs/Recipes/).
 

@@ -21,14 +21,17 @@ This module is quite new and may undergo some tweaks in the coming time.
 import vis::Charts;
 import util::Math;
 scatterChart([<x-arbInt(20),x+arbInt(20)> | x <- [1..100]])
+scatterChart(["down", "up"], [<x,100-x+arbInt(20)> | x <- [1..100]], [<x,x+arbInt(20)> | x <- [1..100]])
 ```
 
 ```rascal-shell-continue
 barChart([<"<x>",x-arbInt(20)> | x <- [1..100]])
+barChart(["down", "up"], [<"<x>",100-x+arbInt(20)> | x <- [1..100]], [<"<x>",x+arbInt(20)> | x <- [1..100]])
 ```
 
 ```rascal-shell-continue
 lineChart([<"<x>",x+arbInt(20)> | x <- [1..100]])
+lineChart(["down", "up"], [<"<x>",100-x+arbInt(20)> | x <- [1..100]], [<"<x>",x+arbInt(20)> | x <- [1..100]])
 ```
 
 ```rascal-shell-continue
