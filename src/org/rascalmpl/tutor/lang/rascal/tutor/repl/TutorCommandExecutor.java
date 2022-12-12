@@ -83,11 +83,9 @@ public class TutorCommandExecutor {
     protected void finalize() throws Throwable {
         if (driver != null) {
             driver.quit();
-            driver = null;
         }
         if (service != null) {
             service.stop();
-            service = null;
         }
     }
 
