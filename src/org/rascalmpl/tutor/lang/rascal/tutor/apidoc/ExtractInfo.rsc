@@ -90,7 +90,7 @@ DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg "
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<FunctionDeclaration functionDeclaration>`) 
-  = [ extractTestDecl(moduleName, functionDeclaration) ] when /(FunctionModifier) `test` := functionDeclaration.signature;
+  = [ extractTestDecl(moduleName, functionDeclaration) ] when /FunctionModifier m := functionDeclaration.signature, (FunctionModifier) `test` := m;
 
 default list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<FunctionDeclaration functionDeclaration>`) 
   = [ extractFunDecl(moduleName, functionDeclaration) ];

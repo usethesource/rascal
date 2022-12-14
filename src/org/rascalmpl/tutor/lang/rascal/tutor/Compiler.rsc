@@ -232,6 +232,46 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-include<rest1:.*>$/, *str
     ];
 }
 
+@synopsis{Include Rascal REPL commands literally and execute them as side-effects in the REPL without reporting output unless there are unexpected errors.}
+list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *str block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
+  str code = "<for (l <- block) {><l>
+             '<}>";
+  
+  try {
+    commands = ([start[Commands]] code).top.commands;
+ 
+    if (/continue/ !:= rest1) {
+      exec.reset();
+    }
+
+    stderr = "";
+
+    for (EvalCommand c <- commands) {
+      output = exec.eval("<c>");
+      stderr += output["application/rascal+stderr"]?"";
+    }
+
+    return [ 
+        Output::empty(), // must have an empty line
+        out("```rascal <rest1>"),
+        *[out(l) | l <- block],
+        Output::empty(),
+        out("```"),
+        *[
+          out(":::danger"),
+          *[out(errLine) | errLine <- split("\n", stderr)],
+          out(":::") 
+          | /errors/ !:= rest1, filterErrors(stderr) != ""
+        ], 
+        *[err(error("rascal-declare block failed: <stderr>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))) | filterErrors(stderr) != ""],
+        *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + length(first) + length(block), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
+      ];
+  }
+  catch ParseError(x): {
+    return [err(error("parse error in rascal declaration input, <x>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>)))];
+  }
+}
+
 @synopsis{execute _rascal-shell_ blocks on the REPL}
 list[Output] compileMarkdown([str first:/^\s*```rascal-shell<rest1:.*>$/, *block, /^\s*```/, *str rest2], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1)
   = [ Output::empty(), // must have an empty line

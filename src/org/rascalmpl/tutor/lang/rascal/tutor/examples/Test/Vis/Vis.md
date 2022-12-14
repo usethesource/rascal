@@ -7,6 +7,21 @@ import lang::html::IO;
 serve(p([text("This is"), b([text("bold")]), text("!")]))
 ```
 
+```rascal-commands, continue
+
+import IO;
+
+void exampleFunction() {
+    
+    println("HelloWorld!");
+
+}
+```
+
+```rascal-shell,continue
+exampleFunction();
+```
+
 ```rascal-shell
 import lang::html::IO;
 HTMLElement table(rel[&T, &U] r)
