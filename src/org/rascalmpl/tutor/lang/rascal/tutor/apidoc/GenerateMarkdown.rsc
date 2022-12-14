@@ -28,6 +28,12 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
     try {
         dinfo = extractInfo(moduleLoc);
 
+        // filter the tests
+        tests = [t | t:testInfo() <- dinfo];
+
+        // remove the tests
+        dinfo -= tests;
+
         dtls = sort(dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]));
 
         // TODO: this overloading collection should happen in ExtractInfo
@@ -38,21 +44,27 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
             list[str] overloads = [];
 
             if (dinfo[i] has name) {
-            overloads = [dinfo[i].signature];
-            
-            // TODO: this only collects consecutive overloads. if a utility function interupts the flow,
-            // then we do not get to see the other overloads with the current group. Rewrite to use a "group-by" query.
-            // Also this looses any additional documentation tags for anything but the first overloaded declaration
-            
-            while (j < size(dinfo) && dinfo[i].name == dinfo[j].name) {
-                    // this loops eats the other declarations with the same name (if consecutive!)
-                    overloads += dinfo[j].signature;
-                    j += 1;
-            }
+                overloads = [dinfo[i].signature];
+                
+                // TODO: this only collects consecutive overloads. if a utility function interupts the flow,
+                // then we do not get to see the other overloads with the current group. Rewrite to use a "group-by" query.
+                // Also this looses any additional documentation tags for anything but the first overloaded declaration
+                
+                while (j < size(dinfo) && dinfo[i].name == dinfo[j].name) {
+                        // this loops eats the other declarations with the same name (if consecutive!)
+                        overloads += dinfo[j].signature;
+                        j += 1;
+                }
             }
 
             res += declInfo2Doc(parent, dinfo[i], overloads, pcfg, exec, ind, dinfo[i] is moduleInfo? dtls : []);
             i = j;
+        }
+
+        res += line("### Tests");
+
+        for (di <- tests) {
+            res += declInfo2Doc(parent, di, [], pcfg, exec, ind, []);
         }
 
         return res;
@@ -88,8 +100,18 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
         out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
-    ];
-   
+    ];   
+
+list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
+    [
+        out("## **test** <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
+        Output::empty(),
+        out("```rascal"),
+        *[out(ov), empty() | ov <- overloads, str defLine <- split("\n", d.fullTest)],
+        out("```"),
+        Output::empty(),
+        *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
+    ];       
  
  list[Output] declInfo2Doc(str parent, constructorInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
      [];
