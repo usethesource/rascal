@@ -31,7 +31,15 @@ barChart(["down", "up"], [<"<x>",100-x+arbInt(20)> | x <- [1..100]], [<"<x>",x+a
 
 ```rascal-shell-continue
 lineChart([<"<x>",x+arbInt(20)> | x <- [1..100]])
-lineChart(["down", "up"], [<"<x>",100-x+arbInt(20)> | x <- [1..100]], [<"<x>",x+arbInt(20)> | x <- [1..100]])
+lineChart(["down", "up"],
+    [<"<x>",100-x+arbInt(20)> | x <- [1..100]], 
+    [<"<x>",x+arbInt(20)> | x <- [1..100]]
+)
+lineChart(["down", "up", "even"],
+    [<"<x>",100-x+arbInt(20)> | x <- [1..100]], 
+    [<"<x>",x+arbInt(20)> | x <- [1..100]], 
+    [<"<x>", 70-arbInt(20)> | x <- [1..100]]
+)
 ```
 
 ```rascal-shell-continue
