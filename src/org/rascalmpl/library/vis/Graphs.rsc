@@ -344,8 +344,7 @@ data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
 CytoLayout defaultCoseLayout(bool avoidOverlap=true)
     = coseLayout(
         name=CytoLayoutName::cose(),
-        animate=false,
-        avoidOverlap=avoidOverlap
+        animate=false
     )
     ;
 
