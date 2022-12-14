@@ -90,6 +90,9 @@ DeclarationInfo genVariant(str moduleName, v: (Variant) `<Name name>(<{TypeArg "
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<FunctionDeclaration functionDeclaration>`) 
+  = [ extractTestDecl(moduleName, functionDeclaration) ] when /(FunctionModifier) `test` := functionDeclaration.signature;
+
+default list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<FunctionDeclaration functionDeclaration>`) 
   = [ extractFunDecl(moduleName, functionDeclaration) ];
 
 // -- function declaration ------------------------------------------
@@ -120,6 +123,18 @@ private DeclarationInfo extractFunctionDeclaration(str moduleName, FunctionDecla
   return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags), docs=sortedDocTags(tags));
 }
 
+DeclarationInfo extractTestDecl(str moduleName, FunctionDeclaration fd) {
+  fname = "<fd.signature.name>";
+  
+  signature =  "<fd.signature>";
+  if(startsWith(signature, "java")){
+    signature = signature[size("java")+1 .. ];
+  }
+
+  tags =  getTagContents(fd.tags);
+  
+  return testInfo(moduleName=moduleName, name=fname, src=fd@\loc, synopsis=getSynopsis(tags), fullTest="<fd>");
+}
 
 str getSynopsis(rel[str, DocTag] tags) {
     if (docTag(content=str docContents) <- tags["doc"]) {
