@@ -20,13 +20,13 @@ Index readConceptIndex(PathConfig pcfg) {
 
 Index createConceptIndex(PathConfig pcfg) {
     targetFile = pcfg.bin + "index.value";
-    ind = createConceptIndex(pcfg.srcs, exists(targetFile) ? lastModified(targetFile) : $1970-01-01T00:00:00.000+00:00$);
 
-    if (exists(targetFile)) {
-      // in incremental mode we will have skipped many files. This
-      // adds the old index to the newly created ones
-      ind += readBinaryValueFile(#rel[str,str], targetFile);
-    }
+    // in incremental mode we will have skipped many files. This
+    // adds the old index to the newly created ones
+    ind = exists(targetFile) ? readConceptIndex(pcfg) : {};
+
+    // now we add the new index items on top of the old ones    
+    ind += createConceptIndex(pcfg.srcs, exists(targetFile) ? lastModified(targetFile) : $1970-01-01T00:00:00.000+00:00$);
 
     // store index for later usage by depending documentation projects
     writeBinaryValueFile(targetFile, ind);
