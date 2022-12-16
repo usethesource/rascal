@@ -329,3 +329,18 @@ public set[set[&T]] connectedComponents(Graph[&T] G)
 
   return components;
 }
+
+@synopsis{Transitive reduction of a directed graph}
+@description{
+The transitive reduction removes all "superfluous" edges in the sense
+that all nodes remain reachable but all "shortcuts" have been removed.
+
+The algorithm is inspired by the following paper, and uses the builtin (fast) transitive closure
+algorithm from Rascal, and the composition operator `o` as an oracle to find out
+which edges span more than one level in the graph. Note that the transitive
+reduction's worst case complexity is in the same order as transitive closure itself anyway.
+
+> Aho, A. V.; Garey, M. R.; Ullman, J. D. (1972), 
+> "The transitive reduction of a directed graph", SIAM Journal on Computing, 1 (2): 131–137, doi:10.1137/0201008
+}
+Graph[&T] transitiveReduction(Graph[&T] g) = g - (g o g+);
