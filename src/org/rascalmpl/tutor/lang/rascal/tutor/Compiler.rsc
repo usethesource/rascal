@@ -268,7 +268,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
       ];
   }
   catch ParseError(x): {
-    return [err(error("parse error in rascal declaration input, <x>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>)))];
+    return [err(error("parse error in rascal-commands block: <x>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>)))];
   }
 }
 

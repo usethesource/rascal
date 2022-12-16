@@ -7,7 +7,7 @@ import lang::html::IO;
 serve(p([text("This is"), b([text("bold")]), text("!")]))
 ```
 
-```rascal-commands, continue
+```rascal-commands,continue
 
 import IO;
 

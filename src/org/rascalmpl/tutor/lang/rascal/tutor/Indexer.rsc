@@ -18,10 +18,17 @@ Index readConceptIndex(PathConfig pcfg) {
 }
 
 Index createConceptIndex(PathConfig pcfg) {
-    ind = createConceptIndex(pcfg.srcs);
+    targetFile = pcfg.bin + "index.value";
+    ind = createConceptIndex(pcfg.srcs, exists(targetFile) ? lastModified(targetFile) : $1970-01-01T00:00:00.000+00:00$);
+
+    if (exists(targetFile)) {
+      // in incremental mode we will have skipped many files. This
+      // adds the old index to the newly created ones
+      ind += readreadBinaryValueFile(#rel[str,str], targetFile);
+    }
 
     // store index for later usage by depending documentation projects
-    writeBinaryValueFile(pcfg.bin + "index.value", ind);
+    writeBinaryValueFile(targetFile, ind);
 
     // read indices from projects we depend on, if present
     ind += {*readBinaryValueFile(#rel[str,str], inx) | l <- pcfg.libs, inx := l + "docs" + "index.value", exists(inx)};
@@ -29,11 +36,11 @@ Index createConceptIndex(PathConfig pcfg) {
     return ind;
 }
 
-rel[str, str] createConceptIndex(list[loc] srcs) 
-  = {*createConceptIndex(src) | src <- srcs};
+rel[str, str] createConceptIndex(list[loc] srcs, datetime lastModified) 
+  = {*createConceptIndex(src, lastModified) | src <- srcs};
 
 @synopsis{creates a lookup table for concepts nested in a folder}
-rel[str, str] createConceptIndex(loc src)
+rel[str, str] createConceptIndex(loc src, datetime lastModified)
   = // first we collect index entries for concept names, each file is one concept which
     // can be linked to in many different ways ranging from very short (handy but inexact) to very long (guaranteed to be exact.)
 
@@ -62,7 +69,7 @@ rel[str, str] createConceptIndex(loc src)
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
       <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f.parent).path)[1..], "/", "-")>", fr>
 
-    | loc f <- find(src, isConceptFile)
+    | loc f <- find(src, isFreshConceptFile(lastModified))
       , f.parent?
       , f.parent.path != "/"
       , f.parent != src
@@ -91,7 +98,7 @@ rel[str, str] createConceptIndex(loc src)
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
       <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, cf).path)[1..], "/", "-")>", fr>
 
-    | loc f <- find(src, isConceptFile)
+    | loc f <- find(src, isFreshConceptFile(lastModified))
       , f.parent?
       , f.parent.path != "/"
       , f.parent != src
@@ -121,7 +128,7 @@ rel[str, str] createConceptIndex(loc src)
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
       <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f).path)[1..], "/", "-")>", fr>
-    | loc f <- find(src, isDirectory)
+    | loc f <- find(src, isFreshDirectory(lastModified))
     , fr := "/<capitalize(src.file)>/<fragment(src, f)>"
     , f != src
     }
@@ -140,7 +147,7 @@ rel[str, str] createConceptIndex(loc src)
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "-"))>", fr>,
      <"<capitalize(src.file)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "::"))>", fr>
-    | loc f <- find(src, isDirectory)
+    | loc f <- find(src, isFreshDirectory(lastModified))
       , /\/internal\// !:= f.path
       , f != src
       , fr := "/<capitalize(src.file)>/<fragment(src, f)>"
@@ -169,11 +176,27 @@ rel[str, str] createConceptIndex(loc src)
       *{<"<capitalize(src.file)>:<item.moduleName>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" >,
          <"<capitalize(src.file)>:module:<item.moduleName>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" > | item is moduleInfo}
 
-      | loc f <- find(src, "rsc"), list[DeclarationInfo] inf := safeExtract(f), item <- inf
+      | loc f <- find(src, isFreshRascalFile(lastModified)), list[DeclarationInfo] inf := safeExtract(f), item <- inf
     }
     ;
 
 private bool isConceptFile(loc f) = f.extension in {"md"};
+
+private bool(loc) isFreshConceptFile(datetime lM) 
+  = bool (loc f) {
+    return isConceptFile(f) && lastModified(f) > lM;
+  };
+
+private bool(loc) isFreshDirectory(datetime lM) 
+  = bool (loc d) {
+    return isDirectory(d) && lastModified(d) > lM;
+  };
+
+private bool(loc) isFreshRascalFile(datetime lM)
+  = bool (loc f) {
+      return f.extension in {"rsc"} && lastModified(f) > lM;
+  };
+
 private bool isImageFile(loc f) = f.extension in {"png", "jpg", "svg", "jpeg"};
 
 @synopsis{ignores extracting errors because they will be found later}
