@@ -28,7 +28,8 @@ Index createConceptIndex(PathConfig pcfg) {
     // now we add the new index items on top of the old ones    
     ind += createConceptIndex(pcfg.srcs, exists(targetFile) ? lastModified(targetFile) : $1970-01-01T00:00:00.000+00:00$);
 
-    // store index for later usage by depending documentation projects
+    // store index for later usage by depending documentation projects,
+    // and for future runs of the compiler on the current project
     writeBinaryValueFile(targetFile, ind);
 
     // read indices from projects we depend on, if present
@@ -129,7 +130,7 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified)
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
       <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f).path)[1..], "/", "-")>", fr>
-    | loc f <- find(src, isFreshDirectory(lastModified))
+    | loc f <- find(src, isDirectory)
     , fr := "/<capitalize(src.file)>/<fragment(src, f)>"
     , f != src
     }
@@ -148,7 +149,7 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified)
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "-"))>", fr>,
      <"<capitalize(src.file)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "::"))>", fr>
-    | loc f <- find(src, isFreshDirectory(lastModified))
+    | loc f <- find(src, isDirectory)
       , /\/internal\// !:= f.path
       , f != src
       , fr := "/<capitalize(src.file)>/<fragment(src, f)>"
@@ -186,11 +187,6 @@ private bool isConceptFile(loc f) = f.extension in {"md"};
 private bool(loc) isFreshConceptFile(datetime lM) 
   = bool (loc f) {
     return isConceptFile(f) && lastModified(f) > lM;
-  };
-
-private bool(loc) isFreshDirectory(datetime lM) 
-  = bool (loc d) {
-    return isDirectory(d) && lastModified(d) > lM;
   };
 
 private bool(loc) isFreshRascalFile(datetime lM)
