@@ -5,6 +5,7 @@ import ValueIO;
 import String;
 import util::FileSystem;
 import IO;
+import ValueIO;
 import Location;
 
 import lang::rascal::tutor::apidoc::DeclarationInfo;
@@ -24,7 +25,7 @@ Index createConceptIndex(PathConfig pcfg) {
     if (exists(targetFile)) {
       // in incremental mode we will have skipped many files. This
       // adds the old index to the newly created ones
-      ind += readreadBinaryValueFile(#rel[str,str], targetFile);
+      ind += readBinaryValueFile(#rel[str,str], targetFile);
     }
 
     // store index for later usage by depending documentation projects

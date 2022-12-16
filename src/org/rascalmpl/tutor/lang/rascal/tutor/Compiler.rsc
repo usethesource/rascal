@@ -52,8 +52,10 @@ public PathConfig defaultConfig
 
 public list[Message] lastErrors = [];
 
-public void defaultCompile() {
-  remove(defaultConfig.bin, recursive=true);
+public void defaultCompile(bool clean=false) {
+  if (clean) {
+    remove(defaultConfig.bin, recursive=true);
+  }
   errors = compile(defaultConfig);
 
   for (e <- errors) {
@@ -78,8 +80,6 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind,
     if (src in pcfg.ignores) {
       return [info("skipped ignored location: <src>", src)];
     }
-    
-    println("\rcompiling <src>");
 
     // new concept, new execution environment:
     exec.reset();
@@ -95,6 +95,7 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind,
     }
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {  
+          println("copying   <src> [Asset]");
           copy(src, pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path);
           
           return [];
@@ -116,28 +117,48 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
     indexFiles = {(d + "<d.file>")[extension="md"], (d + "index.md")};
 
     if (!exists(d)) {
-      return [error("Course does not exist <d>", d)];
+      return [warning("Course folder does not exist on disk: <d>", d)];
     }
 
     output = [];
+    errors = [];
     nestedDtls = [];
 
     if (i <- indexFiles && exists(i)) {
       // this can only be a markdown file (see above)
-      output = compileMarkdown(i, pcfg[currentFile=i], exec, ind, sidebar_position=sidebar_position);
+      j=i;
+      j.file = (j.file == j.parent[extension="md"].file) ? "index.md" : j.file;
+      targetFile = pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, j)[extension="md"].path;
+      
+      if (!exists(targetFile) || lastModified(i) > lastModified(targetFile)) {
+        println("compiling <i> [Index Markdown]");
+        output = compileMarkdown(i, pcfg[currentFile=i], exec, ind, sidebar_position=sidebar_position);
+      
+        writeFile(targetFile,
+            "<for (line(x) <- output) {><x>
+            '<}>"
+        );
 
-      i.file = (i.file == i.parent[extension="md"].file) ? "index.md" : i.file;
+        if (details(list[str] xxx) <- output) {
+          // here we give the details list declared in `details` header
+          // on to compute the right sidebar_positions down for the nested
+          // concepts
+          nestedDtls = xxx;
+        }
 
-      writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, i)[extension="md"].path,
-          "<for (line(x) <- output) {><x>
-          '<}>"
-      );
-
-      if (details(list[str] xxx) <- output) {
-        // here we give the details list declared in `details` header
-        // on to compute the right sidebar_positions down for the nested
-        // concepts
-        nestedDtls = xxx;
+        errors = [e | err(e) <- output];
+        if (errors != []) {
+          writeBinaryValueFile(targetFile[extension="errors"], errors);    
+        }
+        else {
+          remove(targetFile[extension="errors"]);
+        }
+      }
+      else {
+        println("reusing   <i>");
+        if (exists(targetFile[extension="errors"])) {
+          errors = readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
+        }
       }
     }
     else {
@@ -145,7 +166,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
     }
 
     return [
-      *[e | err(e) <- output],
+      *errors,
       *[*compile(s, pcfg, exec, ind, sidebar_position=sp) 
         | s <- d.ls
         , !(s in indexFiles)
@@ -175,14 +196,34 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
 
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
 list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
-   list[Output] output = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
+  loc targetFile = pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path;
+  errors = [];
 
-   writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
+  if (!exists(targetFile) || lastModified(targetFile) < lastModified(m)) {
+    println("compiling <m> [Rascal Source File]");
+    list[Output] output = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
+
+    writeFile(targetFile,
       "<for (line(x) <- output) {><x>
       '<}>"
-   );
+    );
 
-   return [e | err(e) <- output];
+    errors = [e | err(e) <- output];
+    if (errors != []) {
+      writeBinaryValueFile(targetFile[extension="errors"], errors);
+    }
+    else {
+      remove(targetFile[extension="errors"]);
+    }
+  }
+  else {
+    println("reusing   <m>");
+    if (exists(targetFile[extension="errors"])) {
+      errors = readBinaryValueFile(#list[Message], targetFile[extension=""]);
+    }
+  }
+
+  return errors;
 }
 
 @synopsis{This uses another nested directory listing to construct information for the TOC embedded in the current document.}
@@ -192,17 +233,36 @@ list[str] createDetailsList(loc m, PathConfig pcfg)
 list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
   order = createDetailsList(m, pcfg);
 
-  list[Output] output = compileMarkdown(m, pcfg[currentFile=m], exec, ind, order, sidebar_position=sidebar_position) + [Output::empty()];
-
   // turn A/B/B.md into A/B/index.md for better URLs in the end result (`A/B/`` is better than `A/B/B.html`)
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
 
-  writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path,
-      "<for (line(x) <- output) {><x>
-      '<}>"
-  );
+  loc targetFile = pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path;
+  errors = [];
 
-  return [e | err(e) <- output];
+  if (!exists(targetFile) || lastModified(m) > lastModified(targetFile)) {
+    println("compiling <m> [Normal Markdown]");
+    list[Output] output = compileMarkdown(m, pcfg[currentFile=m], exec, ind, order, sidebar_position=sidebar_position) + [Output::empty()];
+   
+    writeFile(targetFile,
+        "<for (line(x) <- output) {><x>
+        '<}>"
+    );
+
+    errors = [e | err(e) <- output];
+    if (errors != []) {
+      writeBinaryValueFile(targetFile[extension="errors"], errors);
+    }
+    return errors;
+  }
+  else {
+    println("reusing   <m>");
+    if (exists(targetFile[extension="errors"])) {
+      // keep reporting the errors of the previous run, for clarity's sake
+      return readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
+    }
+  }
+
+  return [];
 }
 
 list[Output] compileMarkdown(loc m, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
