@@ -601,7 +601,8 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       }
 
       if (!allowErrors) {
-        append OUT : err(error("Code execution failed", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
+        append OUT : err(error("Code execution failed:
+                               '    <stderr>", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
         append OUT : out("```");      
         append OUT : out(":::danger");
         append OUT : out("Rascal code execution failed (unexpectedly) during compilation of this documentation.");
@@ -610,6 +611,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
         for (errLine <- split("\n", stderr)) {
            append OUT : out(errLine);
         }
+        append OUT : out("```");
       }
     }
 
@@ -664,7 +666,8 @@ list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int li
           append OUT : out(errLine);
       }
       append OUT : out("\</pre\>");
-      append OUT : err(error("Code execution failed in prepare block", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
+      append OUT : err(error("Code execution failed in prepare block:
+                             '    <stderr>", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
     }
      
     lineOffsetHere +=1;
