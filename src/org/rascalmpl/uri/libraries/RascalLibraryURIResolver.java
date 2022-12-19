@@ -14,9 +14,12 @@ package org.rascalmpl.uri.libraries;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,6 +56,9 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
     private final ConcurrentHashMap<String, ISourceLocation> resolvedLibraries = new ConcurrentHashMap<>();
     private final URIResolverRegistry reg;
     
+    private static String urlDecode(String part) throws UnsupportedEncodingException {
+        return URLDecoder.decode(part, StandardCharsets.UTF_8.name());
+    }
     public RascalLibraryURIResolver(URIResolverRegistry reg) {
         this.reg = reg;
         
@@ -69,7 +75,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
                         ISourceLocation loc;
 
                         if (url.getProtocol().equals("jar") && url.getPath().startsWith("file:/")) {
-                            loc = vf.sourceLocation("jar+file", null, url.getPath().substring("file:".length()));
+                            loc = vf.sourceLocation("jar+file", null, urlDecode(url.getPath().substring("file:".length())));
                         }
                         else {
                             loc = vf.sourceLocation(URIUtil.fromURL(url));
