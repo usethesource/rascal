@@ -75,7 +75,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
                         ISourceLocation loc;
 
                         if (url.getProtocol().equals("jar") && url.getPath().startsWith("file:/")) {
-                            loc = vf.sourceLocation("jar+file", null, urlDecode(url.getPath().substring("file:".length())));
+                            loc = vf.sourceLocation("jar+file", null, URIUtil.fromURL(new URL(url.getPath())).getPath());
                         }
                         else {
                             loc = vf.sourceLocation(URIUtil.fromURL(url));
