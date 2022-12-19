@@ -661,16 +661,13 @@ public class PathConfig {
             installNecessaryMavenPlugins(mvnCommand);
 
             // Note how we try to do this "offline" using the "-o" flag
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-o", "dependency:build-classpath",
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "--batch-mode", "-o", "dependency:build-classpath",
                 "-DincludeScope=compile");
             processBuilder.directory(new File(manifestRoot.getPath()));
 
             Process process = processBuilder.start();
 
             try (BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-
-                process.waitFor();
-
                 return processOutputReader.lines()
                     .filter(line -> !line.startsWith("["))
                     .filter(line -> !line.contains("-----"))
@@ -688,7 +685,7 @@ public class PathConfig {
                     .collect(vf.listWriter());
             }
         }
-        catch (IOException | InterruptedException e) {
+        catch (IOException e) {
             return vf.list();
         }
     }
