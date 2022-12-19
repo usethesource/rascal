@@ -343,4 +343,10 @@ reduction's worst case complexity is in the same order as transitive closure its
 > Aho, A. V.; Garey, M. R.; Ullman, J. D. (1972), 
 > "The transitive reduction of a directed graph", SIAM Journal on Computing, 1 (2): 131–137, doi:10.1137/0201008
 }
+@benefits{
+* directed acyclic graphs are simplified (easier to draw clearly) without breaking node reachability
+}
+@pitfalls{
+* reduces cyclic sub-graphs to "empty"
+}
 Graph[&T] transitiveReduction(Graph[&T] g) = g - (g o g+);
