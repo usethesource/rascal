@@ -722,6 +722,7 @@ private java str format(str s, str dir, int n, str pad);
 Determine if a string matches the given (Java-syntax) regular expression.
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@deprecated{use `/re/ := s` instead}
 public java bool rexpMatch(str s, str re);
 
 @doc{
