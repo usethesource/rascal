@@ -3710,24 +3710,11 @@ public class Prelude {
 	}
 	
 	public IBool rexpMatch(IString s, IString re) {
-		if (Pattern.matches(re.getValue(), s.getValue())) {
-			return values.bool(true);
-		}
-		else {
-			return values.bool(false);
-		}
+		return values.bool(Pattern.matches(re.getValue(), s.getValue()));
 	}
 
 	public ISourceLocation uuid() {
-		String uuid = UUID.randomUUID().toString();
-		
-		try {
-			return values.sourceLocation("uuid",uuid,"");
-		} 
-		catch (URISyntaxException e) {
-			assert false;
-			throw RuntimeExceptionFactory.malformedURI("uuid://" + uuid);
-		}
+		return URIUtil.correctLocation("uuid", UUID.randomUUID().toString(), "");
 	}
 	
 	public IInteger uuidi() {

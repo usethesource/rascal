@@ -236,6 +236,9 @@ public rel[&T0,&T1] domainR (rel[&T0,&T1] R, set[&T0] S)
   return { <V0, V1> | <&T0 V0, &T1 V1> <- R, V0 in S };
 }
 
+rel[&T, &U] domainR(rel[&T, &U] R, bool(&T) accept)
+  = { <t,u> | <t,u> <- R, accept(t)};
+
 public rel[&T0,&T1,&T2] domainR (rel[&T0,&T1,&T2] R, set[&T0] S)
 {
   return { <V0, V1, V2> | <&T0 V0, &T1 V1, &T2 V2> <- R, V0 in S };
