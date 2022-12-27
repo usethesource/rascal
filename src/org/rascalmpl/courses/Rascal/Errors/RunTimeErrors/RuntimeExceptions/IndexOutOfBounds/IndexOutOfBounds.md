@@ -27,9 +27,9 @@ Remedies:
 
 * Guard the subscription with a test that the index is within bounds.
 * Make your code less dependent on index values. Suggestions:
-  ** Use the [index]((Library:List-index)) to produce all legal indices of a list. 
+  * Use the [index]((Library:List-index)) to produce all legal indices of a list. 
      Instead of `for(int i <- [0..size(L)]) { ... }` use `for(int i <- index(L)) { ... }`.
-  ** Use a [list slice]((Rascal:List-Slice)) to automate part of the index computation.
+  * Use a [list slice]((Rascal:List-Slice)) to automate part of the index computation.
 *  Catch the `IndexOutOfBounds` yourself, see [try catch]((Rascal:Statements-TryCatch)).
 
 
