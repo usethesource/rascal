@@ -48,7 +48,7 @@ default str addSpaces(str s) = split("-", s)[-1];
 @synopsis{produces `"../../.."` for pathToRoot(|aap:///a/b|, |aap:///a/b/c/d|)}
 str pathToRoot(loc root, loc src, bool isPackageCourse) 
   = "<if (isPackageCourse) {>../../<}>..<for (e <- split("/", relativize(root, src).path), e != "") {>/..<}>"
-  when isDirectory(src)
+  when isDirectory(src);
 
 str pathToRoot(loc root, loc src, bool isPackageCourse) 
   = pathToRoot(root, src.parent, isPackageCourse)

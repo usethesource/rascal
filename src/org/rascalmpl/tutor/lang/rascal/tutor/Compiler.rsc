@@ -70,7 +70,24 @@ public void defaultCompile(bool clean=false) {
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
   ind = createConceptIndex(pcfg);
   
+  if (pcfg.isPackageCourse) {
+    generatePackageIndex(pcfg);
+  }
+
   return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
+}
+
+void generatePackageIndex(PathConfig pcfg) {
+  targetFile = pcfg.bin + "Packages" + pcfg.packageName + "index.md";
+
+  writeFile(targetFile,
+    "---
+    'title: <pcfg.packageName> - <pcfg.packageVersion>
+    '---
+    '
+    '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<pcfg.packageName>/API)<}>
+    '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<pcfg.packageName>/<capitalized(src.file)>)<}>
+    ");
 }
 
 list[Message] compileCourse(loc root, PathConfig pcfg, CommandExecutor exec, Index ind) 
@@ -130,8 +147,8 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
       j.file = (j.file == j.parent[extension="md"].file) ? "index.md" : j.file;
 
       targetFile = pcfg.bin 
-        + (pcfg.isPackageCourse ? "Packages/<capitalize(pcfg.packageName)>" : "")
-        + (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"} ? "API" : capitalize(pcfg.currentRoot.file))
+        + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+        + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, j)[extension="md"].path;
       
       if (!exists(targetFile) || lastModified(i) > lastModified(targetFile)) {
@@ -186,8 +203,8 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
     title = replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::");
 
     targetFile = pcfg.bin 
-      + (pcfg.isPackageCourse ? "Packages/<capitalize(pcfg.packageName)>" : "")
-      + (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"} ? "API" : capitalize(pcfg.currentRoot.file))
+      + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+      + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
       + relativize(pcfg.currentRoot, d).path
       + "index.md"
       ;
@@ -199,7 +216,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
       '<}>---
       '
       '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
-      '* [<e[extension=""].file>](<p2r>/<capitalize(pcfg.currentRoot.file)><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
+      '* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>/Packages/<pcfg.packageName><}>/<if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
     return [];
   } catch IO(msg): {
     return [error(msg, d)];
@@ -209,8 +226,8 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
 list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
   loc targetFile = pcfg.bin 
-        + (pcfg.isPackageCourse ? "Packages/<capitalize(pcfg.packageName)>" : "")
-        + (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"} ? "API" : capitalize(pcfg.currentRoot.file))
+        + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+        + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, m)[extension="md"].path;
   errors = [];
 
@@ -252,8 +269,8 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
 
   loc targetFile = pcfg.bin 
-        + (pcfg.isPackageCourse ? "Packages/<capitalize(pcfg.packageName)>" : "")
-        + (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"} ? "API" : capitalize(pcfg.currentRoot.file))
+        + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+        + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, m)[extension="md"].path;
 
   errors = [];
