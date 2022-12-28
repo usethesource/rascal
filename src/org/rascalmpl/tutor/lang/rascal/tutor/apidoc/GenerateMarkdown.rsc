@@ -37,7 +37,8 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
         dtls = sort(dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]));
 
         // TODO: this overloading collection should happen in ExtractInfo
-        res = [];
+        res = [
+        ];
         int i = 0;
         while (i < size(dinfo)) {
             j = i + 1;
@@ -83,6 +84,8 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         out("title: \"module <escape(d.moduleName, escapes)>\""),
         out("---"),
         Output::empty(),
+        out("\<div class=\"theme-doc-version-badge\"\>rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>\</div\>"),
+        Output::empty(),
         out("#### Usage"),
         Output::empty(),
         out("`import <replaceAll(d.name, "/", "::")>;`"),
@@ -96,7 +99,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
         out("## function <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
         out("```rascal"),
-        *[out(ov), empty() | ov <- overloads, str defLine <- split("\n", ov)],
+        *[out(defLine), empty() | ov <- overloads, str defLine <- split("\n", ov)],
         out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
@@ -107,7 +110,7 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
         out("## **test** <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
         out("```rascal"),
-        *[out(ov), empty() | ov <- overloads, str defLine <- split("\n", d.fullTest)],
+        *[out(defLine), empty() | ov <- overloads, str defLine <- split("\n", d.fullTest)],
         out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
@@ -122,10 +125,7 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
         empty(),
         *[
             out("```rascal"),
-            *[
-                out(defLine)
-            | str defLine <- split("\n", ov)
-            ], 
+            *[out(defLine) | str defLine <- split("\n", ov)], 
             out("```"),
             empty()
         | ov <- overloads
