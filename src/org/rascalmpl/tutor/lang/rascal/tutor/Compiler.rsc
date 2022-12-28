@@ -211,12 +211,12 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
 
     writeFile(targetFile,
       "---
-      'title: <if (trim(title) == "") {><capitalize(pcfg.currentRoot.file)><} else {><title><}>
+      'title: <if (trim(title) == "") {><if (pcfg.currentRoot in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><} else {><title><}>
       '<if (sidebar_position != -1) {>sidebar_position: <sidebar_position>
       '<}>---
       '
       '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
-      '* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>/Packages/<pcfg.packageName>/<}><if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
+      '* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>Packages/<pcfg.packageName>/<}><if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
     return [];
   } catch IO(msg): {
     return [error(msg, d)];

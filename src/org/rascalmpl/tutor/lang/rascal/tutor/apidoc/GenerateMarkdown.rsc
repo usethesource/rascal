@@ -84,9 +84,7 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         out("title: \"module <escape(d.moduleName, escapes)>\""),
         out("---"),
         Output::empty(),
-        out(":::tip"),
-        out("rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>."),
-        out(":::"),
+        out("\<div class=\"theme-doc-version-badge\"\>rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>\</div\>"),
         Output::empty(),
         out("#### Usage"),
         Output::empty(),
@@ -101,7 +99,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
         out("## function <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
         out("```rascal"),
-        *[out(ov), empty() | ov <- overloads, str defLine <- split("\n", ov)],
+        *[out(defLine), empty() | ov <- overloads, str defLine <- split("\n", ov)],
         out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
@@ -112,7 +110,7 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
         out("## **test** <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
         out("```rascal"),
-        *[out(ov), empty() | ov <- overloads, str defLine <- split("\n", d.fullTest)],
+        *[out(defLine), empty() | ov <- overloads, str defLine <- split("\n", d.fullTest)],
         out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
@@ -127,10 +125,7 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
         empty(),
         *[
             out("```rascal"),
-            *[
-                out(defLine)
-            | str defLine <- split("\n", ov)
-            ], 
+            *[out(defLine) | str defLine <- split("\n", ov)], 
             out("```"),
             empty()
         | ov <- overloads
