@@ -45,11 +45,11 @@ str addSpaces(/^<prefix:[A-Za-z0-9\ ]+[a-z0-9]><postfix:[A-Z].+>/) =
 
 default str addSpaces(str s) = split("-", s)[-1];
 
-@synopsis{produces `"../../.."` for pathToRoot(|aap:///a/b|, |aap:///a/b/c/d|)  }
-str pathToRoot(loc root, loc src) 
-  = "..<for (e <- split("/", relativize(root, src).path), e != "") {>/..<}>"
-  when isDirectory(src);
+@synopsis{produces `"../../.."` for pathToRoot(|aap:///a/b|, |aap:///a/b/c/d|)}
+str pathToRoot(loc root, loc src, bool isPackageCourse) 
+  = "<if (isPackageCourse) {>../../<}>..<for (e <- split("/", relativize(root, src).path), e != "") {>/..<}>"
+  when isDirectory(src)
 
-str pathToRoot(loc root, loc src) 
-  = pathToRoot(root, src.parent)
+str pathToRoot(loc root, loc src, bool isPackageCourse) 
+  = pathToRoot(root, src.parent, isPackageCourse)
   when isFile(src);  

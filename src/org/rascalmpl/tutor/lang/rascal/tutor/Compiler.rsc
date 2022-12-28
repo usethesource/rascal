@@ -182,7 +182,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
 
 list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1) {
   try {
-    p2r = pathToRoot(pcfg.currentRoot, d);
+    p2r = pathToRoot(pcfg.currentRoot, d, pcfg.isPackageCourse);
     title = replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::");
 
     targetFile = pcfg.bin 
@@ -421,7 +421,7 @@ list[Output] compileMarkdown([/^<prefix:.*>~<digits:[^~]*[^aeh-pr-vx0-9]+[^~]*>~
 @synopsis{Resolve [labeled]((links))}
 list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   resolution = ind[removeSpaces(link)];
-  p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
+  p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile, pcfg.isPackageCourse);
 
   if (trim(title) == "") {
     title = link;
@@ -474,7 +474,7 @@ list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-
 @synopsis{Resolve unlabeled links}
 default list[Output] compileMarkdown([/^<prefix:.*>\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   resolution = ind[removeSpaces(link)];
-  p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile);
+  p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile, pcfg.isPackageCourse);
 
   switch (resolution) {
       case {u}: {
