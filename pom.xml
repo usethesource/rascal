@@ -166,6 +166,7 @@
                         <configuration>
                             <enableStandardLibrary>false</enableStandardLibrary>
                             <errorsAsWarnings>false</errorsAsWarnings>
+                            <isPackageCourse>false</isPackageCourse>
                             <bin>${project.build.outputDirectory}</bin>
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/courses/Rascal</src>
