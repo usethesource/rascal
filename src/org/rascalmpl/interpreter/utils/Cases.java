@@ -69,7 +69,7 @@ public class Cases  {
 				b.add(c);
 				for (int j = i + 1; j < cases.size(); j++) {
 					Case d = cases.get(j);
-					if (isConcreteSyntaxPattern(d) && !isIUPTRPattern(d)) {
+					if (isConcreteSyntaxPattern(d) && !isParseTreePattern(d)) {
 						b.add(d);
 						i++;
 					} else {
@@ -77,14 +77,14 @@ public class Cases  {
 					}
 				}
 				blocks.add(b);
-			} else if (isIUPTRPattern(c)) {
+			} else if (isParseTreePattern(c)) {
 				blocks.add(new DefaultBlock(c));
 			} else if (isConstantTreePattern(c)) {
 				NodeCaseBlock b = new NodeCaseBlock();
 				b.add(c);
 				for (int j = i + 1; j < cases.size(); j++) {
 					Case d = cases.get(j);
-					if (isConstantTreePattern(d) && !isIUPTRPattern(d)) {
+					if (isConstantTreePattern(d) && !isParseTreePattern(d)) {
 						b.add(d);
 						i++;
 					} else {
@@ -119,7 +119,7 @@ public class Cases  {
 		return false;
 	}
 	
-	private static boolean isIUPTRPattern(Case d) {
+	private static boolean isParseTreePattern(Case d) {
 		if (d.isDefault()) {
 			return false;
 		}
