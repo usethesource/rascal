@@ -37,7 +37,8 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
         dtls = sort(dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]));
 
         // TODO: this overloading collection should happen in ExtractInfo
-        res = [];
+        res = [
+        ];
         int i = 0;
         while (i < size(dinfo)) {
             j = i + 1;
@@ -82,6 +83,10 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         out("---"),
         out("title: \"module <escape(d.moduleName, escapes)>\""),
         out("---"),
+        Output::empty(),
+        out(":::tip"),
+        out("rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>."),
+        out(":::"),
         Output::empty(),
         out("#### Usage"),
         Output::empty(),

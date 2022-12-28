@@ -4,10 +4,16 @@ import String;
 import Location;
 import List;
 import IO;
+import util::Reflective;
+
+data PathConfig(
+  str  packageName="",
+  str  packageVersion=getRascalVersion(),
+  bool isPackageCourse=false
+);
 
 data PathConfig(loc currentRoot = |unknown:///|, loc currentFile = |unknown:///|);
 data Message(str cause="");
-
 
 default str fragment(loc root, loc concept) = capitalize(relativize(root, concept).path)[1..];
       

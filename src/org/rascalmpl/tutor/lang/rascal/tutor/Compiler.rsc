@@ -128,7 +128,11 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
       // this can only be a markdown file (see above)
       j=i;
       j.file = (j.file == j.parent[extension="md"].file) ? "index.md" : j.file;
-      targetFile = pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, j)[extension="md"].path;
+
+      targetFile = pcfg.bin 
+        + (pcfg.isPackageCourse ? "Packages/<capitalize(pcfg.packageName)>" : "")
+        + (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"} ? "API" : capitalize(pcfg.currentRoot.file))
+        + relativize(pcfg.currentRoot, j)[extension="md"].path;
       
       if (!exists(targetFile) || lastModified(i) > lastModified(targetFile)) {
         println("compiling <i> [Index Markdown]");
@@ -180,7 +184,15 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
   try {
     p2r = pathToRoot(pcfg.currentRoot, d);
     title = replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::");
-    writeFile(pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, d).path + "index.md",
+
+    targetFile = pcfg.bin 
+      + (pcfg.isPackageCourse ? "Packages/<capitalize(pcfg.packageName)>" : "")
+      + (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"} ? "API" : capitalize(pcfg.currentRoot.file))
+      + relativize(pcfg.currentRoot, d).path
+      + "index.md"
+      ;
+
+    writeFile(targetFile,
       "---
       'title: <if (trim(title) == "") {><capitalize(pcfg.currentRoot.file)><} else {><title><}>
       '<if (sidebar_position != -1) {>sidebar_position: <sidebar_position>
@@ -196,7 +208,10 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
 
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
 list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
-  loc targetFile = pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path;
+  loc targetFile = pcfg.bin 
+        + (pcfg.isPackageCourse ? "Packages/<capitalize(pcfg.packageName)>" : "")
+        + (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"} ? "API" : capitalize(pcfg.currentRoot.file))
+        + relativize(pcfg.currentRoot, m)[extension="md"].path;
   errors = [];
 
   if (!exists(targetFile) || lastModified(targetFile) < lastModified(m)) {
@@ -236,7 +251,11 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   // turn A/B/B.md into A/B/index.md for better URLs in the end result (`A/B/`` is better than `A/B/B.html`)
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
 
-  loc targetFile = pcfg.bin + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, m)[extension="md"].path;
+  loc targetFile = pcfg.bin 
+        + (pcfg.isPackageCourse ? "Packages/<capitalize(pcfg.packageName)>" : "")
+        + (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"} ? "API" : capitalize(pcfg.currentRoot.file))
+        + relativize(pcfg.currentRoot, m)[extension="md"].path;
+
   errors = [];
 
   if (!exists(targetFile) || lastModified(m) > lastModified(targetFile)) {
@@ -525,6 +544,9 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
       *[out(l) | l <- header],
       *[out("sidebar_position: <sidebar_position>") | sidebar_position != -1],
       out("---"),
+      out(":::tip"),
+      out("rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>."),
+      out(":::"),
       *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + length(header), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
   } 
