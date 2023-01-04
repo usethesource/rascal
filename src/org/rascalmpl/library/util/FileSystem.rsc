@@ -30,8 +30,7 @@ set[loc] find(loc f, str ext) = find(f, bool (loc l) { return l.extension == ext
 set[loc] visibleFiles(loc l) {
   if (/^\./ := l.file) 
     return {};
-  else if (isDirectory(l)) 
-    return {*visibleFiles(f) | f <- l.ls};
-  else 
-    return {l};
+  if (isDirectory(l)) 
+    return {*visibleFiles(f) | f <- l.ls}; 
+  return {l};
 }
