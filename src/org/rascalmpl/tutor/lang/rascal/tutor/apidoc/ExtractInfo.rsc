@@ -27,7 +27,7 @@ list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
 
     synopsis = getSynopsis(tags);
 
-    return moduleInfo(moduleName=moduleName, src=m@\loc, synopsis=synopsis, docs=sortedDocTags(tags)) + tls;
+    return moduleInfo(moduleName=moduleName, src=m@\loc, synopsis=synopsis, docs=sortedDocTags(tags), demo=/demo/ := moduleName) + tls;
 }
 
 /********************************************************************/
@@ -120,7 +120,7 @@ private DeclarationInfo extractFunctionDeclaration(str moduleName, FunctionDecla
    
   tags =  getTagContents(fd.tags);
   
-  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags), docs=sortedDocTags(tags));
+  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags), docs=sortedDocTags(tags), fullFunction="<fd>");
 }
 
 DeclarationInfo extractTestDecl(str moduleName, FunctionDeclaration fd) {

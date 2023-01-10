@@ -9,8 +9,8 @@ data DeclarationInfo(
      str signature="",
      list[DocTag] docs = [], 
      loc docSrc = src)
-     = moduleInfo        (str kind="module")
-     | functionInfo      (str kind="function")
+     = moduleInfo        (str kind="module", bool demo=false)
+     | functionInfo      (str kind="function", str fullFunction="")
      | testInfo          (str kind="test", str fullTest="")
      | constructorInfo   (str kind="constructor")
      | dataInfo          (str kind="data", list[str] overloads=[])

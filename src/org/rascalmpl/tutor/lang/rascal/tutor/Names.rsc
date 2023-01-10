@@ -8,6 +8,10 @@ import util::Reflective;
 
 data PathConfig(
   str  packageName="",
+  str  packageGroup="",
+  loc  sources=|http://github.com/usethesource/rascal|,
+  loc  issues=|http://github.com/usethesource/rascal/issues|,
+  loc  license=|cwd:///LICENSE.md|,
   str  packageVersion=getRascalVersion(),
   bool isPackageCourse=false
 );

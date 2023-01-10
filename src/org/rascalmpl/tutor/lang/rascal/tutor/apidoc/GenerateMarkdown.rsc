@@ -31,6 +31,8 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
         // filter the tests
         tests = [t | t:testInfo() <- dinfo];
 
+        isDemo = DeclarationInfo i <- dinfo && i is moduleInfo && i.demo;
+
         // remove the tests
         dinfo -= tests;
 
@@ -45,7 +47,7 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
             list[str] overloads = [];
 
             if (dinfo[i] has name) {
-                overloads = [dinfo[i].signature];
+                overloads = [(isDemo && dinfo[i].fullFunction?) ? dinfo[i].fullFunction : dinfo[i].signature];
                 
                 // TODO: this only collects consecutive overloads. if a utility function interupts the flow,
                 // then we do not get to see the other overloads with the current group. Rewrite to use a "group-by" query.
@@ -53,19 +55,19 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
                 
                 while (j < size(dinfo) && dinfo[i].name == dinfo[j].name) {
                         // this loops eats the other declarations with the same name (if consecutive!)
-                        overloads += dinfo[j].signature;
+                        overloads += ((isDemo && dinfo[j].fullFunction?) ? dinfo[j].fullFunction : dinfo[j].signature);
                         j += 1;
                 }
             }
 
-            res += declInfo2Doc(parent, dinfo[i], overloads, pcfg, exec, ind, dinfo[i] is moduleInfo? dtls : []);
+            res += declInfo2Doc(parent, dinfo[i], overloads, pcfg, exec, ind, dinfo[i] is moduleInfo? dtls : [], isDemo);
             i = j;
         }
 
         res += line("### Tests");
 
         for (di <- tests) {
-            res += declInfo2Doc(parent, di, [], pcfg, exec, ind, []);
+            res += declInfo2Doc(parent, di, [], pcfg, exec, ind, [], isDemo);
         }
 
         return res;
@@ -78,7 +80,7 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
 
 private map[str,str] escapes = ("\\": "\\\\", "\"": "\\\"");
 
-list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
+list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("---"),
         out("title: \"module <escape(d.moduleName, escapes)>\""),
@@ -90,22 +92,22 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         Output::empty(),
         out("`import <replaceAll(d.name, "/", "::")>;`"),
         Output::empty(),
-        *tags2Markdown(d.docs, pcfg, exec, ind, dtls),
+        *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo),
         out("")
     ];
 
-list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
+list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## function <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
+        *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo),
+        Output::empty(),
         out("```rascal"),
         *[out(defLine), empty() | ov <- overloads, str defLine <- split("\n", ov)],
-        out("```"),
-        Output::empty(),
-        *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
+        out("```")
     ];   
 
-list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
+list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## **test** <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
@@ -113,13 +115,13 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
         *[out(defLine), empty() | ov <- overloads, str defLine <- split("\n", d.fullTest)],
         out("```"),
         Output::empty(),
-        *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
+        *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)
     ];       
  
- list[Output] declInfo2Doc(str parent, constructorInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
+ list[Output] declInfo2Doc(str parent, constructorInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
      [];
     
- list[Output] declInfo2Doc(str parent, d:dataInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
+ list[Output] declInfo2Doc(str parent, d:dataInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## data <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         empty(),
@@ -130,10 +132,10 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
             empty()
         | ov <- overloads
         ],
-         *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
+         *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)
     ]; 
 
-list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) =
+list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## alias <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         empty(),
@@ -141,13 +143,13 @@ list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathCo
         *[out(removeNewlines(ov)), empty() | ov <- overloads],
         out("```"),
         empty(),
-        *tags2Markdown(d.docs, pcfg, exec, ind, dtls)
+        *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)
     ];
        
-default list[Output] declInfo2Doc(str parent, DeclarationInfo d, list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+default list[Output] declInfo2Doc(str parent, DeclarationInfo d, list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) 
     = [err(info("No content generated for <d>", d.src))];
 
-list[Output] tags2Markdown(list[DocTag] tags, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls) 
+list[Output] tags2Markdown(list[DocTag] tags, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) 
     = [
         // every doc tag has its own header title, except the "doc" tag which may contain them all (backward compatibility)
         *(l != "doc" ? [out("#### <capitalize(l)>"), empty()] : []),
@@ -164,8 +166,6 @@ list[Output] tags2Markdown(list[DocTag] tags, PathConfig pcfg, CommandExecutor e
 public str basename(str cn){
   return (/^.*::<base:[A-Za-z0-9\-\_]+>$/ := cn) ? base : cn;
 }
-
-
 
 str removeNewlines(str x) = visit(x) {
   case /\n/ => " "

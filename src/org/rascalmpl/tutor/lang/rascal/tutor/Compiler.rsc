@@ -80,13 +80,39 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
 void generatePackageIndex(PathConfig pcfg) {
   targetFile = pcfg.bin + "Packages" + pcfg.packageName + "index.md";
 
+  if (pcfg.license?) {
+    writeFile(targetFile.parent + "License.md", 
+      "---
+      'title: <pcfg.packageName> open-source license
+      '---
+      '
+      '<readFile(pcfg.license)>");
+  }
+
   writeFile(targetFile,
     "---
     'title: <pcfg.packageName> - <pcfg.packageVersion>
     '---
     '
     '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<pcfg.packageName>/API)<}>
-    '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<pcfg.packageName>/<capitalize(src.file)>)<}>
+    '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<pcfg.packageName>/<capitalize(src.file)>)
+    '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
+    '<if (pcfg.license?) {>* [Open-source license](../../Packages/<pcfg.packageName>/License.md)<}>
+    '<if (pcfg.sources?) {>* [Source code](<"<pcfg.sources>"[1..-1]>)<}>
+    '
+    '#### Installation
+    '
+    'To use <pcfg.packageName> in your maven-based Rascal project, include the following dependency:
+    '
+    '```xml
+    '\<dependencies\>
+    '    \<dependency\>  
+    '        \<groupId\><pcfg.packageGroup>\</groupId\>
+    '        \<artifactId\><pcfg.packageName>\</artifactId\>
+    '        \<version\><pcfg.packageVersion>\</version\>
+    '    \</dependency\>
+    '\</dependencies\> 
+    '```
     ");
 }
 
