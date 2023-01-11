@@ -91,7 +91,7 @@ void generatePackageIndex(PathConfig pcfg) {
 
   writeFile(targetFile,
     "---
-    'title: <pcfg.packageName> - <pcfg.packageVersion>
+    'title: <pcfg.packageName>-<pcfg.packageVersion> documentation
     '---
     '
     '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<pcfg.packageName>/API)<}>
@@ -99,10 +99,11 @@ void generatePackageIndex(PathConfig pcfg) {
     '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
     '<if (pcfg.license?) {>* [Open-source license](../../Packages/<pcfg.packageName>/License.md)<}>
     '<if (pcfg.sources?) {>* [Source code](<"<pcfg.sources>"[1..-1]>)<}>
+    '<if (pcfg.issues?) {>* [Issue tracker](<"<pcfg.issues>"[1..-1]>)<}>
     '
     '#### Installation
     '
-    'To use <pcfg.packageName> in your maven-based Rascal project, include the following dependency:
+    'To use <pcfg.packageName> in a maven-based Rascal project, include the following dependency:
     '
     '```xml
     '\<dependencies\>
@@ -113,6 +114,18 @@ void generatePackageIndex(PathConfig pcfg) {
     '    \</dependency\>
     '\</dependencies\> 
     '```
+    '**and** change the `Require-Libraries` field in `/path/to/yourProjectName/META-INF/RASCAL.MF` like so:
+    '
+    '```MF
+    'Manifest-Version: 0.0.1
+    'Project-Name: yourProjectName
+    'Source: path/to/src
+    'Require-Libraries: |lib://<pcfg.packageName>|
+    '
+    '```
+    ':::info
+    'dot.MF files _must_ end with an empty line.
+    ':::
     ");
 }
 
@@ -237,7 +250,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
 
     writeFile(targetFile,
       "---
-      'title: <if (trim(title) == "") {><if (pcfg.currentRoot in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><} else {><title><}>
+      'title: <if (trim(title) == "") {><if (pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><} else {><title><}>
       '<if (sidebar_position != -1) {>sidebar_position: <sidebar_position>
       '<}>---
       '

@@ -5,7 +5,7 @@ data DeclarationInfo(
      str moduleName="", 
      str name=moduleName, 
      loc src = |unknown:///|, 
-     str synopsis="", 
+     str synopsis="",  
      str signature="",
      list[DocTag] docs = [], 
      loc docSrc = src)

@@ -4,7 +4,7 @@ import List;
 import String;
 import util::Reflective;
 
-import lang::rascal::tutor::apidoc::DeclarationInfo;
+import lang::rascal::tutor::apidoc::DeclarationInfo; 
 import lang::rascal::tutor::apidoc::ExtractInfo;
 import lang::rascal::tutor::Output;
 import lang::rascal::tutor::Indexer;
