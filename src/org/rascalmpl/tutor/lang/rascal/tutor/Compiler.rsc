@@ -91,8 +91,10 @@ void generatePackageIndex(PathConfig pcfg) {
 
   writeFile(targetFile,
     "---
-    'title: <pcfg.packageName>-<pcfg.packageVersion> documentation
+    'title: <pcfg.packageName>
     '---
+    '
+    'This is the documentation for version <pcfg.packageVersion> of <pcfg.packageName>.
     '
     '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<pcfg.packageName>/API)<}>
     '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<pcfg.packageName>/<capitalize(src.file)>)
@@ -103,7 +105,7 @@ void generatePackageIndex(PathConfig pcfg) {
     '
     '#### Installation
     '
-    'To use <pcfg.packageName> in a maven-based Rascal project, include the following dependency:
+    'To use <pcfg.packageName> in a maven-based Rascal project, include the following dependency in the `pom.xml` file:
     '
     '```xml
     '\<dependencies\>
@@ -121,6 +123,7 @@ void generatePackageIndex(PathConfig pcfg) {
     'Project-Name: yourProjectName
     'Source: path/to/src
     'Require-Libraries: |lib://<pcfg.packageName>|
+    '
     '
     '```
     ':::info
