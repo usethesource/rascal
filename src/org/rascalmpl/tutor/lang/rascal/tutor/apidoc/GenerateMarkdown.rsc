@@ -64,7 +64,7 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
             i = j;
         }
 
-        res += line("### Tests");
+        res += line("# Tests");
 
         for (di <- tests) {
             res += declInfo2Doc(parent, di, [], pcfg, exec, ind, [], isDemo);
@@ -83,14 +83,16 @@ private map[str,str] escapes = ("\\": "\\\\", "\"": "\\\"");
 list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("---"),
-        out("title: \"module <escape(d.moduleName, escapes)>\""),
+        out("title: \"module <d.name>\""),
         out("---"),
         Output::empty(),
         out("\<div class=\"theme-doc-version-badge\"\>rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>\</div\>"),
         Output::empty(),
         out("#### Usage"),
         Output::empty(),
-        out("`import <replaceAll(d.name, "/", "::")>;`"),
+        out("```rascal"),
+        out("import <replaceAll(d.moduleName, "/", "::")>;"),
+        out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo),
         out("")
@@ -109,10 +111,10 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
 
 list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
-        out("## **test** <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
+        out("## test <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         Output::empty(),
         out("```rascal"),
-        *[out(defLine), empty() | ov <- overloads, str defLine <- split("\n", d.fullTest)],
+        *[out(defLine) | str defLine <- split("\n", d.fullTest)],
         out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)

@@ -22,12 +22,12 @@ private list[DeclarationInfo] doExtractInfo(loc moduleLoc, datetime _/*lastModif
 list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
     moduleName = "<header.name>";
     tags = getTagContents(header.tags);
-    
+    name = "<header.name.names[-1]>";
     tls = [ *extractTopLevel(moduleName, tl) |  tl <- body.toplevels ];
 
     synopsis = getSynopsis(tags);
 
-    return moduleInfo(moduleName=moduleName, src=m@\loc, synopsis=synopsis, docs=sortedDocTags(tags), demo=/demo/ := moduleName) + tls;
+    return moduleInfo(moduleName=moduleName, name=name, src=m@\loc, synopsis=synopsis, docs=sortedDocTags(tags), demo=(/demo/ := moduleName)) + tls;
 }
 
 /********************************************************************/
@@ -127,10 +127,6 @@ DeclarationInfo extractTestDecl(str moduleName, FunctionDeclaration fd) {
   fname = "<fd.signature.name>";
   
   signature =  "<fd.signature>";
-  if(startsWith(signature, "java")){
-    signature = signature[size("java")+1 .. ];
-  }
-
   tags =  getTagContents(fd.tags);
   
   return testInfo(moduleName=moduleName, name=fname, src=fd@\loc, synopsis=getSynopsis(tags), fullTest="<fd>");

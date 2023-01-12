@@ -242,7 +242,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
 list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1) {
   try {
     p2r = pathToRoot(pcfg.currentRoot, d, pcfg.isPackageCourse);
-    title = replaceAll(relativize(pcfg.currentRoot, d).path[1..], "/", "::");
+    title = (d == pcfg.currentRoot && d.file in {"src","rascal","api"}) ? "API" : d.file;
 
     targetFile = pcfg.bin 
       + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
@@ -253,7 +253,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
 
     writeFile(targetFile,
       "---
-      'title: <if (trim(title) == "") {><if (pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><} else {><title><}>
+      'title: <title>
       '<if (sidebar_position != -1) {>sidebar_position: <sidebar_position>
       '<}>---
       '
