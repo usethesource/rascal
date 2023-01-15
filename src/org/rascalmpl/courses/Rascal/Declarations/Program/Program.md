@@ -38,8 +38,8 @@ to their named keyword counterparts and get validated according to their declare
 
 #### Examples
 
-In the following examples, it is assumed that the user has access to the ``rascal.jar`` file and that the files with the code
-describing each of the example programs below are placed in the same directory as the ``rascal.jar`` file.
+In the following examples, it is assumed that the user has access to the ``rascal-shell-stable.jar`` file and that the files with the code
+describing each of the example programs below are placed in the same directory as the ``.jar`` file for simplicity.
 
 1. Command line arguments as a list of string values
 
@@ -57,7 +57,7 @@ describing each of the example programs below are placed in the same directory a
    Calling this program with:
 
    ```
-   > java -jar rascal.jar main_args_as_list.rsc -p1 1 -p2 2 -p3 3
+   > java -jar rascal-shell-stable.jar main_args_as_list.rsc -p1 1 -p2 2 -p3 3
    ```
 
    Would produce:
@@ -94,7 +94,7 @@ describing each of the example programs below are placed in the same directory a
    Calling this program with:
 
    ```
-   > java -jar rascal.jar main_args_as_kwd.rsc
+   > java -jar rascal-shell-stable.jar main_args_as_kwd.rsc
    ```
 
    Would produce:
@@ -111,7 +111,7 @@ describing each of the example programs below are placed in the same directory a
    "name". For example, calling the same program with:
 
    ```
-   > java -jar rascal.jar main_args_as_kwd.rsc -b Blue
+   > java -jar rascal-shell-stable.jar main_args_as_kwd.rsc -b Blue
    ```
 
    Would produce:
@@ -127,7 +127,7 @@ describing each of the example programs below are placed in the same directory a
    And calling it with:
 
    ```
-   > java -jar rascal.jar main_args_as_kwd.rsc -c -d 1 2 3 4 5 -e \|file:///blue.tst\|
+   > java -jar rascal-shell-stable.jar main_args_as_kwd.rsc -c -d 1 2 3 4 5 -e \|file:///blue.tst\|
    ```
 
    Would produce:
@@ -152,7 +152,7 @@ describing each of the example programs below are placed in the same directory a
    the following call *will produce an error*:
 
    ```
-   > java -jar rascal.jar main_args_as_kwd.rsc SomeString
+   > java -jar rascal-shell-stable.jar main_args_as_kwd.rsc SomeString
    ```
 
 #### Benefits
