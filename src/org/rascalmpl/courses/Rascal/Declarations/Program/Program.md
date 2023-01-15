@@ -14,29 +14,32 @@ A Rascal program consists of a number of ((Declarations-Module))s.
 
 #### Description
 
-A Rascal program consists of a number of ((Module Declarations)), each stored in a separate file with extension `.rsc`.
+A Rascal program consists of a number of ((Module Declarations)), each stored in a separate file with the extension `.rsc`.
 
-Rascal code comments are prefixed with `//`.
+Throughout a Rascal program, comments are prefixed by `//` and the language also provides more meaningful code comments, 
+described in ((Doc Annotations)). 
 
-A Rascal program can have a `main()` function declared as its entry point.
+A Rascal program can have *one* `main()` function declared as its entry point.
 
-Just like any other Rascal function, `main()` has arguments and a return type, 
-but unlike other functions, the arguments of `main()` have a special interpreation.
+Just like any other Rascal function, `main()` has typed arguments and a return type, but unlike other functions, the 
+keyword arguments of `main()` can be automatically translated from same name parameters passed at the command line.
 
-There are two forms of `main()`:
+There are two variants of `main()`:
 
-1. Accepting just one argument of type `list[str]`.
+1. Accepting just one argument of type `list[str]`
 2. Accepting keyword arguments of varying types
 
-In the first case, the declaration of `main()`, its arguments and 
-their effect is similar to languages such as C and Java, any command-line 
-arguments are passed to the program without any further processing as a 
-list of strings.
+In the first case, the declaration of `main()`, its arguments and  their effect are similar to the way ``main()`` is declared 
+and used in languages such as C and Java. That is, any command-line arguments are passed to the program without any further 
+processing as an array of strings. 
 
-In the second case, any arguments to `main()` are [marshalled](https://en.wikipedia.org/wiki/Marshalling_(computer_science)) to and from their named keyword 
-counterparts as well as validated.
+But in the second case, any arguments to `main()` are automatically [marshalled](https://en.wikipedia.org/wiki/Marshalling_(computer_science)) 
+to their named keyword counterparts and get validated according to their declared type.
 
 #### Examples
+
+In the following examples, it is assumed that the user has access to the ``rascal.jar`` file and that the files with the code
+describing each of the example programs below are placed in the same directory as the ``rascal.jar`` file.
 
 1. Command line arguments as a list of string values
 
@@ -85,8 +88,8 @@ counterparts as well as validated.
    }
    ```
 
-   Notice here, all keyword arguments require a default value as per Rascal's
-   paradigm.
+   Notice here, as Rascal is a *value-oriented language*, all keyword arguments must have a default value 
+   (for more information see ((Immutable Values))).
 
    Calling this program with:
 
@@ -104,7 +107,7 @@ counterparts as well as validated.
    |file:///|
    ```
 
-   Now, every keyword argument can be set at the comand line with its 
+   Now, every keyword argument to ``main()`` can be set at the comand line with its 
    "name". For example, calling the same program with:
 
    ```
@@ -137,20 +140,29 @@ counterparts as well as validated.
    |file:///blue.txt|
    ```
 
-   Notice here that `-c`, being of type Bool, was simply specified in the 
-   command line and that was enough to toggle its value to `true`.
-   Notice also that `-d` has already been transformed to a list of integers 
-   as well as location.
-   
+   Notice here that `-c`, being of type `bool`, was simply specified in the 
+   command line as a flag and that was enough to set its value to `true`.
+   Notice also that `-d` has already been transformed to a list of integers
+   as per its specification. The same applies for `e`, which is of type 
+   location, although the "pipe" characters might require escaping.
 
+   Finally, if no keyword parameters are passed on the command line (i.e. no command line 
+   argument is prefixed by a `-` character), the arguments are assumed to be given 
+   in the command line in the same order they are defined in `main()`. Therefore, 
+   the following call *will produce an error*:
+
+   ```
+   > java -jar rascal.jar main_args_as_kwd.rsc SomeString
+   ```
 
 #### Benefits
 
 * Keyword arguments offer automatic data marshalling and validation from 
   their command line format to valid values according to a keyword's defined
-  data type.
+  data type. No extra libraries are required.
+
 
 #### Pitfalls
 
-* Mandatory arguments require special handling
+* Mandatory positional arguments require special handling.
 
