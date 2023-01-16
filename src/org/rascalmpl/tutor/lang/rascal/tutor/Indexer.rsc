@@ -173,7 +173,10 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
          <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, sep <- {"::", "/", "-"}},
 
       // ((Set)) -> `/Library/Set`
-      *{<item.moduleName, "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" >, <"module:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" > | item is moduleInfo},
+      *{<item.moduleName, "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >, 
+        <"module:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" > 
+        | item is moduleInfo
+      },
 
       // `((Library:Set))` -> `/Library/Set`
       *{<"<capitalize(src.file)>:<item.moduleName>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" >,
