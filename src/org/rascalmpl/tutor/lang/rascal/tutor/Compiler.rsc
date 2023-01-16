@@ -603,7 +603,8 @@ list[Output] compileMarkdown([a:/^\-\-\-\s*$/, *str header, b:/^\-\-\-\s*$/, *st
       *[out(l) | l <- header],
       *[out("sidebar_position: <sidebar_position>") | sidebar_position != -1],
       out("---"),
-      out("\<div class=\"theme-doc-version-badge\"\>rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>\</div\>"),
+      out("\<div class=\"theme-doc-version-badge badge badge--secondary\"\>rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>\</div\>"),
+      out(""),
       *compileMarkdown(rest, line + 2 + size(header), offset + size(a) + size(b) + length(header), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
     ];
   } 

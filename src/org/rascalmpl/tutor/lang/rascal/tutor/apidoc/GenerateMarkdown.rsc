@@ -86,7 +86,7 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         out("title: \"module <d.name>\""),
         out("---"),
         Output::empty(),
-        out("\<div class=\"theme-doc-version-badge\"\>rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>\</div\>"),
+        out("\<div class=\"theme-doc-version-badge badge badge--secondary\"\>rascal-<getRascalVersion()><if (pcfg.isPackageCourse) {>, <pcfg.packageName>-<pcfg.packageVersion><}>\</div\>"),
         Output::empty(),
         out("#### Usage"),
         Output::empty(),
