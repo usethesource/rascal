@@ -137,6 +137,20 @@ list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathCon
          *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)
     ]; 
 
+list[Output] declInfo2Doc(str parent, d:syntaxInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
+    [
+        out("## syntax <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
+        empty(),
+        *[
+            out("```rascal"),
+            *[out(defLine) | str defLine <- split("\n", ov)], 
+            out("```"),
+            empty()
+        | ov := d.signature
+        ],
+         *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)
+    ]; 
+
 list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## alias <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),

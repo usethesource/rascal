@@ -1,5 +1,7 @@
 @synopsis{Just a module}
-module Vis::Examples
+module Vis::Example
+
+syntax VIS = "vis";
 
 @synopsis{main is marvelous}
 @description{
@@ -9,5 +11,5 @@ println("hai")
 ```
 }
 int main() {
-
+  return 0;
 }

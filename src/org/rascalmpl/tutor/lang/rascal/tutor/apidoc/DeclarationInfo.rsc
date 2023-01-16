@@ -16,6 +16,7 @@ data DeclarationInfo(
      | dataInfo          (str kind="data", list[str] overloads=[])
      | aliasInfo         (str kind="alias")
      | varInfo           (str kind="variable")
+     | syntaxInfo        (str kind="syntax")
      ;
 
 data DocTag(str label="", loc src=|unknown:///|, str content="")

@@ -23,12 +23,22 @@ list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
     moduleName = "<header.name>";
     tags = getTagContents(header.tags);
     name = "<header.name.names[-1]>";
-    tls = [ *extractTopLevel(moduleName, tl) |  tl <- body.toplevels ];
+    tls = [*extractImport(moduleName, imp) | imp <- header.imports] 
+      + [ *extractTopLevel(moduleName, tl) |  tl <- body.toplevels ];
 
     synopsis = getSynopsis(tags);
 
     return moduleInfo(moduleName=moduleName, name=name, src=m@\loc, synopsis=synopsis, docs=sortedDocTags(tags), demo=(/demo/ := moduleName)) + tls;
 }
+
+/********************************************************************/
+/*                  Process imports and syntax definitions          */
+/********************************************************************/
+
+default list[DeclarationInfo] extractImport(str moduleName, (Import) `<SyntaxDefinition def>` ) 
+  = [syntaxInfo(moduleName=moduleName, name="<def.defined>", signature="<def>")];
+
+default list[DeclarationInfo] extractImport(str _moduleName, Import _ ) = [];
 
 /********************************************************************/
 /*                  Process declarations in a module                */
