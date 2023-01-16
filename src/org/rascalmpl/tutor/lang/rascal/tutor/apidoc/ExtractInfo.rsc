@@ -28,7 +28,7 @@ list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
 
     synopsis = getSynopsis(tags);
 
-    return moduleInfo(moduleName=moduleName, name=name, src=m@\loc, synopsis=synopsis, docs=sortedDocTags(tags), demo=(/demo/ := moduleName)) + tls;
+    return moduleInfo(moduleName=moduleName, name=name, src=m@\loc, synopsis=synopsis, docs=sortedDocTags(tags), demo=(/demo|examples/ := moduleName)) + tls;
 }
 
 /********************************************************************/
