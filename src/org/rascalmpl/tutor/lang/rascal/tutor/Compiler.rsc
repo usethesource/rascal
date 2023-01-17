@@ -251,9 +251,12 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
       + "index.md"
       ;
 
+    str slug = relativize(pcfg.bin, targetFile).parent.path;
+
     writeFile(targetFile,
       "---
-      'title: <title>
+      'title: <title> 
+      'slug: <slug>
       '<if (sidebar_position != -1) {>sidebar_position: <sidebar_position>
       '<}>---
       '
@@ -274,8 +277,12 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
   errors = [];
 
   if (!exists(targetFile) || lastModified(targetFile) < lastModified(m)) {
+    str parentSlug = (|path:///| + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+        + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
+        + relativize(pcfg.currentRoot, m).parent.path).path;
+
     println("compiling <m> [Rascal Source File]");
-    list[Output] output = generateAPIMarkdown(relativize(pcfg.currentRoot, m).parent.path, m, pcfg, exec, ind);
+    list[Output] output = generateAPIMarkdown(parentSlug, m, pcfg, exec, ind);
 
     writeFile(targetFile,
       "<for (line(x) <- output) {><x>

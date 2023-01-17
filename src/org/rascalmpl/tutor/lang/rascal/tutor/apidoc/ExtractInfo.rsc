@@ -130,7 +130,7 @@ private DeclarationInfo extractFunctionDeclaration(str moduleName, FunctionDecla
    
   tags =  getTagContents(fd.tags);
   
-  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags), docs=sortedDocTags(tags), fullFunction="<fd>");
+  return functionInfo(moduleName=moduleName, name=fname, signature=signature, src=fd@\loc, synopsis=getSynopsis(tags), docs=sortedDocTags(tags), fullFunction="<removeTags(fd)>");
 }
 
 DeclarationInfo extractTestDecl(str moduleName, FunctionDeclaration fd) {
@@ -139,8 +139,12 @@ DeclarationInfo extractTestDecl(str moduleName, FunctionDeclaration fd) {
   signature =  "<fd.signature>";
   tags =  getTagContents(fd.tags);
   
-  return testInfo(moduleName=moduleName, name=fname, src=fd@\loc, synopsis=getSynopsis(tags), fullTest="<fd>");
+  return testInfo(moduleName=moduleName, name=fname, src=fd@\loc, synopsis=getSynopsis(tags), fullTest="<removeTags(fd)>");
 }
+
+private Tree removeTags(Tree x) = visit(x) {
+  case Tags _ => (Tags) ``
+};
 
 str getSynopsis(rel[str, DocTag] tags) {
     if (docTag(content=str docContents) <- tags["doc"]) {

@@ -3,6 +3,7 @@ module lang::rascal::tutor::apidoc::GenerateMarkdown
 import List;
 import String;
 import util::Reflective;
+import Message;
 
 import lang::rascal::tutor::apidoc::DeclarationInfo; 
 import lang::rascal::tutor::apidoc::ExtractInfo;
@@ -64,7 +65,9 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
             i = j;
         }
 
-        res += line("# Tests");
+        if (tests != []) {
+            res += line("# Tests");
+        }
 
         for (di <- tests) {
             res += declInfo2Doc(parent, di, [], pcfg, exec, ind, [], isDemo);
@@ -84,6 +87,8 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
     [
         out("---"),
         out("title: \"module <d.name>\""),
+        out("id: <d.name>"),
+        out("slug: <parent>/<d.name>"),
         out("---"),
         Output::empty(),
         out("\<div class=\"theme-doc-version-badge badge badge--secondary\"\>rascal-<getRascalVersion()>\</div\><if (pcfg.isPackageCourse) {> \<div class=\"theme-doc-version-badge badge badge--secondary\"\><pcfg.packageName>-<pcfg.packageVersion>\</div\><}>"),
