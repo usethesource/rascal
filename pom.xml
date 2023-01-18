@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.28.4-SNAPSHOT</version>
+    <version>0.28.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -121,7 +121,7 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.14.1</version>
+                <version>0.15.2</version>
                 <configuration>
                     <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
@@ -248,7 +248,7 @@
                 <version>2.5.3</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <arguments>-Drascal.compile.skip -DskipTests</arguments>
+                    <arguments>-Drascal.compile.skip -Drascal.tutor.skip -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>
