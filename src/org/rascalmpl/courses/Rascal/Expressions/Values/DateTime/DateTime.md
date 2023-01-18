@@ -81,7 +81,7 @@ kind of value is stored in a variable of type `datetime`.
 The following operators are defined for DateTime:
 (((TOC)))
 
-There are also [library functions]((Library:DateTime)) available for DateTime.
+There are also [library functions]((Library:module:DateTime)) available for DateTime.
 
 #### Examples
 
