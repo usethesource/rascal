@@ -99,6 +99,14 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         out("import <replaceAll(d.moduleName, "/", "::")>;"),
         out("```"),
         Output::empty(),
+        *[
+            out("#### Dependencies"),
+            out("```rascal"),
+            *[ out(dep) | dep <- d.dependencies],
+            out("```")
+        | d.dependencies != []
+        ],
+        Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo),
         out("")
     ];

@@ -300,7 +300,7 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
   else {
     println("reusing   <m>");
     if (exists(targetFile[extension="errors"])) {
-      errors = readBinaryValueFile(#list[Message], targetFile[extension=""]);
+      errors = readBinaryValueFile(#list[Message], targetFile[extension="errors"]);
     }
   }
 

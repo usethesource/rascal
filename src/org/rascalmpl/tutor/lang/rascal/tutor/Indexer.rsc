@@ -162,15 +162,15 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
      
       // `((Library:getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
       *{<"<capitalize(src.file)>:<item.name>", fr >,
-        <"<capitalize(src.file)>:<item.kind>:<item.name>", fr > | item.name?},
+        <"<capitalize(src.file)>:<item.kind>:<item.name>", fr > | item.name?, !(item is moduleInfo)},
 
       // `((util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
       *{<"<item.moduleName><sep><item.name>", fr >,
-        <"<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, sep <- {"::", "/", "-"}},
+        <"<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, !(item is moduleInfo), sep <- {"::", "/", "-"}},
 
       // ((Library:util::Reflective::getDefaultPathConfig))` -> `/Library/util/Reflective#getDefaultPathConfig`
       *{<"<capitalize(src.file)>:<item.moduleName><sep><item.name>", fr >,
-         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, sep <- {"::", "/", "-"}},
+         <"<capitalize(src.file)>:<item.kind>:<item.moduleName><sep><item.name>", fr > | item.name?, !(item is moduleInfo), sep <- {"::", "/", "-"}},
 
       // ((Set)) -> `/Library/Set`
       *{<item.moduleName, "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >, 
@@ -179,8 +179,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       },
 
       // `((Library:Set))` -> `/Library/Set`
-      *{<"<capitalize(src.file)>:<item.moduleName>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" >,
-         <"<capitalize(src.file)>:module:<item.moduleName>", "/<capitalize(src.file)>/<modulePath(item.moduleName)>.md" > | item is moduleInfo}
+      *{<"<capitalize(src.file)>:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >,
+         <"<capitalize(src.file)>:module:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" > | item is moduleInfo}
 
       | loc f <- find(src, isFreshRascalFile(lastModified)), list[DeclarationInfo] inf := safeExtract(f), item <- inf,
         fr := "/<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>"
