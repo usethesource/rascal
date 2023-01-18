@@ -248,7 +248,7 @@
                 <version>2.5.3</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <arguments>-Drascal.compile.skip -DskipTests</arguments>
+                    <arguments>-Drascal.compile.skip -Drascal.tutor.skip -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>
