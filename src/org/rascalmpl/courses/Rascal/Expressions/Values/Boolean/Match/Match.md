@@ -26,7 +26,10 @@ Match a pattern against an expression.
 
 #### Description
 
-See [Pattern Matching](/docs/RascalConcepts/PatternMatching/) for an introduction to pattern matching and ((Patterns)) for a complete description.
+See ((Patterns)) for a complete description of all possible patterns on the left-hand
+side of the match operator. This expression returns true _while_ the pattern matches.
+* if the pattern is unitary, it can match only in one way, and it does then `true` is returned once.
+* if the pattern is non-unitary, it could match in multiple ways, then every time the expression is evaluated it will return true and bind its variables in a different way.
 
 #### Examples
 
