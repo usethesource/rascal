@@ -16,7 +16,7 @@ Pattern matching has not been properly initialized.
 
 #### Description
 
-[Pattern matching](/docs/RascalConcepts/PatternMatching/) requires two ingredients:
+Pattern matching requires two ingredients:
 
 *  One of the many [patterns]((Rascal:Rascal-Patterns)).
 *  A non-void subject value to which the pattern is applied.

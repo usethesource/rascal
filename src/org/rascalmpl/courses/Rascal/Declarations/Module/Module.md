@@ -101,8 +101,6 @@ void hello() {
 It defines a module with the name `demo::basic::Hello` and imports the [IO]((Library:module:IO)) library.
 Finally, it declares the `hello` function.
 
-More ways to write this example are discussed in the [Hello](/docs/Recipes/Basic/Hello/) example in [Recipes](/docs/Recipes/).
-
 #### Benefits
 
 #### Pitfalls
