@@ -13,6 +13,7 @@ env:
 
 jobs:
   test-linux:
+    if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps: 
       - uses: actions/checkout@v3
