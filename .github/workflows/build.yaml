@@ -85,6 +85,13 @@ jobs:
             -Drascal.tutor.skip
             -DskipTests
 
+      - name: Making sure test have succeeded in the parallel jobs
+        uses: yogeshlonkar/wait-for-jobs@v0
+        with:
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          jobs: 'tests'
+          ttl: 15
+
       - name: Prepare Draft Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
