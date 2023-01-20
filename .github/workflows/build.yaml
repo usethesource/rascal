@@ -86,11 +86,13 @@ jobs:
             -DskipTests
 
       - name: Making sure test have succeeded in the parallel jobs
-        if: startsWith(github.ref, 'refs/tags/')
+        #if: startsWith(github.ref, 'refs/tags/')
         uses: yogeshlonkar/wait-for-jobs@v0
         with:
           gh-token: ${{ secrets.GITHUB_TOKEN }}
-          jobs: 'tests'
+          jobs: |
+            tests (macos-latest)
+            tests (windows-latest)
           ttl: 15
 
       - name: Prepare Draft Release
