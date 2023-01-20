@@ -86,7 +86,7 @@ jobs:
             -DskipTests
 
       - name: Making sure test have succeeded in the parallel jobs
-        #if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/')
         uses: yogeshlonkar/wait-for-jobs@v0
         with:
           gh-token: ${{ secrets.GITHUB_TOKEN }}
@@ -131,7 +131,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, macos-latest, buildjet-4vcpu-ubuntu-2204-arm]
     steps: 
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
