@@ -145,7 +145,7 @@ jobs:
 
       - name: Run Tests
         # single quotes to help windows deal with argument splitting
-        run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=4' test
+        run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=3' test
 
       - uses: codecov/codecov-action@v3
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
