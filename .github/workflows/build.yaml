@@ -23,7 +23,7 @@ jobs:
           cache: 'maven'
 
       - name: Run Tests
-        run: mvn -B -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=7 test
+        run: mvn -B -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test
 
       - uses: codecov/codecov-action@v3
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
@@ -70,11 +70,11 @@ jobs:
       - name: Compile & Bootstrap
         run: mvn -B compile -Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.browser=`which chrome` 
         env:
-          MAVEN_OPTS: "-Xmx7G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+          MAVEN_OPTS: "-Xmx14G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 
       - name: Test if release # just to be extra sure for a release
         if: startsWith(github.ref, 'refs/tags/v')
-        run: mvn -Drascal.test.memory=7 -Drascal.compile.skip -Drascal.tutor.skip test 
+        run: mvn -Drascal.test.memory=14 -Drascal.compile.skip -Drascal.tutor.skip test 
 
       - name: Attach artifact 
         id: build-artifact
