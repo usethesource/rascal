@@ -290,7 +290,7 @@ on the heap.
 }
 @benefits{
 * This helps avoiding to restart the JVM, and optionally warming it up, for each individual measurement.
-* Long running terminal [RascalShell-REPL](/docs/RascalShell/REPL/)s can be rejuvenated on demand by a call to ((gc)).
+* Long running terminals can be rejuvenated on demand by a call to ((gc)).
 }
 @pitfalls{
 * Although a GC cycle is triggered by this function, it guarantees nothing about the effect of this cycle in terms of completeness or precision in removing garbage from the heap.
