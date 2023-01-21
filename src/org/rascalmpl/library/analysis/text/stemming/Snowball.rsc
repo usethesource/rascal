@@ -6,7 +6,7 @@ distributed with Lucene as a Rascal module.
 
 #### Description
 
-See http://snowball.tartarus.org[the Snowball homepage] for more informations
+See [the Snowball homepage](http://snowball.tartarus.org) for more informations
 
 #### Examples
 
@@ -44,7 +44,7 @@ data Language
 @doc{
 #### Synopsis
 
-Stemming algorithms from the Tartarus Snowball (http://snowball.tartarus.org[the Snowball homepage] for different languages. 
+Stemming algorithms from the Tartarus Snowball [the Snowball homepage](http://snowball.tartarus.org) for different languages. 
 
 #### Description
 
