@@ -31,6 +31,9 @@
         <lucence-version>7.5.0</lucence-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
+        <maven.compiler.release>11</maven.compiler.release>
+
+        <rascal-maven.version>0.15.2</rascal-maven.version>
     </properties>
 
 
@@ -115,13 +118,12 @@
                 <version>3.8.0</version>
                 <configuration>
                     <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
-                    <release>11</release>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.15.2</version>
+                <version>${rascal-maven.version}</version>
                 <configuration>
                     <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
