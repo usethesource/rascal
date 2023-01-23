@@ -74,6 +74,9 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
     generatePackageIndex(pcfg);
   }
 
+  // remove trailing slashes
+  pcfg.ignores = [ i.parent + i.file | i <- pcfg.ignores];
+
   return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
 }
 
@@ -196,6 +199,8 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
       return [info("skipped ignored location: <d>", d)];
     }
 
+    println("compiling <d> [Folder]");
+
     indexFiles = {(d + "<d.file>")[extension="md"], (d + "index.md")};
 
     if (!exists(d)) {
@@ -255,6 +260,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
       *errors,
       *[*compile(s, pcfg, exec, ind, sidebar_position=sp) 
         | s <- d.ls
+        , !(s in pcfg.ignores)
         , !(s in indexFiles)
         , isDirectory(s) || s.extension in {"md","rsc","png","jpg","svg","jpeg", "html", "js"}
         , int sp := indexOf(nestedDtls, capitalize(s[extension=""].file))
@@ -283,7 +289,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
       '<if (sidebar_position != -1) {>sidebar_position: <sidebar_position>
       '<}>---
       '
-      '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal") {>
+      '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal", !(e in pcfg.ignores)) {>
       '* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>Packages/<pcfg.packageName>/<}><if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
     return [];
   } catch IO(msg): {
