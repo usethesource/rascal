@@ -175,8 +175,8 @@
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
                             <ignores>
-                                <ignore>${project.basedir}/ignore/org/rascalmpl/library/lang/rascal</ignore>
-                                <ignore>${project.basedir}/ignore/org/rascalmpl/library/lang/c90</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/c90</ignore>
                             </ignores>
                         </configuration>
                     </execution>
