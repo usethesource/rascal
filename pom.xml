@@ -174,10 +174,10 @@
                                 <src>${project.basedir}/src/org/rascalmpl/courses/Rascal</src>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
-                            <srcIgnores>
+                            <ignores>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/c90</ignore>
-                            </srcIgnore>
+                            </ignores>
                         </configuration>
                     </execution>
                 </executions>
