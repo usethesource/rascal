@@ -98,6 +98,7 @@ void generatePackageIndex(PathConfig pcfg) {
       '---
       '
       'These are compile-time and run-time dependencies of <pcfg.packageName>:
+      '
       '<for (loc d <- dependencies) {>   * <d[extension=""].file>
       '<}>
       '
