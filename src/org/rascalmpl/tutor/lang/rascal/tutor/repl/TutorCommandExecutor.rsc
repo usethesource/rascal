@@ -5,7 +5,7 @@ import util::Reflective;
 @synopsis{A closure-based object wrapper for Rascal REPL}
 @description{
 Using an instance of CommandExecutor you can simulate the exact interactions
-between a Rascal ((GettingStarted-RunningRascal-Commandline)) user and the REPL. 
+between a Rascal REPL user and the REPL. 
 
 This was created to implement documentation pages with example REPL runs.
 }
