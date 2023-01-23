@@ -89,6 +89,27 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.license)>");
   }
 
+  dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
+
+  if (dependencies != []) {
+    writeFile(targetFile.parent + "Dependencies.md",
+      "---
+      'title: <pcfg.packageName> dependencies
+      '---
+      '
+      'These are compile-time and run-time dependencies of <pcfg.packageName>:
+      '<for (loc d <- dependencies) {>   * <d[extension=""].file>
+      '<}>
+      '
+      ':::warning
+      'This message is automatically generated. The authors of <pcfg.packageName> probably prefer open-source licenses for their dependencies which are permissive to commercial exploitation
+      'and any kind of reuse, and **non-viral**, however they are not liable for any damages caused by the licenses of the above dependencies, or changes therein.
+      'The diligent user checks if these licenses are compatible with their situation! 
+      ':::
+      "
+    );
+  }
+
   writeFile(targetFile,
     "---
     'title: <pcfg.packageName>
@@ -100,6 +121,7 @@ void generatePackageIndex(PathConfig pcfg) {
     '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<pcfg.packageName>/<capitalize(src.file)>)
     '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
     '<if (pcfg.license?) {>* [Open-source license](../../Packages/<pcfg.packageName>/License.md)<}>
+    '<if (dependencies != []) {> * [Dependencies](../../Packages/<pcfg.packageName>/Dependencies.md)<}>
     '<if (pcfg.sources?) {>* [Source code](<"<pcfg.sources>"[1..-1]>)<}>
     '<if (pcfg.issues?) {>* [Issue tracker](<"<pcfg.issues>"[1..-1]>)<}>
     '
@@ -309,7 +331,9 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
 
 @synopsis{This uses another nested directory listing to construct information for the TOC embedded in the current document.}
 list[str] createDetailsList(loc m, PathConfig pcfg) 
-  = sort([ "<capitalize(pcfg.currentRoot.file)>:<if (isDirectory(d), !exists(d + "index.md"), !exists((d + d.file)[extension="md"])) {>package:<}><if (d.extension == "rsc") {>module:<}><replaceAll(relativize(pcfg.currentRoot, d)[extension=""].path[1..], "/", "-")>" | d <- m.parent.ls, m != d, d.file != "index.md", isDirectory(d) || d.extension in {"rsc", "md"}]);
+  = sort([ "<capitalize(pcfg.currentRoot.file)>:<if (isDirectory(d), !exists(d + "index.md"), !exists((d + d.file)[extension="md"])) {>package:<}><if (d.extension == "rsc") {>module:<}><replaceAll(relativize(pcfg.currentRoot, d)[extension=""].path[1..], "/", "-")>" 
+         | loc d <- m.parent.ls, m != d, !(d in pcfg.ignores), d.file != "index.md", isDirectory(d) || d.extension in {"rsc", "md"}
+         ]);
 
 list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind, int sidebar_position=-1) {
   order = createDetailsList(m, pcfg);
