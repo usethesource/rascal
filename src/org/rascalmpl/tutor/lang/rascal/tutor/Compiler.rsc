@@ -73,11 +73,39 @@ list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcf
   if (pcfg.isPackageCourse) {
     generatePackageIndex(pcfg);
   }
+  else {
+    storeImportantProjectMetaData(pcfg);
+  }
 
   // remove trailing slashes
-  pcfg.ignores = [ i.parent + i.file | i <- pcfg.ignores];
+  pcfg.ignores = [i.parent + i.file | i <- pcfg.ignores];
 
   return [*compileCourse(src, pcfg[currentRoot=src], exec, ind) | src <- pcfg.srcs];
+}
+
+void storeImportantProjectMetaData(PathConfig pcfg) {
+  // these files are with the .txt extension such that they are not automatically
+  // incorporated into the website. Rather other pages can include them where they see fit.
+  // this information, however, is not easy to obtain outside of the build
+  // environment of the current project. Therefore we store it here and now.
+
+  if (!pcfg.packageName?) {
+    return;
+  }
+
+  if (pcfg.license?) {
+    copy(pcfg.license, pcfg.bin + "LICENSE_<pcfg.packageName>.txt");
+  }
+
+  dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
+
+  if (dependencies != []) {
+    writeFile(pcfg.bin + "DEPENDENCIES_<pcfg.packageName>.txt",
+      "<for (loc d <- dependencies) {>   * <d[extension=""].file>
+      '<}>
+      "
+    );
+  }
 }
 
 void generatePackageIndex(PathConfig pcfg) {
@@ -106,9 +134,9 @@ void generatePackageIndex(PathConfig pcfg) {
       '<}>
       '
       ':::warning
-      'This message is automatically generated. The authors of <pcfg.packageName> probably prefer open-source licenses for their dependencies which are permissive to commercial exploitation
-      'and any kind of reuse, and **non-viral**, however they are not liable for any damages caused by the licenses of the above dependencies, or changes therein.
-      'The diligent user checks if these licenses are compatible with their situation! 
+      'You should check that the licenses of the above dependencies are compatible with your goals and situation. The authors and owners of <pcfg.packageName> cannot be held liable for any damages caused by the use of those licenses, or changes therein.
+      '
+      'The authors contributing to <pcfg.packageName> do prefer open-source licenses for their dependencies that are permissive to commercial exploitation and any kind of reuse, and that are non-viral.
       ':::
       "
     );
