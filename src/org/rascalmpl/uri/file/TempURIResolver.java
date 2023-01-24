@@ -16,38 +16,28 @@ import java.net.URISyntaxException;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TempURIResolver implements ILogicalSourceLocationResolver {
     
-    private final IValueFactory VF;
     private final ISourceLocation root;
 
     public TempURIResolver() {
-        VF = ValueFactoryFactory.getValueFactory();
-        ISourceLocation rootFinalHack = null;
         try {
-            rootFinalHack = VF.sourceLocation("file", "", System.getProperty("java.io.tmpdir") + "/");
+            root = URIUtil.createFileLocation(System.getProperty("java.io.tmpdir"));
         }
         catch (URISyntaxException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error loading temporary location");
         }
-        root = rootFinalHack;
     }
-    
-	@Override
-	public String scheme() {
-		return "tmp";
-	}
+
+    @Override
+    public String scheme() {
+        return "tmp";
+    }
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) {
-        String path = input.getPath();
-        if (!path.startsWith("/")) {
-            path = "/" + path;
-        }
-        return URIUtil.getChildLocation(root, path);
+        return URIUtil.getChildLocation(root, input.getPath());
     }
 
     @Override
