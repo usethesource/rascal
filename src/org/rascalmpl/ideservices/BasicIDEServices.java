@@ -71,7 +71,7 @@ public class BasicIDEServices implements IDEServices {
     try {
       loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
       
-      if (loc.getScheme() != "file") {
+      if (!loc.getScheme().equals("file")) {
         ISourceLocation tmp = URIUtil.correctLocation("tmp", "", "rascal-edits");
         tmp = URIUtil.getChildLocation(tmp, loc.getScheme());
         tmp = URIUtil.getChildLocation(tmp, loc.getPath());
