@@ -9,7 +9,8 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @doc{
-.Synopsis
+#### Synopsis
+
 Library functions for reading and writing values in textual and binary format.
 
 }
@@ -18,7 +19,8 @@ module ValueIO
 import Type;
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Read  a value from a binary file in PBF format.
 }
 public value readValueFile(loc file) {
@@ -26,14 +28,16 @@ public value readValueFile(loc file) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Get length of a file in number of bytes.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java int getFileLength(loc file);
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Read a typed value from a binary file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -44,7 +48,8 @@ public value readBinaryValueFile(loc file) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Read a typed value from a text file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -55,7 +60,8 @@ public value readTextValueFile(loc file) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 If you have written a file containing reified types, then you can use this function
   to read them back.  
 }
@@ -64,7 +70,8 @@ public &T readTextValueFileWithEmbeddedTypes(type[&T] result, loc file) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Parse a textual string representation of a value.
 }
 public value readTextValueString(str input) {
@@ -72,21 +79,24 @@ public value readTextValueString(str input) {
 }
 
 @doc{
-.Synopsis
+#### Synopsis
+
 Parse a textual string representation of a value and validate it against the given type.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T readTextValueString(type[&T] result, str input);
 	
 @doc{
-.Synopsis
+#### Synopsis
+
 Write a value to a file using an efficient binary file format.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeBinaryValueFile(loc file, value val, bool compression = true);
 	
 @doc{
-.Synopsis
+#### Synopsis
+
 Write a value to a file using a textual file format.
 }
 @javaClass{org.rascalmpl.library.Prelude}

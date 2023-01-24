@@ -55,7 +55,6 @@ import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.RascalType;
 import org.rascalmpl.util.ListClassLoader;
 import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
@@ -445,13 +444,13 @@ public class JavaBridge {
 			throw new MissingTag(JAVA_CLASS_TAG, func);
 		}
 		
-		for(ClassLoader loader : loaders){
-			try{
+		for (ClassLoader loader : loaders) {
+			try {
 				Class<?> clazz = loader.loadClass(className);
 				Parameters parameters = func.getSignature().getParameters();
 				Class<?>[] javaTypes = getJavaTypes(parameters, env, hasReflectiveAccess);
 
-				try{
+				try { 
 					Method m;
 					
 					if(javaTypes.length > 0){ // non-void
@@ -461,12 +460,12 @@ public class JavaBridge {
 					}
 
 					return m;
-				}catch(SecurityException e){
+				} catch(SecurityException e) {
 					throw RuntimeExceptionFactory.permissionDenied(vf.string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
-				}catch(NoSuchMethodException e){
+				} catch(NoSuchMethodException e) {
 					throw new UndeclaredJavaMethod(e.getMessage(), func);
 				}
-			}catch(ClassNotFoundException e){
+			} catch(ClassNotFoundException e) {
 				continue;
 			}
 		}

@@ -157,7 +157,6 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         else if (result.getStaticType().isSubtypeOf(RascalValueFactory.Content) && !result.getStaticType().isBottom()) {
             // we have interactive output in HTML form to serve
             serveContent(result, output, metadata);
-            output.put("text/plain", stringStream("ok\n"));
             return;
         }
         else {
@@ -212,7 +211,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         
         metadata.put("url", URL);
 
-        output.put("text/plain", stringStream("Serving \'" + id + "\' at |" + URL + "|"));
+        output.put("text/plain", stringStream("Serving \'" + id + "\' at |" + URL + "|\n"));
         output.put("text/html", stringStream("<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ URL +"\"></iframe>"));
     }            
         
@@ -227,6 +226,24 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 w.write("(" + type.toString() +") `");
                 TreeAdapter.yield((IConstructor)result.getValue(), allowColors, w);
                 w.write("`");
+            });
+        }
+        else if (type.isString()) {
+            target.writeOutput(type, (StringWriter w) -> {
+                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
+                    indentedPrettyPrinter.write(value, wrt);
+                }
+                catch (IOLimitReachedException e) {
+                    // ignore since this is what we wanted
+                }
+                w.write("\n---\n");
+                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
+                    ((IString) value).write(wrt);
+                }
+                catch (IOLimitReachedException e) {
+                    // ignore since this is what we wanted
+                }
+                w.write("\n---");
             });
         }
         else {

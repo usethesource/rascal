@@ -55,7 +55,7 @@ data Filter
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Creates a Lucene index at a given folder location from the given set of Documents, using a given set of text analyzers}
-java void createIndex(loc index, set[Document] documents, Analyzer analyzer = standardAnalyzer());
+java void createIndex(loc index, set[Document] documents, Analyzer analyzer = standardAnalyzer(), str charset="UTF-8", bool inferCharset=!(charset?));
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
@@ -63,7 +63,7 @@ java set[Document] searchIndex(loc index, str query, Analyzer analyzer = standar
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Searches a document for a query by analyzing it with a given analyzer and listing the hits inside the document, for debugging and reporting purposes.}
-java list[loc] searchDocument(loc doc, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
+java list[loc] searchDocument(loc doc, str query, Analyzer analyzer = standardAnalyzer(), int max = 10, str charset="UTF-8", bool inferCharset=!(charset?));
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Simulate analyzing a document source location like `createIndex` would do, for debugging purposes} 

@@ -26,15 +26,11 @@ set[loc] find(loc f, bool (loc) filt)
 
 set[loc] find(loc f, str ext) = find(f, bool (loc l) { return l.extension == ext; });
 
-@doc{
-.Synopsis
-lists all files recursively ignored files and directories starting with a dot.
-}
+@synopis{Lists all files recursively ignored files and directories starting with a dot.}
 set[loc] visibleFiles(loc l) {
   if (/^\./ := l.file) 
     return {};
-  else if (isDirectory(l)) 
-    return {*visibleFiles(f) | f <- l.ls};
-  else 
-    return {l};
+  if (isDirectory(l)) 
+    return {*visibleFiles(f) | f <- l.ls}; 
+  return {l};
 }

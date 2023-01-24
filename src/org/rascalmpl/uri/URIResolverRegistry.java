@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
@@ -33,7 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -718,7 +719,13 @@ public class URIResolverRegistry {
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
-		return resolver.list(uri);
+
+		String[] results = resolver.list(uri);
+		if (results == null) {
+			throw new FileNotFoundException(uri.toString());
+		}
+
+		return results;
 	}
 
 	/**
@@ -764,6 +771,10 @@ public class URIResolverRegistry {
 	private void copyFile(ISourceLocation source, ISourceLocation target, boolean overwrite) throws IOException {
 		if (exists(target) && !overwrite) {
 			throw new IOException("file exists " + source);
+		}
+
+		if (exists(target) && overwrite) {
+			remove(target, false);
 		}
 		
 		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
@@ -823,6 +834,20 @@ public class URIResolverRegistry {
 		else {
 			return res;
 		}
+	}
+
+	/**
+	 * Return a character Writer for the given uri, using the given character encoding.
+	 * 
+	 * @param uri       file to write to or append to
+	 * @param encoding  how to encode individual characters @see Charset
+	 * @param append    whether to append or start at the beginning.
+	 * @return
+	 * @throws IOException 
+	 */
+	public Writer getCharacterWriter(ISourceLocation uri, String encoding, boolean append) throws IOException {
+		uri = safeResolve(uri);
+		return new UnicodeOutputStreamWriter(getOutputStream(uri, append), encoding);
 	}
 
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {

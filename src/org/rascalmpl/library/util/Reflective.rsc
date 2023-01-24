@@ -40,7 +40,7 @@ data RascalConfigMode
 data PathConfig 
     // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] courses = [|courses:///|], // List of locations to search for course source files
+               list[loc] ignores = [],              // List of locations to ignore from the source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
                list[loc] libs = [|lib://rascal/|],          // List of directories to search source for derived files
                list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
@@ -171,10 +171,12 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", 
 }
 
 @doc{   
-.Synopsis
+#### Synopsis
+
 Derive a location from a given module name for reading
 
-.Description
+#### Description
+
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
@@ -183,16 +185,17 @@ then the pair <true, F> is returned. Otherwise <false, some error location> is r
 
 For a source extension (typically "rsc" or "mu" but this can be configured) srcs is searched, otherwise binPath + libs.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import util::Reflective;
 getDerivedReadLoc("List", "rsc", pathConfig());
 getDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-----
+```
 
-.Benefits
+#### Benefits
+
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be read
 from locations in different, configurable, directories.
 }
@@ -224,26 +227,32 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
 }
 
 @doc{   
-.Synopsis
+#### Synopsis
+
 Derive a location from a given module name for writing
 
-.Description
+#### Description
+
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
 For source modules, a writable location cannot be derived.
 For other modules, a location for this path in bin will be returned.
 
-.Examples
-[source,rascal-shell]
-----
+#### Examples
+
+```rascal-shell
 import util::Reflective;
 getDerivedWriteLoc("List", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
-getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
-----
+```
 
-.Benefits
+```rascal-shell,error
+getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "rsc", pathConfig());
+```
+
+#### Benefits
+
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be written
 to locations in separate, configurable, directories.
 }
@@ -323,11 +332,13 @@ private str emptyModule() = "module Main
                             '
                             'int main(int testArgument=0) {
                             '    println(\"argument: \<testArgument\>\");
+                            '    return testArgument;
                             '}
                             '";
 
 private str rascalMF(str name) 
-  = "Project-Name: <name>
+  = "Manifest-Version: 0.0.1
+    'Project-Name: <name>
     'Source: src/main/rascal
     'Require-Libraries: 
     ";
