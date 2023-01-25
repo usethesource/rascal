@@ -14,6 +14,7 @@
 package org.rascalmpl.uri.file;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -30,6 +31,9 @@ public class SystemPathURIResolver implements ILogicalSourceLocationResolver {
 	public String scheme() {
 		return "PATH";
 	}
+
+	private String lastPath = "";
+	private ISourceLocation[] roots = new ISourceLocation[0];
 	
 	@Override
 	public ISourceLocation resolve(ISourceLocation input) {
@@ -38,11 +42,19 @@ public class SystemPathURIResolver implements ILogicalSourceLocationResolver {
 		if (thePath == null) {
 			return input;
 		}
+		if (!thePath.equals(lastPath)) {
+			synchronized(this) {
+				// recalculate roots, path has changed
+				roots = Arrays.stream(thePath.split(File.pathSeparator))
+					.map(FileURIResolver::constructFileURI)
+					.toArray(ISourceLocation[]::new)
+					;
+				lastPath = thePath;
+			}
+		}
 		
-		String[] elems = thePath.split(File.pathSeparator);
-
-		for (String e : elems) {
-			ISourceLocation abs = URIUtil.getChildLocation(URIUtil.correctLocation("file", "", e), input.getPath());
+		for (var r :roots) {
+			ISourceLocation abs = URIUtil.getChildLocation(r, input.getPath());
 			if (URIResolverRegistry.getInstance().exists(abs)) {
 				return abs;
 			}
