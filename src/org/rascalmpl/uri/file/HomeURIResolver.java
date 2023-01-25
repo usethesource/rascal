@@ -11,24 +11,17 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import org.rascalmpl.uri.ILogicalSourceLocationResolver;
-import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.ISourceLocation;
 
-public class HomeURIResolver implements ILogicalSourceLocationResolver {
+public class HomeURIResolver extends AliasedFileResolver {
 
-	@Override
-	public String scheme() {
-		return "home";
-	}
-	
-	@Override
-	public ISourceLocation resolve(ISourceLocation input) {
-		return URIUtil.getChildLocation(FileURIResolver.constructFileURI(System.getProperty("user.home")), input.getPath());
+
+	public HomeURIResolver() {
+		super("home");
 	}
 
 	@Override
-	public String authority() {
-		return "";
+	ISourceLocation getRoot() {
+		return FileURIResolver.constructFileURI(System.getProperty("user.home"));
 	}
 }
