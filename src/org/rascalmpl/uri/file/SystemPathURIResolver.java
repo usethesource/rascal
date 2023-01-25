@@ -32,35 +32,21 @@ public class SystemPathURIResolver implements ILogicalSourceLocationResolver {
 		return "PATH";
 	}
 
-	private String lastPath = "";
-	private ISourceLocation[] roots = new ISourceLocation[0];
 	
 	@Override
 	public ISourceLocation resolve(ISourceLocation input) {
 		String thePath = System.getenv("PATH");
-
 		if (thePath == null) {
 			return input;
 		}
-		if (!thePath.equals(lastPath)) {
-			synchronized(this) {
-				// recalculate roots, path has changed
-				roots = Arrays.stream(thePath.split(File.pathSeparator))
-					.map(FileURIResolver::constructFileURI)
-					.toArray(ISourceLocation[]::new)
-					;
-				lastPath = thePath;
-			}
-		}
-		
-		for (var r :roots) {
-			ISourceLocation abs = URIUtil.getChildLocation(r, input.getPath());
-			if (URIResolverRegistry.getInstance().exists(abs)) {
-				return abs;
-			}
-		}
 
-		return input;
+		return Arrays.stream(thePath.split(File.pathSeparator))
+			.map(FileURIResolver::constructFileURI)
+			.map(r -> URIUtil.getChildLocation(r, input.getPath()))
+			.filter(URIResolverRegistry.getInstance()::exists)
+			.findFirst()
+			.orElse(input)
+			;
 	}
 
 	@Override
