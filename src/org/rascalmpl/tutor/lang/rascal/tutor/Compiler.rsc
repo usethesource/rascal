@@ -133,7 +133,7 @@ void generatePackageIndex(PathConfig pcfg) {
       '<for (loc d <- dependencies) {>   * <d[extension=""].file>
       '<}>
       '
-      ':::warning
+      ':::info
       'You should check that the licenses of the above dependencies are compatible with your goals and situation. The authors and owners of <pcfg.packageName> cannot be held liable for any damages caused by the use of those licenses, or changes therein.
       '
       'The authors contributing to <pcfg.packageName> do prefer open-source licenses for their dependencies that are permissive to commercial exploitation and any kind of reuse, and that are non-viral.
