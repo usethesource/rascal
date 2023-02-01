@@ -11,17 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import io.usethesource.vallang.ISourceLocation;
-
 public class HomeURIResolver extends AliasedFileResolver {
 
-
 	public HomeURIResolver() {
-		super("home");
-	}
-
-	@Override
-	ISourceLocation getRoot() {
-		return FileURIResolver.constructFileURI(System.getProperty("user.home"));
+		super("home", System.getProperty("user.home"));
 	}
 }
