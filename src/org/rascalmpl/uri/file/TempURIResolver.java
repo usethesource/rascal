@@ -11,16 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import io.usethesource.vallang.ISourceLocation;
-
 public class TempURIResolver extends AliasedFileResolver {
     
     public TempURIResolver() {
-        super("tmp");
-    }
-
-    @Override
-    ISourceLocation getRoot() {
-        return FileURIResolver.constructFileURI(System.getProperty("java.io.tmpdir"));
+        super("tmp", System.getProperty("java.io.tmpdir"));
     }
 }
