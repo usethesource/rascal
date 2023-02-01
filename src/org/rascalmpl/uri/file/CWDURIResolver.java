@@ -13,19 +13,13 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import io.usethesource.vallang.ISourceLocation;
-
 /**
  * For reading and writing files relative to the current working directory.
  */
 public class CWDURIResolver extends AliasedFileResolver {
 
 	public CWDURIResolver() {
-		super("cwd");
+		super("cwd", System.getProperty("user.dir"));
 	}
 	
-	@Override
-	ISourceLocation getRoot() {
-		return FileURIResolver.constructFileURI(System.getProperty("user.dir"));
-	}
 }
