@@ -11,37 +11,9 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import java.net.URISyntaxException;
-
-import org.rascalmpl.uri.ILogicalSourceLocationResolver;
-import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.ISourceLocation;
-
-public class TempURIResolver implements ILogicalSourceLocationResolver {
+public class TempURIResolver extends AliasedFileResolver {
     
-    private final ISourceLocation root;
-
     public TempURIResolver() {
-        try {
-            root = URIUtil.createFileLocation(System.getProperty("java.io.tmpdir"));
-        }
-        catch (URISyntaxException e) {
-            throw new RuntimeException("Error loading temporary location");
-        }
-    }
-
-    @Override
-    public String scheme() {
-        return "tmp";
-    }
-
-    @Override
-    public ISourceLocation resolve(ISourceLocation input) {
-        return URIUtil.getChildLocation(root, input.getPath());
-    }
-
-    @Override
-    public String authority() {
-        return "";
+        super("tmp", System.getProperty("java.io.tmpdir"));
     }
 }
