@@ -314,7 +314,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         interrupt = false;
-        IRascalMonitor old = monitor;
+        IRascalMonitor old = this.monitor;
         this.monitor = monitor;
         return old;
     }
