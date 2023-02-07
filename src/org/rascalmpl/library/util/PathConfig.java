@@ -60,6 +60,8 @@ public class PathConfig {
 	private static List<ISourceLocation> defaultClassloaders;
 	private static ISourceLocation defaultBin;
     
+    private static final String WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION = "-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT";
+
 	public static enum RascalConfigMode {
         INTERPETER,
         COMPILER
@@ -661,8 +663,14 @@ public class PathConfig {
             installNecessaryMavenPlugins(mvnCommand);
 
             // Note how we try to do this "offline" using the "-o" flag
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "--batch-mode", "-o", "dependency:build-classpath",
-                "-DincludeScope=compile");
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, 
+                "--batch-mode", 
+                "-o", 
+                "dependency:build-classpath",
+                "-DincludeScope=compile",
+                trustStoreFix()
+            );
+
             processBuilder.directory(new File(manifestRoot.getPath()));
 
             Process process = processBuilder.start();
@@ -690,6 +698,10 @@ public class PathConfig {
         }
     }
 
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
+    }
+
     private static String computeMavenCommandName() {
         if (System.getProperty("os.name", "generic").startsWith("Windows")) {
             return "mvn.cmd";
@@ -701,8 +713,13 @@ public class PathConfig {
 
     private static void installNecessaryMavenPlugins(String mvnCommand) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=org.apache.maven.plugins",
-                "-DartifactId=maven-dependency-plugin", "-Dversion=2.8");
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, 
+                "-q", 
+                "dependency:get", 
+                "-DgroupId=org.apache.maven.plugins",
+                "-DartifactId=maven-dependency-plugin", 
+                "-Dversion=2.8",
+                trustStoreFix());
 
             Process process = processBuilder.start();
             if (process.waitFor() != 0) {
@@ -712,6 +729,10 @@ public class PathConfig {
         catch (IOException | InterruptedException e) {
             System.err.println("[WARNING] Could not install exec-maven-plugin; classpath resolution may be incomplete hereafter: " + e.getMessage());
         }
+    }
+
+    private static String trustStoreFix() {
+        return isWindows() ? WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION : "-Dnothing_to_see_here";
     }
 
     public ISourceLocation getBin() {
