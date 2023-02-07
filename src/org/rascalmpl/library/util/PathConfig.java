@@ -668,7 +668,7 @@ public class PathConfig {
                 "-o", 
                 "dependency:build-classpath",
                 "-DincludeScope=compile",
-                isWindows() ? WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION : "-Dnothing_to_see_here"
+                trustStoreFix()
             );
 
             processBuilder.directory(new File(manifestRoot.getPath()));
@@ -719,7 +719,7 @@ public class PathConfig {
                 "-DgroupId=org.apache.maven.plugins",
                 "-DartifactId=maven-dependency-plugin", 
                 "-Dversion=2.8",
-                isWindows() ? WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION : "-Dnothing_to_see_here");
+                trustStoreFix());
 
             Process process = processBuilder.start();
             if (process.waitFor() != 0) {
@@ -729,6 +729,10 @@ public class PathConfig {
         catch (IOException | InterruptedException e) {
             System.err.println("[WARNING] Could not install exec-maven-plugin; classpath resolution may be incomplete hereafter: " + e.getMessage());
         }
+    }
+
+    private static String trustStoreFix() {
+        return isWindows() ? WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION : "-Dnothing_to_see_here";
     }
 
     public ISourceLocation getBin() {
