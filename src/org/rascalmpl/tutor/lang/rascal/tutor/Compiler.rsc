@@ -93,7 +93,7 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
     return;
   }
 
-  if (pcfg.license?) {
+  if (pcfg.license? && exists(pcfg.license)) {
     copy(pcfg.license, pcfg.bin + "LICENSE_<pcfg.packageName>.txt");
   }
 
@@ -458,7 +458,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
     return [ 
         Output::empty(), // must have an empty line
         out("```rascal <rest1>"),
-        *[out(l) | l <- block],
+        *[out(l) | l <- trim(block)],
         Output::empty(),
         out("```"),
         *[
@@ -467,7 +467,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
           out(":::") 
           | /errors/ !:= rest1, filterErrors(stderr) != ""
         ], 
-        *[err(error("rascal-declare block failed: <stderr>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))) | filterErrors(stderr) != ""],
+        *[err(error("rascal-commands block failed: <stderr>", pcfg.currentFile(offset, 1, <line, 0>, <line, 1>))) | filterErrors(stderr) != ""],
         *compileMarkdown(rest2, line + 1 + size(block) + 1, offset + length(first) + length(block), pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
       ];
   }
