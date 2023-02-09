@@ -47,7 +47,7 @@ str addSpaces(/^<prefix:.+>::<name:[^:]+>$/)
 str addSpaces(/^<prefix:[A-Za-z0-9\ ]+[a-z0-9]><postfix:[A-Z].+>/) =
   addSpaces("<uncapitalize(prefix)> <uncapitalize(postfix)>");
 
-default str addSpaces(str s) = split("-", s)[-1];
+default str addSpaces(str s) = capitalize(split("-", s)[-1]);
 
 @synopsis{produces `"../../.."` for pathToRoot(|aap:///a/b|, |aap:///a/b/c/d|)}
 str pathToRoot(loc root, loc src, bool isPackageCourse) 
