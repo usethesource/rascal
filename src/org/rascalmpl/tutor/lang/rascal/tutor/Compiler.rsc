@@ -458,8 +458,7 @@ list[Output] compileMarkdown([str first:/^\s*```rascal-commands<rest1:.*>$/, *st
     return [ 
         Output::empty(), // must have an empty line
         out("```rascal <rest1>"),
-        *[out(l) | l <- trim(block)],
-        Output::empty(),
+        *[out(l) | l <- block],
         out("```"),
         *[
           out(":::danger"),
