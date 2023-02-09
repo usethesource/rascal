@@ -37,7 +37,7 @@ Extracts a path relative to a parent location.
 
 #### Description
 
-So from `x:///a/b`` and `x:///a/b/c`` this makes `relative:///c`.
+So from `x:///a/b` and `x:///a/b/c` this makes `relative:///c`.
 If the outside does not envelop the inside, then the original loc is returned.
 }
 @javaClass{org.rascalmpl.library.Prelude}
