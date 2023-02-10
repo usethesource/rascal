@@ -66,4 +66,8 @@ public class SemVerLib {
 	public IValue getRascalCompilerVersion(){
 		return vf.string(VersionInfo.RASCAL_COMPILER_VERSION);
 	}
+
+	public IValue getJavaRuntimeVersion() {
+		return vf.string(Runtime.version().toString());
+	}
 }
