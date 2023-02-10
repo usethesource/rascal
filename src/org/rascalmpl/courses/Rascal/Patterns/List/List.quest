@@ -1,1 +1,0 @@
-[tvQuestion("Rascal/Patterns/Abstract/List","1",valueOfExpr(),details(" Complete this function that tests that a list of words consists of two identical sublists:\n",[],"import List;\npublic bool isReplicated(list[str] words){\n  return [*str L, ","] := words;\n}\n","isReplicated([\"a\", \"b\", \"a\", \"b\"]) == true;","",true,false,[],[],void(),""))]

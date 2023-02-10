@@ -1,1 +1,0 @@
-[tvQuestion("Rascal/Expressions/Values/Boolean/Match","1",valueOfExpr(),details(" Determine the number of strings that contain \"a\".\n",[],"text = [\"andra\", \"moi\", \"ennepe\", \"Mousa\", \"polutropon\"];\npublic int count(list[str] text){\n  n = 0;\n  for(s \<- text)\n    if("," := s)\n      n +=1;\n  return n;\n}\n","count(text) == 2;","",true,false,[],[],void(),""))]
