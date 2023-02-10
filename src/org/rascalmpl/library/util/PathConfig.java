@@ -672,6 +672,7 @@ public class PathConfig {
             );
 
             processBuilder.directory(new File(manifestRoot.getPath()));
+            processBuilder.environment().put("JAVA_HOME", System.getProperty("java.home", System.getenv("JAVA_HOME")));
 
             Process process = processBuilder.start();
 
@@ -720,6 +721,7 @@ public class PathConfig {
                 "-DartifactId=maven-dependency-plugin", 
                 "-Dversion=2.8",
                 trustStoreFix());
+            processBuilder.environment().put("JAVA_HOME", System.getProperty("java.home", System.getenv("JAVA_HOME")));
 
             Process process = processBuilder.start();
             if (process.waitFor() != 0) {
