@@ -1,7 +1,6 @@
 ---
 title: Standard Library
-sidebar_position: 7.5
-className: api-doc-style
+sidebar_position: 9
 ---
 
 #### Synopsis
