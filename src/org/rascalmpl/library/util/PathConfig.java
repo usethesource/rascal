@@ -664,6 +664,7 @@ public class PathConfig {
             ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "--batch-mode", "-o", "dependency:build-classpath",
                 "-DincludeScope=compile");
             processBuilder.directory(new File(manifestRoot.getPath()));
+            processBuilder.environment().put("JAVA_HOME", System.getProperty("java.home", System.getenv("JAVA_HOME")));
 
             Process process = processBuilder.start();
 
@@ -703,6 +704,7 @@ public class PathConfig {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "-q", "dependency:get", "-DgroupId=org.apache.maven.plugins",
                 "-DartifactId=maven-dependency-plugin", "-Dversion=2.8");
+            processBuilder.environment().put("JAVA_HOME", System.getProperty("java.home", System.getenv("JAVA_HOME")));
 
             Process process = processBuilder.start();
             if (process.waitFor() != 0) {
