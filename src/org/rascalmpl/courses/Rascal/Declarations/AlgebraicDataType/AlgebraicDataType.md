@@ -63,6 +63,8 @@ When there are functions with the same name and the same ADT as return type in s
 one of overloaded alternatives. See also ((Expressions-Call)) for more semantics of overloading. Constructor
 functions are always considered to be `default`, so they are tried only after all the other functions have failed.
 
+Finally, Algebraic Data Types in Rascal support forward declaration in order to use a data type before it has been declared (please see examples). 
+
 #### Examples
 
 The following data declaration defines the datatype `Bool` that contains various constants (`tt()` and `ff()`
@@ -120,6 +122,46 @@ Bool disj(ff(), Bool b) = b;
 Now let's try it out:
 ```rascal-shell,continue
 disj(conj(tt(),tt()), ff())
+```
+
+Recursive declarations are straightforward, consider for instance the representation of a list of 
+numbers as a tree:
+
+```rascal-shell,continue
+data L = Cell(int nm) | Cell(int nm, L rest_of_list); 
+```
+
+A value for `L` now looks like:
+
+```rascal-shell,continue
+L q = Cell(1, Cell(2, Cell(3, Cell(4))));
+```
+
+Notice here that it was possible to use `L` in its own definition. But what about having to 
+define two (or more) recursive data types, each depending on the definition of the other?
+
+At first sight, it would seem impossible to define a data type in terms of another that has not 
+yet been defined while itself is using the data type we are trying to define!
+
+This condition is known as [mutual recursion](https://en.wikipedia.org/wiki/Mutual_recursion) 
+(and the related data types would be called "mutually recursive") and can be resolved by using 
+"forward declaration".
+
+To demonstrate forward declaration for mutually recursive data types in Rascal, let's try to 
+define a graph whose nodes can have an arbitrary number of children, each of which can be either 
+an integer or a further graph whose nodes can have an arbitrary number of children, each of which 
+can be either an integer... and so on:
+
+```rascal-shell,continue
+data ND;                              // Forward declaration of ND to include it in the definition of Atom.
+data Atom = Atom(int a) | Atom(ND b); // An attempt to define Atom without the forward declaration would fail here.
+data ND = ND(list[Atom] l);           // Final declaration of ND which re-uses Atom which itself re-uses ND
+```
+
+The definition of a value for `Atom` would now be:
+
+```rascal-shell,continue
+Atom g = Atom(ND([Atom(1), Atom(ND([Atom(2), Atom(3)]))]));
 ```
 
 #### Benefits
