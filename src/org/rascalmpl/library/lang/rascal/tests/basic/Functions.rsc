@@ -525,3 +525,21 @@ test bool namedParameterInClosure(){
     }
     return collect(5) == 5;
 }
+
+data E = e(int n);
+
+int useExtraFormalInConstructor(e(int n)){
+    int g() { return n; }
+    return g();
+} 
+
+test bool useExtraFormalInConstructor1() = useExtraFormalInConstructor(e(42)) == 42;
+
+data F = f(list[int] ints);
+
+int useExtraFormalInListPattern(f([*int ints])){
+    int g() { return ints[0]; }
+    return g();
+} 
+
+test bool useExtraFormalInListPattern() = useExtraFormalInListPattern(f([42])) == 42;
