@@ -192,10 +192,13 @@ test bool concreteMatchVisitLayout() {
   }
   return result;
 }
-test bool concreteReplaceInLayout() 
-  = visit([start[XorY]] ".x;") {
+
+test bool concreteReplaceInLayout(){
+  result = visit([start[XorY]] ".x;") {
     case (Layout)`.` => (Layout)`;`
-  } == [start[XorY]] ";x;";
+  } 
+  return result := [start[XorY]] ";x;";
+}
 
 test bool concreteMatchWithStart()
   = /XorY _ := [start[XorY]]";x;";
