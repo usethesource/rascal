@@ -515,3 +515,7 @@ test bool extensionSetRoot()
 
 test bool extensionSetSimple()
     = |file:///a/b.noot|[extension="aap"] == |file:///a/b.aap|;
+
+
+// we don't want backslashes in windows
+test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///|).path;

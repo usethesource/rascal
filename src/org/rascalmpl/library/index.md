@@ -1,6 +1,6 @@
 ---
-title: Rascal Standard Library
-sidebar_position: 7.5
+title: Standard Library
+sidebar_position: 9
 ---
 
 #### Synopsis

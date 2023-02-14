@@ -1,5 +1,5 @@
 @license{
-  Copyright (c) 2009-2015 CWI
+   (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -63,15 +63,17 @@ int getMaxFreeMemory() = getMaxMemory() - getUsedMemory();
 * This number has nanoseconds resolution, but not necessarily nanosecond accuracy.
 }
 @examples{
-We use the `fac` function described in [Factorial](/docs/Recipes/Basic/Factorial/) as example:
 ```rascal-shell
 import util::Benchmark;
-import demo::basic::Factorial;
+int fac(int n) {
+  if (n <= 1) return 1;
+  else return n * fac(n - 1);
+}
 ```
 Here we measure time by using separate calls to `cpuTime` before and after a call to `fac`.
 ```rascal-shell,continue
 before = cpuTime();
-fac1(50);
+fac(50);
 cpuTime() - before;
 ```
 
@@ -135,18 +137,16 @@ Returns the CPU time that the current thread has executed in system mode in nano
 * The other [CPU time]((cpuTime)), next to [System time]((systemTime)) is spent in [User time]((userTime)).
 }
 @examples{
-We use the `fac` function described in [Factorial](/docs/Recipes/Basic/Factorial/) as example:
 
-```rascal-shell
+```rascal-shell,continue
 import util::Benchmark;
-import demo::basic::Factorial;
 ```
 
 Here we measure time by using separate calls to `sytemTime` before and after a call to `fac`.
 
 ```rascal-shell,continue
 before = systemTime();
-fac1(50);
+fac(50);
 systemTime() - before;
 ```
 }
@@ -155,12 +155,12 @@ public java int systemTime();
 
 @synopsis{Measure the exact running time of a block of code, using ((systemTime)).}
 @examples{
- ```rascal-shell
+ ```rascal-shell,continue
 import util::Benchmark;
-import demo::basic::Factorial;
+int fac(int n) = n <= 1 ? 1 : n * fac(n - 1);
 systemTimeOf(
    void() { 
-      fac1(50); 
+      fac(50); 
    } 
 );
 ```
@@ -182,16 +182,16 @@ Returns the CPU time that the current thread has executed in user mode in nanose
 * The other [CPU time]((cpuTime)), next to [user time]((userTime)) is spent in [system time]((systemTime)).
 }
 @examples{
-We use the `fac` function described in [Factorial](/docs/Recipes/Basic/Factorial/) as example:
 
 ```rascal-shell
 import util::Benchmark;
-import demo::basic::Factorial;
+int fac(0) = 1;
+default int fac(int n) = n * fac(n - 1);
 ```
 Here we measure time by using separate calls to `userTime` before and after a call to `fac`.
 ```rascal-shell,continue
 before = userTime();
-fac1(50);
+fac(50);
 userTime() - before;
 ```
 
@@ -201,12 +201,11 @@ public java int userTime();
 @synopsis{Measure the exact running time of a block of code in nanoseconds, doc combined with previous function.}
 @example{
 The code to be measured can also be passed as a function parameter to `userTime`:
-```rascal-shell
+```rascal-shell,continue
 import util::Benchmark;
-import demo::basic::Factorial;
 userTimeOf(
    void() {
-      fac1(50); 
+      fac(50); 
    } 
 );
 ```
@@ -234,10 +233,12 @@ Given is a map that maps strings (used as label to identify each case) to void-c
 An optional `duration` argument can be used to specify the function to perform the actual measurement. By default the function ((realTimeOf)) is used. A map of labels and durations is returned.
 }
 @examples{
-We use the `fac` function described in [Factorial](/docs/Recipes/Basic/Factorial/) as example:
 ```rascal-shell
 import util::Benchmark;
-import demo::basic::Factorial;
+int fac(int n) {
+  if (n <= 1) return 1;
+  else return n * fac(n - 1);
+}
 ```
 
 We measure two calls to the factorial function with arguments `100`, respectively, `200` 
@@ -245,10 +246,10 @@ We measure two calls to the factorial function with arguments `100`, respectivel
 ```rascal-shell,continue
 benchmark(
    ("fac100" : void() {
-                  fac1(100);
+                  fac(100);
                }, 
    "fac200" :  void() {
-                  fac1(200);
+                  fac(200);
                }) 
    );
 ```
@@ -257,10 +258,10 @@ We can do the same using ((userTime)) that returns nanoseconds:
 ```rascal-shell,continue
 benchmark( 
    ("fac100" : void() {
-                  fac1(100);
+                  fac(100);
             }, 
    "fac200" : void() {
-                  fac1(200);
+                  fac(200);
             })
    , userTimeOf);
 ```
@@ -289,7 +290,7 @@ on the heap.
 }
 @benefits{
 * This helps avoiding to restart the JVM, and optionally warming it up, for each individual measurement.
-* Long running terminal [RascalShell-REPL](/docs/RascalShell/REPL/)s can be rejuvenated on demand by a call to ((gc)).
+* Long running terminals can be rejuvenated on demand by a call to ((gc)).
 }
 @pitfalls{
 * Although a GC cycle is triggered by this function, it guarantees nothing about the effect of this cycle in terms of completeness or precision in removing garbage from the heap.
