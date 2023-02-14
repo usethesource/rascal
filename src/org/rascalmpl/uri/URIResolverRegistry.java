@@ -321,7 +321,7 @@ public class URIResolverRegistry {
 	public ISourceLocation logicalToPhysical(ISourceLocation loc) throws IOException {
 		ISourceLocation result = physicalLocation(loc);
 		if (result == null) {
-			throw new FileNotFoundException(loc.toString());
+			throw new FileNotFoundException(loc == null ? "null loc passed!" : loc.toString());
 		}
 		return result;
 	}

@@ -5,7 +5,6 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@unfinished
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl}
 @synopsis{Rascal's type system, implemented in Rascal itself.}
 @description{
@@ -22,7 +21,7 @@ data type[&T] = type(Symbol symbol, map[Symbol, Production] definitions);
 For values of type `type[...]` the static and dynamic type systems satisfy three additional constraints over the rules of type-parameterized ((Rascal:AlgebraicDataType))s:
 1. For any type `T`: `#T` has type `type[T]`
 2. For any type T and any value of `type[T]`, namely `type(S, D)` it holds that S is the symbolic representation of type `T` using the ((Rascal:AlgebraicDataType)) ((Type-Symbol)), and
-3. ... `D` holds all the necessary ((Rascal:AlgebraicDataType)) and ((SyntaxDefinition)) rules required to form values of type `T`.
+3. ... `D` holds all the necessary ((Rascal:AlgebraicDataType)) and ((Rascal:SyntaxDefinition)) rules required to form values of type `T`.
 
 In other words, the `#` operator will always produce a value of `type[&T]`, where `&T` is bound to the type that was reified _and_ said value will contain the full grammatical definition for what was bound to `&T`.
 }
