@@ -15,7 +15,7 @@ import Node;
 public AGrammar expandKeywords(AGrammar g) {
   //println("expandKeywords"); iprintln(g, lineLimit=10000);
   g1 = visit(g) {
-    case AType::conditional(sym, set[ACondition] conds) => conditional(sym, expandKeywords(g, conds)) 
+    case AType::conditional(sym, set[ACondition] conds) => AType::conditional(sym, expandKeywords(g, conds)) 
   };
   //g1.rules = (n : g1.rules[n] | n <- g1.rules, n has syntaxRole ? (n.syntaxRole != keywordSyntax()) : true);
   //println("leave expandKeywords");

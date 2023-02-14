@@ -256,7 +256,7 @@ void extractScopes(TModel tm){
     
     if([*AGrammar gs] := tm.store[key_grammar]){
         grammar = gs[0];
-        println("extractScopes:"); iprintln(grammar);
+        //println("extractScopes:"); iprintln(grammar);
     } else {
         iprintln(tm.store[key_grammar]);
         throw "`grammar` has incorrect format in store";
@@ -269,17 +269,11 @@ void extractScopes(TModel tm){
     } else {
         throw "`ADTs` has incorrect format in store";
     }
-    
-    println("commonKeywordFields");
-    ckf = tm.store[key_common_keyword_fields];
-    if([*lrel[value a, value k] common] := ckf){
-        for(<AType tp, KeywordFormal dflt> <- common) println("<tp>, <dflt>");
-    }
    
     if([*lrel[AType,KeywordFormal] commons] := tm.store[key_common_keyword_fields], !isEmpty(commons)){
         common = commons[0];
-        println("Common keyword parameters");
-        iprintln(common);
+        //println("Common keyword parameters");
+        //iprintln(common);
         adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[alabel="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
         adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
     }
@@ -466,6 +460,7 @@ map[AType, list[Keyword]] getCommonKeywordFieldsMap()
 
 tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType, str fieldName){
     //println("getConstructorInfo: <adtType>, <fieldType>, <fieldName>");
+    assert isADTType(adtType) : "getConstructorInfo: <adtType>";
     adtType = unsetRec(adtType);
     is_start = false;
     if(isStartNonTerminalType(adtType)){
@@ -489,10 +484,12 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
                 constructors = adt_constructors[adt];
                 <constructors, fieldType> = 
                     visit(<constructors, fieldType>) { 
-                        case p:aparameter(pname, _): { repl = adtType.parameters[pnames[pname]];
-                                                            if(p.alabel?) repl = repl[alabel=p.alabel];
-                                                            insert repl;
-                                                          }
+                        case p:aparameter(str pname, _): { if(pnames[pname]?){
+                                                                repl = adtType.parameters[pnames[pname]];
+                                                                if(p.alabel?) repl = repl[alabel=p.alabel];
+                                                                insert repl;
+                                                           }
+                                                          } 
                     };
                 break;
             }
@@ -680,7 +677,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     
     allADTs = { unsetRec(adt) | adt <- ADTs };
     if(syntax_type){
-        allADTs = { adt | adt <- allADTs, adt.syntaxRole != dataSyntax(), adt.syntaxRole != layoutSyntax(), getDefiningScopes(adt) <= accessible_scopes};
+        allADTs = { adt | adt <- allADTs, adt.syntaxRole != dataSyntax(), /*adt.syntaxRole != layoutSyntax(),*/ getDefiningScopes(adt) <= accessible_scopes};
         allADTs += { unsetRec(adt) |  /adt:aadt(str _, list[AType] _, SyntaxRole _) := my_grammar_rules/*, getDefiningScopes(adt) <= accessible_scopes*/ };
     }
   
@@ -710,8 +707,8 @@ map[AType,set[AType]] collectNeededDefs(AType t){
      
         definedLayouts = getLayouts(base_t, allADTs);   
         //my_grammar_rules[definedLayouts] = grammar.rules[definedLayouts];
-        my_grammar_rules = visit(my_grammar_rules) { case aadt(_, [], layoutSyntax()) => definedLayouts };  
-        allADTs =  visit(allADTs) { case aadt(_, [], layoutSyntax()) => definedLayouts }; 
+        //my_grammar_rules = visit(my_grammar_rules) { case aadt(_, [], layoutSyntax()) => definedLayouts };  
+        //allADTs =  visit(allADTs) { case aadt(_, [], layoutSyntax()) => definedLayouts }; 
         my_definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, my_grammar_rules[adt]? );
                
         //my_definitions[definedLayouts] = { aprod(my_grammar_rules[definedLayouts]) };
@@ -726,7 +723,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
                                       adt1 := uninstantiate(unsetRec(adt)),
                                       syntax_type ? syntaxRole != dataSyntax() : true,
                                       !my_definitions[adt1]?,
-                                      my_grammar_rules[adt1]?
+                                      !my_grammar_rules[adt1]?
                                 );
     }
     return my_definitions;
@@ -784,7 +781,7 @@ MuExp mkVar(str name, loc l) {
     if(definitions[l]?){
         uid = l;
         def = definitions[l];
-    } else if(name == "_"){
+    } else if(isWildCard(name)){
         return muVar("_", "", -1, name_type);
     } else {
         throw "mkVar: <uqname> at <l>";

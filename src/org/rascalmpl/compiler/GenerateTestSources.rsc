@@ -23,7 +23,7 @@ void generateTestSources(PathConfig pcfg) {
      bin=pcfg.bin,
      generatedSources=|project://rascal-core/target/generated-test-sources|,
      resources = |project://rascal-core/target/generated-test-resources|,
-     srcs=[ |std:///| ],
+     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| ],
      libs = [ ]
      );
    map[str,int] durations = ();

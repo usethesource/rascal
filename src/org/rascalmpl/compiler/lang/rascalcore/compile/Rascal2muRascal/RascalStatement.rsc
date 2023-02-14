@@ -351,7 +351,6 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
             //iprintln(thenCode);
             thenCode = muBlock([thenCode, muFail(ifName)]); // fail to potential backtracking alternative
         }
-    
         code = muExists(ifName, 
                         translateAndConds(btscopes, 
                                           conds, 
@@ -663,7 +662,7 @@ MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catc
               exp = muIfElse(muEqual(thrown, translate(c.pattern.literal)), trBody, catch_code);
           } else if(c.pattern is typedVariable) {
               varType = translateType(c.pattern.\type);
-              if("<c.pattern.name>" == "_"){
+              if(isWildCard("<c.pattern.name>")){
                    exp = muIfElse(muValueIsSubtypeOf(thrown, varType), 
                                   trBody,
                                   catch_code);
@@ -677,7 +676,7 @@ MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catc
                             
           } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
               varType = getType(c.pattern);
-              if("<c.pattern.qualifiedName>" == "_"){
+              if(isWildCard("<c.pattern.qualifiedName>")){
                   exp = muBlock([trBody, catch_code]);
               } else {
                   <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
@@ -706,9 +705,7 @@ MuExp translate((Statement) `<Label label> { <Statement+ statements> }`, BTSCOPE
 // -- assignment statement -------------------------------------------    
 
 MuExp translate(s: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`, BTSCOPES btscopes) { 
-    result = translateAssignment(s, btscopes);
-    iprintln(result);
-    return result;
+    return translateAssignment(s, btscopes);
 } 
 
 MuExp translateAssignment((Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`, BTSCOPES btscopes) =
@@ -828,11 +825,12 @@ list[MuExp] getValues(Assignable a:(Assignable) `<Assignable receiver> . <Name f
     //println(getType(field));
     resultType = getType(a);
     ufield = unescape("<field>");
+    if(isTupleType(receiverType) || isLocType(receiverType)){
+        return [ muGetField(resultType, receiverType, getValues(receiver)[0], ufield) ];
+    }
     <definingModule, consType, isKwp> =  getConstructorInfo(receiverType, getType(field), ufield);
     return isKwp ? [ muGetKwField(resultType, consType, getValues(receiver)[0], ufield, definingModule) ]
                  : [ muGetField(resultType, consType, getValues(receiver)[0], ufield) ];
-    //return isKwp ? [ muGetKwField(getType(a), consType, getValues(receiver)[0], ufield) ]
-    //             : [ muGetField(getType(a), consType, getValues(receiver)[0], ufield) ];
 }    
 
 list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 

@@ -94,9 +94,6 @@ void generateAllFieldGetters(loc module_scope){
 private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields){
 
     adtName = adtType.adtName;
-    if(adtName == "AType"){
-       println("generateGettersForAdt: AType");
-    }
     /*
      * Create getters for common keyword fields of this data type
      */
@@ -104,9 +101,6 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
     for(<kwType, defaultExp> <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp@\loc, module_scope)){
         seen += kwType;
         str kwFieldName = unescape(kwType.alabel);
-        if(kwFieldName == "alabel"){
-            println("generateGettersForAdt: *** alabel ***");
-        }
         if(asubtype(adtType, treeType)){
             if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when .src is gone
         }
@@ -349,18 +343,18 @@ Tree getParameterNameAsTree((Pattern) `<Type tp> <Name name> : <Pattern pattern>
 
 bool hasParameterName(list[Pattern] patterns, int i) = hasParameterName(patterns[i], i);
 
-bool hasParameterName((Pattern) `<QualifiedName qname>`, int i) = "<qname>" != "_";
-bool hasParameterName((Pattern) `<QualifiedName qname> *`, int i) = "<qname>" != "_";
-bool hasParameterName((Pattern) `<Type tp> <Name name>`, int i) = "<name>" != "_";
-bool hasParameterName((Pattern) `<Name name> : <Pattern pattern>`, int i) = "<name>" != "_";
-bool hasParameterName((Pattern) `<Type tp> <Name name> : <Pattern pattern>`, int i) = "<name>" != "_";
+bool hasParameterName((Pattern) `<QualifiedName qname>`, int i) = !isWildCard("<qname>");
+bool hasParameterName((Pattern) `<QualifiedName qname> *`, int i) = !isWildCard("<qname>");
+bool hasParameterName((Pattern) `<Type tp> <Name name>`, int i) = !isWildCard("<name>");
+bool hasParameterName((Pattern) `<Name name> : <Pattern pattern>`, int i) = !isWildCard("<name>");
+bool hasParameterName((Pattern) `<Type tp> <Name name> : <Pattern pattern>`, int i) = !isWildCard("<name>");
 default bool hasParameterName(Pattern p, int i) = false;
 
 /*
  * Get all variables that are assigned inside a visit but are not locally introduced in that visit
  */
 set[MuExp] getAssignedInVisit(list[MuCase] cases, MuExp def)
-    = { v1 | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str name, str scope, int _, AType t), MuExp _) := exp, !(/muVarInit(v, _) := exp), t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+    = { v1 | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str _name, str _scope, int _, AType t), MuExp _) := exp, !(/muVarInit(v, _) := exp), t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 
 /*
  * Get all assigned variables in all visits that need to be treated as reference variables
@@ -443,8 +437,9 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
                   ];
      leaveSignatureSection();
      when_body = returnFromFunction(body, ftype, formalVars, isMemo, addReturn=addReturn);
-     
+     //iprintln(when_body);
      if(!isEmpty(when_conditions)){
+        addReturn = true;
         my_btscopes = getBTScopesAnd(when_conditions, fname, my_btscopes); 
         //iprintln(my_btscopes);
         when_body = translateAndConds(my_btscopes, when_conditions, when_body, muFailReturn(ftype));
@@ -459,15 +454,16 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      funCode = visit(funCode) { case muFail(fname) => muFailReturn(ftype) };
      
      funCode = removeDeadCode(funCode);
+     //iprintln(funCode);
     
      alwaysReturns = ftype.returnsViaAllPath || isVoidType(getResult(ftype));
      formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
      if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){
         funCode = muBlock([muExists(fname, funCode), muFailReturn(ftype)]);
      }
-      
+     //iprintln(funCode);
      funCode = removeDeadCode(funCode);
-
+     //iprintln(funCode);
      return <formalVars, funCode>;
 }
 

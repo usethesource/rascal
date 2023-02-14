@@ -21,7 +21,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.Type2ATypeReifier;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.Traverse;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -29,6 +29,7 @@ import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalType;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -70,10 +71,8 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 
-public abstract class $RascalModule extends Type2ATypeReifier {
-	
-    
-    
+public abstract class $RascalModule/*<Base, Extension extends Base> /*extends $ExtendableRascalModule<Base,Extension>*/ {
+
 	/*************************************************************************/
 	/*		Utilities for generated code									 */
 	/*************************************************************************/
@@ -91,7 +90,16 @@ public abstract class $RascalModule extends Type2ATypeReifier {
     
     /*package*/  final IRascalMonitor $MONITOR;
 
-	protected final RascalExecutionContext rex;
+    protected final RascalExecutionContext rex;
+	
+    protected final IValueFactory $VF;
+    public final TypeFactory $TF;
+    protected final RascalTypeFactory $RTF;
+    public final TypeStore $TS;
+	protected final Traverse $TRAVERSE;
+	
+	public final IBool Rascal_TRUE;
+	public final IBool Rascal_FALSE;
     
     public $RascalModule(RascalExecutionContext rex){
     	this.rex = rex;
@@ -101,8 +109,16 @@ public abstract class $RascalModule extends Type2ATypeReifier {
     	$ERR = rex.getErrStream();
     	$ERRWRITER = rex.getErrWriter();
     	$MONITOR = rex;
+    	$VF = rex.getIValueFactory();
     	$RVF = rex.getRascalRuntimeValueFactory();
+    	$TF = rex.getTypeFactory();
+    	$TS = rex.getTypeStore();
+    	$RTF = rex.getRascalTypeFactory();
     	rex.setModule(this);
+    	$TRAVERSE = rex.getTraverse();
+    	
+    	Rascal_TRUE =  $VF.bool(true);
+    	Rascal_FALSE =  $VF.bool(false);
     }
     
     public final IConstructor $reifiedAType(IConstructor t, IMap definitions) {
@@ -500,8 +516,15 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 				//TODO: parameters
 				if(right instanceof NonTerminalType) {
 					IConstructor symbol = ((NonTerminalType)right).getSymbol();
-					boolean named_sym = SymbolAdapter.isSort(symbol) || SymbolAdapter.isLex(symbol) || SymbolAdapter.isLayouts(symbol) || SymbolAdapter.isKeyword(symbol);
-					return named_sym && type.getName().equals(((IString)symbol.get(0)).getValue()) ? Rascal_TRUE : Rascal_FALSE;
+					if(SymbolAdapter.isStartSort(symbol)) {
+						symbol = (IConstructor)symbol.get(0);
+					}
+					String type_name =  ( SymbolAdapter.isSort(symbol) 
+							            || SymbolAdapter.isLex(symbol) 
+							            || SymbolAdapter.isLayouts(symbol) 
+							            || SymbolAdapter.isKeyword(symbol)
+							            ) ?  type.getName() : "";
+					return !type_name.isEmpty() && type_name.equals(((IString)symbol.get(0)).getValue()) ? Rascal_TRUE : Rascal_FALSE;
 				}
 				if(right.isAbstractData()) {
 					return type.getName().equals(right.getName()) ? Rascal_TRUE : Rascal_FALSE;
@@ -601,7 +624,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			  }
 			  
 			}).getValue();
-		//System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
+//		System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
 		return res;
 	}
 	
@@ -1587,6 +1610,14 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		return result;
 	}
 	
+	public final IValue $atuple_get_field_by_index(final ITuple tup, final int index) {
+		IValue result = tup.get(index);
+//		if(result == null) {
+//			throw RuntimeExceptionFactory.noSuchField(index);
+//		}
+		return result;
+	}
+	
 	public final GuardedIValue $guarded_atuple_get_field(final ITuple tup, final String fieldName) {
 		try {
 			IValue result = $atuple_get_field(tup, fieldName);
@@ -2121,7 +2152,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	 */
 	public final boolean $anode_has_field(final INode nd, final String fieldName) {
 		if(nd.getType().isAbstractData()) {
-			return $aadt_has_field((IConstructor) nd, fieldName);
+			if($aadt_has_field((IConstructor) nd, fieldName)) {
+				return true;
+			}
 		}
 		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
 			return true;
@@ -2169,7 +2202,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
 		int prod_arity = 0;
 		for(IValue varg : args) {
-			if(org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg)) {
+			if(org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg) ||
+			   org.rascalmpl.values.parsetrees.TreeAdapter.isList((ITree)varg)
+			) {
 				prod_arity++;
 			}
 		}
@@ -2190,7 +2225,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		int i = 0;
 		for(IValue varg : args) {
 			if(!org.rascalmpl.values.parsetrees.TreeAdapter.isLayout((ITree)varg)) {
-				if(org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg)) {
+				if(org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg) ||
+				   org.rascalmpl.values.parsetrees.TreeAdapter.isList((ITree)varg)
+				  ) {
 					if(i == idx) {
 						return varg;
 					}
@@ -3339,11 +3376,15 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	}
 	
 	public final ITree $lexical_slice_seps(final ITree tree, final Integer first, final Integer second, final Integer end){
-		return $syntactic_slice(tree, first, second, end, 2);
+		IConstructor nt = ProductionAdapter.getType(TreeAdapter.getProduction(tree));
+		int delta = SymbolAdapter.getSeparators(nt).size() + 1;
+		return $syntactic_slice(tree, first, second, end, delta);
 	}
 	
-	public final ITree $concrete_slice_seps(final ITree tree, final Integer first, final Integer second, final Integer end){
-		return $syntactic_slice(tree, first, second, end, 4);
+	public final ITree $concrete_slice_seps(final ITree tree, final Integer first, final Integer second, final Integer end) {
+		IConstructor nt = ProductionAdapter.getType(TreeAdapter.getProduction(tree));
+		int delta = SymbolAdapter.getSeparators(nt).size() + 1;
+		return $syntactic_slice(tree, first, second, end, delta);
 	}
 	
 	private final ITree $syntactic_slice(final ITree tree, final Integer first, final Integer second, final Integer end, final int delta){
@@ -4039,7 +4080,11 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 		if(subject.getType().isAbstractData()) {
 			if(subject instanceof ITree){
-				IValue res = ((ITree) subject).getArgs().get(idx);
+				if(org.rascalmpl.values.parsetrees.TreeAdapter.isChar((ITree)subject)) {
+					return $VF.integer(org.rascalmpl.values.parsetrees.TreeAdapter.getCharacter((ITree)subject));
+				}
+				IValue res = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject).get(idx);
+				//IValue res = ((ITree) subject).getArgs().get(idx);
 				return res;
 			}
 			return ((IConstructor) subject).get(idx);
@@ -4084,8 +4129,10 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	public final IValue $concrete_subscript_seps(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
+		IConstructor nt = ProductionAdapter.getType(TreeAdapter.getProduction(subject));
+		int delta = SymbolAdapter.getSeparators(nt).size() + 1;
 		
-		int n = (idx >= 0) ? (4 * idx) : (args.length() + 3 + 4 * idx);
+		int n = (idx >= 0) ? (delta * idx) : (args.length() - 1 + delta * (idx + 1));
 		if(n >= 0 && n < args.length()) {
 			return args.get(n);
 		}
@@ -4174,9 +4221,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	
 	// ---- typeOf ----------------------------------------------------------
 	
-	public IConstructor $typeOf(IValue v) {
-		return reify2atype(v.getType(), empty);
-	}
+//	public IConstructor $typeOf(IValue v) {
+//		return reify2atype(v.getType(), empty);
+//	}
 
 	// ---- update ------------------------------------------------------------
 

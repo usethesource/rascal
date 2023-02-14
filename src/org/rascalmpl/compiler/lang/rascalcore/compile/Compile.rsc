@@ -2,6 +2,7 @@
 module  lang::rascalcore::compile::Compile
  
 import Message;
+import String;
 import util::Reflective;
 import util::Benchmark;
 import IO;
@@ -23,10 +24,10 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     tm = tmodels[qualifiedModuleName];
     //iprintln(tm, lineLimit=10);
     
-    list[Message] errors = [ e | e:error(_,_) <- tm.messages];
+    bool errorsPresent(TModel tmodel) = !isEmpty([ e | e:error(_,_) <- tmodel.messages ]);
    
-    if(!isEmpty(errors)){
-        return errors;
+    if(errorsPresent(tm)){
+        return tm.messages;
     }
     className = getBaseClass(qualifiedModuleName);
     genSourcesDir = getDerivedSrcsDir(qualifiedModuleName, pcfg);  
@@ -44,11 +45,14 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         return tm.messages;
     }
     
-   	
    	try {
         //if(verbose) 
         println("compile: Compiling <qualifiedModuleName>");
-       	<tm, muMod> = r2mu(M, tm, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+       	<tm, muMod> = r2mu(M, tm, /*reloc=reloc,*/ verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+   
+        if(errorsPresent(tm)){
+            return tm.messages;
+        }
         tmodels[qualifiedModuleName] = tm;
         
         <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, moduleLocs);

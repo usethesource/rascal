@@ -8,38 +8,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rascalcore::grammar::definition::Layout
 
-//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::ATypeBase;
 import lang::rascalcore::check::ATypeUtils;
-
-
-// TODO: The following two functions were defined local to activeLayout
-// but this gives an not yet explained validation error  for the
-// function ids in the corresponding overloaded function
-//bool isManual(set[Attr] as) = (\tag("manual"()) in as);
-//bool isDefault(AType s) = (s == layouts("$default$"));
-   
-//@doc{computes which layout definitions are visible in a certain given module.
-//     if a module contains a layout definition, this overrides any imported layout definition
-//     if a module does not contain a layout definition, it will collect the definitions from all imports (not recursively),
-//     and also collect the definitions from all extends (recursively).
-//     the static checker should check whether multiple visible layout definitions are active, because this function
-//     will just produce an arbitrary one if there are multiple definitions
-//}
-//AType activeLayout(str name, set[str] deps, AGrammarDefinition def) {
-//
-//  
-//  if (/prod(l:layouts(_),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
-//    return l;
-//  else if (/prod(label(_,l:layouts(_)),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
-//    return l;  
-//  else if (i <- deps, /prod(l:layouts(_),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
-//    return l;
-//   else if (i <- deps, /prod(label(_,l:layouts(_)),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
-//    return l;  
-//  else 
-//    return layouts("$default$"); 
-//}  
 
 @doc{intersperses layout symbols in all non-lexical productions}
 public AGrammar layouts(AGrammar g, AType l, set[AType] others) {
@@ -70,13 +40,15 @@ list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
 }
 
 private AType inheritLabel(AType x, AType y) = (x.alabel?) ? y[alabel=x.alabel] : y;
+
+private bool isValidSep(AType sep,  set[AType] others) = !(seq([a,_,b]) := sep && (a in others || b in others));
  
-private AType regulars(AType s, AType l, set[AType] others) {
+public AType regulars(AType s, AType l, set[AType] others) {
   return visit(s) {
-    case x:\iter(AType n) => inheritLabel(x, \iter-seps(n, [l]))
-    case x:\iter-star(AType n) => inheritLabel(x, \iter-star-seps(n, [l])) 
-    case x:\iter-seps(AType n, [AType sep]) => inheritLabel(x, \iter-seps(n,[l,sep,l])) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
-    case x:\iter-star-seps(AType n,[AType sep]) => inheritLabel(x, \iter-star-seps(n, [l, sep, l])) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
+    case x:\iter(AType n) => inheritLabel(x, \iter-seps(n, [l])) when !x.isLexical
+    case x:\iter-star(AType n) => inheritLabel(x, \iter-star-seps(n, [l])) when !x.isLexical
+    case x:\iter-seps(AType n, [AType sep]) => inheritLabel(x, \iter-seps(n,[l,sep,l])) when !x.isLexical,  sep != l, sep notin others, isValidSep(sep, others)
+    case x:\iter-star-seps(AType n, [AType sep]) => inheritLabel(x, \iter-star-seps(n, [l, sep, l])) when !x.isLexical, sep != l, sep notin others, isValidSep(sep, others)
     case x:\seq(list[AType] elems) => inheritLabel(x, \seq(intermix(elems, l, others)))
   }
 }

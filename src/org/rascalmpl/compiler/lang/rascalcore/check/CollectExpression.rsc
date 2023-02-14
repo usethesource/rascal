@@ -203,7 +203,7 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
        c.useLub(name, {formalId(), patternVariableId(), variableId()});
     } else {                                        // We are inside a concrele Literal pattern   
                                                     // This hole can be a use or define   
-        if(uname != "_"){
+        if(!isWildCard(uname)){
            if(uname in c.getStack(patternNames)){
               c.useLub(name, {formalOrPatternFormal(c)});
            } else {
@@ -919,7 +919,7 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     if(!isEmpty(qualifier)){     
        c.useQualified([qualifier, base], name, {variableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
-       if(base != "_"){
+       if(!isWildCard(base)){
           //if(inPatternScope(c)){
             if(!isEmpty(c.getStack(currentAdt))){
                 c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});

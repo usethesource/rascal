@@ -241,7 +241,7 @@ bool rascalReportUnused(loc def, TModel tm){
     facts = tm.facts;
     
     bool reportFormal(Define define){
-       if(!config.warnUnusedFormals || define.id[0] == "_") return false;
+       if(!config.warnUnusedFormals || isWildCard(define.id[0])) return false;
        container = tm.definitions[findContainer(def, definitions, scopes)];
        if(container.idRole == functionId()){
           if(isOverloadedFunction(container.defined, definitions, facts)) return false;
@@ -269,13 +269,13 @@ bool rascalReportUnused(loc def, TModel tm){
             case keywordFormalId():     return reportFormal(define); 
                                         
             case patternVariableId():   { if(!config.warnUnusedVariables) return false;
-                                          return define.id[0] != "_";
+                                          return !isWildCard(define.id[0]);
                                         }
             case typeVarId():           return false;
             case variableId():          { if(!config.warnUnusedVariables) return false;
                                           container = definitions[findContainer(def, definitions, scopes)];
                                           if(container.idRole == moduleId() && define.defInfo.vis == publicVis()) return false;
-                                          return define.id[0] == "_" || define.id == "it";
+                                          return isWildCard(define.id[0]) || define.id == "it";
                                         }
             case annoId():              return false;
             case aliasId():             return false;

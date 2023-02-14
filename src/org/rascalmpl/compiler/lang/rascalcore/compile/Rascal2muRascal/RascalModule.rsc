@@ -39,7 +39,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, loc reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=true){
+tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, loc _reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=true){
    try {
       resetModuleInfo(optimize, enableAsserts);
       module_scope = M@\loc;

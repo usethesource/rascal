@@ -28,7 +28,7 @@ str generateInterface(str moduleName, str packageName, str className, list[MuFun
            '}";
 }
 
-lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  imports, set[str] extends, map[str,TModel] tmodels){
+lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] functions, set[str]  _imports, set[str] extends, map[str,TModel] tmodels){
     
     result = [];
     rel[str, int, AType] signatures = {};

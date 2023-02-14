@@ -189,7 +189,7 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
                 //print("expList: [ "); for(i <- index(expList)) print("<expList[i]> "); println(" ]");
             }
         case list[Pattern] patList: {
-                dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
+                dontCare = [ isWildCard("<patList[i]>") | i <- index(patList) ];
                 actualTypes = [ dontCare[i] ? formals[i] : getPatternType(patList[i], formals[i], scope, s) | i <- index(patList) ];
                 //print("patList: [ "); for(i <- index(patList)) print("<patList[i]> "); println(" ]");
                 isExpression = false;
@@ -881,7 +881,7 @@ private AType getPatternType0(current:( Pattern) `<Type tp> <Name name>`, AType 
 
 private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType subjectType, loc scope, Solver s){
     base = prettyPrintBaseName(name);
-    if(base != "_"){
+    if(!isWildCard(base)){
        nameType = s.getType(name);
        if(!s.isFullyInstantiated(nameType) || !s.isFullyInstantiated(subjectType)){
           s.requireUnify(nameType, subjectType, error(current, "Type of pattern could not be computed"));
@@ -913,7 +913,7 @@ private AType getPatternType0(current: (Pattern) `* <Pattern argument>`, AType s
 private AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType, Solver s){
     if(argument is typedVariable){
        uname = unescape("<argument.name>");
-       if(uname == "_"){
+       if(isWildCard(uname)){
           return s.getType(argument.\type);
        } else {
           inameType = s.getType(argument.name);
@@ -934,7 +934,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
     if(argument is qualifiedName){
          argName = argument.qualifiedName;
          base = prettyPrintBaseName(argName);
-         if(base == "_"){
+         if(isWildCard(base)){
             return subjectType;
          } else {
            elmType = subjectType;
@@ -1086,7 +1086,7 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc,
 }
 
 AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Solver s, AType subjectType){                     
-    dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
+    dontCare = [ isWildCard("<patList[i]>") | i <- index(patList) ];
     actualType = [ dontCare[i] ? avalue() : getPatternType(patList[i], avalue(), scope, s) | i <- index(patList) ];
     
     if(adtType:aadt(adtName, list[AType] _,_) := subjectType){

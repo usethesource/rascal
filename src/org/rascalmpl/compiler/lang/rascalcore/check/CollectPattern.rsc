@@ -67,7 +67,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     try {
         tpResolved = c.getType(tp)[alabel=uname];
         c.fact(current, tpResolved);
-        if(uname != "_"){
+        if(!isWildCard(uname)){
             c.push(patternNames, <uname, getLoc(name)>);
             if(aadt(adtName,_,SyntaxRole sr) := tpResolved 
                && (isConcreteSyntaxRole(sr) || adtName == "Tree")
@@ -80,7 +80,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     } catch TypeUnavailable(): {
         c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[alabel=uname]; });
     }
-    if(uname != "_"){
+    if(!isWildCard(uname)){
        c.push(patternNames, <uname, getLoc(name)>);
        c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp)[alabel=uname]; }));
     } else {
@@ -91,7 +91,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
 void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
     
-    if(uname != "_"){
+    if(!isWildCard(uname)){
        if(inPatternNames(uname, c)){
           c.use(name, {formalId()});
           c.require("typed variable pattern", current, [tp, name], 
@@ -117,7 +117,7 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
 
 void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
-    if(base != "_"){
+    if(!isWildCard(base)){
        if(inPatternNames(base, c)){
           c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
           return;
@@ -146,7 +146,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
 
 void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
-    if(base != "_"){
+    if(!isWildCard(base)){
        if(inPatternNames(base, c)){
           c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
           return;
@@ -210,7 +210,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
        argName = argument.name;
        uname = unescape("<argName>");
        
-       if(uname != "_"){
+       if(!isWildCard(uname)){
           if(!inPatternNames(uname, c)){
              c.push(patternNames, <uname, getLoc(argName)>);
           }
@@ -225,7 +225,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
     } else if(argument is qualifiedName){
         argName = argument.qualifiedName;
         <qualifier, base> = splitQualifiedName(argName);
-        if(base != "_"){
+        if(!isWildCard(base)){
            if(inPatternNames(base, c)){
               //println("qualifiedName: <name>, useLub, <getLoc(current)>");
               c.useLub(argName, variableRoles);

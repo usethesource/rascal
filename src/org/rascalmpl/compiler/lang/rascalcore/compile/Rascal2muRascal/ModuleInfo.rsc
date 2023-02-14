@@ -19,7 +19,7 @@ private list[MuExp] variable_initializations = [];	// initialized variables decl
 private set[str] overriddenLibs = {};				// Java libraries overriden for compiler
 private set[str] notOverriddenLibs = {};			// Java libraries not overridden for compiler
 
-private bool optimize = true;
+private bool optimize = false;
 private bool checkAsserts = true;
 
 // Access functions

@@ -86,10 +86,10 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
 }
 private Symbol denormalize(Symbol s) = visit (s) { 
   case \lex(n) => \sort(n)
-  case \iter-seps(u,[layouts(_),t,layouts(_)]) => \iter-seps(u,[t])
-  case \iter-star-seps(u,[layouts(_),t,layouts(_)]) => \iter-star-seps(u,[t])
-  case \iter-seps(u,[layouts(_)]) => \iter(u)
-  case \iter-star-seps(u,[layouts(_)]) => \iter-star(u)
+  case Symbol::\iter-seps(u,[Symbol::layouts(_),t,Symbol::layouts(_)]) => \iter-seps(u,[t])
+  case Symbol::\iter-star-seps(u,[Symbol::layouts(_),t,Symbol::layouts(_)]) => \iter-star-seps(u,[t])
+  case Symbol::\iter-seps(u,[Symbol::layouts(_)]) => \iter(u)
+  case Symbol::\iter-star-seps(u,[Symbol::layouts(_)]) => \iter-star(u)
   // TODO: add rule for seq
 };
 

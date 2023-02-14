@@ -2,7 +2,7 @@ module lang::rascalcore::compile::muRascal2Java::JGenie
 
 import lang::rascal::\syntax::Rascal;
 
-//import IO;
+import IO;
 import List;
 import Location;
 import Map;
@@ -48,9 +48,7 @@ data JGenie
         tuple[str,str,list[value]] () getConstants,
         bool (str con) isWildCard,
         void(set[MuExp] evars) addExternalRefs,
-        bool (MuExp exp) isExternalRef,
         void(set[MuExp] lvars) addLocalRefs,
-        bool(MuExp lvar) isLocalRef,
         bool(MuExp var) isRef,
         bool (MuExp var)varHasLocalScope,
         bool (MuExp var)varHasGlobalScope,
@@ -184,15 +182,15 @@ JGenie makeJGenie(MuModule m,
         t1 = unsetR(t, "alabel");
         tlabel = t.alabel? ? getUnqualifiedName(t.alabel) : "";
         
-        defs = {};
+        found_defs = {};
         for(Define def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId())){
             //!isConstructorType(t1) || def.defInfo.atype.alabel == t.alabel
             if((isConstructorType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.alabel == tlabel) ||
                (aadt(adtName,ps1,_) := t1 && aadt(adtName,ps2,_) := def.defInfo.atype && asubtype(ps1, ps2))){
-                defs += def;
+                found_defs += def;
             }
         }
-        for(Define def <- defs){
+        for(Define def <- found_defs){
             for(ms <- allLocs2Module, isContainedIn(def.scope, ms)){
                 defMod = allLocs2Module[ms];
                 res = defMod == moduleName ? "" : "<_getImportViaExtend(ms, defMod)><module2field(defMod)>.";
@@ -229,7 +227,7 @@ JGenie makeJGenie(MuModule m,
             for(ms <- sortedImportAndExtendScopes, mname := allLocs2Module[ms]){
                 if(tmodels[mname].definitions[src]?){
                     def = tmodels[mname].definitions[src];
-                    if(defType(AType tp) := def.defInfo){
+                    if(defType(AType _) := def.defInfo){
                         baseName = getJavaName(def.id);
                         if(isClosureName(baseName)){
                             return baseName;
@@ -538,31 +536,19 @@ JGenie makeJGenie(MuModule m,
     void _addExternalRefs(set[MuExp] vars){
         externalRefs += vars;
     }
-    
-    bool _isExternalRef(MuExp var) 
-        = var in function.externalRefs          // it is an external reference
-          && var.pos != -1                      // not a global variable
- //         && var.fuid != function.uniqueName    // not a local variable of the current function
-          
-          //&& (function.scopeIn == "" ? var notin unsetRec(function.formals, "alabel")
-          //                           : var.fuid == function.scopeIn)
-                                     
-          //&& (!(function.scopeIn == "" && var in function.formals)
-          //    || (function.scopeIn != "" && var.fuid != function.scopeIn)  // not a reference to the surrounding scope
-          //   )
-          ;
-          
+        
     void _addLocalRefs(set[MuExp] vars){
         localRefs += vars;
     }
+   
+   bool varIn(MuExp var, set[MuExp] refs)
+        = !isEmpty(refs) 
+           && any(er <- refs, er.name == var.name, er.pos == var.pos, er.fuid == var.fuid, var.pos != -1);
     
-    private bool _isLocalRef(MuExp var) = var in localRefs;
-    
-    //bool _isRef(MuExp var) {
-    //    return _isExternalRef(var) || _isLocalRef(var);
-    //}
-    
-    bool _isRef(MuExp var) { var1 = unsetRec(var, "alabel"); return _isExternalRef(var1) || _isLocalRef(var1); }
+    bool _isRef(MuExp var) { 
+        var1 = unsetRec(var, "alabel"); 
+        return  varIn(var1, function.externalRefs) || varIn(var1, localRefs);
+    }
     
     bool _varHasLocalScope(MuExp var) = var.pos >= 0 && var.fuid == function.uniqueName;
     bool _varHasGlobalScope(MuExp var) = var.pos < 0;
@@ -622,9 +608,7 @@ JGenie makeJGenie(MuModule m,
                 _getConstants,
                 _isWildCard,
                 _addExternalRefs,
-                _isExternalRef,
                 _addLocalRefs,
-                _isLocalRef,
                 _isRef,
                 _varHasLocalScope,
                 _varHasGlobalScope,

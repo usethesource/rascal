@@ -64,7 +64,7 @@ private MuExp tcc("reference", [muCon(Symbol def), muCon(str cons)]) = muCon(Par
 private MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternatives)]) = muCon(Type::\choice(def, alternatives));
 
 // Attr
-private MuExp tcc("atag", [muCon(value \tag)]) = muCon(ParseTree::\tag(\tag));
+private MuExp tcc("atag", [muCon(value \tag)]) = muCon(Attr::\tag(\tag));
 private MuExp tcc("abracket", []) = muCon(ParseTree::\bracket());
 private MuExp tcc("aassoc", [muCon(ParseTree::Associativity \asssoc)]) = muCon(ParseTree::\assoc(\asssoc));
 
@@ -120,14 +120,14 @@ private MuExp tcc("keywords", [muCon(str name)]) = muCon(ParseTree::keywords(nam
 private MuExp tcc("parameterized-sort", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
 private MuExp tcc("parameterized-lex", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
 
-private MuExp tcc("alit", [muCon(str string)]) = muCon(ParseTree::lit(string));
-private MuExp tcc("acilit", [muCon(str string)]) = muCon(ParseTree::cilit(string));
-private MuExp tcc("achar-class", [muCon(list[CharRange] ranges)]) = muCon(ParseTree::\char-class(ranges));
+private MuExp tcc("alit", [muCon(str string)]) = muCon(Symbol::lit(string));
+private MuExp tcc("acilit", [muCon(str string)]) = muCon(Symbol::cilit(string));
+private MuExp tcc("achar-class", [muCon(list[CharRange] ranges)]) = muCon(Symbol::\char-class(ranges));
 private MuExp tcc("aempty", []) = muCon(ParseTree::empty());
-private MuExp tcc("opt", [muCon(Symbol symbol)]) = muCon(ParseTree::opt(symbol));
+private MuExp tcc("opt", [muCon(Symbol symbol)]) = muCon(Symbol::opt(symbol));
 
-private MuExp tcc("iter", [muCon(Symbol symbol)]) = muCon(ParseTree::iter(symbol));
-private MuExp tcc("star", [muCon(Symbol symbol)]) = muCon(ParseTree::star(symbol));
+private MuExp tcc("iter", [muCon(Symbol symbol)]) = muCon(Symbol::iter(symbol));
+private MuExp tcc("iter-star", [muCon(Symbol symbol)]) = muCon(Symbol::\iter-star(symbol));
 private MuExp tcc("iter-seps", [muCon(Symbol symbol), muCon(list[Symbol] separators)]) = muCon(ParseTree::\iter-seps(symbol, separators));
 private MuExp tcc("iter-star-seps", [muCon(Symbol symbol), muCon(list[Symbol] separators)]) = muCon(ParseTree::\iter-star-seps(symbol, separators));
 private MuExp tcc("alt", [muCon(set[Symbol] alternatives)]) = muCon(ParseTree::alt(alternatives));

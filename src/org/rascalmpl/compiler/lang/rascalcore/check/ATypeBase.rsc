@@ -2,7 +2,6 @@ module lang::rascalcore::check::ATypeBase
 
 
 extend analysis::typepal::TypePal;
-//import analysis::typepal::Exception;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -295,14 +294,22 @@ data AType
 data AType
      = \aempty() // <11>
      | \opt(AType atype)  // <12>
-     | \iter(AType atype) // <13>
-     | \iter-star(AType atype)  // <14>
-     | \iter-seps(AType atype, list[AType] separators)      // <15> 
-     | \iter-star-seps(AType atype, list[AType] separators) // <16>
+     | \iter(AType atype, bool isLexical = false) // <13>
+     | \iter-star(AType atype, bool isLexical = false)  // <14>
+     | \iter-seps(AType atype, list[AType] separators, bool isLexical = false)      // <15> 
+     | \iter-star-seps(AType atype, list[AType] separators, bool isLexical = false) // <16>
      | \alt(set[AType] alternatives) // <17>
      | \seq(list[AType] atypes)     // <18>
      | \start(AType atype)
      ;
+     
+//public AType \iter-seps(AType atype, [])  = \iter(atype);
+//public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);
+
+// flattening rules
+public AType seq([*AType a, seq(list[AType] b), *AType c]) = seq(a + b + c);
+     
+public AType alt({*AType a, alt(set[AType] b)}) = alt(a + b);
   
 data AType // <19>
      = \conditional(AType atype, set[ACondition] conditions);
