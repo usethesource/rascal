@@ -6,23 +6,24 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.util.List;
-
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.Traverse;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
-import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class RascalExecutionContext implements IRascalMonitor {
 	private String currentModuleName;
@@ -36,6 +37,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final PathConfig pcfg;
 	private final IDEServices ideServices;
 	private final Traverse $TRAVERSE;
+	private final ModuleStore mstore;
+	private final TypeStore tstore;
+	private final TypeFactory $TF;
+	private final RascalTypeFactory $RTF;
+	private IValueFactory $VF;
 
 	public RascalExecutionContext(
 			InputStream instream,
@@ -57,7 +63,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
 		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
+		$VF = ValueFactoryFactory.getValueFactory();
+		$TF = TypeFactory.getInstance();
+		$RTF = RascalTypeFactory.getInstance();
 		$TRAVERSE = new Traverse($RVF);
+		mstore = new ModuleStore();
+		tstore = new TypeStore();
 		
 		ISourceLocation projectRoot = inferProjectRoot(clazz);
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
@@ -118,7 +129,16 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 	public void setFullModuleName(String moduleName) { currentModuleName = moduleName; }
 	
-
+	public ModuleStore getModuleStore() { return mstore; }
+	
+	public TypeStore getTypeStore() { return tstore; }
+	
+	public TypeFactory getTypeFactory() { return $TF; }
+	
+	public RascalTypeFactory getRascalTypeFactory() { return $RTF; }
+	
+	public IValueFactory getIValueFactory() { return $VF; }
+	
 	@Override
 	public int jobEnd(String name, boolean succeeded) {
 		return ideServices.jobEnd(name, succeeded);
