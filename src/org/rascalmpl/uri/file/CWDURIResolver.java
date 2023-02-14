@@ -13,27 +13,13 @@
 *******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import org.rascalmpl.uri.ILogicalSourceLocationResolver;
-import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.ISourceLocation;
-
 /**
  * For reading and writing files relative to the current working directory.
  */
-public class CWDURIResolver implements ILogicalSourceLocationResolver {
+public class CWDURIResolver extends AliasedFileResolver {
 
-	@Override
-	public String scheme() {
-		return "cwd";
+	public CWDURIResolver() {
+		super("cwd", System.getProperty("user.dir"));
 	}
 	
-	@Override
-	public ISourceLocation resolve(ISourceLocation input) {
-		return URIUtil.getChildLocation(FileURIResolver.constructFileURI(System.getProperty("user.dir")), input.getPath());
-	}
-
-	@Override
-	public String authority() {
-		return "";
-	}
 }

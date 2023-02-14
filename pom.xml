@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.28.3-SNAPSHOT</version>
+    <version>0.29.1-RC4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -31,6 +31,8 @@
         <lucence-version>7.5.0</lucence-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
+        <maven.compiler.release>11</maven.compiler.release>
+        <rascal-maven.version>0.16.2</rascal-maven.version>
     </properties>
 
 
@@ -115,13 +117,12 @@
                 <version>3.8.0</version>
                 <configuration>
                     <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
-                    <release>11</release>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.14.1</version>
+                <version>${rascal-maven.version}</version>
                 <configuration>
                     <errorsAsWarnings>true</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
@@ -156,27 +157,6 @@
                         <goals>
                             <goal>package</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>default-cli</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>tutor</goal>
-                        </goals>
-                        <configuration>
-                            <enableStandardLibrary>false</enableStandardLibrary>
-                            <errorsAsWarnings>false</errorsAsWarnings>
-                            <isPackageCourse>false</isPackageCourse>
-                            <bin>${project.build.outputDirectory}</bin>
-                            <srcs>
-                                <src>${project.basedir}/src/org/rascalmpl/courses/Rascal</src>
-                                <src>${project.basedir}/src/org/rascalmpl/library</src>
-                            </srcs>
-                            <ignores>
-                                <ignore>${project.basedir}/ignore/org/rascalmpl/library/lang/rascal</ignore>
-                                <ignore>${project.basedir}/ignore/org/rascalmpl/library/lang/c90</ignore>
-                            </ignores>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -248,7 +228,7 @@
                 <version>2.5.3</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <arguments>-Drascal.compile.skip -DskipTests</arguments>
+                    <arguments>-Drascal.compile.skip -Drascal.tutor.skip -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>

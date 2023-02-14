@@ -27,8 +27,7 @@ while the leaf nodes are labeled by terminals (characters) of the grammar.
 *  `Tree` is a subtype of the type [node]((Rascal:Values-Node)).
 *  All types (non-terminals) declared in [syntax definitions]((Rascal:Declarations-SyntaxDefinition)) are sub-types of `Tree`.
 *  All [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax)) produce parse trees with a type corresponding to a non-terminal.
-*  Trees can be annotated in various ways, see features for [IDE construction](/docs/rascalconcepts/ideconstruction/).
-   Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
+*  Trees can be annotated in various ways.  Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
 
 Parse trees are usually analyzed and constructed using [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax))
 and [concrete syntax patterns]((Rascal:Patterns-Concrete)).
@@ -501,12 +500,9 @@ nonterminal parameter. This can be used to select a specific non-terminal from t
 @javaClass{org.rascalmpl.library.Prelude}
 public java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false,  set[Tree(Tree)] filters={}); 
 
-@doc{
-.Synopsis parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.
-
-#### Description
-
-This function is similar to the [[parse]] function in its functionality. However, in case of serious ambiguity parse
+@synopsis{Parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.}
+@description{
+This function is similar to the ((parse)) function in its functionality. However, in case of serious ambiguity parse
 could be very slow. This function is much faster, because it does not try to construct an entire forest and thus avoids
 the cost of constructing nested ambiguity clusters. 
 
@@ -526,16 +522,17 @@ Yield the string of characters that form the leafs of the given parse tree.
 
 #### Description
 
-`unparse` is the inverse function of ((ParseTree-parse)), i.e., for every syntactically correct string _TXT_ of
+`unparse` is the inverse function of ((ParseTree-parse)), i.e., for every syntactically correct string `TXT` of
 type `S`, the following holds:
 ```rascal
-unparse(parse(#S, _TXT_)) == _TXT_
+unparse(parse(#S, TXT)) == TXT
 ```
 
 #### Examples
 
 ```rascal-shell
-import demo::lang::Exp::Concrete::NoLayout::Syntax;
+syntax Exp = Exp "+" Exp | Number;
+lexical Number = [0-9]+;
 import ParseTree;
 ```
 First parse an expression, this results in a parse tree. Then unparse this parse tree:
