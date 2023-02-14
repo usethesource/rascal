@@ -336,9 +336,9 @@ public Symbol lub(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)
 
 public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when lfl == rfl && ltl == rtl;
 public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when lfl != rfl || ltl != rtl;
-public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
-public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, lub(lf,rf)), \label(rtl, lub(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
-public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
+public Symbol lub(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(\label(lfl, lub(lf,rf)), \label(ltl, lub(lt,rt))) when !(\label(_,_) := rf || \label(_,_) := rt);
+public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, lub(lf,rf)), \label(rtl, lub(lt,rt))) when !(\label(_,_) := lf || \label(_,_) := lt);
+public Symbol lub(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(lub(lf,rf), lub(lt,rt)) when !(\label(_,_) := lf || \label(_,_) := lt || \label(_,_) := rf || \label(_,_) := rt);
 
 public Symbol lub(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = Symbol::\bag(lub(s, t));
 public Symbol lub(Symbol::\adt(str n, list[Symbol] _), Symbol::\node()) = Symbol::\node();
@@ -442,9 +442,9 @@ public Symbol glb(Symbol::\tuple(list[Symbol] l), Symbol::\tuple(list[Symbol] r)
 
 public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when lfl == rfl && ltl == rtl;
 public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(glb(lf,rf), glb(lt,rt)) when lfl != rfl || ltl != rtl;
-public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when \label(_,_) !:= rf && \label(_,_) !:= rt;
-public Symbol glb(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, glb(lf,rf)), \label(rtl, glb(lt,rt))) when \label(_,_) !:= lf && \label(_,_) !:= lt;
-public Symbol glb(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(glb(lf,rf), glb(lt,rt)) when \label(_,_) !:= lf && \label(_,_) !:= lt && \label(_,_) !:= rf && \label(_,_) !:= rt;
+public Symbol glb(Symbol::\map(\label(str lfl, Symbol lf), \label(str ltl, Symbol lt)), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(\label(lfl, glb(lf,rf)), \label(ltl, glb(lt,rt))) when !(\label(_,_) := rf || \label(_,_) := rt);
+public Symbol glb(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(\label(str rfl, Symbol rf), \label(str rtl, Symbol rt))) = Symbol::\map(\label(rfl, glb(lf,rf)), \label(rtl, glb(lt,rt))) when !(\label(_,_) := lf || \label(_,_) := lt);
+public Symbol glb(Symbol::\map(Symbol lf, Symbol lt), Symbol::\map(Symbol rf, Symbol rt)) = Symbol::\map(glb(lf,rf), glb(lt,rt)) when !(\label(_,_) := lf || \label(_,_) := lt || \label(_,_) := rf || \label(_,_) := rt);
 
 public Symbol glb(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = Symbol::\bag(glb(s, t));
 public Symbol glb(Symbol::\adt(str n, list[Symbol] _), Symbol::\node()) = Symbol::\node();
