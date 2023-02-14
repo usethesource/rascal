@@ -2,6 +2,7 @@
 module lang::rascalcore::check::ScopeInfo
 
 import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::NameUtils;
 import lang::rascal::\syntax::Rascal;
 
 public /*const*/ str patternContainer = "patternContainer";
@@ -18,7 +19,7 @@ public /*const*/ str inFormals = "inFormals";
 // Some utilities on patterns
 
 set[str] getAllNames(Pattern p)
-    = { "<name>" | /(Pattern) `<Type _><Name name>` := p } + { "<name>" | /QualifiedName name := p } - {"_"};
+    = { "<name>" | /(Pattern) `<Type _><Name name>` := p, !isWildCard("<name>") } + { "<name>" | /QualifiedName name := p, !isWildCard("<name>") };
     
 void beginPatternScope(str name, Collector c){
     c.clearStack(patternNames);

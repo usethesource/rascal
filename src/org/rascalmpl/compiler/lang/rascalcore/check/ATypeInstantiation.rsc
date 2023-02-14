@@ -201,10 +201,10 @@ AType instantiateRascalTypeParams(afunc(AType rt, list[AType] formals, list[Keyw
     afunc(instantiateRascalTypeParams(rt,bindings),[instantiateRascalTypeParams(f, bindings) | f <- formals], [<instantiateRascalTypeParams(ft,bindings), de> | <ft, de> <- kwFormals], varArgs=va);
 AType instantiateRascalTypeParams(areified(AType t), Bindings bindings) = areified(instantiateRascalTypeParams(t,bindings));
 AType instantiateRascalTypeParams(\start(AType s), Bindings bindings) = \start(instantiateRascalTypeParams(s,bindings));
-AType instantiateRascalTypeParams(\iter(AType s), Bindings bindings) = \iter(instantiateRascalTypeParams(s,bindings));
-AType instantiateRascalTypeParams(\iter-star(AType s), Bindings bindings) = \iter-star(instantiateRascalTypeParams(s,bindings));
-AType instantiateRascalTypeParams(\iter-seps(AType s, list[AType] seps), Bindings bindings) = \iter-seps(instantiateRascalTypeParams(s,bindings),seps);
-AType instantiateRascalTypeParams(\iter-star-seps(AType s, list[AType] seps), Bindings bindings) = \iter-star-seps(instantiateRascalTypeParams(s,bindings),seps);
+AType instantiateRascalTypeParams(\iter(AType s, isLexical = b), Bindings bindings) = \iter(instantiateRascalTypeParams(s,bindings), isLexical=b);
+AType instantiateRascalTypeParams(\iter-star(AType s, isLexical = b), Bindings bindings) = \iter-star(instantiateRascalTypeParams(s,bindings), isLexical=b);
+AType instantiateRascalTypeParams(\iter-seps(AType s, list[AType] seps, isLexical = b), Bindings bindings) = \iter-seps(instantiateRascalTypeParams(s,bindings),seps, isLexical=b);
+AType instantiateRascalTypeParams(\iter-star-seps(AType s, list[AType] seps, isLexical = b), Bindings bindings) = \iter-star-seps(instantiateRascalTypeParams(s,bindings),seps, isLexical=b);
 AType instantiateRascalTypeParams(\opt(AType s), Bindings bindings) = \opt(instantiateRascalTypeParams(s,bindings));
 AType instantiateRascalTypeParams(\conditional(AType s, set[ACondition] conds), Bindings bindings) = \conditional(instantiateRascalTypeParams(s,bindings),conds);
 //AType instantiateRascalTypeParams(\prod(AType def, list[AType] asymbols, set[AAttr] attributes=attrs, set[SyntaxKind] syntaxKind=sk, loc src=src), Bindings bindings)

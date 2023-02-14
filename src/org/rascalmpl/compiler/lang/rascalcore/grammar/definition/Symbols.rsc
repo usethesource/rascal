@@ -60,7 +60,7 @@ public AType sym2AType(Sym sym) {
     case empty() : 
       return AType::\aempty();
     case alternative(Sym first, {Sym "|"}+ alts) : 
-      return alt({sym2AType(first)} + {sym2AType(elem) | elem <- alts});
+      return AType::alt({sym2AType(first)} + {sym2AType(elem) | elem <- alts});
     case iterStar(Sym s)  : 
       return AType::\iter-star(sym2AType(s));
     case iter(Sym s)  : 
@@ -70,7 +70,7 @@ public AType sym2AType(Sym sym) {
     case iterSep(Sym s, Sym sep)  : 
       return AType::\iter-seps(sym2AType(s), [sym2AType(sep)]);
     case sequence(Sym first, Sym+ sequence) : 
-      return seq([sym2AType(first)] + [sym2AType(elem) | elem <- sequence]);
+      return AType::seq([sym2AType(first)] + [sym2AType(elem) | elem <- sequence]);
     case startOfLine(Sym s) : 
       return conditional(sym2AType(s), {ACondition::\a-begin-of-line()});
     case endOfLine(Sym s) : 
@@ -116,9 +116,9 @@ public list[AType] separgs2ATypes({Sym ","}+ args) {
 }
 
 // flattening rules for regular expressions
-public AType \seq([*AType a, \seq(list[AType] b), *AType c]) = \seq(a + b + c);
+//public AType seq([*AType a, AType::seq(list[AType] b), *AType c]) = AType::seq(a + b + c);
 
-public AType \alt({*AType a, \alt(set[AType] b)}) = \alt(a + b);
+//public AType alt({*AType a, AType::alt(set[AType] b)}) = AType::alt(a + b);
 
 // flattening for conditionals
 

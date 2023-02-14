@@ -99,12 +99,13 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                     //c.calculate("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, avalue(), scope, s); });
                     c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), scope, s); });
                     
-                    conditions = replacement is conditional ? [c | Expression c <- replacement.conditions] : [];
+                    conditions = replacement is conditional ? [(Expression)`(<Expression e>)` := c ? e : c | Expression c <- replacement.conditions] : [];
                     
                     if(replacement is conditional){
                        storeAllowUseBeforeDef(current, replacement.replacementExpression, c);
                        c.require("when conditions in replacement", replacement.conditions, conditions,
-                          void (Solver s){ for(cond <- conditions){
+                          void (Solver s){ 
+                              for(cond <- conditions){
                                   condType = s.getType(cond);
                                   if(!s.isFullyInstantiated(condType)){
                                      s.requireUnify(condType, abool(), error(cond, "Cannot unify %t with `bool`", cond));
@@ -205,7 +206,7 @@ void collect(current: (Statement) `insert <Statement expr>`, Collector c){
           collect(expr, c);
           return;
       } else {
-        throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from replacement scope: <info>");
+        throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from replacement scope: <scopeInfo>");
       }
     }
     c.report(error(current, "Insert found outside replacement context"));
@@ -467,7 +468,7 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
     for(v <- variables){
         <qualifier, base> = splitQualifiedName(v);
         if(!isEmpty(qualifier)){
-            c.useQualified([qualifier, base], name, variableRoles, {moduleId()} );
+            c.useQualified([qualifier, base], v, variableRoles, {moduleId()} );
         } else {
             c.use(v, variableRoles);
         }

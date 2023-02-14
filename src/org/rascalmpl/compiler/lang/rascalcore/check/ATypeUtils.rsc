@@ -12,7 +12,7 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeUtils
 
-extend lang::rascalcore::check::ATypeRelations;
+extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::BasicRascalConfig;
 
@@ -435,10 +435,12 @@ AType symbol2atype1(Symbol::\iter-star(Symbol symbol))
     = AType::\iter-star(symbol2atype(symbol));   
 
 AType symbol2atype1(Symbol::\iter-seps(Symbol symbol, list[Symbol] separators))
-    = AType::\iter-seps(symbol2atype(symbol), symbol2atype(nonLayout(separators)));
+    = isEmpty(separators) ? AType::iter(symbol2atype(symbol)) 
+                          : AType::\iter-seps(symbol2atype(symbol), symbol2atype(nonLayout(separators)));
     
 AType symbol2atype1(Symbol::\iter-star-seps(Symbol symbol, list[Symbol] separators))
-    = AType::\iter-star-seps(symbol2atype(symbol), symbol2atype(nonLayout(separators)));   
+    =  isEmpty(separators) ? AType::\iter-star(symbol2atype(symbol)) 
+                           : AType::\iter-star-seps(symbol2atype(symbol), symbol2atype(nonLayout(separators)));   
     
 AType symbol2atype1(Symbol::\alt(set[Symbol] alternatives)){
     return  AType::alt(symbol2atype(alternatives));  
@@ -1321,7 +1323,7 @@ default AType getStartNonTerminalType(AType s) {
 
 bool isLexicalType(aparameter(_,AType tvb)) = isLexicalType(tvb);
 bool isLexicalType(AType::\conditional(AType ss,_)) = isLexicalType(ss);
-bool isLexicalType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax(); // || adtName == "Tree";
+bool isLexicalType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax() || sr == layoutSyntax(); // || adtName == "Tree";
 bool isLexicalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isLexicalType(adt);
 bool isLexicalType(AType::\start(AType ss)) = isLexicalType(ss);
 
@@ -1329,10 +1331,10 @@ bool isLexicalType(AType:alit(str string)) = true;
 bool isLexicalType(AType:acilit(str string)) = true;
 bool isLexicalType(AType:\achar-class(list[ACharRange] ranges)) = true;
    
-bool isLexicalType(AType::\iter(AType s)) = isLexicalType(s);
-bool isLexicalType(AType::\iter-star(AType s)) = isLexicalType(s);
-bool isLexicalType(AType::\iter-seps(AType s,_)) = isLexicalType(s);
-bool isLexicalType(AType::\iter-star-seps(AType s,_)) = isLexicalType(s);
+bool isLexicalType(AType::\iter(AType s, isLexical=b)) = b; //isLexicalType(s);
+bool isLexicalType(AType::\iter-star(AType s, isLexical=b)) = b; //isLexicalType(s);
+bool isLexicalType(AType::\iter-seps(AType s,_, isLexical=b)) = b; //isLexicalType(s);
+bool isLexicalType(AType::\iter-star-seps(AType s,_, isLexical=b)) = b; //isLexicalType(s);
 
 bool isLexicalType(seq(list[AType] symbols)) = all(s <- symbols, isLexicalType(s));
 bool isLexicalType(alt(set[AType] alternatives)) = any(s <- alternatives, isLexicalType(s));
@@ -1409,11 +1411,20 @@ default AType getIterElementType(AType i) {
 }
  
 int getIterOrOptDelta(aparameter(_,AType tvb)) = getIterOrOptDelta(tvb);
-int getIterOrOptDelta(AType::\iter(AType i)) = isLexicalType(i) ? 1 : 2;
-int getIterOrOptDelta(AType::\iter-star(AType i)) = isLexicalType(i) ? 1 : 2;
-int getIterOrOptDelta(AType::\iter-seps(AType i,_)) = isLexicalType(i) ? 2 : 4;
-int getIterOrOptDelta(AType::\iter-star-seps(AType i,_)) = isLexicalType(i) ? 2 : 4;
+int getIterOrOptDelta(AType::\iter(AType i, isLexical=b)) = b ? 1 : 2;
+int getIterOrOptDelta(AType::\iter-star(AType i, isLexical=b)) = b ? 1 : 2;
+int getIterOrOptDelta(AType::\iter-seps(AType i, list[AType] seps, isLexical=b)) {
+    nseps = size(seps);
+    return b ? nseps : 1 + nseps;
+    //return 1 + nseps;
+}
+int getIterOrOptDelta(AType::\iter-star-seps(AType i, list[AType] seps, isLexical=b)) {
+    nseps = size(seps);
+    return b ? nseps : 1 + nseps;
+    //return 1 + nseps;
+}
 int getIterOrOptDelta(AType::\opt(AType i)) = 1;
+
 default int getIterOrOptDelta(AType i) {
     throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type or optional");
 }

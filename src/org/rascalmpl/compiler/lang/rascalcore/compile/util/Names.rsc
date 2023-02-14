@@ -37,9 +37,6 @@ str getQualClassName(str qname){
 }
 
 str getUnqualifiedName(str qname){
-    if("<qname>" == ""){
-        println("getUnqualifiedName: <qname>");
-    }
     n = findLast(qname, "::");
     res = n >= 0 ? qname[n+2 ..] : qname;
     return res[0] == "\\" ? res[1..] : res;

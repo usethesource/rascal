@@ -149,7 +149,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){
-                    if(size([sym | sym <- symbols]) > 0){ // switch to size on concrete syntax
+                    if(size(symbols) > 0){ // switch to size on concrete syntax
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;

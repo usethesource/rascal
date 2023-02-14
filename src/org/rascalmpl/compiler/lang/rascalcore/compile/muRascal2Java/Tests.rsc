@@ -52,7 +52,7 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            '
            '    public <className>Tests(){
            '        super(new RascalExecutionContext(System.in, System.out, System.err, null, null, <packageName>.<className>.class));
-           '        ModuleStore store = new ModuleStore();
+           '        ModuleStore store = rex.getModuleStore();
            '        store.importModule(<className>.class, this.rex, <className>::new);   
            '        $me = store.getModule(<className>.class);                     
            '    }
@@ -64,7 +64,7 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
 
 // Generate a test method per function with "test" modifier
 
-str generateTestMethod(MuFunction f, str className, JGenie jg){
+str generateTestMethod(MuFunction f, str _className, JGenie jg){
     if("test" notin f.modifiers) return "";
     
     test_name = getJavaName(f.uniqueName);

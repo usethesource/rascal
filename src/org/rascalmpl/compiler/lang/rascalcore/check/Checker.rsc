@@ -74,7 +74,10 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
                 c.define("top", fieldId(), mkTree(2), defType(TreeType));
                 c.define("src", keywordFieldId(), mkTree(3), defType(aloc())); // TODO: remove when @\loc is gone
             c.leaveScope(treeScope); 
-               
+            
+            //DefaultLayoutType = aadt("$default$", [], layoutSyntax());
+            //c.define("$default$", layoutId(), mkTree(4), defType(DefaultLayoutType));
+            
             // Reified type
             if(c.getConfig().classicReifier){
                 ;////data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
@@ -160,8 +163,9 @@ public PathConfig getDefaultPathConfig() {
 }
 public PathConfig getRascalCorePathConfig() {
    return pathConfig(   
-        srcs = [|std:///|,
+        srcs = [
                 |project://rascal/src/org/rascalmpl/library|, 
+                |std:///|,
                 |project://rascal-core/src/org/rascalmpl/core/library|,
                 //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
                 |project://typepal/src|

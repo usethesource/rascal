@@ -8,7 +8,7 @@ import lang::rascal::\syntax::Rascal;
 void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
     
-    if(uname != "_"){
+    if(!isWildCard(uname)){
        if(inPatternNames(uname, c)){
           c.use(name, {formalId()});
           c.require("typed variable pattern", current, [tp, name], 

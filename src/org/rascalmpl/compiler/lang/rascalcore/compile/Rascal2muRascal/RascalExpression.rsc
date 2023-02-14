@@ -22,6 +22,7 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::BacktrackFree;
+import lang::rascalcore::check::NameUtils;
 
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
@@ -730,11 +731,13 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
 	reachable_syms = { avalue() };
 	reachable_prods = {};
-	if(optimizing()){
-	   tc = getTypesAndConstructorsInVisit(cases);
-	   <reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, useConcreteFingerprint);
-	   //println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
-	}
+	//if(optimizing()){
+	//   tc = getTypesAndConstructorsInVisit(cases);
+	//   <reachable_syms1, reachable_prods1> = getReachableTypes(subjectType, tc.constructors, tc.types, useConcreteFingerprint);
+	//   reachable_syms = reachable_syms1;
+	//   reachable_prods = reachable_prods1;
+	//   println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
+	//}
 	
 	ddescriptor = descendantDescriptor(useConcreteFingerprint, reachable_syms, reachable_prods, getReifiedDefinitions());
 		
@@ -1154,7 +1157,7 @@ MuExp translate(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+
 private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`, bool isGuarded){
    op = isGuarded ? "guarded_subscript" : "subscript";
    access = muPrim(op, avalue() /*getType(e)*/, getType(exp) + [getType(s) | s <- subscripts],
-                       translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | Expression s <- subscripts], e@\loc);
+                       translate(exp) + [isWildCard("<s>") ? muCon("_") : translate(s) | Expression s <- subscripts], e@\loc);
    
    return access;
 }
@@ -1424,7 +1427,7 @@ MuExp translate(e: (Expression) `<Expression lhs> ? <Expression rhs>`) {
 }
 
 MuExp translateBool(e:(Expression) `<Expression lhs> ? <Expression rhs>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont)
-    = translateIfDefinedOtherwise(muBlock([translate(lhs), trueCont]), muBlock([translate(rhs), falseCont]));
+    = translateIfDefinedOtherwise(muBlock([translate(lhs), trueCont]), muBlock([translate(rhs), falseCont]), e@\loc);
     
 
 public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc _src) {
@@ -1463,16 +1466,16 @@ MuExp translate(e:(Expression) `!<Expression exp>`) {
     while( (Expression) `(<Expression exp2>)` := exp){
         exp = exp2;
     }
-    return switch(exp){
+    switch(exp){
         case (Expression) `! <Expression exp2>`:
             return translate(exp2);
-        case e:(Expression) `<Expression exp1> in <Expression exp2>`:
+        case e:(Expression) `<Expression _> in <Expression _>`:
             return infix("notin", e);
-        case e: (Expression) `<Expression exp1> notin <Expression exp2>`:
+        case e: (Expression) `<Expression _> notin <Expression _>`:
             return infix("in", e);
-        case e: (Expression) `<Expression exp1> == <Expression exp2>`:
+        case e: (Expression) `<Expression _> == <Expression _>`:
             return infix("notequal", e);
-        case e: (Expression) `<Expression exp1> != <Expression exp2>`:
+        case e: (Expression) `<Expression _> != <Expression _>`:
             return infix("equal", e);
         case e:(Expression) `<Pattern pat> := <Expression exp2>`:
             return translateNoMatchOp(e, pat, exp2,  getBTScopes(e, nextTmp("MATCH")));
@@ -1493,16 +1496,16 @@ MuExp translateBool((Expression) `!<Expression exp>`, BTSCOPES btscopes, MuExp t
     while( (Expression) `(<Expression exp2>)` := exp){
         exp = exp2;
     }
-    return switch(exp){
+    switch(exp){
         case (Expression) `! <Expression exp2>`:
             return muIfExp(translate(exp2), trueCont, falseCont);
-        case e:(Expression) `<Expression exp1> in <Expression exp2>`:
+        case e:(Expression) `<Expression _> in <Expression _>`:
             return muIfExp(infix("notin", e), trueCont, falseCont);
-        case e: (Expression) `<Expression exp1> notin <Expression exp2>`:
+        case e: (Expression) `<Expression _> notin <Expression _>`:
             return muIfExp(infix("in", e), trueCont, falseCont);
-        case e: (Expression) `<Expression exp1> == <Expression exp2>`:
+        case e: (Expression) `<Expression _> == <Expression _>`:
             return muIfExp(infix("notequal", e), trueCont, falseCont);
-        case e: (Expression) `<Expression exp1> != <Expression exp2>`:
+        case e: (Expression) `<Expression _> != <Expression _>`:
             return muIfExp(infix("equal", e), trueCont, falseCont);
         case e:(Expression) `<Pattern pat> := <Expression exp2>`:
             return muIfExp(translateNoMatchOp(e, pat, exp2,  btscopes), trueCont, falseCont);

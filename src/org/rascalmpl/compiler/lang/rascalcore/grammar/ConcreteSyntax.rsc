@@ -71,7 +71,9 @@ private str denormalize(AType s) = prettyAType(visit (s) {
   case AType::\iter-seps(u, [l1, t, l2]) => \iter-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
   case AType::\iter-star-seps(u,[l1,t,l2]) => \iter-star-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
   case AType::\iter-seps(u, [l]) => \iter(u) when isLayoutSyntax(l)
+  case AType::\iter-seps(u, []) => \iter(u)
   case AType::\iter-star-seps(AType u, [l]) => \iter-star(u) when isLayoutSyntax(l)
+  case AType::\iter-star-seps(AType u, []) => \iter-star(u)
   // TODO: add rule for seq
 });
 

@@ -24,9 +24,9 @@ public AAttr mod2attr(ProdModifier m) {
   switch (m) {
     case \associativity(\left())                : return \aassoc(AAssociativity::aleft());
     case \associativity(\right())               : return \aassoc(AAssociativity::aright());
-    case \associativity(\nonAssociative())      : return \aassoc(\a-non-assoc());
-    case \associativity(\associative())         : return \aassoc(\aassoc());
-    case \bracket()                             : return \abracket();
+    case \associativity(\nonAssociative())      : return \aassoc(AAssociativity::\a-non-assoc());
+    case \associativity(\associative())         : return \aassoc(AAssociativity::\aassoc());
+    case \bracket()                             : return AAttr::\abracket();
     case \tag(\default(Name n, TagString s))    : return \atag("<n>"("<s>"));
     case \tag(\empty(Name n))                   : return \atag("<n>"()); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  

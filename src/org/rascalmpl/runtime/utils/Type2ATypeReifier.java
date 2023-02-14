@@ -10,6 +10,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.DefaultTypeVisitor;
 import io.usethesource.vallang.type.Type;
 
+/*** NOT USED ANYMORE ***/
 public class Type2ATypeReifier extends ATypeFactory {
 	
 	protected IString empty = $VF.string("");

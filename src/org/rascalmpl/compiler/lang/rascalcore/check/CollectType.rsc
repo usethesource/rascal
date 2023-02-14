@@ -17,8 +17,9 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
+import lang::rascalcore::check::ScopeInfo;
 
-//import IO;
+import IO;
 import List;
 import Node;
 import Set;
@@ -537,37 +538,52 @@ bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }*`) = true;
 default bool isIterSym(Sym sym) = false;
 
 
+bool isLexicalContext(Collector c){
+    adtStack = c.getStack(currentAdt);
+    if(!isEmpty(adtStack) && <Tree adt, list[KeywordFormal] _, _> := adtStack[0]){
+        return !(adt is language);
+    } 
+    return false;
+}
+
 void collect(current:(Sym) `<Sym symbol>+`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    isLexical = isLexicalContext(c);
     c.calculate("iter", current, [symbol], AType(Solver s) { 
-        return \iter(getSyntaxType(symbol, s)); });
+        return isLexical ? \iter(getSyntaxType(symbol, s), isLexical=true) : \iter(getSyntaxType(symbol, s));
+    });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
-    c.calculate("iterStar", current, [symbol], AType(Solver s) { return \iter-star(getSyntaxType(symbol, s)); });
+    isLexical = isLexicalContext(c);
+    c.calculate("iterStar", current, [symbol], AType(Solver s) { 
+        return isLexical ? \iter-star(getSyntaxType(symbol, s), isLexical=true) : \iter-star(getSyntaxType(symbol, s));
+    });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
-     c.calculate("iterSep", current, [symbol, sep], 
+    isLexical = isLexicalContext(c);
+    c.calculate("iterSep", current, [symbol, sep], 
         AType(Solver s) { 
             seps = [s.getType(sep)];
             validateSeparators(current, seps, s);
-            return \iter-seps(getSyntaxType(symbol, s), seps); 
+            return isLexical ? \iter-seps(getSyntaxType(symbol, s), seps, isLexical=true) : \iter-seps(getSyntaxType(symbol, s), seps);
         });
     collect(symbol, sep, c);
 }
 
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    isLexical = isLexicalContext(c);
     c.calculate("iterStarSep", current, [symbol, sep], 
         AType(Solver s) { 
             seps = [s.getType(sep)];
             validateSeparators(current, seps, s);
-            return \iter-star-seps(getSyntaxType(symbol, s), seps); 
+            return isLexical ? \iter-star-seps(getSyntaxType(symbol, s), seps, isLexical=true) : \iter-star-seps(getSyntaxType(symbol, s), seps);
         });
     collect(symbol, sep, c);
 }
@@ -591,7 +607,7 @@ void collect(current:(Sym) `<Sym symbol>?`, Collector c){
 
 void collect(current:(Sym) `( <Sym first> | <{Sym "|"}+ alternatives> )`, Collector c){
     alts = first + [alt | alt <- alternatives];
-    c.calculate("alternative", current, alts, AType(Solver s) { return \alt({s.getType(alt) | alt <- alts}); });
+    c.calculate("alternative", current, alts, AType(Solver s) { return AType::alt({s.getType(alt) | alt <- alts}); });
     collect(alts, c);
 }
 
@@ -601,7 +617,7 @@ void collect(current:(Sym) `( <Sym first> <Sym+ sequence> )`, Collector c){
         AType(Solver s) { 
             symbols = [s.getType(seq) | seq <- seqs];
             forbidConsecutiveLayout(current, symbols, s);
-            return \seq(symbols); 
+            return AType::seq(symbols); 
         });
     collect(seqs, c);
 }
