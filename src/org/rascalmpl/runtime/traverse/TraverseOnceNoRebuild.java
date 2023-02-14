@@ -94,9 +94,18 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 			boolean hasMatched = false;
 
 			if (TreeAdapter.isTop(tree)) {
+				tr.setMatchedAndChanged(false, false);		// visit layout before
+				tr.traverse.once(list.get(0), tr);
+				hasChanged |= tr.hasChanged();
+				hasMatched |= tr.hasMatched();
+				
 				tr.setMatchedAndChanged(false, false);
 				tr.traverse.once(list.get(1), tr);
-
+				hasChanged |= tr.hasChanged();
+				hasMatched |= tr.hasMatched();
+				
+				tr.setMatchedAndChanged(false, false);		// visit layout after
+				tr.traverse.once(list.get(2), tr);
 				hasChanged |= tr.hasChanged();
 				hasMatched |= tr.hasMatched();
 			} 

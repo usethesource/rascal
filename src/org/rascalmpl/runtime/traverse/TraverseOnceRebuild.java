@@ -134,12 +134,23 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 			boolean hasMatched = false;
 
 			if (TreeAdapter.isTop(tree)) {
-				w.append(list.get(0)); // copy layout before
+				//w.append(list.get(0)); // copy layout before
+				
+				tr.setMatchedAndChanged(false, false);			// visit layout before
+				w.append(tr.traverse.once(list.get(0), tr));
+				hasChanged |= tr.hasChanged();
+				hasMatched |= tr.hasMatched();
+				
 				tr.setMatchedAndChanged(false, false);
 				w.append(tr.traverse.once(list.get(1), tr));
 				hasChanged |= tr.hasChanged();
 				hasMatched |= tr.hasMatched();
-				w.append(list.get(2)); // copy layout after
+				
+				//w.append(list.get(2)); // copy layout after
+				tr.setMatchedAndChanged(false, false);			// visit layout after
+				w.append(tr.traverse.once(list.get(2), tr));
+				hasChanged |= tr.hasChanged();
+				hasMatched |= tr.hasMatched();
 			} 
 			else { 
 				for (int i = 0; i < len; i++){
@@ -157,6 +168,7 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 
 			tr.setMatchedAndChanged(hasMatched, hasChanged);
 			args[1] = w.done();
+			System.err.println(args[1]);
 		} else {
 			args[1] = list;
 		}
