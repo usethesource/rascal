@@ -88,7 +88,7 @@ public abstract class StaticError extends RuntimeException {
 	public String getAdvice(){
 		String prefix = "https://www.rascal-mpl.org/docs/Rascal/Errors/CompileTimeErrors/";
 		String cn = getClass().getSimpleName();
-		return "Advice: |" + prefix + cn + "/" + cn + ".html|";
+		return "Advice: |" + prefix + cn + "|";
 	}
 	
 	@Override
