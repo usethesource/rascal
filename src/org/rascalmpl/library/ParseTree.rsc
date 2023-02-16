@@ -61,7 +61,7 @@ You can analyze and manipulate parse trees in three ways:
 *  Directly on the `Tree` level, just like any other [algebraic data type]((Rascal:Declarations-AlgebraicDataType)).
 *  Using [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax))
 and [concrete syntax patterns]((Rascal:Patterns-Concrete)).
-*  Using [actions]((Rascal:SyntaxDefinition-Action)).
+*  Using [actions]((Rascal:Disambiguation-Action)).
 
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
 Each such a non-terminal type has `Tree` as its immediate super-type.
