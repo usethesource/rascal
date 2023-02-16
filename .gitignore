@@ -20,6 +20,8 @@ bin/
 bootstrap/
 pom.xml.releaseBackup
 release.properties
+pom.xml.versionsBackup
+rascal-DEPENDENCIES.txt
 
 .DS_Store
 /.apt_generated/
