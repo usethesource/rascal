@@ -57,7 +57,7 @@ data M3(
 	rel[loc name, loc src] declarations = {},	// maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
 	rel[loc name, TypeSymbol typ] types = {},	// assigns types to declared source code artifacts
 	rel[loc src, loc name] uses = {},			// maps source locations of usages to the respective declarations
-	rel[loc from, loc to] containment = {},		// what is logically contained in what else (not necessarily physically, but usually also)
+	rel[loc from, loc to] containment = {},		// what inner declaration (to) is logically contained in what outer declaration (`from`) (not necessarily physically, but usually also)
 	list[Message] messages = [],				// error messages and warnings produced while constructing a single m3 model
 	rel[str simpleName, loc qualifiedName] names = {},		// convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 	rel[loc definition, loc comments] documentation = {},	// comments and javadoc attached to declared things
