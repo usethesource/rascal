@@ -249,12 +249,12 @@ public class PathConfig {
 		return result;
 	}
 	
-	private static List<ISourceLocation> computeDefaultClassLoaders() {
+	private static List<ISourceLocation> computeDefaultClassLoaders() throws URISyntaxException {
         List<ISourceLocation> result = new ArrayList<>();
         String javaClasspath = System.getProperty("java.class.path");
         if (javaClasspath != null) {
             for (String path : javaClasspath.split(File.pathSeparator)) {
-                result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
+                result.add(URIUtil.createFileLocation(new File(path).getAbsolutePath()));
             }
         }
         else {
@@ -263,13 +263,13 @@ public class PathConfig {
         return result;
     }
 
-    private static List<ISourceLocation> computeDefaultJavaCompilerPath() {
+    private static List<ISourceLocation> computeDefaultJavaCompilerPath() throws URISyntaxException {
         List<ISourceLocation> result = new ArrayList<>();
         String classPath = System.getProperty("java.class.path");
         
         if (classPath != null) {
             for (String path : classPath.split(File.pathSeparator)) {
-                result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
+                result.add(URIUtil.createFileLocation(new File(path).getAbsolutePath()));
             }
         }
         
